@@ -17,6 +17,7 @@
 #include <mps/gmptools.h>
 #include <mps/mps.h>
 #include <mps/cluster.h>
+#include <math.h>
 
 /**
  * @brief Get an empty mps_cluster, with no roots.
@@ -961,13 +962,17 @@ mps_mcluster (mps_context * s, rdpe_t * drad, int nf)
 void 
 mps_clusterization_detach_clusters (mps_context * s, mps_clusterization * c)
 {
-  mps_cluster_item * item;
-  cdpe_t droot;
-  rdpe_t rtmp, precision;
-  int k;
+  MPS_DEBUG_THIS_CALL;
 
-  /* if (s->algorithm == MPS_ALGORITHM_SECULAR_GA)  */
-  /*   return;  */
+  /* Disable this function since it is not working as it should. */
+  /* The problem, now, is that more than a root could be removed from
+   * a cluster and will be then marked as isolated even if it is only isolated
+   * from the base cluster and from the other detached roots. */
+  return;
+
+  mps_cluster_item * item;
+  rdpe_t rtmp;
+  int k;
   
   for (item = c->first; item != NULL; item = item->next)
     {
@@ -982,12 +987,17 @@ mps_clusterization_detach_clusters (mps_context * s, mps_clusterization * c)
       while (root != NULL)
         {
           k = root->k;
-          mpc_get_cdpe (droot, s->root[k]->mvalue);
-          cdpe_mod (rtmp, droot);
+          mpc_rmod (rtmp, s->root[k]->mvalue);
 
-          rdpe_set_dl (precision, 1, (long int) ((1 - 0.5 * s->mpwp) * LOG10_2
-                                                 + rdpe_log10 (rtmp)));
-          if (rdpe_lt (s->root[k]->drad, precision))
+          /* We need a complex condition here since the heuristic used to determine if a root
+           * is a simple root in a cluster is based on Newton radii. 
+           * These have different behavious based on the algorithm that has been selected, so
+           * we introduce here two different guesses that work in each one. */
+          if (((s->algorithm == MPS_ALGORITHM_STANDARD_MPSOLVE) && 
+                ((rdpe_Esp (rtmp) - rdpe_Esp (s->root[k]->drad) > s->mpwp / sqrt(item->cluster->n) + 1) ||
+                (s->root[k]->status == MPS_ROOT_STATUS_APPROXIMATED_IN_CLUSTER))) ||
+              ((s->algorithm == MPS_ALGORITHM_SECULAR_GA) &&
+                (rdpe_Esp (rtmp) - rdpe_Esp (s->root[k]->drad) > s->mpwp - 4)))
             {
               if (s->debug_level & MPS_DEBUG_CLUSTER)
                 {

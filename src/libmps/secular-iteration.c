@@ -104,6 +104,9 @@ __mps_secular_ga_fiterate_worker (void* data_ptr)
 
               /* Correct the radius */
               modcorr = cplx_mod (abcorr);
+
+              // MPS_DEBUG (s, "Adding %e to radius (%e)", modcorr, s->root[i]->frad);
+              // MPS_DEBUG_CPLX (s, corr, "Newton correction");
               s->root[i]->frad += modcorr;
             }
 
@@ -170,7 +173,7 @@ mps_secular_ga_fiterate (mps_context * s, int maxit, mps_boolean just_regenerate
       /* Set again to false if the root is already approximated. If a root is approximated but
        * it has less digits than the current precision don't stop the iterations on that component. */
       if (s->root[i]->status == MPS_ROOT_STATUS_ISOLATED ||
-          (s->root[i]->status == MPS_ROOT_STATUS_APPROXIMATED && (s->mpwp < s->output_config->prec)))
+          s->root[i]->status == MPS_ROOT_STATUS_APPROXIMATED)
         {
           if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
             {
@@ -325,8 +328,8 @@ __mps_secular_ga_diterate_worker (void* data_ptr)
 	  /* Correct the radius */
          if (s->root[i]->again)
            {
-	     cdpe_mod (modcorr, abcorr);
-	     rdpe_add_eq (s->root[i]->drad, modcorr);
+	           cdpe_mod (modcorr, abcorr);
+	           rdpe_add_eq (s->root[i]->drad, modcorr);
            }
 
           if (!s->root[i]->again || s->root[i]->approximated)
@@ -398,7 +401,7 @@ mps_secular_ga_diterate (mps_context * s, int maxit, mps_boolean just_regenerate
       /* Set again to false if the root is already approximated. If a root is approximated but
        * it has less digits than the current precision don't stop the iterations on that component. */
       if (s->root[i]->status == MPS_ROOT_STATUS_ISOLATED ||
-          (s->root[i]->status == MPS_ROOT_STATUS_APPROXIMATED && (s->mpwp < s->output_config->prec)))
+          s->root[i]->status == MPS_ROOT_STATUS_APPROXIMATED)
         {
           if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
             {
@@ -652,7 +655,7 @@ mps_secular_ga_miterate (mps_context * s, int maxit, mps_boolean just_regenerate
       /* Set again to false if the root is already approximated. If a root is approximated but
        * it has less digits than the current precision don't stop the iterations on that component. */
       if (s->root[i]->status == MPS_ROOT_STATUS_ISOLATED ||
-          (s->root[i]->status == MPS_ROOT_STATUS_APPROXIMATED && (s->mpwp < s->output_config->prec)))
+          s->root[i]->status == MPS_ROOT_STATUS_APPROXIMATED)
         {
           if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
             {

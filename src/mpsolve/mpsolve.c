@@ -25,6 +25,11 @@
 #include <config.h>
 #endif
 
+ #ifdef HAVE_GTK
+ #include <gtk/gtk.h>
+ #include <iteration-logger.h>
+ #endif
+
 mps_context * s = NULL;
 
 #ifndef __WINDOWS
@@ -125,6 +130,9 @@ usage (mps_context * s, const char *program)
            "               p: Debug stop condition and development of iteration packets\n"
            "               r: Regeneration\n"
            "               Example: -dfi for function calls and improvement\n"
+#if HAVE_GTK           
+           " -x          Enable graphic visualization of convergence\n"
+#endif           
            " -S set      If specified, restrict the search set for the roots to set. \n"
            "             set can be one of:\n"
            "               u: Semiplane { x | Im(x) > 0 } \n"
@@ -166,6 +174,32 @@ usage (mps_context * s, const char *program)
   exit (EXIT_FAILURE);
 }
 
+void*
+cleanup_context (mps_context * ctx, void * user_data)
+{
+  mps_boolean * graphic_debug = (mps_boolean*) user_data;
+
+  /* Check for errors */
+  if (mps_context_has_errors (ctx))
+    {
+      mps_print_errors (ctx);
+      return NULL;
+    }
+
+  /* Output the roots */
+  mps_output (ctx);
+
+  /* Free used data */
+  mps_context_free (ctx);
+
+#if HAVE_GTK
+  if (*graphic_debug)
+    gtk_main_quit ();
+#endif
+
+  return NULL;
+}
+
 int
 main (int argc, char **argv)
 {
@@ -185,8 +219,10 @@ main (int argc, char **argv)
   mps_opt *opt;
   mps_phase phase = no_phase;
 
+  mps_boolean graphic_debug = false;
+
   opt = NULL;
-  while ((mps_getopts (&opt, &argc, &argv, "a:G:D:d::t:o:O:j:S:O:i:vl:")))
+  while ((mps_getopts (&opt, &argc, &argv, "a:G:D:d::xt:o:O:j:S:O:i:vl:")))
     {
       switch (opt->optchar)
         {
@@ -447,6 +483,11 @@ main (int argc, char **argv)
                 }
             }
           break;
+
+        case 'x':
+          graphic_debug = true;
+          break;
+
         case 't':
           switch (opt->optvalue[0])
             {
@@ -470,6 +511,16 @@ main (int argc, char **argv)
           break;
         }
     }
+
+#ifdef HAVE_GTK
+  if (graphic_debug)
+  {
+    gtk_init (&argc, &argv);
+    MpsIterationLogger * logger = mps_iteration_logger_new ();
+    mps_iteration_logger_set_mps_context (logger, s);
+    gtk_widget_show_all (GTK_WIDGET (logger->window));
+  }
+#endif
 
   if (mps_context_has_errors (s))
     {
@@ -505,18 +556,19 @@ main (int argc, char **argv)
   mps_context_set_starting_phase (s, phase);
 
   /* Solve the polynomial */
-  mps_mpsolve (s);
+  #if HAVE_GTK
+  if (graphic_debug)
+  {
+    mps_mpsolve_async (s, cleanup_context, &graphic_debug);
+    gtk_main ();
+  }
+  else
+  {
+  #endif
+    mps_mpsolve (s);
+    cleanup_context (s, &graphic_debug);
+  #if HAVE_GTK
+  }
+  #endif
 
-  /* Check for errors */
-  if (mps_context_has_errors (s))
-    {
-      mps_print_errors (s);
-      return EXIT_FAILURE;
-    }
-
-  /* Output the roots */
-  mps_output (s);
-
-  /* Free used data */
-  mps_context_free (s);
 }

@@ -1411,6 +1411,95 @@ mps_drestart (mps_context * s)
     }
 }
 
+/**
+ * @brief Walk through the clusterization to find clusters that were detached
+ * from the given one. Check if they were detached correctly according to the 
+ * new inclusion radii computed by mps_mrestart().
+ *
+ * @param ctx The context in which MPSolve is running.
+ * @param clusterization The clusterization where clusters should be looked up
+ * @param cluster_item The item containing the cluster from which the other clusters
+ * may have been detached. 
+ */
+static void
+mps_cluster_check_detachment (mps_context * ctx, mps_clusterization * clusterization, 
+    mps_cluster_item * cluster_item)
+{
+  MPS_DEBUG_CALL (ctx, "mps_cluster_check_detachment");
+
+  mps_cluster_item * item = NULL;
+  mps_cluster * cluster = cluster_item->cluster;
+  rdpe_t radius, distance_abs;
+  mpc_t center, distance;
+
+  mpc_init2 (center, ctx->mpwp);
+  mpc_init2 (distance, ctx->mpwp);
+
+  mps_msrad (ctx, cluster, center, radius);
+  rdpe_mul_eq_d (radius, 2.0 * ctx->n);
+
+  for (item = clusterization->first; item != NULL; item = item->next)
+    {
+      mps_cluster * detached_cluster = item->cluster;
+      if (item->detached == cluster_item)
+        {
+          int k = detached_cluster->first->k;
+          mpc_sub (distance, center, ctx->root[k]->mvalue);
+          mpc_rmod (distance_abs, distance);
+
+          if (rdpe_lt (distance_abs, radius))
+            {
+              if (ctx->debug_level & MPS_DEBUG_CLUSTER)
+                MPS_DEBUG (ctx, 
+                  "Cluster containing root %d has not been correctly detached, reattaching.", k);
+
+              mps_cluster_insert_root (ctx, cluster, k);
+              mps_clusterization_remove_cluster (ctx, clusterization, item);
+            }
+          else 
+            {
+              if (ctx->debug_level & MPS_DEBUG_CLUSTER)
+                MPS_DEBUG (ctx, 
+                  "Cluster containing root %d was successfuly detached.", k)
+
+              /* We need to stop marking this cluster as detached, that means
+               * "experimental" in this context. */
+              item->detached = NULL;
+            }
+        }
+    }
+
+  mpc_clear (center);
+  mpc_clear (distance);
+}
+
+static void
+mps_cluster_reattach_all_detached_clusters (mps_context * ctx, mps_clusterization * clusterization,
+    mps_cluster_item * cluster_item)
+{
+  MPS_DEBUG_CALL (ctx, "mps_cluster_reattach_all_detached_clusters");
+
+  mps_cluster_item * item = NULL;
+  mps_cluster * cluster = cluster_item->cluster;
+
+  /* Find cluster that have been detached from this and
+   * attach them. */
+  for (item = clusterization->first; item != NULL; item = item->next)
+  {
+    mps_cluster *d_cluster = item->cluster;
+
+    if (item->detached == cluster_item)
+    {
+      if (ctx->debug_level & MPS_DEBUG_CLUSTER)
+        MPS_DEBUG (ctx, 
+          "Reattaching root %ld to its original cluster", d_cluster->first->k);
+
+      mps_cluster_insert_root (ctx, cluster, d_cluster->first->k);
+      mps_clusterization_remove_cluster (ctx, clusterization, item);
+    }
+  }
+}
+
 /*************************************************************
  *                     SUBROUTINE MRESTART                    *
  *************************************************************/
@@ -1450,10 +1539,8 @@ mps_mrestart (mps_context * s)
   mpc_init2 (corr, s->mpwp);
   mpc_init2 (temp, s->mpwp);
 
-  /* Try to detach quasi-convergent elements from
-   * the clusters */
-  /* mps_cluster_detach (s, MPS_ALL_CLUSTERS); */
-  /* mps_clusterization_detach_clusters (s, s->clusterization);  */
+  /* Try to detach quasi-convergent elements from the clusters */
+  mps_clusterization_detach_clusters (s, s->clusterization);
 
   k = 0;
   for (c_item = s->clusterization->first; c_item != NULL; c_item = c_item->next)
@@ -1467,16 +1554,13 @@ mps_mrestart (mps_context * s)
       if (cluster->n == 1)
         continue;
 
-      /* Raise the precision to s->mpwp * cluster->n */
-      /* mps_prepare_data (s, starting_wp * cluster->n);  */
-      /* s->mpwp = starting_wp * cluster->n; */
-
       tst = true;
       for (root = cluster->first; root != NULL; root = root->next)
         {                       /* looptst: */
           l = root->k;
-          if (!s->root[l]->again && s->algorithm == MPS_ALGORITHM_STANDARD_MPSOLVE)
-            goto loop1;
+          // if (!s->root[l]->again && s->algorithm == MPS_ALGORITHM_STANDARD_MPSOLVE)
+          //   goto clean_detached_cluster;
+
           if (s->output_config->goal == MPS_OUTPUT_GOAL_COUNT)
             {
               if (s->root[l]->status == MPS_ROOT_STATUS_CLUSTERED &&
@@ -1497,7 +1581,7 @@ mps_mrestart (mps_context * s)
         }                       /* for */
 
       if (tst)
-        goto loop1;
+        goto clean_detached_cluster;
 
       /* Compute super center sc and super radius sr */
       mps_msrad (s, cluster, sc, sr);
@@ -1528,8 +1612,7 @@ mps_mrestart (mps_context * s)
             s->root[root->k]->status = MPS_ROOT_STATUS_CLUSTERED;
           MPS_DEBUG (s, "Cluster relat. large: skip to the next component");
 
-          mps_clusterization_reassemble_clusters (s, s->clusterization);
-          goto loop1;
+          goto clean_detached_cluster;
         }
 
       /* Now check the Newton isolation of the cluster */
@@ -1562,7 +1645,7 @@ mps_mrestart (mps_context * s)
           for (root = cluster->first; root != NULL; root = root->next)
             s->root[root->k]->status = MPS_ROOT_STATUS_CLUSTERED;
           MPS_DEBUG (s, "Cluster not Newton isolated: skip to the next component");
-          goto loop1;
+          goto clean_detached_cluster;
         }
 
       mps_debug_cluster_structure (s);
@@ -1630,9 +1713,8 @@ mps_mrestart (mps_context * s)
         {
           if (s->debug_level & MPS_DEBUG_CLUSTER)
             MPS_DEBUG (s, "Exceeded maximum number of Newton iterations.");
-          /* mps_cluster_reassemble (s, MPS_ALL_CLUSTERS); */
-          mps_clusterization_reassemble_clusters (s, s->clusterization);
-          goto loop1;
+
+          goto clean_detached_cluster;
         }
 
       mpc_sub (temp, sc, g->mvalue);
@@ -1642,7 +1724,7 @@ mps_mrestart (mps_context * s)
         {
           if (s->debug_level & MPS_DEBUG_CLUSTER)
             MPS_DEBUG (s, "The gravity center falls outside the cluster");
-          goto loop1;
+          goto clean_detached_cluster;
         }
 
       /* shift the variable and compute new approximations */
@@ -1693,28 +1775,27 @@ mps_mrestart (mps_context * s)
                 }
             }
 
+          /* Check if the clusters that have been detached from this have been
+           * detached for a good reason. */
+          mps_cluster_check_detachment (s, s->clusterization, c_item);
         }
       else
         {
           if (s->debug_level & MPS_DEBUG_CLUSTER)
             MPS_DEBUG (s, "DO NOT PERFORM RESTART, "
                        "new radius of the cluster is larger");
-          mps_clusterization_reassemble_clusters (s, s->clusterization);
 
-          goto loop1;
+          goto clean_detached_cluster;
         }
 
-    loop1:
+    clean_detached_cluster:
+      mps_cluster_reattach_all_detached_clusters (s, s->clusterization, c_item);
+
       if (g != NULL)
         {
           mps_approximation_free (s, g);
           g = NULL;
         }
-
-      /* Lower the precision before exiting */
-      mps_prepare_data (s, starting_wp); 
-      s->mpwp = starting_wp; 
-      ;
     }
 
   mpc_clear (temp);

@@ -373,6 +373,4 @@ mps_fhorner_with_error (mps_context * s, mps_monomial_poly * p, cplx_t x, cplx_t
     }
 
   *error *= DBL_EPSILON;
-  MPS_DEBUG (s, "Error = %e", *error);
-  MPS_DEBUG (s, "p->fap[%d] = %e", j+1, p->fap[j+1]);
 }

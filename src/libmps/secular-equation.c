@@ -507,10 +507,8 @@ mps_secular_raise_coefficient_precision (mps_context * s, mps_polynomial * p, lo
 
   pthread_mutex_unlock (&sec->precision_mutex);
 
-  rdpe_set_2dl (s->mp_epsilon, 1.0, -wp);
-  MPS_DEBUG_WITH_INFO (s, "Precision of the coefficients is now at %ld bits", wp);
-  if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
-    MPS_DEBUG_RDPE (s, s->mp_epsilon, "Machine epsilon is s->mp_epsilon");
+  if (s->debug_level & MPS_DEBUG_MEMORY)
+    MPS_DEBUG_WITH_INFO (s, "Precision of the coefficients is now at %ld bits", wp);
 
   return mpc_get_prec (sec->ampc[0]);
 }
@@ -557,7 +555,9 @@ mps_secular_raise_precision (mps_context * s, int wp)
 
   mps_secular_raise_coefficient_precision (s, MPS_POLYNOMIAL (s->secular_equation), wp);
   mps_secular_raise_root_precision (s, wp);
+
   s->mpwp = wp;
+  rdpe_set_2dl (s->mp_epsilon, 1.0, -wp);
 
   s->just_raised_precision = true;
 

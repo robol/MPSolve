@@ -16,6 +16,15 @@
  */
 test_pol **test_polynomials;
 
+int test_secsolve_on_pol_impl (test_pol*, mps_output_goal);
+
+int 
+test_secsolve_on_pol (test_pol * pol)
+{
+  return test_secsolve_on_pol_impl (pol, MPS_OUTPUT_GOAL_ISOLATE) &&
+    test_secsolve_on_pol_impl (pol, MPS_OUTPUT_GOAL_APPROXIMATE);
+}
+
 /**
  * @brief This function tests the resolution of a polynomial file
  * referenced by <code>pol</code>.
