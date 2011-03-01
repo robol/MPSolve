@@ -60,8 +60,11 @@ if __name__ == "__main__":
 
         else:
             print "done"
-            if target != "all":
-                p = subprocess.Popen("make %s" % target, shell=True)
+            if target == "check":
+                p = subprocess.Popen("make check", shell=True)
+                p.wait()
+            elif target == "test":
+                p = subprocess.Popen(["bash", "./Maketest","all"])
                 p.wait()
             
             debug("Dropping you to a shell with the compiled binaries. Press CTRL+D to ")

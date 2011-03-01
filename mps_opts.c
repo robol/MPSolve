@@ -53,6 +53,8 @@ parse_opts(int argc, char *argv[])
         prec_in = atol(argv[i] + 2);
         if (prec_in <= 0 || errno)
           error(2, "Wrong input precision: ", argv[i]+2);
+        /* NOTAMIA: Perchè sovrascrivere prec_in che è stata appena acquisita
+         * come parametro? */
         prec_in = (long) (prec_out * LOG2_10);
         break;
 
