@@ -17,6 +17,12 @@ def debug(message, newline = True):
 
 if __name__ == "__main__":
 
+    # Check if we need some special target
+    if (len(sys.argv)) > 1:
+        target = sys.argv[1]
+    else:
+        target = "all"
+
     # Save informations about working directory
     working_directory = os.getcwd()
 
@@ -54,6 +60,10 @@ if __name__ == "__main__":
 
         else:
             print "done"
+            if target != "all":
+                p = subprocess.Popen("make %s" % target, shell=True)
+                p.wait()
+            
             debug("Dropping you to a shell with the compiled binaries. Press CTRL+D to ")
             debug("release it and delete the compilation directory (with binaries in it)")
 
