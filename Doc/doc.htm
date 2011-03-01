@@ -1,0 +1,88 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <title>MPSolve documentation</title>
+</head>
+<body background="sfondop.gif">
+
+<center>
+<h1>
+<font color="#FF0000">MPSolve documentation</font></h1></center>
+
+<hr>
+<center>
+<h2>
+<font color="#0000FF">Algorithm</font></h2></center>
+The main theoretical results behind MPSolve can be found in the paper "<i>Design,
+Analysis, and Implementation of a Multiprecision Polynomial Rootfinder</i>"
+by D. A. Bini and G. Fiorentino published in Numerical Algorithms, Volume
+23 (2000), pages 127-173.
+<p>
+<hr>
+<center>
+<h2>
+<font color="#0000FF">Install</font></h2></center>
+MPSolve requires a GNU compatible "<tt>make</tt>" and C compiler (<tt>gcc</tt>)
+which are standard in any linux distribution and are&nbsp; available on
+most platforms. It also requires that the GMP multiprecision package
+has been correctly installed and that both the header file "<tt>gmp.h</tt>"
+and the library file "<tt>libgmp.a</tt>" can be accessed by <tt>gcc</tt>.
+These files can also be copied to the Gmp subdirectory once the GMP package
+has been successfully configured and compiled.
+<p>MPSolve does not include the GMP package that can be downloaded from
+the URL <a href="http://www.swox.com/gmp/">http://www.swox.com/gmp/</a>.
+<p>The package has been developed and fully tested with GMP versions 2.0.2
+and 3.1.1; however, the former contains some known bugs which may lead to
+slow&nbsp; and badly formatted outputs. These errors can be fixed by applying
+some patches which can be downloaded from the above URL.
+<p>In order to create the executable file (<tt>unisolve</tt>) simply type:
+<blockquote><b><tt>make</tt></b></blockquote>
+in the MPSolve directory. After a successful compilation, all unneeded
+object files and libraries can be removed by issuing:
+<blockquote><b><tt>make clean</tt></b></blockquote>
+Finally, the executable file can be tested with the command:
+<blockquote><b><tt>make check</tt></b></blockquote>
+which invokes unisolve on a simple polynomial.
+<p>
+<hr>
+<center>
+<h2>
+<font color="#0000FF">Usage</font></h2></center>
+MPSolve takes all of its input from the command line and the standard input,
+to run the program, type:
+<blockquote><b><tt>unisolve <i>options</i> <i>input_file</i></tt></b></blockquote>
+where <b><i><tt>input_file</tt></i></b> is the name of the file holding
+the input polynomial (see the <a href="input.htm">input format</a> page)
+and <b><i><tt>options</tt></i></b> is the list of options and directives
+such as the goal of the computation, the requested output precision, the
+subset of the complex plane where the roots are sought and many others
+(see the <a href="options.htm">options</a> page).
+<p>If the <b><i><tt>input_file</tt></i></b> is missing then unisolve will
+read from&nbsp; the standard input stream (typically the keyboard).
+<p>The output format is ruled by some command line options and follows
+some conventions (see the <a href="output.htm">output conventions</a> page).
+<p>
+<hr>
+<center>
+<h2>
+<font color="#0000FF">Further documentation</font></h2></center>
+More information on the package and on the test suite is available in <a href="mpsolve.tex">LaTeX</a>,
+<a href="mpsolve.ps">PostScript</a> and <a href="mpsolve.pdf">PDF</a> format
+in the Doc directory.
+<p>
+<hr>
+<center>
+<h2>
+<font color="#0000FF">Download</font></h2></center>
+The following links can be used to download the latest version of <a href="ftp://ftp.dm.unipi.it/pub/mpsolve/mpsolve.tgz">MPSolve</a>
+together with the latest compatible version of <a href="ftp://ftp.dm.unipi.it/pub/mpsolve/gmp.tgz">GMP</a>.
+<p>
+
+<hr>
+<center>
+<p><a href="index.htm">home</a>
+</center>
+
+</body>
+</html>

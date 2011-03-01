@@ -1,0 +1,26 @@
+! lsr2
+! polynomial having rootss with very large and very small moduli
+sri
+0
+500
+8
+0
+-1
+1
+  -29000
+2
+  30000000
+496
+  -1000000
+497
+ -29000002000
+498
+  29999941999999
+499
+59999971000
+500
+30000000
+
+
+
+

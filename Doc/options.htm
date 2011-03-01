@@ -1,0 +1,192 @@
+<HTML>
+<HEAD>
+   <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+   <TITLE>MPSolve options</TITLE>
+</HEAD>
+<BODY BACKGROUND="sfondop.gif">
+
+<CENTER>
+<H1>
+<FONT COLOR="#FF0000">MPSolve options</FONT></H1></CENTER>
+
+<HR>
+<P>The program <B><TT>unisolve</TT></B> allows several options on its command
+line. Here we report the main ones, a "<B><TT>*</TT></B>" in the following
+list denotes the default value. All options can be given through the web
+page.
+<UL>
+<LI>
+<B>Goal:</B> defines the main target of the computation</LI>
+
+<UL>
+<LI>
+<B><TT>*</TT></B> isolate the roots: <B><TT>-Gi</TT></B></LI>
+
+<LI>
+approximate the roots: <B><TT>-Ga</TT></B></LI>
+
+<LI>
+count the roots: <B><TT>-Gc</TT></B></LI>
+</UL>
+</UL>
+
+<UL>
+<LI>
+<B>Target set:</B> chooses the set where roots are searched.</LI>
+
+<UL>
+<LI>
+<B><TT>*</TT></B> all the complex plane: <B><TT>-Sa</TT></B></LI>
+
+<LI>
+left halfplane: <B><TT>-Sl</TT></B></LI>
+
+<LI>
+right halfplane: <B><TT>-Sr</TT></B></LI>
+
+<LI>
+upper halfplane: <B><TT>-Su</TT></B></LI>
+
+<LI>
+lower halfplane (down): <B><TT>-Sd</TT></B></LI>
+
+<LI>
+inside the unit disk: <B><TT>-Si</TT></B></LI>
+
+<LI>
+outside the unit disk: <B><TT>-So</TT></B></LI>
+
+<LI>
+real line: <B><TT>-SR</TT></B></LI>
+
+<LI>
+imaginary line: <B><TT>-SI</TT></B></LI>
+</UL>
+</UL>
+
+<UL>
+<LI>
+<B>Automatic detection:</B> extra targets</LI>
+
+<UL>
+<LI>
+detect real roots: <B><TT>-Dr</TT></B></LI>
+
+<LI>
+detect imaginary roots: <B><TT>-Di</TT></B></LI>
+
+<LI>
+detect both: <B><TT>-Db</TT></B></LI>
+
+<LI>
+<B><TT>*</TT></B> do not detect: <B><TT>-Dn</TT></B></LI>
+</UL>
+</UL>
+
+<UL>
+<LI>
+<B>Multiplicity detection:</B> enables or disables multiplicity detection</LI>
+
+<UL>
+<LI>
+detect multiplicity of roots: <B><TT>-M+</TT></B></LI>
+
+<LI>
+<B><TT>*</TT></B> do not detect multiplicity: <B><TT>-M-</TT></B></LI>
+</UL>
+</UL>
+
+<UL>
+<LI>
+<B>Input/output precision:</B> sets/overrides the input/output precision</LI>
+
+<UL>
+<LI>
+number of maximum output digits of the roots <B><TT>-o#</TT></B> where
+<B><TT>#</TT></B> is the number of digits (<B><TT>*</TT></B> the default
+is 30)</LI>
+
+<LI>
+number of input digits of the coefficients (override the file info) <B><TT>-i#</TT></B>
+where <B><TT>#</TT></B> is the number of digits</LI>
+</UL>
+</UL>
+
+<UL>
+<LI>
+<B>Output format:</B> specifies the way MPSolve outputs its results</LI>
+
+<UL>
+<LI>
+<B><TT>*</TT></B> compact form: (re, im): <B><TT>-Oc</TT></B></LI>
+
+<LI>
+bare format: re \tab im: <B><TT>-Ob</TT></B></LI>
+
+<LI>
+"Gnuplot" low precision: re&nbsp; im: <B><TT>-Og</TT></B></LI>
+
+<LI>
+verbose: Root(i) = re + I im: <B><TT>-Ov</TT></B></LI>
+
+<LI>
+full: roots, error and <A HREF="output.htm#status">status</A>: <B><TT>-Of</TT></B></LI>
+
+<UL>
+<LI>
+the roots are written integrally with no filtering of the correct digits,</LI>
+
+<LI>
+a guaranteed absolute error bound is provided,</LI>
+
+<LI>
+the status of each root is displayed.</LI>
+</UL>
+</UL>
+</UL>
+
+<UL>
+<LI>
+<B>Debug:</B> write auxiliary runtime information</LI>
+
+<UL>
+<LI>
+to the standard error stream: <B><TT>-d</TT></B></LI>
+
+<LI>
+to the standard output: <B><TT>-d1</TT></B></LI>
+</UL>
+</UL>
+
+<UL>
+<LI>
+<B>Parameters:</B> allows to change the MPSolve internal parameters (see
+the file <TT><A HREF="../mpsolve.tex">mpsolve.tex</A></TT> for more information)</LI>
+
+<UL>
+<LI>
+maximum number of packet iterations: <B><TT>-Lp#</TT></B></LI>
+
+<LI>
+maximum number of global iterations: <B><TT>-Li#</TT></B></LI>
+</UL>
+</UL>
+
+<H3>
+<FONT COLOR="#FF0000">Examples:</FONT></H3>
+An example of usage is
+<BLOCKQUOTE><B><TT>unisolve -o1000 -Ga -SR&nbsp;&nbsp; my_poly</TT></B></BLOCKQUOTE>
+that computes at least 1000 digits of the real roots of my_poly, or
+<BLOCKQUOTE><B><TT>unisolve -o100000 -Gc -Si&nbsp;&nbsp; my_poly&nbsp;
+> result</TT></B></BLOCKQUOTE>
+which counts the number of roots of my_poly inside the unit disk using
+at most 100000 digits in order to decide if a root is in or out. The result
+is written to the file "result".
+<BR>
+<HR align="center">
+<CENTER>
+<P><A HREF="index.htm">home</A></CENTER>
+
+<BR>&nbsp;
+</BODY>
+</HTML>

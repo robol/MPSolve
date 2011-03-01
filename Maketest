@@ -1,0 +1,83 @@
+#!/bin/sh
+############################################################
+##       Multiprecision Polynomial Solver (MPSolve)       ##
+##                Version 2.2, May 2001                   ##
+##                                                        ##
+##                      Written by                        ##
+##       Dario Andrea Bini and Giuseppe Fiorentino        ##
+##       (bini@dm.unipi.it)  (fiorent@dm.unipi.it)        ##
+##                                                        ##
+## (C) 2001, Dipartimento di Matematica, FRISCO LTR 21024 ##
+############################################################
+
+# This script applies unisolve to all polynomials in
+# the Data directory.
+# The first argument is the target of the computation while
+# all others arguments are assumed to be options for unisolve.
+#
+# The main targets are:
+#  roots - output all roots
+#  time  - output all timings
+#  both  - output all roots and timings in two files
+#  all   - output all roots and timings in one file
+#  show  - output all roots and timings to the console
+#  list  - list all files in the Data directory and create the testsuite file
+#
+# some synonyms are also accepted (see below).
+
+target=$1
+shift
+
+echo --- MPSOLVE ---
+echo Active options: $*
+echo ---------------
+
+# scan all polynomials in the Data directory
+for f in Data/*.pol
+do
+	echo Solving $f ...
+	case $target in
+# output all roots
+	"root" | "roots" | "solve" )
+		echo ------------------  >> roots
+		echo $f  -  options: $*  >> roots
+		./unisolve $* $f         >> roots ;;
+# output all timings
+	"time" | "timing" | "timings" )
+		echo ------------------  >> timings
+		echo $f  -  options: $*  >> timings
+		/usr/bin/time -p ./unisolve $* $f 2>> timings ;;
+# output all roots and timings in two files
+	"both" | "split" | "twofiles" )
+		echo ------------------  >> roots
+		echo ------------------  >> timings
+		echo $f  -  options: $*  >> roots
+		echo $f  -  options: $*  >> timings
+		/usr/bin/time -p ./unisolve $* $f >> roots 2>> timings ;;
+# output all roots and timings in one file
+	"all" | "join" | "onefile" )
+		echo ------------------  >> stats
+		echo $f  -  options: $*  >> stats
+		/usr/bin/time -p ./unisolve $* $f >> stats 2>&1 ;;
+# output all roots and timings to the console
+	"show" | "test" )
+		echo ------------------
+		echo $f  -  options: $*
+		/usr/bin/time -p ./unisolve $* $f ;;
+# list all files in the Data directory and create the testsuite file
+	"list" | "suite" )
+		echo $f
+		echo $f                  >> testsuite;;
+	esac
+
+# touch executed file
+	touch $f
+
+# (re)move cores
+	if [ -f core ]
+	then
+	    mv core core-$f
+	fi
+done
+
+echo ... Done 

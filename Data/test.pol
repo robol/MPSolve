@@ -1,0 +1,14 @@
+! Sample test polinomial in sparse format
+! x^4-5x^3+25x^2-125x
+sri
+0
+4
+4
+4
+ 1
+3
+ -5
+2
+ 25
+1
+ -125
