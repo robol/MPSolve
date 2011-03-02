@@ -64,7 +64,13 @@ extern long int prec_out;	/* digits of required output precision */
 extern int n;			/* degree of zero-deflated polynomial  */
 extern int deg;			/* input degree and allocation size    */
 extern char * data_type;       	/* stores the input data type          */
-extern long int prec_in;	/* number of digits of input precision */
+
+/** 
+ * Number of digits of input precision in binary
+ * representation
+ */
+extern long int prec_in;
+
 extern boolean * spar;		/* sparsity structure of the poly.     */
 extern double * fpr;		/* standard real coefficients          */
 extern cplx_t * fpc;		/* standard complex coefficients       */
