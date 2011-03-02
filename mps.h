@@ -186,9 +186,12 @@ void mnewton(int n, mpc_t z, rdpe_t radius, mpc_t corr, mpc_t mfpc[],
 void parhorner(int n, mpc_t x, mpc_t p[], boolean b[], mpc_t s);
 void aparhorner(int n, rdpe_t x, rdpe_t p[], boolean b[], rdpe_t s);
 
+
+/* functions in mps_opts.c */
 /**
- * Implemented in mps_opts.c
  * Parse options from command line.
+ * This function parse command lines and sets global variables 
+ * defined in mps.h. It is implemented in mps_opts.c
  * @param argc Argoment counter as obtained from the main()
  *             function
  * @param argv Argoment values, i.e. array of char* as obtained
