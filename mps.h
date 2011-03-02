@@ -9,10 +9,6 @@
 ** (C) 2001, Dipartimento di Matematica, FRISCO LTR 21024 **
 ***********************************************************/
 
-/**
- * This file contains function available in the libmps library
- */
-
 #ifndef __MPS_H__
 #define __MPS_H__
 
