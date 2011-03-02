@@ -66,8 +66,8 @@ extern int deg;			/* input degree and allocation size    */
 extern char * data_type;       	/* stores the input data type          */
 
 /** 
- * Number of digits of input precision in binary
- * representation
+ * Number of digits of input precision in its binary
+ * representation. 
  */
 extern long int prec_in;
 
