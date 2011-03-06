@@ -9,26 +9,33 @@
 ** (C) 2001, Dipartimento di Matematica, FRISCO LTR 21024 **
 ***********************************************************/
 
+/**
+ * @file
+ * @brief Implementation of the routines to solve the polynomial
+ * equation
+ */
+
 #include "mps.h"
 
-/***********************************************************
-*                UPDATE                                    * 
-************************************************************
- Set again(i) to .true. or to .false. according to the
- values of statu(i,*) and goal.
+/**
+ @brief Set again(i) to .true. or to .false. according to the
+ values of status(i,*) and goal.
+
  More precisely:
+
  Goal count: .true. only for statu='**u' but not for 
          'f*u', 'a*u', 'o*u'                            (1) 
-      -multipl. on: true also for 'c**'
-      -Real on    : true also for '*u*' excluded (1)
-      -Imag. on   : true also for '*v*' excluded (1)
+      - multipl. on: true also for 'c**'
+      - Real on    : true also for '*u*' excluded (1)
+      - Imag. on   : true also for '*v*' excluded (1)
+
  Goal isolate: true only for statu='**u' or statu='c**' but
           not for 'f**', 'a**', 'o**', 'i*i', 'i*o'     (2) 
-      -multipl. on: true also for 'c**'
-      -Real on    : true also for '*u*' excluded (2)
-      -Imag. on   : true also for '*v*' excluded (2)
+      - multipl. on: true also for 'c**'
+      - Real on    : true also for '*u*' excluded (2)
+      - Imag. on   : true also for '*v*' excluded (2)
  Goal approximate: the same as isolate.
-**********************************************************/
+*/
 void
 update(void)
 {
