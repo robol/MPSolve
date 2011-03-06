@@ -9,6 +9,15 @@
 ** (C) 2001, Dipartimento di Matematica, FRISCO LTR 21024 **
 ***********************************************************/
 
+/**
+ * @file
+ *
+ * This file is the header for the libmps library. Including
+ * this file is needed to access all the MPSolve routines. 
+ *
+ * @brief Header for libmps
+ */
+
 #ifndef __MPS_H__
 #define __MPS_H__
 
@@ -64,7 +73,13 @@ extern long int prec_out;	/* digits of required output precision */
 extern int n;			/* degree of zero-deflated polynomial  */
 extern int deg;			/* input degree and allocation size    */
 extern char * data_type;       	/* stores the input data type          */
-extern long int prec_in;	/* number of digits of input precision */
+
+/** 
+ * Number of digits of input precision in its binary
+ * representation. 
+ */
+extern long int prec_in;
+
 extern boolean * spar;		/* sparsity structure of the poly.     */
 extern double * fpr;		/* standard real coefficients          */
 extern cplx_t * fpc;		/* standard complex coefficients       */
@@ -182,7 +197,21 @@ void mnewton(int n, mpc_t z, rdpe_t radius, mpc_t corr, mpc_t mfpc[],
 void parhorner(int n, mpc_t x, mpc_t p[], boolean b[], mpc_t s);
 void aparhorner(int n, rdpe_t x, rdpe_t p[], boolean b[], rdpe_t s);
 
-/* functions in mps_opts.c */
+/**
+ * This function parse command lines and sets global variables 
+ * defined in mps.h in an appropriate way. 
+ *
+ * It is implemented in mps_opts.c
+ *
+ * @brief Parse options from command line.
+ *
+ * @param argc 
+ *   Argoment counter as obtained from the main()
+ *   function.
+ * @param argv 
+ *   Argoment values, i.e. array of char* as obtained
+ *   in the main() function.
+ */
 void parse_opts(int argc, char *argv[]);
 
 /* functions in mps_sort.c */
