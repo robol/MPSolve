@@ -22,9 +22,7 @@
 
 /* types */
 #ifndef boolean
-typedef int boolean;
-#define false 0
-#define true  1
+typedef enum {false, true}  boolean;
 /* typedef enum _boolean { false = 0, true = 1 } boolean; */
 #endif /* boolean */
 
