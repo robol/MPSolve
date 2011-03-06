@@ -9,6 +9,12 @@
 ** (C) 2001, Dipartimento di Matematica, FRISCO LTR 21024 **
 ***********************************************************/
 
+/**
+ * @file
+ * @brief Implementation of option parsing
+ *
+ */
+
 #include <string.h>
 #include <errno.h>
 #include "mps.h"

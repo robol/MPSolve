@@ -65,9 +65,46 @@ extern int max_newt_it;		/* number of max newton iterations for
 				 * gravity center computations */
 extern long int mpwp_max;	/* maximum allowed number of bits for mp 
 				 * numbers: used in high prec. shift   */
+/**
+ * @brief stores the goal of the computation
+ *
+ * <code>goal</code> is an array of 5 chars with this meaning:
+ * - <code>goal[0]</code> can assume the following values:
+ *   - <code>a</code> that means \b approximate;
+ *   - <code>c</code> that means \b count the roots;
+ *   - <code>i</code> that means \b isolate the roots;
+ * - <code>goal[1]</code>represents the search set for
+ *   the roots. It can be:
+ *   - <code>a</code> that means \f$ \mathbb{C} \f$;
+ *   - <code>r</code> that means \f$ \{ z \in \mathbb{C} \ | \ \mathrm{Re}{z} > 0 \} \f$;
+ *   - <code>l</code> that means \f$ \{ z \in \mathbb{C} \ | \ \mathrm{Re}{z} < 0 \} \f$;
+ *   - <code>u</code> that means \f$ \{ z \in \mathbb{C} \ | \ \mathrm{Im}{z} > 0 \} \f$;
+ *   - <code>d</code> that means \f$ \{ z \in \mathbb{C} \ | \ \mathrm{Im}{z} < 0 \} \f$;
+ *   - <code>i</code> that means \f$ \{ z \in \mathbb{C} \ | \ \lVert z \rVert \leq 1 \} \f$;
+ *   - <code>i</code> that means \f$ \{ z \in \mathbb{C} \ | \ \lVert z \rVert \geq 1 \} \f$;
+ * - <code>goal[2]</code> controls if multiplicity check is enabled or not. Its value can be:
+ *   - <code>m</code> if it is enabled;
+ *   - <code>n</code> if that's not the case;
+ * - <code>goal[3]</code> sets what properties of the roots have to be detected
+ *   during the computation:
+ *   - <code>n</code> means no one, and this is the default;
+ *   - <code>r</code> means detect if a root is real;
+ *   - <code>i</code> means detect if a root is imaginary;
+ *   - <code>b</code> means both the above;
+ * - <code>goal[4]</code> determines output format for the results:
+ *   - <code>b</code> means \b bare and it's the default value;
+ *   - <code>g</code> means \b gnuplot format;
+ *   - <code>c</code> means \b compact;
+ *   - <code>v</code> means \b verbose;
+ *   - <code>f</code> means \b full;
+ */
+extern char goal[5];
 
-extern char goal[5];		/* stores the goal                     */
-extern long int prec_out;	/* digits of required output precision */
+/**
+ * @brief digits of required output precision
+ *
+ */
+extern long int prec_out;
 
 /* polynomial data - shared variables */
 extern int n;			/* degree of zero-deflated polynomial  */
@@ -96,6 +133,33 @@ extern mpc_t * mfpc;		/* multiprecision complex coefficients */
 extern phase lastphase;		/* store last computed phase           */
 extern int count[3];		/* count roots: [in, out, uncertain]   */
 extern int zero_roots;		/* number of roots = 0                 */
+
+/**
+ * @brief Status of each approximation
+ * 
+ * <code>status</code> is an array of char arrays
+ * composed of three elements. For every <code>i</code>:
+ * - <code>status[i][0]</code> can assume the values:
+ *   - <code>m</code>: multiple root;
+ *   - <code>i</code>: isolated root;
+ *   - <code>a</code>: approximated single root (relative error
+ *     is less then \f$ 10^{-d_{out}} \f$);
+ *   - <code>o</code>: approximated cluster of roots (relative
+ *     error is less than \f$ 10^{-d_{out}} \f$);
+ *   - <code>c</code>: cluter of roots not yet approximated (relative
+ *     error is greater than \f$ 10^{-d_{out}} \f$);
+ * - <code>status[i][1]</code> can assume the values:
+ *   - <code>R</code>: real root;
+ *   - <code>r</code>: non real root;
+ *   - <code>I</code>: imaginary root;
+ *   - <code>i</code>: non imaginary root;
+ *   - <code>w</code>: uncertain real/imaginary root;
+ *   - <code>z</code>: non real and non imaginary root;
+ * - <code>status[i][2]</code> can assume the values:
+ *   - <code>i</code>: root in \f$ \mathcal{S} \f$;
+ *   - <code>o</code>: root out of \f$ \mathcal{S} \f$;
+ *   - <code>u</code>: root uncertain;
+ */
 extern char (* status)[3];	/* status of each approximation        */
 extern int * order;		/* output index order: ord[0],..,ord[n]*/
 extern cplx_t * froot;		/* root approx. as float complex numbers */

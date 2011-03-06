@@ -18,8 +18,8 @@
 #include "mps.h"
 
 /**
- @brief Set again(i) to .true. or to .false. according to the
- values of status(i,*) and goal.
+ @brief Set <code>again[i]</code> to <code>true</code> or to <code>false</code> 
+ according to the values of <code>status[i,*]</code> and <code>goal</code>.
 
  More precisely:
 
@@ -1843,22 +1843,21 @@ check_stop(void)
   return computed;
 }
 
-/****************************************************************
-*             SUBROUTINE FSOLVE                                 *
-*****************************************************************
+/**
+  @brief Actually solve the polynomial
+
  This routine performs the following computations:
- 1- Select starting approximations and check if some of them need dpe.
+ -# Select starting approximations and check if some of them need dpe.
     Initialize the vector again which is true if the corresponding
     approximation is out of the root neighbourhood.
- 2- Performs max_pack packets of Aberth iterations on all the
+ -# Performs max_pack packets of Aberth iterations on all the
     components out of the root neighbourhood belonging to the set S
     and on which it is possible to iterate with float.
     More precisely, each packet performs max_it iterations on all the
     components where again is true. At each iteration check if the
     current approximation is in the root neighbourhood; in this case
-    set 'again' to false.
-    
- 3- If at the end of the general packet all the approximations
+    set 'again' to false.  
+ -# If at the end of the general packet all the approximations
     are inside the root neighbourhood, i.e., 'again' is false in all
     the components then return.
     else, perform cluster analysis, select new starting approximations
@@ -1869,7 +1868,7 @@ check_stop(void)
 
  The local variable 'again' controls the iteration: i.e., 
    again[i]= true means iterate on the i-th component
-**********************************************************************/
+*/
 void 
 fsolve(boolean * d_after_f)
 {
