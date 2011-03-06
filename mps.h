@@ -15,7 +15,7 @@
  * This file is the header for the libmps library. Including
  * this file is needed to access all the MPSolve routines. 
  *
- * @brief Header for libmps
+ * @brief Header file for libmps
  */
 
 #ifndef __MPS_H__
