@@ -42,7 +42,8 @@ fstart(int n, int i_clust, double clust_rad, double g, rdpe_t eps,
   double sigma, th, ang, temp, r;
   rdpe_t tmp;
 
-  sigma = drand();
+/*  sigma = drand();*/
+sigma=0.1;
   ni = 0;
   nzeros = 0;
   r = 0.0;
@@ -171,7 +172,8 @@ dstart(int n, int i_clust, rdpe_t clust_rad,
   double sigma, th, ang, xbig, xsmall, temp;
   boolean flag = false;
 
-  sigma = drand();
+/*  sigma = drand();*/
+sigma=0.1;
 
   /* In the case of user-defined polynomial choose as starting
    * approximations equispaced points in the unit circle. */
@@ -324,7 +326,8 @@ mstart(int n, int i_clust, rdpe_t clust_rad, rdpe_t g,
   rdpe_t r, big, small, rtmp1, rtmp2;
   cdpe_t ctmp;
 
-  sigma = drand();
+/*  sigma = drand(); */
+sigma=0.1;
   nzeros = 0;
   temp = 0.0;
 

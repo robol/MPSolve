@@ -1,0 +1,127 @@
+!poly1: 
+sri
+0
+10
+5
+0 1
+1 300
+2 30000
+3 1000000
+9 1000000
+10 1
+
+Il coeff di grado max non e' volutamente definito
+il programma se ne accorge ma scrive comunque qualcosa
+
+bini@linux:~/Software/MPS/Tests> ./unisolve -Gi poly1.pol
+The leading coefficient is zero(-0.8609926779094e0, 0.500019191347e0)
+(-0.8609926779094e0, -0.500019191347e0)
+(-0.1000049984987997251e-1, -0.8662852113579189e-6)
+(-0.1000049984987997251e-1, 0.8662852113579189e-6)
+(-0.9999000299880054973e-2, 0.e-85)
+(0.499950015e-2, -0.10000374918e1)
+(0.499950015e-2, 0.10000374918e1)
+(0.8709931777593e0, 0.500018325062e0)
+(0.8709931777593e0, -0.500018325062e0)
+-----------------
+
+Ancora con lo stesso polinomio
+unisolve -Gi -o10
+(-0.1e7, 0.e0)
+(-0.866021237078e1, 0.500001443403e1)
+(-0.866021237078e1, -0.500001443403e1)
+(-0.100000000005e-3, -0.8660254040153787544e-14)
+(-0.100000000005e-3, 0.8660254040153787544e-14)
+(-0.9999999999e-4, 0.e-144)
+(0.6666667e-4, -0.100000000002e2)
+(0.6666667e-4, 0.1000000000017e2)
+(0.866029570411e1, -0.499998556651e1)
+(0.866029570411e1, 0.499998556651e1)
+
+unisolve -Gi -o20
+(-0.1e7, 0.e0)
+(-0.866021237078e1, 0.500001443403e1)
+(-0.866021237078e1, -0.500001443403e1)
+(-0.10000000000499999999833333333e-3, -0.86602540401537875441840396664e-14)
+(-0.10000000000499999999833333333e-3, 0.86602540401537875441840396664e-14)
+(-0.99999999990000000003333333332e-4, 0.e-144)
+(0.6666667e-4, -0.100000000002e2)
+(0.6666667e-4, 0.1000000000017e2)
+(0.866029570411e1, -0.499998556651e1)
+(0.866029570411e1, 0.499998556651e1)
+
+unisolve -Gi -o30
+(-0.1e7, 0.e0)
+(-0.866021237078e1, 0.500001443403e1)
+(-0.866021237078e1, -0.500001443403e1)
+(-0.100000000004999999998333333332244444444e-3, -0.86602540401537875441840396664e-14)
+(-0.100000000004999999998333333332244444444e-3, 0.86602540401537875441840396664e-14)
+(-0.999999999900000000033333333319111111118e-4, 0.e-144)
+(0.6666667e-4, -0.100000000002e2)
+(0.6666667e-4, 0.1000000000017e2)
+(0.866029570411e1, -0.499998556651e1)
+(0.866029570411e1, 0.499998556651e1)
+
+Perche' da piu' cifre nella cluster di 3 zeri?
+
+---------------
+Da' risultati diversi con
+unisolve -Gi -030 -i20
+unisolve -Gi -i20 -o30
+
+se -ixx viene prima allora si ferma a float qualunque sia il valore di xx
+se -ixx viene dopo allora tratta come se fosse precisione infinita
+Infatti nel primo caso dal debug dice "reached the input precision" nello
+stesso punto indipendentemente dal valore dato in input da tastiera.
+
+Se invece la precisione gli viene cambiata sul file se ne accorge.
+Non so se funziona bene poiche' per input prec <=33 e -o300 da'
+ zeri nel floating point
+per input prec 34 e -o300 da' piu' di 150 cifre
+per inputprc 50 ne da forse 300.
+ 
+---------------
+
+---------------
+Da' risultati diversi con
+unisolve -Ga -030 -i20
+unisolve -Ga -i20 -o30
+la logica e' la stessa di prima
+---------------
+
+Similmente:
+sri
+xx
+4
+5
+0 1
+1 30000
+2 300000000
+3 1000000000000
+4 1
+
+con xx<=18 da' output floating point
+con xx=19 da' 70 cifre
+con xx=30 da' 200 cifre
+cioe' va a scatti
+crescendo con la richiesta di cifre in output sembra dare molte piu' cifre in
+output di quante ce ne siano in input
+******************
+similmente
+sri
+30
+2
+3
+0 -1
+1 300
+2 1
+
+con precinput 30 arriva a dare fino a 106 cifre
+conprecinput  40 da' 125
+              50     164
+              60     202
+Non torna con condiz: erroutput/errinput =
+10^(40-125), 10^(50-164), 10^(60-202)
+    85            114       142
+
+
