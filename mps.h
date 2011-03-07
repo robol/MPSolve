@@ -146,8 +146,10 @@ extern int zero_roots;		/* number of roots = 0                 */
  *     is less then \f$ 10^{-d_{out}} \f$);
  *   - <code>o</code>: approximated cluster of roots (relative
  *     error is less than \f$ 10^{-d_{out}} \f$);
- *   - <code>c</code>: cluter of roots not yet approximated (relative
+ *   - <code>c</code>: cluster of roots not yet approximated (relative
  *     error is greater than \f$ 10^{-d_{out}} \f$);
+ *   - <code>f</code>: TODO: Determine what this state means;
+ *   - <code>x</code>: TODO: Determine what this state means;
  * - <code>status[i][1]</code> can assume the values:
  *   - <code>R</code>: real root;
  *   - <code>r</code>: non real root;
@@ -177,9 +179,42 @@ extern long int mpwp;		/* # of bits of current working prec.  */
 extern rdpe_t mp_epsilon;	/* current mp epsilon                  */
 extern double sep;		/* Log of the lower bound to the 
                                    minimum distance of the roots       */
-extern int nclust;		/* number of active clusters           */
-extern int * clust;		/* indices of cluster components       */
-extern int * punt;		/* beginning of each cluster           */
+
+/**
+ * @brief number of active clusters
+ */
+extern int nclust;		
+
+
+/**
+ * @brief indices of cluster components
+ *
+ * <code>clust</code> is an integer array containing the indexes
+ * of roots in every cluster. 
+ *
+ * The indexes of the <code>j</code>th cluster are
+ * <code>clust[punt[j] : punt[j+1]]
+ *
+ * @see punt
+ */
+extern int * clust;
+
+/**
+ * @brief begginning of each cluster
+ *
+ * <code>punt</code> is a vector of <code>nclust</code> integers;
+ *
+ * For every <code>i</code> <code>punt[i]</code> is the index in
+ * the integer vector <code>clust</code> corresponding to the first
+ * index of a cluster, i.e. the jth cluster of roots is composed by
+ * roots indexed on <code>clust[p[j] : p[j+1]]</code>.
+ * 
+ *
+ * @see nclust
+ * @see clust
+ */
+extern int * punt;
+
 extern long int * rootwp;	/* working prec. used for each root    */
 
 extern mpc_t * mfppc;		/* multiprecision complex coeffs of p' */

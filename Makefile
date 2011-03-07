@@ -42,6 +42,7 @@ ECHO = echo
 CAT = cat
 RM = rm -f
 SH = sh
+DOXYGEN = doxygen
 
 # operating system dependent standards
 #HERE = 
@@ -62,6 +63,9 @@ unisolve: unisolve.o libmps.a libxt.a
 rursolve: rursolve.o $(RUROBJ) libmps.a -lxt
 
 all: unisolve rursolve rurconv
+
+doc: 
+	$(DOXYGEN) Doxyfile
 
 
 # build libraries

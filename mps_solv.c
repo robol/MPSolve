@@ -23,7 +23,7 @@
 
  More precisely:
 
- Goal count: .true. only for statu='**u' but not for 
+ - If goal is "count": .true. only for statu='**u' but not for 
          'f*u', 'a*u', 'o*u'                            (1) 
       - multipl. on: true also for 'c**'
       - Real on    : true also for '*u*' excluded (1)
@@ -339,7 +339,7 @@ fmodify(void)
 	  nnewclust = j - i_new + 1;	/* scan each new cluster */
 	  for (k = 0; k < nnewclust; k++) {	/* loop3: DO k=1, nnewclust */
 	    i1 = i_new + k;
-      /********************************* 
+      /*********************************
          scan the entries of each new cluster 
          set status[l][0]='i' if the cluster has multip=1
          and mark with 'c'
