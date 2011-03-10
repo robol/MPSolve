@@ -372,7 +372,10 @@ void
 warn(char *s)
 {
   if (DOWARN)
-    fprintf(logstr, "%s", s);
+    if (s[strlen(s)] == '\n')
+      fprintf(logstr, "%s", s);
+    else
+      fprintf(logstr, "%s\n", s);
 }
 
 /*************************************************************
