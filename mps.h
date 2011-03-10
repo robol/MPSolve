@@ -149,7 +149,8 @@ extern int zero_roots;		/* number of roots = 0                 */
  *   - <code>c</code>: cluster of roots not yet approximated (relative
  *     error is greater than \f$ 10^{-d_{out}} \f$);
  *   - <code>f</code>: TODO: Determine what this state means;
- *   - <code>x</code>: TODO: Determine what this state means;
+ *   - <code>x</code>: this root cannot be represented as a <code>double</code>, i.e. it
+ *     is <code>< DBL_MIN</code> or <code>> DBL_MAX</code>;
  * - <code>status[i][1]</code> can assume the values:
  *   - <code>R</code>: real root;
  *   - <code>r</code>: non real root;
