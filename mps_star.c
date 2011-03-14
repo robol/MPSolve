@@ -9,6 +9,13 @@
 ** (C) 2001, Dipartimento di Matematica, FRISCO LTR 21024 **
 ***********************************************************/
 
+/**
+ * @file 
+ * @brief Routines to compute starting approximations
+ * for the algorithm
+ *
+ */
+
 #include "mps.h"
 
 static const double pi2 = 6.283184;
@@ -17,20 +24,31 @@ static const double pi2 = 6.283184;
 void raisetemp(unsigned long int digits);
 void raisetemp_raw(unsigned long int digits);
 
-/***********************************************************
-*                SUBROUTINE FSTART                         *
-************************************************************
- Compute new starting approximations to the roots of the
- polynomial p(x) having coefficients of modulus apoly, by
- means of the Rouche'-based criterion of Bini (Numer. Algo. 1996). 
- The program can compute all the approximations
- (if n is the degree of p(x)) or it may compute the
- approximations of the cluster of index i_clust
- The status vector is changed into 'o' for the components
- that belong to a cluster with relative radius less than eps.
- The status vector is changed into 'x' for the components that
- cannot be represented as double.
- ************************************************************/
+/**
+ * @param n number of roots in the cluster
+ * @param i_clust index of cluster to analyze
+ * @param clust_rad radius of cluster
+ * @param g gravity center of the cluster
+ * @param eps a double that represent the maximum value
+ * of relative radius (with respect to <code>g</code>) of
+ * roots whose status must be set to <code>o</code>
+ * @param fap array of moduli of the coefficients as double
+ *
+ * @brief Compute new starting approxumations to the roots
+ * of the polynomial p(x) having coefficients of modulus apoly.
+ *
+ * Computations is done by
+ * means of the Rouche'-based criterion of Bini (Numer. Algo. 1996). 
+ * The program can compute all the approximations
+ * (if n is the degree of p(x)) or it may compute the
+ * approximations of the cluster of index i_clust
+ * The status vector is changed into 'o' for the components
+ * that belong to a cluster with relative radius less than eps.
+ * The status vector is changed into 'x' for the components that
+ * cannot be represented as double.
+ *
+ * @see status
+ */
 void
 fstart(int n, int i_clust, double clust_rad, double g, rdpe_t eps,
        double fap[])

@@ -9,6 +9,11 @@
 ** (C) 2001, Dipartimento di Matematica, FRISCO LTR 21024 **
 ***********************************************************/
 
+/**
+ * @file
+ * @brief Routines for the computation of convex hulls.
+ */
+
 #include "mps.h"
 
 const double TOLER = 0.4;	/* slope tolerace */
@@ -63,11 +68,15 @@ fctest(int il, int i, int ir, double a[])
   return (s1 - s2 > TOLER);
 }
 
-/***********************************************************
- *                      SUBROUTINE FMERGE                  *
- ***********************************************************
-   merge two adjacent convex hulls [lo, i] and [i, hi]       
- **********************************************************/
+/**
+ * @brief Merge two adjacent convex hulls [lo, i] and [i, hi].
+ * @param lo starting index of the points of the first convex hull
+ * in the vector <code>a</code>.
+ * @param i last index of the points in the first convex hull and
+ * first of index of the points in the second convex hull.
+ * @param up last index of the points in the second convex hull
+ * @param a array of points
+ */
 void
 fmerge(int lo, int i, int up, double a[])
 {
@@ -106,13 +115,16 @@ fmerge(int lo, int i, int up, double a[])
   while (!(tstl && tstr));
 }
 
-/***********************************************************
- *                      SUBROUTINE FCONVEX                 *
- ***********************************************************
-   compute the convex hull of the data set a[] the result
-   is in the boolean vector h[]. The algorithm successively
-   merges adjacent convex hulls of sizes 2, 4, 8, ...
- **********************************************************/
+/**
+ * @brief compute the convex hull of the data set a[].
+ *
+ * The result
+ * is in the boolean vector <code>h[]</code>. The algorithm successively
+ * merges adjacent convex hulls of sizes 2, 4, 8, ...
+ *
+ * @param a vector of points whose convex hull must be computed.
+ * @param n size of the vector <code>a</code>.
+ */
 void
 fconvex(int n, double a[])
 {
