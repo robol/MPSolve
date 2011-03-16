@@ -18,24 +18,24 @@
 #include "mps.h"
 
 /**
- @brief Set <code>again[i]</code> to <code>true</code> or to <code>false</code> 
- according to the values of <code>status[i,*]</code> and <code>goal</code>.
-
- More precisely:
-
- - If goal is "count": .true. only for statu='**u' but not for 
-         'f*u', 'a*u', 'o*u'                            (1) 
-      - multipl. on: true also for 'c**'
-      - Real on    : true also for '*u*' excluded (1)
-      - Imag. on   : true also for '*v*' excluded (1)
-
- Goal isolate: true only for statu='**u' or statu='c**' but
-          not for 'f**', 'a**', 'o**', 'i*i', 'i*o'     (2) 
-      - multipl. on: true also for 'c**'
-      - Real on    : true also for '*u*' excluded (2)
-      - Imag. on   : true also for '*v*' excluded (2)
- Goal approximate: the same as isolate.
-*/
+ * @brief Set <code>again[i]</code> to <code>true</code> or to <code>false</code> 
+ * according to the values of <code>status[i,*]</code> and <code>goal</code>.
+ *
+ * More precisely:
+ *
+ * - If goal is "count": .true. only for statu='**u' but not for 
+ *         'f*u', 'a*u', 'o*u'                            (1) 
+ *      - multipl. on: true also for 'c**'
+ *      - Real on    : true also for '*u*' excluded (1)
+ *      - Imag. on   : true also for '*v*' excluded (1)
+ *
+ * Goal isolate: true only for statu='**u' or statu='c**' but
+ *          not for 'f**', 'a**', 'o**', 'i*i', 'i*o'     (2) 
+ *      - multipl. on: true also for 'c**'
+ *      - Real on    : true also for '*u*' excluded (2)
+ *      - Imag. on   : true also for '*v*' excluded (2)
+ * Goal approximate: the same as isolate.
+ */
 void
 update(void)
 {
@@ -1844,31 +1844,34 @@ check_stop(void)
 }
 
 /**
-  @brief Actually solve the polynomial
-
- This routine performs the following computations:
- -# Select starting approximations and check if some of them need dpe.
-    Initialize the vector again which is true if the corresponding
-    approximation is out of the root neighbourhood.
- -# Performs max_pack packets of Aberth iterations on all the
-    components out of the root neighbourhood belonging to the set S
-    and on which it is possible to iterate with float.
-    More precisely, each packet performs max_it iterations on all the
-    components where again is true. At each iteration check if the
-    current approximation is in the root neighbourhood; in this case
-    set 'again' to false.  
- -# If at the end of the general packet all the approximations
-    are inside the root neighbourhood, i.e., 'again' is false in all
-    the components then return.
-    else, perform cluster analysis, select new starting approximations
-    update the vector 'statu', update the vector 'again' that selects 
-    the components on which to iterate, according to the goal, and 
-    repeat until the max number of allowed packets is reached. 
-    In the latter case output FAILURE.
-
- The local variable 'again' controls the iteration: i.e., 
-   again[i]= true means iterate on the i-th component
-*/
+ * @brief Actually solve the polynomial
+ *
+ * This routine performs the following computations:
+ * -# Select starting approximations and check if some of them need dpe.
+ *    Initialize the vector again which is true if the corresponding
+ *    approximation is out of the root neighbourhood.
+ * -# Performs max_pack packets of Aberth iterations on all the
+ *    components out of the root neighbourhood belonging to the set S
+ *    and on which it is possible to iterate with float.
+ *    More precisely, each packet performs max_it iterations on all the
+ *    components where again is true. At each iteration check if the
+ *    current approximation is in the root neighbourhood; in this case
+ *    set 'again' to false.  
+ * -# If at the end of the general packet all the approximations
+ *    are inside the root neighbourhood, i.e., 'again' is false in all
+ *    the components then return.
+ *    else, perform cluster analysis, select new starting approximations
+ *    update the vector 'statu', update the vector 'again' that selects 
+ *    the components on which to iterate, according to the goal, and 
+ *    repeat until the max number of allowed packets is reached. 
+ *    In the latter case output FAILURE.
+ *
+ * The local variable 'again' controls the iteration: i.e., 
+ *   again[i]= true means iterate on the i-th component
+ *
+ * @param d_after_f this variable is <code>true</code> if dpe
+ * are needed after the floating point pass. 
+ */
 void 
 fsolve(boolean * d_after_f)
 {

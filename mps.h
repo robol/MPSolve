@@ -63,7 +63,7 @@ extern int newtis_old;
  */
 
 /**
- * @brief <code>true</code> if log are needed. The will
+ * @brief <code>true</code> if log are needed. They will
  * be written to <code>logstr</code>
  *
  * @see logstr
@@ -186,9 +186,11 @@ extern int deg;
  * - <code>'s'</code> if the input is a sparse polynomial;
  * - <code>'u'</code> if the input is a user polynomial;
  * - <code>'d'</code> if the input is a dense polybomial;
+ *
  * while the value of <code>data_type[1]</code> can be:
  * - <code>'r'</code> if the coefficients are real;
  * - <code>'c'</code> if the coefficents are complex;
+ *
  * and finally <code>data_type[2]</code> can assume the following values:
  * - <code>'i'</code> means integer coefficients;
  * - <code>'q'</code> means rationa cofficients;

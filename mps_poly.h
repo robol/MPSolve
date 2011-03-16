@@ -13,8 +13,9 @@
 
 /* functions for a simplified I/O with the mpsolve library */
 
+
 /**
- * @brief polynomial data type
+ * @brief struct for the polynomial data type.
  */
 typedef struct {
   int deg;		/* starting polynomial degree */
@@ -34,6 +35,10 @@ typedef struct {
   mpc_t *mfpc;		/* multiprecision complex coefficients */
 } __mpspoly_struct;
 
+
+/**
+ * @brief pointer to polynomial data type __mpspoly_struct.
+ */
 typedef __mpspoly_struct mpspoly_t[1];
 
 /* solution data type */
