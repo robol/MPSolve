@@ -40,6 +40,16 @@
 #include "mptemp.h"
 
 /* constants */
+
+/**
+ * @brief Type representing the computation phase 
+ * of the algorithm we are in 
+ * now. It can assume the values:
+ * - <code>no_phase</code>;
+ * - <code>float_phase</code>;
+ * - <code>dpe_phase</code>;
+ * - <code>mp_phase</code>;
+ */
 typedef enum {no_phase, float_phase, dpe_phase, mp_phase} phase;
 
 extern boolean resume;		/* to complete                         */
@@ -48,23 +58,72 @@ extern boolean chkrad;		/* check radii after completion        */
 extern int newtis;
 extern int newtis_old;
 
-/* I/O streams */
+/*
+ * INPUT / OUTPUT STREAMS
+ */
+
+/**
+ * @brief <code>true</code> if log are needed. The will
+ * be written to <code>logstr</code>
+ *
+ * @see logstr
+ */
 extern boolean DOLOG;
+
+/**
+ * @brief <code>true</code> if warning are needed. 
+ */
 extern boolean DOWARN;
+
+/**
+ * @brief <code>true</code> if root sorting is desired. It will
+ * be performed with routines in <code>mps_sort.c</code>.
+ */
 extern boolean DOSORT;
 
+/**
+ * @brief Default input stream.
+ */
 extern FILE * instr;
+
+/**
+ * @brief Default output stream.
+ */
 extern FILE * outstr;
+
+/**
+ * @brief Default log stream
+ */
 extern FILE * logstr;
+
 extern FILE * rtstr;
 
-/* constant/parameters */
-extern int max_pack;		/* number of max packets of iterations */
-extern int max_it;		/* number of max iterations per packet */
-extern int max_newt_it;		/* number of max newton iterations for
-				 * gravity center computations */
-extern long int mpwp_max;	/* maximum allowed number of bits for mp 
-				 * numbers: used in high prec. shift   */
+/*
+ * CONSTANT, PARAMETERS
+ */
+
+/**
+ * @brief number of max packets of iterations 
+ */
+extern int max_pack;		
+
+/**
+ * @brief number of max iterations per packet 
+ */
+extern int max_it;		
+
+/**
+ * @brief Number of max newton iterations for gravity center
+ * computations.
+ */
+extern int max_newt_it;
+
+/**
+ * @brief Maximum allowed number of bits for mp numbers: used in 
+ * high precision shift.
+ */
+extern long int mpwp_max;	
+
 /**
  * @brief stores the goal of the computation
  *
@@ -106,18 +165,54 @@ extern char goal[5];
  */
 extern long int prec_out;
 
-/* polynomial data - shared variables */
-extern int n;			/* degree of zero-deflated polynomial  */
-extern int deg;			/* input degree and allocation size    */
-extern char * data_type;       	/* stores the input data type          */
+ /*
+ * POLYNOMIAL DATA: SHARED VARIABLES
+ */
 
-/** 
- * Number of digits of input precision in its binary
+/**
+ * @brief degree of zero-deflated polynomial.
+ */
+extern int n;
+
+/**
+ * @brief input degree and allocation size.
+ */
+extern int deg;
+
+/**
+ * @brief stores the input data type
+ *
+ * The value of <code>data_type[0]</code> can be:
+ * - <code>'s'</code> if the input is a sparse polynomial;
+ * - <code>'u'</code> if the input is a user polynomial;
+ * - <code>'d'</code> if the input is a dense polybomial;
+ * while the value of <code>data_type[1]</code> can be:
+ * - <code>'r'</code> if the coefficients are real;
+ * - <code>'c'</code> if the coefficents are complex;
+ * and finally <code>data_type[2]</code> can assume the following values:
+ * - <code>'i'</code> means integer coefficients;
+ * - <code>'q'</code> means rationa cofficients;
+ * - <code>'b'</code> means bigfloat coefficents;
+ * - <code>'f'</code> means floating point coefficients;
+ */
+extern char * data_type;
+
+/**
+ * @brief Number of digits of input precision in its binary
  * representation. 
  */
 extern long int prec_in;
 
+/**
+ * @brief This array contains the structure of the sparse
+ * polynomial. 
+ *
+ * <code>spar[i]</code> is <code>true</code> if and only if
+ * the i-th coefficients of the polynomial is a non-zero 
+ * coefficients
+ */
 extern boolean * spar;		/* sparsity structure of the poly.     */
+
 extern double * fpr;		/* standard real coefficients          */
 extern cplx_t * fpc;		/* standard complex coefficients       */
 extern rdpe_t * dpr;		/* dpe real coefficients               */
