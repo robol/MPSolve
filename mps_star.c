@@ -60,8 +60,8 @@ fstart(int n, int i_clust, double clust_rad, double g, rdpe_t eps,
   double sigma, th, ang, temp, r;
   rdpe_t tmp;
 
-/*  sigma = drand();*/
-sigma=0.1;
+  /*  sigma = drand();*/
+  sigma=0.1;
   ni = 0;
   nzeros = 0;
   r = 0.0;

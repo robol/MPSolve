@@ -13,7 +13,9 @@
 
 /* functions for a simplified I/O with the mpsolve library */
 
-/* polynomial data type */
+/**
+ * @brief polynomial data type
+ */
 typedef struct {
   int deg;		/* starting polynomial degree */
   char data_type[3];	/* polynomial data type */

@@ -12,17 +12,29 @@
 /**
  * @file
  * @brief Routines for the computation of convex hulls.
+ *
+ * More specifically, the routine <code>fconvex</code> is the one
+ * that is intentended to be used and, given a vector of double 
+ * <code>a</code>, computes the convex hull of the set
+ * \f[ \mathcal{S} = \{ (i, a_i) \ | \ i \in \{ 1, \dots, n\} \} \f]
+ *
+ * The computed set is returned in a vector of booleans <code>h</code>
+ * such that its vertices are
+ * \f[ \mathcal{V} = \{ (i, a_i) \ | \ i \in \{ 1, \dots, n \} \ \text{and} \ h_i \ \text{is true} \ \} \f]
  */
 
 #include "mps.h"
 
 const double TOLER = 0.4;	/* slope tolerace */
 
-/***********************************************************
- *                      SUBROUTINE LEFT                    *
- ***********************************************************
-   find max lo<j<=i : h[j]
- **********************************************************/
+/**
+ * @brief find max lo<j<=i : h[j]
+ *
+ * More clearly, find the minimum index \f$j\f$ such that
+ * \f$lo < j \leq i\f$ and \f$(j, a_j)\f$ is a vertex of
+ * the convex hull of the points
+ * \f[ \{ (k, a_k) \ | \ k \in \{ lo, \dots, i \} \} \f]
+ */
 int
 left(int i, int lo)
 {
@@ -34,11 +46,14 @@ left(int i, int lo)
   return i;
 }
 
-/***********************************************************
- *                      SUBROUTINE RIGHT                   *
- ***********************************************************
-   find min i<=j<=up : h[j]
- **********************************************************/
+/**
+ * @brief find min i<=j<up : h[j]
+ *
+ * More clearly, find the maximum index \f$j\f$ such that
+ * \f$i \leq j < up\f$ and \f$(j, a_j)\f$ is a vertex of
+ * the convex hull of the points
+ * \f[ \{ (k, a_k) \ | \ k \in \{ i, \dots, up \} \} \f]
+ */
 int
 right(int i, int up)
 {
@@ -50,11 +65,19 @@ right(int i, int up)
   return i;
 }
 
-/***********************************************************
- *                      SUBROUTINE FCTEST                  *
- ***********************************************************
-   convexity test {(il, a[il]), (i, a[i]), (ir, a[ir])}
- **********************************************************/
+/**
+ * @brief convexity test of the points \f$ \{ (il, a_{il}), (i, a_i), (ir, a_{ir})\}\f$.
+ * 
+ * Check if the points in the given set are "enough convex", i.e. if 
+ * the set is \f$ \{ P_1, P_2, P_3 \} \f$ check if the slope 
+ * of the line from \f$P_1\f$ to \f$P_2\f$ is at least <code>TOLER</code>
+ * less than the slope of the line joining \f$P_2\f$ and \f$P_3\f$. 
+ * 
+ * @param il index of the first point
+ * @param i  index of the middle point
+ * @param ir index of the last point
+ * @param a  array with the points
+ */
 boolean
 fctest(int il, int i, int ir, double a[])
 {
