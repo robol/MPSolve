@@ -11,22 +11,32 @@
 
 #include "mps.h"
 
-/***********************************************************
- *               SUBROUTINE FCLUSTER                       *
- ***********************************************************
- This subroutine makes cluster analysis, i.e., detects
- overlapping disks, where two disks overlap if the distances
- of their centers is less than the sum of their radii
- multiplied by 'nf'.
- Observe that nf=1 then this concept corresponds to overlapping,
- if nf =2*n, this concept corresponds to Newton isolation.
- On input: radius, root.
- On output: the vector clust contains the indices of the
- disks in each overlapping group, while  punt(i) points to the
- index of clust where the i-th group starts. Moreover m_clust(i)
- contains the  multiplicity of the i-th cluster. nclust is the
- number of clusters.
- *********************************************************/
+/**
+ * @file
+ * @brief Implementation of the routines to perform cluster analysis
+ */
+
+/**
+ * This subroutine makes cluster analysis, i.e., detects
+ * overlapping disks, where two disks overlap if the distances
+ * of their centers is less than the sum of their radii
+ * multiplied by <code>nf</code>.
+ *
+ * Observe that \f$nf=1\f$ then this concept corresponds to overlapping,
+ * if \f$nf =2 \cdot n\f$, this concept corresponds to Newton isolation.
+ *
+ * This routine set the vector <code>clust</code> so that it
+ * contains the indices of the
+ * disks in each overlapping group, while  <code>punt[i]</code>
+ * points to the
+ * index of <code>clust</code> where the i-th group starts. Moreover 
+ * <code>m_clust[i]</code>
+ * contains the  multiplicity of the i-th cluster. 
+ * <code>nclust</code> is the
+ * number of clusters.
+ *
+ * @param nf see above for a detailed description.
+ */
 void
 fcluster(int nf)
 {
