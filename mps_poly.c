@@ -19,7 +19,7 @@
 void
 read_poly(FILE *instr, mpspoly_t p)
 {
-  int indx, num_coeff, i;
+  int indx, num_coeff, i, read_elements;
 
   /* skip blank or comment lines */
   while ((i = fgetc(instr)) == '!' || isspace(i))
@@ -29,24 +29,41 @@ read_poly(FILE *instr, mpspoly_t p)
   ungetc(i, instr);
 
   /* read data type */
-  fscanf(instr, "%3s", p->data_type);
+  read_elements = fscanf(instr, "%3s", p->data_type);
+  if (read_elements != 1) {
+    error(1, "Error reading data type, aborting.");
+  }
 
   /* read and convert prec_in from base 10 to base 2 */
   if (prec_in == -1) {
-    fscanf(instr, "%ld", &(p->prec_in));
+    /* Read input precision and abort on failure */
+    read_elements = fscanf(instr, "%ld", &(p->prec_in));
+    if (read_elements != 1) {
+      error(1, "Error reading input precision, aborting.");
+    }
     p->prec_in = (long) (p->prec_in * LOG2_10);
   } else {		/* override input precision */
-    fscanf(instr, "%*d");
+    read_elements = fscanf(instr, "%*d");
+    if (read_elements != 1) {
+      error(1, "Error reading input precision, aborting.");
+    }
     p->prec_in = prec_in; /* load default */
   }
 
   /* read degree */
-  fscanf(instr, "%d", &(p->deg));
+  read_elements = fscanf(instr, "%d", &(p->deg));
+  if (read_elements != 1) {
+    error(1, "Error reading degree of polynomial, aborting.\n");
+  }
   p->n = p->deg;
 
   /* if sparse read num of coeff */
-  if (p->data_type[0] == 's')
-    fscanf(instr, "%d", &num_coeff);
+  if (p->data_type[0] == 's') {
+    read_elements = fscanf(instr, "%d", &num_coeff);
+    if (read_elements != 1) {
+      error(1, "Error reading number of coefficients, aborting.");
+    }
+  }
   else
     num_coeff = p->deg + 1;
 
@@ -75,7 +92,10 @@ read_poly(FILE *instr, mpspoly_t p)
   for (i = 0; i < num_coeff; i++) {
 
     if (p->data_type[0] == 's') {
-      fscanf(instr, "%d", &indx);
+      read_elements = fscanf(instr, "%d", &indx);
+      if (read_elements != 1) {
+	error(1, "Error reading the polynomial coefficients, aborting.");
+      }
       p->spar[indx] = true;
     } else
       indx = i;

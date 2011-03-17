@@ -22,12 +22,15 @@ void
 readroots(void)
 {
   long digits;
-  int i;
+  int i, read_elements;
 
   if (DOLOG)
     fprintf(logstr, "Reading roots...\n");
   
-  fscanf(rtstr, "%ld", &digits);
+  read_elements = fscanf(rtstr, "%ld", &digits);
+  if (read_elements != 1) {
+    error(1, "Error while reading roots, aborting.");
+  }
 
   /* precision setup code goes here */
   
