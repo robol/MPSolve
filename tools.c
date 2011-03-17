@@ -20,12 +20,16 @@ void
 randomize(unsigned int seed)
 {
   FILE * rf = NULL;
+  int read_bytes;
 
   if (!seed) {
     seed = 1;
     rf = fopen(RAND_SOURCE, "rb");
     if (rf != NULL) {
-      fread(&seed, sizeof(int), 1, rf);
+      read_bytes = fread(&seed, sizeof(int), 1, rf);
+      if (read_bytes != 1) {
+	warn("Error while acquiring random seed!\n");
+      }
       fclose(rf);
     }
   }
