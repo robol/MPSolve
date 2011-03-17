@@ -12,7 +12,7 @@
 /**
  * @file
  * @brief Implementation of the routines to solve the polynomial
- * equation
+ * equation.
  */
 
 #include "mps.h"
@@ -374,7 +374,7 @@ fmodify(void)
       tmpr = cplx_mod(froot[clust[punt[i]]]);
       tmpr = frad[clust[punt[i]]] / tmpr;
       tmpr = log(tmpr);
-      if (tmpr < -prec_out * LOG2)
+      if (tmpr < -prec_out * LOG10_2)
 	status[clust[punt[i]]][0] = 'a';
     }
     /* Scan inside the cluster */
@@ -859,7 +859,7 @@ dmodify(void)
       cdpe_mod(tmpr, droot[clust[punt[i]]]);
       rdpe_div(tmpr, drad[clust[punt[i]]], tmpr);
       rtmp = rdpe_log(tmpr);
-      if (rtmp < -prec_out * LOG2)
+      if (rtmp < -prec_out * LOG10_2)
 	status[clust[punt[i]]][0] = 'a';
     }
     /* Scan inside the cluster */
@@ -1346,7 +1346,7 @@ mmodify(void)
       cdpe_mod(tmpr, tmpc);
       rdpe_div(tmpr, drad[clust[punt[i]]], tmpr);
       rtmp = rdpe_log(tmpr);
-      if (rtmp < -prec_out * LOG2)
+      if (rtmp < -prec_out * LOG10_2)
 	status[clust[punt[i]]][0] = 'a';
     }
     /* Scan inside the cluster */
