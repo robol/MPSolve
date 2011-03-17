@@ -358,7 +358,16 @@ extern double * fap2;		/* log of the moduli of the coeff. as double */
 extern rdpe_t * dap1;		/* moduli of the coeff.as dpe numbers  */
 extern rdpe_t * dap2;		/* moduli of the log of the coeff. as double */
 
-extern boolean * h;		/* needed for convex hull computations */
+/**
+ * @brief Vector needed for convex hull computation. 
+ *
+ * It is <code>true</code> in position \f$j\f$ if 
+ * the point \f$(j, log(x_j))\f$ is a vertex of the convex
+ * hull computed by <code>fconvex()</code> and the other functions in
+ * <code>mps_cnvx.c</code>
+ */
+extern boolean * h;
+
 extern boolean * again_old;	/* temp flag vector: true in the  components
                                    where iterations must be performed  */
 
