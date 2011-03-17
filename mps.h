@@ -306,23 +306,43 @@ extern int * clust;
  * the integer vector <code>clust</code> corresponding to the first
  * index of a cluster, i.e. the jth cluster of roots is composed by
  * roots indexed on <code>clust[p[j] : p[j+1]]</code>.
- * 
  *
  * @see nclust
  * @see clust
  */
 extern int * punt;
 
-extern long int * rootwp;	/* working prec. used for each root    */
+/**
+ * @brief Array containing working precisions used for each root.
+ */
+extern long int * rootwp;
 
-extern mpc_t * mfppc;		/* multiprecision complex coeffs of p' */
+/**
+ * @brief Multiprecision complex coefficients of \f$p'(x)\f$.
+ */
+extern mpc_t * mfppc;		
 
-extern double * fap;		/* moduli of the coeffs as double numbers */
-extern rdpe_t * dap;		/* moduli of the coefficients as dpe numbers */
-extern boolean * again;		/* flag vector: true in the components where
-				 * iterations must be performed        */
+/**
+ * @brief Array containing moduli of the coefficients as double numbers.
+ */
+extern double * fap;
 
-extern cplx_t * fppc;		/* standard complex coefficients       */
+/**
+ * @brief Array containing moduli of the coefficients as dpe numbers.
+ */
+extern rdpe_t * dap;
+
+/**
+ * @brief Array that whose i-th component is set to <code>true</code> if
+ * the i-th root needs more iterations.
+ */
+extern boolean * again;		
+
+/**
+ * @brief Array containing standard complex coefficients
+ */
+extern cplx_t * fppc;
+
 extern cplx_t * fppc1;		/* standard complex coefficients       */
 extern cdpe_t * dpc1;		/* dpe complex coefficients            */
 extern cdpe_t * dpc2;		/* dpe complex coefficients            */
