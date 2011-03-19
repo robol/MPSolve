@@ -28,7 +28,7 @@ readroots(void)
     fprintf(logstr, "Reading roots...\n");
   
   read_elements = fscanf(rtstr, "%ld", &digits);
-  if (read_elements != 1) {
+  if (!read_elements) {
     error(1, "Error while reading roots, aborting.");
   }
 
