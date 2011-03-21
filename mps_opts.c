@@ -47,6 +47,7 @@ parse_opts(int argc, char *argv[])
   /* set default values */
   prec_in = -1;                 /* if != -1 ignore precision from file */
   prec_out = 2 * DBL_DIG;       /* default output precision            */
+  random_seed = false;
 
   /* parse options */
   for (i = 1; i < argc; i++)
@@ -61,6 +62,10 @@ parse_opts(int argc, char *argv[])
           error(2, "Wrong input precision: ", argv[i]+2);
         prec_in = (long) (prec_in * LOG2_10);
         break;
+
+      case 'r':
+	random_seed = true;
+	break;
 
       case 'o':
         prec_out = atol(argv[i] + 2);
@@ -317,6 +322,7 @@ print_help(void)
                   max_pack);
   fprintf(outstr, " -Lin\tn = maximum number of global iterations [%d]\n",
                   max_it);
+  fprintf(outstr, " -r\tuse random seed for starting points\n");
 
   /* undocumented switches
      C

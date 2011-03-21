@@ -165,6 +165,12 @@ extern char goal[5];
  */
 extern long int prec_out;
 
+/**
+ * @brief boolean value that determine if we should
+ * use a random seed for startingd points
+ */
+extern boolean random_seed;
+
  /*
  * POLYNOMIAL DATA: SHARED VARIABLES
  */

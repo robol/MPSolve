@@ -46,6 +46,7 @@ int n = 0;			/* degree of zero-deflated polynomial  */
 int deg = 0;			/* input degree and allocation size    */
 long int prec_in = -1;		/* number of digits of input precision */
 				/*   override input file if != -1      */
+boolean random_seed;            /* true if random seed should be used  */
 char *data_type = NULL;		/* stores the input data type          */
 boolean *spar = NULL;		/* sparsity structure of polynomial    */
 double *fpr = NULL;		/* standard real coefficients          */
