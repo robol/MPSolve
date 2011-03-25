@@ -33,7 +33,8 @@ mpsolve(void)
   char which_case;
   boolean d_after_f, computed, over_max;
 
-  /* == 1 ==  Setup variables */
+  /* == 1 ==  Setup variables, i.e. copy coefficients
+   into dpr, dpc and similar. */
   setup();
 
   lastphase = no_phase;
@@ -98,6 +99,8 @@ mpsolve(void)
 
   /* ==== 6.1 initialize mp variables */
   mp_set_prec(2 * DBL_MANT_DIG);
+
+  /* Prepare data according to the current working precision */
   prepare_data(mpwp);
 
   /* ==== 6.2 set initial values for mp variables */
@@ -217,13 +220,22 @@ setup(void)
       cdpe_set(dpc[i], cdpe_zero);      
      }
   
-  /* setup status and clusters */
+  /* setup status and clusters so that there is only one cluster
+  *  containing all the roots */
   for (i = 0; i < n; i++) {
+    /* Set the i-th root as a clustered root */
     status[i][0] = 'c';
+    /* Set the i-th root as 'uncertain', regarding the
+     * inclusion in R or in iR. */
     status[i][1] = 'w';
+    /* Set the i-th root as 'uncertain' (regarding the inclusion
+     * in the search set). */
     status[i][2] = 'u';
     clust[i] = i;
   }
+
+  /* Indexes of the first (and only) cluster start from
+   * 0 and reach n */
   punt[0] = 0;
   punt[1] = n;
   
@@ -237,7 +249,7 @@ setup(void)
    
   /* output order info */
   for (i = 0; i < n; i++)
-    order[i] = i;  
+    order[i] = i;
 
   /* reset root counts */
   count[0] = count[1] = count[2] = 0;

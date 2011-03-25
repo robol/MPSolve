@@ -234,7 +234,15 @@ extern mpc_t * mfpc;		/* multiprecision complex coefficients */
 
 /* soution related variables */
 extern phase lastphase;		/* store last computed phase           */
-extern int count[3];		/* count roots: [in, out, uncertain]   */
+
+/**
+ * @brief Vector containing count of in, out and uncertaing roots.
+ */
+extern int count[3];
+
+/**
+ * @brief Number of zero roots.
+ */
 extern int zero_roots;		/* number of roots = 0                 */
 
 /**
