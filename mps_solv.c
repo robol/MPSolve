@@ -2127,17 +2127,9 @@ fpolzer(int *it, boolean * excep)
   *excep = true;
 }
 
-/**************************************************************
-*              SUBROUTINE DPOLZER                             *
-***************************************************************
- This routine applies nit iterations of Aberth's method to the
- i-th component of the approximations for which again[i] is true
- Set again[i]=false if the i-th approximation is in the root 
- neighbourhood
- Stop if  again[i]=false for any i.
- excep= true if after nit iterations some approximation is still
- out of the root neighbourhood.
-***************************************************************/
+/**
+ * @brief <code>dpe</code> version of <code>fpolzer</code>.
+ */
 void
 dpolzer(int *it, boolean * excep)
 {
@@ -2209,18 +2201,9 @@ dpolzer(int *it, boolean * excep)
   *excep = true;
 }
 
-/*****************************************************
-*             SUBROUTINE DSOLVE                      *
-******************************************************
- This routine applies nit iterations of Aberth's method
- to the i-th component of the approximations for which
- again[i] is true
- Set again[i]=false if the i-th approximation is in the
- root neighbourhood
- Stop if  again[i]=false for any i.
- excep= true if after nit iterations some approximation
- is still out of the root neighbourhood.
- ******************************************************/
+/**
+ * @brief <code>dpe</code> version of <code>fsolve</code>.
+ */
 void
 dsolve(boolean d_after_f)
 {
@@ -2360,9 +2343,9 @@ dsolve(boolean d_after_f)
       status[j][0] = 'c';
 }
 
-/****************************************************
-*             SUBROUTINE MSOLVE                     *
-****************************************************/
+/**
+ * @brief Multiprecision version of <code>fsolve</code>.
+ */
 void
 msolve(void)
 {
@@ -2616,17 +2599,9 @@ msolve(void)
   }
 }
 
-/*********************************************************
-*                SUBROUTINE MPOLZER                      *
-**********************************************************
- This routine applies nit iterations of Aberth's method
- to the i-th component of the approximations for which
- again[i] is true
- Set again[i]=false if the i-th approximation is in the
- root neighbourhood.  Stop if  again[i]=false for any i.
- excep= true if after nit iterations some approximation
- is still out of the root neighbourhood.
- ********************************************************/
+/**
+ * @brief Multiprecision versione of <code>fpolzer</code>.
+ */
 void
 mpolzer(int *it, boolean * excep)
 {
