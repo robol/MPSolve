@@ -157,12 +157,17 @@ update(void)
   }
 }
 
-/********************************************************
-*                    SUBROUTINE FSRAD                   *
-*********************************************************
- Compute super center and super radius: float case
- Compute the super radius of the i-th cluster
-*********************************************************/
+
+/**
+ * @brief Compute super center and super radius
+ * 
+ * This routines the super radius of the <code>i</code>-th cluster,
+ * i.e. the radius of the inclusion disc for the whole cluster
+ *
+ * @param i Index of the cluster;
+ * @param sc Center of the cluster;
+ * @param sr Double that will be set to the super radius of the cluster;
+ */
 void
 fsrad(int i, cplx_t sc, double *sr)
 {
@@ -190,12 +195,9 @@ fsrad(int i, cplx_t sc, double *sr)
   }
 }
 
-/********************************************************
-*                    SUBROUTINE DSRAD                   *
-*********************************************************
- Compute super center and super radius: DPE case
- Compute the super radius of the i-th cluster
-*********************************************************/
+/**
+ * @brief <code>dpe</code> version of <code>fsrad()</code>
+ */
 void
 dsrad(int i, cdpe_t sc, rdpe_t sr)
 {
@@ -226,12 +228,9 @@ dsrad(int i, cdpe_t sc, rdpe_t sr)
   }
 }
 
-/********************************************************
-*                    SUBROUTINE MSRAD                   *
-*********************************************************
- Compute super center and super radius: MP case
- Compute the super radius of the i-th cluster
-*********************************************************/
+/**
+ * @brief Multiprecision versione of <code>fsrad()</code>
+ */
 void
 msrad(int i, mpc_t sc, rdpe_t sr)
 {
@@ -2128,7 +2127,7 @@ fpolzer(int *it, boolean * excep)
 }
 
 /**
- * @brief <code>dpe</code> version of <code>fpolzer</code>.
+ * @brief <code>dpe</code> version of <code>fpolzer()</code>.
  */
 void
 dpolzer(int *it, boolean * excep)
@@ -2202,7 +2201,7 @@ dpolzer(int *it, boolean * excep)
 }
 
 /**
- * @brief <code>dpe</code> version of <code>fsolve</code>.
+ * @brief <code>dpe</code> version of <code>fsolve()</code>.
  */
 void
 dsolve(boolean d_after_f)
@@ -2344,7 +2343,7 @@ dsolve(boolean d_after_f)
 }
 
 /**
- * @brief Multiprecision version of <code>fsolve</code>.
+ * @brief Multiprecision version of <code>fsolve()</code>.
  */
 void
 msolve(void)
@@ -2600,7 +2599,7 @@ msolve(void)
 }
 
 /**
- * @brief Multiprecision versione of <code>fpolzer</code>.
+ * @brief Multiprecision versione of <code>fpolzer()</code>.
  */
 void
 mpolzer(int *it, boolean * excep)
