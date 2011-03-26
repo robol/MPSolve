@@ -1767,27 +1767,38 @@ mmodify(void)
   tmpc_clear(sc);
 }
 
-/*********************************************************
-*           SUBROUTINE CHECK_STOP                        *
-**********************************************************
- Set computed= true if the stop condition is satisfied,
- Set computed= false otherwise.
- The stop condition is obtained from the vector status as
- follows:
- If the Goal is count:
-    == Stop if:
-      --  **u does not exist, except for a*u, o*u, f*u
-      -- Mult. and does not exist c**
-      -- Real. and does not exist *u*, except for au*, ou*
-      -- Imag  and does not exist *v*, except for av*, ov*
- If the Goal is isolate or approximate:
-    == Stop if:
-      -- **u does not exist, except for  a*u, o*u, f*u
-         and if c*i does not exist.
-      -- Mult. and does not exist c*i, o*i
-      -- Real. and does not exist *ui, except for aui, oui
-      -- Imag  and does not exist *vi, except for avi, ovi
-************************************************************/
+/**
+ * @brief Check if the roots are computed with the required
+ * precision.
+ *
+ * Set <code>computed</code> to <code>true</code> 
+ * if the stop condition is satisfied,
+ * otherwise set <code>computed</code> to <code>false</code>.
+ *
+ * The stop condition is obtained from the vector <code>status</code> 
+ * as follows:
+ *
+ * If the <code>goal</code> is count stop if
+ *  -  <code>**u</code> does not exist, except for 
+ *     <code>a*u</code>, <code>o*u</code>, <code>f*u</code>
+ *  - Mult. and does not exist <code>c**</code>
+ *  - Real. and does not exist <code>*u*</code>, except for <code>au*</code>, 
+ *    <code>ou*</code>;
+ *  - Imag  and does not exist <code>*v*</code>, except for 
+ *    <code>av*</code>, <code>ov*</code>;
+ *
+ * If the <code>goal</code> is isolate or approximate stop if:
+ * - <code>**u</code> does not exist, except for  <code>a*u</code>, 
+ *   <code>o*u</code>, <code>f*u</code>
+ *   and if <code>c*i</code> does not exist;
+ * - Mult. and does not exist <code>c*i</code>, <code>o*i</code>
+ * - Real. and does not exist <code>*ui</code>, except for <code>aui</code>, 
+ *   <code>oui</code>;
+ * - Imag  and does not exist <code>*vi</code>, 
+ *   except for <code>avi</code>, <code>ovi</code>;
+ * 
+ * @see status
+ */
 boolean
 check_stop(void)
 {
@@ -1866,8 +1877,9 @@ check_stop(void)
  *    repeat until the max number of allowed packets is reached. 
  *    In the latter case output FAILURE.
  *
- * The local variable 'again' controls the iteration: i.e., 
- *   again[i]= true means iterate on the i-th component
+ * The local variable <code>again</code> controls the iteration: i.e., 
+ *   <code>again[i]=true</code> means iterate on the <code>i</code>-th 
+ *   component
  *
  * @param d_after_f this variable is <code>true</code> if dpe
  * are needed after the floating point pass. 
@@ -2024,16 +2036,21 @@ fsolve(boolean * d_after_f)
       status[j][0] = 'c';
 }
 
-/**********************************************************
-*          SUBROUTINE FPOLZER                             *
-***********************************************************
- This routine applies nit iterations of Aberth's method to
- the i-th component of the approximations for which again[i]
- is true. Set again[i]=false if the i-th approximation is in
- the root neighbourhood. Stop if  again[i]=false for any i.
- excep= true if after nit iterations some approximation is
- still out of the root neighbourhood.
-************************************************************/
+/**
+ * @brief This routine applies <code>nit</code> iterations of 
+ * Aberth's method.
+ * 
+ * The method is applied to
+ * the <code>i</code>-th component of the approximations for which 
+ * <code>again[i]</code>
+ * is <code>true</code>. Set <code>again[i]=false</code> if the <code>i</code>-th 
+ * approximation is in
+ * the root neighbourhood. Stop if <code>again[i]=false</code> for any <code>i</code>.
+ *
+ * @param it Index of the component on which the iteration is needed. 
+ * @param excep This variable is set to <code>true</code> if after <code>nit</code> 
+ * iterations some approximation is still out of the root neighbourhood.
+ */
 void
 fpolzer(int *it, boolean * excep)
 {

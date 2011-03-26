@@ -50,8 +50,12 @@ mpsolve(void)
     which_case = 'd';
   else
     which_case = 'f';
+
+  /* This variable is true if we need a dpe phase after the
+   * float phase */
   d_after_f = false;
-  
+
+  /* Check if a dpe phase is needed and deflate polynomial */
   check_data(&which_case);
   if (DOLOG)
     fprintf(logstr, "Which_case = %c, skip_float= %d\n",
@@ -365,9 +369,19 @@ setup(void)
     }
 }
 
-/*********************************************************
-*                   PROCEDURE CHECK_DATA
-**********************************************************/
+/**
+ * @brief Check consistency of data and makes some basic adjustments.
+ *
+ * This routine check, for example, if there are zero roots in the polynomial
+ * (i.e. no costant term) and deflates the polynomial if necessary (shifting
+ * the coefficients). 
+ *
+ * It sets the value of the parameter <code>which_case</code> to <code>'f'</code>
+ * if a floating point phase is enough, or to <code>'d'</code> if
+ * a <code>dpe</code> phase is needed.
+ * 
+ * @param which_case the address of the variable which_case;
+ */
 void
 check_data(char *which_case)
 {
