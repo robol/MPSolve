@@ -19,79 +19,79 @@ static long int data_prec_max = 0;
   Globally set the current precision of mp variables
  **********************************************************/
 void
-mp_set_prec(long int prec)
+mp_set_prec(mps_status* s, long int prec)
 {
-  mpwp = prec;
+  s->mpwp = prec;
   mpf_set_default_prec(prec);
-  rdpe_set_2dl(mp_epsilon, 1.0, -prec + 1);
+  rdpe_set_2dl(s->mp_epsilon, 1.0, -prec + 1);
 }
 
 /********************************************************
  *      SUBROUTINE ALLOCATE_DATA                        *
  *******************************************************/
 void
-allocate_data(void)
+allocate_data(mps_status* s)
 {
   int i;
 
-  if (DOLOG)
-    fprintf(logstr, "Allocating data\n");
+  if (s->DOLOG)
+    fprintf(s->logstr, "Allocating data\n");
 
-  clust = int_valloc(deg);
-  punt = int_valloc(deg + 1);
-  again = boolean_valloc(deg);
-  status = (char (*)[3]) char_valloc(3 * deg);
+  s->clust = int_valloc(s->deg);
+  s->punt = int_valloc(s->deg + 1);
+  s->again = boolean_valloc(s->deg);
+  s->status = (char (*)[3]) char_valloc(3 * s->deg);
   
-  order = int_valloc(deg);
-  rootwp = long_valloc(deg);
+  s->order = int_valloc(s->deg);
+  s->rootwp = long_valloc(s->deg);
 
-  fap = double_valloc(deg + 1);
-  dap = rdpe_valloc(deg + 1);
+  s->fap = double_valloc(s->deg + 1);
+  s->dap = rdpe_valloc(s->deg + 1);
 
-  frad = double_valloc(deg);
-  froot = cplx_valloc(deg);
-  drad = rdpe_valloc(deg);
-  droot = cdpe_valloc(deg);
+  s->frad = double_valloc(s->deg);
+  s->froot = cplx_valloc(s->deg);
+  s->drad = rdpe_valloc(s->deg);
+  s->droot = cdpe_valloc(s->deg);
 
-  mroot = mpc_valloc(deg);
-  for (i = 0; i < deg; i++)
-    mpc_init2(mroot[i], 0);
+  s->mroot = mpc_valloc(s->deg);
+  for (i = 0; i < s->deg; i++)
+    mpc_init2(s->mroot[i], 0);
 
-  fppc = cplx_valloc(deg + 1);
-  fppc1 = cplx_valloc(deg + 1);
+  s->fppc = cplx_valloc(s->deg + 1);
+  s->fppc1 = cplx_valloc(s->deg + 1);
 
-  mfpc1 = mpc_valloc(deg + 1);
-  for (i = 0; i <= deg; i++)
-    mpc_init2(mfpc1[i], 0);
+  s->mfpc1 = mpc_valloc(s->deg + 1);
+  for (i = 0; i <= s->deg; i++)
+    mpc_init2(s->mfpc1[i], 0);
 
-  mfppc = mpc_valloc(deg + 1);
-  mfppc1 = mpc_valloc(deg + 1);
-  mfpc2 = mpc_valloc(deg + 1);
-  for (i = 0; i <= deg; i++) {
-    mpc_init2(mfppc[i], 0);
-    mpc_init2(mfppc1[i], 0);
-    mpc_init2(mfpc2[i], 0);
+  s->mfppc = mpc_valloc(s->deg + 1);
+  s->mfppc1 = mpc_valloc(s->deg + 1);
+  s->mfpc2 = mpc_valloc(s->deg + 1);
+  for (i = 0; i <= s->deg; i++) {
+    mpc_init2(s->mfppc[i], 0);
+    mpc_init2(s->mfppc1[i], 0);
+    mpc_init2(s->mfpc2[i], 0);
   }
 
   /* temporary vectors */
-  spar1 = boolean_valloc(deg + 2);
-  spar2 = boolean_valloc(deg + 2);
-  h = boolean_valloc(deg + 2);
-  again_old = boolean_valloc(deg);
+  s->spar1 = boolean_valloc(s->deg + 2);
+  s->spar2 = boolean_valloc(s->deg + 2);
+  s->h = boolean_valloc(s->deg + 2);
+  s->again_old = boolean_valloc(s->deg);
 
-  oldpunt = int_valloc(deg + 1);
-  clust_aux = int_valloc(deg + 1);
-  punt_aux = int_valloc(deg + 1);
-  punt_out = int_valloc(deg + 1);
-  clust_out = int_valloc(deg + 1);
+  s->oldpunt = int_valloc(s->deg + 1);
+  s->clust_aux = int_valloc(s->deg + 1);
+  s->punt_aux = int_valloc(s->deg + 1);
+  s->punt_out = int_valloc(s->deg + 1);
+  s->clust_out = int_valloc(s->deg + 1);
 
-  fap1 = double_valloc(deg + 1);
-  fap2 = double_valloc(deg + 1);
+  s->fap1 = double_valloc(s->deg + 1);
+  s->fap2 = double_valloc(s->deg + 1);
 
-  dap1 = rdpe_valloc(deg + 1);
-  dap2 = rdpe_valloc(deg + 1);
-  dpc1 = cdpe_valloc(deg + 1);
-  dpc2 = cdpe_valloc(deg + 1);
+  s->dap1 = rdpe_valloc(s->deg + 1);
+  s->dap2 = rdpe_valloc(s->deg + 1);
+  s->dpc1 = cdpe_valloc(s->deg + 1);
+  s->dpc2 = cdpe_valloc(s->deg + 1);
 }
 
 /***********************************************************
@@ -100,36 +100,36 @@ allocate_data(void)
  raise precision performing a real computation of the data
  **********************************************************/
 long int
-raise_data(long int prec)
+raise_data(mps_status* s, long int prec)
 {
   int i, k;
 
   /* raise the precision of  mroot */
-  for (k = 0; k < n; k++)
-    mpc_set_prec(mroot[k], prec);
+  for (k = 0; k < s->n; k++)
+    mpc_set_prec(s->mroot[k], prec);
 
-  if (data_type[0] != 'u') {
+  if (s->data_type[0] != 'u') {
     /* raise the precision of  mfpc */
-    for (k = 0; k < n + 1; k++)
-      if (data_type[0] != 's' || spar[k])
-	mpc_set_prec(mfpc[k], prec);
+    for (k = 0; k < s->n + 1; k++)
+      if (s->data_type[0] != 's' || s->spar[k])
+	mpc_set_prec(s->mfpc[k], prec);
 
-    for (i = 0; i <= n; i++)
-      if (data_type[0] != 's' || spar[i]) {
-	switch (data_type[1]) {
+    for (i = 0; i <= s->n; i++)
+      if (s->data_type[0] != 's' || s->spar[i]) {
+	switch (s->data_type[1]) {
 	case 'r':		/* real */
 	  /* the real case should be adjusted later on */
-	  switch (data_type[2]) {
+	  switch (s->data_type[2]) {
 	  case 'i':		/* integer */
-	    mpf_set_z(mpc_Re(mfpc[i]), mip_r[i]);
-	    mpf_set_ui(mpc_Im(mfpc[i]), 0);
+	    mpf_set_z(mpc_Re(s->mfpc[i]), s->mip_r[i]);
+	    mpf_set_ui(mpc_Im(s->mfpc[i]), 0);
 	    break;
 	  case 'q':		/* rational */
-	    mpf_set_q(mpc_Re(mfpc[i]), mqp_r[i]);
-	    mpf_set_ui(mpc_Im(mfpc[i]), 0);
+	    mpf_set_q(mpc_Re(s->mfpc[i]), s->mqp_r[i]);
+	    mpf_set_ui(mpc_Im(s->mfpc[i]), 0);
 	    /* GMP 2.0.2 bug begin */
-	    if (mpf_sgn(mpc_Re(mfpc[i])) != mpq_sgn(mqp_r[i]))
-	      mpf_neg(mpc_Re(mfpc[i]), mpc_Re(mfpc[i]));
+	    if (mpf_sgn(mpc_Re(s->mfpc[i])) != mpq_sgn(s->mqp_r[i]))
+	      mpf_neg(mpc_Re(s->mfpc[i]), mpc_Re(s->mfpc[i]));
 	    /* GMP bug end */
 	    break;
 	  case 'b':		/* big float */
@@ -145,17 +145,17 @@ raise_data(long int prec)
 	  }
 	  break;
 	case 'c':		/* complex */
-	  switch (data_type[2]) {
+	  switch (s->data_type[2]) {
 	  case 'i':		/* integer */
-	    mpc_set_z(mfpc[i], mip_r[i], mip_i[i]);
+	    mpc_set_z(s->mfpc[i], s->mip_r[i], s->mip_i[i]);
 	    break;
 	  case 'q':		/* rational */
-	    mpc_set_q(mfpc[i], mqp_r[i], mqp_i[i]);
+	    mpc_set_q(s->mfpc[i], s->mqp_r[i], s->mqp_i[i]);
 	    /* GMP 2.0.2 bug begin */
-	    if (mpf_sgn(mpc_Re(mfpc[i])) != mpq_sgn(mqp_r[i]))
-	      mpf_neg(mpc_Re(mfpc[i]), mpc_Re(mfpc[i]));
-	    if (mpf_sgn(mpc_Im(mfpc[i])) != mpq_sgn(mqp_i[i]))
-	      mpf_neg(mpc_Im(mfpc[i]), mpc_Im(mfpc[i]));
+	    if (mpf_sgn(mpc_Re(s->mfpc[i])) != mpq_sgn(s->mqp_r[i]))
+	      mpf_neg(mpc_Re(s->mfpc[i]), mpc_Re(s->mfpc[i]));
+	    if (mpf_sgn(mpc_Im(s->mfpc[i])) != mpq_sgn(s->mqp_i[i]))
+	      mpf_neg(mpc_Im(s->mfpc[i]), mpc_Im(s->mfpc[i]));
 	    /* GMP bug end */
 	    break;
 	  case 'b':		/* big float */
@@ -174,24 +174,24 @@ raise_data(long int prec)
   }
   
   /* Raise the precision of p' */
-  if (data_type[0] == 's')
-    for (k = 0; k < n; k++)
-      if (spar[k + 1]) {
-	mpc_set_prec(mfppc[k], prec);
-	mpc_mul_ui(mfppc[k], mfpc[k + 1], k + 1);
+  if (s->data_type[0] == 's')
+    for (k = 0; k < s->n; k++)
+      if (s->spar[k + 1]) {
+	mpc_set_prec(s->mfppc[k], prec);
+	mpc_mul_ui(s->mfppc[k], s->mfpc[k + 1], k + 1);
       }
 
   /* raise the precision of auxiliary variables */
-  for (k = 0; k < n + 1; k++) {
-    mpc_set_prec(mfpc1[k], prec);
-    mpc_set_prec(mfppc1[k], prec);
+  for (k = 0; k < s->n + 1; k++) {
+    mpc_set_prec(s->mfpc1[k], prec);
+    mpc_set_prec(s->mfppc1[k], prec);
   }
   
-  if (data_type[0] == 's')
-    for (k = 0; k < n + 1; k++)
-      mpc_set_prec(mfpc2[k], prec);
+  if (s->data_type[0] == 's')
+    for (k = 0; k < s->n + 1; k++)
+      mpc_set_prec(s->mfpc2[k], prec);
 
-  return mpc_get_prec(mroot[0]);
+  return mpc_get_prec(s->mroot[0]);
 }
 
 /***********************************************************
@@ -200,34 +200,34 @@ raise_data(long int prec)
  modify the raw precision of mp variables
  ***********************************************************/
 void
-raise_data_raw(long int prec)
+raise_data_raw(mps_status* s, long int prec)
 {
   int k;
 
   /* raise the precision of  mroot */
-  for (k = 0; k < n; k++)
-    mpc_set_prec_raw(mroot[k], prec);
+  for (k = 0; k < s->n; k++)
+    mpc_set_prec_raw(s->mroot[k], prec);
 
   /* raise the precision of  mfpc */
-  if (data_type[0] != 'u')
-    for (k = 0; k < n + 1; k++)
-      mpc_set_prec_raw(mfpc[k], prec);
+  if (s->data_type[0] != 'u')
+    for (k = 0; k < s->n + 1; k++)
+      mpc_set_prec_raw(s->mfpc[k], prec);
 
   /* Raise the precision of sparse vectors */
-  if (data_type[0] == 's')
-    for (k = 0; k < n; k++)
-      if (spar[k + 1])
-	mpc_set_prec_raw(mfppc[k], prec);
+  if (s->data_type[0] == 's')
+    for (k = 0; k < s->n; k++)
+      if (s->spar[k + 1])
+	mpc_set_prec_raw(s->mfppc[k], prec);
 
   /* raise the precision of auxiliary variables */
-  for (k = 0; k < n + 1; k++) {
-    mpc_set_prec_raw(mfpc1[k], prec);
-    mpc_set_prec_raw(mfppc1[k], prec);
+  for (k = 0; k < s->n + 1; k++) {
+    mpc_set_prec_raw(s->mfpc1[k], prec);
+    mpc_set_prec_raw(s->mfppc1[k], prec);
   }
 
-  if (data_type[0] == 's')
-    for (k = 0; k < n + 1; k++)
-      mpc_set_prec_raw(mfpc2[k], prec);
+  if (s->data_type[0] == 's')
+    for (k = 0; k < s->n + 1; k++)
+      mpc_set_prec_raw(s->mfpc2[k], prec);
 }
 
 /***********************************************************
@@ -238,17 +238,17 @@ raise_data_raw(long int prec)
  rational or integer coefficients.
  ***********************************************************/
 void
-prepare_data(long int prec)
+prepare_data(mps_status* s, long int prec)
 {
-  if (DOLOG)
-    fprintf(logstr, "Prepare data:  working precision =%ld bits\n", prec);
+  if (s->DOLOG)
+    fprintf(s->logstr, "Prepare data:  working precision =%ld bits\n", prec);
 
   if (prec > data_prec_max) {
     if (data_prec_max)
-      raise_data_raw(data_prec_max);
-    data_prec_max = raise_data(prec);
+      raise_data_raw(s, data_prec_max);
+    data_prec_max = raise_data(s, prec);
   } else
-    raise_data_raw(prec);
+    raise_data_raw(s, prec);
 }
 
 /***********************************************************
@@ -257,85 +257,85 @@ prepare_data(long int prec)
  Resets the data to the highest used precision
  ***********************************************************/
 void
-restore_data(void)
+restore_data(mps_status* s)
 {
-  if (DOLOG)
-    fprintf(logstr, "Restore data to %ld bits\n", data_prec_max);
+  if (s->DOLOG)
+    fprintf(s->logstr, "Restore data to %ld bits\n", data_prec_max);
 
   if (data_prec_max) 
-    raise_data_raw(data_prec_max);
+    raise_data_raw(s, data_prec_max);
 }
 
 /********************************************************
  *      SUBROUTINE FREE_DATA                            *
  *******************************************************/
 void
-free_data(void)
+free_data(mps_status* s)
 {
   int i;
 
-  if (DOLOG)
-    fprintf(logstr, "Unallocating data...\n");
+  if (s->DOLOG)
+    fprintf(s->logstr, "Unallocating data...\n");
 
-  free(clust);
-  free(punt);
-  free(again);
-  free(status);
-  free(rootwp);
-  free(order);
+  free(s->clust);
+  free(s->punt);
+  free(s->again);
+  free(s->status);
+  free(s->rootwp);
+  free(s->order);
 
-  free(fap);
-  rdpe_vfree(dap);
+  free(s->fap);
+  rdpe_vfree(s->dap);
 
-  free(frad);
-  rdpe_vfree(drad);
+  free(s->frad);
+  rdpe_vfree(s->drad);
 
-  cplx_vfree(froot);
-  cdpe_vfree(droot);
-  for (i = 0; i < deg; i++)
-    mpc_clear(mroot[i]);
-  free(mroot);
+  cplx_vfree(s->froot);
+  cdpe_vfree(s->droot);
+  for (i = 0; i < s->deg; i++)
+    mpc_clear(s->mroot[i]);
+  free(s->mroot);
 
-  for (i = 0; i <= deg; i++)
-    mpc_clear(mfpc1[i]);
-  free(mfpc1);
+  for (i = 0; i <= s->deg; i++)
+    mpc_clear(s->mfpc1[i]);
+  free(s->mfpc1);
 
-  cplx_vfree(fppc1);
-  for (i = 0; i <= deg; i++) {
-    mpc_clear(mfppc[i]);
-    mpc_clear(mfppc1[i]);
-    mpc_clear(mfpc2[i]);
+  cplx_vfree(s->fppc1);
+  for (i = 0; i <= s->deg; i++) {
+    mpc_clear(s->mfppc[i]);
+    mpc_clear(s->mfppc1[i]);
+    mpc_clear(s->mfpc2[i]);
   }
-  free(mfppc);
-  free(mfppc1);
-  free(mfpc2);
+  free(s->mfppc);
+  free(s->mfppc1);
+  free(s->mfpc2);
 
 
   /* free temporary vectors */
-  free(spar1);
-  free(spar2);
-  free(h);
-  free(again_old);
+  free(s->spar1);
+  free(s->spar2);
+  free(s->h);
+  free(s->again_old);
 
-  free(oldpunt);
-  free(clust_aux);
-  free(punt_aux);
-  free(punt_out);
-  free(clust_out);
+  free(s->oldpunt);
+  free(s->clust_aux);
+  free(s->punt_aux);
+  free(s->punt_out);
+  free(s->clust_out);
 
-  free(fap1);
-  free(fap2);
+  free(s->fap1);
+  free(s->fap2);
 
-  rdpe_vfree(dap1);
-  rdpe_vfree(dap2);
-  cdpe_vfree(dpc1);
-  cdpe_vfree(dpc2);
+  rdpe_vfree(s->dap1);
+  rdpe_vfree(s->dap2);
+  cdpe_vfree(s->dpc1);
+  cdpe_vfree(s->dpc2);
 
-  if (DOLOG)
-    fprintf(logstr, "...temporaries...\n");
+  if (s->DOLOG)
+    fprintf(s->logstr, "...temporaries...\n");
 
   mptemp_clear();
 
-  if (DOLOG)
-    fprintf(logstr, "...done\n");
+  if (s->DOLOG)
+    fprintf(s->logstr, "...done\n");
 }

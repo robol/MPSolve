@@ -43,7 +43,7 @@ typedef __mpspoly_struct mpspoly_t[1];
 
 /* solution data type */
 typedef struct {
-  phase lastphase;	/* store last computed phase */
+  mps_phase lastphase;	/* store last computed phase */
   int *count;		/* count roots: [inside, outside, uncertain] */
   int zero_roots;	/* number of roots = 0 */
   char (*status)[3];	/* status of each approximation */
@@ -57,10 +57,10 @@ typedef struct {
 typedef __mpsroots_struct mpsroots_t[1];
 
 /* functions */
-void allocate_poly(mpspoly_t p);
-void read_poly(FILE *instr, mpspoly_t p);
-void validate_poly(mpspoly_t p, int num_coeff);
-void set_poly(mpspoly_t p);
-void update_poly(mpspoly_t p);
-void free_poly(mpspoly_t p);
-void get_roots(mpsroots_t r);
+void allocate_poly(mps_status* s, mpspoly_t p);
+void read_poly(mps_status* s, FILE *instr, mpspoly_t p);
+void validate_poly(mps_status* s, mpspoly_t p, int num_coeff);
+void set_poly(mps_status* s, mpspoly_t p);
+void update_poly(mps_status* s, mpspoly_t p);
+void free_poly(mps_status* s, mpspoly_t p);
+void get_roots(mps_status* s, mpsroots_t r);

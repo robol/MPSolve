@@ -17,7 +17,7 @@
 *       SUBROUTINE READ_POLY                               *
 ***********************************************************/
 void
-read_poly(FILE *instr, mpspoly_t p)
+read_poly(mps_status* s, FILE *instr, mpspoly_t p)
 {
   int indx, num_coeff, i, read_elements;
 
@@ -35,7 +35,7 @@ read_poly(FILE *instr, mpspoly_t p)
   }
 
   /* read and convert prec_in from base 10 to base 2 */
-  if (prec_in == -1) {
+  if (s->prec_in == -1) {
     /* Read input precision and abort on failure */
     read_elements = fscanf(instr, "%ld", &(p->prec_in));
     if (!read_elements) {
@@ -44,7 +44,7 @@ read_poly(FILE *instr, mpspoly_t p)
     p->prec_in = (long) (p->prec_in * LOG2_10);
   } else {		/* override input precision */
     read_elements = fscanf(instr, "%*d");
-    p->prec_in = prec_in; /* load default */
+    p->prec_in = s->prec_in; /* load default */
   }
 
   /* read degree */
@@ -65,20 +65,20 @@ read_poly(FILE *instr, mpspoly_t p)
     num_coeff = p->deg + 1;
 
   /* validate polynomial data */
-  validate_poly(p, num_coeff);
+  validate_poly(s, p, num_coeff);
 
   /* setup floating point multiprecision */
   if (p->prec_in != 0)
-    mp_set_prec(p->prec_in);
+    mp_set_prec(s, p->prec_in);
   else
-    mp_set_prec(2 * DBL_MANT_DIG);
+    mp_set_prec(s, 2 * DBL_MANT_DIG);
 
   /* no need to read coefficients if user polynomial */
   if (p->data_type[0] == 'u')
     return;
 
   /* allocate polynomial vector */
-  allocate_poly(p);
+  allocate_poly(s, p);
 
   /* setup sparsity vector */
   if (p->data_type[0] == 's')
@@ -174,7 +174,7 @@ read_poly(FILE *instr, mpspoly_t p)
 *                   PROCEDURE VALIDATE_POLY
 **********************************************************/
 void
-validate_poly(mpspoly_t p, int num_coeff)
+validate_poly(mps_status* s, mpspoly_t p, int num_coeff)
 {
   /* check polynomial type */
   if (!p->data_type[0] || !strchr("sdu", p->data_type[0]))
@@ -201,51 +201,51 @@ validate_poly(mpspoly_t p, int num_coeff)
     error(1, "Invalid number of coefficients");
 
   /* log */
-  if (DOLOG) {
+  if (s->DOLOG) {
 
     /* degree */
-    fprintf(logstr, "Degree= %d\n", p->n);
+    fprintf(s->logstr, "Degree= %d\n", p->n);
 
     /* type */
     switch (p->data_type[0]) {
     case 'u':
-      fprintf(logstr, "User polynomial\n");
+      fprintf(s->logstr, "User polynomial\n");
       break;
     case 's':
-      fprintf(logstr, "Sparse polynomial\n");
-      fprintf(logstr, "Num_coeff.= %d\n", num_coeff);
+      fprintf(s->logstr, "Sparse polynomial\n");
+      fprintf(s->logstr, "Num_coeff.= %d\n", num_coeff);
       break;
     case 'd':
-      fprintf(logstr, "Dense polynomial\n");
+      fprintf(s->logstr, "Dense polynomial\n");
       break;
     }
 
     /* ring */
     switch (p->data_type[1]) {
     case 'r':
-      fprintf(logstr, "Real case\n");
+      fprintf(s->logstr, "Real case\n");
       break;
     case 'c':
-      fprintf(logstr, "Complex polynomial\n");
+      fprintf(s->logstr, "Complex polynomial\n");
       break;
     }
 
     /* coefficient */
     switch (p->data_type[2]) {
     case 'i':
-      fprintf(logstr, "Integer case\n");
+      fprintf(s->logstr, "Integer case\n");
       break;
     case 'q':
-      fprintf(logstr, "Rational case\n");
+      fprintf(s->logstr, "Rational case\n");
       break;
     case 'f':
-      fprintf(logstr, "Float case\n");
+      fprintf(s->logstr, "Float case\n");
       break;
     case 'd':
-      fprintf(logstr, "DPE case\n");
+      fprintf(s->logstr, "DPE case\n");
       break;
     case 'b':
-      fprintf(logstr, "Bigfloat case\n");
+      fprintf(s->logstr, "Bigfloat case\n");
       break;
     }
   }
@@ -255,33 +255,33 @@ validate_poly(mpspoly_t p, int num_coeff)
 *       SUBROUTINE SET_POLY                                *
 ***********************************************************/
 void
-set_poly(mpspoly_t p)
+set_poly(mps_status* s, mpspoly_t p)
 {
-  n = p->n;  
-  deg = p->deg;
-  data_type = p->data_type;
-  prec_in = p->prec_in;
-  spar = p->spar;
-  fpr = p->fpr;
-  fpc = p->fpc;
-  dpr = p->dpr;
-  dpc = p->dpc;
-  mip_r = p->mip_r;
-  mip_i = p->mip_i;
-  mqp_r = p->mqp_r;
-  mqp_i = p->mqp_i;
-  mfpr = p->mfpr;
-  mfpc = p->mfpc;	
+  s->n = p->n;  
+  s->deg = p->deg;
+  s->data_type = p->data_type;
+  s->prec_in = p->prec_in;
+  s->spar = p->spar;
+  s->fpr = p->fpr;
+  s->fpc = p->fpc;
+  s->dpr = p->dpr;
+  s->dpc = p->dpc;
+  s->mip_r = p->mip_r;
+  s->mip_i = p->mip_i;
+  s->mqp_r = p->mqp_r;
+  s->mqp_i = p->mqp_i;
+  s->mfpr = p->mfpr;
+  s->mfpc = p->mfpc;	
 }
 
 /***********************************************************
 *       SUBROUTINE UPDATE_POLY                            *
 ***********************************************************/
 void
-update_poly(mpspoly_t p)
+update_poly(mps_status* s, mpspoly_t p)
 {
-  p->prec_in = prec_in;
-  p->n = n;  
+  p->prec_in = s->prec_in;
+  p->n = s->n;  
 }
 
 /********************************************************
@@ -291,11 +291,11 @@ update_poly(mpspoly_t p)
  *******************************************************/
 /*DAFARE da perfezionare senza allocare cose inutili */
 void
-allocate_poly(mpspoly_t p)
+allocate_poly(mps_status* s, mpspoly_t p)
 {
   int i;
-  if (DOLOG)
-    fprintf(logstr, "Allocating polynomial\n");
+  if (s->DOLOG)
+    fprintf(s->logstr, "Allocating polynomial\n");
 
   p->spar = boolean_valloc(p->deg + 2);
 
@@ -331,12 +331,12 @@ allocate_poly(mpspoly_t p)
  *      SUBROUTINE FREE_POLY                            *
  *******************************************************/
 void
-free_poly(mpspoly_t p)
+free_poly(mps_status* s, mpspoly_t p)
 {
   int i;
 
-  if (DOLOG)
-    fprintf(logstr, "Unallocating polynomial\n");
+  if (s->DOLOG)
+    fprintf(s->logstr, "Unallocating polynomial\n");
 
   free(p->spar);
 
@@ -372,15 +372,15 @@ free_poly(mpspoly_t p)
 /********************************************************
  *      SUBROUTINE GET_ROOTS                            *
  *******************************************************/
-void get_roots(mpsroots_t r)
+void get_roots(mps_status* s, mpsroots_t r)
 {
-  r->lastphase = lastphase;
-  r->count = count;
-  r->zero_roots = zero_roots;
-  r->status = status;
-  r->froot = froot;
-  r->droot = droot;
-  r->mroot = mroot;
-  r->frad = frad;
-  r->drad = drad;
+  r->lastphase = s->lastphase;
+  r->count = s->count;
+  r->zero_roots = s->zero_roots;
+  r->status = s->status;
+  r->froot = s->froot;
+  r->droot = s->droot;
+  r->mroot = s->mroot;
+  r->frad = s->frad;
+  r->drad = s->drad;
 }

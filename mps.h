@@ -50,345 +50,352 @@
  * - <code>dpe_phase</code>;
  * - <code>mp_phase</code>;
  */
-typedef enum {no_phase, float_phase, dpe_phase, mp_phase} phase;
-
-extern boolean resume;		/* to complete                         */
-extern boolean chkrad;		/* check radii after completion        */
-
-extern int newtis;
-extern int newtis_old;
-
-/*
- * INPUT / OUTPUT STREAMS
- */
+typedef enum {no_phase, float_phase, dpe_phase, mp_phase} mps_phase;
 
 /**
- * @brief <code>true</code> if log are needed. They will
- * be written to <code>logstr</code>
- *
- * @see logstr
+ * @brief this struct holds the state of the mps computation
  */
-extern boolean DOLOG;
+typedef struct {
 
-/**
- * @brief <code>true</code> if warning are needed. 
- */
-extern boolean DOWARN;
+   boolean resume;		/* to complete                         */
+   boolean chkrad;		/* check radii after completion        */
 
-/**
- * @brief <code>true</code> if root sorting is desired. It will
- * be performed with routines in <code>mps_sort.c</code>.
- */
-extern boolean DOSORT;
+   int newtis;
+   int newtis_old;
 
-/**
- * @brief Default input stream.
- */
-extern FILE * instr;
+  /*
+   * INPUT / OUTPUT STREAMS
+   */
 
-/**
- * @brief Default output stream.
- */
-extern FILE * outstr;
+  /**
+   * @brief <code>true</code> if log are needed. They will
+   * be written to <code>logstr</code>
+   *
+   * @see logstr
+   */
+   boolean DOLOG;
 
-/**
- * @brief Default log stream
- */
-extern FILE * logstr;
+  /**
+   * @brief <code>true</code> if warning are needed. 
+   */
+   boolean DOWARN;
 
-extern FILE * rtstr;
+  /**
+   * @brief <code>true</code> if root sorting is desired. It will
+   * be performed with routines in <code>mps_sort.c</code>.
+   */
+   boolean DOSORT;
 
-/*
- * CONSTANT, PARAMETERS
- */
+  /**
+   * @brief Default input stream.
+   */
+   FILE * instr;
+  
+  /**
+   * @brief Default output stream.
+   */
+   FILE * outstr;
 
-/**
- * @brief number of max packets of iterations 
- */
-extern int max_pack;		
+  /**
+   * @brief Default log stream
+   */
+   FILE * logstr;
+  
+   FILE * rtstr;
+  
+  /*
+   * CONSTANT, PARAMETERS
+   */
+  
+  /**
+   * @brief number of max packets of iterations 
+   */
+   int max_pack;		
 
-/**
- * @brief number of max iterations per packet 
- */
-extern int max_it;		
+  /**
+   * @brief number of max iterations per packet 
+   */
+   int max_it;		
+  
+  /**
+   * @brief Number of max newton iterations for gravity center
+   * computations.
+   */
+   int max_newt_it;
 
-/**
- * @brief Number of max newton iterations for gravity center
- * computations.
- */
-extern int max_newt_it;
+  /**
+   * @brief Maximum allowed number of bits for mp numbers: used in 
+   * high precision shift.
+   */
+   long int mpwp_max;	
 
-/**
- * @brief Maximum allowed number of bits for mp numbers: used in 
- * high precision shift.
- */
-extern long int mpwp_max;	
-
-/**
- * @brief stores the goal of the computation
- *
- * <code>goal</code> is an array of 5 chars with this meaning:
- * - <code>goal[0]</code> can assume the following values:
- *   - <code>a</code> that means \b approximate;
- *   - <code>c</code> that means \b count the roots;
- *   - <code>i</code> that means \b isolate the roots;
- * - <code>goal[1]</code>represents the search set for
- *   the roots. It can be:
- *   - <code>a</code> that means \f$ \mathbb{C} \f$;
- *   - <code>r</code> that means \f$ \{ z \in \mathbb{C} \ | \ \mathrm{Re}{z} > 0 \} \f$;
- *   - <code>l</code> that means \f$ \{ z \in \mathbb{C} \ | \ \mathrm{Re}{z} < 0 \} \f$;
- *   - <code>u</code> that means \f$ \{ z \in \mathbb{C} \ | \ \mathrm{Im}{z} > 0 \} \f$;
- *   - <code>d</code> that means \f$ \{ z \in \mathbb{C} \ | \ \mathrm{Im}{z} < 0 \} \f$;
- *   - <code>i</code> that means \f$ \{ z \in \mathbb{C} \ | \ \lVert z \rVert \leq 1 \} \f$;
- *   - <code>i</code> that means \f$ \{ z \in \mathbb{C} \ | \ \lVert z \rVert \geq 1 \} \f$;
- * - <code>goal[2]</code> controls if multiplicity check is enabled or not. Its value can be:
- *   - <code>m</code> if it is enabled;
- *   - <code>n</code> if that's not the case;
- * - <code>goal[3]</code> sets what properties of the roots have to be detected
- *   during the computation:
- *   - <code>n</code> means no one, and this is the default;
- *   - <code>r</code> means detect if a root is real;
- *   - <code>i</code> means detect if a root is imaginary;
- *   - <code>b</code> means both the above;
- * - <code>goal[4]</code> determines output format for the results:
- *   - <code>b</code> means \b bare and it's the default value;
- *   - <code>g</code> means \b gnuplot format;
- *   - <code>c</code> means \b compact;
- *   - <code>v</code> means \b verbose;
- *   - <code>f</code> means \b full;
- */
-extern char goal[5];
-
-/**
- * @brief digits of required output precision
- *
- */
-extern long int prec_out;
-
-/**
- * @brief boolean value that determine if we should
- * use a random seed for startingd points
- */
-extern boolean random_seed;
-
- /*
- * POLYNOMIAL DATA: SHARED VARIABLES
- */
-
-/**
- * @brief degree of zero-deflated polynomial.
- */
-extern int n;
-
-/**
- * @brief input degree and allocation size.
- */
-extern int deg;
-
-/**
- * @brief stores the input data type
- *
- * The value of <code>data_type[0]</code> can be:
- * - <code>'s'</code> if the input is a sparse polynomial;
- * - <code>'u'</code> if the input is a user polynomial;
- * - <code>'d'</code> if the input is a dense polybomial;
- *
- * while the value of <code>data_type[1]</code> can be:
- * - <code>'r'</code> if the coefficients are real;
- * - <code>'c'</code> if the coefficents are complex;
- *
- * and finally <code>data_type[2]</code> can assume the following values:
- * - <code>'i'</code> means integer coefficients;
- * - <code>'q'</code> means rationa cofficients;
- * - <code>'b'</code> means bigfloat coefficents;
- * - <code>'f'</code> means floating point coefficients;
- */
-extern char * data_type;
-
-/**
- * @brief Number of digits of input precision in its binary
- * representation. 
- */
-extern long int prec_in;
-
-/**
- * @brief This array contains the structure of the sparse
- * polynomial. 
- *
- * <code>spar[i]</code> is <code>true</code> if and only if
- * the i-th coefficients of the polynomial is a non-zero 
- * coefficients
- */
-extern boolean * spar;		/* sparsity structure of the poly.     */
-
-extern double * fpr;		/* standard real coefficients          */
-extern cplx_t * fpc;		/* standard complex coefficients       */
-extern rdpe_t * dpr;		/* dpe real coefficients               */
-extern cdpe_t * dpc;		/* dpe complex coefficients            */
-extern mpz_t * mip_r;		/* real part of integer input coeffs   */
-extern mpz_t * mip_i;		/* imag. part of integer input coeffs  */
-extern mpq_t * mqp_r;		/* real part of rational input coeffs  */
-extern mpq_t * mqp_i;		/* imag. part of rational input coeffs */
-extern mpf_t * mfpr;		/* multiprecision real coefficients    */
-extern mpc_t * mfpc;		/* multiprecision complex coefficients */
-
-/* soution related variables */
-extern phase lastphase;		/* store last computed phase           */
-
-/**
- * @brief Vector containing count of in, out and uncertaing roots.
- */
-extern int count[3];
-
-/**
- * @brief Number of zero roots.
- */
-extern int zero_roots;		/* number of roots = 0                 */
-
-/**
- * @brief Status of each approximation
- * 
- * <code>status</code> is an array of char arrays
- * composed of three elements. For every <code>i</code>:
- * - <code>status[i][0]</code> can assume the values:
- *   - <code>m</code>: multiple root;
- *   - <code>i</code>: isolated root;
- *   - <code>a</code>: approximated single root (relative error
- *     is less then \f$ 10^{-d_{out}} \f$);
- *   - <code>o</code>: approximated cluster of roots (relative
- *     error is less than \f$ 10^{-d_{out}} \f$);
- *   - <code>c</code>: cluster of roots not yet approximated (relative
- *     error is greater than \f$ 10^{-d_{out}} \f$);
- *   - <code>f</code>: TODO: Determine what this state means;
- *   - <code>x</code>: this root cannot be represented as a <code>double</code>, i.e. it
- *     is <code>< DBL_MIN</code> or <code>> DBL_MAX</code>;
- * - <code>status[i][1]</code> can assume the values:
- *   - <code>R</code>: real root;
- *   - <code>r</code>: non real root;
- *   - <code>I</code>: imaginary root;
- *   - <code>i</code>: non imaginary root;
- *   - <code>w</code>: uncertain real/imaginary root;
- *   - <code>z</code>: non real and non imaginary root;
- * - <code>status[i][2]</code> can assume the values:
- *   - <code>i</code>: root in \f$ \mathcal{S} \f$;
- *   - <code>o</code>: root out of \f$ \mathcal{S} \f$;
- *   - <code>u</code>: root uncertain;
- */
-extern char (* status)[3];	/* status of each approximation        */
-extern int * order;		/* output index order: ord[0],..,ord[n]*/
-extern cplx_t * froot;		/* root approx. as float complex numbers */
-extern cdpe_t * droot;		/* root approx. as complex dpe numbers */
-extern mpc_t * mroot;		/* root approx. as complex mp numbers  */
-extern double * frad;		/* radii of incl. disks as real nums   */
-extern rdpe_t * drad;		/* radii of incl. disks as rdpe_t nums */
-
-/* lifetime global variables */
-extern boolean skip_float;	/* skip float phase?                   */
-extern rdpe_t eps_in;		/* input precision                     */
-extern rdpe_t eps_out;		/* output precision                    */
-extern double lmax_coeff;	/* log of the max modulus of coeffs.   */
-extern long int mpwp;		/* # of bits of current working prec.  */
-extern rdpe_t mp_epsilon;	/* current mp epsilon                  */
-extern double sep;		/* Log of the lower bound to the 
+  /**
+   * @brief stores the goal of the computation
+   *
+   * <code>goal</code> is an array of 5 chars with this meaning:
+   * - <code>goal[0]</code> can assume the following values:
+   *   - <code>a</code> that means \b approximate;
+   *   - <code>c</code> that means \b count the roots;
+   *   - <code>i</code> that means \b isolate the roots;
+   * - <code>goal[1]</code>represents the search set for
+   *   the roots. It can be:
+   *   - <code>a</code> that means \f$ \mathbb{C} \f$;
+   *   - <code>r</code> that means \f$ \{ z \in \mathbb{C} \ | \ \mathrm{Re}{z} > 0 \} \f$;
+   *   - <code>l</code> that means \f$ \{ z \in \mathbb{C} \ | \ \mathrm{Re}{z} < 0 \} \f$;
+   *   - <code>u</code> that means \f$ \{ z \in \mathbb{C} \ | \ \mathrm{Im}{z} > 0 \} \f$;
+   *   - <code>d</code> that means \f$ \{ z \in \mathbb{C} \ | \ \mathrm{Im}{z} < 0 \} \f$;
+   *   - <code>i</code> that means \f$ \{ z \in \mathbb{C} \ | \ \lVert z \rVert \leq 1 \} \f$;
+   *   - <code>i</code> that means \f$ \{ z \in \mathbb{C} \ | \ \lVert z \rVert \geq 1 \} \f$;
+   * - <code>goal[2]</code> controls if multiplicity check is enabled or not. Its value can be:
+   *   - <code>m</code> if it is enabled;
+   *   - <code>n</code> if that's not the case;
+   * - <code>goal[3]</code> sets what properties of the roots have to be detected
+   *   during the computation:
+   *   - <code>n</code> means no one, and this is the default;
+   *   - <code>r</code> means detect if a root is real;
+   *   - <code>i</code> means detect if a root is imaginary;
+   *   - <code>b</code> means both the above;
+   * - <code>goal[4]</code> determines output format for the results:
+   *   - <code>b</code> means \b bare and it's the default value;
+   *   - <code>g</code> means \b gnuplot format;
+   *   - <code>c</code> means \b compact;
+   *   - <code>v</code> means \b verbose;
+   *   - <code>f</code> means \b full;
+   */
+   char goal[5];
+  
+  /**
+   * @brief digits of required output precision
+   *
+   */
+   long int prec_out;
+  
+  /**
+   * @brief boolean value that determine if we should
+   * use a random seed for startingd points
+   */
+   boolean random_seed;
+  
+  /*
+   * POLYNOMIAL DATA: SHARED VARIABLES
+   */
+  
+  /**
+   * @brief degree of zero-deflated polynomial.
+   */
+   int n;
+  
+  /**
+   * @brief input degree and allocation size.
+   */
+   int deg;
+  
+  /**
+   * @brief stores the input data type
+   *
+   * The value of <code>data_type[0]</code> can be:
+   * - <code>'s'</code> if the input is a sparse polynomial;
+   * - <code>'u'</code> if the input is a user polynomial;
+   * - <code>'d'</code> if the input is a dense polybomial;
+   *
+   * while the value of <code>data_type[1]</code> can be:
+   * - <code>'r'</code> if the coefficients are real;
+   * - <code>'c'</code> if the coefficents are complex;
+   *
+   * and finally <code>data_type[2]</code> can assume the following values:
+   * - <code>'i'</code> means integer coefficients;
+   * - <code>'q'</code> means rationa cofficients;
+   * - <code>'b'</code> means bigfloat coefficents;
+   * - <code>'f'</code> means floating point coefficients;
+   */
+   char * data_type;
+  
+  /**
+   * @brief Number of digits of input precision in its binary
+   * representation. 
+   */
+   long int prec_in;
+  
+  /**
+   * @brief This array contains the structure of the sparse
+   * polynomial. 
+   *
+   * <code>spar[i]</code> is <code>true</code> if and only if
+   * the i-th coefficients of the polynomial is a non-zero 
+   * coefficients
+   */
+   boolean * spar;		/* sparsity structure of the poly.     */
+  
+   double * fpr;		/* standard real coefficients          */
+   cplx_t * fpc;		/* standard complex coefficients       */
+   rdpe_t * dpr;		/* dpe real coefficients               */
+   cdpe_t * dpc;		/* dpe complex coefficients            */
+   mpz_t * mip_r;		/* real part of integer input coeffs   */
+   mpz_t * mip_i;		/* imag. part of integer input coeffs  */
+   mpq_t * mqp_r;		/* real part of rational input coeffs  */
+   mpq_t * mqp_i;		/* imag. part of rational input coeffs */
+   mpf_t * mfpr;		/* multiprecision real coefficients    */
+   mpc_t * mfpc;		/* multiprecision complex coefficients */
+  
+  /* soution related variables */
+   mps_phase lastphase;		/* store last computed phase           */
+  
+  /**
+   * @brief Vector containing count of in, out and uncertaing roots.
+   */
+   int count[3];
+  
+  /**
+   * @brief Number of zero roots.
+   */
+   int zero_roots;		/* number of roots = 0                 */
+  
+  /**
+   * @brief Status of each approximation
+   * 
+   * <code>status</code> is an array of char arrays
+   * composed of three elements. For every <code>i</code>:
+   * - <code>status[i][0]</code> can assume the values:
+   *   - <code>m</code>: multiple root;
+   *   - <code>i</code>: isolated root;
+   *   - <code>a</code>: approximated single root (relative error
+   *     is less then \f$ 10^{-d_{out}} \f$);
+   *   - <code>o</code>: approximated cluster of roots (relative
+   *     error is less than \f$ 10^{-d_{out}} \f$);
+   *   - <code>c</code>: cluster of roots not yet approximated (relative
+   *     error is greater than \f$ 10^{-d_{out}} \f$);
+   *   - <code>f</code>: TODO: Determine what this state means;
+   *   - <code>x</code>: this root cannot be represented as a <code>double</code>, i.e. it
+   *     is <code>< DBL_MIN</code> or <code>> DBL_MAX</code>;
+   * - <code>status[i][1]</code> can assume the values:
+   *   - <code>R</code>: real root;
+   *   - <code>r</code>: non real root;
+   *   - <code>I</code>: imaginary root;
+   *   - <code>i</code>: non imaginary root;
+   *   - <code>w</code>: uncertain real/imaginary root;
+   *   - <code>z</code>: non real and non imaginary root;
+   * - <code>status[i][2]</code> can assume the values:
+   *   - <code>i</code>: root in \f$ \mathcal{S} \f$;
+   *   - <code>o</code>: root out of \f$ \mathcal{S} \f$;
+   *   - <code>u</code>: root uncertain;
+   */
+   char (* status)[3];	/* status of each approximation        */
+   int * order;		/* output index order: ord[0],..,ord[n]*/
+   cplx_t * froot;		/* root approx. as float complex numbers */
+   cdpe_t * droot;		/* root approx. as complex dpe numbers */
+   mpc_t * mroot;		/* root approx. as complex mp numbers  */
+   double * frad;		/* radii of incl. disks as real nums   */
+   rdpe_t * drad;		/* radii of incl. disks as rdpe_t nums */
+  
+  /* lifetime global variables */
+   boolean skip_float;	/* skip float phase?                   */
+   rdpe_t eps_in;		/* input precision                     */
+   rdpe_t eps_out;		/* output precision                    */
+   double lmax_coeff;	/* log of the max modulus of coeffs.   */
+   long int mpwp;		/* # of bits of current working prec.  */
+   rdpe_t mp_epsilon;	/* current mp epsilon                  */
+   double sep;		/* Log of the lower bound to the 
                                    minimum distance of the roots       */
+  
+  /**
+   * @brief number of active clusters
+   */
+   int nclust;		
 
-/**
- * @brief number of active clusters
- */
-extern int nclust;		
 
-
-/**
- * @brief indices of cluster components
- *
- * <code>clust</code> is an integer array containing the indexes
- * of roots in every cluster. 
- *
- * The indexes of the <code>j</code>th cluster are
- * <code>clust[punt[j] : punt[j+1]]
- *
- * @see punt
- */
-extern int * clust;
-
-/**
- * @brief begginning of each cluster
- *
- * <code>punt</code> is a vector of <code>nclust</code> integers;
- *
- * For every <code>i</code> <code>punt[i]</code> is the index in
- * the integer vector <code>clust</code> corresponding to the first
- * index of a cluster, i.e. the jth cluster of roots is composed by
- * roots indexed on <code>clust[p[j] : p[j+1]]</code>.
- *
- * @see nclust
- * @see clust
- */
-extern int * punt;
-
-/**
- * @brief Array containing working precisions used for each root.
- */
-extern long int * rootwp;
-
-/**
- * @brief Multiprecision complex coefficients of \f$p'(x)\f$.
- */
-extern mpc_t * mfppc;		
-
-/**
- * @brief Array containing moduli of the coefficients as double numbers.
- */
-extern double * fap;
-
-/**
- * @brief Array containing moduli of the coefficients as dpe numbers.
- */
-extern rdpe_t * dap;
-
-/**
- * @brief Array that whose i-th component is set to <code>true</code> if
- * the i-th root needs more iterations.
- */
-extern boolean * again;		
-
-/**
- * @brief Array containing standard complex coefficients
- */
-extern cplx_t * fppc;
-
-extern cplx_t * fppc1;		/* standard complex coefficients       */
-extern cdpe_t * dpc1;		/* dpe complex coefficients            */
-extern cdpe_t * dpc2;		/* dpe complex coefficients            */
-extern mpc_t * mfpc1;		/* temp multiprecision complex coeffs  */
-extern mpc_t * mfpc2;		/* temp multiprecision complex coeffs  */
-extern mpc_t * mfppc1;		/* temp multiprec complex coeffs of p' */
-
-extern boolean * spar1;		/* temp sparsity structure of the poly */
-extern boolean * spar2;		/* temp sparsity structure of the poly */
-extern int * oldpunt;		/* stores the previous value of punt   */
-extern double * fap1;		/* moduli of the coeffs as double      */
-extern double * fap2;		/* log of the moduli of the coeff. as double */
-extern rdpe_t * dap1;		/* moduli of the coeff.as dpe numbers  */
-extern rdpe_t * dap2;		/* moduli of the log of the coeff. as double */
-
-/**
- * @brief Vector needed for convex hull computation. 
- *
- * It is <code>true</code> in position \f$j\f$ if 
- * the point \f$(j, log(x_j))\f$ is a vertex of the convex
- * hull computed by <code>fconvex()</code> and the other functions in
- * <code>mps_cnvx.c</code>
- */
-extern boolean * h;
-
-extern boolean * again_old;	/* temp flag vector: true in the  components
+  /**
+   * @brief indices of cluster components
+   *
+   * <code>clust</code> is an integer array containing the indexes
+   * of roots in every cluster. 
+   *
+   * The indexes of the <code>j</code>th cluster are
+   * <code>clust[punt[j] : punt[j+1]]
+   *
+   * @see punt
+   */
+   int * clust;
+  
+  /**
+   * @brief begginning of each cluster
+   *
+   * <code>punt</code> is a vector of <code>nclust</code> integers;
+   *
+   * For every <code>i</code> <code>punt[i]</code> is the index in
+   * the integer vector <code>clust</code> corresponding to the first
+   * index of a cluster, i.e. the jth cluster of roots is composed by
+   * roots indexed on <code>clust[p[j] : p[j+1]]</code>.
+   *
+   * @see nclust
+   * @see clust
+   */
+   int * punt;
+  
+  /**
+   * @brief Array containing working precisions used for each root.
+   */
+   long int * rootwp;
+  
+  /**
+   * @brief Multiprecision complex coefficients of \f$p'(x)\f$.
+   */
+   mpc_t * mfppc;		
+  
+  /**
+   * @brief Array containing moduli of the coefficients as double numbers.
+   */
+   double * fap;
+  
+  /**
+   * @brief Array containing moduli of the coefficients as dpe numbers.
+   */
+   rdpe_t * dap;
+  
+  /**
+   * @brief Array that whose i-th component is set to <code>true</code> if
+   * the i-th root needs more iterations.
+   */
+   boolean * again;		
+  
+  /**
+   * @brief Array containing standard complex coefficients
+   */
+   cplx_t * fppc;
+  
+   cplx_t * fppc1;		/* standard complex coefficients       */
+   cdpe_t * dpc1;		/* dpe complex coefficients            */
+   cdpe_t * dpc2;		/* dpe complex coefficients            */
+   mpc_t * mfpc1;		/* temp multiprecision complex coeffs  */
+   mpc_t * mfpc2;		/* temp multiprecision complex coeffs  */
+   mpc_t * mfppc1;		/* temp multiprec complex coeffs of p' */
+  
+   boolean * spar1;		/* temp sparsity structure of the poly */
+   boolean * spar2;		/* temp sparsity structure of the poly */
+   int * oldpunt;		/* stores the previous value of punt   */
+   double * fap1;		/* moduli of the coeffs as double      */
+   double * fap2;		/* log of the moduli of the coeff. as double */
+   rdpe_t * dap1;		/* moduli of the coeff.as dpe numbers  */
+   rdpe_t * dap2;		/* moduli of the log of the coeff. as double */
+  
+  /**
+   * @brief Vector needed for convex hull computation. 
+   *
+   * It is <code>true</code> in position \f$j\f$ if 
+   * the point \f$(j, log(x_j))\f$ is a vertex of the convex
+   * hull computed by <code>fconvex()</code> and the other functions in
+   * <code>mps_cnvx.c</code>
+   */
+   boolean * h;
+  
+   boolean * again_old;	/* temp flag vector: true in the  components
                                    where iterations must be performed  */
+  
+   int * clust_aux;		/* auxiliary vector                    */
+   int * punt_aux;		/* auxiliary vector                    */
+   int * punt_out;		/* auxiliary vector                    */
+   int * clust_out;		/* auxiliary vector                    */
 
-extern int * clust_aux;		/* auxiliary vector                    */
-extern int * punt_aux;		/* auxiliary vector                    */
-extern int * punt_out;		/* auxiliary vector                    */
-extern int * clust_out;		/* auxiliary vector                    */
+} mps_status; /* End of typedef struct { ... */
 
 
 /* FUNCTIONS */
@@ -412,20 +419,20 @@ void mcluster(int nf);
 void fconvex(int n, double a[]);
 
 /* functions in mps_data.c */
-void mp_set_prec(long int prec);
-void allocate_data(void);
-void prepare_data(long int prec);
-void restore_data(void);
-void free_data(void);
+void mp_set_prec(mps_status* s, long int prec);
+void allocate_data(mps_status* s);
+void prepare_data(mps_status* s, long int prec);
+void restore_data(mps_status* s);
+void free_data(mps_status* s);
 
 /* functions in mps_impr.c */
 void improve(void);
 
 /* functions in mps_main.c */
-void mpsolve(void);
-void setup(void);
-void check_data(char * which_case);
-void compute_sep(void);
+void mpsolve(mps_status* s);
+void setup(mps_status* s);
+void check_data(mps_status* s, char * which_case);
+void compute_sep(mps_status* s);
 
 /* functions in mps_newt.c */
 void fnewton(int n, cplx_t z, double * radius, cplx_t corr, cplx_t fpc[],
@@ -452,12 +459,12 @@ void aparhorner(int n, rdpe_t x, rdpe_t p[], boolean b[], rdpe_t s);
  *   Argoment values, i.e. array of char* as obtained
  *   in the main() function.
  */
-void parse_opts(int argc, char *argv[]);
+void parse_opts(mps_status* s, int argc, char *argv[]);
 
 /* functions in mps_sort.c */
-void fsort(void);
-void dsort(void);
-void msort(void);
+void fsort(mps_status* s);
+void dsort(mps_status* s);
+void msort(mps_status* s);
 
 /* functions in mps_solv.c */
 void update(void);

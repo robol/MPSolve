@@ -39,19 +39,19 @@ fcmp(const void *a, const void *b)
 *      SUBROUTINE FSORT                                  *
 *********************************************************/
 void
-fsort(void)
+fsort(mps_status* s)
 {
   int i;
 
-  for (i = 0; i < n; i++) {
-    cplx_Re(fppc[i]) = cplx_Re(froot[i]);
-    cplx_Im(fppc[i]) = i;
+  for (i = 0; i < s->n; i++) {
+    cplx_Re(s->fppc[i]) = cplx_Re(s->froot[i]);
+    cplx_Im(s->fppc[i]) = i;
   }
   
-  qsort(fppc, n, sizeof(cplx_t), fcmp);
+  qsort(s->fppc, s->n, sizeof(cplx_t), fcmp);
   
-  for (i = 0; i < n; i++)
-    order[i] = (int) cplx_Im(fppc[i]);
+  for (i = 0; i < s->n; i++)
+    s->order[i] = (int) cplx_Im(s->fppc[i]);
 }
 
 /*********************************************************
@@ -67,19 +67,19 @@ dcmp(const void *a, const void *b)
 *      SUBROUTINE DSORT                                  *
 *********************************************************/
 void
-dsort(void)
+dsort(mps_status* s)
 {
   int i;
 
-  for (i = 0; i < n; i++) {
-    rdpe_set(cdpe_Re(dpc1[i]), cdpe_Re(droot[i]));
-    rdpe_set_d(cdpe_Im(dpc1[i]), i);
+  for (i = 0; i < s->n; i++) {
+    rdpe_set(cdpe_Re(s->dpc1[i]), cdpe_Re(s->droot[i]));
+    rdpe_set_d(cdpe_Im(s->dpc1[i]), i);
   }
   
-  qsort(dpc1, n, sizeof(cdpe_t), dcmp);
+  qsort(s->dpc1, s->n, sizeof(cdpe_t), dcmp);
   
-  for (i = 0; i < n; i++)
-    order[i] = (int) rdpe_get_d(cdpe_Im(dpc1[i]));
+  for (i = 0; i < s->n; i++)
+    s->order[i] = (int) rdpe_get_d(cdpe_Im(s->dpc1[i]));
 }
 
 /*********************************************************
@@ -95,17 +95,17 @@ mcmp(const void *a, const void *b)
 *      SUBROUTINE MSORT                                  *
 *********************************************************/
 void
-msort(void)
+msort(mps_status* s)
 {
   int i;
 
-  for (i = 0; i < n; i++) {
-    mpf_set(mpc_Re(mfpc1[i]), mpc_Re(mroot[i]));
-    mpf_set_ui(mpc_Im(mfpc1[i]), i);
+  for (i = 0; i < s->n; i++) {
+    mpf_set(mpc_Re(s->mfpc1[i]), mpc_Re(s->mroot[i]));
+    mpf_set_ui(mpc_Im(s->mfpc1[i]), i);
   }
   
-  qsort(mfpc1, n, sizeof(mpc_t), mcmp);
+  qsort(s->mfpc1, s->n, sizeof(mpc_t), mcmp);
   
-  for (i = 0; i < n; i++)
-    order[i] = (int) mpf_get_d(mpc_Im(mfpc1[i]));
+  for (i = 0; i < s->n; i++)
+    s->order[i] = (int) mpf_get_d(mpc_Im(s->mfpc1[i]));
 }

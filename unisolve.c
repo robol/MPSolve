@@ -19,33 +19,37 @@ int
 main(int argc, char *argv[])
 {
   mpspoly_t p;
+  mps_status s;
   
   /* set default goal */
-  strncpy(goal, "iannc", 5);
+  strncpy(s.goal, "iannc", 5);
 
   /* parse command line options */
-  parse_opts(argc, argv);
+  parse_opts(&s, argc, argv);
 
   /* Read polynomial */
-  read_poly(instr, p);
+  read_poly(&s, s.instr, p);
   
   /* Set polynomial */
-  set_poly(p);
+  set_poly(&s, p);
 
   /* allocate global variables */
-  allocate_data();
+  allocate_data(&s);
 
   /* call free_data at exit */
-  atexit(free_data);
+  // atexit(free_data);
 
   /* approximate roots */
-  mpsolve();
+  mpsolve(&s);
   
   /* copy roots */
   copy_roots();
 
   /* output roots */
   output();
+
+  /* Free data */
+  free_data(&s);
 
   /* return */
   return 0;
