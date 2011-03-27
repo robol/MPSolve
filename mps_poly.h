@@ -57,10 +57,10 @@ typedef struct {
 typedef __mpsroots_struct mpsroots_t[1];
 
 /* functions */
-void allocate_poly(mps_status* s, mpspoly_t p);
-void read_poly(mps_status* s, FILE *instr, mpspoly_t p);
-void validate_poly(mps_status* s, mpspoly_t p, int num_coeff);
-void set_poly(mps_status* s, mpspoly_t p);
-void update_poly(mps_status* s, mpspoly_t p);
-void free_poly(mps_status* s, mpspoly_t p);
-void get_roots(mps_status* s, mpsroots_t r);
+void mps_allocate_poly(mps_status* s, mpspoly_t p);
+void mps_read_poly(mps_status* s, FILE *instr, mpspoly_t p);
+void mps_validate_poly(mps_status* s, mpspoly_t p, int num_coeff);
+void mps_set_poly(mps_status* s, mpspoly_t p);
+void mps_update_poly(mps_status* s, mpspoly_t p);
+void mps_free_poly(mps_status* s, mpspoly_t p);
+void mps_get_roots(mps_status* s, mpsroots_t r);

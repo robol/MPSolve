@@ -38,97 +38,97 @@
  * @param nf see above for a detailed description.
  */
 void
-fcluster(int nf)
+mps_fcluster(mps_status* s, int nf)
 {
   int incr, i, j, itemp;
 
   incr = 0;
-  nclust = 0;
-  punt[0] = 0;
-  for (i = 0; i < n; i++)
-    clust[i] = i;
+  s->nclust = 0;
+  s->punt[0] = 0;
+  for (i = 0; i < s->n; i++)
+    s->clust[i] = i;
 
-  for (i = 0; i < n - 1; i++) {
-    for (j = incr + 1; j < n; j++)
-      if (ftouchnwt(nf, clust[i], clust[j])) {
+  for (i = 0; i < s->n - 1; i++) {
+    for (j = incr + 1; j < s->n; j++)
+      if (mps_ftouchnwt(s, nf, s->clust[i], s->clust[j])) {
 	incr++;
-	itemp = clust[j];
-	clust[j] = clust[incr];
-	clust[incr] = itemp;
+	itemp = s->clust[j];
+	s->clust[j] = s->clust[incr];
+	s->clust[incr] = itemp;
       }
     if (i == incr) {
-      nclust++;
-      punt[nclust] = i + 1;
+      s->nclust++;
+      s->punt[s->nclust] = i + 1;
       incr++;
     }
   }
 
-  nclust++;
-  punt[nclust] = n;
+  s->nclust++;
+  s->punt[s->nclust] = s->n;
 }
 
 /**********************************************************
  *                 SUBROUTINE DCLUSTER                    *
  *********************************************************/
 void
-dcluster(int nf)
+mps_dcluster(mps_status* s, int nf)
 {
   int incr, i, j, itemp;
 
   incr = 0;
-  nclust = 0;
-  punt[0] = 0;
-  for (i = 0; i < n; i++)
-    clust[i] = i;
+  s->nclust = 0;
+  s->punt[0] = 0;
+  for (i = 0; i < s->n; i++)
+    s->clust[i] = i;
 
-  for (i = 0; i < n - 1; i++) {
-    for (j = incr + 1; j < n; j++)
-      if (dtouchnwt(nf, clust[i], clust[j])) {
+  for (i = 0; i < s->n - 1; i++) {
+    for (j = incr + 1; j < s->n; j++)
+      if (mps_dtouchnwt(s, nf, s->clust[i], s->clust[j])) {
 	incr++;
-	itemp = clust[j];
-	clust[j] = clust[incr];
-	clust[incr] = itemp;
+	itemp = s->clust[j];
+	s->clust[j] = s->clust[incr];
+	s->clust[incr] = itemp;
       }
     if (i == incr) {
-      nclust++;
-      punt[nclust] = i + 1;
+      s->nclust++;
+      s->punt[s->nclust] = i + 1;
       incr++;
     }
   }
 
-  nclust++;
-  punt[nclust] = n;
+  s->nclust++;
+  s->punt[s->nclust] = s->n;
 }
 
 /**********************************************************
  *                 SUBROUTINE XCLUSTER                    *
  *********************************************************/
 void
-xcluster(int n, int nf, int *nclust)
+mps_xcluster(mps_status* s, int n, int nf, int *nclust)
 {
   int incr, i, j, itemp;
 
   incr = 0;
-  *nclust = 0;
-  punt_aux[0] = 0;
+  *(nclust) = 0;
+  s->punt_aux[0] = 0;
 
-  for (i = 0; i < n - 1; i++) {
-    for (j = incr + 1; j < n; j++)
-      if (mtouchnwt(nf, clust_aux[i], clust_aux[j])) {
+  for (i = 0; i < s->n - 1; i++) {
+    for (j = incr + 1; j < s->n; j++)
+      if (msp_mtouchnwt(s, nf, s->clust_aux[i], s->clust_aux[j])) {
 	incr++;
-	itemp = clust_aux[j];
-	clust_aux[j] = clust_aux[incr];
-	clust_aux[incr] = itemp;
+	itemp = s->clust_aux[j];
+	s->clust_aux[j] = s->clust_aux[incr];
+	s->clust_aux[incr] = itemp;
       }
     if (i == incr) {
       (*nclust)++;
-      punt_aux[*nclust] = i + 1;
+      s->punt_aux[*nclust] = i + 1;
       incr++;
     }
   }
 
   (*nclust)++;
-  punt_aux[*nclust] = n;
+  s->punt_aux[*nclust] = s->n;
 }
 
 /**********************************************************
@@ -139,42 +139,42 @@ xcluster(int n, int nf, int *nclust)
  vectors  clust, punt, and the integer nclust
  *********************************************************/
 void
-mcluster(int nf)
+mps_mcluster(mps_status* s, int nf)
 {
   int i, j, ind, n_aux, nclust_out, nclust_aux;
 
-  punt[nclust] = n;
+  s->punt[s->nclust] = s->n;
   nclust_out = 0;
   ind = 0;
 
-  for (i = 0; i < nclust; i++) {
-    n_aux = punt[i + 1] - punt[i];
+  for (i = 0; i < s->nclust; i++) {
+    n_aux = s->punt[i + 1] - s->punt[i];
     for (j = 0; j < n_aux; j++) {
-      clust_aux[j] = clust[punt[i] + j];
-      punt_aux[j] = j;
+      s->clust_aux[j] = s->clust[s->punt[i] + j];
+      s->punt_aux[j] = j;
     }
     if (n_aux > 1) {
-      xcluster(n_aux, nf, &nclust_aux);
+      mps_xcluster(s, n_aux, nf, &nclust_aux);
       for (j = 0; j < n_aux; j++)
-	clust_out[punt[i] + j] = clust_aux[j];
+	s->clust_out[s->punt[i] + j] = s->clust_aux[j];
       for (j = 0; j < nclust_aux; j++)
-	punt_out[ind + j] = punt[i] + punt_aux[j];
+	s->punt_out[ind + j] = s->punt[i] + s->punt_aux[j];
       nclust_out = nclust_out + nclust_aux;
     } else {
       nclust_aux = 1;
-      clust_out[punt[i]] = clust[punt[i]];
-      punt_out[ind] = punt[i];
+      s->clust_out[s->punt[i]] = s->clust[s->punt[i]];
+      s->punt_out[ind] = s->punt[i];
       nclust_out = nclust_out + nclust_aux;
     }
     ind = ind + nclust_aux;
   }
 
-  nclust = nclust_out;
-  for (i = 0; i < n; i++)
-    punt[i] = punt_out[i];
-  for (i = 0; i < n; i++)
-    clust[i] = clust_out[i];
-  punt[nclust] = n;
+  s->nclust = nclust_out;
+  for (i = 0; i < s->n; i++)
+    s->punt[i] = s->punt_out[i];
+  for (i = 0; i < s->n; i++)
+    s->clust[i] = s->clust_out[i];
+  s->punt[s->nclust] = s->n;
 }
 
 

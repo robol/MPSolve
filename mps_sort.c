@@ -23,7 +23,7 @@
 *      SUBROUTINE FCMP                                  *
 *********************************************************/
 int
-fcmp(const void *a, const void *b)
+mps_fcmp(const void *a, const void *b)
 {
   double dif;
 
@@ -39,7 +39,7 @@ fcmp(const void *a, const void *b)
 *      SUBROUTINE FSORT                                  *
 *********************************************************/
 void
-fsort(mps_status* s)
+mps_fsort(mps_status* s)
 {
   int i;
 
@@ -48,7 +48,7 @@ fsort(mps_status* s)
     cplx_Im(s->fppc[i]) = i;
   }
   
-  qsort(s->fppc, s->n, sizeof(cplx_t), fcmp);
+  qsort(s->fppc, s->n, sizeof(cplx_t), mps_fcmp);
   
   for (i = 0; i < s->n; i++)
     s->order[i] = (int) cplx_Im(s->fppc[i]);
@@ -58,7 +58,7 @@ fsort(mps_status* s)
 *      SUBROUTINE DCMP                                  *
 *********************************************************/
 int
-dcmp(const void *a, const void *b)
+mps_dcmp(const void *a, const void *b)
 {
   return rdpe_cmp(cdpe_Re(cdpe_Addr(a)), cdpe_Re(cdpe_Addr(b)));
 }
@@ -67,7 +67,7 @@ dcmp(const void *a, const void *b)
 *      SUBROUTINE DSORT                                  *
 *********************************************************/
 void
-dsort(mps_status* s)
+mps_dsort(mps_status* s)
 {
   int i;
 
@@ -76,7 +76,7 @@ dsort(mps_status* s)
     rdpe_set_d(cdpe_Im(s->dpc1[i]), i);
   }
   
-  qsort(s->dpc1, s->n, sizeof(cdpe_t), dcmp);
+  qsort(s->dpc1, s->n, sizeof(cdpe_t), mps_dcmp);
   
   for (i = 0; i < s->n; i++)
     s->order[i] = (int) rdpe_get_d(cdpe_Im(s->dpc1[i]));
@@ -86,7 +86,7 @@ dsort(mps_status* s)
 *      SUBROUTINE MCMP                                  *
 *********************************************************/
 int
-mcmp(const void *a, const void *b)
+mps_mcmp(const void *a, const void *b)
 {
   return mpf_cmp(mpc_Re(mpc_Addr(a)), mpc_Re(mpc_Addr(b)));
 }
@@ -95,7 +95,7 @@ mcmp(const void *a, const void *b)
 *      SUBROUTINE MSORT                                  *
 *********************************************************/
 void
-msort(mps_status* s)
+mps_msort(mps_status* s)
 {
   int i;
 
@@ -104,7 +104,7 @@ msort(mps_status* s)
     mpf_set_ui(mpc_Im(s->mfpc1[i]), i);
   }
   
-  qsort(s->mfpc1, s->n, sizeof(mpc_t), mcmp);
+  qsort(s->mfpc1, s->n, sizeof(mpc_t), mps_mcmp);
   
   for (i = 0; i < s->n; i++)
     s->order[i] = (int) mpf_get_d(mpc_Im(s->mfpc1[i]));

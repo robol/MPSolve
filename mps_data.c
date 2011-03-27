@@ -30,7 +30,7 @@ mp_set_prec(mps_status* s, long int prec)
  *      SUBROUTINE ALLOCATE_DATA                        *
  *******************************************************/
 void
-allocate_data(mps_status* s)
+mps_allocate_data(mps_status* s)
 {
   int i;
 
@@ -100,7 +100,7 @@ allocate_data(mps_status* s)
  raise precision performing a real computation of the data
  **********************************************************/
 long int
-raise_data(mps_status* s, long int prec)
+mps_raise_data(mps_status* s, long int prec)
 {
   int i, k;
 
@@ -200,7 +200,7 @@ raise_data(mps_status* s, long int prec)
  modify the raw precision of mp variables
  ***********************************************************/
 void
-raise_data_raw(mps_status* s, long int prec)
+mps_raise_data_raw(mps_status* s, long int prec)
 {
   int k;
 
@@ -238,7 +238,7 @@ raise_data_raw(mps_status* s, long int prec)
  rational or integer coefficients.
  ***********************************************************/
 void
-prepare_data(mps_status* s, long int prec)
+mps_prepare_data(mps_status* s, long int prec)
 {
   if (s->DOLOG)
     fprintf(s->logstr, "Prepare data:  working precision =%ld bits\n", prec);
@@ -257,7 +257,7 @@ prepare_data(mps_status* s, long int prec)
  Resets the data to the highest used precision
  ***********************************************************/
 void
-restore_data(mps_status* s)
+mps_restore_data(mps_status* s)
 {
   if (s->DOLOG)
     fprintf(s->logstr, "Restore data to %ld bits\n", data_prec_max);
@@ -270,7 +270,7 @@ restore_data(mps_status* s)
  *      SUBROUTINE FREE_DATA                            *
  *******************************************************/
 void
-free_data(mps_status* s)
+mps_free_data(mps_status* s)
 {
   int i;
 

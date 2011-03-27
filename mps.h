@@ -400,49 +400,51 @@ typedef struct {
 
 /* FUNCTIONS */
 
+/* functions in mps_defaults.c */
+void mps_set_default_values(mps_status* s);
 
 /* functions in mps_aber.c */
-void faberth(int j, cplx_t abcorr);
-void daberth(int j, cdpe_t abcorr);
-void maberth(int j, mpc_t abcorr);
-void faberth_s(int j, int jc, cplx_t abcorr);
-void daberth_s(int j, int jc, cdpe_t abcorr);
-void maberth_s(int j, int jc, mpc_t abcorr);
-void mnewtis(void);
+void mps_faberth(mps_status* s, int j, cplx_t abcorr);
+void mps_daberth(mps_status* s, int j, cdpe_t abcorr);
+void mps_maberth(mps_status* s, int j, mpc_t abcorr);
+void mps_faberth_s(mps_status* s, int j, int jc, cplx_t abcorr);
+void mps_daberth_s(mps_status* s, int j, int jc, cdpe_t abcorr);
+void mps_maberth_s(mps_status* s, int j, int jc, mpc_t abcorr);
+void mps_mnewtis(mps_status* s);
 
 /* functions in mps_clus.c */
-void fcluster(int nf);
-void dcluster(int nf);
-void mcluster(int nf);
+void mps_fcluster(mps_status* s, int nf);
+void mps_dcluster(mps_status* s, int nf);
+void mps_mcluster(mps_status* s, int nf);
 
 /* functions in mps_cnvx.c */
-void fconvex(int n, double a[]);
+void mps_fconvex(int n, double a[]);
 
 /* functions in mps_data.c */
-void mp_set_prec(mps_status* s, long int prec);
-void allocate_data(mps_status* s);
-void prepare_data(mps_status* s, long int prec);
-void restore_data(mps_status* s);
-void free_data(mps_status* s);
+void mps_mp_set_prec(mps_status* s, long int prec);
+void mps_allocate_data(mps_status* s);
+void mps_prepare_data(mps_status* s, long int prec);
+void mps_restore_data(mps_status* s);
+void mps_free_data(mps_status* s);
 
 /* functions in mps_impr.c */
-void improve(void);
+void mps_improve(void);
 
 /* functions in mps_main.c */
-void mpsolve(mps_status* s);
-void setup(mps_status* s);
-void check_data(mps_status* s, char * which_case);
-void compute_sep(mps_status* s);
+void mps_mpsolve(mps_status* s);
+void mps_setup(mps_status* s);
+void mps_check_data(mps_status* s, char * which_case);
+void mps_compute_sep(mps_status* s);
 
 /* functions in mps_newt.c */
-void fnewton(int n, cplx_t z, double * radius, cplx_t corr, cplx_t fpc[],
-	     double fap[], boolean *  cont);
-void dnewton(int n, cdpe_t z, rdpe_t radius, cdpe_t corr,
-	     cdpe_t dpc[], rdpe_t dap[], boolean * cont);
-void mnewton(int n, mpc_t z, rdpe_t radius, mpc_t corr, mpc_t mfpc[],
-	     mpc_t mfppc[], rdpe_t dap[], boolean * spar, boolean * cont);
-void parhorner(int n, mpc_t x, mpc_t p[], boolean b[], mpc_t s);
-void aparhorner(int n, rdpe_t x, rdpe_t p[], boolean b[], rdpe_t s);
+void mps_fnewton(int n, cplx_t z, double * radius, cplx_t corr, cplx_t fpc[],
+		 double fap[], boolean *  cont);
+void mps_dnewton(int n, cdpe_t z, rdpe_t radius, cdpe_t corr,
+		 cdpe_t dpc[], rdpe_t dap[], boolean * cont);
+void mps_mnewton(int n, mpc_t z, rdpe_t radius, mpc_t corr, mpc_t mfpc[],
+		 mpc_t mfppc[], rdpe_t dap[], boolean * spar, boolean * cont);
+void mps_parhorner(int n, mpc_t x, mpc_t p[], boolean b[], mpc_t s);
+void mps_aparhorner(int n, rdpe_t x, rdpe_t p[], boolean b[], rdpe_t s);
 
 /**
  * This function parse command lines and sets global variables 
@@ -459,73 +461,73 @@ void aparhorner(int n, rdpe_t x, rdpe_t p[], boolean b[], rdpe_t s);
  *   Argoment values, i.e. array of char* as obtained
  *   in the main() function.
  */
-void parse_opts(mps_status* s, int argc, char *argv[]);
+void mps_parse_opts(mps_status* s, int argc, char *argv[]);
 
 /* functions in mps_sort.c */
-void fsort(mps_status* s);
-void dsort(mps_status* s);
-void msort(mps_status* s);
+void mps_fsort(mps_status* s);
+void mps_dsort(mps_status* s);
+void mps_msort(mps_status* s);
 
 /* functions in mps_solv.c */
-void update(void);
-void fsrad(int i, cplx_t sc, double *sr);
-void dsrad(int i, cdpe_t sc, rdpe_t sr);
-void msrad(int i, mpc_t sc, rdpe_t sr);
-void fmodify(void);
-void dmodify(void);
-void mmodify(void);
-boolean check_stop();
-void fsolve(boolean * d_after_f);
-void dsolve(boolean d_after_f);
-void msolve(void);
-void fpolzer(int * it, boolean * excep);
-void dpolzer(int * it, boolean * excep);
-void mpolzer(int * it, boolean * excep);
+void mps_update(void);
+void mps_fsrad(int i, cplx_t sc, double *sr);
+void mps_dsrad(int i, cdpe_t sc, rdpe_t sr);
+void mps_msrad(int i, mpc_t sc, rdpe_t sr);
+void mps_fmodify(void);
+void mps_dmodify(void);
+void mps_mmodify(void);
+boolean mps_check_stop();
+void mps_fsolve(boolean * d_after_f);
+void mps_dsolve(boolean d_after_f);
+void mps_msolve(void);
+void mps_fpolzer(int * it, boolean * excep);
+void mps_dpolzer(int * it, boolean * excep);
+void mps_mpolzer(int * it, boolean * excep);
 
 /* functions in mps_star.c */
-void fstart(int n, int i_clust, double clust_rad, double g, rdpe_t eps_out,
-	    double fap[]);
-void dstart(int n, int i_clust, rdpe_t clust_rad, rdpe_t g, rdpe_t eps_out,
+void mps_fstart(int n, int i_clust, double clust_rad, double g, rdpe_t eps_out,
+		double fap[]);
+void mps_dstart(int n, int i_clust, rdpe_t clust_rad, rdpe_t g, rdpe_t eps_out,
 	    rdpe_t dap[]);
-void mstart(int n, int i_clust, rdpe_t clust_rad, rdpe_t g, rdpe_t dap[]);
-void frestart(void);
-void drestart(void);
-void mrestart(void);
-void fshift(int m, int i_clust, double clust_rad, cplx_t g, rdpe_t eps);
-void dshift(int m, int i_clust, rdpe_t clust_rad, cdpe_t g, rdpe_t eps);
-void mshift(int m, int i_clust, rdpe_t clust_rad, mpc_t g);
+void mps_mstart(int n, int i_clust, rdpe_t clust_rad, rdpe_t g, rdpe_t dap[]);
+void mps_frestart(void);
+void mps_drestart(void);
+void mps_mrestart(void);
+void mps_fshift(int m, int i_clust, double clust_rad, cplx_t g, rdpe_t eps);
+void mps_dshift(int m, int i_clust, rdpe_t clust_rad, cdpe_t g, rdpe_t eps);
+void mps_mshift(int m, int i_clust, rdpe_t clust_rad, mpc_t g);
 
 /* functions in mps_stio.c */
-void readroots(void);
-void countroots(void);
-void outroot(int i);
-void output(void);
-void copy_roots(void);
-void dump(FILE * dmpstr);
-void warn(char * s);
-void error(int args, ...);
+void mps_readroots(void);
+void mps_countroots(void);
+void mps_outroot(int i);
+void mps_output(void);
+void mps_copy_roots(void);
+void mps_dump(FILE * dmpstr);
+void mps_warn(char * s);
+void mps_error(int args, ...);
 
 /* functions in mps_test.c */
-boolean  inclusion(void);
+boolean  mps_inclusion(void);
 
 /* functions in mps_touch.c */
-boolean ftouchnwt(int n, int i, int j);
-boolean dtouchnwt(int n, int i, int j);
-boolean mtouchnwt(int n, int i, int j);
-boolean ftouchreal(int n, int i);
-boolean dtouchreal(int n, int i);
-boolean mtouchreal(int n, int i);
-boolean ftouchimag(int n, int i);
-boolean dtouchimag(int n, int i);
-boolean mtouchimag(int n, int i);
-boolean ftouchunit(int n, int i);
-boolean dtouchunit(int n, int i);
-boolean mtouchunit(int n, int i);
+boolean mps_ftouchnwt(mps_status* s, int n, int i, int j);
+boolean mps_dtouchnwt(mps_status* s, int n, int i, int j);
+boolean mps_mtouchnwt(mps_status* s, int n, int i, int j);
+boolean mps_ftouchreal(mps_status* s, int n, int i);
+boolean mps_dtouchreal(mps_status* s, int n, int i);
+boolean mps_mtouchreal(mps_status* s, int n, int i);
+boolean mps_ftouchimag(mps_status* s, int n, int i);
+boolean mps_dtouchimag(mps_status* s, int n, int i);
+boolean mps_mtouchimag(mps_status* s, int n, int i);
+boolean mps_ftouchunit(mps_status* s, int n, int i);
+boolean mps_dtouchunit(mps_status* s, int n, int i);
+boolean mps_mtouchunit(mps_status* s, int n, int i);
 
 /* functions in mps_usr.c */
-void fnewton_usr(cplx_t x, double * rad, cplx_t corr, boolean * again);
-void dnewton_usr(cdpe_t x, rdpe_t rad, cdpe_t corr, boolean * again);
-void mnewton_usr(mpc_t x, rdpe_t rad, mpc_t corr, boolean * again);
+void mps_fnewton_usr(cplx_t x, double * rad, cplx_t corr, boolean * again);
+void mps_dnewton_usr(cdpe_t x, rdpe_t rad, cdpe_t corr, boolean * again);
+void mps_mnewton_usr(mpc_t x, rdpe_t rad, mpc_t corr, boolean * again);
 
 #endif /* ndef __MPS_H__ */
 

@@ -17,7 +17,7 @@
 *       SUBROUTINE READ_POLY                               *
 ***********************************************************/
 void
-read_poly(mps_status* s, FILE *instr, mpspoly_t p)
+mps_read_poly(mps_status* s, FILE *instr, mpspoly_t p)
 {
   int indx, num_coeff, i, read_elements;
 
@@ -65,7 +65,7 @@ read_poly(mps_status* s, FILE *instr, mpspoly_t p)
     num_coeff = p->deg + 1;
 
   /* validate polynomial data */
-  validate_poly(s, p, num_coeff);
+  mps_validate_poly(s, p, num_coeff);
 
   /* setup floating point multiprecision */
   if (p->prec_in != 0)
@@ -174,7 +174,7 @@ read_poly(mps_status* s, FILE *instr, mpspoly_t p)
 *                   PROCEDURE VALIDATE_POLY
 **********************************************************/
 void
-validate_poly(mps_status* s, mpspoly_t p, int num_coeff)
+mps_validate_poly(mps_status* s, mpspoly_t p, int num_coeff)
 {
   /* check polynomial type */
   if (!p->data_type[0] || !strchr("sdu", p->data_type[0]))
@@ -255,7 +255,7 @@ validate_poly(mps_status* s, mpspoly_t p, int num_coeff)
 *       SUBROUTINE SET_POLY                                *
 ***********************************************************/
 void
-set_poly(mps_status* s, mpspoly_t p)
+mps_set_poly(mps_status* s, mpspoly_t p)
 {
   s->n = p->n;  
   s->deg = p->deg;
@@ -278,7 +278,7 @@ set_poly(mps_status* s, mpspoly_t p)
 *       SUBROUTINE UPDATE_POLY                            *
 ***********************************************************/
 void
-update_poly(mps_status* s, mpspoly_t p)
+mps_update_poly(mps_status* s, mpspoly_t p)
 {
   p->prec_in = s->prec_in;
   p->n = s->n;  
@@ -291,7 +291,7 @@ update_poly(mps_status* s, mpspoly_t p)
  *******************************************************/
 /*DAFARE da perfezionare senza allocare cose inutili */
 void
-allocate_poly(mps_status* s, mpspoly_t p)
+mps_allocate_poly(mps_status* s, mpspoly_t p)
 {
   int i;
   if (s->DOLOG)
@@ -331,7 +331,7 @@ allocate_poly(mps_status* s, mpspoly_t p)
  *      SUBROUTINE FREE_POLY                            *
  *******************************************************/
 void
-free_poly(mps_status* s, mpspoly_t p)
+mps_free_poly(mps_status* s, mpspoly_t p)
 {
   int i;
 
@@ -372,7 +372,7 @@ free_poly(mps_status* s, mpspoly_t p)
 /********************************************************
  *      SUBROUTINE GET_ROOTS                            *
  *******************************************************/
-void get_roots(mps_status* s, mpsroots_t r)
+void mps_get_roots(mps_status* s, mpsroots_t r)
 {
   r->lastphase = s->lastphase;
   r->count = s->count;

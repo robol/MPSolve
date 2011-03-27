@@ -53,7 +53,7 @@ EXE =
 
 # object files
 LIBXTOBJ = tools.o mt.o gmptools.o mpc.o link.o mptemp.o
-LIBMPSOBJ = mps_poly.o mps_data.o mps_sort.o mps_glob.o mps_aber.o mps_clus.o mps_cnvx.o mps_impr.o mps_stio.o mps_newt.o mps_solv.o mps_star.o mps_test.o mps_touc.o mps_user.o mps_opts.o mps_main.o
+LIBMPSOBJ = mps_poly.o mps_data.o mps_sort.o mps_aber.o mps_clus.o mps_cnvx.o mps_impr.o mps_stio.o mps_newt.o mps_solv.o mps_star.o mps_test.o mps_touc.o mps_user.o mps_opts.o mps_main.o mps_defaults.o
 RUROBJ = rur_horn.o rur_main.o
 
 
