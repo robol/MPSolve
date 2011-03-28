@@ -469,20 +469,20 @@ void mps_dsort(mps_status* s);
 void mps_msort(mps_status* s);
 
 /* functions in mps_solv.c */
-void mps_update(void);
-void mps_fsrad(int i, cplx_t sc, double *sr);
-void mps_dsrad(int i, cdpe_t sc, rdpe_t sr);
-void mps_msrad(int i, mpc_t sc, rdpe_t sr);
-void mps_fmodify(void);
-void mps_dmodify(void);
-void mps_mmodify(void);
-boolean mps_check_stop();
-void mps_fsolve(boolean * d_after_f);
-void mps_dsolve(boolean d_after_f);
-void mps_msolve(void);
-void mps_fpolzer(int * it, boolean * excep);
-void mps_dpolzer(int * it, boolean * excep);
-void mps_mpolzer(int * it, boolean * excep);
+void mps_update(mps_status* s);
+void mps_fsrad(mps_status* s, int i, cplx_t sc, double *sr);
+void mps_dsrad(mps_status* s, int i, cdpe_t sc, rdpe_t sr);
+void mps_msrad(mps_status* s, int i, mpc_t sc, rdpe_t sr);
+void mps_fmodify(mps_status* s);
+void mps_dmodify(mps_status* s);
+void mps_mmodify(mps_status* s);
+boolean mps_check_stop(mps_status* s);
+void mps_fsolve(mps_status* s, boolean * d_after_f);
+void mps_dsolve(mps_status* s, boolean d_after_f);
+void mps_msolve(mps_status* s);
+void mps_fpolzer(mps_status* s, int * it, boolean * excep);
+void mps_dpolzer(mps_status* s, int * it, boolean * excep);
+void mps_mpolzer(mps_status* s, int * it, boolean * excep);
 
 /* functions in mps_star.c */
 void mps_fstart(int n, int i_clust, double clust_rad, double g, rdpe_t eps_out,
