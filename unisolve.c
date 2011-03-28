@@ -46,10 +46,10 @@ main(int argc, char *argv[])
   mps_mpsolve(&s);
   
   /* copy roots */
-  mps_copy_roots();
+  mps_copy_roots(&s);
 
   /* output roots */
-  mps_output();
+  mps_output(&s);
 
   /* Free data */
   mps_free_data(&s);

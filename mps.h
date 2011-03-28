@@ -498,14 +498,14 @@ void mps_dshift(int m, int i_clust, rdpe_t clust_rad, cdpe_t g, rdpe_t eps);
 void mps_mshift(int m, int i_clust, rdpe_t clust_rad, mpc_t g);
 
 /* functions in mps_stio.c */
-void mps_readroots(void);
-void mps_countroots(void);
-void mps_outroot(int i);
-void mps_output(void);
-void mps_copy_roots(void);
-void mps_dump(FILE * dmpstr);
-void mps_warn(char * s);
-void mps_error(int args, ...);
+void mps_readroots(mps_status* s);
+void mps_countroots(mps_status* s);
+void mps_outroot(mps_status* s, int i);
+void mps_output(mps_status* s);
+void mps_copy_roots(mps_status* s);
+void mps_dump(mps_status* s, FILE * dmpstr);
+void mps_warn(mps_status* st, char * s);
+void mps_error(mps_status* st, int args, ...);
 
 /* functions in mps_test.c */
 boolean  mps_inclusion(void);

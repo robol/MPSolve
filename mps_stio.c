@@ -19,72 +19,72 @@
 *      SUBROUTINE READROOTS                              *
 *********************************************************/
 void
-readroots(void)
+msp_readroots(mps_status* s)
 {
   long digits;
   int i, read_elements;
 
-  if (DOLOG)
-    fprintf(logstr, "Reading roots...\n");
+  if (s->DOLOG)
+    fprintf(s->logstr, "Reading roots...\n");
   
-  read_elements = fscanf(rtstr, "%ld", &digits);
+  read_elements = fscanf(s->rtstr, "%ld", &digits);
   if (!read_elements) {
-    error(1, "Error while reading roots, aborting.");
+    mps_error(s, 1, "Error while reading roots, aborting.");
   }
 
   /* precision setup code goes here */
   
-  for(i=0; i<n; i++)
-    mpc_inp_str_u(mroot[i], rtstr, 10);
+  for(i=0; i<s->n; i++)
+    mpc_inp_str_u(s->mroot[i], s->rtstr, 10);
 }
 
 /*********************************************************
 *      SUBROUTINE COUNTROOTS                             *
 *********************************************************/
 void
-countroots(void)
+mps_countroots(mps_status* s)
 {
   int k;
 
- if (DOLOG)
-    fprintf(logstr, "Counting roots...\n");
+  if (s->DOLOG)
+    fprintf(s->logstr, "Counting roots...\n");
 
-  count[0] = count[1] = count[2] = 0;
+  s->count[0] = s->count[1] = s->count[2] = 0;
 
-  for (k = 0; k < n; k++)
-    switch (status[k][2]) {
+  for (k = 0; k < s->n; k++)
+    switch (s->status[k][2]) {
     case 'i':
-      count[0]++;
+      s->count[0]++;
       break;
     case 'o':
-      count[1]++;
+      s->count[1]++;
       break;
     default:
-      count[2]++;
+      s->count[2]++;
       break;
     }
 
-  if (goal[1] == 'o')
-    count[1] += zero_roots;
+  if (s->goal[1] == 'o')
+    s->count[1] += s->zero_roots;
   else
-    count[0] += zero_roots;
+    s->count[0] += s->zero_roots;
 }
 
 /*********************************************************
 *      SUBROUTINE OUTCOUNT                               *
 *********************************************************/
 void
-outcount(void)
+mps_outcount(mps_status* s)
 {
   countroots();
   
-  fprintf(outstr, "%d roots are inside;\n", count[0]);
-  fprintf(outstr, "%d roots are outside;\n", count[1]);
-  fprintf(outstr, "%d roots are uncertain.\n", count[2]);
-  if (DOLOG) {
-    fprintf(logstr, "%d roots are inside;\n", count[0]);
-    fprintf(logstr, "%d roots are outside;\n", count[1]);
-    fprintf(logstr, "%d roots are uncertain.\n", count[2]);
+  fprintf(s->outstr, "%d roots are inside;\n", s->count[0]);
+  fprintf(s->outstr, "%d roots are outside;\n", s->count[1]);
+  fprintf(s->outstr, "%d roots are uncertain.\n", s->count[2]);
+  if (s->DOLOG) {
+    fprintf(s->logstr, "%d roots are inside;\n", s->count[0]);
+    fprintf(s->logstr, "%d roots are outside;\n", s->count[1]);
+    fprintf(s->logstr, "%d roots are uncertain.\n", s->count[2]);
   }
 }
 
@@ -92,26 +92,26 @@ outcount(void)
 *      SUBROUTINE OUTFLOAT                               *
 *********************************************************/
 void
-outfloat(mpf_t f, rdpe_t rad, long out_digit, boolean sign)
+mps_outfloat(mps_status* s, mpf_t f, rdpe_t rad, long out_digit, boolean sign)
 {
   tmpf_t t;
   rdpe_t r, ro;
   double d;
   long l, digit, true_digit;
 
-  if (goal[4] == 'f') {
+  if (s->goal[4] == 'f') {
     tmpf_init2(t, mpf_get_prec(f));
     mpf_set(t, f);
-    mpf_out_str(outstr, 10, 0, t);
+    mpf_out_str(s->outstr, 10, 0, t);
     tmpf_clear(t);
     return;
   }
 
-  tmpf_init2(t, prec_out);
+  tmpf_init2(t, s->prec_out);
   
   mpf_get_rdpe(ro, f);
-  if (goal[4] == 'g')
-    rdpe_out_str_u(outstr, ro);
+  if (s->goal[4] == 'g')
+    rdpe_out_str_u(s->outstr, ro);
   else {
     rdpe_abs_eq(ro);
     if (rdpe_ne(ro, rdpe_zero))
@@ -121,7 +121,7 @@ outfloat(mpf_t f, rdpe_t rad, long out_digit, boolean sign)
     digit = (long) (-rdpe_log10(r) - 0.5);
     if (digit <= 0) {
       rdpe_get_dl(&d, &l, ro);
-      fprintf(outstr, "0.e%ld", l);
+      fprintf(s->outstr, "0.e%ld", l);
     } else {
       true_digit = (long) (LOG10_2 * mpf_get_prec(f));
       true_digit = MIN(digit, true_digit);
@@ -130,7 +130,7 @@ outfloat(mpf_t f, rdpe_t rad, long out_digit, boolean sign)
 	mpf_set(t, f);
       else
 	mpf_abs(t, f);
-      mpf_out_str(outstr, 10, true_digit, t);
+      mpf_out_str(s->outstr, 10, true_digit, t);
     }
   }
 
@@ -141,87 +141,87 @@ outfloat(mpf_t f, rdpe_t rad, long out_digit, boolean sign)
 *      SUBROUTINE OUTROOT                                *
 *********************************************************/
 void
-outroot(int i)
+mps_outroot(mps_status* s, int i)
 {
   static int num = 0; /* output roots count */
   long out_digit;
   
-  out_digit = (long) (LOG10_2 * prec_out) + 10;
+  out_digit = (long) (LOG10_2 * s->prec_out) + 10;
   num++;
 
   /* print format header */
-  switch (goal[4]) {
+  switch (s->goal[4]) {
   case 'c':
   case 'f':
-    fprintf(outstr, "(");
+    fprintf(s->outstr, "(");
     break;
   case 'v':
-    fprintf(outstr, "Root(%d) = ", num);
+    fprintf(s->outstr, "Root(%d) = ", num);
     break;
   }
 
   /* print real part */
-  if (i == ISZERO || status[i][1] == 'I')
-    fprintf(outstr, "0");
+  if (i == ISZERO || s->status[i][1] == 'I')
+    fprintf(s->outstr, "0");
   else
-    outfloat(mpc_Re(mroot[i]), drad[i], out_digit, true);
+    mps_outfloat(s, mpc_Re(s->mroot[i]), s->drad[i], out_digit, true);
 
   /* print format middle part */
-  switch (goal[4]) {
+  switch (s->goal[4]) {
   case 'b':
-    fprintf(outstr, " ");
+    fprintf(s->outstr, " ");
     break;
   case 'g':
-    fprintf(outstr, "\t");
+    fprintf(s->outstr, "\t");
     break;
   case 'c':
   case 'f':
-    fprintf(outstr, ", ");
+    fprintf(s->outstr, ", ");
     break;
   case 'v':
-    if (i == ISZERO || mpf_sgn(mpc_Im(mroot[i])) >= 0)
-      fprintf(outstr, " + I * ");
+    if (i == ISZERO || mpf_sgn(mpc_Im(s->mroot[i])) >= 0)
+      fprintf(s->outstr, " + I * ");
     else
-      fprintf(outstr, " - I * ");
+      fprintf(s->outstr, " - I * ");
     break;
   }
 
   /* print imaginary part */
-  if (i == ISZERO || status[i][1] == 'R')
-    fprintf(outstr, "0");
+  if (i == ISZERO || s->status[i][1] == 'R')
+    fprintf(s->outstr, "0");
   else
-    outfloat(mpc_Im(mroot[i]), drad[i], out_digit, goal[4] != 'v');
+    msp_outfloat(s, mpc_Im(s->mroot[i]), s->drad[i], out_digit, s->goal[4] != 'v');
 
   /* print format ending */
-  switch (goal[4]) {
+  switch (s->goal[4]) {
   case 'c':
-    fprintf(outstr, ")");
+    fprintf(s->outstr, ")");
     break;
   case 'f':
-    fprintf(outstr, ")\n");
+    fprintf(s->outstr, ")\n");
     if (i != ISZERO) {
-      rdpe_outln_str(outstr, drad[i]);
-      fprintf(outstr, "%4.3s\n", status[i]);
+      rdpe_outln_str(s->outstr, s->drad[i]);
+      fprintf(s->outstr, "%4.3s\n", s->status[i]);
     } else
-      fprintf(outstr, " 0\n ---\n");
+      fprintf(s->outstr, " 0\n ---\n");
     break;
   }
-  fprintf(outstr, "\n");
+  fprintf(s->outstr, "\n");
 
   /* debug info */
-  if (DOLOG) {
+  if (s->DOLOG) {
     if(i == ISZERO)
-      fprintf(logstr, "zero root %-4d = 0", num);
+      fprintf(s->logstr, "zero root %-4d = 0", num);
     else {
-      fprintf(logstr, "root %-4d = ", i);
-      mpc_out_str_2(logstr, 10, 0, 0, mroot[i]);
-      fprintf(logstr, "\n");
-      fprintf(logstr, "  radius = ");
-      rdpe_outln_str(logstr, drad[i]);
-      fprintf(logstr, "  prec = %ld\n", 
-	      (long) (mpc_get_prec(mroot[i])/LOG2_10));
-      fprintf(logstr, "  status = %4.3s\n", status[i]);
-      fprintf(logstr, "--------------------\n");
+      fprintf(s->logstr, "root %-4d = ", i);
+      mpc_out_str_2(s->logstr, 10, 0, 0, s->mroot[i]);
+      fprintf(s->logstr, "\n");
+      fprintf(s->logstr, "  radius = ");
+      rdpe_outln_str(s->logstr, s->drad[i]);
+      fprintf(s->logstr, "  prec = %ld\n", 
+	      (long) (mpc_get_prec(s->mroot[i])/LOG2_10));
+      fprintf(s->logstr, "  status = %4.3s\n", s->status[i]);
+      fprintf(s->logstr, "--------------------\n");
     }
   }
 }
@@ -230,24 +230,24 @@ outroot(int i)
 *      SUBROUTINE OUTPUT                                 *
 *********************************************************/
 void
-output(void)
+mps_output(mps_status* s)
 {
   int i, ind;
 
-  if (DOLOG)
-    fprintf(logstr, "--------------------\n");
+  if (s->DOLOG)
+    fprintf(s->logstr, "--------------------\n");
 
-  if (goal[0] == 'c')
-    outcount();
+  if (s->goal[0] == 'c')
+    mps_outcount(s);
   else {
-    if (goal[1] != 'o')
-      for (i = 0; i < zero_roots; i++)
-        outroot(ISZERO);
-    for (ind = 0; ind < n; ind++) {
-      i = order[ind];
-      if (status[i][2] == 'o')
+    if (s->goal[1] != 'o')
+      for (i = 0; i < s->zero_roots; i++)
+        mps_outroot(s, ISZERO);
+    for (ind = 0; ind < s->n; ind++) {
+      i = s->order[ind];
+      if (s->status[i][2] == 'o')
 	continue;
-      outroot(i);
+      mps_outroot(s, i);
     }
   }
 }
@@ -256,37 +256,37 @@ output(void)
 *      SUBROUTINE COPY_ROOTS                             *
 *********************************************************/
 void
-copy_roots(void)
+mps_copy_roots(mps_status* s)
 {
   int i;
 
-  switch (lastphase) {
+  switch (s->lastphase) {
   case no_phase:
-    error(1, "Nothing to copy");
+    mps_error(s, 1, "Nothing to copy");
     break;
     
   case float_phase:
-    if (DOSORT)
-      fsort();
-    for (i = 0; i < n; i++) {
-      mpc_set_prec(mroot[i], DBL_MANT_DIG);
-      mpc_set_cplx(mroot[i], froot[i]);
-      rdpe_set_d(drad[i], frad[i]);
+    if (s->DOSORT)
+      mps_fsort(s);
+    for (i = 0; i < s->n; i++) {
+      mpc_set_prec(s->mroot[i], DBL_MANT_DIG);
+      mpc_set_cplx(s->mroot[i], s->froot[i]);
+      rdpe_set_d(s->drad[i], s->frad[i]);
     }
     break;
     
   case dpe_phase:
-    if (DOSORT)
-      dsort();
-    for (i = 0; i < n; i++) {
-      mpc_set_prec(mroot[i], DBL_MANT_DIG);
-      mpc_set_cdpe(mroot[i], droot[i]);
+    if (s->DOSORT)
+      mps_dsort(s);
+    for (i = 0; i < s->n; i++) {
+      mpc_set_prec(s->mroot[i], DBL_MANT_DIG);
+      mpc_set_cdpe(s->mroot[i], s->droot[i]);
     }
     break;
     
   case mp_phase:
-    if (DOSORT)
-      msort();
+    if (s->DOSORT)
+      mps_msort(s);
     break;
     
   }
@@ -296,7 +296,7 @@ copy_roots(void)
  *                     SUBROUTINE DUMP                       *
  *************************************************************/
 void
-dump(FILE * dmpstr)
+mps_dump(mps_status* s, FILE * dmpstr)
 {
   int i;
   
@@ -305,65 +305,65 @@ dump(FILE * dmpstr)
   /* output current status */
   fprintf(dmpstr, 
 	  "Phase=%d, In=%d, Out=%d, Uncertain=%d, Zero=%d, Clusters=%d\n",
-	  lastphase, count[0], count[1], count[2], zero_roots, nclust);
+	  s->lastphase, s->count[0], s->count[1], s->count[2], s->zero_roots, s->nclust);
 
   /* output current approximations */
   fprintf(dmpstr, "\nCurrent approximations:\n");  
-  for (i = 0; i < n; i++) {
+  for (i = 0; i < s->n; i++) {
     fprintf(dmpstr, "%d:\t", i);
 
-    switch (lastphase) {
+    switch (s->lastphase) {
     case no_phase:
     case float_phase:
-      cplx_outln_str(dmpstr, froot[i]);
+      cplx_outln_str(dmpstr, s->froot[i]);
       break;
     
     case dpe_phase:
-      cdpe_outln_str(dmpstr, droot[i]);
+      cdpe_outln_str(dmpstr, s->droot[i]);
       break;
     
     case mp_phase:
-      mpc_outln_str(dmpstr, 10, 0, mroot[i]);
+      mpc_outln_str(dmpstr, 10, 0, s->mroot[i]);
       break;
     }
   }
 
   /* output radii */
   fprintf(dmpstr, "\nCurrent radii:\n");
-  for (i = 0; i < n; i++) {
+  for (i = 0; i < s->n; i++) {
     fprintf(dmpstr, "%d:\t", i);
 
-    switch (lastphase) {
+    switch (s->lastphase) {
     case no_phase:
     case float_phase:
-      fprintf(dmpstr, "%e\n", frad[i]);
+      fprintf(dmpstr, "%e\n", s->frad[i]);
       break;
     
     case dpe_phase:
     case mp_phase:
-      rdpe_outln_str(dmpstr, drad[i]);
+      rdpe_outln_str(dmpstr, s->drad[i]);
       break;
     }
   }
 
   /* output position */
   fprintf(dmpstr, "\nPos:\t");
-  for (i = 0; i < n; i++)
+  for (i = 0; i < s->n; i++)
     fprintf(dmpstr, "%4d", i);
 
   /* output status information */
   fprintf(dmpstr, "\nStatus:\t");
-  for (i = 0; i < n; i++)
-    fprintf(dmpstr, "%4.3s", status[i]);
+  for (i = 0; i < s->n; i++)
+    fprintf(dmpstr, "%4.3s", s->status[i]);
 
   /* output cluster information */
   fprintf(dmpstr, "\nClust:\t");
-  for (i = 0; i < n; i++)
-    fprintf(dmpstr, "%4d", clust[i]);
+  for (i = 0; i < s->n; i++)
+    fprintf(dmpstr, "%4d", s->clust[i]);
 
   fprintf(dmpstr, "\nPunt:\t");
-  for (i = 0; i < nclust; i++)
-    fprintf(dmpstr, "%4d", punt[i]);
+  for (i = 0; i < s->nclust; i++)
+    fprintf(dmpstr, "%4d", s->punt[i]);
 
   fprintf(dmpstr, "\n\n");
 }
@@ -372,33 +372,32 @@ dump(FILE * dmpstr)
  *                     SUBROUTINE WARN                       *
  *************************************************************/
 void
-warn(char *s)
+mps_warn(mps_status* st, char *s)
 {
-  if (DOWARN)
+  if (st->DOWARN)
     if (s[strlen(s)] == '\n')
-      fprintf(logstr, "%s", s);
+      fprintf(st->logstr, "%s", s);
     else
-      fprintf(logstr, "%s\n", s);
+      fprintf(st->logstr, "%s\n", s);
 }
 
 /*************************************************************
  *                     SUBROUTINE VAERROR                    *
  *************************************************************/
 void
-error(int args, ...)
+mps_error(mps_status* st, int args, ...)
 {
   va_list ap;
   char * s;
   
-  warn("! ");		/* output error message */
+  mps_warn(st, "! ");		/* output error message */
   va_start(ap, args);
   while(args--) {
     s = va_arg(ap, char *);
-    warn(s);		/* output error message */
+    mps_warn(st, s);		/* output error message */
   }
   va_end(ap);
-  warn("\n");		/* output error message */
-
-  dump(logstr);		/* dump status		*/
+  
+  mps_dump(st, st->logstr);		/* dump status		*/
   exit(EXIT_FAILURE);	/* exit program         */
 }
