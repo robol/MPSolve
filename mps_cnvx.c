@@ -36,12 +36,12 @@ const double TOLER = 0.4;	/* slope tolerace */
  * \f[ \{ (k, a_k) \ | \ k \in \{ lo, \dots, i \} \} \f]
  */
 int
-left(int i, int lo)
+mps_left(mps_status* s, int i, int lo)
 {
   if (i == lo)
     return lo;
   for (i--; i > lo; i--)
-    if (h[i])
+    if (s->h[i])
       break;
   return i;
 }
@@ -55,12 +55,12 @@ left(int i, int lo)
  * \f[ \{ (k, a_k) \ | \ k \in \{ i, \dots, up \} \} \f]
  */
 int
-right(int i, int up)
+mps_right(mps_status* s, int i, int up)
 {
   if (i == up)
     return up;
   for (i++; i < up; i++)
-    if (h[i])
+    if (s->h[i])
       break;
   return i;
 }
@@ -79,7 +79,7 @@ right(int i, int up)
  * @param a  array with the points
  */
 boolean
-fctest(int il, int i, int ir, double a[])
+mps_fctest(mps_status* s, int il, int i, int ir, double a[])
 {
   double s1, s2;
 
@@ -101,37 +101,37 @@ fctest(int il, int i, int ir, double a[])
  * @param a array of points
  */
 void
-fmerge(int lo, int i, int up, double a[])
+mps_fmerge(mps_status* s, int lo, int i, int up, double a[])
 {
   int il, ir, ill, irr;
   boolean tstl, tstr;
 
   ill = lo;
   irr = up;
-  il = left(i, lo);
-  ir = right(i, up);
-  if (fctest(il, i, ir, a))
+  il = mps_left(s, i, lo);
+  ir = mps_right(s, i, up);
+  if (mps_fctest(s, il, i, ir, a))
     return;
-  h[i] = false;
+  s->h[i] = false;
   do {
     if (il == lo)
       tstl = true;
     else {
-      ill = left(il, lo);
-      tstl = fctest(ill, il, ir, a);
+      ill = mps__left(s, il, lo);
+      tstl = mps_fctest(s, ill, il, ir, a);
     }
     if (ir == up)
       tstr = true;
     else {
-      irr = right(ir, up);
-      tstr = fctest(il, ir, irr, a);
+      irr = msp_right(s, ir, up);
+      tstr = mps_fctest(s, il, ir, irr, a);
     }
     if (!tstl) {
-      h[il] = false;
+      s->h[il] = false;
       il = ill;
     }
     if (!tstr) {
-      h[ir] = false;
+      s->h[ir] = false;
       ir = irr;
     }
   }
@@ -149,14 +149,14 @@ fmerge(int lo, int i, int up, double a[])
  * @param n size of the vector <code>a</code>.
  */
 void
-fconvex(int n, double a[])
+mps_fconvex(mps_status* s, int n, double a[])
 {
   int m, c;
 
-  for (m = 0; m <= n; m++)
-    h[m] = true;
+  for (m = 0; m <= s->n; m++)
+    s->h[m] = true;
 
-  for (m = 1; m < n; m <<= 1)
-    for (c = m; c < n; c += 2 * m)
-      fmerge(c - m, c, MIN(n, c + m), a);
+  for (m = 1; m < s->n; m <<= 1)
+    for (c = m; c < s->n; c += 2 * m)
+      fmerge(c - m, c, MIN(s->n, c + m), a);
 }

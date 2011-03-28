@@ -28,7 +28,7 @@
  precision.
  ************************************************************/
 void
-improve(void)
+mps_improve(mps_status* st)
 {
   int i, j, k, m;
   long mpnb_in, mpnb_out;
@@ -39,18 +39,18 @@ improve(void)
   double f, g, cnd;
   boolean again;
 
-  if (DOLOG)
-    fprintf(logstr, "Refining the roots ...\n");
+  if (st->DOLOG)
+    fprintf(st->logstr, "Refining the roots ...\n");
 
   /* == 1 ==
    * compute the number mpnb_in of bits
    * corresponding to the given input precision. 
    * Set mpnb_in=0 if the input precision is infinite (prec_in=0) */
-  if (prec_in == 0)
+  if (st->prec_in == 0)
     mpnb_in = 0;
   else
-    mpnb_in = (long) (prec_in * LOG2_10 + log(4.0 * n) / LOG2);
-  mpnb_out = (long) (prec_out * LOG2_10);
+    mpnb_in = (long) (st->prec_in * LOG2_10 + log(4.0 * st->n) / LOG2);
+  mpnb_out = (long) (st->prec_out * LOG2_10);
 
   /* == 2  ==
    * compute the coefficients of the polynomial as mpc_t with mpnb_in bits
@@ -63,19 +63,19 @@ improve(void)
   tmpc_init2(mtmp, mpnb_out*2); /* puo' essere settato a precisione minima */
   tmpc_init2(nwtcorr, mpnb_out*2);
 
-  if (prec_in != 0 && data_type[0] != 'u')
-    prepare_data(mpnb_in);
+  if (st->prec_in != 0 && st->data_type[0] != 'u')
+    mps_prepare_data(st, mpnb_in);
   else {
     mp_set_prec(mpnb_out * 2);
-    prepare_data(mpnb_out * 2);
+    mps_prepare_data(st, mpnb_out * 2);
   }
 
   /* == 3 == 
    * scan the approximations to apply Newton's iterations */
-  for (i = 0; i < n; i++) {
-    if (DOLOG)
-      fprintf(logstr, "root %d\n", i);
-    if (status[i][0] != 'i' || status[i][2] == 'o')
+  for (i = 0; i < st->n; i++) {
+    if (st->DOLOG)
+      fprintf(st->logstr, "root %d\n", i);
+    if (st->status[i][0] != 'i' || st->status[i][2] == 'o')
       continue;			/* Do not refine approximated roots */
 
     /*  == 3.1 ==
@@ -83,24 +83,24 @@ improve(void)
      * otherwise set t=5*n*rad[i] since the root is Newton-isolated.
      * This allows us to remove an O(n^2) complexity  */
 
-    if (data_type[0] == 's')
-      rdpe_mul_d(t, drad[i], 5.0 * n);
+    if (st->data_type[0] == 's')
+      rdpe_mul_d(t, st->drad[i], 5.0 * st->n);
     else {
       k = i + 1;
-      if (i == n - 1)
+      if (i == st->n - 1)
 	k = 0;
-      mpc_sub(mtmp, mroot[k], mroot[i]);
+      mpc_sub(mtmp, st->mroot[k], st->mroot[i]);
       mpc_get_cdpe(ctmp, mtmp);
       cdpe_mod(t, ctmp);
-      rdpe_sub_eq(t, drad[k]);
-      rdpe_sub_eq(t, drad[i]);
-      for (j = 0; j < n; j++)
+      rdpe_sub_eq(t, st->drad[k]);
+      rdpe_sub_eq(t, st->drad[i]);
+      for (j = 0; j < st->n; j++)
 	if (j != i) {
-	  mpc_sub(mtmp, mroot[j], mroot[i]);
+	  mpc_sub(mtmp, st->mroot[j], st->mroot[i]);
 	  mpc_get_cdpe(ctmp, mtmp);
 	  cdpe_mod(tmp, ctmp);
-	  rdpe_sub_eq(tmp, drad[i]);
-	  rdpe_sub_eq(tmp, drad[j]);
+	  rdpe_sub_eq(tmp, st->drad[i]);
+	  rdpe_sub_eq(tmp, st->drad[j]);
 	  if (rdpe_gt(t, tmp))
 	    rdpe_set(t, tmp);
 	}
@@ -110,21 +110,21 @@ improve(void)
      * compute an  estimate of the condition number in terms of bits
      * as log_2(rad/(4*n*epsilon*|x|))       */
 
-    rdpe_mul_d(tmp, drad[i], 4.0 * n);
-    mpc_get_cdpe(ctmp, mroot[i]);
+    rdpe_mul_d(tmp, st->drad[i], 4.0 * st->n);
+    mpc_get_cdpe(ctmp, st->mroot[i]);
     cdpe_mod(abroot, ctmp);
     rdpe_div(tmp, tmp, abroot);
-    cnd = rootwp[i] + rdpe_log(tmp) / LOG2 + 1;
+    cnd = st->rootwp[i] + rdpe_log(tmp) / LOG2 + 1;
 
     /* then evaluate the number of bits g,f */
-    rdpe_div(t, drad[i], t);
-    rdpe_mul_eq_d(t, (double) n - 1);
+    rdpe_div(t, st->drad[i], t);
+    rdpe_mul_eq_d(t, (double) st->n - 1);
     rdpe_sub(s, rdpe_one, t);
     rdpe_div(sigma, t, s);
     g = -rdpe_log(sigma) / LOG2;
     rdpe_set(tmp, abroot);
     rdpe_mul_eq(tmp, sigma);
-    rdpe_div(tmp, drad[i], tmp);
+    rdpe_div(tmp, st->drad[i], tmp);
     f = -rdpe_log(tmp) / LOG2;
 
     /* evaluate the upper bound m to the number of iterations
@@ -133,25 +133,26 @@ improve(void)
 
     /*  == 4 ==      Start Newton */
 
-    rdpe_set(oldrad, drad[i]);
+    rdpe_set(oldrad, st->drad[i]);
     for (j = 1; j <= m; j++) {
-      if (DOLOG)
-	fprintf(logstr, "iter= %d\n", j);
+      if (st->DOLOG)
+	fprintf(st->logstr, "iter= %d\n", j);
       g *= 2;
-      mpwp = (long) (f + g + cnd);
-      if (mpwp >= mpnb_in && mpnb_in != 0)
-	mpwp = mpnb_in;
+      st->mpwp = (long) (f + g + cnd);
+      if (st->mpwp >= mpnb_in && mpnb_in != 0)
+	st->mpwp = mpnb_in;
 
       tmpc_clear(nwtcorr);
-      tmpc_init2(nwtcorr, mpwp);
+      tmpc_init2(nwtcorr, st->mpwp);
 
-      mp_set_prec(mpwp);
-      prepare_data(mpwp);
-      if (data_type[0] != 'u')
-	mnewton(n, mroot[i], drad[i], nwtcorr, mfpc, mfppc, dap, spar, &again);
+      mp_set_prec(st->mpwp);
+      mps_prepare_data(st, st->mpwp);
+      if (st->data_type[0] != 'u')
+	msp_mnewton(st, st->n, st->mroot[i], st->drad[i], 
+		    nwtcorr, st->mfpc, st->mfppc, st->dap, st->spar, &again);
       else
-	mnewton_usr(mroot[i], drad[i], nwtcorr, &again);
-      mpc_sub_eq(mroot[i], nwtcorr);
+	mps_mnewton_usr(st, st->mroot[i], st->drad[i], nwtcorr, &again);
+      mpc_sub_eq(st->mroot[i], nwtcorr);
 
       /* correct radius, since the computed one is referred to the previous
        * approximation. Due to the quadratic convergence the new approximation
@@ -160,19 +161,19 @@ improve(void)
       rdpe_set_2dl(newrad, 1.0, (long) (-g - f + 1));
       rdpe_set(tmp, abroot);
       rdpe_mul_eq(newrad, tmp);
-      rdpe_mul_eq(tmp, eps_out);
+      rdpe_mul_eq(tmp, st->eps_out);
 
-      if (rdpe_eq(drad[i], rdpe_zero))
-	rdpe_set(drad[i], newrad);
-      if (rdpe_lt(newrad, drad[i]))
-	rdpe_set(drad[i], newrad);
+      if (rdpe_eq(st->drad[i], rdpe_zero))
+	rdpe_set(st->drad[i], newrad);
+      if (rdpe_lt(newrad, st->drad[i]))
+	rdpe_set(st->drad[i], newrad);
 
-      if (rdpe_lt(drad[i], tmp) || mpwp == mpnb_in)
+      if (rdpe_lt(st->drad[i], tmp) || st->mpwp == mpnb_in)
 	break;			/* loop1 */
     }
 
     /* update the record working precision for root i */
-    rootwp[i] = mpc_get_prec(mroot[i]);
+    st->rootwp[i] = mpc_get_prec(st->mroot[i]);
   }
 
   tmpc_clear(nwtcorr);

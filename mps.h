@@ -418,7 +418,7 @@ void mps_dcluster(mps_status* s, int nf);
 void mps_mcluster(mps_status* s, int nf);
 
 /* functions in mps_cnvx.c */
-void mps_fconvex(int n, double a[]);
+void mps_fconvex(mps_status* s, int n, double a[]);
 
 /* functions in mps_data.c */
 void mps_mp_set_prec(mps_status* s, long int prec);
@@ -428,7 +428,7 @@ void mps_restore_data(mps_status* s);
 void mps_free_data(mps_status* s);
 
 /* functions in mps_impr.c */
-void mps_improve(void);
+void mps_improve(mps_status* s);
 
 /* functions in mps_main.c */
 void mps_mpsolve(mps_status* s);
@@ -437,14 +437,14 @@ void mps_check_data(mps_status* s, char * which_case);
 void mps_compute_sep(mps_status* s);
 
 /* functions in mps_newt.c */
-void mps_fnewton(int n, cplx_t z, double * radius, cplx_t corr, cplx_t fpc[],
+void mps_fnewton(mps_status* st, int n, cplx_t z, double * radius, cplx_t corr, cplx_t fpc[],
 		 double fap[], boolean *  cont);
-void mps_dnewton(int n, cdpe_t z, rdpe_t radius, cdpe_t corr,
+void mps_dnewton(mps_status* st, int n, cdpe_t z, rdpe_t radius, cdpe_t corr,
 		 cdpe_t dpc[], rdpe_t dap[], boolean * cont);
-void mps_mnewton(int n, mpc_t z, rdpe_t radius, mpc_t corr, mpc_t mfpc[],
+void mps_mnewton(mps_status* st, int n, mpc_t z, rdpe_t radius, mpc_t corr, mpc_t mfpc[],
 		 mpc_t mfppc[], rdpe_t dap[], boolean * spar, boolean * cont);
-void mps_parhorner(int n, mpc_t x, mpc_t p[], boolean b[], mpc_t s);
-void mps_aparhorner(int n, rdpe_t x, rdpe_t p[], boolean b[], rdpe_t s);
+void mps_parhorner(mps_status* st, int n, mpc_t x, mpc_t p[], boolean b[], mpc_t s);
+void mps_aparhorner(mps_status* st, int n, rdpe_t x, rdpe_t p[], boolean b[], rdpe_t s);
 
 /**
  * This function parse command lines and sets global variables 
@@ -525,9 +525,9 @@ boolean mps_dtouchunit(mps_status* s, int n, int i);
 boolean mps_mtouchunit(mps_status* s, int n, int i);
 
 /* functions in mps_usr.c */
-void mps_fnewton_usr(cplx_t x, double * rad, cplx_t corr, boolean * again);
-void mps_dnewton_usr(cdpe_t x, rdpe_t rad, cdpe_t corr, boolean * again);
-void mps_mnewton_usr(mpc_t x, rdpe_t rad, mpc_t corr, boolean * again);
+void mps_fnewton_usr(mps_status* st, cplx_t x, double * rad, cplx_t corr, boolean * again);
+void mps_dnewton_usr(mps_status* st, cdpe_t x, rdpe_t rad, cdpe_t corr, boolean * again);
+void mps_mnewton_usr(mps_status* st, mpc_t x, rdpe_t rad, mpc_t corr, boolean * again);
 
 #endif /* ndef __MPS_H__ */
 
