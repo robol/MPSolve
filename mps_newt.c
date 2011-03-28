@@ -22,8 +22,8 @@
 * Real coefficients: to be implemented                    *
 **********************************************************/
 void
-fnewton(int n, cplx_t z, double *radius, cplx_t corr,
-	cplx_t fpc[], double fap[], boolean * cont)
+mps_fnewton(mps_status* s, int n, cplx_t z, double *radius, cplx_t corr,
+	    cplx_t fpc[], double fap[], boolean * cont)
 {
   int i;
   double ap, az, absp, azi, eps;
@@ -111,8 +111,8 @@ fnewton(int n, cplx_t z, double *radius, cplx_t corr,
 * Real coefficients: to be implemented                    *
 **********************************************************/
 void
-dnewton(int n, cdpe_t z, rdpe_t radius, cdpe_t corr,
-	cdpe_t dpc[], rdpe_t dap[], boolean * cont)
+mps_dnewton(mps_status* s, int n, cdpe_t z, rdpe_t radius, cdpe_t corr,
+	    cdpe_t dpc[], rdpe_t dap[], boolean * cont)
 {
   int i;
   rdpe_t ap, az, absp, rnew, apeps, rtmp;
@@ -132,8 +132,8 @@ dnewton(int n, cdpe_t z, rdpe_t radius, cdpe_t corr,
   cdpe_add(p, tmp, dpc[0]);
   if (cdpe_ne(p, cdpe_zero))
     if (cdpe_eq(p1, cdpe_zero)) {
-      if (DOLOG)
-	fprintf(logstr, "%s", "NULL DERIVATIVE\n");
+      if (s->DOLOG)
+	fprintf(s->logstr, "%s", "NULL DERIVATIVE\n");
       cdpe_set(corr, cdpe_zero);
       *cont = false;
       return;
@@ -169,7 +169,7 @@ dnewton(int n, cdpe_t z, rdpe_t radius, cdpe_t corr,
 *          FUNCTION INTLOG2                         *
 ****************************************************/
 int
-intlog2(int n)
+mps_intlog2(int n)
 {
   int k;
   k = (int) (log(n) / LOG2);
@@ -185,48 +185,48 @@ intlog2(int n)
 * algorithm  b(i)= .false. means p(i)=0             *
 ****************************************************/
 void
-parhorner(int n, mpc_t x, mpc_t p[], boolean b[],
-	  mpc_t s)
+mps_parhorner(mps_status* st, int n, mpc_t x, mpc_t p[], 
+	      boolean b[], mpc_t s)
 {
   int m, j, i, i1, i2, q;
   tmpc_t tmp, y;
   boolean bi;
 
-  tmpc_init2(tmp, mpwp);
-  tmpc_init2(y, mpwp);
+  tmpc_init2(tmp, st->mpwp);
+  tmpc_init2(y, st->mpwp);
 
   for (i = 0; i < n + 1; i++)
-    spar2[i] = b[i];
+    st->spar2[i] = b[i];
   for (i = 0; i < n; i++)
     if(b[i]) 
-      mpc_set(mfpc2[i], p[i]);
+      mpc_set(st->mfpc2[i], p[i]);
 
-  q = intlog2(n + 1);
+  q = mps_intlog2(n + 1);
   m = n;
   mpc_set(y, x);
   for (j = 0; j < q; j++) {
-    spar2[m] = false;
+    st->spar2[m] = false;
     m = (m + 1) >> 1;
     for (i = 0; i < m; i++) {
       i2 = (i << 1) + 1;
       i1 = i2 - 1;
-      bi = spar2[i1] || spar2[i2];
+      bi = st->spar2[i1] || st->spar2[i2];
       if (bi) {
-	if (spar2[i1])
-	  if (spar2[i2]) {
-	    mpc_mul(tmp, y, mfpc2[i2]);
-	    mpc_add(mfpc2[i], mfpc2[i1], tmp);
+	if (st->spar2[i1])
+	  if (st->spar2[i2]) {
+	    mpc_mul(tmp, y, st->mfpc2[i2]);
+	    mpc_add(st->mfpc2[i], st->mfpc2[i1], tmp);
 	  } else
-	    mpc_set(mfpc2[i], mfpc2[i1]);
+	    mpc_set(st->mfpc2[i], st->mfpc2[i1]);
 	else
-	  mpc_mul(mfpc2[i], y, mfpc2[i2]);
+	  mpc_mul(st->mfpc2[i], y, st->mfpc2[i2]);
       }
-      spar2[i] = bi;
+      st->spar2[i] = bi;
     }
-    spar2[m] = false;
+    st->spar2[m] = false;
     mpc_sqr_eq(y);
   }
-  mpc_set(s, mfpc2[0]);
+  mpc_set(s, st->mfpc2[0]);
 
   tmpc_clear(y);
   tmpc_clear(tmp);
@@ -239,42 +239,43 @@ parhorner(int n, mpc_t x, mpc_t p[], boolean b[],
 * algorithm  b(i)= .false. means p(i)=0             *
 ****************************************************/
 void
-aparhorner(int n, rdpe_t x, rdpe_t p[], boolean b[], rdpe_t s)
+mps_aparhorner(mps_status* st, 
+	       int n, rdpe_t x, rdpe_t p[], boolean b[], rdpe_t s)
 {
   int m, i, j, i1, i2, q;
   rdpe_t y, tmp;
   boolean bi;
 
   for (i = 0; i < n + 1; i++)
-    spar2[i] = b[i];
+    st->spar2[i] = b[i];
   for (i = 0; i < n; i++)
-   if(b[i]) rdpe_set(dap2[i], p[i]); /* D99 */
-  q = intlog2(n + 1);
+   if(b[i]) rdpe_set(st->dap2[i], p[i]); /* D99 */
+  q = mps_intlog2(n + 1);
   m = n;
   rdpe_set(y, x);
   for (j = 0; j < q; j++) {
-    spar2[m] = false;
+    st->spar2[m] = false;
     m = (m + 1) >> 1;
     for (i = 0; i < m; i++) {
       i2 = (i << 1) + 1;
       i1 = i2 - 1;
-      bi = spar2[i1] || spar2[i2];
+      bi = st->spar2[i1] || st->spar2[i2];
       if (bi) {
-	if (spar2[i1])
-	  if (spar2[i2]) {
-	    rdpe_mul(tmp, y, dap2[i2]);
-	    rdpe_add(dap2[i], dap2[i1], tmp);
+	if (st->spar2[i1])
+	  if (st->spar2[i2]) {
+	    rdpe_mul(tmp, y, st->dap2[i2]);
+	    rdpe_add(st->dap2[i], st->dap2[i1], tmp);
 	  } else
-	    rdpe_set(dap2[i], dap2[i1]);
+	    rdpe_set(st->dap2[i], st->dap2[i1]);
 	else
-	  rdpe_mul(dap2[i], y, dap2[i2]);
+	  rdpe_mul(st->dap2[i], y, st->dap2[i2]);
       }
-      spar2[i] = bi;
+      st->spar2[i] = bi;
     }
-    spar2[m] = false;
+    st->spar2[m] = false;
     rdpe_sqr_eq(y);
   }
-  rdpe_set(s, dap2[0]);
+  rdpe_set(s, st->dap2[0]);
 }
 
 /******************************************************
@@ -291,20 +292,20 @@ aparhorner(int n, rdpe_t x, rdpe_t p[], boolean b[], rdpe_t s)
 * Real coefficients: to be implemented                *
 ******************************************************/
 void
-mnewton(int n, mpc_t z, rdpe_t radius, mpc_t corr,
-	mpc_t mfpc[], mpc_t mfppc[], rdpe_t dap[],
-	boolean spar[], boolean * cont)
+mps_mnewton(mps_status* s, int n, mpc_t z, rdpe_t radius, mpc_t corr,
+	    mpc_t mfpc[], mpc_t mfppc[], rdpe_t dap[],
+	    boolean spar[], boolean * cont)
 {
   int i, n1, n2;
   rdpe_t ap, az, absp, temp, rnew, ep, apeps;
   cdpe_t temp1;
   tmpc_t p, p1;
 
-  tmpc_init2(p, mpwp);
-  tmpc_init2(p1, mpwp);
+  tmpc_init2(p, s->mpwp);
+  tmpc_init2(p1, s->mpwp);
 
-  rdpe_mul_d(ep, mp_epsilon, (double) (n * 4));
-  if (data_type[0] == 's') {	/* case of sparse polynomial */
+  rdpe_mul_d(ep, s->mp_epsilon, (double) (n * 4));
+  if (s->data_type[0] == 's') {	/* case of sparse polynomial */
     n1 = n + 1;
     n2 = n;
 
@@ -316,11 +317,11 @@ mnewton(int n, mpc_t z, rdpe_t radius, mpc_t corr,
     /* compute bound to the error */
     aparhorner(n1, az, dap, spar, ap);
     for (i = 0; i < n2; i++)
-      spar2[i] = spar[i + 1];
-    spar2[n2] = false;
+      s->spar2[i] = spar[i + 1];
+    s->spar2[n2] = false;
 
     /* compute p'(z) */
-    parhorner(n2, z, mfppc, spar2, p1);
+    parhorner(n2, z, mfppc, s->spar2, p1);
 
   } else {			/*  dense polynomial */
 
@@ -349,8 +350,8 @@ mnewton(int n, mpc_t z, rdpe_t radius, mpc_t corr,
   /* common part */
   if (!mpc_eq_zero(p))
     if (mpc_eq_zero(p1)) {
-      if (DOLOG)
-	fprintf(logstr, "%s", "NULL DERIVATIVE\n");
+      if (s->DOLOG)
+	fprintf(s->logstr, "%s", "NULL DERIVATIVE\n");
       *cont = false;
       mpc_set_ui(corr, 0U, 0U);
       goto exit_sub;
@@ -363,7 +364,7 @@ mnewton(int n, mpc_t z, rdpe_t radius, mpc_t corr,
     mpc_get_cdpe(temp1, p1);
     cdpe_mod(temp, temp1);
     if (rdpe_eq_zero(temp)) {
-      fprintf(logstr, "%s", "NULL DERIVATIVE\n");
+      fprintf(s->logstr, "%s", "NULL DERIVATIVE\n");
       goto exit_sub;
     }
     rdpe_div(radius, apeps, temp);
