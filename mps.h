@@ -485,17 +485,18 @@ void mps_dpolzer(mps_status* s, int * it, boolean * excep);
 void mps_mpolzer(mps_status* s, int * it, boolean * excep);
 
 /* functions in mps_star.c */
-void mps_fstart(int n, int i_clust, double clust_rad, double g, rdpe_t eps_out,
-		double fap[]);
-void mps_dstart(int n, int i_clust, rdpe_t clust_rad, rdpe_t g, rdpe_t eps_out,
-	    rdpe_t dap[]);
-void mps_mstart(int n, int i_clust, rdpe_t clust_rad, rdpe_t g, rdpe_t dap[]);
-void mps_frestart(void);
-void mps_drestart(void);
-void mps_mrestart(void);
-void mps_fshift(int m, int i_clust, double clust_rad, cplx_t g, rdpe_t eps);
-void mps_dshift(int m, int i_clust, rdpe_t clust_rad, cdpe_t g, rdpe_t eps);
-void mps_mshift(int m, int i_clust, rdpe_t clust_rad, mpc_t g);
+void mps_fstart(mps_status* s, int n, int i_clust, double clust_rad, 
+		double g, rdpe_t eps_out, double fap[]);
+void mps_dstart(mps_status* s, int n, int i_clust, rdpe_t clust_rad, 
+		rdpe_t g, rdpe_t eps_out, rdpe_t dap[]);
+void mps_mstart(mps_status* s, int n, int i_clust, rdpe_t clust_rad, 
+		rdpe_t g, rdpe_t dap[]);
+void mps_frestart(mps_status* s);
+void mps_drestart(mps_status* s);
+void mps_mrestart(mps_status* s);
+void mps_fshift(mps_status* s, int m, int i_clust, double clust_rad, cplx_t g, rdpe_t eps);
+void mps_dshift(mps_status* s, int m, int i_clust, rdpe_t clust_rad, cdpe_t g, rdpe_t eps);
+void mps_mshift(mps_status* s, int m, int i_clust, rdpe_t clust_rad, mpc_t g);
 
 /* functions in mps_stio.c */
 void mps_readroots(mps_status* s);
