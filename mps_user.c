@@ -39,16 +39,16 @@ obtained by means of a rounding error analysis of (1).
 * means of the relation: p=1+x*p**2, starting with p=1*
 ******************************************************/
 void
-fnewton_usr(cplx_t x, double *rad, cplx_t corr, boolean * again)
+mps_fnewton_usr(mps_status* s, cplx_t x, double *rad, cplx_t corr, boolean * again)
 {
   cplx_t p, pp, pt, tmp;
   double ap, ax, eps;
   int i, m;
 
-  m = (int) (log(n + 1.0) / LOG2);
-  if ((1 << m) <= n)
+  m = (int) (log(s->n + 1.0) / LOG2);
+  if ((1 << m) <= s->n)
     m++;
-  eps = (DBL_EPSILON * 4.0) * n;
+  eps = (DBL_EPSILON * 4.0) * s->n;
   ax = cplx_mod(x);
 
   cplx_set(p, cplx_one);
@@ -70,7 +70,7 @@ fnewton_usr(cplx_t x, double *rad, cplx_t corr, boolean * again)
 
   *again = cplx_mod(p) > eps * ap * 3;
 
-  *rad = n * (cplx_mod(p) + 3 * ap * eps) / cplx_mod(pp);
+  *rad = s->n * (cplx_mod(p) + 3 * ap * eps) / cplx_mod(pp);
 }
 
 /******************************************************
@@ -79,17 +79,17 @@ fnewton_usr(cplx_t x, double *rad, cplx_t corr, boolean * again)
  DPE computation
 ******************************************************/
 void
-dnewton_usr(cdpe_t x, rdpe_t rad, cdpe_t corr, boolean * again)
+mps_dnewton_usr(mps_status* s, cdpe_t x, rdpe_t rad, cdpe_t corr, boolean * again)
 {
   cdpe_t p, pp, pt, tmp;
   rdpe_t ap, ax, eps, temp, apeps, atmp;
   int i, m;
 
-  m = (int) (log(n + 1.0) / LOG2);
-  if ((1 << m) <= n)
+  m = (int) (log(s->n + 1.0) / LOG2);
+  if ((1 << m) <= s->n)
     m++;
   rdpe_set_d(eps, DBL_EPSILON);
-  rdpe_mul_eq_d(eps, (double) 4 * n);
+  rdpe_mul_eq_d(eps, (double) 4 * s->n);
   cdpe_mod(ax, x);
 
   cdpe_set(p, cdpe_one);
@@ -117,7 +117,7 @@ dnewton_usr(cdpe_t x, rdpe_t rad, cdpe_t corr, boolean * again)
   *again = rdpe_gt(temp, apeps);
 
   rdpe_add(rad, temp, apeps);
-  rdpe_mul_eq_d(rad, (double) n);
+  rdpe_mul_eq_d(rad, (double) s->n);
   cdpe_mod(temp, pp);
   rdpe_div_eq(rad, temp);
   if (rdpe_eq(rad, rdpe_zero))
@@ -130,23 +130,23 @@ dnewton_usr(cdpe_t x, rdpe_t rad, cdpe_t corr, boolean * again)
  multiprecision computation
 ******************************************************/
 void
-mnewton_usr(mpc_t x, rdpe_t rad, mpc_t corr, boolean * again)
+mps_mnewton_usr(mps_status* s, mpc_t x, rdpe_t rad, mpc_t corr, boolean * again)
 {
   int i, m;
   rdpe_t ap, ax, eps, temp, apeps, atmp;
   cdpe_t ctmp;
   tmpc_t p, pp, pt, tmp;
 
-  tmpc_init2(p, mpwp);
-  tmpc_init2(pp, mpwp);
-  tmpc_init2(pt, mpwp);
-  tmpc_init2(tmp, mpwp);
+  tmpc_init2(p, s->mpwp);
+  tmpc_init2(pp, s->mpwp);
+  tmpc_init2(pt, s->mpwp);
+  tmpc_init2(tmp, s->mpwp);
 
-  m = (int) (log(n + 1.0) / LOG2);
-  if ((1 << m) <= n)
+  m = (int) (log(s->n + 1.0) / LOG2);
+  if ((1 << m) <= s->n)
     m++;
-  rdpe_set(eps, mp_epsilon);
-  rdpe_mul_eq_d(eps, (double) 4 * n);
+  rdpe_set(eps, s->mp_epsilon);
+  rdpe_mul_eq_d(eps, (double) 4 * s->n);
   mpc_get_cdpe(ctmp, x);
   cdpe_mod(ax, ctmp);
 
@@ -177,7 +177,7 @@ mnewton_usr(mpc_t x, rdpe_t rad, mpc_t corr, boolean * again)
   *again = rdpe_gt(temp, apeps);
 
   rdpe_add(rad, temp, apeps);
-  rdpe_mul_eq_d(rad, (double) n);
+  rdpe_mul_eq_d(rad, (double) s->n);
   mpc_get_cdpe(ctmp, pp);
   cdpe_mod(temp, ctmp);
   rdpe_div_eq(rad, temp);

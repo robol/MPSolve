@@ -509,7 +509,7 @@ void mps_warn(mps_status* st, char * s);
 void mps_error(mps_status* st, int args, ...);
 
 /* functions in mps_test.c */
-boolean  mps_inclusion(void);
+boolean  mps_inclusion(mps_status* s);
 
 /* functions in mps_touch.c */
 boolean mps_ftouchnwt(mps_status* s, int n, int i, int j);

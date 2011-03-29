@@ -194,7 +194,7 @@ mps_mtouchunit(mps_status* s, int n, int i)
   tmpf_t mab;
   rdpe_t ab, rad;
 
-  tmpf_init2(mab, mpwp);
+  tmpf_init2(mab, s->mpwp);
 
   mpc_mod(mab, s->mroot[i]);
   mpf_sub_eq_ui(mab, 1);

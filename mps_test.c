@@ -15,7 +15,7 @@
 *      SUBROUTINE INCLUSION                             *
 *********************************************************/
 boolean
-inclusion(void)
+mps_inclusion(mps_status* s)
 {
   int i, j, k, n1, n2, oldnclust;
   rdpe_t rad, difr;
@@ -29,78 +29,78 @@ inclusion(void)
   
 
   /* add inclusion code here */
-  if (!chkrad || lastphase != mp_phase) {
-    if (DOLOG)
-      fprintf(logstr, "Skipping inclusion disks check.\n");
+  if (!s->chkrad || s->lastphase != mp_phase) {
+    if (s->DOLOG)
+      fprintf(s->logstr, "Skipping inclusion disks check.\n");
     return true;
   }
 
-  if (DOLOG)
-    fprintf(logstr, "Checking inclusion disks...\n");
+  if (s->DOLOG)
+    fprintf(s->logstr, "Checking inclusion disks...\n");
 
-  if (DOLOG) {
-    fprintf(logstr, "Old radii\n");
-    for (i=0; i<n; i++) {
-      fprintf(logstr, "r(%d)=", i);
-      rdpe_outln_str(logstr, drad[i]);
+  if (s->DOLOG) {
+    fprintf(s->logstr, "Old radii\n");
+    for (i=0; i<s->n; i++) {
+      fprintf(s->logstr, "r(%d)=", i);
+      rdpe_outln_str(s->logstr, s->drad[i]);
     }
   }
 
   /* save old radii */
-  for (i=0; i<n; i++)
-    rdpe_set(dap1[i], drad[i]);
+  for (i=0; i<s->n; i++)
+    rdpe_set(s->dap1[i], s->drad[i]);
 
-  tmpc_init2(p, mpwp);
-  rdpe_mul_d(ep, mp_epsilon, (double) (n * 4));
+  tmpc_init2(p, s->mpwp);
+  rdpe_mul_d(ep, s->mp_epsilon, (double) (s->n * 4));
   
-  tmpc_init2(tmp, mpwp);
+  tmpc_init2(tmp, s->mpwp);
 
-  for (i=0; i<n; i++) {
+  for (i=0; i<s->n; i++) {
     
     /* compute denominator */
     rdpe_set(rad, rdpe_one);
-    for (j=0; j<n; j++) {
+    for (j=0; j<s->n; j++) {
       if (i==j) continue;
-      mpc_sub(tmp, mroot[j], mroot[i]);
+      mpc_sub(tmp, s->mroot[j], s->mroot[i]);
       mpc_get_cdpe(difc, tmp);
       cdpe_smod(difr, difc);
       rdpe_mul_eq(rad, difr);
     }
     rdpe_sqrt_eq(rad);
-    rdpe_mul_eq(rad, dap[n]);
+    rdpe_mul_eq(rad, s->dap[s->n]);
     
     /* compute numerator*/
-    if (data_type[0] == 's') {	/* case of sparse polynomial */
+    if (s->data_type[0] == 's') {	/* case of sparse polynomial */
 
-      n1 = n + 1;
-      n2 = n;
+      n1 = s->n + 1;
+      n2 = s->n;
       
       /* compute p(mroot[i]) */
-      parhorner(n1, mroot[i], mfpc, spar, p);
-      mpc_get_cdpe(temp1, mroot[i]);
+      mps_parhorner(s, n1, s->mroot[i], s->mfpc, s->spar, p);
+      mpc_get_cdpe(temp1, s->mroot[i]);
       cdpe_mod(az, temp1);
       
       /* compute bound to the error */
-      aparhorner(n1, az, dap, spar, ap);
+      aparhorner(n1, az, s->dap, s->spar, ap);
       
     } else {			/*  dense polynomial */
       
       /* commpute p(mroot[i]) and p'(mroot[i]) */
-      mpc_set(p, mfpc[n]);
-      for (k = n - 1; k > 0; k--) {
-	mpc_mul(p, p, mroot[i]);
-	mpc_add(p, p, mfpc[k]);
+      mpc_set(p, s->mfpc[s->n]);
+      for (k = s->n - 1; k > 0; k--) {
+	mpc_mul(p, p, s->mroot[i]);
+	mpc_add(p, p, s->mfpc[k]);
       }
-      mpc_mul(p, p, mroot[i]);
-      mpc_add(p, p, mfpc[0]);
+      mpc_mul(p, p, s->mroot[i]);
+      mpc_add(p, p, s->mfpc[0]);
       
       /* compute bound to the error */
-      rdpe_set(ap, dap[n]);
-      mpc_get_cdpe(temp1, mroot[i]);
+      rdpe_set(ap, s->dap[s->n]);
+      mpc_get_cdpe(temp1, s->mroot[i]);
       cdpe_mod(az, temp1);
-      for (k = n - 1; k >= 0; k--) {
+      for (k = s->n - 1; k >= 0; k--) {
 	rdpe_mul(temp, ap, az);
-	rdpe_add(ap, temp, dap[k]);
+	rdpe_add(ap, temp, s->dap[k]);
       }
     }
     
@@ -109,26 +109,26 @@ inclusion(void)
     cdpe_mod(difr, difc);
     rdpe_mul(apeps, ap, ep);
     rdpe_add_eq(apeps, difr);
-    rdpe_mul_eq_d(apeps, (double) n);
+    rdpe_mul_eq_d(apeps, (double) s->n);
 
     /* compute ratio */
-    rdpe_div(drad[i], apeps, rad);
+    rdpe_div(s->drad[i], apeps, rad);
     
-    if (DOLOG) {
-      fprintf(logstr, "New r(%d)=", i);
-      rdpe_outln_str(logstr, drad[i]);
+    if (s->DOLOG) {
+      fprintf(s->logstr, "New r(%d)=", i);
+      rdpe_outln_str(s->logstr, s->drad[i]);
     }
   }
  
-  oldnclust = nclust;
+  oldnclust = s->nclust;
 
-  mcluster(2*n);
+  mps_mcluster(s, 2*s->n);
 
-  if (nclust>=oldnclust) {
+  if (s->nclust>=oldnclust) {
     /* choose the smallest radius */
-    for (i=0; i<n; i++)
-      if (rdpe_lt(dap1[i], drad[i]))
-	rdpe_set(drad[i], dap1[i]);
+    for (i=0; i<s->n; i++)
+      if (rdpe_lt(s->dap1[i], s->drad[i]))
+	rdpe_set(s->drad[i], s->dap1[i]);
     /* update(); */
   } else
     warn("Some roots might be not approximated");
