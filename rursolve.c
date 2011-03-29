@@ -35,11 +35,11 @@ main(void)
 
   /* check I/O streams */
   if (instr == NULL)
-    error(1, "Cannot open input file");
+    mps_error(s, 1, "Cannot open input file");
   if (outstr == NULL)
-    error(1, "Cannot open output file");
+    mps_error(s, 1, "Cannot open output file");
   if (DOLOG && logstr == NULL)
-    error(1, "Cannot open log file");
+    mps_error(s, 1, "Cannot open log file");
 
   /* compute multivariate roots */
   rursolve();

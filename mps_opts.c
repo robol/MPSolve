@@ -59,7 +59,7 @@ mps_parse_opts(mps_status* s, int argc, char *argv[])
       case 'i':
         s->prec_in = atol(argv[i] + 2);
         if (s->prec_in <= 0 || errno)
-          error(2, "Wrong input precision: ", argv[i]+2);
+          mps_error(s, 2, "Wrong input precision: ", argv[i]+2);
         s->prec_in = (long) (s->prec_in * LOG2_10);
         break;
 
@@ -70,7 +70,7 @@ mps_parse_opts(mps_status* s, int argc, char *argv[])
       case 'o':
         s->prec_out = atol(argv[i] + 2);
         if (s->prec_out <= 0 || errno)
-          error(2, "Wrong output precision: ", argv[i]+2);
+          mps_error(s, 2, "Wrong output precision: ", argv[i]+2);
         s->prec_out = (long) (s->prec_out * LOG2_10);
         break;
 
@@ -87,10 +87,10 @@ mps_parse_opts(mps_status* s, int argc, char *argv[])
           s->goal[0] = 'i';
           break;
         default:
-          error(3, "Bad goal switch: ", argv[i]+2, ", use a|c|i");
+          mps_error(s, 3, "Bad goal switch: ", argv[i]+2, ", use a|c|i");
         }
         if (strlen(argv[i]) != 3)
-          error(2, "Bad goal: ", argv[i]);
+          mps_error(s, 2, "Bad goal: ", argv[i]);
         break;
 
       /* select search set */
@@ -127,10 +127,10 @@ mps_parse_opts(mps_status* s, int argc, char *argv[])
           s->goal[1] = 'U';
           break;
         default:
-          error(3, "Bad search set switch: ", argv[i]+2, ", use a|r|l|u|d|i|o|R|I|U");
+          mps_error(s, 3, "Bad search set switch: ", argv[i]+2, ", use a|r|l|u|d|i|o|R|I|U");
         }
         if (strlen(argv[i]) != 3)
-          error(2, "Bad set: ", argv[i]);
+          mps_error(s, 2, "Bad set: ", argv[i]);
         break;
 
       /* select multiplicity */
@@ -143,10 +143,10 @@ mps_parse_opts(mps_status* s, int argc, char *argv[])
           s->goal[2] = 'n';
           break;
         default:
-          error(3, "Bad multiplicity switch: ", argv[i]+2, ", use +|-");
+          mps_error(s, 3, "Bad multiplicity switch: ", argv[i]+2, ", use +|-");
         }
         if (strlen(argv[i]) != 3)
-          error(2, "Bad multiplicity option: ", argv[i]);
+          mps_error(s, 2, "Bad multiplicity option: ", argv[i]);
         break;
 
       /* detection */
@@ -165,17 +165,17 @@ mps_parse_opts(mps_status* s, int argc, char *argv[])
           s->goal[3] = 'b';
           break;
         default:
-          error(3, "Bad detection switch: ", argv[i]+2, ", use n|r|i|b");
+          mps_error(s, 3, "Bad detection switch: ", argv[i]+2, ", use n|r|i|b");
         }
         if (strlen(argv[i]) != 3)
-          error(2, "Bad detection option: ", argv[i]);
+          mps_error(s, 2, "Bad detection option: ", argv[i]);
         break;
 
       /* I/O streams */
       case 'R':
         s->rtstr = fopen(argv[i] + 2, "r");
         if (s->rtstr == NULL)
-          error(2, "Cannot open roots file: ", argv[i]+2);
+          mps_error(s, 2, "Cannot open roots file: ", argv[i]+2);
         s->resume = true;
         break;
 
@@ -189,10 +189,10 @@ mps_parse_opts(mps_status* s, int argc, char *argv[])
           s->chkrad = false;
           break;
         default:
-          error(3, "Bad check switch: ", argv[i]+2, ", use R|r");
+          mps_error(s, 3, "Bad check switch: ", argv[i]+2, ", use R|r");
         }
         if (strlen(argv[i]) != 3)
-          error(2, "Bad check option: ", argv[i]);
+          mps_error(s, 2, "Bad check option: ", argv[i]);
         break;
 
       /* output format */
@@ -214,10 +214,10 @@ mps_parse_opts(mps_status* s, int argc, char *argv[])
           s->goal[4] = 'f';
           break;
         default:
-          error(3, "Bad output format switch: ", argv[i]+2, ", use b|c|f|g|v");
+          mps_error(s, 3, "Bad output format switch: ", argv[i]+2, ", use b|c|f|g|v");
         }
         if (strlen(argv[i]) != 3)
-          error(2, "Bad output option: ", argv[i]);
+          mps_error(s, 2, "Bad output option: ", argv[i]);
         break;
 
       /* iteration limits */ 
@@ -226,15 +226,15 @@ mps_parse_opts(mps_status* s, int argc, char *argv[])
         case 'p':
           s->max_pack = atoi(argv[i] + 3);
           if (s->max_pack <= 0 || errno)
-            error(2, "Invalid number of packet iterations: ", argv[i]+3);
+            mps_error(s, 2, "Invalid number of packet iterations: ", argv[i]+3);
           break;
         case 'i':
           s->max_it = atoi(argv[i] + 3);
           if (s->max_it <= 0 || errno)
-            error(2, "Invalid number of iterations: ", argv[i]+3);
+            mps_error(s, 2, "Invalid number of iterations: ", argv[i]+3);
           break;
         default:
-          error(3, "Bad limit switch: ", argv[i]+2, ", use (p|i)<num>");
+          mps_error(s, 3, "Bad limit switch: ", argv[i]+2, ", use (p|i)<num>");
         }
         break;
 
@@ -242,7 +242,7 @@ mps_parse_opts(mps_status* s, int argc, char *argv[])
       case 'H':
         seed = (unsigned int) atoi(argv[i] + 2);
         if (seed == 0 || errno)
-          error(2, "Wrong random seed: ", argv[i]+2);
+          mps_error(s, 2, "Wrong random seed: ", argv[i]+2);
         break;
 
       /* debug options */
@@ -251,7 +251,7 @@ mps_parse_opts(mps_status* s, int argc, char *argv[])
         if (strlen(argv[i]) == 3 && argv[i][2] == '1')
           s->logstr = s->outstr;
         else if (strlen(argv[i]) != 2)
-          error(3, "Bad debug option: ", argv[i], ", use 1");
+          mps_error(s, 3, "Bad debug option: ", argv[i], ", use 1");
         break;
 
       /* warning options */
@@ -261,7 +261,7 @@ mps_parse_opts(mps_status* s, int argc, char *argv[])
         else if (strlen(argv[i]) == 3 && argv[i][2] == '-')
           s->DOWARN = false;
 	else
-          error(3, "Bad warning option: ", argv[i], ", use +|-");
+          mps_error(s, 3, "Bad warning option: ", argv[i], ", use +|-");
         break;
 	
       /* help and default case */
@@ -272,7 +272,7 @@ mps_parse_opts(mps_status* s, int argc, char *argv[])
 	
       /* handle illegal options */ 
       default:
-        error(3, "Bad option: ", argv[i], ", type 'unisolve -h' for help");
+        mps_error(s, 3, "Bad option: ", argv[i], ", type 'unisolve -h' for help");
       }
 
 finalcheck:
@@ -283,11 +283,11 @@ finalcheck:
 
   /* check I/O streams */
   if (s->instr == NULL)
-    error(1, "Cannot open input file");
+    mps_error(s, 1, "Cannot open input file");
   if (s->outstr == NULL)
-    error(1, "Cannot open output file");
+    mps_error(s, 1, "Cannot open output file");
   if (s->DOLOG && s->logstr == NULL)
-    error(1, "Cannot open log file");
+    mps_error(s, 1, "Cannot open log file");
 
   /* randomize */
   randomize(seed);

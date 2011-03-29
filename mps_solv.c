@@ -604,11 +604,11 @@ mps_fmodify(mps_status* s)
 	  break;
 
 	case 'S':		/* Set provided by the user */
-	  error(1, "User set not implemented yet");
+	  mps_error(s, 1, "User set not implemented yet");
 	  break;
 
 	default:
-	  error(1, "Mistake in goal");
+	  mps_error(s, 1, "Mistake in goal");
 	  break;
 	}
       }
@@ -642,7 +642,7 @@ mps_fmodify(mps_status* s)
       if (s->goal[2] == 'm' && (s->status[l][0] == 'c' ||	/* NEW */
 			     s->status[l][0] == 'C')) {	/* multiplicity on */
 	if (s->data_type[2] == 'b' || s->data_type[2] == 'f')	/* float coeff. */
-	  error(1, "Fatal: Float coefficients - impossible to detect multiplicity");
+	  mps_error(s, 1, "Fatal: Float coefficients - impossible to detect multiplicity");
 
 	/* compute super center and super radius */
 	mps_fsrad(s, i, sc, &sr);
@@ -1081,10 +1081,10 @@ mps_dmodify(mps_status* s)
 	  break;
 
 	case 'S':		/* Set provided by the user */
-	  error(1, "Custom region not implemented yet");
+	  mps_error(s, 1, "Custom region not implemented yet");
 	  break;
 	default:
-	  error(1, "mistake in goal");
+	  mps_error(s, 1, "mistake in goal");
 	  break;
 	}
       }
@@ -1120,7 +1120,7 @@ mps_dmodify(mps_status* s)
 			     s->status[l][0] == 'C')) {	/* multiplicity on */
 
 	if (s->data_type[2] == 'b' || s->data_type[2] == 'f') /* float coeff. */
-	  error(1, "Fatal: Float coefficients - impossible to detect multiplicity");
+	  mps_error(s, 1, "Fatal: Float coefficients - impossible to detect multiplicity");
 
 	/* compute super center and super radius */
 	mps_dsrad(s, i, sc, sr);
@@ -1573,10 +1573,10 @@ mps_mmodify(mps_status* s)
 	  break;
 
 	case 'S':		/* Set provided by the user */
-	  error(1, "Custom region not implemented yet");
+	  mps_error(s, 1, "Custom region not implemented yet");
 	  break;
 	default:
-	  error(1, "mistake in goal");
+	  mps_error(s, 1, "mistake in goal");
 	  break;
 	}
       }
@@ -1613,7 +1613,7 @@ mps_mmodify(mps_status* s)
 			     s->status[l][0] == 'C')) {	/* multiplicity on */
 			     
 	if (s->data_type[2] == 'b' || s->data_type[2] == 'f') /* float coeff. */
-	  error(1, "Fatal: Float coefficients - impossible to detect multiplicity");
+	  mps_error(s, 1, "Fatal: Float coefficients - impossible to detect multiplicity");
 
 	/* compute super center and super radius */
 	mps_msrad(s, i, sc, sr);
@@ -2005,7 +2005,7 @@ mps_fsolve(mps_status* s, boolean * d_after_f)
    * If the max number of iteration has been reached then output FAILURE */
   if (iter == s->max_pack) {
     mps_dump(s, s->logstr);
-    error(1, "Float: reached the maximum number of packet iterations");
+    mps_error(s, 1, "Float: reached the maximum number of packet iterations");
   }
   /* Otherwise exit since all the approximations are
    * in the root neighbourhood, except for the ones that cannot be
@@ -2311,7 +2311,7 @@ mps_dsolve(mps_status* s, boolean d_after_f)
   }
   if (iter == s->max_pack) {
     mps_dump(s, s->logstr);
-    error(1, "DPE: reached the maximum number of packet iterations");
+    mps_error(s, 1, "DPE: reached the maximum number of packet iterations");
   }
   /* Otherwise exit since all the approximations are
    * in the root neighbourhood, except for the ones that cannot be
@@ -2561,7 +2561,7 @@ mps_msolve(mps_status* s)
   }
 
   if (iter == s->max_pack) {
-    error(1, "MP: reached the maximum number of packet iteration");
+    mps_error(s, 1, "MP: reached the maximum number of packet iteration");
   }
   
   if (s->DOLOG) {

@@ -31,7 +31,7 @@ mps_read_poly(mps_status* s, FILE *instr, mpspoly_t p)
   /* read data type */
   read_elements = fscanf(instr, "%3s", p->data_type);
   if (!read_elements) {
-    error(1, "Error reading data type, aborting.");
+    mps_error(s, 1, "Error reading data type, aborting.");
   }
 
   /* read and convert prec_in from base 10 to base 2 */
@@ -39,7 +39,7 @@ mps_read_poly(mps_status* s, FILE *instr, mpspoly_t p)
     /* Read input precision and abort on failure */
     read_elements = fscanf(instr, "%ld", &(p->prec_in));
     if (!read_elements) {
-      error(1, "Error reading input precision, aborting.");
+      mps_error(s, 1, "Error reading input precision, aborting.");
     }
     p->prec_in = (long) (p->prec_in * LOG2_10);
   } else {		/* override input precision */
@@ -50,7 +50,7 @@ mps_read_poly(mps_status* s, FILE *instr, mpspoly_t p)
   /* read degree */
   read_elements = fscanf(instr, "%d", &(p->deg));
   if (!read_elements) {
-    error(1, "Error reading degree of polynomial, aborting.\n");
+    mps_error(s, 1, "Error reading degree of polynomial, aborting.\n");
   }
   p->n = p->deg;
 
@@ -58,7 +58,7 @@ mps_read_poly(mps_status* s, FILE *instr, mpspoly_t p)
   if (p->data_type[0] == 's') {
     read_elements = fscanf(instr, "%d", &num_coeff);
     if (!read_elements) {
-      error(1, "Error reading number of coefficients, aborting.");
+      mps_error(s, 1, "Error reading number of coefficients, aborting.");
     }
   }
   else
@@ -91,7 +91,7 @@ mps_read_poly(mps_status* s, FILE *instr, mpspoly_t p)
     if (p->data_type[0] == 's') {
       read_elements = fscanf(instr, "%d", &indx);
       if (!read_elements) {
-	error(1, "Error reading the polynomial coefficients, aborting.");
+	mps_error(s, 1, "Error reading the polynomial coefficients, aborting.");
       }
       p->spar[indx] = true;
     } else
@@ -105,20 +105,20 @@ mps_read_poly(mps_status* s, FILE *instr, mpspoly_t p)
 
       case 'i':		/* Real - Integer Coefs */
 	if (!mpz_inp_str(p->mip_r[indx], instr, 10))
-	  error(1, "Error while reading coefficient");
+	  mps_error(s, 1, "Error while reading coefficient");
 	break;
 
       case 'q':		/* Real - Rational Coefs */
 	if (!mpz_inp_str(mpq_numref(p->mqp_r[indx]), instr, 10))
-	  error(1, "Error while reading coefficient");
+	  mps_error(s, 1, "Error while reading coefficient");
 	if (!mpz_inp_str(mpq_denref(p->mqp_r[indx]), instr, 10))
-	  error(1, "Error while reading coefficient");
+	  mps_error(s, 1, "Error while reading coefficient");
 	mpq_canonicalize(p->mqp_r[indx]);
 	break;
 
       case 'f':		/* Real - Big/Float Coefs */
 	if (!mpf_inp_str(p->mfpr[indx], instr, 10))
-	  error(1, "Error while reading coefficient");
+	  mps_error(s, 1, "Error while reading coefficient");
 	break;
 
       }				/* switch 2 */
@@ -130,29 +130,29 @@ mps_read_poly(mps_status* s, FILE *instr, mpspoly_t p)
 
       case 'i':		/* Complex - Integer Coefs */
 	if (!mpz_inp_str(p->mip_r[indx], instr, 10))
-	  error(1, "Error while reading coefficient");
+	  mps_error(s, 1, "Error while reading coefficient");
 	if (!mpz_inp_str(p->mip_i[indx], instr, 10))
-	  error(1, "Error while reading coefficient");
+	  mps_error(s, 1, "Error while reading coefficient");
 	break;
 
       case 'q':		/* Complex - Rational Coefs */
 	if (!mpz_inp_str(mpq_numref(p->mqp_r[indx]), instr, 10))
-	  error(1, "Error while reading coefficient");
+	  mps_error(s, 1, "Error while reading coefficient");
 	if (!mpz_inp_str(mpq_denref(p->mqp_r[indx]), instr, 10))
-	  error(1, "Error while reading coefficient");
+	  mps_error(s, 1, "Error while reading coefficient");
 	mpq_canonicalize(p->mqp_r[indx]);
 	if (!mpz_inp_str(mpq_numref(p->mqp_i[indx]), instr, 10))
-	  error(1, "Error while reading coefficient");
+	  mps_error(s, 1, "Error while reading coefficient");
 	if (!mpz_inp_str(mpq_denref(p->mqp_i[indx]), instr, 10))
-	  error(1, "Error while reading coefficient");
+	  mps_error(s, 1, "Error while reading coefficient");
 	mpq_canonicalize(p->mqp_i[indx]);
 	break;
 
       case 'f':		/* Complex - Big/Float Coefs */
 	if (!mpf_inp_str(mpc_Re(p->mfpc[indx]), instr, 10))
-	  error(1, "Error while reading coefficient");
+	  mps_error(s, 1, "Error while reading coefficient");
 	if (!mpf_inp_str(mpc_Im(p->mfpc[indx]), instr, 10))
-	  error(1, "Error while reading coefficient");
+	  mps_error(s, 1, "Error while reading coefficient");
 	break;
 
       }				/* switch 3 */
@@ -178,27 +178,27 @@ mps_validate_poly(mps_status* s, mpspoly_t p, int num_coeff)
 {
   /* check polynomial type */
   if (!p->data_type[0] || !strchr("sdu", p->data_type[0]))
-    error(1, "Illegal polynomial type");
+    mps_error(s, 1, "Illegal polynomial type");
 
   /* check ring type */
   if (!p->data_type[1] || !strchr("rc", p->data_type[1]))
-    error(1, "Illegal ring type");
+    mps_error(s, 1, "Illegal ring type");
 
   /* check coefficient type */
   if (!p->data_type[2] || !strchr("iqfdb", p->data_type[2]))
-    error(1, "Illegal coefficient type");
+    mps_error(s, 1, "Illegal coefficient type");
 
   /* check precision */
   if (p->prec_in < 0 || (p->prec_in == 0 && p->data_type[2] == 'f'))
-    error(1, "Invalid input precision");
+    mps_error(s, 1, "Invalid input precision");
 
   /* check degree */
   if (p->n <= 0)
-    error(1, "Invalid degree");
+    mps_error(s, 1, "Invalid degree");
 
   /* check num coeff */
   if (num_coeff <= 0 || num_coeff > p->n + 1)
-    error(1, "Invalid number of coefficients");
+    mps_error(s, 1, "Invalid number of coefficients");
 
   /* log */
   if (s->DOLOG) {

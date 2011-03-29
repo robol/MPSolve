@@ -140,7 +140,7 @@ mps_raise_data(mps_status* s, long int prec)
 	    */
 	    break;
 	  default:
-	    error(1, "Mistake in goal");
+	    mps_error(s, 1, "Mistake in goal");
 	    break;
 	  }
 	  break;
@@ -166,7 +166,7 @@ mps_raise_data(mps_status* s, long int prec)
 	    */
 	    break;
 	  default:
-	    error(1, "Mistake in goal");
+	    mps_error(s, 1, "Mistake in goal");
 	    break;
 	  }
 	}

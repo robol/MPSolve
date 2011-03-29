@@ -43,7 +43,7 @@ mps_mpsolve(mps_status* s)
   
   /* == 2 ==  Resume from pre-computed roots */
   if (s->resume) /* to complete */
-    error(1, "Resume not supported yet");
+    mps_error(s, 1, "Resume not supported yet");
   
   /* == 3 ==  Check data and get starting phase */
   if (s->skip_float)
@@ -170,7 +170,7 @@ mps_mpsolve(mps_status* s)
   /* == 8 ==  Check for termination */
   if (!computed) {
     if (over_max)
-      error(1, "Reached the maximum working precision");
+      mps_error(s, 1, "Reached the maximum working precision");
     else
       warn("Reached the input precision");
   }
@@ -392,9 +392,9 @@ mps_check_data(mps_status* s, char *which_case)
   /* case of user-defined polynomial */
   if (s->data_type[0] == 'u') {
     if (s->goal[2] == 'm')
-      error(1, "Multiplicity detection not yet implemented for user polynomial");
+      mps_error(s, 1, "Multiplicity detection not yet implemented for user polynomial");
     if (s->goal[3] != 'n')
-      error(1, "Real/imaginary detection not yet implemented for user polynomial");
+      mps_error(s, 1, "Real/imaginary detection not yet implemented for user polynomial");
     *which_case = 'd';
     return;
   }
