@@ -245,10 +245,10 @@ mps_prepare_data(mps_status* s, long int prec)
 
   if (prec > data_prec_max) {
     if (data_prec_max)
-      raise_data_raw(s, data_prec_max);
-    data_prec_max = raise_data(s, prec);
+      mps_raise_data_raw(s, data_prec_max);
+    data_prec_max = mps_raise_data(s, prec);
   } else
-    raise_data_raw(s, prec);
+    mps_raise_data_raw(s, prec);
 }
 
 /***********************************************************
@@ -263,7 +263,7 @@ mps_restore_data(mps_status* s)
     fprintf(s->logstr, "Restore data to %ld bits\n", data_prec_max);
 
   if (data_prec_max) 
-    raise_data_raw(s, data_prec_max);
+    mps_raise_data_raw(s, data_prec_max);
 }
 
 /********************************************************

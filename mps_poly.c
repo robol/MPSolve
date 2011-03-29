@@ -78,7 +78,7 @@ mps_read_poly(mps_status* s, FILE *instr, mpspoly_t p)
     return;
 
   /* allocate polynomial vector */
-  allocate_poly(s, p);
+  mps_allocate_poly(s, p);
 
   /* setup sparsity vector */
   if (p->data_type[0] == 's')

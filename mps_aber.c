@@ -36,7 +36,7 @@ mps_faberth(mps_status* s, int j, cplx_t abcorr)
 *             No Selective Correction                      *
 ***********************************************************/
 void
-mpa_daberth(mps_status* s, int j, cdpe_t abcorr)
+mps_daberth(mps_status* s, int j, cdpe_t abcorr)
 {
   int i;
   cdpe_t z;

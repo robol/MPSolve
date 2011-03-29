@@ -81,7 +81,7 @@ mps_inclusion(mps_status* s)
       cdpe_mod(az, temp1);
       
       /* compute bound to the error */
-      aparhorner(n1, az, s->dap, s->spar, ap);
+      mps_aparhorner(s, n1, az, s->dap, s->spar, ap);
       
     } else {			/*  dense polynomial */
       

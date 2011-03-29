@@ -310,18 +310,18 @@ mps_mnewton(mps_status* s, int n, mpc_t z, rdpe_t radius, mpc_t corr,
     n2 = n;
 
     /* compute p(z) */
-    parhorner(n1, z, mfpc, spar, p);
+    mps_parhorner(s, n1, z, mfpc, spar, p);
     mpc_get_cdpe(temp1, z);
     cdpe_mod(az, temp1);
 
     /* compute bound to the error */
-    aparhorner(n1, az, dap, spar, ap);
+    mps_aparhorner(s, n1, az, dap, spar, ap);
     for (i = 0; i < n2; i++)
       s->spar2[i] = spar[i + 1];
     s->spar2[n2] = false;
 
     /* compute p'(z) */
-    parhorner(n2, z, mfppc, s->spar2, p1);
+    mps_parhorner(s, n2, z, mfppc, s->spar2, p1);
 
   } else {			/*  dense polynomial */
 

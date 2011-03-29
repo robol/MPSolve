@@ -76,7 +76,7 @@ mps_countroots(mps_status* s)
 void
 mps_outcount(mps_status* s)
 {
-  countroots();
+  mps_countroots(s);
   
   fprintf(s->outstr, "%d roots are inside;\n", s->count[0]);
   fprintf(s->outstr, "%d roots are outside;\n", s->count[1]);
@@ -190,7 +190,7 @@ mps_outroot(mps_status* s, int i)
   if (i == ISZERO || s->status[i][1] == 'R')
     fprintf(s->outstr, "0");
   else
-    msp_outfloat(s, mpc_Im(s->mroot[i]), s->drad[i], out_digit, s->goal[4] != 'v');
+    mps_outfloat(s, mpc_Im(s->mroot[i]), s->drad[i], out_digit, s->goal[4] != 'v');
 
   /* print format ending */
   switch (s->goal[4]) {

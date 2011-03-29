@@ -27,7 +27,7 @@
  * - check for termination
  */
 void
-mpsolve(mps_status* s)
+mps_mpsolve(mps_status* s)
 {
   int i, nzc;
   char which_case;
@@ -35,9 +35,9 @@ mpsolve(mps_status* s)
 
   /* == 1 ==  Setup variables, i.e. copy coefficients
    into dpr, dpc and similar. */
-  setup(s);
+  mps_setup(s);
 
-  lastphase = no_phase;
+  s->lastphase = no_phase;
   computed = false;
   over_max = false;
   
@@ -56,7 +56,7 @@ mpsolve(mps_status* s)
   d_after_f = false;
 
   /* Check if a dpe phase is needed and deflate polynomial */
-  check_data(&which_case);
+  mps_check_data(s, &which_case);
   if (s->DOLOG)
     fprintf(s->logstr, "Which_case = %c, skip_float= %d\n",
 	    which_case, s->skip_float);
@@ -65,13 +65,13 @@ mpsolve(mps_status* s)
   if (which_case == 'f') {
     if (s->DOLOG)
       fprintf(s->logstr, "Float phase ...\n");
-    fsolve(&d_after_f);
-    lastphase = float_phase;
+    mps_fsolve(s, &d_after_f);
+    s->lastphase = float_phase;
 
     if (s->DOLOG)
-      dump(s->logstr);
+      mps_dump(s, s->logstr);
 
-    computed = check_stop();
+    computed = mps_check_stop(s);
     if (computed && s->goal[0] != 'a')
       goto exit_sub;  /* stop for COUNT and ISOLATE goals */
   }
@@ -81,17 +81,17 @@ mpsolve(mps_status* s)
     if (s->DOLOG)
       fprintf(s->logstr, "DPE phase ...\n");
     if (d_after_f)
-      for (i = 0; i < n; i++) {
+      for (i = 0; i < s->n; i++) {
 	rdpe_set_d(s->drad[i], s->frad[i]);
 	cdpe_set_x(s->droot[i], s->froot[i]);
       }
-    dsolve(d_after_f);
-    lastphase = dpe_phase;
+    mps_dsolve(s, d_after_f);
+    s->lastphase = dpe_phase;
 
     if (s->DOLOG)
-      dump(s->logstr);
+      mps_dump(s, s->logstr);
 
-    computed = check_stop();
+    computed = mps_check_stop(s);
     if (computed && s->goal[0] != 'a')
       goto exit_sub;
   }
@@ -102,13 +102,13 @@ mpsolve(mps_status* s)
     fprintf(s->logstr, "MP phase ...\n");
 
   /* ==== 6.1 initialize mp variables */
-  mp_set_prec(2 * DBL_MANT_DIG);
+  mp_set_prec(s, 2 * DBL_MANT_DIG);
 
   /* Prepare data according to the current working precision */
-  prepare_data(s->mpwp);
+  mps_prepare_data(s, s->mpwp);
 
   /* ==== 6.2 set initial values for mp variables */
-  for (i = 0; i < n; i++)
+  for (i = 0; i < s->n; i++)
     if (which_case == 'd' || d_after_f)
       mpc_set_cdpe(s->mroot[i], s->droot[i]);
     else {
@@ -125,7 +125,7 @@ mpsolve(mps_status* s)
     s->mpwp *= 2;
 
     if (s->prec_in != 0 && s->mpwp > s->prec_in)
-      s->mpwp = s->prec_in + (int) (log(4.0 * n) / LOG2);
+      s->mpwp = s->prec_in + (int) (log(4.0 * s->n) / LOG2);
 
     if (s->mpwp > s->mpwp_max) {
       s->mpwp = s->mpwp_max;
@@ -136,20 +136,20 @@ mpsolve(mps_status* s)
       fprintf(s->logstr, "MAIN: mp_loop: mpwp=%ld\n", s->mpwp);
 
     /* == 7.1 ==   prepare data according to the current precision */
-    mp_set_prec(s->mpwp);
-    prepare_data(s->mpwp);
+    mp_set_prec(s, s->mpwp);
+    mps_prepare_data(s, s->mpwp);
 
     /* == 7.2 ==   Call msolve with the current precision */
     if (s->DOLOG)
       fprintf(s->logstr, "MAIN: now call msolve nclust=%d\n", s->nclust);
-    msolve();
-    lastphase = mp_phase;
+    mps_msolve(s);
+    s->lastphase = mp_phase;
 
     /* if (s->DOLOG) dump(logstr); */
     
     if (s->DOLOG) {  /* count isolated zeros */
       nzc = 0;
-      for (i = 0; i < n; i++) {
+      for (i = 0; i < s->n; i++) {
 	if (s->status[i][0] == 'i' || s->status[i][0] == 'a')
 	  nzc++;
       }     
@@ -158,11 +158,11 @@ mpsolve(mps_status* s)
     }
     
     /* == 7.3 ==  Check the stop condition */
-    computed = check_stop();
-    mmodify();
+    computed = mps_check_stop(s);
+    mps_mmodify(s);
 
     /* == 7.4 ==  reset the status vector */
-    for (i = 0; i < n; i++)
+    for (i = 0; i < s->n; i++)
       if (s->status[i][0] == 'C')
 	s->status[i][0] = 'c';
   }
@@ -178,19 +178,19 @@ mpsolve(mps_status* s)
  exit_sub:
 
   /* == 9 ==  Check inclusion disks */
-  if (computed && s->nclust<n)
-    if (!inclusion())
-      error(1, "Unable to compute inclusion disks");
+  if (computed && s->nclust < s->n)
+    if (!mps_inclusion(s))
+      mps_error(s, 1, "Unable to compute inclusion disks");
   
   /* == 10 ==  Refine roots */
   if (computed && !over_max && s->goal[0] == 'a') {
-    lastphase = mp_phase;
-    improve();
+    s->lastphase = mp_phase;
+    mps_improve(s);
   }
   
   /* == 11 ==  Restore to highest used precision */
-  if (lastphase == mp_phase)
-    restore_data();
+  if (s->lastphase == mp_phase)
+    mps_restore_data(s);
 }
 
 /***********************************************************
@@ -199,7 +199,7 @@ mpsolve(mps_status* s)
  Setup vectors and variables
  ***********************************************************/
 void
-setup(mps_status* s)
+mps_setup(mps_status* s)
 {
   int i;
   tmpf_t mptemp;
@@ -241,7 +241,7 @@ setup(mps_status* s)
   /* Indexes of the first (and only) cluster start from
    * 0 and reach n */
   s->punt[0] = 0;
-  s->punt[1] = n;
+  s->punt[1] = s->n;
   
   /* set input and output epsilon */
   rdpe_set_2dl(s->eps_in, 1.0, 1 - s->prec_in);
@@ -383,7 +383,7 @@ setup(mps_status* s)
  * @param which_case the address of the variable which_case;
  */
 void
-check_data(mps_status* s, char *which_case)
+mps_check_data(mps_status* s, char *which_case)
 {
   rdpe_t min_coeff, max_coeff, tmp;
   cdpe_t ctmp;
@@ -393,18 +393,18 @@ check_data(mps_status* s, char *which_case)
   if (s->data_type[0] == 'u') {
     if (s->goal[2] == 'm')
       error(1, "Multiplicity detection not yet implemented for user polynomial");
-    if (goal[3] != 'n')
+    if (s->goal[3] != 'n')
       error(1, "Real/imaginary detection not yet implemented for user polynomial");
     *which_case = 'd';
     return;
   }
 
   /* Check consistency of input */
-  if (rdpe_eq(s->dap[n], rdpe_zero)) {
+  if (rdpe_eq(s->dap[s->n], rdpe_zero)) {
     warn("The leading coefficient is zero");
     do
       (s->n)--;
-    while (rdpe_eq(s->dap[n], rdpe_zero));
+    while (rdpe_eq(s->dap[s->n], rdpe_zero));
   }
 
   /* count number of zero roots (undeflated input polynomial) */
@@ -450,7 +450,7 @@ check_data(mps_status* s, char *which_case)
   if (s->goal[2] == 'm')
     switch (s->data_type[2]) {
     case 'i':
-      compute_sep(s);
+      mps_compute_sep(s);
       break;
     case 'q':
       warn("The multiplicity option has not been yet implemented");
@@ -467,7 +467,7 @@ check_data(mps_status* s, char *which_case)
   if (s->goal[3] != 'n' || s->goal[1] == 'R' || s->goal[1] == 'I')
     switch (s->data_type[2]) {
     case 'i':
-      compute_sep(s);
+      mps_compute_sep(s);
       break;
     case 'q':
       warn("The  real/imaginary option has not been yet implemented");
@@ -514,10 +514,10 @@ check_data(mps_status* s, char *which_case)
 *      SUBROUTINE COMPUTE_SEP                            *
 *********************************************************/
 void
-compute_sep(mps_status* s)
+mps_compute_sep(mps_status* s)
 {
   s->sep = s->n * s->lmax_coeff;
   s->sep = -(s->sep) - s->n * (1 + log((double) s->n)) / LOG2;
   if (s->DOLOG)
-    fprintf(s->logstr, "Sep = %f\n", sep);
+    fprintf(s->logstr, "Sep = %f\n", s->sep);
 }

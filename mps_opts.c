@@ -20,7 +20,7 @@
 #include "mps.h"
 
 /* local definition */
-void print_help(void);
+void mps_print_help(mps_status* s);
 
 /***********************************************************
  *                 PARSE_OPTS                              *
@@ -28,7 +28,7 @@ void print_help(void);
  * check command line options and streams                  *
  **********************************************************/
 void
-parse_opts(mps_status* s, int argc, char *argv[])
+mps_parse_opts(mps_status* s, int argc, char *argv[])
 {
   unsigned int seed = 0;
   int i;
@@ -174,7 +174,7 @@ parse_opts(mps_status* s, int argc, char *argv[])
       /* I/O streams */
       case 'R':
         s->rtstr = fopen(argv[i] + 2, "r");
-        if (rtstr == NULL)
+        if (s->rtstr == NULL)
           error(2, "Cannot open roots file: ", argv[i]+2);
         s->resume = true;
         break;
@@ -247,7 +247,7 @@ parse_opts(mps_status* s, int argc, char *argv[])
 
       /* debug options */
       case 'd':
-        DOLOG = true;
+        s->DOLOG = true;
         if (strlen(argv[i]) == 3 && argv[i][2] == '1')
           s->logstr = s->outstr;
         else if (strlen(argv[i]) != 2)
@@ -266,7 +266,7 @@ parse_opts(mps_status* s, int argc, char *argv[])
 	
       /* help and default case */
       case 'h':
-        print_help();
+        mps_print_help(s);
         exit(EXIT_SUCCESS);
 	break;
 	
@@ -297,7 +297,7 @@ finalcheck:
  * @brief Print usage informations
  */
 void
-print_help(mps_status* s)
+mps_print_help(mps_status* s)
 {
   fprintf(s->outstr, "USAGE: unisolve {<options>} {input_file}\n");
   fprintf(s->outstr, " OPTIONS (defaults in square brackets):\n");

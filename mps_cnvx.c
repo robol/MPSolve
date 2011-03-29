@@ -117,13 +117,13 @@ mps_fmerge(mps_status* s, int lo, int i, int up, double a[])
     if (il == lo)
       tstl = true;
     else {
-      ill = mps__left(s, il, lo);
+      ill = mps_left(s, il, lo);
       tstl = mps_fctest(s, ill, il, ir, a);
     }
     if (ir == up)
       tstr = true;
     else {
-      irr = msp_right(s, ir, up);
+      irr = mps_right(s, ir, up);
       tstr = mps_fctest(s, il, ir, irr, a);
     }
     if (!tstl) {
@@ -158,5 +158,5 @@ mps_fconvex(mps_status* s, int n, double a[])
 
   for (m = 1; m < s->n; m <<= 1)
     for (c = m; c < s->n; c += 2 * m)
-      fmerge(c - m, c, MIN(s->n, c + m), a);
+      mps_fmerge(s, c - m, c, MIN(s->n, c + m), a);
 }

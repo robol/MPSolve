@@ -114,7 +114,7 @@ mps_xcluster(mps_status* s, int n, int nf, int *nclust)
 
   for (i = 0; i < s->n - 1; i++) {
     for (j = incr + 1; j < s->n; j++)
-      if (msp_mtouchnwt(s, nf, s->clust_aux[i], s->clust_aux[j])) {
+      if (mps_mtouchnwt(s, nf, s->clust_aux[i], s->clust_aux[j])) {
 	incr++;
 	itemp = s->clust_aux[j];
 	s->clust_aux[j] = s->clust_aux[incr];

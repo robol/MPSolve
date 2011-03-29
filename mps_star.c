@@ -252,7 +252,7 @@ mps_dstart(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
       s->fap2[i] = temp;
 
   /* compute the convex hull */
-  fconvex(n, s->fap2);
+  mps_fconvex(s, n, s->fap2);
   th = pi2 / n;
 
   /* Scan all the vertices of the convex hull   */
@@ -377,7 +377,7 @@ mps_mstart(mps_status* s, int n, int i_clust, rdpe_t clust_rad, rdpe_t g,
       s->fap2[i] = s->fap2[0];
 
   /* compute the convex hull */
-  fconvex(n, s->fap2);
+  mps_fconvex(s, n, s->fap2);
   th = pi2 / n;
 
   /* Scan all the vertices of the convex hull */
@@ -585,8 +585,8 @@ mps_frestart(mps_status* s)
     cplx_set(g, sc);
     for (j = 0; j < s->max_newt_it; j++) {		/* loop_newt: */
       rad = 0.0;
-      fnewton(s->n - (s->punt[i + 1] - s->punt[i]) + 1, g,
-	      &rad, corr, s->fppc, s->fap1, &cont);
+      mps_fnewton(s, s->n - (s->punt[i + 1] - s->punt[i]) + 1, g,
+		  &rad, corr, s->fppc, s->fap1, &cont);
       cplx_sub_eq(g, corr);
       if (!cont)
 	break;
@@ -611,7 +611,7 @@ mps_frestart(mps_status* s)
       goto loop1;
     if (s->DOLOG)
       fprintf(s->logstr, "      FRESTART:  fshift\n");
-    fshift(s->punt[i + 1] - s->punt[i], i, sr, g, s->eps_out);
+    mps_fshift(s, s->punt[i + 1] - s->punt[i], i, sr, g, s->eps_out);
     rtmp = cplx_mod(g);
     rtmp *= DBL_EPSILON * 2;
     for (j = 0; j < s->punt[i + 1] - s->punt[i]; j++) {
@@ -765,8 +765,8 @@ mps_drestart(mps_status* s)
     cdpe_set(g, sc);
     for (j = 0; j < s->max_newt_it; j++) {		/* loop_newt: */
       rdpe_set(rad, rdpe_zero);
-      dnewton(s->n - (s->punt[i + 1] - s->punt[i]) + 1, g, rad,
-	      corr, s->dpc2, s->dap1, &cont);
+      mps_dnewton(s, s->n - (s->punt[i + 1] - s->punt[i]) + 1, g, rad,
+		  corr, s->dpc2, s->dap1, &cont);
       cdpe_sub_eq(g, corr);
       if (!cont)
 	break;
@@ -987,8 +987,8 @@ mps_mrestart(mps_status* s)
     }
     for (j = 0; j < s->max_newt_it; j++) {		/* loop_newt: */
       rdpe_set(rad, rdpe_zero);
-      mnewton(s->n - (s->punt[i + 1] - s->punt[i]) + 1, g, rad, corr, s->mfpc1,
-	      s->mfppc1, s->dap1, s->spar1, &cont);
+      mps_mnewton(s, s->n - (s->punt[i + 1] - s->punt[i]) + 1, g, rad, corr, s->mfpc1,
+		  s->mfppc1, s->dap1, s->spar1, &cont);
       if (cont) {
 	mpc_sub_eq(g, corr);
 	if (s->DOLOG) {
@@ -1215,7 +1215,7 @@ mps_mshift(mps_status* s, int m, int i_clust, rdpe_t clust_rad, mpc_t g)
 
   for (i = 1; i <= m; i++) {
     mpwp_temp = MAX(mpwp_temp - s->mpwp, s->mpwp);
-    raisetemp_raw(mpwp_temp);
+    mps_raisetemp_raw(s, mpwp_temp);
     mpc_set_prec_raw(t, (unsigned long int) mpwp_temp);
     mpc_set_prec_raw(g, (unsigned long int) mpwp_temp);
     mpc_set(t, s->mfpc1[s->n]);

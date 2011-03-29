@@ -406,7 +406,7 @@ mps_fmodify(mps_status* s)
 	  break;
 
 	case 'i':		/* inside unit circle */
-	  if (!ftouchunit(nf, l)) {
+	  if (!mps_ftouchunit(s, nf, l)) {
 	    if (cplx_mod(s->froot[l]) < 1)
 	      s->status[l][2] = 'i';
 	    else
@@ -415,7 +415,7 @@ mps_fmodify(mps_status* s)
 	  break;
 
 	case 'o':		/* outside unit circle */
-	  if (!ftouchunit(nf, l)) {
+	  if (!mps_ftouchunit(s, nf, l)) {
 	    if (cplx_mod(s->froot[l]) > 1)
 	      s->status[l][2] = 'i';
 	    else
@@ -424,7 +424,7 @@ mps_fmodify(mps_status* s)
 	  break;
 
 	case 'l':		/* left half plane  */
-	  if (!ftouchimag(nf, l)) {
+	  if (!mps_ftouchimag(s, nf, l)) {
 	    if (cplx_Re(s->froot[l]) < 0)
 	      s->status[l][2] = 'i';
 	    else
@@ -433,7 +433,7 @@ mps_fmodify(mps_status* s)
 	  break;
 
 	case 'r':		/* right half plane */
-	  if (!ftouchimag(nf, l)) {
+	  if (!mps_ftouchimag(s, nf, l)) {
 	    if (cplx_Re(s->froot[l]) > 0)
 	      s->status[l][2] = 'i';
 	    else
@@ -442,7 +442,7 @@ mps_fmodify(mps_status* s)
 	  break;
 
 	case 'u':		/* upper half plane */
-	  if (!ftouchreal(nf, l)) {
+	  if (!mps_ftouchreal(s, nf, l)) {
 	    if (cplx_Im(s->froot[l]) > 0)
 	      s->status[l][2] = 'i';
 	    else
@@ -451,7 +451,7 @@ mps_fmodify(mps_status* s)
 	  break;
 
 	case 'd':		/* lower half plane */
-	  if (!ftouchreal(nf, l)) {
+	  if (!mps_ftouchreal(s, nf, l)) {
 	    if (cplx_Im(s->froot[l]) < 0)
 	      s->status[l][2] = 'i';
 	    else
@@ -463,7 +463,7 @@ mps_fmodify(mps_status* s)
 	  if (s->status[l][1] != 'w')
 	    continue;
 	  if (s->punt[i + 1] - s->punt[i] == 1) {	/* one disk */
-	    if (ftouchreal(1, l)) {
+	    if (mps_ftouchreal(s, 1, l)) {
 	      if (s->data_type[1] == 'r') {
 		s->status[l][2] = 'i';
 		s->status[l][1] = 'R';
@@ -484,10 +484,10 @@ mps_fmodify(mps_status* s)
 	    }
 	    continue;
 	  } else {		/* cluster */
-	    tcr = ftouchreal(nf, l);
+	    tcr = mps_ftouchreal(s, nf, l);
 	    for (j1 = 1; j1 < s->punt[i + 1] - s->punt[i]; j1++) {
 	      l1 = s->clust[s->punt[i] + j1];
-	      tcr1 = ftouchreal(nf, l1);
+	      tcr1 = mps_ftouchreal(s, nf, l1);
 	      if ((tcr && tcr1) || (!tcr && !tcr1))
 		continue;
 	      else {		/*  mixed situation */
@@ -507,7 +507,7 @@ mps_fmodify(mps_status* s)
 		  s->status[l2][1] = 'w';
 		}
 	      } else {		/* integer/rational polynomial */
-		fsrad(i, sc, &sr);
+		mps_fsrad(s, i, sc, &sr);
 		sep1 = s->sep;
 		if (s->data_type[1] == 'c')
 		  sep1 = s->sep - s->n * s->lmax_coeff;
@@ -540,7 +540,7 @@ mps_fmodify(mps_status* s)
 	  if (s->status[l][1] != 'w' && s->status[l][1] != 'r')
 	    continue;
 	  if (s->punt[i + 1] - s->punt[i] == 1) {	/* one disk */
-	    if (ftouchimag(nf, l)) {
+	    if (mps_ftouchimag(s, nf, l)) {
 	      /* fsrad(i, sc, &sr); DARIO */
 	      sr = s->frad[l];
 	      if (log(sr) < s->sep - s->n * s->lmax_coeff) {
@@ -556,10 +556,10 @@ mps_fmodify(mps_status* s)
 	    }
 	    continue;
 	  } else {		/* cluster */
-	    tcr = ftouchimag(nf, l);
+	    tcr = mps_ftouchimag(s, nf, l);
 	    for (j1 = 1; j1 < s->punt[i + 1] - s->punt[i]; j1++) {
 	      l1 = s->clust[s->punt[i] + j1];
-	      tcr1 = ftouchimag(nf, l1);
+	      tcr1 = mps_ftouchimag(s, nf, l1);
 	      if ((tcr && tcr1) || (!tcr && !tcr1))
 		continue;
 	      else {		/* mixed situation */
@@ -579,7 +579,7 @@ mps_fmodify(mps_status* s)
 		  s->status[l2][1] = 'w';
 		}
 	      } else {		/* integer/rational polynomial */
-		fsrad(i, sc, &sr);
+		mps_fsrad(s, i, sc, &sr);
 		sep1 = s->sep;
 		sep1 = s->sep - s->n * s->lmax_coeff;
 		if (log(sr) < sep1) {
@@ -645,7 +645,7 @@ mps_fmodify(mps_status* s)
 	  error(1, "Fatal: Float coefficients - impossible to detect multiplicity");
 
 	/* compute super center and super radius */
-	fsrad(i, sc, &sr);
+	mps_fsrad(s, i, sc, &sr);
 
 	if (log(sr) < s->sep)
 	  for (j1 = 0; j1 < s->punt[i + 1] - s->punt[i]; j1++) {
@@ -668,7 +668,7 @@ mps_fmodify(mps_status* s)
 	if (s->status[l][0] == 'x' || s->status[l][0] == 'f')
 	  goto scan2;
 	if (s->punt[i + 1] - s->punt[i] == 1) {	/* one disk */
-	  if (ftouchreal(nf, l)) {
+	  if (mps_ftouchreal(s, nf, l)) {
 	    if (s->data_type[1] == 'r')
 	      s->status[l][1] = 'R';
 	    else {
@@ -683,10 +683,10 @@ mps_fmodify(mps_status* s)
 	    s->status[l][1] = 'r';
 	  continue;
 	} else {		/* cluster */
-	  tcr = ftouchreal(nf, l);
+	  tcr = mps_ftouchreal(s, nf, l);
 	  for (j1 = 1; j1 < s->punt[i + 1] - s->punt[i]; j1++) {
 	    l1 = s->clust[s->punt[i] + j1];
-	    tcr1 = ftouchreal(nf, l1);
+	    tcr1 = mps_ftouchreal(s, nf, l1);
 	    if ((tcr && tcr1) || (!tcr && !tcr1))
 	      continue;
 	    else {		/* mixed situation */
@@ -703,7 +703,7 @@ mps_fmodify(mps_status* s)
 		l2 = s->clust[s->punt[i] + j2];
 		s->status[l2][1] = 'w';
 	    } else {		/* integer/rational polynomial */
-	      fsrad(i, sc, &sr);
+	      mps_fsrad(s, i, sc, &sr);
 	      sep1 = s->sep;
 	      if (s->data_type[1] == 'c')
 		sep1 = s->sep - s->n * s->lmax_coeff;
@@ -735,7 +735,7 @@ mps_fmodify(mps_status* s)
 	if (s->status[l][1] != 'w' && s->status[l][1] != 'r')
 	  continue;
 	if (s->punt[i + 1] - s->punt[i] == 1) {	/* one disk */
-	  if (ftouchimag(nf, l)) {
+	  if (mps_ftouchimag(s, nf, l)) {
 	    /* fsrad(i, sc, &sr); DARIO */
 	    sr = s->frad[l];
 	    if (log(sr) < s->sep - s->n * s->lmax_coeff)
@@ -746,10 +746,10 @@ mps_fmodify(mps_status* s)
 	    s->status[l][1] = 'i';
 	  continue;
 	} else {		/* cluster */
-	  tcr = ftouchimag(nf, l);
+	  tcr = mps_ftouchimag(s, nf, l);
 	  for (j1 = 1; j1 < s->punt[i + 1] - s->punt[i]; j1++) {
 	    l1 = s->clust[s->punt[i] + j1];
-	    tcr1 = ftouchimag(nf, l1);
+	    tcr1 = mps_ftouchimag(s, nf, l1);
 	    if ((tcr && tcr1) || (!tcr && !tcr1))
 	      continue;
 	    else {		/* mixed situation */
@@ -766,7 +766,7 @@ mps_fmodify(mps_status* s)
 		l2 = s->clust[s->punt[i] + j2];
 		s->status[l2][1] = 'w';
 	    } else {		/* integer/rational polynomial */
-	      fsrad(i, sc, &sr);
+	      mps_fsrad(s, i, sc, &sr);
 	      sep1 = s->sep;
 	      sep1 = s->sep - s->n * s->lmax_coeff;
 	      if (log(sr) < sep1)
@@ -877,7 +877,7 @@ mps_dmodify(mps_status* s)
 	  break;
 
 	case 'i':		/* inside unit circle */
-	  if (!dtouchunit(nf, l)) {
+	  if (!mps_dtouchunit(s, nf, l)) {
 	    cdpe_mod(tmpr, s->droot[l]);
 	    if (rdpe_lt(tmpr, rdpe_one))
 	      s->status[l][2] = 'i';
@@ -887,7 +887,7 @@ mps_dmodify(mps_status* s)
 	  break;
 
 	case 'o':		/* outside unit circle */
-	  if (!dtouchunit(nf, l)) {
+	  if (!mps_dtouchunit(s, nf, l)) {
 	    cdpe_mod(tmpr, s->droot[l]);
 	    if (rdpe_gt(tmpr, rdpe_one))
 	      s->status[l][2] = 'i';
@@ -897,7 +897,7 @@ mps_dmodify(mps_status* s)
 	  break;
 
 	case 'l':		/* left half plane  */
-	  if (!dtouchimag(nf, l)) {
+	  if (!mps_dtouchimag(s, nf, l)) {
 	    rdpe_set(tmpr, cdpe_Re(s->droot[l]));
 	    if (rdpe_lt(tmpr, rdpe_zero))
 	      s->status[l][2] = 'i';
@@ -907,7 +907,7 @@ mps_dmodify(mps_status* s)
 	  break;
 
 	case 'r':		/* right half plane */
-	  if (!dtouchimag(nf, l)) {
+	  if (!mps_dtouchimag(s, nf, l)) {
 	    rdpe_set(tmpr, cdpe_Re(s->droot[l]));
 	    if (rdpe_gt(tmpr, rdpe_zero))
 	      s->status[l][2] = 'i';
@@ -917,7 +917,7 @@ mps_dmodify(mps_status* s)
 	  break;
 
 	case 'u':		/* upper half plane */
-	  if (!dtouchreal(nf, l)) {
+	  if (!mps_dtouchreal(s, nf, l)) {
 	    rdpe_set(tmpr, cdpe_Im(s->droot[l]));
 	    if (rdpe_gt(tmpr, rdpe_zero))
 	      s->status[l][2] = 'i';
@@ -927,7 +927,7 @@ mps_dmodify(mps_status* s)
 	  break;
 
 	case 'd':		/* lower half plane */
-	  if (!dtouchreal(nf, l)) {
+	  if (!mps_dtouchreal(s, nf, l)) {
 	    rdpe_set(tmpr, cdpe_Im(s->droot[l]));
 	    if (rdpe_lt(tmpr, rdpe_zero))
 	      s->status[l][2] = 'i';
@@ -940,7 +940,7 @@ mps_dmodify(mps_status* s)
 	  if (s->status[l][1] != 'w')
 	    continue;
 	  if (s->punt[i + 1] - s->punt[i] == 1) {	/* one disk */
-	    if (dtouchreal(1, l)) {
+	    if (mps_dtouchreal(s, 1, l)) {
 	      if (s->data_type[1] == 'r') {
 		s->status[l][2] = 'i';
 		s->status[l][1] = 'R';
@@ -961,10 +961,10 @@ mps_dmodify(mps_status* s)
 	    }
 	    continue;
 	  } else {		/* cluster */
-	    tcr = dtouchreal(nf, l);
+	    tcr = mps_dtouchreal(s, nf, l);
 	    for (j1 = 1; j1 < s->punt[i + 1] - s->punt[i]; j1++) {
 	      l1 = s->clust[s->punt[i] + j1];
-	      tcr1 = dtouchreal(nf, l1);
+	      tcr1 = mps_dtouchreal(s, nf, l1);
 	      if ((tcr && tcr1) || (!tcr && !tcr1))
 		continue;
 	      else {		/*  mixed situation */
@@ -984,7 +984,7 @@ mps_dmodify(mps_status* s)
 		  s->status[l2][1] = 'w';
 		}
 	      } else {		/* integer/rational polynomial */
-		dsrad(i, sc, sr);
+		mps_dsrad(s, i, sc, sr);
 		sep1 = s->sep;
 		if (s->data_type[1] == 'c')
 		  sep1 = s->sep - s->n * s->lmax_coeff;
@@ -1017,7 +1017,7 @@ mps_dmodify(mps_status* s)
 	  if (s->status[l][1] != 'w' && s->status[l][1] != 'r')
 	    continue;
 	  if (s->punt[i + 1] - s->punt[i] == 1) {	/* one disk */
-	    if (dtouchimag(nf, l)) {
+	    if (mps_dtouchimag(s, nf, l)) {
 	      /* dsrad(i, sc, sr); */
 	      rdpe_set(sr, s->drad[l]);
 	      if (rdpe_log(sr) < s->sep - s->n * s->lmax_coeff) {
@@ -1033,10 +1033,10 @@ mps_dmodify(mps_status* s)
 	    }
 	    continue;
 	  } else {		/* cluster */
-	    tcr = dtouchimag(nf, l);
+	    tcr = mps_dtouchimag(s, nf, l);
 	    for (j1 = 1; j1 < s->punt[i + 1] - s->punt[i]; j1++) {
 	      l1 = s->clust[s->punt[i] + j1];
-	      tcr1 = dtouchimag(nf, l1);
+	      tcr1 = mps_dtouchimag(s, nf, l1);
 	      if ((tcr && tcr1) || (!tcr && !tcr1))
 		continue;
 	      else {		/* mixed situation */
@@ -1056,7 +1056,7 @@ mps_dmodify(mps_status* s)
 		  s->status[l2][1] = 'w';
 		}
 	      } else {		/* integer/rational polynomial */
-		dsrad(i, sc, sr);
+		mps_dsrad(s, i, sc, sr);
 		sep1 = s->sep;
 		sep1 = s->sep - s->n * s->lmax_coeff;
 		if (rdpe_log(sr) < sep1) {
@@ -1123,7 +1123,7 @@ mps_dmodify(mps_status* s)
 	  error(1, "Fatal: Float coefficients - impossible to detect multiplicity");
 
 	/* compute super center and super radius */
-	dsrad(i, sc, sr);
+	mps_dsrad(s, i, sc, sr);
 
 	if (rdpe_log(sr) < s->sep)
 	  for (j1 = 0; j1 < s->punt[i + 1] - s->punt[i]; j1++) {
@@ -1146,7 +1146,7 @@ mps_dmodify(mps_status* s)
 	if (s->status[l][0] == 'x' || s->status[l][0] == 'f')
 	  goto scan2;
 	if (s->punt[i + 1] - s->punt[i] == 1) {	/* one disk */
-	  if (dtouchreal(nf, l)) {
+	  if (mps_dtouchreal(s, nf, l)) {
 	    if (s->data_type[1] == 'r')
 	      s->status[l][1] = 'R';
 	    else {
@@ -1161,10 +1161,10 @@ mps_dmodify(mps_status* s)
 	    s->status[l][1] = 'r';
 	  continue;
 	} else {		/* cluster */
-	  tcr = dtouchreal(nf, l);
+	  tcr = mps_dtouchreal(s, nf, l);
 	  for (j1 = 1; j1 < s->punt[i + 1] - s->punt[i]; j1++) {
 	    l1 = s->clust[s->punt[i] + j1];
-	    tcr1 = dtouchreal(nf, l1);
+	    tcr1 = mps_dtouchreal(s, nf, l1);
 	    if ((tcr && tcr1) || (!tcr && !tcr1))
 	      continue;
 	    else {		/* mixed situation */
@@ -1181,7 +1181,7 @@ mps_dmodify(mps_status* s)
 		l2 = s->clust[s->punt[i] + j2];
 		s->status[l2][1] = 'w';
 	    } else {		/* integer/rational polynomial */
-	      dsrad(i, sc, sr);
+	      mps_dsrad(s, i, sc, sr);
 	      sep1 = s->sep;
 	      if (s->data_type[1] == 'c')
 		sep1 = s->sep - s->n * s->lmax_coeff;
@@ -1214,7 +1214,7 @@ mps_dmodify(mps_status* s)
 	if (s->status[l][1] != 'w' && s->status[l][1] != 'r')
 	  continue;
 	if (s->punt[i + 1] - s->punt[i] == 1) {	/* one disk */
-	  if (dtouchimag(nf, l)) {
+	  if (mps_dtouchimag(s, nf, l)) {
 	    /* dsrad(i, sc, sr); DARIO */
 	    rdpe_set(sr, s->drad[l]);
 	    if (rdpe_log(sr) < s->sep - s->n * s->lmax_coeff)
@@ -1225,10 +1225,10 @@ mps_dmodify(mps_status* s)
 	    s->status[l][1] = 'i';
 	  continue;
 	} else {		/* cluster */
-	  tcr = dtouchimag(nf, l);
+	  tcr = mps_dtouchimag(s, nf, l);
 	  for (j1 = 1; j1 < s->punt[i + 1] - s->punt[i]; j1++) {
 	    l1 = s->clust[s->punt[i] + j1];
-	    tcr1 = dtouchimag(nf, l1);
+	    tcr1 = mps_dtouchimag(s, nf, l1);
 	    if ((tcr && tcr1) || (!tcr && !tcr1))
 	      continue;
 	    else {		/* mixed situation */
@@ -1245,7 +1245,7 @@ mps_dmodify(mps_status* s)
 		l2 = s->clust[s->punt[i] + j2];
 		s->status[l2][1] = 'w';
 	    } else {		/* integer/rational polynomial */
-	      dsrad(i, sc, sr);
+	      mps_dsrad(s, i, sc, sr);
 	      sep1 = s->sep;
 	      sep1 = s->sep - s->n * s->lmax_coeff;
 	      if (rdpe_log(sr) < sep1)
@@ -1363,7 +1363,7 @@ mps_mmodify(mps_status* s)
 	  break;
 
 	case 'i':		/* inside unit circle */
-	  if (!mtouchunit(nf, l)) {
+	  if (!mps_mtouchunit(s, nf, l)) {
 	    mpc_get_cdpe(tmpc, s->mroot[l]);
 	    cdpe_mod(tmpr, tmpc);
 	    if (rdpe_lt(tmpr, rdpe_one))
@@ -1374,7 +1374,7 @@ mps_mmodify(mps_status* s)
 	  break;
 
 	case 'o':		/* outside unit circle */
-	  if (!mtouchunit(nf, l)) {
+	  if (!mps_mtouchunit(s, nf, l)) {
 	    mpc_get_cdpe(tmpc, s->mroot[l]);
 	    cdpe_mod(tmpr, tmpc);
 	    if (rdpe_gt(tmpr, rdpe_one))
@@ -1385,7 +1385,7 @@ mps_mmodify(mps_status* s)
 	  break;
 
 	case 'l':		/* left half plane  */
-	  if (!mtouchimag(nf, l)) {
+	  if (!mps_mtouchimag(s, nf, l)) {
 	    /* mpc_get_re(tmpf, s->mroot[l]); */
 	    mpf_set(tmpf, mpc_Re(s->mroot[l]));
 	    if (mpf_sgn(tmpf) == -1)
@@ -1396,7 +1396,7 @@ mps_mmodify(mps_status* s)
 	  break;
 
 	case 'r':		/* right half plane */
-	  if (!mtouchimag(nf, l)) {
+	  if (!mps_mtouchimag(s, nf, l)) {
 	    /* mpc_get_re(tmpf, s->mroot[l]); */
 	    mpf_set(tmpf, mpc_Re(s->mroot[l]));
 	    if (mpf_sgn(tmpf) == 1)
@@ -1407,7 +1407,7 @@ mps_mmodify(mps_status* s)
 	  break;
 
 	case 'u':		/* upper half plane */
-	  if (!mtouchreal(nf, l)) {
+	  if (!mps_mtouchreal(s, nf, l)) {
 	    /* mpc_get_im(tmpf, s->mroot[l]); */
 	    mpf_set(tmpf, mpc_Im(s->mroot[l]));
 	    if (mpf_sgn(tmpf) == 1)
@@ -1418,7 +1418,7 @@ mps_mmodify(mps_status* s)
 	  break;
 
 	case 'd':		/* lower half plane */
-	  if (!mtouchreal(nf, l)) {
+	  if (!mps_mtouchreal(s, nf, l)) {
 	    /* mpc_get_im(tmpf, s->mroot[l]); */
 	    mpf_set(tmpf, mpc_Im(s->mroot[l]));
 	    if (mpf_sgn(tmpf) == -1)
@@ -1432,7 +1432,7 @@ mps_mmodify(mps_status* s)
 	  if (s->status[l][1] != 'w')
 	    continue;
 	  if (s->punt[i + 1] - s->punt[i] == 1) {	/* one disk */
-	    if (mtouchreal(1, l)) {
+	    if (mps_mtouchreal(s, 1, l)) {
 	      if (s->data_type[1] == 'r') {
 		s->status[l][2] = 'i';
 		s->status[l][1] = 'R';
@@ -1453,10 +1453,10 @@ mps_mmodify(mps_status* s)
 	    }
 	    continue;
 	  } else {		/* cluster */
-	    tcr = mtouchreal(nf, l);
+	    tcr = mps_mtouchreal(s, nf, l);
 	    for (j1 = 1; j1 < s->punt[i + 1] - s->punt[i]; j1++) {
 	      l1 = s->clust[s->punt[i] + j1];
-	      tcr1 = mtouchreal(nf, l1);
+	      tcr1 = mps_mtouchreal(s, nf, l1);
 	      if ((tcr && tcr1) || (!tcr && !tcr1))
 		continue;
 	      else {		/*  mixed situation */
@@ -1476,7 +1476,7 @@ mps_mmodify(mps_status* s)
 		  s->status[l2][1] = 'w';
 		}
 	      } else {		/* integer/rational polynomial */
-		msrad(i, sc, sr);
+		mps_msrad(s, i, sc, sr);
 		sep1 = s->sep;
 		if (s->data_type[1] == 'c')
 		  sep1 = s->sep - s->n * s->lmax_coeff;
@@ -1509,7 +1509,7 @@ mps_mmodify(mps_status* s)
 	  if (s->status[l][1] != 'w' && s->status[l][1] != 'r')
 	    continue;
 	  if (s->punt[i + 1] - s->punt[i] == 1) {	/* one disk */
-	    if (mtouchimag(nf, l)) {
+	    if (mps_mtouchimag(s, nf, l)) {
 	      /* msrad(i, sc, sr);*/ /*#DARIO */
 	      rdpe_set(sr, s->drad[l]);
 	      if (rdpe_log(sr) < s->sep - s->n * s->lmax_coeff) {
@@ -1525,10 +1525,10 @@ mps_mmodify(mps_status* s)
 	    }
 	    continue;
 	  } else {		/* cluster */
-	    tcr = mtouchimag(nf, l);
+	    tcr = mps_mtouchimag(s, nf, l);
 	    for (j1 = 1; j1 < s->punt[i + 1] - s->punt[i]; j1++) {
 	      l1 = s->clust[s->punt[i] + j1];
-	      tcr1 = mtouchimag(nf, l1);
+	      tcr1 = mps_mtouchimag(s, nf, l1);
 	      if ((tcr && tcr1) || (!tcr && !tcr1))
 		continue;
 	      else {		/* mixed situation */
@@ -1548,7 +1548,7 @@ mps_mmodify(mps_status* s)
 		  s->status[l2][1] = 'w';
 		}
 	      } else {		/* integer/rational polynomial */
-		msrad(i, sc, sr);
+		mps_msrad(s, i, sc, sr);
 		sep1 = s->sep;
 		sep1 = s->sep - s->n * s->lmax_coeff;
 		if (rdpe_log(sr) < sep1) {
@@ -1616,7 +1616,7 @@ mps_mmodify(mps_status* s)
 	  error(1, "Fatal: Float coefficients - impossible to detect multiplicity");
 
 	/* compute super center and super radius */
-	msrad(i, sc, sr);
+	mps_msrad(s, i, sc, sr);
 
 	if (rdpe_log(sr) < s->sep)
 	  for (j1 = 0; j1 < s->punt[i + 1] - s->punt[i]; j1++) {
@@ -1639,7 +1639,7 @@ mps_mmodify(mps_status* s)
 	if (s->status[l][0] == 'x' || s->status[l][0] == 'f')
 	  goto scan2;
 	if (s->punt[i + 1] - s->punt[i] == 1) {	/* one disk */
-	  if (mtouchreal(nf, l)) {
+	  if (mps_mtouchreal(s, nf, l)) {
 	    if (s->data_type[1] == 'r')
 	      s->status[l][1] = 'R';
 	    else {
@@ -1654,10 +1654,10 @@ mps_mmodify(mps_status* s)
 	    s->status[l][1] = 'r';
 	  continue;
 	} else {		/* cluster */
-	  tcr = mtouchreal(nf, l);
+	  tcr = mps_mtouchreal(s, nf, l);
 	  for (j1 = 1; j1 < s->punt[i + 1] - s->punt[i]; j1++) {
 	    l1 = s->clust[s->punt[i] + j1];
-	    tcr1 = mtouchreal(nf, l1);
+	    tcr1 = mps_mtouchreal(s, nf, l1);
 	    if ((tcr && tcr1) || (!tcr && !tcr1))
 	      continue;
 	    else {		/* mixed situation */
@@ -1674,7 +1674,7 @@ mps_mmodify(mps_status* s)
 		l2 = s->clust[s->punt[i] + j2];
 		s->status[l2][1] = 'w';
 	    } else {		/* integer/rational polynomial */
-	      msrad(i, sc, sr);
+	      mps_msrad(s, i, sc, sr);
 	      sep1 = s->sep;
 	      if (s->data_type[1] == 'c')
 		sep1 = s->sep - s->n * s->lmax_coeff;
@@ -1706,7 +1706,7 @@ mps_mmodify(mps_status* s)
 	if (s->status[l][1] != 'w' && s->status[l][1] != 'r')
 	  continue;
 	if (s->punt[i + 1] - s->punt[i] == 1) {	/* one disk */
-	  if (mtouchimag(nf, l)) {
+	  if (mps_mtouchimag(s, nf, l)) {
 	    rdpe_set(sr, s->drad[l]);
 	    /* msrad(i, sc, sr); DARIO */
 	    if (rdpe_log(sr) < s->sep - s->n * s->lmax_coeff)
@@ -1717,10 +1717,10 @@ mps_mmodify(mps_status* s)
 	    s->status[l][1] = 'i';
 	  continue;
 	} else {		/* cluster */
-	  tcr = mtouchimag(nf, l);
+	  tcr = mps_mtouchimag(s, nf, l);
 	  for (j1 = 1; j1 < s->punt[i + 1] - s->punt[i]; j1++) {
 	    l1 = s->clust[s->punt[i] + j1];
-	    tcr1 = mtouchimag(nf, l1);
+	    tcr1 = mps_mtouchimag(s, nf, l1);
 	    if ((tcr && tcr1) || (!tcr && !tcr1))
 	      continue;
 	    else {		/* mixed situation */
@@ -1737,7 +1737,7 @@ mps_mmodify(mps_status* s)
 		l2 = s->clust[s->punt[i] + j2];
 		s->status[l2][1] = 'w';
 	    } else {		/* integer/rational polynomial */
-	      msrad(i, sc, sr);
+	      mps_msrad(s, i, sc, sr);
 	      sep1 = s->sep;
 	      sep1 = s->sep - s->n * s->lmax_coeff;
 	      if (rdpe_log(sr) < sep1)
@@ -1900,7 +1900,7 @@ mps_fsolve(mps_status* s, boolean * d_after_f)
   if (s->DOLOG)
     fprintf(s->logstr, "FSOLVE: call fstart");
 
-  fstart(s->n, 0, 0.0, 0.0, s->eps_out, s->fap);
+  mps_fstart(s, s->n, 0, 0.0, 0.0, s->eps_out, s->fap);
   /***************
      this part of code performs shift in the gravity center of the roots 
      In order to use it, uncomment the part below and comment the 
@@ -1916,7 +1916,7 @@ mps_fsolve(mps_status* s, boolean * d_after_f)
   */ /* till here */ 
   
   if (s->DOLOG)
-    dump(s->logstr);
+    mps_dump(s, s->logstr);
 
   /* Check if there are too large or too small approximations */
   *d_after_f = false;
@@ -1931,7 +1931,7 @@ mps_fsolve(mps_status* s, boolean * d_after_f)
     fprintf(s->logstr, "   FSOLVE:  call fpolzer\n");
   for (iter = 0; iter < s->max_pack; iter++) {	/* floop: */
 
-    fpolzer(&nit, &excep);
+    mps_fpolzer(s, &nit, &excep);
     it_pack += nit;
 
     if (s->DOLOG)
@@ -1948,7 +1948,7 @@ mps_fsolve(mps_status* s, boolean * d_after_f)
       if (s->DOLOG)
 	fprintf(s->logstr, "   FSOLVE: call fcluster\n");
       /* cluster analysis */
-      fcluster(2 * s->n); /* Isolation factor */
+      mps_fcluster(s, 2 * s->n); /* Isolation factor */
       if (oldnclust == s->nclust) {
 	if (s->DOLOG)
 	  fprintf(s->logstr, "   FSOLVE: cycle\n");
@@ -1959,7 +1959,7 @@ mps_fsolve(mps_status* s, boolean * d_after_f)
 	 */
 	if (s->DOLOG)
 	  fprintf(s->logstr, "   FSOLVE: call modify\n");
-	fmodify();
+	mps_fmodify(s);
 
 	if (iter == 0)
 	  for (i = 0; i < s->n; i++)
@@ -1972,7 +1972,7 @@ mps_fsolve(mps_status* s, boolean * d_after_f)
 	  /* choose new starting approximations only for new clusters */
 	  if (s->DOLOG)
 	    fprintf(s->logstr, "   FSOLVE: call frestart\n");
-	  frestart();
+	  mps_frestart(s);
 	}
 	/* reset the status vector */
 	for (j = 0; j < s->n; j++) {
@@ -1984,7 +1984,7 @@ mps_fsolve(mps_status* s, boolean * d_after_f)
 	/* update 'again' */
 	if (s->DOLOG)
 	  fprintf(s->logstr, "   FSOLVE: call update\n");
-	update();
+	mps_update(s);
 
 	/* adjust 'again' This is needed since we are
 	 * between two packets */
@@ -1994,7 +1994,7 @@ mps_fsolve(mps_status* s, boolean * d_after_f)
 	if (s->DOLOG)
 	  fprintf(s->logstr, "   FSOLVE: call checkstop\n");
 	/* Check the stop condition */
-	if (check_stop())
+	if (mps_check_stop(s))
 	  return;
       }
     } else
@@ -2004,7 +2004,7 @@ mps_fsolve(mps_status* s, boolean * d_after_f)
   /* The 'floop' has been completed: 
    * If the max number of iteration has been reached then output FAILURE */
   if (iter == s->max_pack) {
-    dump(s->logstr);
+    mps_dump(s, s->logstr);
     error(1, "Float: reached the maximum number of packet iterations");
   }
   /* Otherwise exit since all the approximations are
@@ -2020,11 +2020,11 @@ mps_fsolve(mps_status* s, boolean * d_after_f)
   for (i = 0; i <= s->n; i++)
     s->oldpunt[i] = s->punt[i];
   oldnclust = s->nclust;
-  fcluster(2 * s->n); /* Isolation factor */
+  mps_fcluster(s, 2 * s->n); /* Isolation factor */
 
   if (s->DOLOG)
     fprintf(s->logstr, "   FSOLVE: call modify\n");
-  fmodify();
+  mps_fmodify(s);
 
   /* reset the status vector */
   for (j = 0; j < s->n; j++)
@@ -2074,7 +2074,7 @@ mps_fpolzer(mps_status* s, int *it, boolean * excep)
 
     if (s->DOLOG) {
       fprintf(s->logstr, "FPOLZER: iteration %d\n", iter);
-      dump(s->logstr);
+      mps_dump(s, s->logstr);
     }
 
     for (i = 0; i < s->n; i++) {	/* do_index */
@@ -2083,7 +2083,7 @@ mps_fpolzer(mps_status* s, int *it, boolean * excep)
 	(*it)++;
 	rad1 = s->frad[i];
 	if (s->data_type[0] != 'u') {
-	  fnewton(s->n, s->froot[i], &s->frad[i], corr, s->fpc, s->fap, &s->again[i]);
+	  mps_fnewton(s, s->n, s->froot[i], &s->frad[i], corr, s->fpc, s->fap, &s->again[i]);
 	  if (iter == 0 && !s->again[i] && s->frad[i] > rad1 && rad1 != 0)
 	    s->frad[i] = rad1;
 	  /***************************************
@@ -2096,12 +2096,12 @@ mps_fpolzer(mps_status* s, int *it, boolean * excep)
 	  means of Rouche' is more reliable and strict
 	  **************************************/
 	} else
-	  fnewton_usr(s->froot[i], &s->frad[i], corr, &s->again[i]);
+	  mps_fnewton_usr(s, s->froot[i], &s->frad[i], corr, &s->again[i]);
 	  
 	if (s->again[i] ||
 	  /* the correction is performed only if iter!=1 or rad(i)!=rad1 */
 	    s->data_type[0] == 'u' || iter != 0 || s->frad[i] != rad1) {
-	  faberth(i, abcorr);
+	  mps_faberth(s, i, abcorr);
 	  cplx_mul_eq(abcorr, corr);
 	  cplx_sub(abcorr, cplx_one, abcorr);
 	  cplx_div(abcorr, corr, abcorr);
@@ -2156,12 +2156,12 @@ mps_dpolzer(mps_status* s, int *it, boolean * excep)
 	(*it)++;
 	rdpe_set(rad1, s->drad[i]);
 	if (s->data_type[0] != 'u') {
-	  dnewton(s->n, s->droot[i], s->drad[i], corr, s->dpc, s->dap, &s->again[i]);
+	  mps_dnewton(s, s->n, s->droot[i], s->drad[i], corr, s->dpc, s->dap, &s->again[i]);
 	  if (iter == 0 && !s->again[i] && rdpe_gt(s->drad[i], rad1)
 	      && rdpe_ne(rad1, rdpe_zero))
 	    rdpe_set(s->drad[i], rad1);
 	} else
-	  dnewton_usr(s->droot[i], s->drad[i], corr, &s->again[i]);
+	  mps_dnewton_usr(s, s->droot[i], s->drad[i], corr, &s->again[i]);
 
   /************************************************
     The above condition is needed to manage with the case where
@@ -2175,7 +2175,7 @@ mps_dpolzer(mps_status* s, int *it, boolean * excep)
 	if (s->again[i] ||
 	    /* the correction is performed only if iter!=1 or rad(i)!=rad1 */
 	    s->data_type[0] == 'u' || iter != 0 || rdpe_ne(s->drad[i], rad1)) {
-	  daberth(i, abcorr);
+	  mps_daberth(s, i, abcorr);
 	  cdpe_mul_eq(abcorr, corr);
 	  cdpe_sub(abcorr, cdpe_one, abcorr);
 	  cdpe_div(abcorr, corr, abcorr);
@@ -2234,7 +2234,7 @@ mps_dsolve(mps_status* s, boolean d_after_f)
     fprintf(s->logstr, "   DSOLVE: call dstart con again=\n");
 
   rdpe_set(dummy, rdpe_zero);
-  dstart(s->n, 0, dummy, dummy, dummy, s->dap);
+  mps_dstart(s, s->n, 0, dummy, dummy, dummy, s->dap);
 
   /* Now adjust the status vector */
   if (d_after_f)
@@ -2247,7 +2247,7 @@ mps_dsolve(mps_status* s, boolean d_after_f)
     fprintf(s->logstr, "   DSOLVE: call dpolzero\n");
 
   for (iter = 0; iter < s->max_pack; iter++) {	/* dloop : DO iter=1,s->max_pack */
-    dpolzer(&nit, &excep);
+    mps_dpolzer(s, &nit, &excep);
     it_pack += nit;
 
     if (s->DOLOG)
@@ -2261,7 +2261,7 @@ mps_dsolve(mps_status* s, boolean d_after_f)
       /* cluster analysis */
       if (s->DOLOG)
 	fprintf(s->logstr, "   DSOLVE: call dcluster\n");
-      dcluster(2 * s->n); /* Isolation factor */
+      mps_dcluster(s, 2 * s->n); /* Isolation factor */
       if (oldnclust == s->nclust) {
 	if (s->DOLOG)
 	  fprintf(s->logstr, "   DSOLVE:  CYCLE\n");
@@ -2269,7 +2269,7 @@ mps_dsolve(mps_status* s, boolean d_after_f)
       } else {
 	if (s->DOLOG)
 	  fprintf(s->logstr, "   DSOLVE: call dmodify\n");
-	dmodify();
+	mps_dmodify(s);
 
 	if (iter == 0 && !d_after_f)
 	  for (i = 0; i < s->n; i++)
@@ -2282,7 +2282,7 @@ mps_dsolve(mps_status* s, boolean d_after_f)
 	  /* choose new starting approximations only for new clusters */
 	  if (s->DOLOG)
 	    fprintf(s->logstr, "   DSOLVE: call drestart\n");
-	  drestart();
+	  mps_drestart(s);
 	}
 	/* reset the status vector */
 	for (j = 0; j < s->n; j++)
@@ -2294,7 +2294,7 @@ mps_dsolve(mps_status* s, boolean d_after_f)
 	/* update 'again' */
 	if (s->DOLOG)
 	  fprintf(s->logstr, "   DSOLVE: call update\n");
-	update();
+	mps_update(s);
 	/* adjust 'again'
 	 * This is needed since we are between two packets
 	 */
@@ -2303,14 +2303,14 @@ mps_dsolve(mps_status* s, boolean d_after_f)
 	    s->again[i] = false;
 	if (s->DOLOG)
 	  fprintf(s->logstr, "   DSOLVE: call checkstop\n");
-	if (check_stop())
+	if (mps_check_stop(s))
 	  return;
       }
     } else
       break;
   }
   if (iter == s->max_pack) {
-    dump(s->logstr);
+    mps_dump(s, s->logstr);
     error(1, "DPE: reached the maximum number of packet iterations");
   }
   /* Otherwise exit since all the approximations are
@@ -2327,11 +2327,11 @@ mps_dsolve(mps_status* s, boolean d_after_f)
   for (i = 0; i <= s->n; i++)
     s->oldpunt[i] = s->punt[i];
   oldnclust = s->nclust;
-  dcluster(2 * s->n); /* Isolation factor */
+  mps_dcluster(s, 2 * s->n); /* Isolation factor */
 
   if (s->DOLOG)
     fprintf(s->logstr, "   DSOLVE: now call dmodify\n");
-  dmodify();
+  mps_dmodify(s);
 
   /* reset the status vector */
   for (j = 0; j < s->n; j++)
@@ -2355,10 +2355,10 @@ mps_msolve(mps_status* s)
   if (s->DOLOG)
     fprintf(s->logstr, "  MSOLVE: call restart\n");
   if (s->data_type[0] != 'u')
-    mrestart();
+    mps_mrestart(s);
   if (s->DOLOG)
     fprintf(s->logstr, "  MSOLVE: call update1\n");
-  update();
+  mps_update(s);
   if (s->DOLOG) {
     fprintf(s->logstr, "  MSOLVE: again after update = ");
     for (i = 0; i < s->n; i++)
@@ -2372,8 +2372,8 @@ mps_msolve(mps_status* s)
 
   if (s->DOLOG)
     fprintf(s->logstr, "  MSOLVE: call checkstop\n");
-  if (check_stop()) {
-    mmodify();
+  if (mps_check_stop(s)) {
+    mps_mmodify(s);
 
     /* reset the status vector */
     for (j = 0; j < s->n; j++)
@@ -2393,7 +2393,7 @@ mps_msolve(mps_status* s)
   if (nzc == s->n) {
     if (s->DOLOG)
       fprintf(s->logstr, "  MSOLVE: call mmodify and return\n");
-    mmodify();
+    mps_mmodify(s);
 
     /* reset the status vector */
     for (j = 0; j < s->n; j++)
@@ -2415,7 +2415,7 @@ mps_msolve(mps_status* s)
       fprintf(s->logstr, "\n");
       fprintf(s->logstr, "  MSOLVE: call mpolzer\n");
     }
-    mpolzer(&nit, &excep);
+    mps_mpolzer(s, &nit, &excep);
 
     if (s->DOLOG)
       fprintf(s->logstr, "  MSOLVE: Packet %d: iterations= %d\n", iter, nit);
@@ -2431,7 +2431,7 @@ mps_msolve(mps_status* s)
     if (nzc == s->n) {
       if (s->DOLOG)
 	fprintf(s->logstr, "  MSOLVE: call mmodify and return\n");
-      mmodify();
+      mps_mmodify(s);
 
       /* reset the status vector */
       for (j = 0; j < s->n; j++)
@@ -2458,11 +2458,11 @@ mps_msolve(mps_status* s)
       if (s->DOLOG)
 	fprintf(s->logstr, "  MSOLVE: call mcluster\n");
 
-      mcluster(2 * s->n); /* Isolation factor */
+      mps_mcluster(s, 2 * s->n); /* Isolation factor */
       
       s->newtis_old = s->newtis;
       if(s->newtis == 0) 
-	mnewtis();
+	mps_mnewtis(s);
       if(s->DOLOG)
       	fprintf(s->logstr,"  MSOLVE: newtis_old=%d, newtis=%d, oldncl=%d, s->nclust=%d\n",
       	                s->newtis_old, s->newtis, oldnclust, s->nclust);
@@ -2477,7 +2477,7 @@ mps_msolve(mps_status* s)
 	} else {
 	  if (s->DOLOG)
 	    fprintf(s->logstr, "  MSOLVE: call modify\n");
-	  mmodify();
+	  mps_mmodify(s);
 	  if (iter == 0)
 	    /* if first packet: reset the status vector */
 	    for (j = 0; j < s->n; j++)
@@ -2495,7 +2495,7 @@ mps_msolve(mps_status* s)
 	  /* choose new starting approximations only for new clusters */
 	  if (s->DOLOG)
 	    fprintf(s->logstr, "  MSOLVE: call mrestart for new clusters\n");
-	  mrestart();
+	  mps_mrestart(s);
 	}
 	/* reset the s->status vector */
 	for (j = 0; j < s->n; j++) {
@@ -2506,7 +2506,7 @@ mps_msolve(mps_status* s)
 	/* update 'again' */
 	if (s->DOLOG)
 	  fprintf(s->logstr, "  MSOLVE: call update2 : ");
-	update();
+	mps_update(s);
 	if (s->DOLOG) {
 	  fprintf(s->logstr, "  MSOLVE: again = ");
 	  for (j = 0; j < s->n; j++)
@@ -2525,8 +2525,8 @@ mps_msolve(mps_status* s)
 	}
 	if (s->DOLOG)
 	  fprintf(s->logstr, "  MSOLVE: call checkstop\n");
-	if (check_stop()) {
-	  mmodify();		
+	if (mps_check_stop(s)) {
+	  mps_mmodify(s);		
 
 	  /* reset the s->status vector */
 	  for (j = 0; j < s->n; j++)
@@ -2546,7 +2546,7 @@ mps_msolve(mps_status* s)
 	if (nzc == s->n) {
 	  if (s->DOLOG)
 	    fprintf(s->logstr, "  MSOLVE: call mmodify and return");
-	  mmodify();
+	  mps_mmodify(s);
 
 	  /* reset the s->status vector */
 	  for (j = 0; j < s->n; j++)
@@ -2569,11 +2569,11 @@ mps_msolve(mps_status* s)
     fprintf(s->logstr, "  MSOLVE: call mcluster\n");
   }
   
-      mcluster(2 * s->n); /* Isolation factor */
+  mps_mcluster(s, 2 * s->n); /* Isolation factor */
 
   if (s->DOLOG)
     fprintf(s->logstr, "  MSOLVE:  call mmodify\n");
-  mmodify();
+  mps_mmodify(s);
 
   for (j = 0; j < s->n; j++)
     if (s->status[j][0] == 'C')
@@ -2586,7 +2586,7 @@ mps_msolve(mps_status* s)
     fprintf(s->logstr, "\n");
     fprintf(s->logstr, "  MSOLVE: call update3 : ");
   }
-  update();
+  mps_update(s);
   
   if (s->DOLOG) {
     for (j = 0; j < s->n; j++)
@@ -2633,8 +2633,8 @@ mps_mpolzer(mps_status* s, int *it, boolean * excep)
 	  if (s->data_type[0] != 'u') {
 	    /* sparse/dense polynomial */
 	    rdpe_set(rad1, s->drad[l]);
-	    mnewton(s->n, s->mroot[l], s->drad[l], corr, s->mfpc, s->mfppc,
-		    s->dap, s->spar, &s->again[l]);
+	    mps_mnewton(s, s->n, s->mroot[l], s->drad[l], corr, s->mfpc, s->mfppc,
+			s->dap, s->spar, &s->again[l]);
 	    if (iter == 0 && !s->again[l] && rdpe_gt(s->drad[l], rad1) &&
 		rdpe_ne(rad1, rdpe_zero))
 	      rdpe_set(s->drad[l], rad1);
@@ -2649,12 +2649,12 @@ mps_mpolzer(mps_status* s, int *it, boolean * excep)
         means of Rouche' is more reliable and strict
         ***********************************************/
 	  } else		/* user's polynomial */
-	    mnewton_usr(s->mroot[l], s->drad[l], corr, &s->again[l]);
+	    mps_mnewton_usr(s, s->mroot[l], s->drad[l], corr, &s->again[l]);
 
 	  if (s->again[l] ||
 	      /* the correction is performed only if iter!=1 or rad[l]!=rad1 */
 	      s->data_type[0] == 'u' || iter != 0 || rdpe_ne(s->drad[l], rad1)) {
-	    maberth_s(l, j, abcorr);
+	    mps_maberth_s(s, l, j, abcorr);
 	    mpc_mul_eq(abcorr, corr);
 	    mpc_neg_eq(abcorr);
 	    mpc_add_eq_ui(abcorr, 1, 0);
