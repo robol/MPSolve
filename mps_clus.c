@@ -112,8 +112,8 @@ mps_xcluster(mps_status* s, int n, int nf, int *nclust)
   *(nclust) = 0;
   s->punt_aux[0] = 0;
 
-  for (i = 0; i < s->n - 1; i++) {
-    for (j = incr + 1; j < s->n; j++)
+  for (i = 0; i < n - 1; i++) {
+    for (j = incr + 1; j < n; j++)
       if (mps_mtouchnwt(s, nf, s->clust_aux[i], s->clust_aux[j])) {
 	incr++;
 	itemp = s->clust_aux[j];
@@ -128,7 +128,7 @@ mps_xcluster(mps_status* s, int n, int nf, int *nclust)
   }
 
   (*nclust)++;
-  s->punt_aux[*nclust] = s->n;
+  s->punt_aux[*nclust] = n;
 }
 
 /**********************************************************
@@ -170,6 +170,7 @@ mps_mcluster(mps_status* s, int nf)
   }
 
   s->nclust = nclust_out;
+
   for (i = 0; i < s->n; i++)
     s->punt[i] = s->punt_out[i];
   for (i = 0; i < s->n; i++)
