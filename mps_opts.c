@@ -49,8 +49,9 @@ mps_parse_opts(mps_status* s, int argc, char *argv[])
   s->prec_out = 2 * DBL_DIG;       /* default output precision            */
   s->random_seed = false;
 
+
   /* parse options */
-  for (i = 1; i < argc; i++)
+  for (i = 1; i < argc; i++) {
     if (argv[i][0] != '-') {
       s->instr = fopen(argv[i], "r");
       goto finalcheck;  /* no options allowed after filename  */
@@ -275,6 +276,8 @@ mps_parse_opts(mps_status* s, int argc, char *argv[])
         mps_error(s, 3, "Bad option: ", argv[i], ", type 'unisolve -h' for help");
       }
 
+  }
+
 finalcheck:
 
   /* If the goal is approximate or count then remove the multiplicity option */
@@ -290,7 +293,8 @@ finalcheck:
     mps_error(s, 1, "Cannot open log file");
 
   /* randomize */
-  randomize(seed);
+  if (s->random_seed)
+    randomize(seed);
 }
 
 /**

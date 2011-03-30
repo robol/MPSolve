@@ -10,6 +10,7 @@
 ***********************************************************/
 
 #include <string.h>
+#include <stdio.h>
 #include "mps_poly.h"
 
 /***********************************************************
@@ -18,12 +19,16 @@
 int
 main(int argc, char *argv[])
 {
+  /* Make stdout synchronous so the debugging is more
+   * effective. */
+  setvbuf(stdout, NULL, _IONBF, 0);
+
   mpspoly_t p;
   mps_status* s = (mps_status*) malloc(sizeof(mps_status));
 
   /* Set default values in s */
   mps_set_default_values(s);
-  
+
   /* set default goal */
   strncpy(s->goal, "iannc", 5);
 
@@ -32,9 +37,10 @@ main(int argc, char *argv[])
 
   /* Read polynomial */
   mps_read_poly(s, s->instr, p);
-  
+
   /* Set polynomial */
   mps_set_poly(s, p);
+
 
   /* allocate global variables */
   mps_allocate_data(s);
