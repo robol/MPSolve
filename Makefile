@@ -18,8 +18,8 @@ LD = $(CC)
 GMPDIR = Gmp
 
 # compiler flags
-# CFLAGS = -O2 
-CFLAGS = -g -O0 -Wall -pedantic
+CFLAGS = -O2 
+# CFLAGS = -g -O0 -Wall -pedantic
 CPPFLAGS = -I$(GMPDIR)
 #
 # you can also use:
