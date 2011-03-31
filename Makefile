@@ -18,7 +18,7 @@ LD = $(CC)
 GMPDIR = Gmp
 
 # compiler flags
-CFLAGS = -O2 
+CFLAGS = -O2
 # CFLAGS = -g -O0 -Wall -pedantic
 CPPFLAGS = -I$(GMPDIR)
 #

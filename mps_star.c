@@ -512,25 +512,7 @@ mps_frestart(mps_status* s)
       goto loop1;
 
     /* Compute super center sc and super radius sr */
-    sum = 0.0;
-    for (j = 0; j < s->punt[i + 1] - s->punt[i]; j++) {
-      l = s->clust[s->punt[i] + j];
-      sum += s->frad[l];
-    }
-    cplx_set(sc, cplx_zero);
-    for (j = 0; j < s->punt[i + 1] - s->punt[i]; j++) {
-      l = s->clust[s->punt[i] + j];
-      cplx_mul_d(ctmp, s->froot[l], s->frad[l]);
-      cplx_add_eq(sc, ctmp);
-    }
-    cplx_div_eq_d(sc, sum);
-
-    sr = 0.0;
-    for (j = 0; j < s->punt[i + 1] - s->punt[i]; j++) {
-      l = s->clust[s->punt[i] + j];
-      cplx_sub(ctmp, sc, s->froot[l]);
-      sr = MAX(sr, s->frad[l] + cplx_mod(ctmp));
-    }
+    mps_fsrad(s, i, sc, &sr);
 
     /* Check the relative width of the cluster
      * If it is greater than 1 do not shift
@@ -689,27 +671,7 @@ mps_drestart(mps_status* s)
       goto loop1;
 
     /* Compute super center sc and super radius sr */
-    rdpe_set(sum, rdpe_zero);
-    for (j = 0; j < s->punt[i + 1] - s->punt[i]; j++) {
-      l = s->clust[s->punt[i] + j];
-      rdpe_add_eq(sum, s->drad[l]);
-    }
-    cdpe_set(sc, cdpe_zero);
-    for (j = 0; j < s->punt[i + 1] - s->punt[i]; j++) {
-      l = s->clust[s->punt[i] + j];
-      cdpe_mul_e(ctmp, s->droot[l], s->drad[l]);
-      cdpe_add_eq(sc, ctmp);
-    }
-    cdpe_div_eq_e(sc, sum);
-    rdpe_set(sr, rdpe_zero);
-    for (j = 0; j < s->punt[i + 1] - s->punt[i]; j++) {
-      l = s->clust[s->punt[i] + j];
-      cdpe_sub(ctmp, sc, s->droot[l]);
-      cdpe_mod(rtmp, ctmp);
-      rdpe_add_eq(rtmp, s->drad[l]);
-      if (rdpe_lt(sr, rtmp))
-	rdpe_set(sr, rtmp);
-    }
+    mps_dsrad(s, i, sc, sr);
 
     /* Check the relative width of the cluster
      * If it is greater than 1 do not shift
@@ -856,30 +818,7 @@ mps_mrestart(mps_status* s)
       goto loop1;
 
     /* Compute super center sc and super radius sr */
-    mpf_set_ui(srmp, 0);
-    for (j = 0; j < s->punt[i + 1] - s->punt[i]; j++) {
-      l = s->clust[s->punt[i] + j];
-      mpf_set_rdpe(rea, s->drad[l]);
-      mpf_add(srmp, srmp, rea);
-    }
-    mpc_set_ui(sc, 0, 0);
-    for (j = 0; j < s->punt[i + 1] - s->punt[i]; j++) {
-      l = s->clust[s->punt[i] + j];
-      mpf_set_rdpe(rea, s->drad[l]);
-      mpc_mul_f(temp, s->mroot[l], rea);
-      mpc_add_eq(sc, temp);
-    }
-    mpc_div_eq_f(sc, srmp);
-    rdpe_set(sr, rdpe_zero);
-    for (j = 0; j < s->punt[i + 1] - s->punt[i]; j++) {
-      l = s->clust[s->punt[i] + j];
-      mpc_sub(temp, sc, s->mroot[l]);
-      mpc_get_cdpe(tmp, temp);
-      cdpe_mod(rtmp, tmp);
-      rdpe_add_eq(rtmp, s->drad[l]);
-      if (rdpe_lt(sr, rtmp))
-	rdpe_set(sr, rtmp);
-    }
+    mps_msrad(s, i, sc, sr);
     
     if(s->DOLOG) {
       fprintf(s->logstr,"    MRESTART: clust=%d\n      sc=",i);
