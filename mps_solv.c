@@ -1900,7 +1900,7 @@ mps_fsolve(mps_status* s, boolean * d_after_f)
   if (s->DOLOG)
     fprintf(s->logstr, "FSOLVE: call fstart");
 
-  mps_fstart(s, s->n, 0, 0.0, 0.0, s->eps_out, s->fap);
+  mps_fstart(s, s->n, 0, 0.0, 0.0, eps_out, s->fap);
   /***************
      this part of code performs shift in the gravity center of the roots 
      In order to use it, uncomment the part below and comment the 

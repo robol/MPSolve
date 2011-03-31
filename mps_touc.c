@@ -26,7 +26,7 @@ mps_ftouchnwt(mps_status* s, int n, int i, int j)
   if (s->frad[i] >= t || s->frad[j] >= t) return true;
 
   cplx_sub(ctmp, s->froot[i], s->froot[j]);
-  return s->n * (s->frad[i] + s->frad[j]) >= cplx_mod(ctmp);
+  return n * (s->frad[i] + s->frad[j]) >= cplx_mod(ctmp);
 }
 
 /************************************************************
@@ -39,7 +39,7 @@ mps_dtouchnwt(mps_status* s, int n, int i, int j)
   rdpe_t dtmp1, dtmp2;
 
   rdpe_add(dtmp1, s->drad[i], s->drad[j]);
-  rdpe_mul_eq_d(dtmp1, (double) s->n);
+  rdpe_mul_eq_d(dtmp1, (double) n);
   cdpe_sub(ctmp, s->droot[i], s->droot[j]);
   cdpe_mod(dtmp2, ctmp);
   return rdpe_ge(dtmp1, dtmp2);
@@ -58,7 +58,7 @@ mps_mtouchnwt(mps_status* s, int n, int i, int j)
   tmpc_init2(mtmp, s->mpwp);
 
   rdpe_add(dtmp1, s->drad[i], s->drad[j]);
-  rdpe_mul_eq_d(dtmp1, (double) s->n);
+  rdpe_mul_eq_d(dtmp1, (double) n);
   mpc_sub(mtmp, s->mroot[i], s->mroot[j]);
   mpc_get_cdpe(ctmp, mtmp);
   cdpe_mod(dtmp2, ctmp);
@@ -76,9 +76,9 @@ mps_mtouchnwt(mps_status* s, int n, int i, int j)
 boolean
 mps_ftouchreal(mps_status* s, int n, int i)
 {
-  if (s->frad[i] >= DBL_MAX/s->n) return true;
+  if (s->frad[i] >= DBL_MAX/n) return true;
 
-  return s->n * s->frad[i] >= fabs(cplx_Im(s->froot[i]));
+  return n * s->frad[i] >= fabs(cplx_Im(s->froot[i]));
 }
 
 /************************************************************
@@ -89,7 +89,7 @@ mps_dtouchreal(mps_status* s, int n, int i)
 {
   rdpe_t tmp1, tmp2;
 
-  rdpe_mul_d(tmp1, s->drad[i], (double) s->n);
+  rdpe_mul_d(tmp1, s->drad[i], (double) n);
   rdpe_abs(tmp2, cdpe_Im(s->droot[i]));
   return rdpe_ge(tmp1, tmp2);
 }
@@ -102,7 +102,7 @@ mps_mtouchreal(mps_status* s, int n, int i)
 {
   rdpe_t tmp1, tmp2;
 
-  rdpe_mul_d(tmp1, s->drad[i], (double) s->n);
+  rdpe_mul_d(tmp1, s->drad[i], (double) n);
   mpf_get_rdpe(tmp2, mpc_Im(s->mroot[i]));
   rdpe_abs_eq(tmp2);
 
@@ -117,9 +117,9 @@ mps_mtouchreal(mps_status* s, int n, int i)
 boolean
 mps_ftouchimag(mps_status* s, int n, int i)
 {
-  if (s->frad[i] >= DBL_MAX/s->n) return true;
+  if (s->frad[i] >= DBL_MAX/n) return true;
 
-  return s->n * s->frad[i] >= fabs(cplx_Re(s->froot[i]));
+  return n * s->frad[i] >= fabs(cplx_Re(s->froot[i]));
 }
 
 /************************************************************
@@ -130,7 +130,7 @@ mps_dtouchimag(mps_status* s, int n, int i)
 {
   rdpe_t tmp1, tmp2;
 
-  rdpe_mul_d(tmp1, s->drad[i], (double) s->n);
+  rdpe_mul_d(tmp1, s->drad[i], (double) n);
   rdpe_abs(tmp2, cdpe_Re(s->droot[i]));
   return rdpe_ge(tmp1, tmp2);
 }
@@ -143,7 +143,7 @@ mps_mtouchimag(mps_status* s, int n, int i)
 {
   rdpe_t tmp1, tmp2;
 
-  rdpe_mul_d(tmp1, s->drad[i], (double) s->n);
+  rdpe_mul_d(tmp1, s->drad[i], (double) n);
   mpf_get_rdpe(tmp2, mpc_Re(s->mroot[i]));
   rdpe_abs_eq(tmp2);
 
@@ -161,9 +161,9 @@ mps_ftouchunit(mps_status* s, int n, int i)
 {
   double ab, rad;
 
-  if (s->frad[i] >= DBL_MAX/s->n) return true;
+  if (s->frad[i] >= DBL_MAX/n) return true;
 
-  rad = s->n * s->frad[i];
+  rad = n * s->frad[i];
   ab = cplx_mod(s->froot[i]);
   return (rad + 1 >= ab) && (rad + ab >= 1);
 }
@@ -177,7 +177,7 @@ mps_dtouchunit(mps_status* s, int n, int i)
   rdpe_t ab, rad, tmp;
 
   cdpe_mod(ab, s->droot[i]);
-  rdpe_mul_d(rad, s->drad[i], (double) s->n);
+  rdpe_mul_d(rad, s->drad[i], (double) n);
   rdpe_add_d(tmp, rad, 1.0);
   if (rdpe_lt(tmp, ab))
     return false;
@@ -202,7 +202,7 @@ mps_mtouchunit(mps_status* s, int n, int i)
 
   tmpf_clear(mab);
 
-  rdpe_mul_d(rad, s->drad[i], (double) s->n);
+  rdpe_mul_d(rad, s->drad[i], (double) n);
 
   if (rdpe_lt(rad, ab))
     return false;
