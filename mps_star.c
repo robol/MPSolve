@@ -104,7 +104,7 @@ mps_fstart(mps_status* s,
 
   for (i = 0; i <= n; i++)
     if (fap[i] != 0.0)
-      s->fap2[i] = log(s->fap[i]);
+      s->fap2[i] = log(fap[i]);
     else
       s->fap2[i] = temp;
 
