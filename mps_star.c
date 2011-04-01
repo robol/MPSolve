@@ -228,7 +228,7 @@ mps_dstart(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
 
   if (rdpe_ne(g, rdpe_zero)) {
     for (i = 0; i <= n; i++)
-      if (rdpe_ne(s->dap[i], rdpe_zero)) {
+      if (rdpe_ne(dap[i], rdpe_zero)) {
 	ni = i;
 	break;
       }
