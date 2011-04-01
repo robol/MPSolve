@@ -18,7 +18,7 @@ LD = $(CC)
 GMPDIR = Gmp
 
 # compiler flags
-CFLAGS = -O2
+CFLAGS = -O2 -fPIC
 # CFLAGS = -g -O0 -Wall -pedantic
 CPPFLAGS = -I$(GMPDIR)
 #
@@ -79,6 +79,17 @@ libmps.a: $(LIBMPSOBJ)
 	$(AR) $(ARFLAGS) libmps.a $(LIBMPSOBJ)
 #	$(RANLIB) libmps.a
 
+libmps.so: $(LIBMPSOBJ)
+	gcc -o libmps.so -shared -fPIC $(LIBMPSOBJ)
+
+libxt.so: $(LIBXTOBJ)
+	gcc -o libxt.so -shared -fPIC $(LIBXTOBJ)
+
+install: libxt.so libmps.so
+	install -m 644 libxt.so /usr/local/lib/
+	install -m 644 libmps.so /usr/local/lib/
+	install -m 644 mps.h /usr/local/include
+	install -m 644 mps_poly.h /usr/local/include
 
 # strip executables
 strip:
