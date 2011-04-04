@@ -25,6 +25,40 @@ void mps_raisetemp(mps_status* s, unsigned long int digits);
 void mps_raisetemp_raw(mps_status* s, unsigned long int digits);
 
 /**
+ * @brief Compute the greatest common divisor of <code>a</code>
+ * and <code>b</code>.
+ */
+int mps_gcd(int a, int b) {
+  int c;
+  do {
+	c = b;
+	b = a % b;
+	a = c;
+  } while (b != 0);
+  return a;
+}
+
+/**
+ * @brief Find the sigma that maximize distance between
+ * starting approximation in the last annulus and the one
+ * in the new annulus.
+ */
+double mps_maximize_distance(mps_status* s, double last_sigma, int i_cluster, int n) {
+
+	double delta_sigma;
+
+	/* Find number of roots in the last cluster */
+	int old_clust_n = s->punt[i_cluster] - s->punt[i_cluster - 1];
+
+	/* Compute right shifting angle for the new approximations */
+	delta_sigma = PI * (old_clust_n * mps_gcd(old_clust_n, n)) / (4 * n);
+
+	/* Return shifted value, archiving it for the next pass */
+	s->last_sigma = last_sigma + delta_sigma;
+	return s->last_sigma;
+}
+
+/**
  * @brief Compute new starting approximations to the roots
  * of the polynomial \f$p(x)\f$ having coefficients of modulus apoly.
  *
@@ -63,15 +97,22 @@ mps_fstart(mps_status* s,
 
   if (s->random_seed)
     sigma = drand();
-  else
-    sigma=0.1;
+  else {
+	/* If this is the first cluster select sigma = 0. In the other
+	 * case try to maximize starting points distance. */
+    if (i_clust == 0) {
+    	sigma = s->last_sigma = 0;
+    } else {
+    	sigma = mps_maximize_distance(s, s->last_sigma, i_clust, n);
+    }
+  }
 
   ni = 0;
   nzeros = 0;
   r = 0.0;
 
   /* In the case of user-defined polynomial choose as starting
-   * approximations equispaced points in the unit circle.  */
+   * approximations equally spaced points in the unit circle.  */
   if (s->data_type[0] == 'u') {
     ang = pi2 / n; 
     for (i = 0; i < n; i++)
@@ -194,10 +235,17 @@ mps_dstart(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
   double sigma, th, ang, xbig, xsmall, temp;
   boolean flag = false;
 
-  if (s->random_seed) 
+  if (s->random_seed)
     sigma = drand();
-  else
-    sigma=0.1;
+  else {
+	/* If this is the first cluster select sigma = 0. In the other
+	 * case try to maximize starting points distance. */
+    if (i_clust == 0) {
+    	sigma = s->last_sigma = 0;
+    } else {
+    	sigma = mps_maximize_distance(s, s->last_sigma, i_clust, n);
+    }
+  }
 
   /* In the case of user-defined polynomial choose as starting
    * approximations equispaced points in the unit circle. */
@@ -351,10 +399,17 @@ mps_mstart(mps_status* s, int n, int i_clust, rdpe_t clust_rad, rdpe_t g,
   rdpe_t r, big, small, rtmp1, rtmp2;
   cdpe_t ctmp;
 
-  if (s->random_seed) 
+  if (s->random_seed)
     sigma = drand();
-  else
-    sigma=0.1;
+  else {
+	/* If this is the first cluster select sigma = 0. In the other
+	 * case try to maximize starting points distance. */
+    if (i_clust == 0) {
+    	sigma = s->last_sigma = 0;
+    } else {
+    	sigma = mps_maximize_distance(s, s->last_sigma, i_clust, n);
+    }
+  }
 
   nzeros = 0;
   temp = 0.0;

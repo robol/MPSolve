@@ -226,19 +226,69 @@ typedef struct {
    */
    boolean * spar;		/* sparsity structure of the poly.     */
   
-   double * fpr;		/* standard real coefficients          */
-   cplx_t * fpc;		/* standard complex coefficients       */
-   rdpe_t * dpr;		/* dpe real coefficients               */
-   cdpe_t * dpc;		/* dpe complex coefficients            */
-   mpz_t * mip_r;		/* real part of integer input coeffs   */
-   mpz_t * mip_i;		/* imag. part of integer input coeffs  */
-   mpq_t * mqp_r;		/* real part of rational input coeffs  */
-   mpq_t * mqp_i;		/* imag. part of rational input coeffs */
-   mpf_t * mfpr;		/* multiprecision real coefficients    */
+   /**
+    * @brief Standard real coefficients.
+    */
+   double * fpr;
+
+   /**
+    * @brief Standard complex coefficients.
+    */
+   cplx_t * fpc;
+
+   /**
+    * @brief Dpe real coefficients.
+    */
+   rdpe_t * dpr;
+
+   /**
+    * @brief Dpe complex coefficients.
+    */
+   cdpe_t * dpc;
+
+   /**
+    * @brief Real part of the integer input coefficients.
+    */
+   mpz_t * mip_r;
+
+   /**
+    * @brief Imaginary part of the integer input coefficients.
+    */
+   mpz_t * mip_i;
+
+   /**
+    * @brief Real part of rational input coefficients.
+    */
+   mpq_t * mqp_r;
+
+   /**
+    * @brief Imaginary part of rational input coefficients.
+    */
+   mpq_t * mqp_i;
+
+   /**
+    * @brief Multiprecision real coefficients.
+    */
+   mpf_t * mfpr;
+
+   /**
+    * @brief Multiprecision complex coefficients.
+    */
    mpc_t * mfpc;		/* multiprecision complex coefficients */
   
-  /* soution related variables */
-   mps_phase lastphase;		/* store last computed phase           */
+   /* Solution related variables */
+   /**
+    * @brief Last computing phase.
+    */
+   mps_phase lastphase;
+
+   /**
+    * @brief shift in the angle in the positioning of the
+    * starting approximation for the last cluster. It will
+    * be used to determine the new sigma to maximize distance
+    * between starting points.
+    */
+   double last_sigma;
   
   /**
    * @brief Vector containing count of in, out and uncertaing roots.
