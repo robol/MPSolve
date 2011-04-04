@@ -131,7 +131,7 @@ mps_inclusion(mps_status* s)
 	rdpe_set(s->drad[i], s->dap1[i]);
     /* update(); */
   } else
-    warn("Some roots might be not approximated");
+    mps_warn(s, "Some roots might be not approximated");
 
   tmpc_clear(tmp);  
   tmpc_clear(p);

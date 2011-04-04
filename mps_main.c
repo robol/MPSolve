@@ -172,7 +172,7 @@ mps_mpsolve(mps_status* s)
     if (over_max)
       mps_error(s, 1, "Reached the maximum working precision");
     else
-      warn("Reached the input precision");
+      mps_warn(s, "Reached the input precision");
   }
   
  exit_sub:
@@ -401,7 +401,7 @@ mps_check_data(mps_status* s, char *which_case)
 
   /* Check consistency of input */
   if (rdpe_eq(s->dap[s->n], rdpe_zero)) {
-    warn("The leading coefficient is zero");
+    mps_warn(s, "The leading coefficient is zero");
     do
       (s->n)--;
     while (rdpe_eq(s->dap[s->n], rdpe_zero));
@@ -453,12 +453,12 @@ mps_check_data(mps_status* s, char *which_case)
       mps_compute_sep(s);
       break;
     case 'q':
-      warn("The multiplicity option has not been yet implemented");
+      mps_warn(s, "The multiplicity option has not been yet implemented");
       s->sep = 0.0;
       break;
     default:
-      warn("The input polynomial has neither integer nor rational");
-      warn(" coefficients: unable to compute multiplicities");
+      mps_warn(s, "The input polynomial has neither integer nor rational");
+      mps_warn(s, " coefficients: unable to compute multiplicities");
       s->sep = 0.0;
       break;
     }
@@ -470,12 +470,12 @@ mps_check_data(mps_status* s, char *which_case)
       mps_compute_sep(s);
       break;
     case 'q':
-      warn("The  real/imaginary option has not been yet implemented");
+      mps_warn(s, "The  real/imaginary option has not been yet implemented");
       s->sep = 0.0;
       break;
     default:
-      warn("The input polynomial has neither integer nor rational");
-      warn(" coefficients: unable to perform real/imaginary options");
+      mps_warn(s, "The input polynomial has neither integer nor rational");
+      mps_warn(s, " coefficients: unable to perform real/imaginary options");
       s->sep = 0.0;
       break;
     }
