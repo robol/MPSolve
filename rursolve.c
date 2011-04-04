@@ -16,33 +16,33 @@
  *                 MAIN                                    *
  **********************************************************/
 int
-main(void)
+main(mps_status* s)
 {
   /* set default values */
-  prec_in = -1;			/* default input precision */
-  prec_out = 1000;		/* default output precision */
-  strncpy(goal, "ianrv", 5);	/* default goal */
+  s->prec_in = -1;			/* default input precision */
+  s->prec_out = 1000;		/* default output precision */
+  strncpy(s->goal, "ianrv", 5);	/* default goal */
 
   /* set flags */
-  DOLOG = false;
-  DOWARN = false;
-  DOSORT = true;
+  s->DOLOG = false;
+  s->DOWARN = false;
+  s->DOSORT = true;
 
   /* set default streams */
-  instr = stdin;
-  outstr = stdout;
-  logstr = stderr;
+  s->instr = stdin;
+  s->outstr = stdout;
+  s->logstr = stderr;
 
   /* check I/O streams */
-  if (instr == NULL)
+  if (s->instr == NULL)
     mps_error(s, 1, "Cannot open input file");
-  if (outstr == NULL)
+  if (s->outstr == NULL)
     mps_error(s, 1, "Cannot open output file");
-  if (DOLOG && logstr == NULL)
+  if (s->DOLOG && s->logstr == NULL)
     mps_error(s, 1, "Cannot open log file");
 
   /* compute multivariate roots */
-  rursolve();
+  rursolve(s);
 
   return 0;
 }
