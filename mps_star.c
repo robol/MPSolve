@@ -27,13 +27,17 @@ void mps_raisetemp_raw(mps_status* s, unsigned long int digits);
 /**
  * @brief Compute the greatest common divisor of <code>a</code>
  * and <code>b</code>.
+ *
+ * @param a first integer
+ * @param b second integer
+ * @return <code>GCD(a,b)</code>
  */
 int mps_gcd(int a, int b) {
-  int c;
+  int temp;
   do {
-	c = b;
+	temp = b;
 	b = a % b;
-	a = c;
+	a = temp;
   } while (b != 0);
   return a;
 }
@@ -42,15 +46,26 @@ int mps_gcd(int a, int b) {
  * @brief Find the sigma that maximize distance between
  * starting approximation in the last annulus and the one
  * in the new annulus.
+ *
+ * This function also set <code>s->last_sigma</code> to the value
+ * that is computed.
+ *
+ * @param s the mps_status struct pointer.
+ * @param last_sigma the last value of sigma.
+ * @param i_cluster the index of the cluster we are analyzing.
+ * @param n the number of roots in the cluster.
+ * @return the shift advised for the starting approximation in the annulus.
  */
-double mps_maximize_distance(mps_status* s, double last_sigma, int i_cluster, int n) {
-
+double mps_maximize_distance(mps_status* s, double last_sigma,
+		                     int i_cluster, int n) {
 	double delta_sigma;
 
 	/* Find number of roots in the last cluster */
 	int old_clust_n = s->punt[i_cluster] - s->punt[i_cluster - 1];
 
-	/* Compute right shifting angle for the new approximations */
+	/* Compute right shifting angle for the new approximations, i.e.
+	 * pi / [m,n] where [m,n] is the least common multiply of m and n.
+	 * This is done by computing the gcd and then dividing m*n by it. */
 	delta_sigma = PI * (old_clust_n * mps_gcd(old_clust_n, n)) / (4 * n);
 
 	/* Return shifted value, archiving it for the next pass */
@@ -84,9 +99,8 @@ double mps_maximize_distance(mps_status* s, double last_sigma, int i_cluster, in
  * @see status
  */
 void
-mps_fstart(mps_status* s, 
-	   int n, int i_clust, double clust_rad, double g, rdpe_t eps,
-	   double fap[])
+mps_fstart(mps_status* s, int n, int i_clust, double clust_rad,
+		   double g, rdpe_t eps, double fap[])
 {
   const double  big = DBL_MAX,   small = DBL_MIN;
   const double xbig = log(big), xsmall = log(small);
@@ -212,23 +226,30 @@ mps_fstart(mps_status* s,
   }
 }
 
-/*********************************************************
-*              SUBROUTINE DSTART                         *
-**********************************************************
- Compute new starting approximations to the roots of the
- polynomial p(x) having coefficients of modulus apoly, by
- means of the Rouche'-based criterion of Bini (Numer. Algo. 1996). 
- The program can compute all the approximations
- (if n is the degree of p(x)) or it may compute the
- approximations of the cluster of index i_clust
- The status vector is changed into 'o' for the components
- that belong to a cluster with relative radius less than eps.
- The status vector is changed into 'f' for the components
- that cannot be represented as dpe.
- ***********************************************/
+/**
+ * @brief Compute new starting approximations to the roots of the
+ * polynomial \f$p(x)\f$ having coefficients of modulus apoly, by
+ * means of the Rouche'-based criterion of Bini (Numer. Algo. 1996).
+ *
+ * The program can compute all the approximations
+ * (if \f$n\f$ is the degree of \f$p(x)\f$) or it may compute the
+ * approximations of the cluster of index \f$i_clust\f$
+ * The status vector is changed into <code>'o'</code> for the components
+ * that belong to a cluster with relative radius less than <code>eps</code>.
+ * The status vector is changed into <code>'f'</code> for the components
+ * that cannot be represented as <code>>dpe</code>.
+ *
+ * @param s mps_status struct pointer.
+ * @param n number of root in the cluster to consider
+ * @param i_clust index of the cluster to consider.
+ * @param clust_rad radius of the cluster.
+ * @param g new center in which the the polynomial will be shifted.
+ * @param eps maximum radius considered small enough to be negligible.
+ * @param dap[] moduli of the coefficients as <code>dpe</code> numbers.
+ */
 void
 mps_dstart(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
-	   rdpe_t g, rdpe_t eps, rdpe_t dap[])
+		   rdpe_t g, rdpe_t eps, rdpe_t dap[])
 {
   int l, i, j, jj, iold, ni = 0, nzeros = 0;
   rdpe_t r, tmp, tmp1;
@@ -391,8 +412,8 @@ mps_dstart(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
 *            SUBROUTINE MSTART                             *
 ***********************************************************/
 void
-mps_mstart(mps_status* s, int n, int i_clust, rdpe_t clust_rad, rdpe_t g,
-	   rdpe_t dap[])
+mps_mstart(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
+		   rdpe_t g, rdpe_t dap[])
 {
   int i, j, jj, iold, l, nzeros;
   double sigma, ang, th, xbig, xsmall, temp;

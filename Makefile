@@ -19,7 +19,7 @@ GMPDIR = Gmp
 
 # compiler flags
 CFLAGS = -O2 -fPIC
-# CFLAGS = -g -O0 -Wall -pedantic
+# CFLAGS = -g -O0 -Wall -pedantic -fPIC
 CPPFLAGS = -I$(GMPDIR)
 #
 # you can also use:
@@ -58,7 +58,7 @@ RUROBJ = rur_horn.o rur_main.o
 
 
 # main targets
-unisolve: unisolve.o libmps.a libxt.a
+unisolve: unisolve.o libmps.a libxt.a libmps.so libxt.so
 
 rursolve: rursolve.o $(RUROBJ) libmps.a -lxt
 
@@ -122,7 +122,7 @@ rurcheck: rursolve rurconv
 
 # cleanup
 clean:
-	$(RM) *.o stats timings roots testsuite *.bak *~ core *.res
+	$(RM) *.o stats timings roots testsuite *.bak *~ core *.res *.so
 
 distclean: clean
 	$(RM) libxt.a libmps.a unisolve$(EXE) rursolve$(EXE) rurconv$(EXE)
