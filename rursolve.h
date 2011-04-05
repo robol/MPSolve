@@ -14,9 +14,9 @@
 extern mpz_t *mpdemo;	/* imaginary part of the integer input coeff. */
 
 /* functions in main.c */
-void rursolve(mps_status* s);
+void mps_rursolve(mps_status* s);
 
 /* functions in hor.c */
-void horner(mps_status* s, mpc_t y, int *dprec, int *iprec, int deg, int i);
-void refine(mps_status* s, int i, long prec);
-void ruroutroot(mpc_t root, char status, long prec, long out_prec);
+void mps_horner(mps_status* s, mpc_t y, int *dprec, int *iprec, int deg, int i);
+void mps_refine(mps_status* s, int i, long prec);
+void mps_ruroutroot(mps_status* s, mpc_t root, char status, long prec, long out_prec);

@@ -16,7 +16,7 @@
 *                   PROCEDURE HORNER                     *
 **********************************************************/
 void
-horner(mps_status* s, mpc_t res, int * dprec, int * iprec, int deg, int i)
+mps_horner(mps_status* s, mpc_t res, int * dprec, int * iprec, int deg, int i)
 {
   int j, k;
   tmpc_t x, y;
@@ -67,7 +67,7 @@ horner(mps_status* s, mpc_t res, int * dprec, int * iprec, int deg, int i)
 *                   PROCEDURE REFINE                     *
 **********************************************************/
 void
-refine(mps_status* s, int i, long prec)
+mps_refine(mps_status* s, int i, long prec)
 {
   int j, k, m;
   tmpc_t mtmp;
@@ -171,8 +171,8 @@ refine(mps_status* s, int i, long prec)
     s->mpwp = (long) (f + g + cnd);
     mpc_set_prec(nwtcorr, s->mpwp);
     mp_set_prec(s, s->mpwp);
-    prepare_data(s, s->mpwp);
-    mnewton(s, s->n, s->mroot[i], s->drad[i], nwtcorr, s->mfpc, s->mfppc, s->dap, s->spar, &aga);
+    mps_prepare_data(s, s->mpwp);
+    mps_mnewton(s, s->n, s->mroot[i], s->drad[i], nwtcorr, s->mfpc, s->mfppc, s->dap, s->spar, &aga);
     mpc_sub_eq(s->mroot[i], nwtcorr);
 
     /* correct radius, since the computed one is referred to the previous
