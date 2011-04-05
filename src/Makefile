@@ -148,7 +148,7 @@ TARGET = both
 TESTOPT = $(TESTOPT1)
 
 # some sample options for benchmarks
-TESTOPT1  = -Ga -o50
+TESTOPT1  = -Ga -o100
 TESTOPT2  = -Gc -Si -o1000
 TESTOPT3  = -Gc -SI -o1000
 TESTOPT4  = -Gc -Si -o1000
