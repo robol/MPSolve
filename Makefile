@@ -34,7 +34,9 @@ uninstall:
 	rm -rf $(DESTDIR)/$(PREFIX)/include/mps
 	rm -f $(DESTDIR)/$(PREFIX)/lib/libmps.so
 	rm -f $(DESTDIR)/$(PREFIX)/lib/libxt.so
-	
+
+check:
+	make -C $(SRC) check
 
 clean:
 	make -C $(SRC) clean
