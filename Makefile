@@ -37,6 +37,7 @@ uninstall:
 
 check:
 	make -C $(SRC) check
+	make -C $(SRC) chckall	
 
 clean:
 	make -C $(SRC) clean
