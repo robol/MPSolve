@@ -58,11 +58,13 @@ RUROBJ = rur_horn.o rur_main.o
 
 
 # main targets
-unisolve: unisolve.o libmps.a libxt.a libmps.so libxt.so
+unisolve: unisolve.o libmps.a libxt.a
 
 rursolve: rursolve.o $(RUROBJ) libmps.a -lxt
 
-all: unisolve rursolve rurconv
+shared_libs: libmps.so libxt.so
+
+all: unisolve rursolve rurconv shared_libs
 
 doc: 
 	$(DOXYGEN) Doxyfile
