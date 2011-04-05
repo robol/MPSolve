@@ -55,7 +55,7 @@ EXE =
 LIBXTOBJ = mps_tools.o mps_mt.o mps_gmptools.o mps_mpc.o mps_link.o mps_mptemp.o
 LIBMPSOBJ = mps_poly.o mps_data.o mps_sort.o mps_aber.o mps_clus.o mps_cnvx.o \
  mps_impr.o mps_stio.o mps_newt.o mps_solv.o mps_star.o mps_test.o mps_touc.o \
- mps_user.o mps_opts.o mps_main.o mps_defaults.o
+ mps_user.o mps_opts.o mps_main.o mps_defaults.o mps_interface.o
 RUROBJ = rur_horn.o rur_main.o
 
 
