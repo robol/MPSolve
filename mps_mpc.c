@@ -7,9 +7,9 @@
 ***********************************************************/
 
 #include <stdlib.h>
-#include "mpc.h"
-#include "mptemp.h"
-#include "gmptools.h"
+#include "mps_mpc.h"
+#include "mps_mptemp.h"
+#include "mps_gmptools.h"
 
 /***********************************************************
 **              functions for mpc_t                       **

@@ -32,12 +32,12 @@
 #include <gmp.h>
 
 /* local include files */
-#include "tools.h"
-#include "mt.h"
-#include "gmptools.h"
-#include "mpc.h"
-#include "link.h"
-#include "mptemp.h"
+#include "mps_tools.h"
+#include "mps_mt.h"
+#include "mps_gmptools.h"
+#include "mps_mpc.h"
+#include "mps_link.h"
+#include "mps_mptemp.h"
 
 /* constants */
 

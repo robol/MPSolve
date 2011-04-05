@@ -11,7 +11,7 @@
 
 /* include GMP header file */
 #include "gmp.h"
-#include "mpc.h"
+#include "mps_mpc.h"
 
 #ifndef NOMPTEMP  /* enable MPTEMP variables              */
 
