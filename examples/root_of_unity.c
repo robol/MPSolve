@@ -14,7 +14,6 @@
 #include <mps/mps.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <string.h>
 #include <gmp.h>
 
 int main(int argc, char** argv) {
@@ -32,11 +31,13 @@ int main(int argc, char** argv) {
     if (n == 0) { n = 5; }
 
     /* Allocate space for the coefficients and fill it */
-    double* coeff = (double*) malloc(sizeof(double) * (n + 1));
-    coeff[0] = -1;
-    coeff[n] = 1;
+    cplx_t* coeff = cplx_valloc(n+1);
+
+    /* Set first and last coefficients */
+    cplx_set_d(coeff[0], (double) -1, 0);
+    cplx_set_d(coeff[n], (double) 1,  0);
     for(i = 1; i < n; i++) {
-    	coeff[i] = 0;
+    	cplx_set(coeff[i], cplx_zero);
     }
 
     /* Allocate space to hold the results */
@@ -44,13 +45,13 @@ int main(int argc, char** argv) {
   
     /* Create a new mps_status and set the polynomial */
     mps_status* s = mps_status_new();
-    mps_status_set_poly_f(s, coeff, n);
+    mps_status_set_poly_d(s, coeff, n);
 
     /* Actually solve the polynomial */
     mps_mpsolve(s);
 
     /* Save roots computed in the vector results */
-    mps_get_roots_f(s, results, NULL);
+    mps_get_roots_d(s, results, NULL);
 
     /* Print out roots */
     for(i = 0; i < n; i++) {

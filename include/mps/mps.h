@@ -582,9 +582,9 @@ void mps_mnewton_usr(mps_status* st, mpc_t x, rdpe_t rad, mpc_t corr, boolean * 
 
 /* functions in mps_interface.c */
 mps_status* mps_status_new();
-int mps_status_set_poly_f(mps_status* s, double* coeff, long unsigned int n);
+int mps_status_set_poly_d(mps_status* s, cplx_t* coeff, long unsigned int n);
 int mps_status_set_poly_i(mps_status* s, int* coeff, long unsigned int n);
-int mps_get_roots_f(mps_status* s, cplx_t* roots, double* radius);
+int mps_get_roots_d(mps_status* s, cplx_t* roots, double* radius);
 
 #endif /* ndef __MPS_H__ */
 

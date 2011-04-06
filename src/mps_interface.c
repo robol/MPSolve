@@ -103,7 +103,7 @@ mps_status* mps_status_new() {
  *   p(x) = \sum_{i = 0}^{n} coeff_i x^i
  * \f]
  */
-int mps_status_set_poly_f(mps_status* s, double* coeff, long unsigned int n) {
+int mps_status_set_poly_d(mps_status* s, cplx_t* coeff, long unsigned int n) {
 
 	int i;
 
@@ -112,12 +112,12 @@ int mps_status_set_poly_f(mps_status* s, double* coeff, long unsigned int n) {
 
 	/* Set type to a dense, real, floating point polynomial */
 	s->data_type[0] = 'd';
-	s->data_type[1] = 'r';
+	s->data_type[1] = 'c';
 	s->data_type[2] = 'f';
 
 	/* Fill polynomial coefficients */
 	for(i = 0; i <= n; i++) {
-		mpf_set_d(s->mfpr[i], coeff[i]);
+		mpc_set_cplx(s->mfpc[i], coeff[i]);
 	}
 
 	/* Allocate space for computation related data */
@@ -154,9 +154,9 @@ int mps_status_set_poly_i(mps_status* s, int* coeff, long unsigned int n) {
  * and (if it is not <code>NULL</code>) <code>radius[i]</code>
  * to the i-th inclusion radius.
  */
-int mps_get_roots_f(mps_status* s, cplx_t* roots, double* radius) {
-  int i;
-  for(i = 0; i < s->n; i++) {
+int mps_get_roots_d(mps_status* s, cplx_t* roots, double* radius) {
+	int i;
+	for(i = 0; i < s->n; i++) {
 
 	if (radius != NULL) {
 		  if (s->lastphase == float_phase ||
@@ -168,7 +168,6 @@ int mps_get_roots_f(mps_status* s, cplx_t* roots, double* radius) {
 		  }
 
 	}
-
 
 	if (s->lastphase == mp_phase) {
 		  mpc_get_cplx(roots[i], s->mroot[i]);
