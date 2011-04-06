@@ -19,10 +19,25 @@
 #include <stdio.h>
 #include <string.h>
 
-void mps_allocate_poly_inplace(mps_status* s) {
+/**
+ * @brief Allocate polynomial related variables directly in mps_status.
+ *
+ * This routine allocate
+ */
+void mps_allocate_poly_inplace(mps_status* s, int n) {
+
 	int i;
+
+	/* If n is provided, then we should allocate variables for a polynomial
+	 * of degree n. If it is <= 0 then we can assume that is already set
+	 * to the right vaule.
+	 */
+	if (n > 0) {
+		s->deg = s->n = n;
+	}
+
 	if (s->DOLOG)
-	   fprintf(s->logstr, "Allocating polynomial inplace\n");
+	   fprintf(s->logstr, "Allocating polynomial in place\n");
 
 	s->data_type = (char*) malloc(sizeof(char) * 3);
 
@@ -89,25 +104,23 @@ mps_status* mps_status_new() {
  * \f]
  */
 int mps_status_set_poly_f(mps_status* s, double* coeff, long unsigned int n) {
+
 	int i;
 
-	/* Set degree of the polynomial */
-	s->deg = s->n = n;
-	s->prec_in = 0;
+	/* Allocate space for a polynomial of degree n */
+	mps_allocate_poly_inplace(s, n);
 
-	/* Dense, real, floating point coefficients */
-	mps_allocate_poly_inplace(s);
-
+	/* Set type to a dense, real, floating point polynomial */
 	s->data_type[0] = 'd';
 	s->data_type[1] = 'r';
 	s->data_type[2] = 'f';
 
-	/* Fill polynomial */
+	/* Fill polynomial coefficients */
 	for(i = 0; i <= n; i++) {
 		mpf_set_d(s->mfpr[i], coeff[i]);
 	}
 
-	/* Allocate space for data */
+	/* Allocate space for computation related data */
 	mps_allocate_data(s);
 
 	return 0;
@@ -117,14 +130,10 @@ int mps_status_set_poly_i(mps_status* s, int* coeff, long unsigned int n) {
 
 	int i;
 
-	/* Set degree of the polynomial */
-	s->deg = s->n = n;
-	s->prec_in = 0;
+	/* Allocate data in mps_status to hold the polynomial of degree n */
+	mps_allocate_poly_inplace(s, n);
 
-	/* Allocate data in mps_status to hold the polynomial */
-	mps_allocate_poly_inplace(s);
-
-	/* Dense, real, floating point coefficients */
+	/* Dense, real, integer coefficients */
 	s->data_type[0] = 'd';
 	s->data_type[1] = 'r';
 	s->data_type[2] = 'i';
@@ -133,6 +142,9 @@ int mps_status_set_poly_i(mps_status* s, int* coeff, long unsigned int n) {
 	for(i = 0; i <= n; i++) {
 		mpz_set_si(s->mip_r[i], coeff[i]);
 	}
+
+	/* Allocate data for the computation */
+	mps_allocate_data(s);
 
 	return 0;
 }
@@ -156,6 +168,7 @@ int mps_get_roots_f(mps_status* s, cplx_t* roots, double* radius) {
 		  }
 
 	}
+
 
 	if (s->lastphase == mp_phase) {
 		  mpc_get_cplx(roots[i], s->mroot[i]);

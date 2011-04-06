@@ -22,7 +22,6 @@ headers:
 
 install_libs: shared_libs
 	install -m 644 $(SRC)/libmps.so $(DESTDIR)/$(PREFIX)/lib
-	install -m 644 $(SRC)/libxt.so $(DESTDIR)/$(PREFIX)/lib
 
 install: unisolve rursolve install_libs headers
 	install -m 755 unisolve $(DESTDIR)/$(PREFIX)/bin
@@ -33,7 +32,6 @@ uninstall:
 	rm -f $(DESTDIR)/$(PREFIX)/bin/rursolve
 	rm -rf $(DESTDIR)/$(PREFIX)/include/mps
 	rm -f $(DESTDIR)/$(PREFIX)/lib/libmps.so
-	rm -f $(DESTDIR)/$(PREFIX)/lib/libxt.so
 
 check:
 	make -C $(SRC) check

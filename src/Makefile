@@ -64,7 +64,7 @@ unisolve: unisolve.o libmps.a libxt.a
 
 rursolve: rursolve.o $(RUROBJ) libmps.a -lxt
 
-shared_libs: libmps.so libxt.so
+shared_libs: libmps.so
 
 all: unisolve rursolve rurconv shared_libs
 
@@ -84,16 +84,9 @@ libmps.a: $(LIBMPSOBJ)
 #	$(RANLIB) libmps.a
 
 libmps.so: $(LIBMPSOBJ)
-	gcc -o libmps.so -shared -fPIC $(LIBMPSOBJ)
+	gcc -o libmps.so -shared -fPIC $(LIBMPSOBJ) $(LIBXTOBJ)
 
-libxt.so: $(LIBXTOBJ)
-	gcc -o libxt.so -shared -fPIC $(LIBXTOBJ)
 
-install: libxt.so libmps.so
-	install -m 644 libxt.so /usr/local/lib/
-	install -m 644 libmps.so /usr/local/lib/
-	install -m 644 mps.h /usr/local/include
-	install -m 644 mps_poly.h /usr/local/include
 
 # strip executables
 strip:
