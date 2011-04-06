@@ -1,11 +1,11 @@
 /*
  * Example code for libmps
  *
- * This code computes the 5-th roots of unity using the
+ * This code computes the n-th roots of unity using the
  * mps_mpsolve() routine and print them to stdout.
  *
  * Can be compiled with:
- *   gcc -o simple_poly -lm -lgmp -lmps simple_poly.c
+ *   gcc -o root_of_unity -lm -lgmp -lmps root_of_unity.c
  *
  * Author: Leonardo Robol <robol@mail.dm.unipi.it>
  */
@@ -19,14 +19,28 @@
 
 int main(int argc, char** argv) {
 
-	/* Declare variables with coefficients of the polynomial */
-    double coeff[] = { -1, 0, 0, 0, 0, 1 };
+    /* n is the degree of the polynomial,
+     * i is used as counter */
+    int n, i;
 
-    /* n is the degree and we need a cplx_t vector with dimension
-     * n to hold the roots.
-     */
-    int n = 5, i;
-    cplx_t* results = cplx_valloc(5);
+    /* Get n from command line */
+    if (argc > 1) {
+    	n = atoi(argv[1]);
+    }
+
+    /* If parsing failed set n = 5 */
+    if (n == 0) { n = 5; }
+
+    /* Allocate space for the coefficients and fill it */
+    double* coeff = (double*) malloc(sizeof(double) * (n + 1));
+    coeff[0] = -1;
+    coeff[n] = 1;
+    for(i = 1; i < n; i++) {
+    	coeff[i] = 0;
+    }
+
+    /* Allocate space to hold the results */
+    cplx_t* results = cplx_valloc(n);
   
     /* Create a new mps_status and set the polynomial */
     mps_status* s = mps_status_new();
