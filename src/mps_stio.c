@@ -374,11 +374,14 @@ mps_dump(mps_status* s, FILE * dmpstr)
 void
 mps_warn(mps_status* st, char *s)
 {
-  if (st->DOWARN)
-    if (s[strlen(s)] == '\n')
+  if (st->DOWARN) {
+    if (s[strlen(s)] == '\n') {
       fprintf(st->logstr, "%s", s);
-    else
-      fprintf(st->logstr, "%s\n", s);
+    }
+    else {
+    	fprintf(st->logstr, "%s\n", s);
+    }
+  }
 }
 
 /*************************************************************

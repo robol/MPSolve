@@ -18,8 +18,6 @@ void mps_set_default_values(mps_status* s) {
   s->skip_float = false;	/* set to true to skip float phase     */
   s->resume = false; 	/* resume from pre-computed roots      */
   s->chkrad = false;		/* check radii after completion        */
-  s->newtis;                     /* check for newton-isolation          */
-  s->newtis_old;                 /* store old value of newtis           */
   
   /* I/O flags */
   s->DOLOG = false;		/* if nonzero enables the logging      */
@@ -43,11 +41,8 @@ void mps_set_default_values(mps_status* s) {
   s->prec_out = 2*DBL_DIG;  /* digits of required output precision */
  
   /* polynomial data - shared variables */
-  s->n = 0;			/* degree of zero-deflated polynomial  */
-  s->deg = 0;			/* input degree and allocation size    */
   s->prec_in = -1;		/* number of digits of input precision */
 				/*   override input file if != -1      */
-  s->random_seed;            /* true if random seed should be used  */
   s->data_type = NULL;		/* stores the input data type          */
   s->spar = NULL;		/* sparsity structure of polynomial    */
   s->fpr = NULL;		/* standard real coefficients          */
@@ -63,9 +58,6 @@ void mps_set_default_values(mps_status* s) {
  
   /* soution related variables */
   s->lastphase = no_phase;	/* store last computed phase           */
-  // s->count[3];			/* count roots: [in, out, uncertain]   */
-  // int zero_roots;			/* number of roots = 0                 */
-  // char (*status)[3];		/* status of each approximation        */
   s->order = NULL;		/* output index order: ord[0],..,ord[n]*/
   s->froot = NULL;		/* root approxs. as standard complex   */
   s->droot = NULL;		/* root approx. as complex dpe         */
@@ -73,15 +65,6 @@ void mps_set_default_values(mps_status* s) {
   s->frad = NULL;		/* radii of inclusion disks as real    */
   s->drad = NULL;		/* radii of inclusion disks as rdpe_t  */
 
-  /* lifetime global variables */
-  s->eps_in;			/* input precision                     */
-  s->eps_out;			/* output precision                    */
-  s->lmax_coeff;		/* log of the max modulus of coeffs.   */
-  s->mpwp;			/* bits of current working precision   */
-  s->mp_epsilon;		/* current mp epsilon                  */
-  s->sep;			/* Log of the lower bound to the       */
-				/* miniumum distance of the roots      */
-  // s->nclust;			/* number of active clusters           */
   s->clust = NULL;		/* indices of components of clusters   */
   s->punt = NULL;		/* beginning of each cluster           */
   s->rootwp = NULL;	/* working precision used for each root*/
@@ -89,7 +72,6 @@ void mps_set_default_values(mps_status* s) {
   s->fap = NULL;		/* moduli of the coefficients as double*/
   s->dap = NULL;		/* moduli of the coefficients as dpe   */
   s->again = NULL;		/* flag vector: true where more        */
-				/* iterations must be performed        */
   s->fppc = NULL;		/* standard complex coefficients       */
   s->fppc1 = NULL;		/* standard complex coefficients       */
   s->dpc1 = NULL;		/* dpe complex coefficients            */

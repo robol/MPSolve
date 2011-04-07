@@ -170,7 +170,7 @@ mps_refine(mps_status* s, int i, long prec)
     g *= 2;
     s->mpwp = (long) (f + g + cnd);
     mpc_set_prec(nwtcorr, s->mpwp);
-    mp_set_prec(s, s->mpwp);
+    mps_mp_set_prec(s, s->mpwp);
     mps_prepare_data(s, s->mpwp);
     mps_mnewton(s, s->n, s->mroot[i], s->drad[i], nwtcorr, s->mfpc, s->mfppc, s->dap, s->spar, &aga);
     mpc_sub_eq(s->mroot[i], nwtcorr);

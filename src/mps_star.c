@@ -716,7 +716,7 @@ void
 mps_drestart(mps_status* s)
 {
   int i, k, j, l, jj;
-  rdpe_t sr, sum, rad, rtmp, rtmp1;
+  rdpe_t sr, rad, rtmp, rtmp1;
   cdpe_t sc, g, corr, ctmp;
   boolean tst, cont;
 

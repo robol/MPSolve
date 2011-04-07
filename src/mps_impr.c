@@ -57,7 +57,7 @@ mps_improve(mps_status* st)
    * only if the polynomial is not assigned as a straight line program and
    * the input precision is not infinite. */
   if (mpnb_in != 0)
-    mp_set_prec(s, mpnb_in);
+    mps_mp_set_prec(st, mpnb_in);
 
   //  tmpc_init2(mtmp, mpwp); /* puo' essere settato a precisione minima */
   tmpc_init2(mtmp, mpnb_out*2); /* puo' essere settato a precisione minima */
@@ -66,7 +66,7 @@ mps_improve(mps_status* st)
   if (st->prec_in != 0 && st->data_type[0] != 'u')
     mps_prepare_data(st, mpnb_in);
   else {
-    mp_set_prec(s, mpnb_out * 2);
+    mps_mp_set_prec(st, mpnb_out * 2);
     mps_prepare_data(st, mpnb_out * 2);
   }
 
@@ -145,7 +145,7 @@ mps_improve(mps_status* st)
       tmpc_clear(nwtcorr);
       tmpc_init2(nwtcorr, st->mpwp);
 
-      mp_set_prec(s, st->mpwp);
+      mps_mp_set_prec(st, st->mpwp);
       mps_prepare_data(st, st->mpwp);
       if (st->data_type[0] != 'u')
 	mps_mnewton(st, st->n, st->mroot[i], st->drad[i], 

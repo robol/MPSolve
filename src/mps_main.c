@@ -102,7 +102,7 @@ mps_mpsolve(mps_status* s)
     fprintf(s->logstr, "MP phase ...\n");
 
   /* ==== 6.1 initialize mp variables */
-  mp_set_prec(s, 2 * DBL_MANT_DIG);
+  mps_mp_set_prec(s, 2 * DBL_MANT_DIG);
 
   /* Prepare data according to the current working precision */
   mps_prepare_data(s, s->mpwp);
@@ -136,7 +136,7 @@ mps_mpsolve(mps_status* s)
       fprintf(s->logstr, "MAIN: mp_loop: mpwp=%ld\n", s->mpwp);
 
     /* == 7.1 ==   prepare data according to the current precision */
-    mp_set_prec(s, s->mpwp);
+    mps_mp_set_prec(s, s->mpwp);
     mps_prepare_data(s, s->mpwp);
 
     /* == 7.2 ==   Call msolve with the current precision */

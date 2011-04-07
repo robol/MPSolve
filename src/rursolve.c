@@ -16,8 +16,12 @@
  *                 MAIN                                    *
  **********************************************************/
 int
-main(mps_status* s)
+main(int argc, char** argv)
 {
+
+  /* Allocate mps_status */
+  mps_status* s = malloc(sizeof(mps_status));
+
   /* set default values */
   s->prec_in = -1;			/* default input precision */
   s->prec_out = 1000;		/* default output precision */
@@ -42,7 +46,7 @@ main(mps_status* s)
     mps_error(s, 1, "Cannot open log file");
 
   /* compute multivariate roots */
-  rursolve(s);
+  mps_rursolve(s);
 
   return 0;
 }

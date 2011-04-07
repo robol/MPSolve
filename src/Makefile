@@ -18,9 +18,8 @@ LD = $(CC)
 GMPDIR = Gmp
 
 # compiler flags
-CFLAGS = -O2 -fPIC
+CFLAGS = -O2 -fPIC -I../include -Wall
 # CFLAGS = -g -O0 -Wall -pedantic -fPIC
-CPPFLAGS = -I../include
 #
 # you can also use:
 #  -DNOMPTEMP 	to disable the memory manager for MP temporary variables
@@ -70,6 +69,12 @@ all: unisolve rursolve rurconv shared_libs
 
 doc: 
 	$(DOXYGEN) Doxyfile
+	
+mps_%.o: mps_%.c
+	$(CC) $(CFLAGS) -c $<
+	
+unisolve.o: unisolve.c
+	$(CC) $(CFLAGS) -c $<
 
 
 # build libraries

@@ -12,6 +12,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <mps/mps_poly.h>
+#include <mps/mps_gmptools.h>
 
 /***********************************************************
 *       SUBROUTINE READ_POLY                               *
@@ -69,9 +70,9 @@ mps_read_poly(mps_status* s, FILE *instr, mpspoly_t p)
 
   /* setup floating point multiprecision */
   if (p->prec_in != 0)
-    mp_set_prec(s, p->prec_in);
+    mps_mp_set_prec(s, p->prec_in);
   else
-    mp_set_prec(s, 2 * DBL_MANT_DIG);
+    mps_mp_set_prec(s, 2 * DBL_MANT_DIG);
 
   /* no need to read coefficients if user polynomial */
   if (p->data_type[0] == 'u')

@@ -28,7 +28,7 @@ randomize(unsigned int seed)
     if (rf != NULL) {
       read_bytes = fread(&seed, sizeof(int), 1, rf);
       if (read_bytes != 1) {
-	warn("Error while acquiring random seed!\n");
+	fprintf(stderr, "Error while acquiring random seed!\n");
       }
       fclose(rf);
     }

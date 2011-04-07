@@ -19,7 +19,7 @@ static long int data_prec_max = 0;
   Globally set the current precision of mp variables
  **********************************************************/
 void
-mp_set_prec(mps_status* s, long int prec)
+mps_mp_set_prec(mps_status* s, long int prec)
 {
   s->mpwp = prec;
   mpf_set_default_prec(prec);

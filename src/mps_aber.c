@@ -11,10 +11,10 @@
 
 #include <mps/mps.h>
 
-/***********************************************************
-*               SUBROUTINE FABERTH                         *
-*             No Selective Correction                      *
-***********************************************************/
+/**
+ * @brief Compute Aberth correction for j-th root, without
+ * selective correction.
+ */
 void
 mps_faberth(mps_status* s, int j, cplx_t abcorr)
 {
@@ -31,10 +31,10 @@ mps_faberth(mps_status* s, int j, cplx_t abcorr)
   }
 }
 
-/***********************************************************
-*               SUBROUTINE DABERTH                         *
-*             No Selective Correction                      *
-***********************************************************/
+/**
+ * @brief Compute Aberth correction for j-th root, without
+ * selective correction.
+ */
 void
 mps_daberth(mps_status* s, int j, cdpe_t abcorr)
 {
@@ -51,10 +51,10 @@ mps_daberth(mps_status* s, int j, cdpe_t abcorr)
   }
 }
 
-/***********************************************************
-*               SUBROUTINE MABERTH                         *
-*             No Selective Correction                      *
-***********************************************************/
+/**
+ * @brief Compute Aberth correction for j-th root, without
+ * selective correction.
+ */
 void
 mps_maberth(mps_status* s, int j, mpc_t abcorr)
 {
@@ -78,10 +78,12 @@ mps_maberth(mps_status* s, int j, mpc_t abcorr)
   tmpc_clear(diff);
 }
 
-/***********************************************************
-*               SUBROUTINE FABERTH_S                       *
-*               Selective Correction                       *
-***********************************************************/
+
+/**
+ * @brief Compute Aberth correction for the j-th root,
+ * but only with other roots of the <code>jc</code>-th
+ * cluster.
+ */
 void
 mps_faberth_s(mps_status* s, int j, int jc, cplx_t abcorr)
 {
@@ -99,10 +101,11 @@ mps_faberth_s(mps_status* s, int j, int jc, cplx_t abcorr)
   }
 }
 
-/***********************************************************
-*               SUBROUTINE DABERTH_S                       *
-*               Selective Correction                       *
-***********************************************************/
+/**
+ * @brief Compute Aberth correction for the j-th root,
+ * but only with other roots of the <code>jc</code>-th
+ * cluster.
+ */
 void
 mps_daberth_s(mps_status* s, int j, int jc, cdpe_t abcorr)
 {
@@ -120,10 +123,12 @@ mps_daberth_s(mps_status* s, int j, int jc, cdpe_t abcorr)
   }
 }
 
-/***********************************************************
-*               SUBROUTINE MABERTH_S                       *
-*               Selective Correction                       *
-***********************************************************/
+
+/**
+ * @brief Compute Aberth correction for the j-th root,
+ * but only with other roots of the <code>jc</code>-th
+ * cluster.
+ */
 void
 mps_maberth_s(mps_status* s, int j, int jc, mpc_t abcorr)
 {
