@@ -5,16 +5,16 @@ INSTALL=install
 
 all: unisolve rursolve shared_libs
 
-unisolve:
-	make -C $(SRC) unisolve
+unisolve: shared_libs
+	+$(MAKE) -C $(SRC) unisolve
 	cp $(SRC)/unisolve .
 
-rursolve:
-	make -C $(SRC) rursolve
+rursolve: shared_libs unisolve
+	+$(MAKE) -C $(SRC) rursolve
 	cp $(SRC)/rursolve .
 
 shared_libs:
-	make -C $(SRC) shared_libs
+	+$(MAKE) -C $(SRC) shared_libs
 
 headers:
 	mkdir -p $(DESTDIR)/$(PREFIX)/include/mps

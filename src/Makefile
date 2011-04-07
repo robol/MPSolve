@@ -88,7 +88,7 @@ libmps.a: $(LIBMPSOBJ)
 	$(AR) $(ARFLAGS) libmps.a $(LIBMPSOBJ)
 #	$(RANLIB) libmps.a
 
-libmps.so: $(LIBMPSOBJ)
+libmps.so: $(LIBMPSOBJ) $(LIBXTOBJ)
 	gcc -o libmps.so -shared -fPIC $(LIBMPSOBJ) $(LIBXTOBJ)
 
 
