@@ -233,8 +233,6 @@ mps_fstart(mps_status* s, int n, int i_clust, double clust_rad,
 		  s->status[l][0] = 'x';
 	  cplx_set_d(s->froot[l], r * cos(ang * jj + th * i + sigma),
 			  r * sin(ang * jj + th * i + sigma));
-
-	  printf("Setting s->froot[%d] to %f\n", l, mpc_Re(s->froot[l]));
   }
   }
 
