@@ -92,6 +92,9 @@ mps_allocate_data(mps_status* s)
   s->dap2 = rdpe_valloc(s->deg + 1);
   s->dpc1 = cdpe_valloc(s->deg + 1);
   s->dpc2 = cdpe_valloc(s->deg + 1);
+
+  s->radii = double_valloc(s->deg + 1);
+  s->partitioning = int_valloc(s->deg + 2);
 }
 
 /***********************************************************

@@ -498,6 +498,10 @@ typedef struct {
    int * punt_out;		/* auxiliary vector                    */
    int * clust_out;		/* auxiliary vector                    */
 
+   int n_radii;
+   double* radii;
+   int* partitioning;
+
 } mps_status; /* End of typedef struct { ... */
 
 
