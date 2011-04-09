@@ -330,28 +330,81 @@ typedef struct {
    *   - <code>u</code>: root uncertain;
    */
    char (* status)[3];	/* status of each approximation        */
-   int * order;		/* output index order: ord[0],..,ord[n]*/
-   cplx_t * froot;		/* root approx. as float complex numbers */
-   cdpe_t * droot;		/* root approx. as complex dpe numbers */
-   mpc_t * mroot;		/* root approx. as complex mp numbers  */
-   double * frad;		/* radii of incl. disks as real nums   */
-   rdpe_t * drad;		/* radii of incl. disks as rdpe_t nums */
+
+   /**
+    * @brief Output index order
+    */
+   int * order;
+
+   /**
+    * @brief Root approximations as floating points complex
+    * numbers.
+    */
+   cplx_t * froot;
+
+   /**
+    * @brief Root approximations as complex dpe numbers.
+    */
+   cdpe_t * droot;
+
+   /**
+    * @brief Root approsimations as complex multiprecision
+    * numbers.
+    */
+   mpc_t * mroot;
+
+   /**
+    * @brief Radii of inclusion disks as real numbers.
+    */
+   double * frad;
+
+   /**
+    * @brief Radii of inclusion disks as dpe numbers.
+    */
+   rdpe_t * drad;
   
   /* lifetime global variables */
-   boolean skip_float;	/* skip float phase?                   */
-   rdpe_t eps_in;		/* input precision                     */
-   rdpe_t eps_out;		/* output precision                    */
-   double lmax_coeff;	/* log of the max modulus of coeffs.   */
-   long int mpwp;		/* # of bits of current working prec.  */
-   rdpe_t mp_epsilon;	/* current mp epsilon                  */
-   double sep;		/* Log of the lower bound to the 
-                                   minimum distance of the roots       */
-  
+
+   /**
+    * @brief <code>true</code> if the float phase should be skipped,
+    * passing directly do dpe phase.
+    */
+   boolean skip_float;
+
+   /**
+    * @brief Input precision of the coefficients.
+    */
+   rdpe_t eps_in;
+
+   /**
+    * @brief Output precision of the roots.
+    */
+   rdpe_t eps_out;
+
+   /**
+    * @brief Logarithm of the max modulus of the coefficients.
+    */
+   double lmax_coeff;
+
+   /**
+    * @brief Bits of working precision that mpsolve is using.
+    */
+   long int mpwp;
+
+   /**
+    * @brief Current multiprecision epsilon.
+    */
+   rdpe_t mp_epsilon;
+
+   /**
+    * @brief Log of the lower bound to the minumum distance of the roots
+    */
+   double sep;
+
   /**
-   * @brief number of active clusters
+   * @brief Number of active clusters.
    */
    int nclust;		
-
 
   /**
    * @brief indices of cluster components
