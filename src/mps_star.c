@@ -105,7 +105,7 @@ mps_fstart(mps_status* s, int n, int i_clust, double clust_rad,
   const double  big = DBL_MAX,   small = DBL_MIN;
   const double xbig = log(big), xsmall = log(small);
 
-  int i, iold, j, jj, l, ni, nzeros;
+  int i, iold, j, jj, l, ni, nzeros, k;
   double sigma, th, ang, temp, r;
   rdpe_t tmp;
 
@@ -195,6 +195,17 @@ mps_fstart(mps_status* s, int n, int i_clust, double clust_rad,
 		  if (clust_rad != 0 && r > clust_rad)
 			  r = clust_rad;
 
+
+		  s->radii[s->n_radii] = r;
+		  s->partitioning[++s->n_radii] = i;
+    }
+
+  k = 0;
+  for (i = 1; i <= n; i++) {
+	  if (s->h[i]) {
+		  nzeros = s->partitioning[k+1] - s->partitioning[k];
+		  iold = s->partitioning[k];
+
 		  /* Choose starting values for root */
 		  ang = pi2 / nzeros;
 		  for (j = iold; j <= i - 1; j++) {
@@ -213,9 +224,10 @@ mps_fstart(mps_status* s, int n, int i_clust, double clust_rad,
 			  cplx_set_d(s->froot[l], r * cos(ang * jj + th * i + sigma),
 					  r * sin(ang * jj + th * i + sigma));
 		  }
-		  s->radii[s->n_radii] = r;
-		  s->partitioning[++s->n_radii] = i;
-    }
+	  }
+  }
+
+
   /* If the new radius of the cluster is relatively smaller, then
    * set the status component equal to 'o' (output) */
   if (g != 0.0) {
