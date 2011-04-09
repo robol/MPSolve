@@ -200,31 +200,42 @@ mps_fstart(mps_status* s, int n, int i_clust, double clust_rad,
 		  s->partitioning[++s->n_radii] = i;
     }
 
-  k = 0;
-  for (i = 1; i <= n; i++) {
-	  if (s->h[i]) {
-		  nzeros = s->partitioning[k+1] - s->partitioning[k];
-		  iold = s->partitioning[k];
 
-		  /* Choose starting values for root */
-		  ang = pi2 / nzeros;
-		  for (j = iold; j <= i - 1; j++) {
-			  if (g != 0.0)
-				  l = s->clust[s->punt[i_clust] + j];
-			  else
-				  l = j;
-			  jj = j - iold;
+  printf("s->partitioning = ");
+  for(i = 0;i <= s->n_radii; i++) {
+	  printf("%d ", s->partitioning[i]);
+  }
 
-			  /* if the radius reaches extreme values then set the components
-			   * of status, corresponding to approximation which fall out the
-			   * representable range, to 'x' (out)    */
-			  if ((r == DBL_MIN) || (r == DBL_MAX))
-				  /* if ((r == small) || (r == big)) DARIO Giugno 23 */
-				  s->status[l][0] = 'x';
-			  cplx_set_d(s->froot[l], r * cos(ang * jj + th * i + sigma),
-					  r * sin(ang * jj + th * i + sigma));
-		  }
-	  }
+  printf("\nh = ");
+  for(i = 0; i <= n; i++) {
+	  printf("%d ", s->h[i]);
+  }
+  printf("\n");
+
+
+
+  for(i = 0; i < s->n_radii; i++) {
+	  nzeros = s->partitioning[i+1] - s->partitioning[i];
+	  ang = pi2 / nzeros;
+	  for (j = s->partitioning[i]; j < s->partitioning[i+1]; j++) {
+		  if (g != 0.0)
+			  l = s->clust[s->punt[i_clust] + j];
+		  else
+			  l = j;
+		  jj = j - s->partitioning[i];
+
+
+	  /* if the radius reaches extreme values then set the component
+	   * of status, corresponding to approximation which fall out the
+	   * representable range, to 'x' (out)    */
+	  if ((r == DBL_MIN) || (r == DBL_MAX))
+		  /* if ((r == small) || (r == big)) DARIO Giugno 23 */
+		  s->status[l][0] = 'x';
+	  cplx_set_d(s->froot[l], r * cos(ang * jj + th * i + sigma),
+			  r * sin(ang * jj + th * i + sigma));
+
+	  printf("Setting s->froot[%d] to %f\n", l, mpc_Re(s->froot[l]));
+  }
   }
 
 
