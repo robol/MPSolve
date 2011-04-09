@@ -78,7 +78,7 @@ void mps_compute_fstarting_radii(mps_status* s, int n, int i_clust, double clust
 	  const double  big = DBL_MAX,   small = DBL_MIN;
 	  const double xbig = log(big), xsmall = log(small);
 
-	  int i, nzeros, iold, ni;
+	  int i, j, k, nzeros, iold, ni, offset;
 	  double temp, r;
 
 	  ni = 0;
@@ -136,6 +136,37 @@ void mps_compute_fstarting_radii(mps_status* s, int n, int i_clust, double clust
 			  s->radii[s->n_radii] = r;
 			  s->partitioning[++s->n_radii] = i;
 	    }
+
+	  /* Compact radius that are too near */
+	  for(i = 0; i < s->n_radii; i++) {
+		  /* Scan next radii to see if they are near the
+		   * i-th that we are considering now  */
+		  for(j = i+1; j < s->n_radii; j++) {
+			  if ((s->radii[j] - s->radii[i]) / s->radii[i] > s->circle_relative_distance) {
+				  break;
+			  }
+		  }
+
+		  /* This is the number of circles that are near */
+		  offset = j - i;
+
+		  /* We shall now compact circles between i and j, so
+		   * we start computing the mean of the radius */
+		  for(k = i+1; k < j; k++) {
+			  s->radii[i] += s->radii[k];
+		  }
+		  s->radii[i] /= offset;
+		  s->partitioning[i+1] = s->partitioning[j];
+
+		  /* Move other circles backward */
+		  for(k = j; k < s->n_radii; k++) {
+			  s->radii[k] = s->radii[k + offset - 1];
+			  s->radii[k - offset + 1] = s->radii[k];
+		  }
+
+		  /* Set new s->n_radii and new partitioning */
+		  s->n_radii = s->n_radii - offset + 1;
+	  }
 }
 
 /**

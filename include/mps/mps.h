@@ -498,9 +498,28 @@ typedef struct {
    int * punt_out;		/* auxiliary vector                    */
    int * clust_out;		/* auxiliary vector                    */
 
+   /**
+    * @brief The number of circles with initial approximations.
+    */
    int n_radii;
+
+   /**
+    * @brief This variable is used to store the radii of the
+    * circles with initial approximations.
+    */
    double* radii;
+
+   /**
+    * @brief This variable is used to store the partitioning
+    * done when disposing initial approximations.
+    */
    int* partitioning;
+
+   /**
+    * @brief This is the minimum fraction admitted between two
+    * circle radius for not collapsing them.
+    */
+   double circle_relative_distance = 1e-2;
 
 } mps_status; /* End of typedef struct { ... */
 
