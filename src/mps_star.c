@@ -201,18 +201,6 @@ mps_fstart(mps_status* s, int n, int i_clust, double clust_rad,
     }
 
 
-  printf("s->partitioning = ");
-  for(i = 0;i <= s->n_radii; i++) {
-	  printf("%d ", s->partitioning[i]);
-  }
-
-  printf("\nh = ");
-  for(i = 0; i <= n; i++) {
-	  printf("%d ", s->h[i]);
-  }
-  printf("\n");
-
-
 
   for(i = 0; i < s->n_radii; i++) {
 	  nzeros = s->partitioning[i+1] - s->partitioning[i];
