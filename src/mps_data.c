@@ -93,8 +93,9 @@ mps_allocate_data(mps_status* s)
   s->dpc1 = cdpe_valloc(s->deg + 1);
   s->dpc2 = cdpe_valloc(s->deg + 1);
 
-  s->radii = double_valloc(s->deg + 1);
+  s->fradii = double_valloc(s->deg + 1);
   s->partitioning = int_valloc(s->deg + 2);
+  s->dradii = rdpe_valloc(s->deg + 1);
 }
 
 /***********************************************************
@@ -333,6 +334,10 @@ mps_free_data(mps_status* s)
   rdpe_vfree(s->dap2);
   cdpe_vfree(s->dpc1);
   cdpe_vfree(s->dpc2);
+
+  free(s->partitioning);
+  free(s->fradii);
+  rdpe_vfree(s->dradii);
 
   if (s->DOLOG)
     fprintf(s->logstr, "...temporaries...\n");

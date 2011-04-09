@@ -507,7 +507,13 @@ typedef struct {
     * @brief This variable is used to store the radii of the
     * circles with initial approximations.
     */
-   double* radii;
+   double* fradii;
+
+   /**
+    * @brief This variable is used to store the radii of the
+    * circles with initial approximations.
+    */
+   rdpe_t* dradii;
 
    /**
     * @brief This variable is used to store the partitioning

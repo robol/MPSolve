@@ -73,7 +73,7 @@ double mps_maximize_distance(mps_status* s, double last_sigma,
 	return s->last_sigma;
 }
 
-void mps_compute_fstarting_radii(mps_status* s, int n, int i_clust, double clust_rad,
+void mps_fcompute_starting_radii(mps_status* s, int n, int i_clust, double clust_rad,
 		double g, rdpe_t eps, double fap[]) {
 	  const double  big = DBL_MAX,   small = DBL_MIN;
 	  const double xbig = log(big), xsmall = log(small);
@@ -85,6 +85,13 @@ void mps_compute_fstarting_radii(mps_status* s, int n, int i_clust, double clust
 	  nzeros = 0;
 	  r = 0.0;
 
+	  /**********************************************
+	    check for possible null entries in the trailing
+	    coefficients only in the case where the polynomial
+	    has been shifted in g, replace null coefficients
+	    with small numbers according to the working precision
+	    and to the number of null coefficients
+	    **********************************************/
 	  if (g != 0.0) {
 	    for (i = 0; i <= n; i++)
 	      if (fap[i] != 0.0) {
@@ -103,6 +110,9 @@ void mps_compute_fstarting_radii(mps_status* s, int n, int i_clust, double clust
 	      s->fap2[i] = log(fap[i]);
 	    else
 	      s->fap2[i] = temp;
+
+	  /* Compute convex hull */
+	  mps_fconvex(s, n, fap);
 
 	  /* compute the radii of the circles containing starting approximations  */
 	  s->n_radii = 0;
@@ -133,7 +143,7 @@ void mps_compute_fstarting_radii(mps_status* s, int n, int i_clust, double clust
 				  r = clust_rad;
 
 
-			  s->radii[s->n_radii] = r;
+			  s->fradii[s->n_radii] = r;
 			  s->partitioning[++s->n_radii] = i;
 	    }
 
@@ -142,7 +152,7 @@ void mps_compute_fstarting_radii(mps_status* s, int n, int i_clust, double clust
 		  /* Scan next radii to see if they are near the
 		   * i-th that we are considering now  */
 		  for(j = i+1; j < s->n_radii; j++) {
-			  if ((s->radii[j] - s->radii[i]) / s->radii[i] > s->circle_relative_distance) {
+			  if ((s->fradii[j] - s->fradii[i]) / s->fradii[i] > s->circle_relative_distance) {
 				  break;
 			  }
 		  }
@@ -153,15 +163,15 @@ void mps_compute_fstarting_radii(mps_status* s, int n, int i_clust, double clust
 		  /* We shall now compact circles between i and j, so
 		   * we start computing the mean of the radius */
 		  for(k = i+1; k < j; k++) {
-			  s->radii[i] += s->radii[k];
+			  s->fradii[i] += s->fradii[k];
 		  }
-		  s->radii[i] /= offset;
+		  s->fradii[i] /= offset;
 		  s->partitioning[i+1] = s->partitioning[j];
 
 		  /* Move other circles backward */
 		  for(k = j; k < s->n_radii; k++) {
-			  s->radii[k] = s->radii[k + offset - 1];
-			  s->radii[k - offset + 1] = s->radii[k];
+			  s->fradii[k] = s->fradii[k + offset - 1];
+			  s->fradii[k - offset + 1] = s->fradii[k];
 		  }
 
 		  /* Set new s->n_radii and new partitioning */
@@ -230,26 +240,13 @@ mps_fstart(mps_status* s, int n, int i_clust, double clust_rad,
 
   /* In the general case apply the Rouche-based criterion */
 
-  /********************************************** 
-    check for possible null entries in the trailing
-    coefficients only in the case where the polynomial
-    has been shifted in g, replace null coefficients
-    with small numbers according to the working precision
-    and to the number of null coefficients
-    **********************************************/
-
-
-
-  /* compute the convex hull */
-  mps_fconvex(s, n, s->fap2);
-
   /* Compute starting radii */
-  mps_compute_fstarting_radii(s, n, i_clust, clust_rad, g, eps, fap);
+  mps_fcompute_starting_radii(s, n, i_clust, clust_rad, g, eps, fap);
 
   for(i = 0; i < s->n_radii; i++) {
 	  nzeros = s->partitioning[i+1] - s->partitioning[i];
 	  ang = pi2 / nzeros;
-	  r = s->radii[i];
+	  r = s->fradii[i];
 
 	  for (j = s->partitioning[i]; j < s->partitioning[i+1]; j++) {
 		  if (g != 0.0)
@@ -281,6 +278,118 @@ mps_fstart(mps_status* s, int n, int i_clust, double clust_rad,
 	s->frad[l] = r * nzeros;
       }
   }
+}
+
+void mps_dcompute_starting_radii(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
+		rdpe_t g, rdpe_t eps, rdpe_t dap[]) {
+
+	/* Compute big and small values */
+	double  xbig, xsmall;
+	xbig = rdpe_log(RDPE_MAX);
+	xsmall = rdpe_log(RDPE_MIN);
+
+
+	int i, j, k, nzeros, iold, ni, offset;
+	double temp;
+	rdpe_t r, tmp;
+
+	ni = 0;
+	nzeros = 0;
+	rdpe_set(r, rdpe_zero);
+
+	if (rdpe_ne(g, rdpe_zero)) {
+		for (i = 0; i <= n; i++)
+			if (rdpe_ne(dap[i], rdpe_zero)) {
+				ni = i;
+				break;
+			}
+		if (ni == 0)
+			temp = -2.0 * (LONG_MAX * LOG2);
+		else {
+			/* temp = log(dap[ni])+ni*(log(DBL_EPSILON)+log(g*ni*10.d0)) */
+			temp = ni * 10.0;
+			rdpe_mul_d(tmp, g, temp);
+			temp = rdpe_log(tmp);
+			temp += log(DBL_EPSILON);
+			temp *= ni;
+			temp += rdpe_log(dap[ni]);
+		}
+	} else
+		temp = -2.0 * (LONG_MAX * LOG2);
+	for (i = 0; i <= n; i++)
+		if (rdpe_ne(dap[i], rdpe_zero))
+			s->fap2[i] = rdpe_log(dap[i]);
+		else
+			s->fap2[i] = temp;
+
+	/* compute the convex hull */
+	mps_fconvex(s, n, s->fap2);
+
+	/* compute the radii of the circles containing starting approximations  */
+	s->n_radii = 0;
+	s->partitioning[0] = 0;
+	for (i = 1; i <= n; i++)
+	    if (s->h[i]) {
+	    	iold = s->partitioning[s->n_radii];
+	    	nzeros = i - iold;
+	    	temp = (s->fap2[iold] - s->fap2[i]) / nzeros;
+	    	/* if the radius is too small to be represented as double, set it
+	    	 * to the minimum  representable double */
+	    	if (temp < xsmall)
+	    		rdpe_set(r, RDPE_MIN);		/* r = small; */
+
+	    	/* if the radius is too big to be represented as double, set it
+	    	 * to the maximum representable double */
+	    	if (temp < xbig)
+	    		rdpe_set(r, RDPE_MAX);
+
+	    	/* if the radius is representable as double, compute it    */
+	    	if ((temp < xbig) && (temp > xsmall))
+	    		rdpe_set_d(r, temp);
+	    		rdpe_exp_eq(r);
+
+
+	    	/* if the radius is greater than the radius of the cluster
+			 * set the radius equal to the radius of the cluster */
+			  if (rdpe_ne(clust_rad, rdpe_zero) && rdpe_gt(r, clust_rad))
+				  rdpe_set(r, clust_rad);
+
+			  rdpe_set(s->dradii[s->n_radii], r);
+			  s->partitioning[++s->n_radii] = i;
+	    }
+
+//	  /* Compact radius that are too near */
+//	  for(i = 0; i < s->n_radii; i++) {
+//		  /* Scan next radii to see if they are near the
+//		   * i-th that we are considering now  */
+//		  for(j = i+1; j < s->n_radii; j++) {
+//			  rdpe_sub(rtmp1, s->dradii[j],s->dradii[i]);
+//			  rdpe_div(rtmp1, s->radii[i]);
+//			  if (rdpe_get_d(rtmp1) > s->circle_relative_distance) {
+//				  break;
+//			  }
+//		  }
+//
+//		  /* This is the number of circles that are near */
+//		  offset = j - i;
+//
+//		  /* We shall now compact circles between i and j, so
+//		   * we start computing the mean of the radius */
+//		  for(k = i+1; k < j; k++) {
+//			  s->radii[i] += s->radii[k];
+//		  }
+//		  s->radii[i] /= offset;
+//		  s->partitioning[i+1] = s->partitioning[j];
+//
+//		  /* Move other circles backward */
+//		  for(k = j; k < s->n_radii; k++) {
+//			  s->radii[k] = s->radii[k + offset - 1];
+//			  s->radii[k - offset + 1] = s->radii[k];
+//		  }
+//
+//		  /* Set new s->n_radii and new partitioning */
+//		  s->n_radii = s->n_radii - offset + 1;
+//	  }
 }
 
 /**
@@ -337,9 +446,6 @@ mps_dstart(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
   
   /* In the general case apply the Rouche-based criterion */
 
-  xsmall = rdpe_log(RDPE_MIN);
-  xbig = rdpe_log(RDPE_MAX);
-
   /* check if it is the case dpe_after_float, in this case set flag=true  */
   for (i = 0; i < n; i++) {
     flag = (s->status[i][0] == 'x');
@@ -352,71 +458,47 @@ mps_dstart(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
    * replace null coefficients with small numbers according to
    * the working precision and to the number of null coefficients */
 
-  if (rdpe_ne(g, rdpe_zero)) {
-    for (i = 0; i <= n; i++)
-      if (rdpe_ne(dap[i], rdpe_zero)) {
-	ni = i;
-	break;
-      }
-    if (ni == 0)
-      temp = -2.0 * (LONG_MAX * LOG2);
-    else {
-      /* temp = log(dap[ni])+ni*(log(DBL_EPSILON)+log(g*ni*10.d0)) */
-      temp = ni * 10.0;
-      rdpe_mul_d(tmp, g, temp);
-      temp = rdpe_log(tmp);
-      temp += log(DBL_EPSILON);
-      temp *= ni;
-      temp += rdpe_log(dap[ni]);
-    }
-  } else
-    temp = -2.0 * (LONG_MAX * LOG2);
-  for (i = 0; i <= n; i++)
-    if (rdpe_ne(dap[i], rdpe_zero))
-      s->fap2[i] = rdpe_log(dap[i]);
-    else
-      s->fap2[i] = temp;
-
-  /* compute the convex hull */
-  mps_fconvex(s, n, s->fap2);
+  /* Compute starting radii */
+  mps_dcompute_starting_radii(s, n, i_clust, clust_rad, g, eps, dap);
+  printf("wow\n");
   th = pi2 / n;
 
   /* Scan all the vertices of the convex hull   */
   iold = 0;
   for (i = 1; i <= n; i++)
     if (s->h[i]) {
-      nzeros = i - iold;
-      temp = (s->fap2[iold] - s->fap2[i]) / nzeros;
-
-      /* if the radius is too small or too big to be represented as dpe, 
-       * output a warning message */
-      if (temp < xsmall) {
-	rdpe_set(r, RDPE_MIN);
-	if (s->DOLOG) {
-	  fprintf(s->logstr, "Warning: Some zeros are too small to be\n");
-	  fprintf(s->logstr, " represented as cdpe, they are replaced by\n");
-	  fprintf(s->logstr, " small numbers and the status is set to 'F'.\n");
-	}
-      }
-      if (temp > xbig) {
-	rdpe_set(r, RDPE_MAX);
-	if (s->DOLOG) {
-	  fprintf(s->logstr, "Warning: Some zeros are too big to be\n");
-	  fprintf(s->logstr, " represented as cdpe, they are replaced by\n");
-	  fprintf(s->logstr, " big numbers and the status is set to 'F'.\n");
-	}
-      }
-
-      /* if the radius is representable as dpe, compute it */
-      if ((temp <= xbig) && (temp >= xsmall)) {
-	rdpe_set_d(r, temp);
-	rdpe_exp_eq(r);
-      }
-
-      /* if the radius is greater than the radius of the cluster
-       * set the radius equal to the radius of the cluster */
-      if (rdpe_ne(g, rdpe_zero) && rdpe_gt(r, clust_rad))
-	rdpe_set(r, clust_rad);
+//      nzeros = i - iold;
+//      temp = (s->fap2[iold] - s->fap2[i]) / nzeros;
+//
+//      /* if the radius is too small or too big to be represented as dpe,
+//       * output a warning message */
+//      if (temp < xsmall) {
+//	rdpe_set(r, RDPE_MIN);
+//	if (s->DOLOG) {
+//	  fprintf(s->logstr, "Warning: Some zeros are too small to be\n");
+//	  fprintf(s->logstr, " represented as cdpe, they are replaced by\n");
+//	  fprintf(s->logstr, " small numbers and the status is set to 'F'.\n");
+//	}
+//      }
+//      if (temp > xbig) {
+//	rdpe_set(r, RDPE_MAX);
+//	if (s->DOLOG) {
+//	  fprintf(s->logstr, "Warning: Some zeros are too big to be\n");
+//	  fprintf(s->logstr, " represented as cdpe, they are replaced by\n");
+//	  fprintf(s->logstr, " big numbers and the status is set to 'F'.\n");
+//	}
+//      }
+//
+//      /* if the radius is representable as dpe, compute it */
+//      if ((temp <= xbig) && (temp >= xsmall)) {
+//	rdpe_set_d(r, temp);
+//	rdpe_exp_eq(r);
+//      }
+//
+//      /* if the radius is greater than the radius of the cluster
+//       * set the radius equal to the radius of the cluster */
+//      if (rdpe_ne(g, rdpe_zero) && rdpe_gt(r, clust_rad))
+//    	  rdpe_set(r, clust_rad);
 
       ang = pi2 / nzeros;
       for (j = iold; j < i; j++) {
