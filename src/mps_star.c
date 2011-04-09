@@ -167,51 +167,54 @@ mps_fstart(mps_status* s, int n, int i_clust, double clust_rad,
   mps_fconvex(s, n, s->fap2);
 
   /* compute the radii of the circles containing starting approximations  */
-  iold = 0;
+  s->n_radii = 0;
+  s->partitioning[0] = 0;
   th = pi2 / n;
   for (i = 1; i <= n; i++)
     if (s->h[i]) {
-      nzeros = i - iold;
-      temp = (s->fap2[iold] - s->fap2[i]) / nzeros;
-      /* if the radius is too small to be represented as double, set it
-       * to the minimum  representable double */
-      if (temp < xsmall)	/* if (temp < MAX(xsmall, -xbig)) DARIO Giugno 23 */
-	r = DBL_MIN;		/* r = small; */
+    	iold = s->partitioning[s->n_radii];
+    	nzeros = i - iold;
+    	temp = (s->fap2[iold] - s->fap2[i]) / nzeros;
+    	/* if the radius is too small to be represented as double, set it
+    	 * to the minimum  representable double */
+    	if (temp < xsmall)	/* if (temp < MAX(xsmall, -xbig)) DARIO Giugno 23 */
+    		r = DBL_MIN;		/* r = small; */
 
-      /* if the radius is too big to be represented as double, set it
-       * to the maximum representable double */
-      if (temp > xbig)
-	r = DBL_MAX;		/* big;   DARIO Giugno 23 */
+    	/* if the radius is too big to be represented as double, set it
+    	 * to the maximum representable double */
+    	if (temp > xbig)
+    		r = DBL_MAX;		/* big;   DARIO Giugno 23 */
 
-      /* if the radius is representable as double, compute it    */
-      if ((temp <= xbig) && (temp > xsmall))
-	/* if ((temp <= xbig) && (temp > MAX(-xbig, xsmall))) DARIO Giugno 23 */
-	r = exp(temp);
+    	/* if the radius is representable as double, compute it    */
+    	if ((temp <= xbig) && (temp > xsmall))
+    		/* if ((temp <= xbig) && (temp > MAX(-xbig, xsmall))) DARIO Giugno 23 */
+    		r = exp(temp);
 
-      /* if the radius is greater than the radius of the cluster
-       * set the radius equal to the radius of the cluster */
-      if (clust_rad != 0 && r > clust_rad)
-	r = clust_rad;
+    	/* if the radius is greater than the radius of the cluster
+		 * set the radius equal to the radius of the cluster */
+		  if (clust_rad != 0 && r > clust_rad)
+			  r = clust_rad;
 
-      /* Choose starting values for root */
-      ang = pi2 / nzeros;
-      for (j = iold; j <= i - 1; j++) {
-	if (g != 0.0)
-	  l = s->clust[s->punt[i_clust] + j];
-	else
-	  l = j;
-	jj = j - iold;
+		  /* Choose starting values for root */
+		  ang = pi2 / nzeros;
+		  for (j = iold; j <= i - 1; j++) {
+			  if (g != 0.0)
+				  l = s->clust[s->punt[i_clust] + j];
+			  else
+				  l = j;
+			  jj = j - iold;
 
-	/* if the radius reaches extreme values then set the components
-	 * of status, corresponding to approximation which fall out the 
-	 * representable range, to 'x' (out)    */
-	if ((r == DBL_MIN) || (r == DBL_MAX))
-	  /* if ((r == small) || (r == big)) DARIO Giugno 23 */
-	  s->status[l][0] = 'x';
-	cplx_set_d(s->froot[l], r * cos(ang * jj + th * i + sigma),
-		   r * sin(ang * jj + th * i + sigma));
-      }
-      iold = i;
+			  /* if the radius reaches extreme values then set the components
+			   * of status, corresponding to approximation which fall out the
+			   * representable range, to 'x' (out)    */
+			  if ((r == DBL_MIN) || (r == DBL_MAX))
+				  /* if ((r == small) || (r == big)) DARIO Giugno 23 */
+				  s->status[l][0] = 'x';
+			  cplx_set_d(s->froot[l], r * cos(ang * jj + th * i + sigma),
+					  r * sin(ang * jj + th * i + sigma));
+		  }
+		  s->radii[s->n_radii] = r;
+		  s->partitioning[++s->n_radii] = i;
     }
   /* If the new radius of the cluster is relatively smaller, then
    * set the status component equal to 'o' (output) */
