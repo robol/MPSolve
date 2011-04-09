@@ -519,7 +519,7 @@ typedef struct {
     * @brief This is the minimum fraction admitted between two
     * circle radius for not collapsing them.
     */
-   double circle_relative_distance = 1e-2;
+   double circle_relative_distance;
 
 } mps_status; /* End of typedef struct { ... */
 
