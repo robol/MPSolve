@@ -73,6 +73,20 @@ double mps_maximize_distance(mps_status* s, double last_sigma,
 	return s->last_sigma;
 }
 
+/**
+ * @brief Compute radii of the circles where the initial approximation
+ * will be disposed by mps_fstart()
+ *
+ * @param s mps_status* stuct pointer.
+ * @param n number of roots in the cluster.
+ * @param i_clust Index of the cluster to analyze.
+ * @param clust_rad radius of the cluster.
+ * @param g new gravity center where the polynomial has been shifted.
+ * @param eps out epsilon.
+ * @param fap[] Array with the moduli of the coefficients.
+ *
+ * @see mps_fstart()
+ */
 void mps_fcompute_starting_radii(mps_status* s, int n, int i_clust, double clust_rad,
 		double g, rdpe_t eps, double fap[]) {
 
@@ -290,6 +304,20 @@ mps_fstart(mps_status* s, int n, int i_clust, double clust_rad,
   }
 }
 
+/**
+ * @brief Compute radii of the circles where the initial approximation
+ * will be disposed by mps_dstart()
+ *
+ * @param s mps_status* stuct pointer.
+ * @param n number of roots in the cluster.
+ * @param i_clust Index of the cluster to analyze.
+ * @param clust_rad radius of the cluster.
+ * @param g new gravity center where the polynomial has been shifted.
+ * @param eps out epsilon.
+ * @param dap[] Array with the moduli of the coefficients.
+ *
+ * @see mps_dstart()
+ */
 void mps_dcompute_starting_radii(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
 		rdpe_t g, rdpe_t eps, rdpe_t dap[]) {
 
@@ -527,6 +555,20 @@ mps_dstart(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
 }
 }
 
+/**
+ * @brief Compute radii of the circles where the initial approximation
+ * will be disposed by mps_mstart()
+ *
+ * @param s mps_status* stuct pointer.
+ * @param n number of roots in the cluster.
+ * @param i_clust Index of the cluster to analyze.
+ * @param clust_rad radius of the cluster.
+ * @param g new gravity center where the polynomial has been shifted.
+ * @param eps out epsilon.
+ * @param dap[] Array with the moduli of the coefficients.
+ *
+ * @see mps_mstart()
+ */
 void
 mps_mcompute_starting_radii(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
 		rdpe_t g, rdpe_t dap[]) {
@@ -639,9 +681,10 @@ mps_mcompute_starting_radii(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
 	  }
 }
 
-/***********************************************************
-*            SUBROUTINE MSTART                             *
-***********************************************************/
+/**
+ * @brief Multiprecision version of mps_fstart()
+ * @see mps_fstart()
+ */
 void
 mps_mstart(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
 		   rdpe_t g, rdpe_t dap[])

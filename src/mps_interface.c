@@ -7,7 +7,7 @@
 
 /**
  * 	@file
- * 	Implementation of the routines to interact with MPSolve
+ * 	@brief Implementation of the routines to interact with MPSolve
  * 	as a library.
  */
 
@@ -95,12 +95,12 @@ mps_status* mps_status_new() {
 
 /**
  * @brief Set active polynomial as a real floating point coefficient
- * polynomial with coefficient exactly determined by components of
- * vector coeff.
+ * polynomial of degree <code>n</code> with coefficient exactly
+ * determined by components of vector coeff.
  *
- * Precisely, if \f$h\f$ is a vector of \f$n\f$ components,
+ * Precisely, if \f${\mathrm coeff}\f$ is a vector of \f$n+1\f$ components,
  * \f[
- *   p(x) = \sum_{i = 0}^{n} coeff_i x^i
+ *   p(x) = \sum_{i = 0}^{n} {\mathrm coeff}_i  x^i
  * \f]
  */
 int mps_status_set_poly_d(mps_status* s, cplx_t* coeff, long unsigned int n) {
@@ -126,6 +126,16 @@ int mps_status_set_poly_d(mps_status* s, cplx_t* coeff, long unsigned int n) {
 	return 0;
 }
 
+/**
+ * @brief Set active polynomial as a integer coefficient
+ * polynomial of degree <code>n</code> with coefficient exactly
+ * determined by components of vector coeff.
+ *
+ * Precisely, if \f${\mathrm coeff}\f$ is a vector of \f$n+1\f$ components,
+ * \f[
+ *   p(x) = \sum_{i = 0}^{n} {\mathrm coeff}_i  x^i
+ * \f]
+ */
 int mps_status_set_poly_i(mps_status* s, int* coeff, long unsigned int n) {
 
 	int i;

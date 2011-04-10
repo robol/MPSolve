@@ -41,5 +41,5 @@ clean:
 	make -C $(SRC) clean
 	rm -f unisolve rursolve
 
-doc:
+documentation: src/mps_*.c
 	make -C $(SRC) doc

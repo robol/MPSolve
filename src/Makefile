@@ -67,7 +67,7 @@ shared_libs: libmps.so
 
 all: unisolve rursolve rurconv shared_libs
 
-doc: 
+doc: mps_*.c
 	$(DOXYGEN) Doxyfile
 	
 mps_%.o: mps_%.c
@@ -125,6 +125,7 @@ rurcheck: rursolve rurconv
 # cleanup
 clean:
 	$(RM) *.o stats timings roots testsuite *.bak *~ core *.res *.so
+	$(RM) -rf ../doc/html ../doc/latex
 
 distclean: clean
 	$(RM) libxt.a libmps.a unisolve$(EXE) rursolve$(EXE) rurconv$(EXE)
