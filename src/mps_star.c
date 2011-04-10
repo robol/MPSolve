@@ -272,9 +272,6 @@ mps_fstart(mps_status* s, int n, int i_clust, double clust_rad,
 		  s->status[l][0] = 'x';
 	  cplx_set_d(s->froot[l], r * cos(ang * jj + th * s->partitioning[i+1] + sigma),
 			  r * sin(ang * jj + th * s->partitioning[i+1] + sigma));
-
-	  printf("Setting s->froot[%d] to ", l); cplx_out(s->froot[l]);
-      printf(", (radius = %f, jj = %d, sigma = %f, th = %f)\n", r, jj, sigma, th);
   }
 
 
@@ -601,17 +598,6 @@ mps_mcompute_starting_radii(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
 	  /* Set last point of the partitioning */
 	  s->partitioning[s->n_radii] = n;
 
-	  /* Dump partitioning */
-	  printf("s->partitioning = ");
-	  for(i = 0; i <= s->n_radii; i++) {
-		  printf("%d ", s->partitioning[i]);
-	  } printf("\n");
-
-	  printf("s->dradii = ");
-	  for(i = 0; i < s->n_radii; i++) {
-		  printf(" "); rdpe_out_str(stdout, s->dradii[i]);
-	  } printf("\n");
-
 	  /* Compact radius that are too near */
 	  for(i = 0; i < s->n_radii; i++) {
 		  /* Scan next radii to see if they are near the
@@ -660,27 +646,14 @@ void
 mps_mstart(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
 		   rdpe_t g, rdpe_t dap[])
 {
-	  int i, j, jj, iold, l, nzeros, k, kk;
-	  double sigma, ang, th, temp;
-	  rdpe_t r, big, small, rtmp1, rtmp2;
-	  cdpe_t ctmp;
 
-	  rdpe_set(small, RDPE_MIN);
-	  rdpe_set(big, RDPE_MAX);
+  int i, j, jj, iold, l, nzeros;
+  double sigma, ang, th, temp;
+  rdpe_t r, big, small, rtmp1, rtmp2;
+  cdpe_t ctmp;
 
-	  printf("Dumping cluster structure before mstart:\n");
-	  for(k = 0; k < s->nclust; k++) {
-		  printf("Cluster of %d roots: ", s->punt[k] - s->punt[k+1]);
-		  for(kk = s->punt[k]; kk < s->punt[k+1]; kk++) {
-			  printf("%d ", s->clust[kk]);
-		  }
-		  printf("\n");
-	  }
-
-
-	printf("Called mps_mstart(s, n = %d, i_clust = %d, clust_rad = ", n, i_clust);
-	rdpe_out(clust_rad);
-	printf(", g = "); rdpe_out(g); printf(", dap);\n");
+  rdpe_set(small, RDPE_MIN);
+  rdpe_set(big, RDPE_MAX);
 
 
 
@@ -719,30 +692,12 @@ mps_mstart(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
     	   * that we are analyzing. */
     	  l = s->clust[s->punt[i_clust] + j];
 
-    	  printf("Dumping cluster structure:\n");
-    	  for(k = 0; k < s->nclust; k++) {
-    		  printf("Cluster of %d roots: ", s->punt[k] - s->punt[k+1]);
-    		  for(kk = s->punt[k]; kk < s->punt[k+1]; kk++) {
-    			  printf("%d ", s->clust[kk]);
-    		  }
-    		  printf("\n");
-    	  }
-
-    	  printf("s->n_radii = %d\n", s->n_radii);
-    	  printf("Computed l = %d from j = %d, i_clust = %d\n", l, j, i_clust);
-
-    	  printf("s->dradii[%d] = ", i); rdpe_outln(s->dradii[i]);
-
     	  cdpe_set_d(ctmp, cos(ang * jj + th * s->partitioning[i+1] + sigma),
     			  sin(ang * jj + th * s->partitioning[i+1] + sigma));
     	  cdpe_mul_eq_e(ctmp, s->dradii[i]);
     	  cdpe_set(s->droot[l], ctmp);
 
-    	  printf("Setting s->droot[%d] to ", l); cdpe_out_str(stdout, s->droot[l]);
-    	  printf("\n");
-
     	  if (rdpe_eq(s->dradii[i], big) || rdpe_eq(s->dradii[i], small)) {
-    		  printf("Preso!\n");
     		  s->status[l][0] = 'f';
     	  }
       }
