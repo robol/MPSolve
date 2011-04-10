@@ -75,6 +75,7 @@ double mps_maximize_distance(mps_status* s, double last_sigma,
 
 void mps_fcompute_starting_radii(mps_status* s, int n, int i_clust, double clust_rad,
 		double g, rdpe_t eps, double fap[]) {
+
 	  const double  big = DBL_MAX,   small = DBL_MIN;
 	  const double xbig = log(big), xsmall = log(small);
 
@@ -112,7 +113,7 @@ void mps_fcompute_starting_radii(mps_status* s, int n, int i_clust, double clust
 	      s->fap2[i] = temp;
 
 	  /* Compute convex hull */
-	  mps_fconvex(s, n, fap);
+	  mps_fconvex(s, n, s->fap2);
 
 	  /* compute the radii of the circles containing starting approximations  */
 	  s->n_radii = 0;
@@ -139,13 +140,15 @@ void mps_fcompute_starting_radii(mps_status* s, int n, int i_clust, double clust
 
 	    	/* if the radius is greater than the radius of the cluster
 			 * set the radius equal to the radius of the cluster */
-			  if (clust_rad != 0 && r > clust_rad)
+			if (clust_rad != 0 && r > clust_rad)
 				  r = clust_rad;
 
-
-			  s->fradii[s->n_radii] = r;
-			  s->partitioning[++s->n_radii] = i;
+			s->fradii[s->n_radii] = r;
+			s->partitioning[++s->n_radii] = i;
 	    }
+
+	  /* Close partitioning */
+	  s->partitioning[s->n_radii] = n;
 
 	  /* Compact radius that are too near */
 	  for(i = 0; i < s->n_radii; i++) {
@@ -160,6 +163,12 @@ void mps_fcompute_starting_radii(mps_status* s, int n, int i_clust, double clust
 		  /* This is the number of circles that are near */
 		  offset = j - i;
 
+		  if(s->DOLOG && (offset > 1)) {
+			  fprintf(s->logstr,
+					  "    MPS_FCOMPUTE_STARTING_RADII: Compacting circles"
+					  " from %d to %d\n", i, j);
+		  }
+
 		  /* We shall now compact circles between i and j, so
 		   * we start computing the mean of the radius */
 		  for(k = i+1; k < j; k++) {
@@ -171,6 +180,7 @@ void mps_fcompute_starting_radii(mps_status* s, int n, int i_clust, double clust
 		  /* Move other circles backward */
 		  for(k = j; k < s->n_radii; k++) {
 			  s->fradii[k - offset + 1] = s->fradii[k];
+			  s->partitioning[k - offset + 1] = s->partitioning[k];
 		  }
 
 		  /* Set new s->n_radii and new partitioning */
@@ -260,22 +270,26 @@ mps_fstart(mps_status* s, int n, int i_clust, double clust_rad,
 	  if ((r == DBL_MIN) || (r == DBL_MAX))
 		  /* if ((r == small) || (r == big)) DARIO Giugno 23 */
 		  s->status[l][0] = 'x';
-	  cplx_set_d(s->froot[l], r * cos(ang * jj + th * i + sigma),
-			  r * sin(ang * jj + th * i + sigma));
-  }
+	  cplx_set_d(s->froot[l], r * cos(ang * jj + th * s->partitioning[i+1] + sigma),
+			  r * sin(ang * jj + th * s->partitioning[i+1] + sigma));
+
+	  printf("Setting s->froot[%d] to ", l); cplx_out(s->froot[l]);
+      printf(", (radius = %f, jj = %d, sigma = %f, th = %f)\n", r, jj, sigma, th);
   }
 
 
-  /* If the new radius of the cluster is relatively smaller, then
-   * set the status component equal to 'o' (output) */
-  if (g != 0.0) {
-    rdpe_mul_d(tmp, eps, g);
-    if (r * nzeros <= rdpe_get_d(tmp))
-      for (j = 0; j < s->punt[i_clust + 1] - s->punt[i_clust]; j++) {
-	l = s->clust[s->punt[i_clust] + j];
-	s->status[l][0] = 'o';
-	s->frad[l] = r * nzeros;
-      }
+	  /* If the new radius of the cluster is relatively smaller, then
+	   * set the status component equal to 'o' (output) */
+	  if (g != 0.0) {
+		rdpe_mul_d(tmp, eps, g);
+		if (r * nzeros <= rdpe_get_d(tmp))
+		  for (j = 0; j < s->punt[i_clust + 1] - s->punt[i_clust]; j++) {
+		l = s->clust[s->punt[i_clust] + j];
+		s->status[l][0] = 'o';
+		s->frad[l] = r * nzeros;
+		  }
+	  }
+
   }
 }
 
@@ -357,39 +371,42 @@ void mps_dcompute_starting_radii(mps_status* s, int n, int i_clust, rdpe_t clust
 			  s->partitioning[++s->n_radii] = i;
 	    }
 
-	  /* Compact radius that are too near */
-	  for(i = 0; i < s->n_radii; i++) {
-		  /* Scan next radii to see if they are near the
-		   * i-th that we are considering now  */
-		  for(j = i+1; j < s->n_radii; j++) {
-			  rdpe_sub(tmp, s->dradii[j],s->dradii[i]);
-			  rdpe_div_eq(tmp, s->dradii[i]);
-			  if (rdpe_get_d(tmp) > s->circle_relative_distance) {
-				  break;
-			  }
-		  }
+	/* Close partitioning */
+	s->partitioning[s->n_radii] = n;
 
-		  /* This is the number of circles that are near */
-		  offset = j - i;
+	/* Compact radius that are too near */
+	for(i = 0; i < s->n_radii; i++) {
+		/* Scan next radii to see if they are near the
+		 * i-th that we are considering now  */
+		for(j = i+1; j < s->n_radii; j++) {
+			rdpe_sub(tmp, s->dradii[j],s->dradii[i]);
+			rdpe_div_eq(tmp, s->dradii[i]);
+			if (rdpe_get_d(tmp) > s->circle_relative_distance) {
+				break;
+			}
+		}
 
-		  /* We shall now compact circles between i and j, so
-		   * we start computing the mean of the radius */
-		  for(k = i+1; k < j; k++) {
-			  // s->radii[i] += s->radii[k];
-			  rdpe_add_eq(s->dradii[i], s->dradii[j]);
-		  }
-		  // s->radii[i] /= offset;
-		  rdpe_div_eq_d(s->dradii[i], offset);
-		  s->partitioning[i+1] = s->partitioning[j];
+		/* This is the number of circles that are near */
+		offset = j - i;
 
-		  /* Move other circles backward */
-		  for(k = j; k < s->n_radii; k++) {
-			  rdpe_set(s->dradii[k - offset + 1], s->dradii[k]);
-		  }
+		/* We shall now compact circles between i and j, so
+		 * we start computing the mean of the radius */
+		for(k = i+1; k < j; k++) {
+			rdpe_add_eq(s->dradii[i], s->dradii[j]);
+		}
 
-		  /* Set new s->n_radii and new partitioning */
-		  s->n_radii = s->n_radii - offset + 1;
-	  }
+		rdpe_div_eq_d(s->dradii[i], offset);
+		s->partitioning[i+1] = s->partitioning[j];
+
+		/* Move other circles backward */
+		for(k = j; k < s->n_radii; k++) {
+			rdpe_set(s->dradii[k - offset + 1], s->dradii[k]);
+			s->partitioning[k - offset + 1] = s->partitioning[k];
+		}
+
+		/* Set new s->n_radii and new partitioning */
+		s->n_radii = s->n_radii - offset + 1;
+  }
 }
 
 /**
@@ -443,8 +460,6 @@ mps_dstart(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
 		 sin(ang * i + sigma));
     return;
   }
-  
-  /* In the general case apply the Rouche-based criterion */
 
   /* check if it is the case dpe_after_float, in this case set flag=true  */
   for (i = 0; i < n; i++) {
@@ -453,12 +468,7 @@ mps_dstart(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
       break;
   }
 
-  /* check for possible null entries in the trailing coefficients
-   * only in the case where the polynomial has been shifted in g
-   * replace null coefficients with small numbers according to
-   * the working precision and to the number of null coefficients */
-
-  /* Compute starting radii */
+  /* Compute starting radii with the Rouche based criterion */
   mps_dcompute_starting_radii(s, n, i_clust, clust_rad, g, eps, dap);
   th = pi2 / n;
 
@@ -470,7 +480,6 @@ mps_dstart(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
     	iold = s->partitioning[i];
     	nzeros = s->partitioning[i+1] - iold;
     	rdpe_set(r, s->dradii[i]);
-
 
     	ang = pi2 / nzeros;
     	for (j = iold; j < i; j++) {
@@ -485,8 +494,8 @@ mps_dstart(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
     		 * values of only the approximations falling out of the range */
     		if (flag) {
     			if (s->status[l][0] == 'x') {
-    				cdpe_set_d(s->droot[l], cos(ang * jj + th * i + sigma),
-    						sin(ang * jj + th * i + sigma));
+    				cdpe_set_d(s->droot[l], cos(ang * jj + th * s->partitioning[i+1] + sigma),
+    						sin(ang * jj + th * s->partitioning[i+1] + sigma));
     				cdpe_mul_eq_e(s->droot[l], r);
     				s->status[l][0] = 'c';
     				/*#G 27/4/98 if (rdpe_eq(r, big) || rdpe_eq(r, small)) */
@@ -504,19 +513,144 @@ mps_dstart(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
     		}
     	}
     	iold = i;
-    }
-  /* If the new radius of the cluster is relatively small, then
-   * set the status component equal to 'o' (output) */
-  if (rdpe_ne(g, rdpe_zero)) {
-	  rdpe_mul(tmp, g, eps);
-	  rdpe_mul_d(tmp1, r, (double) nzeros);
-	  if (rdpe_lt(tmp1, tmp))
-		  for (j = 0; j <= s->punt[i_clust + 1] - s->punt[i_clust]; j++) {
-			  l = s->clust[s->punt[i_clust] + j];
-			  s->status[l][0] = 'o';
-			  rdpe_set(s->drad[l], tmp1);
+
+	  /* If the new radius of the cluster is relatively small, then
+	   * set the status component equal to 'o' (output) */
+	  if (rdpe_ne(g, rdpe_zero)) {
+		  rdpe_mul(tmp, g, eps);
+		  rdpe_mul_d(tmp1, r, (double) nzeros);
+		  if (rdpe_lt(tmp1, tmp))
+			  for (j = 0; j <= s->punt[i_clust + 1] - s->punt[i_clust]; j++) {
+				  l = s->clust[s->punt[i_clust] + j];
+				  s->status[l][0] = 'o';
+				  rdpe_set(s->drad[l], tmp1);
+			  }
+	  }
+
+}
+}
+
+void
+mps_mcompute_starting_radii(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
+		rdpe_t g, rdpe_t dap[]) {
+
+	int i, offset, iold, nzeros, j, k;
+	rdpe_t big, small, tmp;
+	double xbig, xsmall, temp;
+
+	xsmall = rdpe_log(RDPE_MIN);
+	xbig = rdpe_log(RDPE_MAX);
+	rdpe_set(small, RDPE_MIN);
+	rdpe_set(big, RDPE_MAX);
+
+	if (rdpe_eq(dap[0], rdpe_zero))
+	    s->fap2[0] = -s->mpwp * LOG2;
+
+	  /*  check for possible null entries in the trailing coefficients */
+	  for (i = 0; i <= n; i++)
+	    if (rdpe_ne(dap[i], rdpe_zero))
+	      s->fap2[i] = rdpe_log(dap[i]);
+	    else
+	      s->fap2[i] = s->fap2[0];
+
+	  /* compute the convex hull */
+	  mps_fconvex(s, n, s->fap2);
+
+	  /* Scan all the vertices of the convex hull */
+	  s->partitioning[0] = 0;
+	  s->n_radii = 0;
+	  for (i = 1; i <= n; i++) {
+			if (s->h[i]) {
+				iold = s->partitioning[s->n_radii];
+				nzeros = i - iold;
+				temp = (s->fap2[iold] - s->fap2[i]) / nzeros;
+				/* if the radius is too small or too big to be represented as dpe,
+				 * output a warning message */
+				if (temp < xsmall) {
+					rdpe_set(s->dradii[s->n_radii], small);
+					if (s->DOLOG) {
+						fprintf(s->logstr, "Warning: Some zeros are too small to be\n");
+						fprintf(s->logstr, " represented as cdpe, they are replaced by\n");
+						fprintf(s->logstr, " small numbers and the status is set to 'F'.\n");
+					}
+				}
+				if (temp > xbig) {
+					rdpe_set(s->dradii[s->n_radii], big);
+					if (s->DOLOG) {
+						fprintf(s->logstr, "Warning: Some zeros are too big to be\n");
+						fprintf(s->logstr, " represented as cdpe, they are replaced by\n");
+						fprintf(s->logstr, " big numbers and the status is set to 'F'.\n");
+					}
+				}
+
+				/* if the radius is representable as dpe, compute it */
+				if (temp <= xbig && temp >= xsmall) {
+					rdpe_set_d(s->dradii[s->n_radii], temp);
+					rdpe_exp_eq(s->dradii[s->n_radii]);
+				}
+				/* if the radius is greater than the radius of the cluster
+				 * set the radius equal to the radius of the cluster */
+				if (rdpe_gt(s->dradii[s->n_radii], clust_rad))
+					rdpe_set(s->dradii[s->n_radii], clust_rad);
+
+				/* Close partitioning and start a new one */
+				s->partitioning[++s->n_radii] = i;
+			}
+	  }
+
+	  /* Set last point of the partitioning */
+	  s->partitioning[s->n_radii] = n;
+
+	  /* Dump partitioning */
+	  printf("s->partitioning = ");
+	  for(i = 0; i <= s->n_radii; i++) {
+		  printf("%d ", s->partitioning[i]);
+	  } printf("\n");
+
+	  printf("s->dradii = ");
+	  for(i = 0; i < s->n_radii; i++) {
+		  printf(" "); rdpe_out_str(stdout, s->dradii[i]);
+	  } printf("\n");
+
+	  /* Compact radius that are too near */
+	  for(i = 0; i < s->n_radii; i++) {
+		  /* Scan next radii to see if they are near the
+		   * i-th that we are considering now  */
+		  for(j = i+1; j < s->n_radii; j++) {
+			  rdpe_sub(tmp, s->dradii[j],s->dradii[i]);
+			  rdpe_div_eq(tmp, s->dradii[i]);
+			  if (rdpe_get_d(tmp) > s->circle_relative_distance) {
+				  break;
+			  }
 		  }
-  }
+
+		  /* This is the number of circles that are near */
+		  offset = j - i;
+
+		  if(s->DOLOG && offset > 1) {
+			  fprintf(s->logstr,
+					  "MPS_MCOMPUTE_STARTING_RADII: Compacting disc from %d to %d\n",
+					  i, j);
+		  }
+
+		  /* We shall now compact circles between i and j, so
+		   * we start computing the mean of the radius */
+		  for(k = i+1; k < j; k++) {
+			  rdpe_add_eq(s->dradii[i], s->dradii[j]);
+		  }
+
+		  rdpe_div_eq_d(s->dradii[i], offset);
+		  s->partitioning[i+1] = s->partitioning[j];
+
+		  /* Move other circles backward */
+		  for(k = j; k < s->n_radii; k++) {
+			  rdpe_set(s->dradii[k - offset + 1], s->dradii[k]);
+			  s->partitioning[k - offset + 1] = s->partitioning[k];
+		  }
+
+		  /* Set new s->n_radii and new partitioning */
+		  s->n_radii = s->n_radii - offset + 1;
+	  }
 }
 
 /***********************************************************
@@ -526,10 +660,29 @@ void
 mps_mstart(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
 		   rdpe_t g, rdpe_t dap[])
 {
-  int i, j, jj, iold, l, nzeros;
-  double sigma, ang, th, xbig, xsmall, temp;
-  rdpe_t r, big, small, rtmp1, rtmp2;
-  cdpe_t ctmp;
+	  int i, j, jj, iold, l, nzeros, k, kk;
+	  double sigma, ang, th, temp;
+	  rdpe_t r, big, small, rtmp1, rtmp2;
+	  cdpe_t ctmp;
+
+	  rdpe_set(small, RDPE_MIN);
+	  rdpe_set(big, RDPE_MAX);
+
+	  printf("Dumping cluster structure before mstart:\n");
+	  for(k = 0; k < s->nclust; k++) {
+		  printf("Cluster of %d roots: ", s->punt[k] - s->punt[k+1]);
+		  for(kk = s->punt[k]; kk < s->punt[k+1]; kk++) {
+			  printf("%d ", s->clust[kk]);
+		  }
+		  printf("\n");
+	  }
+
+
+	printf("Called mps_mstart(s, n = %d, i_clust = %d, clust_rad = ", n, i_clust);
+	rdpe_out(clust_rad);
+	printf(", g = "); rdpe_out(g); printf(", dap);\n");
+
+
 
   if (s->random_seed)
     sigma = drand();
@@ -547,90 +700,70 @@ mps_mstart(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
   temp = 0.0;
 
   /* In the general case apply the Rouche-based criterion */
+  mps_mcompute_starting_radii(s, n, i_clust, clust_rad, g, dap);
 
-  xsmall = rdpe_log(RDPE_MIN);
-  xbig = rdpe_log(RDPE_MAX);
-  rdpe_set(small, RDPE_MIN);
-  rdpe_set(big, RDPE_MAX);
-
-  if (rdpe_eq(dap[0], rdpe_zero))
-    s->fap2[0] = -s->mpwp * LOG2;
-
-  /*  check for possible null entries in the trailing coefficients */
-  for (i = 0; i <= n; i++)
-    if (rdpe_ne(dap[i], rdpe_zero))
-      s->fap2[i] = rdpe_log(dap[i]);
-    else
-      s->fap2[i] = s->fap2[0];
-
-  /* compute the convex hull */
-  mps_fconvex(s, n, s->fap2);
   th = pi2 / n;
 
-  /* Scan all the vertices of the convex hull */
-  iold = 0;
-  for (i = 1; i <= n; i++)
-    if (s->h[i]) {
-      nzeros = i - iold;
-      temp = (s->fap2[iold] - s->fap2[i]) / nzeros;
-      /* if the radius is too small or too big to be represented as dpe, 
-       * output a warning message */
-      if (temp < xsmall) {
-	rdpe_set(r, small);
-	if (s->DOLOG) {
-	  fprintf(s->logstr, "Warning: Some zeros are too small to be\n");
-	  fprintf(s->logstr, " represented as cdpe, they are replaced by\n");
-	  fprintf(s->logstr, " small numbers and the status is set to 'F'.\n");
-	}
-      }
-      if (temp > xbig) {
-	rdpe_set(r, big);
-	if (s->DOLOG) {
-	  fprintf(s->logstr, "Warning: Some zeros are too big to be\n");
-	  fprintf(s->logstr, " represented as cdpe, they are replaced by\n");
-	  fprintf(s->logstr, " big numbers and the status is set to 'F'.\n");
-	}
-      }
-      /* if the radius is representable as dpe, compute it */
-
-      if (temp <= xbig && temp >= xsmall) {
-	rdpe_set_d(r, temp);
-	rdpe_exp_eq(r);
-      }
-      /* if the radius is greater than the radius of the cluster
-       * set the radius equal to the radius of the cluster */
-      if (rdpe_gt(r, clust_rad)) 
-	rdpe_set(r, clust_rad); 
-      ang = pi2 / nzeros;
+  /* Set initial approximations accordingly to the computed
+   * circles  */
+  for(i = 0; i < s->n_radii; i++) {
+	  nzeros = s->partitioning[i+1] - s->partitioning[i];
+	  ang = pi2 / nzeros;
+	  iold = s->partitioning[i];
 
       /* Compute the initial approximations */
-      for (j = iold; j < i; j++) {
-	jj = j - iold;
-	l = s->clust[s->punt[i_clust] + j];
-	cdpe_set_d(ctmp, cos(ang * jj + th * i + sigma),
-		   sin(ang * jj + th * i + sigma));
-	cdpe_mul_eq_e(ctmp, r);
-	cdpe_set(s->droot[l], ctmp);
-	if (rdpe_eq(r, big) || rdpe_eq(r, small))
-	  s->status[l][0] = 'f';
+      for (j = iold; j < s->partitioning[i+1]; j++) {
+    	  jj = j - iold;
+
+    	  /* Take index relative to the cluster
+    	   * that we are analyzing. */
+    	  l = s->clust[s->punt[i_clust] + j];
+
+    	  printf("Dumping cluster structure:\n");
+    	  for(k = 0; k < s->nclust; k++) {
+    		  printf("Cluster of %d roots: ", s->punt[k] - s->punt[k+1]);
+    		  for(kk = s->punt[k]; kk < s->punt[k+1]; kk++) {
+    			  printf("%d ", s->clust[kk]);
+    		  }
+    		  printf("\n");
+    	  }
+
+    	  printf("s->n_radii = %d\n", s->n_radii);
+    	  printf("Computed l = %d from j = %d, i_clust = %d\n", l, j, i_clust);
+
+    	  printf("s->dradii[%d] = ", i); rdpe_outln(s->dradii[i]);
+
+    	  cdpe_set_d(ctmp, cos(ang * jj + th * s->partitioning[i+1] + sigma),
+    			  sin(ang * jj + th * s->partitioning[i+1] + sigma));
+    	  cdpe_mul_eq_e(ctmp, s->dradii[i]);
+    	  cdpe_set(s->droot[l], ctmp);
+
+    	  printf("Setting s->droot[%d] to ", l); cdpe_out_str(stdout, s->droot[l]);
+    	  printf("\n");
+
+    	  if (rdpe_eq(s->dradii[i], big) || rdpe_eq(s->dradii[i], small)) {
+    		  printf("Preso!\n");
+    		  s->status[l][0] = 'f';
+    	  }
       }
       iold = i;
-    }
-  /* If the new radius of the cluster is relatively small, then
-   * set the status component equal to 'o' (output)
-   * and set the corresponding radius */
 
-  rdpe_set(rtmp1, r);
-  rdpe_mul_eq_d(rtmp1, (double) nzeros);
-  rdpe_set(rtmp2, g);
-  rdpe_mul_eq(rtmp2, s->eps_out);
-  if (rdpe_le(rtmp1, rtmp2))
-    for (j = 0; j < s->punt[i_clust + 1] - s->punt[i_clust]; j++) {
-      l = s->clust[s->punt[i_clust] + j];
-      s->status[l][0] = 'o';
-      rdpe_mul_d(s->drad[l], r, (double) nzeros);
-    }
-  rdpe_set(clust_rad,r); 
+
+	  /* If the new radius of the cluster is relatively small, then
+	   * set the status component equal to 'o' (output)
+	   * and set the corresponding radius */
+	  rdpe_set(rtmp1, s->dradii[i]);
+	  rdpe_mul_eq_d(rtmp1, (double) nzeros);
+	  rdpe_set(rtmp2, g);
+	  rdpe_mul_eq(rtmp2, s->eps_out);
+	  if (rdpe_le(rtmp1, rtmp2))
+		for (j = 0; j < s->punt[i_clust + 1] - s->punt[i_clust]; j++) {
+		  l = s->clust[s->punt[i_clust] + j];
+		  s->status[l][0] = 'o';
+		  rdpe_mul_d(s->drad[l], r, (double) nzeros);
+		}
+	  rdpe_set(clust_rad,s->dradii[i]);
+  }
 }
 
 /***********************************************************
