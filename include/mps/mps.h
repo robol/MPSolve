@@ -556,7 +556,62 @@ typedef struct {
 
    void (*mnewton_usr)(void* status, mpc_t  x, rdpe_t   rad, mpc_t  corr, boolean* again);
 
+	/**
+	 * @brief A pointer that can be set to anything the user
+	 * would like to access during computations. It is meant to be
+	 * used when implementing fnewton, dnewton and mnewton
+	 * functions to provide additional data for the
+	 * computing of the polynomial.
+	 */
+	void * user_data;
+
 } mps_status; /* End of typedef struct { ... */
+
+
+/**
+ * @brief Secular equation data.
+ *
+ * A secular equation is an equation in the form
+ * \f[
+ *   \sum_{i = 1}^{n} \frac{a_i}{z - b_i} = 1
+ * \f]
+ * and this struct holds the values of the parameters \f$a_i\f$
+ * and \f$b_i\f$.
+ */
+typedef struct {
+
+	/**
+	 * @brief Vector of \f$a_i\f$ as complex floating
+	 * point numbers.
+	 */
+	cplx_t* afpc;
+
+	/**
+	 * @brief Vector with the values of \f$b_i\f$ as complex
+	 * floating point numbers.
+	 */
+	cplx_t* bfpc;
+
+	/**
+	 * @brief Size of the vectors of the coefficients of the
+	 * secular equation.
+	 */
+	unsigned long int n;
+
+	/* TEMPORARY VARIABLES */
+
+	/**
+	 * @brief Sum of the b_i - z
+	 */
+	cplx_t* sum_bz;
+
+	/**
+	 * @brief sum of a_i / (b_i - z)^n with n = 1,2 depending
+	 * on the moment of the computation.
+	 */
+	cplx_t* sum_ab;
+
+} mps_secular_equation; /* End of typedef struct {... */
 
 
 /* FUNCTIONS */

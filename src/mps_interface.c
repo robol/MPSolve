@@ -212,7 +212,8 @@ int mps_get_roots_d(mps_status* s, cplx_t* roots, double* radius) {
 /**
  * @brief Get the roots computed as multiprecision complex numbers.
  */
-int mps_get_roots_d(mps_status* s, mpc_t* roots, rdpe_t* radius) {
+int
+mps_get_roots_m(mps_status* s, mpc_t* roots, rdpe_t* radius) {
 	/* TODO: Implement mps_get_roots_d() */
 	return 0;
 }
