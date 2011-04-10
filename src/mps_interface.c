@@ -93,6 +93,25 @@ mps_status* mps_status_new() {
 	return s;
 }
 
+int mps_status_set_poly_u(mps_status* s, int n, mps_fnewton_ptr fnewton,
+		mps_dnewton_ptr dnewton, mps_mnewton_ptr mnewton) {
+
+	/* Set degree and allocate data */
+	s->deg = s->n = n;
+	mps_allocate_data(s);
+
+	/* TODO: Apart from u, what should be set here? */
+	s->data_type = "uri";
+
+	/* Set functions */
+	s->fnewton_usr = fnewton;
+	s->dnewton_usr = dnewton;
+	s->mnewton_usr = mnewton;
+
+	return 0;
+}
+
+
 /**
  * @brief Set active polynomial as a real floating point coefficient
  * polynomial of degree <code>n</code> with coefficient exactly

@@ -151,7 +151,11 @@ mps_improve(mps_status* st)
 	mps_mnewton(st, st->n, st->mroot[i], st->drad[i], 
 		    nwtcorr, st->mfpc, st->mfppc, st->dap, st->spar, &again);
       else
-	mps_mnewton_usr(st, st->mroot[i], st->drad[i], nwtcorr, &again);
+    	  if (st->mnewton_usr != NULL) {
+    		  (*st->mnewton_usr)(st, st->mroot[i], st->drad[i], nwtcorr, &again);
+    	  } else {
+    		  mps_mnewton_usr(st, st->mroot[i], st->drad[i], nwtcorr, &again);
+    	  }
       mpc_sub_eq(st->mroot[i], nwtcorr);
 
       /* correct radius, since the computed one is referred to the previous

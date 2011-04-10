@@ -98,5 +98,9 @@ void mps_set_default_values(mps_status* s) {
 
   s->circle_relative_distance = 1e-2;
  
+  /* Don't use user define functions */
+  s->fnewton_usr = NULL;
+  s->dnewton_usr = NULL;
+  s->mnewton_usr = NULL;
 
 }

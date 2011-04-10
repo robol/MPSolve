@@ -53,6 +53,28 @@
 typedef enum {no_phase, float_phase, dpe_phase, mp_phase} mps_phase;
 
 /**
+ * @brief Function that computes \f$\frac{p}{p'}\f$ (floating point version)
+ */
+typedef void (*mps_fnewton_ptr)(void* status,cplx_t,double*,cplx_t,boolean*);
+
+/**
+ * @brief Function that computes \f$\frac{p}{p'}\f$ (dpe version)
+ */
+typedef void (*mps_dnewton_ptr)(void* status, cdpe_t x, rdpe_t   rad, cdpe_t corr, boolean* again);
+
+/**
+ * @brief Function that computes \f$\frac{p}{p'}\f$ (multiprecision version)
+ */
+typedef void (*mps_mnewton_ptr)(void* status, mpc_t  x, rdpe_t   rad, mpc_t  corr, boolean* again);
+
+/*
+ * Macros for casting
+ */
+#define MPS_FNEWTON_PTR(x) (mps_fnewton_ptr) &x
+#define MPS_DNEWTON_PTR(x) (mps_dnewton_ptr) &x
+#define MPS_MNEWTON_PTR(x) (mps_mnewton_ptr) &x
+
+/**
  * @brief this struct holds the state of the mps computation
  */
 typedef struct {
@@ -526,6 +548,13 @@ typedef struct {
     * circle radius for not collapsing them.
     */
    double circle_relative_distance;
+
+
+   void (*fnewton_usr)(void* status,cplx_t,double*,cplx_t,boolean*);
+
+   void (*dnewton_usr)(void* status, cdpe_t x, rdpe_t   rad, cdpe_t corr, boolean* again);
+
+   void (*mnewton_usr)(void* status, mpc_t  x, rdpe_t   rad, mpc_t  corr, boolean* again);
 
 } mps_status; /* End of typedef struct { ... */
 

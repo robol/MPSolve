@@ -2096,7 +2096,11 @@ mps_fpolzer(mps_status* s, int *it, boolean * excep)
 	  means of Rouche' is more reliable and strict
 	  **************************************/
 	} else
-	  mps_fnewton_usr(s, s->froot[i], &s->frad[i], corr, &s->again[i]);
+		if(s->fnewton_usr != NULL) {
+			(*s->fnewton_usr)(s, s->froot[i], &s->frad[i], corr, &s->again[i]);
+		} else {
+			mps_fnewton_usr(s, s->froot[i], &s->frad[i], corr, &s->again[i]);
+		}
 	  
 	if (s->again[i] ||
 	  /* the correction is performed only if iter!=1 or rad(i)!=rad1 */
@@ -2161,7 +2165,12 @@ mps_dpolzer(mps_status* s, int *it, boolean * excep)
 	      && rdpe_ne(rad1, rdpe_zero))
 	    rdpe_set(s->drad[i], rad1);
 	} else
-	  mps_dnewton_usr(s, s->droot[i], s->drad[i], corr, &s->again[i]);
+		if (s->dnewton_usr != NULL) {
+			(*s->dnewton_usr)(s, s->droot[i], s->drad[i], corr, &s->again[i]);
+		} else
+		{
+			mps_dnewton_usr(s, s->droot[i], s->drad[i], corr, &s->again[i]);
+		}
 
   /************************************************
     The above condition is needed to manage with the case where
@@ -2649,7 +2658,11 @@ mps_mpolzer(mps_status* s, int *it, boolean * excep)
         means of Rouche' is more reliable and strict
         ***********************************************/
 	  } else		/* user's polynomial */
-	    mps_mnewton_usr(s, s->mroot[l], s->drad[l], corr, &s->again[l]);
+		  if (s->mnewton_usr != NULL) {
+			  (*s->mnewton_usr)(s, s->mroot[l], s->drad[l], corr, &s->again[l]);
+		  } else {
+			  mps_mnewton_usr(s, s->mroot[l], s->drad[l], corr, &s->again[l]);
+		  }
 
 	  if (s->again[l] ||
 	      /* the correction is performed only if iter!=1 or rad[l]!=rad1 */
