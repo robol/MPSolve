@@ -170,7 +170,6 @@ void mps_fcompute_starting_radii(mps_status* s, int n, int i_clust, double clust
 
 		  /* Move other circles backward */
 		  for(k = j; k < s->n_radii; k++) {
-			  s->fradii[k] = s->fradii[k + offset - 1];
 			  s->fradii[k - offset + 1] = s->fradii[k];
 		  }
 
@@ -358,38 +357,39 @@ void mps_dcompute_starting_radii(mps_status* s, int n, int i_clust, rdpe_t clust
 			  s->partitioning[++s->n_radii] = i;
 	    }
 
-//	  /* Compact radius that are too near */
-//	  for(i = 0; i < s->n_radii; i++) {
-//		  /* Scan next radii to see if they are near the
-//		   * i-th that we are considering now  */
-//		  for(j = i+1; j < s->n_radii; j++) {
-//			  rdpe_sub(rtmp1, s->dradii[j],s->dradii[i]);
-//			  rdpe_div(rtmp1, s->radii[i]);
-//			  if (rdpe_get_d(rtmp1) > s->circle_relative_distance) {
-//				  break;
-//			  }
-//		  }
-//
-//		  /* This is the number of circles that are near */
-//		  offset = j - i;
-//
-//		  /* We shall now compact circles between i and j, so
-//		   * we start computing the mean of the radius */
-//		  for(k = i+1; k < j; k++) {
-//			  s->radii[i] += s->radii[k];
-//		  }
-//		  s->radii[i] /= offset;
-//		  s->partitioning[i+1] = s->partitioning[j];
-//
-//		  /* Move other circles backward */
-//		  for(k = j; k < s->n_radii; k++) {
-//			  s->radii[k] = s->radii[k + offset - 1];
-//			  s->radii[k - offset + 1] = s->radii[k];
-//		  }
-//
-//		  /* Set new s->n_radii and new partitioning */
-//		  s->n_radii = s->n_radii - offset + 1;
-//	  }
+	  /* Compact radius that are too near */
+	  for(i = 0; i < s->n_radii; i++) {
+		  /* Scan next radii to see if they are near the
+		   * i-th that we are considering now  */
+		  for(j = i+1; j < s->n_radii; j++) {
+			  rdpe_sub(tmp, s->dradii[j],s->dradii[i]);
+			  rdpe_div_eq(tmp, s->dradii[i]);
+			  if (rdpe_get_d(tmp) > s->circle_relative_distance) {
+				  break;
+			  }
+		  }
+
+		  /* This is the number of circles that are near */
+		  offset = j - i;
+
+		  /* We shall now compact circles between i and j, so
+		   * we start computing the mean of the radius */
+		  for(k = i+1; k < j; k++) {
+			  // s->radii[i] += s->radii[k];
+			  rdpe_add_eq(s->dradii[i], s->dradii[j]);
+		  }
+		  // s->radii[i] /= offset;
+		  rdpe_div_eq_d(s->dradii[i], offset);
+		  s->partitioning[i+1] = s->partitioning[j];
+
+		  /* Move other circles backward */
+		  for(k = j; k < s->n_radii; k++) {
+			  rdpe_set(s->dradii[k - offset + 1], s->dradii[k]);
+		  }
+
+		  /* Set new s->n_radii and new partitioning */
+		  s->n_radii = s->n_radii - offset + 1;
+	  }
 }
 
 /**
