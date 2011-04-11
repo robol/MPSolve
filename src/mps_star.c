@@ -177,6 +177,11 @@ void mps_fcompute_starting_radii(mps_status* s, int n, int i_clust, double clust
 		  /* This is the number of circles that are near */
 		  offset = j - i;
 
+		  /* If there is nothing to compact, do not compact it */
+		  if (offset == 1) {
+			  continue;
+		  }
+
 		  if(s->DOLOG && (offset > 1)) {
 			  fprintf(s->logstr,
 					  "\n    MPS_FCOMPUTE_STARTING_RADII: Compacting circles"
@@ -189,7 +194,9 @@ void mps_fcompute_starting_radii(mps_status* s, int n, int i_clust, double clust
 		  for(k = i+1; k <= j; k++) {
 			  s->fradii[i] += s->fradii[k];
 		  }
+
 		  s->fradii[i] /= (offset + 1);
+
 		  s->partitioning[i+1] = s->partitioning[j];
 
 		  /* Move other circles backward */
@@ -414,6 +421,12 @@ void mps_dcompute_starting_radii(mps_status* s, int n, int i_clust, rdpe_t clust
 
 		/* This is the number of circles that are near */
 		offset = j - i;
+
+
+		/* If there is nothing to compact, do not compact it */
+		if (offset == 1) {
+			continue;
+		}
 
 		/* We shall now compact circles between i and j, so
 		 * we start computing the mean of the radius */
@@ -649,6 +662,11 @@ mps_mcompute_starting_radii(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
 
 		  /* This is the number of circles that are near */
 		  offset = j - i;
+
+		  /* If there is nothing to compact, do not compact it */
+		  if (offset == 1) {
+			  continue;
+		  }
 
 		  if(s->DOLOG && offset > 1) {
 			  fprintf(s->logstr,
