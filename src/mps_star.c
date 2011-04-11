@@ -179,16 +179,17 @@ void mps_fcompute_starting_radii(mps_status* s, int n, int i_clust, double clust
 
 		  if(s->DOLOG && (offset > 1)) {
 			  fprintf(s->logstr,
-					  "    MPS_FCOMPUTE_STARTING_RADII: Compacting circles"
+					  "\n    MPS_FCOMPUTE_STARTING_RADII: Compacting circles"
 					  " from %d to %d\n", i, j);
+			  fprintf(s->logstr, "    MPS_FCOMPUTE_STARTING_RADII: Dumping partitioning\n");
 		  }
 
 		  /* We shall now compact circles between i and j, so
 		   * we start computing the mean of the radius */
-		  for(k = i+1; k < j; k++) {
+		  for(k = i+1; k <= j; k++) {
 			  s->fradii[i] += s->fradii[k];
 		  }
-		  s->fradii[i] /= offset;
+		  s->fradii[i] /= (offset + 1);
 		  s->partitioning[i+1] = s->partitioning[j];
 
 		  /* Move other circles backward */
@@ -199,6 +200,8 @@ void mps_fcompute_starting_radii(mps_status* s, int n, int i_clust, double clust
 
 		  /* Set new s->n_radii and new partitioning */
 		  s->n_radii = s->n_radii - offset + 1;
+		  s->partitioning[s->n_radii] = n;
+
 	  }
 }
 
@@ -231,8 +234,6 @@ void
 mps_fstart(mps_status* s, int n, int i_clust, double clust_rad,
 		   double g, rdpe_t eps, double fap[])
 {
-
-
   int i,j, jj, l, nzeros = 0;
   double sigma, th, ang, r = 0;
   rdpe_t tmp;
@@ -323,13 +324,13 @@ void mps_dcompute_starting_radii(mps_status* s, int n, int i_clust, rdpe_t clust
 
 	/* Compute big and small values */
 	double  xbig, xsmall;
-	xbig = rdpe_log(RDPE_MAX);
-	xsmall = rdpe_log(RDPE_MIN);
-
 
 	int i, j, k, nzeros, iold, ni, offset;
 	double temp;
 	rdpe_t r, tmp;
+
+	xbig = rdpe_log(RDPE_MAX);
+	xsmall = rdpe_log(RDPE_MIN);
 
 	ni = 0;
 	nzeros = 0;
@@ -416,11 +417,11 @@ void mps_dcompute_starting_radii(mps_status* s, int n, int i_clust, rdpe_t clust
 
 		/* We shall now compact circles between i and j, so
 		 * we start computing the mean of the radius */
-		for(k = i+1; k < j; k++) {
+		for(k = i+1; k <= j; k++) {
 			rdpe_add_eq(s->dradii[i], s->dradii[j]);
 		}
 
-		rdpe_div_eq_d(s->dradii[i], offset);
+		rdpe_div_eq_d(s->dradii[i], offset + 1);
 		s->partitioning[i+1] = s->partitioning[j];
 
 		/* Move other circles backward */
@@ -431,6 +432,7 @@ void mps_dcompute_starting_radii(mps_status* s, int n, int i_clust, rdpe_t clust
 
 		/* Set new s->n_radii and new partitioning */
 		s->n_radii = s->n_radii - offset + 1;
+		s->partitioning[s->n_radii] = n;
   }
 }
 
@@ -663,7 +665,7 @@ mps_mcompute_starting_radii(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
 
 		  /* We shall now compact circles between i and j, so
 		   * we start computing the mean of the radius */
-		  for(k = i+1; k < j; k++) {
+		  for(k = i+1; k <= j; k++) {
 			  rdpe_add_eq(s->dradii[i], s->dradii[j]);
 		  }
 
@@ -678,6 +680,7 @@ mps_mcompute_starting_radii(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
 
 		  /* Set new s->n_radii and new partitioning */
 		  s->n_radii = s->n_radii - offset + 1;
+		  s->partitioning[s->n_radii] = n;
 	  }
 }
 
