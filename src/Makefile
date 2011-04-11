@@ -18,7 +18,7 @@ LD = $(CC)
 GMPDIR = Gmp
 
 # compiler flags
-# CFLAGS = -O2 -fPIC -I../include -Wall
+CFLAGS = -O2 -fPIC -I../include -Wall
 CFLAGS = -g -O0 -Wall -I../include -pedantic -fPIC
 #
 # you can also use:

@@ -849,6 +849,7 @@ rdpe_sub(rdpe_t re, const rdpe_t e1, const rdpe_t e2)
     rdpe_Esp(re) = rdpe_Esp(e2);
     return;
   }
+
   delta = rdpe_Esp(e1) - rdpe_Esp(e2);
 
   if (delta > NBT)
