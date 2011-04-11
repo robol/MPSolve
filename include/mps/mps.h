@@ -816,6 +816,11 @@ int mps_status_set_poly_d(mps_status* s, cplx_t* coeff, long unsigned int n);
 int mps_status_set_poly_i(mps_status* s, int* coeff, long unsigned int n);
 int mps_get_roots_d(mps_status* s, cplx_t* roots, double* radius);
 
+/* functions in mps_secular.c */
+void mps_secular_fnewton(mps_status* st, cplx_t x, double * rad, cplx_t corr, boolean * again);
+void mps_secular_dnewton(mps_status* st, cdpe_t x, rdpe_t rad, cdpe_t corr, boolean * again);
+void mps_secular_mnewton(mps_status* st, mpc_t x, rdpe_t rad, mpc_t corr, boolean * again);
+
 #endif /* ndef __MPS_H__ */
 
 

@@ -34,16 +34,25 @@ mps_secular_equation_new(cplx_t* afpc, cplx_t* bfpc, unsigned long int n) {
 	s->ampc = mpc_valloc(n);
 	s->bmpc = mpc_valloc(n);
 
+
 	/* Copy the complex coefficients passed as argument */
 	for(i = 0; i < n; i++) {
 		/* a_i coefficients */
 		cplx_set(s->afpc[i], afpc[i]);
+
+		cdpe_init(s->adpc[i]);
 		cdpe_set_x(s->adpc[i], afpc[i]);
+
+		mpc_init2(s->ampc[i], 53);
 		mpc_set_cplx(s->ampc[i], afpc[i]);
 
 		/* b_i coefficients */
 		cplx_set(s->bfpc[i], bfpc[i]);
+
+		cdpe_init(s->bdpc[i]);
 		cdpe_set_x(s->bdpc[i], bfpc[i]);
+
+		mpc_init2(s->bmpc[i], 53);
 		mpc_set_cplx(s->bmpc[i], bfpc[i]);
 	}
 
@@ -52,6 +61,10 @@ mps_secular_equation_new(cplx_t* afpc, cplx_t* bfpc, unsigned long int n) {
 	s->sum_ab = cplx_valloc(n);
 	s->dsum_ab = cdpe_valloc(n);
 	s->dsum_bz = cdpe_valloc(n);
+	s->msum_ab = mpc_valloc(n);
+	s->msum_bz = mpc_valloc(n);
+
+	s->n = n;
 
 	return s;
 }
@@ -201,22 +214,34 @@ mps_secular_dnewton(mps_status* s, cdpe_t x, rdpe_t rad, cdpe_t corr, boolean * 
 }
 
 void
-mps_secular_mnewton(mps_status* s, cdpe_t x, rdpe_t rad, cdpe_t corr, boolean * again) {
+mps_secular_mnewton(mps_status* s, mpc_t x, rdpe_t rad, mpc_t corr, boolean * again) {
 
+	/* Declarations */
 	int i;
-	tmpc_t ctmp, pol, fp;
-	tmpf_t ftmp;
 	rdpe_t rtmp, rtmp2, rtmp3;
+	mpc_t ctmp, pol, fp;
+	mpf_t ftmp;
 
-	/* Init temporary variables to the desired precision */
-	tmpc_init2(ctmp, s->mpwp);
-	tmpc_init2(pol,  s->mpwp);
-	tmpc_init2(fp,   s->mpwp);
-
-	tmpf_init2(ftmp, s->mpwp);
 
 	/* Get pointer to the mps_secular_equation */
 	mps_secular_equation* sec = (mps_secular_equation*) s->user_data;
+
+	/* Allocate variables used here */
+	mpc_init2(ctmp, s->mpwp);
+	mpc_init2(pol,  s->mpwp);
+	mpc_init2(fp,   s->mpwp);
+	mpf_init2(ftmp, s->mpwp);
+
+	/* Check if we need to raise precision */
+	if (mpc_get_prec(sec->ampc[0]) != s->mpwp) {
+		for(i = 0; i < sec->n; i++) {
+			mpc_set_prec(sec->ampc[i], s->mpwp);
+			mpc_set_prec(sec->bmpc[i], s->mpwp);
+			mpc_set_prec(sec->msum_ab[i], s->mpwp);
+			mpc_set_prec(sec->msum_bz[i], s->mpwp);
+		}
+	}
+
 
 	for(i = 0; i < sec->n; i++) {
 		/* Compute (z - b_i) and store it in sec->sum_bz[i] */
@@ -233,7 +258,7 @@ mps_secular_mnewton(mps_status* s, cdpe_t x, rdpe_t rad, cdpe_t corr, boolean * 
 	}
 
 	/* Compute polynomial divided for the product of (b_j - z) */
-	mpc_set_f(pol, 0, 0);
+	mpc_set_d(pol, 0, 0);
 	for(i = 0; i < sec->n; i++) {
 		mpc_add_eq(pol, sec->msum_ab[i]);
 	}
@@ -248,6 +273,8 @@ mps_secular_mnewton(mps_status* s, cdpe_t x, rdpe_t rad, cdpe_t corr, boolean * 
 
 	/* Compute newton correction */
 	mpc_div(corr, pol, fp);
+
+	printf("Newton correction is: "); mpc_out_str_2(stdout, 10, 25, 25, corr); printf("\n");
 
 	/* Compute radius of inclusion
 	 * TODO: Check the right way to compute this */
@@ -265,18 +292,26 @@ mps_secular_mnewton(mps_status* s, cdpe_t x, rdpe_t rad, cdpe_t corr, boolean * 
 	/* Radius is eps * 4n * p(|z|) */
 	rdpe_mul_eq_d(rad, (double) sec->n * 4 * DBL_EPSILON);
 
+	printf("Radius is: "); rdpe_out_str(stdout, rad); printf("\n");
+
 	/* Compute |p(z)| , |p'(z)| and |z| and check if we need to continue */
 	mpc_mod(ftmp, pol);
 	mpf_get_rdpe(rtmp, ftmp);
 	mpc_mod(ftmp, fp);
-	mpc_get_rdpe(rtmp2, ftmp);
+	mpf_get_rdpe(rtmp2, ftmp);
 	mpc_mod(ftmp, x);
-	mpc_get_rdpe(rtmp3, ftmp);
+	mpf_get_rdpe(rtmp3, ftmp);
 	rdpe_mul_eq_d(rtmp3, DBL_EPSILON);
 	if( (rdpe_lt(rad, rtmp) ) ||
 			(rdpe_gt(rtmp2, rtmp3)) ) {
 		*again = false;
 	} else { *again = true; }
+
+	/* Deallocate temporary variables */
+	mpc_clear(ctmp);
+	mpc_clear(pol);
+	mpc_clear(fp);
+	mpf_clear(ftmp);
 }
 
 
