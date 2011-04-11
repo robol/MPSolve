@@ -587,10 +587,22 @@ typedef struct {
 	cplx_t* afpc;
 
 	/**
+	 * @brief Same as <code>afpc</code>, but the <code>dpe</code>
+	 * version.
+	 */
+	cdpe_t* adpc;
+
+	/**
 	 * @brief Vector with the values of \f$b_i\f$ as complex
 	 * floating point numbers.
 	 */
 	cplx_t* bfpc;
+
+	/**
+	 * @brief Same as <code>bfpc</code>, but the <code>dpe</code>
+	 * version.
+	 */
+	cdpe_t* bdpc;
 
 	/**
 	 * @brief Size of the vectors of the coefficients of the
@@ -601,15 +613,31 @@ typedef struct {
 	/* TEMPORARY VARIABLES */
 
 	/**
-	 * @brief Sum of the b_i - z
+	 * @brief Sum of the b_i - z, floating point.
 	 */
 	cplx_t* sum_bz;
 
 	/**
 	 * @brief sum of a_i / (b_i - z)^n with n = 1,2 depending
-	 * on the moment of the computation.
+	 * on the moment of the computation, floating point.
 	 */
 	cplx_t* sum_ab;
+
+	/**
+	 * @brief The same as sum_bz, but the <code>cdpe_t</code>
+	 * version.
+	 *
+	 * @see sum_bz
+	 */
+	cdpe_t* dsum_bz;
+
+	/**
+	 * @brief The same as sum_ab, but the <code>cdpe_t</code>
+	 * version.
+	 *
+	 * @see sum_ab;
+	 */
+	cdpe_t* dsum_ab;
 
 } mps_secular_equation; /* End of typedef struct {... */
 
