@@ -550,10 +550,22 @@ typedef struct {
    double circle_relative_distance;
 
 
+   /**
+    * @brief Pointer to the function to perform newton in floating
+    * point implemented by the user.
+    */
    void (*fnewton_usr)(void* status,cplx_t,double*,cplx_t,boolean*);
 
+   /**
+    * @brief Pointer to the function to perform newton in dpe
+    * implemented by the user.
+    */
    void (*dnewton_usr)(void* status, cdpe_t x, rdpe_t   rad, cdpe_t corr, boolean* again);
 
+   /**
+    * @brief Pointer to the function to perform newton in multiprecision
+    * implemented by the user.
+    */
    void (*mnewton_usr)(void* status, mpc_t  x, rdpe_t   rad, mpc_t  corr, boolean* again);
 
 	/**
@@ -605,6 +617,18 @@ typedef struct {
 	cdpe_t* bdpc;
 
 	/**
+	 * @brief Same as <code>afpc</code>, but the multiprecision
+	 * version.
+	 */
+	mpc_t * ampc;
+
+	/**
+	 * @brief Same as <code>bfpc</code>, but the multiprecision
+	 * version.
+	 */
+	mpc_t * bmpc;
+
+	/**
 	 * @brief Size of the vectors of the coefficients of the
 	 * secular equation.
 	 */
@@ -638,6 +662,18 @@ typedef struct {
 	 * @see sum_ab;
 	 */
 	cdpe_t* dsum_ab;
+
+	/**
+	 * @brief The same as <code>sum_ab</code>, but the multiprecision
+	 * version.
+	 */
+	mpc_t * msum_ab;
+
+	/**
+	 * @brief The same as <code>sum_bz</code>, but the multiprecision
+	 * version.
+	 */
+	mpc_t * msum_bz;
 
 } mps_secular_equation; /* End of typedef struct {... */
 
