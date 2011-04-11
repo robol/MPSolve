@@ -323,13 +323,13 @@ void mps_dcompute_starting_radii(mps_status* s, int n, int i_clust, rdpe_t clust
 
 	/* Compute big and small values */
 	double  xbig, xsmall;
-	xbig = rdpe_log(RDPE_MAX);
-	xsmall = rdpe_log(RDPE_MIN);
 
-
-	int i, j, k, nzeros, iold, ni, offset;
+	int i, j, k, nzeros, ni, offset, iold;
 	double temp;
 	rdpe_t r, tmp;
+
+	xbig = rdpe_log(RDPE_MAX);
+	xsmall = rdpe_log(RDPE_MIN);
 
 	ni = 0;
 	nzeros = 0;
@@ -459,7 +459,7 @@ void
 mps_dstart(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
 		   rdpe_t g, rdpe_t eps, rdpe_t dap[])
 {
-  int l, i, j, jj, iold, nzeros = 0;
+  int l, i, j, jj, nzeros = 0;
   rdpe_t r, tmp, tmp1;
   double sigma, th, ang;
   boolean flag = false;
@@ -497,50 +497,43 @@ mps_dstart(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
   mps_dcompute_starting_radii(s, n, i_clust, clust_rad, g, eps, dap);
   th = pi2 / n;
 
-  /* Scan all the vertices of the convex hull   */
-  iold = 0;
-  for (i = 1; i <= n; i++)
-    if (s->h[i]) {
+  for(i = 0; i < s->n_radii; i++) {
+	  nzeros = s->partitioning[i+1] - s->partitioning[i];
+	  ang = pi2 / nzeros;
 
-    	iold = s->partitioning[i];
-    	nzeros = s->partitioning[i+1] - iold;
-    	rdpe_set(r, s->dradii[i]);
+	  for(j = s->partitioning[i]; j < s->partitioning[i]; j++) {
+		  if (rdpe_ne(g, rdpe_zero)) {
+			  l = s->clust[s->punt[i_clust] + j];
+		  } else
+			  l = j;
+	  }
 
-    	ang = pi2 / nzeros;
-    	for (j = iold; j < i; j++) {
-    		if (rdpe_ne(g, rdpe_zero))
-    			l = s->clust[s->punt[i_clust] + j];
-    		else
-    			l = j;
+	  jj = j - s->partitioning[i];
 
-    		jj = j - iold;
-
-    		/* If dpe_after_float (i.e., flag is true) recompute the starting
-    		 * values of only the approximations falling out of the range */
-    		if (flag) {
-    			if (s->status[l][0] == 'x') {
-    				cdpe_set_d(s->droot[l], cos(ang * jj + th * s->partitioning[i+1] + sigma),
-    						sin(ang * jj + th * s->partitioning[i+1] + sigma));
-    				cdpe_mul_eq_e(s->droot[l], r);
-    				s->status[l][0] = 'c';
-    				/*#G 27/4/98 if (rdpe_eq(r, big) || rdpe_eq(r, small)) */
-    				if (rdpe_eq(r, RDPE_MIN) || rdpe_eq(r, RDPE_MAX))
-    					s->status[l][0] = 'f';
-    			}
-    		} else {
-    			/* else compute all the initial approximations */
-    			cdpe_set_d(s->droot[l], cos(ang * jj + th * i + sigma),
-    					sin(ang * jj + th * i + sigma));
-    			cdpe_mul_eq_e(s->droot[l], r);
-    			/*#G 27/4/98 if (rdpe_eq(r, big) || rdpe_eq(r, small)) */
-    			if (rdpe_eq(r, RDPE_MIN) || rdpe_eq(r, RDPE_MAX))
-    				s->status[l][0] = 'f';
-    		}
-    	}
-    	iold = i;
+	  /* If dpe_after_float (i.e., flag is true) recompute the starting
+	   * values of only the approximations falling out of the range */
+	  if (flag) {
+		  if (s->status[l][0] == 'x') {
+			  cdpe_set_d(s->droot[l], cos(ang * jj + th * s->partitioning[i+1] + sigma),
+					  sin(ang * jj + th * s->partitioning[i+1] + sigma));
+			  cdpe_mul_eq_e(s->droot[l], r);
+			  s->status[l][0] = 'c';
+			  /*#G 27/4/98 if (rdpe_eq(r, big) || rdpe_eq(r, small)) */
+			  if (rdpe_eq(r, RDPE_MIN) || rdpe_eq(r, RDPE_MAX))
+				  s->status[l][0] = 'f';
+		  }
+	  } else {
+		  /* else compute all the initial approximations */
+		  cdpe_set_d(s->droot[l], cos(ang * jj + th * i + sigma),
+				  sin(ang * jj + th * i + sigma));
+		  cdpe_mul_eq_e(s->droot[l], r);
+		  /*#G 27/4/98 if (rdpe_eq(r, big) || rdpe_eq(r, small)) */
+		  if (rdpe_eq(r, RDPE_MIN) || rdpe_eq(r, RDPE_MAX))
+			  s->status[l][0] = 'f';
+	  }
 
 	  /* If the new radius of the cluster is relatively small, then
-	   * set the status component equal to 'o' (output) */
+	  	   * set the status component equal to 'o' (output) */
 	  if (rdpe_ne(g, rdpe_zero)) {
 		  rdpe_mul(tmp, g, eps);
 		  rdpe_mul_d(tmp1, r, (double) nzeros);
@@ -551,8 +544,8 @@ mps_dstart(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
 				  rdpe_set(s->drad[l], tmp1);
 			  }
 	  }
+  }
 
-}
 }
 
 /**
