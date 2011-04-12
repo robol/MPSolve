@@ -18,8 +18,8 @@ LD = $(CC)
 GMPDIR = Gmp
 
 # compiler flags
-# CFLAGS = -O2 -fPIC -I../include -Wall
-CFLAGS = -g -O0 -Wall -I../include -pedantic -fPIC
+CFLAGS = -O2 -fPIC -I../include -Wall
+# CFLAGS = -g -O0 -Wall -I../include -pedantic -fPIC
 #
 # you can also use:
 #  -DNOMPTEMP 	to disable the memory manager for MP temporary variables

@@ -543,12 +543,6 @@ typedef struct {
     */
    int* partitioning;
 
-   /**
-    * @brief This is the minimum fraction admitted between two
-    * circle radius for not collapsing them.
-    */
-   double circle_relative_distance;
-
 
    void (*fnewton_usr)(void* status,cplx_t,double*,cplx_t,boolean*);
 

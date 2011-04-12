@@ -169,24 +169,26 @@ void mps_fcompute_starting_radii(mps_status* s, int n, int i_clust, double clust
 		  /* Scan next radii to see if they are near the
 		   * i-th that we are considering now  */
 		  for(j = i+1; j < s->n_radii; j++) {
-			  if ((s->fradii[j] - s->fradii[i]) / s->fradii[i] > s->circle_relative_distance) {
+			  // break;
+			  if ((s->fradii[j] - s->fradii[i]) / s->fradii[i] >
+				  pi2 / (s->partitioning[j+1] - s->partitioning[i]) ) {
 				  break;
 			  }
 		  }
 
 		  /* This is the number of circles that are near */
+		  j--;
 		  offset = j - i;
 
 		  /* If there is nothing to compact, do not compact it */
-		  if (offset == 1) {
+		  if (offset == 0) {
 			  continue;
 		  }
 
-		  if(s->DOLOG && (offset > 1)) {
+		  if(s->DOLOG) {
 			  fprintf(s->logstr,
 					  "\n    MPS_FCOMPUTE_STARTING_RADII: Compacting circles"
-					  " from %d to %d\n", i, j);
-			  fprintf(s->logstr, "    MPS_FCOMPUTE_STARTING_RADII: Dumping partitioning\n");
+					  " from %d to %d", i, j);
 		  }
 
 		  /* We shall now compact circles between i and j, so
@@ -197,19 +199,20 @@ void mps_fcompute_starting_radii(mps_status* s, int n, int i_clust, double clust
 
 		  s->fradii[i] /= (offset + 1);
 
-		  s->partitioning[i+1] = s->partitioning[j];
+		  // s->partitioning[i+1] = s->partitioning[j+1];
 
 		  /* Move other circles backward */
-		  for(k = j; k < s->n_radii; k++) {
-			  s->fradii[k - offset + 1] = s->fradii[k];
-			  s->partitioning[k - offset + 1] = s->partitioning[k];
+		  for(k = j+1; k < s->n_radii; k++) {
+			  s->fradii[k - offset] = s->fradii[k];
+			  s->partitioning[k - offset] = s->partitioning[k];
 		  }
 
 		  /* Set new s->n_radii and new partitioning */
-		  s->n_radii = s->n_radii - offset + 1;
+		  s->n_radii = s->n_radii - offset;
 		  s->partitioning[s->n_radii] = n;
 
 	  }
+
 }
 
 /**
@@ -414,18 +417,28 @@ void mps_dcompute_starting_radii(mps_status* s, int n, int i_clust, rdpe_t clust
 		for(j = i+1; j < s->n_radii; j++) {
 			rdpe_sub(tmp, s->dradii[j],s->dradii[i]);
 			rdpe_div_eq(tmp, s->dradii[i]);
-			if (rdpe_get_d(tmp) > s->circle_relative_distance) {
+			rdpe_div_eq_d(tmp, pi2);
+			rdpe_mul_eq_d(tmp, s->partitioning[j+1] - s->partitioning[i]);
+			if (rdpe_gt(tmp, rdpe_one)) {
 				break;
 			}
 		}
 
 		/* This is the number of circles that are near */
+		j--;
 		offset = j - i;
 
 
 		/* If there is nothing to compact, do not compact it */
-		if (offset == 1) {
+		if (offset == 0) {
 			continue;
+		}
+
+
+		if(s->DOLOG) {
+			fprintf(s->logstr,
+					"\n    MPS_DCOMPUTE_STARTING_RADII: Compacting circles"
+					" from %d to %d\n", i, j);
 		}
 
 		/* We shall now compact circles between i and j, so
@@ -435,16 +448,15 @@ void mps_dcompute_starting_radii(mps_status* s, int n, int i_clust, rdpe_t clust
 		}
 
 		rdpe_div_eq_d(s->dradii[i], offset + 1);
-		s->partitioning[i+1] = s->partitioning[j];
 
 		/* Move other circles backward */
-		for(k = j; k < s->n_radii; k++) {
-			rdpe_set(s->dradii[k - offset + 1], s->dradii[k]);
-			s->partitioning[k - offset + 1] = s->partitioning[k];
+		for(k = j+1; k < s->n_radii; k++) {
+			rdpe_set(s->dradii[k - offset], s->dradii[k]);
+			s->partitioning[k - offset] = s->partitioning[k];
 		}
 
 		/* Set new s->n_radii and new partitioning */
-		s->n_radii = s->n_radii - offset + 1;
+		s->n_radii = s->n_radii - offset;
 		s->partitioning[s->n_radii] = n;
   }
 }
@@ -474,7 +486,7 @@ void
 mps_dstart(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
 		   rdpe_t g, rdpe_t eps, rdpe_t dap[])
 {
-  int l, i, j, jj, nzeros = 0;
+  int l = 0, i, j, jj, nzeros = 0;
   rdpe_t r, tmp, tmp1;
   double sigma, th, ang;
   boolean flag = false;
@@ -655,20 +667,23 @@ mps_mcompute_starting_radii(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
 		  for(j = i+1; j < s->n_radii; j++) {
 			  rdpe_sub(tmp, s->dradii[j],s->dradii[i]);
 			  rdpe_div_eq(tmp, s->dradii[i]);
-			  if (rdpe_get_d(tmp) > s->circle_relative_distance) {
+			  rdpe_div_eq_d(tmp, pi2);
+			  rdpe_mul_eq_d(tmp, s->partitioning[j+1] - s->partitioning[i]);
+			  if (rdpe_gt(tmp, rdpe_one)) {
 				  break;
 			  }
 		  }
 
 		  /* This is the number of circles that are near */
+		  j--;
 		  offset = j - i;
 
 		  /* If there is nothing to compact, do not compact it */
-		  if (offset == 1) {
+		  if (offset == 0) {
 			  continue;
 		  }
 
-		  if(s->DOLOG && offset > 1) {
+		  if(s->DOLOG) {
 			  fprintf(s->logstr,
 					  "MPS_MCOMPUTE_STARTING_RADII: Compacting disc from %d to %d\n",
 					  i, j);
@@ -681,16 +696,15 @@ mps_mcompute_starting_radii(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
 		  }
 
 		  rdpe_div_eq_d(s->dradii[i], offset);
-		  s->partitioning[i+1] = s->partitioning[j];
 
 		  /* Move other circles backward */
-		  for(k = j; k < s->n_radii; k++) {
-			  rdpe_set(s->dradii[k - offset + 1], s->dradii[k]);
-			  s->partitioning[k - offset + 1] = s->partitioning[k];
+		  for(k = j+1; k < s->n_radii; k++) {
+			  rdpe_set(s->dradii[k - offset], s->dradii[k]);
+			  s->partitioning[k - offset] = s->partitioning[k];
 		  }
 
 		  /* Set new s->n_radii and new partitioning */
-		  s->n_radii = s->n_radii - offset + 1;
+		  s->n_radii = s->n_radii - offset;
 		  s->partitioning[s->n_radii] = n;
 	  }
 }
