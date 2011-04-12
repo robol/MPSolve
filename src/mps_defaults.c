@@ -95,8 +95,6 @@ void mps_set_default_values(mps_status* s) {
   s->punt_aux = NULL;
   s->punt_out = NULL;
   s->clust_out = NULL;
-
-  s->circle_relative_distance = 1e-2;
  
   /* Don't use user define functions */
   s->fnewton_usr = NULL;
