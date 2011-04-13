@@ -389,7 +389,7 @@ void mps_dcompute_starting_radii(mps_status* s, int n, int i_clust, rdpe_t clust
 
 	    	/* if the radius is too big to be represented as double, set it
 	    	 * to the maximum representable double */
-	    	if (temp < xbig)
+	    	if (temp > xbig)
 	    		rdpe_set(r, RDPE_MAX);
 
 	    	/* if the radius is representable as double, compute it    */
@@ -527,13 +527,14 @@ mps_dstart(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
   for(i = 0; i < s->n_radii; i++) {
 	  nzeros = s->partitioning[i+1] - s->partitioning[i];
 	  ang = pi2 / nzeros;
+	  rdpe_set(r, s->dradii[i]);
 
-	  for(j = s->partitioning[i]; j < s->partitioning[i]; j++) {
+	  for(j = s->partitioning[i]; j < s->partitioning[i+1]; j++) {
 		  if (rdpe_ne(g, rdpe_zero)) {
 			  l = s->clust[s->punt[i_clust] + j];
 		  } else
 			  l = j;
-	  }
+
 
 	  jj = j - s->partitioning[i];
 
@@ -551,8 +552,8 @@ mps_dstart(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
 		  }
 	  } else {
 		  /* else compute all the initial approximations */
-		  cdpe_set_d(s->droot[l], cos(ang * jj + th * i + sigma),
-				  sin(ang * jj + th * i + sigma));
+		  cdpe_set_d(s->droot[l], cos(ang * jj + th * s->partitioning[i+1] + sigma),
+				  sin(ang * jj + th * s->partitioning[i+1] + sigma));
 		  cdpe_mul_eq_e(s->droot[l], r);
 		  /*#G 27/4/98 if (rdpe_eq(r, big) || rdpe_eq(r, small)) */
 		  if (rdpe_eq(r, RDPE_MIN) || rdpe_eq(r, RDPE_MAX))
@@ -571,6 +572,7 @@ mps_dstart(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
 				  rdpe_set(s->drad[l], tmp1);
 			  }
 	  }
+	 }
   }
 
 }
@@ -772,7 +774,6 @@ mps_mstart(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
     		  s->status[l][0] = 'f';
     	  }
       }
-      iold = i;
 
 
 	  /* If the new radius of the cluster is relatively small, then
