@@ -562,6 +562,12 @@ typedef struct {
     */
    void (*mnewton_usr)(void* status, mpc_t  x, rdpe_t   rad, mpc_t  corr, boolean* again);
 
+   /**
+    * @brief Check data routine that has the task to determine if a float phase
+    * can be performed or dpe are needed now.
+    */
+   void (*check_data_usr)(void* status, char* which_case);
+
 	/**
 	 * @brief A pointer that can be set to anything the user
 	 * would like to access during computations. It is meant to be
@@ -773,6 +779,7 @@ int mps_get_roots_d(mps_status* s, cplx_t* roots, double* radius);
 void mps_secular_fnewton(mps_status* st, cplx_t x, double * rad, cplx_t corr, boolean * again);
 void mps_secular_dnewton(mps_status* st, cdpe_t x, rdpe_t rad, cdpe_t corr, boolean * again);
 void mps_secular_mnewton(mps_status* st, mpc_t x, rdpe_t rad, mpc_t corr, boolean * again);
+void mps_secular_check_data(mps_status* s, char* which_case);
 
 #endif /* ndef __MPS_H__ */
 

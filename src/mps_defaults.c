@@ -100,5 +100,6 @@ void mps_set_default_values(mps_status* s) {
   s->fnewton_usr = NULL;
   s->dnewton_usr = NULL;
   s->mnewton_usr = NULL;
+  s->check_data_usr = NULL;
 
 }

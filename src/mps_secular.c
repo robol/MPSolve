@@ -110,17 +110,26 @@ mps_secular_fnewton(mps_status* s, cplx_t x, double *rad, cplx_t corr, boolean *
 	/* Compute secular function */
 	cplx_sub_eq(pol, cplx_one);
 
-	printf("|pol| = %f\n", cplx_mod(pol));
+//	printf("|pol| = %f\n", cplx_mod(pol));
 
-	if (cplx_mod(pol) < DBL_EPSILON * cplx_mod(fp) * cplx_mod(x)) {
+//	if (cplx_mod(pol) < DBL_EPSILON * cplx_mod(fp) * cplx_mod(x)) {
+	if(cplx_mod(pol) < DBL_EPSILON * cplx_mod(x)) {
 		*again = false;
 		return;
 	}
 
 	/* Compute newton correction */
-	cplx_div(corr, fp, pol);
-	cplx_add_eq(corr, sumb);
-	cplx_inv_eq(corr);
+	// cplx_div(corr, pol, fp);
+	cplx_mul(ctmp, pol, sumb);
+	cplx_add_eq(ctmp, fp);
+
+	if (cplx_ne(ctmp, cplx_zero)) {
+		cplx_div(corr, pol, ctmp);
+	} else {
+		cplx_div(corr, pol, fp);
+	}
+
+//	printf("Correction = "); cplx_outln(corr);
 
 	/* Compute radius of inclusion
 	 * TODO: Check the right way to compute this */
@@ -184,16 +193,21 @@ mps_secular_dnewton(mps_status* s, cdpe_t x, rdpe_t rad, cdpe_t corr, boolean * 
 	rdpe_mul_eq_d(rtmp, DBL_EPSILON);
 	cdpe_mod(rtmp2, pol);
 
+//	printf("Polynomial = "); cdpe_outln(pol);
+
 	if(rdpe_lt(rtmp2, rtmp)) {
 		cdpe_set(corr, cdpe_zero);
 		*again = false;
 		return;
 	}
 
+
 	/* Compute correction */
 	cdpe_div(corr, fp, pol);
 	cdpe_add_eq(corr, sumb);
 	cdpe_inv_eq(corr);
+
+//	printf("Correction = "); cdpe_outln(corr);
 
 
 	/* Compute poly modulus. If it is less than
@@ -286,12 +300,16 @@ void mps_secular_mnewton(mps_status* s, mpc_t x, rdpe_t rad, mpc_t corr, boolean
 		*again = false;
 		mpc_set_d(corr, 0, 0);
 		return;
+	} else {
+		printf("Polynomial mod. = "); rdpe_outln(rtmp2);
 	}
 
 	/* Compute correction */
 	mpc_div(corr, fp, pol);
 	mpc_add_eq(corr, sumb);
 	mpc_inv_eq(corr);
+
+
 
 	/* Compute radius */
 	rdpe_mul_eq_d(rad, (double) sec->n * DBL_EPSILON * 4);
@@ -309,3 +327,6 @@ void mps_secular_mnewton(mps_status* s, mpc_t x, rdpe_t rad, mpc_t corr, boolean
 
 }
 
+void mps_secular_check_data(mps_status* s, char* which_case) {
+	*which_case = 'f';
+}
