@@ -57,6 +57,8 @@ mps_mpsolve(mps_status* s)
 
   /* Check if a dpe phase is needed and deflate polynomial */
   mps_check_data(s, &which_case);
+
+  which_case = 'f';
   if (s->DOLOG)
     fprintf(s->logstr, "Which_case = %c, skip_float= %d\n",
 	    which_case, s->skip_float);

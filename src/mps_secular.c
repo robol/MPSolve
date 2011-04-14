@@ -56,14 +56,6 @@ mps_secular_equation_new(cplx_t* afpc, cplx_t* bfpc, unsigned long int n) {
 		mpc_set_cplx(s->bmpc[i], bfpc[i]);
 	}
 
-	/* Allocate temporary variables */
-	s->sum_bz = cplx_valloc(n);
-	s->sum_ab = cplx_valloc(n);
-	s->dsum_ab = cdpe_valloc(n);
-	s->dsum_bz = cdpe_valloc(n);
-	s->msum_ab = mpc_valloc(n);
-	s->msum_bz = mpc_valloc(n);
-
 	s->n = n;
 
 	return s;
@@ -75,14 +67,6 @@ mps_secular_equation_free(mps_secular_equation* s) {
 	cplx_vfree(s->afpc);
 	cplx_vfree(s->bfpc);
 
-	/* ...and temporary variables */
-	cplx_vfree(s->sum_bz);
-	cplx_vfree(s->sum_ab);
-	cdpe_vfree(s->dsum_ab);
-	cdpe_vfree(s->dsum_bz);
-	mpc_vfree(s->msum_ab);
-	mpc_vfree(s->msum_bz);
-
 	/* ...and then release it */
 	free(s);
 }
@@ -91,228 +75,237 @@ void
 mps_secular_fnewton(mps_status* s, cplx_t x, double *rad, cplx_t corr, boolean * again) {
 
 	int i;
-	cplx_t ctmp, pol, fp;
+	cplx_t ctmp, ctmp2, pol, fp, sumb;
 
-	/* Get pointer to the mps_secular_equation */
 	mps_secular_equation* sec = (mps_secular_equation*) s->user_data;
 
+	cplx_set(pol,  cplx_zero);
+	cplx_set(fp,   cplx_zero);
+	cplx_set(sumb, cplx_zero);
+	*rad = 0;
+
 	for(i = 0; i < sec->n; i++) {
-		/* Compute (z - b_i) and store it in sec->sum_bz[i] */
-		cplx_sub(sec->sum_bz[i], x, sec->bfpc[i]);
+		/* Compute z - b_i */
+		cplx_sub(ctmp, x, sec->bfpc[i]);
 
-		/* Compute a_i / (z - b_i) and store it in sec->sum_ab[i] */
-		cplx_inv(ctmp, sec->sum_bz[i]);
-		cplx_mul(sec->sum_ab[i], sec->afpc[i], ctmp);
+		/* Compute (z-b_i)^{-1} */
+		cplx_inv_eq(ctmp);
 
-		/* Overwrite (z - b_i) with a_i / (z-b_i)^2. Now ctmp
-		 * is 1 / z - b_i */
-		cplx_mul(sec->sum_bz[i], sec->sum_ab[i], ctmp);
+		/* Compute sum of (z-b_i)^{-1} */
+		cplx_add_eq(sumb, ctmp);
+
+		/* Compute a_i / (z - b_i) */
+		cplx_mul(ctmp2, sec->afpc[i], ctmp);
+
+		/* Add a_i / (z - b_i) to pol */
+		cplx_add_eq(pol, ctmp2);
+
+		/* Compute a_i / (z - b_i)^2 */
+		cplx_mul_eq(ctmp2, ctmp);
+
+		/* Add it to fp */
+		cplx_sub_eq(fp, ctmp2);
 	}
 
-	/* Compute polynomial divided for the product of (b_j - z) */
-	cplx_set(pol, cplx_zero);
-	for(i = 0; i < sec->n; i++) {
-		cplx_add_eq(pol, sec->sum_ab[i]);
-	}
+	/* Compute secular function */
 	cplx_sub_eq(pol, cplx_one);
 
-	/* Compute the first derivative of the polynomial divided for
-	 * (b_j - z) */
-	cplx_set(fp, cplx_zero);
-	for(i = 0; i < sec->n; i++) {
-		cplx_sub_eq(fp, sec->sum_bz[i]);
+	printf("|pol| = %f\n", cplx_mod(pol));
+
+	if (cplx_mod(pol) < DBL_EPSILON * cplx_mod(fp) * cplx_mod(x)) {
+		*again = false;
+		return;
 	}
 
 	/* Compute newton correction */
-	cplx_div(corr, pol, fp);
+	cplx_div(corr, fp, pol);
+	cplx_add_eq(corr, sumb);
+	cplx_inv_eq(corr);
 
 	/* Compute radius of inclusion
 	 * TODO: Check the right way to compute this */
 
-	/* Start with computing p(|z|), remembering that
-	 * sec->sum_ad contains the values a_i / (z-b_i).
-	 * Compute their modulus and then sum them together. */
-	*rad = 0;
-	for(i = 0; i < sec->n; i++) {
-		*rad += cplx_mod(sec->sum_ab[i]);
-	}
-
 	/* Radius is eps * n * p(|z|) */
 	*rad = (*rad) * (double) sec->n * 4 * DBL_EPSILON;
 
-	/* Check if we need to continue */
-	if ((*rad < cplx_mod(pol)) &&
-			(cplx_mod(fp) > DBL_EPSILON * cplx_mod(x))) {
-		*again = false;
-	} else { *again = true; }
+	*again  = true;
 }
 
 void
 mps_secular_dnewton(mps_status* s, cdpe_t x, rdpe_t rad, cdpe_t corr, boolean * again) {
 
 	int i;
-	cdpe_t ctmp, pol, fp;
-	rdpe_t rtmp, rtmp2, rtmp3;
 
-	/* Get pointer to the mps_secular_equation */
 	mps_secular_equation* sec = (mps_secular_equation*) s->user_data;
 
+	cdpe_t pol, fp, sumb, ctmp, ctmp2;
+	rdpe_t rtmp, rtmp2, xmod;
+
+	cdpe_set(pol,  cdpe_zero);
+	cdpe_set(fp,   cdpe_zero);
+	cdpe_set(sumb, cdpe_zero);
+	rdpe_set(rad,  rdpe_zero);
+
 	for(i = 0; i < sec->n; i++) {
-		/* Compute (z - b_i) and store it in sec->sum_bz[i] */
-		cdpe_sub(sec->dsum_bz[i], sec->bdpc[i], x);
+		/* Compute z - b_i */
+		cdpe_sub(ctmp, x, sec->bdpc[i]);
 
-		/* Compute a_i / (z - b_i) and store it in sec->sum_ab[i] */
-		cdpe_inv(ctmp, sec->dsum_bz[i]);
-		cdpe_mul(sec->dsum_ab[i], sec->adpc[i], ctmp);
+		/* Compute modulus of x and |x| - b_i */
+		cdpe_mod(xmod, x);
 
-		/* Overwrite (z - b_i) with a_i / (z-b_i)^2. Now ctmp
-		 * is 1 / z - b_i */
-		cdpe_mul_eq(sec->dsum_bz[i], ctmp);
+		/* Invert it, i.e. compute 1 / (z - b_i) */
+		cdpe_inv_eq(ctmp);
+
+		/* Compute sum of 1 / (z - b_i) */
+		cdpe_add_eq(sumb, ctmp);
+
+		/* Compute a / (z - b_i) and its modulus */
+		cdpe_mul(ctmp2, sec->adpc[i], ctmp);
+		cdpe_add_eq(pol, ctmp2);
+		cdpe_mod(rtmp, ctmp2);
+		rdpe_add_eq(rad, rtmp);
+
+		/* Compute a / (z - b_i)^2 and add it to the first derivative */
+		cdpe_mul_eq(ctmp2, ctmp);
+		cdpe_sub_eq(fp, ctmp2);
 	}
 
-	/* Compute polynomial divided for the product of (b_j - z) */
-	cdpe_set(pol, cdpe_zero);
-	for(i = 0; i < sec->n; i++) {
-		cdpe_add_eq(pol, sec->dsum_ab[i]);
-	}
+	/* Compute poly */
 	cdpe_sub_eq(pol, cdpe_one);
 
-	/* Compute the first derivative of the polynomial divided for
-	 * (b_j - z) */
-	cdpe_set(fp, cdpe_zero);
-	for(i = 0; i < sec->n; i++) {
-		cdpe_sub_eq(fp, sec->dsum_bz[i]);
-	}
+	/* Compute radius */
+	rdpe_add_eq(rad, rdpe_one);
+	rdpe_mul_eq_d(rad, 4 * sec->n * DBL_EPSILON);
 
-	/* Compute newton correction */
-	cdpe_div(corr, pol, fp);
+	/* Check if |p(z)| < |p'(z)| * |x| * epsilon */
+	cdpe_mod(rtmp, fp);
+	cdpe_mod(rtmp2, x);
+	rdpe_mul_eq(rtmp, rtmp2);
+	rdpe_mul_eq_d(rtmp, DBL_EPSILON);
+	cdpe_mod(rtmp2, pol);
 
-	/* Compute radius of inclusion
-	 * TODO: Check the right way to compute this */
-
-	/* Start with computing p(|z|), remembering that
-	 * sec->sum_ad contains the values a_i / (z-b_i).
-	 * Compute their modulus and then sum them together. */
-	rdpe_set(rad, rdpe_zero);
-	for(i = 0; i < sec->n; i++) {
-		cdpe_mod(rtmp, sec->dsum_ab[i]);
-		rdpe_add_eq(rad, rtmp);
-	}
-
-	/* Radius is eps * 4n * p(|z|) */
-	rdpe_mul_eq_d(rad, (double) sec->n * 4 * DBL_EPSILON);
-
-	/* Compute |p(z)| , |p'(z)| and |z| and check if we need to continue */
-	cdpe_mod(rtmp, pol);
-	cdpe_mod(rtmp2, fp);
-	cdpe_mod(rtmp3, x);
-	rdpe_mul_eq_d(rtmp3, DBL_EPSILON);
-	if( (rdpe_lt(rad, rtmp) ) ||
-			(rdpe_gt(rtmp2, rtmp3)) ) {
+	if(rdpe_lt(rtmp2, rtmp)) {
+		cdpe_set(corr, cdpe_zero);
 		*again = false;
-	} else { *again = true; }
+		return;
+	}
+
+	/* Compute correction */
+	cdpe_div(corr, fp, pol);
+	cdpe_add_eq(corr, sumb);
+	cdpe_inv_eq(corr);
+
+
+	/* Compute poly modulus. If it is less than
+	 * epsilon * p(|z|) than stop */
+	cdpe_mod(rtmp, pol);
+
+	/* Stop if radius get small */
+	if (rdpe_lt(rtmp, rad)) {
+		*again = false;
+	} else {
+		*again = true;
+	}
+
+	*again = true;
 }
 
-void
-mps_secular_mnewton(mps_status* s, mpc_t x, rdpe_t rad, mpc_t corr, boolean * again) {
+void mps_secular_mnewton(mps_status* s, mpc_t x, rdpe_t rad, mpc_t corr, boolean * again) {
 
-	/* Declarations */
 	int i;
-	rdpe_t rtmp, rtmp2, rtmp3;
-	mpc_t ctmp, pol, fp;
-	mpf_t ftmp;
 
-
-	/* Get pointer to the mps_secular_equation */
+	/* Get a pointer to the secular equation */
 	mps_secular_equation* sec = (mps_secular_equation*) s->user_data;
 
-	/* Allocate variables used here */
-	mpc_init2(ctmp, s->mpwp);
-	mpc_init2(pol,  s->mpwp);
-	mpc_init2(fp,   s->mpwp);
-	mpf_init2(ftmp, s->mpwp);
+	/* Declare temporary variables */
+	mpc_t sumb, pol, fp, ctmp, ctmp2;
+	mpf_t ftmp;
+	rdpe_t rtmp, rtmp2;
 
-	/* Check if we need to raise precision */
-	if (mpc_get_prec(sec->ampc[0]) != s->mpwp) {
+	/* Set working precision */
+	mpc_init2(sumb,  s->mpwp);
+	mpc_init2(pol,   s->mpwp);
+	mpc_init2(fp,    s->mpwp);
+	mpc_init2(ctmp,  s->mpwp);
+	mpc_init2(ctmp2, s->mpwp);
+	mpf_init2(ftmp , s->mpwp);
+
+	/* Adjust precision of coefficients */
+	if (s->mpwp != mpc_get_prec(sec->ampc[0])) {
 		for(i = 0; i < sec->n; i++) {
 			mpc_set_prec(sec->ampc[i], s->mpwp);
 			mpc_set_prec(sec->bmpc[i], s->mpwp);
-			mpc_set_prec(sec->msum_ab[i], s->mpwp);
-			mpc_set_prec(sec->msum_bz[i], s->mpwp);
 		}
 	}
 
-
-	for(i = 0; i < sec->n; i++) {
-		/* Compute (z - b_i) and store it in sec->sum_bz[i] */
-
-		mpc_sub(sec->msum_bz[i],  sec->bmpc[i], x);
-
-		/* Compute a_i / (z - b_i) and store it in sec->sum_ab[i] */
-		mpc_inv(ctmp, sec->msum_bz[i]);
-		mpc_mul(sec->msum_ab[i], sec->ampc[i], ctmp);
-
-		/* Overwrite (z - b_i) with a_i / (z-b_i)^2. Now ctmp
-		 * is 1 / z - b_i */
-		mpc_mul(sec->msum_bz[i], sec->msum_ab[i], ctmp);
-	}
-
-	/* Compute polynomial divided for the product of (b_j - z) */
-	mpc_set_d(pol, 0, 0);
-	for(i = 0; i < sec->n; i++) {
-		mpc_add_eq(pol, sec->msum_ab[i]);
-	}
-	mpc_sub_eq_ui(pol, 1, 0);
-
-	/* Compute the first derivative of the polynomial divided for
-	 * (b_j - z) */
-	mpc_set_ui(fp, 0, 0);
-	for(i = 0; i < sec->n; i++) {
-		mpc_sub_eq(fp, sec->msum_bz[i]);
-	}
-
-	/* Compute newton correction */
-	mpc_div(corr, pol, fp);
-
-	printf("Newton correction is: "); mpc_out_str_2(stdout, 10, 25, 25, corr); printf("\n");
-
-	/* Compute radius of inclusion
-	 * TODO: Check the right way to compute this */
-
-	/* Start with computing p(|z|), remembering that
-	 * sec->sum_ad contains the values a_i / (z-b_i).
-	 * Compute their modulus and then sum them together. */
+	/* Set some starting values */
+	mpc_set_d(sumb, 0, 0);
+	mpc_set_d(pol,  0, 0);
+	mpc_set_d(fp,   0, 0);
 	rdpe_set(rad, rdpe_zero);
+
 	for(i = 0; i < sec->n; i++) {
-		mpc_mod(ftmp, sec->msum_ab[i]);
+		/* Compute z - b_i */
+		mpc_sub(ctmp, x, sec->bmpc[i]);
+
+		/* Compute (z-b_i)^{-1} */
+		mpc_inv_eq(ctmp);
+
+		/* Multiply sum of (z-b_i)^{-1} */
+		mpc_add_eq(sumb, ctmp);
+
+		/* Compute a_i / (z - b_i) and its modulus */
+		mpc_mul(ctmp2, sec->ampc[i], ctmp);
+		mpc_mod(ftmp, ctmp2);
 		mpf_get_rdpe(rtmp, ftmp);
 		rdpe_add_eq(rad, rtmp);
+
+		/* Add a_i / (z - b_i) to pol */
+		mpc_add_eq(pol, ctmp2);
+
+		/* Compute a_i / (z - b_i)^2 */
+		mpc_mul_eq(ctmp2, ctmp);
+
+		/* Add it to fp */
+		mpc_sub_eq(fp, ctmp2);
 	}
 
-	/* Radius is eps * 4n * p(|z|) */
-	rdpe_mul_eq_d(rad, (double) sec->n * 4 * DBL_EPSILON);
+	/* Subtract one from pol */
+	mpc_sub_eq_ui(pol, 1, 0);
 
-	printf("Radius is: "); rdpe_out_str(stdout, rad); printf("\n");
-
-	/* Compute |p(z)| , |p'(z)| and |z| and check if we need to continue */
-	mpc_mod(ftmp, pol);
-	mpf_get_rdpe(rtmp, ftmp);
+	/* Compute modulus of |p(z)| */
 	mpc_mod(ftmp, fp);
-	mpf_get_rdpe(rtmp2, ftmp);
+	mpf_get_rdpe(rtmp, ftmp);
 	mpc_mod(ftmp, x);
-	mpf_get_rdpe(rtmp3, ftmp);
-	rdpe_mul_eq_d(rtmp3, DBL_EPSILON);
-	if( (rdpe_lt(rad, rtmp) ) ||
-			(rdpe_gt(rtmp2, rtmp3)) ) {
+	mpf_get_rdpe(rtmp2, ftmp);
+	rdpe_mul_eq(rtmp, rtmp2);
+	rdpe_mul_eq_d(rtmp, DBL_EPSILON);
+	mpc_mod(ftmp, pol);
+	mpf_get_rdpe(rtmp2, ftmp);
+	if (rdpe_le(rtmp2, rtmp)) {
 		*again = false;
-	} else { *again = true; }
+		mpc_set_d(corr, 0, 0);
+		return;
+	}
 
-	/* Deallocate temporary variables */
-	mpc_clear(ctmp);
-	mpc_clear(pol);
-	mpc_clear(fp);
-	mpf_clear(ftmp);
+	/* Compute correction */
+	mpc_div(corr, fp, pol);
+	mpc_add_eq(corr, sumb);
+	mpc_inv_eq(corr);
+
+	/* Compute radius */
+	rdpe_mul_eq_d(rad, (double) sec->n * DBL_EPSILON * 4);
+
+	/* Compute modulus of pol */
+	mpc_mod(ftmp, pol);
+	mpf_add_eq_ui(ftmp, 1);
+	mpf_get_rdpe(rtmp, ftmp);
+
+	if(rdpe_lt(rad, rtmp)) {
+		*again = false;
+	} else {
+		*again = true;
+	}
+
 }
-
-
 

@@ -507,9 +507,10 @@ mps_dstart(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
    * approximations equispaced points in the unit circle. */
   if (s->data_type[0] == 'u') {
     ang = pi2 / n;
-    for (i = 0; i < n; i++)
+    for (i = 0; i < n; i++) {
       cdpe_set_d(s->droot[i], cos(ang * i + sigma), 
 		 sin(ang * i + sigma));
+    }
     return;
   }
 

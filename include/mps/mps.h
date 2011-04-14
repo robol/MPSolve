@@ -628,47 +628,6 @@ typedef struct {
 	 */
 	unsigned long int n;
 
-	/* TEMPORARY VARIABLES */
-
-	/**
-	 * @brief Sum of the b_i - z, floating point.
-	 */
-	cplx_t* sum_bz;
-
-	/**
-	 * @brief sum of a_i / (b_i - z)^n with n = 1,2 depending
-	 * on the moment of the computation, floating point.
-	 */
-	cplx_t* sum_ab;
-
-	/**
-	 * @brief The same as sum_bz, but the <code>cdpe_t</code>
-	 * version.
-	 *
-	 * @see sum_bz
-	 */
-	cdpe_t* dsum_bz;
-
-	/**
-	 * @brief The same as sum_ab, but the <code>cdpe_t</code>
-	 * version.
-	 *
-	 * @see sum_ab;
-	 */
-	cdpe_t* dsum_ab;
-
-	/**
-	 * @brief The same as <code>sum_ab</code>, but the multiprecision
-	 * version.
-	 */
-	mpc_t * msum_ab;
-
-	/**
-	 * @brief The same as <code>sum_bz</code>, but the multiprecision
-	 * version.
-	 */
-	mpc_t * msum_bz;
-
 } mps_secular_equation; /* End of typedef struct {... */
 
 

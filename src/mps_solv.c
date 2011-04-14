@@ -2167,8 +2167,7 @@ mps_dpolzer(mps_status* s, int *it, boolean * excep)
 	} else
 		if (s->dnewton_usr != NULL) {
 			(*s->dnewton_usr)(s, s->droot[i], s->drad[i], corr, &s->again[i]);
-		} else
-		{
+		} else {
 			mps_dnewton_usr(s, s->droot[i], s->drad[i], corr, &s->again[i]);
 		}
 
