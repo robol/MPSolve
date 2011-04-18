@@ -82,9 +82,15 @@ mps_fcluster(mps_status* s, int nf)
   }
 }
 
-/**********************************************************
- *                 SUBROUTINE DCLUSTER                    *
- *********************************************************/
+/**
+ * @brief Perform cluster analysis to each existing cluster by
+ * applying <code>mps_xcluster</code> to each existing cluster.
+ *
+ * Rebuild the vectors <code>s->clust</code>,
+ * <code>s->punt</code>, and the integer <code>s->nclust</code>.
+ *
+ * @see mps_xcluster
+ */
 void
 mps_dcluster(mps_status* s, int nf)
 {
@@ -115,9 +121,14 @@ mps_dcluster(mps_status* s, int nf)
   s->punt[s->nclust] = s->n;
 }
 
-/**********************************************************
- *                 SUBROUTINE XCLUSTER                    *
- *********************************************************/
+/**
+ * @brief Cluster analysis on a cluster whose roots are store in clust_aux.
+ *
+ * @param s mps_status struct pointer;
+ * @param n number of roots in the cluster;
+ * @param nf see mps_fcluster();
+ * @param nclust pointer to nclust;
+ */
 void
 mps_xcluster(mps_status* s, int n, int nf, int *nclust)
 {
@@ -158,13 +169,16 @@ mps_xcluster(mps_status* s, int n, int nf, int *nclust)
     }
 }
 
-/**********************************************************
- *                 SUBROUTINE MCLUSTER                    *
- **********************************************************
- Perform cluster analysis to each existing cluster by
- applying xcluster to each existing cluster, rebuild the
- vectors  clust, punt, and the integer nclust
- *********************************************************/
+/**
+ * @brief Perform cluster analysis to each existing cluster by
+ * applying <code>mps_xcluster</code> to each existing cluster.
+ *
+ *
+ * Rebuild the vectors <code>s->clust</code>,
+ * <code>s->punt</code>, and the integer <code>s->nclust</code>.
+ *
+ * @see mps_xcluster
+ */
 void
 mps_mcluster(mps_status* s, int nf)
 {

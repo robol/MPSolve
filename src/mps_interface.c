@@ -11,18 +11,42 @@
  * 	as a library.
  */
 
+/**
+ * @mainpage Using MPSolve as a library
+ *
+ * @section Installation Installing MPSolve system-wide
+ * First, you need to get MPSolve. You can get the latest release via <code>git</code>
+ * or download it via <code>http</code> grabbing it at http://www.dm.unipi.it/...
+ * If you downloaded the source tarball this operation is pretty straightforward.
+ * You can simply unpack it and then
+ * @code
+ *   make
+ *   [sudo] make install
+ * @endcode
+ *
+ * These commands will install the library <code>libmps.so</code> in your system library
+ * directory. In this way you will be able compile your source file using a command similar
+ * to
+ * @code
+ * gcc -o myprogram -lmps -lgmp -lm myprogram.c.
+ * @endcode
+ *
+ * @section Interface Using the libmps interface
+ *
+ * The library provides some useful routine to interact with the polynomial solver. Most of
+ * them are designed to handle polynomial definition and are implemented in mps_interface.c
+ *
+ */
+
 #include <mps/mps.h>
 #include <mps/mps_poly.h>
 #include <mps/mps_link.h>
 #include <gmp.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <string.h>
 
 /**
  * @brief Allocate polynomial related variables directly in mps_status.
- *
- * This routine allocate
  */
 void mps_allocate_poly_inplace(mps_status* s, int n) {
 
@@ -93,6 +117,38 @@ mps_status* mps_status_new() {
 	return s;
 }
 
+/**
+ * @brief Set active poly as a user poly, providing routines to compute
+ * newton corrections.
+ *
+ * This is an example of call to this function:
+ * @code
+ * // Set a polynomial of degree n with associated mps_status* s
+ * // and use the provided routines to compute newton corrections.
+ * mps_status_set_poly_u(s, n,
+ *   MPS_FNEWTON_PTR(mps_secular_fnewton),
+ *	 MPS_DNEWTON_PTR(mps_secular_dnewton),
+ *	 MPS_MNEWTON_PTR(mps_secular_mnewton));
+ * @endcode
+ *
+ * @param s The <code>mps_status</code> struct;
+ * @param n The degree of the polynomial;
+ * @param fnewton The routine that performs the computation of the newton correction
+ *   in floating point. It must be of the type
+ *   <code>(void*)(mps_status* s, cplx_t x, double *rad, cplx_t corr, boolean * again)</code>
+ *   and can be passed to the function with the right casting using the macro
+ *   <code>MPS_FNEWTON_PTR</code>.
+ * @param dnewton The routine that performs the computation of the newton correction in
+ *   <code>dpe</code> precision. It must be of the type
+ *   <code>(void*)(mps_status* s, cdpe_t x, rdpe_t rad, cdpe_t corr, boolean * again)</code>
+ *   and can be passed to the function with the right casting using the macro
+ *   <code>MPS_DNEWTON_PTR</code>.
+ * @param fnewton The routine that performs the computation of the newton correction in
+ *   multiprecision. It must be of the type
+ *   <code>(void*)(mps_status* s, mpc_t x, rdpe_t rad, mpc_t corr, boolean * again)</code>
+ *   and can be passed to the function with the right casting using the macro
+ *   <code>MPS_MNEWTON_PTR</code>.
+ */
 int mps_status_set_poly_u(mps_status* s, int n, mps_fnewton_ptr fnewton,
 		mps_dnewton_ptr dnewton, mps_mnewton_ptr mnewton) {
 
