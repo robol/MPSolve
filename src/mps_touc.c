@@ -11,11 +11,25 @@
 
 #include <mps/mps.h>
 
-/************************************************************
-*              FUNCTION FTOUCHNWT                           *
-*************************************************************
- false if the disks I and J are Newton-isolated            
-************************************************************/
+/**
+ * @brief Check if the i-th and the j-th discs are newton-isolated.
+ *
+ * More precisely, given a parameter <code>n</code>, check if
+ * the roots <code>i</code> and <code>j</code> are separated
+ * with circles whose radius is less than their distance divided
+ * for <code>n</code>.
+ *
+ * If \f$n = 1\f$ this condition correspond to isolation,
+ * if \f$n = 2*m\f$ where \f$m\f$ is the degree of the polynomial
+ * then it correspond to newton isolation.
+ *
+ * @param s mps_status struct.
+ * @param n See above.
+ * @param i the first root.
+ * @param j the second root.
+ * @return false if the disc <code>i</code> and <code>j</code>
+ *   are newton-isolated.
+ */
 boolean
 mps_ftouchnwt(mps_status* s, int n, int i, int j)
 {
@@ -29,9 +43,25 @@ mps_ftouchnwt(mps_status* s, int n, int i, int j)
   return n * (s->frad[i] + s->frad[j]) >= cplx_mod(ctmp);
 }
 
-/************************************************************
-*              FUNCTION DTOUCHNWT                           *
-************************************************************/
+/**
+ * @brief Check if the i-th and the j-th discs are newton-isolated.
+ *
+ * More precisely, given a parameter <code>n</code>, check if
+ * the roots <code>i</code> and <code>j</code> are separated
+ * with circles whose radius is less than their distance divided
+ * for <code>n</code>.
+ *
+ * If \f$n = 1\f$ this condition correspond to isolation,
+ * if \f$n = 2*m\f$ where \f$m\f$ is the degree of the polynomial
+ * then it correspond to newton isolation.
+ *
+ * @param s mps_status struct.
+ * @param n See above.
+ * @param i the first root.
+ * @param j the second root.
+ * @return false if the disc <code>i</code> and <code>j</code>
+ *   are newton-isolated.
+ */
 boolean
 mps_dtouchnwt(mps_status* s, int n, int i, int j)
 {
@@ -45,9 +75,25 @@ mps_dtouchnwt(mps_status* s, int n, int i, int j)
   return rdpe_ge(dtmp1, dtmp2);
 }
 
-/************************************************************
-*              FUNCTION MTOUCHNWT                           *
-************************************************************/
+/**
+ * @brief Check if the i-th and the j-th discs are newton-isolated.
+ *
+ * More precisely, given a parameter <code>n</code>, check if
+ * the roots <code>i</code> and <code>j</code> are separated
+ * with circles whose radius is less than their distance divided
+ * for <code>n</code>.
+ *
+ * If \f$n = 1\f$ this condition correspond to isolation,
+ * if \f$n = 2*m\f$ where \f$m\f$ is the degree of the polynomial
+ * then it correspond to newton isolation.
+ *
+ * @param s mps_status struct.
+ * @param n See above.
+ * @param i the first root.
+ * @param j the second root.
+ * @return false if the disc <code>i</code> and <code>j</code>
+ *   are newton-isolated.
+ */
 boolean
 mps_mtouchnwt(mps_status* s, int n, int i, int j)
 {

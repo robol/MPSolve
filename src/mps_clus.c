@@ -40,31 +40,46 @@
 void
 mps_fcluster(mps_status* s, int nf)
 {
-  int incr, i, j, itemp;
+  int incr, i, j, itemp, k, kk;
 
   incr = 0;
   s->nclust = 0;
   s->punt[0] = 0;
+
   for (i = 0; i < s->n; i++)
     s->clust[i] = i;
 
   for (i = 0; i < s->n - 1; i++) {
     for (j = incr + 1; j < s->n; j++)
       if (mps_ftouchnwt(s, nf, s->clust[i], s->clust[j])) {
-	incr++;
-	itemp = s->clust[j];
-	s->clust[j] = s->clust[incr];
-	s->clust[incr] = itemp;
+    	  incr++;
+    	  itemp = s->clust[j];
+    	  s->clust[j] = s->clust[incr];
+    	  s->clust[incr] = itemp;
       }
     if (i == incr) {
-      s->nclust++;
-      s->punt[s->nclust] = i + 1;
-      incr++;
+    	s->nclust++;
+    	s->punt[s->nclust] = i + 1;
+    	incr++;
     }
+
+
   }
 
   s->nclust++;
   s->punt[s->nclust] = s->n;
+
+  /* Debug the clusters found */
+  if (s->DOLOG) {
+      for(kk = 1; kk <= s->nclust; kk++) {
+    	  fprintf(s->logstr, "      MPS_FCLUSTER:"
+    			  "Found cluster of %d roots: ",
+    			  s->punt[kk] - s->punt[kk - 1]);
+    	  for(k = s->punt[kk - 1]; k < s->punt[kk]; k++) {
+    		  fprintf(s->logstr, "%d ", s->clust[k]);
+    	  } fprintf(s->logstr, "\n");
+      }
+  }
 }
 
 /**********************************************************
@@ -106,7 +121,7 @@ mps_dcluster(mps_status* s, int nf)
 void
 mps_xcluster(mps_status* s, int n, int nf, int *nclust)
 {
-  int incr, i, j, itemp;
+  int incr, i, j, itemp, k, kk;
 
   incr = 0;
   *(nclust) = 0;
@@ -129,6 +144,18 @@ mps_xcluster(mps_status* s, int n, int nf, int *nclust)
 
   (*nclust)++;
   s->punt_aux[*nclust] = n;
+
+  /* Debug the clusters found */
+    if (s->DOLOG) {
+        for(kk = 1; kk <= s->nclust; kk++) {
+      	  fprintf(s->logstr, "      MPS_MCLUSTER:"
+      			  "Found cluster of %d roots: ",
+      			  s->punt[kk] - s->punt[kk - 1]);
+      	  for(k = s->punt[kk - 1]; k < s->punt[kk]; k++) {
+      		  fprintf(s->logstr, "%d ", s->clust[k]);
+      	  } fprintf(s->logstr, "\n");
+        }
+    }
 }
 
 /**********************************************************

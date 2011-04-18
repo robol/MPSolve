@@ -1,5 +1,4 @@
 PREFIX=/usr
-DESTDIR=
 SRC=src
 INSTALL=install
 
@@ -17,21 +16,21 @@ shared_libs:
 	+$(MAKE) -C $(SRC) shared_libs
 
 headers:
-	mkdir -p $(DESTDIR)/$(PREFIX)/include/mps
-	$(INSTALL) -m 644 include/mps/*.h $(DESTDIR)/$(PREFIX)/include/mps
+	mkdir -p $(PREFIX)/include/mps
+	$(INSTALL) -m 644 include/mps/*.h $(PREFIX)/include/mps
 
 install_libs: shared_libs
-	install -m 644 $(SRC)/libmps.so $(DESTDIR)/$(PREFIX)/lib
+	install -m 644 $(SRC)/libmps.so $(PREFIX)/lib
 
 install: unisolve rursolve install_libs headers
-	install -m 755 unisolve $(DESTDIR)/$(PREFIX)/bin
-	install -m 755 rursolve $(DESTDIR)/$(PREFIX)/bin
+	install -m 755 unisolve $(PREFIX)/bin
+	install -m 755 rursolve $(PREFIX)/bin
 
 uninstall:
-	rm -f $(DESTDIR)/$(PREFIX)/bin/unisolve
-	rm -f $(DESTDIR)/$(PREFIX)/bin/rursolve
-	rm -rf $(DESTDIR)/$(PREFIX)/include/mps
-	rm -f $(DESTDIR)/$(PREFIX)/lib/libmps.so
+	rm -f $(PREFIX)/bin/unisolve
+	rm -f $(PREFIX)/bin/rursolve
+	rm -rf $(PREFIX)/include/mps
+	rm -f $(PREFIX)/lib/libmps.so
 
 check:
 	make -C $(SRC) check
@@ -42,4 +41,4 @@ clean:
 	rm -f unisolve rursolve
 
 documentation: src/mps_*.c
-	make -C $(SRC) doc
+	doxygen Doxyfile

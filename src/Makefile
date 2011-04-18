@@ -41,7 +41,6 @@ ECHO = echo
 CAT = cat
 RM = rm -f
 SH = sh
-DOXYGEN = doxygen
 
 # operating system dependent standards
 #HERE = 
@@ -67,9 +66,6 @@ shared_libs: libmps.so
 
 all: unisolve rursolve rurconv shared_libs
 
-doc: mps_*.c
-	$(DOXYGEN) Doxyfile
-	
 mps_%.o: mps_%.c
 	$(CC) $(CFLAGS) -c $<
 	
