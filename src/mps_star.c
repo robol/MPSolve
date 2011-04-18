@@ -18,7 +18,8 @@
 
 #include <mps/mps.h>
 
-static const double pi2 = 6.283184;
+#define pi2 6.283184D
+#define pi 3.1415925D
 
 /* forward declaration */
 void mps_raisetemp(mps_status* s, unsigned long int digits);
@@ -169,9 +170,12 @@ void mps_fcompute_starting_radii(mps_status* s, int n, int i_clust, double clust
 		  /* Scan next radii to see if they are near the
 		   * i-th that we are considering now  */
 		  for(j = i+1; j < s->n_radii; j++) {
-			  // break;
-			  if ((s->fradii[j] - s->fradii[i]) / s->fradii[i] >
-				  pi2 / (s->partitioning[j+1] - s->partitioning[i]) ) {
+			  /* Get an estimate of the distance between approximations that would
+			   * be obtained collapsing the circles. It's a little understimated
+			   * but this is due to the fact that changing approximation is only
+			   * a fallback, and not the preferred action to perform. */
+			  if ((s->fradii[j] - s->fradii[i]) >
+				  s->fradii[j] * pi / (s->partitioning[j+1] - s->partitioning[i]) ) {
 				  break;
 			  }
 		  }
@@ -415,9 +419,13 @@ void mps_dcompute_starting_radii(mps_status* s, int n, int i_clust, rdpe_t clust
 		/* Scan next radii to see if they are near the
 		 * i-th that we are considering now  */
 		for(j = i+1; j < s->n_radii; j++) {
+			/* Get an estimate of the distance between approximations that would
+			 * be obtained collapsing the circles. It's a little understimated
+			 * but this is due to the fact that changing approximation is only
+			 * a fallback, and not the preferred action to perform. */
 			rdpe_sub(tmp, s->dradii[j],s->dradii[i]);
 			rdpe_div_eq(tmp, s->dradii[i]);
-			rdpe_div_eq_d(tmp, pi2);
+			rdpe_div_eq_d(tmp, pi);
 			rdpe_mul_eq_d(tmp, s->partitioning[j+1] - s->partitioning[i]);
 			if (rdpe_gt(tmp, rdpe_one)) {
 				break;
@@ -668,9 +676,13 @@ mps_mcompute_starting_radii(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
 		  /* Scan next radii to see if they are near the
 		   * i-th that we are considering now  */
 		  for(j = i+1; j < s->n_radii; j++) {
+			  /* Get an estimate of the distance between approximations that would
+			   * be obtained collapsing the circles. It's a little understimated
+			   * but this is due to the fact that changing approximation is only
+			   * a fallback, and not the preferred action to perform. */
 			  rdpe_sub(tmp, s->dradii[j],s->dradii[i]);
 			  rdpe_div_eq(tmp, s->dradii[i]);
-			  rdpe_div_eq_d(tmp, pi2);
+			  rdpe_div_eq_d(tmp, pi);
 			  rdpe_mul_eq_d(tmp, s->partitioning[j+1] - s->partitioning[i]);
 			  if (rdpe_gt(tmp, rdpe_one)) {
 				  break;
