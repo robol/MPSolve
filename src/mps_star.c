@@ -10,7 +10,7 @@
 ***********************************************************/
 
 /**
- * @file 
+ * @file
  * @brief Routines to compute starting approximations
  * for the algorithm
  *
@@ -202,8 +202,6 @@ void mps_fcompute_starting_radii(mps_status* s, int n, int i_clust, double clust
 
 		  s->fradii[i] /= (offset + 1);
 
-		  // s->partitioning[i+1] = s->partitioning[j+1];
-
 		  /* Move other circles backward */
 		  for(k = j+1; k < s->n_radii; k++) {
 			  s->fradii[k - offset] = s->fradii[k];
@@ -223,7 +221,7 @@ void mps_fcompute_starting_radii(mps_status* s, int n, int i_clust, double clust
  * of the polynomial \f$p(x)\f$ having coefficients of modulus apoly.
  *
  * Computations is done by
- * means of the Rouche'-based criterion of Bini (Numer. Algo. 1996). 
+ * means of the Rouche'-based criterion of Bini (Numer. Algo. 1996).
  * The program can compute all the approximations
  * (if \f$n\f$ is the degree of \f$p(x)\f$) or it may compute the
  * approximations of the cluster of index <code>i_clust</code>
@@ -269,7 +267,7 @@ mps_fstart(mps_status* s, int n, int i_clust, double clust_rad,
   /* In the case of user-defined polynomial choose as starting
    * approximations equally spaced points in the unit circle.  */
   if (s->data_type[0] == 'u') {
-    ang = pi2 / n; 
+    ang = pi2 / n;
     for (i = 0; i < n; i++)
       cplx_set_d(s->froot[i], cos(ang * i + sigma), sin(ang * i + sigma));
     return;
@@ -546,7 +544,7 @@ mps_dstart(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
   if (s->data_type[0] == 'u') {
     ang = pi2 / n;
     for (i = 0; i < n; i++) {
-      cdpe_set_d(s->droot[i], cos(ang * i + sigma), 
+      cdpe_set_d(s->droot[i], cos(ang * i + sigma),
 		 sin(ang * i + sigma));
     }
     return;
@@ -802,11 +800,13 @@ mps_mstart(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
 	  for(j = s->punt[i]; j < s->punt[i+1]; j++) {
 		  if (rdpe_lt(s->drad[s->clust[j]], precision)) {
 
-			  if (s->DOLOG) {
+              if (s->DOLOG) {
 				  fprintf(s->logstr,
-						  "    MPS_MSTART: Separating root in position %d from the rest of the cluster\n",
+						  "    MPS_MSTART: Separating root %d from the rest of the cluster\n",
 						  s->clust[j]);
+                  mps_dump_cluster_structure(s, stdout);
 			  }
+
 
 			  /* Move other roots back in the cluster */
 			  l = s->clust[j];
@@ -825,6 +825,15 @@ mps_mstart(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
 			  /* Set s->punt */
 			  s->punt[i+2] = s->punt[i+1] + 1;
 
+
+              if (s->DOLOG) {
+				  fprintf(s->logstr,
+						  "    MPS_MSTART: Separated root %d from the rest of the cluster\n",
+						  s->clust[j]);
+                  mps_dump_cluster_structure(s, stdout);
+			  }
+
+			  /* Start from the next root, that is shifted one position back */
 			  j--;
 		  }
 	  }
@@ -892,7 +901,7 @@ mps_mstart(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
  or if new starting approximations have been selected.
  The gravity center g is choosen as a zero of the (m-1)-st
  derivative of the polynomial in the cluster, where m=m_clust
- is the multiplicity of the cluster. 
+ is the multiplicity of the cluster.
 
  Shift in g is perfomed if
         status=(c*u) for goal=count
@@ -958,7 +967,7 @@ mps_frestart(mps_status* s)
 	fprintf(s->logstr, "     FRESTART: cluster rel. large: skip to the next component\n");
       goto loop1;
     }
-    
+
     /* Now check the Newton isolation of the cluster */
 
     for (k = 0; k < s->nclust; k++)
@@ -995,7 +1004,7 @@ mps_frestart(mps_status* s)
     /* Apply at most max_newt_it steps of Newton's iterations
      * to the above derivative starting from the super center
      * of the cluster. */
-     
+
     cplx_set(g, sc);
     for (j = 0; j < s->max_newt_it; j++) {		/* loop_newt: */
       rad = 0.0;
@@ -1043,7 +1052,7 @@ mps_frestart(mps_status* s)
 /*************************************************************
 *                     SUBROUTINE DRESTART                    *
 **************************************************************
- The program scans the existing clusters and  selects the ones 
+ The program scans the existing clusters and  selects the ones
  where shift in the gravity center must be done.
  Then computes the gravity center g, performs the shift of the variable
  and compute new starting approximations in the cluster.
@@ -1053,7 +1062,7 @@ mps_frestart(mps_status* s)
  or if new starting approximations have been selected.
  The gravity center g is choosen as a zero of the (m-1)-st derivative
  of the polynomial in the cluster, where m=mclust is the multiplicity
- of the cluster. 
+ of the cluster.
 
  Shift in g is perfomed if
         status=(c*u) for goal=count
@@ -1127,7 +1136,7 @@ mps_drestart(mps_status* s)
 	  cdpe_sub(ctmp, sc, s->droot[s->clust[s->punt[k] + j]]);
 	  cdpe_mod(rtmp, ctmp);
 	  rdpe_add(rtmp1, sr, s->drad[s->clust[s->punt[k] + j]]);
-	  rdpe_mul_eq_d(rtmp1, 2.0 * s->n);     
+	  rdpe_mul_eq_d(rtmp1, 2.0 * s->n);
 	  if (rdpe_lt(rtmp, rtmp1)) {
 	    for (jj = s->punt[i]; jj < s->punt[i + 1]; jj++)
 	      s->status[s->clust[jj]][0] = 'c';
@@ -1139,10 +1148,10 @@ mps_drestart(mps_status* s)
 	  }
 	}
       }
-      
+
     /* Compute the coefficients of the derivative of p(x) having order
      * equal to the multiplicity of the cluster -1. */
-     
+
     for (j = 0; j <= s->n; j++)
       cdpe_set(s->dpc2[j], s->dpc[j]);
     for (j = 1; j < s->punt[i + 1] - s->punt[i]; j++) {
@@ -1155,7 +1164,7 @@ mps_drestart(mps_status* s)
     /* Apply at most max_newt_it steps of Newton's iterations
      * to the above derivative starting from the super center
      * of the cluster. */
-     
+
     cdpe_set(g, sc);
     for (j = 0; j < s->max_newt_it; j++) {		/* loop_newt: */
       rdpe_set(rad, rdpe_zero);
@@ -1210,7 +1219,7 @@ mps_mrestart(mps_status* s)
   tmpf_t rea, srmp;
   tmpc_t sc, corr, temp;
   mpc_t g;
-  
+
   /* For user's polynomials skip the restart stage (not yet implemented) */
   if (s->data_type[0] == 'u')
     return;
@@ -1251,29 +1260,29 @@ mps_mrestart(mps_status* s)
 
     /* Compute super center sc and super radius sr */
     mps_msrad(s, i, sc, sr);
-    
+
     if(s->DOLOG) {
       fprintf(s->logstr,"    MRESTART: clust=%d\n      sc=",i);
       mpc_out_str(s->logstr, 10, 10, sc);
       fprintf(s->logstr,"\n      sr=");
       rdpe_outln_str(s->logstr, sr);
     }
-    
+
     /* Check the relative width of the cluster
      * If it is greater than 1 do not shift
      * and set status[:1)='c' that means
-     * keep iterating Aberth's step. 
+     * keep iterating Aberth's step.
      * Check also the Newton-isolation of the cluster */
 
     mpc_get_cdpe(tmp, sc);
     cdpe_mod(rtmp, tmp);
-    
+
     if(s->DOLOG){
       rdpe_div(rtmp2,sr,rtmp);
       fprintf(s->logstr,"      relative width=");
       rdpe_outln_str(s->logstr, rtmp2);
     }
-    
+
     if (rdpe_gt(sr, rtmp)) {
       for (j = s->punt[i]; j < s->punt[i + 1]; j++)
 	s->status[s->clust[j]][0] = 'c';
@@ -1281,7 +1290,7 @@ mps_mrestart(mps_status* s)
 	fprintf(s->logstr, "    MRESTART: cluster %d relat. large: skip to the next component\n",i);
       goto loop1;
     }
-    
+
     /* Now check the Newton isolation of the cluster */
     rdpe_set(rtmp2, rdpe_zero);
     for (k = 0; k < s->nclust; k++){
@@ -1308,7 +1317,7 @@ mps_mrestart(mps_status* s)
       }
       goto loop1;
     }
- 
+
     if(s->DOLOG){
       fprintf(s->logstr,"    MRESTART: Approximations of cluster %d\n", i);
       for (j = 0; j < s->punt[i + 1] - s->punt[i]; j++) {
@@ -1386,9 +1395,9 @@ mps_mrestart(mps_status* s)
 	fprintf(s->logstr, "The gravity center falls outside the cluster\n");
       goto loop1;
     }
-    
+
     /* shift the variable and compute new approximations */
-    
+
     if (s->DOLOG)
       fprintf(s->logstr, "      MRESTART: call mshift\n");
     for (j = 0; j < s->punt[i + 1] - s->punt[i]; j++) {
@@ -1404,23 +1413,23 @@ mps_mrestart(mps_status* s)
       cdpe_mod(rtmp, tmp);
       rdpe_mul_eq(rtmp, s->mp_epsilon);
       rdpe_mul_eq_d(rtmp, 2);
-      
+
       for (j = 0; j < s->punt[i + 1] - s->punt[i]; j++) {
 	l = s->clust[s->punt[i] + j];
 	mpc_set_cdpe(s->mroot[l], s->droot[l]);
 	mpc_add_eq(s->mroot[l], g);
 	cdpe_mod(rtmp1, s->droot[l]);
 	rdpe_mul_d(s->drad[l], rtmp1, 2.0 * (s->punt[i + 1] - s->punt[i]));
-	if (rdpe_lt(s->drad[l], rtmp))	
+	if (rdpe_lt(s->drad[l], rtmp))
 	  rdpe_set(s->drad[l], rtmp);
       }
-    } else { 
+    } else {
 
     if(s->DOLOG) {
        fprintf(s->logstr,"    MRESTART: DO NOT PERFORM RESTART\n");
        fprintf(s->logstr,"    MRESTART: new radius of the cluster is larger\n");
      }
-     
+
      goto loop1;
     }
   loop1:;
@@ -1437,7 +1446,7 @@ mps_mrestart(mps_status* s)
 /**************************************************************
 *                      SUBROUTINE FSHIFT                      *
 ***************************************************************
- This routine computes the first m+1 coefficients of the shifted 
+ This routine computes the first m+1 coefficients of the shifted
  polynomial p(x+g), by performing m+1 Horner divisions.
  Then it computes the new starting approximations for the i-th
  cluster for i=i_clust by ing fstart and by updating root.
@@ -1567,7 +1576,7 @@ mps_mshift(mps_status* s, int m, int i_clust, rdpe_t clust_rad, mpc_t g)
     if (rdpe_lt(as, ap)) {
       mpwp_temp += s->mpwp;
 
-      if (mpwp_temp > mpwp_max || mpwp_temp > s->prec_out * m * 2) { 
+      if (mpwp_temp > mpwp_max || mpwp_temp > s->prec_out * m * 2) {
 	if (s->DOLOG)
 	  fprintf(s->logstr, "Reached the maximum allowed precision in mshift\n");
 	break;
@@ -1576,7 +1585,7 @@ mps_mshift(mps_status* s, int m, int i_clust, rdpe_t clust_rad, mpc_t g)
       mps_raisetemp(s, mpwp_temp);
       mpc_set_prec(t, (unsigned long int) mpwp_temp);
       mpc_set_prec(g, (unsigned long int) mpwp_temp);
-      if (mpwp_max < mpwp_temp) 
+      if (mpwp_max < mpwp_temp)
 	mpwp_max = mpwp_temp;
 
       for (j = 0; j <= s->n; j++)
@@ -1603,7 +1612,7 @@ mps_mshift(mps_status* s, int m, int i_clust, rdpe_t clust_rad, mpc_t g)
     raisetemp_raw(mpwp);
     mpc_set_prec_raw(s, (unsigned long int) mpwp);
     mpc_set_prec_raw(g, (unsigned long int) mpwp);
-  
+
    segue alternativa
   */
   mps_raisetemp_raw(s, mpwp_max);
@@ -1660,7 +1669,7 @@ mps_raisetemp_raw(mps_status* s, unsigned long int digits)
 /**************************************************************
  *               SUBROUTINE MNEWTIS                           *
  *************************************************************/
-void 
+void
 mps_mnewtis(mps_status* s)
 {
   mps_boolean tst;
@@ -1669,7 +1678,7 @@ mps_mnewtis(mps_status* s)
   cdpe_t tmp;
   tmpf_t rea, srmp;
   tmpc_t sc, temp;
-  rdpe_t rtmp2; 
+  rdpe_t rtmp2;
 
   /* For user's polynomials skip the restart stage (not yet implemented) */
   if (s->data_type[0] == 'u')
@@ -1735,7 +1744,7 @@ mps_mnewtis(mps_status* s)
     /* Check the relative width of the cluster
      * If it is greater than 1 do not shift
      * and set status[:1)='c' that means
-     * keep iterating Aberth's step. 
+     * keep iterating Aberth's step.
      * Check also the Newton-isolation of the cluster */
 
     mpc_get_cdpe(tmp, sc);
@@ -1749,9 +1758,9 @@ mps_mnewtis(mps_status* s)
 		"skip to the next component\n", i);
       goto loop1;
     }
-    
+
     /* Now check the Newton isolation of the cluster */
-    rdpe_set(rtmp2, rdpe_zero);        
+    rdpe_set(rtmp2, rdpe_zero);
     for (k = 0; k < s->nclust; k++){
       if (k != i)
 	for (j = 0; j < s->punt[k + 1] - s->punt[k]; j++) {
@@ -1775,12 +1784,12 @@ mps_mnewtis(mps_status* s)
 	fprintf(s->logstr, "           skip to the next component\n");
       }
       goto loop1;
-    } 
+    }
     s->newtis=1;
 
   loop1:;
 }
-  
+
   tmpc_clear(temp);
   tmpc_clear(sc);
   tmpf_clear(srmp);

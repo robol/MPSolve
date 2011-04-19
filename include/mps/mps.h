@@ -25,7 +25,7 @@
  * @file
  *
  * This file is the header for the libmps library. Including
- * this file is needed to access all the MPSolve routines. 
+ * this file is needed to access all the MPSolve routines.
  *
  * @brief Header file for libmps
  */
@@ -60,7 +60,7 @@
  *   #include <mps.h>
  * }
  * from a C++ source file that precents gmp from redefining
- * function from iostream. 
+ * function from iostream.
  */
 #ifdef __cplusplus
   #undef __cplusplus
@@ -72,8 +72,8 @@
 /* constants */
 
 /**
- * @brief Type representing the computation phase 
- * of the algorithm we are in 
+ * @brief Type representing the computation phase
+ * of the algorithm we are in
  * now. It can assume the values:
  * - <code>no_phase</code>;
  * - <code>float_phase</code>;
@@ -128,7 +128,7 @@ typedef struct {
    mps_boolean DOLOG;
 
   /**
-   * @brief <code>true</code> if warning are needed. 
+   * @brief <code>true</code> if warning are needed.
    */
    mps_boolean DOWARN;
 
@@ -142,7 +142,7 @@ typedef struct {
    * @brief Default input stream.
    */
    FILE * instr;
-  
+
   /**
    * @brief Default output stream.
    */
@@ -152,23 +152,23 @@ typedef struct {
    * @brief Default log stream
    */
    FILE * logstr;
-  
+
    FILE * rtstr;
-  
+
   /*
    * CONSTANT, PARAMETERS
    */
-  
-  /**
-   * @brief number of max packets of iterations 
-   */
-   int max_pack;		
 
   /**
-   * @brief number of max iterations per packet 
+   * @brief number of max packets of iterations
    */
-   int max_it;		
-  
+   int max_pack;
+
+  /**
+   * @brief number of max iterations per packet
+   */
+   int max_it;
+
   /**
    * @brief Number of max newton iterations for gravity center
    * computations.
@@ -176,10 +176,10 @@ typedef struct {
    int max_newt_it;
 
   /**
-   * @brief Maximum allowed number of bits for mp numbers: used in 
+   * @brief Maximum allowed number of bits for mp numbers: used in
    * high precision shift.
    */
-   long int mpwp_max;	
+   long int mpwp_max;
 
   /**
    * @brief stores the goal of the computation
@@ -215,33 +215,38 @@ typedef struct {
    *   - <code>f</code> means \b full;
    */
    char goal[5];
-  
+
   /**
    * @brief digits of required output precision
    *
    */
    long int prec_out;
-  
+
   /**
    * @brief mps_boolean value that determine if we should
    * use a random seed for startingd points
    */
+<<<<<<< HEAD
    mps_boolean random_seed;
   
+=======
+   boolean random_seed;
+
+>>>>>>> Corretti alcuni warning.
   /*
    * POLYNOMIAL DATA: SHARED VARIABLES
    */
-  
+
   /**
    * @brief degree of zero-deflated polynomial.
    */
    int n;
-  
+
   /**
    * @brief input degree and allocation size.
    */
    int deg;
-  
+
   /**
    * @brief stores the input data type
    *
@@ -261,23 +266,23 @@ typedef struct {
    * - <code>'f'</code> means floating point coefficients;
    */
    char * data_type;
-  
+
   /**
    * @brief Number of digits of input precision in its binary
-   * representation. 
+   * representation.
    */
    long int prec_in;
-  
+
   /**
    * @brief This array contains the structure of the sparse
-   * polynomial. 
+   * polynomial.
    *
    * <code>spar[i]</code> is <code>true</code> if and only if
-   * the i-th coefficients of the polynomial is a non-zero 
+   * the i-th coefficients of the polynomial is a non-zero
    * coefficients
    */
-   mps_boolean * spar;		/* sparsity structure of the poly.     */
-  
+   mps_boolean * spar;
+   
    /**
     * @brief Standard real coefficients.
     */
@@ -326,8 +331,8 @@ typedef struct {
    /**
     * @brief Multiprecision complex coefficients.
     */
-   mpc_t * mfpc;		/* multiprecision complex coefficients */
-  
+   mpc_t * mfpc;
+   
    /* Solution related variables */
    /**
     * @brief Last computing phase.
@@ -341,20 +346,20 @@ typedef struct {
     * between starting points.
     */
    double last_sigma;
-  
+
   /**
    * @brief Vector containing count of in, out and uncertaing roots.
    */
    int count[3];
-  
+
   /**
    * @brief Number of zero roots.
    */
    int zero_roots;		/* number of roots = 0                 */
-  
+
   /**
    * @brief Status of each approximation
-   * 
+   *
    * <code>status</code> is an array of char arrays
    * composed of three elements. For every <code>i</code>:
    * - <code>status[i][0]</code> can assume the values:
@@ -414,7 +419,7 @@ typedef struct {
     * @brief Radii of inclusion disks as dpe numbers.
     */
    rdpe_t * drad;
-  
+
   /* lifetime global variables */
 
    /**
@@ -456,13 +461,13 @@ typedef struct {
   /**
    * @brief Number of active clusters.
    */
-   int nclust;		
+   int nclust;
 
   /**
    * @brief indices of cluster components
    *
    * <code>clust</code> is an integer array containing the indexes
-   * of roots in every cluster. 
+   * of roots in every cluster.
    *
    * The indexes of the <code>j+1</code>th cluster are
    * <code>clust[punt[j] : punt[j+1]]
@@ -470,7 +475,7 @@ typedef struct {
    * @see punt
    */
    int * clust;
-  
+
   /**
    * @brief begginning of each cluster
    *
@@ -485,38 +490,38 @@ typedef struct {
    * @see clust
    */
    int * punt;
-  
+
   /**
    * @brief Array containing working precisions used for each root.
    */
    long int * rootwp;
-  
+
   /**
    * @brief Multiprecision complex coefficients of \f$p'(x)\f$.
    */
-   mpc_t * mfppc;		
-  
+   mpc_t * mfppc;
+
   /**
    * @brief Array containing moduli of the coefficients as double numbers.
    */
    double * fap;
-  
+
   /**
    * @brief Array containing moduli of the coefficients as dpe numbers.
    */
    rdpe_t * dap;
-  
+
   /**
    * @brief Array that whose i-th component is set to <code>true</code> if
    * the i-th root needs more iterations.
    */
    mps_boolean * again;
-  
+
   /**
    * @brief Array containing standard complex coefficients
    */
    cplx_t * fppc;
-  
+
    /**
     * @brief Standard complex coefficients of the polynomial.
     *
@@ -565,7 +570,7 @@ typedef struct {
     * with a new gravity center in <code>mps_mshift()</code>.
     */
    mpc_t * mfppc1;
-  
+
    /**
     * @brief Vector representing sparsity of the polynomial in the
     * same way that <code>spar</code> does.
@@ -639,17 +644,17 @@ typedef struct {
     * @see mps_fcompute_starting_radii()
     */
    rdpe_t * dap2;
-  
+
   /**
-   * @brief Vector needed for convex hull computation. 
+   * @brief Vector needed for convex hull computation.
    *
-   * It is <code>true</code> in position \f$j\f$ if 
+   * It is <code>true</code> in position \f$j\f$ if
    * the point \f$(j, log(x_j))\f$ is a vertex of the convex
    * hull computed by <code>fconvex()</code> and the other functions in
    * <code>mps_cnvx.c</code>
    */
    mps_boolean * h;
-  
+
    /**
     * @brief Temporary vector containing the old value of
     * <code>again</code>.
@@ -657,7 +662,6 @@ typedef struct {
     * @see again
     */
    mps_boolean * again_old;
-  
 
    int * clust_aux;		/* auxiliary vector                    */
    int * punt_aux;		/* auxiliary vector                    */
@@ -830,17 +834,17 @@ void mps_parhorner(mps_status* st, int n, mpc_t x, mpc_t p[], mps_boolean b[], m
 void mps_aparhorner(mps_status* st, int n, rdpe_t x, rdpe_t p[], mps_boolean b[], rdpe_t s);
 
 /**
- * This function parse command lines and sets global variables 
- * defined in mps.h in an appropriate way. 
+ * This function parse command lines and sets global variables
+ * defined in mps.h in an appropriate way.
  *
  * It is implemented in mps_opts.c
  *
  * @brief Parse options from command line.
  *
- * @param argc 
+ * @param argc
  *   Argoment counter as obtained from the main()
  *   function.
- * @param argv 
+ * @param argv
  *   Argoment values, i.e. array of char* as obtained
  *   in the main() function.
  */
@@ -868,11 +872,11 @@ void mps_dpolzer(mps_status* s, int * it, mps_boolean * excep);
 void mps_mpolzer(mps_status* s, int * it, mps_boolean * excep);
 
 /* functions in mps_star.c */
-void mps_fstart(mps_status* s, int n, int i_clust, double clust_rad, 
+void mps_fstart(mps_status* s, int n, int i_clust, double clust_rad,
 		double g, rdpe_t eps_out, double fap[]);
-void mps_dstart(mps_status* s, int n, int i_clust, rdpe_t clust_rad, 
+void mps_dstart(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
 		rdpe_t g, rdpe_t eps_out, rdpe_t dap[]);
-void mps_mstart(mps_status* s, int n, int i_clust, rdpe_t clust_rad, 
+void mps_mstart(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
 		rdpe_t g, rdpe_t dap[]);
 void mps_frestart(mps_status* s);
 void mps_drestart(mps_status* s);
@@ -888,6 +892,7 @@ void mps_outroot(mps_status* s, int i);
 void mps_output(mps_status* s);
 void mps_copy_roots(mps_status* s);
 void mps_dump(mps_status* s, FILE * dmpstr);
+void mps_dump_cluster_structure(mps_status*s, FILE* outstr);
 void mps_warn(mps_status* st, char * s);
 void mps_error(mps_status* st, int args, ...);
 

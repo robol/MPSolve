@@ -21,7 +21,7 @@
  Then compute the number of digits needed for the j-th
  iteration i.e., digits=log(e_j/|x|)+cond, where
  log(e_j/|x|) = f+g**(2**j), ...
- cond = log(rad/eps), 
+ cond = log(rad/eps),
  cond ~ norm(p)(1+|root(i)|/(a_n prod_{j != i}|root(i)-root(j)|
  and cond ~ radius(i)/(eps |root(i)|) for user-defined polyn.
  mpwp denotes the number of bits of the current working
@@ -44,7 +44,7 @@ mps_improve(mps_status* st)
 
   /* == 1 ==
    * compute the number mpnb_in of bits
-   * corresponding to the given input precision. 
+   * corresponding to the given input precision.
    * Set mpnb_in=0 if the input precision is infinite (prec_in=0) */
   if (st->prec_in == 0)
     mpnb_in = 0;
@@ -59,7 +59,7 @@ mps_improve(mps_status* st)
   if (mpnb_in != 0)
     mps_mp_set_prec(st, mpnb_in);
 
-  //  tmpc_init2(mtmp, mpwp); /* puo' essere settato a precisione minima */
+  /* tmpc_init2(mtmp, mpwp); */ /* puo' essere settato a precisione minima */
   tmpc_init2(mtmp, mpnb_out*2); /* puo' essere settato a precisione minima */
   tmpc_init2(nwtcorr, mpnb_out*2);
 
@@ -70,7 +70,7 @@ mps_improve(mps_status* st)
     mps_prepare_data(st, mpnb_out * 2);
   }
 
-  /* == 3 == 
+  /* == 3 ==
    * scan the approximations to apply Newton's iterations */
   for (i = 0; i < st->n; i++) {
     if (st->DOLOG)
@@ -79,7 +79,7 @@ mps_improve(mps_status* st)
       continue;			/* Do not refine approximated roots */
 
     /*  == 3.1 ==
-     * for data_type[0]='d' compute  t=Min_j |root(i)-root(j)|-rad(j)-rad(i) 
+     * for data_type[0]='d' compute  t=Min_j |root(i)-root(j)|-rad(j)-rad(i)
      * otherwise set t=5*n*rad[i] since the root is Newton-isolated.
      * This allows us to remove an O(n^2) complexity  */
 
@@ -148,7 +148,7 @@ mps_improve(mps_status* st)
       mps_mp_set_prec(st, st->mpwp);
       mps_prepare_data(st, st->mpwp);
       if (st->data_type[0] != 'u')
-	mps_mnewton(st, st->n, st->mroot[i], st->drad[i], 
+	mps_mnewton(st, st->n, st->mroot[i], st->drad[i],
 		    nwtcorr, st->mfpc, st->mfppc, st->dap, st->spar, &again);
       else
     	  if (st->mnewton_usr != NULL) {

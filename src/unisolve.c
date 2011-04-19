@@ -19,12 +19,13 @@
 int
 main(int argc, char *argv[])
 {
-  /* Make stdout synchronous so the debugging is more
-   * effective. */
-  setvbuf(stdout, NULL, _IONBF, 0);
 
   mpspoly_t p;
   mps_status* s = (mps_status*) malloc(sizeof(mps_status));
+
+ /* Make stdout synchronous so the debugging is more
+   * effective. */
+  setvbuf(stdout, NULL, _IONBF, 0);
 
   /* Set default values in s */
   mps_set_default_values(s);
@@ -41,16 +42,12 @@ main(int argc, char *argv[])
   /* Set polynomial */
   mps_set_poly(s, p);
 
-
   /* allocate global variables */
   mps_allocate_data(s);
 
-  /* call free_data at exit */
-  // atexit(free_data);
-
   /* approximate roots */
   mps_mpsolve(s);
-  
+
   /* copy roots */
   mps_copy_roots(s);
 

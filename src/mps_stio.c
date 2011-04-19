@@ -379,18 +379,18 @@ void
 mps_dump_cluster_structure(mps_status* s, FILE* outstr)
 {
     int i, j;
-    fprintf(outstr, "MPS_DUMP_CLUSTER_STRUCTURE: Dumping cluster structure\n");
+    fprintf(outstr, "    MPS_DUMP_CLUSTER_STRUCTURE: Dumping cluster structure\n");
 
     for(i = 0; i < s->nclust; i++) {
-        fprintf(outstr, "Cluster %06d contains %d roots:\n", i, s->punt[i+1] - s->punt[i]);
+        fprintf(outstr, "     Cluster %d contains %d roots:\n", i, s->punt[i+1] - s->punt[i]);
 
         /* Dump cluster roots, but not more than 15 for line, to make
          * the output readable. */
         for(j = s->punt[i]; j < s->punt[i+1]; j++) {
             /* Go to a newlint if 15 roots are printed out */
-            if (i % 15 == 0) { fprintf(outstr, "\n"); }
+            if (j % 15 == 0) { fprintf(outstr, "\n       "); }
 
-            printf(" %06d", s->clust[i]);
+            printf(" %d", s->clust[j]);
         }
 
         /* Make space untile the next cluster */
