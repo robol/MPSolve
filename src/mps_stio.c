@@ -26,14 +26,14 @@ msp_readroots(mps_status* s)
 
   if (s->DOLOG)
     fprintf(s->logstr, "Reading roots...\n");
-  
+
   read_elements = fscanf(s->rtstr, "%ld", &digits);
   if (!read_elements) {
     mps_error(s, 1, "Error while reading roots, aborting.");
   }
 
   /* precision setup code goes here */
-  
+
   for(i=0; i<s->n; i++)
     mpc_inp_str_u(s->mroot[i], s->rtstr, 10);
 }
@@ -77,7 +77,7 @@ void
 mps_outcount(mps_status* s)
 {
   mps_countroots(s);
-  
+
   fprintf(s->outstr, "%d roots are inside;\n", s->count[0]);
   fprintf(s->outstr, "%d roots are outside;\n", s->count[1]);
   fprintf(s->outstr, "%d roots are uncertain.\n", s->count[2]);
@@ -108,7 +108,7 @@ mps_outfloat(mps_status* s, mpf_t f, rdpe_t rad, long out_digit, mps_boolean sig
   }
 
   tmpf_init2(t, s->prec_out);
-  
+
   mpf_get_rdpe(ro, f);
   if (s->goal[4] == 'g')
     rdpe_out_str_u(s->outstr, ro);
@@ -145,7 +145,7 @@ mps_outroot(mps_status* s, int i)
 {
   static int num = 0; /* output roots count */
   long out_digit;
-  
+
   out_digit = (long) (LOG10_2 * s->prec_out) + 10;
   num++;
 
@@ -218,7 +218,7 @@ mps_outroot(mps_status* s, int i)
       fprintf(s->logstr, "\n");
       fprintf(s->logstr, "  radius = ");
       rdpe_outln_str(s->logstr, s->drad[i]);
-      fprintf(s->logstr, "  prec = %ld\n", 
+      fprintf(s->logstr, "  prec = %ld\n",
 	      (long) (mpc_get_prec(s->mroot[i])/LOG2_10));
       fprintf(s->logstr, "  status = %4.3s\n", s->status[i]);
       fprintf(s->logstr, "--------------------\n");
@@ -264,7 +264,7 @@ mps_copy_roots(mps_status* s)
   case no_phase:
     mps_error(s, 1, "Nothing to copy");
     break;
-    
+
   case float_phase:
     if (s->DOSORT)
       mps_fsort(s);
@@ -274,7 +274,7 @@ mps_copy_roots(mps_status* s)
       rdpe_set_d(s->drad[i], s->frad[i]);
     }
     break;
-    
+
   case dpe_phase:
     if (s->DOSORT)
       mps_dsort(s);
@@ -283,12 +283,12 @@ mps_copy_roots(mps_status* s)
       mpc_set_cdpe(s->mroot[i], s->droot[i]);
     }
     break;
-    
+
   case mp_phase:
     if (s->DOSORT)
       mps_msort(s);
     break;
-    
+
   }
 }
 
@@ -299,16 +299,16 @@ void
 mps_dump(mps_status* s, FILE * dmpstr)
 {
   int i;
-  
+
   fprintf(dmpstr, "\nDumping...\n");
 
   /* output current status */
-  fprintf(dmpstr, 
+  fprintf(dmpstr,
 	  "Phase=%d, In=%d, Out=%d, Uncertain=%d, Zero=%d, Clusters=%d\n",
 	  s->lastphase, s->count[0], s->count[1], s->count[2], s->zero_roots, s->nclust);
 
   /* output current approximations */
-  fprintf(dmpstr, "\nCurrent approximations:\n");  
+  fprintf(dmpstr, "\nCurrent approximations:\n");
   for (i = 0; i < s->n; i++) {
     fprintf(dmpstr, "%d:\t", i);
 
@@ -317,11 +317,11 @@ mps_dump(mps_status* s, FILE * dmpstr)
     case float_phase:
       cplx_outln_str(dmpstr, s->froot[i]);
       break;
-    
+
     case dpe_phase:
       cdpe_outln_str(dmpstr, s->droot[i]);
       break;
-    
+
     case mp_phase:
       mpc_outln_str(dmpstr, 10, 0, s->mroot[i]);
       break;
@@ -338,7 +338,7 @@ mps_dump(mps_status* s, FILE * dmpstr)
     case float_phase:
       fprintf(dmpstr, "%e\n", s->frad[i]);
       break;
-    
+
     case dpe_phase:
     case mp_phase:
       rdpe_outln_str(dmpstr, s->drad[i]);
@@ -368,6 +368,36 @@ mps_dump(mps_status* s, FILE * dmpstr)
   fprintf(dmpstr, "\n\n");
 }
 
+/**
+ * @brief Dump cluster structure to <code>outstr</code>.
+ *
+ * @param s the mps_status struct pointer.
+ * @param outstr The output stream where the cluster structure
+ *  will be dumped.
+ */
+void
+mps_dump_cluster_structure(mps_status* s, FILE* outstr)
+{
+    int i, j;
+    fprintf(outstr, "MPS_DUMP_CLUSTER_STRUCTURE: Dumping cluster structure\n");
+
+    for(i = 0; i < s->nclust; i++) {
+        fprintf(outstr, "Cluster %06d contains %d roots:\n", i, s->punt[i+1] - s->punt[i]);
+
+        /* Dump cluster roots, but not more than 15 for line, to make
+         * the output readable. */
+        for(j = s->punt[i]; j < s->punt[i+1]; j++) {
+            /* Go to a newlint if 15 roots are printed out */
+            if (i % 15 == 0) { fprintf(outstr, "\n"); }
+
+            printf(" %06d", s->clust[i]);
+        }
+
+        /* Make space untile the next cluster */
+        fprintf(outstr, "\n\n");
+    }
+}
+
 /*************************************************************
  *                     SUBROUTINE WARN                       *
  *************************************************************/
@@ -392,7 +422,7 @@ mps_error(mps_status* st, int args, ...)
 {
   va_list ap;
   char * s;
-  
+
   mps_warn(st, "! ");		/* output error message */
   va_start(ap, args);
   while(args--) {
@@ -400,7 +430,7 @@ mps_error(mps_status* st, int args, ...)
     mps_warn(st, s);		/* output error message */
   }
   va_end(ap);
-  
+
   mps_dump(st, st->logstr);		/* dump status		*/
   exit(EXIT_FAILURE);	/* exit program         */
 }

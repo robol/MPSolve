@@ -11,7 +11,14 @@
 
 /* needed header files */
 #include <stdio.h>
+
+/* Same workaround as in mps.h */
+#ifdef __cplusplus
+#undef __cplusplus
+#endif
+
 #include <gmp.h>
+
 
 /**********************************************
 *                  MPZ_T                      *

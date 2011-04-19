@@ -54,6 +54,21 @@
 #include "mps_link.h"
 #include "mps_mptemp.h"
 
+
+/* Small workaround if the header is being included with
+ * extern "C" {
+ *   #include <mps.h>
+ * }
+ * from a C++ source file that precents gmp from redefining
+ * function from iostream. 
+ */
+#ifdef __cplusplus
+  #undef __cplusplus
+#endif
+
+#include <gmp.h>
+
+
 /* constants */
 
 /**
@@ -915,3 +930,4 @@ void mps_secular_check_data(mps_status* s, char* which_case);
 
 
 
+ 

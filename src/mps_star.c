@@ -275,9 +275,40 @@ mps_fstart(mps_status* s, int n, int i_clust, double clust_rad,
     return;
   }
 
-  /* In the general case apply the Rouche-based criterion */
 
-  /* Compute starting radii */
+  /* Try to remove approximated roots from the clusters, because they
+   * are likely to be "fake" cluster elements. */
+  for(i = 0; i < s->nclust; i++) {
+	  if (s->punt[i + 1] - s->punt[i] == 1) {
+		  /* If this is a single root cluster is not a cluster
+		   * so skip to the next one. */
+		  continue;
+	  }
+
+	  /* Else keep away approximated roots */
+	  for(j = s->punt[i]; j < s->punt[i+1]; j++) {
+		  if (s->frad[s->clust[j]] < 10e-15) {
+			  /* Move other roots back in the cluster */
+			  l = s->clust[j];
+			  for(jj = j + 1; jj < s->punt[i+1]; jj++) {
+				  s->clust[jj - 1] = s->clust[jj];
+			  }
+
+			  s->clust[s->punt[i+1] - 1] = l;
+			  s->punt[i+1]--;
+
+			  /* Move ahead s->punt */
+			  for(jj = s->nclust; jj > i; jj--) {
+				  s->punt[jj] = s->punt[jj - 1];
+			  }
+
+			  /* Set s->punt */
+			  s->punt[i+2] = s->punt[i+1] + 1;
+		  }
+	  }
+  }
+
+  /* In the general case apply the Rouche-based criterion */
   mps_fcompute_starting_radii(s, n, i_clust, clust_rad, g, eps, fap);
 
   for(i = 0; i < s->n_radii; i++) {
@@ -734,7 +765,7 @@ mps_mstart(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
 
   int i, j, jj, iold, l, nzeros;
   double sigma, ang, th, temp;
-  rdpe_t r, big, small, rtmp1, rtmp2;
+  rdpe_t r, big, small, rtmp1, rtmp2, precision;
   cdpe_t ctmp;
 
   rdpe_set(small, RDPE_MIN);
@@ -756,6 +787,48 @@ mps_mstart(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
 
   nzeros = 0;
   temp = 0.0;
+
+  /* Try to remove approximated roots from the clusters, because they
+   * are likely to be "fake" cluster elements. */
+  for(i = 0; i < s->nclust; i++) {
+	  if (s->punt[i + 1] - s->punt[i] == 1) {
+		  /* If this is a single root cluster is not a cluster
+		   * so skip to the next one. */
+		  continue;
+	  }
+
+	  /* Else keep away approximated roots */
+	  rdpe_set_dl(precision, 1, (long int) (1 - s->mpwp) * LOG10_2 / 10);
+	  for(j = s->punt[i]; j < s->punt[i+1]; j++) {
+		  if (rdpe_lt(s->drad[s->clust[j]], precision)) {
+
+			  if (s->DOLOG) {
+				  fprintf(s->logstr,
+						  "    MPS_MSTART: Separating root in position %d from the rest of the cluster\n",
+						  s->clust[j]);
+			  }
+
+			  /* Move other roots back in the cluster */
+			  l = s->clust[j];
+			  for(jj = j + 1; jj < s->punt[i+1]; jj++) {
+				  s->clust[jj - 1] = s->clust[jj];
+			  }
+
+			  s->clust[s->punt[i+1] - 1] = l;
+			  s->punt[i+1]--;
+
+			  /* Move ahead s->punt */
+			  for(jj = s->nclust; jj > i; jj--) {
+				  s->punt[jj] = s->punt[jj - 1];
+			  }
+
+			  /* Set s->punt */
+			  s->punt[i+2] = s->punt[i+1] + 1;
+
+			  j--;
+		  }
+	  }
+  }
 
   /* In the general case apply the Rouche-based criterion */
   mps_mcompute_starting_radii(s, n, i_clust, clust_rad, g, dap);
