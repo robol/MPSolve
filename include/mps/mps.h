@@ -40,7 +40,10 @@
 #include <math.h>
 #include <limits.h>
 
-/* gmp library */
+/* gmp library (with Octave workaround) */
+#ifdef __UNDEF_CPLUSPLUS
+#undef __cplusplus
+#endif
 #include <gmp.h>
 
 /* local include files */

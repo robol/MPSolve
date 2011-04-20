@@ -22,7 +22,7 @@
 
 /* types */
 #ifndef mps_boolean
-#ifdef __MATLAB_MEX
+#ifdef __USE_BOOL_AS_BOOLEAN
   /* Small workaround to make matlab module work */
   typedef bool mps_boolean;
 #else
