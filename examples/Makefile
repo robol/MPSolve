@@ -10,8 +10,8 @@ root_of_unity: root_of_unity.c
 mandelbrot: mandelbrot.c
 	$(CC) $(CFLAGS) $(LDFLAGS) -o mandelbrot mandelbrot.c
 
-mps_roots.oct: mps_roots.cc
-	$(MKOCTFILE) mps_roots.cc $(LDFLAGS)
+mps_roots.oct: octave-module.cc
+	$(MKOCTFILE) -o mps_roots.oct octave-module.cc $(LDFLAGS)
 
 clean:
-	rm -f mandelbrot root_of_unity
+	rm -f mandelbrot root_of_unity mps_roots.oct *~ *.o

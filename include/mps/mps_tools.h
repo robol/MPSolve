@@ -21,10 +21,9 @@
 #define MIN(A, B)  ( (A) < (B) ? (A) : (B) )
 
 /* types */
-#ifndef boolean
-typedef enum {false, true}  boolean;
-/* typedef enum _boolean { false = 0, true = 1 } boolean; */
-#endif /* boolean */
+#ifndef mps_boolean
+  typedef enum { false = 0, true = 1 } mps_boolean;
+#endif /* mps_boolean */
 
 /* functions */
 void randomize(unsigned int seed);
@@ -35,10 +34,10 @@ double dbl_get_mant(double d);
 int dbl_get_exp(double d);
 
 /* vector support functions */
-#define boolean_valloc(N)		(boolean *) malloc((N) * sizeof(boolean))
-void boolean_vinit(boolean v[], unsigned long int size);
-#define boolean_vclear(V, N)		boolean_vinit(V, N)
-#define boolean_vfree(V)		free(V)
+#define mps_boolean_valloc(N)		(mps_boolean *) malloc((N) * sizeof(mps_boolean))
+void mps_boolean_vinit(mps_boolean v[], unsigned long int size);
+#define mps_boolean_vclear(V, N)		mps_boolean_vinit(V, N)
+#define mps_boolean_vfree(V)		free(V)
 
 /* vector support functions */
 #define char_valloc(N)			(char *) malloc((N) * sizeof(char))

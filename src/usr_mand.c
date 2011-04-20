@@ -39,7 +39,7 @@ obtained by means of a rounding error analysis of (1).
 * means of the relation: p=1+x*p**2, starting with p=1*
 ******************************************************/
 void
-fnewton_usr(cplx_t x, double *rad, cplx_t corr, boolean * again)
+fnewton_usr(cplx_t x, double *rad, cplx_t corr, mps_boolean * again)
 {
   cplx_t p, pp, pt, tmp;
   double ap, ax, eps;
@@ -79,7 +79,7 @@ fnewton_usr(cplx_t x, double *rad, cplx_t corr, boolean * again)
  DPE computation
 ******************************************************/
 void
-dnewton_usr(cdpe_t x, rdpe_t rad, cdpe_t corr, boolean * again)
+dnewton_usr(cdpe_t x, rdpe_t rad, cdpe_t corr, mps_boolean * again)
 {
   cdpe_t p, pp, pt, tmp;
   rdpe_t ap, ax, eps, temp, apeps, atmp;
@@ -130,7 +130,7 @@ dnewton_usr(cdpe_t x, rdpe_t rad, cdpe_t corr, boolean * again)
  multiprecision computation
 ******************************************************/
 void
-mnewton_usr(mpc_t x, rdpe_t rad, mpc_t corr, boolean * again)
+mnewton_usr(mpc_t x, rdpe_t rad, mpc_t corr, mps_boolean * again)
 {
   int i, m;
   rdpe_t ap, ax, eps, temp, apeps, atmp;

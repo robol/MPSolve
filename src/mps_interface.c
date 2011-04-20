@@ -65,7 +65,7 @@ void mps_allocate_poly_inplace(mps_status* s, int n) {
 
 	s->data_type = (char*) malloc(sizeof(char) * 3);
 
-	s->spar = boolean_valloc(s->deg + 2);
+	s->spar = mps_boolean_valloc(s->deg + 2);
 
 	s->fpr = double_valloc(s->deg + 1);
 	s->fpc = cplx_valloc(s->deg + 1);
@@ -118,6 +118,17 @@ mps_status* mps_status_new() {
 }
 
 /**
+ * @brief Free a not more useful mps_status.
+ *
+ * @param s the mps_status struct pointer to free.
+ */
+void
+mps_status_free(mps_status* s) {
+   mps_free_data(s);
+   free (s);
+}
+
+/**
  * @brief Set active poly as a user poly, providing routines to compute
  * newton corrections.
  *
@@ -135,17 +146,17 @@ mps_status* mps_status_new() {
  * @param n The degree of the polynomial;
  * @param fnewton The routine that performs the computation of the newton correction
  *   in floating point. It must be of the type
- *   <code>(void*)(mps_status* s, cplx_t x, double *rad, cplx_t corr, boolean * again)</code>
+ *   <code>(void*)(mps_status* s, cplx_t x, double *rad, cplx_t corr, mps_boolean * again)</code>
  *   and can be passed to the function with the right casting using the macro
  *   <code>MPS_FNEWTON_PTR</code>.
  * @param dnewton The routine that performs the computation of the newton correction in
  *   <code>dpe</code> precision. It must be of the type
- *   <code>(void*)(mps_status* s, cdpe_t x, rdpe_t rad, cdpe_t corr, boolean * again)</code>
+ *   <code>(void*)(mps_status* s, cdpe_t x, rdpe_t rad, cdpe_t corr, mps_boolean * again)</code>
  *   and can be passed to the function with the right casting using the macro
  *   <code>MPS_DNEWTON_PTR</code>.
  * @param fnewton The routine that performs the computation of the newton correction in
  *   multiprecision. It must be of the type
- *   <code>(void*)(mps_status* s, mpc_t x, rdpe_t rad, mpc_t corr, boolean * again)</code>
+ *   <code>(void*)(mps_status* s, mpc_t x, rdpe_t rad, mpc_t corr, mps_boolean * again)</code>
  *   and can be passed to the function with the right casting using the macro
  *   <code>MPS_MNEWTON_PTR</code>.
  */
@@ -239,7 +250,7 @@ int mps_status_set_poly_i(mps_status* s, int* coeff, long unsigned int n) {
  * and (if it is not <code>NULL</code>) <code>radius[i]</code>
  * to the i-th inclusion radius.
  */
-int mps_get_roots_d(mps_status* s, cplx_t* roots, double* radius) {
+int mps_status_get_roots_d(mps_status* s, cplx_t* roots, double* radius) {
 	int i;
 	for(i = 0; i < s->n; i++) {
 

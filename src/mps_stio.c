@@ -92,7 +92,7 @@ mps_outcount(mps_status* s)
 *      SUBROUTINE OUTFLOAT                               *
 *********************************************************/
 void
-mps_outfloat(mps_status* s, mpf_t f, rdpe_t rad, long out_digit, boolean sign)
+mps_outfloat(mps_status* s, mpf_t f, rdpe_t rad, long out_digit, mps_boolean sign)
 {
   tmpf_t t;
   rdpe_t r, ro;

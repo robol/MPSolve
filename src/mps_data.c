@@ -39,7 +39,7 @@ mps_allocate_data(mps_status* s)
 
   s->clust = int_valloc(s->deg);
   s->punt = int_valloc(s->deg + 1);
-  s->again = boolean_valloc(s->deg);
+  s->again = mps_boolean_valloc(s->deg);
   s->status = (char (*)[3]) char_valloc(3 * s->deg);
   
   s->order = int_valloc(s->deg);
@@ -74,10 +74,10 @@ mps_allocate_data(mps_status* s)
   }
 
   /* temporary vectors */
-  s->spar1 = boolean_valloc(s->deg + 2);
-  s->spar2 = boolean_valloc(s->deg + 2);
-  s->h = boolean_valloc(s->deg + 2);
-  s->again_old = boolean_valloc(s->deg);
+  s->spar1 = mps_boolean_valloc(s->deg + 2);
+  s->spar2 = mps_boolean_valloc(s->deg + 2);
+  s->h = mps_boolean_valloc(s->deg + 2);
+  s->again_old = mps_boolean_valloc(s->deg);
 
   s->oldpunt = int_valloc(s->deg + 1);
   s->clust_aux = int_valloc(s->deg + 1);

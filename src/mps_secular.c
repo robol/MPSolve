@@ -72,7 +72,7 @@ mps_secular_equation_free(mps_secular_equation* s) {
 }
 
 void
-mps_secular_fnewton(mps_status* s, cplx_t x, double *rad, cplx_t corr, boolean * again) {
+mps_secular_fnewton(mps_status* s, cplx_t x, double *rad, cplx_t corr, mps_boolean * again) {
 
 	int i;
 	cplx_t ctmp, ctmp2, pol, fp, sumb;
@@ -141,7 +141,7 @@ mps_secular_fnewton(mps_status* s, cplx_t x, double *rad, cplx_t corr, boolean *
 }
 
 void
-mps_secular_dnewton(mps_status* s, cdpe_t x, rdpe_t rad, cdpe_t corr, boolean * again) {
+mps_secular_dnewton(mps_status* s, cdpe_t x, rdpe_t rad, cdpe_t corr, mps_boolean * again) {
 
 	int i;
 
@@ -224,7 +224,7 @@ mps_secular_dnewton(mps_status* s, cdpe_t x, rdpe_t rad, cdpe_t corr, boolean * 
 	*again = true;
 }
 
-void mps_secular_mnewton(mps_status* s, mpc_t x, rdpe_t rad, mpc_t corr, boolean * again) {
+void mps_secular_mnewton(mps_status* s, mpc_t x, rdpe_t rad, mpc_t corr, mps_boolean * again) {
 
 	int i;
 

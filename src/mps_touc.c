@@ -30,7 +30,7 @@
  * @return false if the disc <code>i</code> and <code>j</code>
  *   are newton-isolated.
  */
-boolean
+mps_boolean
 mps_ftouchnwt(mps_status* s, int n, int i, int j)
 {
   cplx_t ctmp;
@@ -62,7 +62,7 @@ mps_ftouchnwt(mps_status* s, int n, int i, int j)
  * @return false if the disc <code>i</code> and <code>j</code>
  *   are newton-isolated.
  */
-boolean
+mps_boolean
 mps_dtouchnwt(mps_status* s, int n, int i, int j)
 {
   cdpe_t ctmp;
@@ -94,7 +94,7 @@ mps_dtouchnwt(mps_status* s, int n, int i, int j)
  * @return false if the disc <code>i</code> and <code>j</code>
  *   are newton-isolated.
  */
-boolean
+mps_boolean
 mps_mtouchnwt(mps_status* s, int n, int i, int j)
 {
   tmpc_t mtmp;
@@ -119,7 +119,7 @@ mps_mtouchnwt(mps_status* s, int n, int i, int j)
 *************************************************************
  true if the disk intersects the real axis, false otherwise
 ************************************************************/
-boolean
+mps_boolean
 mps_ftouchreal(mps_status* s, int n, int i)
 {
   if (s->frad[i] >= DBL_MAX/n) return true;
@@ -130,7 +130,7 @@ mps_ftouchreal(mps_status* s, int n, int i)
 /************************************************************
 *              FUNCTION DTOUCHREAL                          *
 ************************************************************/
-boolean
+mps_boolean
 mps_dtouchreal(mps_status* s, int n, int i)
 {
   rdpe_t tmp1, tmp2;
@@ -143,7 +143,7 @@ mps_dtouchreal(mps_status* s, int n, int i)
 /************************************************************
 *              FUNCTION MTOUCHREAL                          *
 ************************************************************/
-boolean
+mps_boolean
 mps_mtouchreal(mps_status* s, int n, int i)
 {
   rdpe_t tmp1, tmp2;
@@ -160,7 +160,7 @@ mps_mtouchreal(mps_status* s, int n, int i)
 *************************************************************
  true iff the disk intersects the imaginary axis 
 ************************************************************/
-boolean
+mps_boolean
 mps_ftouchimag(mps_status* s, int n, int i)
 {
   if (s->frad[i] >= DBL_MAX/n) return true;
@@ -171,7 +171,7 @@ mps_ftouchimag(mps_status* s, int n, int i)
 /************************************************************
 *              FUNCTION  DTOUCHIMAG                         *
 ************************************************************/
-boolean
+mps_boolean
 mps_dtouchimag(mps_status* s, int n, int i)
 {
   rdpe_t tmp1, tmp2;
@@ -184,7 +184,7 @@ mps_dtouchimag(mps_status* s, int n, int i)
 /************************************************************
 *              FUNCTION  MTOUCHIMAG                         *
 ************************************************************/
-boolean
+mps_boolean
 mps_mtouchimag(mps_status* s, int n, int i)
 {
   rdpe_t tmp1, tmp2;
@@ -202,7 +202,7 @@ mps_mtouchimag(mps_status* s, int n, int i)
  true if the disk intersects the unit circle, false otherwise
   (n*drad[i]+1 >= |froot[i]|) && (n*drad[i]+|froot[i]| >= 1)
 *************************************************************/
-boolean
+mps_boolean
 mps_ftouchunit(mps_status* s, int n, int i)
 {
   double ab, rad;
@@ -217,7 +217,7 @@ mps_ftouchunit(mps_status* s, int n, int i)
 /************************************************************
 *              FUNCTION  DTOUCHUNIT                         *
 ************************************************************/
-boolean
+mps_boolean
 mps_dtouchunit(mps_status* s, int n, int i)
 {
   rdpe_t ab, rad, tmp;
@@ -234,7 +234,7 @@ mps_dtouchunit(mps_status* s, int n, int i)
 /************************************************************
 *              FUNCTION  MTOUCHUNIT                         *
 ************************************************************/
-boolean
+mps_boolean
 mps_mtouchunit(mps_status* s, int n, int i)
 {
   tmpf_t mab;

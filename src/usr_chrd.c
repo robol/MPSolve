@@ -51,7 +51,7 @@ d   3 11 43 171  683 ...
 ******************************************************* 
 ******************************************************/
 void
-fnewton_usr(cplx_t x, double *rad, cplx_t corr, boolean * again)
+fnewton_usr(cplx_t x, double *rad, cplx_t corr, mps_boolean * again)
 {
 }
 
@@ -61,7 +61,7 @@ fnewton_usr(cplx_t x, double *rad, cplx_t corr, boolean * again)
  DPE computation
 ******************************************************/
 void
-dnewton_usr(cdpe_t x, rdpe_t rad, cdpe_t corr, boolean * again)
+dnewton_usr(cdpe_t x, rdpe_t rad, cdpe_t corr, mps_boolean * again)
 {
   cdpe_t xm1,xm2,a,as,ac,aq,c,cs,cc,cq,ap,cp,d,dp,ccp,aap;
   cdpe_t xm1s,xm1s2,xm1c,na,nc,ctmp1,ctmp2;
@@ -204,7 +204,7 @@ dnewton_usr(cdpe_t x, rdpe_t rad, cdpe_t corr, boolean * again)
  multiprecision computation
 ******************************************************/
 void
-mnewton_usr(mpc_t x, rdpe_t rad, mpc_t corr, boolean * again)
+mnewton_usr(mpc_t x, rdpe_t rad, mpc_t corr, mps_boolean * again)
 {
   rdpe_t d0, d1, d2, ap0, ap1,ap2, ax, eps, rtmp, rtmp1;
   int i, m;

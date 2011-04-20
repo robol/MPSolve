@@ -23,7 +23,7 @@
 **********************************************************/
 void
 mps_fnewton(mps_status* s, int n, cplx_t z, double *radius, cplx_t corr,
-	    cplx_t fpc[], double fap[], boolean * cont)
+	    cplx_t fpc[], double fap[], mps_boolean * cont)
 {
   int i;
   double ap, az, absp, azi, eps;
@@ -112,7 +112,7 @@ mps_fnewton(mps_status* s, int n, cplx_t z, double *radius, cplx_t corr,
 **********************************************************/
 void
 mps_dnewton(mps_status* s, int n, cdpe_t z, rdpe_t radius, cdpe_t corr,
-	    cdpe_t dpc[], rdpe_t dap[], boolean * cont)
+	    cdpe_t dpc[], rdpe_t dap[], mps_boolean * cont)
 {
   int i;
   rdpe_t ap, az, absp, rnew, apeps, rtmp;
@@ -186,11 +186,11 @@ mps_intlog2(int n)
 ****************************************************/
 void
 mps_parhorner(mps_status* st, int n, mpc_t x, mpc_t p[], 
-	      boolean b[], mpc_t s)
+	      mps_boolean b[], mpc_t s)
 {
   int m, j, i, i1, i2, q;
   tmpc_t tmp, y;
-  boolean bi;
+  mps_boolean bi;
 
   tmpc_init2(tmp, st->mpwp);
   tmpc_init2(y, st->mpwp);
@@ -240,11 +240,11 @@ mps_parhorner(mps_status* st, int n, mpc_t x, mpc_t p[],
 ****************************************************/
 void
 mps_aparhorner(mps_status* st, 
-	       int n, rdpe_t x, rdpe_t p[], boolean b[], rdpe_t s)
+	       int n, rdpe_t x, rdpe_t p[], mps_boolean b[], rdpe_t s)
 {
   int m, i, j, i1, i2, q;
   rdpe_t y, tmp;
-  boolean bi;
+  mps_boolean bi;
 
   for (i = 0; i < n + 1; i++)
     st->spar2[i] = b[i];
@@ -294,7 +294,7 @@ mps_aparhorner(mps_status* st,
 void
 mps_mnewton(mps_status* s, int n, mpc_t z, rdpe_t radius, mpc_t corr,
 	    mpc_t mfpc[], mpc_t mfppc[], rdpe_t dap[],
-	    boolean spar[], boolean * cont)
+	    mps_boolean spar[], mps_boolean * cont)
 {
   int i, n1, n2;
   rdpe_t ap, az, absp, temp, rnew, ep, apeps;

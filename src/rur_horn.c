@@ -75,7 +75,7 @@ mps_refine(mps_status* s, int i, long prec)
   cdpe_t ctmp;
   rdpe_t tmp, t, cond, norm, u, sigma;
   double f, g, cnd;
-  boolean aga;
+  mps_boolean aga;
 
   tmpc_init2(mtmp, prec);
   mpc_init2(nwtcorr, prec);

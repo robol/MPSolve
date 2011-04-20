@@ -85,5 +85,8 @@ and return a vector with the roots.\n\
     cplx_vfree (coeff);
     cplx_vfree (results);
 
+    /* Free mpsolve status */
+    mps_status_free (s);
+
     return octave_value(res);
 }

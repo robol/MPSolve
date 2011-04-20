@@ -67,17 +67,17 @@ typedef enum {no_phase, float_phase, dpe_phase, mp_phase} mps_phase;
 /**
  * @brief Function that computes \f$\frac{p}{p'}\f$ (floating point version)
  */
-typedef void (*mps_fnewton_ptr)(void* status,cplx_t,double*,cplx_t,boolean*);
+typedef void (*mps_fnewton_ptr)(void* status,cplx_t,double*,cplx_t,mps_boolean*);
 
 /**
  * @brief Function that computes \f$\frac{p}{p'}\f$ (dpe version)
  */
-typedef void (*mps_dnewton_ptr)(void* status, cdpe_t x, rdpe_t   rad, cdpe_t corr, boolean* again);
+typedef void (*mps_dnewton_ptr)(void* status, cdpe_t x, rdpe_t   rad, cdpe_t corr, mps_boolean* again);
 
 /**
  * @brief Function that computes \f$\frac{p}{p'}\f$ (multiprecision version)
  */
-typedef void (*mps_mnewton_ptr)(void* status, mpc_t  x, rdpe_t   rad, mpc_t  corr, boolean* again);
+typedef void (*mps_mnewton_ptr)(void* status, mpc_t  x, rdpe_t   rad, mpc_t  corr, mps_boolean* again);
 
 /*
  * Macros for casting
@@ -91,8 +91,8 @@ typedef void (*mps_mnewton_ptr)(void* status, mpc_t  x, rdpe_t   rad, mpc_t  cor
  */
 typedef struct {
 
-   boolean resume;		/* to complete                         */
-   boolean chkrad;		/* check radii after completion        */
+   mps_boolean resume;		/* to complete                         */
+   mps_boolean chkrad;		/* check radii after completion        */
 
    int newtis;
    int newtis_old;
@@ -107,18 +107,18 @@ typedef struct {
    *
    * @see logstr
    */
-   boolean DOLOG;
+   mps_boolean DOLOG;
 
   /**
    * @brief <code>true</code> if warning are needed. 
    */
-   boolean DOWARN;
+   mps_boolean DOWARN;
 
   /**
    * @brief <code>true</code> if root sorting is desired. It will
    * be performed with routines in <code>mps_sort.c</code>.
    */
-   boolean DOSORT;
+   mps_boolean DOSORT;
 
   /**
    * @brief Default input stream.
@@ -205,10 +205,10 @@ typedef struct {
    long int prec_out;
   
   /**
-   * @brief boolean value that determine if we should
+   * @brief mps_boolean value that determine if we should
    * use a random seed for startingd points
    */
-   boolean random_seed;
+   mps_boolean random_seed;
   
   /*
    * POLYNOMIAL DATA: SHARED VARIABLES
@@ -258,7 +258,7 @@ typedef struct {
    * the i-th coefficients of the polynomial is a non-zero 
    * coefficients
    */
-   boolean * spar;		/* sparsity structure of the poly.     */
+   mps_boolean * spar;		/* sparsity structure of the poly.     */
   
    /**
     * @brief Standard real coefficients.
@@ -403,7 +403,7 @@ typedef struct {
     * @brief <code>true</code> if the float phase should be skipped,
     * passing directly do dpe phase.
     */
-   boolean skip_float;
+   mps_boolean skip_float;
 
    /**
     * @brief Input precision of the coefficients.
@@ -492,7 +492,7 @@ typedef struct {
    * @brief Array that whose i-th component is set to <code>true</code> if
    * the i-th root needs more iterations.
    */
-   boolean * again;		
+   mps_boolean * again;
   
   /**
    * @brief Array containing standard complex coefficients
@@ -556,7 +556,7 @@ typedef struct {
     *
     * @see spar
     */
-   boolean * spar1;
+   mps_boolean * spar1;
 
    /**
     * @brief Vector representing sparsity of the polynomial in the
@@ -566,7 +566,7 @@ typedef struct {
     *
     * @see spar
     */
-   boolean * spar2;
+   mps_boolean * spar2;
 
    /**
     * @brief Old value of <code>punt</code> (temporary vector).
@@ -630,7 +630,7 @@ typedef struct {
    * hull computed by <code>fconvex()</code> and the other functions in
    * <code>mps_cnvx.c</code>
    */
-   boolean * h;
+   mps_boolean * h;
   
    /**
     * @brief Temporary vector containing the old value of
@@ -638,7 +638,7 @@ typedef struct {
     *
     * @see again
     */
-   boolean * again_old;
+   mps_boolean * again_old;
   
 
    int * clust_aux;		/* auxiliary vector                    */
@@ -674,19 +674,19 @@ typedef struct {
     * @brief Pointer to the function to perform newton in floating
     * point implemented by the user.
     */
-   void (*fnewton_usr)(void* status,cplx_t,double*,cplx_t,boolean*);
+   void (*fnewton_usr)(void* status,cplx_t,double*,cplx_t,mps_boolean*);
 
    /**
     * @brief Pointer to the function to perform newton in dpe
     * implemented by the user.
     */
-   void (*dnewton_usr)(void* status, cdpe_t x, rdpe_t   rad, cdpe_t corr, boolean* again);
+   void (*dnewton_usr)(void* status, cdpe_t x, rdpe_t   rad, cdpe_t corr, mps_boolean* again);
 
    /**
     * @brief Pointer to the function to perform newton in multiprecision
     * implemented by the user.
     */
-   void (*mnewton_usr)(void* status, mpc_t  x, rdpe_t   rad, mpc_t  corr, boolean* again);
+   void (*mnewton_usr)(void* status, mpc_t  x, rdpe_t   rad, mpc_t  corr, mps_boolean* again);
 
    /**
     * @brief Check data routine that has the task to determine if a float phase
@@ -803,13 +803,13 @@ void mps_compute_sep(mps_status* s);
 
 /* functions in mps_newt.c */
 void mps_fnewton(mps_status* st, int n, cplx_t z, double * radius, cplx_t corr, cplx_t fpc[],
-		 double fap[], boolean *  cont);
+		 double fap[], mps_boolean *  cont);
 void mps_dnewton(mps_status* st, int n, cdpe_t z, rdpe_t radius, cdpe_t corr,
-		 cdpe_t dpc[], rdpe_t dap[], boolean * cont);
+		 cdpe_t dpc[], rdpe_t dap[], mps_boolean * cont);
 void mps_mnewton(mps_status* st, int n, mpc_t z, rdpe_t radius, mpc_t corr, mpc_t mfpc[],
-		 mpc_t mfppc[], rdpe_t dap[], boolean * spar, boolean * cont);
-void mps_parhorner(mps_status* st, int n, mpc_t x, mpc_t p[], boolean b[], mpc_t s);
-void mps_aparhorner(mps_status* st, int n, rdpe_t x, rdpe_t p[], boolean b[], rdpe_t s);
+		 mpc_t mfppc[], rdpe_t dap[], mps_boolean * spar, mps_boolean * cont);
+void mps_parhorner(mps_status* st, int n, mpc_t x, mpc_t p[], mps_boolean b[], mpc_t s);
+void mps_aparhorner(mps_status* st, int n, rdpe_t x, rdpe_t p[], mps_boolean b[], rdpe_t s);
 
 /**
  * This function parse command lines and sets global variables 
@@ -841,13 +841,13 @@ void mps_msrad(mps_status* s, int i, mpc_t sc, rdpe_t sr);
 void mps_fmodify(mps_status* s);
 void mps_dmodify(mps_status* s);
 void mps_mmodify(mps_status* s);
-boolean mps_check_stop(mps_status* s);
-void mps_fsolve(mps_status* s, boolean * d_after_f);
-void mps_dsolve(mps_status* s, boolean d_after_f);
+mps_boolean mps_check_stop(mps_status* s);
+void mps_fsolve(mps_status* s, mps_boolean * d_after_f);
+void mps_dsolve(mps_status* s, mps_boolean d_after_f);
 void mps_msolve(mps_status* s);
-void mps_fpolzer(mps_status* s, int * it, boolean * excep);
-void mps_dpolzer(mps_status* s, int * it, boolean * excep);
-void mps_mpolzer(mps_status* s, int * it, boolean * excep);
+void mps_fpolzer(mps_status* s, int * it, mps_boolean * excep);
+void mps_dpolzer(mps_status* s, int * it, mps_boolean * excep);
+void mps_mpolzer(mps_status* s, int * it, mps_boolean * excep);
 
 /* functions in mps_star.c */
 void mps_fstart(mps_status* s, int n, int i_clust, double clust_rad, 
@@ -874,37 +874,38 @@ void mps_warn(mps_status* st, char * s);
 void mps_error(mps_status* st, int args, ...);
 
 /* functions in mps_test.c */
-boolean  mps_inclusion(mps_status* s);
+mps_boolean  mps_inclusion(mps_status* s);
 
 /* functions in mps_touch.c */
-boolean mps_ftouchnwt(mps_status* s, int n, int i, int j);
-boolean mps_dtouchnwt(mps_status* s, int n, int i, int j);
-boolean mps_mtouchnwt(mps_status* s, int n, int i, int j);
-boolean mps_ftouchreal(mps_status* s, int n, int i);
-boolean mps_dtouchreal(mps_status* s, int n, int i);
-boolean mps_mtouchreal(mps_status* s, int n, int i);
-boolean mps_ftouchimag(mps_status* s, int n, int i);
-boolean mps_dtouchimag(mps_status* s, int n, int i);
-boolean mps_mtouchimag(mps_status* s, int n, int i);
-boolean mps_ftouchunit(mps_status* s, int n, int i);
-boolean mps_dtouchunit(mps_status* s, int n, int i);
-boolean mps_mtouchunit(mps_status* s, int n, int i);
+mps_boolean mps_ftouchnwt(mps_status* s, int n, int i, int j);
+mps_boolean mps_dtouchnwt(mps_status* s, int n, int i, int j);
+mps_boolean mps_mtouchnwt(mps_status* s, int n, int i, int j);
+mps_boolean mps_ftouchreal(mps_status* s, int n, int i);
+mps_boolean mps_dtouchreal(mps_status* s, int n, int i);
+mps_boolean mps_mtouchreal(mps_status* s, int n, int i);
+mps_boolean mps_ftouchimag(mps_status* s, int n, int i);
+mps_boolean mps_dtouchimag(mps_status* s, int n, int i);
+mps_boolean mps_mtouchimag(mps_status* s, int n, int i);
+mps_boolean mps_ftouchunit(mps_status* s, int n, int i);
+mps_boolean mps_dtouchunit(mps_status* s, int n, int i);
+mps_boolean mps_mtouchunit(mps_status* s, int n, int i);
 
 /* functions in mps_usr.c */
-void mps_fnewton_usr(mps_status* st, cplx_t x, double * rad, cplx_t corr, boolean * again);
-void mps_dnewton_usr(mps_status* st, cdpe_t x, rdpe_t rad, cdpe_t corr, boolean * again);
-void mps_mnewton_usr(mps_status* st, mpc_t x, rdpe_t rad, mpc_t corr, boolean * again);
+void mps_fnewton_usr(mps_status* st, cplx_t x, double * rad, cplx_t corr, mps_boolean * again);
+void mps_dnewton_usr(mps_status* st, cdpe_t x, rdpe_t rad, cdpe_t corr, mps_boolean * again);
+void mps_mnewton_usr(mps_status* st, mpc_t x, rdpe_t rad, mpc_t corr, mps_boolean * again);
 
 /* functions in mps_interface.c */
 mps_status* mps_status_new();
+void mps_status_free(mps_status* s);
 int mps_status_set_poly_d(mps_status* s, cplx_t* coeff, long unsigned int n);
 int mps_status_set_poly_i(mps_status* s, int* coeff, long unsigned int n);
-int mps_get_roots_d(mps_status* s, cplx_t* roots, double* radius);
+int mps_status_get_roots_d(mps_status* s, cplx_t* roots, double* radius);
 
 /* functions in mps_secular.c */
-void mps_secular_fnewton(mps_status* st, cplx_t x, double * rad, cplx_t corr, boolean * again);
-void mps_secular_dnewton(mps_status* st, cdpe_t x, rdpe_t rad, cdpe_t corr, boolean * again);
-void mps_secular_mnewton(mps_status* st, mpc_t x, rdpe_t rad, mpc_t corr, boolean * again);
+void mps_secular_fnewton(mps_status* st, cplx_t x, double * rad, cplx_t corr, mps_boolean * again);
+void mps_secular_dnewton(mps_status* st, cdpe_t x, rdpe_t rad, cdpe_t corr, mps_boolean * again);
+void mps_secular_mnewton(mps_status* st, mpc_t x, rdpe_t rad, mpc_t corr, mps_boolean * again);
 void mps_secular_check_data(mps_status* s, char* which_case);
 
 #endif /* ndef __MPS_H__ */

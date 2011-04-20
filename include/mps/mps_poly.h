@@ -22,7 +22,7 @@ typedef struct {
   char data_type[3];	/* polynomial data type */
   long int prec_in;	/* number of digits of input precision */
   int n;		/* degree */
-  boolean *spar;	/* sparsity structure of the polynomial */
+  mps_boolean *spar;	/* sparsity structure of the polynomial */
   double *fpr;		/* standard real coefficients */
   cplx_t *fpc;		/* standard complex coefficients */
   rdpe_t *dpr;		/* dpe real coefficients */

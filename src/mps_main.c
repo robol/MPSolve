@@ -31,7 +31,7 @@ mps_mpsolve(mps_status* s)
 {
   int i, nzc;
   char which_case;
-  boolean d_after_f, computed, over_max;
+  mps_boolean d_after_f, computed, over_max;
 
   /* == 1 ==  Setup variables, i.e. copy coefficients
    into dpr, dpc and similar. */

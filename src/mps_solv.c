@@ -314,7 +314,7 @@ mps_fmodify(mps_status* s)
    l2;
   double sr, tmpr, afri, sep1;
   cplx_t sc;
-  boolean tcr, tcr1;
+  mps_boolean tcr, tcr1;
 
   /* ==1== Change into 'C' the components of status for old clusters */
   nf = 2 * s->n;  /* Isolation factor */
@@ -800,7 +800,7 @@ mps_dmodify(mps_status* s)
   double rtmp, sep1;
   rdpe_t sr, tmpr;
   cdpe_t sc;
-  boolean tcr, tcr1;
+  mps_boolean tcr, tcr1;
 
 /* ==1==  Change into 'C' the components of status for old clusters */
   nf = 2 * s->n; /* Isolation factor */
@@ -1279,7 +1279,7 @@ mps_mmodify(mps_status* s)
   double rtmp, sep1;
   rdpe_t sr, tmpr;
   cdpe_t tmpc;
-  boolean tcr, tcr1;
+  mps_boolean tcr, tcr1;
   tmpf_t tmpf;
   tmpc_t sc;
 
@@ -1795,11 +1795,11 @@ mps_mmodify(mps_status* s)
  * 
  * @see status
  */
-boolean
+mps_boolean
 mps_check_stop(mps_status* s)
 {
   int i;
-  boolean computed;
+  mps_boolean computed;
 
   computed = false;
   /* count */
@@ -1881,9 +1881,9 @@ mps_check_stop(mps_status* s)
  * are needed after the floating point pass. 
  */
 void 
-mps_fsolve(mps_status* s, boolean * d_after_f)
+mps_fsolve(mps_status* s, mps_boolean * d_after_f)
 {
-  boolean excep;
+  mps_boolean excep;
   int it_pack, iter, nit, oldnclust, i, j;
   rdpe_t eps_out;
 
@@ -2048,7 +2048,7 @@ mps_fsolve(mps_status* s, boolean * d_after_f)
  * iterations some approximation is still out of the root neighbourhood.
  */
 void
-mps_fpolzer(mps_status* s, int *it, boolean * excep)
+mps_fpolzer(mps_status* s, int *it, mps_boolean * excep)
 {
   int i, iter, nzeros;
   cplx_t corr, abcorr;
@@ -2131,7 +2131,7 @@ mps_fpolzer(mps_status* s, int *it, boolean * excep)
  * @brief <code>dpe</code> version of <code>fpolzer()</code>.
  */
 void
-mps_dpolzer(mps_status* s, int *it, boolean * excep)
+mps_dpolzer(mps_status* s, int *it, mps_boolean * excep)
 {
   int iter, i, nzeros;
   rdpe_t rad1, rtmp;
@@ -2209,10 +2209,10 @@ mps_dpolzer(mps_status* s, int *it, boolean * excep)
  * @brief <code>dpe</code> version of <code>fsolve()</code>.
  */
 void
-mps_dsolve(mps_status* s, boolean d_after_f)
+mps_dsolve(mps_status* s, mps_boolean d_after_f)
 {
   int it_pack, iter, nit, oldnclust, i, j;
-  boolean excep;
+  mps_boolean excep;
   rdpe_t dummy;
 
   if (s->DOLOG)
@@ -2354,7 +2354,7 @@ void
 mps_msolve(mps_status* s)
 {
   int iter, nit, oldnclust, i, j, it_pack; 
-  boolean excep;
+  mps_boolean excep;
   int nzc;
 
   /* == 1 == Initialize variables */
@@ -2607,7 +2607,7 @@ mps_msolve(mps_status* s)
  * @brief Multiprecision versione of <code>fpolzer()</code>.
  */
 void
-mps_mpolzer(mps_status* s, int *it, boolean * excep)
+mps_mpolzer(mps_status* s, int *it, mps_boolean * excep)
 {
   int nzeros, i, j, iter, l;
   tmpc_t corr, abcorr;

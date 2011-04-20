@@ -37,7 +37,7 @@ mps_improve(mps_status* st)
   cdpe_t ctmp;
   rdpe_t tmp, t, s, sigma, newrad, oldrad, abroot;
   double f, g, cnd;
-  boolean again;
+  mps_boolean again;
 
   if (st->DOLOG)
     fprintf(st->logstr, "Refining the roots ...\n");

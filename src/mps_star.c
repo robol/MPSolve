@@ -497,7 +497,7 @@ mps_dstart(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
   int l = 0, i, j, jj, nzeros = 0;
   rdpe_t r, tmp, tmp1;
   double sigma, th, ang;
-  boolean flag = false;
+  mps_boolean flag = false;
 
   if (s->random_seed)
     sigma = drand();
@@ -841,7 +841,7 @@ mps_frestart(mps_status* s)
   int i, k, j, l, jj;
   double sr, sum, rad, rtmp, rtmp1;
   cplx_t sc, g, corr, ctmp;
-  boolean tst, cont;
+  mps_boolean tst, cont;
 
   /* For user's polynomials skip the restart stage (not yet implemented) */
   if (s->data_type[0] == 'u')
@@ -1002,7 +1002,7 @@ mps_drestart(mps_status* s)
   int i, k, j, l, jj;
   rdpe_t sr, rad, rtmp, rtmp1;
   cdpe_t sc, g, corr, ctmp;
-  boolean tst, cont;
+  mps_boolean tst, cont;
 
   /*  For user's polynomials skip the restart stage (not yet implemented) */
   if (s->data_type[0] == 'u')
@@ -1131,7 +1131,7 @@ mps_drestart(mps_status* s)
 void
 mps_mrestart(mps_status* s)
 {
-  boolean tst, cont;
+  mps_boolean tst, cont;
   int i, j, k, l, jj;
   rdpe_t sr, rad, rtmp, rtmp1, rtmp2;
   cdpe_t tmp;
@@ -1591,7 +1591,7 @@ mps_raisetemp_raw(mps_status* s, unsigned long int digits)
 void 
 mps_mnewtis(mps_status* s)
 {
-  boolean tst;
+  mps_boolean tst;
   int i, j, k, l, jj;
   rdpe_t sr, rtmp, rtmp1;
   cdpe_t tmp;

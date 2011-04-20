@@ -18,7 +18,7 @@
  * <code>a</code>, computes the convex hull of the set
  * \f[ \mathcal{S} = \{ (i, a_i) \ | \ i \in \{ 1, \dots, n\} \} \f]
  *
- * The computed set is returned in a vector of booleans <code>h</code>
+ * The computed set is returned in a vector of mps_booleans <code>h</code>
  * such that its vertices are
  * \f[ \mathcal{V} = \{ (i, a_i) \ | \ i \in \{ 1, \dots, n \} \ \text{and} \ h_i \ \text{is true} \ \} \f]
  */
@@ -78,7 +78,7 @@ mps_right(mps_status* s, int i, int up)
  * @param ir index of the last point
  * @param a  array with the points
  */
-boolean
+mps_boolean
 mps_fctest(mps_status* s, int il, int i, int ir, double a[])
 {
   double s1, s2;
@@ -104,7 +104,7 @@ void
 mps_fmerge(mps_status* s, int lo, int i, int up, double a[])
 {
   int il, ir, ill, irr;
-  boolean tstl, tstr;
+  mps_boolean tstl, tstr;
 
   ill = lo;
   irr = up;
@@ -142,7 +142,7 @@ mps_fmerge(mps_status* s, int lo, int i, int up, double a[])
  * @brief compute the convex hull of the data set a[].
  *
  * The result
- * is in the boolean vector <code>h[]</code>. The algorithm successively
+ * is in the mps_boolean vector <code>h[]</code>. The algorithm successively
  * merges adjacent convex hulls of sizes 2, 4, 8, ...
  *
  * @param a vector of points whose convex hull must be computed.

@@ -39,7 +39,7 @@ obtained by means of a rounding error analysis of (1).
 * Floating point computation                          *
 ******************************************************/
 void
-fnewton_usr(cplx_t x, double *rad, cplx_t corr, boolean * again)
+fnewton_usr(cplx_t x, double *rad, cplx_t corr, mps_boolean * again)
 {
  /* floating point user polynomial not supported yet */
 }
@@ -50,7 +50,7 @@ fnewton_usr(cplx_t x, double *rad, cplx_t corr, boolean * again)
 * DPE computation                                     *
 ******************************************************/
 void
-dnewton_usr(cdpe_t x, rdpe_t rad, cdpe_t corr, boolean * again)
+dnewton_usr(cdpe_t x, rdpe_t rad, cdpe_t corr, mps_boolean * again)
 {
   cdpe_t p0, p1, p2, pp0, pp1, pp2, tmp1, tmp2;
   rdpe_t d0, d1, d2, ap0, ap1, ap2, ax, eps, rtmp, rtmp1;
@@ -145,7 +145,7 @@ dnewton_usr(cdpe_t x, rdpe_t rad, cdpe_t corr, boolean * again)
  multiprecision computation
 ******************************************************/
 void
-mnewton_usr(mpc_t x, rdpe_t rad, mpc_t corr, boolean * again)
+mnewton_usr(mpc_t x, rdpe_t rad, mpc_t corr, mps_boolean * again)
 {
   rdpe_t d0, d1, d2, ap0, ap1, ap2, ax, eps, rtmp, rtmp1;
   int i, m;

@@ -298,7 +298,7 @@ mps_allocate_poly(mps_status* s, mpspoly_t p)
   if (s->DOLOG)
     fprintf(s->logstr, "Allocating polynomial\n");
 
-  p->spar = boolean_valloc(p->deg + 2);
+  p->spar = mps_boolean_valloc(p->deg + 2);
 
   p->fpr = double_valloc(p->deg + 1);
   p->fpc = cplx_valloc(p->deg + 1);

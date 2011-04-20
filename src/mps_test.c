@@ -14,7 +14,7 @@
 /********************************************************
 *      SUBROUTINE INCLUSION                             *
 *********************************************************/
-boolean
+mps_boolean
 mps_inclusion(mps_status* s)
 {
   int i, j, k, n1, n2, oldnclust;

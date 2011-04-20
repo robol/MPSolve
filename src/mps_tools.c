@@ -81,7 +81,7 @@ dbl_get_exp(double d)
 
 /* vector support functions */
 void
-boolean_vinit(boolean v[], unsigned long int size)
+mps_boolean_vinit(mps_boolean v[], unsigned long int size)
 {
   unsigned long int i;
 
