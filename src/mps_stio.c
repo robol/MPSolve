@@ -388,7 +388,7 @@ mps_dump_cluster_structure(mps_status* s, FILE* outstr)
          * the output readable. */
         for(j = s->punt[i]; j < s->punt[i+1]; j++) {
             /* Go to a newlint if 15 roots are printed out */
-            if (j % 15 == 0) { fprintf(outstr, "\n       "); }
+            if ((j - s->punt[i]) % 15 == 0) { fprintf(outstr, "\n       "); }
 
             printf(" %d", s->clust[j]);
         }

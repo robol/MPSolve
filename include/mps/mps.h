@@ -226,13 +226,8 @@ typedef struct {
    * @brief mps_boolean value that determine if we should
    * use a random seed for startingd points
    */
-<<<<<<< HEAD
    mps_boolean random_seed;
-  
-=======
-   boolean random_seed;
 
->>>>>>> Corretti alcuni warning.
   /*
    * POLYNOMIAL DATA: SHARED VARIABLES
    */
