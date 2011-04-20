@@ -40,6 +40,8 @@ mps_allocate_data(mps_status* s)
   s->clust = int_valloc(s->deg);
   s->punt = int_valloc(s->deg + 1);
   s->again = mps_boolean_valloc(s->deg);
+  s->clust_pol_rad = rdpe_valloc(s->deg + 1);
+  s->again = boolean_valloc(s->deg);
   s->status = (char (*)[3]) char_valloc(3 * s->deg);
   
   s->order = int_valloc(s->deg);
@@ -283,6 +285,7 @@ mps_free_data(mps_status* s)
 
   free(s->clust);
   free(s->punt);
+  rdpe_vfree(s->clust_pol_rad);
   free(s->again);
   free(s->status);
   free(s->rootwp);

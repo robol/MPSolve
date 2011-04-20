@@ -798,13 +798,9 @@ mps_mstart(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
         for (j = s->punt[i]; j < s->punt[i + 1]; j++) {
             if (rdpe_lt(s->drad[s->clust[j]], precision)) {
 
-                if (s->DOLOG) {
-                    fprintf(s->logstr,
-                            "    MPS_MSTART: Separating root %d from the "
-                            "rest of the cluster n°%d\n",
-                            s->clust[j], i);
-                    mps_dump_cluster_structure(s, stdout);
-                }
+                MPS_DEBUG(s, "Separating root %d from the "
+                             "rest of the cluster n°%d",
+                          s->clust[j], i);
 
                 /* Move other roots back in the cluster */
                 l = s->clust[j];
@@ -829,12 +825,12 @@ mps_mstart(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
         }
     }
 
+    /* In the general case apply the Rouche-based criterion */
+    mps_mcompute_starting_radii(s, n, i_clust, clust_rad, g, dap);
+
     /* We need to check that the points that we have keep out of
      * the cluster are really out of the clusters. */
 
-
-    /* In the general case apply the Rouche-based criterion */
-    mps_mcompute_starting_radii(s, n, i_clust, clust_rad, g, dap);
 
     th = pi2 / n;
 
@@ -956,8 +952,7 @@ mps_frestart(mps_status* s) {
         if (sr > cplx_mod(sc)) {
             for (j = s->punt[i]; j < s->punt[i + 1]; j++)
                 s->status[s->clust[j]][0] = 'c';
-            if (s->DOLOG)
-                fprintf(s->logstr, "     FRESTART: cluster rel. large: skip to the next component\n");
+            MPS_DEBUG(s, "cluster rel. large: skip to the next component");
             goto loop1;
         }
 

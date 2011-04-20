@@ -14,6 +14,8 @@ LDFLAGS=-lgmp -lm
 #  -DRAND_VAL=x so that x will the return value for all rand() calls
 ifdef DEBUG
 	CFLAGS=-O0 -g -fPIC -I../include -Wall -pedantic
+else ifdef DISABLE_DEBUG
+	CFLAGS=-O2 -DDISABLE_DEBUG -ffast-math -fPIC -I../include
 else
 	CFLAGS=-O2 -ffast-math -fPIC -I../include
 endif
@@ -27,13 +29,13 @@ export CC
 #
 # Targets
 # 
+all: unisolve rursolve shared_libs
 
 debug:
 	DEBUG=1 $(MAKE) all
 
 release: all
 
-all: unisolve rursolve shared_libs
 
 unisolve: shared_libs
 	+$(MAKE) -C $(SRC) unisolve
@@ -44,7 +46,7 @@ rursolve: shared_libs unisolve
 	cp $(SRC)/rursolve .
 
 shared_libs:
-	+CC=$(CC) $(MAKE) -C $(SRC) shared_libs
+	+$(MAKE) -C $(SRC) shared_libs
 
 headers:
 	mkdir -p $(PREFIX)/include/mps
