@@ -47,12 +47,12 @@
 #include <gmp.h>
 
 /* local include files */
-#include "mps_tools.h"
-#include "mps_mt.h"
-#include "mps_gmptools.h"
-#include "mps_mpc.h"
-#include "mps_link.h"
-#include "mps_mptemp.h"
+#include <mps/mps_tools.h>
+#include <mps/mps_mt.h>
+#include <mps/mps_gmptools.h>
+#include <mps/mps_mpc.h>
+#include <mps/mps_link.h>
+#include <mps/mps_mptemp.h>
 
 
 /* Small workaround if the header is being included with
