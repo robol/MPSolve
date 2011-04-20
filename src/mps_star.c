@@ -18,8 +18,7 @@
 
 #include <mps/mps.h>
 
-#define pi2 6.283184D
-#define pi 3.1415925D
+#define pi2 6.283184
 
 /* forward declaration */
 void mps_raisetemp(mps_status* s, unsigned long int digits);
@@ -175,7 +174,7 @@ void mps_fcompute_starting_radii(mps_status* s, int n, int i_clust, double clust
 			   * but this is due to the fact that changing approximation is only
 			   * a fallback, and not the preferred action to perform. */
 			  if ((s->fradii[j] - s->fradii[i]) >
-				  s->fradii[j] * pi / (s->partitioning[j+1] - s->partitioning[i]) ) {
+				  s->fradii[j] * PI / (s->partitioning[j+1] - s->partitioning[i]) ) {
 				  break;
 			  }
 		  }
@@ -425,7 +424,7 @@ void mps_dcompute_starting_radii(mps_status* s, int n, int i_clust, rdpe_t clust
 			 * a fallback, and not the preferred action to perform. */
 			rdpe_sub(tmp, s->dradii[j],s->dradii[i]);
 			rdpe_div_eq(tmp, s->dradii[i]);
-			rdpe_div_eq_d(tmp, pi);
+			rdpe_div_eq_d(tmp, PI);
 			rdpe_mul_eq_d(tmp, s->partitioning[j+1] - s->partitioning[i]);
 			if (rdpe_gt(tmp, rdpe_one)) {
 				break;
@@ -682,7 +681,7 @@ mps_mcompute_starting_radii(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
 			   * a fallback, and not the preferred action to perform. */
 			  rdpe_sub(tmp, s->dradii[j],s->dradii[i]);
 			  rdpe_div_eq(tmp, s->dradii[i]);
-			  rdpe_div_eq_d(tmp, pi);
+			  rdpe_div_eq_d(tmp, PI);
 			  rdpe_mul_eq_d(tmp, s->partitioning[j+1] - s->partitioning[i]);
 			  if (rdpe_gt(tmp, rdpe_one)) {
 				  break;
