@@ -76,7 +76,7 @@ and return a vector with the roots.\n\
     mps_mpsolve(s);
 
     /* Get roots and return them */
-    mps_get_roots_d(s, results, NULL);
+    mps_status_get_roots_d(s, results, NULL);
     for(int i = 0; i < n - 1; i++) {
         res(i) = Complex(cplx_Re(results[i]), cplx_Im(results[i]));
     }

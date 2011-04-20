@@ -22,7 +22,12 @@
 
 /* types */
 #ifndef mps_boolean
+#ifdef __MATLAB_MEX
+  /* Small workaround to make matlab module work */
+  typedef bool mps_boolean;
+#else
   typedef enum { false = 0, true = 1 } mps_boolean;
+#endif
 #endif /* mps_boolean */
 
 /* functions */
