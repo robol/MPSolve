@@ -25,23 +25,37 @@ $$\n p(z) = v_1z^{n-1} + v_2 z^{n-2} + \\ldots + + v_{n-1} z + v_n\n $$ \n\
 and return a vector with the roots.\n\
 @end deftypefn")
 {
+
+    int nargin = args.length();
+    octave_value_list retval;
+
+    if (nargin != 1) {
+        error("Incorrect call to mps_roots.");
+        usage();
+        return retval;
+    }
+
     /* Check that input data is a vector */
     if (!args(0).is_complex_matrix() && !args(0).is_real_matrix()) {
-        usage();
         error("A vector must be passed as first argument.");
+        usage();
+        return retval;
     }
 
     /* Check input data shape */
     octave_idx_type rows = args(0).rows();
     octave_idx_type cols = args(0).columns();
     if(rows != 1 && cols != 1) {
-        usage();
         error("A vector must be passed as first argument.");
+        usage();
+        return retval;
     }
 
+
     if (nargout > 1) {
-        usage();
         error("This function returns a single value.");
+        usage();
+        return retval;
     }
 
     ComplexMatrix parsed_args;
