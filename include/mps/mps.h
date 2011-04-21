@@ -66,7 +66,7 @@
  * case of multiprecision computation. 
  */
 #define MPS_DEBUG_MCLUSTER_ROOTS(s, i) if (s->DOLOG) { \
-  MPS_DEBUG(s, "Dumping cluster approximations:"); \
+  __MPS_DEBUG(s, "Dumping cluster approximations:\n"); \
   for(s->debug_i = s->punt[i]; s->debug_i < s->punt[i+1]; s->debug_i++) { \
     __MPS_DEBUG(s, "%d: Approximation: ", s->debug_i - s->punt[i]); \
     mpc_out_str(s->logstr, 10, 10, s->mroot[s->clust[s->debug_i]]); \
@@ -78,10 +78,12 @@
 /**
  * @brief Print a debug information.
  */
+#if __STDC_VERSION__ >= 199901L
 #define MPS_DEBUG(s, templ...) __MPS_DEBUG(s,templ) ; \
 if (s->DOLOG) { \
     fprintf(s->logstr, "\n"); \
 }
+#endif
 
 /**
  * @brief Debug the value of a complex multiprecision
@@ -119,18 +121,22 @@ if (s->DOLOG) { \
 /**
  * @brief Debug that a function is going to be called.
  */
-#define MPS_DEBUG_CALL(s, function) MPS_DEBUG(s, "Calling \033[31;1m" \
-function "()\033[0m");
+#define MPS_DEBUG_CALL(s, function) __MPS_DEBUG(s, "Calling \033[31;1m"); \
+if (s->DOLOG) { \
+    fprintf(s->logstr, function); fprintf(s->logstr, "()\033[0m\n"); \
+}
 
 
 /**
  * @brief Low-level DEBUG() used by other MPS_DEBUG_* statements.
  */
+#if __STDC_VERSION__ >= 199901L
 #define __MPS_DEBUG(s, templ...) if (s->DOLOG) {\
 fprintf(s->logstr, "%s:%d \033[32;1m%s()\033[;0m ", \
 __FILE__, __LINE__, __FUNCTION__); \
-fprintf(s->logstr, templ); \
+gmp_fprintf(s->logstr, templ); \
 }
+#endif
 #else
 #define MPS_DEBUG(args...)
 #define MPS_DEBUG_MPC(args...)
@@ -979,6 +985,12 @@ void mps_dump(mps_status* s, FILE * dmpstr);
 void mps_dump_cluster_structure(mps_status*s, FILE* outstr);
 void mps_warn(mps_status* st, char * s);
 void mps_error(mps_status* st, int args, ...);
+
+#ifndef DISABLE_DEBUG
+#if __STDC_VERSION__ < 199901L
+void MPS_DEBUG(mps_status* s, const char* templ, ...);
+#endif
+#endif
 
 /* functions in mps_test.c */
 mps_boolean  mps_inclusion(mps_status* s);

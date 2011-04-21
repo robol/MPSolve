@@ -1105,8 +1105,7 @@ mps_drestart(mps_status* s) {
                     if (rdpe_lt(rtmp, rtmp1)) {
                         for (jj = s->punt[i]; jj < s->punt[i + 1]; jj++)
                             s->status[s->clust[jj]][0] = 'c';
-                        MPS_DEBUG(s, "Cluster not Newton isolated: skip to"
-                                  "the next component.")
+                        MPS_DEBUG(s, "Cluster not Newton isolated: skip to the next component.");
                                 goto loop1;
                     }
                 }
@@ -1221,7 +1220,7 @@ mps_mrestart(mps_status* s) {
         /* Compute super center sc and super radius sr */
         mps_msrad(s, i, sc, sr);
 
-        MPS_DEBUG(s, "Clust = %d", i)
+        MPS_DEBUG(s, "Clust = %d", i);
         MPS_DEBUG_MPC(s, "Super center", 10, sc);
         MPS_DEBUG_RDPE(s, "Super radius", sr);
 
