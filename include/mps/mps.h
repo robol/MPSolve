@@ -188,7 +188,6 @@ typedef void (*mps_mnewton_ptr)(void* status, mpc_t  x, rdpe_t   rad, mpc_t  cor
  * @brief this struct holds the state of the mps computation
  */
 typedef struct {
-<<<<<<< HEAD
 
    mps_boolean resume;		/* to complete                         */
    mps_boolean chkrad;		/* check radii after completion        */
