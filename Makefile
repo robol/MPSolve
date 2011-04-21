@@ -13,7 +13,7 @@ LDFLAGS=-lgmp -lm
 #  -DNOMPTEMP   to disable the memory manager for MP temporary variables
 #  -DRAND_VAL=x so that x will the return value for all rand() calls
 ifdef DEBUG
-	CFLAGS=-O0 -g -fPIC -I../include -Wall -pedantic
+	CFLAGS=-O0 -g -fPIC -I../include -Wall -pedantic -std=c99
 else ifdef DISABLE_DEBUG
 	CFLAGS=-O2 -DDISABLE_DEBUG -ffast-math -fPIC -I../include
 else
@@ -34,7 +34,8 @@ all: unisolve rursolve shared_libs
 debug:
 	DEBUG=1 $(MAKE) all
 
-release: all
+release: 
+	DISABLE_DEBUG=1 $(MAKE) all
 
 
 unisolve: shared_libs

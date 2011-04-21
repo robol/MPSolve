@@ -78,32 +78,43 @@
 /**
  * @brief Print a debug information.
  */
-#define MPS_DEBUG(s, templ...) __MPS_DEBUG(s,templ) ; fprintf(s->logstr, "\n");
+#define MPS_DEBUG(s, templ...) __MPS_DEBUG(s,templ) ; \
+if (s->DOLOG) { \
+    fprintf(s->logstr, "\n"); \
+}
 
 /**
  * @brief Debug the value of a complex multiprecision
  * variable.
  */
 #define MPS_DEBUG_MPC(s, name, digits, c) __MPS_DEBUG(s, name " = "); \
-mpc_outln_str(s->logstr, 10, digits, c);
+if (s->DOLOG) { \
+    mpc_outln_str(s->logstr, 10, digits, c); \
+}
 
 /**
  * @brief Debug the value of a rdpe variable.
  */
 #define MPS_DEBUG_RDPE(s, name, r) __MPS_DEBUG(s, name " = "); \
-rdpe_outln(r);
+if (s->DOLOG) { \
+    rdpe_outln(r); \
+}
 
 /**
  * @brief Debug the value of a cdpe variable.
  */
 #define MPS_DEBUG_CDPE(s, name, c) __MPS_DEBUG(s, name " = "); \
-cdpe_outln(c);
+if (s->DOLOG) { \
+    cdpe_outln(c); \
+}
 
 /**
  * @brief Make some space in the debug stream to make clean that
  * another section is starting.
  */
-#define MPS_DEBUG_BREAK(s) fprintf(s->logstr, "\n");
+#define MPS_DEBUG_BREAK(s) if (s->DOLOG) { \
+    fprintf(s->logstr, "\n"); \
+}
 
 /**
  * @brief Debug that a function is going to be called.
@@ -125,6 +136,8 @@ fprintf(s->logstr, templ); \
 #define MPS_DEBUG_MPC(args...)
 #define MPS_DEBUG_RDPE(args...)
 #define MPS_DEBUG_CDPE(args...)
+#define MPS_DEBUG_CALL(args...)
+#define MPS_DEBUG_MCLUSTER_ROOTS(args...)
 #endif
 
 /* constants */
