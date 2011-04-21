@@ -191,11 +191,7 @@ mps_fcompute_starting_radii(mps_status* s, int n, int i_clust, double clust_rad,
             continue;
         }
 
-        if (s->DOLOG) {
-            fprintf(s->logstr,
-                    "\n    MPS_FCOMPUTE_STARTING_RADII: Compacting circles"
-                    " from %d to %d", i, j);
-        }
+        MPS_DEBUG(s, "Compacting circles from %d to %d", i, j);
 
         /* We shall now compact circles between i and j, so
          * we start computing the mean of the radius */
@@ -472,12 +468,7 @@ mps_dcompute_starting_radii(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
             continue;
         }
 
-
-        if (s->DOLOG) {
-            fprintf(s->logstr,
-                    "\n    MPS_DCOMPUTE_STARTING_RADII: Compacting circles"
-                    " from %d to %d\n", i, j);
-        }
+        MPS_DEBUG(s, "Compacting circles from %d to %d", i, j);
 
         /* We shall now compact circles between i and j, so
          * we start computing the mean of the radius */
@@ -667,19 +658,15 @@ mps_mcompute_starting_radii(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
              * output a warning message */
             if (temp < xsmall) {
                 rdpe_set(s->dradii[s->n_radii], small);
-                if (s->DOLOG) {
-                    fprintf(s->logstr, "Warning: Some zeros are too small to be\n");
-                    fprintf(s->logstr, " represented as cdpe, they are replaced by\n");
-                    fprintf(s->logstr, " small numbers and the status is set to 'F'.\n");
-                }
+                MPS_DEBUG(s, "Warning: Some zeros are too small to be\n"
+                             "represented as cdpe, they are replaced by\n"
+                             "small numbers and the status is set to 'F'.");
             }
             if (temp > xbig) {
                 rdpe_set(s->dradii[s->n_radii], big);
-                if (s->DOLOG) {
-                    fprintf(s->logstr, "Warning: Some zeros are too big to be\n");
-                    fprintf(s->logstr, " represented as cdpe, they are replaced by\n");
-                    fprintf(s->logstr, " big numbers and the status is set to 'F'.\n");
-                }
+                MPS_DEBUG(s, "Warning: Some zeros are too big to be\n"
+                             "represented as cdpe, they are replaced by\n"
+                             "big numbers and the status is set to 'F'.");
             }
 
             /* if the radius is representable as dpe, compute it */
@@ -727,11 +714,7 @@ mps_mcompute_starting_radii(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
             continue;
         }
 
-        if (s->DOLOG) {
-            fprintf(s->logstr,
-                    "MPS_MCOMPUTE_STARTING_RADII: Compacting disc from %d to %d\n",
-                    i, j);
-        }
+        MPS_DEBUG(s, "Compacting circles from %d to %d", i, j);
 
         /* We shall now compact circles between i and j, so
          * we start computing the mean of the radius */
@@ -952,7 +935,7 @@ mps_frestart(mps_status* s) {
         if (sr > cplx_mod(sc)) {
             for (j = s->punt[i]; j < s->punt[i + 1]; j++)
                 s->status[s->clust[j]][0] = 'c';
-            MPS_DEBUG(s, "cluster rel. large: skip to the next component");
+            MPS_DEBUG(s, "Cluster rel. large: skip to the next component");
             goto loop1;
         }
 
@@ -967,10 +950,8 @@ mps_frestart(mps_status* s) {
                     if (rtmp < rtmp1) {
                         for (jj = s->punt[i]; jj < s->punt[i + 1]; jj++)
                             s->status[s->clust[jj]][0] = 'c';
-                        if (s->DOLOG) {
-                            fprintf(s->logstr, "Cluster not Newton isolated:");
-                            fprintf(s->logstr, "  skip to the next component\n");
-                        }
+                        MPS_DEBUG(s, "Cluster not Newton isolated: skip "
+                                     "to the next component.");
                         goto loop1;
                     }
                 }
@@ -1003,14 +984,12 @@ mps_frestart(mps_status* s) {
                 break;
         }
         if (j == s->max_newt_it) {
-            if (s->DOLOG)
-                fprintf(s->logstr, "Exceeded maximum Newton iterations in frestart\n");
+            MPS_DEBUG(s, "Exceeded maximum Newton iterations in frestart");
             return;
         }
         cplx_sub(ctmp, sc, g);
         if (cplx_mod(ctmp) > sr) {
-            if (s->DOLOG)
-                fprintf(s->logstr, "The gravity center falls outside the cluster\n");
+            MPS_DEBUG(s, "The gravity center falls outside the cluster");
             return;
         }
         /* Compute the coefficients of the shifted polynomial p(x+g)
@@ -1020,8 +999,7 @@ mps_frestart(mps_status* s) {
 
         if (s->n * log(cplx_mod(g)) + log(sum) > log(DBL_MAX))
             goto loop1;
-        if (s->DOLOG)
-            fprintf(s->logstr, "      FRESTART:  fshift\n");
+        MPS_DEBUG_CALL(s, "mps_fshift");
         mps_fshift(s, s->punt[i + 1] - s->punt[i], i, sr, g, s->eps_out);
         rtmp = cplx_mod(g);
         rtmp *= DBL_EPSILON * 2;
@@ -1112,8 +1090,7 @@ mps_drestart(mps_status* s) {
                 s->status[s->clust[j]][0] = 'c';
                 /* err(clust[j])=true  */
             }
-            if (s->DOLOG)
-                fprintf(s->logstr, "     DRESTART: cluster rel. large: skip to the next component\n");
+            MPS_DEBUG(s, "cluster rel. large: skip to the next component");
             goto loop1;
         }
         /* Now check the Newton isolation of the cluster */
@@ -1128,10 +1105,8 @@ mps_drestart(mps_status* s) {
                     if (rdpe_lt(rtmp, rtmp1)) {
                         for (jj = s->punt[i]; jj < s->punt[i + 1]; jj++)
                             s->status[s->clust[jj]][0] = 'c';
-                        if (s->DOLOG) {
-                            fprintf(s->logstr, "cluster not Newton isolated:");
-                            fprintf(s->logstr, " skip to the next component\n");
-                        }
+                        MPS_DEBUG(s, "Cluster not Newton isolated: skip to"
+                                "the next component.")
                         goto loop1;
                     }
                 }
@@ -1163,20 +1138,17 @@ mps_drestart(mps_status* s) {
                 break;
         }
         if (j == s->max_newt_it) {
-            if (s->DOLOG)
-                fprintf(s->logstr, "Exceeded maximum Newton iterations in frestart\n");
+            MPS_DEBUG(s, "Exceeded maximum Newton iterations in frestart");
             return;
         }
         cdpe_sub(ctmp, sc, g);
         cdpe_mod(rtmp, ctmp);
         if (rdpe_gt(rtmp, sr)) {
-            if (s->DOLOG)
-                fprintf(s->logstr, "The gravity center falls outside the cluster\n");
+            MPS_DEBUG(s, "The gravity center falls outside the cluster");
             return;
         }
         /* Shift the variable and compute new approximations */
-        if (s->DOLOG)
-            fprintf(s->logstr, "      DRESTART:  dshift");
+        MPS_DEBUG_CALL(s, "mps_dshift");
         mps_dshift(s, s->punt[i + 1] - s->punt[i], i, sr, g, s->eps_out);
         cdpe_mod(rtmp, g);
         rdpe_mul_eq_d(rtmp, DBL_EPSILON * 2);
@@ -1207,6 +1179,10 @@ mps_mrestart(mps_status* s) {
     tmpf_t rea, srmp;
     tmpc_t sc, corr, temp;
     mpc_t g;
+
+#ifndef DISABLE_DEBUG
+    char *sc_str, sr_str;
+#endif
 
     /* For user's polynomials skip the restart stage (not yet implemented) */
     if (s->data_type[0] == 'u')
@@ -1249,12 +1225,9 @@ mps_mrestart(mps_status* s) {
         /* Compute super center sc and super radius sr */
         mps_msrad(s, i, sc, sr);
 
-        if (s->DOLOG) {
-            fprintf(s->logstr, "    MRESTART: clust=%d\n      sc=", i);
-            mpc_out_str(s->logstr, 10, 10, sc);
-            fprintf(s->logstr, "\n      sr=");
-            rdpe_outln_str(s->logstr, sr);
-        }
+        MPS_DEBUG(s, "Clust = %d", i)
+        MPS_DEBUG_MPC(s, "Super center", 10, sc);
+        MPS_DEBUG_RDPE(s, "Super radius", sr);
 
         /* Check the relative width of the cluster
          * If it is greater than 1 do not shift
@@ -1265,17 +1238,13 @@ mps_mrestart(mps_status* s) {
         mpc_get_cdpe(tmp, sc);
         cdpe_mod(rtmp, tmp);
 
-        if (s->DOLOG) {
-            rdpe_div(rtmp2, sr, rtmp);
-            fprintf(s->logstr, "      relative width=");
-            rdpe_outln_str(s->logstr, rtmp2);
-        }
+        if (s->DOLOG) { rdpe_div(rtmp2, sr, rtmp); }
+        MPS_DEBUG_RDPE(s, "Relative width", rtmp2);
 
         if (rdpe_gt(sr, rtmp)) {
             for (j = s->punt[i]; j < s->punt[i + 1]; j++)
                 s->status[s->clust[j]][0] = 'c';
-            if (s->DOLOG)
-                fprintf(s->logstr, "    MRESTART: cluster %d relat. large: skip to the next component\n", i);
+            MPS_DEBUG(s, "Cluster %d relat. large: skip to the next component", i);
             goto loop1;
         }
 
@@ -1299,24 +1268,11 @@ mps_mrestart(mps_status* s) {
         if (rdpe_gt(rtmp2, rtmp1)) {
             for (jj = s->punt[i]; jj < s->punt[i + 1]; jj++)
                 s->status[s->clust[jj]][0] = 'c';
-            if (s->DOLOG) {
-                fprintf(s->logstr, "    MRESTART: Cluster not Newton isolated:");
-                fprintf(s->logstr, "              skip to the next component\n");
-            }
+            MPS_DEBUG(s, "Cluster not Newton isolated: skip to the next component");
             goto loop1;
         }
 
-        if (s->DOLOG) {
-            fprintf(s->logstr, "    MRESTART: Approximations of cluster %d\n", i);
-            for (j = 0; j < s->punt[i + 1] - s->punt[i]; j++) {
-                l = s->clust[s->punt[i] + j];
-                mpc_get_cdpe(tmp, s->mroot[l]);
-                cdpe_out_str(s->logstr, tmp);
-                fprintf(s->logstr, "  rad=");
-                rdpe_outln_str(s->logstr, s->drad[l]);
-            }
-        }
-
+        MPS_DEBUG_MCLUSTER_ROOTS(s, i);
 
         /* Compute the coefficients of the derivative of p(x) having order
          * equal to the multiplicity of the cluster -1. */
@@ -1349,45 +1305,35 @@ mps_mrestart(mps_status* s) {
          * of the cluster. */
         mpc_set(g, sc);
 
-        if (s->DOLOG) {
-            fprintf(s->logstr, "    MRESTART: g before newton=");
-            mpc_outln_str(s->logstr, 10, 30, g);
-        }
+        MPS_DEBUG_MPC(s, "g before newton", 30, g);
+        
         for (j = 0; j < s->max_newt_it; j++) { /* loop_newt: */
             rdpe_set(rad, rdpe_zero);
             mps_mnewton(s, s->n - (s->punt[i + 1] - s->punt[i]) + 1, g, rad, corr, s->mfpc1,
                         s->mfppc1, s->dap1, s->spar1, &cont);
             if (cont) {
                 mpc_sub_eq(g, corr);
-                if (s->DOLOG) {
-                    fprintf(s->logstr, "    MRESTART: radius=");
-                    rdpe_outln_str(s->logstr, rad);
-                    fprintf(s->logstr, "    MRESTART: at iteration %d, g=", j);
-                    mpc_outln_str(s->logstr, 10, 100, g);
-                }
+                MPS_DEBUG_RDPE(s, "radius", rad);
+                MPS_DEBUG(s, "Iteration %d on the derivative", j);
+                MPS_DEBUG_MPC(s, "g", 100, g);
             } else
                 break;
         }
-        if (s->DOLOG)
-            fprintf(s->logstr, "    MRESTART: performed %d Newton iter\n", j);
+        MPS_DEBUG(s, "Performed %d Newton iterations", j);
         if (j == s->max_newt_it) {
-            if (s->DOLOG)
-                fprintf(s->logstr, "Exceeded maximum Newton iterations in mrestart\n");
+            MPS_DEBUG(s, "Exceeded maximum number of Newton iterations.");
             goto loop1;
         }
         mpc_sub(temp, sc, g);
         mpc_get_cdpe(tmp, temp);
         cdpe_mod(rtmp, tmp);
         if (rdpe_gt(rtmp, sr)) {
-            if (s->DOLOG)
-                fprintf(s->logstr, "The gravity center falls outside the cluster\n");
+            MPS_DEBUG(s, "The gravity center falls outside the cluster");
             goto loop1;
         }
 
         /* shift the variable and compute new approximations */
-
-        if (s->DOLOG)
-            fprintf(s->logstr, "      MRESTART: call mshift\n");
+        MPS_DEBUG_CALL(s, "mps_mshift");
         for (j = 0; j < s->punt[i + 1] - s->punt[i]; j++) {
             l = s->clust[s->punt[i] + j];
             mpc_get_cdpe(s->droot[l], s->mroot[l]);
@@ -1413,10 +1359,8 @@ mps_mrestart(mps_status* s) {
             }
         } else {
 
-            if (s->DOLOG) {
-                fprintf(s->logstr, "    MRESTART: DO NOT PERFORM RESTART\n");
-                fprintf(s->logstr, "    MRESTART: new radius of the cluster is larger\n");
-            }
+            MPS_DEBUG(s, "DO NOT PERFORM RESTART, "
+                         "new radius of the cluster is larger");
 
             goto loop1;
         }

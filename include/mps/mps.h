@@ -61,15 +61,70 @@
 #include <mps/mps_mptemp.h>
 
 #ifndef DISABLE_DEBUG
-#define MPS_DEBUG(s, templ...) if (s->DOLOG) {\
-fprintf(s->logstr, "\n"); \
-fprintf(s->logstr, "%s() in %s at line %d:\n", __FUNCTION__, \
-__FILE__, __LINE__); \
+/**
+ * @brief Debug cluster approximations of the roots in the
+ * case of multiprecision computation. 
+ */
+#define MPS_DEBUG_MCLUSTER_ROOTS(s, i) if (s->DOLOG) { \
+  MPS_DEBUG(s, "Dumping cluster approximations:"); \
+  for(s->debug_i = s->punt[i]; s->debug_i < s->punt[i+1]; s->debug_i++) { \
+    __MPS_DEBUG(s, "%d: Approximation: ", s->debug_i - s->punt[i]); \
+    mpc_out_str(s->logstr, 10, 10, s->mroot[s->clust[s->debug_i]]); \
+    fprintf(s->logstr, " - Radius: "); \
+    rdpe_outln(s->drad[s->clust[s->debug_i]]); \
+} \
+}
+
+/**
+ * @brief Print a debug information.
+ */
+#define MPS_DEBUG(s, templ...) __MPS_DEBUG(s,templ) ; fprintf(s->logstr, "\n");
+
+/**
+ * @brief Debug the value of a complex multiprecision
+ * variable.
+ */
+#define MPS_DEBUG_MPC(s, name, digits, c) __MPS_DEBUG(s, name " = "); \
+mpc_outln_str(s->logstr, 10, digits, c);
+
+/**
+ * @brief Debug the value of a rdpe variable.
+ */
+#define MPS_DEBUG_RDPE(s, name, r) __MPS_DEBUG(s, name " = "); \
+rdpe_outln(r);
+
+/**
+ * @brief Debug the value of a cdpe variable.
+ */
+#define MPS_DEBUG_CDPE(s, name, c) __MPS_DEBUG(s, name " = "); \
+cdpe_outln(c);
+
+/**
+ * @brief Make some space in the debug stream to make clean that
+ * another section is starting.
+ */
+#define MPS_DEBUG_BREAK(s) fprintf(s->logstr, "\n");
+
+/**
+ * @brief Debug that a function is going to be called.
+ */
+#define MPS_DEBUG_CALL(s, function) MPS_DEBUG(s, "Calling \033[31;1m" \
+function "()\033[0m");
+
+
+/**
+ * @brief Low-level DEBUG() used by other MPS_DEBUG_* statements.
+ */
+#define __MPS_DEBUG(s, templ...) if (s->DOLOG) {\
+fprintf(s->logstr, "%s:%d \033[32;1m%s()\033[;0m ", \
+__FILE__, __LINE__, __FUNCTION__); \
 fprintf(s->logstr, templ); \
-fprintf(s->logstr, "\n\n"); \
 }
 #else
 #define MPS_DEBUG(args...)
+#define MPS_DEBUG_MPC(args...)
+#define MPS_DEBUG_RDPE(args...)
+#define MPS_DEBUG_CDPE(args...)
 #endif
 
 /* constants */
@@ -728,6 +783,20 @@ typedef struct {
 	 * computing of the polynomial.
 	 */
 	void * user_data;
+
+#ifndef DISABLE_DEBUG
+    /**
+     * @brief Counter for the cycles used in debug prints,
+     * that is allocated only if debug is allowed.
+     */
+    int debug_i;
+
+    /**
+     * @brief Counter for the cycles used in debug prints,
+     * that is allocated only if debug is allowed.
+     */
+    int debug_j;
+#endif
 
 } mps_status; /* End of typedef struct { ... */
 
