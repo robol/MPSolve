@@ -746,7 +746,7 @@ mps_mstart(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
 
     int i, j, jj, iold, l, nzeros;
     double sigma, ang, th, temp;
-    rdpe_t r, big, small, rtmp1, rtmp2, precision;
+    rdpe_t r, big, small, rtmp1, rtmp2;
     cdpe_t ctmp;
 
     rdpe_set(small, RDPE_MIN);
@@ -767,46 +767,7 @@ mps_mstart(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
     nzeros = 0;
     temp = 0.0;
 
-    /* Try to remove approximated roots from the clusters, because they
-     * are likely to be "fake" cluster elements. */
-    for (i = 0; i < s->nclust; i++) {
-        if (s->punt[i + 1] - s->punt[i] == 1) {
-            /* If this is a single root cluster is not a cluster
-             * so skip to the next one. */
-            continue;
-        }
-
-        /* Else keep away approximated roots */
-        rdpe_set_dl(precision, 1, (long int) (1 - 0.5 * s->mpwp) * LOG10_2);
-        for (j = s->punt[i]; j < s->punt[i + 1]; j++) {
-            if (rdpe_lt(s->drad[s->clust[j]], precision)) {
-
-                MPS_DEBUG(s, "Separating root %d from the "
-                          "rest of the cluster n°%d",
-                          s->clust[j], i);
-
-                /* Move other roots back in the cluster */
-                l = s->clust[j];
-                for (jj = j + 1; jj < s->punt[i + 1]; jj++) {
-                    s->clust[jj - 1] = s->clust[jj];
-                }
-
-                s->clust[s->punt[i + 1] - 1] = l;
-                s->punt[i + 1]--;
-
-                /* Move ahead s->punt */
-                for (jj = s->nclust; jj > i + 1; jj--) {
-                    s->punt[jj + 1] = s->punt[jj];
-                }
-
-                /* Set s->punt */
-                s->punt[i + 2] = s->punt[i + 1] + 1;
-
-                /* Start from the next root, that is shifted one position back */
-                j--;
-            }
-        }
-    }
+    
 
     /* In the general case apply the Rouche-based criterion */
     mps_mcompute_starting_radii(s, n, i_clust, clust_rad, g, dap);

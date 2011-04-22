@@ -183,6 +183,7 @@ void
 mps_mcluster(mps_status* s, int nf)
 {
   int i, j, ind, n_aux, nclust_out, nclust_aux;
+  rdpe_t precision;
 
   s->punt[s->nclust] = s->n;
   nclust_out = 0;
@@ -217,6 +218,53 @@ mps_mcluster(mps_status* s, int nf)
   for (i = 0; i < s->n; i++)
     s->clust[i] = s->clust_out[i];
   s->punt[s->nclust] = s->n;
+
+  /* Try to remove approximated roots from the clusters, because they
+     * are likely to be "fake" cluster elements. */
+    for (i = 0; i < s->nclust; i++) {
+        if (s->punt[i + 1] - s->punt[i] == 1) {
+            /* If this is a single root cluster is not a cluster
+             * so skip to the next one. */
+            continue;
+        }
+
+        /* Else keep away approximated roots */
+        rdpe_set_dl(precision, 1, (long int) (1 - 0.5 * s->mpwp) * LOG10_2);
+        for (j = s->punt[i]; j < s->punt[i + 1]; j++) {
+            if (rdpe_lt(s->drad[s->clust[j]], precision)) {
+
+                MPS_DEBUG(s, "Separating root %d from the "
+                          "rest of the cluster n°%d",
+                          s->clust[j], i);
+
+                /* Move other roots back in the cluster */
+                n_aux = s->clust[j];
+                for (ind = j + 1; ind < s->punt[i + 1]; ind++) {
+                    s->clust[ind - 1] = s->clust[ind];
+                }
+
+                s->clust[s->punt[i + 1] - 1] = n_aux;
+                s->punt[i + 1]--;
+
+                /* Move ahead s->punt */
+                for (ind = s->nclust; ind > i + 1; ind--) {
+                    s->punt[ind + 1] = s->punt[ind];
+                }
+
+                /* Set s->punt */
+                s->punt[i + 2] = s->punt[i + 1] + 1;
+
+                /* Start from the next root, that is shifted one position back */
+                j--;
+
+                /* If the cluster is now a single element cluster, let's
+                   skip to the next one */
+                if (s->punt[i + 1] - s->punt[i] == 1) {
+                    break;
+                }
+            }
+        }
+    }
 }
 
 
