@@ -49,9 +49,9 @@ mexFunction(int nlhs, mxArray *plhs [], int nrhs, const mxArray *prhs []) {
     imag_coeff = mxGetPi(prhs[0]);
     for(i = 0; i < n; i++) {
         if (!imag_coeff)
-            cplx_set_d(coefficients[i], real_coeff[i], 0.0);
+            cplx_set_d(coefficients[n - i - 1], real_coeff[i], 0.0);
         else
-            cplx_set_d(coefficients[i], real_coeff[i],
+            cplx_set_d(coefficients[n - i - 1], real_coeff[i],
                     imag_coeff[i]);
     }
 
@@ -62,7 +62,7 @@ mexFunction(int nlhs, mxArray *plhs [], int nrhs, const mxArray *prhs []) {
     /* Get results back */
     mps_status_get_roots_d(s, results, NULL);
 
-    roots = mxCreateDoubleMatrix(1, n - 1, mxCOMPLEX);
+    roots = mxCreateDoubleMatrix(n - 1, 1, mxCOMPLEX);
     real_res = mxGetPr(roots);
     imag_res = mxGetPi(roots);
     for(i = 0; i < n -1; i++) {
