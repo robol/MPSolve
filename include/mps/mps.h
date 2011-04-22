@@ -199,7 +199,14 @@ typedef struct {
    mps_boolean resume;		/* to complete                         */
    mps_boolean chkrad;		/* check radii after completion        */
 
+   /**
+    * @brief Newton isolation of the cluster.
+    */
    int newtis;
+
+   /**
+    * @brief Old value for the newton isolation of the cluster.
+    */
    int newtis_old;
 
   /*
