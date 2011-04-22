@@ -176,8 +176,8 @@ mps_fcompute_starting_radii(mps_status* s, int n, int i_clust, double clust_rad,
              * be obtained collapsing the circles. It's a little understimated
              * but this is due to the fact that changing approximation is only
              * a fallback, and not the preferred action to perform. */
-            if ((s->fradii[j] - s->fradii[i]) >
-                    s->fradii[j] * PI / (s->partitioning[j + 1] - s->partitioning[i])) {
+            if (fabs((s->fradii[j] - s->fradii[i])) >
+                    MIN(s->fradii[j], s->fradii[i]) * PI / (s->partitioning[j + 1] - s->partitioning[i])) {
                 break;
             }
         }
@@ -450,7 +450,11 @@ mps_dcompute_starting_radii(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
              * but this is due to the fact that changing approximation is only
              * a fallback, and not the preferred action to perform. */
             rdpe_sub(tmp, s->dradii[j], s->dradii[i]);
-            rdpe_div_eq(tmp, s->dradii[i]);
+            rdpe_abs_eq(tmp);
+            if (rdpe_lt(s->dradii[i], s->dradii[j]))
+                rdpe_div_eq(tmp, s->dradii[i]);
+            else
+                rdpe_div_eq(tmp, s->dradii[j]);
             rdpe_div_eq_d(tmp, PI);
             rdpe_mul_eq_d(tmp, s->partitioning[j + 1] - s->partitioning[i]);
             if (rdpe_gt(tmp, rdpe_one)) {
@@ -697,7 +701,11 @@ mps_mcompute_starting_radii(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
              * but this is due to the fact that changing approximation is only
              * a fallback, and not the preferred action to perform. */
             rdpe_sub(tmp, s->dradii[j], s->dradii[i]);
-            rdpe_div_eq(tmp, s->dradii[i]);
+            rdpe_abs_eq(tmp);
+            if (rdpe_lt(s->dradii[i], s->dradii[j]))
+                rdpe_div_eq(tmp, s->dradii[i]);
+            else
+                rdpe_div_eq(tmp, s->dradii[j]);
             rdpe_div_eq_d(tmp, PI);
             rdpe_mul_eq_d(tmp, s->partitioning[j + 1] - s->partitioning[i]);
             if (rdpe_gt(tmp, rdpe_one)) {
