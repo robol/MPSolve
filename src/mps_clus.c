@@ -220,7 +220,8 @@ mps_mcluster(mps_status* s, int nf)
   s->punt[s->nclust] = s->n;
 
   /* Try to remove approximated roots from the clusters, because they
-     * are likely to be "fake" cluster elements. */
+   * are likely to be "fake" cluster elements. */
+  memset(s->clust_detached, -1, sizeof(int) * s->n);
     for (i = 0; i < s->nclust; i++) {
         if (s->punt[i + 1] - s->punt[i] == 1) {
             /* If this is a single root cluster is not a cluster
@@ -236,6 +237,23 @@ mps_mcluster(mps_status* s, int nf)
                 MPS_DEBUG(s, "Separating root %d from the "
                           "rest of the cluster n°%d",
                           s->clust[j], i);
+
+                /* Save a log of the detachement in s->clust_detach
+                 * to make checking if the root is really outside the
+                 * cluster after the computing of Newton polygonal.
+                 * We are creating a new cluster in i+1, moving other
+                 * cluster ahead, so first move ahead the vector after
+                 * i+1, and then set the i+1 position to i.
+                 * In theory we should check if s->clust_detached[j] > i
+                 * and in that case shift it to s->clust_detached[j] + 1,
+                 * but that's not possible becase cluster after this are not
+                 * yet analized.
+                 */
+                for(ind = i+1; ind < s->nclust; ind++) {
+                    s->clust_detached[ind + 1] = s->clust_detached[ind];
+                }
+                s->clust_detached[i + 1] = i;
+
 
                 /* Move other roots back in the cluster */
                 n_aux = s->clust[j];

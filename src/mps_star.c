@@ -750,12 +750,17 @@ mps_mcompute_starting_radii(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
  */
 void
 mps_mstart(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
-           rdpe_t g, rdpe_t dap[]) {
+           rdpe_t g, rdpe_t dap[], mpc_t gg) {
 
     int i, j, jj, iold, l, nzeros;
     double sigma, ang, th, temp;
     rdpe_t r, big, small, rtmp1, rtmp2;
     cdpe_t ctmp;
+    mpc_t mtmp;
+    mps_boolean need_recomputing = true;
+    mps_boolean first = true;
+
+    mpc_init2(mtmp, s->mpwp);
 
     rdpe_set(small, RDPE_MIN);
     rdpe_set(big, RDPE_MAX);
@@ -775,14 +780,69 @@ mps_mstart(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
     nzeros = 0;
     temp = 0.0;
 
-    
-
     /* In the general case apply the Rouche-based criterion */
-    mps_mcompute_starting_radii(s, n, i_clust, clust_rad, g, dap);
+    while (need_recomputing) {
+        mps_mcompute_starting_radii(s, n, i_clust, clust_rad, g, dap);
 
-    /* We need to check that the points that we have keep out of
-     * the cluster are really out of the clusters. */
+        /* We need to check that the points that we have kept out of
+         * the cluster are really out of the clusters. */
+        need_recomputing = false;
 
+        /* Find the maximum radii */
+        rdpe_set(rtmp1, rdpe_zero);
+        for(i = 0; i < s->n_radii; i++) {
+            if (rdpe_lt(rtmp1, s->dradii[i])) {
+                rdpe_set(rtmp1, s->dradii[i]);
+            }
+        }
+
+        for(i = 0; i < s->nclust; i++) {
+            if (s->clust_detached[i] == i_clust) {
+                /* Check if the root touch the cluster */
+                mpc_sub(mtmp, s->mroot[i], gg);
+                mpc_get_cdpe(ctmp, mtmp);
+                cdpe_mod(rtmp2, ctmp);
+                /* i is the cluster detached from i_clust, so the unique
+                 * root in it is s->clust[s->punt[i]] */
+                rdpe_sub_eq(rtmp2, s->drad[s->clust[s->punt[i]]]);
+                rdpe_sub_eq(rtmp2, rtmp1);
+
+                /* If they are too near we need to recompact them */
+                if (rdpe_lt(rtmp2, rdpe_zero)) {
+                    MPS_DEBUG(s, "Recompacting cluster %d and %d", i_clust, i);
+                    need_recomputing = true;
+
+                    /* We need this to be true to make the reassembling of
+                     * the cluster work as expected */
+                    assert(i_clust < i);
+
+                    l = s->clust[s->punt[i]];
+                    for(j = s->punt[i_clust + 1]; j < s->punt[i]; j++) {
+                        s->clust[j+1] = s->clust[j];
+                    }
+                    s->clust[s->punt[i_clust + 1]] = l;
+                    for(j = i_clust + 1; j <= i; j++) {
+                        s->punt[j]++;
+                    }
+                    
+                    assert(s->punt[i] == s->punt[i+1]);
+
+                    for(j = i+1; j < s->nclust; j++) {
+                        s->punt[j - 1] = s->punt[j];
+                        s->clust_detached[j - 1] = s->clust_detached[j];
+                    }
+                    s->punt[s->nclust - 1] = s->punt[s->nclust];
+
+                    s->nclust--;
+                    for(j = 0; j < s->nclust; j++) {
+                        if (s->clust_detached[j] > i_clust) {
+                            s->clust_detached[j]--;
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     th = pi2 / n;
 
@@ -827,6 +887,8 @@ mps_mstart(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
             }
         rdpe_set(clust_rad, s->dradii[i]);
     }
+
+    mpc_clear(mtmp);
 }
 
 /***********************************************************
@@ -1529,7 +1591,7 @@ mps_mshift(mps_status* s, int m, int i_clust, rdpe_t clust_rad, mpc_t g) {
             cdpe_mod(s->dap1[i], abd);
         }
 
-    mps_mstart(s, m, i_clust, clust_rad, ag, s->dap1);
+    mps_mstart(s, m, i_clust, clust_rad, ag, s->dap1, g);
 
     mpc_clear(t);
 }

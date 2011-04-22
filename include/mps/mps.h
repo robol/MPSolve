@@ -39,6 +39,8 @@
 #include <float.h>
 #include <math.h>
 #include <limits.h>
+#include <assert.h>
+#include <string.h>
 
 /* Small workaround if the header is being included with
  * extern "C" {
@@ -59,6 +61,11 @@
 #include <mps/mps_mpc.h>
 #include <mps/mps_link.h>
 #include <mps/mps_mptemp.h>
+
+/* Keep away assert() when compiling without debug */
+#ifdef DISABLE_DEBUG
+#define NDEBUG
+#endif
 
 #ifndef DISABLE_DEBUG
 /**
@@ -538,7 +545,17 @@ typedef struct {
    */
    int nclust;
 
-   rdpe_t* clust_pol_rad;
+   /**
+    * @brief This <code>int</code> array keep information about
+    * semi-converged roots that were removed by a cluster to
+    * improve convergence speed.
+    *
+    * If <code>s->clust_detached[i]</code>
+    * is not zero, than the <b>unique</b> root in the <code>i</code>-th
+    * cluster has been detached by the cluster whose index is the value
+    * of <code>s->clust_detached</code>. 
+    */
+   int* clust_detached;
 
   /**
    * @brief indices of cluster components
@@ -966,7 +983,7 @@ void mps_fstart(mps_status* s, int n, int i_clust, double clust_rad,
 void mps_dstart(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
         rdpe_t g, rdpe_t eps_out, rdpe_t dap[]);
 void mps_mstart(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
-        rdpe_t g, rdpe_t dap[]);
+        rdpe_t g, rdpe_t dap[], mpc_t gg);
 void mps_frestart(mps_status* s);
 void mps_drestart(mps_status* s);
 void mps_mrestart(mps_status* s);
