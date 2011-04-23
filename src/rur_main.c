@@ -9,7 +9,7 @@
 ** (C) 1999, Dipartimento di Matematica, FRISCO LTR 21024 **
 ***********************************************************/
 
-#include <mps/mps_poly.h>
+#include <mps/poly.h>
 #include <mps/rursolve.h>
 
 mpz_t *mpdemo = NULL;	/* imaginary part of the integer input coeff. */

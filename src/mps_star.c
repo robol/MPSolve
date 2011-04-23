@@ -16,7 +16,7 @@
  *
  */
 
-#include <mps/mps.h>
+#include <mps/core.h>
 
 #define pi2 6.283184
 

@@ -9,7 +9,15 @@
 ** (C) 1999, Dipartimento di Matematica, FRISCO LTR 21024 **
 ***********************************************************/
 
-#include "mps.h"
+#ifndef MPS_POLY_H
+#define MPS_POLY_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
+#include <mps/core.h>
 
 /* functions for a simplified I/O with the mpsolve library */
 
@@ -64,3 +72,14 @@ void mps_set_poly(mps_status* s, mpspoly_t p);
 void mps_update_poly(mps_status* s, mpspoly_t p);
 void mps_free_poly(mps_status* s, mpspoly_t p);
 void mps_get_roots(mps_status* s, mpsroots_t r);
+
+/*
+ * End of extern "C" {
+ *   ...
+ * }
+ */
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* ndef MPS_POLY_H */

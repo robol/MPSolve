@@ -1,15 +1,22 @@
-/***********************************************************
+/************************************************************
+ **                                                        **
+ **             __  __ ___  ___      _                     **
+ **            |  \/  | _ \/ __| ___| |_ _____             **
+ **            | |\/| |  _/\__ \/ _ \ \ V / -_)            **
+ **            |_|  |_|_|  |___/\___/_|\_/\___|            **
+ **                                                        **
  **       Multiprecision Polynomial Solver (MPSolve)       **
- **                 Version 2.2, May 2001                  **
+ **                 Version 2.9, April 2011                **
  **                                                        **
  **                      Written by                        **
- **       Dario Andrea Bini and Giuseppe Fiorentino        **
- **       (bini@dm.unipi.it)  (fiorent@dm.unipi.it)        **
+ **     Dario Andrea Bini       <bini@dm.unipi.it>         **
+ **     Giuseppe Fiorentino     <fiorent@dm.unipi.it>      **
+ **     Leonardo Robol          <robol@mail.dm.unipi.it>   **
  **                                                        **
- ** (C) 2001, Dipartimento di Matematica, FRISCO LTR 21024 **
+ ** (C) 2011, Dipartimento di Matematica, FRISCO LTR 21024 **
  ***********************************************************/
 
-#include <mps/mps.h>
+#include <mps/core.h>
 
 /**
  * @brief Compute Aberth correction for j-th root, without

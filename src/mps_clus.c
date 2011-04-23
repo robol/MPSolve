@@ -9,7 +9,7 @@
 ** (C) 2001, Dipartimento di Matematica, FRISCO LTR 21024 **
 ***********************************************************/
 
-#include <mps/mps.h>
+#include <mps/core.h>
 
 /**
  * @file
@@ -326,7 +326,10 @@ mps_cluster_detach(mps_status* s, int i_clust)
 }
 
 
+void
+mps_reassemble_cluster(mps_status* s, int i_clust) {
 
+}
 
 
 

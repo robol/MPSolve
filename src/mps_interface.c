@@ -38,9 +38,9 @@
  *
  */
 
-#include <mps/mps.h>
-#include <mps/mps_poly.h>
-#include <mps/mps_link.h>
+#include <mps/core.h>
+#include <mps/poly.h>
+#include <mps/link.h>
 #include <gmp.h>
 #include <stdlib.h>
 #include <stdio.h>

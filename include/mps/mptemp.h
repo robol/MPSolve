@@ -9,9 +9,13 @@
 #ifndef __MPTEMP_H__
 #define __MPTEMP_H__
 
+#ifdef __cplusplus
+exter "C" {
+#endif
+
 /* include GMP header file */
-#include "gmp.h"
-#include "mps_mpc.h"
+#include <gmp.h>
+#include <mps/mpc.h>
 
 #ifndef NOMPTEMP  /* enable MPTEMP variables              */
 
@@ -90,5 +94,14 @@ typedef mpc_t tmpc_t;
 #define mptemp_clear()			/* void */
 
 #endif /* ndef NOMPTEMP */
+
+/*
+ * End of extern "C" {
+ *   ...
+ * }
+ */
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* def __MPTEMP_H__ */

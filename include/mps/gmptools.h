@@ -9,13 +9,12 @@
 #ifndef __GMPTOOLS_H__
 #define __GMPTOOLS_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* needed header files */
 #include <stdio.h>
-
-/* Same workaround as in mps.h */
-#ifdef __cplusplus
-#undef __cplusplus
-#endif
 
 #include <gmp.h>
 
@@ -130,4 +129,14 @@ void mpf_vinit2(mpf_t v[], unsigned long int size, unsigned long int prec);
 void mpf_vclear(mpf_t v[], unsigned long int size);
 #define mpf_vfree(V)          free(V)
 
+#endif
+
+
+/*
+ * End of extern "C" {
+ *   ...
+ * }
+ */
+#ifdef __cplusplus
+}
 #endif

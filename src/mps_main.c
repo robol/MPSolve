@@ -9,7 +9,7 @@
 ** (C) 2001, Dipartimento di Matematica, FRISCO LTR 21024 **
 ***********************************************************/
 
-#include <mps/mps.h>
+#include <mps/core.h>
 
 /**
  * @brief Main routine of the program.

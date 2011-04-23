@@ -6,8 +6,12 @@
 **                 (fiorent@dm.unipi.it)                  **
 ***********************************************************/
 
-#ifndef __TOOLS_H__
-#define __TOOLS_H__
+#ifndef MPS_TOOLS_H_
+#define MPS_TOOLS_H_
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /* consts */
 #define LOG2     0.69314718055994530941
@@ -69,5 +73,14 @@ void float_vinit(float v[], unsigned long int size);
 void double_vinit(double v[], unsigned long int size);
 #define double_vclear(V, N)		double_vinit(V, N)
 #define double_vfree(V)			free(V)
+
+/*
+ * End of extern "C" {
+ *   ...
+ * }
+ */
+#ifdef __cplusplus
+}
+#endif
 
 #endif

@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
-#include <mps/mps_tools.h>
+#include <mps/tools.h>
 
 #ifndef RAND_SOURCE
 #define RAND_SOURCE "/dev/random"

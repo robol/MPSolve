@@ -8,7 +8,7 @@
 
 #include <stdlib.h>
 #include <math.h>
-#include <mps/mps_gmptools.h>
+#include <mps/gmptools.h>
 
 /**********************************************
 *                  MPZ_T                      *

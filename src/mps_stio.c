@@ -11,7 +11,7 @@
 
 #include <stdarg.h>
 #include <string.h>
-#include <mps/mps.h>
+#include <mps/core.h>
 
 #define ISZERO -1
 
