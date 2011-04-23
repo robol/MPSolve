@@ -779,8 +779,12 @@ mps_mstart(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
     nzeros = 0;
     temp = 0.0;
 
-    /* In the general case apply the Rouche-based criterion */
+    /* Continue to cycle while clusters are _real clusters_,
+     * because until now we have detached roots that were not
+     * certainly outside of the cluster. */
     while (need_recomputing) {
+
+        /* In the general case apply the Rouche-based criterion */
         mps_mcompute_starting_radii(s, n, i_clust, clust_rad, g, dap);
 
         /* We need to check that the points that we have kept out of
@@ -797,7 +801,7 @@ mps_mstart(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
 
         for(i = 0; i < s->nclust; i++) {
             if (s->clust_detached[i] == i_clust) {
-                /* Check if the root touch the cluster */
+                /* Check if the root touchs the cluster */
                 mpc_sub(mtmp, s->mroot[i], gg);
                 mpc_get_cdpe(ctmp, mtmp);
                 cdpe_mod(rtmp2, ctmp);
