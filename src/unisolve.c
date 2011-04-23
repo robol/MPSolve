@@ -11,7 +11,8 @@
 
 #include <string.h>
 #include <stdio.h>
-#include <mps/mps_poly.h>
+#include <mps/poly.h>
+#include <mps/core.h>
 
 /***********************************************************
  *                 MAIN                                    *

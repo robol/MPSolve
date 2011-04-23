@@ -15,7 +15,7 @@
  * equation
  */
 
-#include <mps/mps.h>
+#include <mps/core.h>
 
 /**
  * @brief Set <code>again[i]</code> to <code>true</code> or to <code>false</code> 

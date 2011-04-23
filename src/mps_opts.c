@@ -18,7 +18,7 @@
 #include <string.h>
 #include <errno.h>
 #include <stdlib.h>
-#include <mps/mps.h>
+#include <mps/core.h>
 
 /* local definition */
 void mps_print_help(mps_status* s);

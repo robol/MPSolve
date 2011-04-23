@@ -13,7 +13,7 @@
 #include <math.h>
 #include <float.h>
 #include <limits.h>
-#include <mps/mps_mt.h>
+#include <mps/mt.h>
 
 /***********************************************************
 **              machine dependent constants               **

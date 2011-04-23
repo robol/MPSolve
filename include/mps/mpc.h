@@ -9,6 +9,10 @@
 #ifndef __MPC_H__
 #define __MPC_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* needed header files */
 #include <stdio.h>
 #include <gmp.h>
@@ -152,6 +156,15 @@ void mpc_vinit2(mpc_t v[], long size, long prec);
 void mpc_vclear(mpc_t v[], long size);
 #define mpc_vfree(C)            free(C)
 
+#endif
+
+/*
+ * End of extern "C" {
+ *   ...
+ * }
+ */
+#ifdef __cplusplus
+}
 #endif
 
 /***********************************************************

@@ -9,7 +9,7 @@
 ** (C) 1999, Dipartimento di Matematica, FRISCO LTR 21024 **
 ***********************************************************/
 
-#include <mps/mps.h>
+#include <mps/core.h>
 #include <mps/rursolve.h>
 
 /*********************************************************

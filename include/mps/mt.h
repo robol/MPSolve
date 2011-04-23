@@ -11,6 +11,10 @@
 #ifndef __MT_H__
 #define __MT_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* needed header files */
 #include <stdio.h>
 
@@ -366,6 +370,15 @@ void cdpe_vinit(cdpe_t v[], long size);
 /* #define cdpe_vclear(V)       free(C) */
 /* #define cdpe_vclear(V, N)    cdpe_vinit(V, N) */
 #define cdpe_vfree(V)        free(V)
+
+/*
+ * End of extern "C" {
+ *   ...
+ * }
+ */
+#ifdef __cplusplus
+}
+#endif
 
 #endif
 

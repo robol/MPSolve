@@ -9,7 +9,7 @@
 ** (C) 2001, Dipartimento di Matematica, FRISCO LTR 21024 **
 ***********************************************************/
 
-#include <mps/mps.h>
+#include <mps/core.h>
 
 /**
  * @brief Check if the i-th and the j-th discs are newton-isolated.

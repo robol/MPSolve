@@ -31,7 +31,7 @@ The formulae for the latter computation are
 obtained by means of a rounding error analysis of (1).
 **********************************************************/
 
-#include "mps.h"
+#include <mps.h/core.h>
 
 /******************************************************
 *              SUBROUTINE FNEWTON_USR                 *   

@@ -9,7 +9,7 @@
 ** (C) 2001, Dipartimento di Matematica, FRISCO LTR 21024 **
 ***********************************************************/
 
-#include <mps/mps.h>
+#include <mps/core.h>
 
 static long int data_prec_max = 0;
 

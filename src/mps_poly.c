@@ -11,8 +11,8 @@
 
 #include <string.h>
 #include <ctype.h>
-#include <mps/mps_poly.h>
-#include <mps/mps_gmptools.h>
+#include <mps/poly.h>
+#include <mps/gmptools.h>
 
 /***********************************************************
 *       SUBROUTINE READ_POLY                               *

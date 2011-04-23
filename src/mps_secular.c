@@ -5,7 +5,7 @@
  *      Author: leonardo
  */
 
-#include <mps/mps.h>
+#include <mps/core.h>
 #include <stdlib.h>
 #include <string.h>
 

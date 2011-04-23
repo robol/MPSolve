@@ -7,7 +7,7 @@
 **                                                        **
 ***********************************************************/
 
-#include <mps/mps_mptemp.h>       /* NOMPTEMP may be defined here */
+#include <mps/mptemp.h>       /* NOMPTEMP may be defined here */
 #ifndef NOMPTEMP
 
 #include <stdlib.h>

@@ -10,8 +10,8 @@
 #define __LINK_H__
 
 /* needed header files */
-#include "mps_mt.h"
-#include "mps_mpc.h"
+#include <mps/mt.h>
+#include <mps/mpc.h>
 
 /***********************************************************
 **              link functions                            **
