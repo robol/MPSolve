@@ -12,6 +12,13 @@
 extern "C" {
 #endif
 
+#ifndef __WINDOWS
+#include <unistd.h>
+#else
+#include <io.h>
+#endif
+
+
 /* Keep away assert() when compiling without debug */
 #ifdef DISABLE_DEBUG
 #define NDEBUG
@@ -88,11 +95,31 @@ if (s->DOLOG) { \
  * @brief Low-level DEBUG() used by other MPS_DEBUG_* statements.
  */
 #if __STDC_VERSION__ >= 199901L
+#ifndef __WINDOWS
 #define __MPS_DEBUG(s, templ...) if (s->DOLOG) {\
-fprintf(s->logstr, "%s:%d \033[32;1m%s()\033[;0m ", \
-__FILE__, __LINE__, __FUNCTION__); \
+if (isatty(s->logstr->_fileno)) { \
+    fprintf(s->logstr, "%s:%d \033[32;1m%s()\033[;0m ", \
+    __FILE__, __LINE__, __FUNCTION__); \
+} \
+else { \
+    fprintf(s->logstr, "%s:%d %s() ", \
+    __FILE__, __LINE__, __FUNCTION__); \
+} \
 gmp_fprintf(s->logstr, templ); \
 }
+#else
+#define __MPS_DEBUG(s, templ...) if (s->DOLOG) {\
+if (_isatty(_fileno(s->logstr))) { \
+    fprintf(s->logstr, "%s:%d \033[32;1m%s()\033[;0m ", \
+    __FILE__, __LINE__, __FUNCTION__); \
+} \
+else { \
+    fprintf(s->logstr, "%s:%d %s() ", \
+    __FILE__, __LINE__, __FUNCTION__); \
+} \
+gmp_fprintf(s->logstr, templ); \
+}
+#endif
 #endif
 #else
 #define MPS_DEBUG(args...)
@@ -105,6 +132,7 @@ gmp_fprintf(s->logstr, templ); \
 
 #ifndef DISABLE_DEBUG
 #if __STDC_VERSION__ < 199901L
+#include <mps/interface.h>
 void MPS_DEBUG(mps_status* s, const char* templ, ...);
 #endif
 #endif

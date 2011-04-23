@@ -20,6 +20,13 @@ CAT = cat
 RM = rm -f
 SH = sh
 
+# Output
+C_COMPILATION=" \033[1mCC\033[0m\t"
+LINKING=" \033[1mLD\033[0m\t"
+CLEANING=" \033[1mCLEAN\033[0m\t"
+STATIC_LIBRARY=" \033[1mAR\033[0m\t"
+DYNAMIC_LIBRARY=" \033[1mLD\033[0m\t"
+
 # operating system dependent standards
 #HERE = 
 HERE = ./
@@ -37,18 +44,23 @@ RUROBJ = rur_horn.o rur_main.o
 
 # main targets
 unisolve: unisolve.o libmps.a libxt.a
+# 	@echo $(LINKING) unisolve
 	$(CC) -o unisolve $(LDFLAGS) $(CFLAGS) unisolve.o libmps.a libxt.a
 
-rursolve: rursolve.o $(RUROBJ) libmps.a -lxt
+rursolve: 
+# 	@echo $(LINKING) rursolve
+	rursolve.o $(RUROBJ) libmps.a -lxt
 
 shared_libs: libmps.so
 
 all: unisolve rursolve rurconv shared_libs
 
 mps_%.o: mps_%.c
+# 	@echo $(C_COMPILATION) $<
 	$(CC) $(CFLAGS) -c $<
 	
 unisolve.o: unisolve.c
+# 	@echo $(C_COMPILATION) unisolve.c
 	$(CC) $(CFLAGS) -c $<
 
 
@@ -56,14 +68,17 @@ unisolve.o: unisolve.c
 libs: libmps.a libxt.a
 
 libxt.a: $(LIBXTOBJ)
+# 	@echo $(STATIC_LIBRARY) libxt.a
 	$(AR) $(ARFLAGS) libxt.a $(LIBXTOBJ)
 #	$(RANLIB) libxt.a
 
 libmps.a: $(LIBMPSOBJ)
+# 	@echo $(STATIC_LIBRARY) libmps.a
 	$(AR) $(ARFLAGS) libmps.a $(LIBMPSOBJ)
 #	$(RANLIB) libmps.a
 
 libmps.so: $(LIBMPSOBJ) $(LIBXTOBJ)
+# 	@echo $(DYNAMIC_LIBRARY) libmps.so
 	gcc -o libmps.so -shared -fPIC $(LIBMPSOBJ) $(LIBXTOBJ)
 
 
@@ -99,6 +114,7 @@ rurcheck: rursolve rurconv
 
 # cleanup
 clean:
+# 	@echo $(CLEANING) src/
 	$(RM) *.o stats timings roots testsuite *.bak *~ core *.res *.so
 
 distclean: clean

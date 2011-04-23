@@ -5,6 +5,7 @@ CC=gcc
 LD=gcc
 DESTDIR=
 LDFLAGS=-lgmp -lm
+MAKEFLAGS=-j
 
 # CFLAGS for the file in src/. 
 # The debug ones are used if the debug variable
@@ -12,13 +13,13 @@ LDFLAGS=-lgmp -lm
 # You can also use:
 #  -DNOMPTEMP   to disable the memory manager for MP temporary variables
 #  -DRAND_VAL=x so that x will the return value for all rand() calls
-ifdef DEBUG
-	CFLAGS=-O0 -g -fPIC -I../include -Wall
-else ifdef DISABLE_DEBUG
-	CFLAGS=-O2 -DDISABLE_DEBUG -ffast-math -fPIC -I../include
-else
-	CFLAGS=-O2 -ffast-math -fPIC -I../include
-endif
+
+# Default CFLAGS
+CFLAGS=-O2 -ffast-math -fPIC -I../include
+
+# Set CFLAGS for specific targets
+debug: CFLAGS=-O0 -g -fPIC -I../include -Wall
+release: CFLAGS=-O2 -ffast-math -fPIC -DDISABLE_DEBUG -I../include
 
 # Enable C99 for variadic macros and pretty debugging
 CFLAGS+= -std=c99
@@ -28,18 +29,14 @@ export CFLAGS
 export LDFLAGS
 export CC
 
-
 #
 # Targets
 # 
 all: unisolve rursolve shared_libs
 
-debug:
-	DEBUG=1 $(MAKE) all
+debug: all
 
-release: 
-	DISABLE_DEBUG=1 $(MAKE) all
-
+release: all
 
 unisolve: shared_libs
 	+$(MAKE) -C $(SRC) unisolve
