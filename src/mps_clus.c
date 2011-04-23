@@ -217,10 +217,113 @@ mps_mcluster(mps_status* s, int nf)
   for (i = 0; i < s->n; i++)
     s->clust[i] = s->clust_out[i];
   s->punt[s->nclust] = s->n;
+
 }
 
 
+/**
+ * @brief Check if in the cluster <code>i_clust</code> there are quasi
+ * approximated roots and detach them from the cluster into a new one.
+ *
+ * @param s the pointer to the mps_status struct that is holding
+ * the current status of the computation.
+ * @param i_clust The index of the cluster to analyze. The special
+ * value <code>MPS_ALL_CLUSTERS</code> can be used to analyze all
+ * clusters.
+ */
+void
+mps_cluster_detach(mps_status* s, int i_clust)
+{
+  int i, ind, n_aux, j;
+  rdpe_t precision, rtmp;
+  tmpf_t ftmp;
 
+  tmpf_init2(ftmp, s->mpwp);
+
+  /* Reset the s->clust_detached vector */
+  if (i_clust == MPS_ALL_CLUSTERS)
+      memset(s->clust_detached, -1, sizeof(int) * s->n);
+  else
+      memset(s->clust_detached + s->punt[i_clust], -1,
+             sizeof(int) * (s->punt[i_clust + 1] - s->punt[i_clust]));
+
+  /* Try to remove approximated roots from the clusters, because they
+   * are likely to be "fake" cluster elements. */
+    for (i = 0; i < s->nclust; i++) {
+
+        /* If this is not the cluster that we have to analyze we should
+         * try with next one */
+        if (i_clust != i && i_clust != MPS_ALL_CLUSTERS) {
+            continue;
+        }
+
+        if (s->punt[i + 1] - s->punt[i] == 1) {
+            /* If this is a single root cluster is not a cluster
+             * so skip to the next one. */
+            continue;
+        }
+
+        /* Else keep away approximated roots */
+        for (j = s->punt[i]; j < s->punt[i + 1]; j++) {
+            mpc_mod(ftmp, s->mroot[s->clust[j]]);
+            mpf_get_rdpe(rtmp, ftmp);
+            rdpe_set_dl(precision, 1, (long int) ((1 - 0.5 * s->mpwp) * LOG10_2
+                    + rdpe_log10(rtmp)));
+            if (rdpe_lt(s->drad[s->clust[j]], precision)) {
+
+                MPS_DEBUG(s, "Separating root %d from the "
+                          "rest of the cluster n°%d",
+                          s->clust[j], i);
+
+                /* Save a log of the detachement in s->clust_detach
+                 * to make checking if the root is really outside the
+                 * cluster after the computing of Newton polygonal.
+                 * We are creating a new cluster in i+1, moving other
+                 * cluster ahead, so first move ahead the vector after
+                 * i+1, and then set the i+1 position to i.
+                 * In theory we should check if s->clust_detached[j] > i
+                 * and in that case shift it to s->clust_detached[j] + 1,
+                 * but that's not possible becase cluster after this are not
+                 * yet analized.
+                 */
+                for(ind = i+1; ind < s->nclust; ind++) {
+                    s->clust_detached[ind + 1] = s->clust_detached[ind];
+                }
+                s->clust_detached[i + 1] = i;
+
+
+                /* Move other roots back in the cluster */
+                n_aux = s->clust[j];
+                for (ind = j + 1; ind < s->punt[i + 1]; ind++) {
+                    s->clust[ind - 1] = s->clust[ind];
+                }
+
+                s->clust[s->punt[i + 1] - 1] = n_aux;
+                s->punt[i + 1]--;
+
+                /* Move ahead s->punt */
+                for (ind = s->nclust; ind > i + 1; ind--) {
+                    s->punt[ind + 1] = s->punt[ind];
+                }
+
+                /* Set s->punt */
+                s->punt[i + 2] = s->punt[i + 1] + 1;
+
+                /* Start from the next root, that is shifted one position back */
+                j--;
+
+                /* If the cluster is now a single element cluster, let's
+                   skip to the next one */
+                if (s->punt[i + 1] - s->punt[i] == 1) {
+                    break;
+                }
+            }
+        }
+    }
+
+  tmpf_clear(ftmp);
+
+}
 
 
 

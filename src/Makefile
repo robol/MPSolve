@@ -9,28 +9,6 @@
 ## (C) 2001, Dipartimento di Matematica, FRISCO LTR 21024 ##
 ############################################################
 
-# GNU compiler and linker invocation command
-CC = gcc
-LD = $(CC)
-
-# path to GMP library and header file 
-# (in case you want to use a GMP version different from installed)
-GMPDIR = Gmp
-
-# compiler flags
-CFLAGS = -O2 -fPIC -I../include -Wall
-# CFLAGS = -g -O0 -Wall -I../include -pedantic -fPIC
-#
-# you can also use:
-#  -DNOMPTEMP 	to disable the memory manager for MP temporary variables
-#  -DRAND_VAL=x so that x will the return value for all rand() calls  
-#
-
-# linker flags
-# LDFLAGS = -L$(GMPDIR)
-LOADLIBES = -lgmp -lm
-#LOADLIBES = -lgmp -lm -lefence
-
 # operating system dependent commands
 AR = ar
 ARFLAGS = rcs
@@ -59,6 +37,7 @@ RUROBJ = rur_horn.o rur_main.o
 
 # main targets
 unisolve: unisolve.o libmps.a libxt.a
+	$(CC) -o unisolve $(LDFLAGS) $(CFLAGS) unisolve.o libmps.a libxt.a
 
 rursolve: rursolve.o $(RUROBJ) libmps.a -lxt
 
@@ -121,7 +100,6 @@ rurcheck: rursolve rurconv
 # cleanup
 clean:
 	$(RM) *.o stats timings roots testsuite *.bak *~ core *.res *.so
-	$(RM) -rf ../doc/html ../doc/latex
 
 distclean: clean
 	$(RM) libxt.a libmps.a unisolve$(EXE) rursolve$(EXE) rurconv$(EXE)
