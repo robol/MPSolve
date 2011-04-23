@@ -250,6 +250,13 @@ mps_cluster_detach(mps_status* s, int i_clust)
   /* Try to remove approximated roots from the clusters, because they
    * are likely to be "fake" cluster elements. */
     for (i = 0; i < s->nclust; i++) {
+
+        /* If this is not the cluster that we have to analyze we should
+         * try with next one */
+        if (i_clust != i && i_clust != MPS_ALL_CLUSTERS) {
+            continue;
+        }
+
         if (s->punt[i + 1] - s->punt[i] == 1) {
             /* If this is a single root cluster is not a cluster
              * so skip to the next one. */
