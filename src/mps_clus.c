@@ -183,7 +183,6 @@ void
 mps_mcluster(mps_status* s, int nf)
 {
   int i, j, ind, n_aux, nclust_out, nclust_aux;
-  rdpe_t precision;
 
   s->punt[s->nclust] = s->n;
   nclust_out = 0;
@@ -219,9 +218,37 @@ mps_mcluster(mps_status* s, int nf)
     s->clust[i] = s->clust_out[i];
   s->punt[s->nclust] = s->n;
 
+}
+
+
+/**
+ * @brief Check if in the cluster <code>i_clust</code> there are quasi
+ * approximated roots and detach them from the cluster into a new one.
+ *
+ * @param s the pointer to the mps_status struct that is holding
+ * the current status of the computation.
+ * @param i_clust The index of the cluster to analyze. The special
+ * value <code>MPS_ALL_CLUSTERS</code> can be used to analyze all
+ * clusters.
+ */
+void
+mps_cluster_detach(mps_status* s, int i_clust)
+{
+  int i, ind, n_aux, j;
+  rdpe_t precision, rtmp;
+  tmpf_t ftmp;
+
+  tmpf_init2(ftmp, s->mpwp);
+
+  /* Reset the s->clust_detached vector */
+  if (i_clust == MPS_ALL_CLUSTERS)
+      memset(s->clust_detached, -1, sizeof(int) * s->n);
+  else
+      memset(s->clust_detached + s->punt[i_clust], -1,
+             sizeof(int) * (s->punt[i_clust + 1] - s->punt[i_clust]));
+
   /* Try to remove approximated roots from the clusters, because they
    * are likely to be "fake" cluster elements. */
-  memset(s->clust_detached, -1, sizeof(int) * s->n);
     for (i = 0; i < s->nclust; i++) {
         if (s->punt[i + 1] - s->punt[i] == 1) {
             /* If this is a single root cluster is not a cluster
@@ -230,8 +257,11 @@ mps_mcluster(mps_status* s, int nf)
         }
 
         /* Else keep away approximated roots */
-        rdpe_set_dl(precision, 1, (long int) (1 - 0.5 * s->mpwp) * LOG10_2);
+        rdpe_set_dl(precision, 1, (long int) (1 - s->mpwp) * LOG10_2);
         for (j = s->punt[i]; j < s->punt[i + 1]; j++) {
+            mpc_mod(ftmp, s->mroot[s->clust[j]]);
+            mpf_get_rdpe(rtmp, ftmp);
+            rdpe_set_dl(precision, 1, (long int) (1 - 0.5 * s->mpwp) * LOG10_2 + rdpe_log10(rtmp));
             if (rdpe_lt(s->drad[s->clust[j]], precision)) {
 
                 MPS_DEBUG(s, "Separating root %d from the "
@@ -283,10 +313,10 @@ mps_mcluster(mps_status* s, int nf)
             }
         }
     }
+
+  tmpf_clear(ftmp);
+
 }
-
-
-
 
 
 

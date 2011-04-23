@@ -155,6 +155,8 @@ gmp_fprintf(s->logstr, templ); \
 
 /* constants */
 
+#define MPS_ALL_CLUSTERS -1
+
 /**
  * @brief Type representing the computation phase
  * of the algorithm we are in
@@ -1017,6 +1019,9 @@ void MPS_DEBUG(mps_status* s, const char* templ, ...);
 
 /* functions in mps_test.c */
 mps_boolean  mps_inclusion(mps_status* s);
+
+/* functions in mps_clust. */
+void mps_cluster_detach(mps_status* s, int i_clust);
 
 /* functions in mps_touch.c */
 mps_boolean mps_ftouchnwt(mps_status* s, int n, int i, int j);

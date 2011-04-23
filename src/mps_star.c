@@ -758,7 +758,6 @@ mps_mstart(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
     cdpe_t ctmp;
     mpc_t mtmp;
     mps_boolean need_recomputing = true;
-    mps_boolean first = true;
 
     mpc_init2(mtmp, s->mpwp);
 
@@ -1248,6 +1247,10 @@ mps_mrestart(mps_status* s) {
         if (tst)
             goto loop1;
 
+        /* Try to detach quasi-convergent elements from
+         * the clusters */
+        mps_cluster_detach(s, MPS_ALL_CLUSTERS);
+
         /* Compute super center sc and super radius sr */
         mps_msrad(s, i, sc, sr);
 
@@ -1273,6 +1276,11 @@ mps_mrestart(mps_status* s) {
             for (j = s->punt[i]; j < s->punt[i + 1]; j++)
                 s->status[s->clust[j]][0] = 'c';
             MPS_DEBUG(s, "Cluster %d relat. large: skip to the next component", i);
+
+            /*
+             * TODO: Reassemble the cluster as it was before...
+             */
+
             goto loop1;
         }
 
