@@ -47,9 +47,9 @@ unisolve: unisolve.o libmps.a libxt.a
 # 	@echo $(LINKING) unisolve
 	$(CC) -o unisolve $(LDFLAGS) $(CFLAGS) unisolve.o libmps.a libxt.a
 
-rursolve: 
+rursolve: rursolve.o $(RUROBJ) libmps.a libxt.a
 # 	@echo $(LINKING) rursolve
-	rursolve.o $(RUROBJ) libmps.a -lxt
+	$(CC) -o rursolve rursolve.o $(CFLAGFS) $(LDFLAGS) $(RUROBJ) libmps.a libxt.a
 
 shared_libs: libmps.so
 

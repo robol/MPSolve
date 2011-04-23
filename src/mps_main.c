@@ -9,7 +9,14 @@
 ** (C) 2001, Dipartimento di Matematica, FRISCO LTR 21024 **
 ***********************************************************/
 
+/**
+ * @file
+ * @brief File with the implementation of the driver routines
+ * for MPSolve. 
+ */
+
 #include <mps/core.h>
+#include <mps/interface.h>
 
 /**
  * @brief Main routine of the program.
