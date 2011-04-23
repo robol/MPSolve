@@ -264,11 +264,11 @@ mps_cluster_detach(mps_status* s, int i_clust)
         }
 
         /* Else keep away approximated roots */
-        rdpe_set_dl(precision, 1, (long int) (1 - s->mpwp) * LOG10_2);
         for (j = s->punt[i]; j < s->punt[i + 1]; j++) {
             mpc_mod(ftmp, s->mroot[s->clust[j]]);
             mpf_get_rdpe(rtmp, ftmp);
-            rdpe_set_dl(precision, 1, (long int) (1 - 0.5 * s->mpwp) * LOG10_2 + rdpe_log10(rtmp));
+            rdpe_set_dl(precision, 1, (long int) ((1 - 0.5 * s->mpwp) * LOG10_2
+                    + rdpe_log10(rtmp)));
             if (rdpe_lt(s->drad[s->clust[j]], precision)) {
 
                 MPS_DEBUG(s, "Separating root %d from the "
