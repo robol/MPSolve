@@ -27,7 +27,11 @@ The formulae for the computation of apeps and rad are
 obtained by means of a rounding error analysis of (1).
 **********************************************************/
 
-#include <mps/mps.h>
+#include <mps/interface.h>
+#include <math.h>
+#include <mps/mptemp.h>
+#include <mps/tools.h>
+#include <float.h>
 
 /******************************************************
  *              SUBROUTINE FNEWTON_USR                 *   

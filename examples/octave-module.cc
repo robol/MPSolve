@@ -1,8 +1,5 @@
 #include <octave/oct.h>
-
-extern "C" {
-	#include <mps/mps.h>
-}
+#include <mps/interface.h>
 
 void
 usage() {

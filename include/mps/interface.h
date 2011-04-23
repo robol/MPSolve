@@ -12,9 +12,15 @@
 extern "C" {
 #endif
 
+/* Octave module workardound */
+#ifdef __UNDEF_CPLUSPLUS
+#undef __cplusplus
+#endif
+
 #include <gmp.h>
 #include <mps/mt.h>
 #include <mps/mpc.h>
+#include <mps/tools.h>
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -781,6 +787,10 @@ int mps_status_get_roots_d(mps_status* s, cplx_t* roots, double* radius);
 
 
 #ifdef	__cplusplus
+}
+#endif
+
+#ifdef __UNDEF_CPLUSPLUS
 }
 #endif
 

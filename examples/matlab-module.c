@@ -1,5 +1,5 @@
 #include "mex.h"
-#include <mps/mps.h>
+#include <mps/interface.h>
 #include <stdlib.h>
 
 
