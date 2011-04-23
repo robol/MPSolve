@@ -270,39 +270,6 @@ mps_fstart(mps_status* s, int n, int i_clust, double clust_rad,
         return;
     }
 
-
-    /* Try to remove approximated roots from the clusters, because they
-     * are likely to be "fake" cluster elements. */
-    for (i = 0; i < s->nclust; i++) {
-        if (s->punt[i + 1] - s->punt[i] == 1) {
-            /* If this is a single root cluster is not a cluster
-             * so skip to the next one. */
-            continue;
-        }
-
-        /* Else keep away approximated roots */
-        for (j = s->punt[i]; j < s->punt[i + 1]; j++) {
-            if (s->frad[s->clust[j]] < 10e-15) {
-                /* Move other roots back in the cluster */
-                l = s->clust[j];
-                for (jj = j + 1; jj < s->punt[i + 1]; jj++) {
-                    s->clust[jj - 1] = s->clust[jj];
-                }
-
-                s->clust[s->punt[i + 1] - 1] = l;
-                s->punt[i + 1]--;
-
-                /* Move ahead s->punt */
-                for (jj = s->nclust; jj > i; jj--) {
-                    s->punt[jj] = s->punt[jj - 1];
-                }
-
-                /* Set s->punt */
-                s->punt[i + 2] = s->punt[i + 1] + 1;
-            }
-        }
-    }
-
     /* In the general case apply the Rouche-based criterion */
     mps_fcompute_starting_radii(s, n, i_clust, clust_rad, g, eps, fap);
 
