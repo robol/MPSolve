@@ -134,6 +134,7 @@ gmp_fprintf(s->logstr, templ); \
 #if __STDC_VERSION__ < 199901L
 #include <mps/interface.h>
 void MPS_DEBUG(mps_status* s, const char* templ, ...);
+void __MPS_DEBUG(mps_status* s, const char* templ, ...);
 #endif
 #endif
 
