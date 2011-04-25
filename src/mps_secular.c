@@ -6,8 +6,7 @@
  */
 
 #include <mps/core.h>
-#include <stdlib.h>
-#include <string.h>
+#include <mps/mt.h>
 
 /**
  * @brief Create a new secular equation struct
@@ -117,21 +116,23 @@ mps_secular_fnewton(mps_status* s, cplx_t x, double *rad, cplx_t corr, mps_boole
 
 	/* Compute newton correction */
 	cplx_mul(ctmp, pol, sumb);
-	cplx_add_eq(ctmp, fp);
+	cplx_add_eq(fp, ctmp);
 
-	if (cplx_ne(ctmp, cplx_zero)) {
-		cplx_div(corr, pol, ctmp);
-	} else {
+	if (cplx_ne(fp, cplx_zero)) {
 		cplx_div(corr, pol, fp);
+	} else {
+		cplx_set(corr, pol);
 	}
 
 	/* Compute radius of inclusion
 	 * TODO: Check the right way to compute this */
 
 	/* Radius is eps * n * p(|z|) */
-	*rad = (*rad) * (double) sec->n * 4 * DBL_EPSILON;
+        *rad = cplx_mod(corr) * sec->n;
 
-	*again  = true;
+        if (cplx_mod(pol) < *rad) {
+            *again = false;
+        }
 }
 
 void
@@ -165,8 +166,11 @@ mps_secular_dnewton(mps_status* s, cdpe_t x, rdpe_t rad, cdpe_t corr, mps_boolea
 		/* Compute a / (z - b_i) and its modulus */
 		cdpe_mul(ctmp2, sec->adpc[i], ctmp);
 		cdpe_add_eq(pol, ctmp2);
+/*
 		cdpe_mod(rtmp, ctmp2);
 		rdpe_add_eq(rad, rtmp);
+*/
+
 
 		/* Compute a / (z - b_i)^2 and add it to the first derivative */
 		cdpe_mul_eq(ctmp2, ctmp);
@@ -176,28 +180,26 @@ mps_secular_dnewton(mps_status* s, cdpe_t x, rdpe_t rad, cdpe_t corr, mps_boolea
 	/* Compute poly */
 	cdpe_sub_eq(pol, cdpe_one);
 
-	/* Compute radius */
-	rdpe_add_eq(rad, rdpe_one);
-	rdpe_mul_eq_d(rad, 4 * sec->n * DBL_EPSILON);
-
-	/* Check if |p(z)| < |p'(z)| * |x| * epsilon */
-	cdpe_mod(rtmp, fp);
-	cdpe_mod(rtmp2, x);
-	rdpe_mul_eq(rtmp, rtmp2);
-	rdpe_mul_eq_d(rtmp, DBL_EPSILON);
-	cdpe_mod(rtmp2, pol);
-
-	if(rdpe_lt(rtmp2, rtmp)) {
-		cdpe_set(corr, cdpe_zero);
-		*again = false;
-		return;
-	}
-
-
 	/* Compute correction */
-	cdpe_div(corr, fp, pol);
-	cdpe_add_eq(corr, sumb);
-	cdpe_inv_eq(corr);
+        cdpe_mul(ctmp, pol, sumb);
+        cdpe_add_eq(fp, ctmp);
+
+        if(!cdpe_eq(fp, cdpe_zero)) {
+            cdpe_div(corr, pol, fp);
+        } else {
+            cdpe_set(corr, pol);
+        }
+
+        cdpe_mod(rtmp, corr);
+        rdpe_set_d(rtmp2, sec->n);
+        if (rdpe_lt(rtmp, rtmp2)) {
+            *again = false;
+            return;
+        }
+
+        /* Compute radius as n * | corr | */
+        cdpe_mod(rad, corr);
+        rdpe_mul_eq_d(rad, s->n);
 
 	/* Compute poly modulus. If it is less than
 	 * epsilon * p(|z|) than stop */
@@ -210,7 +212,11 @@ mps_secular_dnewton(mps_status* s, cdpe_t x, rdpe_t rad, cdpe_t corr, mps_boolea
 		*again = true;
 	}
 
-	*again = true;
+
+        printf("Corr= "); cdpe_outln(corr);
+        printf("Pol = "); cdpe_outln(pol);
+        printf("Rad = "); rdpe_outln(rad);
+
 }
 
 void mps_secular_mnewton(mps_status* s, mpc_t x, rdpe_t rad, mpc_t corr, mps_boolean * again) {
@@ -222,7 +228,7 @@ void mps_secular_mnewton(mps_status* s, mpc_t x, rdpe_t rad, mpc_t corr, mps_boo
 
 	/* Declare temporary variables */
 	mpc_t sumb, pol, fp, ctmp, ctmp2;
-	mpf_t ftmp;
+	mpf_t ftmp, ftmp2;
 	rdpe_t rtmp, rtmp2;
 
 	/* Set working precision */
@@ -232,6 +238,7 @@ void mps_secular_mnewton(mps_status* s, mpc_t x, rdpe_t rad, mpc_t corr, mps_boo
 	mpc_init2(ctmp,  s->mpwp);
 	mpc_init2(ctmp2, s->mpwp);
 	mpf_init2(ftmp , s->mpwp);
+        mpf_init2(ftmp2, s->mpwp);
 
 	/* Adjust precision of coefficients */
 	if (s->mpwp != mpc_get_prec(sec->ampc[0])) {
@@ -274,48 +281,44 @@ void mps_secular_mnewton(mps_status* s, mpc_t x, rdpe_t rad, mpc_t corr, mps_boo
 	}
 
 	/* Subtract one from pol */
-	mpc_sub_eq_ui(pol, 1, 0);
-
-	/* Compute modulus of |p(z)| */
-	mpc_mod(ftmp, fp);
-	mpf_get_rdpe(rtmp, ftmp);
-	mpc_mod(ftmp, x);
-	mpf_get_rdpe(rtmp2, ftmp);
-	rdpe_mul_eq(rtmp, rtmp2);
-	rdpe_mul_eq_d(rtmp, DBL_EPSILON);
-	mpc_mod(ftmp, pol);
-	mpf_get_rdpe(rtmp2, ftmp);
-	if (rdpe_le(rtmp2, rtmp)) {
-		*again = false;
-		mpc_set_d(corr, 0, 0);
-		return;
-	} else {
-		printf("Polynomial mod. = "); rdpe_outln(rtmp2);
-	}
+	// mpc_sub_eq_ui(pol, 1, 0);
+        printf("pol = "); mpc_outln_str(stdout, 10, 10, pol);
+        mpc_set_cplx(ctmp, (__cplx_struct*) cplx_one);
+        mpc_sub_eq(pol, ctmp);
+        printf("pol = "); mpc_outln_str(stdout, 10, 10, pol);
 
 	/* Compute correction */
-	mpc_div(corr, fp, pol);
-	mpc_add_eq(corr, sumb);
-	mpc_inv_eq(corr);
-
-
+        mpc_mul_eq(sumb, pol);
+        mpc_add_eq(fp, sumb);
+        if (!mpc_eq_zero(fp)) {
+            mpc_div(corr, pol, fp);
+        } else {
+            mpc_set(corr, pol);
+        }
 
 	/* Compute radius */
-	rdpe_mul_eq_d(rad, (double) sec->n * DBL_EPSILON * 4);
+        mpc_mod(ftmp, corr);
+        mpf_get_rdpe(rad, ftmp);
+	rdpe_mul_eq_d(rad, (double) sec->n);
 
 	/* Compute modulus of pol */
 	mpc_mod(ftmp, pol);
-	mpf_add_eq_ui(ftmp, 1);
 	mpf_get_rdpe(rtmp, ftmp);
 
-	if(rdpe_lt(rad, rtmp)) {
+	if(rdpe_lt(rtmp, rad)) {
 		*again = false;
 	} else {
 		*again = true;
 	}
 
+        if (again && rdpe_lt(pol))
+
+        printf("Pol = "); rdpe_outln(rtmp);
+        printf("Rad = "); rdpe_outln(rad);
+
+
 }
 
 void mps_secular_check_data(mps_status* s, char* which_case) {
-	*which_case = 'f';
+	*which_case = 'd';
 }

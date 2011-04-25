@@ -54,12 +54,19 @@ typedef void (*mps_dnewton_ptr)(void* status, cdpe_t x, rdpe_t   rad, cdpe_t cor
  */
 typedef void (*mps_mnewton_ptr)(void* status, mpc_t  x, rdpe_t   rad, mpc_t  corr, mps_boolean* again);
 
+/**
+ * @brief Functions that check if float phase is needed or not and set
+ * which_case accordingly to <code>'f'</code> or <code>'d'</code>.
+ */
+typedef void (*mps_check_data_ptr)(void* status, char* which_case);
+
 /*
  * Macros for casting
  */
-#define MPS_FNEWTON_PTR(x) (mps_fnewton_ptr) &x
-#define MPS_DNEWTON_PTR(x) (mps_dnewton_ptr) &x
-#define MPS_MNEWTON_PTR(x) (mps_mnewton_ptr) &x
+#define MPS_FNEWTON_PTR(x) (mps_fnewton_ptr) &(x)
+#define MPS_DNEWTON_PTR(x) (mps_dnewton_ptr) &(x)
+#define MPS_MNEWTON_PTR(x) (mps_mnewton_ptr) &(x)
+#define MPS_CHECK_DATA_PTR(x) (mps_check_data_ptr) &(x)
 
 /**
  * @brief this struct holds the state of the mps computation
@@ -784,6 +791,10 @@ void mps_status_free(mps_status* s);
 int mps_status_set_poly_d(mps_status* s, cplx_t* coeff, long unsigned int n);
 int mps_status_set_poly_i(mps_status* s, int* coeff, long unsigned int n);
 int mps_status_get_roots_d(mps_status* s, cplx_t* roots, double* radius);
+
+/* Routines in mps_secular.c */
+mps_secular_equation* mps_secular_equation_new(cplx_t* afpc, cplx_t* bfpc, unsigned long int n);
+void mps_secular_equation_free(mps_secular_equation* s);
 
 
 #ifdef	__cplusplus

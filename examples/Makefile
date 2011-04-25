@@ -2,6 +2,7 @@ CFLAGS=-L../src/ -I../include/
 LDFLAGS=-lgmp -lm -lmps
 MKOCTFILE=mkoctfile
 MEX=mex
+CC=gcc
 
 all: root_of_unity mandelbrot
 
@@ -32,6 +33,12 @@ mps_roots.oct: octave-module.cc
 mps_roots.mex: matlab-module.c
 	$(MEX) -output mps_roots -D__USE_BOOL_AS_BOOLEAN -L../src -I../include \
 	$(LDFLAGS) matlab-module.c
+
+secular: secular.c shared_libs
+	$(CC) -o secular $(CFLAGS) $(LDFLAGS) secular.c
+
+shared_libs: ../src/libmps.so
+	$(MAKE) -C .. shared_libs
 
 clean:
 	rm -f mandelbrot root_of_unity mps_roots.oct *~ *.o *.mex
