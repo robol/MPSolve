@@ -17,6 +17,7 @@
  */
 
 #include <mps/core.h>
+#include <mps/debug.h>
 
 #define pi2 6.283184
 
@@ -195,11 +196,12 @@ mps_fcompute_starting_radii(mps_status* s, int n, int i_clust, double clust_rad,
 
         /* We shall now compact circles between i and j, so
          * we start computing the mean of the radius */
+        s->fradii[i] *= (s->partitioning[i+1] - s->partitioning[i]);
         for (k = i + 1; k <= j; k++) {
-            s->fradii[i] += s->fradii[k];
+            s->fradii[i] += s->fradii[k] * (s->partitioning[k+1] - s->partitioning[k]);
         }
 
-        s->fradii[i] /= (offset + 1);
+        s->fradii[i] /= s->partitioning[j+1] - s->partitioning[i];
 
         /* Move other circles backward */
         for (k = j + 1; k < s->n_radii; k++) {
@@ -443,11 +445,14 @@ mps_dcompute_starting_radii(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
 
         /* We shall now compact circles between i and j, so
          * we start computing the mean of the radius */
+        rdpe_mul_eq_d(s->dradii[i], s->partitioning[i+1] - s->partitioning[i]);
         for (k = i + 1; k <= j; k++) {
-            rdpe_add_eq(s->dradii[i], s->dradii[j]);
+            rdpe_mul_d(tmp, s->dradii[i],
+                       s->partitioning[k+1] - s->partitioning[k]);
+            rdpe_add_eq(s->dradii[i], tmp);
         }
 
-        rdpe_div_eq_d(s->dradii[i], offset + 1);
+        rdpe_div_eq_d(s->dradii[i], s->partitioning[j+1] - s->partitioning[i]);
 
         /* Move other circles backward */
         for (k = j + 1; k < s->n_radii; k++) {
@@ -693,11 +698,14 @@ mps_mcompute_starting_radii(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
 
         /* We shall now compact circles between i and j, so
          * we start computing the mean of the radius */
+        rdpe_mul_eq_d(s->dradii[i], s->partitioning[i+1] - s->partitioning[i]);
         for (k = i + 1; k <= j; k++) {
-            rdpe_add_eq(s->dradii[i], s->dradii[j]);
+            rdpe_mul_d(tmp, s->dradii[j],
+                       s->partitioning[k+1] - s->partitioning[k]);
+            rdpe_add_eq(s->dradii[i], tmp);
         }
 
-        rdpe_div_eq_d(s->dradii[i], offset);
+        rdpe_div_eq_d(s->dradii[i], s->partitioning[j+1] - s->partitioning[i]);
 
         /* Move other circles backward */
         for (k = j + 1; k < s->n_radii; k++) {
