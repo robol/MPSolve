@@ -518,6 +518,7 @@ mps_dstart(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
         return;
     }
 
+
     /* check if it is the case dpe_after_float, in this case set flag=true  */
     for (i = 0; i < n; i++) {
         flag = (s->status[i][0] == 'x');

@@ -2215,8 +2215,9 @@ mps_dsolve(mps_status* s, mps_boolean d_after_f)
   mps_boolean excep;
   rdpe_t dummy;
 
-  if (s->DOLOG)
+  if (s->DOLOG) {
     fprintf(s->logstr, "   DSOLVE: d_after_f= %d\n", d_after_f);
+  }
 
   /* == 1 == Initialize variables */
   it_pack = 0;

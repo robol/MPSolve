@@ -26,7 +26,7 @@ void
 mps_faberth(mps_status* s, int j, cplx_t abcorr) {
     int i;
     cplx_t z;
-
+    
     cplx_set(abcorr, cplx_zero);
     for (i = 0; i < s->n; i++) {
         if (i == j)

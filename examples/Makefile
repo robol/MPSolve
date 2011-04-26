@@ -1,4 +1,4 @@
-CFLAGS=-L../src/ -I../include/
+CFLAGS=-L../src/ -I../include/ -O0 -g
 LDFLAGS=-lgmp -lm -lmps
 MKOCTFILE=mkoctfile
 MEX=mex
