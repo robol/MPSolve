@@ -719,60 +719,7 @@ typedef struct {
 
 } mps_status; /* End of typedef struct { ... */
 
-/**
- * @brief Secular equation data.
- *
- * A secular equation is an equation in the form
- * \f[
- *   \sum_{i = 1}^{n} \frac{a_i}{z - b_i} = 1
- * \f]
- * and this struct holds the values of the parameters \f$a_i\f$
- * and \f$b_i\f$.
- */
-typedef struct {
-    /**
-     * @brief Vector of \f$a_i\f$ as complex floating
-     * point numbers.
-     */
-    cplx_t* afpc;
 
-    /**
-     * @brief Same as <code>afpc</code>, but the <code>dpe</code>
-     * version.
-     */
-    cdpe_t* adpc;
-
-    /**
-     * @brief Vector with the values of \f$b_i\f$ as complex
-     * floating point numbers.
-     */
-    cplx_t* bfpc;
-
-    /**
-     * @brief Same as <code>bfpc</code>, but the <code>dpe</code>
-     * version.
-     */
-    cdpe_t* bdpc;
-
-    /**
-     * @brief Same as <code>afpc</code>, but the multiprecision
-     * version.
-     */
-    mpc_t * ampc;
-
-    /**
-     * @brief Same as <code>bfpc</code>, but the multiprecision
-     * version.
-     */
-    mpc_t * bmpc;
-
-    /**
-     * @brief Size of the vectors of the coefficients of the
-     * secular equation.
-     */
-    unsigned long int n;
-
-} mps_secular_equation; /* End of typedef struct {... */
 
 
 /*
@@ -791,10 +738,6 @@ void mps_status_free(mps_status* s);
 int mps_status_set_poly_d(mps_status* s, cplx_t* coeff, long unsigned int n);
 int mps_status_set_poly_i(mps_status* s, int* coeff, long unsigned int n);
 int mps_status_get_roots_d(mps_status* s, cplx_t* roots, double* radius);
-
-/* Routines in mps_secular.c */
-mps_secular_equation* mps_secular_equation_new(cplx_t* afpc, cplx_t* bfpc, unsigned long int n);
-void mps_secular_equation_free(mps_secular_equation* s);
 
 
 #ifdef	__cplusplus

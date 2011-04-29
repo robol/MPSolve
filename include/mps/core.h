@@ -207,12 +207,6 @@ void mps_fnewton_usr(mps_status* st, cplx_t x, double * rad, cplx_t corr, mps_bo
 void mps_dnewton_usr(mps_status* st, cdpe_t x, rdpe_t rad, cdpe_t corr, mps_boolean * again);
 void mps_mnewton_usr(mps_status* st, mpc_t x, rdpe_t rad, mpc_t corr, mps_boolean * again);
 
-/* functions in mps_secular.c */
-void mps_secular_fnewton(mps_status* st, cplx_t x, double * rad, cplx_t corr, mps_boolean * again);
-void mps_secular_dnewton(mps_status* st, cdpe_t x, rdpe_t rad, cdpe_t corr, mps_boolean * again);
-void mps_secular_mnewton(mps_status* st, mpc_t x, rdpe_t rad, mpc_t corr, mps_boolean * again);
-void mps_secular_check_data(mps_status* s, char* which_case);
-
 /*
  * End of extern "C" {
  *   ...

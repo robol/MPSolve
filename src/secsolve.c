@@ -6,6 +6,7 @@
  */
 
 #include <mps/interface.h>
+#include <mps/secular.h>
 #include <mps/core.h>
 #include <time.h>
 #include <stdlib.h>
@@ -37,8 +38,8 @@ int main(int argc, char** argv) {
 		cplx_set_d(b_coefficients[i], drand(), drand());
 //		cplx_set_d(a_coefficients[i], (double) i+4, 0);
 //		cplx_set_d(b_coefficients[i], ((double) i) + 1.5, 0);
-//                cplx_set_d(a_coefficients[i], pow(-1, (double) i + 1), 0);
-//                cplx_set_d(b_coefficients[i], 1.0 / (i+1) / (i+1), 0);
+                cplx_set_d(a_coefficients[i], pow(-1, (double) i + 1), 0);
+                cplx_set_d(b_coefficients[i], 1.0 / (i+1) / (i+1), 0);
 	}
 
 	/* Dump coefficients */

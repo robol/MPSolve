@@ -29,7 +29,7 @@ export CC
 #
 # Targets
 # 
-all: unisolve rursolve shared_libs
+all: unisolve rursolve secsolve shared_libs
 
 debug: all
 
@@ -42,6 +42,10 @@ unisolve: shared_libs
 rursolve: shared_libs unisolve
 	+$(MAKE) -C $(SRC) rursolve
 	cp $(SRC)/rursolve .
+
+secsolve: shared_libs rursolve
+	+$(MAKE) -C $(SRC) secsolve
+	cp $(SRC)/secsolve .
 
 shared_libs:
 	+$(MAKE) -C $(SRC) shared_libs
@@ -69,7 +73,7 @@ check:
 
 clean:
 	make -C $(SRC) clean
-	rm -f unisolve rursolve
+	rm -f unisolve rursolve secsolve
 
 distclean: clean
 	rm -rf doc/html doc/latex

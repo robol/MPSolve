@@ -47,13 +47,16 @@ unisolve: unisolve.o libmps.a libxt.a
 # 	@echo $(LINKING) unisolve
 	$(CC) -o unisolve $(LDFLAGS) $(CFLAGS) unisolve.o libmps.a libxt.a
 
+secsolve: secsolve.o libmps.a libxt.a
+	$(CC) -o secsolve $(LDFLAGS) $(CFLAGS) secsolve.o libmps.a libxt.a
+
 rursolve: rursolve.o $(RUROBJ) libmps.a libxt.a
 # 	@echo $(LINKING) rursolve
 	$(CC) -o rursolve rursolve.o $(CFLAGFS) $(LDFLAGS) $(RUROBJ) libmps.a libxt.a
 
 shared_libs: libmps.so
 
-all: unisolve rursolve rurconv shared_libs
+all: unisolve secsolve rursolve rurconv shared_libs
 
 mps_%.o: mps_%.c
 # 	@echo $(C_COMPILATION) $<
@@ -61,6 +64,9 @@ mps_%.o: mps_%.c
 	
 unisolve.o: unisolve.c
 # 	@echo $(C_COMPILATION) unisolve.c
+	$(CC) $(CFLAGS) -c $<
+
+secsolve.o: secsolve.c
 	$(CC) $(CFLAGS) -c $<
 
 

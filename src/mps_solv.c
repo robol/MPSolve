@@ -1342,6 +1342,7 @@ mps_mmodify(mps_status* s)
       cdpe_mod(tmpr, tmpc);
       rdpe_div(tmpr, s->drad[s->clust[s->punt[i]]], tmpr);
       rtmp = rdpe_log(tmpr);
+      printf("%d: %f", s->clust[s->punt[i]], rtmp);
       if (rtmp < -s->prec_out * LOG2)
 	s->status[s->clust[s->punt[i]]][0] = 'a';
     }
