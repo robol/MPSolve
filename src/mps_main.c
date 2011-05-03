@@ -66,10 +66,10 @@ mps_mpsolve(mps_status* s)
   if (s->data_type[0] != 'u') {
 		  mps_check_data(s, &which_case);
   } else {
+	  /* Check data but only if the user has provided a suitable
+	   * check_data routine. */
 	  if (s->check_data_usr != NULL)
 		  (*s->check_data_usr)(s, &which_case);
-	  else
-		  mps_check_data(s, &which_case);
   }
 
   if (s->DOLOG)
@@ -95,10 +95,12 @@ mps_mpsolve(mps_status* s)
   if (which_case == 'd' || d_after_f) {	/* DPE phase */
     if (s->DOLOG)
       fprintf(s->logstr, "DPE phase ...\n");
+    /* If we are arriving from a float phase copy the floating points
+     * roots approximations in the DPE root approximations. */
     if (d_after_f)
       for (i = 0; i < s->n; i++) {
-	rdpe_set_d(s->drad[i], s->frad[i]);
-	cdpe_set_x(s->droot[i], s->froot[i]);
+    	  rdpe_set_d(s->drad[i], s->frad[i]);
+    	  cdpe_set_x(s->droot[i], s->froot[i]);
       }
     mps_dsolve(s, d_after_f);
     s->lastphase = dpe_phase;
@@ -123,13 +125,14 @@ mps_mpsolve(mps_status* s)
   mps_prepare_data(s, s->mpwp);
 
   /* ==== 6.2 set initial values for mp variables */
-  for (i = 0; i < s->n; i++)
+  for (i = 0; i < s->n; i++) {
     if (which_case == 'd' || d_after_f)
       mpc_set_cdpe(s->mroot[i], s->droot[i]);
     else {
       mpc_set_cplx(s->mroot[i], s->froot[i]);
       rdpe_set_d(s->drad[i], s->frad[i]);
     }
+  }
   if (computed && s->goal[0] == 'a')
     goto exit_sub;
   
@@ -173,6 +176,7 @@ mps_mpsolve(mps_status* s)
     }
     
     /* == 7.3 ==  Check the stop condition */
+    mps_dump_status(s, stdout);
     computed = mps_check_stop(s);
     mps_mmodify(s);
 

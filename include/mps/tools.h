@@ -25,13 +25,13 @@ extern "C" {
 #define MIN(A, B)  ( (A) < (B) ? (A) : (B) )
 
 /* types */
-#ifndef mps_boolean
-#ifdef __USE_BOOL_AS_BOOLEAN
-  /* Small workaround to make matlab module work */
-  typedef bool mps_boolean;
-#else
+#ifndef __USE_BOOL_AS_BOOLEAN
   typedef enum { false = 0, true = 1 } mps_boolean;
-#endif
+#else
+  /* Small workaround to make matlab module work; there is,
+   * int matlab headers, already a false keyword defined, so
+   * reusing it here make compilation fail. */
+  typedef bool mps_boolean;
 #endif /* mps_boolean */
 
 /* functions */

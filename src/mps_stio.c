@@ -398,6 +398,20 @@ mps_dump_cluster_structure(mps_status* s, FILE* outstr)
     }
 }
 
+/**
+ * @brief Dump status of all the root approximations
+ */
+void
+mps_dump_status(mps_status* s, FILE* outstr)
+{
+	int i;
+	for(i = 0; i < s->n; i++) {
+		fprintf(outstr, "s->status[%d] = ", i);
+		fprintf(outstr, "'%c' '%c' '%c'\n", s->status[i][0],
+				s->status[i][1], s->status[i][2]);
+	}
+}
+
 /*************************************************************
  *                     SUBROUTINE WARN                       *
  *************************************************************/

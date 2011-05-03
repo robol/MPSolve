@@ -7,6 +7,7 @@
 
 #include <mps/core.h>
 #include <mps/secular.h>
+#include <mps/debug.h>
 #include <mps/mt.h>
 #include <float.h>
 #include <mps/mpc.h>
@@ -139,7 +140,7 @@ void
 mps_secular_dnewton(mps_status* s, cdpe_t x, rdpe_t rad, cdpe_t corr, mps_boolean * again) {
 
 	int i;
-        *again = true;
+    *again = true;
 
 	mps_secular_equation* sec = (mps_secular_equation*) s->user_data;
 
@@ -218,7 +219,9 @@ void mps_secular_mnewton(mps_status* s, mpc_t x, rdpe_t rad, mpc_t corr, mps_boo
 
 	int i;
 
-        *again = true;
+	/* Set again to true. If the convergence will be proved
+	 * during the iteration it will be set to false */
+    *again = true;
 
 	/* Get a pointer to the secular equation */
 	mps_secular_equation* sec = (mps_secular_equation*) s->user_data;
@@ -249,7 +252,7 @@ void mps_secular_mnewton(mps_status* s, mpc_t x, rdpe_t rad, mpc_t corr, mps_boo
 	mpc_set_d(sumb, 0, 0);
 	mpc_set_d(pol,  0, 0);
 	mpc_set_d(fp,   0, 0);
-        rdpe_set(asec, rdpe_zero);
+    rdpe_set(asec, rdpe_zero);
 
 	for(i = 0; i < sec->n; i++) {
 		/* Compute z - b_i */
@@ -281,55 +284,49 @@ void mps_secular_mnewton(mps_status* s, mpc_t x, rdpe_t rad, mpc_t corr, mps_boo
 	mpc_sub_eq_ui(pol, 1, 0);
 
 	/* Compute correction */
-        mpc_mul_eq(sumb, pol);
-        mpc_add_eq(fp, sumb);
-        if (!mpc_eq_zero(fp)) {
-            mpc_div(corr, pol, fp);
-        } else {
-            mpc_set(corr, pol);
-        }
+    mpc_mul_eq(sumb, pol);
+    mpc_add_eq(fp, sumb);
+    if (!mpc_eq_zero(fp)) {
+        mpc_div(corr, pol, fp);
+    } else {
+    	mpc_set(corr, pol);
+    }
 
 	/* Compute radius */
-        mpc_mod(ftmp, corr);
-        mpf_get_rdpe(rad, ftmp);
+    mpc_mod(ftmp, corr);
+    mpf_get_rdpe(rad, ftmp);
 
-        mpc_mod(ftmp, pol);
-        mpf_get_rdpe(rtmp, ftmp);
+    mpc_mod(ftmp, pol);
+    mpf_get_rdpe(rtmp, ftmp);
 
-        if (rdpe_lt(rtmp, rtmp)) {
-            *again = false;
-        }
+    if (rdpe_lt(rtmp, rtmp)) {
+    	*again = false;
+    }
 
 	rdpe_mul_eq_d(rad, (double) sec->n);
 
 	/* Compute modulus of pol */
 	mpc_mod(ftmp, pol);
-        mpf_get_rdpe(rtmp, ftmp);
+    mpf_get_rdpe(rtmp, ftmp);
 
-	if(rdpe_lt(rtmp, asec))
-		*again = false;
+    /* Check if newton correction is less than
+     * the modules of x for s->prec_out, and if
+     * that's the case, stop. */
+	if (*again) {
+		mpc_mod(ftmp, x);
+		mpf_get_rdpe(rtmp, ftmp);
+		rdpe_mul_eq(rtmp, s->eps_out);
+		mpc_mod(ftmp, corr);
+		mpf_get_rdpe(rtmp2, ftmp);
 
-        /* Check if newton correction is less than
-         * the modules of x for DBL_EPSILON, and if
-         * that's the case, stop. */
-        if (*again) {
-            mpc_mod(ftmp, x);
-            mpf_get_rdpe(rtmp, ftmp);
-            mpc_mod(ftmp, corr);
-            mpf_get_rdpe(rtmp2, ftmp);
-
-            if (rdpe_lt(rtmp2, rtmp))
-                *again = false;
-        }
-
-
-        printf("Pol =  "); mpc_outln_str(stdout, 10, 10, pol);
-        printf("Corr = "); mpc_outln_str(stdout, 10, 10, corr);
-
+		if (rdpe_lt(rtmp2, rtmp)) {
+			*again = false;
+		}
+	}
 
 }
 
 void mps_secular_check_data(mps_status* s, char* which_case) {
 	*which_case = 'd';
-        s->lastphase = dpe_phase;
+    s->lastphase = dpe_phase;
 }

@@ -38,8 +38,8 @@ int main(int argc, char** argv) {
 		cplx_set_d(b_coefficients[i], drand(), drand());
 //		cplx_set_d(a_coefficients[i], (double) i+4, 0);
 //		cplx_set_d(b_coefficients[i], ((double) i) + 1.5, 0);
-                cplx_set_d(a_coefficients[i], pow(-1, (double) i + 1), 0);
-                cplx_set_d(b_coefficients[i], 1.0 / (i+1) / (i+1), 0);
+//        cplx_set_d(a_coefficients[i], pow(-1, (double) i + 1), 0);
+//        cplx_set_d(b_coefficients[i], 1.0 / (i+1) / (i+1), 0);
 	}
 
 	/* Dump coefficients */
@@ -77,8 +77,7 @@ int main(int argc, char** argv) {
 
 
 	/* Solve the polynomial */
-        s->goal[0] = 'a';
-	s->prec_out = 17;
+    s->goal[0] = 'a';
 	mps_mpsolve(s);
 
 	/* Output the roots */
