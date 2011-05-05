@@ -402,5 +402,5 @@ void mps_secular_check_data(mps_status* s, char* which_case) {
 	/* While we can't found a good criterion to check
 	 * the possibility to start in pure floating point we
 	 * use the DPE version. */
-	*which_case = 'd';
+	*which_case = 'f';
 }
