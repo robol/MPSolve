@@ -75,6 +75,14 @@ if (s->DOLOG) { \
 }
 
 /**
+ * @brief Debug the values of a cplx_t variable
+ */
+#define MPS_DEBUG_CPLX(s, name, c) __MPS_DEBUG(s, name " = "); \
+if (s->DOLOG) { \
+    cplx_outln(c); \
+}
+
+/**
  * @brief Make some space in the debug stream to make clean that
  * another section is starting.
  */
@@ -124,6 +132,7 @@ gmp_fprintf(s->logstr, templ); \
 #else
 #define MPS_DEBUG(args...)
 #define MPS_DEBUG_MPC(args...)
+#define MPS_DEBUG_CPLX(args...)
 #define MPS_DEBUG_RDPE(args...)
 #define MPS_DEBUG_CDPE(args...)
 #define MPS_DEBUG_CALL(args...)

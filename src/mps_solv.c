@@ -1342,7 +1342,6 @@ mps_mmodify(mps_status* s)
       cdpe_mod(tmpr, tmpc);
       rdpe_div(tmpr, s->drad[s->clust[s->punt[i]]], tmpr);
       rtmp = rdpe_log(tmpr);
-      printf("%d: %f", s->clust[s->punt[i]], rtmp);
       if (rtmp < -s->prec_out * LOG2)
 	s->status[s->clust[s->punt[i]]][0] = 'a';
     }
@@ -1901,7 +1900,13 @@ mps_fsolve(mps_status* s, mps_boolean * d_after_f)
   if (s->DOLOG)
     fprintf(s->logstr, "FSOLVE: call fstart");
 
-  mps_fstart(s, s->n, 0, 0.0, 0.0, eps_out, s->fap);
+  /* If there is a custom starting point function use it,
+   * otherwise use the default one */
+  if (s->fstart_usr)
+		(*s->fstart_usr)(s, s->n, 0, 0.0, 0.0, eps_out);
+	else
+		mps_fstart(s, s->n, 0, 0.0, 0.0, eps_out, s->fap);
+
   /***************
      this part of code performs shift in the gravity center of the roots 
      In order to use it, uncomment the part below and comment the 
@@ -2079,7 +2084,6 @@ mps_fpolzer(mps_status* s, int *it, mps_boolean * excep)
     }
 
     for (i = 0; i < s->n; i++) {	/* do_index */
-
       if (s->again[i]) {
 	(*it)++;
 	rad1 = s->frad[i];
@@ -2110,7 +2114,7 @@ mps_fpolzer(mps_status* s, int *it, mps_boolean * excep)
 	  cplx_mul_eq(abcorr, corr);
 	  cplx_sub(abcorr, cplx_one, abcorr);
 	  cplx_div(abcorr, corr, abcorr);
-          cplx_sub_eq(s->froot[i], abcorr);
+      cplx_sub_eq(s->froot[i], abcorr);
 	  modcorr = cplx_mod(abcorr);
 	  s->frad[i] += modcorr;
 	}
@@ -2244,7 +2248,12 @@ mps_dsolve(mps_status* s, mps_boolean d_after_f)
     fprintf(s->logstr, "   DSOLVE: call dstart con again=\n");
 
   rdpe_set(dummy, rdpe_zero);
-  mps_dstart(s, s->n, 0, dummy, dummy, dummy, s->dap);
+
+  /* Use a custom routine if it is set, otherwise use the default one */
+  if (s->dstart_usr)
+	  (*s->dstart_usr)(s, s->n, 0, dummy, dummy, dummy);
+  else
+	  mps_dstart(s, s->n, 0, dummy, dummy, dummy, s->dap);
 
   /* Now adjust the status vector */
   if (d_after_f)

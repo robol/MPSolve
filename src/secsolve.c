@@ -22,12 +22,11 @@ int main(int argc, char** argv) {
 
 	/* Create a new secular equation with some random coefficients */
 	unsigned int n;
-        if (argc < 2)
-            n = 5;
-        else
-            n = atoi(argv[1]);
 
-
+	if (argc < 2)
+		n = 5;
+	else
+		n = atoi(argv[1]);
         
 	cplx_t* a_coefficients = cplx_valloc(n);
 	cplx_t* b_coefficients = cplx_valloc(n);
@@ -36,44 +35,34 @@ int main(int argc, char** argv) {
 	for(i = 0; i < n; i++) {
 		cplx_set_d(a_coefficients[i], drand(), drand());
 		cplx_set_d(b_coefficients[i], drand(), drand());
-//		cplx_set_d(a_coefficients[i], (double) i+4, 0);
-//		cplx_set_d(b_coefficients[i], ((double) i) + 1.5, 0);
-//        cplx_set_d(a_coefficients[i], pow(-1, (double) i + 1), 0);
-//        cplx_set_d(b_coefficients[i], 1.0 / (i+1) / (i+1), 0);
+		cplx_set_d(a_coefficients[i], (double) i+4, 0);
+		cplx_set_d(b_coefficients[i], ((double) i) + 1.5, 0);
+        cplx_set_d(a_coefficients[i], pow(-1, (double) i + 1), 0);
+        cplx_set_d(b_coefficients[i], 1.0 / (i+1) / (i+1), 0);
 	}
-
-	/* Dump coefficients */
-	printf("Coefficients: \n");
-	printf("a = [ ", n);
-	for(i = 0; i < n; i++) {
-		printf("%f + %fi ", cplx_Re(a_coefficients[i]), cplx_Im(a_coefficients[i]));
-	}
-	printf("];\n");
-
-	printf("b = [ ", n);
-	for(i=0; i < n; i++) {
-		printf("%f + %fi ", cplx_Re(b_coefficients[i]), cplx_Im(b_coefficients[i]));
-	}
-	printf(" ]; \n");
 
 	mps_secular_equation* sec = mps_secular_equation_new(a_coefficients, b_coefficients, n);
 
 	/* Set user polynomial with our custom functions */
-	mps_status_set_poly_u(s, n,
-			MPS_FNEWTON_PTR(mps_secular_fnewton),
+	mps_status_set_poly_u(s, n, MPS_FNEWTON_PTR(mps_secular_fnewton),
 			MPS_DNEWTON_PTR(mps_secular_dnewton),
 			MPS_MNEWTON_PTR(mps_secular_mnewton));
 
+	/* Check data routine */
 	s->check_data_usr = MPS_CHECK_DATA_PTR(mps_secular_check_data);
+
+	/* Set starting point custom routine */
+	s->fstart_usr = MPS_FSTART_PTR(mps_secular_fstart);
+	s->dstart_usr = MPS_DSTART_PTR(mps_secular_dstart);
 
 	/* Set secular equation in user data */
 	s->user_data = sec;
 
 	/* Set DOLOG to true to see the output */
-        if (argc < 3)
-            s->DOLOG = false;
-        else
-            s->DOLOG = true;
+	if (argc < 3)
+		s->DOLOG = false;
+	else
+		s->DOLOG = true;
 
 
 	/* Solve the polynomial */
@@ -84,5 +73,5 @@ int main(int argc, char** argv) {
 	mps_copy_roots(s);
 	mps_output(s);
 
-        mps_status_free (s);
+   mps_status_free (s);
 }

@@ -176,7 +176,6 @@ mps_mpsolve(mps_status* s)
     }
     
     /* == 7.3 ==  Check the stop condition */
-    mps_dump_status(s, stdout);
     computed = mps_check_stop(s);
     mps_mmodify(s);
 

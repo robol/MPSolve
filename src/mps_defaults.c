@@ -96,10 +96,11 @@ void mps_set_default_values(mps_status* s) {
   s->punt_out = NULL;
   s->clust_out = NULL;
  
-  /* Don't use user define functions */
+  /* Don't use user define functions in the default case */
   s->fnewton_usr = NULL;
   s->dnewton_usr = NULL;
   s->mnewton_usr = NULL;
   s->check_data_usr = NULL;
+  s->fstart_usr = s->dstart_usr = NULL;
 
 }

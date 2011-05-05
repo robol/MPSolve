@@ -267,8 +267,9 @@ mps_fstart(mps_status* s, int n, int i_clust, double clust_rad,
      * approximations equally spaced points in the unit circle.  */
     if (s->data_type[0] == 'u') {
         ang = pi2 / n;
-        for (i = 0; i < n; i++)
+        for (i = 0; i < n; i++) {
             cplx_set_d(s->froot[i], cos(ang * i + sigma), sin(ang * i + sigma));
+        }
         return;
     }
 
@@ -1431,7 +1432,12 @@ mps_fshift(mps_status* s, int m, int i_clust, double clust_rad,
     for (i = 0; i <= m; i++)
         s->fap1[i] = cplx_mod(s->fppc[i]);
 
-    mps_fstart(s, m, i_clust, clust_rad, ag, eps, s->fap1);
+    /* If there is a custom starting point function use it, otherwise
+     * use the default one */
+    if (s->fstart_usr)
+    	(*s->fstart_usr)(s, m, i_clust, clust_rad, ag, eps);
+    else
+    	mps_fstart(s, m, i_clust, clust_rad, ag, eps, s->fap1);
 }
 
 /***********************************************************
@@ -1462,7 +1468,10 @@ mps_dshift(mps_status* s, int m, int i_clust, rdpe_t clust_rad,
     for (i = 0; i <= m; i++)
         cdpe_mod(s->dap1[i], s->dpc2[i]);
 
-    mps_dstart(s, m, i_clust, clust_rad, ag, eps, s->dap1);
+    if (s->dstart_usr)
+    	(*s->dstart_usr)(s, m, i_clust, clust_rad, ag, eps);
+    else
+    	mps_dstart(s, m, i_clust, clust_rad, ag, eps, s->dap1);
 }
 
 /*******************************************************

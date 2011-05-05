@@ -156,6 +156,7 @@ void mps_dpolzer(mps_status* s, int * it, mps_boolean * excep);
 void mps_mpolzer(mps_status* s, int * it, mps_boolean * excep);
 
 /* functions in mps_star.c */
+double mps_maximize_distance(mps_status* s, double last_sigma, int i_cluster, int n);
 void mps_fstart(mps_status* s, int n, int i_clust, double clust_rad,
         double g, rdpe_t eps_out, double fap[]);
 void mps_dstart(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
