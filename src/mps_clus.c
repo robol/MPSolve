@@ -17,6 +17,26 @@
  */
 
 /**
+ * @brief Reset cluster structure information contained in <code>s</code>. After
+ * the call to this routine the roots will be considered as a unique big cluster,
+ * discarding every information present before.
+ *
+ * @param s the mps_status pointer.
+ */
+void
+mps_cluster_reset(mps_status* s)
+{
+    int i;
+    for(i = 0; i < s->n; i++) {
+        s->clust[i] = i;
+    }
+
+    /* Reset delimiters */
+    s->punt[0] = 0; s->punt[1] = s->n;
+    s->nclust = 1;
+}
+
+/**
  * This subroutine makes cluster analysis, i.e., detects
  * overlapping disks, where two disks overlap if the distances
  * of their centers is less than the sum of their radii

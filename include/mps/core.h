@@ -91,6 +91,7 @@ void mps_maberth_s(mps_status* s, int j, int jc, mpc_t abcorr);
 void mps_mnewtis(mps_status* s);
 
 /* functions in mps_clus.c */
+void mps_cluster_reset(mps_status* s);
 void mps_fcluster(mps_status* s, int nf);
 void mps_dcluster(mps_status* s, int nf);
 void mps_mcluster(mps_status* s, int nf);
