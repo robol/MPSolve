@@ -101,6 +101,7 @@ void mps_set_default_values(mps_status* s) {
   s->dnewton_usr = NULL;
   s->mnewton_usr = NULL;
   s->check_data_usr = NULL;
-  s->fstart_usr = s->dstart_usr = NULL;
+  s->fstart_usr = NULL;
+  s->dstart_usr = NULL;
 
 }

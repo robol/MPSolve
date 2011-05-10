@@ -404,3 +404,22 @@ void mps_secular_check_data(mps_status* s, char* which_case) {
 	 * use the DPE version. */
 	*which_case = 'f';
 }
+
+/**
+ * @brief MPSolve main function for the secular equation solving.
+ */
+void mps_secular_mpsolve_ga(mps_status* s) {
+    int i;
+
+    /* Set initial cluster structure as no cluster structure. */
+    s->punt[0] = 0; s->punt[1] = s->n;
+    s->nclust = 1;
+    for(i = 0; i < s->n; i++) {
+        s->clust[i] = i;
+    }
+
+
+    /* Select initial approximations using the custom secular
+     * routine. */
+    mps_secular_fstart(s, s->n, 0, 0.0, 0.0, s->eps_out);
+}

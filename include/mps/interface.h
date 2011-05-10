@@ -769,6 +769,7 @@ int mps_status_set_poly_i(mps_status* s, int* coeff, long unsigned int n);
 int mps_status_get_roots_d(mps_status* s, cplx_t* roots, double* radius);
 int mps_status_set_poly_u(mps_status* s, int n, mps_fnewton_ptr fnewton,
 		mps_dnewton_ptr dnewton, mps_mnewton_ptr mnewton);
+void mps_allocate_poly_inplace(mps_status* s, int n);
 
 #ifdef	__cplusplus
 }

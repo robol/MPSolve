@@ -41,6 +41,12 @@
 extern "C" {
 #endif
 
+/* mps_getopt types */
+typedef struct {
+    char optchar;
+    char* optvalue;
+} mps_opt;
+
 /* standard libraries */
 #include <stdio.h>
 #include <stdlib.h>
@@ -117,22 +123,11 @@ void mps_mnewton(mps_status* st, int n, mpc_t z, rdpe_t radius, mpc_t corr, mpc_
 void mps_parhorner(mps_status* st, int n, mpc_t x, mpc_t p[], mps_boolean b[], mpc_t s);
 void mps_aparhorner(mps_status* st, int n, rdpe_t x, rdpe_t p[], mps_boolean b[], rdpe_t s);
 
-/**
- * This function parse command lines and sets global variables
- * defined in mps.h in an appropriate way.
- *
- * It is implemented in mps_opts.c
- *
- * @brief Parse options from command line.
- *
- * @param argc
- *   Argoment counter as obtained from the main()
- *   function.
- * @param argv
- *   Argoment values, i.e. array of char* as obtained
- *   in the main() function.
- */
+/* Function in mps_opts.c */
 void mps_parse_opts(mps_status* s, int argc, char *argv[]);
+mps_opt* mps_getopts(int* argc_ptr, char*** argv_ptr, const char* opt_format);
+
+
 
 /* functions in mps_sort.c */
 void mps_fsort(mps_status* s);
