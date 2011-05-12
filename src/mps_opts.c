@@ -54,20 +54,50 @@ mps_opt* mps_getopts(int* argc_ptr, char*** argv_ptr,
             opt->optchar = opt_format[i];
 
             /* If there is no argument we are done */
-            if (i == l || opt_format[i + 1] != ':' || argc == 1) {
+            if (i == l || opt_format[i + 1] != ':')
+              {
                 opt->optvalue = NULL;
                 (*argc_ptr)--;
                 (*argv_ptr)++;
                 return opt;
-            }
-            else {
-                /* Otherwise we can set the argument in the struct */
-                opt->optvalue = argv[1];
-                (*argc_ptr) -= 2;
-                (*argv_ptr) += 2;
-                return opt;
+              }
+
+            /* If the string is not terminated than we should
+             * expect to find the parameter attached to it */
+            if (argv[0][2] != '\0')
+              {
+                if (argv[0][2] == '=')
+                  {
+                    opt->optvalue = argv[0] + 3;
+                    (*argc_ptr)--;
+                    (*argv_ptr)++;
+                    return opt;
+                  }
+                else
+                  {
+                    opt->optvalue = argv[0] + 2;
+                    printf("=> %s\n", argv[0] + 3);
+                    (*argc_ptr)--;
+                    (*argv_ptr)++;
+                    return opt;
+                  }
+              }
+
+          /* If the parameter should be in argv[1] but is not
+           * there return an error */
+          if (argc == 1)
+            {
+              opt->optvalue = NULL;
+              (*argc_ptr)--;
+              (*argv_ptr)++;
+              return opt;
             }
 
+          /* Otherwise we can set the argument in the struct */
+          opt->optvalue = argv[1];
+          (*argc_ptr) -= 2;
+          (*argv_ptr) += 2;
+          return opt;
         }
     }
 
