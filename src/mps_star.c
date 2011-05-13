@@ -1236,8 +1236,8 @@ mps_mrestart(mps_status* s) {
         mps_msrad(s, i, sc, sr);
 
         MPS_DEBUG(s, "Clust = %d", i);
-        MPS_DEBUG_MPC(s, "Super center", 10, sc);
-        MPS_DEBUG_RDPE(s, "Super radius", sr);
+        MPS_DEBUG_MPC(s, 10, sc, "Super center");
+        MPS_DEBUG_RDPE(s, sr, "Super radius");
 
         /* Check the relative width of the cluster
          * If it is greater than 1 do not shift
@@ -1251,7 +1251,7 @@ mps_mrestart(mps_status* s) {
         if (s->DOLOG) {
             rdpe_div(rtmp2, sr, rtmp);
         }
-        MPS_DEBUG_RDPE(s, "Relative width", rtmp2);
+        MPS_DEBUG_RDPE(s, rtmp2, "Relative width");
 
         if (rdpe_gt(sr, rtmp)) {
             for (j = s->punt[i]; j < s->punt[i + 1]; j++)
@@ -1322,7 +1322,7 @@ mps_mrestart(mps_status* s) {
          * of the cluster. */
         mpc_set(g, sc);
 
-        MPS_DEBUG_MPC(s, "g before newton", 30, g);
+        MPS_DEBUG_MPC(s, 30, g, "g before newton");
 
         for (j = 0; j < s->max_newt_it; j++) { /* loop_newt: */
             rdpe_set(rad, rdpe_zero);
@@ -1330,9 +1330,8 @@ mps_mrestart(mps_status* s) {
                         s->mfppc1, s->dap1, s->spar1, &cont);
             if (cont) {
                 mpc_sub_eq(g, corr);
-                MPS_DEBUG_RDPE(s, "radius", rad);
-                MPS_DEBUG(s, "Iteration %d on the derivative", j);
-                MPS_DEBUG_MPC(s, "g", 100, g);
+                MPS_DEBUG_RDPE(s, rad, "radius");
+                MPS_DEBUG_MPC(s, 100, g, "Iteration %d on the derivative", j);
             } else
                 break;
         }

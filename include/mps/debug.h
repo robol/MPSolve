@@ -53,7 +53,7 @@ if (s->DOLOG) { \
  * @brief Debug the value of a complex multiprecision
  * variable.
  */
-#define MPS_DEBUG_MPC(s, name, digits, c) __MPS_DEBUG(s, name " = "); \
+#define MPS_DEBUG_MPC(s, digits, c, name...) __MPS_DEBUG_EQ(s, name); \
 if (s->DOLOG) { \
     mpc_outln_str(s->logstr, 10, digits, c); \
 }
@@ -61,7 +61,7 @@ if (s->DOLOG) { \
 /**
  * @brief Debug the value of a rdpe variable.
  */
-#define MPS_DEBUG_RDPE(s, name, r) __MPS_DEBUG(s, name " = "); \
+#define MPS_DEBUG_RDPE(s, r, name...) __MPS_DEBUG_EQ(s, name); \
 if (s->DOLOG) { \
     rdpe_outln(r); \
 }
@@ -69,7 +69,7 @@ if (s->DOLOG) { \
 /**
  * @brief Debug the value of a cdpe variable.
  */
-#define MPS_DEBUG_CDPE(s, name, c) __MPS_DEBUG(s, name " = "); \
+#define MPS_DEBUG_CDPE(s, c, name...) __MPS_DEBUG_EQ(s, name); \
 if (s->DOLOG) { \
     cdpe_outln(c); \
 }
@@ -77,7 +77,7 @@ if (s->DOLOG) { \
 /**
  * @brief Debug the values of a cplx_t variable
  */
-#define MPS_DEBUG_CPLX(s, name, c) __MPS_DEBUG(s, name " = "); \
+#define MPS_DEBUG_CPLX(s, c, name...) __MPS_DEBUG_EQ(s, name); \
 if (s->DOLOG) { \
     cplx_outln(c); \
 }
@@ -89,6 +89,14 @@ if (s->DOLOG) { \
 #define MPS_DEBUG_BREAK(s) if (s->DOLOG) { \
     fprintf(s->logstr, "\n"); \
 }
+
+/**
+ * @brief Low-level debug print that appends an " = " sign to the
+ * output (useful for debugging values of variables).
+ */
+#define __MPS_DEBUG_EQ(s, templ...) \
+    __MPS_DEBUG(s, templ) \
+    if (s->DOLOG) { fprintf(s->logstr, " = "); }
 
 /**
  * @brief Debug that a function is going to be called.

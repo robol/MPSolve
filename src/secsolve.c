@@ -103,11 +103,9 @@ main(int argc, char** argv)
 
       /* Solve the secular equation */
       mps_secular_ga_mpsolve(s);
-
     }
   else
     {
-
       /* Set user polynomial with our custom functions */
       mps_status_set_poly_u(s, n, MPS_FNEWTON_PTR(mps_secular_fnewton),
           MPS_DNEWTON_PTR(mps_secular_dnewton),
@@ -128,7 +126,7 @@ main(int argc, char** argv)
 
   /* Output the roots */
   mps_copy_roots(s);
-  mps_output(s);
+  /* mps_output(s); */
 
   /* Free used data */
   mps_secular_equation_free(sec);
