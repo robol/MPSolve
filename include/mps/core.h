@@ -41,7 +41,28 @@
 extern "C" {
 #endif
 
-/* mps_getopt types */
+/**
+ * @brief Struct holding the options passed on the command
+ * line.
+ *
+ * Typical usage is something like this:
+ * @code
+ * mps_opt* opt;
+ * while (opt = mps_getopt(&argc, &argv, format))
+ *   {
+ *     switch(opt->optchar)
+ *       {
+ *         case 'a':
+ *           [...]
+ *           break;
+ *         case 'n':
+ *           n = atoi(opt->opvalue);
+ *       }
+ *   }
+ * @endcode
+ *
+ * @see mps_getopts()
+ */
 typedef struct {
     char optchar;
     char* optvalue;

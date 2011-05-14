@@ -12,11 +12,34 @@
 #include <stdlib.h>
 #include <math.h>
 
+void
+usage(mps_status *s, const char* program)
+{
+  /* If there is not an output stream do not print
+   * the help */
+  if (!s->outstr)
+    return;
+
+  fprintf(s->outstr,
+      "Usage: %s [-dg] [-t type] [-n degree]\n"
+      "\n"
+      "Options:\n"
+      " -d          Activate debug\n"
+      " -g          Use Gemignani's approach\n"
+      " -t type     Type can be 'f' for floating point\n"
+      "             or 'd' for DPE\n"
+      " -n degree   Degree of the polynomial associated\n"
+      "             associated with the secular equation.\n",
+      program);
+
+  exit (EXIT_FAILURE);
+}
+
 int
 main(int argc, char** argv)
 {
-
   int i;
+  const char* program_name = argv[0];
 
   /* Create a new secular equation with some random coefficients */
   unsigned int n = 5;
@@ -35,7 +58,8 @@ main(int argc, char** argv)
 
   /* Parse options */
   mps_opt* opt;
-  while (opt = mps_getopts(&argc, &argv, "gn:d"))
+  mps_phase phase = float_phase;
+  while ((opt = mps_getopts(&argc, &argv, "gn:dt:")))
     {
       switch (opt->optchar)
         {
@@ -48,10 +72,23 @@ main(int argc, char** argv)
         if (opt->optvalue)
           n = atoi(opt->optvalue);
         else
-          ; /* TODO: Call usage() */
+          usage(s, program_name);
         break;
       case 'd':
         s->DOLOG = true;
+        break;
+      case 't':
+        switch (opt->optvalue[0])
+        {
+        case 'f':
+          phase = float_phase;
+          break;
+        case 'd':
+          phase = dpe_phase;
+          break;
+        default:
+          usage(s, program_name);
+        }
         }
 
       free(opt);
@@ -67,9 +104,8 @@ main(int argc, char** argv)
     {
       cplx_set_d(a_coefficients[i], drand(), drand());
       cplx_set_d(b_coefficients[i], drand(), drand());
-//      cplx_set_d(a_coefficients[i], pow(-1, (double) i + 1), 0);
-//      cplx_set_d(b_coefficients[i], 1.0 / (i + 1) / (i + 1), 0);
-
+      //      cplx_set_d(a_coefficients[i], pow(-1, (double) i + 1), 0);
+      //      cplx_set_d(b_coefficients[i], 1.0 / (i + 1) / (i + 1), 0);
     }
 
   /* Create new secular equation */
@@ -90,9 +126,8 @@ main(int argc, char** argv)
       mps_allocate_poly_inplace(s, n);
       s->data_type = "uri";
 
-      /* We set float_phase, because only float_phase will be
-       * used in this case */
-      s->lastphase = float_phase;
+      /* We set the selected phase */
+      s->lastphase = phase;
 
       /* Allocate other data */
       mps_allocate_data(s);
@@ -102,7 +137,7 @@ main(int argc, char** argv)
       s->logstr = s->outstr = s->rtstr = stdout;
 
       /* Solve the secular equation */
-      mps_secular_ga_mpsolve(s);
+      mps_secular_ga_mpsolve(s, phase);
     }
   else
     {
@@ -126,7 +161,7 @@ main(int argc, char** argv)
 
   /* Output the roots */
   mps_copy_roots(s);
-  /* mps_output(s); */
+  mps_output(s);
 
   /* Free used data */
   mps_secular_equation_free(sec);
