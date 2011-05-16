@@ -747,11 +747,12 @@ mps_secular_ga_mpsolve(mps_status* s, mps_phase phase)
   s->lastphase = phase;
 
   /* Select initial approximations using the custom secular
-   * routine. */
+   * routine and based on the phase selected by the user. */
   switch (phase)
     {
   case float_phase:
     mps_secular_fstart(s, s->n, 0, 0.0, 0.0, s->eps_out);
+    break;
   case dpe_phase:
     mps_secular_dstart(s, s->n, 0, (__rdpe_struct *) rdpe_zero,
         (__rdpe_struct *) rdpe_zero, s->eps_out);
@@ -763,7 +764,7 @@ mps_secular_ga_mpsolve(mps_status* s, mps_phase phase)
   /* Cycle until approximated */
   do
     {
-      /* Perform an iteration of floating point aberth method */
+      /* Perform an iteration of floating point Aberth method */
       switch (phase)
         {
       case float_phase:
@@ -782,9 +783,12 @@ mps_secular_ga_mpsolve(mps_status* s, mps_phase phase)
         break;
         }
 
-      /* Regenerate coefficients if we need to itereate more */
+      /* Regenerate coefficients if we need to iterate more */
       if (!(roots_computed == s->n))
         {
+          /* Regenerate coefficients is able to understand the type
+           * of data that we are treating, so no switch is necessary
+           * in here. */
           MPS_DEBUG_CALL(s, "mps_secular_ga_regenerate_coefficients");
           mps_secular_ga_regenerate_coefficients(s);
         }

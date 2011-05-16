@@ -39,7 +39,6 @@ int
 main(int argc, char** argv)
 {
   int i;
-  const char* program_name = argv[0];
 
   /* Create a new secular equation with some random coefficients */
   unsigned int n = 5;
@@ -72,7 +71,7 @@ main(int argc, char** argv)
         if (opt->optvalue)
           n = atoi(opt->optvalue);
         else
-          usage(s, program_name);
+          usage(s, argv[0]);
         break;
       case 'd':
         s->DOLOG = true;
@@ -87,12 +86,19 @@ main(int argc, char** argv)
           phase = dpe_phase;
           break;
         default:
-          usage(s, program_name);
+          usage(s, argv[0]);
         }
+        break;
+      default:
+        usage(s, argv[0]);
+        break;
         }
 
       free(opt);
     }
+
+  if (argc > 1)
+    usage(s, argv[0]);
 
   /* Allocate space for the coefficients */
   a_coefficients = cplx_valloc(n);

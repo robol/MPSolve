@@ -57,8 +57,8 @@ mps_getopts(int* argc_ptr, char*** argv_ptr, const char* opt_format)
   mps_opt* opt;
   char** argv = *argv_ptr;
   int argc = *argc_ptr;
-  int i, l = strlen(opt_format);
-  int offset = -1;
+  char *tmp;
+  int i, l = strlen(opt_format), steps;
 
   /* Check if there are other arguments to parse */
   if (!argc)
@@ -68,16 +68,37 @@ mps_getopts(int* argc_ptr, char*** argv_ptr, const char* opt_format)
   else
     opt = malloc(sizeof(mps_opt));
 
+  if (argc == 1) { return NULL; }
+
   /* Scan for right offset */
-  while (++offset < argc && argv[offset][0] != '-')
-    ;
+  steps = 0;
+  while (argv[1][0] != '-')
+    {
+      /* If we get here then argv[1] is a parameter string
+       * that must be preserved, so we should put it on the end
+       * of argv. */
+     tmp = argv[1];
+     for (i = 1; i < argc - 1; i++)
+       {
+         (*argv_ptr)[i] = argv[i+1];
+       }
+     (*argv_ptr)[argc - 1] = tmp;
+     steps++;
+
+     /* Check if argc permutation was performed */
+     if (steps == argc - 1)
+       {
+         return NULL;
+       }
+    }
+
 
   /* Search argv[0][1] in opt_format */
   for (i = 0; i < l; i++)
     {
       if (opt_format[i] == ':')
         continue;
-      else if (argv[0][1] == opt_format[i])
+      else if (argv[1][1] == opt_format[i])
         {
           opt->optchar = opt_format[i];
 
@@ -86,25 +107,28 @@ mps_getopts(int* argc_ptr, char*** argv_ptr, const char* opt_format)
             {
               opt->optvalue = NULL;
               (*argc_ptr)--;
+              (*argv_ptr)[1] = argv[0];
               (*argv_ptr)++;
               return opt;
             }
 
           /* If the string is not terminated than we should
            * expect to find the parameter attached to it */
-          if (argv[0][2] != '\0')
+          if (argv[1][2] != '\0')
             {
-              if (argv[0][2] == '=')
+              if (argv[1][2] == '=')
                 {
-                  opt->optvalue = argv[0] + 3;
+                  opt->optvalue = argv[1] + 3;
                   (*argc_ptr)--;
+                  (*argv_ptr)[1] = argv[0];
                   (*argv_ptr)++;
                   return opt;
                 }
               else
                 {
-                  opt->optvalue = argv[0] + 2;
+                  opt->optvalue = argv[1] + 2;
                   (*argc_ptr)--;
+                  (*argv_ptr)[1] = argv[0];
                   (*argv_ptr)++;
                   return opt;
                 }
@@ -112,17 +136,19 @@ mps_getopts(int* argc_ptr, char*** argv_ptr, const char* opt_format)
 
           /* If the parameter should be in argv[1] but is not
            * there return an error */
-          if (argc == 1)
+          if (argc == 2)
             {
               opt->optvalue = NULL;
               (*argc_ptr)--;
+              (*argv_ptr)[1] = argv[0];
               (*argv_ptr)++;
               return opt;
             }
 
           /* Otherwise we can set the argument in the struct */
-          opt->optvalue = argv[1];
+          opt->optvalue = argv[2];
           (*argc_ptr) -= 2;
+          (*argv_ptr)[2] = argv[0];
           (*argv_ptr) += 2;
           return opt;
         }
@@ -131,6 +157,7 @@ mps_getopts(int* argc_ptr, char*** argv_ptr, const char* opt_format)
   /* Fallback case, we haven't recognized the input */
   opt->optchar = '?';
   (*argc_ptr)--;
+  (*argv_ptr)[1] = argv[0];
   (*argv_ptr)++;
 
   return opt;
