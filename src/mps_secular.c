@@ -28,8 +28,7 @@ mps_secular_equation_new(cplx_t* afpc, cplx_t* bfpc, unsigned long int n)
       sizeof(mps_secular_equation));
 
   /* Copy data in the struct, so the user shall not worry about the scope of
-   * its input data.
-   */
+   * its input data. */
   s->afpc = cplx_valloc(n);
   s->bfpc = cplx_valloc(n);
 
@@ -176,7 +175,7 @@ void
 mps_secular_fnewton(mps_status* s, cplx_t x, double *rad, cplx_t corr,
     mps_boolean * again)
 {
-  int i;
+  int i, j;
   cplx_t ctmp, ctmp2, pol, fp, sumb;
   double apol;
   *again = true;
@@ -193,6 +192,23 @@ mps_secular_fnewton(mps_status* s, cplx_t x, double *rad, cplx_t corr,
     {
       /* Compute z - b_i */
       cplx_sub(ctmp, x, sec->bfpc[i]);
+
+      if (cplx_eq_zero(ctmp))
+        {
+          /* The the secular equation can be computed with
+           * a_i * \prod_{j \neq i} (b_i - b_j)         */
+          cplx_set(pol, sec->afpc[i]);
+          for(j = 0; j < sec->n; j++)
+            {
+              if (j == i) { j++; }
+              cplx_sub(ctmp, sec->bfpc[i], sec->bfpc[j]);
+              cplx_mul_eq(pol, ctmp);
+            }
+          cplx_set(corr, cplx_zero);
+          *rad = 3 * DBL_EPSILON;
+          *again = false;
+          return;
+        }
 
       /* Compute (z-b_i)^{-1} */
       cplx_inv_eq(ctmp);
@@ -666,6 +682,12 @@ mps_secular_ga_regenerate_coefficients(mps_status* s)
     cplx_vfree(old_a);
     cplx_vfree(old_b);
 
+//    for(i = 0; i < s->n; i++)
+//      {
+//        MPS_DEBUG_CPLX(s, sec->afpc[i], "sec->afpc[%d]", i);
+//        MPS_DEBUG_CPLX(s, sec->bfpc[i], "sec->bfpc[%d]", i);
+//      }
+
     break;
 
   /* If this is the DPE phase regenerate DPE coefficients */
@@ -718,11 +740,19 @@ mps_secular_ga_regenerate_coefficients(mps_status* s)
          cdpe_sub_eq(sec_ev, cdpe_one);
          cdpe_mul(sec->adpc[i], sec_ev, prod_old_b);
          cdpe_div_eq(sec->adpc[i], prod_b);
+
+         MPS_DEBUG_CDPE(s, sec_ev, "sec_ev");
        }
 
      /* Free data */
      cdpe_vfree(old_da);
      cdpe_vfree(old_db);
+
+     /* Debug new coefficients found */
+     for (i = 0; i < s->n; i++)
+       {
+         MPS_DEBUG_CDPE(s, sec->adpc[i], "sec->adpc[%d]", i);
+       }
     break;
 
   default:
@@ -769,7 +799,7 @@ mps_secular_ga_mpsolve(mps_status* s, mps_phase phase)
         {
       case float_phase:
         MPS_DEBUG_CALL(s, "mps_secular_ga_fiterate");
-        roots_computed = mps_secular_ga_fiterate(s, 15);
+        roots_computed = mps_secular_ga_fiterate(s, 3);
         MPS_DEBUG(s, "%d roots were computed", roots_computed);
         break;
 
