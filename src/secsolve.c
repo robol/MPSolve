@@ -21,7 +21,7 @@ usage(mps_status *s, const char* program)
     return;
 
   fprintf(s->outstr,
-      "Usage: %s [-dg] [-t type] [-n degree]\n"
+      "Usage: %s [-dg] [-t type] [-n degree] [infile]\n"
       "\n"
       "Options:\n"
       " -d          Activate debug\n"
@@ -52,6 +52,9 @@ main(int argc, char** argv)
 
   mps_secular_equation* sec;
   mps_status* s;
+
+  FILE* infile;
+  double tmp1, tmp2;
 
   s = mps_status_new();
 
@@ -97,22 +100,42 @@ main(int argc, char** argv)
       free(opt);
     }
 
-  if (argc > 1)
+  if (argc > 2)
     usage(s, argv[0]);
 
-  /* Allocate space for the coefficients */
-  a_coefficients = cplx_valloc(n);
-  b_coefficients = cplx_valloc(n);
+  /* If a file is provided read the coefficients from there */
+  if(argc == 2) {
+    infile = fopen (argv[1], "r");
+    fscanf(infile, "%d", &n);
 
-  /* Generate coefficients */
-  srand(time(NULL));
-  for (i = 0; i < n; i++)
-    {
-      cplx_set_d(a_coefficients[i], drand(), drand());
-      cplx_set_d(b_coefficients[i], drand(), drand());
-      //      cplx_set_d(a_coefficients[i], pow(-1, (double) i + 1), 0);
-      //      cplx_set_d(b_coefficients[i], 1.0 / (i + 1) / (i + 1), 0);
+    a_coefficients = cplx_valloc (n);
+    b_coefficients = cplx_valloc (n);
+
+    for (i = 0; i < n; i++) {
+      fscanf (infile, "%lf", &tmp1);
+      fscanf (infile, "%lf", &tmp2);
+      cplx_set_d(a_coefficients[i], tmp1, tmp2);
+      fscanf (infile, "%lf", &tmp1);
+      fscanf (infile, "%lf", &tmp2);
+      cplx_set_d(b_coefficients[i], tmp1, tmp2);
     }
+  } else {
+
+    /* Allocate space for the coefficients */
+    a_coefficients = cplx_valloc(n);
+    b_coefficients = cplx_valloc(n);
+
+    /* Generate coefficients */
+    srand(time(NULL));
+    for (i = 0; i < n; i++)
+      {
+        cplx_set_d(a_coefficients[i], drand(), drand());
+        cplx_set_d(b_coefficients[i], drand(), drand());
+        //      cplx_set_d(a_coefficients[i], pow(-1, (double) i + 1), 0);
+        //      cplx_set_d(b_coefficients[i], 1.0 / (i + 1) / (i + 1), 0);
+      }
+
+  }
 
   /* Create new secular equation */
   sec = mps_secular_equation_new(a_coefficients, b_coefficients, n);

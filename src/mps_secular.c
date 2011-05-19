@@ -799,13 +799,13 @@ mps_secular_ga_mpsolve(mps_status* s, mps_phase phase)
         {
       case float_phase:
         MPS_DEBUG_CALL(s, "mps_secular_ga_fiterate");
-        roots_computed = mps_secular_ga_fiterate(s, 3);
+        roots_computed = mps_secular_ga_fiterate(s, 8);
         MPS_DEBUG(s, "%d roots were computed", roots_computed);
         break;
 
       case dpe_phase:
         MPS_DEBUG_CALL(s, "mps_secular_ga_diterate");
-        roots_computed = mps_secular_ga_diterate(s, 15);
+        roots_computed = mps_secular_ga_diterate(s, 8);
         MPS_DEBUG(s, "%d roots were computed", roots_computed);
         break;
 
