@@ -4,7 +4,7 @@ INSTALL=install
 CC=gcc
 LD=gcc
 DESTDIR=
-LDFLAGS=-lgmp -lm
+LDFLAGS=-lgmp -lm -lpthread
 MAKEFLAGS=-j
 
 # CFLAGS for the file in src/. 

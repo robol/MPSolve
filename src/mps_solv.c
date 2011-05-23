@@ -16,6 +16,7 @@
  */
 
 #include <mps/core.h>
+#include <mps/threading.h>
 
 /**
  * @brief Set <code>again[i]</code> to <code>true</code> or to <code>false</code> 
@@ -1971,7 +1972,8 @@ void mps_fsolve(mps_status* s, mps_boolean * d_after_f) {
 		fprintf(s->logstr, "   FSOLVE:  call fpolzer\n");
 	for (iter = 0; iter < s->max_pack; iter++) { /* floop: */
 
-		mps_fpolzer(s, &nit, &excep);
+		// mps_fpolzer(s, &nit, &excep);
+                mps_thread_fpolzer(s, &nit, &excep);
 		it_pack += nit;
 
 		if (s->DOLOG)
