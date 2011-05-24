@@ -1,5 +1,5 @@
-CFLAGS=-L../src/ -I../include/ -O0 -g
-LDFLAGS=-lgmp -lm -lmps
+CFLAGS=-L../src/ -I../include/
+LDFLAGS=-lgmp -lm -lmps -lpthread
 MKOCTFILE=mkoctfile
 MEX=mex
 CC=gcc
