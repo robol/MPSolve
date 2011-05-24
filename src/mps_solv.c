@@ -1973,7 +1973,7 @@ void mps_fsolve(mps_status* s, mps_boolean * d_after_f) {
 	for (iter = 0; iter < s->max_pack; iter++) { /* floop: */
 
 		// mps_fpolzer(s, &nit, &excep);
-                mps_thread_fpolzer(s, &nit, &excep);
+                mps_thread_fpolzer2(s, &nit, &excep);
 		it_pack += nit;
 
 		if (s->DOLOG)
@@ -2470,7 +2470,8 @@ void mps_msolve(mps_status* s) {
 			fprintf(s->logstr, "\n");
 			fprintf(s->logstr, "  MSOLVE: call mpolzer\n");
 		}
-		mps_mpolzer(s, &nit, &excep);
+		// mps_mpolzer(s, &nit, &excep);
+		mps_thread_mpolzer(s, &nit, &excep);
 
 		if (s->DOLOG)
 			fprintf(s->logstr, "  MSOLVE: Packet %d: iterations= %d\n", iter,
