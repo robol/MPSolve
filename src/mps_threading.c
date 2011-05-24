@@ -9,6 +9,9 @@
 #include <mps/threading.h>
 #include <pthread.h>
 
+/**
+ * @brief Create a new mps_thread_pool.
+ */
 mps_thread_pool*
 mps_thread_pool_new(int n)
 {
@@ -26,6 +29,10 @@ mps_thread_pool_new(int n)
   return p;
 }
 
+/**
+ * @brief Free a mps_thread_pool previosuly allocated with
+ * mps_thread_pool_new ()
+ */
 void
 mps_thread_pool_free(mps_thread_pool* pool)
 {
@@ -34,164 +41,10 @@ mps_thread_pool_free(mps_thread_pool* pool)
   free(pool);
 }
 
-/**
- * @brief Internal routine used to execute mps_fnewton.
- */
-void*
-mps_thread_execute_fnewton(void* job)
-{
-  mps_thread_job* j = (mps_thread_job*) job;
-  mps_status* s = j->status;
-  int i = j->index;
-  cplx_t corr, abcorr;
-
-  MPS_DEBUG(s, "fnewton with i=%d", i);
-
-  double rad, modcorr;
-
-  /* Save old rad */
-  rad = s->frad[i];
-
-  if (s->data_type[0] != 'u')
-    {
-      /* Call fnewton based on data_type and availability
-       * of user provided functions. */
-      mps_fnewton(s, s->n, s->froot[i], &s->frad[i], corr, s->fpc, s->fap,
-          &s->again[i]);
-
-      if (j->iter == 0 && !s->again[i] && s->frad[i] > rad && rad != 0)
-        s->frad[i] = rad;
-      else if (s->fnewton_usr != NULL)
-        (*s->fnewton_usr)(s, s->froot[i], &s->frad[i], corr, &s->again[i]);
-      else
-        mps_fnewton_usr(s, s->froot[i], &s->frad[i], corr, &s->again[i]);
-
-      if (s->again[i] ||
-      /* the correction is performed only if iter!=1 or rad(i)!=rad1 */
-      s->data_type[0] == 'u' || j->iter != 0 || s->frad[i] != rad)
-        {
-          pthread_mutex_lock(&j->pool->aberth_mutex);
-          mps_faberth(s, i, abcorr);
-          pthread_mutex_unlock(&j->pool->aberth_mutex);
-          cplx_mul_eq(abcorr, corr);
-          cplx_sub(abcorr, cplx_one, abcorr);
-          cplx_div(abcorr, corr, abcorr);
-          cplx_sub_eq(s->froot[i], abcorr);
-          modcorr = cplx_mod(abcorr);
-          s->frad[i] += modcorr;
-        }
-
-      if (!s->again[i])
-        s->nzeros++;
-
-    }
-
-  pthread_mutex_lock(&j->pool->ready_mutex);
-  j->pool->ready[j->thread] = true;
-  pthread_mutex_unlock(&j->pool->ready_mutex);
-
-  /* Signal that I'm free */
-  pthread_mutex_lock(&j->pool->full_mutex);
-  pthread_cond_signal(&j->pool->full);
-  pthread_mutex_unlock(&j->pool->full_mutex);
-
-  return j;
-}
-
-void
-mps_thread_queue_job(mps_thread_pool* pool, mps_status *s,
-    mps_thread_job_type type, int index, int iter)
-{
-  int i;
-  mps_thread_job job;
-  job.index = index;
-  job.status = s;
-  job.iter = iter;
-  job.pool = pool;
-
-  mps_boolean assigned = false;
-
-  for (;;)
-    {
-      for (i = 0; i < pool->n && !assigned; i++)
-        {
-          if (pool->ready[i])
-            {
-              /* Really wait for this thread to terminate */
-              job.thread = i;
-              pthread_join(pool->threads[i], NULL);
-              pthread_create(&pool->threads[i], NULL,
-                  &mps_thread_execute_fnewton, (void*) &job);
-
-              pthread_mutex_lock(&pool->ready_mutex);
-              pool->ready[i] = false;
-              pthread_mutex_unlock(&pool->ready_mutex);
-              assigned = true;
-            }
-          pthread_mutex_lock(&pool->full_mutex);
-        }
-      if (assigned)
-        {
-          pthread_mutex_unlock(&pool->full_mutex);
-          break;
-        }
-
-    }
-
-  /* If not assigned wait for a thread to signal its freeness */
-  pthread_cond_wait(&pool->full, &pool->full_mutex);
-  pthread_mutex_unlock(&pool->full_mutex);
-}
 
 /**
- * @brief Threaded fpolzer routine, i.e. the same as <code>mps_fpolzer</code>
- * but in a multithreaded fashion.
+ * @brief Worker for the fpolzer routine.
  */
-void
-mps_thread_fpolzer(mps_status* s, int* it, mps_boolean* excep)
-{
-  int i, iter;
-  mps_thread_pool* pool = mps_thread_pool_new(1);
-
-  /* Set number of approximations obtained until now, if they
-   * are all the roots return. */
-  s->nzeros = 0;
-
-  for (i = 0; i < s->n; i++)
-    {
-      if (!s->again[i])
-        s->nzeros++;
-    }
-  if (s->nzeros == s->n)
-    {
-      return;
-    }
-
-  /* Start iterations but do not get over s->max_it */
-  for (iter = 0; iter < s->max_it; i++)
-    {
-      for (i = 0; i < s->n; i++)
-        {
-          if (s->again[i])
-            {
-              (*it)++;
-              mps_thread_queue_job(pool, s, MPS_FNEWTON_THREAD, i, iter);
-            }
-          if (s->nzeros == s->n)
-            return;
-        }
-    }
-
-  /* This means we have exceeded the number of iterations */
-  *excep = true;
-  for (i = 0; i < pool->n; i++)
-    {
-      pthread_join(pool->threads[i], NULL);
-    }
-  mps_thread_pool_free(pool);
-
-}
-
 void*
 mps_thread_fpolzer_worker(void* data_ptr)
 {
@@ -273,8 +126,12 @@ mps_thread_fpolzer_worker(void* data_ptr)
     }
 }
 
+/**
+ * @brief Drop-in replacement for the stock fpolzer routine.
+ * This version adds multithread support.
+ */
 void
-mps_thread_fpolzer2(mps_status* s, int* it, mps_boolean* excep)
+mps_thread_fpolzer(mps_status* s, int* it, mps_boolean* excep)
 {
   int i, nzeros = 0, n_threads = 32;
   pthread_t* threads = (pthread_t*) malloc(sizeof(pthread_t) * n_threads);
@@ -318,6 +175,9 @@ mps_thread_fpolzer2(mps_status* s, int* it, mps_boolean* excep)
   free(threads);
 }
 
+/**
+ * @brief Worker for the mpolzer routine.
+ */
 void*
 mps_thread_mpolzer_worker(void* data_ptr)
 {
@@ -419,6 +279,9 @@ mps_thread_mpolzer_worker(void* data_ptr)
           tmpc_clear(abcorr);
 }
 
+/**
+ * @brief Drop-in replacement for the stock mpolzer.
+ */
 void
 mps_thread_mpolzer(mps_status* s, int *it, mps_boolean *excep)
 {

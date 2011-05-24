@@ -50,16 +50,11 @@ typedef struct {
   mps_boolean* excep;
 } mps_thread_worker_data;
 
+void
+mps_thread_fpolzer(mps_status* s, int* nit, mps_boolean* excep);
 
-typedef struct {
-  mps_thread_pool* pool;
-  mps_status *status;
-  int index;
-  int iter;
-  int thread;
-} mps_thread_job;
-
-
+void
+mps_thread_mpolzer(mps_status* s, int *nit, mps_boolean *excep);
 
 
 #ifdef __cplusplus
