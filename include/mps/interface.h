@@ -749,8 +749,6 @@ typedef struct {
 	int debug_j;
 #endif
 
-	int nzeros;
-
 } mps_status; /* End of typedef struct { ... */
 
 /*

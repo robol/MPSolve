@@ -289,7 +289,7 @@ mps_thread_fpolzer2(mps_status* s, int* it, mps_boolean* excep)
       nzeros++;
   if (nzeros == s->n)
     {
-      // TODO: Free data
+      free (threads);
       return;
     }
 
@@ -313,8 +313,8 @@ mps_thread_fpolzer2(mps_status* s, int* it, mps_boolean* excep)
   for (i = 0; i < n_threads; i++)
     {
       pthread_join(threads[i], NULL);
-      // TODO: Free data;
     }
+  free (data);
   free(threads);
 }
 
@@ -435,7 +435,7 @@ mps_thread_mpolzer(mps_status* s, int *it, mps_boolean *excep)
       nzeros++;
   if (nzeros == s->n)
     {
-      // TODO: Free data
+      free (threads);
       return;
     }
 
@@ -459,8 +459,8 @@ mps_thread_mpolzer(mps_status* s, int *it, mps_boolean *excep)
   for (i = 0; i < n_threads; i++)
     {
       pthread_join(threads[i], NULL);
-      // TODO: Free data;
     }
+  free(data);
   free(threads);
 }
 
