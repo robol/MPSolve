@@ -48,6 +48,7 @@ typedef struct {
   int thread;
   int n_threads;
   mps_boolean* excep;
+  pthread_mutex_t* aberth_mutex;
 } mps_thread_worker_data;
 
 void

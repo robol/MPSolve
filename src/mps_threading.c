@@ -96,7 +96,9 @@ mps_thread_fpolzer_worker(void* data_ptr)
               /* the correction is performed only if iter!=1 or rad(i)!=rad1 */
               s->data_type[0] == 'u' || iter != 0 || s->frad[i] != rad1)
                 {
+                  pthread_mutex_lock(data->aberth_mutex);
                   mps_faberth(s, i, abcorr);
+                  pthread_mutex_unlock(data->aberth_mutex);
                   cplx_mul_eq(abcorr, corr);
                   cplx_sub(abcorr, cplx_one, abcorr);
                   cplx_div(abcorr, corr, abcorr);
@@ -118,6 +120,7 @@ mps_thread_fpolzer_worker(void* data_ptr)
             }
         }
     }
+  return 0;
 }
 
 /**
@@ -130,6 +133,7 @@ mps_thread_fpolzer(mps_status* s, int* it, mps_boolean* excep)
   int i, nzeros = 0, n_threads = s->n_threads;
   pthread_t* threads = (pthread_t*) malloc(sizeof(pthread_t) * n_threads);
   mps_thread_worker_data* data;
+  pthread_mutex_t aberth_mutex = PTHREAD_MUTEX_INITIALIZER;
 
   *it = 0;
   *excep = false;
@@ -158,6 +162,7 @@ mps_thread_fpolzer(mps_status* s, int* it, mps_boolean* excep)
       data[i].excep = excep;
       data[i].thread = i;
       data[i].n_threads = n_threads;
+      data[i].aberth_mutex = &aberth_mutex;
       pthread_create(&threads[i], NULL, &mps_thread_fpolzer_worker, data + i);
     }
 
@@ -240,7 +245,9 @@ mps_thread_mpolzer_worker(void* data_ptr)
                   s->data_type[0] == 'u' || iter != 0 || rdpe_ne(s->drad[l],
                       rad1))
                     {
+                      pthread_mutex_lock(data->aberth_mutex);
                       mps_maberth_s(s, l, j, abcorr);
+                      pthread_mutex_unlock(data->aberth_mutex);
                       mpc_mul_eq(abcorr, corr);
                       mpc_neg_eq(abcorr);
                       mpc_add_eq_ui(abcorr, 1, 0);
@@ -270,6 +277,8 @@ mps_thread_mpolzer_worker(void* data_ptr)
   endfun: /* free local MP variables */
           tmpc_clear(corr);
           tmpc_clear(abcorr);
+
+  return 0;
 }
 
 /**
@@ -280,6 +289,7 @@ mps_thread_mpolzer(mps_status* s, int *it, mps_boolean *excep)
 {
   int i, nzeros = 0, n_threads = s->n_threads;
   pthread_t* threads = (pthread_t*) malloc(sizeof(pthread_t) * n_threads);
+  pthread_mutex_t aberth_mutex  = PTHREAD_MUTEX_INITIALIZER;
   mps_thread_worker_data* data;
 
   *it = 0;
@@ -309,6 +319,7 @@ mps_thread_mpolzer(mps_status* s, int *it, mps_boolean *excep)
       data[i].excep = excep;
       data[i].thread = i;
       data[i].n_threads = n_threads;
+      data[i].aberth_mutex = &aberth_mutex;
       pthread_create(&threads[i], NULL, &mps_thread_mpolzer_worker, data + i);
     }
 

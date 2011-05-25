@@ -34,6 +34,7 @@ void mps_set_default_values(mps_status* s) {
   s->max_pack = 1000;		/* number of max packets of iterations */
   s->max_it = 10;		/* number of max iterations per packet */
   s->max_newt_it = 15;		/* number of max newton iterations for */
+  s->n_threads = 12;            /* Number of threads */
 				/*   gravity center computations       */
   s->mpwp_max = 1000000000;	/* maximum allowed bits for mp         */ 
   /*   numbers: used in hi-prec. shifts  */
