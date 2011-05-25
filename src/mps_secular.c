@@ -151,14 +151,16 @@ mps_secular_mstart(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
   int i, l = s->punt[i_clust];
   double th = pi2 / n;
   double sigma;
-  cdpe_t c_eps;
   mpc_t epsilon;
   mps_secular_equation* sec = (mps_secular_equation*) s->user_data;
 
   mpc_init2(epsilon, s->mpwp);
-  rdpe_mul_d(cdpe_Re(c_eps), s->mp_epsilon, (double) 4 * s->n);
-  rdpe_set(cdpe_Re(c_eps), rdpe_zero);
-  mpc_set_cdpe(epsilon, c_eps);
+//  rdpe_mul_d(cdpe_Re(c_eps), s->mp_epsilon, (double) 4 * s->n);
+//  rdpe_set(cdpe_Im(c_eps), rdpe_zero);
+//  mpc_set_cdpe(epsilon, c_eps);
+  mpc_set_ui(epsilon, 0, 0);
+  mpf_set_2dl(mpc_Re(epsilon), 1.0, -s->mpwp);
+  MPS_DEBUG_MPC(s, 100, epsilon, "epsilon");
 
   /* Get best sigma possible */
   if (s->random_seed)
@@ -218,7 +220,7 @@ void
 mps_secular_fnewton(mps_status* s, cplx_t x, double *rad, cplx_t corr,
     mps_boolean * again)
 {
-  int i, j;
+  int i;
   cplx_t ctmp, ctmp2, pol, fp, sumb;
   double apol;
   *again = true;
@@ -236,25 +238,25 @@ mps_secular_fnewton(mps_status* s, cplx_t x, double *rad, cplx_t corr,
       /* Compute z - b_i */
       cplx_sub(ctmp, x, sec->bfpc[i]);
 
-      if (cplx_eq_zero(ctmp))
-        {
-          /* The the secular equation can be computed with
-           * a_i * \prod_{j \neq i} (b_i - b_j)         */
-          cplx_set(pol, sec->afpc[i]);
-          for (j = 0; j < sec->n; j++)
-            {
-              if (j == i)
-                {
-                  j++;
-                }
-              cplx_sub(ctmp, sec->bfpc[i], sec->bfpc[j]);
-              cplx_mul_eq(pol, ctmp);
-            }
-          cplx_set(corr, cplx_zero);
-          *rad = 3 * DBL_EPSILON;
-          *again = false;
-          return;
-        }
+//      if (cplx_eq_zero(ctmp))
+//        {
+//          /* The the secular equation can be computed with
+//           * a_i * \prod_{j \neq i} (b_i - b_j)         */
+//          cplx_set(pol, sec->afpc[i]);
+//          for (j = 0; j < sec->n; j++)
+//            {
+//              if (j == i)
+//                {
+//                  j++;
+//                }
+//              cplx_sub(ctmp, sec->bfpc[i], sec->bfpc[j]);
+//              cplx_mul_eq(pol, ctmp);
+//            }
+//          cplx_set(corr, cplx_zero);
+//          *rad = 3 * DBL_EPSILON;
+//          *again = false;
+//          return;
+//        }
 
       /* Compute (z-b_i)^{-1} */
       cplx_inv_eq(ctmp);
@@ -522,6 +524,14 @@ mps_secular_mnewton(mps_status* s, mpc_t x, rdpe_t rad, mpc_t corr,
         }
     }
 
+
+  mpc_clear(fp);
+  mpc_clear(pol);
+  mpc_clear(sumb);
+  mpc_clear(ctmp);
+  mpc_clear(ctmp2);
+  mpf_clear(ftmp);
+  mpf_clear(ftmp2);
 }
 
 void
@@ -819,6 +829,10 @@ mps_secular_ga_regenerate_coefficients(mps_status* s)
     //        MPS_DEBUG_CPLX(s, sec->bfpc[i], "sec->bfpc[%d]", i);
     //      }
 
+    MPS_DEBUG_CALL(s, "mps_secular_fstart")
+    ;
+    mps_secular_fstart(s, s->n, 0, 0, 0, s->eps_out);
+
     break;
 
     /* If this is the DPE phase regenerate DPE coefficients */
@@ -884,12 +898,20 @@ mps_secular_ga_regenerate_coefficients(mps_status* s)
       {
         MPS_DEBUG_CDPE(s, sec->adpc[i], "sec->adpc[%d]", i);
       }
+
+    MPS_DEBUG_CALL(s, "mps_secular_dstart")
+    mps_secular_dstart(s, s->n, 0, (__rdpe_struct *) rdpe_zero,
+        (__rdpe_struct *) rdpe_zero, s->eps_out);
+
     break;
 
   case mp_phase:
     /* Allocate old_a and old_b */
     old_ma = mpc_valloc(s->n);
     old_mb = mpc_valloc(s->n);
+
+    mpc_vinit2(old_ma, s->n, s->mpwp);
+    mpc_vinit2(old_mb, s->n, s->mpwp);
 
     /* Copy the old coefficients, and set the new
      * b_i with the current roots approximations. */
@@ -903,9 +925,9 @@ mps_secular_ga_regenerate_coefficients(mps_status* s)
     /* Compute the new a_i */
     for (i = 0; i < s->n; i++)
       {
-        mpc_set_d(prod_old_b, 1.0, 0.0);
-        mpc_set_d(prod_b, 1.0, 0.0);
-        mpc_set_d(sec_ev, 0.0, 0.0);
+        mpc_set_ui(prod_old_b, 0, 0);
+        mpc_set_ui(prod_b, 1, 0);
+        mpc_set_ui(sec_ev, 0, 0);
 
         for (j = 0; j < sec->n; j++)
           {
@@ -933,17 +955,22 @@ mps_secular_ga_regenerate_coefficients(mps_status* s)
         mpc_mul(sec->ampc[i], sec_ev, prod_old_b);
         mpc_div_eq(sec->ampc[i], prod_b);
 
-        MPS_DEBUG_MPC(s, 10, sec_ev, "sec_ev");
       }
 
     /* Free data */
-    for (i = 0; i < s->n; i++)
-      {
-        mpc_clear(old_ma[i]);
-        mpc_clear(old_mb[i]);
-      }
+    mpc_vclear(old_ma, s->n);
+    mpc_vclear(old_mb, s->n);
     mpc_vfree(old_ma);
     mpc_vfree(old_mb);
+
+    for(i = 0; i < s->n; i++)
+      {
+        MPS_DEBUG_MPC(s, 15, sec->ampc[i], "sec->ampc[%d]", i);
+      }
+
+    MPS_DEBUG_CALL(s, "mps_secular_mstart")
+    mps_secular_mstart(s, s->n, 0, (__rdpe_struct *) rdpe_zero,
+        (__rdpe_struct *) rdpe_zero, s->eps_out);
 
     break;
 
@@ -954,15 +981,74 @@ mps_secular_ga_regenerate_coefficients(mps_status* s)
 }
 
 void
-mps_secular_raise_data(mps_status* s, int new_wp)
+mps_secular_raise_precision(mps_status* s)
 {
   int i;
-  s->mpwp = new_wp;
+  s->mpwp *= 2;
   mps_secular_equation* sec = (mps_secular_equation*) s->user_data;
   for (i = 0; i < s->n; i++)
     {
-      mp_set_prec(sec->ampc[i], s->mpwp);
-      mp_set_prec(sec->bmpc[i], s->mpwp);
+      mpc_set_prec(sec->ampc[i], s->mpwp);
+      mpc_set_prec(sec->bmpc[i], s->mpwp);
+      mpc_set_prec(s->mroot[i], s->mpwp);
+    }
+  MPS_DEBUG(s, "Precision is now at %d bits", s->mpwp);
+}
+
+/**
+ * @brief Prepare data for the iteration in the new phase specified
+ * in the second parameter.
+ *
+ * Note that for now this function is only able to handle switch
+ * from floating point phases (i.e. float_phase or dpe_phase) to
+ * multiprecision, and not coming back.
+ */
+void
+mps_secular_switch_phase(mps_status* s, mps_phase phase)
+{
+  int i = 0;
+  mps_secular_equation* sec = (mps_secular_equation*) s->user_data;
+  if (phase == mp_phase)
+    {
+      s->mpwp = DBL_MANT_DIG;
+      mps_secular_raise_precision(s);
+      switch (s->lastphase)
+        {
+      case float_phase:
+        /* Copy the approximated roots and the
+         * secular equation coefficients */
+        for (i = 0; i < s->n; i++)
+          {
+            mpc_set_cplx(s->mroot[i], s->froot[i]);
+            mpc_set_cplx(sec->ampc[i], sec->afpc[i]);
+            mpc_set_cplx(sec->bmpc[i], sec->bfpc[i]);
+          }
+        break;
+
+      case dpe_phase:
+        /* Copy the coefficients and the approximated
+         * roots into the multiprecision values    */
+        for (i = 0; i < s->n; i++)
+          {
+            mpc_set_cdpe(s->mroot[i], s->droot[i]);
+            mpc_set_cdpe(sec->ampc[i], sec->adpc[i]);
+            mpc_set_cdpe(sec->bmpc[i], sec->bdpc[i]);
+          }
+
+      default:
+        break;
+
+        }
+
+      /* Set lastphase to mp_phase */
+      s->lastphase = mp_phase;
+
+    }
+  else
+    {
+      fprintf(stderr, "mps_secular_switch_phase is only able to manage\n"
+        "switches from float_phase or dpe_phase to mp_phase. Aborting.");
+      exit(EXIT_FAILURE);
     }
 }
 
@@ -974,6 +1060,7 @@ void
 mps_secular_ga_mpsolve(mps_status* s, mps_phase phase)
 {
   int roots_computed = 0;
+  int iteration_per_packet = 15;
 
   /* Set initial cluster structure as no cluster structure. */
   mps_cluster_reset(s);
@@ -983,25 +1070,25 @@ mps_secular_ga_mpsolve(mps_status* s, mps_phase phase)
 
   /* Select initial approximations using the custom secular
    * routine and based on the phase selected by the user. */
-  switch (phase)
+  switch (s->lastphase)
     {
   case float_phase:
     MPS_DEBUG_CALL(s, "mps_secular_fstart")
-    ;
     mps_secular_fstart(s, s->n, 0, 0.0, 0.0, s->eps_out);
     break;
+
   case dpe_phase:
     MPS_DEBUG_CALL(s, "mps_secular_dstart")
-    ;
     mps_secular_dstart(s, s->n, 0, (__rdpe_struct *) rdpe_zero,
         (__rdpe_struct *) rdpe_zero, s->eps_out);
     break;
+
   case mp_phase:
     MPS_DEBUG_CALL(s, "mps_secular_mstart")
-    ;
     mps_secular_mstart(s, s->n, 0, (__rdpe_struct *) rdpe_zero,
         (__rdpe_struct *) rdpe_zero, s->eps_out);
     break;
+
   default:
     break;
     }
@@ -1010,44 +1097,58 @@ mps_secular_ga_mpsolve(mps_status* s, mps_phase phase)
   do
     {
       /* Perform an iteration of floating point Aberth method */
-      switch (phase)
+      switch (s->lastphase)
         {
       case float_phase:
         MPS_DEBUG_CALL(s, "mps_secular_ga_fiterate")
-        ;
-        roots_computed = mps_secular_ga_fiterate(s, 8);
+        roots_computed = mps_secular_ga_fiterate(s, iteration_per_packet);
         MPS_DEBUG(s, "%d roots were computed", roots_computed)
-        ;
         break;
 
       case dpe_phase:
         MPS_DEBUG_CALL(s, "mps_secular_ga_diterate")
-        ;
-        roots_computed = mps_secular_ga_diterate(s, 8);
+        roots_computed = mps_secular_ga_diterate(s, iteration_per_packet);
         MPS_DEBUG(s, "%d roots were computed", roots_computed)
-        ;
         break;
 
       case mp_phase:
         MPS_DEBUG_CALL(s, "mps_secular_ga_miterate")
-        ;
-        roots_computed = mps_secular_ga_miterate(s, 8);
-        MPS_DEBUG(s, "%d roots were computed", roots_computed)
-        ;
+        roots_computed = mps_secular_ga_miterate(s, iteration_per_packet);
+        MPS_DEBUG(s, "%d roots were computed", roots_computed);
 
       default:
         break;
         }
 
-      /* Regenerate coefficients if we need to iterate more */
-      if (roots_computed < s->n)
+      /* Check if it's time to abandon floating point to enter
+       * the multiprecision phase */
+      if (roots_computed == s->n && s->lastphase != mp_phase)
         {
+          /* Jump to the multiprecision phase doubling the precision */
+          mps_secular_raise_precision(s);
+
+          MPS_DEBUG(s, "Switching to multiprecision phase")
+          MPS_DEBUG_CALL(s, "mps_secular_switch_phase")
+          mps_secular_switch_phase(s, mp_phase);
+
           /* Regenerate coefficients is able to understand the type
            * of data that we are treating, so no switch is necessary
            * in here. */
-          MPS_DEBUG_CALL(s, "mps_secular_ga_regenerate_coefficients");
+          MPS_DEBUG_CALL(s, "mps_secular_ga_regenerate_coefficients")
+          mps_secular_ga_regenerate_coefficients(s);
+        }
+      else
+        {
+          /* If all the roots were approximated and we are in the multiprecision
+           * phase then it's time to increase the precision, or stop if enough
+           * precision has been reached. */
+          MPS_DEBUG_CALL(s, "mps_secular_raise_precision")
+          mps_secular_raise_precision(s);
+
+          /* Regenerate coefficients to accelerate convergence. */
+          MPS_DEBUG_CALL(s, "mps_secular_ga_regenerate_coefficients")
           mps_secular_ga_regenerate_coefficients(s);
         }
     }
-  while (roots_computed != s->n);
+  while (roots_computed != s->n + 1);
 }
