@@ -735,6 +735,11 @@ typedef struct {
 	 */
 	void * user_data;
 
+	/**
+	 * @brief Number of threads to be spawned.
+	 */
+	int n_threads;
+
 #ifndef DISABLE_DEBUG
 	/**
 	 * @brief Counter for the cycles used in debug prints,

@@ -424,6 +424,17 @@ mps_parse_opts(mps_status* s, int argc, char *argv[])
             mps_error(s, 3, "Bad debug option: ", argv[i], ", use 1");
           break;
 
+        case 'j':
+          if (strlen(argv[i]) < 2)
+            mps_error(s, 1, "You should provide a number of threads to be spawned.");
+          else
+            {
+              s->n_threads = atoi(argv[i] + 2);
+              if (s->n_threads < 1 || errno)
+                  mps_error (s, 1, "The number of threads must be a positive integer");
+            }
+          break;
+
           /* warning options */
         case 'w':
           if (strlen(argv[i]) == 3 && argv[i][2] == '+')
@@ -496,6 +507,7 @@ mps_print_help(mps_status* s)
   fprintf(s->outstr, " -Lin\tn = maximum number of global iterations [%d]\n",
       s->max_it);
   fprintf(s->outstr, " -r\tuse random seed for starting points\n");
+  fprintf(s->outstr, " -j\tn = number of threads to spawn\n");
 
   /* undocumented switches
    C

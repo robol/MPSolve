@@ -127,7 +127,7 @@ mps_thread_fpolzer_worker(void* data_ptr)
 void
 mps_thread_fpolzer(mps_status* s, int* it, mps_boolean* excep)
 {
-  int i, nzeros = 0, n_threads = 1;
+  int i, nzeros = 0, n_threads = s->n_threads;
   pthread_t* threads = (pthread_t*) malloc(sizeof(pthread_t) * n_threads);
   mps_thread_worker_data* data;
 
@@ -278,7 +278,7 @@ mps_thread_mpolzer_worker(void* data_ptr)
 void
 mps_thread_mpolzer(mps_status* s, int *it, mps_boolean *excep)
 {
-  int i, nzeros = 0, n_threads = 24;
+  int i, nzeros = 0, n_threads = s->n_threads;
   pthread_t* threads = (pthread_t*) malloc(sizeof(pthread_t) * n_threads);
   mps_thread_worker_data* data;
 
