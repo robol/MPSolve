@@ -54,16 +54,10 @@ mps_thread_fpolzer_worker(void* data_ptr)
   cplx_t corr, abcorr;
   double rad1, modcorr;
 
-  /* Start Aberth's iterations */
-  if (s->DOLOG)
-    fprintf(s->logstr, "FPOLZER: starts aberth it\n");
-
   for (iter = 0; iter < s->max_it; iter++)
     {
       for (i = data->thread; i < s->n; i += data->n_threads)
         {
-          if ((*data->nzeros) >= s->n)
-            return 0;
 
           if (s->again[i])
             {
@@ -133,7 +127,7 @@ mps_thread_fpolzer_worker(void* data_ptr)
 void
 mps_thread_fpolzer(mps_status* s, int* it, mps_boolean* excep)
 {
-  int i, nzeros = 0, n_threads = 32;
+  int i, nzeros = 0, n_threads = 1;
   pthread_t* threads = (pthread_t*) malloc(sizeof(pthread_t) * n_threads);
   mps_thread_worker_data* data;
 
@@ -191,7 +185,6 @@ mps_thread_mpolzer_worker(void* data_ptr)
   tmpc_init2(abcorr, s->mpwp);
   tmpc_init2(corr, s->mpwp);
 
-  MPS_DEBUG(s, "Starting thread %d", data->thread);
   rdpe_mul_d(eps, s->mp_epsilon, (double) 4 * s->n);
 
   /* initialize the iteration counter */
@@ -285,7 +278,7 @@ mps_thread_mpolzer_worker(void* data_ptr)
 void
 mps_thread_mpolzer(mps_status* s, int *it, mps_boolean *excep)
 {
-  int i, nzeros = 0, n_threads = 32;
+  int i, nzeros = 0, n_threads = 24;
   pthread_t* threads = (pthread_t*) malloc(sizeof(pthread_t) * n_threads);
   mps_thread_worker_data* data;
 
