@@ -58,7 +58,6 @@ mps_thread_fpolzer_worker(void* data_ptr)
     {
       for (i = data->thread; i < s->n; i += data->n_threads)
         {
-
           if (s->again[i])
             {
               (*data->it)++;
@@ -172,6 +171,8 @@ mps_thread_fpolzer(mps_status* s, int* it, mps_boolean* excep)
     }
   free (data);
   free(threads);
+
+  *excep = true;
 }
 
 /**
