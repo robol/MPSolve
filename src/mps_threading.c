@@ -95,13 +95,13 @@ mps_thread_fpolzer_worker(void* data_ptr)
               /* the correction is performed only if iter!=1 or rad(i)!=rad1 */
               s->data_type[0] == 'u' || iter != 0 || s->frad[i] != rad1)
                 {
-                  pthread_mutex_lock(data->aberth_mutex);
+                  // pthread_mutex_lock(data->aberth_mutex);
                   mps_faberth(s, i, abcorr);
-                  pthread_mutex_unlock(data->aberth_mutex);
                   cplx_mul_eq(abcorr, corr);
                   cplx_sub(abcorr, cplx_one, abcorr);
                   cplx_div(abcorr, corr, abcorr);
                   cplx_sub_eq(s->froot[i], abcorr);
+                  // pthread_mutex_unlock(data->aberth_mutex);
                   modcorr = cplx_mod(abcorr);
                   s->frad[i] += modcorr;
                 }
@@ -246,14 +246,14 @@ mps_thread_mpolzer_worker(void* data_ptr)
                   s->data_type[0] == 'u' || iter != 0 || rdpe_ne(s->drad[l],
                       rad1))
                     {
-                      pthread_mutex_lock(data->aberth_mutex);
+                      // pthread_mutex_lock(data->aberth_mutex);
                       mps_maberth_s(s, l, j, abcorr);
-                      pthread_mutex_unlock(data->aberth_mutex);
                       mpc_mul_eq(abcorr, corr);
                       mpc_neg_eq(abcorr);
                       mpc_add_eq_ui(abcorr, 1, 0);
                       mpc_div(abcorr, corr, abcorr);
                       mpc_sub_eq(s->mroot[l], abcorr);
+                      // pthread_mutex_unlock(data->aberth_mutex);
                       mpc_get_cdpe(ctmp, abcorr);
                       cdpe_mod(rtmp, ctmp);
                       rdpe_add_eq(s->drad[l], rtmp);
