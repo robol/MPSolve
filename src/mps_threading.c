@@ -122,7 +122,6 @@ mps_thread_fpolzer_worker(void* data_ptr)
       if (job.iter == MPS_THREAD_JOB_EXCEP)
         {
           (*data->excep) = true;
-          fprintf(stderr, "Thread %d: Exiting for exception\n", data->thread);
           return 0;
         }
 
@@ -130,7 +129,6 @@ mps_thread_fpolzer_worker(void* data_ptr)
       if (s->again[i])
         {
           /* Lock this roots to make sure that we are the only one working on it */
-          fprintf(stderr, "Thread %d: Locking roots_mutex[%d] on iter %d\n", data->thread, i, iter);
           pthread_mutex_lock(&data->roots_mutex[i]);
 
           (*data->it)++;
@@ -182,14 +180,11 @@ mps_thread_fpolzer_worker(void* data_ptr)
               (*data->nzeros)++;
               if (*data->nzeros == s->n)
                 {
-                  fprintf(stderr, "Thread %d: Unlocking roots_mutex[%d] on iter %d\n", data->thread, i, iter);
                   pthread_mutex_unlock(&data->roots_mutex[i]);
-                  fprintf(stderr, "Thread %d: Exiting for roots computed\n", data->thread);
                   return 0;
                 }
             }
 
-          fprintf(stderr, "Thread %d: Unlocking roots_mutex[%d] on iter %d\n", data->thread, i, iter);
           pthread_mutex_unlock(&data->roots_mutex[i]);
         }
 
