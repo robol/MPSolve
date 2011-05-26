@@ -119,6 +119,8 @@ mps_thread_fpolzer_worker(void* data_ptr)
             }
         }
     }
+
+  (*data->excep) = true;
   return 0;
 }
 
@@ -147,9 +149,6 @@ mps_thread_fpolzer(mps_status* s, int* it, mps_boolean* excep)
       return;
     }
 
-  *it = 0;
-  *excep = false;
-
   data = (mps_thread_worker_data*) malloc(sizeof(mps_thread_worker_data)
       * n_threads);
 
@@ -171,8 +170,6 @@ mps_thread_fpolzer(mps_status* s, int* it, mps_boolean* excep)
     }
   free (data);
   free(threads);
-
-  *excep = true;
 }
 
 /**
