@@ -1,5 +1,7 @@
 CFLAGS=-L../src/ -I../include/
+MOD_CFLAGS=-I../include
 LDFLAGS=-lgmp -lm -lmps -lpthread
+MOD_LDFLAGS=-lgmp -lm -lpthread ../src/libmps.a ../src/libxt.a
 MKOCTFILE=mkoctfile
 MEX=mex
 CC=gcc
@@ -28,11 +30,11 @@ mandelbrot: mandelbrot.c
 	$(CC) $(CFLAGS) $(LDFLAGS) -o mandelbrot mandelbrot.c
 
 mps_roots.oct: octave-module.cc
-	$(MKOCTFILE) $(CFLAGS) -D__UNDEF_CPLUSPLUS -D__USE_BOOL_AS_BOOLEAN -o mps_roots.oct octave-module.cc $(LDFLAGS)
+	$(MKOCTFILE) $(MOD_CFLAGS) -D__UNDEF_CPLUSPLUS -D__USE_BOOL_AS_BOOLEAN -o mps_roots.oct octave-module.cc $(MOD_LDFLAGS)
 
 mps_roots.mex: matlab-module.c
 	$(MEX) -output mps_roots -D__USE_BOOL_AS_BOOLEAN -L../src -I../include \
-	$(LDFLAGS) matlab-module.c
+	$(MOD_LDFLAGS) matlab-module.c
 
 secular: secular.c shared_libs
 	$(CC) -o secular $(CFLAGS) $(LDFLAGS) secular.c

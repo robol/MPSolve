@@ -1,10 +1,6 @@
 #include <octave/oct.h>
 #include <mps/interface.h>
-
-void
-usage() {
-    return;
-}
+#include <octave/error.h>
 
 DEFUN_DLD(mps_roots, args, nargout,
 "-*- texinfo -*- \n\
@@ -27,15 +23,13 @@ and return a vector with the roots.\n\
     octave_value_list retval;
 
     if (nargin != 1) {
-        error("Incorrect call to mps_roots.");
-        usage();
+        print_usage ();
         return retval;
     }
 
     /* Check that input data is a vector */
     if (!args(0).is_complex_matrix() && !args(0).is_real_matrix()) {
-        error("A vector must be passed as first argument.");
-        usage();
+        print_usage ();
         return retval;
     }
 
@@ -43,15 +37,13 @@ and return a vector with the roots.\n\
     octave_idx_type rows = args(0).rows();
     octave_idx_type cols = args(0).columns();
     if(rows != 1 && cols != 1) {
-        error("A vector must be passed as first argument.");
-        usage();
+        print_usage ();
         return retval;
     }
 
 
     if (nargout > 1) {
-        error("This function returns a single value.");
-        usage();
+        print_usage ();
         return retval;
     }
 
