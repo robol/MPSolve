@@ -270,7 +270,7 @@ mps_thread_mpolzer_worker(void* data_ptr)
   int iter, l, k;
   tmpc_t corr, abcorr, mroot, diff;
   rdpe_t eps, rad1, rtmp;
-  cdpe_t ctmp;
+  cdpe_t ctmp, abcorr_cdpe;
 
   tmpc_init2(abcorr, s->mpwp);
   tmpc_init2(corr, s->mpwp);
@@ -352,8 +352,7 @@ mps_thread_mpolzer_worker(void* data_ptr)
             {
 //              mps_maberth_s(s, l, job.i_clust, abcorr);
               /* Compute Aberth correction manually so we can lock */
-              mpc_set_ui(diff, 0U, 0U);
-              mpc_set_ui(abcorr, 0U, 0U);
+              cdpe_set(abcorr_cdpe, cdpe_zero);
               for(k = s->punt[job.i_clust]; k < s->punt[job.i_clust + 1]; k++)
                 {
                   if (k == l)
@@ -361,9 +360,11 @@ mps_thread_mpolzer_worker(void* data_ptr)
                   pthread_mutex_lock(&data->aberth_mutex[k]);
                   mpc_sub(diff, mroot, s->mroot[k]);
                   pthread_mutex_unlock(&data->aberth_mutex[k]);
-                  mpc_inv_eq(diff);
-                  mpc_add_eq(abcorr, diff);
+                  mpc_get_cdpe(ctmp, diff);
+                  cdpe_inv_eq(ctmp);
+                  cdpe_add_eq(abcorr_cdpe, ctmp);
                 }
+              mpc_set_cdpe(abcorr, abcorr_cdpe);
 
               mpc_mul_eq(abcorr, corr);
               mpc_neg_eq(abcorr);
