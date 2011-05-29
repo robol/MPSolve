@@ -172,7 +172,7 @@ mps_refine(mps_status* s, int i, long prec)
     mpc_set_prec(nwtcorr, s->mpwp);
     mps_mp_set_prec(s, s->mpwp);
     mps_prepare_data(s, s->mpwp);
-    mps_mnewton(s, s->n, s->mroot[i], s->drad[i], nwtcorr, s->mfpc, s->mfppc, s->dap, s->spar, &aga);
+    mps_mnewton(s, s->n, s->mroot[i], s->drad[i], nwtcorr, s->mfpc, s->mfppc, s->dap, s->spar, &aga, 0);
     mpc_sub_eq(s->mroot[i], nwtcorr);
 
     /* correct radius, since the computed one is referred to the previous

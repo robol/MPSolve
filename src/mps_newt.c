@@ -186,48 +186,50 @@ mps_intlog2(int n)
 ****************************************************/
 void
 mps_parhorner(mps_status* st, int n, mpc_t x, mpc_t p[], 
-	      mps_boolean b[], mpc_t s)
+	      mps_boolean b[], mpc_t s, int n_thread)
 {
   int m, j, i, i1, i2, q;
   tmpc_t tmp, y;
   mps_boolean bi;
 
+  mps_boolean* spar2 = st->spar2 + (st->n + 2) * n_thread;
+  mpc_t* mfpc2 = st->mfpc2 + (st->n + 1) * n_thread;
+
   tmpc_init2(tmp, st->mpwp);
   tmpc_init2(y, st->mpwp);
 
   for (i = 0; i < n + 1; i++)
-    st->spar2[i] = b[i];
+    spar2[i] = b[i];
   for (i = 0; i < n; i++)
     if(b[i]) 
-      mpc_set(st->mfpc2[i], p[i]);
+      mpc_set(mfpc2[i], p[i]);
 
   q = mps_intlog2(n + 1);
   m = n;
   mpc_set(y, x);
   for (j = 0; j < q; j++) {
-    st->spar2[m] = false;
+    spar2[m] = false;
     m = (m + 1) >> 1;
     for (i = 0; i < m; i++) {
       i2 = (i << 1) + 1;
       i1 = i2 - 1;
-      bi = st->spar2[i1] || st->spar2[i2];
+      bi = spar2[i1] || spar2[i2];
       if (bi) {
-	if (st->spar2[i1])
-	  if (st->spar2[i2]) {
-	    mpc_mul(tmp, y, st->mfpc2[i2]);
-	    mpc_add(st->mfpc2[i], st->mfpc2[i1], tmp);
+	if (spar2[i1])
+	  if (spar2[i2]) {
+	    mpc_mul(tmp, y, mfpc2[i2]);
+	    mpc_add(mfpc2[i], mfpc2[i1], tmp);
 	  } else
-	    mpc_set(st->mfpc2[i], st->mfpc2[i1]);
+	    mpc_set(mfpc2[i], mfpc2[i1]);
 	else
-	  mpc_mul(st->mfpc2[i], y, st->mfpc2[i2]);
+	  mpc_mul(mfpc2[i], y, mfpc2[i2]);
       }
-      st->spar2[i] = bi;
+      spar2[i] = bi;
     }
-    st->spar2[m] = false;
+    spar2[m] = false;
     mpc_sqr_eq(y);
   }
-  mpc_set(s, st->mfpc2[0]);
-
+  mpc_set(s, mfpc2[0]);
   tmpc_clear(y);
   tmpc_clear(tmp);
 }
@@ -240,42 +242,45 @@ mps_parhorner(mps_status* st, int n, mpc_t x, mpc_t p[],
 ****************************************************/
 void
 mps_aparhorner(mps_status* st, 
-	       int n, rdpe_t x, rdpe_t p[], mps_boolean b[], rdpe_t s)
+	       int n, rdpe_t x, rdpe_t p[], mps_boolean b[], rdpe_t s, int n_thread)
 {
   int m, i, j, i1, i2, q;
   rdpe_t y, tmp;
   mps_boolean bi;
 
+  mps_boolean* spar2 = st->spar2 + (st->n+2) * n_thread;
+  rdpe_t* dap2 = st->dap2 + (st->n+1) * n_thread;
+
   for (i = 0; i < n + 1; i++)
-    st->spar2[i] = b[i];
+    spar2[i] = b[i];
   for (i = 0; i < n; i++)
-   if(b[i]) rdpe_set(st->dap2[i], p[i]); /* D99 */
+   if(b[i]) rdpe_set(dap2[i], p[i]); /* D99 */
   q = mps_intlog2(n + 1);
   m = n;
   rdpe_set(y, x);
   for (j = 0; j < q; j++) {
-    st->spar2[m] = false;
+    spar2[m] = false;
     m = (m + 1) >> 1;
     for (i = 0; i < m; i++) {
       i2 = (i << 1) + 1;
       i1 = i2 - 1;
-      bi = st->spar2[i1] || st->spar2[i2];
+      bi = spar2[i1] || spar2[i2];
       if (bi) {
-	if (st->spar2[i1])
-	  if (st->spar2[i2]) {
-	    rdpe_mul(tmp, y, st->dap2[i2]);
-	    rdpe_add(st->dap2[i], st->dap2[i1], tmp);
+	if (spar2[i1])
+	  if (spar2[i2]) {
+	    rdpe_mul(tmp, y, dap2[i2]);
+	    rdpe_add(dap2[i], dap2[i1], tmp);
 	  } else
-	    rdpe_set(st->dap2[i], st->dap2[i1]);
+	    rdpe_set(dap2[i], dap2[i1]);
 	else
-	  rdpe_mul(st->dap2[i], y, st->dap2[i2]);
+	  rdpe_mul(dap2[i], y, dap2[i2]);
       }
-      st->spar2[i] = bi;
+      spar2[i] = bi;
     }
-    st->spar2[m] = false;
+    spar2[m] = false;
     rdpe_sqr_eq(y);
   }
-  rdpe_set(s, st->dap2[0]);
+  rdpe_set(s, dap2[0]);
 }
 
 /******************************************************
@@ -294,12 +299,14 @@ mps_aparhorner(mps_status* st,
 void
 mps_mnewton(mps_status* s, int n, mpc_t z, rdpe_t radius, mpc_t corr,
 	    mpc_t mfpc[], mpc_t mfppc[], rdpe_t dap[],
-	    mps_boolean spar[], mps_boolean * cont)
+	    mps_boolean spar[], mps_boolean * cont, int n_thread)
 {
   int i, n1, n2;
   rdpe_t ap, az, absp, temp, rnew, ep, apeps;
   cdpe_t temp1;
   tmpc_t p, p1;
+
+  mps_boolean* spar2 = s->spar2 + (s->n+2) * n_thread;
 
   tmpc_init2(p, s->mpwp);
   tmpc_init2(p1, s->mpwp);
@@ -310,18 +317,18 @@ mps_mnewton(mps_status* s, int n, mpc_t z, rdpe_t radius, mpc_t corr,
     n2 = n;
 
     /* compute p(z) */
-    mps_parhorner(s, n1, z, mfpc, spar, p);
+    mps_parhorner(s, n1, z, mfpc, spar, p, n_thread);
     mpc_get_cdpe(temp1, z);
     cdpe_mod(az, temp1);
 
     /* compute bound to the error */
-    mps_aparhorner(s, n1, az, dap, spar, ap);
+    mps_aparhorner(s, n1, az, dap, spar, ap, n_thread);
     for (i = 0; i < n2; i++)
-      s->spar2[i] = spar[i + 1];
-    s->spar2[n2] = false;
+      spar2[i] = spar[i + 1];
+    spar2[n2] = false;
 
     /* compute p'(z) */
-    mps_parhorner(s, n2, z, mfppc, s->spar2, p1);
+    mps_parhorner(s, n2, z, mfppc, spar2, p1, n_thread);
 
   } else {			/*  dense polynomial */
 

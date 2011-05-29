@@ -321,7 +321,7 @@ mps_thread_mpolzer_worker(void* data_ptr)
               /* sparse/dense polynomial */
               rdpe_set(rad1, s->drad[l]);
               mps_mnewton(s, s->n, mroot, s->drad[l], corr, s->mfpc,
-                  s->mfppc, s->dap, s->spar, &s->again[l]);
+                  s->mfppc, s->dap, s->spar, &s->again[l], data->thread);
               if (iter == 0 && !s->again[l] && rdpe_gt(s->drad[l], rad1)
                   && rdpe_ne(rad1, rdpe_zero))
                 rdpe_set(s->drad[l], rad1);

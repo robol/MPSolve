@@ -141,9 +141,9 @@ void mps_fnewton(mps_status* st, int n, cplx_t z, double * radius, cplx_t corr, 
 void mps_dnewton(mps_status* st, int n, cdpe_t z, rdpe_t radius, cdpe_t corr,
 		 cdpe_t dpc[], rdpe_t dap[], mps_boolean * cont);
 void mps_mnewton(mps_status* st, int n, mpc_t z, rdpe_t radius, mpc_t corr, mpc_t mfpc[],
-		 mpc_t mfppc[], rdpe_t dap[], mps_boolean * spar, mps_boolean * cont);
-void mps_parhorner(mps_status* st, int n, mpc_t x, mpc_t p[], mps_boolean b[], mpc_t s);
-void mps_aparhorner(mps_status* st, int n, rdpe_t x, rdpe_t p[], mps_boolean b[], rdpe_t s);
+		 mpc_t mfppc[], rdpe_t dap[], mps_boolean * spar, mps_boolean * cont, int n_thread);
+void mps_parhorner(mps_status* st, int n, mpc_t x, mpc_t p[], mps_boolean b[], mpc_t s, int n_thread);
+void mps_aparhorner(mps_status* st, int n, rdpe_t x, rdpe_t p[], mps_boolean b[], rdpe_t s, int n_thread);
 
 /* Function in mps_opts.c */
 void mps_parse_opts(mps_status* s, int argc, char *argv[]);

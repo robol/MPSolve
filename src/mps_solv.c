@@ -2697,7 +2697,7 @@ void mps_mpolzer(mps_status* s, int *it, mps_boolean * excep) {
 						rdpe_set(rad1, s->drad[l]);
 						mps_mnewton(s, s->n, s->mroot[l], s->drad[l], corr,
 								s->mfpc, s->mfppc, s->dap, s->spar,
-								&s->again[l]);
+								&s->again[l], 0);
 						if (iter == 0 && !s->again[l] && rdpe_gt(s->drad[l],
 								rad1) && rdpe_ne(rad1, rdpe_zero))
 							rdpe_set(s->drad[l], rad1);

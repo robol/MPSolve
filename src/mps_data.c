@@ -68,16 +68,20 @@ mps_allocate_data(mps_status* s)
 
   s->mfppc = mpc_valloc(s->deg + 1);
   s->mfppc1 = mpc_valloc(s->deg + 1);
-  s->mfpc2 = mpc_valloc(s->deg + 1);
+  s->mfpc2 = mpc_valloc((s->deg + 2) * s->n_threads);
   for (i = 0; i <= s->deg; i++) {
     mpc_init2(s->mfppc[i], 0);
     mpc_init2(s->mfppc1[i], 0);
-    mpc_init2(s->mfpc2[i], 0);
   }
+
+  for(i = 0; i < (s->deg+1) * s->n_threads; i++)
+    {
+      mpc_init2(s->mfpc2[i], 0);
+    }
 
   /* temporary vectors */
   s->spar1 = mps_boolean_valloc(s->deg + 2);
-  s->spar2 = mps_boolean_valloc(s->deg + 2);
+  s->spar2 = mps_boolean_valloc((s->deg + 2) * s->n_threads);
   s->h = mps_boolean_valloc(s->deg + 2);
   s->again_old = mps_boolean_valloc(s->deg);
 
@@ -91,7 +95,7 @@ mps_allocate_data(mps_status* s)
   s->fap2 = double_valloc(s->deg + 1);
 
   s->dap1 = rdpe_valloc(s->deg + 1);
-  s->dap2 = rdpe_valloc(s->deg + 1);
+  s->dap2 = rdpe_valloc((s->deg + 1) * s->n_threads);
   s->dpc1 = cdpe_valloc(s->deg + 1);
   s->dpc2 = cdpe_valloc(s->deg + 1);
 
@@ -194,7 +198,7 @@ mps_raise_data(mps_status* s, long int prec)
   }
   
   if (s->data_type[0] == 's')
-    for (k = 0; k < s->n + 1; k++)
+    for (k = 0; k < (s->n + 2) * s->n_threads; k++)
       mpc_set_prec(s->mfpc2[k], prec);
 
   return mpc_get_prec(s->mroot[0]);
@@ -232,7 +236,7 @@ mps_raise_data_raw(mps_status* s, long int prec)
   }
 
   if (s->data_type[0] == 's')
-    for (k = 0; k < s->n + 1; k++)
+    for (k = 0; k < (s->n + 1) * s->n_threads; k++)
       mpc_set_prec_raw(s->mfpc2[k], prec);
 }
 
@@ -311,6 +315,9 @@ mps_free_data(mps_status* s)
   for (i = 0; i <= s->deg; i++) {
     mpc_clear(s->mfppc[i]);
     mpc_clear(s->mfppc1[i]);
+  }
+
+  for(i = 0; i < (s->deg+2)*s->n_threads; i++) {
     mpc_clear(s->mfpc2[i]);
   }
   free(s->mfppc);
@@ -320,7 +327,7 @@ mps_free_data(mps_status* s)
 
   /* free temporary vectors */
   free(s->spar1);
-  free(s->spar2);
+  mps_boolean_vfree(s->spar2);
   free(s->h);
   free(s->again_old);
 

@@ -149,7 +149,7 @@ mps_improve(mps_status* st)
       mps_prepare_data(st, st->mpwp);
       if (st->data_type[0] != 'u')
 	mps_mnewton(st, st->n, st->mroot[i], st->drad[i],
-		    nwtcorr, st->mfpc, st->mfppc, st->dap, st->spar, &again);
+		    nwtcorr, st->mfpc, st->mfppc, st->dap, st->spar, &again, 0);
       else
     	  if (st->mnewton_usr != NULL) {
     		  (*st->mnewton_usr)(st, st->mroot[i], st->drad[i], nwtcorr, &again);

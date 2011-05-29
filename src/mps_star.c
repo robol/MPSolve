@@ -1327,7 +1327,7 @@ mps_mrestart(mps_status* s) {
         for (j = 0; j < s->max_newt_it; j++) { /* loop_newt: */
             rdpe_set(rad, rdpe_zero);
             mps_mnewton(s, s->n - (s->punt[i + 1] - s->punt[i]) + 1, g, rad, corr, s->mfpc1,
-                        s->mfppc1, s->dap1, s->spar1, &cont);
+                        s->mfppc1, s->dap1, s->spar1, &cont, 0);
             if (cont) {
                 mpc_sub_eq(g, corr);
                 MPS_DEBUG_RDPE(s, rad, "radius");

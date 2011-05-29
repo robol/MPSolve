@@ -76,12 +76,12 @@ mps_inclusion(mps_status* s)
       n2 = s->n;
       
       /* compute p(mroot[i]) */
-      mps_parhorner(s, n1, s->mroot[i], s->mfpc, s->spar, p);
+      mps_parhorner(s, n1, s->mroot[i], s->mfpc, s->spar, p, 0);
       mpc_get_cdpe(temp1, s->mroot[i]);
       cdpe_mod(az, temp1);
       
       /* compute bound to the error */
-      mps_aparhorner(s, n1, az, s->dap, s->spar, ap);
+      mps_aparhorner(s, n1, az, s->dap, s->spar, ap, 0);
       
     } else {			/*  dense polynomial */
       
