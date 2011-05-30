@@ -158,9 +158,6 @@ typedef struct {
 
 } mps_thread_worker_data;
 
-
-
-
 /* EXPORTED ROUTINES */
 
 void
@@ -171,6 +168,35 @@ mps_thread_mpolzer(mps_status* s, int *nit, mps_boolean *excep);
 
 int
 mps_thread_get_core_number (mps_status* s);
+
+mps_boolean*
+mps_thread_get_spar2(mps_status* s, int n_thread);
+
+__mpc_struct*
+mps_thread_get_mfpc2(mps_status* s, int n_thread);
+
+__rdpe_struct*
+mps_thread_get_dap2(mps_status* s, int n_thread);
+
+/* MACROS */
+
+/**
+ * @brief Get a pointer to an array of n+2 booleans
+ * that is local to the thread.
+ */
+#define mps_thread_get_spar2(s, n_thread) (s->spar2 + (s->n + 2) * (n_thread))
+
+/**
+ * @brief Get a pointer to an array of n+2 multiprecision
+ * that is local to the thread.
+ */
+#define mps_thread_get_mfpc2(s, n_thread) (s->mfpc2 + (s->n + 1) * (n_thread))
+
+/**
+ * @brief Get a pointer to an array of n+2 DPE
+ * that is local to the thread.
+ */
+#define mps_thread_get_dap2(s, n_thread) (s->dap2 + (s->n + 1) * (n_thread))
 
 
 #ifdef __cplusplus

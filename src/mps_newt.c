@@ -16,6 +16,7 @@
  */
 
 #include <mps/core.h>
+#include <mps/threading.h>
 
 /**
  * @brief Compute the Newton correction, i.e. and the value \f$s\f$
@@ -248,8 +249,8 @@ mps_parhorner(mps_status* st, int n, mpc_t x, mpc_t p[],
 
   /* Set the pointer for paraller horner to be thread specific
    * so there is not conflict with other threads.           */
-  mps_boolean* spar2 = st->spar2 + (st->n + 2) * n_thread;
-  mpc_t* mfpc2 = st->mfpc2 + (st->n + 1) * n_thread;
+  mps_boolean* spar2 = mps_thread_get_spar2(st, n_thread);
+  mpc_t* mfpc2 = mps_thread_get_mfpc2(st, n_thread);
 
   tmpc_init2(tmp, st->mpwp);
   tmpc_init2(y, st->mpwp);
@@ -315,8 +316,8 @@ mps_aparhorner(mps_status* st,
 
   /* Set the pointer for paraller horner to be thread specific
    * so there is not conflict with other threads.           */
-  mps_boolean* spar2 = st->spar2 + (st->n+2) * n_thread;
-  rdpe_t* dap2 = st->dap2 + (st->n+1) * n_thread;
+  mps_boolean* spar2 = mps_thread_get_spar2(st, n_thread);
+  rdpe_t* dap2 = mps_thread_get_dap2(st, n_thread);
 
   for (i = 0; i < n + 1; i++)
     spar2[i] = b[i];
@@ -399,7 +400,7 @@ mps_mnewton(mps_status* s, int n, mpc_t z, rdpe_t radius, mpc_t corr,
 
   /* Set the pointer for mnewton to be thread specific
    * so there is not conflict with other threads.      */
-  mps_boolean* spar2 = s->spar2 + (s->n+2) * n_thread;
+  mps_boolean* spar2 = mps_thread_get_spar2(s, n_thread);
 
   tmpc_init2(p, s->mpwp);
   tmpc_init2(p1, s->mpwp);

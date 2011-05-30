@@ -1,5 +1,5 @@
-CFLAGS=-L../src/ -I../include/
-MOD_CFLAGS=-I../include
+CFLAGS=-O0 -g -L../src/ -I../include/ -DNOMPTEMP
+MOD_CFLAGS=-I../include -DNOMPTEMP
 LDFLAGS=-lgmp -lm -lmps -lpthread
 MOD_LDFLAGS=-lgmp -lm -lpthread ../src/libmps.a ../src/libxt.a
 MKOCTFILE=mkoctfile
@@ -33,7 +33,7 @@ mps_roots.oct: octave-module.cc
 	$(MKOCTFILE) $(MOD_CFLAGS) -D__UNDEF_CPLUSPLUS -D__USE_BOOL_AS_BOOLEAN -o mps_roots.oct octave-module.cc $(MOD_LDFLAGS)
 
 mps_roots.mex: matlab-module.c
-	$(MEX) -output mps_roots -D__USE_BOOL_AS_BOOLEAN -L../src -I../include \
+	$(MEX) -output mps_roots $(MOD_CFLAGS) -D__USE_BOOL_AS_BOOLEAN \
 	$(MOD_LDFLAGS) matlab-module.c
 
 secular: secular.c shared_libs
