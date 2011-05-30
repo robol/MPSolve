@@ -9,18 +9,40 @@
 ** (C) 2001, Dipartimento di Matematica, FRISCO LTR 21024 **
 ***********************************************************/
 
+/**
+ * @file
+ * @brief Implementation of the newton correction computation
+ * routines.
+ */
+
 #include <mps/core.h>
 
-/**********************************************************
-*                     SUBROUTINE FNEWTON                  *
-***********************************************************
-* Compute the Newton correction c=p(z)/p'(z) together with*
-* the value s=|p|(|z|)/|p'(z)|,                           *
-* and set cont=true if |c|>4*n*EPS*s and false, otherwise.*
-* Use different formulae according to the cases           *
-* |z|>1 and |z|<=1 in order to avoid overflow.            *
-* Real coefficients: to be implemented                    *
-**********************************************************/
+/**
+ * @brief Compute the Newton correction, i.e. and the value \f$s\f$
+ * given by:
+ * \f[
+ *      nwt = \frac{p(z)}{p'(z)} \qquad s =
+ *      \left\lvert \frac{p(\lvert z \rvert)}{p'(\lvert z \rvert)} \right\rvert
+ * \f]
+ * and set the parameter <code>cont</code> to <code>true</code> if
+ * the newton correction is greater than \f$4n\epsilon s\f$ and to
+ * false otherwise.
+ *
+ * @param s The mps_status struct pointer.
+ * @param n The degree of the polynomial.
+ * @param z The value of \f$z\f$ for which the computation should be
+ *  performed.
+ * @param radius A pointer to the value that will be set to the
+ *  computed inclusion radius.
+ * @param corr Value that will be set to the newton correction,
+ *  once computed.
+ * @param fpc Array with the floating point coefficients of the
+ *  polynomial.
+ * @param fap Array with the floating points moduli of the coefficient
+ *  of the polynomial.
+ * @param cont mps_boolean value that will be set to true if another
+ *  iteration is needed, to false otherwise.
+ */
 void
 mps_fnewton(mps_status* s, int n, cplx_t z, double *radius, cplx_t corr,
 	    cplx_t fpc[], double fap[], mps_boolean * cont)
@@ -102,14 +124,38 @@ mps_fnewton(mps_status* s, int n, cplx_t z, double *radius, cplx_t corr,
   }
 }
 
-/**********************************************************
-*                     SUBROUTINE DNEWTON                  *
-***********************************************************
-* Compute the Newton correction c=p(z)/p'(z) together with*
-* the value s=|p|(|z|)/|p'(z)|,                           *
-* and set cont=.true. if |c|>4*n*EPS*s .false., otherwise.*
-* Real coefficients: to be implemented                    *
-**********************************************************/
+
+/**
+ * @brief Compute the Newton correction, i.e. and the value \f$s\f$
+ * given by:
+ * \f[
+ *      nwt = \frac{p(z)}{p'(z)} \qquad s =
+ *      \left\lvert \frac{p(\lvert z \rvert)}{p'(\lvert z \rvert)} \right\rvert
+ * \f]
+ * and set the parameter <code>cont</code> to <code>true</code> if
+ * the newton correction is greater than \f$4n\epsilon s\f$ and to
+ * false otherwise.
+ *
+ * This routine is the DPE version of <code>mps_fnewton()</code>.
+ *
+ *
+ * @param s The mps_status struct pointer.
+ * @param n The degree of the polynomial.
+ * @param z The value of \f$z\f$ for which the computation should be
+ *  performed.
+ * @param radius A pointer to the value that will be set to the
+ *  computed inclusion radius.
+ * @param corr Value that will be set to the newton correction,
+ *  once computed.
+ * @param fpc Array with the DPE coefficients of the
+ *  polynomial.
+ * @param fap Array with the DPE moduli of the coefficient
+ *  of the polynomial.
+ * @param cont mps_boolean value that will be set to true if another
+ *  iteration is needed, to false otherwise.
+ *
+ * @see mps_fnewton()
+ */
 void
 mps_dnewton(mps_status* s, int n, cdpe_t z, rdpe_t radius, cdpe_t corr,
 	    cdpe_t dpc[], rdpe_t dap[], mps_boolean * cont)
@@ -178,12 +224,20 @@ mps_intlog2(int n)
   return k;
 }
 
-/****************************************************
-*              SUBROUTINE PARHORNER                 *   
-***************************************************** 
-* Computes p(z) by means of the parallel Horner     *
-* algorithm  b(i)= .false. means p(i)=0             *
-****************************************************/
+/**
+ * @brief Compute \f$p(z)\f$ by means of the Horner rule.
+ *
+ * @param st The pointer to the mps_status struct.
+ * @param n The degree of the polynomial.
+ * @param x The point in which the polynomial should be evaluated.
+ * @param p Vector of the coefficients of the polynomial.
+ * @param b Sparsity vector. If <code>b[i] == 0</code> then
+ *  <code>p[i] == 0</code>.
+ * @param s RDPE pointer in which the result will be stored
+ * @param n_thread The index of the thread that is calling this
+ *  routine. This is used to determine a safe memory are
+ *  for temporary sparsity vectors.
+ */
 void
 mps_parhorner(mps_status* st, int n, mpc_t x, mpc_t p[], 
 	      mps_boolean b[], mpc_t s, int n_thread)
@@ -192,6 +246,8 @@ mps_parhorner(mps_status* st, int n, mpc_t x, mpc_t p[],
   tmpc_t tmp, y;
   mps_boolean bi;
 
+  /* Set the pointer for paraller horner to be thread specific
+   * so there is not conflict with other threads.           */
   mps_boolean* spar2 = st->spar2 + (st->n + 2) * n_thread;
   mpc_t* mfpc2 = st->mfpc2 + (st->n + 1) * n_thread;
 
@@ -230,16 +286,25 @@ mps_parhorner(mps_status* st, int n, mpc_t x, mpc_t p[],
     mpc_sqr_eq(y);
   }
   mpc_set(s, mfpc2[0]);
+
   tmpc_clear(y);
   tmpc_clear(tmp);
 }
 
-/****************************************************
-*              SUBROUTINE APARHORNER                *   
-***************************************************** 
-* Computes |p|(|z|) by means of the parallel Horner *
-* algorithm  b(i)= .false. means p(i)=0             *
-****************************************************/
+/**
+ * @brief Compute \f$p(z)\f$ by means of the parallel Horner rule.
+ *
+ * @param st The pointer to the mps_status struct.
+ * @param n The degree of the polynomial.
+ * @param x The point in which the polynomial should be evaluated.
+ * @param p Vector of the coefficients of the polynomial.
+ * @param b Sparsity vector. If <code>b[i] == 0</code> then
+ *  <code>p[i] == 0</code>.
+ * @param s RDPE pointer in which the result will be stored
+ * @param n_thread The index of the thread that is calling this
+ *  routine. This is used to determine a safe memory are
+ *  for temporary sparsity vectors.
+ */
 void
 mps_aparhorner(mps_status* st, 
 	       int n, rdpe_t x, rdpe_t p[], mps_boolean b[], rdpe_t s, int n_thread)
@@ -248,6 +313,8 @@ mps_aparhorner(mps_status* st,
   rdpe_t y, tmp;
   mps_boolean bi;
 
+  /* Set the pointer for paraller horner to be thread specific
+   * so there is not conflict with other threads.           */
   mps_boolean* spar2 = st->spar2 + (st->n+2) * n_thread;
   rdpe_t* dap2 = st->dap2 + (st->n+1) * n_thread;
 
@@ -283,19 +350,43 @@ mps_aparhorner(mps_status* st,
   rdpe_set(s, dap2[0]);
 }
 
-/******************************************************
-*              SUBROUTINE MNEWTON                     *   
-******************************************************* 
-* Compute the Newton correction c=p(z)/p'(z) together *
-* with the value s=|p|(|z|)/|p'(z)|, and set cont     *
-* .true. if |c|>4*n*EPS*s, .false. otherwise,         *
-* where EPS is the current epsilon-precision.         *
-* For dense polynomials the computation of the values *
-* p(z) and p'(z) is  performed with Horner's method,  *
-* if the polynomial is sparse then the 'parallel'     *
-* Horner's  algorithm is used.                        *
-* Real coefficients: to be implemented                *
-******************************************************/
+/**
+ * @brief Compute the Newton correction, i.e. and the value \f$s\f$
+ * given by:
+ * \f[
+ *      nwt = \frac{p(z)}{p'(z)} \qquad s =
+ *      \left\lvert \frac{p(\lvert z \rvert)}{p'(\lvert z \rvert)} \right\rvert
+ * \f]
+ * and set the parameter <code>cont</code> to <code>true</code> if
+ * the newton correction is greater than \f$4n\epsilon s\f$ and to
+ * false otherwise.
+ *
+ * This routine is the multiprecision version of <code>mps_fnewton()</code>.
+ * It differs from these routines, indeed, because it uses a more
+ * sophisticated tecnique to perform the computation:
+ * - If the polynomial are dense the computation is performed with
+ *   the Horner's rule
+ * - If the polynomial is sparse then the computation is performed
+ *   with the parallel Horner algorithm.
+ *
+ * @param s The mps_status struct pointer.
+ * @param n The degree of the polynomial.
+ * @param z The value of \f$z\f$ for which the computation should be
+ *  performed.
+ * @param radius A pointer to the value that will be set to the
+ *  computed inclusion radius.
+ * @param corr Value that will be set to the newton correction,
+ *  once computed.
+ * @param fpc Array with the DPE coefficients of the
+ *  polynomial.
+ * @param fap Array with the DPE moduli of the coefficient
+ *  of the polynomial.
+ * @param cont mps_boolean value that will be set to true if another
+ *  iteration is needed, to false otherwise.
+ *
+ * @see mps_fnewton()
+ * @see mps_dnewton()
+ */
 void
 mps_mnewton(mps_status* s, int n, mpc_t z, rdpe_t radius, mpc_t corr,
 	    mpc_t mfpc[], mpc_t mfppc[], rdpe_t dap[],
@@ -306,6 +397,8 @@ mps_mnewton(mps_status* s, int n, mpc_t z, rdpe_t radius, mpc_t corr,
   cdpe_t temp1;
   tmpc_t p, p1;
 
+  /* Set the pointer for mnewton to be thread specific
+   * so there is not conflict with other threads.      */
   mps_boolean* spar2 = s->spar2 + (s->n+2) * n_thread;
 
   tmpc_init2(p, s->mpwp);

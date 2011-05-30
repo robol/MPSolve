@@ -5,6 +5,11 @@
  *      Author: leonardo
  */
 
+/**
+ * @file
+ * @brief Implementation of coordination routines for multithreading.
+ */
+
 #include <mps/core.h>
 #include <mps/threading.h>
 #include <pthread.h>
@@ -33,7 +38,7 @@ mps_thread_job_queue_new(mps_status* s)
 }
 
 /*
- * @brief Free a mps_thread_job_queue previosuly allocated
+ * @brief Free a mps_thread_job_queue previously allocated
  * with mps_thread_job_queue_new ().
  */
 void
@@ -43,8 +48,8 @@ mps_thread_job_queue_free(mps_thread_job_queue* q)
   free(q);
 }
 
-/*
- * @brief Obtain iter and i for the next avaiable job.
+/**
+ * @brief Obtain iter and i for the next available job.
  */
 mps_thread_job
 mps_thread_job_queue_next(mps_status* s, mps_thread_job_queue* q)
@@ -282,7 +287,9 @@ mps_thread_mpolzer_worker(void* data_ptr)
   /* initialize the iteration counter */
   (*data->excep) = false;
 
-  while (!(*data->excep)) //  && (*data->nzeros) < s->n)
+  /* Continue to iterate while exception condition has not
+   * been reached and there more roots to approximate   */
+  while (!(*data->excep) && (*data->nzeros) < s->n)
     {
       /* Get next job for this thread */
       job = mps_thread_job_queue_next(s, data->queue);
@@ -300,15 +307,21 @@ mps_thread_mpolzer_worker(void* data_ptr)
       l = s->clust[job.i];
       if (s->again[l])
         {
+          /* Lock roots_mutex to assure that we are the only thread
+           * working on this root. Parallel computation on the same
+           * root is not useful, since we would be performing the
+           * same computations.                                  */
           pthread_mutex_lock(&data->roots_mutex[l]);
 
-          /* Check if, while we were waiting, excep condition has been reached */
+          /* Check if, while we were waiting, excep condition has been reached,
+           * or all the zeros has been approximated.                         */
           if (*data->excep || (*data->nzeros) >= s->n)
             {
               pthread_mutex_unlock(&data->roots_mutex[l]);
               return 0;
             }
 
+          /* Increment total iteration counter */
           (*data->it)++;
 
           /* Copy locally the root to work on */
@@ -410,7 +423,7 @@ mps_thread_mpolzer_worker(void* data_ptr)
 }
 
 /**
- * @brief Drop-in replacement for the stock mpolzer.
+ * @brief Drop-in threaded replacement for the stock mpolzer.
  */
 void
 mps_thread_mpolzer(mps_status* s, int *it, mps_boolean *excep)
@@ -419,6 +432,7 @@ mps_thread_mpolzer(mps_status* s, int *it, mps_boolean *excep)
   pthread_t* threads = (pthread_t*) malloc(sizeof(pthread_t) * n_threads);
   mps_thread_worker_data* data;
 
+  /* Allocate and the init mutexes needed by the routine */
   pthread_mutex_t* roots_mutex = (pthread_mutex_t*) malloc(sizeof(pthread_mutex_t) * s->n);
   pthread_mutex_t* aberth_mutex = (pthread_mutex_t*) malloc(sizeof(pthread_mutex_t) * s->n);
   for(i = 0; i < s->n; i++)
@@ -427,12 +441,13 @@ mps_thread_mpolzer(mps_status* s, int *it, mps_boolean *excep)
       pthread_mutex_init(&roots_mutex[i], NULL);
     }
 
+  /* Create a new work queue */
   mps_thread_job_queue* queue = mps_thread_job_queue_new(s);
 
   *it = 0;
   *excep = false;
 
-  /* count the number of approximations in the root neighbourhood */
+  /* Count the number of approximations in the root neighbourhood */
   for (i = 0; i < s->n; i++)
     if (!s->again[i])
       nzeros++;
@@ -442,12 +457,10 @@ mps_thread_mpolzer(mps_status* s, int *it, mps_boolean *excep)
       return;
     }
 
-  *it = 0;
-  *excep = false;
-
   data = (mps_thread_worker_data*) malloc(sizeof(mps_thread_worker_data)
       * n_threads);
 
+  /* Set data to be passed to every thread and actually spawn the threads. */
   for (i = 0; i < n_threads; i++)
     {
       data[i].it = it;
@@ -462,10 +475,13 @@ mps_thread_mpolzer(mps_status* s, int *it, mps_boolean *excep)
       pthread_create(&threads[i], NULL, &mps_thread_mpolzer_worker, data + i);
     }
 
+  /* Wait for the threads to complete */
   for (i = 0; i < n_threads; i++)
     {
       pthread_join(threads[i], NULL);
     }
+
+  /* Free data and exit */
   free(data);
   free(threads);
   for(i = 0; i < s->n; i++)
