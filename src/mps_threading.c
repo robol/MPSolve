@@ -163,11 +163,11 @@ mps_thread_fpolzer_worker(void* data_ptr)
   mps_thread_worker_data* data = (mps_thread_worker_data*) data_ptr;
   mps_status* s = data->s;
   int i, iter;
-  cplx_t corr, abcorr;
+  cplx_t corr, abcorr, froot;
   double rad1, modcorr;
   mps_thread_job job;
 
-  while (!(*data->excep))
+  while (!(*data->excep) && (*data->nzeros) < s->n)
     {
       job = mps_thread_job_queue_next(s, data->queue);
       i = job.i;
@@ -187,7 +187,7 @@ mps_thread_fpolzer_worker(void* data_ptr)
           pthread_mutex_lock(&data->roots_mutex[i]);
 
           /* Check if, while we were waiting, excep condition has been reached */
-          if (*data->excep)
+          if (*data->excep || !s->again[i] || (*data->nzeros > s->n))
             {
               pthread_mutex_unlock(&data->roots_mutex[i]);
               return 0;
@@ -196,9 +196,10 @@ mps_thread_fpolzer_worker(void* data_ptr)
           (*data->it)++;
 
           rad1 = s->frad[i];
+          cplx_set(froot, s->froot[i]);
           if (s->data_type[0] != 'u')
             {
-              mps_fnewton(s, s->n, s->froot[i], &s->frad[i], corr, s->fpc,
+              mps_fnewton(s, s->n, froot, &s->frad[i], corr, s->fpc,
                   s->fap, &s->again[i]);
               if (iter == 0 && !s->again[i] && s->frad[i] > rad1 && rad1 != 0)
                 s->frad[i] = rad1;
@@ -214,11 +215,12 @@ mps_thread_fpolzer_worker(void* data_ptr)
             }
           else if (s->fnewton_usr != NULL)
             {
-              (*s->fnewton_usr)(s, s->froot[i], &s->frad[i], corr, &s->again[i]);
+              (*s->fnewton_usr)(s, froot, &s->frad[i], corr, &s->again[i]);
+              MPS_DEBUG_CPLX(s, froot, "Corr on %d", i)
             }
           else
             {
-              mps_fnewton_usr(s, s->froot[i], &s->frad[i], corr, &s->again[i]);
+              mps_fnewton_usr(s, froot, &s->frad[i], corr, &s->again[i]);
             }
 
           if (s->again[i] ||
@@ -229,9 +231,11 @@ mps_thread_fpolzer_worker(void* data_ptr)
               cplx_mul_eq(abcorr, corr);
               cplx_sub(abcorr, cplx_one, abcorr);
               cplx_div(abcorr, corr, abcorr);
-              cplx_sub_eq(s->froot[i], abcorr);
+              cplx_sub_eq(froot, abcorr);
               modcorr = cplx_mod(abcorr);
               s->frad[i] += modcorr;
+
+              cplx_set(s->froot[i], froot);
             }
 
           /* check for new approximated roots */

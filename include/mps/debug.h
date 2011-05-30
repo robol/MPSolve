@@ -6,7 +6,7 @@
  */
 
 #ifndef DEBUG_H
-#define	DEBUG_H
+#define	 DEBUG_H
 
 #ifdef	__cplusplus
 extern "C" {
@@ -77,7 +77,7 @@ if (s->DOLOG) { \
 /**
  * @brief Debug the values of a cplx_t variable
  */
-#define MPS_DEBUG_CPLX(s, c, name...) __MPS_DEBUG_EQ(s, name); \
+#define MPS_DEBUG_CPLX(s, c, name...)  __MPS_DEBUG_EQ(s, name); \
 if (s->DOLOG) { \
     cplx_outln(c); \
 }
@@ -96,7 +96,9 @@ if (s->DOLOG) { \
  */
 #define __MPS_DEBUG_EQ(s, templ...) \
     __MPS_DEBUG(s, templ) \
-    if (s->DOLOG) { fprintf(s->logstr, " = "); }
+    if (s->DOLOG) { \
+      fprintf(s->logstr, " = "); \
+    }
 
 /**
  * @brief Debug that a function is going to be called.

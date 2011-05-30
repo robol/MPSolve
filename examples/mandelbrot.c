@@ -27,8 +27,9 @@ The formulae for the computation of apeps and rad are
 obtained by means of a rounding error analysis of (1).
 **********************************************************/
 
-#include <mps/interface.h>
+#include <mps/core.h>
 #include <mps/threading.h>
+#include <mps/debug.h>
 #include <math.h>
 #include <mps/mptemp.h>
 #include <mps/tools.h>
@@ -71,6 +72,7 @@ fnewton_usr(mps_status* s, cplx_t x, double *rad, cplx_t corr, mps_boolean * aga
     ap = ap * ax + cplx_mod(p);
   }
   ap = ap * ax;
+
   cplx_div(corr, p, pp);
 
   *again = cplx_mod(p) > eps * ap * 3;
@@ -199,6 +201,7 @@ mnewton_usr(mps_status* s, mpc_t x, rdpe_t rad, mpc_t corr, mps_boolean * again)
 int main(int argc, char** argv) {
 
   mps_status* s = mps_status_new();
+  s->n_threads= 1;
   s->DOLOG = true;
   int n = 255;
 
