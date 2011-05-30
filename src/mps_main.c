@@ -69,6 +69,7 @@ void mps_mpsolve(mps_status* s) {
 		if (s->check_data_usr != NULL)
 			(*s->check_data_usr)(s, &which_case);
 		else
+		  /* Otherwise fallback on the standard check_data routine */
 		  mps_check_data(s, &which_case);
 	}
 

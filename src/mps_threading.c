@@ -21,9 +21,9 @@
  * known to this implementations.
  */
 int
-mps_thread_get_core_number (mps_status* s)
+mps_thread_get_core_number(mps_status* s)
 {
-  FILE* cpuinfo = fopen ("/proc/cpuinfo", "r");
+  FILE* cpuinfo = fopen("/proc/cpuinfo", "r");
   char buf;
   int cores = 0;
 
@@ -37,10 +37,10 @@ mps_thread_get_core_number (mps_status* s)
 
   /* Check for newlines in /proc/cpuinfo, that should correspond
    * to logical cores.                                        */
-  while ((buf = fgetc (cpuinfo)) != EOF)
+  while ((buf = fgetc(cpuinfo)) != EOF)
     {
       if (buf == '\n')
-        if (fgetc (cpuinfo) == '\n')
+        if (fgetc(cpuinfo) == '\n')
           cores++;
     }
 
@@ -180,7 +180,6 @@ mps_thread_fpolzer_worker(void* data_ptr)
           return 0;
         }
 
-
       if (s->again[i])
         {
           /* Lock this roots to make sure that we are the only one working on it */
@@ -199,8 +198,8 @@ mps_thread_fpolzer_worker(void* data_ptr)
           cplx_set(froot, s->froot[i]);
           if (s->data_type[0] != 'u')
             {
-              mps_fnewton(s, s->n, froot, &s->frad[i], corr, s->fpc,
-                  s->fap, &s->again[i]);
+              mps_fnewton(s, s->n, froot, &s->frad[i], corr, s->fpc, s->fap,
+                  &s->again[i]);
               if (iter == 0 && !s->again[i] && s->frad[i] > rad1 && rad1 != 0)
                 s->frad[i] = rad1;
               /***************************************
@@ -269,9 +268,10 @@ mps_thread_fpolzer(mps_status* s, int* it, mps_boolean* excep)
   mps_thread_worker_data* data;
   pthread_mutex_t aberth_mutex =
   PTHREAD_MUTEX_INITIALIZER;
-  pthread_mutex_t* roots_mutex = (pthread_mutex_t*) malloc(sizeof(pthread_mutex_t) * s->n);
+  pthread_mutex_t* roots_mutex = (pthread_mutex_t*) malloc(
+      sizeof(pthread_mutex_t) * s->n);
 
-  for(i = 0; i < s->n; i++)
+  for (i = 0; i < s->n; i++)
     pthread_mutex_init(roots_mutex + i, NULL);
 
   /* Create a new job queue */
@@ -313,6 +313,177 @@ mps_thread_fpolzer(mps_status* s, int* it, mps_boolean* excep)
     }
   free(data);
   free(threads);
+  free(roots_mutex);
+  mps_thread_job_queue_free(queue);
+}
+
+/**
+ * @brief Multithread worker for mps_thread_dpolzer ()
+ */
+void*
+mps_thread_dpolzer_worker(void* data_ptr)
+{
+  int iter, i, nzeros;
+  rdpe_t rad1, rtmp;
+  cdpe_t corr, abcorr;
+
+  /* Parse input data */
+  mps_thread_worker_data *data = (mps_thread_worker_data*) data_ptr;
+  mps_status *s = data->s;
+  mps_thread_job job;
+
+  while (!(*data->excep) && (*data->nzeros < s->n))
+    {
+      job = mps_thread_job_queue_next(s, data->queue);
+      i = job.i;
+      iter = job.iter;
+
+      MPS_DEBUG(s, "Iterating on iter = %d, i = %d", iter, i)
+
+      /* Check if we got over the maximum number of iterations */
+      if (job.iter == MPS_THREAD_JOB_EXCEP)
+        {
+          (*data->excep) = true;
+          return 0;
+        }
+
+      if (s->again[i])
+        {
+          /* Make sure that we are the only one iterating on this root */
+          pthread_mutex_lock(&data->roots_mutex[i]);
+
+          /* Check if, while we were waiting, excep condition has been reached */
+          if (*data->excep || !s->again[i] || (*data->nzeros > s->n))
+            {
+              pthread_mutex_unlock(&data->roots_mutex[i]);
+              return 0;
+            }
+
+          (*data->it)++;
+          rdpe_set(rad1, s->drad[i]);
+
+          if (s->data_type[0] != 'u')
+            {
+              mps_dnewton(s, s->n, s->droot[i], s->drad[i], corr, s->dpc,
+                  s->dap, &s->again[i]);
+              if (iter == 0 && !s->again[i] && rdpe_gt(s->drad[i], rad1)
+                  && rdpe_ne(rad1, rdpe_zero))
+                rdpe_set(s->drad[i], rad1);
+            }
+          else if (s->dnewton_usr != NULL)
+            {
+              (*s->dnewton_usr)(s, s->droot[i], s->drad[i], corr, &s->again[i]);
+            }
+          else
+            {
+              mps_dnewton_usr(s, s->droot[i], s->drad[i], corr, &s->again[i]);
+            }
+
+          /************************************************
+           The above condition is needed to manage with the case where
+           at the first iteration the starting point is already in the
+           root neighbourhood and the actually computed radius is too
+           big since the value of the first derivative is too small.
+           In this case the previous radius bound, obtained by means of
+           Rouche' is more reliable and strict
+           **********************************************/
+
+          if (s->again[i] ||
+          /* the correction is performed only if iter!=1 or rad(i)!=rad1 */
+          s->data_type[0] == 'u' || iter != 0 || rdpe_ne(s->drad[i], rad1))
+            {
+              mps_daberth(s, i, abcorr);
+              cdpe_mul_eq(abcorr, corr);
+              cdpe_sub(abcorr, cdpe_one, abcorr);
+              cdpe_div(abcorr, corr, abcorr);
+              cdpe_sub_eq(s->droot[i], abcorr);
+              cdpe_mod(rtmp, abcorr);
+              rdpe_add_eq(s->drad[i], rtmp);
+            }
+
+          /* check for new approximated roots */
+          if (!s->again[i])
+            {
+              nzeros++;
+              if (nzeros == s->n)
+                {
+                  pthread_mutex_unlock(&data->roots_mutex[i]);
+                  return 0;
+                }
+            }
+          pthread_mutex_unlock(&data->roots_mutex[i]);
+        }
+    }
+
+  return 0;
+}
+
+/**
+ * @brief Multithread version of mps_dpolzer ().
+ */
+void
+mps_thread_dpolzer(mps_status* s, int* it, mps_boolean* excep)
+{
+  mps_thread_worker_data *data;
+  pthread_t *threads;
+  pthread_mutex_t *aberth_mutex, *roots_mutex;
+  int i, nzeros = 0;
+
+  /* count the number of approximations in the root neighbourhood */
+  for (i = 0; i < s->n; i++)
+    if (!s->again[i])
+      nzeros++;
+  if (nzeros == s->n)
+    return;
+
+  /* Allocate threads */
+  threads = (pthread_t*) malloc (sizeof(pthread_t) * s->n_threads);
+
+  /* Prepare queue */
+  mps_thread_job_queue *queue = mps_thread_job_queue_new(s);
+
+  /* Allocate space for thread data */
+  data = (mps_thread_worker_data*) malloc(sizeof(mps_thread_worker_data)
+      * s->n_threads);
+
+  /* initialize the iteration counter */
+  *it = 0;
+  *excep = false;
+
+  /* Allocate mutexes and init them */
+  aberth_mutex = (pthread_mutex_t*) malloc(sizeof(pthread_mutex_t) * s->n);
+  roots_mutex = (pthread_mutex_t*) malloc(sizeof(pthread_mutex_t) * s->n);
+  for (i = 0; i < s->n; i++)
+    {
+      pthread_mutex_init(&aberth_mutex[i], NULL);
+      pthread_mutex_init(&roots_mutex[i], NULL);
+    }
+
+  /* Start spawning thread */
+  for (i = 0; i < s->n_threads; i++)
+    {
+      data[i].aberth_mutex = aberth_mutex;
+      data[i].excep = excep;
+      data[i].it = it;
+      data[i].n_threads = s->n_threads;
+      data[i].nzeros = &nzeros;
+      data[i].queue = queue;
+      data[i].roots_mutex = roots_mutex;
+      data[i].s = s;
+      data[i].thread = i;
+      MPS_DEBUG(s, "Spawning thread %d", i)
+      MPS_DEBUG(s, "Ciao")
+      pthread_create(&threads[i], NULL, &mps_thread_dpolzer_worker, &data[i]);
+    }
+
+  /* Wait for the thread to complete */
+  for (i = 0; i < s->n_threads; i++)
+    {
+      pthread_join(threads[i], NULL);
+    }
+
+  free(threads);
+  free(aberth_mutex);
   free(roots_mutex);
   mps_thread_job_queue_free(queue);
 }
@@ -387,8 +558,8 @@ mps_thread_mpolzer_worker(void* data_ptr)
             {
               /* sparse/dense polynomial */
               rdpe_set(rad1, s->drad[l]);
-              mps_mnewton(s, s->n, mroot, s->drad[l], corr, s->mfpc,
-                  s->mfppc, s->dap, s->spar, &s->again[l], data->thread);
+              mps_mnewton(s, s->n, mroot, s->drad[l], corr, s->mfpc, s->mfppc,
+                  s->dap, s->spar, &s->again[l], data->thread);
               if (iter == 0 && !s->again[l] && rdpe_gt(s->drad[l], rad1)
                   && rdpe_ne(rad1, rdpe_zero))
                 rdpe_set(s->drad[l], rad1);
@@ -420,7 +591,7 @@ mps_thread_mpolzer_worker(void* data_ptr)
               /* Compute Aberth correction manually so we can lock the
                * roots while reading them.                          */
               cdpe_set(abcorr_cdpe, cdpe_zero);
-              for(k = s->punt[job.i_clust]; k < s->punt[job.i_clust + 1]; k++)
+              for (k = s->punt[job.i_clust]; k < s->punt[job.i_clust + 1]; k++)
                 {
                   if (k == l)
                     continue;
@@ -490,9 +661,11 @@ mps_thread_mpolzer(mps_status* s, int *it, mps_boolean *excep)
   mps_thread_worker_data* data;
 
   /* Allocate and the init mutexes needed by the routine */
-  pthread_mutex_t* roots_mutex = (pthread_mutex_t*) malloc(sizeof(pthread_mutex_t) * s->n);
-  pthread_mutex_t* aberth_mutex = (pthread_mutex_t*) malloc(sizeof(pthread_mutex_t) * s->n);
-  for(i = 0; i < s->n; i++)
+  pthread_mutex_t* roots_mutex = (pthread_mutex_t*) malloc(
+      sizeof(pthread_mutex_t) * s->n);
+  pthread_mutex_t* aberth_mutex = (pthread_mutex_t*) malloc(
+      sizeof(pthread_mutex_t) * s->n);
+  for (i = 0; i < s->n; i++)
     {
       pthread_mutex_init(&aberth_mutex[i], NULL);
       pthread_mutex_init(&roots_mutex[i], NULL);
@@ -541,7 +714,7 @@ mps_thread_mpolzer(mps_status* s, int *it, mps_boolean *excep)
   /* Free data and exit */
   free(data);
   free(threads);
-  for(i = 0; i < s->n; i++)
+  for (i = 0; i < s->n; i++)
     {
       pthread_mutex_destroy(&roots_mutex[i]);
       pthread_mutex_destroy(&aberth_mutex[i]);

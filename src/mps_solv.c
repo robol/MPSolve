@@ -2303,7 +2303,8 @@ void mps_dsolve(mps_status* s, mps_boolean d_after_f) {
 		fprintf(s->logstr, "   DSOLVE: call dpolzero\n");
 
 	for (iter = 0; iter < s->max_pack; iter++) { /* dloop : DO iter=1,s->max_pack */
-		mps_dpolzer(s, &nit, &excep);
+		// mps_dpolzer(s, &nit, &excep);
+                mps_thread_dpolzer(s, &nit, &excep);
 		it_pack += nit;
 
 		if (s->DOLOG)
