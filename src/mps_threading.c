@@ -338,8 +338,6 @@ mps_thread_dpolzer_worker(void* data_ptr)
       i = job.i;
       iter = job.iter;
 
-      MPS_DEBUG(s, "Iterating on iter = %d, i = %d", iter, i)
-
       /* Check if we got over the maximum number of iterations */
       if (job.iter == MPS_THREAD_JOB_EXCEP)
         {
@@ -429,6 +427,10 @@ mps_thread_dpolzer(mps_status* s, int* it, mps_boolean* excep)
   pthread_mutex_t *aberth_mutex, *roots_mutex;
   int i, nzeros = 0;
 
+  /* initialize the iteration counter */
+  *it = 0;
+  *excep = false;
+
   /* count the number of approximations in the root neighbourhood */
   for (i = 0; i < s->n; i++)
     if (!s->again[i])
@@ -446,9 +448,6 @@ mps_thread_dpolzer(mps_status* s, int* it, mps_boolean* excep)
   data = (mps_thread_worker_data*) malloc(sizeof(mps_thread_worker_data)
       * s->n_threads);
 
-  /* initialize the iteration counter */
-  *it = 0;
-  *excep = false;
 
   /* Allocate mutexes and init them */
   aberth_mutex = (pthread_mutex_t*) malloc(sizeof(pthread_mutex_t) * s->n);
@@ -471,8 +470,6 @@ mps_thread_dpolzer(mps_status* s, int* it, mps_boolean* excep)
       data[i].roots_mutex = roots_mutex;
       data[i].s = s;
       data[i].thread = i;
-      MPS_DEBUG(s, "Spawning thread %d", i)
-      MPS_DEBUG(s, "Ciao")
       pthread_create(&threads[i], NULL, &mps_thread_dpolzer_worker, &data[i]);
     }
 
