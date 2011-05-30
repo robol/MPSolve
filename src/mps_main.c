@@ -68,6 +68,8 @@ void mps_mpsolve(mps_status* s) {
 		 * check_data routine. */
 		if (s->check_data_usr != NULL)
 			(*s->check_data_usr)(s, &which_case);
+		else
+		  mps_check_data(s, &which_case);
 	}
 
 	if (s->DOLOG)

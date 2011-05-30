@@ -201,8 +201,6 @@ mnewton_usr(mps_status* s, mpc_t x, rdpe_t rad, mpc_t corr, mps_boolean * again)
 int main(int argc, char** argv) {
 
   mps_status* s = mps_status_new();
-  s->n_threads= 1;
-  s->DOLOG = true;
   int n = 255;
 
   /* Set user poly */
@@ -210,7 +208,6 @@ int main(int argc, char** argv) {
 		  MPS_FNEWTON_PTR(fnewton_usr),  /* floating point */
 		  MPS_DNEWTON_PTR(dnewton_usr),  /* dpe version    */
 		  MPS_MNEWTON_PTR(mnewton_usr)); /* multiprecision */
-
   /* Start computation */
   mps_mpsolve(s);
 
