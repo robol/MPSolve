@@ -158,11 +158,19 @@ typedef struct {
 
 } mps_thread_worker_data;
 
+
+
+
+/* EXPORTED ROUTINES */
+
 void
 mps_thread_fpolzer(mps_status* s, int* nit, mps_boolean* excep);
 
 void
 mps_thread_mpolzer(mps_status* s, int *nit, mps_boolean *excep);
+
+int
+mps_thread_get_core_number (mps_status* s);
 
 
 #ifdef __cplusplus

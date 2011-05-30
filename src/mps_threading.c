@@ -13,8 +13,40 @@
 #include <mps/core.h>
 #include <mps/threading.h>
 #include <pthread.h>
-#include <semaphore.h>
-#include <sched.h>
+#include <stdio.h>
+
+/**
+ * @brief Get number of logic cores on the local machine, or
+ * 0 if that information is not available with the method
+ * known to this implementations.
+ */
+int
+mps_thread_get_core_number (mps_status* s)
+{
+  FILE* cpuinfo = fopen ("/proc/cpuinfo", "r");
+  char buf;
+  int cores = 0;
+
+  /* If the metafile /proc/cpuinfo is not available
+   * return 0                                    */
+  if (!cpuinfo)
+    {
+      MPS_DEBUG(s, "Found %d cores on this system", cores)
+      return cores;
+    }
+
+  /* Check for newlines in /proc/cpuinfo, that should correspond
+   * to logical cores.                                        */
+  while ((buf = fgetc (cpuinfo)) != EOF)
+    {
+      if (buf == '\n')
+        if (fgetc (cpuinfo) == '\n')
+          cores++;
+    }
+
+  MPS_DEBUG(s, "Found %d cores on this system", cores)
+  return cores;
+}
 
 /**
  * @brief Create a new mps_thread_job_queue that can
@@ -363,8 +395,8 @@ mps_thread_mpolzer_worker(void* data_ptr)
           /* the correction is performed only if iter!=1 or rad[l]!=rad1 */
           s->data_type[0] == 'u' || iter != 0 || rdpe_ne(s->drad[l], rad1))
             {
-//              mps_maberth_s(s, l, job.i_clust, abcorr);
-              /* Compute Aberth correction manually so we can lock */
+              /* Compute Aberth correction manually so we can lock the
+               * roots while reading them.                          */
               cdpe_set(abcorr_cdpe, cdpe_zero);
               for(k = s->punt[job.i_clust]; k < s->punt[job.i_clust + 1]; k++)
                 {
@@ -379,6 +411,7 @@ mps_thread_mpolzer_worker(void* data_ptr)
                 }
               mpc_set_cdpe(abcorr, abcorr_cdpe);
 
+              /* Apply aberth correction that has been computed */
               mpc_mul_eq(abcorr, corr);
               mpc_neg_eq(abcorr);
               mpc_add_eq_ui(abcorr, 1, 0);
@@ -388,6 +421,8 @@ mps_thread_mpolzer_worker(void* data_ptr)
               cdpe_mod(rtmp, ctmp);
               rdpe_add_eq(s->drad[l], rtmp);
 
+              /* Lock aberth_mutex and copy the computed root back
+               * to its place                                   */
               pthread_mutex_lock(&data->aberth_mutex[l]);
               mpc_set(s->mroot[l], mroot);
               pthread_mutex_unlock(&data->aberth_mutex[l]);

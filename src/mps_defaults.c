@@ -10,6 +10,7 @@
 ***********************************************************/
 
 #include <mps/core.h>
+#include <mps/threading.h>
 #include <string.h>
 
 void mps_set_default_values(mps_status* s) {
@@ -34,8 +35,14 @@ void mps_set_default_values(mps_status* s) {
   s->max_pack = 1000;		/* number of max packets of iterations */
   s->max_it = 10;		/* number of max iterations per packet */
   s->max_newt_it = 15;		/* number of max newton iterations for */
-  s->n_threads = 12;            /* Number of threads */
-				/*   gravity center computations       */
+
+  /* Set number of threads to 1.5 * number_of_cores, if this is
+   * computable. Set it to 12 otherwise.                     */
+  s->n_threads = (int) 1.5 * mps_thread_get_core_number(s);
+  if (!s->n_threads)
+    s->n_threads = 12;
+
+
   s->mpwp_max = 1000000000;	/* maximum allowed bits for mp         */ 
   /*   numbers: used in hi-prec. shifts  */
   strncpy(s->goal, "iannc", 5);		/* stores the goal, by default "iannc" */
