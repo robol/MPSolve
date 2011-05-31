@@ -172,9 +172,6 @@ mps_thread_dpolzer(mps_status* s, int *nit, mps_boolean *excep);
 int
 mps_thread_get_core_number (mps_status* s);
 
-
-
-
 /* MACROS */
 
 /**

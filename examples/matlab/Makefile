@@ -1,6 +1,6 @@
 MEX=mex -g
 CFLAGS=-D__USE_BOOL_AS_BOOLEAN -DNOMPTEMP -I../../include
-LDFLAGS=-L../../src
+LDFLAGS=-L../../src -lm -lgmp -lpthread ../../src/libmps.a
 
 all: matlab
 	@echo "The MATLAB (TM) module has been compiled and has be named"
@@ -11,7 +11,7 @@ all: matlab
 	@echo "mps_roots.mexglx"
 
 matlab:
-	$(MEX) $(CFLAGS) $(LDFLAGS) -output mps_roots matlab-module.c -lmps -lgmp -lm -lpthread
+	$(MEX) -output mps_roots matlab-module.c $(LDFLAGS) $(CFLAGS)
 
 clean:
-	rm mps_roots*
+	rm -f mps_roots*

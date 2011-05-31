@@ -1,10 +1,13 @@
 F95=f95
 CFLAGS=-I../../include
-LDFLAGS=-L../../src
+LDFLAGS=-L../../src -lmps -lm -lgmp -lpthread -static
 
-roots_of_unity:
-	$(F95) -o roots_of_unity roots_of_unity.f90 mps.f90 mps_impl.c -lm -lmps -lgmp -lpthread \
+roots_of_unity: mps.mod
+	$(F95) -o roots_of_unity roots_of_unity.f90 mps.f90 mps_impl.c \
 	$(CFLAGS) $(LDFLAGS)
 
+mps.mod:
+	$(F95) -c mps.f90
+
 clean:
-	rm *.mod roots_of_unity
+	rm -f *.mod roots_of_unity

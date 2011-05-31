@@ -1,6 +1,6 @@
 MKOCTFILE=mkoctfile
 CFLAGS=-I../../include
-LDFLAGS=-L../../src -lgmp -lmps -lm -lpthread
+LDFLAGS=-L../../src -lgmp -lm -lpthread ../../src/libmps.a
 
 all: mps_roots.oct
 	@echo "The Octave module has been complex and has been named"

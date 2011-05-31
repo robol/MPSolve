@@ -44,16 +44,16 @@ RUROBJ = rur_horn.o rur_main.o
 
 
 # main targets
-unisolve: unisolve.o libmps.a libxt.a
+unisolve: unisolve.o libmps.a
 # 	@echo $(LINKING) unisolve
-	$(CC) -o unisolve $(LDFLAGS) $(CFLAGS) unisolve.o libmps.a libxt.a
+	$(CC) -o unisolve $(LDFLAGS) $(CFLAGS) unisolve.o libmps.a
 
-secsolve: secsolve.o libmps.a libxt.a
-	$(CC) -o secsolve $(LDFLAGS) $(CFLAGS) secsolve.o libmps.a libxt.a
+secsolve: secsolve.o libmps.a
+	$(CC) -o secsolve $(LDFLAGS) $(CFLAGS) secsolve.o libmps.a
 
-rursolve: rursolve.o $(RUROBJ) libmps.a libxt.a
+rursolve: rursolve.o $(RUROBJ) libmps.a
 # 	@echo $(LINKING) rursolve
-	$(CC) -o rursolve rursolve.o $(CFLAGFS) $(LDFLAGS) $(RUROBJ) libmps.a libxt.a
+	$(CC) -o rursolve rursolve.o $(CFLAGFS) $(LDFLAGS) $(RUROBJ) libmps.a
 
 shared_libs: libmps.so
 
@@ -72,20 +72,12 @@ secsolve.o: secsolve.c
 
 
 # build libraries
-libs: libmps.a libxt.a
-
-libxt.a: $(LIBXTOBJ)
-# 	@echo $(STATIC_LIBRARY) libxt.a
-	$(AR) $(ARFLAGS) libxt.a $(LIBXTOBJ)
-#	$(RANLIB) libxt.a
+libs: libmps.a
 
 libmps.a: $(LIBMPSOBJ)
-# 	@echo $(STATIC_LIBRARY) libmps.a
-	$(AR) $(ARFLAGS) libmps.a $(LIBMPSOBJ)
-#	$(RANLIB) libmps.a
+	$(AR) $(ARFLAGS) libmps.a $(LIBMPSOBJ) $(LIBXTOBJ)
 
 libmps.so: $(LIBMPSOBJ) $(LIBXTOBJ)
-# 	@echo $(DYNAMIC_LIBRARY) libmps.so
 	gcc -o libmps.so -shared -fPIC $(LIBMPSOBJ) $(LIBXTOBJ)
 
 
@@ -125,7 +117,7 @@ clean:
 	$(RM) *.o stats timings roots testsuite *.bak *~ core *.res *.so
 
 distclean: clean
-	$(RM) libxt.a libmps.a unisolve$(EXE) rursolve$(EXE) rurconv$(EXE)
+	$(RM) libmps.a unisolve$(EXE) rursolve$(EXE) rurconv$(EXE)
 
 # test unisolve on all polynomials in the Data directory
 # with a given target and set of options (see below)

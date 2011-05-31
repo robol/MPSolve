@@ -10,14 +10,15 @@ all: mandelbrot root_of_unity
 
 
 CFLAGS=-I../../include -DNOMPTEMP
-LDFLAGS=-L../../src
+LDFLAGS=-lmps -lm -lgmp -lpthread -L../../src -static
 CC=gcc
 
 mandelbrot: mandelbrot.c
-	$(CC) $(CFLAGS) $(LDFLAGS) -o mandelbrot -lm -lmps -lgmp -lpthread mandelbrot.c
+	$(CC) -o mandelbrot mandelbrot.c $(CFLAGS) $(LDFLAGS)
+
 
 root_of_unity: root_of_unity.c
-	$(CC) $(CFLAGS) $(LDFLAGS) -o root_of_unity -lm -lmps -lgmp -lpthread root_of_unity.c
+	$(CC) -o root_of_unity root_of_unity.c $(CFLAGS) $(LDFLAGS)
 
 clean:
-	rm root_of_unity mandelbrot
+	rm -f root_of_unity mandelbrot
