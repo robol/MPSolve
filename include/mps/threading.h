@@ -166,17 +166,14 @@ mps_thread_fpolzer(mps_status* s, int* nit, mps_boolean* excep);
 void
 mps_thread_mpolzer(mps_status* s, int *nit, mps_boolean *excep);
 
+void
+mps_thread_dpolzer(mps_status* s, int *nit, mps_boolean *excep);
+
 int
 mps_thread_get_core_number (mps_status* s);
 
-mps_boolean*
-mps_thread_get_spar2(mps_status* s, int n_thread);
 
-__mpc_struct*
-mps_thread_get_mfpc2(mps_status* s, int n_thread);
 
-__rdpe_struct*
-mps_thread_get_dap2(mps_status* s, int n_thread);
 
 /* MACROS */
 
