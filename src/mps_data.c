@@ -39,7 +39,6 @@ mps_allocate_data(mps_status* s)
 
   s->clust = int_valloc(s->deg);
   s->punt = int_valloc(s->deg + 1);
-  s->again = mps_boolean_valloc(s->deg);
   s->clust_detached = int_valloc(s->deg);
   s->again = mps_boolean_valloc(s->deg);
   s->status = (char (*)[3]) char_valloc(3 * s->deg);
@@ -66,18 +65,22 @@ mps_allocate_data(mps_status* s)
   for (i = 0; i <= s->deg; i++)
     mpc_init2(s->mfpc1[i], 0);
 
-  s->mfppc = mpc_valloc(s->deg + 1);
-  s->mfppc1 = mpc_valloc(s->deg + 1);
-  s->mfpc2 = mpc_valloc((s->deg + 2) * s->n_threads);
-  for (i = 0; i <= s->deg; i++) {
-    mpc_init2(s->mfppc[i], 0);
-    mpc_init2(s->mfppc1[i], 0);
-  }
-
-  for(i = 0; i < (s->deg+1) * s->n_threads; i++)
+  if (!s->mfppc)
     {
-      mpc_init2(s->mfpc2[i], 0);
+      s->mfppc = mpc_valloc(s->deg + 1);
+      for(i = 0; i <= s->deg; i++)
+        mpc_init2(s->mfppc[i], 0);
     }
+
+  s->mfppc1 = mpc_valloc(s->deg + 1);
+
+  s->mfpc2 = mpc_valloc((s->deg + 2) * s->n_threads);
+
+  for (i = 0; i <= s->deg; i++)
+    mpc_init2(s->mfppc1[i], 0);
+
+  for(i = 0; i < (s->deg+2) * s->n_threads; i++)
+    mpc_init2(s->mfpc2[i], 0);
 
   /* temporary vectors */
   s->spar1 = mps_boolean_valloc(s->deg + 2);

@@ -22,7 +22,7 @@ main(int argc, char *argv[])
 {
 
   mpspoly_t p;
-  mps_status* s = (mps_status*) malloc(sizeof(mps_status));
+  mps_status* s = mps_status_new ();
 
  /* Make stdout synchronous so the debugging is more
    * effective. */
@@ -56,7 +56,7 @@ main(int argc, char *argv[])
   mps_output(s);
 
   /* Free data */
-  mps_free_data(s);
+  mps_status_free (s);
 
   /* return */
   return 0;

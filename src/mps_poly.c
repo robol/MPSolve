@@ -272,7 +272,7 @@ mps_set_poly(mps_status* s, mpspoly_t p)
   s->mqp_r = p->mqp_r;
   s->mqp_i = p->mqp_i;
   s->mfpr = p->mfpr;
-  s->mfpc = p->mfpc;	
+  s->mfpc = p->mfpc;
 }
 
 /***********************************************************
