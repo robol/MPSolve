@@ -40,7 +40,9 @@ mps_allocate_data(mps_status* s)
   s->clust = int_valloc(s->deg);
   s->punt = int_valloc(s->deg + 1);
   s->clust_detached = int_valloc(s->deg);
+
   s->again = mps_boolean_valloc(s->deg);
+
   s->status = (char (*)[3]) char_valloc(3 * s->deg);
   
   s->order = int_valloc(s->deg);
@@ -65,21 +67,16 @@ mps_allocate_data(mps_status* s)
   for (i = 0; i <= s->deg; i++)
     mpc_init2(s->mfpc1[i], 0);
 
-  if (!s->mfppc)
-    {
-      s->mfppc = mpc_valloc(s->deg + 1);
-      for(i = 0; i <= s->deg; i++)
-        mpc_init2(s->mfppc[i], 0);
-    }
+  s->mfppc = mpc_valloc(s->deg + 1);
+  for(i = 0; i <= s->deg; i++)
+    mpc_init2(s->mfppc[i], 0);
 
   s->mfppc1 = mpc_valloc(s->deg + 1);
-
-  s->mfpc2 = mpc_valloc((s->deg + 2) * s->n_threads);
-
   for (i = 0; i <= s->deg; i++)
     mpc_init2(s->mfppc1[i], 0);
 
-  for(i = 0; i < (s->deg+2) * s->n_threads; i++)
+  s->mfpc2 = mpc_valloc((s->deg + 1) * s->n_threads);
+  for(i = 0; i < (s->deg+1) * s->n_threads; i++)
     mpc_init2(s->mfpc2[i], 0);
 
   /* temporary vectors */
@@ -201,7 +198,7 @@ mps_raise_data(mps_status* s, long int prec)
   }
   
   if (s->data_type[0] == 's')
-    for (k = 0; k < (s->n + 2) * s->n_threads; k++)
+    for (k = 0; k < (s->n + 1) * s->n_threads; k++)
       mpc_set_prec(s->mfpc2[k], prec);
 
   return mpc_get_prec(s->mroot[0]);
@@ -312,7 +309,7 @@ mps_free_data(mps_status* s)
 
   for (i = 0; i <= s->deg; i++)
     mpc_clear(s->mfpc1[i]);
-  free(s->mfpc1);
+  mpc_vfree(s->mfpc1);
 
   cplx_vfree(s->fppc1);
   for (i = 0; i <= s->deg; i++) {
@@ -320,9 +317,10 @@ mps_free_data(mps_status* s)
     mpc_clear(s->mfppc1[i]);
   }
 
-  for(i = 0; i < (s->deg+2)*s->n_threads; i++) {
+  for(i = 0; i < (s->deg+1) * s->n_threads; i++) {
     mpc_clear(s->mfpc2[i]);
   }
+
   free(s->mfppc);
   free(s->mfppc1);
   free(s->mfpc2);
