@@ -17,7 +17,7 @@ PROGRAM roots_of_unity
 	INTEGER, PARAMETER :: dp = KIND(0.d0)
 	
 	! Degree of the polynomial
-	INTEGER, PARAMETER :: n = 1600
+	INTEGER, PARAMETER :: n = 5
 	
 	! Auxiliary variables
 	INTEGER :: i

@@ -63,6 +63,7 @@ void mps_set_default_values(mps_status* s) {
   s->mqp_i = NULL;		/* imag. part of rational input coefs  */
   s->mfpr = NULL;		/* multiprecision real coefficients    */
   s->mfpc = NULL;		/* multiprecision complex coefficients */
+  s->zero_roots = 0;
  
   /* soution related variables */
   s->lastphase = no_phase;	/* store last computed phase           */

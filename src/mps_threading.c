@@ -402,8 +402,8 @@ mps_thread_dpolzer_worker(void* data_ptr)
           /* check for new approximated roots */
           if (!s->again[i])
             {
-              nzeros++;
-              if (nzeros == s->n)
+              (*data->nzeros)++;
+              if ((*data->nzeros) == s->n)
                 {
                   pthread_mutex_unlock(&data->roots_mutex[i]);
                   return 0;
@@ -482,6 +482,7 @@ mps_thread_dpolzer(mps_status* s, int* it, mps_boolean* excep)
   free(threads);
   free(aberth_mutex);
   free(roots_mutex);
+  free(data);
   mps_thread_job_queue_free(queue);
 }
 
