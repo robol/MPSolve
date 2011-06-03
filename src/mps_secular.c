@@ -922,6 +922,11 @@ mps_secular_ga_regenerate_coefficients(mps_status* s)
           {
             /* Compute 1 / (b - old_b) */
             mpc_sub(btmp, sec->bmpc[i], old_mb[j]);
+            if (mpc_eq_zero(btmp))
+              {
+                mpc_set(sec->ampc[i], old_ma[j]);
+                continue;
+              }
             mpc_inv(ctmp, btmp);
 
             /* Add a_j / (b_i - old_b_j) to sec_ev */
@@ -1043,6 +1048,25 @@ mps_secular_switch_phase(mps_status* s, mps_phase phase)
     }
 }
 
+/*
+ * @brief Check if iterations can terminate
+ */
+mps_boolean
+mps_secular_ga_check_stop (mps_status* s)
+{
+  mps_boolean check_stop = true;
+  rdpe_t drad;
+  rdpe_set_2dl(drad, 1.0, -s->prec_out);
+  int i;
+  for (i = 0; i < s->n; i++)
+    {
+      if (rdpe_gt(s->drad[i], drad))
+        check_stop = false;
+    }
+
+  return check_stop;
+}
+
 /**
  * @brief MPSolve main function for the secular equation solving
  * using Gemignani's approach.
@@ -1136,6 +1160,12 @@ mps_secular_ga_mpsolve(mps_status* s, mps_phase phase)
           /* Regenerate coefficients to accelerate convergence. */
           MPS_DEBUG_CALL(s, "mps_secular_ga_regenerate_coefficients")
           mps_secular_ga_regenerate_coefficients(s);
+
+          if (mps_secular_ga_check_stop(s))
+            {
+              mps_output(s);
+              return;
+            }
         }
     }
   while (roots_computed != s->n + 1);

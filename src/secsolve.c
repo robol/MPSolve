@@ -21,7 +21,7 @@ usage(mps_status *s, const char* program)
     return;
 
   fprintf(s->outstr,
-      "Usage: %s [-dg] [-t type] [-n degree] [infile]\n"
+      "Usage: %s [-dg] [-t type] [-n degree] [-o digits] [infile]\n"
       "\n"
       "Options:\n"
       " -d          Activate debug\n"
@@ -29,7 +29,8 @@ usage(mps_status *s, const char* program)
       " -t type     Type can be 'f' for floating point\n"
       "             or 'd' for DPE\n"
       " -n degree   Degree of the polynomial associated\n"
-      "             associated with the secular equation.\n",
+      "             associated with the secular equation.\n"
+      " -o digits   Exact digits of the roots given as output.\n",
       program);
 
   exit (EXIT_FAILURE);
@@ -61,7 +62,7 @@ main(int argc, char** argv)
   /* Parse options */
   mps_opt* opt;
   mps_phase phase = float_phase;
-  while ((opt = mps_getopts(&argc, &argv, "gn:dt:")))
+  while ((opt = mps_getopts(&argc, &argv, "gn:dt:o:")))
     {
       switch (opt->optchar)
         {
@@ -69,6 +70,9 @@ main(int argc, char** argv)
         /* Gemignani's approach. Regenerate b_i after floating
          * point cycle */
         ga = true;
+        break;
+      case 'o':
+        s->prec_out = atoi(opt->optvalue) * LOG2_10;
         break;
       case 'n':
         if (opt->optvalue)
