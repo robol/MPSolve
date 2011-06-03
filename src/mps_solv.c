@@ -2471,7 +2471,7 @@ void mps_msolve(mps_status* s) {
 			fprintf(s->logstr, "\n");
 			fprintf(s->logstr, "  MSOLVE: call mpolzer\n");
 		}
-		// mps_mpolzer(s, &nit, &excep);
+		//mps_mpolzer(s, &nit, &excep);
 		mps_thread_mpolzer(s, &nit, &excep);
 
 		if (s->DOLOG)

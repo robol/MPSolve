@@ -162,10 +162,11 @@ mps_thread_fpolzer_worker(void* data_ptr)
 {
   mps_thread_worker_data* data = (mps_thread_worker_data*) data_ptr;
   mps_status* s = data->s;
-  int i, iter;
-  cplx_t corr, abcorr, froot;
+  int i, iter, j;
+  cplx_t corr, abcorr, froot, z;
   double rad1, modcorr;
   mps_thread_job job;
+
 
   while (!(*data->excep) && (*data->nzeros) < s->n)
     {
@@ -195,7 +196,12 @@ mps_thread_fpolzer_worker(void* data_ptr)
           (*data->it)++;
 
           rad1 = s->frad[i];
+
+          /* Make a local copy of the root */
+          pthread_mutex_lock(&data->aberth_mutex[i]);
           cplx_set(froot, s->froot[i]);
+          pthread_mutex_unlock(&data->aberth_mutex[i]);
+
           if (s->data_type[0] != 'u')
             {
               mps_fnewton(s, s->n, froot, &s->frad[i], corr, s->fpc, s->fap,
@@ -226,7 +232,21 @@ mps_thread_fpolzer_worker(void* data_ptr)
           /* the correction is performed only if iter!=1 or rad(i)!=rad1 */
           s->data_type[0] == 'u' || iter != 0 || s->frad[i] != rad1)
             {
-              mps_faberth(s, i, abcorr);
+              // mps_faberth(s, i, abcorr);
+              cplx_set(abcorr, cplx_zero);
+              for(j = 0; j < s->n; j++)
+                {
+                  if (j == i)
+                    continue;
+
+                  pthread_mutex_lock(&data->aberth_mutex[j]);
+                  cplx_sub(z, froot, s->froot[j]);
+                  pthread_mutex_unlock(&data->aberth_mutex[j]);
+
+                  cplx_inv_eq(z);
+                  cplx_add_eq(abcorr, z);
+                }
+
               cplx_mul_eq(abcorr, corr);
               cplx_sub(abcorr, cplx_one, abcorr);
               cplx_div(abcorr, corr, abcorr);
@@ -234,7 +254,9 @@ mps_thread_fpolzer_worker(void* data_ptr)
               modcorr = cplx_mod(abcorr);
               s->frad[i] += modcorr;
 
+              pthread_mutex_lock(&data->aberth_mutex[i]);
               cplx_set(s->froot[i], froot);
+              pthread_mutex_unlock(&data->aberth_mutex[i]);
             }
 
           /* check for new approximated roots */
@@ -266,13 +288,16 @@ mps_thread_fpolzer(mps_status* s, int* it, mps_boolean* excep)
   int i, nzeros = 0, n_threads = s->n_threads;
   pthread_t* threads = (pthread_t*) malloc(sizeof(pthread_t) * n_threads);
   mps_thread_worker_data* data;
-  pthread_mutex_t aberth_mutex =
-  PTHREAD_MUTEX_INITIALIZER;
+  pthread_mutex_t* aberth_mutex = (pthread_mutex_t*) malloc(
+      sizeof(pthread_mutex_t) * s->n);
   pthread_mutex_t* roots_mutex = (pthread_mutex_t*) malloc(
       sizeof(pthread_mutex_t) * s->n);
 
   for (i = 0; i < s->n; i++)
-    pthread_mutex_init(roots_mutex + i, NULL);
+    {
+      pthread_mutex_init(roots_mutex + i, NULL);
+      pthread_mutex_init(aberth_mutex + i, NULL);
+    }
 
   /* Create a new job queue */
   mps_thread_job_queue* queue = mps_thread_job_queue_new(s);
@@ -301,7 +326,7 @@ mps_thread_fpolzer(mps_status* s, int* it, mps_boolean* excep)
       data[i].excep = excep;
       data[i].thread = i;
       data[i].n_threads = n_threads;
-      data[i].aberth_mutex = &aberth_mutex;
+      data[i].aberth_mutex = aberth_mutex;
       data[i].roots_mutex = roots_mutex;
       data[i].queue = queue;
       pthread_create(&threads[i], NULL, &mps_thread_fpolzer_worker, data + i);
@@ -439,7 +464,7 @@ mps_thread_dpolzer(mps_status* s, int* it, mps_boolean* excep)
     return;
 
   /* Allocate threads */
-  threads = (pthread_t*) malloc (sizeof(pthread_t) * s->n_threads);
+  threads = (pthread_t*) malloc(sizeof(pthread_t) * s->n_threads);
 
   /* Prepare queue */
   mps_thread_job_queue *queue = mps_thread_job_queue_new(s);
@@ -447,7 +472,6 @@ mps_thread_dpolzer(mps_status* s, int* it, mps_boolean* excep)
   /* Allocate space for thread data */
   data = (mps_thread_worker_data*) malloc(sizeof(mps_thread_worker_data)
       * s->n_threads);
-
 
   /* Allocate mutexes and init them */
   aberth_mutex = (pthread_mutex_t*) malloc(sizeof(pthread_mutex_t) * s->n);

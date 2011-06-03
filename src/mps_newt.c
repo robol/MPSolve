@@ -17,6 +17,7 @@
 
 #include <mps/core.h>
 #include <mps/threading.h>
+#include <time.h>
 
 /**
  * @brief Compute the Newton correction, i.e. and the value \f$s\f$
