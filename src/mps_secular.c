@@ -154,12 +154,9 @@ mps_secular_mstart(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
   mpc_t epsilon;
   mps_secular_equation* sec = (mps_secular_equation*) s->user_data;
 
-  mpc_init2(epsilon, s->mpwp);
-//  rdpe_mul_d(cdpe_Re(c_eps), s->mp_epsilon, (double) 4 * s->n);
-//  rdpe_set(cdpe_Im(c_eps), rdpe_zero);
-//  mpc_set_cdpe(epsilon, c_eps);
+  mpc_init2(epsilon, s->mpwp);;
   mpc_set_ui(epsilon, 0, 0);
-  mpf_set_2dl(mpc_Re(epsilon), 1.0, -s->mpwp);
+  mpf_set_2dl(mpc_Re(epsilon), 1.0, -s->mpwp + 3);
   MPS_DEBUG_MPC(s, 100, epsilon, "epsilon");
 
   /* Get best sigma possible */
@@ -222,7 +219,7 @@ mps_secular_fnewton(mps_status* s, cplx_t x, double *rad, cplx_t corr,
 {
   int i;
   cplx_t ctmp, ctmp2, pol, fp, sumb;
-  double apol;
+  double dtmp;
   *again = true;
 
   mps_secular_equation* sec = (mps_secular_equation*) s->user_data;
@@ -231,42 +228,14 @@ mps_secular_fnewton(mps_status* s, cplx_t x, double *rad, cplx_t corr,
   cplx_set(fp, cplx_zero);
   cplx_set(sumb, cplx_zero);
   *rad = 0;
-  apol = 0;
 
   for (i = 0; i < sec->n; i++)
     {
       /* Compute z - b_i */
       cplx_sub(ctmp, x, sec->bfpc[i]);
 
-//      if (cplx_eq_zero(ctmp))
-//        {
-//          /* The the secular equation can be computed with
-//           * a_i * \prod_{j \neq i} (b_i - b_j)         */
-//          cplx_set(pol, sec->afpc[i]);
-//          for (j = 0; j < sec->n; j++)
-//            {
-//              if (j == i)
-//                {
-//                  j++;
-//                }
-//              cplx_sub(ctmp, sec->bfpc[i], sec->bfpc[j]);
-//              cplx_mul_eq(pol, ctmp);
-//            }
-//          cplx_set(corr, cplx_zero);
-//          *rad = 3 * DBL_EPSILON;
-//          *again = false;
-//          return;
-//        }
-
       /* Compute (z-b_i)^{-1} */
       cplx_inv_eq(ctmp);
-
-      if (cplx_eq_zero(ctmp))
-        {
-          cplx_set(corr, cplx_zero);
-          *rad = 0;
-          return;
-        }
 
       /* Compute sum of (z-b_i)^{-1} */
       cplx_add_eq(sumb, ctmp);
@@ -276,7 +245,6 @@ mps_secular_fnewton(mps_status* s, cplx_t x, double *rad, cplx_t corr,
 
       /* Add a_i / (z - b_i) to pol */
       cplx_add_eq(pol, ctmp2);
-      apol += cplx_mod(ctmp2);
 
       /* Compute a_i / (z - b_i)^2 */
       cplx_mul_eq(ctmp2, ctmp);
@@ -288,30 +256,41 @@ mps_secular_fnewton(mps_status* s, cplx_t x, double *rad, cplx_t corr,
   /* Compute secular function */
   cplx_sub_eq(pol, cplx_one);
 
+  /* If S(z) is the secular equation and
+   * |S(z)| < eps => |z - z_0| < eps(1 + u) + (n+1)u
+   * where z_0 is the real root and u the machine precision,
+   * that we can assume that z_0 is a pseudo root, i.e. solution
+   * to a problem with small perturbed coefficients. */
+  dtmp = cplx_mod(pol) * (DBL_EPSILON + 1) + (s->n + 1);
+
+  /* We can take n*a_i * (1 + eps) as guaranteed radius of
+   * inclusion.
+   * 6.4143 > 2 + 2 + \sqrt(2)   */
+  *rad = (s->n * cplx_mod(sec->afpc[i])) * (1 + s->n * DBL_EPSILON * 6.4143);
+
   /* Compute newton correction */
   cplx_mul(ctmp, pol, sumb);
   cplx_add_eq(fp, ctmp);
 
   if (!cplx_eq(fp, cplx_zero))
-    {
       cplx_div(corr, pol, fp);
-    }
   else
-    {
       cplx_set(corr, pol);
-    }
 
-  // apol += 1;
-  apol *= (sec->n + 3) * DBL_EPSILON;
-
-  if (cplx_mod(pol) < apol)
+  /* dtmp here is the guaranteed upper bound to the evaluation of the
+   * secular equation   */
+  if (dtmp < 2 * DBL_EPSILON)
     {
       *again = false;
     }
 
-  /* Radius is n * newt_corr */
-  *rad = cplx_mod(corr) * sec->n;
+  /* Radius is n * newt_corr, if it's better that Gerschgorin's one */
+  dtmp = cplx_mod(corr) * sec->n;
+  if (dtmp < *rad)
+    *rad = dtmp;
 
+  /* If the correction is not useful in the current precision do
+   * not iterate more   */
   if (*again && (cplx_mod(corr) < cplx_mod(x) * DBL_EPSILON))
     {
       *again = false;
@@ -422,7 +401,7 @@ mps_secular_mnewton(mps_status* s, mpc_t x, rdpe_t rad, mpc_t corr,
   /* Declare temporary variables */
   mpc_t sumb, pol, fp, ctmp, ctmp2;
   mpf_t ftmp, ftmp2;
-  rdpe_t rtmp, rtmp2, apol;
+  rdpe_t rtmp, rtmp2;
 
   /* Set working precision */
   mpc_init2(sumb, s->mpwp);
@@ -447,7 +426,6 @@ mps_secular_mnewton(mps_status* s, mpc_t x, rdpe_t rad, mpc_t corr,
   mpc_set_d(sumb, 0, 0);
   mpc_set_d(pol, 0, 0);
   mpc_set_d(fp, 0, 0);
-  rdpe_set(apol, rdpe_zero);
 
   for (i = 0; i < sec->n; i++)
     {
@@ -460,11 +438,8 @@ mps_secular_mnewton(mps_status* s, mpc_t x, rdpe_t rad, mpc_t corr,
       /* Multiply sum of (z-b_i)^{-1} */
       mpc_add_eq(sumb, ctmp);
 
-      /* Compute a_i / (z - b_i) and its modulus */
+      /* Compute a_i / (z - b_i)  */
       mpc_mul(ctmp2, sec->ampc[i], ctmp);
-      mpc_mod(ftmp, ctmp2);
-      mpf_get_rdpe(rtmp, ftmp);
-      rdpe_add_eq(apol, rtmp);
 
       /* Add a_i / (z - b_i) to pol */
       mpc_add_eq(pol, ctmp2);
@@ -491,20 +466,34 @@ mps_secular_mnewton(mps_status* s, mpc_t x, rdpe_t rad, mpc_t corr,
       mpc_set(corr, pol);
     }
 
+  /* Compute radius using Gerschgorin circles */
+  mpc_mod(ftmp, sec->ampc[i]);
+  mpf_get_rdpe(rad, ftmp);
+  rdpe_mul_eq_d(rad, s->n);
+  rdpe_mul_d(rtmp, s->mp_epsilon, s->n * 6.4143);
+  rdpe_add_eq(rtmp, rdpe_one);
+  rdpe_mul_eq(rad, rtmp);
+
   /* Compute radius */
   mpc_mod(ftmp, corr);
-  mpf_get_rdpe(rad, ftmp);
-  rdpe_mul_eq_d(rad, (double) sec->n);
+  mpf_get_rdpe(rtmp2, ftmp);
+  rdpe_mul_eq_d(rtmp2, (double) sec->n);
 
-  /* Compute modulus of pol */
+  if (rdpe_lt(rtmp, rad))
+    rdpe_set(rad, rtmp);
+
+  /* Compute guaranteed modulus of pol */
   mpc_mod(ftmp, pol);
   mpf_get_rdpe(rtmp, ftmp);
+  rdpe_add(rtmp2, s->mp_epsilon, rdpe_one);
+  rdpe_mul_eq_d(rtmp2, 1 + s->n);
+  rdpe_mul_eq(rtmp, rtmp2);
 
-  /* If |pol| < (n+3) * eps * |apol|
-   * stop */
-  rdpe_add_eq(apol, rdpe_one);
-  rdpe_mul_eq_d(apol, (sec->n + 3) * s->prec_out);
-  if (rdpe_lt(rtmp, apol))
+  /* Epsilon for us */
+  rdpe_mul_d(rtmp2, s->mp_epsilon, 2);
+
+  /* If |S(x)| < eps stop */
+  if (rdpe_lt(rtmp, rtmp2))
     *again = false;
 
   /* Check if newton correction is less than
@@ -1043,6 +1032,8 @@ mps_secular_switch_phase(mps_status* s, mps_phase phase)
       /* Set lastphase to mp_phase */
       s->lastphase = mp_phase;
 
+      /* Set epsilon */
+      rdpe_set_2dl(s->mp_epsilon, 1.0, -s->mpwp + 1);
     }
   else
     {
@@ -1060,7 +1051,7 @@ void
 mps_secular_ga_mpsolve(mps_status* s, mps_phase phase)
 {
   int roots_computed = 0;
-  int iteration_per_packet = 15;
+  int iteration_per_packet = 3;
 
   /* Set initial cluster structure as no cluster structure. */
   mps_cluster_reset(s);
@@ -1124,9 +1115,6 @@ mps_secular_ga_mpsolve(mps_status* s, mps_phase phase)
        * the multiprecision phase */
       if (roots_computed == s->n && s->lastphase != mp_phase)
         {
-          /* Jump to the multiprecision phase doubling the precision */
-          mps_secular_raise_precision(s);
-
           MPS_DEBUG(s, "Switching to multiprecision phase")
           MPS_DEBUG_CALL(s, "mps_secular_switch_phase")
           mps_secular_switch_phase(s, mp_phase);
@@ -1137,7 +1125,7 @@ mps_secular_ga_mpsolve(mps_status* s, mps_phase phase)
           MPS_DEBUG_CALL(s, "mps_secular_ga_regenerate_coefficients")
           mps_secular_ga_regenerate_coefficients(s);
         }
-      else
+      else if (s->lastphase == mp_phase)
         {
           /* If all the roots were approximated and we are in the multiprecision
            * phase then it's time to increase the precision, or stop if enough
