@@ -660,7 +660,9 @@ mps_secular_ga_miterate(mps_status* s, int maxit)
 
   mpc_t corr, abcorr;
   cdpe_t ctmp;
-  rdpe_t modcorr;
+  rdpe_t modcorr, drad;
+
+  rdpe_set_2dl(drad, 1.0, -s->prec_out);
 
   /* Init data with the right precision */
   mpc_init2(corr, s->mpwp);
@@ -670,7 +672,15 @@ mps_secular_ga_miterate(mps_status* s, int maxit)
    * of the roots */
   /* Allocate again and set all to true */
   for (i = 0; i < s->n; i++)
-    s->again[i] = true;
+    {
+      if (rdpe_gt(s->drad[i], drad))
+        s->again[i] = true;
+      else
+        {
+          s->again[i] = false;
+          computed_roots++;
+        }
+    }
 
   while (computed_roots < s->n && iterations < maxit - 1)
     {
@@ -1217,8 +1227,8 @@ mps_secular_ga_mpsolve(mps_status* s, mps_phase phase)
 
       /* Check if it's time to abandon floating point to enter
        * the multiprecision phase */
-      if (s->lastphase != mp_phase && ((roots_computed == s->n) ||
-          (packet >= max_packets)))
+      if (s->lastphase != mp_phase && ((roots_computed == s->n) || (packet
+          >= max_packets)))
         {
           MPS_DEBUG(s, "Switching to multiprecision phase")
           MPS_DEBUG_CALL(s, "mps_secular_switch_phase")
@@ -1247,11 +1257,6 @@ mps_secular_ga_mpsolve(mps_status* s, mps_phase phase)
 
           packet = 0;
         }
-
-      /* Check if all roots were approximated with the
-       * given input precision                      */
-      if (mps_secular_ga_check_stop(s))
-        return;
     }
-  while (roots_computed != s->n + 1);
+  while (!mps_secular_ga_check_stop(s));
 }
