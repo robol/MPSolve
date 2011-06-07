@@ -109,18 +109,19 @@ main(int argc, char** argv)
 
   /* If a file is provided read the coefficients from there */
   if(argc == 2) {
+    int read_el;
     infile = fopen (argv[1], "r");
-    fscanf(infile, "%d", &n);
+    read_el = fscanf(infile, "%d", &n);
 
     a_coefficients = cplx_valloc (n);
     b_coefficients = cplx_valloc (n);
 
     for (i = 0; i < n; i++) {
-      fscanf (infile, "%lf", &tmp1);
-      fscanf (infile, "%lf", &tmp2);
+      read_el = fscanf (infile, "%lf", &tmp1);
+      read_el = fscanf (infile, "%lf", &tmp2);
       cplx_set_d(a_coefficients[i], tmp1, tmp2);
-      fscanf (infile, "%lf", &tmp1);
-      fscanf (infile, "%lf", &tmp2);
+      read_el = fscanf (infile, "%lf", &tmp1);
+      read_el = fscanf (infile, "%lf", &tmp2);
       cplx_set_d(b_coefficients[i], tmp1, tmp2);
     }
   } else {
@@ -194,7 +195,7 @@ main(int argc, char** argv)
 
   /* Output the roots */
   mps_copy_roots(s);
-  mps_output(s);
+  // mps_output(s);
 
   /* Free used data */
   mps_secular_equation_free(sec);
