@@ -15,10 +15,10 @@ MAKEFLAGS=-j
 #  -DRAND_VAL=x so that x will the return value for all rand() calls
 
 # Default CFLAGS
-CFLAGS=-O2 -ffast-math -fPIC -I../include -std=c99
+CFLAGS=-O2 -ffast-math -fPIC -I../include -std=c99 -DNICE_DEBUG
 
 # Set CFLAGS for specific targets
-debug: CFLAGS=-O0 -g -fPIC -I../include -Wall -std=c99
+debug: CFLAGS=-O0 -g -fPIC -I../include -Wall -std=c99 -DNICE_DEBUG
 release: CFLAGS=-O2 -ffast-math -fPIC -DDISABLE_DEBUG -I../include -std=c99
 
 # Export CFLAGS and CC for the submakes. 

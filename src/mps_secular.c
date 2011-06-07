@@ -229,12 +229,18 @@ mps_secular_fnewton(mps_status* s, cplx_t x, double *rad, cplx_t corr,
   cplx_set(pol, cplx_zero);
   cplx_set(fp, cplx_zero);
   cplx_set(sumb, cplx_zero);
-  *rad = 0;
 
   for (i = 0; i < sec->n; i++)
     {
       /* Compute z - b_i */
       cplx_sub(ctmp, x, sec->bfpc[i]);
+
+      if (cplx_eq_zero(ctmp))
+        {
+          *again = false;
+          cplx_set(corr, cplx_zero);
+          return;
+        }
 
       /* Compute (z-b_i)^{-1} */
       cplx_inv_eq(ctmp);
@@ -283,8 +289,7 @@ mps_secular_fnewton(mps_status* s, cplx_t x, double *rad, cplx_t corr,
 
   /* Radius is n * newt_corr, if it's better that Gerschgorin's one */
   dtmp = cplx_mod(corr) * sec->n;
-  if (dtmp < *rad)
-    *rad = dtmp;
+  *rad = dtmp;
 
   /* If the correction is not useful in the current precision do
    * not iterate more   */
@@ -557,7 +562,8 @@ mps_secular_ga_fiterate(mps_status* s, int maxit)
         {
           if (s->again[i])
             {
-              mps_secular_fnewton(s, s->froot[i], &s->frad[i], corr, &s->again[i]);
+              mps_secular_fnewton(s, s->froot[i], &s->frad[i], corr,
+                  &s->again[i]);
 
               /* Apply Aberth correction */
               mps_faberth(s, i, abcorr);
@@ -598,7 +604,7 @@ mps_secular_ga_diterate(mps_status* s, int maxit)
   /* Iterate with newton until we have good approximations
    * of the roots */
   /* Set again to true */
-  for(i = 0; i < s->n; i++)
+  for (i = 0; i < s->n; i++)
     s->again[i] = true;
 
   while (computed_roots < s->n && iterations < maxit - 1)
@@ -613,7 +619,8 @@ mps_secular_ga_diterate(mps_status* s, int maxit)
         {
           if (s->again[i])
             {
-              mps_secular_dnewton(s, s->droot[i], s->drad[i], corr, &s->again[i]);
+              mps_secular_dnewton(s, s->droot[i], s->drad[i], corr,
+                  &s->again[i]);
 
               /* Apply Aberth correction */
               mps_daberth(s, i, abcorr);
@@ -652,13 +659,12 @@ mps_secular_ga_miterate(mps_status* s, int maxit)
   int i;
 
   mpc_t corr, abcorr;
-  mpf_t fmodcorr;
+  cdpe_t ctmp;
   rdpe_t modcorr;
 
   /* Init data with the right precision */
   mpc_init2(corr, s->mpwp);
   mpc_init2(abcorr, s->mpwp);
-  mpf_init2(fmodcorr, s->mpwp);
 
   /* Iterate with newton until we have good approximations
    * of the roots */
@@ -675,7 +681,8 @@ mps_secular_ga_miterate(mps_status* s, int maxit)
         {
           if (s->again[i])
             {
-              mps_secular_mnewton(s, s->mroot[i], s->drad[i], corr, &s->again[i]);
+              mps_secular_mnewton(s, s->mroot[i], s->drad[i], corr,
+                  &s->again[i]);
 
               /* Apply Aberth correction */
               mps_maberth(s, i, abcorr);
@@ -685,8 +692,8 @@ mps_secular_ga_miterate(mps_status* s, int maxit)
               mpc_sub_eq(s->mroot[i], abcorr);
 
               /* Correct the radius */
-              mpc_mod(fmodcorr, abcorr);
-              mpf_get_rdpe(modcorr, fmodcorr);
+              mpc_get_cdpe(ctmp, abcorr);
+              cdpe_mod(modcorr, ctmp);
               rdpe_add_eq(s->drad[i], modcorr);
 
               if (!s->again[i])
@@ -698,7 +705,6 @@ mps_secular_ga_miterate(mps_status* s, int maxit)
   /* Deallocate multiprecision local variables */
   mpc_clear(abcorr);
   mpc_clear(corr);
-  mpf_clear(fmodcorr);
 
   /* Return the number of approximated roots */
   return computed_roots;
@@ -759,7 +765,6 @@ mps_secular_ga_regenerate_coefficients(mps_status* s)
       {
         cplx_t prod_old_b, prod_b, sec_ev;
         cplx_t ctmp, btmp;
-        double dtmp;
         cplx_set(prod_old_b, cplx_one);
         cplx_set(prod_b, cplx_one);
         cplx_set(sec_ev, cplx_zero);
@@ -768,6 +773,19 @@ mps_secular_ga_regenerate_coefficients(mps_status* s)
           {
             /* Compute 1 / (b - old_b) */
             cplx_sub(btmp, sec->bfpc[i], old_b[j]);
+
+            if (cplx_eq_zero(btmp))
+              {
+                for (i = 0; i < sec->n; i++)
+                  {
+                    cplx_set(sec->afpc[i], old_a[i]);
+                    cplx_set(sec->bfpc[i], old_b[i]);
+
+                    MPS_DEBUG(s, "Cannot regenerate coefficients, reusing old ones")
+                    return;
+                  }
+              }
+
             cplx_inv(ctmp, btmp);
 
             /* Add a_j / (b_i - old_b_j) to sec_ev */
@@ -790,13 +808,18 @@ mps_secular_ga_regenerate_coefficients(mps_status* s)
         cplx_mul(sec->afpc[i], sec_ev, prod_old_b);
         cplx_div_eq(sec->afpc[i], prod_b);
 
+      }
+
+    for (i = 0; i < sec->n; i++)
+      {
+        double dtmp;
         /* If the computed coefficients multiplied for n are less
          * than radius set them to the radius                  */
         dtmp = (s->n * cplx_mod(sec->afpc[i]));
         if (dtmp < s->frad[i])
           {
             s->frad[i] = dtmp;
-            // MPS_DEBUG(s, "Replacing rad of root %d with Gerschgorin's one", i)
+            MPS_DEBUG(s, "Replacing rad of root %d with Gerschgorin's one: %e", i, dtmp)
           }
       }
 
@@ -810,8 +833,8 @@ mps_secular_ga_regenerate_coefficients(mps_status* s)
     //        MPS_DEBUG_CPLX(s, sec->bfpc[i], "sec->bfpc[%d]", i);
     //      }
 
-//    MPS_DEBUG_CALL(s, "mps_secular_fstart")
-//    mps_secular_fstart(s, s->n, 0, 0, 0, s->eps_out);
+    MPS_DEBUG_CALL(s, "mps_secular_fstart")
+    mps_secular_fstart(s, s->n, 0, 0, 0, s->eps_out);
 
     break;
 
@@ -879,9 +902,9 @@ mps_secular_ga_regenerate_coefficients(mps_status* s)
         MPS_DEBUG_CDPE(s, sec->adpc[i], "sec->adpc[%d]", i);
       }
 
-//    MPS_DEBUG_CALL(s, "mps_secular_dstart")
-//    mps_secular_dstart(s, s->n, 0, (__rdpe_struct *) rdpe_zero,
-//        (__rdpe_struct *) rdpe_zero, s->eps_out);
+    //    MPS_DEBUG_CALL(s, "mps_secular_dstart")
+    //    mps_secular_dstart(s, s->n, 0, (__rdpe_struct *) rdpe_zero,
+    //        (__rdpe_struct *) rdpe_zero, s->eps_out);
 
     break;
 
@@ -950,18 +973,23 @@ mps_secular_ga_regenerate_coefficients(mps_status* s)
         mpc_mul(sec->ampc[i], sec_ev, prod_old_b);
         mpc_div_eq(sec->ampc[i], prod_b);
 
+      }
+
+    for (i = 0; i < sec->n; i++)
+      {
+        cdpe_t ctmp;
+
         /* Set new radius if it is better than the one
          * we had before                            */
-        mpc_mod(ftmp, sec->ampc[i]);
-        mpf_get_rdpe(rtmp, ftmp);
+        mpc_get_cdpe(ctmp, sec->ampc[i]);
+        cdpe_mod(rtmp, ctmp);
         rdpe_mul_eq_d(rtmp, s->n);
         if (rdpe_lt(rtmp, s->drad[i]))
           {
+            MPS_DEBUG_RDPE(s, s->drad[i], "Previous radius was s->drad[%d]", i)
+            MPS_DEBUG_RDPE(s, rtmp, "Set s->drad[%d]", i)
             rdpe_set(s->drad[i], rtmp);
-            // MPS_DEBUG_RDPE(s, s->drad[i], "Set s->drad[%d]", i)
           }
-
-
       }
 
     regenerate_m_exit:
@@ -971,12 +999,11 @@ mps_secular_ga_regenerate_coefficients(mps_status* s)
     mpc_vclear(old_mb, s->n);
     mpc_vfree(old_ma);
     mpc_vfree(old_mb);
-    mpf_clear(ftmp);
 
-//    for (i = 0; i < s->n; i++)
-//      {
-//        MPS_DEBUG_MPC(s, 15, sec->ampc[i], "sec->ampc[%d]", i);
-//      }
+    //    for (i = 0; i < s->n; i++)
+    //      {
+    //        MPS_DEBUG_MPC(s, 15, sec->ampc[i], "sec->ampc[%d]", i);
+    //      }
 
     MPS_DEBUG_CALL(s, "mps_secular_mstart")
     mps_secular_mstart(s, s->n, 0, (__rdpe_struct *) rdpe_zero,
@@ -1002,6 +1029,7 @@ mps_secular_raise_precision(mps_status* s)
       mpc_set_prec(sec->bmpc[i], s->mpwp);
       mpc_set_prec(s->mroot[i], s->mpwp);
     }
+  rdpe_set_2dl(s->mp_epsilon, 1.0, -s->mpwp);
   MPS_DEBUG(s, "Precision is now at %d bits", s->mpwp);
 }
 
@@ -1073,8 +1101,12 @@ mps_secular_ga_check_stop(mps_status* s)
 {
   double frad = pow(10, -s->prec_out);
   rdpe_t drad;
-  rdpe_set_2dl(drad, 1.0, -s->prec_out);
   int i;
+  rdpe_set_2dl(drad, 1.0, -s->prec_out);
+
+  if (frad == 0 && s->lastphase == float_phase)
+    return false;
+
   for (i = 0; i < s->n; i++)
     {
       switch (s->lastphase)
@@ -1186,8 +1218,8 @@ mps_secular_ga_mpsolve(mps_status* s, mps_phase phase)
 
           packet = 0;
         }
-      else if (s->lastphase == mp_phase &&
-          (roots_computed == s->n || packet > max_packets))
+      else if (s->lastphase == mp_phase && (roots_computed == s->n || packet
+          > max_packets))
         {
           /* If all the roots were approximated and we are in the multiprecision
            * phase then it's time to increase the precision, or stop if enough
@@ -1205,7 +1237,9 @@ mps_secular_ga_mpsolve(mps_status* s, mps_phase phase)
       /* Check if all roots were approximated with the
        * given input precision                      */
       if (mps_secular_ga_check_stop(s))
-        return;
+        {
+          return;
+        }
     }
   while (roots_computed != s->n + 1);
 }

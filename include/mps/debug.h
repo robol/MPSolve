@@ -24,7 +24,7 @@ extern "C" {
 #define NDEBUG
 #endif
 
-#ifndef DISABLE_DEBUG
+#ifdef NICE_DEBUG
 /**
  * @brief Debug cluster approximations of the roots in the
  * case of multiprecision computation.
@@ -63,7 +63,7 @@ if (s->DOLOG) { \
  */
 #define MPS_DEBUG_RDPE(s, r, name...) __MPS_DEBUG_EQ(s, name); \
 if (s->DOLOG) { \
-    rdpe_outln(r); \
+    rdpe_outln_str(s->logstr, r); \
 }
 
 /**
@@ -71,7 +71,7 @@ if (s->DOLOG) { \
  */
 #define MPS_DEBUG_CDPE(s, c, name...) __MPS_DEBUG_EQ(s, name); \
 if (s->DOLOG) { \
-    cdpe_outln(c); \
+    cdpe_outln_str(s->logstr, c); \
 }
 
 /**
@@ -79,7 +79,7 @@ if (s->DOLOG) { \
  */
 #define MPS_DEBUG_CPLX(s, c, name...) __MPS_DEBUG_EQ(s, name); \
 if (s->DOLOG) { \
-    cplx_outln(c); \
+    cplx_outln_str(s->logstr, c); \
 }
 
 /**
@@ -165,7 +165,8 @@ else { \
 gmp_fprintf(s->logstr, templ); \
 }
 #endif
-#endif
+
+#endif // #ifdef NICE_DEBUG
 #else
 #define MPS_DEBUG(args...)
 #define MPS_DEBUG_MPC(args...)

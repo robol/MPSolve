@@ -82,6 +82,7 @@ main(int argc, char** argv)
         break;
       case 'd':
         s->DOLOG = true;
+        s->logstr = stderr;
         break;
       case 't':
         switch (opt->optvalue[0])
@@ -168,7 +169,7 @@ main(int argc, char** argv)
 
       /* Manually set FILE* pointer for streams.
        * More refined options will be added later. */
-      s->logstr = s->outstr = s->rtstr = stdout;
+      s->outstr = s->rtstr = stdout;
 
       /* Solve the secular equation */
       mps_secular_ga_mpsolve(s, phase);
@@ -195,7 +196,7 @@ main(int argc, char** argv)
 
   /* Output the roots */
   mps_copy_roots(s);
-  // mps_output(s);
+//  mps_output(s);
 
   /* Free used data */
   mps_secular_equation_free(sec);
