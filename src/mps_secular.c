@@ -1101,11 +1101,14 @@ mps_secular_ga_check_stop(mps_status* s)
 {
   double frad = pow(10, -s->prec_out);
   rdpe_t drad;
+  rdpe_t max_rad;
   int i;
   rdpe_set_2dl(drad, 1.0, -s->prec_out);
 
   if (frad == 0 && s->lastphase == float_phase)
     return false;
+
+  rdpe_set(max_rad, drad);
 
   for (i = 0; i < s->n; i++)
     {
@@ -1117,8 +1120,9 @@ mps_secular_ga_check_stop(mps_status* s)
       case mp_phase:
         if (rdpe_gt(s->drad[i], drad))
           {
-            MPS_DEBUG_RDPE(s, s->drad[i], "Failed check stop on drad[%d]", i)
-            return false;
+            if (rdpe_gt(s->drad[i], max_rad))
+              rdpe_set(max_rad, s->drad[i]);
+            // return false;
           }
         break;
       default:
@@ -1126,7 +1130,11 @@ mps_secular_ga_check_stop(mps_status* s)
         }
     }
 
-  return true;
+  if (rdpe_eq(max_rad, drad))
+    return true;
+
+  MPS_DEBUG_RDPE(s, max_rad, "Maximum rad is too big to exit: max_rad")
+  return false;
 }
 
 /**
@@ -1137,7 +1145,7 @@ void
 mps_secular_ga_mpsolve(mps_status* s, mps_phase phase)
 {
   int roots_computed = 0;
-  int iteration_per_packet = 5;
+  int iteration_per_packet = 10;
   int packet = 0;
   int max_packets = 1;
 
@@ -1202,9 +1210,15 @@ mps_secular_ga_mpsolve(mps_status* s, mps_phase phase)
 
       packet++;
 
+      /* Check if all roots were approximated with the
+       * given input precision                      */
+      if (mps_secular_ga_check_stop(s))
+        return;
+
       /* Check if it's time to abandon floating point to enter
        * the multiprecision phase */
-      if (roots_computed == s->n && s->lastphase != mp_phase)
+      if (s->lastphase != mp_phase && ((roots_computed == s->n) ||
+          (packet >= max_packets)))
         {
           MPS_DEBUG(s, "Switching to multiprecision phase")
           MPS_DEBUG_CALL(s, "mps_secular_switch_phase")
@@ -1219,7 +1233,7 @@ mps_secular_ga_mpsolve(mps_status* s, mps_phase phase)
           packet = 0;
         }
       else if (s->lastphase == mp_phase && (roots_computed == s->n || packet
-          > max_packets))
+          >= max_packets))
         {
           /* If all the roots were approximated and we are in the multiprecision
            * phase then it's time to increase the precision, or stop if enough
@@ -1237,9 +1251,7 @@ mps_secular_ga_mpsolve(mps_status* s, mps_phase phase)
       /* Check if all roots were approximated with the
        * given input precision                      */
       if (mps_secular_ga_check_stop(s))
-        {
-          return;
-        }
+        return;
     }
   while (roots_computed != s->n + 1);
 }
