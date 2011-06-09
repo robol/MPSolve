@@ -82,6 +82,7 @@ void mps_secular_ga_mpsolve(mps_status* s, mps_phase phase);
 /* Interface functions in mps_secular.c */
 mps_secular_equation* mps_secular_equation_new(cplx_t* afpc, cplx_t* bfpc, unsigned long int n);
 void mps_secular_equation_free(mps_secular_equation* s);
+void mps_secular_set_radii(mps_status* s);
 
 #ifdef	__cplusplus
 }

@@ -104,10 +104,10 @@ if (s->DOLOG) { \
 #ifndef __WINDOWS
 #define MPS_DEBUG_CALL(s, function) if (s->DOLOG) { \
   if (isatty(s->logstr->_fileno)) { \
-    __MPS_DEBUG(s, "Calling \033[31;1m"); \
+    __MPS_DEBUG(s, "Called \033[31;1m"); \
   } \
 else { \
-  __MPS_DEBUG(s, "Calling "); \
+  __MPS_DEBUG(s, "Called "); \
 }\
   if (isatty(s->logstr->_fileno)) { \
     fprintf(s->logstr, function); fprintf(s->logstr, "()\033[0m\n"); \
@@ -120,10 +120,10 @@ else \
 #else
 #define MPS_DEBUG_CALL(s, function) if (s->DOLOG) { \
   if (_isatty(_fileno(s->logstr))) { \
-    __MPS_DEBUG(s, "Calling \033[31;1m"); \
+    __MPS_DEBUG(s, "Called \033[31;1m"); \
   } \
 else { \
-  __MPS_DEBUG(s, "Calling "); \
+  __MPS_DEBUG(s, "Called "); \
 }\
   if (_isatty(_fileno(s->logstr))) { \
     fprintf(s->logstr, function); fprintf(s->logstr, "()\033[0m\n"); \
@@ -134,6 +134,8 @@ else \
 }\
 }
 #endif
+
+#define MPS_DEBUG_THIS_CALL MPS_DEBUG_CALL(s, __FUNCTION__)
 
 
 /**

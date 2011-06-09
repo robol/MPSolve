@@ -18,7 +18,7 @@ MAKEFLAGS=-j
 CFLAGS=-O2 -ffast-math -fPIC -I../include -std=c99 -DNICE_DEBUG
 
 # Set CFLAGS for specific targets
-debug: CFLAGS=-O0 -g -fPIC -I../include -Wall -std=c99 -DNICE_DEBUG
+debug: CFLAGS=-O0 -g -fPIC -I../include -Wall -std=c99 -DNICE_DEBUG -pg
 release: CFLAGS=-O2 -ffast-math -fPIC -DDISABLE_DEBUG -I../include -std=c99
 
 # Export CFLAGS and CC for the submakes. 
