@@ -763,6 +763,7 @@ mps_secular_ga_miterate(mps_status* s, int maxit)
 void
 mps_secular_ga_regenerate_coefficients(mps_status* s)
 {
+ return;
   MPS_DEBUG_THIS_CALL
 
   cplx_t *old_b, *old_a;
