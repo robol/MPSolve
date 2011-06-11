@@ -49,7 +49,7 @@ mps_secular_equation_new(cplx_t* afpc, cplx_t* bfpc, unsigned long int n)
       cdpe_init(s->adpc[i]);
       cdpe_set_x(s->adpc[i], afpc[i]);
 
-      mpc_init2(s->ampc[i], 53);
+      mpc_init(s->ampc[i]);
       mpc_set_cplx(s->ampc[i], afpc[i]);
 
       /* b_i coefficients */
@@ -58,7 +58,7 @@ mps_secular_equation_new(cplx_t* afpc, cplx_t* bfpc, unsigned long int n)
       cdpe_init(s->bdpc[i]);
       cdpe_set_x(s->bdpc[i], bfpc[i]);
 
-      mpc_init2(s->bmpc[i], 53);
+      mpc_init(s->bmpc[i]);
       mpc_set_cplx(s->bmpc[i], bfpc[i]);
     }
 
@@ -527,7 +527,7 @@ mps_secular_mnewton(mps_status* s, mpc_t x, rdpe_t rad, mpc_t corr,
     {
       mpc_get_cdpe(cdtmp, x);
       cdpe_mod(rtmp, cdtmp);
-      rdpe_mul_eq(rtmp, s->eps_out);
+      rdpe_mul_eq(rtmp, s->mp_epsilon);
 
       mpc_get_cdpe(cdtmp, corr);
       cdpe_mod(rtmp2, cdtmp);
@@ -1265,6 +1265,10 @@ mps_secular_ga_mpsolve(mps_status* s, mps_phase phase)
 {
   int roots_computed = 0;
   int iteration_per_packet = 10;
+  int i;
+
+  for(i = 0; i < s->n; i++)
+      s->frad[i] = DBL_MAX;
 
   /* Set initial cluster structure as no cluster structure. */
   mps_cluster_reset(s);
