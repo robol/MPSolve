@@ -2,6 +2,21 @@ NULL =
 
 lib_LTLIBRARIES = libmps.la
 libmps_la_LDFLAGS = -version-info 3:0:0
+includedir=${prefix}/include/mps
+include_HEADERS = \
+	../../include/mps/tools.h \
+	../../include/mps/interface.h \
+	../../include/mps/gmptools.h \
+	../../include/mps/mpc.h \
+	../../include/mps/poly.h \
+	../../include/mps/mptemp.h \
+	../../include/mps/debug.h \
+	../../include/mps/mt.h \
+	../../include/mps/link.h \
+	../../include/mps/core.h \
+	../../include/mps/rursolve.h \
+	../../include/mps/secular.h \
+	$(NULL)
 
 AM_CPPFLAGS= \
 	$(MPS_CFLAGS) \
