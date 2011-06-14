@@ -14,6 +14,37 @@
 
 #define pi2 6.283184
 
+
+/**
+ * @brief Deflate a secular equation lowering the degree of the
+ * polynomial that represent it, if that is possible.
+ */
+void
+mps_secular_deflate(mps_secular_equation* sec)
+{
+  int i, j, k;
+  for (i = 0; i < sec->n; i++)
+    {
+      for (j = i + 1; j < sec->n; j++)
+        {
+          if (cplx_eq(sec->bfpc[i], sec->bfpc[j]))
+            {
+              cplx_add_eq(sec->afpc[i], sec->afpc[j]);
+
+              /* Copy other coefficients back of one position */
+              for (k = j; k < sec->n - 1; k++)
+                {
+                  cplx_set(sec->afpc[j], sec->afpc[j + 1]);
+                  cplx_set(sec->bfpc[j], sec->bfpc[j + 1]);
+                }
+
+              /* Decrement number of coefficients */
+              sec->n--;
+            }
+        }
+    }
+}
+
 /**
  * @brief Create a new secular equation struct
  */
@@ -46,14 +77,20 @@ mps_secular_equation_new(cplx_t* afpc, cplx_t* bfpc, unsigned long int n)
       /* a_i coefficients */
       cplx_set(s->afpc[i], afpc[i]);
 
+      /* b_i coefficients */
+      cplx_set(s->bfpc[i], bfpc[i]);
+    }
+
+  s->n = n;
+  mps_secular_deflate(s);
+
+  for (i = 0; i < s->n; i++)
+    {
       cdpe_init(s->adpc[i]);
       cdpe_set_x(s->adpc[i], afpc[i]);
 
       mpc_init(s->ampc[i]);
       mpc_set_cplx(s->ampc[i], afpc[i]);
-
-      /* b_i coefficients */
-      cplx_set(s->bfpc[i], bfpc[i]);
 
       cdpe_init(s->bdpc[i]);
       cdpe_set_x(s->bdpc[i], bfpc[i]);
@@ -61,8 +98,6 @@ mps_secular_equation_new(cplx_t* afpc, cplx_t* bfpc, unsigned long int n)
       mpc_init(s->bmpc[i]);
       mpc_set_cplx(s->bmpc[i], bfpc[i]);
     }
-
-  s->n = n;
 
   return s;
 }
@@ -77,6 +112,7 @@ mps_secular_equation_free(mps_secular_equation* s)
   /* ...and then release it */
   free(s);
 }
+
 
 void
 mps_secular_fstart(mps_status* s, int n, int i_clust, double clust_rad,
@@ -494,9 +530,9 @@ mps_secular_mnewton(mps_status* s, mpc_t x, rdpe_t rad, mpc_t corr,
       mpc_mul_eq(sumb, pol);
       mpc_add_eq(fp, sumb);
       if (!mpc_eq_zero(fp))
-          mpc_div(corr, pol, fp);
+        mpc_div(corr, pol, fp);
       else
-          mpc_set(corr, pol);
+        mpc_set(corr, pol);
     }
 
   /* Compute radius */
@@ -1010,14 +1046,14 @@ mps_secular_ga_regenerate_coefficients(mps_status* s)
     mpc_vfree(old_ma);
     mpc_vfree(old_mb);
 
-            for (i = 0; i < s->n; i++)
-              {
-                MPS_DEBUG_MPC(s, 15, sec->ampc[i], "sec->ampc[%d]", i);
-                MPS_DEBUG_MPC(s, 15, sec->bmpc[i], "sec->bmpc[%d]", i);
-              }
+    for (i = 0; i < s->n; i++)
+      {
+        MPS_DEBUG_MPC(s, 15, sec->ampc[i], "sec->ampc[%d]", i);
+        MPS_DEBUG_MPC(s, 15, sec->bmpc[i], "sec->bmpc[%d]", i);
+      }
 
-//    mps_secular_mstart(s, s->n, 0, (__rdpe_struct *) rdpe_zero,
-//        (__rdpe_struct *) rdpe_zero, s->eps_out);
+    //    mps_secular_mstart(s, s->n, 0, (__rdpe_struct *) rdpe_zero,
+    //        (__rdpe_struct *) rdpe_zero, s->eps_out);
 
     break;
 
@@ -1267,8 +1303,8 @@ mps_secular_ga_mpsolve(mps_status* s, mps_phase phase)
   int iteration_per_packet = 10;
   int i;
 
-  for(i = 0; i < s->n; i++)
-      s->frad[i] = DBL_MAX;
+  for (i = 0; i < s->n; i++)
+    s->frad[i] = DBL_MAX;
 
   /* Set initial cluster structure as no cluster structure. */
   mps_cluster_reset(s);

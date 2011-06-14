@@ -157,8 +157,8 @@ main(int argc, char** argv)
     {
       /* Set degree and allocate polynomial-related variables
        * to allow initializitation to be performed. */
-      s->deg = s->n = n;
-      mps_allocate_poly_inplace(s, n);
+      s->deg = s->n = sec->n;
+      mps_allocate_poly_inplace(s, sec->n);
       s->data_type = "uri";
 
       /* We set the selected phase */
@@ -177,7 +177,7 @@ main(int argc, char** argv)
   else
     {
       /* Set user polynomial with our custom functions */
-      mps_status_set_poly_u(s, n, MPS_FNEWTON_PTR(mps_secular_fnewton),
+      mps_status_set_poly_u(s, sec->n, MPS_FNEWTON_PTR(mps_secular_fnewton),
           MPS_DNEWTON_PTR(mps_secular_dnewton),
           MPS_MNEWTON_PTR(mps_secular_mnewton));
 
