@@ -137,8 +137,6 @@ main(int argc, char** argv)
       {
         cplx_set_d(a_coefficients[i], drand(), drand());
         cplx_set_d(b_coefficients[i], drand(), drand());
-        //      cplx_set_d(a_coefficients[i], pow(-1, (double) i + 1), 0);
-        //      cplx_set_d(b_coefficients[i], 1.0 / (i + 1) / (i + 1), 0);
       }
 
   }
@@ -149,6 +147,11 @@ main(int argc, char** argv)
   /* Set secular equation in user data, so it will be
    * accessible by the secular equation routines. */
   s->user_data = sec;
+
+  if (phase == dpe_phase)
+      sec->starting_case = 'd';
+  else
+    sec->starting_case = 'f';
 
   /* If we choose gemignani's approach follow it, otherwise
    * use standard mpsolve approach applied implicitly to the

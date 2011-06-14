@@ -65,6 +65,12 @@ typedef struct {
      */
     unsigned long int n;
 
+    /**
+     * @brief Selected starting case, can be 'd' for DPE
+     * or 'f' for floating point
+     */
+    char starting_case;
+
 } mps_secular_equation; /* End of typedef struct {... */
 
 

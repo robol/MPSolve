@@ -87,16 +87,16 @@ mps_secular_equation_new(cplx_t* afpc, cplx_t* bfpc, unsigned long int n)
   for (i = 0; i < s->n; i++)
     {
       cdpe_init(s->adpc[i]);
-      cdpe_set_x(s->adpc[i], afpc[i]);
+      cdpe_set_x(s->adpc[i], s->afpc[i]);
 
       mpc_init(s->ampc[i]);
-      mpc_set_cplx(s->ampc[i], afpc[i]);
+      mpc_set_cplx(s->ampc[i], s->afpc[i]);
 
       cdpe_init(s->bdpc[i]);
-      cdpe_set_x(s->bdpc[i], bfpc[i]);
+      cdpe_set_x(s->bdpc[i], s->bfpc[i]);
 
       mpc_init(s->bmpc[i]);
-      mpc_set_cplx(s->bmpc[i], bfpc[i]);
+      mpc_set_cplx(s->bmpc[i], s->bfpc[i]);
     }
 
   return s;
@@ -364,6 +364,13 @@ mps_secular_dnewton(mps_status* s, cdpe_t x, rdpe_t rad, cdpe_t corr,
       /* Compute z - b_i */
       cdpe_sub(ctmp, x, sec->bdpc[i]);
 
+      if (cdpe_eq_zero(ctmp))
+        {
+          cdpe_set(corr, cdpe_zero);
+          *again = false;
+          return;
+        }
+
       /* Invert it, i.e. compute 1 / (z - b_i) */
       cdpe_inv_eq(ctmp);
 
@@ -587,7 +594,8 @@ mps_secular_check_data(mps_status* s, char* which_case)
   /* While we can't found a good criterion to check
    * the possibility to start in pure floating point we
    * use the DPE version. */
-  *which_case = 'f';
+  mps_secular_equation* sec = (mps_secular_equation*) s->user_data;
+  *which_case = sec->starting_case;
 }
 
 /**
