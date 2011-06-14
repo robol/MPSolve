@@ -2,9 +2,6 @@
 *~
 *.so
 *.a
-unisolve
-rursolve
 .cproject
 .project
-secsolve
 *.res
