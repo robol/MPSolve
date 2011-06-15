@@ -6,6 +6,8 @@ AC_INIT([MPSolve], [3.0], [robol@poisson.phc.unipi.it])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS([config.h])
 
+AC_CONFIG_MACRO_DIR([m4])
+
 LT_INIT
 
 AM_INIT_AUTOMAKE([dist-bzip2])
@@ -15,21 +17,45 @@ AC_PROG_CXX
 AC_PROG_CC
 AM_PROG_CC_C_O
 
-MPS_CFLAGS="-I../../include -DNICE_DEBUG -std=c99"
-UNISOLVE_CFLAGS="-I../../include -std=c99"
-SECSOLVE_CFLAGS="-I../../include -DNICE_DEBUG -std=c99"
+GENERAL_CFLAGS="-I../../include -std=ansi"
+
+# Determine CFLAGS based on the options that the user has specified.
+# The supported build type are
+#
+# --without-debug Do not code debug prints (that is not the default)
+# 
+
+AC_ARG_ENABLE([debug],
+	[AS_HELP_STRING([--disable-debug], [Disable debug prints in the code])])
+
+AS_IF([test "x$enable_debug" != "xno"], [
+	GENERAL_CFLAGS="$GENERAL_CFLAGS -DNICE_DEBUG"
+])
+
+MPS_CFLAGS="$GENERAL_CFLAGS"
+UNISOLVE_CFLAGS="$GENERAL_CFLAGS"
+SECSOLVE_CFLAGS="$GENERAL_CFLAGS"
 
 AC_SUBST(MPS_CFLAGS)
 AC_SUBST(UNISOLVE_CFLAGS)
 AC_SUBST(SECSOLVE_CFLAGS)
 
 # Checks for libraries.
-# FIXME: Replace `main' with a function in `-lgmp':
 AC_CHECK_LIB([gmp], [mpc_set])
-# FIXME: Replace `main' with a function in `-lm':
+AC_CHECK_HEADERS([gmp.h], [mpsolve_found_gmp_headers=yes; break;])
+
 AC_CHECK_LIB([m], [pow])
-# FIXME: Replace `main' with a function in `-lmps':
+
 AC_CHECK_LIB([pthread], [pthread_create])
+AC_CHECK_HEADERS([pthread.h], [mpsolve_found_pthread_headers=yes; break;])
+
+# Errors if libraries are not found, in this case GMP and Pthreads.
+AS_IF([test "x$mpsolve_found_gmp_headers" != "xyes"], 
+	[AC_MSG_ERROR([Unable to find gmp headers, pleas install libgmp-dev])])
+
+AS_IF([test "x$mpsolve_found_pthread_headers" != "xyes"],
+	[AC_MSG_ERROR([Unable to find pthreads headers, please install libpthreads-dev])])
+
 
 # Checks for header files.
 AC_CHECK_HEADERS([float.h limits.h stdlib.h string.h unistd.h])

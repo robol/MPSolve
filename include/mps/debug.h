@@ -177,6 +177,7 @@ gmp_fprintf(s->logstr, templ); \
 #define MPS_DEBUG_CDPE(args...)
 #define MPS_DEBUG_CALL(args...)
 #define MPS_DEBUG_MCLUSTER_ROOTS(args...)
+#define MPS_DEBUG_THIS_CALL
 #endif
 
 #ifndef DISABLE_DEBUG
