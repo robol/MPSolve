@@ -169,6 +169,8 @@ main(int argc, char** argv)
    * secular equation. */
   if (ga)
     {
+      s->computation_style = 'g';
+
       /* Set degree and allocate polynomial-related variables
        * to allow initializitation to be performed. */
       s->deg = s->n = sec->n;
@@ -190,6 +192,8 @@ main(int argc, char** argv)
     }
   else
     {
+      s->computation_style = 'm';
+
       /* Set user polynomial with our custom functions */
       mps_status_set_poly_u(s, sec->n, MPS_FNEWTON_PTR(mps_secular_fnewton),
           MPS_DNEWTON_PTR(mps_secular_dnewton),

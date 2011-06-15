@@ -308,6 +308,10 @@ mps_secular_set_radii(mps_status* s)
           rdpe_add_eq(total_rad, rtmp);
         }
 
+      /* Compute guaranteed total rad */
+      rdpe_mul_d(rtmp, s->mp_epsilon, s->n);
+      rdpe_add_eq(total_rad, rtmp);
+
       /* Check if the Gerschgorin's radii are more convenient */
       for (i = 0; i < s->n; i++)
         {
@@ -316,19 +320,26 @@ mps_secular_set_radii(mps_status* s)
             {
               mpc_get_cdpe(ctmp, sec->ampc[i]);
               cdpe_mod(rad, ctmp);
+              rdpe_add_eq(rad, s->mp_epsilon);
             }
           else
-            /* We are in the DPE phase */
-            cdpe_mod(rad, sec->adpc[i]);
+            {
+              /* We are in the DPE phase */
+              cdpe_mod(rad, sec->adpc[i]);
+              rdpe_add_eq(rad, s->mp_epsilon);
+            }
 
-          /* Check which radius is smaller */
+          /* Check which radius is smaller (here guaranteed radius is
+           * computed). */
+          rdpe_mul_d(rtmp, s->mp_epsilon, 9 * s->n);
+          rdpe_add_eq(rtmp, rdpe_one);
           rdpe_mul_eq_d(rad, (double) s->n);
+          rdpe_mul_eq(rad, rtmp);
+
           if (rdpe_gt(rad, total_rad))
             rdpe_set(rad, total_rad);
 
           /* If the radius is convenient set it */
-          //          MPS_DEBUG_RDPE(s, s->drad[i], "Old s->drad[%d]", i)
-          //          MPS_DEBUG_RDPE(s, rad, "New Gerschgorin proposal ")
           if (rdpe_lt(rad, s->drad[i]))
             {
               MPS_DEBUG_RDPE(s, rad, "Setting s->drad[%d] to rad", i);

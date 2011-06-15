@@ -735,6 +735,8 @@ typedef struct {
 	 */
 	void * user_data;
 
+	char computation_style;
+
 #ifndef DISABLE_DEBUG
 	/**
 	 * @brief Counter for the cycles used in debug prints,

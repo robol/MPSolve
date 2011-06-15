@@ -531,6 +531,7 @@ mps_secular_ga_check_stop(mps_status* s)
         if (s->frad[i] > frad)
           return false;
       case mp_phase:
+      case dpe_phase:
         if (rdpe_gt(s->drad[i], drad))
           {
             if (rdpe_gt(s->drad[i], max_rad))

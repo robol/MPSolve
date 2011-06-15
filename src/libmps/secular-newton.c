@@ -75,6 +75,12 @@ mps_secular_fnewton(mps_status* s, cplx_t x, double *rad, cplx_t corr,
   else
     cplx_set(corr, pol);
 
+
+  /* Radius is n * newt_corr, if it's better that Gerschgorin's one */
+  dtmp = cplx_mod(corr) * sec->n + DBL_EPSILON;
+  if (s->computation_style == 'm')
+    *rad = dtmp;
+
   /* dtmp here is the guaranteed upper bound to the evaluation of the
    * secular equation   */
   if (dtmp < 2 * DBL_EPSILON)
@@ -82,17 +88,12 @@ mps_secular_fnewton(mps_status* s, cplx_t x, double *rad, cplx_t corr,
       *again = false;
     }
 
-  /* Radius is n * newt_corr, if it's better that Gerschgorin's one */
-  dtmp = cplx_mod(corr) * sec->n;
-  *rad = dtmp;
-
   /* If the correction is not useful in the current precision do
    * not iterate more   */
   if (*again && (cplx_mod(corr) < cplx_mod(x) * DBL_EPSILON))
     {
       *again = false;
     }
-
 }
 
 void
@@ -160,7 +161,9 @@ mps_secular_dnewton(mps_status* s, cdpe_t x, rdpe_t rad, cdpe_t corr,
 
   /* Compute radius as n * | corr | */
   cdpe_mod(rad, corr);
-  rdpe_mul_eq_d(rad, s->n);
+
+  if (s->computation_style == 'm')
+    rdpe_mul_eq_d(rad, s->n);
 
   /* Compute \sum_i | a_i / (z - b_i) | + 1
    * and check if the secular equation is smaller
@@ -301,7 +304,8 @@ mps_secular_mnewton(mps_status* s, mpc_t x, rdpe_t rad, mpc_t corr,
   cdpe_mod(rtmp2, cdtmp);
   rdpe_mul_eq_d(rtmp2, (double) sec->n);
 
-  rdpe_set(rad, rtmp2);
+  if (s->computation_style == 'm')
+    rdpe_set(rad, rtmp2);
 
   /* Compute guaranteed modulus of pol */
   mpc_get_cdpe(cdtmp, pol);
