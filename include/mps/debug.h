@@ -168,7 +168,7 @@ gmp_fprintf(s->logstr, templ); \
 }
 #endif
 
-#endif // #ifdef NICE_DEBUG
+#endif
 #else
 #define MPS_DEBUG(args...)
 #define MPS_DEBUG_MPC(args...)

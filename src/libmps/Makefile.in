@@ -75,12 +75,12 @@ LTLIBRARIES = $(lib_LTLIBRARIES)
 am__DEPENDENCIES_1 =
 libmps_la_DEPENDENCIES = $(am__DEPENDENCIES_1)
 am__objects_1 =
-am_libmps_la_OBJECTS = mps_user.lo mps_opts.lo mps_solv.lo mps_main.lo \
-	mps_data.lo mps_clus.lo mps_mptemp.lo mps_stio.lo \
-	mps_gmptools.lo mps_defaults.lo mps_sort.lo mps_tools.lo \
-	mps_poly.lo mps_star.lo mps_cnvx.lo mps_mt.lo mps_aber.lo \
-	mps_impr.lo mps_test.lo mps_newt.lo mps_mpc.lo mps_link.lo \
-	mps_touc.lo mps_interface.lo mps_secular.lo $(am__objects_1)
+am_libmps_la_OBJECTS = user.lo getopts.lo solve.lo main.lo data.lo \
+	cluster.lo mptemp.lo stio.lo gmptools.lo defaults.lo sort.lo \
+	tools.lo poly.lo starting.lo convex.lo mt.lo aberth.lo \
+	improve.lo test.lo newton.lo mpc.lo link.lo touch.lo \
+	interface.lo secular.lo secular-newton.lo secular-starting.lo \
+	$(am__objects_1)
 libmps_la_OBJECTS = $(am_libmps_la_OBJECTS)
 libmps_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
@@ -247,31 +247,33 @@ AM_CPPFLAGS = \
 	$(NULL)
 
 libmps_la_SOURCES = \
-	 mps_user.c \
-	 mps_opts.c \
-	 mps_solv.c \
-	 mps_main.c \
-	 mps_data.c \
-	 mps_clus.c \
-	 mps_mptemp.c \
-	 mps_stio.c \
-	 mps_gmptools.c \
-	 mps_defaults.c \
-	 mps_sort.c \
-	 mps_tools.c \
-	 mps_poly.c \
-	 mps_star.c \
-	 mps_cnvx.c \
-	 mps_mt.c \
-	 mps_aber.c \
-	 mps_impr.c \
-	 mps_test.c \
-	 mps_newt.c \
-	 mps_mpc.c \
-	 mps_link.c \
-	 mps_touc.c \
-	 mps_interface.c \
-	 mps_secular.c \
+	 user.c \
+	 getopts.c \
+	 solve.c \
+	 main.c \
+	 data.c \
+	 cluster.c \
+	 mptemp.c \
+	 stio.c \
+	 gmptools.c \
+	 defaults.c \
+	 sort.c \
+	 tools.c \
+	 poly.c \
+	 starting.c \
+	 convex.c \
+	 mt.c \
+	 aberth.c \
+	 improve.c \
+	 test.c \
+	 newton.c \
+	 mpc.c \
+	 link.c \
+	 touch.c \
+	 interface.c \
+	 secular.c \
+	 secular-newton.c \
+	 secular-starting.c \
 	$(NULL)
 
 libmps_la_LIBADD = \
@@ -353,31 +355,33 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mps_aber.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mps_clus.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mps_cnvx.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mps_data.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mps_defaults.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mps_gmptools.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mps_impr.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mps_interface.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mps_link.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mps_main.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mps_mpc.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mps_mptemp.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mps_mt.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mps_newt.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mps_opts.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mps_poly.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mps_secular.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mps_solv.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mps_sort.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mps_star.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mps_stio.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mps_test.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mps_tools.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mps_touc.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mps_user.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/aberth.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cluster.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/convex.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/data.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/defaults.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/getopts.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gmptools.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/improve.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/interface.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/link.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mpc.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mptemp.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mt.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/newton.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/poly.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/secular-newton.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/secular-starting.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/secular.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/solve.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sort.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/starting.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/stio.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tools.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/touch.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/user.Plo@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
