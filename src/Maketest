@@ -25,6 +25,8 @@
 #
 # some synonyms are also accepted (see below).
 
+UNISOLVE=unisolve/unisolve
+
 target=$1
 shift
 
@@ -33,7 +35,7 @@ echo Active options: $*
 echo ---------------
 
 # scan all polynomials in the Data directory
-for f in Data/*.pol
+for f in tests/*.pol
 do
 	echo Solving $f ...
 	case $target in
@@ -41,29 +43,29 @@ do
 	"root" | "roots" | "solve" )
 		echo ------------------  >> roots
 		echo $f  -  options: $*  >> roots
-		./unisolve $* $f         >> roots ;;
+		$UNISOLVE $* $f         >> roots ;;
 # output all timings
 	"time" | "timing" | "timings" )
 		echo ------------------  >> timings
 		echo $f  -  options: $*  >> timings
-		/usr/bin/time -p ./unisolve $* $f 2>> timings ;;
+		/usr/bin/time -p $UNISOLVE $* $f 2>> timings ;;
 # output all roots and timings in two files
 	"both" | "split" | "twofiles" )
 		echo ------------------  >> roots
 		echo ------------------  >> timings
 		echo $f  -  options: $*  >> roots
 		echo $f  -  options: $*  >> timings
-		/usr/bin/time -p ./unisolve $* $f >> roots 2>> timings ;;
+		/usr/bin/time -p $UNISOLVE $* $f >> roots 2>> timings ;;
 # output all roots and timings in one file
 	"all" | "join" | "onefile" )
 		echo ------------------  >> stats
 		echo $f  -  options: $*  >> stats
-		/usr/bin/time -p ./unisolve $* $f >> stats 2>&1 ;;
+		/usr/bin/time -p $UNISOLVE $* $f >> stats 2>&1 ;;
 # output all roots and timings to the console
 	"show" | "test" )
 		echo ------------------
 		echo $f  -  options: $*
-		/usr/bin/time -p ./unisolve $* $f ;;
+		/usr/bin/time -p $UNISOLVE $* $f ;;
 # list all files in the Data directory and create the testsuite file
 	"list" | "suite" )
 		echo $f

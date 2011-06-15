@@ -35,6 +35,7 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 bin_PROGRAMS = unisolve$(EXEEXT)
+check_PROGRAMS = unisolve-test$(EXEEXT)
 subdir = src/unisolve
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -58,6 +59,13 @@ unisolve_DEPENDENCIES = $(am__DEPENDENCIES_1)
 unisolve_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CCLD) $(unisolve_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
+am_unisolve_test_OBJECTS = unisolve_test-unisolve-test.$(OBJEXT) \
+	$(am__objects_1)
+unisolve_test_OBJECTS = $(am_unisolve_test_OBJECTS)
+unisolve_test_DEPENDENCIES = $(am__DEPENDENCIES_1)
+unisolve_test_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(unisolve_test_CFLAGS) \
+	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -71,8 +79,8 @@ CCLD = $(CC)
 LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
-SOURCES = $(unisolve_SOURCES)
-DIST_SOURCES = $(unisolve_SOURCES)
+SOURCES = $(unisolve_SOURCES) $(unisolve_test_SOURCES)
+DIST_SOURCES = $(unisolve_SOURCES) $(unisolve_test_SOURCES)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -196,6 +204,14 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 NULL = 
+unisolve_test_SOURCES = \
+	unisolve-test.c \
+	$(NULL)
+
+unisolve_test_CFLAGS = \
+	$(UNISOLVE_CFLAGS) \
+	$(NULL)
+
 unisolve_CFLAGS = \
 	$(UNISOLVE_CFLAGS) \
 	$(NULL)
@@ -205,6 +221,13 @@ unisolve_SOURCES = \
 	$(NULL)
 
 unisolve_LDADD = \
+	-L../libmps \
+	-lmps \
+	-lgmp \
+	-lm \
+	$(NULL)
+
+unisolve_test_LDADD = \
 	-L../libmps \
 	-lmps \
 	-lgmp \
@@ -288,9 +311,21 @@ clean-binPROGRAMS:
 	list=`for p in $$list; do echo "$$p"; done | sed 's/$(EXEEXT)$$//'`; \
 	echo " rm -f" $$list; \
 	rm -f $$list
+
+clean-checkPROGRAMS:
+	@list='$(check_PROGRAMS)'; test -n "$$list" || exit 0; \
+	echo " rm -f" $$list; \
+	rm -f $$list || exit $$?; \
+	test -n "$(EXEEXT)" || exit 0; \
+	list=`for p in $$list; do echo "$$p"; done | sed 's/$(EXEEXT)$$//'`; \
+	echo " rm -f" $$list; \
+	rm -f $$list
 unisolve$(EXEEXT): $(unisolve_OBJECTS) $(unisolve_DEPENDENCIES) 
 	@rm -f unisolve$(EXEEXT)
 	$(unisolve_LINK) $(unisolve_OBJECTS) $(unisolve_LDADD) $(LIBS)
+unisolve-test$(EXEEXT): $(unisolve_test_OBJECTS) $(unisolve_test_DEPENDENCIES) 
+	@rm -f unisolve-test$(EXEEXT)
+	$(unisolve_test_LINK) $(unisolve_test_OBJECTS) $(unisolve_test_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -299,6 +334,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/unisolve-unisolve.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/unisolve_test-unisolve-test.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -334,6 +370,20 @@ unisolve-unisolve.obj: unisolve.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='unisolve.c' object='unisolve-unisolve.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(unisolve_CFLAGS) $(CFLAGS) -c -o unisolve-unisolve.obj `if test -f 'unisolve.c'; then $(CYGPATH_W) 'unisolve.c'; else $(CYGPATH_W) '$(srcdir)/unisolve.c'; fi`
+
+unisolve_test-unisolve-test.o: unisolve-test.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(unisolve_test_CFLAGS) $(CFLAGS) -MT unisolve_test-unisolve-test.o -MD -MP -MF $(DEPDIR)/unisolve_test-unisolve-test.Tpo -c -o unisolve_test-unisolve-test.o `test -f 'unisolve-test.c' || echo '$(srcdir)/'`unisolve-test.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/unisolve_test-unisolve-test.Tpo $(DEPDIR)/unisolve_test-unisolve-test.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='unisolve-test.c' object='unisolve_test-unisolve-test.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(unisolve_test_CFLAGS) $(CFLAGS) -c -o unisolve_test-unisolve-test.o `test -f 'unisolve-test.c' || echo '$(srcdir)/'`unisolve-test.c
+
+unisolve_test-unisolve-test.obj: unisolve-test.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(unisolve_test_CFLAGS) $(CFLAGS) -MT unisolve_test-unisolve-test.obj -MD -MP -MF $(DEPDIR)/unisolve_test-unisolve-test.Tpo -c -o unisolve_test-unisolve-test.obj `if test -f 'unisolve-test.c'; then $(CYGPATH_W) 'unisolve-test.c'; else $(CYGPATH_W) '$(srcdir)/unisolve-test.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/unisolve_test-unisolve-test.Tpo $(DEPDIR)/unisolve_test-unisolve-test.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='unisolve-test.c' object='unisolve_test-unisolve-test.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(unisolve_test_CFLAGS) $(CFLAGS) -c -o unisolve_test-unisolve-test.obj `if test -f 'unisolve-test.c'; then $(CYGPATH_W) 'unisolve-test.c'; else $(CYGPATH_W) '$(srcdir)/unisolve-test.c'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo
@@ -424,6 +474,7 @@ distdir: $(DISTFILES)
 	  fi; \
 	done
 check-am: all-am
+	$(MAKE) $(AM_MAKEFLAGS) $(check_PROGRAMS)
 check: check-am
 all-am: Makefile $(PROGRAMS)
 installdirs:
@@ -457,7 +508,8 @@ maintainer-clean-generic:
 	@echo "it deletes files that may require special tools to rebuild."
 clean: clean-am
 
-clean-am: clean-binPROGRAMS clean-generic clean-libtool mostlyclean-am
+clean-am: clean-binPROGRAMS clean-checkPROGRAMS clean-generic \
+	clean-libtool mostlyclean-am
 
 distclean: distclean-am
 	-rm -rf ./$(DEPDIR)
@@ -525,21 +577,21 @@ ps-am:
 
 uninstall-am: uninstall-binPROGRAMS
 
-.MAKE: install-am install-strip
+.MAKE: check-am install-am install-strip
 
 .PHONY: CTAGS GTAGS all all-am check check-am clean clean-binPROGRAMS \
-	clean-generic clean-libtool ctags distclean distclean-compile \
-	distclean-generic distclean-libtool distclean-tags distdir dvi \
-	dvi-am html html-am info info-am install install-am \
-	install-binPROGRAMS install-data install-data-am install-dvi \
-	install-dvi-am install-exec install-exec-am install-html \
-	install-html-am install-info install-info-am install-man \
-	install-pdf install-pdf-am install-ps install-ps-am \
-	install-strip installcheck installcheck-am installdirs \
-	maintainer-clean maintainer-clean-generic mostlyclean \
-	mostlyclean-compile mostlyclean-generic mostlyclean-libtool \
-	pdf pdf-am ps ps-am tags uninstall uninstall-am \
-	uninstall-binPROGRAMS
+	clean-checkPROGRAMS clean-generic clean-libtool ctags \
+	distclean distclean-compile distclean-generic \
+	distclean-libtool distclean-tags distdir dvi dvi-am html \
+	html-am info info-am install install-am install-binPROGRAMS \
+	install-data install-data-am install-dvi install-dvi-am \
+	install-exec install-exec-am install-html install-html-am \
+	install-info install-info-am install-man install-pdf \
+	install-pdf-am install-ps install-ps-am install-strip \
+	installcheck installcheck-am installdirs maintainer-clean \
+	maintainer-clean-generic mostlyclean mostlyclean-compile \
+	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
+	tags uninstall uninstall-am uninstall-binPROGRAMS
 
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.

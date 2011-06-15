@@ -76,4 +76,5 @@ AC_CONFIG_FILES([Makefile
 		 src/unisolve/Makefile
 		 src/secsolve/Makefile
 		 src/libmps/Makefile])
+
 AC_OUTPUT

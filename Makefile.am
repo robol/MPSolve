@@ -6,3 +6,5 @@ SUBDIRS= \
 	src \
 	examples \
 	$(NULL)
+
+TESTS=src/check.sh
