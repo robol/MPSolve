@@ -155,8 +155,6 @@ main(int argc, char** argv)
   if (argc == 2)
     fclose (infile);
 
-  MPS_DEBUG(s, "n = %d", sec->n)
-
   /* Set secular equation in user data, so it will be
    * accessible by the secular equation routines. */
   s->user_data = sec;
