@@ -560,6 +560,7 @@ mps_secular_ga_mpsolve(mps_status* s, mps_phase phase)
 {
   int roots_computed = 0;
   int iteration_per_packet = 10;
+  int packet = 0;
   int i;
 
   for (i = 0; i < s->n; i++)
@@ -604,11 +605,13 @@ mps_secular_ga_mpsolve(mps_status* s, mps_phase phase)
         {
       case float_phase:
         roots_computed = mps_secular_ga_fiterate(s, iteration_per_packet);
+        packet++;
         MPS_DEBUG(s, "%d roots were computed", roots_computed)
         break;
 
       case dpe_phase:
         roots_computed = mps_secular_ga_diterate(s, iteration_per_packet);
+        packet++;
         MPS_DEBUG(s, "%d roots were computed", roots_computed)
         break;
 
@@ -628,7 +631,8 @@ mps_secular_ga_mpsolve(mps_status* s, mps_phase phase)
 
       /* Check if it's time to abandon floating point to enter
        * the multiprecision phase */
-      if (s->lastphase != mp_phase && (roots_computed == s->n))
+      if (s->lastphase != mp_phase &&
+          ((roots_computed == s->n) || packet > 3))
         {
           MPS_DEBUG(s, "Switching to multiprecision phase")
           mps_secular_switch_phase(s, mp_phase);
