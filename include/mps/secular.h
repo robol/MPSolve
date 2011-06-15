@@ -93,6 +93,9 @@ mps_secular_mnewton(mps_status* st, mpc_t x, rdpe_t rad, mpc_t corr,
 
 /* Routines in secular.c */
 void
+mps_secular_deflate(mps_status* s, mps_secular_equation* sec);
+
+void
 mps_secular_check_data(mps_status* s, char* which_case);
 
 void
@@ -135,7 +138,11 @@ mps_secular_ga_mpsolve(mps_status* s, mps_phase phase);
 
 /* Interface functions in mps_secular.c */
 mps_secular_equation*
-mps_secular_equation_new(cplx_t* afpc, cplx_t* bfpc, unsigned long int n);
+mps_secular_equation_new(mps_status* s, cplx_t* afpc, cplx_t* bfpc, unsigned long int n);
+
+mps_secular_equation*
+mps_secular_equation_new_raw(mps_status* s, unsigned long int n);
+
 void
 mps_secular_equation_free(mps_secular_equation* s);
 void

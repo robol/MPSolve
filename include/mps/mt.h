@@ -232,6 +232,7 @@ int rdpe_out_str_u(FILE * f, const rdpe_t e);
 int rdpe_out_str(FILE * f, const rdpe_t e);
 int rdpe_inp_str_u(rdpe_t e, FILE * f);
 int rdpe_inp_str(rdpe_t e, FILE * f);
+int rdpe_inp_str_flex(rdpe_t e, FILE * f);
 #define rdpe_outln_str_u(F, E) rdpe_out_str_u(F, E); fputc('\n', F)
 #define rdpe_outln_str(F, E)   rdpe_out_str(F, E); fputc('\n', F)
 #define rdpe_out_u(E)          rdpe_out_str_u(stdout, E)

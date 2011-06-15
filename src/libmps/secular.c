@@ -12,28 +12,27 @@
 #include <float.h>
 #include <mps/mpc.h>
 
-
 /**
  * @brief Deflate a secular equation lowering the degree of the
  * polynomial that represent it, if that is possible.
  */
 void
-mps_secular_deflate(mps_secular_equation* sec)
+mps_secular_deflate(mps_status* s, mps_secular_equation* sec)
 {
   int i, j, k;
   for (i = 0; i < sec->n; i++)
     {
       for (j = i + 1; j < sec->n; j++)
         {
-          if (cplx_eq(sec->bfpc[i], sec->bfpc[j]))
+          if (cdpe_eq(sec->bdpc[i], sec->bdpc[j]))
             {
-              cplx_add_eq(sec->afpc[i], sec->afpc[j]);
+              cdpe_add_eq(sec->adpc[i], sec->adpc[j]);
 
               /* Copy other coefficients back of one position */
               for (k = j; k < sec->n - 1; k++)
                 {
-                  cplx_set(sec->afpc[j], sec->afpc[j + 1]);
-                  cplx_set(sec->bfpc[j], sec->bfpc[j + 1]);
+                  cdpe_set(sec->adpc[j], sec->adpc[j + 1]);
+                  cdpe_set(sec->bdpc[j], sec->bdpc[j + 1]);
                 }
 
               /* Decrement number of coefficients */
@@ -44,60 +43,75 @@ mps_secular_deflate(mps_secular_equation* sec)
 }
 
 /**
+ * @brief Raw version of mps_secular_equation_new that only
+ * allocate space for the coefficients but relies on the user
+ * to fill their values.
+ */
+mps_secular_equation*
+mps_secular_equation_new_raw(mps_status* s, unsigned long int n)
+{
+  mps_secular_equation* sec = (mps_secular_equation*) malloc(
+      sizeof(mps_secular_equation));
+
+  /* Allocate floating point coefficients */
+  sec->afpc = cplx_valloc(n);
+  sec->bfpc = cplx_valloc(n);
+
+  /* Allocate complex dpe coefficients of the secular equation */
+  sec->adpc = cdpe_valloc(n);
+  sec->bdpc = cdpe_valloc(n);
+
+  /* Allocate multiprecision complex coefficients of the secular equation */
+  sec->ampc = mpc_valloc(n);
+  sec->bmpc = mpc_valloc(n);
+
+  /* Init multiprecision arrays */
+  mpc_vinit(sec->ampc, n);
+  mpc_vinit(sec->bmpc, n);
+
+  sec->n = n;
+  return sec;
+}
+
+/**
  * @brief Create a new secular equation struct
  */
 mps_secular_equation*
-mps_secular_equation_new(cplx_t* afpc, cplx_t* bfpc, unsigned long int n)
+mps_secular_equation_new(mps_status* s, cplx_t* afpc, cplx_t* bfpc, unsigned long int n)
 {
 
   int i;
 
   /* Allocate the space for the new struct */
-  mps_secular_equation* s = (mps_secular_equation*) malloc(
-      sizeof(mps_secular_equation));
-
-  /* Copy data in the struct, so the user shall not worry about the scope of
-   * its input data. */
-  s->afpc = cplx_valloc(n);
-  s->bfpc = cplx_valloc(n);
-
-  /* Allocate complex dpe coefficients of the secular equation */
-  s->adpc = cdpe_valloc(n);
-  s->bdpc = cdpe_valloc(n);
-
-  /* Allocate multiprecision complex coefficients of the secular equation */
-  s->ampc = mpc_valloc(n);
-  s->bmpc = mpc_valloc(n);
+  mps_secular_equation* sec = mps_secular_equation_new_raw(s, n);
 
   /* Copy the complex coefficients passed as argument */
   for (i = 0; i < n; i++)
     {
       /* a_i coefficients */
-      cplx_set(s->afpc[i], afpc[i]);
+      cplx_set(sec->afpc[i], afpc[i]);
 
       /* b_i coefficients */
-      cplx_set(s->bfpc[i], bfpc[i]);
+      cplx_set(sec->bfpc[i], bfpc[i]);
     }
 
-  s->n = n;
-  mps_secular_deflate(s);
+  sec->n = n;
+  mps_secular_deflate(s, sec);
 
-  for (i = 0; i < s->n; i++)
+  for (i = 0; i < sec->n; i++)
     {
-      cdpe_init(s->adpc[i]);
-      cdpe_set_x(s->adpc[i], s->afpc[i]);
+      cdpe_init(sec->adpc[i]);
+      cdpe_set_x(sec->adpc[i], sec->afpc[i]);
 
-      mpc_init(s->ampc[i]);
-      mpc_set_cplx(s->ampc[i], s->afpc[i]);
+      mpc_set_cplx(sec->ampc[i], sec->afpc[i]);
 
-      cdpe_init(s->bdpc[i]);
-      cdpe_set_x(s->bdpc[i], s->bfpc[i]);
+      cdpe_init(sec->bdpc[i]);
+      cdpe_set_x(sec->bdpc[i], sec->bfpc[i]);
 
-      mpc_init(s->bmpc[i]);
-      mpc_set_cplx(s->bmpc[i], s->bfpc[i]);
+      mpc_set_cplx(sec->bmpc[i], sec->bfpc[i]);
     }
 
-  return s;
+  return sec;
 }
 
 void
@@ -110,8 +124,6 @@ mps_secular_equation_free(mps_secular_equation* s)
   /* ...and then release it */
   free(s);
 }
-
-
 
 /**
  * @brief Evaluate secular equation in the point x.
@@ -139,7 +151,6 @@ mps_secular_evaluate(mps_status* s, cplx_t x, cplx_t sec_ev)
 
   cplx_sub_eq(sec_ev, cplx_one);
 }
-
 
 void
 mps_secular_check_data(mps_status* s, char* which_case)
@@ -230,7 +241,6 @@ mps_secular_switch_phase(mps_status* s, mps_phase phase)
       exit(EXIT_FAILURE);
     }
 }
-
 
 /**
  * @brief Update radii of the roots according to the coefficients

@@ -36,28 +36,64 @@ usage(mps_status *s, const char* program)
   exit (EXIT_FAILURE);
 }
 
+mps_secular_equation*
+read_secular_equation(mps_status* s, FILE* input_stream)
+{
+  mps_secular_equation* sec;
+  int n, r, i;
+
+  /* Read the number of the coefficients */
+  r = fscanf(input_stream, "%d", &n);
+
+  if (!r)
+      mps_error(s, 1, "Error reading input coefficients of the secular equation.\n");
+
+  /* Read directly the secular equation in DPE, so we don't need
+   * to have a fallback case if the coefficients are bigger than
+   * what is supported by the standard floating point arithmetic */
+  sec = mps_secular_equation_new_raw(s, n);
+
+  for(i = 0; i < n; i++)
+    {
+      rdpe_inp_str_flex(cdpe_Re(sec->adpc[i]), input_stream);
+      rdpe_inp_str_flex(cdpe_Im(sec->adpc[i]), input_stream);
+      rdpe_inp_str_flex(cdpe_Re(sec->bdpc[i]), input_stream);
+      rdpe_inp_str_flex(cdpe_Im(sec->bdpc[i]), input_stream);
+    }
+
+  /* Deflate input, if identical b_i coefficients are found */
+  mps_secular_deflate(s, sec);
+
+  /* Copy coefficients back in other places */
+  for(i = 0; i < sec->n; i++)
+    {
+      mpc_set_cdpe(sec->ampc[i], sec->adpc[i]);
+      mpc_set_cdpe(sec->bmpc[i], sec->bdpc[i]);
+
+      /* Get floating points coefficients */
+      cdpe_get_x(sec->afpc[i], sec->adpc[i]);
+      cdpe_get_x(sec->bfpc[i], sec->bdpc[i]);
+    }
+
+  return sec;
+}
+
 int
 main(int argc, char** argv)
 {
+  mps_secular_equation* sec;
+  mps_status* s;
   int i;
 
   /* Create a new secular equation with some random coefficients */
   unsigned int n = 5;
+  s = mps_status_new();
 
   /* Gemignani's approach */
   mps_boolean ga = false;
 
-  /* Allocate space for the complex coefficients */
-  cplx_t* a_coefficients;
-  cplx_t* b_coefficients;
-
-  mps_secular_equation* sec;
-  mps_status* s;
-
   FILE* infile;
   double tmp1, tmp2;
-
-  s = mps_status_new();
 
   /* Parse options */
   mps_opt* opt;
@@ -108,41 +144,18 @@ main(int argc, char** argv)
   if (argc > 2)
     usage(s, argv[0]);
 
-  /* If a file is provided read the coefficients from there */
-  if(argc == 2) {
-    int read_el;
-    infile = fopen (argv[1], "r");
-    read_el = fscanf(infile, "%d", &n);
-
-    a_coefficients = cplx_valloc (n);
-    b_coefficients = cplx_valloc (n);
-
-    for (i = 0; i < n; i++) {
-      read_el = fscanf (infile, "%lf", &tmp1);
-      read_el = fscanf (infile, "%lf", &tmp2);
-      cplx_set_d(a_coefficients[i], tmp1, tmp2);
-      read_el = fscanf (infile, "%lf", &tmp1);
-      read_el = fscanf (infile, "%lf", &tmp2);
-      cplx_set_d(b_coefficients[i], tmp1, tmp2);
-    }
-  } else {
-
-    /* Allocate space for the coefficients */
-    a_coefficients = cplx_valloc(n);
-    b_coefficients = cplx_valloc(n);
-
-    /* Generate coefficients */
-    srand(time(NULL));
-    for (i = 0; i < n; i++)
-      {
-        cplx_set_d(a_coefficients[i], drand(), drand());
-        cplx_set_d(b_coefficients[i], drand(), drand());
-      }
-
-  }
+  /* If no file is provided use standard input */
+  if (argc == 1)
+    infile = stdin;
+  else
+    infile = fopen(argv[1], "r");
 
   /* Create new secular equation */
-  sec = mps_secular_equation_new(a_coefficients, b_coefficients, n);
+  sec = read_secular_equation(s, infile);
+  if (argc == 2)
+    fclose (infile);
+
+  MPS_DEBUG(s, "n = %d", sec->n)
 
   /* Set secular equation in user data, so it will be
    * accessible by the secular equation routines. */
