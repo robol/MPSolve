@@ -8,11 +8,11 @@ UNISOLVE=$srcdir/src/unisolve/unisolve-test
 
 for polynomial_res in $RESULTSDIR/*.res; do
 	pol_file=`echo $polynomial_res | sed s/results/tests/ | sed s/\.res/\.pol/`
-	echo -n "Solving $pol_file..."
+	printf "Testing resolution of %35s...\t" $pol_file
 	$UNISOLVE $pol_file $polynomial_res
 	if [ "$?" != "0" ]; then
-		echo "failed"
+		echo "\033[34;1mfailed\033[0m"
 		exit 1;
 	fi
-	echo "done"
+	echo "\033[32;1mpassed\033[0m"
 done

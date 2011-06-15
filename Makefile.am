@@ -7,4 +7,4 @@ SUBDIRS= \
 	examples \
 	$(NULL)
 
-TESTS=src/check.sh
+TESTS=src/unisolve-check.sh
