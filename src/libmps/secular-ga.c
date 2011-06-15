@@ -229,10 +229,9 @@ mps_secular_ga_regenerate_coefficients(mps_status* s)
 
   /* Declaration and initialization of the multprecision
    * variables that are used only in that case */
-  mpc_t prod_old_b, prod_b, sec_ev;
+  mpc_t prod_b, sec_ev;
   mpc_t ctmp, btmp;
 
-  mpc_init2(prod_old_b, s->mpwp);
   mpc_init2(prod_b, s->mpwp);
   mpc_init2(sec_ev, s->mpwp);
   mpc_init2(ctmp, s->mpwp);
@@ -265,6 +264,7 @@ mps_secular_ga_regenerate_coefficients(mps_status* s)
       {
         cplx_t prod_old_b, prod_b, sec_ev;
         cplx_t ctmp, btmp;
+
         cplx_set(prod_old_b, cplx_one);
         cplx_set(prod_b, cplx_one);
         cplx_set(sec_ev, cplx_zero);
@@ -282,6 +282,9 @@ mps_secular_ga_regenerate_coefficients(mps_status* s)
                     cplx_set(sec->bfpc[i], old_b[i]);
 
                     MPS_DEBUG(s, "Cannot regenerate coefficients, reusing old ones")
+
+                    cplx_vfree(old_a);
+                    cplx_vfree(old_b);
                     return;
                   }
               }
@@ -307,7 +310,6 @@ mps_secular_ga_regenerate_coefficients(mps_status* s)
         cplx_sub_eq(sec_ev, cplx_one);
         cplx_mul(sec->afpc[i], sec_ev, prod_old_b);
         cplx_div_eq(sec->afpc[i], prod_b);
-
       }
 
     /* Free data */
@@ -353,6 +355,23 @@ mps_secular_ga_regenerate_coefficients(mps_status* s)
           {
             /* Compute 1 / (b - old_b) */
             cdpe_sub(btmp, sec->bdpc[i], old_db[j]);
+
+            /* Check if we can invert the difference, otherwisee abort
+             * coefficient regeneration             */
+            if (cdpe_eq_zero(btmp))
+              {
+                MPS_DEBUG(s, "Cannot regenerate coefficients, reusing old ones.")
+                for(j = 0; j < sec->n; j++)
+                  {
+                    cdpe_set(sec->adpc[j], old_da[j]);
+                    cdpe_set(sec->bdpc[j], old_db[j]);
+                  }
+
+                cdpe_vfree(old_da);
+                cdpe_vfree(old_db);
+                return;
+              }
+
             cdpe_inv(ctmp, btmp);
 
             /* Add a_j / (b_i - old_b_j) to sec_ev */
@@ -374,8 +393,6 @@ mps_secular_ga_regenerate_coefficients(mps_status* s)
         cdpe_sub_eq(sec_ev, cdpe_one);
         cdpe_mul(sec->adpc[i], sec_ev, prod_old_b);
         cdpe_div_eq(sec->adpc[i], prod_b);
-
-        MPS_DEBUG_CDPE(s, sec_ev, "sec_ev");
       }
 
     /* Free data */
@@ -413,7 +430,6 @@ mps_secular_ga_regenerate_coefficients(mps_status* s)
     /* Compute the new a_i */
     for (i = 0; i < s->n; i++)
       {
-        mpc_set_ui(prod_old_b, 1, 0);
         mpc_set_ui(prod_b, 1, 0);
         mpc_set_ui(sec_ev, 0, 0);
 
@@ -447,15 +463,13 @@ mps_secular_ga_regenerate_coefficients(mps_status* s)
             if (i != j)
               {
                 mpc_sub(ctmp, sec->bmpc[i], sec->bmpc[j]);
-                mpc_mul_eq(prod_old_b, ctmp);
+                mpc_div_eq(prod_b, ctmp);
               }
           }
 
         /* Compute the new a_i as sec_ev * prod_old_b / prod_b */
         mpc_sub_eq_ui(sec_ev, 1, 0);
-        mpc_mul(sec->ampc[i], sec_ev, prod_old_b);
-        mpc_div_eq(sec->ampc[i], prod_b);
-
+        mpc_mul(sec->ampc[i], sec_ev, prod_b);
       }
 
     regenerate_m_exit:
@@ -465,6 +479,10 @@ mps_secular_ga_regenerate_coefficients(mps_status* s)
     mpc_vclear(old_mb, s->n);
     mpc_vfree(old_ma);
     mpc_vfree(old_mb);
+    mpc_clear(prod_b);
+    mpc_clear(sec_ev);
+    mpc_clear(ctmp);
+    mpc_clear(btmp);
 
     for (i = 0; i < s->n; i++)
       {
@@ -472,8 +490,8 @@ mps_secular_ga_regenerate_coefficients(mps_status* s)
         MPS_DEBUG_MPC(s, 15, sec->bmpc[i], "sec->bmpc[%d]", i);
       }
 
-    //    mps_secular_mstart(s, s->n, 0, (__rdpe_struct *) rdpe_zero,
-    //        (__rdpe_struct *) rdpe_zero, s->eps_out);
+        mps_secular_mstart(s, s->n, 0, (__rdpe_struct *) rdpe_zero,
+            (__rdpe_struct *) rdpe_zero, s->eps_out);
 
     break;
 
