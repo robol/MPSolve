@@ -95,6 +95,12 @@ mps_secular_mnewton(mps_status* st, mpc_t x, rdpe_t rad, mpc_t corr,
 void
 mps_secular_check_data(mps_status* s, char* which_case);
 
+void
+mps_secular_switch_phase(mps_status* s, mps_phase phase);
+
+void
+mps_secular_raise_precision(mps_status* s);
+
 /* Routines in secular-starting.c */
 void
 mps_secular_fstart(mps_status* s, int n, int i_clust, double clust_rad,
@@ -105,6 +111,25 @@ mps_secular_dstart(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
 void
 mps_secular_mstart(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
     rdpe_t g, rdpe_t eps);
+void
+mps_secular_ga_mpsolve(mps_status* s, mps_phase phase);
+
+/* Routines in secular-ga.c */
+int
+mps_secular_ga_fiterate(mps_status* s, int maxit);
+
+int
+mps_secular_ga_diterate(mps_status* s, int maxit);
+
+int
+mps_secular_ga_miterate(mps_status* s, int maxit);
+
+void
+mps_secular_ga_regenerate_coefficients(mps_status* s);
+
+mps_boolean
+mps_secular_ga_check_stop(mps_status* s);
+
 void
 mps_secular_ga_mpsolve(mps_status* s, mps_phase phase);
 

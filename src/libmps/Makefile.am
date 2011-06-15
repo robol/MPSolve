@@ -51,6 +51,7 @@ libmps_la_SOURCES = \
 	 secular.c \
 	 secular-newton.c \
 	 secular-starting.c \
+	 secular-ga.c \
 	$(NULL)
 
 libmps_la_LIBADD = \
