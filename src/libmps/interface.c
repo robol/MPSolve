@@ -113,7 +113,7 @@ mps_status_new() {
     s->logstr = stdout;
 
     /* Set standard precision */
-    s->prec_out = 53;
+    s->prec_out = 0.9 * DBL_DIG;
     s->prec_in = 0;
 
     return s;

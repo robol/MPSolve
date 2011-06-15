@@ -24,7 +24,7 @@ extern "C" {
 #define NDEBUG
 #endif
 
-#ifndef DISABLE_DEBUG
+#ifdef NICE_DEBUG
 /**
  * @brief Debug cluster approximations of the roots in the
  * case of multiprecision computation.
@@ -63,7 +63,7 @@ if (s->DOLOG) { \
  */
 #define MPS_DEBUG_RDPE(s, r, name...) __MPS_DEBUG_EQ(s, name); \
 if (s->DOLOG) { \
-    rdpe_outln(r); \
+    rdpe_outln_str(s->logstr, r); \
 }
 
 /**
@@ -71,7 +71,7 @@ if (s->DOLOG) { \
  */
 #define MPS_DEBUG_CDPE(s, c, name...) __MPS_DEBUG_EQ(s, name); \
 if (s->DOLOG) { \
-    cdpe_outln(c); \
+    cdpe_outln_str(s->logstr, c); \
 }
 
 /**
@@ -79,7 +79,7 @@ if (s->DOLOG) { \
  */
 #define MPS_DEBUG_CPLX(s, c, name...)  __MPS_DEBUG_EQ(s, name); \
 if (s->DOLOG) { \
-    cplx_outln(c); \
+    cplx_outln_str(s->logstr, c); \
 }
 
 /**
@@ -106,10 +106,10 @@ if (s->DOLOG) { \
 #ifndef __WINDOWS
 #define MPS_DEBUG_CALL(s, function) if (s->DOLOG) { \
   if (isatty(s->logstr->_fileno)) { \
-    __MPS_DEBUG(s, "Calling \033[31;1m"); \
+    __MPS_DEBUG(s, "Called \033[31;1m"); \
   } \
 else { \
-  __MPS_DEBUG(s, "Calling "); \
+  __MPS_DEBUG(s, "Called "); \
 }\
   if (isatty(s->logstr->_fileno)) { \
     fprintf(s->logstr, function); fprintf(s->logstr, "()\033[0m\n"); \
@@ -122,10 +122,10 @@ else \
 #else
 #define MPS_DEBUG_CALL(s, function) if (s->DOLOG) { \
   if (_isatty(_fileno(s->logstr))) { \
-    __MPS_DEBUG(s, "Calling \033[31;1m"); \
+    __MPS_DEBUG(s, "Called \033[31;1m"); \
   } \
 else { \
-  __MPS_DEBUG(s, "Calling "); \
+  __MPS_DEBUG(s, "Called "); \
 }\
   if (_isatty(_fileno(s->logstr))) { \
     fprintf(s->logstr, function); fprintf(s->logstr, "()\033[0m\n"); \
@@ -136,6 +136,8 @@ else \
 }\
 }
 #endif
+
+#define MPS_DEBUG_THIS_CALL MPS_DEBUG_CALL(s, __FUNCTION__)
 
 
 /**
@@ -167,6 +169,7 @@ else { \
 gmp_fprintf(s->logstr, templ); \
 }
 #endif
+
 #endif
 #else
 #define MPS_DEBUG(args...)
@@ -176,6 +179,7 @@ gmp_fprintf(s->logstr, templ); \
 #define MPS_DEBUG_CDPE(args...)
 #define MPS_DEBUG_CALL(args...)
 #define MPS_DEBUG_MCLUSTER_ROOTS(args...)
+#define MPS_DEBUG_THIS_CALL
 #endif
 
 #ifndef DISABLE_DEBUG

@@ -113,4 +113,6 @@ void mps_set_default_values(mps_status* s) {
   s->fstart_usr = NULL;
   s->dstart_usr = NULL;
 
+  s->random_seed = 0;
+
 }
