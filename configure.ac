@@ -17,7 +17,7 @@ AC_PROG_CXX
 AC_PROG_CC
 AM_PROG_CC_C_O
 
-GENERAL_CFLAGS="-I../../include -std=c99"
+GENERAL_CFLAGS="-I../../include -std=c99 -DNOMPTEMP"
 
 # Determine CFLAGS based on the options that the user has specified.
 # The supported build type are

@@ -16,6 +16,7 @@ include_HEADERS = \
 	../../include/mps/core.h \
 	../../include/mps/rursolve.h \
 	../../include/mps/secular.h \
+	../../include/mps/threading.h \
 	$(NULL)
 
 AM_CPPFLAGS= \
@@ -48,6 +49,7 @@ libmps_la_SOURCES = \
 	 link.c \
 	 touch.c \
 	 interface.c \
+	 threading.c \
 	 secular.c \
 	 secular-newton.c \
 	 secular-starting.c \

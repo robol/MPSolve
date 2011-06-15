@@ -79,8 +79,8 @@ am_libmps_la_OBJECTS = user.lo getopts.lo solve.lo main.lo data.lo \
 	cluster.lo mptemp.lo stio.lo gmptools.lo defaults.lo sort.lo \
 	tools.lo poly.lo starting.lo convex.lo mt.lo aberth.lo \
 	improve.lo test.lo newton.lo mpc.lo link.lo touch.lo \
-	interface.lo secular.lo secular-newton.lo secular-starting.lo \
-	secular-ga.lo $(am__objects_1)
+	interface.lo threading.lo secular.lo secular-newton.lo \
+	secular-starting.lo secular-ga.lo $(am__objects_1)
 libmps_la_OBJECTS = $(am_libmps_la_OBJECTS)
 libmps_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
@@ -239,6 +239,7 @@ include_HEADERS = \
 	../../include/mps/core.h \
 	../../include/mps/rursolve.h \
 	../../include/mps/secular.h \
+	../../include/mps/threading.h \
 	$(NULL)
 
 AM_CPPFLAGS = \
@@ -271,6 +272,7 @@ libmps_la_SOURCES = \
 	 link.c \
 	 touch.c \
 	 interface.c \
+	 threading.c \
 	 secular.c \
 	 secular-newton.c \
 	 secular-starting.c \
@@ -381,6 +383,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/starting.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/stio.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/threading.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tools.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/touch.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/user.Plo@am__quote@
