@@ -116,6 +116,8 @@ void mps_cluster_reset(mps_status* s);
 void mps_fcluster(mps_status* s, int nf);
 void mps_dcluster(mps_status* s, int nf);
 void mps_mcluster(mps_status* s, int nf);
+void mps_cluster_detach(mps_status*s, int i_clust);
+void mps_cluster_reassemble(mps_status* s, int i_clust);
 
 /* functions in mps_cnvx.c */
 void mps_fconvex(mps_status* s, int n, double a[]);

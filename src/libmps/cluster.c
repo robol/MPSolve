@@ -240,6 +240,12 @@ mps_mcluster(mps_status* s, int nf)
 
 }
 
+void
+mps_cluster_detachment_reset(mps_status* s)
+{
+  memset(s->clust_detached, -1, sizeof(int) * s->n);
+}
+
 
 /**
  * @brief Check if in the cluster <code>i_clust</code> there are quasi
@@ -347,8 +353,54 @@ mps_cluster_detach(mps_status* s, int i_clust)
 
 
 void
-mps_reassemble_cluster(mps_status* s, int i_clust) {
+mps_cluster_reassemble(mps_status* s, int i_clust)
+{
+  int i, l, j;
 
+  if (i_clust == MPS_ALL_CLUSTERS)
+    for(j = 0; j < s->nclust; j++)
+      {
+        mps_cluster_reassemble(s, j);
+        return;
+      }
+
+  for(i = 0; i < s->nclust; i++) {
+
+      if (s->clust_detached[i] == i_clust) {
+
+              MPS_DEBUG(s, "Recompacting cluster %d and %d", i_clust, i);
+
+              /* We need this to be true to make the reassembling of
+               * the cluster work as expected */
+              assert(i_clust < i);
+
+              l = s->clust[s->punt[i]];
+              for(j = s->punt[i_clust + 1]; j < s->punt[i]; j++) {
+                  s->clust[j+1] = s->clust[j];
+              }
+              s->clust[s->punt[i_clust + 1]] = l;
+              for(j = i_clust + 1; j <= i; j++) {
+                  s->punt[j]++;
+              }
+
+              assert(s->punt[i] == s->punt[i+1]);
+
+              for(j = i+1; j < s->nclust; j++) {
+                  s->punt[j - 1] = s->punt[j];
+                  s->clust_detached[j - 1] = s->clust_detached[j];
+              }
+              s->punt[s->nclust - 1] = s->punt[s->nclust];
+
+              s->nclust--;
+              for(j = 0; j < s->nclust; j++) {
+                  if (s->clust_detached[j] > i_clust) {
+                      s->clust_detached[j]--;
+                  }
+              }
+
+              s->clust_detached[i] = -1;
+          }
+  }
 }
 
 

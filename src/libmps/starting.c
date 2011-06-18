@@ -19,8 +19,9 @@
 #include <mps/core.h>
 #include <mps/debug.h>
 
+
+#define MPS_STARTING_SIGMA 0.1
 #define pi2 6.283184
-#define MPS_STARTING_SIGMA .2
 
 /* forward declaration */
 void mps_raisetemp(mps_status* s, unsigned long int digits);
@@ -779,7 +780,7 @@ mps_mstart(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
 
         for(i = 0; i < s->nclust; i++) {
             if (s->clust_detached[i] == i_clust) {
-                /* Check if the root touchs the cluster */
+                /* Check if the root touches the cluster */
                 mpc_sub(mtmp, s->mroot[i], gg);
                 mpc_get_cdpe(ctmp, mtmp);
                 cdpe_mod(rtmp2, ctmp);
@@ -820,6 +821,8 @@ mps_mstart(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
                             s->clust_detached[j]--;
                         }
                     }
+
+                    s->clust_detached[i] = -1;
                 }
             }
         }
@@ -1259,9 +1262,7 @@ mps_mrestart(mps_status* s) {
                 s->status[s->clust[j]][0] = 'c';
             MPS_DEBUG(s, "Cluster %d relat. large: skip to the next component", i)
 
-            /*
-             * TODO: Reassemble the cluster as it was before...
-             */
+            mps_cluster_reassemble(s, MPS_ALL_CLUSTERS);
 
             goto loop1;
         }
