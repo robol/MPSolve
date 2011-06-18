@@ -30,7 +30,8 @@ int main(int argc, char** argv)
   mpf_t mroot;
   mpf_t ftmp;
   mpf_t eps;
-  int i, j, prec = 100;
+  int out_digits = 50;
+  int i, j, prec = out_digits * LOG2_10;
   int ch;
 
   if (argc != 3)
@@ -45,7 +46,7 @@ int main(int argc, char** argv)
   mpf_init2(eps,   prec);
   mpf_init2(ftmp,  prec);
 
-  mpf_set_2dl(eps, 1.0, -prec * LOG10_2);
+  mpf_set_2dl(eps, 1.0, -out_digits);
 
   /* Open streams */
   input_stream = fopen(argv[1], "r");
