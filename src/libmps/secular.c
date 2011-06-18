@@ -279,7 +279,6 @@ mps_secular_set_radii(mps_status* s)
 
           if (rad < s->frad[i])
             {
-              MPS_DEBUG(s, "Setting s->frad[%d] to %e (thanks to Gerschgorin)", i, rad);
               s->frad[i] = rad;
             }
         }
@@ -342,7 +341,6 @@ mps_secular_set_radii(mps_status* s)
           /* If the radius is convenient set it */
           if (rdpe_lt(rad, s->drad[i]))
             {
-              MPS_DEBUG_RDPE(s, rad, "Setting s->drad[%d] to rad", i);
               rdpe_set(s->drad[i], rad);
             }
         }

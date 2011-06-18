@@ -262,10 +262,9 @@ mps_secular_ga_regenerate_coefficients(mps_status* s)
     /* Compute the new a_i */
     for (i = 0; i < s->n; i++)
       {
-        cplx_t prod_old_b, prod_b, sec_ev;
+        cplx_t prod_b, sec_ev;
         cplx_t ctmp, btmp;
 
-        cplx_set(prod_old_b, cplx_one);
         cplx_set(prod_b, cplx_one);
         cplx_set(sec_ev, cplx_zero);
 
@@ -295,21 +294,20 @@ mps_secular_ga_regenerate_coefficients(mps_status* s)
             cplx_mul_eq(ctmp, old_a[j]);
             cplx_add_eq(sec_ev, ctmp);
 
-            /* Multiply prod_b for
-             * b_i - b_j if i \neq j and prod_old_b
+            /* Divide prod_b for
+             * b_i - b_j if i \neq j and
              * for b_i - old_b_i.  */
             cplx_mul_eq(prod_b, btmp);
             if (i != j)
               {
                 cplx_sub(ctmp, sec->bfpc[i], sec->bfpc[j]);
-                cplx_mul_eq(prod_old_b, ctmp);
+                cplx_div_eq(prod_b, ctmp);
               }
           }
 
         /* Compute the new a_i as sec_ev * prod_old_b / prod_b */
         cplx_sub_eq(sec_ev, cplx_one);
-        cplx_mul(sec->afpc[i], sec_ev, prod_old_b);
-        cplx_div_eq(sec->afpc[i], prod_b);
+        cplx_mul(sec->afpc[i], sec_ev, prod_b);
       }
 
     /* Free data */
@@ -345,9 +343,8 @@ mps_secular_ga_regenerate_coefficients(mps_status* s)
     /* Compute the new a_i */
     for (i = 0; i < s->n; i++)
       {
-        cdpe_t prod_old_b, prod_b, sec_ev;
+        cdpe_t prod_b, sec_ev;
         cdpe_t ctmp, btmp;
-        cdpe_set(prod_old_b, cdpe_one);
         cdpe_set(prod_b, cdpe_one);
         cdpe_set(sec_ev, cdpe_zero);
 
@@ -385,14 +382,13 @@ mps_secular_ga_regenerate_coefficients(mps_status* s)
             if (i != j)
               {
                 cdpe_sub(ctmp, sec->bdpc[i], sec->bdpc[j]);
-                cdpe_mul_eq(prod_old_b, ctmp);
+                cdpe_div_eq(prod_b, ctmp);
               }
           }
 
         /* Compute the new a_i as sec_ev * prod_old_b / prod_b */
         cdpe_sub_eq(sec_ev, cdpe_one);
-        cdpe_mul(sec->adpc[i], sec_ev, prod_old_b);
-        cdpe_div_eq(sec->adpc[i], prod_b);
+        cdpe_mul(sec->adpc[i], sec_ev, prod_b);
       }
 
     /* Free data */
@@ -484,11 +480,16 @@ mps_secular_ga_regenerate_coefficients(mps_status* s)
     mpc_clear(ctmp);
     mpc_clear(btmp);
 
+    /* This is too much verbose to be enabled even in the debugged version,
+     * so do not display it (unless we are trying to catch some errors on
+     * coefficient regeneration). */
+    /*
     for (i = 0; i < s->n; i++)
       {
         MPS_DEBUG_MPC(s, 15, sec->ampc[i], "sec->ampc[%d]", i);
         MPS_DEBUG_MPC(s, 15, sec->bmpc[i], "sec->bmpc[%d]", i);
       }
+    */
 
         mps_secular_mstart(s, s->n, 0, (__rdpe_struct *) rdpe_zero,
             (__rdpe_struct *) rdpe_zero, s->eps_out);
@@ -512,43 +513,45 @@ mps_secular_ga_regenerate_coefficients(mps_status* s)
 mps_boolean
 mps_secular_ga_check_stop(mps_status* s)
 {
+  MPS_DEBUG_THIS_CALL
+
   double frad = pow(10, -s->prec_out);
   rdpe_t drad;
-  rdpe_t max_rad;
   int i;
+
+  /* Set the maximum rad allowed */
   rdpe_set_2dl(drad, 1.0, -s->prec_out);
 
+  /* If we are in floating point and output precision is higher of
+   * what is reachable, standing in floating point, do not exit */
   if (frad == 0 && s->lastphase == float_phase)
     return false;
-
-  rdpe_set(max_rad, drad);
 
   for (i = 0; i < s->n; i++)
     {
       switch (s->lastphase)
         {
+
+      /* Float case */
       case float_phase:
         if (s->frad[i] > frad)
           return false;
+
+      /* Multiprecision and DPE case are the same, since the radii
+       * are always RDPE. */
       case mp_phase:
       case dpe_phase:
         if (rdpe_gt(s->drad[i], drad))
-          {
-            if (rdpe_gt(s->drad[i], max_rad))
-              rdpe_set(max_rad, s->drad[i]);
-            // return false;
-          }
+            return false;
         break;
+
       default:
         break;
+
         }
     }
 
-  if (rdpe_eq(max_rad, drad))
-    return true;
-
-  MPS_DEBUG_RDPE(s, max_rad, "Maximum rad is too big to exit: max_rad")
-  return false;
+  return true;
 }
 
 /**

@@ -241,7 +241,7 @@ mps_secular_mnewton(mps_status* s, mpc_t x, rdpe_t rad, mpc_t corr,
       /* Keep away the case where the difference is zero */
       if (mpc_eq_zero(ctmp))
         {
-          /* We are in the case where x = b_i so set s = i*/
+          /* We are in the case where x = b_i so set j = i*/
           j = i;
           mpc_set_ui(corr, 0U, 0U);
           for (i = 0; i < sec->n; i++)
@@ -257,9 +257,6 @@ mps_secular_mnewton(mps_status* s, mpc_t x, rdpe_t rad, mpc_t corr,
           mpc_sub_eq_ui(corr, 1U, 0U);
           mpc_inv_eq(corr);
           mpc_mul_eq(corr, sec->ampc[j]);
-
-          MPS_DEBUG_MPC(s, 15, sec->ampc[j], "sec->ampc[%d]", j)
-          MPS_DEBUG_MPC(s, 15, corr, "Correction")
 
           x_is_b = true;
           break;
@@ -339,6 +336,7 @@ mps_secular_mnewton(mps_status* s, mpc_t x, rdpe_t rad, mpc_t corr,
         }
     }
 
+  /* Final cleanup */
   mpc_clear(fp);
   mpc_clear(pol);
   mpc_clear(sumb);
