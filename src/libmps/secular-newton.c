@@ -9,6 +9,7 @@
 #include <mps/interface.h>
 #include <mps/link.h>
 #include <mps/debug.h>
+#include <math.h>
 
 void
 mps_secular_fnewton(mps_status* s, cplx_t x, double *rad, cplx_t corr,
@@ -208,7 +209,7 @@ mps_secular_mnewton(mps_status* s, mpc_t x, rdpe_t rad, mpc_t corr,
 
   /* Declare temporary variables */
   mpc_t sumb, pol, fp, ctmp, ctmp2;
-  cdpe_t cdtmp;
+  cdpe_t cdtmp, cdtmp2;
   rdpe_t rtmp, rtmp2;
 
   /* Set working precision */
@@ -281,6 +282,10 @@ mps_secular_mnewton(mps_status* s, mpc_t x, rdpe_t rad, mpc_t corr,
       mpc_sub_eq(fp, ctmp2);
     }
 
+  /* Get in cdtmp the sum of a_i / (z - b_i) that will be useful later */
+  mpc_get_cdpe(cdtmp, pol);
+  cdpe_mod(rtmp, cdtmp);
+
   /* If x != b_i for every b_i finalize the computation */
   if (!x_is_b)
     {
@@ -288,21 +293,41 @@ mps_secular_mnewton(mps_status* s, mpc_t x, rdpe_t rad, mpc_t corr,
       mpc_sub_eq_ui(pol, 1, 0);
 
       /* Compute correction */
-      mpc_mul_eq(sumb, pol);
-      mpc_add_eq(fp, sumb);
-      if (!mpc_eq_zero(fp))
-        mpc_div(corr, pol, fp);
+      mpc_mul(ctmp2, sumb, pol);
+      mpc_add(ctmp, fp, ctmp2);
+      if (!mpc_eq_zero(ctmp))
+        mpc_div(corr, pol, ctmp);
       else
         mpc_set(corr, pol);
     }
 
-  /* Compute radius */
-  mpc_get_cdpe(cdtmp, corr);
+  /* Try to give a guaranteed newton circle computation */
+  /* rtmp is now the modulus of sum a_i / (x - b_i) */
+  rdpe_mul_eq_d(rtmp, 11 * s->n + 2 + sqrt(2.0));
+  rdpe_mul_eq(rtmp, s->mp_epsilon);
+  mpc_get_cdpe(cdtmp, pol);
+  mpc_get_cdpe(cdtmp2, fp);
+  cdpe_div_eq(cdtmp, cdtmp2);
   cdpe_mod(rtmp2, cdtmp);
-  rdpe_mul_eq_d(rtmp2, (double) sec->n);
+  rdpe_mul_eq(rtmp2, rtmp);
 
-  if (s->computation_style == 'm')
-    rdpe_set(rad, rtmp2);
+  /* Remember the cdtmp now is S/S', so we can compute
+   * S/s' * sum 1 / (x - b_i) + 1   */
+  mpc_get_cdpe(cdtmp2, sumb);
+  cdpe_mul_eq(cdtmp2, cdtmp);
+  cdpe_add_eq(cdtmp2, cdpe_one);
+
+  cdpe_mod(rtmp, cdtmp2);
+
+  /* Get sigma - gamma, that is a minoration on sigma */
+  rdpe_sub_eq(rtmp, rtmp2);
+
+  /* Compute correction modulus guaranteed */
+  cdpe_mod(rtmp2, cdtmp);
+  rdpe_mul_eq(rtmp2, rtmp);
+  rdpe_mul_eq_d(rtmp2, s->n);
+
+  rdpe_set(rad, rtmp2);
 
   /* Compute guaranteed modulus of pol */
   mpc_get_cdpe(cdtmp, pol);

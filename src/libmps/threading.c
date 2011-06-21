@@ -221,7 +221,6 @@ mps_thread_fpolzer_worker(void* data_ptr)
           else if (s->fnewton_usr != NULL)
             {
               (*s->fnewton_usr)(s, froot, &s->frad[i], corr, &s->again[i]);
-              MPS_DEBUG_CPLX(s, froot, "Corr on %d", i)
             }
           else
             {
