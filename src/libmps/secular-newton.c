@@ -327,7 +327,9 @@ mps_secular_mnewton(mps_status* s, mpc_t x, rdpe_t rad, mpc_t corr,
   rdpe_mul_eq(rtmp2, rtmp);
   rdpe_mul_eq_d(rtmp2, s->n);
 
-  rdpe_set(rad, rtmp2);
+  /* Set the radius, if convenient. */
+  if (rdpe_lt(rtmp2, s->drad[i]))
+    rdpe_set(rad, rtmp2);
 
   /* Compute guaranteed modulus of pol */
   mpc_get_cdpe(cdtmp, pol);
