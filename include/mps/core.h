@@ -98,8 +98,6 @@ typedef struct {
 #define MPS_ALL_CLUSTERS -1
 
 
-
-
 /* FUNCTIONS */
 
 
