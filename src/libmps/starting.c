@@ -20,7 +20,7 @@
 #include <mps/debug.h>
 
 
-#define MPS_STARTING_SIGMA 0.1
+#define MPS_STARTING_SIGMA (0.66 * (PI / s->n))
 #define pi2 6.283184
 
 /* forward declaration */
