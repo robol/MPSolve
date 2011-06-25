@@ -609,21 +609,9 @@ mps_thread_mpolzer_worker(void* data_ptr)
           /* the correction is performed only if iter!=1 or rad[l]!=rad1 */
           s->data_type[0] == 'u' || iter != 0 || rdpe_ne(s->drad[l], rad1))
             {
-              /* Compute Aberth correction manually so we can lock the
+              /* Compute Aberth correction with locks so we can lock the
                * roots while reading them.                          */
-              cdpe_set(abcorr_cdpe, cdpe_zero);
-              for (k = s->punt[job.i_clust]; k < s->punt[job.i_clust + 1]; k++)
-                {
-                  if (k == l)
-                    continue;
-                  pthread_mutex_lock(&data->aberth_mutex[k]);
-                  mpc_sub(diff, mroot, s->mroot[k]);
-                  pthread_mutex_unlock(&data->aberth_mutex[k]);
-                  mpc_get_cdpe(ctmp, diff);
-                  cdpe_inv_eq(ctmp);
-                  cdpe_add_eq(abcorr_cdpe, ctmp);
-                }
-              mpc_set_cdpe(abcorr, abcorr_cdpe);
+              mps_maberth_s_wl(s, l, job.i_clust, abcorr, data->aberth_mutex);
 
               /* Apply aberth correction that has been computed */
               mpc_mul_eq(abcorr, corr);

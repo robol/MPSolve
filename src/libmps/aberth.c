@@ -18,6 +18,7 @@
  ***********************************************************/
 
 #include <mps/core.h>
+#include <pthread.h>
 
 /**
  * @brief Compute Aberth correction for j-th root, without
@@ -151,4 +152,31 @@ mps_maberth_s(mps_status* s, int j, int jc, mpc_t abcorr) {
     mpc_set_cdpe(abcorr, temp);
 
     tmpc_clear(diff);
+}
+
+void
+mps_maberth_s_wl(mps_status* s, int j, int jc, mpc_t abcorr, pthread_mutex_t* aberth_mutexes)
+{
+  int i, k;
+  cdpe_t z, temp;
+  tmpc_t diff;
+
+  tmpc_init2(diff, s->mpwp);
+
+  cdpe_set(temp, cdpe_zero);
+  for (i = s->punt[jc]; i < s->punt[jc + 1]; i++) {
+      k = s->clust[i];
+      if (k == j)
+          continue;
+      pthread_mutex_lock(&aberth_mutexes[k]);
+      mpc_sub(diff, s->mroot[j], s->mroot[k]);
+      pthread_mutex_unlock(&aberth_mutexes[k]);
+      mpc_get_cdpe(z, diff);
+      cdpe_inv_eq(z);
+      cdpe_add_eq(temp, z);
+  }
+  mpc_set_cdpe(abcorr, temp);
+
+  tmpc_clear(diff);
+
 }
