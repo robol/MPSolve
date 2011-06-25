@@ -88,9 +88,10 @@ typedef struct {
 #include <mps/mptemp.h>
 #include <mps/debug.h>
 
-/* Interface should be a subset of core, so what is definded
+/* Interface should be a subset of core, so what is defined
  * there should be included here. */
 #include <mps/interface.h>
+#include <mps/threading.h>
 
 /* constants */
 
@@ -109,6 +110,7 @@ void mps_maberth(mps_status* s, int j, mpc_t abcorr);
 void mps_faberth_s(mps_status* s, int j, int jc, cplx_t abcorr);
 void mps_daberth_s(mps_status* s, int j, int jc, cdpe_t abcorr);
 void mps_maberth_s(mps_status* s, int j, int jc, mpc_t abcorr);
+void mps_maberth_s_wl(mps_status* s, int j, int jc, mpc_t abcorr, pthread_mutex_t* aberth_mutex);
 void mps_mnewtis(mps_status* s);
 
 /* functions in mps_clus.c */
