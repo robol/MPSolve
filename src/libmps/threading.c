@@ -231,20 +231,7 @@ mps_thread_fpolzer_worker(void* data_ptr)
           /* the correction is performed only if iter!=1 or rad(i)!=rad1 */
           s->data_type[0] == 'u' || iter != 0 || s->frad[i] != rad1)
             {
-              // mps_faberth(s, i, abcorr);
-              cplx_set(abcorr, cplx_zero);
-              for(j = 0; j < s->n; j++)
-                {
-                  if (j == i)
-                    continue;
-
-                  pthread_mutex_lock(&data->aberth_mutex[j]);
-                  cplx_sub(z, froot, s->froot[j]);
-                  pthread_mutex_unlock(&data->aberth_mutex[j]);
-
-                  cplx_inv_eq(z);
-                  cplx_add_eq(abcorr, z);
-                }
+              mps_faberth(s, i, abcorr);
 
               cplx_mul_eq(abcorr, corr);
               cplx_sub(abcorr, cplx_one, abcorr);
@@ -535,7 +522,7 @@ mps_thread_mpolzer_worker(void* data_ptr)
 
   /* Continue to iterate while exception condition has not
    * been reached and there more roots to approximate   */
-  while (!(*data->excep) && (*data->nzeros) < s->n)
+  while ((*data->nzeros) < s->n)
     {
       /* Get next job for this thread */
       job = mps_thread_job_queue_next(s, data->queue);
@@ -564,7 +551,7 @@ mps_thread_mpolzer_worker(void* data_ptr)
           if (*data->excep || (*data->nzeros) >= s->n)
             {
               pthread_mutex_unlock(&data->roots_mutex[l]);
-              return 0;
+              goto endfun;
             }
 
           /* Increment total iteration counter */

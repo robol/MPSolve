@@ -30,12 +30,13 @@ extern "C" {
  * case of multiprecision computation.
  */
 #define MPS_DEBUG_MCLUSTER_ROOTS(s, i) if (s->DOLOG) { \
-  __MPS_DEBUG(s, "Dumping cluster approximations:\n"); \
-  for(s->debug_i = s->punt[i]; s->debug_i < s->punt[i+1]; s->debug_i++) { \
-    __MPS_DEBUG(s, "%d: Approximation: ", s->debug_i - s->punt[i]); \
-    mpc_out_str(s->logstr, 10, 10, s->mroot[s->clust[s->debug_i]]); \
+  int __debug_i; \
+  __MPS_DEBUG(s, "Dumping cluster approximations hello:\n"); \
+  for(__debug_i = s->punt[i]; __debug_i < s->punt[i+1]; __debug_i++) { \
+    __MPS_DEBUG(s, "%d: Approximation: ", __debug_i - s->punt[i]); \
+    mpc_out_str(s->logstr, 10, 10, s->mroot[s->clust[__debug_i]]); \
     fprintf(s->logstr, " - Radius: "); \
-    rdpe_outln(s->drad[s->clust[s->debug_i]]); \
+    rdpe_outln(s->drad[s->clust[__debug_i]]); \
 } \
 }
 

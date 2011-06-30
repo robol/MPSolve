@@ -10,6 +10,13 @@
 #include <mps/mptemp.h>       /* NOMPTEMP may be defined here */
 #ifndef NOMPTEMP
 
+#ifdef THREAD_SAFE
+#include <pthread.h>
+
+pthread_t global_mutex;
+short int initialized = 0;
+#endif
+
 #include <stdlib.h>
 
 #ifndef MPTEMP_DEBUG
@@ -40,6 +47,14 @@ static int mpfallp = 0;
 tmpf_t
 gettmpf(long prec)
 {
+#ifdef THREAD_SAFE
+  if (!initialized)
+    {
+      pthread_mutex_init(&global_mutex, NULL);
+      initialized = 1;
+    }
+  pthread_mutex_lock(&global_mutex);
+#endif
   if (mpfstkp == mpfallp) {
     if (mpfallp == mpfsize) {
       if (mpfsize) {
@@ -73,12 +88,16 @@ gettmpf(long prec)
     mpfprec[mpfstkp] = mpf_get_prec(mpfbuff[mpfstkp]);
   }
 
+  pthread_mutex_unlock(&global_mutex);
   return (tmpf_t) & mpfbuff[mpfstkp++];
 }
 
 int
 freetmpf(const tmpf_t fp)
 {
+#ifdef THREAD_SAFE
+  pthread_mutex_lock(&global_mutex);
+#endif
 #if MPTEMP_CHECK
   long prec = mpf_get_prec(fp);
 #endif
@@ -102,6 +121,9 @@ freetmpf(const tmpf_t fp)
   }
 #endif /* MPTEMP_CHECK */
 
+#ifdef THREAD_SAFE
+  pthread_mutex_unlock(&global_mutex);
+#endif
   return mpfstkp;
 }
 

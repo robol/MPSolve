@@ -16,7 +16,7 @@
 void
 usage ()
 {
-  return;
+  return -1;
 }
 
 int main(int argc, char** argv)
@@ -94,9 +94,8 @@ int main(int argc, char** argv)
   mpf_clear(mroot);
   mpf_clear(eps);
   mpc_clear(root);
-//  mps_free_data(s);
   mps_status_free(s);
-//
+
   fclose (input_stream);
   fclose (check_stream);
 
