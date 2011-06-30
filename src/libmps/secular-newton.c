@@ -301,16 +301,6 @@ mps_secular_mnewton(mps_status* s, mpc_t x, rdpe_t rad, mpc_t corr,
         mpc_set(corr, pol);
     }
 
-  /* Try to give a guaranteed newton circle computation */
-  /* rtmp is now the modulus of sum a_i / (x - b_i) */
-  rdpe_mul_eq_d(rtmp, 11 * s->n + 2 + sqrt(2.0));
-  rdpe_mul_eq(rtmp, s->mp_epsilon);
-  mpc_get_cdpe(cdtmp, pol);
-  mpc_get_cdpe(cdtmp2, fp);
-  cdpe_div_eq(cdtmp, cdtmp2);
-  cdpe_mod(rtmp2, cdtmp);
-  rdpe_mul_eq(rtmp2, rtmp);
-
   /* We compute the following values in order to give a guaranteed
    * Newton inclusion circle:
    *
