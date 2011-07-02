@@ -17,7 +17,7 @@ mps_secular_fnewton(mps_status* s, cplx_t x, double *rad, cplx_t corr,
 {
   int i;
   cplx_t ctmp, ctmp2, pol, fp, sumb;
-  double dtmp;
+  double dtmp, g_corr;
   *again = true;
 
   mps_secular_equation* sec = (mps_secular_equation*) s->user_data;
@@ -60,6 +60,40 @@ mps_secular_fnewton(mps_status* s, cplx_t x, double *rad, cplx_t corr,
   /* Compute secular function */
   cplx_sub_eq(pol, cplx_one);
 
+
+  /* We compute the following values in order to give a guaranteed
+   * Newton inclusion circle:
+   *
+   * 1) theta = |fp| * (n + 8 + 3*sqrt(2)) * u
+   *  This is used so fp - theta is less than the real
+   *  value of sum_i a_i / (x - b_i)^2
+   *
+   * 2) ssp = pol / (fp - theta);
+   *  This is the guaranteed S/S' that we can compute
+   *  and that will be used to compute
+   *
+   * 3) gamma = ssp*sec*(n + 2 + sqrt(2))*u +
+   *     sec * (pol/fp - ssp) =
+   *     = sec * (ssp * (n+2+sqrt(2))*u + (pol/fp - ssp))
+   *  This is used in the next step to give a minoration
+   *  sigma of 1 + S/s' * (\sum_i a_i / (x-b_i))
+   *
+   * 4) sigma = 1 + ssp*sumb - gamma
+   *  Guaranteed 1 + S/s' * (\sum_i a_i / (x-b_i))
+   *
+   * 5) g_corr = ssp / sigma
+   *  That is, finally, the guaranteed newton correction.
+   */
+  {
+    double theta = cplx_mod (fp) * (s->n + 8 + 3 * sqrt(2));
+    double ssp = cplx_mod(pol) / (cplx_mod(fp) - theta);
+    double gamma = ssp * cplx_mod(pol) * (s->n + 2 + sqrt(2))*DBL_EPSILON +
+            cplx_mod(pol) * (ssp - (s->n + 2 + sqrt(2)) * DBL_EPSILON +
+                   (cplx_mod(pol)/cplx_mod(fp) - ssp));
+    double sigma = 1 + ssp * cplx_mod(sumb) - gamma;
+    g_corr = ssp / sigma;
+  }
+
   /* If S(z) is the secular equation and
    * |S(z)| < eps => |z - z_0| < eps(1 + u) + (n+1)u
    * where z_0 is the real root and u the machine precision,
@@ -76,10 +110,9 @@ mps_secular_fnewton(mps_status* s, cplx_t x, double *rad, cplx_t corr,
   else
     cplx_set(corr, pol);
 
-
   /* Radius is n * newt_corr, if it's better that Gerschgorin's one */
-  dtmp = cplx_mod(corr) * sec->n + DBL_EPSILON;
-  if (s->computation_style == 'm')
+  dtmp = g_corr * sec->n + DBL_EPSILON;
+  if (dtmp < *rad)
     *rad = dtmp;
 
   /* dtmp here is the guaranteed upper bound to the evaluation of the
@@ -282,10 +315,6 @@ mps_secular_mnewton(mps_status* s, mpc_t x, rdpe_t rad, mpc_t corr,
       mpc_sub_eq(fp, ctmp2);
     }
 
-  /* Get in cdtmp the sum of a_i / (z - b_i) that will be useful later */
-  mpc_get_cdpe(cdtmp, pol);
-  cdpe_mod(rtmp, cdtmp);
-
   /* If x != b_i for every b_i finalize the computation */
   if (!x_is_b)
     {
@@ -373,8 +402,19 @@ mps_secular_mnewton(mps_status* s, mpc_t x, rdpe_t rad, mpc_t corr,
     rdpe_div(g_corr, ssp, sigma);
   }
 
+  /* Compute non-guaranteed newton correction */
+  {
+      cdpe_t ctmp;
+      mpc_get_cdpe(ctmp, corr);
+      cdpe_mod(rtmp, ctmp);
+      rdpe_mul_eq_d(rtmp, s->n);
+  }
+
   /* Radius is s->n * g_corr */
   rdpe_mul_eq_d(g_corr, s->n);
+
+  MPS_DEBUG_RDPE(s, rtmp, "Non-guaranteed newton correction");
+  MPS_DEBUG_RDPE(s, g_corr, "Computed newton correction");
 
   /* Set the radius, if convenient. */
   if (rdpe_lt(g_corr, s->drad[i]))
