@@ -60,6 +60,26 @@ mps_secular_fnewton(mps_status* s, cplx_t x, double *rad, cplx_t corr,
   /* Compute secular function */
   cplx_sub_eq(pol, cplx_one);
 
+  /* If S(z) is the secular equation and
+   * |S(z)| < eps => |z - z_0| < eps(1 + u) + (n+1)u
+   * where z_0 is the real root and u the machine precision,
+   * that we can assume that z_0 is a pseudo root, i.e. solution
+   * to a problem with small perturbed coefficients. */
+  dtmp = cplx_mod(pol) * (DBL_EPSILON + 1) + (s->n + 1);
+
+  /* Compute newton correction */
+  cplx_div(corr, pol, fp);
+
+  MPS_DEBUG_CPLX(s, corr, "pol/fp");
+  cplx_mul(ctmp, corr, sumb);
+  MPS_DEBUG_CPLX(s, ctmp, "pre-real sigma");
+  cplx_add_eq(ctmp, cplx_one);
+  MPS_DEBUG_CPLX(s, ctmp, "real sigma");
+
+
+  if (!cplx_eq(ctmp, cplx_zero))
+    cplx_div_eq(corr, ctmp);
+
 
   /* We compute the following values in order to give a guaranteed
    * Newton inclusion circle:
@@ -85,30 +105,18 @@ mps_secular_fnewton(mps_status* s, cplx_t x, double *rad, cplx_t corr,
    *  That is, finally, the guaranteed newton correction.
    */
   {
-    double theta = cplx_mod (fp) * (s->n + 8 + 3 * sqrt(2));
+    double theta = cplx_mod (fp) * (s->n + 8 + 3 * sqrt(2)) * DBL_EPSILON;
     double ssp = cplx_mod(pol) / (cplx_mod(fp) - theta);
-    double gamma = ssp * cplx_mod(pol) * (s->n + 2 + sqrt(2))*DBL_EPSILON +
-            cplx_mod(pol) * (ssp - (s->n + 2 + sqrt(2)) * DBL_EPSILON +
-                   (cplx_mod(pol)/cplx_mod(fp) - ssp));
-    double sigma = 1 + ssp * cplx_mod(sumb) - gamma;
-    g_corr = ssp / sigma;
+    double gamma = fabs(ssp * cplx_mod(pol) * (s->n + 2 + sqrt(2)) * DBL_EPSILON) +
+            fabs(cplx_mod(pol) * (ssp * (s->n + 2 + sqrt(2)) * DBL_EPSILON)) +
+                   fabs(cplx_mod(pol)/cplx_mod(fp) - ssp);
+    double sigma = cplx_mod(ctmp) - gamma;
+
+    if (theta > cplx_mod(fp))
+        g_corr = DBL_MAX;
+    else
+        g_corr = ssp / sigma;
   }
-
-  /* If S(z) is the secular equation and
-   * |S(z)| < eps => |z - z_0| < eps(1 + u) + (n+1)u
-   * where z_0 is the real root and u the machine precision,
-   * that we can assume that z_0 is a pseudo root, i.e. solution
-   * to a problem with small perturbed coefficients. */
-  dtmp = cplx_mod(pol) * (DBL_EPSILON + 1) + (s->n + 1);
-
-  /* Compute newton correction */
-  cplx_mul(ctmp, pol, sumb);
-  cplx_add_eq(fp, ctmp);
-
-  if (!cplx_eq(fp, cplx_zero))
-    cplx_div(corr, pol, fp);
-  else
-    cplx_set(corr, pol);
 
   /* Radius is n * newt_corr, if it's better that Gerschgorin's one */
   dtmp = g_corr * sec->n + DBL_EPSILON;
@@ -315,6 +323,10 @@ mps_secular_mnewton(mps_status* s, mpc_t x, rdpe_t rad, mpc_t corr,
       mpc_sub_eq(fp, ctmp2);
     }
 
+  /* Get in cdtmp the sum of a_i / (z - b_i) that will be useful later */
+  mpc_get_cdpe(cdtmp, pol);
+  cdpe_mod(rtmp, cdtmp);
+
   /* If x != b_i for every b_i finalize the computation */
   if (!x_is_b)
     {
@@ -329,6 +341,7 @@ mps_secular_mnewton(mps_status* s, mpc_t x, rdpe_t rad, mpc_t corr,
       else
         mpc_set(corr, pol);
     }
+
 
   /* We compute the following values in order to give a guaranteed
    * Newton inclusion circle:

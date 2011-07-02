@@ -88,6 +88,7 @@ main(int argc, char** argv)
   /* Create a new secular equation with some random coefficients */
   unsigned int n = 5;
   s = mps_status_new();
+  s->n_threads = 1;
 
   /* Gemignani's approach */
   mps_boolean ga = false;
