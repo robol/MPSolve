@@ -35,6 +35,7 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 bin_PROGRAMS = secsolve$(EXEEXT)
+check_PROGRAMS = secsolve-test$(EXEEXT)
 subdir = src/secsolve
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -58,6 +59,13 @@ secsolve_DEPENDENCIES = $(am__DEPENDENCIES_1)
 secsolve_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CCLD) $(secsolve_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
+am_secsolve_test_OBJECTS = secsolve_test-secsolve-test.$(OBJEXT) \
+	$(am__objects_1)
+secsolve_test_OBJECTS = $(am_secsolve_test_OBJECTS)
+secsolve_test_DEPENDENCIES = $(am__DEPENDENCIES_1)
+secsolve_test_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(secsolve_test_CFLAGS) \
+	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -71,8 +79,8 @@ CCLD = $(CC)
 LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
-SOURCES = $(secsolve_SOURCES)
-DIST_SOURCES = $(secsolve_SOURCES)
+SOURCES = $(secsolve_SOURCES) $(secsolve_test_SOURCES)
+DIST_SOURCES = $(secsolve_SOURCES) $(secsolve_test_SOURCES)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -211,6 +219,21 @@ secsolve_LDADD = \
 	-lm \
 	$(NULL)
 
+secsolve_test_CFLAGS = \
+	$(SECSOLVE_CFLAGS) \
+	$(NULL)
+
+secsolve_test_SOURCES = \
+	secsolve-test.c \
+	$(NULL)
+
+secsolve_test_LDADD = \
+	-L../libmps \
+	-lmps \
+	-lgmp \
+	-lm \
+	$(NULL)
+
 all: all-am
 
 .SUFFIXES:
@@ -288,9 +311,21 @@ clean-binPROGRAMS:
 	list=`for p in $$list; do echo "$$p"; done | sed 's/$(EXEEXT)$$//'`; \
 	echo " rm -f" $$list; \
 	rm -f $$list
+
+clean-checkPROGRAMS:
+	@list='$(check_PROGRAMS)'; test -n "$$list" || exit 0; \
+	echo " rm -f" $$list; \
+	rm -f $$list || exit $$?; \
+	test -n "$(EXEEXT)" || exit 0; \
+	list=`for p in $$list; do echo "$$p"; done | sed 's/$(EXEEXT)$$//'`; \
+	echo " rm -f" $$list; \
+	rm -f $$list
 secsolve$(EXEEXT): $(secsolve_OBJECTS) $(secsolve_DEPENDENCIES) $(EXTRA_secsolve_DEPENDENCIES) 
 	@rm -f secsolve$(EXEEXT)
 	$(secsolve_LINK) $(secsolve_OBJECTS) $(secsolve_LDADD) $(LIBS)
+secsolve-test$(EXEEXT): $(secsolve_test_OBJECTS) $(secsolve_test_DEPENDENCIES) $(EXTRA_secsolve_test_DEPENDENCIES) 
+	@rm -f secsolve-test$(EXEEXT)
+	$(secsolve_test_LINK) $(secsolve_test_OBJECTS) $(secsolve_test_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -299,6 +334,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/secsolve-secsolve.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/secsolve_test-secsolve-test.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -334,6 +370,20 @@ secsolve-secsolve.obj: secsolve.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='secsolve.c' object='secsolve-secsolve.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(secsolve_CFLAGS) $(CFLAGS) -c -o secsolve-secsolve.obj `if test -f 'secsolve.c'; then $(CYGPATH_W) 'secsolve.c'; else $(CYGPATH_W) '$(srcdir)/secsolve.c'; fi`
+
+secsolve_test-secsolve-test.o: secsolve-test.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(secsolve_test_CFLAGS) $(CFLAGS) -MT secsolve_test-secsolve-test.o -MD -MP -MF $(DEPDIR)/secsolve_test-secsolve-test.Tpo -c -o secsolve_test-secsolve-test.o `test -f 'secsolve-test.c' || echo '$(srcdir)/'`secsolve-test.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/secsolve_test-secsolve-test.Tpo $(DEPDIR)/secsolve_test-secsolve-test.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='secsolve-test.c' object='secsolve_test-secsolve-test.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(secsolve_test_CFLAGS) $(CFLAGS) -c -o secsolve_test-secsolve-test.o `test -f 'secsolve-test.c' || echo '$(srcdir)/'`secsolve-test.c
+
+secsolve_test-secsolve-test.obj: secsolve-test.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(secsolve_test_CFLAGS) $(CFLAGS) -MT secsolve_test-secsolve-test.obj -MD -MP -MF $(DEPDIR)/secsolve_test-secsolve-test.Tpo -c -o secsolve_test-secsolve-test.obj `if test -f 'secsolve-test.c'; then $(CYGPATH_W) 'secsolve-test.c'; else $(CYGPATH_W) '$(srcdir)/secsolve-test.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/secsolve_test-secsolve-test.Tpo $(DEPDIR)/secsolve_test-secsolve-test.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='secsolve-test.c' object='secsolve_test-secsolve-test.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(secsolve_test_CFLAGS) $(CFLAGS) -c -o secsolve_test-secsolve-test.obj `if test -f 'secsolve-test.c'; then $(CYGPATH_W) 'secsolve-test.c'; else $(CYGPATH_W) '$(srcdir)/secsolve-test.c'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo
@@ -438,6 +488,7 @@ distdir: $(DISTFILES)
 	  fi; \
 	done
 check-am: all-am
+	$(MAKE) $(AM_MAKEFLAGS) $(check_PROGRAMS)
 check: check-am
 all-am: Makefile $(PROGRAMS)
 installdirs:
@@ -476,7 +527,8 @@ maintainer-clean-generic:
 	@echo "it deletes files that may require special tools to rebuild."
 clean: clean-am
 
-clean-am: clean-binPROGRAMS clean-generic clean-libtool mostlyclean-am
+clean-am: clean-binPROGRAMS clean-checkPROGRAMS clean-generic \
+	clean-libtool mostlyclean-am
 
 distclean: distclean-am
 	-rm -rf ./$(DEPDIR)
@@ -544,18 +596,18 @@ ps-am:
 
 uninstall-am: uninstall-binPROGRAMS
 
-.MAKE: install-am install-strip
+.MAKE: check-am install-am install-strip
 
 .PHONY: CTAGS GTAGS all all-am check check-am clean clean-binPROGRAMS \
-	clean-generic clean-libtool cscopelist ctags distclean \
-	distclean-compile distclean-generic distclean-libtool \
-	distclean-tags distdir dvi dvi-am html html-am info info-am \
-	install install-am install-binPROGRAMS install-data \
-	install-data-am install-dvi install-dvi-am install-exec \
-	install-exec-am install-html install-html-am install-info \
-	install-info-am install-man install-pdf install-pdf-am \
-	install-ps install-ps-am install-strip installcheck \
-	installcheck-am installdirs maintainer-clean \
+	clean-checkPROGRAMS clean-generic clean-libtool cscopelist \
+	ctags distclean distclean-compile distclean-generic \
+	distclean-libtool distclean-tags distdir dvi dvi-am html \
+	html-am info info-am install install-am install-binPROGRAMS \
+	install-data install-data-am install-dvi install-dvi-am \
+	install-exec install-exec-am install-html install-html-am \
+	install-info install-info-am install-man install-pdf \
+	install-pdf-am install-ps install-ps-am install-strip \
+	installcheck installcheck-am installdirs maintainer-clean \
 	maintainer-clean-generic mostlyclean mostlyclean-compile \
 	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
 	tags uninstall uninstall-am uninstall-binPROGRAMS

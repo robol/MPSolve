@@ -236,7 +236,7 @@ SUBDIRS = \
 	examples \
 	$(NULL)
 
-TESTS = src/unisolve-check.sh
+TESTS = src/unisolve-check.sh src/secsolve-check.sh
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive
 

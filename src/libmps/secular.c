@@ -125,6 +125,50 @@ mps_secular_equation_free(mps_secular_equation* s)
   free(s);
 }
 
+
+mps_secular_equation*
+mps_secular_equation_read_from_stream(mps_status* s, FILE* input_stream)
+{
+  mps_secular_equation* sec;
+  int n, r, i;
+
+  /* Read the number of the coefficients */
+  r = fscanf(input_stream, "%d", &n);
+
+  if (!r)
+      mps_error(s, 1, "Error reading input coefficients of the secular equation.\n");
+
+  /* Read directly the secular equation in DPE, so we don't need
+   * to have a fallback case if the coefficients are bigger than
+   * what is supported by the standard floating point arithmetic */
+  sec = mps_secular_equation_new_raw(s, n);
+
+  for(i = 0; i < n; i++)
+    {
+      rdpe_inp_str_flex(cdpe_Re(sec->adpc[i]), input_stream);
+      rdpe_inp_str_flex(cdpe_Im(sec->adpc[i]), input_stream);
+      rdpe_inp_str_flex(cdpe_Re(sec->bdpc[i]), input_stream);
+      rdpe_inp_str_flex(cdpe_Im(sec->bdpc[i]), input_stream);
+    }
+
+  /* Deflate input, if identical b_i coefficients are found */
+  mps_secular_deflate(s, sec);
+
+  /* Copy coefficients back in other places */
+  for(i = 0; i < sec->n; i++)
+    {
+      mpc_set_cdpe(sec->ampc[i], sec->adpc[i]);
+      mpc_set_cdpe(sec->bmpc[i], sec->bdpc[i]);
+
+      /* Get floating points coefficients */
+      cdpe_get_x(sec->afpc[i], sec->adpc[i]);
+      cdpe_get_x(sec->bfpc[i], sec->bdpc[i]);
+    }
+
+  return sec;
+}
+
+
 /**
  * @brief Evaluate secular equation in the point x.
  */
