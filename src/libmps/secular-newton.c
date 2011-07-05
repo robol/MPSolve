@@ -76,7 +76,6 @@ mps_secular_fnewton(mps_status* s, cplx_t x, double *rad, cplx_t corr,
   cplx_add_eq(ctmp, cplx_one);
   MPS_DEBUG_CPLX(s, ctmp, "real sigma");
 
-
   if (!cplx_eq(ctmp, cplx_zero))
     cplx_div_eq(corr, ctmp);
 
@@ -98,7 +97,7 @@ mps_secular_fnewton(mps_status* s, cplx_t x, double *rad, cplx_t corr,
    *  This is used in the next step to give a minoration
    *  sigma of 1 + S/s' * (\sum_i a_i / (x-b_i))
    *
-   * 4) sigma = 1 + ssp*sumb - gamma
+   * 4) sigma = |1 + ssp*sumb| - gamma
    *  Guaranteed 1 + S/s' * (\sum_i a_i / (x-b_i))
    *
    * 5) g_corr = ssp / sigma
@@ -106,17 +105,43 @@ mps_secular_fnewton(mps_status* s, cplx_t x, double *rad, cplx_t corr,
    */
   {
     double theta = cplx_mod (fp) * (s->n + 8 + 3 * sqrt(2)) * DBL_EPSILON;
-    double ssp = cplx_mod(pol) / (cplx_mod(fp) - theta);
-    double gamma = fabs(ssp * cplx_mod(pol) * (s->n + 2 + sqrt(2)) * DBL_EPSILON) +
-            fabs(cplx_mod(pol) * (ssp * (s->n + 2 + sqrt(2)) * DBL_EPSILON)) +
-                   fabs(cplx_mod(pol)/cplx_mod(fp) - ssp);
-    double sigma = cplx_mod(ctmp) - gamma;
 
-    if (theta > cplx_mod(fp))
-        g_corr = DBL_MAX;
+    /* Compute ssp */
+    cplx_t ssp;
+    cplx_sub(ssp, fp, cplx_d(theta,0));
+    cplx_inv_eq(ssp);
+    cplx_mul_eq(ssp, pol);
+
+
+    cplx_t pol_div_fp, gamma_tmp;
+    cplx_mul_d(gamma_tmp, ssp, (s->n + 2 + sqrt(2)) * DBL_EPSILON);
+    cplx_div(pol_div_fp, pol, fp);
+    MPS_DEBUG_CPLX(s, pol_div_fp, "pol/fp");
+    cplx_sub_eq(pol_div_fp, ssp);
+    MPS_DEBUG_CPLX(s, pol_div_fp, "pol/fp - ssp");
+    double gamma = cplx_mod(pol) * (cplx_mod(gamma_tmp) + cplx_mod(pol_div_fp));
+
+    /* Computation of ssp * sumb in order to compute sigma */
+    cplx_t sigma_tmp;
+    cplx_mul(sigma_tmp, ssp, sumb);
+    cplx_add_eq(sigma_tmp, cplx_one);
+
+    double sigma = fabs(cplx_mod(sigma_tmp)) - gamma;
+
+    MPS_DEBUG_CPLX(s, sumb, "sumb");
+    MPS_DEBUG_CPLX(s, fp, "fp");
+    MPS_DEBUG_CPLX(s, pol, "pol");
+    MPS_DEBUG_CPLX(s, ssp, "ssp");
+    MPS_DEBUG(s, "theta = %e, gamma = %e, sigma = %e, |sigma_tmp| = %e", theta, gamma, sigma, cplx_mod(sigma_tmp));
+
+    if (sigma > 0)
+        g_corr = cplx_mod(ssp) / sigma;
     else
-        g_corr = ssp / sigma;
+        g_corr = DBL_MAX;
   }
+
+  MPS_DEBUG(s, "Computed guaranteed newton radius = %e", g_corr * s->n);
+  MPS_DEBUG(s, "Non guaranteed newton radius: %e", cplx_mod(corr) * s->n);
 
   /* Radius is n * newt_corr, if it's better that Gerschgorin's one */
   dtmp = g_corr * sec->n + DBL_EPSILON;
