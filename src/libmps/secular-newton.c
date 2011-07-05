@@ -104,35 +104,28 @@ mps_secular_fnewton(mps_status* s, cplx_t x, double *rad, cplx_t corr,
    *  That is, finally, the guaranteed newton correction.
    */
   {
-    double theta = cplx_mod (fp) * (s->n + 8 + 3 * sqrt(2)) * DBL_EPSILON;
+
+    double theta, gamma, sigma;
+    cplx_t ssp, pol_div_fp, gamma_tmp, sigma_tmp;
+
+    theta = cplx_mod (fp) * (s->n + 8 + 3 * sqrt(2)) * DBL_EPSILON;
 
     /* Compute ssp */
-    cplx_t ssp;
     cplx_sub(ssp, fp, cplx_d(theta,0));
     cplx_inv_eq(ssp);
     cplx_mul_eq(ssp, pol);
 
-
-    cplx_t pol_div_fp, gamma_tmp;
+    /* Compute gamma */
     cplx_mul_d(gamma_tmp, ssp, (s->n + 2 + sqrt(2)) * DBL_EPSILON);
     cplx_div(pol_div_fp, pol, fp);
-    MPS_DEBUG_CPLX(s, pol_div_fp, "pol/fp");
     cplx_sub_eq(pol_div_fp, ssp);
-    MPS_DEBUG_CPLX(s, pol_div_fp, "pol/fp - ssp");
-    double gamma = cplx_mod(pol) * (cplx_mod(gamma_tmp) + cplx_mod(pol_div_fp));
+    gamma = cplx_mod(pol) * (cplx_mod(gamma_tmp) + cplx_mod(pol_div_fp));
 
     /* Computation of ssp * sumb in order to compute sigma */
-    cplx_t sigma_tmp;
     cplx_mul(sigma_tmp, ssp, sumb);
     cplx_add_eq(sigma_tmp, cplx_one);
 
-    double sigma = fabs(cplx_mod(sigma_tmp)) - gamma;
-
-    MPS_DEBUG_CPLX(s, sumb, "sumb");
-    MPS_DEBUG_CPLX(s, fp, "fp");
-    MPS_DEBUG_CPLX(s, pol, "pol");
-    MPS_DEBUG_CPLX(s, ssp, "ssp");
-    MPS_DEBUG(s, "theta = %e, gamma = %e, sigma = %e, |sigma_tmp| = %e", theta, gamma, sigma, cplx_mod(sigma_tmp));
+    sigma = fabs(cplx_mod(sigma_tmp)) - gamma;
 
     if (sigma > 0)
         g_corr = cplx_mod(ssp) / sigma;
@@ -151,9 +144,7 @@ mps_secular_fnewton(mps_status* s, cplx_t x, double *rad, cplx_t corr,
   /* dtmp here is the guaranteed upper bound to the evaluation of the
    * secular equation   */
   if (dtmp < 2 * DBL_EPSILON)
-    {
       *again = false;
-    }
 
   /* If the correction is not useful in the current precision do
    * not iterate more   */
