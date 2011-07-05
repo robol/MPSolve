@@ -56,14 +56,17 @@ am_secsolve_OBJECTS = secsolve-secsolve.$(OBJEXT) $(am__objects_1)
 secsolve_OBJECTS = $(am_secsolve_OBJECTS)
 am__DEPENDENCIES_1 =
 secsolve_DEPENDENCIES = $(am__DEPENDENCIES_1)
-secsolve_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
-	--mode=link $(CCLD) $(secsolve_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
-	$(LDFLAGS) -o $@
+AM_V_lt = $(am__v_lt_$(V))
+am__v_lt_ = $(am__v_lt_$(AM_DEFAULT_VERBOSITY))
+am__v_lt_0 = --silent
+secsolve_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(secsolve_CFLAGS) \
+	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 am_secsolve_test_OBJECTS = secsolve_test-secsolve-test.$(OBJEXT) \
 	$(am__objects_1)
 secsolve_test_OBJECTS = $(am_secsolve_test_OBJECTS)
 secsolve_test_DEPENDENCIES = $(am__DEPENDENCIES_1)
-secsolve_test_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
+secsolve_test_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(secsolve_test_CFLAGS) \
 	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
@@ -72,13 +75,26 @@ am__depfiles_maybe = depfiles
 am__mv = mv -f
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
-LTCOMPILE = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
-	--mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
-	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+LTCOMPILE = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) \
+	$(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) \
+	$(AM_CFLAGS) $(CFLAGS)
+AM_V_CC = $(am__v_CC_$(V))
+am__v_CC_ = $(am__v_CC_$(AM_DEFAULT_VERBOSITY))
+am__v_CC_0 = @echo "  CC      " $@;
+AM_V_at = $(am__v_at_$(V))
+am__v_at_ = $(am__v_at_$(AM_DEFAULT_VERBOSITY))
+am__v_at_0 = @
 CCLD = $(CC)
-LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
-	--mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
-	$(LDFLAGS) -o $@
+LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
+	$(AM_LDFLAGS) $(LDFLAGS) -o $@
+AM_V_CCLD = $(am__v_CCLD_$(V))
+am__v_CCLD_ = $(am__v_CCLD_$(AM_DEFAULT_VERBOSITY))
+am__v_CCLD_0 = @echo "  CCLD    " $@;
+AM_V_GEN = $(am__v_GEN_$(V))
+am__v_GEN_ = $(am__v_GEN_$(AM_DEFAULT_VERBOSITY))
+am__v_GEN_0 = @echo "  GEN     " $@;
 SOURCES = $(secsolve_SOURCES) $(secsolve_test_SOURCES)
 DIST_SOURCES = $(secsolve_SOURCES) $(secsolve_test_SOURCES)
 ETAGS = etags
@@ -86,6 +102,7 @@ CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 ACLOCAL = @ACLOCAL@
 AMTAR = @AMTAR@
+AM_DEFAULT_VERBOSITY = @AM_DEFAULT_VERBOSITY@
 AR = @AR@
 AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
@@ -322,10 +339,10 @@ clean-checkPROGRAMS:
 	rm -f $$list
 secsolve$(EXEEXT): $(secsolve_OBJECTS) $(secsolve_DEPENDENCIES) $(EXTRA_secsolve_DEPENDENCIES) 
 	@rm -f secsolve$(EXEEXT)
-	$(secsolve_LINK) $(secsolve_OBJECTS) $(secsolve_LDADD) $(LIBS)
+	$(AM_V_CCLD)$(secsolve_LINK) $(secsolve_OBJECTS) $(secsolve_LDADD) $(LIBS)
 secsolve-test$(EXEEXT): $(secsolve_test_OBJECTS) $(secsolve_test_DEPENDENCIES) $(EXTRA_secsolve_test_DEPENDENCIES) 
 	@rm -f secsolve-test$(EXEEXT)
-	$(secsolve_test_LINK) $(secsolve_test_OBJECTS) $(secsolve_test_LDADD) $(LIBS)
+	$(AM_V_CCLD)$(secsolve_test_LINK) $(secsolve_test_OBJECTS) $(secsolve_test_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -337,53 +354,53 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/secsolve_test-secsolve-test.Po@am__quote@
 
 .c.o:
-@am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(COMPILE) -c $<
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(COMPILE) -c $<
 
 .c.obj:
-@am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ `$(CYGPATH_W) '$<'`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ `$(CYGPATH_W) '$<'`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(COMPILE) -c `$(CYGPATH_W) '$<'`
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(COMPILE) -c `$(CYGPATH_W) '$<'`
 
 .c.lo:
-@am__fastdepCC_TRUE@	$(LTCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LTCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LTCOMPILE) -c -o $@ $<
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LTCOMPILE) -c -o $@ $<
 
 secsolve-secsolve.o: secsolve.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(secsolve_CFLAGS) $(CFLAGS) -MT secsolve-secsolve.o -MD -MP -MF $(DEPDIR)/secsolve-secsolve.Tpo -c -o secsolve-secsolve.o `test -f 'secsolve.c' || echo '$(srcdir)/'`secsolve.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/secsolve-secsolve.Tpo $(DEPDIR)/secsolve-secsolve.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='secsolve.c' object='secsolve-secsolve.o' libtool=no @AMDEPBACKSLASH@
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(secsolve_CFLAGS) $(CFLAGS) -MT secsolve-secsolve.o -MD -MP -MF $(DEPDIR)/secsolve-secsolve.Tpo -c -o secsolve-secsolve.o `test -f 'secsolve.c' || echo '$(srcdir)/'`secsolve.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/secsolve-secsolve.Tpo $(DEPDIR)/secsolve-secsolve.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='secsolve.c' object='secsolve-secsolve.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(secsolve_CFLAGS) $(CFLAGS) -c -o secsolve-secsolve.o `test -f 'secsolve.c' || echo '$(srcdir)/'`secsolve.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(secsolve_CFLAGS) $(CFLAGS) -c -o secsolve-secsolve.o `test -f 'secsolve.c' || echo '$(srcdir)/'`secsolve.c
 
 secsolve-secsolve.obj: secsolve.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(secsolve_CFLAGS) $(CFLAGS) -MT secsolve-secsolve.obj -MD -MP -MF $(DEPDIR)/secsolve-secsolve.Tpo -c -o secsolve-secsolve.obj `if test -f 'secsolve.c'; then $(CYGPATH_W) 'secsolve.c'; else $(CYGPATH_W) '$(srcdir)/secsolve.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/secsolve-secsolve.Tpo $(DEPDIR)/secsolve-secsolve.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='secsolve.c' object='secsolve-secsolve.obj' libtool=no @AMDEPBACKSLASH@
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(secsolve_CFLAGS) $(CFLAGS) -MT secsolve-secsolve.obj -MD -MP -MF $(DEPDIR)/secsolve-secsolve.Tpo -c -o secsolve-secsolve.obj `if test -f 'secsolve.c'; then $(CYGPATH_W) 'secsolve.c'; else $(CYGPATH_W) '$(srcdir)/secsolve.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/secsolve-secsolve.Tpo $(DEPDIR)/secsolve-secsolve.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='secsolve.c' object='secsolve-secsolve.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(secsolve_CFLAGS) $(CFLAGS) -c -o secsolve-secsolve.obj `if test -f 'secsolve.c'; then $(CYGPATH_W) 'secsolve.c'; else $(CYGPATH_W) '$(srcdir)/secsolve.c'; fi`
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(secsolve_CFLAGS) $(CFLAGS) -c -o secsolve-secsolve.obj `if test -f 'secsolve.c'; then $(CYGPATH_W) 'secsolve.c'; else $(CYGPATH_W) '$(srcdir)/secsolve.c'; fi`
 
 secsolve_test-secsolve-test.o: secsolve-test.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(secsolve_test_CFLAGS) $(CFLAGS) -MT secsolve_test-secsolve-test.o -MD -MP -MF $(DEPDIR)/secsolve_test-secsolve-test.Tpo -c -o secsolve_test-secsolve-test.o `test -f 'secsolve-test.c' || echo '$(srcdir)/'`secsolve-test.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/secsolve_test-secsolve-test.Tpo $(DEPDIR)/secsolve_test-secsolve-test.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='secsolve-test.c' object='secsolve_test-secsolve-test.o' libtool=no @AMDEPBACKSLASH@
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(secsolve_test_CFLAGS) $(CFLAGS) -MT secsolve_test-secsolve-test.o -MD -MP -MF $(DEPDIR)/secsolve_test-secsolve-test.Tpo -c -o secsolve_test-secsolve-test.o `test -f 'secsolve-test.c' || echo '$(srcdir)/'`secsolve-test.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/secsolve_test-secsolve-test.Tpo $(DEPDIR)/secsolve_test-secsolve-test.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='secsolve-test.c' object='secsolve_test-secsolve-test.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(secsolve_test_CFLAGS) $(CFLAGS) -c -o secsolve_test-secsolve-test.o `test -f 'secsolve-test.c' || echo '$(srcdir)/'`secsolve-test.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(secsolve_test_CFLAGS) $(CFLAGS) -c -o secsolve_test-secsolve-test.o `test -f 'secsolve-test.c' || echo '$(srcdir)/'`secsolve-test.c
 
 secsolve_test-secsolve-test.obj: secsolve-test.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(secsolve_test_CFLAGS) $(CFLAGS) -MT secsolve_test-secsolve-test.obj -MD -MP -MF $(DEPDIR)/secsolve_test-secsolve-test.Tpo -c -o secsolve_test-secsolve-test.obj `if test -f 'secsolve-test.c'; then $(CYGPATH_W) 'secsolve-test.c'; else $(CYGPATH_W) '$(srcdir)/secsolve-test.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/secsolve_test-secsolve-test.Tpo $(DEPDIR)/secsolve_test-secsolve-test.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='secsolve-test.c' object='secsolve_test-secsolve-test.obj' libtool=no @AMDEPBACKSLASH@
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(secsolve_test_CFLAGS) $(CFLAGS) -MT secsolve_test-secsolve-test.obj -MD -MP -MF $(DEPDIR)/secsolve_test-secsolve-test.Tpo -c -o secsolve_test-secsolve-test.obj `if test -f 'secsolve-test.c'; then $(CYGPATH_W) 'secsolve-test.c'; else $(CYGPATH_W) '$(srcdir)/secsolve-test.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/secsolve_test-secsolve-test.Tpo $(DEPDIR)/secsolve_test-secsolve-test.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='secsolve-test.c' object='secsolve_test-secsolve-test.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(secsolve_test_CFLAGS) $(CFLAGS) -c -o secsolve_test-secsolve-test.obj `if test -f 'secsolve-test.c'; then $(CYGPATH_W) 'secsolve-test.c'; else $(CYGPATH_W) '$(srcdir)/secsolve-test.c'; fi`
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(secsolve_test_CFLAGS) $(CFLAGS) -c -o secsolve_test-secsolve-test.obj `if test -f 'secsolve-test.c'; then $(CYGPATH_W) 'secsolve-test.c'; else $(CYGPATH_W) '$(srcdir)/secsolve-test.c'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo
