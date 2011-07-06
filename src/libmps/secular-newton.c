@@ -160,7 +160,7 @@ mps_secular_dnewton(mps_status* s, cdpe_t x, rdpe_t rad, cdpe_t corr,
   mps_secular_equation* sec = (mps_secular_equation*) s->user_data;
 
   cdpe_t pol, fp, sumb, ctmp, ctmp2;
-  rdpe_t rtmp, rtmp2, apol;
+  rdpe_t rtmp, rtmp2, apol, g_corr;
 
   cdpe_set(pol, cdpe_zero);
   cdpe_set(fp, cdpe_zero);
@@ -213,11 +213,72 @@ mps_secular_dnewton(mps_status* s, cdpe_t x, rdpe_t rad, cdpe_t corr,
       cdpe_set(corr, pol);
     }
 
-  /* Compute radius as n * | corr | */
-  cdpe_mod(rad, corr);
+  /* We compute the following values in order to give a guaranteed
+   * Newton inclusion circle:
+   *
+   * 1) theta = |fp| * (n + 8 + 3*sqrt(2)) * u
+   *  This is used so fp - theta is less than the real
+   *  value of sum_i a_i / (x - b_i)^2
+   *
+   * 2) ssp = pol / (fp - theta);
+   *  This is the guaranteed S/S' that we can compute
+   *  and that will be used to compute
+   *
+   * 3) gamma = ssp*sec*(n + 2 + sqrt(2))*u +
+   *     sec * (pol/fp - ssp) =
+   *     = sec * (ssp * (n+2+sqrt(2))*u + (pol/fp - ssp))
+   *  This is used in the next step to give a minoration
+   *  sigma of 1 + S/s' * (\sum_i a_i / (x-b_i))
+   *
+   * 4) sigma = |1 + ssp*sumb| - gamma
+   *  Guaranteed 1 + S/s' * (\sum_i a_i / (x-b_i))
+   *
+   * 5) g_corr = ssp / sigma
+   *  That is, finally, the guaranteed newton correction.
+   */
+  {
+    rdpe_t theta, gamma, sigma, rdpe_tmp;
+    cdpe_t ssp, pol_div_fp, gamma_tmp, sigma_tmp, cdpe_tmp;
 
-  if (s->computation_style == 'm')
-    rdpe_mul_eq_d(rad, s->n);
+    cdpe_mod (theta, fp);
+    rdpe_mul_eq_d(theta, s->n + 8 + 3 * sqrt(2) * DBL_EPSILON);
+
+    /* Compute ssp */
+    cdpe_set(cdpe_tmp, cdpe_zero);
+    rdpe_set(cdpe_Re(cdpe_tmp), theta);
+    cdpe_sub(ssp, fp, cdpe_tmp);
+    cdpe_inv_eq(ssp);
+    cdpe_mul_eq(ssp, pol);
+
+    /* Compute gamma */
+    cdpe_mul_d(gamma_tmp, ssp, (s->n + 2 + sqrt(2)) * DBL_EPSILON);
+    cdpe_div(pol_div_fp, pol, fp);
+    cdpe_sub_eq(pol_div_fp, ssp);
+
+    cdpe_mod(gamma, gamma_tmp);
+    cdpe_mod(rdpe_tmp, pol_div_fp);
+    rdpe_add_eq(gamma, rdpe_tmp);
+    cdpe_mod(rdpe_tmp, pol);
+    rdpe_mul_eq(gamma, rdpe_tmp);
+
+    /* Computation of ssp * sumb in order to compute sigma */
+    cdpe_mul(sigma_tmp, ssp, sumb);
+    cdpe_add_eq(sigma_tmp, cdpe_one);
+
+    cdpe_mod(sigma, sigma_tmp);
+    rdpe_sub_eq(sigma, gamma);
+
+    if (rdpe_gt(sigma, rdpe_zero))
+    {
+        cdpe_mod(g_corr, ssp);
+        rdpe_div_eq(g_corr, sigma);
+    }
+    else
+        rdpe_set(g_corr, RDPE_MAX);
+  }
+
+  /* Compute radius as n * | corr | */
+  rdpe_mul_d(rad, g_corr, s->n * (1+ DBL_EPSILON));
 
   /* Compute \sum_i | a_i / (z - b_i) | + 1
    * and check if the secular equation is smaller

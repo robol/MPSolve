@@ -34,7 +34,7 @@ int main(int argc, char** argv)
   int i, j, prec = out_digits * LOG2_10;
   int ch;
 
-  if (argc != 3)
+  if (argc != 4)
     {
       usage ();
       return -1;
@@ -66,7 +66,7 @@ int main(int argc, char** argv)
   /* Set secular equation and start in floating point */
   sec = mps_secular_equation_read_from_stream(s, input_stream);
   s->user_data = sec;
-  sec->starting_case = 'f';
+  sec->starting_case = argv[3][0];
 
   /* Set user polynomial with our custom functions */
   mps_status_set_poly_u(s, sec->n, MPS_FNEWTON_PTR(mps_secular_fnewton),
