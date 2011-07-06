@@ -121,7 +121,7 @@ mps_secular_fnewton(mps_status* s, cplx_t x, double *rad, cplx_t corr,
     cplx_mul(sigma_tmp, ssp, sumb);
     cplx_add_eq(sigma_tmp, cplx_one);
 
-    sigma = fabs(cplx_mod(sigma_tmp)) - gamma;
+    sigma = cplx_mod(sigma_tmp) - gamma;
 
     if (sigma > 0)
         g_corr = cplx_mod(ssp) / sigma;
