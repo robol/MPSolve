@@ -38,6 +38,28 @@ typedef enum {
 } mps_phase;
 
 /**
+ * @brief Algorithm used to find the solution of the polynomial,
+ * or of the secular equation.
+ */
+typedef enum {
+    /**
+     * @brief Standard MPsolve approach
+     */
+    MPS_ALGORITHM_STANDARD_MPSOLVE,
+
+    /**
+     * @brief Standard MPSolve approach applied to
+     * secular equations.
+     */
+    MPS_ALGORITHM_SECULAR_MPSOLVE,
+
+    /**
+     * @brief Gemignani's approach applied to secular equations.
+     */
+    MPS_ALGORITHM_SECULAR_GA,
+} mps_algorithm;
+
+/**
  * @brief Function that computes \f$\frac{p}{p'}\f$ (floating point version)
  */
 typedef void (*mps_fnewton_ptr)(void* status, cplx_t, double*, cplx_t,
@@ -733,28 +755,12 @@ typedef struct {
 	 * functions to provide additional data for the
 	 * computing of the polynomial.
 	 */
-	void * user_data;
+        void * secular_equation;
 
 	/**
 	 * @brief Number of threads to be spawned.
 	 */
-	int n_threads;
-
-	char computation_style;
-
-#ifndef DISABLE_DEBUG
-	/**
-	 * @brief Counter for the cycles used in debug prints,
-	 * that is allocated only if debug is allowed.
-	 */
-	int debug_i;
-
-	/**
-	 * @brief Counter for the cycles used in debug prints,
-	 * that is allocated only if debug is allowed.
-	 */
-	int debug_j;
-#endif
+        int n_threads;
 
 } mps_status; /* End of typedef struct { ... */
 
@@ -777,6 +783,8 @@ int mps_status_get_roots_d(mps_status* s, cplx_t* roots, double* radius);
 int mps_status_set_poly_u(mps_status* s, int n, mps_fnewton_ptr fnewton,
 		mps_dnewton_ptr dnewton, mps_mnewton_ptr mnewton);
 void mps_allocate_poly_inplace(mps_status* s, int n);
+void mps_select_algorithm(mps_status* s, mps_algorithm algorithm);
+void mps_status_set_degree(mps_status* s, int n);
 
 #ifdef	__cplusplus
 }

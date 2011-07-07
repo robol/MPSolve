@@ -20,7 +20,7 @@ mps_secular_fnewton(mps_status* s, cplx_t x, double *rad, cplx_t corr,
   double dtmp, g_corr;
   *again = true;
 
-  mps_secular_equation* sec = (mps_secular_equation*) s->user_data;
+  mps_secular_equation* sec = (mps_secular_equation*) s->secular_equation;
 
   cplx_set(pol, cplx_zero);
   cplx_set(fp, cplx_zero);
@@ -157,7 +157,7 @@ mps_secular_dnewton(mps_status* s, cdpe_t x, rdpe_t rad, cdpe_t corr,
   int i;
   *again = true;
 
-  mps_secular_equation* sec = (mps_secular_equation*) s->user_data;
+  mps_secular_equation* sec = (mps_secular_equation*) s->secular_equation;
 
   cdpe_t pol, fp, sumb, ctmp, ctmp2;
   rdpe_t rtmp, rtmp2, apol, g_corr;
@@ -319,7 +319,7 @@ mps_secular_mnewton(mps_status* s, mpc_t x, rdpe_t rad, mpc_t corr,
   *again = true;
 
   /* Get a pointer to the secular equation */
-  mps_secular_equation* sec = (mps_secular_equation*) s->user_data;
+  mps_secular_equation* sec = (mps_secular_equation*) s->secular_equation;
 
   /* Declare temporary variables */
   mpc_t sumb, pol, fp, ctmp, ctmp2;

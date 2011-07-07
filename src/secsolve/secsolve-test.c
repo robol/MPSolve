@@ -12,6 +12,7 @@
 #include <mps/mpc.h>
 #include <mps/gmptools.h>
 #include <stdio.h>
+#include <ctype.h>
 
 int
 usage ()
@@ -30,15 +31,25 @@ int main(int argc, char** argv)
   mpf_t mroot;
   mpf_t ftmp;
   mpf_t eps;
+
+  /* Select if we need to test the Gemignani's approach */
+  mps_boolean ga = false;
+
+  /* Output digit to test */
   int out_digits = 50;
   int i, j, prec = out_digits * LOG2_10;
   int ch;
 
-  if (argc != 4)
+  if (argc < 4 || argc > 5)
     {
       usage ();
       return -1;
     }
+
+  /* If the fifth argument was passed activate
+   * Gemignani's approach */
+  if (argc == 5)
+      ga = true;
 
   mpc_init2(root, prec);
   mpc_init2(ctmp, prec);
@@ -65,20 +76,12 @@ int main(int argc, char** argv)
 
   /* Set secular equation and start in floating point */
   sec = mps_secular_equation_read_from_stream(s, input_stream);
-  s->user_data = sec;
-  sec->starting_case = argv[3][0];
+  s->secular_equation = sec;
+  sec->starting_case = (argv[3][0] == 'f') ? 'f' : 'd';
 
-  /* Set user polynomial with our custom functions */
-  mps_status_set_poly_u(s, sec->n, MPS_FNEWTON_PTR(mps_secular_fnewton),
-			MPS_DNEWTON_PTR(mps_secular_dnewton),
-			MPS_MNEWTON_PTR(mps_secular_mnewton));
-  
-  /* Check data routine */
-  s->check_data_usr = MPS_CHECK_DATA_PTR(mps_secular_check_data);
-  
-  /* Set starting point custom routine */
-  s->fstart_usr = MPS_FSTART_PTR(mps_secular_fstart);
-  s->dstart_usr = MPS_DSTART_PTR(mps_secular_dstart);
+  mps_status_set_degree(s, sec->n);
+  mps_allocate_data(s);
+  mps_select_algorithm(s, MPS_ALGORITHM_SECULAR_MPSOLVE);
   
   /* Solve the polynomial */
   s->goal[0] = 'a';

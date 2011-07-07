@@ -41,10 +41,8 @@ main(int argc, char** argv)
 {
   mps_secular_equation* sec;
   mps_status* s;
-  int i;
+  int n;
 
-  /* Create a new secular equation with some random coefficients */
-  unsigned int n = 5;
   s = mps_status_new();
   s->n_threads = 1;
 
@@ -118,59 +116,36 @@ main(int argc, char** argv)
 
   /* Set secular equation in user data, so it will be
    * accessible by the secular equation routines. */
-  s->user_data = sec;
+  s->secular_equation = sec;
 
   if (phase == dpe_phase)
       sec->starting_case = 'd';
   else
-    sec->starting_case = 'f';
+      sec->starting_case = 'f';
 
   /* If we choose gemignani's approach follow it, otherwise
    * use standard mpsolve approach applied implicitly to the
    * secular equation. */
   if (ga)
     {
-      s->computation_style = 'g';
-
-      /* Set degree and allocate polynomial-related variables
-       * to allow initializitation to be performed. */
-      s->deg = s->n = sec->n;
-      mps_allocate_poly_inplace(s, sec->n);
-      s->data_type = "uri";
-
-      /* We set the selected phase */
-      s->lastphase = phase;
-
-      /* Allocate other data */
-      mps_allocate_data(s);
-
-      /* Manually set FILE* pointer for streams.
-       * More refined options will be added later. */
-      s->outstr = s->rtstr = stdout;
+      /* Select the right algorithm */
+      mps_select_algorithm(s, MPS_ALGORITHM_SECULAR_GA);
 
       /* Solve the secular equation */
       mps_secular_ga_mpsolve(s, phase);
     }
   else
     {
-      s->computation_style = 'm';
-
+      /* Select the right algorithm */
       /* Set user polynomial with our custom functions */
-      mps_status_set_poly_u(s, sec->n, MPS_FNEWTON_PTR(mps_secular_fnewton),
-          MPS_DNEWTON_PTR(mps_secular_dnewton),
-          MPS_MNEWTON_PTR(mps_secular_mnewton));
+      mps_status_set_degree(s, sec->n);
+      mps_allocate_data(s);
 
-      /* Check data routine */
-      s->check_data_usr = MPS_CHECK_DATA_PTR(mps_secular_check_data);
-
-      /* Set starting point custom routine */
-      s->fstart_usr = MPS_FSTART_PTR(mps_secular_fstart);
-      s->dstart_usr = MPS_DSTART_PTR(mps_secular_dstart);
+      mps_select_algorithm(s, MPS_ALGORITHM_SECULAR_MPSOLVE);
 
       /* Solve the polynomial */
       s->goal[0] = 'a';
       mps_mpsolve(s);
-
     }
 
   /* Output the roots */

@@ -28,7 +28,10 @@ GENERAL_CFLAGS="-I../../include -std=c99 -DNOMPTEMP"
 # 
 
 AC_ARG_ENABLE([debug],
-	[AS_HELP_STRING([--disable-debug], [Disable debug prints in the code])])
+	AS_HELP_STRING([--disable-debug], [Disable debug prints in the code]),
+	[enable_debug=$enableval have_debug=$enableval],
+	[enable_debug=yes have_debug=yes])
+AC_MSG_RESULT([$enable_debug])
 
 AS_IF([test "x$enable_debug" != "xno"], [
 	GENERAL_CFLAGS="$GENERAL_CFLAGS -DNICE_DEBUG"
@@ -80,3 +83,17 @@ AC_CONFIG_FILES([Makefile
 		 src/libmps/Makefile])
 
 AC_OUTPUT
+
+echo "
+
+MPSolve configuration:
+
+	Source location: ${srcdir}
+	C compiler:      ${CC}
+	Debug enabled:   $enable_debug
+
+Type 'make' to compile MPSolve, and then make install
+to install the binaries, the library and the headers
+system-wide.
+
+"

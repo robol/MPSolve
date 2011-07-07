@@ -12,8 +12,9 @@
 #include <mps/mpc.h>
 #include <mps/gmptools.h>
 #include <stdio.h>
+#include <ctype.h>
 
-void
+int
 usage ()
 {
   return -1;
@@ -60,6 +61,7 @@ int main(int argc, char** argv)
 
   mps_set_default_values(s);
   s->prec_out = prec;
+  s->n_threads = 1;
   strncpy(s->goal, "aannc", 5);
   mps_read_poly(s, input_stream, poly);
 

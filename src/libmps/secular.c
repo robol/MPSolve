@@ -177,7 +177,7 @@ mps_secular_evaluate(mps_status* s, cplx_t x, cplx_t sec_ev)
 {
   cplx_t ctmp;
   int i;
-  mps_secular_equation* sec = (mps_secular_equation*) s->user_data;
+  mps_secular_equation* sec = (mps_secular_equation*) s->secular_equation;
   cplx_set(sec_ev, cplx_zero);
 
   for (i = 0; i < s->n; i++)
@@ -202,7 +202,7 @@ mps_secular_check_data(mps_status* s, char* which_case)
   /* While we can't found a good criterion to check
    * the possibility to start in pure floating point we
    * use the DPE version. */
-  mps_secular_equation* sec = (mps_secular_equation*) s->user_data;
+  mps_secular_equation* sec = (mps_secular_equation*) s->secular_equation;
   *which_case = sec->starting_case;
 }
 
@@ -213,7 +213,7 @@ mps_secular_raise_precision(mps_status* s)
 
   int i;
   s->mpwp *= 2;
-  mps_secular_equation* sec = (mps_secular_equation*) s->user_data;
+  mps_secular_equation* sec = (mps_secular_equation*) s->secular_equation;
   for (i = 0; i < s->n; i++)
     {
       mpc_set_prec(sec->ampc[i], s->mpwp);
@@ -238,7 +238,7 @@ mps_secular_switch_phase(mps_status* s, mps_phase phase)
   MPS_DEBUG_THIS_CALL
 
   int i = 0;
-  mps_secular_equation* sec = (mps_secular_equation*) s->user_data;
+  mps_secular_equation* sec = (mps_secular_equation*) s->secular_equation;
   if (phase == mp_phase)
     {
       s->mpwp = DBL_MANT_DIG;
@@ -297,7 +297,7 @@ mps_secular_set_radii(mps_status* s)
   MPS_DEBUG_THIS_CALL
 
   int i;
-  mps_secular_equation* sec = (mps_secular_equation*) s->user_data;
+  mps_secular_equation* sec = (mps_secular_equation*) s->secular_equation;
 
   /* Select right computation based on the phase we are in
    * right now   */
@@ -395,4 +395,3 @@ mps_secular_set_radii(mps_status* s)
     break;
     }
 }
-

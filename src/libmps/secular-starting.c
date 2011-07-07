@@ -20,7 +20,7 @@ mps_secular_fstart(mps_status* s, int n, int i_clust, double clust_rad,
   int i, l = s->punt[i_clust];
   double th = pi2 / n;
   double sigma;
-  mps_secular_equation* sec = (mps_secular_equation*) s->user_data;
+  mps_secular_equation* sec = (mps_secular_equation*) s->secular_equation;
 
   /* Get best sigma possible */
   if (s->random_seed)
@@ -54,7 +54,7 @@ mps_secular_dstart(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
   int i, l = s->punt[i_clust];
   double th = pi2 / n;
   double sigma;
-  mps_secular_equation* sec = (mps_secular_equation*) s->user_data;
+  mps_secular_equation* sec = (mps_secular_equation*) s->secular_equation;
 
   /* Get best sigma possible */
   if (s->random_seed)
@@ -91,7 +91,7 @@ mps_secular_mstart(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
   double th = pi2 / n;
   double sigma;
   mpc_t epsilon;
-  mps_secular_equation* sec = (mps_secular_equation*) s->user_data;
+  mps_secular_equation* sec = (mps_secular_equation*) s->secular_equation;
 
   mpc_init2(epsilon, s->mpwp);
   mpc_set_ui(epsilon, 0, 0);

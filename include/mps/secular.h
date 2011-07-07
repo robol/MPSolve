@@ -18,6 +18,9 @@ extern "C"
 #include <mps/mpc.h>
 #include <float.h>
 
+/* MACROS */
+#define mps_secular_equation_from_status(s) (mps_secular_equation*) (s)->secular_equation
+
 /**
  * @brief Secular equation data.
  *

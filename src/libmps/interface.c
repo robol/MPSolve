@@ -41,9 +41,53 @@
 #include <mps/core.h>
 #include <mps/poly.h>
 #include <mps/link.h>
+#include <mps/secular.h>
 #include <gmp.h>
 #include <stdlib.h>
 #include <stdio.h>
+
+/**
+ * @brief Select algorithm to use for computation.
+ *
+ * Valid values for this field are
+ * - MPS_ALGORITHM_STANDARD_MPSOLVE for the standard MPSolve algorithm;
+ * - MPS_ALGORITHM_SECULAR_MPSOLVE  for the standard MPSolve algorithm
+ *   applied to secular equations;
+ * - MPS_ALGORITHM_SECULAR_GA for the algorithm based on coefficient regeneration
+ *   applied to secular equations;
+ */
+void
+mps_select_algorithm(mps_status* s, mps_algorithm algorithm)
+{
+    switch (algorithm)
+    {
+    case MPS_ALGORITHM_STANDARD_MPSOLVE:
+        /* Nothing to do here at the time being since this is
+         * the default option */
+        break;
+
+    case MPS_ALGORITHM_SECULAR_MPSOLVE:
+        s->data_type = "uri";
+
+        /* Set custom routines for newton quotient computation */
+        s->fnewton_usr = MPS_FNEWTON_PTR(mps_secular_fnewton);
+        s->dnewton_usr = MPS_DNEWTON_PTR(mps_secular_dnewton);
+        s->mnewton_usr = MPS_MNEWTON_PTR(mps_secular_mnewton);
+
+        /* Set other custom functions */
+        s->check_data_usr = MPS_CHECK_DATA_PTR(mps_secular_check_data);
+
+        /* Set starting point custom routine */
+        s->fstart_usr = MPS_FSTART_PTR(mps_secular_fstart);
+        s->dstart_usr = MPS_DSTART_PTR(mps_secular_dstart);
+
+        break;
+
+    case MPS_ALGORITHM_SECULAR_GA:
+        /* Nothing to be done for now */
+        break;
+    }
+}
 
 /**
  * @brief Allocate polynomial related variables directly in mps_status.
@@ -167,7 +211,7 @@ mps_status_set_poly_u(mps_status* s, int n, mps_fnewton_ptr fnewton,
                       mps_dnewton_ptr dnewton, mps_mnewton_ptr mnewton) {
 
     /* Set degree and allocate data */
-    s->deg = s->n = n;
+    mps_status_set_degree(s, n);
     mps_allocate_data(s);
 
     /* TODO: Apart from u, what should be set here? */
@@ -179,6 +223,12 @@ mps_status_set_poly_u(mps_status* s, int n, mps_fnewton_ptr fnewton,
     s->mnewton_usr = mnewton;
 
     return 0;
+}
+
+void
+mps_status_set_degree(mps_status* s, int n)
+{
+    s->deg = s->n = n;
 }
 
 /**

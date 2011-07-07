@@ -15091,9 +15091,13 @@ GENERAL_CFLAGS="-I../../include -std=c99 -DNOMPTEMP"
 
 # Check whether --enable-debug was given.
 if test "${enable_debug+set}" = set; then :
-  enableval=$enable_debug;
+  enableval=$enable_debug; enable_debug=$enableval have_debug=$enableval
+else
+  enable_debug=yes have_debug=yes
 fi
 
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $enable_debug" >&5
+$as_echo "$enable_debug" >&6; }
 
 if test "x$enable_debug" != "xno"; then :
 
@@ -18226,3 +18230,17 @@ if test -n "$ac_unrecognized_opts" && test "$enable_option_checking" != no; then
 $as_echo "$as_me: WARNING: unrecognized options: $ac_unrecognized_opts" >&2;}
 fi
 
+
+echo "
+
+MPSolve configuration:
+
+	Source location: ${srcdir}
+	C compiler:      ${CC}
+	Debug enabled:   $enable_debug
+
+Type 'make' to compile MPSolve, and then make install
+to install the binaries, the library and the headers
+system-wide.
+
+"

@@ -237,7 +237,7 @@ mps_secular_ga_regenerate_coefficients(mps_status* s)
   mpc_init2(ctmp, s->mpwp);
   mpc_init2(btmp, s->mpwp);
 
-  sec = (mps_secular_equation*) s->user_data;
+  sec = (mps_secular_equation*) s->secular_equation;
 
   switch (s->lastphase)
     {
@@ -565,6 +565,23 @@ mps_secular_ga_mpsolve(mps_status* s, mps_phase phase)
   int iteration_per_packet = 10;
   int packet = 0;
   int i;
+  mps_secular_equation* sec = mps_secular_equation_from_status(s);
+
+  /* Set degree and allocate polynomial-related variables
+   * to allow initializitation to be performed. */
+  s->deg = s->n = sec->n;
+  mps_allocate_poly_inplace(s, sec->n);
+  s->data_type = "uri";
+
+  /* We set the selected phase */
+  s->lastphase = phase;
+
+  /* Allocate other data */
+  mps_allocate_data(s);
+
+  /* Manually set FILE* pointer for streams.
+   * More refined options will be added later. */
+  s->outstr = s->rtstr = stdout;
 
   for (i = 0; i < s->n; i++)
     s->frad[i] = DBL_MAX;
