@@ -36,7 +36,7 @@ int main(int argc, char** argv)
   mps_boolean ga = false;
 
   /* Output digit to test */
-  int out_digits = 50;
+  int out_digits = 100;
   int i, j, prec = out_digits * LOG2_10;
   int ch;
 
@@ -77,16 +77,26 @@ int main(int argc, char** argv)
   /* Set secular equation and start in floating point */
   sec = mps_secular_equation_read_from_stream(s, input_stream);
   s->secular_equation = sec;
-  sec->starting_case = (argv[3][0] == 'f') ? 'f' : 'd';
+  sec->starting_case = (argv[3][0] == 'f') ? float_phase : dpe_phase;
 
   mps_status_set_degree(s, sec->n);
-  mps_allocate_data(s);
-  mps_select_algorithm(s, MPS_ALGORITHM_SECULAR_MPSOLVE);
+
+  if (!ga)
+    {
+      mps_select_algorithm(s, MPS_ALGORITHM_SECULAR_MPSOLVE);
+      mps_allocate_data(s);
+    }
+  else
+      mps_select_algorithm(s, MPS_ALGORITHM_SECULAR_GA);
   
   /* Solve the polynomial */
   s->goal[0] = 'a';
 
-  mps_mpsolve(s);
+  if (!ga)
+    mps_mpsolve(s);
+  else
+    mps_secular_ga_mpsolve(s, sec->starting_case);
+
   mps_copy_roots(s);
 
   /* Test if roots are equal to the roots provided in the check */
@@ -119,6 +129,11 @@ int main(int argc, char** argv)
 
   fclose (input_stream);
   fclose (check_stream);
+
+  if (!passed) {
+      fprintf(stderr, "Computed results are not exact to the required precision,\n"
+              "that is of %d digits.\n", out_digits);
+  }
 
   return !passed;
 }

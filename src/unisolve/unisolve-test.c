@@ -31,7 +31,7 @@ int main(int argc, char** argv)
   mpf_t mroot;
   mpf_t ftmp;
   mpf_t eps;
-  int out_digits = 50;
+  int out_digits = 100;
   int i, j, prec = out_digits * LOG2_10;
   int ch;
 

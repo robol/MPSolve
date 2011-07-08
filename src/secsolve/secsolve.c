@@ -118,10 +118,7 @@ main(int argc, char** argv)
    * accessible by the secular equation routines. */
   s->secular_equation = sec;
 
-  if (phase == dpe_phase)
-      sec->starting_case = 'd';
-  else
-      sec->starting_case = 'f';
+  sec->starting_case = phase;
 
   /* If we choose gemignani's approach follow it, otherwise
    * use standard mpsolve approach applied implicitly to the
