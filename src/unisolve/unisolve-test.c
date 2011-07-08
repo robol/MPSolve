@@ -15,9 +15,16 @@
 #include <ctype.h>
 
 int
-usage ()
+usage (const char* program_name)
 {
-  return -1;
+    fprintf(stderr,
+            "%s [OPTIONS] coefficients_file results_file\n"
+            "\n"
+            "Options:\n"
+            " -oN\tNumber of digits to compute\n"
+            "\n",
+            program_name);
+    exit(EXIT_FAILURE);
 }
 
 int main(int argc, char** argv)
@@ -35,9 +42,27 @@ int main(int argc, char** argv)
   int i, j, prec = out_digits * LOG2_10;
   int ch;
 
+  /* Parse the options */
+  mps_opt* opt;
+  while ((opt = mps_getopts(&argc, &argv, "o:t")))
+    {
+      switch(opt->optchar)
+      {
+        case 'o':
+          out_digits = atoi(opt->optvalue);
+          prec = out_digits * LOG2_10;
+          break;
+        default:
+          usage(argv[0]);
+          break;
+      }
+
+      free(opt);
+    }
+
   if (argc != 3)
     {
-      usage ();
+      usage (argv[0]);
       return -1;
     }
 

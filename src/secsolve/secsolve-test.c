@@ -1,5 +1,5 @@
 /*
- * unisolve-test.c
+ * secsolve-test.c
  *
  *  Created on: 15/giu/2011
  *      Author: leonardo
@@ -15,9 +15,19 @@
 #include <ctype.h>
 
 int
-usage ()
+usage (const char* program_name)
 {
-  return -1;
+  fprintf(stderr,
+          "%s [OPTIONS] secular_equation_file results_file\n"
+          "\n"
+          "Options:\n"
+          "\n"
+          " -g\tUse Gemignani's approach\n"
+          " -oN\tCheck roots computation with N guaranteed digits\n"
+          " -t[f,d]\tSelect floating point or dpe computation\n"
+          "\n",
+          program_name);
+  exit(EXIT_FAILURE);
 }
 
 int main(int argc, char** argv)
@@ -31,25 +41,48 @@ int main(int argc, char** argv)
   mpf_t mroot;
   mpf_t ftmp;
   mpf_t eps;
+  char starting_case = 'f';
 
   /* Select if we need to test the Gemignani's approach */
   mps_boolean ga = false;
 
-  /* Output digit to test */
+  /* Output digit to test, default values. Script should normally
+   * alter this with options on the command line. */
   int out_digits = 100;
   int i, j, prec = out_digits * LOG2_10;
   int ch;
 
-  if (argc < 4 || argc > 5)
+  /* Parse the options */
+  mps_opt* opt;
+  while ((opt = mps_getopts(&argc, &argv, "o:t:g")))
     {
-      usage ();
-      return -1;
+      switch(opt->optchar)
+      {
+        case 'g':
+          ga = true;
+          break;
+        case 'o':
+          out_digits = atoi(opt->optvalue);
+          prec = out_digits * LOG2_10;
+          break;
+        case 't':
+          starting_case = opt->optvalue[0];
+          break;
+        default:
+          usage(argv[0]);
+          break;
+      }
+
+      free(opt);
     }
 
-  /* If the fifth argument was passed activate
-   * Gemignani's approach */
-  if (argc == 5)
-      ga = true;
+  /* Check if we have the file with the coefficients and the one with the
+   * results */
+  if (argc != 3)
+    {
+      usage (argv[0]);
+      exit(EXIT_FAILURE);
+    }
 
   mpc_init2(root, prec);
   mpc_init2(ctmp, prec);
@@ -77,7 +110,7 @@ int main(int argc, char** argv)
   /* Set secular equation and start in floating point */
   sec = mps_secular_equation_read_from_stream(s, input_stream);
   s->secular_equation = sec;
-  sec->starting_case = (argv[3][0] == 'f') ? float_phase : dpe_phase;
+  sec->starting_case = (starting_case == 'f') ? float_phase : dpe_phase;
 
   mps_status_set_degree(s, sec->n);
 
