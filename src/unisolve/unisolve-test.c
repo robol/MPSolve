@@ -126,5 +126,10 @@ int main(int argc, char** argv)
   fclose (input_stream);
   fclose (check_stream);
 
+  if (!passed) {
+      fprintf(stderr, "Computed results are not exact to the required precision,\n"
+              "that is of %d digits.\n", out_digits);
+  }
+
   return !passed;
 }

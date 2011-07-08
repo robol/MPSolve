@@ -97,6 +97,12 @@ typedef void (*mps_fstart_ptr)(void* status, int n, int i_clust,
 typedef void (*mps_dstart_ptr)(void* status, int n, int i_clust,
 		rdpe_t clust_rad, rdpe_t g, rdpe_t eps);
 
+/**
+ * @brief Routine that performs the computation loop to solve the polynomial
+ * or the secular equation
+ */
+typedef void (*mps_mpsolve_ptr)(void* status);
+
 
 /*
  * Macros for casting user functions
@@ -107,6 +113,7 @@ typedef void (*mps_dstart_ptr)(void* status, int n, int i_clust,
 #define MPS_CHECK_DATA_PTR(x) (mps_check_data_ptr) &(x)
 #define MPS_FSTART_PTR(x) (mps_fstart_ptr) &(x)
 #define MPS_DSTART_PTR(x) (mps_dstart_ptr) &(x)
+#define MPS_MPSOLVE_PTR(x) (mps_mpsolve_ptr) &(x)
 
 /**
  * @brief this struct holds the state of the mps computation
@@ -747,6 +754,12 @@ typedef struct {
 	 */
 	void (*dstart_usr)(void* status, int n, int i_clust, rdpe_t clust_rad,
 			rdpe_t g, rdpe_t eps);
+
+        /**
+         * @brief Routine that performs the loop needed to coordinate
+         * root finding. It has to be called to do the hard work.
+         */
+        void (*mpsolve_ptr)(void* status);
 
 	/**
 	 * @brief A pointer that can be set to anything the user

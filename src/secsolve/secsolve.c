@@ -133,11 +133,11 @@ main(int argc, char** argv)
     }
   else
     {
-      /* Select the right algorithm */
       /* Set user polynomial with our custom functions */
       mps_status_set_degree(s, sec->n);
       mps_allocate_data(s);
 
+      /* Select the right algorithm */
       mps_select_algorithm(s, MPS_ALGORITHM_SECULAR_MPSOLVE);
 
       /* Solve the polynomial */

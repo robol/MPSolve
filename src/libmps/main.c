@@ -18,8 +18,13 @@
 #include <mps/core.h>
 #include <mps/interface.h>
 
+void mps_mpsolve(mps_status* s) {
+    (*s->mpsolve_ptr)(s);
+}
+
 /**
- * @brief Main routine of the program.
+ * @brief Main routine of the program that implements the algorithm
+ * in the standard polynomial version.
  *
  * The program is divided into many parts
  * - Check the correctness of data, scale coefficients if
@@ -33,7 +38,7 @@
  *   - Call msolve with the current precision
  * - check for termination
  */
-void mps_mpsolve(mps_status* s) {
+void mps_standard_mpsolve(mps_status* s) {
 	int i, nzc;
 	char which_case;
 	mps_boolean d_after_f, computed, over_max;
@@ -214,11 +219,9 @@ void mps_mpsolve(mps_status* s) {
 		mps_restore_data(s);
 }
 
-/***********************************************************
- *           SUBROUTINE SETUP                              *
- ***********************************************************
- Setup vectors and variables
- ***********************************************************/
+/**
+  * @brief Setup vectors and variables
+  */
 void mps_setup(mps_status* s) {
 	int i;
 	tmpf_t mptemp;

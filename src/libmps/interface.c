@@ -62,8 +62,7 @@ mps_select_algorithm(mps_status* s, mps_algorithm algorithm)
     switch (algorithm)
     {
     case MPS_ALGORITHM_STANDARD_MPSOLVE:
-        /* Nothing to do here at the time being since this is
-         * the default option */
+        s->mpsolve_ptr = MPS_MPSOLVE_PTR(mps_standard_mpsolve);
         break;
 
     case MPS_ALGORITHM_SECULAR_MPSOLVE:

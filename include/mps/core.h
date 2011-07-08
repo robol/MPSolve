@@ -136,6 +136,7 @@ void mps_improve(mps_status* s);
 void mps_setup(mps_status* s);
 void mps_check_data(mps_status* s, char * which_case);
 void mps_compute_sep(mps_status* s);
+void mps_standard_mpsolve(mps_status* s);
 
 /* functions in mps_newt.c */
 void mps_fnewton(mps_status* st, int n, cplx_t z, double * radius, cplx_t corr, cplx_t fpc[],
