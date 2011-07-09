@@ -117,8 +117,6 @@ mps_secular_dstart(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
 void
 mps_secular_mstart(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
     rdpe_t g, rdpe_t eps);
-void
-mps_secular_ga_mpsolve(mps_status* s, mps_phase phase);
 
 /* Routines in secular-ga.c */
 int
@@ -137,7 +135,7 @@ mps_boolean
 mps_secular_ga_check_stop(mps_status* s);
 
 void
-mps_secular_ga_mpsolve(mps_status* s, mps_phase phase);
+mps_secular_ga_mpsolve(mps_status* s);
 
 /* Interface functions in mps_secular.c */
 mps_secular_equation*

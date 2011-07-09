@@ -117,7 +117,6 @@ main(int argc, char** argv)
   /* Set secular equation in user data, so it will be
    * accessible by the secular equation routines. */
   s->secular_equation = sec;
-
   sec->starting_case = phase;
 
   /* If we choose gemignani's approach follow it, otherwise
@@ -126,10 +125,7 @@ main(int argc, char** argv)
   if (ga)
     {
       /* Select the right algorithm */
-      mps_select_algorithm(s, MPS_ALGORITHM_SECULAR_GA);
-
-      /* Solve the secular equation */
-      mps_secular_ga_mpsolve(s, phase);
+      mps_status_select_algorithm(s, MPS_ALGORITHM_SECULAR_GA);
     }
   else
     {
@@ -138,12 +134,12 @@ main(int argc, char** argv)
       mps_allocate_data(s);
 
       /* Select the right algorithm */
-      mps_select_algorithm(s, MPS_ALGORITHM_SECULAR_MPSOLVE);
-
-      /* Solve the polynomial */
-      s->goal[0] = 'a';
-      mps_mpsolve(s);
+      mps_status_select_algorithm(s, MPS_ALGORITHM_SECULAR_MPSOLVE);
     }
+
+  /* Solve the polynomial */
+  s->goal[0] = 'a';
+  mps_mpsolve(s);
 
   /* Output the roots */
   mps_copy_roots(s);

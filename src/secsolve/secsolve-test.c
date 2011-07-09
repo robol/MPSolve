@@ -116,20 +116,16 @@ int main(int argc, char** argv)
 
   if (!ga)
     {
-      mps_select_algorithm(s, MPS_ALGORITHM_SECULAR_MPSOLVE);
+      mps_status_select_algorithm(s, MPS_ALGORITHM_SECULAR_MPSOLVE);
       mps_allocate_data(s);
     }
   else
-      mps_select_algorithm(s, MPS_ALGORITHM_SECULAR_GA);
+      mps_status_select_algorithm(s, MPS_ALGORITHM_SECULAR_GA);
   
   /* Solve the polynomial */
   s->goal[0] = 'a';
 
-  if (!ga)
-    mps_mpsolve(s);
-  else
-    mps_secular_ga_mpsolve(s, sec->starting_case);
-
+  mps_mpsolve(s);
   mps_copy_roots(s);
 
   /* Test if roots are equal to the roots provided in the check */

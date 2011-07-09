@@ -18,9 +18,7 @@
 #include <mps/core.h>
 #include <mps/interface.h>
 
-void mps_mpsolve(mps_status* s) {
-    (*s->mpsolve_ptr)(s);
-}
+
 
 /**
  * @brief Main routine of the program that implements the algorithm

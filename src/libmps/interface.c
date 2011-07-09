@@ -47,6 +47,23 @@
 #include <stdio.h>
 
 /**
+ * @brief Call the real polynomial (or secular equation, or whatever) solver
+ * and do the computation.
+ *
+ * The algorithm used must be selected before this call with <code>mps_select_algorithm</code>
+ * and the data (the coefficients, or whatever the algorithm may require) should be provided
+ * after that.
+ *
+ * Roots can then be obtained with the functions <code>mps_status_get_roots_*</code>
+ *
+ */
+void mps_mpsolve(mps_status* s) {
+    (*s->mpsolve_ptr)(s);
+}
+
+
+
+/**
  * @brief Select algorithm to use for computation.
  *
  * Valid values for this field are
@@ -57,7 +74,7 @@
  *   applied to secular equations;
  */
 void
-mps_select_algorithm(mps_status* s, mps_algorithm algorithm)
+mps_status_select_algorithm(mps_status* s, mps_algorithm algorithm)
 {
     switch (algorithm)
     {
@@ -80,10 +97,16 @@ mps_select_algorithm(mps_status* s, mps_algorithm algorithm)
         s->fstart_usr = MPS_FSTART_PTR(mps_secular_fstart);
         s->dstart_usr = MPS_DSTART_PTR(mps_secular_dstart);
 
+        /* Set default routine for mpsolve loop */
+        s->mpsolve_ptr = MPS_MPSOLVE_PTR(mps_standard_mpsolve);
+
         break;
 
     case MPS_ALGORITHM_SECULAR_GA:
-        /* Nothing to be done for now */
+        /* Nothing to be done for now, other than selecting the correct
+         * loop. */
+        s->mpsolve_ptr = MPS_MPSOLVE_PTR(mps_secular_ga_mpsolve);
+      
         break;
     }
 }
@@ -92,7 +115,7 @@ mps_select_algorithm(mps_status* s, mps_algorithm algorithm)
  * @brief Allocate polynomial related variables directly in mps_status.
  */
 void
-mps_allocate_poly_inplace(mps_status* s, int n) {
+mps_status_allocate_poly_inplace(mps_status* s, int n) {
 
     int i;
 
@@ -246,7 +269,7 @@ mps_status_set_poly_d(mps_status* s, cplx_t* coeff, long unsigned int n) {
     int i;
 
     /* Allocate space for a polynomial of degree n */
-    mps_allocate_poly_inplace(s, n);
+    mps_status_allocate_poly_inplace(s, n);
 
     /* Set type to a dense, real, floating point polynomial */
     s->data_type[0] = 'd';
@@ -280,7 +303,7 @@ mps_status_set_poly_i(mps_status* s, int* coeff, long unsigned int n) {
     int i;
 
     /* Allocate data in mps_status to hold the polynomial of degree n */
-    mps_allocate_poly_inplace(s, n);
+    mps_status_allocate_poly_inplace(s, n);
 
     /* Dense, real, integer coefficients */
     s->data_type[0] = 'd';
@@ -303,7 +326,8 @@ mps_status_set_poly_i(mps_status* s, int* coeff, long unsigned int n) {
  * and (if it is not <code>NULL</code>) <code>radius[i]</code>
  * to the i-th inclusion radius.
  */
-int mps_status_get_roots_d(mps_status* s, cplx_t* roots, double* radius) {
+int
+mps_status_get_roots_d(mps_status* s, cplx_t* roots, double* radius) {
 	int i;
 	for(i = 0; i < s->n; i++) {
 
@@ -334,7 +358,7 @@ int mps_status_get_roots_d(mps_status* s, cplx_t* roots, double* radius) {
  * @brief Get the roots computed as multiprecision complex numbers.
  */
 int
-mps_get_roots_m(mps_status* s, mpc_t* roots, rdpe_t* radius) {
+mps_status_get_roots_m(mps_status* s, mpc_t* roots, rdpe_t* radius) {
     /* TODO: Implement mps_get_roots_d() */
     return 0;
 }

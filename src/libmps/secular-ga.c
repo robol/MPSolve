@@ -559,18 +559,19 @@ mps_secular_ga_check_stop(mps_status* s)
  * using Gemignani's approach.
  */
 void
-mps_secular_ga_mpsolve(mps_status* s, mps_phase phase)
+mps_secular_ga_mpsolve(mps_status* s)
 {
   int roots_computed = 0;
   int iteration_per_packet = 10;
   int packet = 0;
   int i;
   mps_secular_equation* sec = mps_secular_equation_from_status(s);
+  mps_phase phase = sec->starting_case;
 
   /* Set degree and allocate polynomial-related variables
    * to allow initializitation to be performed. */
   s->deg = s->n = sec->n;
-  mps_allocate_poly_inplace(s, sec->n);
+  mps_status_allocate_poly_inplace(s, sec->n);
   s->data_type = "uri";
 
   /* We set the selected phase */

@@ -116,5 +116,5 @@ void mps_set_default_values(mps_status* s) {
   s->random_seed = 0;
 
   /* Default algorithm */
-  mps_select_algorithm(s, MPS_ALGORITHM_STANDARD_MPSOLVE);
+  mps_status_select_algorithm(s, MPS_ALGORITHM_STANDARD_MPSOLVE);
 }
