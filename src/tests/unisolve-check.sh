@@ -13,13 +13,17 @@ cd $RESULTSDIR
 
 passed=0
 
-for precision in 50 100; do
+for precision in 14 50 100 400; do
     echo "Checking polynomials asking MPSolve to compute"
     echo "$precision exact digits."
     echo ""
 
     for polynomial_res in *.res; do
 	pol_file=`echo $polynomial_res | sed s/\.res/\.pol/`
+	prec_in=`cat $top_dir/$POLYDIR/$pol_file | grep -v "^\ " | grep -v "^\!" | head -n2 | tail -n1`
+	if [ "$prec_in" != "0" ] && [ $prec_in -lt $precision ]; then
+	  continue
+	fi
 	printf "Testing resolution of %15s... " $polynomial_res
 	$top_dir/$UNISOLVE $top_dir/$POLYDIR/$pol_file \
 	    $top_dir/$RESULTSDIR/$polynomial_res -o$precision 2> $top_dir/$TMPFILE
@@ -30,7 +34,7 @@ for precision in 50 100; do
 	    echo ""
 	    passed=1;
 	else
-		echo -e "\033[32;1mpassed\033[0m"
+	    echo -e "\033[32;1mpassed\033[0m"
 	fi
 	rm -f $top_dir/$TMPFILE
     done

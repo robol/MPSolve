@@ -6,6 +6,10 @@ AC_INIT([MPSolve], [3.0], [robol@poisson.phc.unipi.it])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS([config.h])
 
+# Just for now, won't be in final release, probabily,
+# but it's just too useful for debugging. 
+# AC_DISABLE_SHARED
+
 AC_CONFIG_MACRO_DIR([m4])
 
 LT_INIT

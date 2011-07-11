@@ -138,8 +138,8 @@ void mps_standard_mpsolve(mps_status* s) {
 			rdpe_set_d(s->drad[i], s->frad[i]);
 		}
 	}
-	if (computed && s->goal[0] == 'a')
-		goto exit_sub;
+        if (computed && s->goal[0] == 'a')
+                goto exit_sub;
 
 	/* == 7 ==  Start MPsolve loop */
 	s->mpwp = DBL_MANT_DIG;

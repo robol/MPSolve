@@ -61,8 +61,6 @@ void mps_mpsolve(mps_status* s) {
     (*s->mpsolve_ptr)(s);
 }
 
-
-
 /**
  * @brief Select algorithm to use for computation.
  *

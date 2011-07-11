@@ -215,7 +215,7 @@ mps_parse_opts(mps_status* s, int argc, char *argv[])
           {
         case 'i':
           s->prec_in = atol(argv[i] + 2);
-          if (s->prec_in <= 0 || errno)
+          if (s->prec_in < 0 || errno)
             mps_error(s, 2, "Wrong input precision: ", argv[i] + 2);
           s->prec_in = (long) (s->prec_in * LOG2_10);
           break;
