@@ -271,7 +271,7 @@ mps_secular_ga_regenerate_coefficients(mps_status* s)
         for (j = 0; j < sec->n; j++)
           {
             /* Compute 1 / (b - old_b) */
-            cplx_sub(btmp, sec->bfpc[i], old_b[j]);
+            cplx_sub(btmp, sec->bfpc[i], sec->old_bfpc[j]);
 
             if (cplx_eq_zero(btmp))
               {
@@ -291,7 +291,7 @@ mps_secular_ga_regenerate_coefficients(mps_status* s)
             cplx_inv(ctmp, btmp);
 
             /* Add a_j / (b_i - old_b_j) to sec_ev */
-            cplx_mul_eq(ctmp, old_a[j]);
+            cplx_mul_eq(ctmp, sec->old_afpc[j]);
             cplx_add_eq(sec_ev, ctmp);
 
             /* Divide prod_b for
@@ -351,7 +351,7 @@ mps_secular_ga_regenerate_coefficients(mps_status* s)
         for (j = 0; j < sec->n; j++)
           {
             /* Compute 1 / (b - old_b) */
-            cdpe_sub(btmp, sec->bdpc[i], old_db[j]);
+            cdpe_sub(btmp, sec->bdpc[i], sec->old_bdpc[j]);
 
             /* Check if we can invert the difference, otherwisee abort
              * coefficient regeneration             */
@@ -372,7 +372,7 @@ mps_secular_ga_regenerate_coefficients(mps_status* s)
             cdpe_inv(ctmp, btmp);
 
             /* Add a_j / (b_i - old_b_j) to sec_ev */
-            cdpe_mul_eq(ctmp, old_da[j]);
+            cdpe_mul_eq(ctmp, sec->old_adpc[j]);
             cdpe_add_eq(sec_ev, ctmp);
 
             /* Multiply prod_b for
@@ -432,9 +432,9 @@ mps_secular_ga_regenerate_coefficients(mps_status* s)
         for (j = 0; j < sec->n; j++)
           {
             /* Compute 1 / (b_i - old_b_j) */
-            mpc_sub(btmp, sec->bmpc[i], old_mb[j]);
+            mpc_sub(btmp, sec->bmpc[i], sec->old_bmpc[j]);
 
-            /* If b - old_b is zero, simplify the computation */
+            /* If b - old_b is zero, abort the computation */
             if (mpc_eq_zero(btmp))
               {
                 for (i = 0; i < s->n; i++)
@@ -449,7 +449,7 @@ mps_secular_ga_regenerate_coefficients(mps_status* s)
             mpc_inv(ctmp, btmp);
 
             /* Add a_j / (b_i - old_b_j) to sec_ev */
-            mpc_mul_eq(ctmp, old_ma[j]);
+            mpc_mul_eq(ctmp, sec->old_ampc[j]);
             mpc_add_eq(sec_ev, ctmp);
 
             /* Multiply prod_b for
@@ -483,13 +483,13 @@ mps_secular_ga_regenerate_coefficients(mps_status* s)
     /* This is too much verbose to be enabled even in the debugged version,
      * so do not display it (unless we are trying to catch some errors on
      * coefficient regeneration). */
-    /*
+
     for (i = 0; i < s->n; i++)
       {
         MPS_DEBUG_MPC(s, 15, sec->ampc[i], "sec->ampc[%d]", i);
         MPS_DEBUG_MPC(s, 15, sec->bmpc[i], "sec->bmpc[%d]", i);
       }
-    */
+
 
         mps_secular_mstart(s, s->n, 0, (__rdpe_struct *) rdpe_zero,
             (__rdpe_struct *) rdpe_zero, s->eps_out);
@@ -589,6 +589,10 @@ mps_secular_ga_mpsolve(mps_status* s)
 
   /* Set initial cluster structure as no cluster structure. */
   mps_cluster_reset(s);
+
+  /* Copy initial coefficients so they can be used to compute
+   * */
+  mps_secular_save_coefficients(s, sec);
 
   /* Set phase */
   s->lastphase = phase;

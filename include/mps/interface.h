@@ -786,6 +786,7 @@ void mps_set_default_values(mps_status* s);
 
 /* Functions in mps_main.c */
 void mps_mpsolve(mps_status* s);
+void mps_standard_mpsolve(mps_status* s);
 
 /* functions in mps_interface.c */
 mps_status* mps_status_new();

@@ -56,18 +56,28 @@ mps_secular_equation_new_raw(mps_status* s, unsigned long int n)
   /* Allocate floating point coefficients */
   sec->afpc = cplx_valloc(n);
   sec->bfpc = cplx_valloc(n);
+  sec->old_afpc = cplx_valloc(n);
+  sec->old_bfpc = cplx_valloc(n);
 
   /* Allocate complex dpe coefficients of the secular equation */
   sec->adpc = cdpe_valloc(n);
   sec->bdpc = cdpe_valloc(n);
+  sec->old_adpc = cdpe_valloc(n);
+  sec->old_bdpc = cdpe_valloc(n);
 
   /* Allocate multiprecision complex coefficients of the secular equation */
   sec->ampc = mpc_valloc(n);
   sec->bmpc = mpc_valloc(n);
+  sec->old_ampc = mpc_valloc(n);
+  sec->old_bmpc = mpc_valloc(n);
+
+
 
   /* Init multiprecision arrays */
   mpc_vinit(sec->ampc, n);
   mpc_vinit(sec->bmpc, n);
+  mpc_vinit(sec->old_ampc, n);
+  mpc_vinit(sec->old_bmpc, n);
 
   sec->n = n;
   return sec;
@@ -121,6 +131,25 @@ mps_secular_equation_free(mps_secular_equation* s)
   cplx_vfree(s->afpc);
   cplx_vfree(s->bfpc);
 
+  cdpe_vfree(s->adpc);
+  cdpe_vfree(s->bdpc);
+
+  mpc_vclear(s->ampc, s->n);
+  mpc_vclear(s->bmpc, s->n);
+
+  mpc_vfree(s->ampc);
+  mpc_vfree(s->bmpc);
+
+  /* And old coefficients */
+  cplx_vfree(s->old_afpc);
+  cplx_vfree(s->old_bfpc);
+  cdpe_vfree(s->old_adpc);
+  cdpe_vfree(s->old_bdpc);
+  mpc_vclear(s->old_ampc, s->n);
+  mpc_vclear(s->old_bmpc, s->n);
+  mpc_vfree(s->old_ampc);
+  mpc_vfree(s->old_bmpc);
+
   /* ...and then release it */
   free(s);
 }
@@ -166,6 +195,31 @@ mps_secular_equation_read_from_stream(mps_status* s, FILE* input_stream)
     }
 
   return sec;
+}
+
+/**
+ * @brief Utility function that save a snapshot of the coefficient
+ * of the secular equation in the fields old_* in the
+ * <code>mps_secular_equation</code> struct.
+ *
+ * Those coefficients will then be used when recomputing the new
+ * coefficients in <code>mps_secular_ga_regenerate_coefficients()</code>.
+ */
+void
+mps_secular_save_coefficients (mps_status* s, mps_secular_equation* sec)
+{
+    int i;
+    for(i = 0; i < sec->n; i++)
+      {
+        cplx_set(sec->old_afpc[i], sec->afpc[i]);
+        cplx_set(sec->old_bfpc[i], sec->bfpc[i]);
+
+        cdpe_set(sec->old_adpc[i], sec->adpc[i]);
+        cdpe_set(sec->old_bdpc[i], sec->bdpc[i]);
+
+        mpc_set(sec->old_ampc[i], sec->ampc[i]);
+        mpc_set(sec->old_bmpc[i], sec->bmpc[i]);
+      }
 }
 
 
@@ -219,6 +273,9 @@ mps_secular_raise_precision(mps_status* s)
       mpc_set_prec(sec->ampc[i], s->mpwp);
       mpc_set_prec(sec->bmpc[i], s->mpwp);
       mpc_set_prec(s->mroot[i], s->mpwp);
+
+      mpc_set_prec(sec->old_ampc[i], s->mpwp);
+      mpc_set_prec(sec->old_bmpc[i], s->mpwp);
     }
   rdpe_set_2dl(s->mp_epsilon, 1.0, -s->mpwp);
   MPS_DEBUG(s, "Precision is now at %d bits", s->mpwp);

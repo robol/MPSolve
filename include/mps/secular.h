@@ -70,6 +70,42 @@ typedef struct
   mpc_t * bmpc;
 
   /**
+   * @brief Initial floating point coefficients saved for latter
+   * regeneration in <code>mps_secular_ga_regenerate_coefficients()</code>.
+   */
+  cplx_t* old_afpc;
+
+  /**
+   * @brief Initial floating point coefficients saved for latter
+   * regeneration in <code>mps_secular_ga_regenerate_coefficients()</code>.
+   */
+  cplx_t* old_bfpc;
+
+  /**
+   * @brief Initial CDPE coefficients saved for latter
+   * regeneration in <code>mps_secular_ga_regenerate_coefficients()</code>.
+   */
+  cdpe_t* old_adpc;
+
+  /**
+   * @brief Initial CDPE coefficients saved for latter
+   * regeneration in <code>mps_secular_ga_regenerate_coefficients()</code>.
+   */
+  cdpe_t* old_bdpc;
+
+  /**
+   * @brief Initial multiprecision coefficients saved for latter
+   * regeneration in <code>mps_secular_ga_regenerate_coefficients()</code>.
+   */
+  mpc_t*  old_ampc;
+
+  /**
+   * @brief Initial multiprecision coefficients saved for latter
+   * regeneration in <code>mps_secular_ga_regenerate_coefficients()</code>.
+   */
+  mpc_t*  old_bmpc;
+
+  /**
    * @brief Size of the vectors of the coefficients of the
    * secular equation.
    */
@@ -103,6 +139,9 @@ mps_secular_check_data(mps_status* s, char* which_case);
 
 void
 mps_secular_switch_phase(mps_status* s, mps_phase phase);
+
+void
+mps_secular_save_coefficients(mps_status* s, mps_secular_equation* sec);
 
 void
 mps_secular_raise_precision(mps_status* s);

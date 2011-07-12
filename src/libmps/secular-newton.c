@@ -100,6 +100,7 @@ mps_secular_fnewton(mps_status* s, cplx_t x, double *rad, cplx_t corr,
    * 5) g_corr = ssp / sigma
    *  That is, finally, the guaranteed newton correction.
    */
+  if (s->mpsolve_ptr == MPS_MPSOLVE_PTR(mps_standard_mpsolve))
   {
     double theta, gamma, sigma;
     cplx_t ssp, pol_div_fp, gamma_tmp, sigma_tmp;
@@ -127,10 +128,13 @@ mps_secular_fnewton(mps_status* s, cplx_t x, double *rad, cplx_t corr,
         g_corr = cplx_mod(ssp) / sigma;
     else
         g_corr = DBL_MAX;
+
+    MPS_DEBUG(s, "Computed guaranteed newton radius = %e", g_corr * s->n);
+    MPS_DEBUG(s, "Non guaranteed newton radius: %e", cplx_mod(corr) * s->n);
+  } else {
+      g_corr = DBL_MAX;
   }
 
-  MPS_DEBUG(s, "Computed guaranteed newton radius = %e", g_corr * s->n);
-  MPS_DEBUG(s, "Non guaranteed newton radius: %e", cplx_mod(corr) * s->n);
 
   /* Radius is n * newt_corr, if it's better that Gerschgorin's one */
   dtmp = g_corr * sec->n * (1 + DBL_EPSILON);
@@ -236,6 +240,7 @@ mps_secular_dnewton(mps_status* s, cdpe_t x, rdpe_t rad, cdpe_t corr,
    * 5) g_corr = ssp / sigma
    *  That is, finally, the guaranteed newton correction.
    */
+  if (s->mpsolve_ptr == MPS_MPSOLVE_PTR(mps_standard_mpsolve))
   {
     rdpe_t theta, gamma, sigma, rdpe_tmp;
     cdpe_t ssp, pol_div_fp, gamma_tmp, sigma_tmp, cdpe_tmp;
@@ -275,6 +280,9 @@ mps_secular_dnewton(mps_status* s, cdpe_t x, rdpe_t rad, cdpe_t corr,
     }
     else
         rdpe_set(g_corr, RDPE_MAX);
+  }
+  else {
+      rdpe_set(g_corr, RDPE_MAX);
   }
 
   /* Compute radius as n * | corr | */
@@ -439,6 +447,7 @@ mps_secular_mnewton(mps_status* s, mpc_t x, rdpe_t rad, mpc_t corr,
    * 5) g_corr = ssp / sigma
    *  That is, finally, the guaranteed newton correction.
    */
+  if (s->mpsolve_ptr == MPS_MPSOLVE_PTR(mps_standard_mpsolve))
   {
     rdpe_t theta, ssp, gamma, sigma;
     rdpe_t fp_mod, pol_mod, sumb_mod;
