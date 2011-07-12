@@ -85,7 +85,6 @@ test_unisolve_on_pol(test_pol *pol)
               break;
             }
         }
-
     }
 
   mpf_clear(mroot);
@@ -140,11 +139,10 @@ main (void)
 
   starting_setup();
 
-  test_polynomials = (test_pol**) malloc(sizeof(test_pol*) * 3 * 21);
+  test_polynomials = (test_pol**) malloc(sizeof(test_pol*) * 3 * 32);
 
   for(i = 0; i < 3; i++)
     {
-      test_polynomials[n++] = test_pol_new_simple("lar2", digits[i]);
       test_polynomials[n++] = test_pol_new_simple("exp100", digits[i]);
       test_polynomials[n++] = test_pol_new_simple("exp50", digits[i]);
       test_polynomials[n++] = test_pol_new_simple("kam1_1", digits[i]);
@@ -165,6 +163,18 @@ main (void)
       test_polynomials[n++] = test_pol_new_simple("lsr_24", digits[i]);
       test_polynomials[n++] = test_pol_new_simple("mand127", digits[i]);
       test_polynomials[n++] = test_pol_new_simple("mand63", digits[i]);
+      test_polynomials[n++] = test_pol_new_simple("mand63", digits[i]);
+      test_polynomials[n++] = test_pol_new_simple("mand63", digits[i]);
+      test_polynomials[n++] = test_pol_new_simple("mig1_100", digits[i]);
+      test_polynomials[n++] = test_pol_new_simple("mig1_200", digits[i]);
+      test_polynomials[n++] = test_pol_new_simple("nroots50", digits[i]);
+      test_polynomials[n++] = test_pol_new_simple("spiral20", digits[i]);
+      test_polynomials[n++] = test_pol_new_simple("test", digits[i]);
+      test_polynomials[n++] = test_pol_new_simple("trv_m", digits[i]);
+      test_polynomials[n++] = test_pol_new_simple("umand31", digits[i]);
+      test_polynomials[n++] = test_pol_new_simple("wilk20", digits[i]);
+      test_polynomials[n++] = test_pol_new_simple("wilk40", digits[i]);
+      // test_polynomials[n++] = test_pol_new_simple("toep1_128", digits[i]);
     }
 
 
