@@ -6,6 +6,8 @@ AC_INIT([MPSolve], [3.0], [robol@poisson.phc.unipi.it])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS([config.h])
 
+AM_PATH_CHECK
+
 # Just for now, won't be in final release, probabily,
 # but it's just too useful for debugging. 
 # AC_DISABLE_SHARED
@@ -16,7 +18,7 @@ LT_INIT
 
 AM_INIT_AUTOMAKE([dist-bzip2])
 
-m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
+# m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
 
 # Checks for programs.
 AC_PROG_CXX
@@ -84,7 +86,8 @@ AC_CONFIG_FILES([Makefile
                  src/Makefile
 		 src/unisolve/Makefile
 		 src/secsolve/Makefile
-		 src/libmps/Makefile])
+		 src/libmps/Makefile
+		 src/tests/Makefile])
 
 AC_OUTPUT
 
