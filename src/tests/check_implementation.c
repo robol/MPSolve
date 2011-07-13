@@ -10,7 +10,7 @@
 void
 starting_setup()
 {
-    putenv("CK_DEFAULT_TIMEOUT=40");
+    putenv("CK_DEFAULT_TIMEOUT=15");
 }
 
 void
