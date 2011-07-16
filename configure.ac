@@ -36,7 +36,7 @@ AC_ARG_ENABLE([debug],
 	[enable_debug=yes have_debug=yes])
 AC_MSG_RESULT([$enable_debug])
 
-AS_IF([test "x$enable_debug" != "xno"], [
+AS_IF([test x$enable_debug != xno], [
 	GENERAL_CFLAGS="$GENERAL_CFLAGS -DNICE_DEBUG"
 ])
 
@@ -119,9 +119,16 @@ MPSolve configuration:
 	Source location: ${srcdir}
 	C compiler:      ${CC}
 	Debug enabled:   $enable_debug
-	Check enabled:   $enable_check
-	Octave module:   $enable_octave (generates $OCTAVE_MODULES_PROGRAMS)
+	Check enabled:   $enable_check"
 
+# Check Octave module
+if [test x$enable_octave = xyes]; then
+	echo "	Octave module:   $enable_octave (generates examples/octave/$OCTAVE_MODULES_PROGRAMS)"
+else
+	echo "	Octave module:   no"
+fi
+
+echo "
 Type 'make' to compile MPSolve, and then make install
 to install the binaries, the library and the headers
 system-wide.
