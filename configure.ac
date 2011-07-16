@@ -128,16 +128,23 @@ echo "
 
 MPSolve configuration:
 
-	Source location: ${srcdir}
-	C compiler:      ${CC}
-	Debug enabled:   $enable_debug
-	Check enabled:   $enable_check"
+        Source location:	${srcdir}
+        C compiler:		${CC}
+        Debug enabled:		$enable_debug
+        Check enabled:		$enable_check"
 
 # Check Octave module
 if [test x$enable_octave = xyes]; then
-	echo "	Octave module:   $enable_octave (generates examples/octave/$OCTAVE_MODULES_PROGRAMS)"
+        echo "	Octave module:		$enable_octave (generates examples/octave/$OCTAVE_MODULES_PROGRAMS)"
 else
-	echo "	Octave module:   no"
+        echo "	Octave module:		no"
+fi
+
+# Check MATLAB (TM) module
+if [test x$enable_matlab = xyes]; then
+        echo "	MATLAB (tm) module:	$enable_octave (generates examples/matlab/$MATLAB_MODULES_PROGRAMS.mex)"
+else
+        echo "	MATLAB (tm) module:	no"
 fi
 
 echo "
