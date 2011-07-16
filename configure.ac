@@ -23,7 +23,7 @@ AC_PROG_CC
 AM_PROG_CC_C_O
 AC_PROG_CC_C99
 
-GENERAL_CFLAGS="-I../../include -DNOMPTEMP"
+GENERAL_CFLAGS=" -DNOMPTEMP"
 
 # Determine CFLAGS based on the options that the user has specified.
 # The supported build type are
@@ -83,6 +83,8 @@ else
   AC_MSG_RESULT(yes)
 fi
 
+# If we have find a valid Matlab compiler then add
+# MATLAB to the target of compilation
 enable_matlab=no
 AS_IF([test "$MEX" != ""], [enable_matlab=yes
   MATLAB_MODULES_PROGRAMS=mps_roots])

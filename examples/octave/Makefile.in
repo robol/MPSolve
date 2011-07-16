@@ -209,6 +209,7 @@ mps_roots_oct_SOURCES = mps_roots.cc
 mps_roots_oct_LINK = $(MKOCTFILE) -o $@ -L${top_builddir}/src/libmps/.libs \
 	-lmps -lm -lgmp
 
+EXTRA_DIST = mps_roots.cc
 all: all-am
 
 .SUFFIXES:

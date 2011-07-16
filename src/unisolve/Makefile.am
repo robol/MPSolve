@@ -8,10 +8,12 @@ unisolve_test_SOURCES = \
 	$(NULL)
 
 unisolve_test_CFLAGS = \
+        -I${top_srcdir}/include \
 	$(UNISOLVE_CFLAGS) \
 	$(NULL)
 
 unisolve_CFLAGS = \
+        -I${top_srcdir}/include \
 	$(UNISOLVE_CFLAGS) \
 	$(NULL)
 

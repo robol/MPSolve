@@ -4,6 +4,7 @@ bin_PROGRAMS = secsolve
 check_PROGRAMS = secsolve-test
 
 secsolve_CFLAGS = \
+        -I${top_srcdir}/include \
 	$(SECSOLVE_CFLAGS) \
 	$(NULL)
 
@@ -21,6 +22,7 @@ secsolve_LDADD = \
 	${top_builddir}/src/libmps/libmps.la
 
 secsolve_test_CFLAGS = \
+        -I${top_srcdir}/include \
 	$(SECSOLVE_CFLAGS)
 
 secsolve_test_SOURCES = \

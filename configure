@@ -15273,7 +15273,7 @@ fi
 
 
 
-GENERAL_CFLAGS="-I../../include -DNOMPTEMP"
+GENERAL_CFLAGS=" -DNOMPTEMP"
 
 # Determine CFLAGS based on the options that the user has specified.
 # The supported build type are
@@ -15614,6 +15614,8 @@ else
 $as_echo "yes" >&6; }
 fi
 
+# If we have find a valid Matlab compiler then add
+# MATLAB to the target of compilation
 enable_matlab=no
 if test "$MEX" != ""; then :
   enable_matlab=yes
