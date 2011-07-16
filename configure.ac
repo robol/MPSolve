@@ -70,10 +70,23 @@ AC_SUBST(OCTAVE_MODULES_PROGRAMS)
 # to be mps_roots.mexglx if we are on a 32 bit pc
 # and mps_roots.mexglxa64 if we are on a 64 bit machine.
 AC_CHECK_PROGS([MEX], [mex])
+
+# We need to test if MEX is the matlab compiler
+# or the polish version of the pdftex.
+AC_MSG_CHECKING(if mex is the matlab compiler)
+mex_is_matlab_output=`mex -help 2>&1 | grep MATLAB`
+mex_is_matlab_retcode=$?
+if [[ "$mex_is_matlab_retcode" != "0" ]]; then
+  MEX=""
+  AC_MSG_RESULT(no)
+else
+  AC_MSG_RESULT(yes)
+fi
+
 enable_matlab=no
 AS_IF([test "$MEX" != ""], [enable_matlab=yes
   MATLAB_MODULES_PROGRAMS=mps_roots])
- AC_SUBST(MATLAB_MODULES_PROGRAMS)
+AC_SUBST(MATLAB_MODULES_PROGRAMS)
 
 AC_SUBST(MPS_CFLAGS)
 AC_SUBST(UNISOLVE_CFLAGS)
