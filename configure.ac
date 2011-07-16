@@ -21,8 +21,9 @@ AM_INIT_AUTOMAKE([dist-bzip2])
 AC_PROG_CXX
 AC_PROG_CC
 AM_PROG_CC_C_O
+AC_PROG_CC_C99
 
-GENERAL_CFLAGS="-I../../include -std=c99 -DNOMPTEMP"
+GENERAL_CFLAGS="-I../../include -DNOMPTEMP"
 
 # Determine CFLAGS based on the options that the user has specified.
 # The supported build type are
@@ -64,6 +65,16 @@ enable_octave=no
 AS_IF([test "$MKOCTFILE" != ""], [enable_octave=yes OCTAVE_MODULES_PROGRAMS=mps_roots.oct])
 AC_SUBST(OCTAVE_MODULES_PROGRAMS)
 
+# Check for the presence of "mex", the Matlab compiler
+# and if it's present, define MATLAB_MODULES_PROGRAMS
+# to be mps_roots.mexglx if we are on a 32 bit pc
+# and mps_roots.mexglxa64 if we are on a 64 bit machine.
+AC_CHECK_PROGS([MEX], [mex])
+enable_matlab=no
+AS_IF([test "$MEX" != ""], [enable_matlab=yes
+  MATLAB_MODULES_PROGRAMS=mps_roots])
+ AC_SUBST(MATLAB_MODULES_PROGRAMS)
+
 AC_SUBST(MPS_CFLAGS)
 AC_SUBST(UNISOLVE_CFLAGS)
 AC_SUBST(SECSOLVE_CFLAGS)
@@ -103,6 +114,7 @@ AC_CHECK_FUNCS([memset modf pow sqrt strchr])
 AC_CONFIG_FILES([Makefile
                  examples/Makefile
 		 examples/octave/Makefile
+                 examples/matlab/Makefile
                  src/Makefile
                  src/unisolve/Makefile
                  src/secsolve/Makefile

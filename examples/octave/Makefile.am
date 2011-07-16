@@ -1,7 +1,7 @@
 mps_roots.o:
 	$(MKOCTFILE) -I${top_builddir}/include -DNOMPTEMP -DDISABLE_DEBUG \
 	-D__UNDEF_CPLUSPLUS -D__USE_BOOL_AS_BOOLEAN \
-	-c -o mps_roots.o octave-module.cc
+	-c -o mps_roots.o mps_roots.cc
 
 bin_PROGRAMS = $(OCTAVE_MODULES_PROGRAMS)
 

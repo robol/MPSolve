@@ -1,2 +1,3 @@
 SUBDIRS = \
-	octave
+	octave \
+	matlab
