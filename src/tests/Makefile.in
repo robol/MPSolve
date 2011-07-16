@@ -33,15 +33,14 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-TESTS = check_secsolve$(EXEEXT) check_unisolve$(EXEEXT)
-check_PROGRAMS = check_secsolve$(EXEEXT) check_unisolve$(EXEEXT)
+EXTRA_PROGRAMS = check_unisolve$(EXEEXT) check_secsolve$(EXEEXT)
 subdir = src/tests
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-am__aclocal_m4_deps = $(top_srcdir)/m4/check.m4 \
-	$(top_srcdir)/m4/libtool.m4 $(top_srcdir)/m4/ltoptions.m4 \
-	$(top_srcdir)/m4/ltsugar.m4 $(top_srcdir)/m4/ltversion.m4 \
-	$(top_srcdir)/m4/lt~obsolete.m4 $(top_srcdir)/configure.ac
+am__aclocal_m4_deps = $(top_srcdir)/m4/libtool.m4 \
+	$(top_srcdir)/m4/ltoptions.m4 $(top_srcdir)/m4/ltsugar.m4 \
+	$(top_srcdir)/m4/ltversion.m4 $(top_srcdir)/m4/lt~obsolete.m4 \
+	$(top_srcdir)/m4/pkg.m4 $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
@@ -92,8 +91,11 @@ AWK = @AWK@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
+CHECKING_CFLAGS = @CHECKING_CFLAGS@
+CHECKING_LIBS = @CHECKING_LIBS@
 CHECK_CFLAGS = @CHECK_CFLAGS@
 CHECK_LIBS = @CHECK_LIBS@
+CHECK_PROGRAMS = @CHECK_PROGRAMS@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CXX = @CXX@
@@ -142,6 +144,9 @@ PACKAGE_TARNAME = @PACKAGE_TARNAME@
 PACKAGE_URL = @PACKAGE_URL@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
+PKG_CONFIG = @PKG_CONFIG@
+PKG_CONFIG_LIBDIR = @PKG_CONFIG_LIBDIR@
+PKG_CONFIG_PATH = @PKG_CONFIG_PATH@
 RANLIB = @RANLIB@
 SECSOLVE_CFLAGS = @SECSOLVE_CFLAGS@
 SED = @SED@
@@ -203,12 +208,14 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
+TESTS = $(CHECK_PROGRAMS)
+check_PROGRAMS = $(CHECK_PROGRAMS)
 check_secsolve_SOURCES = check_secsolve.c check_implementation.c
-check_secsolve_CFLAGS = @CHECK_CFLAGS@ -I${top_builddir}/include
-check_secsolve_LDFLAGS = @CHECK_LIBS@ -L${top_builddir}/src/libmps -lmps -lm -lgmp
+check_secsolve_CFLAGS = $(CHECK_CFLAGS) -I${top_builddir}/include
+check_secsolve_LDFLAGS = -L${top_builddir}/src/libmps -lmps -lm -lgmp -lcheck
 check_unisolve_SOURCES = check_unisolve.c check_implementation.c
-check_unisolve_CFLAGS = @CHECK_CFLAGS@ -I${top_builddir}/include
-check_unisolve_LDFLAGS = @CHECK_LIBS@ -L${top_builddir}/src/libmps -lmps -lm -lgmp
+check_unisolve_CFLAGS = $(CHECK_CFLAGS) -I${top_builddir}/include
+check_unisolve_LDFLAGS = -L${top_builddir}/src/libmps -lmps -lm -lgmp -lcheck
 all: all-am
 
 .SUFFIXES:

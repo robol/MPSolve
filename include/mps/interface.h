@@ -115,6 +115,7 @@ typedef void (*mps_mpsolve_ptr)(void* status);
 #define MPS_DSTART_PTR(x) (mps_dstart_ptr) &(x)
 #define MPS_MPSOLVE_PTR(x) (mps_mpsolve_ptr) &(x)
 
+
 /**
  * @brief this struct holds the state of the mps computation
  */
@@ -715,6 +716,14 @@ typedef struct {
 	 * done when disposing initial approximations.
 	 */
 	int* partitioning;
+
+        /* SECTION -- Algorihtmm selection */
+
+        /**
+         * @brief This is used in the program to switch behavious based
+         * on the algorithm that is been used now.
+         */
+        mps_algorithm algorithm;
 
 	/**
 	 * @brief Pointer to the function to perform newton in floating

@@ -74,6 +74,9 @@ void mps_mpsolve(mps_status* s) {
 void
 mps_status_select_algorithm(mps_status* s, mps_algorithm algorithm)
 {
+    /* First set algorithm in the mps_status */
+    s->algorithm = algorithm;
+
     switch (algorithm)
     {
     case MPS_ALGORITHM_STANDARD_MPSOLVE:

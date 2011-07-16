@@ -6,12 +6,9 @@ AC_INIT([MPSolve], [3.0], [robol@poisson.phc.unipi.it])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS([config.h])
 
-AM_PATH_CHECK
-
 # Just for now, won't be in final release, probabily,
 # but it's just too useful for debugging. 
 # AC_DISABLE_SHARED
-
 AC_CONFIG_MACRO_DIR([m4])
 
 LT_INIT
@@ -46,6 +43,17 @@ AS_IF([test "x$enable_debug" != "xno"], [
 MPS_CFLAGS="$GENERAL_CFLAGS"
 UNISOLVE_CFLAGS="$GENERAL_CFLAGS"
 SECSOLVE_CFLAGS="$GENERAL_CFLAGS"
+
+# Check the presence of the check modules used to perform
+# the checking
+PKG_CHECK_MODULES([CHECKING], [check >= 0.9.4], 
+  [enable_check=yes], [enable_check=no])
+AS_IF([test "x$enable_check" = "xyes"], [
+	CHECK_PROGRAMS="check_secsolve check_unisolve"
+])
+AC_SUBST(CHECK_PROGRAMS)
+AC_SUBST(CHECK_CFLAGS)
+AC_SUBST(CHECK_LIBS)
 
 AC_SUBST(MPS_CFLAGS)
 AC_SUBST(UNISOLVE_CFLAGS)
@@ -84,10 +92,11 @@ AC_CHECK_FUNCS([memset modf pow sqrt strchr])
 AC_CONFIG_FILES([Makefile
                  examples/Makefile
                  src/Makefile
-		 src/unisolve/Makefile
-		 src/secsolve/Makefile
-		 src/libmps/Makefile
-		 src/tests/Makefile])
+                 src/unisolve/Makefile
+                 src/secsolve/Makefile
+                 src/libmps/Makefile
+                 src/tests/Makefile])
+
 
 AC_OUTPUT
 
@@ -98,6 +107,7 @@ MPSolve configuration:
 	Source location: ${srcdir}
 	C compiler:      ${CC}
 	Debug enabled:   $enable_debug
+	Check enabled:   $enable_check
 
 Type 'make' to compile MPSolve, and then make install
 to install the binaries, the library and the headers
