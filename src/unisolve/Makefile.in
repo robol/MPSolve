@@ -55,17 +55,19 @@ am__objects_1 =
 am_unisolve_OBJECTS = unisolve-unisolve.$(OBJEXT) $(am__objects_1)
 unisolve_OBJECTS = $(am_unisolve_OBJECTS)
 am__DEPENDENCIES_1 =
-unisolve_DEPENDENCIES = $(am__DEPENDENCIES_1)
+unisolve_DEPENDENCIES = $(top_builddir)/src/libmps/libmps.la \
+	$(am__DEPENDENCIES_1)
 unisolve_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
-	--mode=link $(CCLD) $(unisolve_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
-	$(LDFLAGS) -o $@
+	--mode=link $(CCLD) $(unisolve_CFLAGS) $(CFLAGS) \
+	$(unisolve_LDFLAGS) $(LDFLAGS) -o $@
 am_unisolve_test_OBJECTS = unisolve_test-unisolve-test.$(OBJEXT) \
 	$(am__objects_1)
 unisolve_test_OBJECTS = $(am_unisolve_test_OBJECTS)
-unisolve_test_DEPENDENCIES = $(am__DEPENDENCIES_1)
+unisolve_test_DEPENDENCIES = $(top_builddir)/src/libmps/libmps.la \
+	$(am__DEPENDENCIES_1)
 unisolve_test_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(unisolve_test_CFLAGS) \
-	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
+	$(CFLAGS) $(unisolve_test_LDFLAGS) $(LDFLAGS) -o $@
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -132,6 +134,7 @@ LN_S = @LN_S@
 LTLIBOBJS = @LTLIBOBJS@
 MAKEINFO = @MAKEINFO@
 MKDIR_P = @MKDIR_P@
+MKOCTFILE = @MKOCTFILE@
 MPS_CFLAGS = @MPS_CFLAGS@
 NM = @NM@
 NMEDIT = @NMEDIT@
@@ -152,11 +155,13 @@ PKG_CONFIG_LIBDIR = @PKG_CONFIG_LIBDIR@
 PKG_CONFIG_PATH = @PKG_CONFIG_PATH@
 RANLIB = @RANLIB@
 SECSOLVE_CFLAGS = @SECSOLVE_CFLAGS@
+SECSOLVE_LIBS = @SECSOLVE_LIBS@
 SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 STRIP = @STRIP@
 UNISOLVE_CFLAGS = @UNISOLVE_CFLAGS@
+UNISOLVE_LIBS = @UNISOLVE_LIBS@
 VERSION = @VERSION@
 abs_builddir = @abs_builddir@
 abs_srcdir = @abs_srcdir@
@@ -228,18 +233,19 @@ unisolve_SOURCES = \
 	unisolve.c \
 	$(NULL)
 
+unisolve_LDFLAGS = \
+	$(UNISOLVE_LIBS)
+
+unisolve_test_LDFLAGS = \
+	$(UNISOLVE_LIBS) \
+	$(NULL)
+
 unisolve_LDADD = \
-	-L../libmps \
-	-lmps \
-	-lgmp \
-	-lm \
+	$(top_builddir)/src/libmps/libmps.la \
 	$(NULL)
 
 unisolve_test_LDADD = \
-	-L../libmps \
-	-lmps \
-	-lgmp \
-	-lm \
+	$(top_builddir)/src/libmps/libmps.la \
 	$(NULL)
 
 all: all-am
@@ -620,6 +626,7 @@ uninstall-am: uninstall-binPROGRAMS
 	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
 	tags uninstall uninstall-am uninstall-binPROGRAMS
 
+	$(NULL)
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

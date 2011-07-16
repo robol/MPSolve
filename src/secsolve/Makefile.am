@@ -11,24 +11,20 @@ secsolve_SOURCES = \
 	secsolve.c \
 	$(NULL)
 
+secsolve_LDFLAGS = \
+	$(SECSOLVE_LIBS)
+
+secsolve_test_LDFLAGS = \
+	$(SECSOLVE_LIBS)
+
 secsolve_LDADD = \
-	-L../libmps \
-	-lmps \
-	-lgmp \
-	-lm \
-	$(NULL)
+	${top_builddir}/src/libmps/libmps.la
 
 secsolve_test_CFLAGS = \
-	$(SECSOLVE_CFLAGS) \
-	$(NULL)
+	$(SECSOLVE_CFLAGS)
 
 secsolve_test_SOURCES = \
-	secsolve-test.c \
-	$(NULL)
+	secsolve-test.c
 
 secsolve_test_LDADD = \
-	-L../libmps \
-	-lmps \
-	-lgmp \
-	-lm \
-	$(NULL)
+	${top_builddir}/src/libmps/libmps.la

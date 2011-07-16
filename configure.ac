@@ -43,6 +43,8 @@ AS_IF([test "x$enable_debug" != "xno"], [
 MPS_CFLAGS="$GENERAL_CFLAGS"
 UNISOLVE_CFLAGS="$GENERAL_CFLAGS"
 SECSOLVE_CFLAGS="$GENERAL_CFLAGS"
+UNISOLVE_LIBS="-lm -lgmp"
+SECSOLVE_LIBS="-lm -lgmp"
 
 # Check the presence of the check modules used to perform
 # the checking
@@ -55,9 +57,17 @@ AC_SUBST(CHECK_PROGRAMS)
 AC_SUBST(CHECK_CFLAGS)
 AC_SUBST(CHECK_LIBS)
 
+# Check the existance of mkoctfile to compile octave 
+# module
+AC_CHECK_PROGS([MKOCTFILE], [mkoctfile])
+enable_octave=no
+AS_IF([test "$MKOCTFILE" != ""], [enable_octave=yes OCTAVE_MODULES_PROGRAMS=mps_roots.oct])
+
 AC_SUBST(MPS_CFLAGS)
 AC_SUBST(UNISOLVE_CFLAGS)
 AC_SUBST(SECSOLVE_CFLAGS)
+AC_SUBST(UNISOLVE_LIBS)
+AC_SUBST(SECSOLVE_LIBS)
 
 # Checks for libraries.
 AC_CHECK_LIB([gmp], [mpc_set])
@@ -91,6 +101,7 @@ AC_CHECK_FUNCS([memset modf pow sqrt strchr])
 
 AC_CONFIG_FILES([Makefile
                  examples/Makefile
+		 examples/octave/Makefile
                  src/Makefile
                  src/unisolve/Makefile
                  src/secsolve/Makefile
@@ -108,6 +119,7 @@ MPSolve configuration:
 	C compiler:      ${CC}
 	Debug enabled:   $enable_debug
 	Check enabled:   $enable_check
+	Octave module:   $enable_octave (generates $OCTAVE_MODULES_PROGRAMS)
 
 Type 'make' to compile MPSolve, and then make install
 to install the binaries, the library and the headers

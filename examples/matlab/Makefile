@@ -1,6 +1,6 @@
 MEX=mex -g
 CFLAGS=-D__USE_BOOL_AS_BOOLEAN -DNOMPTEMP -I../../include
-LDFLAGS=-L../../src -lm -lgmp -lpthread ../../src/libmps.a
+LDFLAGS=-L../../src/libmps/.libs -lm -lgmp -lpthread -lmps
 
 all: matlab
 	@echo "The MATLAB (TM) module has been compiled and has be named"

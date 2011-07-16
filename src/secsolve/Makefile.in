@@ -54,18 +54,16 @@ PROGRAMS = $(bin_PROGRAMS)
 am__objects_1 =
 am_secsolve_OBJECTS = secsolve-secsolve.$(OBJEXT) $(am__objects_1)
 secsolve_OBJECTS = $(am_secsolve_OBJECTS)
-am__DEPENDENCIES_1 =
-secsolve_DEPENDENCIES = $(am__DEPENDENCIES_1)
+secsolve_DEPENDENCIES = ${top_builddir}/src/libmps/libmps.la
 secsolve_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
-	--mode=link $(CCLD) $(secsolve_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
-	$(LDFLAGS) -o $@
-am_secsolve_test_OBJECTS = secsolve_test-secsolve-test.$(OBJEXT) \
-	$(am__objects_1)
+	--mode=link $(CCLD) $(secsolve_CFLAGS) $(CFLAGS) \
+	$(secsolve_LDFLAGS) $(LDFLAGS) -o $@
+am_secsolve_test_OBJECTS = secsolve_test-secsolve-test.$(OBJEXT)
 secsolve_test_OBJECTS = $(am_secsolve_test_OBJECTS)
-secsolve_test_DEPENDENCIES = $(am__DEPENDENCIES_1)
+secsolve_test_DEPENDENCIES = ${top_builddir}/src/libmps/libmps.la
 secsolve_test_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(secsolve_test_CFLAGS) \
-	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
+	$(CFLAGS) $(secsolve_test_LDFLAGS) $(LDFLAGS) -o $@
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -132,6 +130,7 @@ LN_S = @LN_S@
 LTLIBOBJS = @LTLIBOBJS@
 MAKEINFO = @MAKEINFO@
 MKDIR_P = @MKDIR_P@
+MKOCTFILE = @MKOCTFILE@
 MPS_CFLAGS = @MPS_CFLAGS@
 NM = @NM@
 NMEDIT = @NMEDIT@
@@ -152,11 +151,13 @@ PKG_CONFIG_LIBDIR = @PKG_CONFIG_LIBDIR@
 PKG_CONFIG_PATH = @PKG_CONFIG_PATH@
 RANLIB = @RANLIB@
 SECSOLVE_CFLAGS = @SECSOLVE_CFLAGS@
+SECSOLVE_LIBS = @SECSOLVE_LIBS@
 SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 STRIP = @STRIP@
 UNISOLVE_CFLAGS = @UNISOLVE_CFLAGS@
+UNISOLVE_LIBS = @UNISOLVE_LIBS@
 VERSION = @VERSION@
 abs_builddir = @abs_builddir@
 abs_srcdir = @abs_srcdir@
@@ -220,27 +221,23 @@ secsolve_SOURCES = \
 	secsolve.c \
 	$(NULL)
 
+secsolve_LDFLAGS = \
+	$(SECSOLVE_LIBS)
+
+secsolve_test_LDFLAGS = \
+	$(SECSOLVE_LIBS)
+
 secsolve_LDADD = \
-	-L../libmps \
-	-lmps \
-	-lgmp \
-	-lm \
-	$(NULL)
+	${top_builddir}/src/libmps/libmps.la
 
 secsolve_test_CFLAGS = \
-	$(SECSOLVE_CFLAGS) \
-	$(NULL)
+	$(SECSOLVE_CFLAGS)
 
 secsolve_test_SOURCES = \
-	secsolve-test.c \
-	$(NULL)
+	secsolve-test.c
 
 secsolve_test_LDADD = \
-	-L../libmps \
-	-lmps \
-	-lgmp \
-	-lm \
-	$(NULL)
+	${top_builddir}/src/libmps/libmps.la
 
 all: all-am
 
