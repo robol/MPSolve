@@ -113,7 +113,10 @@ test_secsolve_on_pol(test_pol *pol)
     fclose (check_stream);
 
     fail_unless(passed == true, "Computed results are not exact to the required "
-                "precision, that is of %d digits.", pol->out_digits);
+                "precision, that is of %d digits.\n"
+                "Test configuration: pol: %s, ga: %d, starting_phase: %s",
+                pol->out_digits, pol->pol_file, pol->ga,
+                (pol->phase == float_phase) ? "float_phase" : "dpe_phase");
 }
 
 START_TEST (test_secsolve)
@@ -126,22 +129,19 @@ END_TEST
  * @brief Create the secsolve test suite
  */
 Suite*
-secsolve_suite (int standard, int ga)
+secsolve_suite (int standard)
 {
   Suite *s = suite_create("secsolve");
 
   /* Create a test case for the standard MPSolve case and
    * one for the Gemignani's approach. */
-  TCase *tc_mpsolve = tcase_create("MPSolve standard approach");
-  TCase *tc_gemignani = tcase_create ("Gemignani's approach");
+  TCase *tc_mpsolve = tcase_create("Secsolve");
 
   /* Add our tests */
   tcase_add_loop_test(tc_mpsolve, test_secsolve, 0, standard);
-  tcase_add_loop_test(tc_gemignani, test_secsolve, standard, standard + ga);
 
   /* Add test case to the suite */
   suite_add_tcase(s, tc_mpsolve);
-  suite_add_tcase(s, tc_gemignani);
 
   return s;
 }
@@ -150,32 +150,32 @@ int
 main (void)
 {
   int number_failed, standard = 0, ga = 0;
-  int i;
+  int i, j, k;
+  mps_phase phases  [] = { float_phase, dpe_phase };
+  int precisions    [] = { 15, 50 };
+  char* polynomials [] = { "rand15", "rand120" };
 
   starting_setup();
 
-  test_polynomials = (test_pol**) malloc(sizeof(test_pol*) * 12);
+  test_polynomials = (test_pol**) malloc(sizeof(test_pol*) * 24);
 
-  test_polynomials[standard++] = test_pol_new("rand15", "secsolve", 15, float_phase, false);
-  test_polynomials[standard++] = test_pol_new("rand15", "secsolve", 50, float_phase, false);
-  // test_polynomials[standard++] = test_pol_new("rand15", "secsolve", 400, float_phase, false);
-  test_polynomials[standard++] = test_pol_new("rand120", "secsolve", 15, float_phase, false);
-  test_polynomials[standard++] = test_pol_new("rand120", "secsolve", 50, float_phase, false);
-  // test_polynomials[standard++] = test_pol_new("rand120", "secsolve", 400, float_phase, false);
+  for(i = 0; i < 2; i++) // foreach phase in phases
+    {
+      for(j = 0; j < 2; j++) // foreach prec in precisions
+        {
+          for(k = 0; k < 2; k++) // foreach poly in polynomials
+            {
+              test_polynomials[standard++] = test_pol_new(polynomials[k], "secsolve",
+                                                          precisions[j], phases[i], false);
 
-  ga = standard;
-
-  test_polynomials[ga++] = test_pol_new("rand15", "secsolve", 15, float_phase, true);
-  test_polynomials[ga++] = test_pol_new("rand15", "secsolve", 50, float_phase, true);
-  test_polynomials[ga++] = test_pol_new("rand15", "secsolve", 400, float_phase, true);
-  test_polynomials[ga++] = test_pol_new("rand120", "secsolve", 15, float_phase, true);
-  test_polynomials[ga++] = test_pol_new("rand120", "secsolve", 50, float_phase, true);
-  test_polynomials[ga++] = test_pol_new("rand120", "secsolve", 400, float_phase, true);
-
-  ga -= standard;
+              test_polynomials[standard++] = test_pol_new(polynomials[k], "secsolve",
+                                                          precisions[j], phases[i], true);
+            }
+        }
+    }
 
   /* Create a new test suite for secsolve and run it */
-  Suite *s = secsolve_suite(standard, ga);
+  Suite *s = secsolve_suite(standard);
   SRunner *sr = srunner_create(s);
   srunner_run_all(sr, CK_NORMAL);
 
