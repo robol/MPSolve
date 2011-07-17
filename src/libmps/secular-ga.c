@@ -27,6 +27,9 @@ mps_secular_ga_fiterate(mps_status* s, int maxit)
   int iterations = 0;
   int i;
 
+  double old_rad;
+  cplx_t old_root;
+
   /* Iterate with newton until we have good approximations
    * of the roots */
   /* Set again to true */
@@ -45,6 +48,8 @@ mps_secular_ga_fiterate(mps_status* s, int maxit)
         {
           if (s->again[i])
             {
+              cplx_set(old_root, s->froot[i]);
+              old_rad = s->frad[i];
               mps_secular_fnewton(s, s->froot[i], &s->frad[i], corr,
                   &s->again[i]);
 
@@ -54,6 +59,25 @@ mps_secular_ga_fiterate(mps_status* s, int maxit)
               cplx_sub(abcorr, cplx_one, abcorr);
               cplx_div(abcorr, corr, abcorr);
               cplx_sub_eq(s->froot[i], abcorr);
+
+              /* Check if we need to switch to DPE */
+              if (isnan(cplx_Re(s->froot[i])) || isinf(cplx_Re(s->froot[i])) ||
+                  isnan(cplx_Im(s->froot[i])) || isinf(cplx_Im(s->froot[i])) ||
+                  isnan(s->frad[i]) || isinf(s->frad[i]))
+                {
+                  MPS_DEBUG(s, "Switching to DPE phase because NAN or INF was introduced in computation")
+                  cplx_set(s->froot[i], old_root);
+                  s->frad[i] = old_rad;
+                  s->lastphase = dpe_phase;
+
+                  /* Copy roots and radius */
+                  for(i = 0; i < s->n; i++)
+                  {
+                      cdpe_set_x(s->droot[i], s->froot[i]);
+                      rdpe_set_d(s->drad[i], s->frad[i]);
+                  }
+                  return computed_roots;
+                }
 
               /* Correct the radius */
               modcorr = cplx_mod(abcorr);
