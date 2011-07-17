@@ -121,7 +121,7 @@ void mps_update(mps_status* s) {
 		for (i = 0; i < s->n; i++) {
 			if (s->status[i][2] == 'u' || (s->status[i][0] == 'c'
 					&& s->status[i][2] == 'i'))
-				if (s->status[i][0] != 'f' && s->status[i][0] != 'a'
+                                if (s->status[i][0] != 'f' && s->status[i][0] != 'a'
 						&& s->status[i][0] != 'o')
 					s->again[i] = true;
 
@@ -269,7 +269,7 @@ void mps_msrad(mps_status* s, int i, mpc_t sc, rdpe_t sr) {
 /******************************************************
  *           SUBROUTINE FMODIFY                        *
  *******************************************************
- Modify the vector 'statu' according to the goal, and
+ Modify the vector 'status' according to the goal, and
  to the location of the roots.
  
  The subroutine is used also for marking the new cluster
@@ -1359,9 +1359,11 @@ void mps_mmodify(mps_status* s) {
 			mpc_get_cdpe(tmpc, s->mroot[s->clust[s->punt[i]]]);
 			cdpe_mod(tmpr, tmpc);
 			rdpe_div(tmpr, s->drad[s->clust[s->punt[i]]], tmpr);
-			rtmp = rdpe_log(tmpr);
+                        rtmp = rdpe_log(tmpr);
 			if (rtmp < -s->prec_out * LOG2)
+                        {
 				s->status[s->clust[s->punt[i]]][0] = 'a';
+                        }
 		}
 		/* Scan inside the cluster */
 		for (j = 0; j < s->punt[i + 1] - s->punt[i]; j++) { /* scan_in: */
@@ -1830,8 +1832,11 @@ void mps_mmodify(mps_status* s) {
  * @see status
  */
 mps_boolean mps_check_stop(mps_status* s) {
+    MPS_DEBUG_THIS_CALL
+
 	int i;
 	mps_boolean computed;
+
 
 	computed = false;
 	/* count */

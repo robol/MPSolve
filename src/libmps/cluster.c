@@ -237,7 +237,6 @@ mps_mcluster(mps_status* s, int nf)
   for (i = 0; i < s->n; i++)
     s->clust[i] = s->clust_out[i];
   s->punt[s->nclust] = s->n;
-
 }
 
 void

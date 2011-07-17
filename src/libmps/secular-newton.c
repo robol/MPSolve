@@ -274,10 +274,10 @@ mps_secular_dnewton(mps_status* s, cdpe_t x, rdpe_t rad, cdpe_t corr,
     rdpe_sub_eq(sigma, gamma);
 
     if (rdpe_gt(sigma, rdpe_zero))
-    {
+      {
         cdpe_mod(g_corr, ssp);
         rdpe_div_eq(g_corr, sigma);
-    }
+      }
     else
         rdpe_set(g_corr, RDPE_MAX);
   }
@@ -508,8 +508,10 @@ mps_secular_mnewton(mps_status* s, mpc_t x, rdpe_t rad, mpc_t corr,
     MPS_DEBUG_RDPE(s, g_corr, "Computed newton correction");
 
     /* Set the radius, if convenient. */
-    if (rdpe_gt(sigma, rdpe_zero) && rdpe_lt(g_corr, s->drad[i]))
+    if (rdpe_gt(sigma, rdpe_zero) && rdpe_lt(g_corr, rad))
+    {
       rdpe_set(rad, g_corr);
+    }
 
   }
 
