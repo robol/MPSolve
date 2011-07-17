@@ -3,7 +3,7 @@ mps_roots.o:
 	-D__USE_BOOL_AS_BOOLEAN \
 	-c mps_roots.c
 
-bin_PROGRAMS = $(MATLAB_MODULES_PROGRAMS)
+noinst_PROGRAMS = $(MATLAB_MODULES_PROGRAMS)
 
 EXTRA_PROGRAMS = mps_roots
 clean-local:

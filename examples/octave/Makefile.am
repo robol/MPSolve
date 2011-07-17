@@ -3,7 +3,7 @@ mps_roots.o:
 	-D__UNDEF_CPLUSPLUS -D__USE_BOOL_AS_BOOLEAN \
 	-c -o mps_roots.o mps_roots.cc
 
-bin_PROGRAMS = $(OCTAVE_MODULES_PROGRAMS)
+noinst_PROGRAMS = $(OCTAVE_MODULES_PROGRAMS)
 
 EXTRA_PROGRAMS = mps_roots.oct
 clean-local:
