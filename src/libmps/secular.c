@@ -10,6 +10,7 @@
 #include <mps/debug.h>
 #include <mps/mt.h>
 #include <float.h>
+#include <ctype.h>
 #include <mps/mpc.h>
 
 /**
@@ -154,18 +155,108 @@ mps_secular_equation_free(mps_secular_equation* s)
   free(s);
 }
 
+void
+mps_skip_comments (FILE* input_stream)
+{
+    char buf;
+    while ((buf = fgetc(input_stream)) == '!' || isspace(buf))
+        if (buf == '!')
+            /* Skip until newline */
+            while(fgetc(input_stream) != '\n');
+    ungetc(buf, input_stream);
+}
+
+/**
+ * @brief Parse a line of the input stream that contains the character
+ * ';', so should be considered an option line.
+ *
+ * Valid options, recognized at the moment being are:
+ */
+int
+mps_parse_option_line (mps_status* s, char* line, size_t length)
+{
+  char* first_comment;
+  char *option;
+  char *c_ptr;
+  char buf[255];
+  size_t real_length;
+
+  if (length > 255)
+      mps_error(s, 1, "Maximum line length exceeded (length > 255 while parsing)");
+
+  /* Check if there are comments in this line */
+  if ((first_comment = strchr(line, '!')) != NULL)
+      real_length = (first_comment - line) / sizeof(char);
+  else
+      real_length = length;
+
+  /* Get the characters before ';' and strip spaces */
+  c_ptr = line;
+  while (isspace(*c_ptr) && ((c_ptr < first_comment) || first_comment == NULL))
+  {
+      c_ptr++;
+      real_length--;
+  }
+  option = c_ptr;
+  c_ptr = strchr(option, ';');
+  c_ptr--;
+  while (isspace(*--c_ptr) && real_length--);
+  c_ptr++;
+
+  /* Now we have the option that is pointed by option and is
+   * real_lenght characters long */
+  *++c_ptr = '\0';
+  MPS_DEBUG(s, "Parsed option: %s", option);
+  return 0;
+}
 
 mps_secular_equation*
 mps_secular_equation_read_from_stream(mps_status* s, FILE* input_stream)
 {
   mps_secular_equation* sec;
   int n, r, i;
+  mps_boolean parsing_options = true;
+  char *line = NULL;
+  size_t length;
+
+  /* Read options, if present */
+  mps_skip_comments(input_stream);
+  while (parsing_options)
+  {
+    r = getline(&line, &length, input_stream);
+    if (strchr(line, ';') == NULL || (!r))
+    {
+        // We need to put the line back...
+        r = sscanf(line, "%d", &n);
+
+        // If nothing was read or no degree was found continue to try
+        // the options parsing.
+        if (!r || (n == 0))
+            continue;
+
+        // No more options!
+        parsing_options = false;
+    }
+    else
+    {
+        mps_parse_option_line(s, line, length);
+    }
+
+    free (line);
+    line = NULL;
+  }
 
   /* Read the number of the coefficients */
-  r = fscanf(input_stream, "%d", &n);
+  mps_skip_comments(input_stream);
+  if (!r || n == 0)
+  {
+    r = fscanf(input_stream, "%d", &n);
+  }
 
   if (!r)
       mps_error(s, 1, "Error reading input coefficients of the secular equation.\n");
+
+  MPS_DEBUG(s, "Degree: %d", n)
 
   /* Read directly the secular equation in DPE, so we don't need
    * to have a fallback case if the coefficients are bigger than
@@ -174,9 +265,16 @@ mps_secular_equation_read_from_stream(mps_status* s, FILE* input_stream)
 
   for(i = 0; i < n; i++)
     {
+      mps_skip_comments(input_stream);
       rdpe_inp_str_flex(cdpe_Re(sec->adpc[i]), input_stream);
+
+      mps_skip_comments(input_stream);
       rdpe_inp_str_flex(cdpe_Im(sec->adpc[i]), input_stream);
+
+      mps_skip_comments(input_stream);
       rdpe_inp_str_flex(cdpe_Re(sec->bdpc[i]), input_stream);
+
+      mps_skip_comments(input_stream);
       rdpe_inp_str_flex(cdpe_Im(sec->bdpc[i]), input_stream);
     }
 
