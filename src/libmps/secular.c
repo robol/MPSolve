@@ -198,14 +198,12 @@ mps_parse_option_line (mps_status* s, char* line, size_t length)
       real_length--;
   }
   option = c_ptr;
-  c_ptr = strchr(option, ';');
-  c_ptr--;
+  c_ptr = strchr(option, ';') - 1;
   while (isspace(*--c_ptr) && real_length--);
-  c_ptr++;
 
   /* Now we have the option that is pointed by option and is
    * real_lenght characters long */
-  *++c_ptr = '\0';
+  *(c_ptr + 2) = '\0';
   MPS_DEBUG(s, "Parsed option: %s", option);
   return 0;
 }
