@@ -36,8 +36,6 @@ test_secsolve_on_pol(test_pol *pol)
     mpf_t ftmp;
     mpf_t eps;
 
-    printf("Hey: %s\n", pol->pol_file);
-
     /* Output digit to test, default values. Script should normally
      * alter this with options on the command line. */
     int i, j, prec = pol->out_digits * LOG2_10;
