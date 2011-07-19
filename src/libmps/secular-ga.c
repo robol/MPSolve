@@ -144,7 +144,8 @@ mps_secular_ga_diterate(mps_status* s, int maxit)
                 /* Correct the radius */
                 cdpe_mod(modcorr, abcorr);
                 rdpe_add_eq(s->drad[i], modcorr);
-              } else
+              }
+              else
               {
                   s->again[i] = true;
               }
@@ -572,7 +573,9 @@ mps_secular_ga_check_stop(mps_status* s)
        * are always RDPE. */
       case mp_phase:
       case dpe_phase:
-        if (rdpe_log10(s->drad[i]) >= -s->prec_out)
+        MPS_DEBUG(s, "log(s->drad[%d]) = %f", i, rdpe_log10(s->drad[i]))
+        MPS_DEBUG(s, "s->prec_out = %d", s->prec_out)
+        if (rdpe_log(s->drad[i]) > -s->prec_out)
             return false;
         break;
 
