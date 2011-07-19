@@ -125,26 +125,27 @@ mps_secular_fnewton(mps_status* s, cplx_t x, double *rad, cplx_t corr,
     sigma = cplx_mod(sigma_tmp) - gamma;
 
     if (sigma > 0)
+    {
         g_corr = cplx_mod(ssp) / sigma;
+
+        /* Radius is n * newt_corr, if it's better that Gerschgorin's one */
+        dtmp = g_corr * sec->n + DBL_EPSILON;
+        if (dtmp < *rad)
+          *rad = dtmp;
+
+        /* dtmp here is the guaranteed upper bound to the evaluation of the
+         * secular equation   */
+        if (dtmp < 2 * DBL_EPSILON)
+            *again = false;
+    }
     else
-        g_corr = DBL_MAX;
+        *rad = DBL_MAX;
 
     MPS_DEBUG(s, "Computed guaranteed newton radius = %e", g_corr * s->n);
     MPS_DEBUG(s, "Non guaranteed newton radius: %e", cplx_mod(corr) * s->n);
   } else {
-      g_corr = DBL_MAX;
+      *rad = DBL_MAX;
   }
-
-
-  /* Radius is n * newt_corr, if it's better that Gerschgorin's one */
-  dtmp = g_corr * sec->n * (1 + DBL_EPSILON);
-  if (dtmp < *rad)
-    *rad = dtmp;
-
-  /* dtmp here is the guaranteed upper bound to the evaluation of the
-   * secular equation   */
-  if (dtmp < 2 * DBL_EPSILON)
-      *again = false;
 
   /* If the correction is not useful in the current precision do
    * not iterate more   */
@@ -169,7 +170,6 @@ mps_secular_dnewton(mps_status* s, cdpe_t x, rdpe_t rad, cdpe_t corr,
   cdpe_set(pol, cdpe_zero);
   cdpe_set(fp, cdpe_zero);
   cdpe_set(sumb, cdpe_zero);
-  rdpe_set(rad, rdpe_zero);
   rdpe_set(apol, rdpe_zero);
 
   for (i = 0; i < sec->n; i++)
@@ -289,7 +289,10 @@ mps_secular_dnewton(mps_status* s, cdpe_t x, rdpe_t rad, cdpe_t corr,
 
   /* Compute radius as n * | corr | */
   if (rdpe_ne(g_corr, RDPE_MAX))
-    rdpe_mul_d(rad, g_corr, s->n * (1+ DBL_EPSILON));
+  {
+    rdpe_mul_d(rad, g_corr, s->n);
+    rdpe_add_eq_d(rad, DBL_EPSILON);
+   }
   else
     {
       // This is wrong, because we should use RDPE_MAX here, but that leads

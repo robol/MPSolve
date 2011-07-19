@@ -224,15 +224,17 @@ mps_secular_equation_read_from_stream(mps_status* s, FILE* input_stream)
     r = getline(&line, &length, input_stream);
     if (strchr(line, ';') == NULL || (!r))
     {
-        // We need to put the line back...
+        /* We need to put the line back..., but since we can't
+         * we simply assume that the degree (the first parameter)
+         * should be here, so we try to read it. If it's not there
+         * continue to parse options */
         r = sscanf(line, "%d", &n);
 
-        // If nothing was read or no degree was found continue to try
-        // the options parsing.
+        /* If nothing was read or no degree was found continue to try
+         * the options parsing. */
         if (!r || (n == 0))
             continue;
 
-        // No more options!
         parsing_options = false;
     }
     else
