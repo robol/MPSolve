@@ -277,28 +277,16 @@ mps_secular_dnewton(mps_status* s, cdpe_t x, rdpe_t rad, cdpe_t corr,
       {
         cdpe_mod(g_corr, ssp);
         rdpe_div_eq(g_corr, sigma);
+
+        /* Computation of radius */
+        rdpe_mul_d(rad, g_corr, s->n);
+        rdpe_add_eq_d(rad, DBL_EPSILON);
       }
     else
-    {
-        rdpe_set(g_corr, RDPE_MAX);
-    }
+        rdpe_set(rad, RDPE_MAX);
   }
-  else {
-      rdpe_set(g_corr, RDPE_MAX);
-  }
-
-  /* Compute radius as n * | corr | */
-  if (rdpe_ne(g_corr, RDPE_MAX))
-  {
-    rdpe_mul_d(rad, g_corr, s->n);
-    rdpe_add_eq_d(rad, DBL_EPSILON);
-   }
   else
-    {
-      // This is wrong, because we should use RDPE_MAX here, but that leads
-      // to overflow problems, so we do not use it for now.
-      rdpe_set_d(rad, DBL_MAX);
-    }
+      rdpe_set(rad, RDPE_MAX);
 
   /* Compute \sum_i | a_i / (z - b_i) | + 1
    * and check if the secular equation is smaller

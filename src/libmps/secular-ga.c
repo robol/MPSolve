@@ -135,12 +135,19 @@ mps_secular_ga_diterate(mps_status* s, int maxit)
               mps_daberth(s, i, abcorr);
               cdpe_mul_eq(abcorr, corr);
               cdpe_sub(abcorr, cdpe_one, abcorr);
-              cdpe_div(abcorr, corr, abcorr);
-              cdpe_sub_eq(s->droot[i], abcorr);
 
-              /* Correct the radius */
-              cdpe_mod(modcorr, abcorr);
-              rdpe_add_eq(s->drad[i], modcorr);
+              if (cdpe_ne(abcorr, cdpe_zero))
+              {
+                cdpe_div(abcorr, corr, abcorr);
+                cdpe_sub_eq(s->droot[i], abcorr);
+
+                /* Correct the radius */
+                cdpe_mod(modcorr, abcorr);
+                rdpe_add_eq(s->drad[i], modcorr);
+              } else
+              {
+                  s->again[i] = true;
+              }
 
               if (!s->again[i])
                 computed_roots++;
@@ -565,7 +572,7 @@ mps_secular_ga_check_stop(mps_status* s)
        * are always RDPE. */
       case mp_phase:
       case dpe_phase:
-        if (rdpe_gt(s->drad[i], drad))
+        if (rdpe_log10(s->drad[i]) >= -s->prec_out)
             return false;
         break;
 
@@ -575,6 +582,7 @@ mps_secular_ga_check_stop(mps_status* s)
         }
     }
 
+  MPS_DEBUG(s, "Check stop conditions were satisfied");
   return true;
 }
 

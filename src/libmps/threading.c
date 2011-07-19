@@ -404,10 +404,17 @@ mps_thread_dpolzer_worker(void* data_ptr)
               mps_daberth(s, i, abcorr);
               cdpe_mul_eq(abcorr, corr);
               cdpe_sub(abcorr, cdpe_one, abcorr);
-              cdpe_div(abcorr, corr, abcorr);
-              cdpe_sub_eq(s->droot[i], abcorr);
-              cdpe_mod(rtmp, abcorr);
-              rdpe_add_eq(s->drad[i], rtmp);
+              if (cdpe_eq_zero(abcorr))
+              {
+                  s->again[i] = true;
+              }
+              else
+              {
+                  cdpe_div(abcorr, corr, abcorr);
+                  cdpe_sub_eq(s->droot[i], abcorr);
+                  cdpe_mod(rtmp, abcorr);
+                  rdpe_add_eq(s->drad[i], rtmp);
+              }
             }
 
           /* check for new approximated roots */
