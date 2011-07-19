@@ -30,7 +30,7 @@ mps_secular_fstart(mps_status* s, int n, int i_clust, double clust_rad,
       /* If this is the first cluster select sigma = 0. In the other
        * case try to maximize starting points distance. */
       if (i_clust == 0)
-        sigma = s->last_sigma = 0;
+        sigma = s->last_sigma = 0.1;
       else
         sigma = mps_maximize_distance(s, s->last_sigma, i_clust, n);
     }
@@ -65,7 +65,7 @@ mps_secular_dstart(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
        * case try to maximize starting points distance. */
       if (i_clust == 0)
         {
-          sigma = s->last_sigma = 0;
+          sigma = s->last_sigma = 0.1;
         }
       else
         {
@@ -107,7 +107,7 @@ mps_secular_mstart(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
        * case try to maximize starting points distance. */
       if (i_clust == 0)
         {
-          sigma = s->last_sigma = 0;
+          sigma = s->last_sigma = 0.1;
         }
       else
         {
