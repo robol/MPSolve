@@ -36,6 +36,8 @@ test_secsolve_on_pol(test_pol *pol)
     mpf_t ftmp;
     mpf_t eps;
 
+    printf("Hey: %s\n", pol->pol_file);
+
     /* Output digit to test, default values. Script should normally
      * alter this with options on the command line. */
     int i, j, prec = pol->out_digits * LOG2_10;
@@ -125,6 +127,20 @@ START_TEST (test_secsolve)
 }
 END_TEST
 
+START_TEST (test_secsolve_altern)
+{
+  /* Start with testing floating point without ga */
+  test_pol *pol = test_pol_new("test1000", "secsolve", 20, float_phase, false);
+  test_secsolve_on_pol(pol);
+
+  /* then floating point with ga */
+  pol->ga = true;
+  test_secsolve_on_pol(pol);
+
+  test_pol_free (pol);
+}
+END_TEST
+
 /**
  * @brief Create the secsolve test suite
  */
@@ -139,6 +155,9 @@ secsolve_suite (int standard)
 
   /* Add our tests */
   tcase_add_loop_test(tc_mpsolve, test_secsolve, 0, standard);
+
+  /* Case of a_i = (-1)^(i+1) , b_i = i */
+  tcase_add_test (tc_mpsolve, test_secsolve_altern);
 
   /* Add test case to the suite */
   suite_add_tcase(s, tc_mpsolve);
@@ -159,30 +178,30 @@ main (void)
 
   test_polynomials = (test_pol**) malloc(sizeof(test_pol*) * 24);
 
+  /* Tests with rand15. pol */
   test_polynomials[standard++] = test_pol_new("rand15", "secsolve", 15, float_phase, false);
   test_polynomials[standard++] = test_pol_new("rand15", "secsolve", 50, float_phase, false);
   // test_polynomials[standard++] = test_pol_new("rand15", "secsolve", 400, float_phase, false);
-  test_polynomials[standard++] = test_pol_new("rand120", "secsolve", 15, float_phase, false);
-  test_polynomials[standard++] = test_pol_new("rand120", "secsolve", 50, float_phase, false);
-  // test_polynomials[standard++] = test_pol_new("rand120", "secsolve", 400, float_phase, false);
-
   test_polynomials[standard++] = test_pol_new("rand15", "secsolve", 15, dpe_phase, false);
   test_polynomials[standard++] = test_pol_new("rand15", "secsolve", 50, dpe_phase, false);
   // test_polynomials[standard++] = test_pol_new("rand15", "secsolve", 400, dpe_phase, false);
-  test_polynomials[standard++] = test_pol_new("rand120", "secsolve", 15, dpe_phase, false);
-  test_polynomials[standard++] = test_pol_new("rand120", "secsolve", 50, dpe_phase, false);
-  // test_polynomials[standard++] = test_pol_new("rand120", "secsolve", 400, dpe_phase, false);
-
   test_polynomials[standard++] = test_pol_new("rand15", "secsolve", 15, float_phase, true);
   test_polynomials[standard++] = test_pol_new("rand15", "secsolve", 50, float_phase, true);
   test_polynomials[standard++] = test_pol_new("rand15", "secsolve", 400, float_phase, true);
-  test_polynomials[standard++] = test_pol_new("rand120", "secsolve", 15, float_phase, true);
-  test_polynomials[standard++] = test_pol_new("rand120", "secsolve", 50, float_phase, true);
-  test_polynomials[standard++] = test_pol_new("rand120", "secsolve", 400, float_phase, true);
-
   test_polynomials[standard++] = test_pol_new("rand15", "secsolve", 15, dpe_phase, true);
   test_polynomials[standard++] = test_pol_new("rand15", "secsolve", 50, dpe_phase, true);
   test_polynomials[standard++] = test_pol_new("rand15", "secsolve", 400, dpe_phase, true);
+
+  /* Tests with rand120.pol */
+  test_polynomials[standard++] = test_pol_new("rand120", "secsolve", 15, float_phase, false);
+  test_polynomials[standard++] = test_pol_new("rand120", "secsolve", 50, float_phase, false);
+  // test_polynomials[standard++] = test_pol_new("rand120", "secsolve", 400, float_phase, false);
+  test_polynomials[standard++] = test_pol_new("rand120", "secsolve", 15, dpe_phase, false);
+  test_polynomials[standard++] = test_pol_new("rand120", "secsolve", 50, dpe_phase, false);
+  // test_polynomials[standard++] = test_pol_new("rand120", "secsolve", 400, dpe_phase, false);
+  test_polynomials[standard++] = test_pol_new("rand120", "secsolve", 15, float_phase, true);
+  test_polynomials[standard++] = test_pol_new("rand120", "secsolve", 50, float_phase, true);
+  test_polynomials[standard++] = test_pol_new("rand120", "secsolve", 400, float_phase, true);
   test_polynomials[standard++] = test_pol_new("rand120", "secsolve", 15, dpe_phase, true);
   test_polynomials[standard++] = test_pol_new("rand120", "secsolve", 50, dpe_phase, true);
   test_polynomials[standard++] = test_pol_new("rand120", "secsolve", 400, dpe_phase, true);
