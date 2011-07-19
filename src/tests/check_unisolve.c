@@ -13,7 +13,7 @@
 #include <ctype.h>
 #include <string.h>
 #include <stdlib.h>
-#include "check_implementation.h"
+#include <check_implementation.h>
 
 #define test_pol_new_simple(name, digits) test_pol_new((name), "unisolve", (digits), dpe_phase, false)
 
@@ -95,13 +95,11 @@ test_unisolve_on_pol(test_pol *pol)
   fclose (input_stream);
   fclose (check_stream);
 
-  if (s->prec_in < pol->out_digits) {
-      return;
-  }
-
-  if (!passed) {
-      fail("Computed results of polynomial %s are not exact to the required precision,\n"
-              "that is of %d digits.\n", pol->pol_file, pol->out_digits);
+  if (s->prec_in > pol->out_digits) {
+      if (!passed) {
+          fail("Computed results of polynomial %s are not exact to the required precision,\n"
+                  "that is of %d digits.\n", pol->pol_file, pol->out_digits);
+      }
   }
 }
 

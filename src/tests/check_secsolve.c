@@ -12,7 +12,7 @@
 #include <ctype.h>
 #include <string.h>
 #include <stdlib.h>
-#include "check_implementation.h"
+#include <check_implementation.h>
 
 /**
  * @brief Array with the polynomials to test

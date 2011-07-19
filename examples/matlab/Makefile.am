@@ -1,7 +1,7 @@
 mps_roots.o:
-	$(MEX) -I${top_builddir}/include -DNOMPTEMP -DDISABLE_DEBUG \
+	$(MEX) -I${top_srcdir}/include -DNOMPTEMP -DDISABLE_DEBUG \
 	-D__USE_BOOL_AS_BOOLEAN \
-	-c mps_roots.c > /dev/null 
+	-c ${srcdir}/mps_roots.c > /dev/null 
 
 noinst_PROGRAMS = $(MATLAB_MODULES_PROGRAMS)
 
