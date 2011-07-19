@@ -1,7 +1,7 @@
 mps_roots.o:
 	$(MEX) -I${top_builddir}/include -DNOMPTEMP -DDISABLE_DEBUG \
 	-D__USE_BOOL_AS_BOOLEAN \
-	-c mps_roots.c
+	-c mps_roots.c > /dev/null 
 
 noinst_PROGRAMS = $(MATLAB_MODULES_PROGRAMS)
 
@@ -11,4 +11,4 @@ clean-local:
 
 mps_roots_SOURCES = mps_roots.c
 mps_roots_LINK = $(MEX) -output $@ -L${top_builddir}/src/libmps/.libs \
-	-lmps -lm -lgmp
+	-lmps -lm -lgmp > /dev/null
