@@ -10,7 +10,15 @@
 void
 starting_setup()
 {
-    putenv("CK_DEFAULT_TIMEOUT=15");
+    putenv("CK_DEFAULT_TIMEOUT=10");
+}
+
+void
+set_timeout(int timeout)
+{
+    char set_timeout_string[255];
+    sprintf(set_timeout_string, "CK_DEFAULT_TIMEOUT=%d", timeout);
+    putenv(set_timeout_string);
 }
 
 void

@@ -159,25 +159,38 @@ main (void)
 
   test_polynomials = (test_pol**) malloc(sizeof(test_pol*) * 24);
 
-  for(i = 0; i < 2; i++) // foreach phase in phases
-    {
-      for(j = 0; j < 2; j++) // foreach prec in precisions
-        {
-          for(k = 0; k < 2; k++) // foreach poly in polynomials
-            {
-              test_polynomials[standard++] = test_pol_new(polynomials[k], "secsolve",
-                                                          precisions[j], phases[i], false);
+  test_polynomials[standard++] = test_pol_new("rand15", "secsolve", 15, float_phase, false);
+  test_polynomials[standard++] = test_pol_new("rand15", "secsolve", 50, float_phase, false);
+  // test_polynomials[standard++] = test_pol_new("rand15", "secsolve", 400, float_phase, false);
+  test_polynomials[standard++] = test_pol_new("rand120", "secsolve", 15, float_phase, false);
+  test_polynomials[standard++] = test_pol_new("rand120", "secsolve", 50, float_phase, false);
+  // test_polynomials[standard++] = test_pol_new("rand120", "secsolve", 400, float_phase, false);
 
-              test_polynomials[standard++] = test_pol_new(polynomials[k], "secsolve",
-                                                          precisions[j], phases[i], true);
-            }
-        }
-    }
+  test_polynomials[standard++] = test_pol_new("rand15", "secsolve", 15, dpe_phase, false);
+  test_polynomials[standard++] = test_pol_new("rand15", "secsolve", 50, dpe_phase, false);
+  // test_polynomials[standard++] = test_pol_new("rand15", "secsolve", 400, dpe_phase, false);
+  test_polynomials[standard++] = test_pol_new("rand120", "secsolve", 15, dpe_phase, false);
+  test_polynomials[standard++] = test_pol_new("rand120", "secsolve", 50, dpe_phase, false);
+  // test_polynomials[standard++] = test_pol_new("rand120", "secsolve", 400, dpe_phase, false);
+
+  test_polynomials[standard++] = test_pol_new("rand15", "secsolve", 15, float_phase, true);
+  test_polynomials[standard++] = test_pol_new("rand15", "secsolve", 50, float_phase, true);
+  test_polynomials[standard++] = test_pol_new("rand15", "secsolve", 400, float_phase, true);
+  test_polynomials[standard++] = test_pol_new("rand120", "secsolve", 15, float_phase, true);
+  test_polynomials[standard++] = test_pol_new("rand120", "secsolve", 50, float_phase, true);
+  test_polynomials[standard++] = test_pol_new("rand120", "secsolve", 400, float_phase, true);
+
+  test_polynomials[standard++] = test_pol_new("rand15", "secsolve", 15, dpe_phase, true);
+  test_polynomials[standard++] = test_pol_new("rand15", "secsolve", 50, dpe_phase, true);
+  test_polynomials[standard++] = test_pol_new("rand15", "secsolve", 400, dpe_phase, true);
+  test_polynomials[standard++] = test_pol_new("rand120", "secsolve", 15, dpe_phase, true);
+  test_polynomials[standard++] = test_pol_new("rand120", "secsolve", 50, dpe_phase, true);
+  test_polynomials[standard++] = test_pol_new("rand120", "secsolve", 400, dpe_phase, true);
 
   /* Create a new test suite for secsolve and run it */
   Suite *s = secsolve_suite(standard);
   SRunner *sr = srunner_create(s);
-  srunner_run_all(sr, CK_NORMAL);
+  srunner_run_all(sr, CK_VERBOSE);
 
   /* Get number of failed test and report */
   number_failed = srunner_ntests_failed(sr);

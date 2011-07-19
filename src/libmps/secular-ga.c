@@ -6,6 +6,7 @@
  */
 
 #include <mps/core.h>
+#include <mps/poly.h>
 #include <mps/link.h>
 #include <mps/secular.h>
 
@@ -573,9 +574,7 @@ mps_secular_ga_check_stop(mps_status* s)
        * are always RDPE. */
       case mp_phase:
       case dpe_phase:
-        MPS_DEBUG(s, "log(s->drad[%d]) = %f", i, rdpe_log10(s->drad[i]))
-        MPS_DEBUG(s, "s->prec_out = %d", s->prec_out)
-        if (rdpe_log(s->drad[i]) > -s->prec_out)
+        if (rdpe_log10(s->drad[i]) * LOG2_10 > -s->prec_out)
             return false;
         break;
 
@@ -585,7 +584,7 @@ mps_secular_ga_check_stop(mps_status* s)
         }
     }
 
-  MPS_DEBUG(s, "Check stop conditions were satisfied");
+  MPS_DEBUG(s, "Stop conditions were satisfied");
   return true;
 }
 
