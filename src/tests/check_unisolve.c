@@ -56,7 +56,7 @@ test_unisolve_on_pol(test_pol *pol)
 
   mps_set_default_values(s);
   s->prec_out = prec;
-  // s->n_threads = 1;
+  s->n_threads = 1;
   strncpy(s->goal, "aannc", 5);
   mps_read_poly(s, input_stream, poly);
 
