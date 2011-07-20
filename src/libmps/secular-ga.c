@@ -524,8 +524,8 @@ mps_secular_ga_regenerate_coefficients(mps_status* s)
       }
 
 
-        /* mps_secular_mstart(s, s->n, 0, (__rdpe_struct *) rdpe_zero,
-            (__rdpe_struct *) rdpe_zero, s->eps_out); */
+        mps_secular_mstart(s, s->n, 0, (__rdpe_struct *) rdpe_zero,
+            (__rdpe_struct *) rdpe_zero, s->eps_out);
 
     break;
 
