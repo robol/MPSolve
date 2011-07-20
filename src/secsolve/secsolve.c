@@ -138,7 +138,7 @@ main(int argc, char** argv)
     }
 
   /* Solve the polynomial */
-  s->goal[0] = 'a';
+  strncpy(s->goal, "aannc", 5);
   mps_mpsolve(s);
 
   /* Output the roots */
