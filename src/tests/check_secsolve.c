@@ -166,43 +166,27 @@ secsolve_suite (int standard)
 int
 main (void)
 {
-  int number_failed, standard = 0, ga = 0;
-  int i, j, k;
-  mps_phase phases  [] = { float_phase, dpe_phase };
-  int precisions    [] = { 15, 50 };
-  char* polynomials [] = { "rand15", "rand120" };
+  int number_failed, standard = 0;
 
   starting_setup();
 
-  test_polynomials = (test_pol**) malloc(sizeof(test_pol*) * 24);
+  test_polynomials = (test_pol**) malloc(sizeof(test_pol*) * 9);
 
   /* Tests with rand15. pol */
+  /* Standard MPSolvea approach */
   test_polynomials[standard++] = test_pol_new("rand15", "secsolve", 15, float_phase, false);
-  test_polynomials[standard++] = test_pol_new("rand15", "secsolve", 50, float_phase, false);
-  // test_polynomials[standard++] = test_pol_new("rand15", "secsolve", 400, float_phase, false);
+  test_polynomials[standard++] = test_pol_new("rand15", "secsolve", 200, float_phase, false);
   test_polynomials[standard++] = test_pol_new("rand15", "secsolve", 15, dpe_phase, false);
-  test_polynomials[standard++] = test_pol_new("rand15", "secsolve", 50, dpe_phase, false);
-  // test_polynomials[standard++] = test_pol_new("rand15", "secsolve", 400, dpe_phase, false);
+  test_polynomials[standard++] = test_pol_new("rand15", "secsolve", 200, dpe_phase, false);
+
+  /* Gemignani's approach */
   test_polynomials[standard++] = test_pol_new("rand15", "secsolve", 15, float_phase, true);
-  test_polynomials[standard++] = test_pol_new("rand15", "secsolve", 50, float_phase, true);
-  test_polynomials[standard++] = test_pol_new("rand15", "secsolve", 400, float_phase, true);
-  test_polynomials[standard++] = test_pol_new("rand15", "secsolve", 15, dpe_phase, true);
-  test_polynomials[standard++] = test_pol_new("rand15", "secsolve", 50, dpe_phase, true);
-  test_polynomials[standard++] = test_pol_new("rand15", "secsolve", 400, dpe_phase, true);
+  test_polynomials[standard++] = test_pol_new("rand15", "secsolve", 200, float_phase, true);
 
   /* Tests with rand120.pol */
   test_polynomials[standard++] = test_pol_new("rand120", "secsolve", 15, float_phase, false);
-  test_polynomials[standard++] = test_pol_new("rand120", "secsolve", 50, float_phase, false);
-  // test_polynomials[standard++] = test_pol_new("rand120", "secsolve", 400, float_phase, false);
   test_polynomials[standard++] = test_pol_new("rand120", "secsolve", 15, dpe_phase, false);
-  test_polynomials[standard++] = test_pol_new("rand120", "secsolve", 50, dpe_phase, false);
-  // test_polynomials[standard++] = test_pol_new("rand120", "secsolve", 400, dpe_phase, false);
   test_polynomials[standard++] = test_pol_new("rand120", "secsolve", 15, float_phase, true);
-  test_polynomials[standard++] = test_pol_new("rand120", "secsolve", 50, float_phase, true);
-  test_polynomials[standard++] = test_pol_new("rand120", "secsolve", 400, float_phase, true);
-  test_polynomials[standard++] = test_pol_new("rand120", "secsolve", 15, dpe_phase, true);
-  test_polynomials[standard++] = test_pol_new("rand120", "secsolve", 50, dpe_phase, true);
-  test_polynomials[standard++] = test_pol_new("rand120", "secsolve", 400, dpe_phase, true);
 
   /* Create a new test suite for secsolve and run it */
   Suite *s = secsolve_suite(standard);
@@ -213,9 +197,8 @@ main (void)
   number_failed = srunner_ntests_failed(sr);
   srunner_free(sr);
 
-  i = standard + ga;
-  for(i--; i >= 0; i--)
-    test_pol_free(test_polynomials[i]);
+  for(standard--; standard >= 0; standard--)
+    test_pol_free(test_polynomials[standard]);
   free(test_polynomials);
 
   return (number_failed != 0);

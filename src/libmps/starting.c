@@ -1347,9 +1347,8 @@ mps_mrestart(mps_status* s) {
         mpc_get_cdpe(tmp, temp);
         cdpe_mod(rtmp, tmp);
         if (rdpe_gt(rtmp, sr)) {
-            MPS_DEBUG(s, "The gravity center falls outside the cluster, so using the super center to shift");
+            MPS_DEBUG(s, "The gravity center falls outside the cluster");
             // goto loop1;
-            mpc_set(g, sc);
         }
 
         /* shift the variable and compute new approximations */

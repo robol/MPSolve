@@ -14,6 +14,7 @@ AC_CONFIG_MACRO_DIR([m4])
 LT_INIT
 
 AM_INIT_AUTOMAKE([dist-bzip2])
+AM_COLOR_TESTS=yes
 
 # m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
 
