@@ -45,7 +45,7 @@ void mps_standard_mpsolve(mps_status* s) {
 	 into dpr, dpc and similar. */
 	mps_setup(s);
 
-	s->lastphase = no_phase;
+        s->lastphase = no_phase;
 	computed = false;
 	over_max = false;
 
@@ -106,9 +106,9 @@ void mps_standard_mpsolve(mps_status* s) {
 			for (i = 0; i < s->n; i++) {
 				rdpe_set_d(s->drad[i], s->frad[i]);
 				cdpe_set_x(s->droot[i], s->froot[i]);
-			}
-		mps_dsolve(s, d_after_f);
-		s->lastphase = dpe_phase;
+                        }
+                s->lastphase = dpe_phase;
+                mps_dsolve(s, d_after_f);
 
 		if (s->DOLOG)
 			mps_dump(s, s->logstr);

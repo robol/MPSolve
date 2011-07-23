@@ -69,6 +69,7 @@ mps_dtouchnwt(mps_status* s, int n, int i, int j)
   rdpe_t dtmp1, dtmp2;
 
   rdpe_add(dtmp1, s->drad[i], s->drad[j]);
+
   rdpe_mul_eq_d(dtmp1, (double) n);
   cdpe_sub(ctmp, s->droot[i], s->droot[j]);
   cdpe_mod(dtmp2, ctmp);

@@ -119,6 +119,9 @@ main(int argc, char** argv)
   s->secular_equation = sec;
   sec->starting_case = phase;
 
+  if (phase == dpe_phase)
+      s->skip_float = true;
+
   /* If we choose gemignani's approach follow it, otherwise
    * use standard mpsolve approach applied implicitly to the
    * secular equation. */

@@ -208,7 +208,12 @@ mps_secular_dnewton(mps_status* s, cdpe_t x, rdpe_t rad, cdpe_t corr,
   cdpe_mul(ctmp, pol, sumb);
   cdpe_add_eq(fp, ctmp);
 
-  if (!cdpe_eq(fp, cdpe_zero))
+//  Comment out these lines to debug computation
+//  MPS_DEBUG_CDPE(s, pol, "pol")
+//  MPS_DEBUG_CDPE(s, fp,  "fp")
+//  MPS_DEBUG_CDPE(s, sumb, "sumb")
+
+  if (!cdpe_eq_zero(fp))
     {
       cdpe_div(corr, pol, fp);
     }
@@ -283,10 +288,10 @@ mps_secular_dnewton(mps_status* s, cdpe_t x, rdpe_t rad, cdpe_t corr,
         rdpe_add_eq_d(rad, DBL_EPSILON);
       }
     else
-        rdpe_set(rad, RDPE_MAX);
+        rdpe_set_d(rad, DBL_MAX);
   }
   else
-      rdpe_set(rad, RDPE_MAX);
+      rdpe_set_d(rad, DBL_MAX);
 
   /* Compute \sum_i | a_i / (z - b_i) | + 1
    * and check if the secular equation is smaller
@@ -310,7 +315,10 @@ mps_secular_dnewton(mps_status* s, cdpe_t x, rdpe_t rad, cdpe_t corr,
 
       /* If |corr| < |x| * DBL_EPSILON then stop */
       if (rdpe_lt(rtmp, rtmp2))
+      {
+        MPS_DEBUG(s, "Setting again to false")
         *again = false;
+      }
     }
 
 }

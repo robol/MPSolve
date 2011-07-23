@@ -1835,8 +1835,7 @@ mps_boolean mps_check_stop(mps_status* s) {
     MPS_DEBUG_THIS_CALL
 
 	int i;
-	mps_boolean computed;
-
+        mps_boolean computed;
 
 	computed = false;
 	/* count */
@@ -1889,6 +1888,7 @@ mps_boolean mps_check_stop(mps_status* s) {
 		}
 		computed = true;
 	}
+
 	return computed;
 }
 
@@ -2235,7 +2235,7 @@ void mps_dpolzer(mps_status* s, int *it, mps_boolean * excep) {
 					mps_daberth(s, i, abcorr);
 					cdpe_mul_eq(abcorr, corr);
 					cdpe_sub(abcorr, cdpe_one, abcorr);
-					cdpe_div(abcorr, corr, abcorr);
+                                        cdpe_div(abcorr, corr, abcorr);
 					cdpe_sub_eq(s->droot[i], abcorr);
 					cdpe_mod(rtmp, abcorr);
 					rdpe_add_eq(s->drad[i], rtmp);
@@ -2269,7 +2269,7 @@ void mps_dsolve(mps_status* s, mps_boolean d_after_f) {
 	/* == 1 == Initialize variables */
 	it_pack = 0;
 
-	if (d_after_f)
+        if (d_after_f)
 		for (i = 0; i < s->n; i++)
 			if (s->status[i][0] == 'x') {
 				s->again[i] = true;
@@ -2279,9 +2279,9 @@ void mps_dsolve(mps_status* s, mps_boolean d_after_f) {
 	else {
 		s->nclust = 0;
 		for (i = 0; i < s->n; i++) {
-			s->again[i] = true;
-			rdpe_set(s->drad[i], RDPE_MAX);
-			cdpe_set(s->droot[i], cdpe_zero);
+                        s->again[i] = true;
+                        rdpe_set(s->drad[i], RDPE_MAX);
+                        cdpe_set(s->droot[i], cdpe_zero);
 		}
 	}
 
@@ -2305,15 +2305,16 @@ void mps_dsolve(mps_status* s, mps_boolean d_after_f) {
 
 	/* == 2 == Perform s->max_pack  packets of Aberth's iterations */
 	if (s->DOLOG)
-		fprintf(s->logstr, "   DSOLVE: call dpolzero\n");
+                fprintf(s->logstr, "   DSOLVE: call dpolzero\n");
 
 	for (iter = 0; iter < s->max_pack; iter++) { /* dloop : DO iter=1,s->max_pack */
-		// mps_dpolzer(s, &nit, &excep);
+
+                // mps_dpolzer(s, &nit, &excep);
                 mps_thread_dpolzer(s, &nit, &excep);
-		it_pack += nit;
+                it_pack += nit;
 
 		if (s->DOLOG)
-			fprintf(s->logstr, "Packet %d iterations= %d\n", iter, nit);
+                        fprintf(s->logstr, "Packet %d iterations= %d\n", iter, nit);
 
 		if (excep) {
 			for (i = 0; i <= s->n; i++)

@@ -407,6 +407,7 @@ mps_thread_dpolzer_worker(void* data_ptr)
               if (cdpe_eq_zero(abcorr))
               {
                   s->again[i] = true;
+                  (*data->excep) = true;
               }
               else
               {
