@@ -1348,7 +1348,7 @@ mps_mrestart(mps_status* s) {
         cdpe_mod(rtmp, tmp);
         if (rdpe_gt(rtmp, sr)) {
             MPS_DEBUG(s, "The gravity center falls outside the cluster");
-            // goto loop1;
+            goto loop1;
         }
 
         /* shift the variable and compute new approximations */
