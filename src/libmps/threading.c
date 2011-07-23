@@ -406,15 +406,18 @@ mps_thread_dpolzer_worker(void* data_ptr)
               cdpe_sub(abcorr, cdpe_one, abcorr);
               if (cdpe_eq_zero(abcorr))
               {
-                  s->again[i] = true;
+                  MPS_DEBUG(s, "Aberth correction is zero.")
+                  MPS_DEBUG_CDPE(s, corr, "Newton correction computed")
+                  s->lastphase = dpe_phase;
+                  mps_dump(s, s->logstr);
+
+                 cdpe_set(abcorr, corr);
               }
               else
-              {
-                  cdpe_div(abcorr, corr, abcorr);
-                  cdpe_sub_eq(s->droot[i], abcorr);
-                  cdpe_mod(rtmp, abcorr);
-                  rdpe_add_eq(s->drad[i], rtmp);
-              }
+                cdpe_div(abcorr, corr, abcorr);
+              cdpe_sub_eq(s->droot[i], abcorr);
+              cdpe_mod(rtmp, abcorr);
+              rdpe_add_eq(s->drad[i], rtmp);
             }
 
           /* check for new approximated roots */

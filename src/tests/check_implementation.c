@@ -13,6 +13,7 @@ set_timeout(int timeout)
 {
     char set_timeout_string[255];
     sprintf(set_timeout_string, "CK_DEFAULT_TIMEOUT=%d", timeout);
+    fprintf(stderr, "Setting timeout to %s\n", set_timeout_string);
     putenv(set_timeout_string);
 }
 
