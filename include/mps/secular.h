@@ -21,104 +21,6 @@ extern "C"
 /* MACROS */
 #define mps_secular_equation_from_status(s) (mps_secular_equation*) (s)->secular_equation
 
-/**
- * @brief Secular equation data.
- *
- * A secular equation is an equation in the form
- * \f[
- *   \sum_{i = 1}^{n} \frac{a_i}{z - b_i} = 1
- * \f]
- * and this struct holds the values of the parameters \f$a_i\f$
- * and \f$b_i\f$.
- */
-typedef struct
-{
-  /**
-   * @brief Vector of \f$a_i\f$ as complex floating
-   * point numbers.
-   */
-  cplx_t* afpc;
-
-  /**
-   * @brief Same as <code>afpc</code>, but the <code>dpe</code>
-   * version.
-   */
-  cdpe_t* adpc;
-
-  /**
-   * @brief Vector with the values of \f$b_i\f$ as complex
-   * floating point numbers.
-   */
-  cplx_t* bfpc;
-
-  /**
-   * @brief Same as <code>bfpc</code>, but the <code>dpe</code>
-   * version.
-   */
-  cdpe_t* bdpc;
-
-  /**
-   * @brief Same as <code>afpc</code>, but the multiprecision
-   * version.
-   */
-  mpc_t * ampc;
-
-  /**
-   * @brief Same as <code>bfpc</code>, but the multiprecision
-   * version.
-   */
-  mpc_t * bmpc;
-
-  /**
-   * @brief Initial floating point coefficients saved for latter
-   * regeneration in <code>mps_secular_ga_regenerate_coefficients()</code>.
-   */
-  cplx_t* old_afpc;
-
-  /**
-   * @brief Initial floating point coefficients saved for latter
-   * regeneration in <code>mps_secular_ga_regenerate_coefficients()</code>.
-   */
-  cplx_t* old_bfpc;
-
-  /**
-   * @brief Initial CDPE coefficients saved for latter
-   * regeneration in <code>mps_secular_ga_regenerate_coefficients()</code>.
-   */
-  cdpe_t* old_adpc;
-
-  /**
-   * @brief Initial CDPE coefficients saved for latter
-   * regeneration in <code>mps_secular_ga_regenerate_coefficients()</code>.
-   */
-  cdpe_t* old_bdpc;
-
-  /**
-   * @brief Initial multiprecision coefficients saved for latter
-   * regeneration in <code>mps_secular_ga_regenerate_coefficients()</code>.
-   */
-  mpc_t*  old_ampc;
-
-  /**
-   * @brief Initial multiprecision coefficients saved for latter
-   * regeneration in <code>mps_secular_ga_regenerate_coefficients()</code>.
-   */
-  mpc_t*  old_bmpc;
-
-  /**
-   * @brief Size of the vectors of the coefficients of the
-   * secular equation.
-   */
-  unsigned long int n;
-
-  /**
-   * @brief Selected starting case, can be 'd' for DPE
-   * or 'f' for floating point
-   */
-  mps_phase starting_case;
-
-} mps_secular_equation; /* End of typedef struct {... */
-
 /* Routines in secular-newton.c */
 void
 mps_secular_fnewton(mps_status* st, cplx_t x, double * rad, cplx_t corr,
@@ -144,7 +46,10 @@ void
 mps_secular_save_coefficients(mps_status* s, mps_secular_equation* sec);
 
 void
-mps_secular_raise_precision(mps_status* s);
+mps_secular_raise_coefficient_precision(mps_status* s, int wp);
+
+void
+mps_secular_raise_precision(mps_status* s, int wp);
 
 /* Routines in secular-starting.c */
 void

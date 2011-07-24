@@ -27,6 +27,9 @@ mps_secular_ga_fiterate(mps_status* s, int maxit)
   int computed_roots = 0;
   int iterations = 0;
   int i;
+  int nit = 0;
+
+  mps_secular_equation* sec = s->secular_equation;
 
   double old_rad;
   cplx_t old_root;
@@ -49,6 +52,7 @@ mps_secular_ga_fiterate(mps_status* s, int maxit)
         {
           if (s->again[i])
             {
+              nit++;
               cplx_set(old_root, s->froot[i]);
               old_rad = s->frad[i];
               mps_secular_fnewton(s, s->froot[i], &s->frad[i], corr,
@@ -89,6 +93,11 @@ mps_secular_ga_fiterate(mps_status* s, int maxit)
             }
         }
     }
+
+  /* Check if the roots are improvable in floating point */
+  MPS_DEBUG(s, "Performed %d iterations", nit)
+  if (nit <= 2 * s->n)
+      s->secular_equation->best_approx = true;
 
   /* Return the number of approximated roots */
   return computed_roots;
@@ -239,6 +248,8 @@ mps_secular_ga_miterate(mps_status* s, int maxit)
   mpc_clear(corr);
 
   MPS_DEBUG(s, "Performed %d iterations", nit)
+  if (nit <= 2 * s->n)
+          s->secular_equation->best_approx = true;
 
   /* Return the number of approximated roots */
   return computed_roots;
@@ -347,11 +358,11 @@ mps_secular_ga_regenerate_coefficients(mps_status* s)
     cplx_vfree(old_a);
     cplx_vfree(old_b);
 
-    //    for(i = 0; i < s->n; i++)
-    //      {
-    //        MPS_DEBUG_CPLX(s, sec->afpc[i], "sec->afpc[%d]", i);
-    //        MPS_DEBUG_CPLX(s, sec->bfpc[i], "sec->bfpc[%d]", i);
-    //      }
+//        for(i = 0; i < s->n; i++)
+//          {
+//            MPS_DEBUG_CPLX(s, sec->afpc[i], "sec->afpc[%d]", i);
+//            MPS_DEBUG_CPLX(s, sec->bfpc[i], "sec->bfpc[%d]", i);
+//          }
 
     mps_secular_fstart(s, s->n, 0, 0, 0, s->eps_out);
 
@@ -428,11 +439,11 @@ mps_secular_ga_regenerate_coefficients(mps_status* s)
     cdpe_vfree(old_da);
     cdpe_vfree(old_db);
 
-    /* Debug new coefficients found */
-    for (i = 0; i < s->n; i++)
-      {
-        MPS_DEBUG_CDPE(s, sec->adpc[i], "sec->adpc[%d]", i);
-      }
+//    /* Debug new coefficients found */
+//    for (i = 0; i < s->n; i++)
+//      {
+//        MPS_DEBUG_CDPE(s, sec->adpc[i], "sec->adpc[%d]", i);
+//      }
 
     mps_secular_dstart(s, s->n, 0, (__rdpe_struct *) rdpe_zero,
         (__rdpe_struct *) rdpe_zero, s->eps_out);
@@ -517,11 +528,11 @@ mps_secular_ga_regenerate_coefficients(mps_status* s)
      * so do not display it (unless we are trying to catch some errors on
      * coefficient regeneration). */
 
-    for (i = 0; i < s->n; i++)
-      {
-        MPS_DEBUG_MPC(s, 15, sec->ampc[i], "sec->ampc[%d]", i);
-        MPS_DEBUG_MPC(s, 15, sec->bmpc[i], "sec->bmpc[%d]", i);
-      }
+//    for (i = 0; i < s->n; i++)
+//      {
+//        MPS_DEBUG_MPC(s, 15, sec->ampc[i], "sec->ampc[%d]", i);
+//        MPS_DEBUG_MPC(s, 15, sec->bmpc[i], "sec->bmpc[%d]", i);
+//      }
 
 
         mps_secular_mstart(s, s->n, 0, (__rdpe_struct *) rdpe_zero,
@@ -597,7 +608,6 @@ mps_secular_ga_mpsolve(mps_status* s)
 {
   int roots_computed = 0;
   int iteration_per_packet = 10;
-  int packet = 0;
   int i;
   mps_secular_equation* sec = mps_secular_equation_from_status(s);
   mps_phase phase = sec->starting_case;
@@ -624,8 +634,7 @@ mps_secular_ga_mpsolve(mps_status* s)
   /* Set initial cluster structure as no cluster structure. */
   mps_cluster_reset(s);
 
-  /* Copy initial coefficients so they can be used to compute
-   * */
+  /* Copy initial coefficients so they can be used to compute */
   mps_secular_save_coefficients(s, sec);
 
   /* Set phase */
@@ -659,18 +668,17 @@ mps_secular_ga_mpsolve(mps_status* s)
   /* Cycle until approximated */
   do
     {
+      s->secular_equation->best_approx = false;
       /* Perform an iteration of floating point Aberth method */
       switch (s->lastphase)
         {
       case float_phase:
         roots_computed = mps_secular_ga_fiterate(s, iteration_per_packet);
-        packet++;
         MPS_DEBUG(s, "%d roots were computed", roots_computed)
         break;
 
       case dpe_phase:
         roots_computed = mps_secular_ga_diterate(s, iteration_per_packet);
-        packet++;
         MPS_DEBUG(s, "%d roots were computed", roots_computed)
         break;
 
@@ -688,29 +696,26 @@ mps_secular_ga_mpsolve(mps_status* s)
       if (mps_secular_ga_check_stop(s))
         return;
 
-      /* Check if it's time to abandon floating point to enter
-       * the multiprecision phase */
-      if (s->lastphase != mp_phase &&
-          ((roots_computed == s->n) || packet > 3))
-        {
-          MPS_DEBUG(s, "Switching to multiprecision phase")
-          mps_secular_switch_phase(s, mp_phase);
-
-          /* Regenerate coefficients is able to understand the type
-           * of data that we are treating, so no switch is necessary
-           * in here. */
-          mps_secular_ga_regenerate_coefficients(s);
-        }
-      else if (s->lastphase == mp_phase)
-        {
-          /* If all the roots were approximated and we are in the multiprecision
-           * phase then it's time to increase the precision, or stop if enough
-           * precision has been reached. */
-          mps_secular_raise_precision(s);
-
-          /* Regenerate coefficients to accelerate convergence. */
-          mps_secular_ga_regenerate_coefficients(s);
-        }
+      /* If we can't stop recompute coefficients in higher precision and
+       * continue to iterate, unless the best approximation possible in
+       * this precision has been reached. In that case increase the precision
+       * of the computation. */
+      if (!sec->best_approx)
+      {
+        mps_secular_ga_regenerate_coefficients(s);
+      }
+      else
+      {
+          /* Going to multiprecision if we're not there yet */
+          if (s->lastphase != mp_phase)
+              mps_secular_switch_phase(s, mp_phase);
+          else
+          {
+              /* Raising precision otherwise */
+              mps_secular_raise_precision(s, 2 * s->mpwp);
+              mps_secular_ga_regenerate_coefficients(s);
+          }
+      }
     }
   while (!mps_secular_ga_check_stop(s));
 }

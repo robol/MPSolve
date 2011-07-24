@@ -359,13 +359,34 @@ mps_secular_check_data(mps_status* s, char* which_case)
 }
 
 void
-mps_secular_raise_precision(mps_status* s)
+mps_secular_raise_coefficient_precision(mps_status* s, int wp)
 {
   MPS_DEBUG_THIS_CALL
 
   int i;
-  s->mpwp *= 2;
   mps_secular_equation* sec = (mps_secular_equation*) s->secular_equation;
+
+  if (s->lastphase != mp_phase)
+  {
+      MPS_DEBUG(s, "We are still in a floting point phase, so copying the coefficients")
+      for (i = 0; i < s->n; i++)
+      {
+          switch (s->lastphase)
+          {
+            case dpe_phase:
+              mpc_set_cdpe(sec->ampc[i], sec->adpc[i]);
+              mpc_set_cdpe(sec->bmpc[i], sec->bdpc[i]);
+              mpc_set_cdpe(s->mroot[i], s->droot[i]);
+              break;
+          case float_phase:
+              mpc_set_cplx(sec->ampc[i], sec->afpc[i]);
+              mpc_set_cplx(sec->bmpc[i], sec->bfpc[i]);
+              mpc_set_cplx(s->mroot[i], s->froot[i]);
+              break;
+          }
+      }
+  }
+
   for (i = 0; i < s->n; i++)
     {
       mpc_set_prec(sec->ampc[i], s->mpwp);
@@ -376,7 +397,33 @@ mps_secular_raise_precision(mps_status* s)
       mpc_set_prec(sec->old_bmpc[i], s->mpwp);
     }
   rdpe_set_2dl(s->mp_epsilon, 1.0, -s->mpwp);
-  MPS_DEBUG(s, "Precision is now at %d bits", s->mpwp);
+  MPS_DEBUG(s, "Precision of the coefficients is now at %d bits", s->mpwp);
+
+  if (s->lastphase != mp_phase)
+  {
+      MPS_DEBUG(s, "We are still in a floting point phase, so copying the coefficients back")
+      for (i = 0; i < s->n; i++)
+      {
+          switch (s->lastphase)
+          {
+            case dpe_phase:
+              mpc_get_cdpe(sec->adpc[i], sec->ampc[i]);
+              mpc_get_cdpe(sec->bdpc[i], sec->bmpc[i]);
+              break;
+          case float_phase:
+              mpc_get_cplx(sec->afpc[i], sec->ampc[i]);
+              mpc_get_cplx(sec->bfpc[i], sec->bmpc[i]);
+              break;
+          }
+      }
+  }
+}
+
+void
+mps_secular_raise_precision(mps_status* s, int wp)
+{
+    mps_secular_raise_coefficient_precision(s, wp);
+    s->mpwp = wp;
 }
 
 /**
@@ -397,7 +444,7 @@ mps_secular_switch_phase(mps_status* s, mps_phase phase)
   if (phase == mp_phase)
     {
       s->mpwp = DBL_MANT_DIG;
-      mps_secular_raise_precision(s);
+      mps_secular_raise_precision(s, 2 * s->mpwp);
       switch (s->lastphase)
         {
       case float_phase:
