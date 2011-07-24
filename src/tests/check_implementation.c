@@ -20,7 +20,8 @@ set_timeout(int timeout)
 void
 starting_setup()
 {
-    set_timeout (15);
+    // set_timeout (15);
+    putenv("CK_DEFAULT_TIMEOUT=15");
 }
 
 void
