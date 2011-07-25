@@ -119,6 +119,7 @@ mps_secular_ga_diterate(mps_status* s, int maxit)
   int computed_roots = 0;
   int iterations = 0;
   int i;
+  int nit = 0;
 
   /* Iterate with newton until we have good approximations
    * of the roots */
@@ -138,6 +139,7 @@ mps_secular_ga_diterate(mps_status* s, int maxit)
         {
           if (s->again[i])
             {
+              nit++;
               mps_secular_dnewton(s, s->droot[i], s->drad[i], corr,
                   &s->again[i]);
 
@@ -165,6 +167,14 @@ mps_secular_ga_diterate(mps_status* s, int maxit)
             }
         }
     }
+
+  /* Check if no more than 2 iterations per root
+   * were computed, and in that case state that
+   * a coefficient regeneration won't be of much help */
+  if (nit <= 2 * s->n)
+  {
+      s->secular_equation->best_approx = true;
+  }
 
   /* Return the number of approximated roots */
   return computed_roots;
