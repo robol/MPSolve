@@ -41,6 +41,14 @@ test_secsolve_on_pol(test_pol *pol)
     int i, j, prec = pol->out_digits * LOG2_10;
     int ch;
 
+    /* Debug starting of this test */
+    if (pol->ga)
+      printf("Starting test on polynomial file %s, with %d output digits required, using GA approach and %s arithmetic.\n",
+           pol->pol_file, pol->out_digits, (pol->phase == dpe_phase) ? "DPE" : "floating point");
+    else
+        printf("Starting test on polynomial file %s, with %d output digits required, using MPSolve approach and %s arithmetic.\n",
+             pol->pol_file, pol->out_digits, (pol->phase == dpe_phase) ? "DPE" : "floating point");
+
     mpc_init2(root, prec);
     mpc_init2(ctmp, prec);
     mpf_init2(mroot, prec);
@@ -185,10 +193,10 @@ main (void)
   // test_polynomials[standard++] = test_pol_new("rand15", "secsolve", 400, dpe_phase, false);
   test_polynomials[standard++] = test_pol_new("rand15", "secsolve", 15, float_phase, true);
   test_polynomials[standard++] = test_pol_new("rand15", "secsolve", 50, float_phase, true);
-  test_polynomials[standard++] = test_pol_new("rand15", "secsolve", 400, float_phase, true);
+  // test_polynomials[standard++] = test_pol_new("rand15", "secsolve", 400, float_phase, true);
   test_polynomials[standard++] = test_pol_new("rand15", "secsolve", 15, dpe_phase, true);
   test_polynomials[standard++] = test_pol_new("rand15", "secsolve", 50, dpe_phase, true);
-  test_polynomials[standard++] = test_pol_new("rand15", "secsolve", 400, dpe_phase, true);
+  // test_polynomials[standard++] = test_pol_new("rand15", "secsolve", 400, dpe_phase, true);
 
   /* Tests with rand120.pol */
   test_polynomials[standard++] = test_pol_new("rand120", "secsolve", 15, float_phase, false);
@@ -199,10 +207,10 @@ main (void)
   // test_polynomials[standard++] = test_pol_new("rand120", "secsolve", 400, dpe_phase, false);
   test_polynomials[standard++] = test_pol_new("rand120", "secsolve", 15, float_phase, true);
   test_polynomials[standard++] = test_pol_new("rand120", "secsolve", 50, float_phase, true);
-  test_polynomials[standard++] = test_pol_new("rand120", "secsolve", 400, float_phase, true);
+  // test_polynomials[standard++] = test_pol_new("rand120", "secsolve", 400, float_phase, true);
   test_polynomials[standard++] = test_pol_new("rand120", "secsolve", 15, dpe_phase, true);
   test_polynomials[standard++] = test_pol_new("rand120", "secsolve", 50, dpe_phase, true);
-  test_polynomials[standard++] = test_pol_new("rand120", "secsolve", 400, dpe_phase, true);
+  // test_polynomials[standard++] = test_pol_new("rand120", "secsolve", 400, dpe_phase, true);
 
   /* Create a new test suite for secsolve and run it */
   Suite *s = secsolve_suite(standard);

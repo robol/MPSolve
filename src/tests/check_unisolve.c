@@ -1,4 +1,3 @@
-
 /*
  * Check for Unisolve
  */
@@ -36,6 +35,14 @@ test_unisolve_on_pol(test_pol *pol)
   mpf_t eps;
   int i, j, prec = pol->out_digits * LOG2_10;
   int ch;
+
+  /* Debug starting of this test */
+  if (pol->ga)
+    printf("Starting test on polynomial file %s, with %d output digits required, using GA approach and %s arithmetic.\n",
+         pol->pol_file, pol->out_digits, (pol->phase == dpe_phase) ? "DPE" : "floating point");
+  else
+      printf("Starting test on polynomial file %s, with %d output digits required, using MPSolve approach and %s arithmetic.\n",
+           pol->pol_file, pol->out_digits, (pol->phase == dpe_phase) ? "DPE" : "floating point");
 
   mpc_init2(root, prec);
   mpc_init2(ctmp, prec);
@@ -179,7 +186,7 @@ main (void)
   /* Create a new test suite for secsolve and run it */
   Suite *s = unisolve_suite(n);
   SRunner *sr = srunner_create(s);
-  srunner_run_all(sr, CK_NORMAL);
+  srunner_run_all(sr, CK_VERBOSE);
 
   /* Get number of failed test and report */
   number_failed = srunner_ntests_failed(sr);
