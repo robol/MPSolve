@@ -383,57 +383,57 @@ mps_secular_raise_coefficient_precision(mps_status* s, int wp)
   int i;
   mps_secular_equation* sec = (mps_secular_equation*) s->secular_equation;
 
-  if (s->lastphase != mp_phase)
-  {
-      MPS_DEBUG(s, "We are still in a floting point phase, so copying the coefficients")
-      for (i = 0; i < s->n; i++)
-      {
-          switch (s->lastphase)
-          {
-            case dpe_phase:
-              mpc_set_cdpe(sec->ampc[i], sec->adpc[i]);
-              mpc_set_cdpe(sec->bmpc[i], sec->bdpc[i]);
-              mpc_set_cdpe(s->mroot[i], s->droot[i]);
-              break;
-          case float_phase:
-              mpc_set_cplx(sec->ampc[i], sec->afpc[i]);
-              mpc_set_cplx(sec->bmpc[i], sec->bfpc[i]);
-              mpc_set_cplx(s->mroot[i], s->froot[i]);
-              break;
-          }
-      }
-  }
+//  if (s->lastphase != mp_phase)
+//  {
+//      MPS_DEBUG(s, "We are still in a floating point phase, so copying the coefficients")
+//      for (i = 0; i < s->n; i++)
+//      {
+//          switch (s->lastphase)
+//          {
+//            case dpe_phase:
+//              mpc_set_cdpe(sec->ampc[i], sec->adpc[i]);
+//              mpc_set_cdpe(sec->bmpc[i], sec->bdpc[i]);
+//              mpc_set_cdpe(s->mroot[i], s->droot[i]);
+//              break;
+//          case float_phase:
+//              mpc_set_cplx(sec->ampc[i], sec->afpc[i]);
+//              mpc_set_cplx(sec->bmpc[i], sec->bfpc[i]);
+//              mpc_set_cplx(s->mroot[i], s->froot[i]);
+//              break;
+//          }
+//      }
+//  }
 
   for (i = 0; i < s->n; i++)
     {
-      mpc_set_prec(sec->ampc[i], s->mpwp);
-      mpc_set_prec(sec->bmpc[i], s->mpwp);
-      mpc_set_prec(s->mroot[i], s->mpwp);
+      mpc_set_prec(sec->ampc[i], wp);
+      mpc_set_prec(sec->bmpc[i], wp);
+      mpc_set_prec(s->mroot[i], wp);
 
-      mpc_set_prec(sec->old_ampc[i], s->mpwp);
-      mpc_set_prec(sec->old_bmpc[i], s->mpwp);
+      mpc_set_prec(sec->old_ampc[i], wp);
+      mpc_set_prec(sec->old_bmpc[i], wp);
     }
-  rdpe_set_2dl(s->mp_epsilon, 1.0, -s->mpwp);
-  MPS_DEBUG(s, "Precision of the coefficients is now at %d bits", s->mpwp);
+  rdpe_set_2dl(s->mp_epsilon, 1.0, -wp);
+  MPS_DEBUG(s, "Precision of the coefficients is now at %d bits", wp);
 
-  if (s->lastphase != mp_phase)
-  {
-      MPS_DEBUG(s, "We are still in a floting point phase, so copying the coefficients back")
-      for (i = 0; i < s->n; i++)
-      {
-          switch (s->lastphase)
-          {
-            case dpe_phase:
-              mpc_get_cdpe(sec->adpc[i], sec->ampc[i]);
-              mpc_get_cdpe(sec->bdpc[i], sec->bmpc[i]);
-              break;
-          case float_phase:
-              mpc_get_cplx(sec->afpc[i], sec->ampc[i]);
-              mpc_get_cplx(sec->bfpc[i], sec->bmpc[i]);
-              break;
-          }
-      }
-  }
+//  if (s->lastphase != mp_phase)
+//  {
+//      MPS_DEBUG(s, "We are still in a floating point phase, so copying the coefficients back")
+//      for (i = 0; i < s->n; i++)
+//      {
+//          switch (s->lastphase)
+//          {
+//            case dpe_phase:
+//              mpc_get_cdpe(sec->adpc[i], sec->ampc[i]);
+//              mpc_get_cdpe(sec->bdpc[i], sec->bmpc[i]);
+//              break;
+//          case float_phase:
+//              mpc_get_cplx(sec->afpc[i], sec->ampc[i]);
+//              mpc_get_cplx(sec->bfpc[i], sec->bmpc[i]);
+//              break;
+//          }
+//      }
+//  }
 }
 
 void
