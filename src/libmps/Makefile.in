@@ -80,7 +80,8 @@ am_libmps_la_OBJECTS = user.lo getopts.lo solve.lo main.lo data.lo \
 	tools.lo poly.lo starting.lo convex.lo mt.lo aberth.lo \
 	improve.lo test.lo newton.lo mpc.lo link.lo touch.lo \
 	interface.lo threading.lo secular.lo secular-newton.lo \
-	secular-starting.lo secular-ga.lo $(am__objects_1)
+	secular-starting.lo secular-ga.lo input-buffer.lo \
+	$(am__objects_1)
 libmps_la_OBJECTS = $(am_libmps_la_OBJECTS)
 libmps_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
@@ -292,6 +293,7 @@ libmps_la_SOURCES = \
 	 secular-newton.c \
 	 secular-starting.c \
 	 secular-ga.c \
+         input-buffer.c \
 	$(NULL)
 
 libmps_la_LIBADD = \
@@ -383,6 +385,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/getopts.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gmptools.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/improve.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/input-buffer.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/interface.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/link.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Plo@am__quote@

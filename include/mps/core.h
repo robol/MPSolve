@@ -76,8 +76,44 @@ typedef struct {
 #include <limits.h>
 #include <assert.h>
 #include <string.h>
-
 #include <gmp.h>
+
+/**
+ * @brief Buffer used to parse input files in MPSolve. It can
+ * read a stream line by line.
+ */
+typedef struct {
+    /**
+     * @brief Stream associated with the
+     * mps_input_buffer
+     */
+    FILE* stream;
+
+    /**
+     * @brief Pointer the last line read in the
+     * buffer. Another line can be read with
+     * <code>mps_input_buffer_readline()</code>
+     */
+    char* line;
+
+} mps_input_buffer;
+
+/**
+ * @brief Flag options parsed from the input source file
+ */
+typedef enum {
+    MPS_FLAG_UNDEFINED,
+
+    MPS_FLAG_INTEGER,
+    MPS_FLAG_REAL,
+    MPS_FLAG_RATIONAL,
+
+    MPS_FLAG_SECULAR,
+    MPS_FLAG_POLYNOMIAL,
+
+    MPS_FLAG_DENSE,
+    MPS_FLAG_SPARSE,
+} mps_flag;
 
 /* local include files */
 #include <mps/tools.h>
@@ -100,6 +136,11 @@ typedef struct {
 
 /* FUNCTIONS */
 
+/* Functions in input-buffer.c */
+mps_input_buffer* mps_input_buffer_new(FILE* stream);
+char* mps_input_buffer_readline(mps_input_buffer *buf);
+void mps_input_buffer_free(mps_input_buffer *buf);
+mps_boolean mps_input_buffer_eof(mps_input_buffer *buf);
 
 /* functions in mps_aber.c */
 void mps_faberth(mps_status* s, int j, cplx_t abcorr);

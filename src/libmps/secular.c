@@ -172,7 +172,7 @@ mps_skip_comments (FILE* input_stream)
  *
  * Valid options, recognized at the moment being are:
  */
-int
+mps_flag
 mps_parse_option_line (mps_status* s, char* line, size_t length)
 {
   char* first_comment;
@@ -205,52 +205,69 @@ mps_parse_option_line (mps_status* s, char* line, size_t length)
    * real_lenght characters long */
   *(c_ptr + 2) = '\0';
   MPS_DEBUG(s, "Parsed option: %s", option);
-  return 0;
+
+  /* Detect option about density-sparseness */
+  if (strcasecmp(option, "dense") == 0)
+      return MPS_FLAG_DENSE;
+  if (strcasecmp(option, "sparse") == 0)
+      return MPS_FLAG_SPARSE;
+
+  /* Options on types */
+  if (strcasecmp(option, "integer") == 0)
+      return MPS_FLAG_INTEGER;
+  if (strcasecmp(option, "real") == 0)
+      return MPS_FLAG_REAL;
+  if (strcasecmp(option, "rational") == 0)
+      return MPS_FLAG_RATIONAL;
+
+  /* Options on the input type */
+  if (strcasecmp(option, "secular") == 0)
+      return MPS_FLAG_SECULAR;
+  if (strcasecmp(option, "polynomial") == 0)
+      return MPS_FLAG_POLYNOMIAL;
+
+  /* ...if not identified */
+  return MPS_FLAG_UNDEFINED;
 }
 
 mps_secular_equation*
 mps_secular_equation_read_from_stream(mps_status* s, FILE* input_stream)
 {
   mps_secular_equation* sec;
-  int n, r, i;
+  int i, r, n;
   mps_boolean parsing_options = true;
-  char *line = NULL;
+  mps_flag flag;
   size_t length;
+  mps_input_buffer *buffer;
+
+  /* Create the input buffer */
+  buffer = mps_input_buffer_new (input_stream);
 
   /* Read options, if present */
   mps_skip_comments(input_stream);
   while (parsing_options)
   {
-    r = getline(&line, &length, input_stream);
-    if (strchr(line, ';') == NULL || (!r))
+    // r = getline(&line, &length, input_stream);
+    mps_input_buffer_readline(buffer);
+    if (strchr(buffer->line, ';') == NULL ||
+            mps_input_buffer_eof(buffer))
     {
-        /* We need to put the line back..., but since we can't
-         * we simply assume that the degree (the first parameter)
-         * should be here, so we try to read it. If it's not there
-         * continue to parse options */
-        r = sscanf(line, "%d", &n);
-
-        /* If nothing was read or no degree was found continue to try
-         * the options parsing. */
-        if (!r || (n == 0))
-            continue;
-
         parsing_options = false;
     }
     else
     {
-        mps_parse_option_line(s, line, length);
+        flag = mps_parse_option_line(s, buffer->line, length);
     }
-
-    free (line);
-    line = NULL;
   }
 
   /* Read the number of the coefficients */
   mps_skip_comments(input_stream);
-  if (!r || n == 0)
+  while (!r || n == 0)
   {
-    r = fscanf(input_stream, "%d", &n);
+    r = sscanf(buffer->line, "%d", &n);
+
+    if (!r || n == 0)
+        mps_input_buffer_readline(buffer);
   }
 
   if (!r)
