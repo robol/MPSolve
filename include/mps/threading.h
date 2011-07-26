@@ -142,6 +142,7 @@ typedef struct {
    * the i-th root.
    */
   pthread_mutex_t* aberth_mutex;
+  pthread_mutex_t* global_aberth_mutex;
 
   /**
    * @brief Array of <code>n</code> mutexes that gets locked when a thread
@@ -155,6 +156,8 @@ typedef struct {
    * may query for other work.
    */
   mps_thread_job_queue* queue;
+
+
 
 } mps_thread_worker_data;
 

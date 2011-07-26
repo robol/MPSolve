@@ -288,10 +288,14 @@ mps_secular_dnewton(mps_status* s, cdpe_t x, rdpe_t rad, cdpe_t corr,
         rdpe_add_eq_d(rad, DBL_EPSILON);
       }
     else
+    {
         rdpe_set_d(rad, DBL_MAX);
+    }
   }
   else
+  {
       rdpe_set_d(rad, DBL_MAX);
+  }
 
   /* Compute \sum_i | a_i / (z - b_i) | + 1
    * and check if the secular equation is smaller
@@ -518,7 +522,12 @@ mps_secular_mnewton(mps_status* s, mpc_t x, rdpe_t rad, mpc_t corr,
     /* Set the radius, if convenient. */
     if (rdpe_gt(sigma, rdpe_zero) && rdpe_lt(g_corr, rad))
     {
+      MPS_DEBUG(s, "Setting newton correction")
       rdpe_set(rad, g_corr);
+    }
+    else
+    {
+        MPS_DEBUG(s, "Discarding newton correction")
     }
 
   }

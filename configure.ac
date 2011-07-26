@@ -90,6 +90,14 @@ AS_IF([test "$MEX" != ""], [enable_matlab=yes
   MATLAB_MODULES_PROGRAMS=mps_roots])
 AC_SUBST(MATLAB_MODULES_PROGRAMS)
 
+# Check for doxygen to generate documentation
+AC_CHECK_PROGS([DOXYGEN], [doxygen])
+
+if [test -z "$DOXYGEN"]; then
+  AC_MSG_WARN([Doxygen not found, documentation will not be generated])
+fi
+AM_CONDITIONAL([HAVE_DOXYGEN], [test -n "$DOXYGEN"])
+
 AC_SUBST(MPS_CFLAGS)
 AC_SUBST(UNISOLVE_CFLAGS)
 AC_SUBST(SECSOLVE_CFLAGS)
@@ -134,7 +142,9 @@ AC_CONFIG_FILES([Makefile
                  src/unisolve/Makefile
                  src/secsolve/Makefile
                  src/libmps/Makefile
-                 src/tests/Makefile])
+                 src/tests/Makefile
+		 doc/Makefile
+		 doc/Doxyfile])
 
 
 AC_OUTPUT

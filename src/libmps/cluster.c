@@ -176,17 +176,6 @@ mps_xcluster(mps_status* s, int n, int nf, int *nclust)
   (*nclust)++;
   s->punt_aux[*nclust] = n;
 
-  /* Debug the clusters found */
-    if (s->DOLOG) {
-        for(kk = 1; kk <= s->nclust; kk++) {
-      	  fprintf(s->logstr, "      MPS_MCLUSTER:"
-      			  "Found cluster of %d roots: ",
-      			  s->punt[kk] - s->punt[kk - 1]);
-      	  for(k = s->punt[kk - 1]; k < s->punt[kk]; k++) {
-      		  fprintf(s->logstr, "%d ", s->clust[k]);
-      	  } fprintf(s->logstr, "\n");
-        }
-    }
 }
 
 /**
@@ -237,6 +226,18 @@ mps_mcluster(mps_status* s, int nf)
   for (i = 0; i < s->n; i++)
     s->clust[i] = s->clust_out[i];
   s->punt[s->nclust] = s->n;
+
+  /* Debug the clusters found */
+    if (s->DOLOG) {
+        for(i = 1; i <= s->nclust; i++) {
+          fprintf(s->logstr, "      MPS_MCLUSTER:"
+                          "Found cluster of %d roots: ",
+                          s->punt[i] - s->punt[i - 1]);
+          for(j = s->punt[i - 1]; j < s->punt[i]; j++) {
+                  fprintf(s->logstr, "%d ", s->clust[j]);
+          } fprintf(s->logstr, "\n");
+        }
+    }
 }
 
 void

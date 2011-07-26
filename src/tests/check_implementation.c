@@ -7,18 +7,21 @@
 #include <check_implementation.h>
 #include <stdlib.h>
 
-void
-starting_setup()
-{
-    putenv("CK_DEFAULT_TIMEOUT=120");
-}
 
 void
 set_timeout(int timeout)
 {
     char set_timeout_string[255];
     sprintf(set_timeout_string, "CK_DEFAULT_TIMEOUT=%d", timeout);
+    fprintf(stderr, "Setting timeout to %s\n", set_timeout_string);
     putenv(set_timeout_string);
+}
+
+void
+starting_setup()
+{
+    // set_timeout (15);
+    putenv("CK_DEFAULT_TIMEOUT=15");
 }
 
 void

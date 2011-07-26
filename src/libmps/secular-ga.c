@@ -265,6 +265,22 @@ mps_secular_ga_miterate(mps_status* s, int maxit)
   return computed_roots;
 }
 
+/**
+ * @brief Regenerate the coefficients \f$a_i\f$ based on
+ * the \f$b_i\f$.
+ *
+ * The coefficients used are the one in multiprecision, so
+ * if floating point coefficient regeneration is desired, one
+ * must take care to copy the floating point coefficient
+ * in the multiprecision before calling this function, and
+ * to copy them back after the computation.
+ *
+ * A useful function that does all the things above, doing
+ * the rigth thing based on <code>s->lastphase</code>, where
+ * <code>s</code> is a pointer to the <code>mps_status</code>
+ * is <code>mps_secular_ga_regenerate_coefficients()</code> and
+ * is the one that should be used
+ */
 int
 mps_secular_ga_regenerate_coefficients_mp(mps_status* s)
 {
@@ -437,8 +453,6 @@ mps_secular_ga_regenerate_coefficients(mps_status* s)
         for(i = 0; i < s->n; i++)
             mpc_get_cdpe(sec->adpc[i], sec->ampc[i]);
     }
-
-
 
     /* Free data */
     cdpe_vfree(old_da);

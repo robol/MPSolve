@@ -63,7 +63,7 @@ test_unisolve_on_pol(test_pol *pol)
 
   mps_set_default_values(s);
   s->prec_out = prec;
-  s->n_threads = 1;
+  // s->n_threads = 1;
   strncpy(s->goal, "aannc", 5);
   mps_read_poly(s, input_stream, poly);
 
@@ -140,13 +140,13 @@ int
 main (void)
 {
   int number_failed, n = 0, i;
-  int digits[] = { 15, 50, 400 };
+  int digits[] = { 15, 100 };
 
   starting_setup();
 
-  test_polynomials = (test_pol**) malloc(sizeof(test_pol*) * 3 * 32);
+  test_polynomials = (test_pol**) malloc(sizeof(test_pol*) * 2 * 32);
 
-  for(i = 0; i < 3; i++)
+  for(i = 0; i < 2; i++)
     {
       test_polynomials[n++] = test_pol_new_simple("exp100", digits[i]);
       test_polynomials[n++] = test_pol_new_simple("exp50", digits[i]);
@@ -189,7 +189,7 @@ main (void)
   srunner_run_all(sr, CK_VERBOSE);
 
   /* Get number of failed test and report */
-  number_failed = srunner_ntests_failed(sr);
+  // number_failed = srunner_ntests_failed(sr);
   srunner_free(sr);
 
   /* Cleanup */

@@ -57,7 +57,9 @@ extern "C" {
  *           break;
  *         case 'n':
  *           n = atoi(opt->opvalue);
+ *           break;
  *       }
+ *     free(opt);
  *   }
  * @endcode
  *

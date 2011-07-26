@@ -406,16 +406,18 @@ mps_thread_dpolzer_worker(void* data_ptr)
               cdpe_sub(abcorr, cdpe_one, abcorr);
               if (cdpe_eq_zero(abcorr))
               {
-                  s->again[i] = true;
-                  (*data->excep) = true;
+                  MPS_DEBUG(s, "Aberth correction is zero.")
+                  MPS_DEBUG_CDPE(s, corr, "Newton correction computed")
+                  s->lastphase = dpe_phase;
+                  mps_dump(s, s->logstr);
+
+                 cdpe_set(abcorr, corr);
               }
               else
-              {
-                  cdpe_div(abcorr, corr, abcorr);
-                  cdpe_sub_eq(s->droot[i], abcorr);
-                  cdpe_mod(rtmp, abcorr);
-                  rdpe_add_eq(s->drad[i], rtmp);
-              }
+                cdpe_div(abcorr, corr, abcorr);
+              cdpe_sub_eq(s->droot[i], abcorr);
+              cdpe_mod(rtmp, abcorr);
+              rdpe_add_eq(s->drad[i], rtmp);
             }
 
           /* check for new approximated roots */
@@ -604,6 +606,10 @@ mps_thread_mpolzer_worker(void* data_ptr)
           /* the correction is performed only if iter!=1 or rad[l]!=rad1 */
           s->data_type[0] == 'u' || iter != 0 || rdpe_ne(s->drad[l], rad1))
             {
+              /* Global lock to aberth step to reach a real Gauss-Seidel iteration */
+              pthread_mutex_lock(data->global_aberth_mutex);
+              // MPS_DEBUG(s, "Locked global_aberth_mutex for root %d", job.i)
+
               /* Compute Aberth correction with locks so we can lock the
                * roots while reading them.                          */
               mps_maberth_s_wl(s, l, job.i_clust, abcorr, data->aberth_mutex);
@@ -623,6 +629,11 @@ mps_thread_mpolzer_worker(void* data_ptr)
               pthread_mutex_lock(&data->aberth_mutex[l]);
               mpc_set(s->mroot[l], mroot);
               pthread_mutex_unlock(&data->aberth_mutex[l]);
+
+              /* Let's with others aberth iterations */
+              // MPS_DEBUG(s, "Unlocked global_aberth_mutex for root %d", job.i)
+              pthread_mutex_unlock(data->global_aberth_mutex);
+              sched_yield();
             }
 
           /* check for new approximated roots */
@@ -669,6 +680,8 @@ mps_thread_mpolzer(mps_status* s, int *it, mps_boolean *excep)
       sizeof(pthread_mutex_t) * s->n);
   pthread_mutex_t* aberth_mutex = (pthread_mutex_t*) malloc(
       sizeof(pthread_mutex_t) * s->n);
+  pthread_mutex_t global_aberth_mutex=PTHREAD_MUTEX_INITIALIZER;
+
   for (i = 0; i < s->n; i++)
     {
       pthread_mutex_init(&aberth_mutex[i], NULL);
@@ -704,6 +717,7 @@ mps_thread_mpolzer(mps_status* s, int *it, mps_boolean *excep)
       data[i].thread = i;
       data[i].n_threads = n_threads;
       data[i].aberth_mutex = aberth_mutex;
+      data[i].global_aberth_mutex = &global_aberth_mutex;
       data[i].queue = queue;
       data[i].roots_mutex = roots_mutex;
       pthread_create(&threads[i], NULL, &mps_thread_mpolzer_worker, data + i);

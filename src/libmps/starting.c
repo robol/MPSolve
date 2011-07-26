@@ -816,6 +816,7 @@ mps_mstart(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
                     s->punt[s->nclust - 1] = s->punt[s->nclust];
 
                     s->nclust--;
+                    MPS_DEBUG(s, "Cluster %d and %d reassenble, nclust = %d", i_clust, i, s->nclust);
                     for(j = 0; j < s->nclust; j++) {
                         if (s->clust_detached[j] > i_clust) {
                             s->clust_detached[j]--;
