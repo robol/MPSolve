@@ -286,10 +286,10 @@ mps_secular_ga_regenerate_coefficients(mps_status* s)
   mpc_t prod_b, sec_ev;
   mpc_t ctmp, btmp;
 
-  mpc_init2(prod_b, s->mpwp);
-  mpc_init2(sec_ev, s->mpwp);
-  mpc_init2(ctmp, s->mpwp);
-  mpc_init2(btmp, s->mpwp);
+  mpc_init2(prod_b, 2 * s->mpwp);
+  mpc_init2(sec_ev, 2 * s->mpwp);
+  mpc_init2(ctmp, 2 * s->mpwp);
+  mpc_init2(btmp, 2 * s->mpwp);
 
   sec = (mps_secular_equation*) s->secular_equation;
 
@@ -461,12 +461,15 @@ mps_secular_ga_regenerate_coefficients(mps_status* s)
     break;
 
   case mp_phase:
+
+    mps_secular_raise_coefficient_precision(s, 2 * s->mpwp);
+
     /* Allocate old_a and old_b */
     old_ma = mpc_valloc(s->n);
     old_mb = mpc_valloc(s->n);
 
-    mpc_vinit2(old_ma, s->n, s->mpwp);
-    mpc_vinit2(old_mb, s->n, s->mpwp);
+    mpc_vinit2(old_ma, s->n, 2 * s->mpwp);
+    mpc_vinit2(old_mb, s->n, 2 * s->mpwp);
 
     /* Copy the old coefficients, and set the new
      * b_i with the current roots approximations. */
@@ -543,7 +546,7 @@ mps_secular_ga_regenerate_coefficients(mps_status* s)
 //        MPS_DEBUG_MPC(s, 15, sec->ampc[i], "sec->ampc[%d]", i);
 //        MPS_DEBUG_MPC(s, 15, sec->bmpc[i], "sec->bmpc[%d]", i);
 //      }
-
+     mps_secular_raise_coefficient_precision(s, s->mpwp);
 
         mps_secular_mstart(s, s->n, 0, (__rdpe_struct *) rdpe_zero,
             (__rdpe_struct *) rdpe_zero, s->eps_out);
