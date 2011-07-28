@@ -292,16 +292,19 @@ mps_secular_ga_regenerate_coefficients_mp(mps_status* s)
      * variables that are used only in that case */
     int i, j;
     int success = 0;
+    int coeff_wp = 2 * s->mpwp;
     mpc_t prod_b, sec_ev;
     mpc_t ctmp, btmp;
     mps_secular_equation* sec = s->secular_equation;
 
-    mpc_init2(prod_b, 2 * s->mpwp);
-    mpc_init2(sec_ev, 2 * s->mpwp);
-    mpc_init2(ctmp, 2 * s->mpwp);
-    mpc_init2(btmp, 2 * s->mpwp);
+    regenerate_m_start:
 
-    mps_secular_raise_coefficient_precision(s, 2 * s->mpwp);
+    mpc_init2(prod_b, coeff_wp);
+    mpc_init2(sec_ev, coeff_wp);
+    mpc_init2(ctmp, coeff_wp);
+    mpc_init2(btmp, coeff_wp);
+
+    mps_secular_raise_coefficient_precision(s, coeff_wp);
 
     /* Compute the new a_i */
     for (i = 0; i < s->n; i++)
@@ -319,7 +322,9 @@ mps_secular_ga_regenerate_coefficients_mp(mps_status* s)
               {
                 success = -1;
 
-                MPS_DEBUG(s, "Cannot regenerate coefficients, reusing old ones.")
+                MPS_DEBUG(s, "Cannot regenerate coefficients, reusing old ones and setting best_approx to true.")
+                s->secular_equation->best_approx = true;
+
                 goto regenerate_m_exit;
               }
 
@@ -682,7 +687,10 @@ mps_secular_ga_mpsolve(mps_status* s)
       {
         mps_secular_ga_regenerate_coefficients(s);
       }
-      else
+
+      /* Instead of using else we recheck best approx because it could
+       * have been set by the coefficient regeneration */
+      if (sec->best_approx)
       {
           /* Going to multiprecision if we're not there yet */
           if (s->lastphase != mp_phase)

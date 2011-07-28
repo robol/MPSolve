@@ -409,7 +409,6 @@ mps_thread_dpolzer_worker(void* data_ptr)
                   MPS_DEBUG(s, "Aberth correction is zero.")
                   MPS_DEBUG_CDPE(s, corr, "Newton correction computed")
                   s->lastphase = dpe_phase;
-                  mps_dump(s, s->logstr);
 
                  cdpe_set(abcorr, corr);
               }
