@@ -29,6 +29,50 @@ mps_skip_comments (FILE* input_stream)
 }
 
 /**
+ * @brief Check if the string given is equal to the option
+ * identified by the given string
+ */
+mps_boolean
+mps_is_option(mps_status *s, const char* option_string1, const char* option_string2)
+{
+    /* Skip initial spaces */
+    while (isspace(*option_string1))
+        option_string1++;
+    while (isspace(*option_string2))
+        option_string2++;
+
+    /* Compare char by char */
+    while ((tolower(*option_string1) == tolower(*option_string2)) &&
+           (*option_string1 != '\0') &&
+           (*option_string2 != '\0'))
+    {
+        option_string1++;
+        option_string2++;
+    }
+
+    /* We have arrived to the first different char or on the end of
+     * one of the two string. If one is at the end, the other must
+     * have only space characters left */
+    if (*option_string1 == '\0')
+    {
+        while(isspace(*option_string2))
+            option_string2++;
+
+        return (*option_string2 == '\0');
+    }
+
+    if (*option_string2 == '\0')
+    {
+        while(isspace(*option_string1))
+            option_string1++;
+
+        return (*option_string1 == '\0');
+    }
+
+    return false;
+}
+
+/**
  * @brief Parse a line of the input stream that contains the character
  * ';', so should be considered an option line.
  *
@@ -72,23 +116,23 @@ mps_parse_option_line (mps_status* s, char* line, size_t length)
   input_option.value = NULL;
 
   /* Detect option about density-sparseness */
-  if (strcasecmp(option, "dense") == 0)
+  if (mps_is_option(s, option, "dense"))
       input_option.flag = MPS_FLAG_DENSE;
-  if (strcasecmp(option, "sparse") == 0)
+  if (mps_is_option(s, option, "sparse") == 0)
       input_option.flag = MPS_FLAG_SPARSE;
 
   /* Options on types */
-  if (strcasecmp(option, "integer") == 0)
+  if (mps_is_option(s, option, "integer") == 0)
       input_option.flag = MPS_FLAG_INTEGER;
-  if (strcasecmp(option, "real") == 0)
+  if (mps_is_option(s, option, "real") == 0)
       input_option.flag = MPS_FLAG_REAL;
-  if (strcasecmp(option, "rational") == 0)
+  if (mps_is_option(s, option, "rational") == 0)
       input_option.flag = MPS_FLAG_RATIONAL;
 
   /* Options on the input type */
-  if (strcasecmp(option, "secular") == 0)
+  if (mps_is_option(s, option, "secular") == 0)
       input_option.flag = MPS_FLAG_SECULAR;
-  if (strcasecmp(option, "polynomial") == 0)
+  if (mps_is_option(s, option, "polynomial") == 0)
       input_option.flag = MPS_FLAG_POLYNOMIAL;
 
   /* Parsing keys with values. If = is not found in the
@@ -106,7 +150,7 @@ mps_parse_option_line (mps_status* s, char* line, size_t length)
       *strchr(option, '=') = '\0';
   }
 
-  if (strcasecmp(option, "degree") == 0)
+  if (mps_is_option(s, option, "degree"))
       input_option.flag = MPS_KEY_DEGREE;
 
   /* Free the copy of the option */
@@ -127,6 +171,10 @@ mps_secular_equation_read_from_stream(mps_status* s, FILE* input_stream)
   /* Create the input buffer */
   buffer = mps_input_buffer_new (input_stream);
 
+  /* Set values for required options so we can identify
+   * their omission */
+  n = -1;
+
   /* Read options, if present */
   mps_skip_comments(input_stream);
   while (parsing_options)
@@ -141,12 +189,21 @@ mps_secular_equation_read_from_stream(mps_status* s, FILE* input_stream)
     {
         input_option = mps_parse_option_line(s, buffer->line, length);
 
+        /* Parsing of the degree */
         if (input_option.flag == MPS_KEY_DEGREE)
+        {
             n = atoi(input_option.value);
+            if (n < 0)
+                mps_error(s, 1, "Degree must be a positive integer");
+        }
     }
   }
 
-  MPS_DEBUG(s, "Degree: %d", n)
+  if (n == -1)
+      mps_error(s, 1, "Degree of the polynomial must be provided via the Degree=%d configuration option.");
+  else
+    MPS_DEBUG(s, "Degree: %d", n)
+
 
   /* Check that the stream in the buffer is only composed
    * by spaces */
