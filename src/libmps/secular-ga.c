@@ -10,6 +10,10 @@
 #include <mps/link.h>
 #include <mps/secular.h>
 
+/**
+ * @file
+ * @brief Implementation of secular routines for the GA algorithm
+ */
 
 /**
  * @brief Routine that performs a block of iteration
