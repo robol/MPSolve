@@ -101,11 +101,15 @@ typedef struct {
 } mps_input_buffer;
 
 /**
- * @brief Flag options parsed from the input source file
+ * @brief Key for options parsed from the input source file.
+ * Key that don't need values could exists (these are boolean flags,
+ * actually).
  */
 typedef enum {
+    /* Flag for UNDEFINED Options */
     MPS_FLAG_UNDEFINED,
 
+    /* Key without values associated */
     MPS_FLAG_INTEGER,
     MPS_FLAG_REAL,
     MPS_FLAG_RATIONAL,
@@ -115,7 +119,30 @@ typedef enum {
 
     MPS_FLAG_DENSE,
     MPS_FLAG_SPARSE,
-} mps_flag;
+
+    /* Key with a value */
+    MPS_KEY_DEGREE,
+} mps_option_key;
+
+/**
+ * @brief This struct holds a key and the value associated
+ * with it. It's used for options that require a value associated.
+ *
+ * For example the option Degree needs a numeric value associated to
+ * it. The values are always saved as the string that are read.
+ */
+typedef struct {
+    /**
+     * @brief Key associated with the option.
+     */
+    mps_option_key flag;
+
+    /**
+     * @brief Value of the flag, or NULL if no value
+     * is provided.
+     */
+    char* value;
+} mps_input_option;
 
 /* local include files */
 #include <mps/tools.h>
@@ -270,6 +297,16 @@ mps_boolean mps_mtouchunit(mps_status* s, int n, int i);
 void mps_fnewton_usr(mps_status* st, cplx_t x, double * rad, cplx_t corr, mps_boolean * again);
 void mps_dnewton_usr(mps_status* st, cdpe_t x, rdpe_t rad, cdpe_t corr, mps_boolean * again);
 void mps_mnewton_usr(mps_status* st, mpc_t x, rdpe_t rad, mpc_t corr, mps_boolean * again);
+
+/* Routines of Input/Output in stio.c */
+void
+mps_skip_comments (FILE* input_stream);
+
+mps_input_option
+mps_parse_option_line (mps_status* s, char* line, size_t length);
+
+mps_secular_equation*
+mps_secular_equation_read_from_stream(mps_status* s, FILE* input_stream);
 
 /*
  * End of extern "C" {

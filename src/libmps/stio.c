@@ -12,8 +12,192 @@
 #include <stdarg.h>
 #include <string.h>
 #include <mps/core.h>
+#include <mps/secular.h>
+#include <ctype.h>
 
 #define ISZERO -1
+
+void
+mps_skip_comments (FILE* input_stream)
+{
+    char buf;
+    while ((buf = fgetc(input_stream)) == '!' || isspace(buf))
+        if (buf == '!')
+            /* Skip until newline */
+            while(fgetc(input_stream) != '\n');
+    ungetc(buf, input_stream);
+}
+
+/**
+ * @brief Parse a line of the input stream that contains the character
+ * ';', so should be considered an option line.
+ *
+ * Valid options, recognized at the moment being are:
+ */
+mps_input_option
+mps_parse_option_line (mps_status* s, char* line, size_t length)
+{
+  char* first_comment;
+  char *option;
+  char *c_ptr;
+  char* equal_position;
+  mps_input_option input_option;
+  size_t real_length;
+
+  if (length > 255)
+      mps_error(s, 1, "Maximum line length exceeded (length > 255 while parsing)");
+
+  /* Check if there are comments in this line */
+  if ((first_comment = strchr(line, '!')) != NULL)
+      real_length = (first_comment - line) / sizeof(char);
+  else
+      real_length = length;
+
+  c_ptr = line;
+  while (isspace(*c_ptr) && ((c_ptr < first_comment) || first_comment == NULL))
+  {
+      c_ptr++;
+      real_length--;
+  }
+  option = c_ptr;
+  c_ptr = strchr(option, ';') - 1;
+  while (isspace(*--c_ptr) && real_length--);
+
+  /* Now we have the option that is pointed by option and is
+   * real_lenght characters long */
+  *(c_ptr + 2) = '\0';
+  MPS_DEBUG(s, "Parsed option: %s", option);
+
+  input_option.flag = MPS_FLAG_UNDEFINED;
+  input_option.value = NULL;
+
+  /* Detect option about density-sparseness */
+  if (strcasecmp(option, "dense") == 0)
+      input_option.flag = MPS_FLAG_DENSE;
+  if (strcasecmp(option, "sparse") == 0)
+      input_option.flag = MPS_FLAG_SPARSE;
+
+  /* Options on types */
+  if (strcasecmp(option, "integer") == 0)
+      input_option.flag = MPS_FLAG_INTEGER;
+  if (strcasecmp(option, "real") == 0)
+      input_option.flag = MPS_FLAG_REAL;
+  if (strcasecmp(option, "rational") == 0)
+      input_option.flag = MPS_FLAG_RATIONAL;
+
+  /* Options on the input type */
+  if (strcasecmp(option, "secular") == 0)
+      input_option.flag = MPS_FLAG_SECULAR;
+  if (strcasecmp(option, "polynomial") == 0)
+      input_option.flag = MPS_FLAG_POLYNOMIAL;
+
+  /* Parsing keys with values. If = is not found in the
+   * input string, than an error has occurred so we should
+   * return. */
+  equal_position = strchr(option, '=');
+  if (equal_position == NULL)
+      return input_option;
+  else
+  {
+      input_option.value = equal_position + 1;
+      /* Make a copy of the option to parse it without
+       * equal sign and anything after it */
+      option = strdup(option);
+      *strchr(option, '=') = '\0';
+  }
+
+  if (strcasecmp(option, "degree") == 0)
+      input_option.flag = MPS_KEY_DEGREE;
+
+  /* Free the copy of the option */
+  free (option);
+  return input_option;
+}
+
+mps_secular_equation*
+mps_secular_equation_read_from_stream(mps_status* s, FILE* input_stream)
+{
+  mps_secular_equation* sec;
+  int i, r, n;
+  mps_boolean parsing_options = true;
+  size_t length;
+  mps_input_buffer *buffer;
+  mps_input_option input_option;
+
+  /* Create the input buffer */
+  buffer = mps_input_buffer_new (input_stream);
+
+  /* Read options, if present */
+  mps_skip_comments(input_stream);
+  while (parsing_options)
+  {
+    mps_input_buffer_readline(buffer);
+    if (strchr(buffer->line, ';') == NULL ||
+            mps_input_buffer_eof(buffer))
+    {
+        parsing_options = false;
+    }
+    else
+    {
+        input_option = mps_parse_option_line(s, buffer->line, length);
+
+        if (input_option.flag == MPS_KEY_DEGREE)
+            n = atoi(input_option.value);
+    }
+  }
+
+  MPS_DEBUG(s, "Degree: %d", n)
+
+  /* Check that the stream in the buffer is only composed
+   * by spaces */
+  for(i = 0; i < strlen(buffer->line); i++)
+  {
+      if (!isspace(buffer->line[i]))
+      {
+          mps_error(s, 1, "Options and input data are not separated by a newline.");
+          break;
+      }
+  }
+
+
+
+  /* Read directly the secular equation in DPE, so we don't need
+   * to have a fallback case if the coefficients are bigger than
+   * what is supported by the standard floating point arithmetic */
+  sec = mps_secular_equation_new_raw(s, n);
+
+  for(i = 0; i < n; i++)
+    {
+      mps_skip_comments(input_stream);
+      rdpe_inp_str_flex(cdpe_Re(sec->adpc[i]), input_stream);
+
+      mps_skip_comments(input_stream);
+      rdpe_inp_str_flex(cdpe_Im(sec->adpc[i]), input_stream);
+
+      mps_skip_comments(input_stream);
+      rdpe_inp_str_flex(cdpe_Re(sec->bdpc[i]), input_stream);
+
+      mps_skip_comments(input_stream);
+      rdpe_inp_str_flex(cdpe_Im(sec->bdpc[i]), input_stream);
+    }
+
+  /* Deflate input, if identical b_i coefficients are found */
+  mps_secular_deflate(s, sec);
+
+  /* Copy coefficients back in other places */
+  for(i = 0; i < sec->n; i++)
+    {
+      mpc_set_cdpe(sec->ampc[i], sec->adpc[i]);
+      mpc_set_cdpe(sec->bmpc[i], sec->bdpc[i]);
+
+      /* Get floating points coefficients */
+      cdpe_get_x(sec->afpc[i], sec->adpc[i]);
+      cdpe_get_x(sec->bfpc[i], sec->bdpc[i]);
+    }
+
+  return sec;
+}
+
 
 /*********************************************************
 *      SUBROUTINE READROOTS                              *

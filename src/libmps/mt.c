@@ -1350,6 +1350,19 @@ rdpe_inp_str_flex(rdpe_t e, FILE* f)
   return 1;
 }
 
+int
+rdpe_inp_sstr_flex(rdpe_t e, char* f)
+/* More flexible input for rdpe */
+{
+  double d;
+  long int l = 0;
+
+  if (sscanf(f, RDPE_INP_FMT, &d, &l) < 1)
+    return 0;
+  rdpe_set_dl(e, d, l);
+  return 1;
+}
+
 /*------------  vector functions  ------------------------*/
 
 void
