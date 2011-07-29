@@ -26,6 +26,10 @@ mps_input_buffer_new(FILE* stream)
    return buf;
 }
 
+/**
+ * @brief Free the buffer and internal data contained in it.
+ * Unread lines may be lost.
+ */
 void
 mps_input_buffer_free(mps_input_buffer *buffer)
 {
@@ -35,12 +39,21 @@ mps_input_buffer_free(mps_input_buffer *buffer)
     free(buffer);
 }
 
+/**
+ * @brief Check if the whole stream has been read. This does
+ * not mean that there is nothing more to read, since the line
+ * buffer could be non-empty.
+ */
 mps_boolean
 mps_input_buffer_eof(mps_input_buffer *buffer)
 {
     return feof(buffer->stream);
 }
 
+/**
+ * @brief Read a new line in the buffer, replacing the one
+ * present now.
+ */
 char*
 mps_input_buffer_readline(mps_input_buffer *buf)
 {
