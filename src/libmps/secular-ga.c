@@ -204,9 +204,7 @@ mps_secular_ga_miterate(mps_status* s, int maxit)
 
   mpc_t corr, abcorr;
   cdpe_t ctmp;
-  rdpe_t modcorr, drad;
-
-  rdpe_set_2dl(drad, 1.0, -s->prec_out);
+  rdpe_t modcorr;
 
   /* Init data with the right precision */
   mpc_init2(corr, s->mpwp);
@@ -216,15 +214,7 @@ mps_secular_ga_miterate(mps_status* s, int maxit)
    * of the roots */
   /* Allocate again and set all to true */
   for (i = 0; i < s->n; i++)
-    {
-      if (rdpe_gt(s->drad[i], drad))
         s->again[i] = true;
-      else
-        {
-          s->again[i] = false;
-          computed_roots++;
-        }
-    }
 
   while (computed_roots < s->n && iterations < maxit)
     {
@@ -291,7 +281,7 @@ mps_secular_ga_regenerate_coefficients_mp(mps_status* s)
     /* Declaration and initialization of the multprecision
      * variables that are used only in that case */
     int i, j;
-    int success = 0;
+    int success = 1;
     int coeff_wp = 2 * s->mpwp;
     mpc_t prod_b, sec_ev;
     mpc_t ctmp, btmp;
@@ -497,9 +487,11 @@ mps_secular_ga_regenerate_coefficients(mps_status* s)
           }
 
         // Regeneration
-        if (!mps_secular_ga_regenerate_coefficients_mp(s))
+        if (mps_secular_ga_regenerate_coefficients_mp(s))
         {
-            MPS_DEBUG(s, "OOps");
+            /* Finally set radius according to new computed a_i coefficients,
+             * if they are convenient   */
+            mps_secular_set_radii(s);
         }
 
 
@@ -527,10 +519,6 @@ mps_secular_ga_regenerate_coefficients(mps_status* s)
     break;
 
     } /* End of switch (s->lastphase)*/
-
-  /* Finally set radius according to new computed a_i coefficients,
-   * if they are convenient   */
-  mps_secular_set_radii(s);
 }
 
 
@@ -543,7 +531,8 @@ mps_secular_ga_check_stop(mps_status* s)
   MPS_DEBUG_THIS_CALL
 
   double frad = pow(10, -s->prec_out);
-  rdpe_t drad;
+  rdpe_t drad, root_mod;
+  cdpe_t root;
   int i;
 
   /* Set the maximum rad allowed */
@@ -561,14 +550,20 @@ mps_secular_ga_check_stop(mps_status* s)
 
       /* Float case */
       case float_phase:
-        if (s->frad[i] > frad)
-          return false;
+          if (log (cplx_mod(s->froot[i])) - log(s->frad[i]) < s->prec_out)
+            return false;
 
       /* Multiprecision and DPE case are the same, since the radii
        * are always RDPE. */
       case mp_phase:
+          mpc_get_cdpe(root, s->mroot[i]);
+          cdpe_mod(root_mod, root);
+          if (rdpe_log10(root_mod) - rdpe_log10(s->drad[i]) < s->prec_out)
+              return false;
+            break;
       case dpe_phase:
-        if (rdpe_log10(s->drad[i]) * LOG2_10 > -s->prec_out)
+        cdpe_mod(root_mod, s->droot[i]);
+        if (rdpe_log10(root_mod) - rdpe_log10(s->drad[i]) < s->prec_out)
             return false;
         break;
 
@@ -590,6 +585,7 @@ void
 mps_secular_ga_mpsolve(mps_status* s)
 {
   int roots_computed = 0;
+  int packet;
   int iteration_per_packet = 10;
   int i;
   mps_secular_equation* sec = mps_secular_equation_from_status(s);
@@ -610,6 +606,7 @@ mps_secular_ga_mpsolve(mps_status* s)
   /* Manually set FILE* pointer for streams.
    * More refined options will be added later. */
   s->outstr = s->rtstr = stdout;
+  packet = 0;
 
   for (i = 0; i < s->n; i++)
     s->frad[i] = DBL_MAX;
@@ -674,6 +671,8 @@ mps_secular_ga_mpsolve(mps_status* s)
         break;
         }
 
+      packet++;
+
       /* Check if all roots were approximated with the
        * given input precision                      */
       if (mps_secular_ga_check_stop(s))
@@ -690,7 +689,7 @@ mps_secular_ga_mpsolve(mps_status* s)
 
       /* Instead of using else we recheck best approx because it could
        * have been set by the coefficient regeneration */
-      if (sec->best_approx)
+      if (sec->best_approx || packet > 5)
       {
           /* Going to multiprecision if we're not there yet */
           if (s->lastphase != mp_phase)
@@ -701,6 +700,8 @@ mps_secular_ga_mpsolve(mps_status* s)
               mps_secular_raise_precision(s, 2 * s->mpwp);
               mps_secular_ga_regenerate_coefficients(s);
           }
+
+          packet = 0;
       }
     }
   while (!mps_secular_ga_check_stop(s));

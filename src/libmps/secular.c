@@ -334,13 +334,13 @@ mps_secular_set_radii(mps_status* s)
 
       /* Compute total radius as \sum_i |sec->afpc[i]| */
       for (i = 0; i < s->n; i++)
-        total_rad += cplx_mod(sec->afpc[i]);
+          total_rad += cplx_mod(sec->afpc[i]);
 
       /* Check if the Gerschgorin's radii are more convenient */
       for (i = 0; i < s->n; i++)
         {
           /* TODO: Use the guaranteed computation */
-          rad = s->n * cplx_mod(sec->afpc[i]);
+          rad = s->n * cplx_mod(sec->afpc[i]) * (1 + s->n*s->n * DBL_EPSILON * 15);
           if (rad > total_rad)
             rad = total_rad;
 
