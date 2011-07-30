@@ -15,6 +15,9 @@
  * equation
  */
 
+#include <math.h>
+#include <mps/gmptools.h>
+#include <float.h>
 #include <mps/core.h>
 #include <mps/threading.h>
 

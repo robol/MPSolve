@@ -10,6 +10,7 @@
 #include <mps/link.h>
 #include <mps/debug.h>
 #include <limits.h>
+#include <math.h>
 
 void
 mps_secular_fnewton(mps_status* s, cplx_t x, double *rad, cplx_t corr,

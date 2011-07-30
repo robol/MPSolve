@@ -16,6 +16,11 @@
  *
  */
 
+#include <math.h>
+#include <float.h>
+#include <limits.h>
+#include <assert.h>
+#include <mps/gmptools.h>
 #include <mps/core.h>
 #include <mps/debug.h>
 

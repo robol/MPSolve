@@ -15,9 +15,12 @@
  * routines.
  */
 
+#include <float.h>
+#include <mps/gmptools.h>
 #include <mps/core.h>
 #include <mps/threading.h>
 #include <time.h>
+#include <math.h>
 
 /**
  * @brief Compute the Newton correction, i.e. and the value \f$s\f$

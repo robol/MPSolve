@@ -18,6 +18,7 @@
 #include <string.h>
 #include <errno.h>
 #include <stdlib.h>
+#include <float.h>
 #include <mps/core.h>
 
 /* local definition */

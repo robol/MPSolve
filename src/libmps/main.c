@@ -15,6 +15,8 @@
  * for MPSolve. 
  */
 
+#include <math.h>
+#include <float.h>
 #include <mps/core.h>
 #include <mps/interface.h>
 

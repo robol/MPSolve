@@ -9,6 +9,9 @@
 ** (C) 2001, Dipartimento di Matematica, FRISCO LTR 21024 **
 ***********************************************************/
 
+#include <string.h>
+#include <assert.h>
+#include <mps/gmptools.h>
 #include <mps/core.h>
 
 /**

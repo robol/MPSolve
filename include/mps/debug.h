@@ -18,6 +18,7 @@ extern "C" {
 #include <io.h>
 #endif
 
+#include <mps/gmptools.h>
 
 /* Keep away assert() when compiling without debug */
 #ifdef DISABLE_DEBUG

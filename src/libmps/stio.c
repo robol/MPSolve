@@ -11,6 +11,7 @@
 
 #include <stdarg.h>
 #include <string.h>
+#include <mps/gmptools.h>
 #include <mps/core.h>
 #include <mps/secular.h>
 #include <ctype.h>

@@ -9,10 +9,11 @@
 ** (C) 2001, Dipartimento di Matematica, FRISCO LTR 21024 **
 ***********************************************************/
 
+#include <float.h>
 #include <string.h>
 #include <ctype.h>
-#include <mps/poly.h>
 #include <mps/gmptools.h>
+#include <mps/poly.h>
 
 /***********************************************************
 *       SUBROUTINE READ_POLY                               *

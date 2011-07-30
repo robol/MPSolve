@@ -5,10 +5,13 @@
  *      Author: leonardo
  */
 
+#include <mps/debug.h>
 #include <mps/core.h>
 #include <mps/poly.h>
 #include <mps/link.h>
 #include <mps/secular.h>
+#include <mps/debug.h>
+#include <math.h>
 
 /**
  * @file

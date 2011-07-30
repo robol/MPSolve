@@ -9,6 +9,8 @@
 ** (C) 2001, Dipartimento di Matematica, FRISCO LTR 21024 **
 ***********************************************************/
 
+#include <float.h>
+#include <math.h>
 #include <mps/core.h>
 
 /**

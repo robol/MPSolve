@@ -8,6 +8,7 @@
 #include <mps/interface.h>
 #include <mps/secular.h>
 #include <mps/core.h>
+#include <strings.h>
 
 void
 usage(mps_status *s, const char* program)

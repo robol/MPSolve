@@ -17,6 +17,7 @@ include_HEADERS = \
         ${top_srcdir}/include/mps/rursolve.h \
         ${top_srcdir}/include/mps/secular.h \
         ${top_srcdir}/include/mps/threading.h \
+	${top_srcdir}/include/mps/types.h \
 	$(NULL)
 
 AM_CPPFLAGS= \
