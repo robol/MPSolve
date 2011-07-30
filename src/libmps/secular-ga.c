@@ -689,7 +689,7 @@ mps_secular_ga_mpsolve(mps_status* s)
 
       /* Instead of using else we recheck best approx because it could
        * have been set by the coefficient regeneration */
-      if (sec->best_approx || packet > 5)
+      if (sec->best_approx || packet > 3)
       {
           /* Going to multiprecision if we're not there yet */
           if (s->lastphase != mp_phase)

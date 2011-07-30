@@ -9,9 +9,19 @@
 #include <mps/secular.h>
 #include <mps/debug.h>
 #include <mps/mt.h>
-#include <float.h>
-#include <ctype.h>
 #include <mps/mpc.h>
+
+void
+mps_secular_dump(mps_status* s, mps_secular_equation* sec)
+{
+    int i;
+    MPS_DEBUG(s, "Dumping secular equation:");
+    for(i = 0; i < sec->n; i++)
+    {
+        MPS_DEBUG_CDPE(s, sec->adpc[i], "sec->adpc[%d]", i)
+        MPS_DEBUG_CDPE(s, sec->bdpc[i], "sec->bdpc[%d]", i)
+    }
+}
 
 /**
  * @brief Deflate a secular equation lowering the degree of the
@@ -21,6 +31,7 @@ void
 mps_secular_deflate(mps_status* s, mps_secular_equation* sec)
 {
   int i, j, k;
+  MPS_DEBUG(s, "sec->n = %d", sec->n)
   for (i = 0; i < sec->n; i++)
     {
       for (j = i + 1; j < sec->n; j++)
@@ -41,6 +52,8 @@ mps_secular_deflate(mps_status* s, mps_secular_equation* sec)
             }
         }
     }
+
+  MPS_DEBUG(s, "Secular equation deflated to degree %d", sec->n)
 }
 
 /**

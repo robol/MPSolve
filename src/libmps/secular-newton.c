@@ -68,13 +68,18 @@ mps_secular_fnewton(mps_status* s, cplx_t x, double *rad, cplx_t corr,
   dtmp = cplx_mod(pol) * (DBL_EPSILON + 1) + (s->n + 1);
 
   /* Compute newton correction */
-  cplx_div(corr, pol, fp);
+  /* cplx_div(corr, pol, fp);
 
   cplx_mul(ctmp, corr, sumb);
   cplx_add_eq(ctmp, cplx_one);
 
   if (!cplx_eq(ctmp, cplx_zero))
-    cplx_div_eq(corr, ctmp);
+    cplx_div_eq(corr, ctmp); */
+
+  /* New newton correction */
+  cplx_mul(corr, pol, sumb);
+  cplx_add_eq(corr, fp);
+  cplx_div(corr, pol, corr);
 
 
   /* We compute the following values in order to give a guaranteed
@@ -207,6 +212,10 @@ mps_secular_dnewton(mps_status* s, cdpe_t x, rdpe_t rad, cdpe_t corr,
   /* Compute correction */
   cdpe_mul(ctmp, pol, sumb);
   cdpe_add_eq(fp, ctmp);
+  /* cdpe_div(corr, pol, fp);
+  cdpe_mul(ctmp, corr, sumb);
+  cdpe_add_eq(ctmp, cdpe_one);
+  cdpe_div_eq(corr, ctmp); */
 
 //  Comment out these lines to debug computation
 //  MPS_DEBUG_CDPE(s, pol, "pol")
