@@ -235,6 +235,14 @@ mps_thread_fpolzer_worker(void* data_ptr)
 
               cplx_mul_eq(abcorr, corr);
               cplx_sub(abcorr, cplx_one, abcorr);
+
+              if (cplx_eq_zero(abcorr))
+              {
+                  MPS_DEBUG(s, "Aberth correction is zero")
+                  cplx_set_d(abcorr, DBL_EPSILON, 0);
+              }
+
+
               cplx_div(abcorr, corr, abcorr);
               cplx_sub_eq(froot, abcorr);
               modcorr = cplx_mod(abcorr);
@@ -407,13 +415,12 @@ mps_thread_dpolzer_worker(void* data_ptr)
               if (cdpe_eq_zero(abcorr))
               {
                   MPS_DEBUG(s, "Aberth correction is zero.")
-                  MPS_DEBUG_CDPE(s, corr, "Newton correction computed")
                   s->lastphase = dpe_phase;
-
-                 cdpe_set(abcorr, corr);
+                  cdpe_set_d(abcorr, DBL_EPSILON, 0);
               }
-              else
-                cdpe_div(abcorr, corr, abcorr);
+
+              cdpe_div(abcorr, corr, abcorr);
+
               cdpe_sub_eq(s->droot[i], abcorr);
               cdpe_mod(rtmp, abcorr);
               rdpe_add_eq(s->drad[i], rtmp);
