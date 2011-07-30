@@ -85,8 +85,6 @@ mps_secular_equation_new_raw(mps_status* s, unsigned long int n)
   sec->old_ampc = mpc_valloc(n);
   sec->old_bmpc = mpc_valloc(n);
 
-
-
   /* Init multiprecision arrays */
   mpc_vinit(sec->ampc, n);
   mpc_vinit(sec->bmpc, n);
@@ -103,7 +101,6 @@ mps_secular_equation_new_raw(mps_status* s, unsigned long int n)
 mps_secular_equation*
 mps_secular_equation_new(mps_status* s, cplx_t* afpc, cplx_t* bfpc, unsigned long int n)
 {
-
   int i;
 
   /* Allocate the space for the new struct */

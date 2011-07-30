@@ -550,7 +550,7 @@ mps_secular_ga_check_stop(mps_status* s)
 
       /* Float case */
       case float_phase:
-          if (log (cplx_mod(s->froot[i])) - log(s->frad[i]) < s->prec_out)
+          if (log (cplx_mod(s->froot[i])) - log(s->frad[i]) < s->prec_out * LOG10_2)
             return false;
 
       /* Multiprecision and DPE case are the same, since the radii
@@ -558,12 +558,12 @@ mps_secular_ga_check_stop(mps_status* s)
       case mp_phase:
           mpc_get_cdpe(root, s->mroot[i]);
           cdpe_mod(root_mod, root);
-          if (rdpe_log10(root_mod) - rdpe_log10(s->drad[i]) < s->prec_out)
+          if (rdpe_log10(root_mod) - rdpe_log10(s->drad[i]) < s->prec_out * LOG10_2)
               return false;
             break;
       case dpe_phase:
         cdpe_mod(root_mod, s->droot[i]);
-        if (rdpe_log10(root_mod) - rdpe_log10(s->drad[i]) < s->prec_out)
+        if (rdpe_log10(root_mod) - rdpe_log10(s->drad[i]) < s->prec_out * LOG10_2)
             return false;
         break;
 

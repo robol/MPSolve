@@ -8,9 +8,6 @@
 #include <mps/interface.h>
 #include <mps/secular.h>
 #include <mps/core.h>
-#include <time.h>
-#include <stdlib.h>
-#include <math.h>
 
 void
 usage(mps_status *s, const char* program)
@@ -50,7 +47,6 @@ main(int argc, char** argv)
   mps_boolean ga = false;
 
   FILE* infile;
-  double tmp1, tmp2;
 
   /* Parse options */
   mps_opt* opt;

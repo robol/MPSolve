@@ -223,7 +223,7 @@ void mps_standard_mpsolve(mps_status* s) {
 void mps_setup(mps_status* s) {
 	int i;
 	tmpf_t mptemp;
-	tmpc_t mptempc;
+        tmpc_t mptempc;
 
 	if (s->DOLOG) {
 		fprintf(s->logstr, "Goal      = %5s\n", s->goal);
