@@ -5,8 +5,6 @@
  */
 
 #include <check_implementation.h>
-#include <stdlib.h>
-
 
 void
 set_timeout(int timeout)
@@ -24,16 +22,6 @@ starting_setup()
     putenv("CK_DEFAULT_TIMEOUT=15");
 }
 
-void
-append_slash(char* dest)
-{
-#ifdef WIN32
-    strcat(dest, "\\");
-#else
-    strcat(dest, "/");
-#endif
-}
-
 /**
  * @brief Since this is a autotest unit, we can get the
  * name of the pol_file concatenating the environment
@@ -43,14 +31,14 @@ char*
 get_pol_file(const char* pol_name, const char* type_name)
 {
     const char* srcdir_path = getenv("srcdir");
-    size_t path_length = strlen(pol_name) + strlen(srcdir_path) + 14;
+    size_t path_length = strlen(pol_name) + strlen(srcdir_path) + strlen(type_name) + 7;
     char* final_path = (char*) malloc(sizeof(char) * path_length);
 
     /* Construct the path */
     strcpy(final_path, srcdir_path);
-    append_slash(final_path);
+    strcat(final_path, "/");
     strcat(final_path, type_name);
-    append_slash(final_path);
+    strcat(final_path, "/");
     strcat(final_path, pol_name);
     strcat(final_path, ".pol");
 
@@ -66,18 +54,18 @@ char*
 get_res_file(const char* pol_name, const char* type_name)
 {
     const char* srcdir_path = getenv("srcdir");
-    size_t path_length = strlen(pol_name) + strlen(srcdir_path) + 26;
+    size_t path_length = strlen(pol_name) + strlen(srcdir_path) + strlen(type_name) + 19;
     char* final_path = (char*) malloc(sizeof(char) * path_length);
 
     /* Construct the path */
     strcpy(final_path, srcdir_path);
-    append_slash(final_path);
+    strcat(final_path, "/");
     strcat(final_path, "..");
-    append_slash(final_path);
+    strcat(final_path, "/");
     strcat(final_path, "results");
-    append_slash(final_path);
+    strcat(final_path, "/");
     strcat(final_path, type_name);
-    append_slash(final_path);
+    strcat(final_path, "/");
     strcat(final_path, pol_name);
     strcat(final_path, ".res");
 

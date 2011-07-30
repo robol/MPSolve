@@ -242,7 +242,6 @@ mps_thread_fpolzer_worker(void* data_ptr)
                   cplx_set_d(abcorr, DBL_EPSILON, 0);
               }
 
-
               cplx_div(abcorr, corr, abcorr);
               cplx_sub_eq(froot, abcorr);
               modcorr = cplx_mod(abcorr);

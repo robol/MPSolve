@@ -121,6 +121,7 @@ main(int argc, char** argv)
   /* If we choose gemignani's approach follow it, otherwise
    * use standard mpsolve approach applied implicitly to the
    * secular equation. */
+  mps_status_set_degree(s, sec->n);
   if (ga)
     {
       /* Select the right algorithm */
@@ -129,7 +130,6 @@ main(int argc, char** argv)
   else
     {
       /* Set user polynomial with our custom functions */
-      mps_status_set_degree(s, sec->n);
       mps_allocate_data(s);
 
       /* Select the right algorithm */
