@@ -37,12 +37,12 @@ test_unisolve_on_pol(test_pol *pol)
   int ch;
 
   /* Debug starting of this test */
-  if (pol->ga)
-    printf("Starting test on polynomial file %s, with %d output digits required, using GA approach and %s arithmetic.\n",
-         pol->pol_file, pol->out_digits, (pol->phase == dpe_phase) ? "DPE" : "floating point");
-  else
-      printf("Starting test on polynomial file %s, with %d output digits required, using MPSolve approach and %s arithmetic.\n",
-           pol->pol_file, pol->out_digits, (pol->phase == dpe_phase) ? "DPE" : "floating point");
+//  if (pol->ga)
+//    printf("Starting test on polynomial file %s, with %d output digits required, using GA approach and %s arithmetic.\n",
+//         pol->pol_file, pol->out_digits, (pol->phase == dpe_phase) ? "DPE" : "floating point");
+//  else
+//      printf("Starting test on polynomial file %s, with %d output digits required, using MPSolve approach and %s arithmetic.\n",
+//           pol->pol_file, pol->out_digits, (pol->phase == dpe_phase) ? "DPE" : "floating point");
 
   mpc_init2(root, prec);
   mpc_init2(ctmp, prec);

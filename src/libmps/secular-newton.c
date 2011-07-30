@@ -9,7 +9,7 @@
 #include <mps/interface.h>
 #include <mps/link.h>
 #include <mps/debug.h>
-#include <math.h>
+#include <limits.h>
 
 void
 mps_secular_fnewton(mps_status* s, cplx_t x, double *rad, cplx_t corr,
@@ -524,6 +524,11 @@ mps_secular_mnewton(mps_status* s, mpc_t x, rdpe_t rad, mpc_t corr,
 
     /* Radius is s->n * g_corr */
     rdpe_mul_eq_d(g_corr, s->n);
+    if (rdpe_eq_zero(g_corr))
+    {
+        MPS_DEBUG(s, "Newton correction is zero")
+        rdpe_set_2dl(g_corr, 1.0, LONG_MIN);
+    }
 
     MPS_DEBUG_RDPE(s, rtmp, "Non-guaranteed newton correction");
     MPS_DEBUG_RDPE(s, g_corr, "Computed newton correction");

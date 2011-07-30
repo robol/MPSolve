@@ -189,7 +189,7 @@ main (void)
 
   /* Gemignani's approach */
   test_polynomials[standard++] = test_pol_new("rand15", "secsolve", 15, float_phase, true);
-  test_polynomials[standard++] = test_pol_new("rand15", "secsolve", 200, float_phase, true);
+  test_polynomials[standard++] = test_pol_new("rand15", "secsolve", 400, float_phase, true);
 
   /* Tests with rand120.pol */
   test_polynomials[standard++] = test_pol_new("rand120", "secsolve", 15, float_phase, false);
