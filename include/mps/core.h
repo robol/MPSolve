@@ -204,8 +204,8 @@ mps_skip_comments (FILE* input_stream);
 mps_input_option
 mps_parse_option_line (mps_status* s, char* line, size_t length);
 
-mps_secular_equation*
-mps_secular_equation_read_from_stream(mps_status* s, FILE* input_stream);
+void
+mps_parse_stream(mps_status* s, FILE* input_stream);
 
 /*
  * End of extern "C" {

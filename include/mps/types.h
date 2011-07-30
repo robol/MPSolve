@@ -15,7 +15,6 @@ extern "C" {
  * can be resolved.
  */
 
-#include <gmp.h>
 #include <mps/mt.h>
 #include <mps/mpc.h>
 #include <mps/tools.h>
@@ -96,6 +95,7 @@ typedef enum {
     /* Key without values associated */
     MPS_FLAG_INTEGER,
     MPS_FLAG_REAL,
+    MPS_FLAG_COMPLEX,
     MPS_FLAG_RATIONAL,
 
     MPS_FLAG_SECULAR,
@@ -127,6 +127,51 @@ typedef struct {
      */
     char* value;
 } mps_input_option;
+
+/**
+ * @brief Definition of various algebraic structure that
+ * MPSolve can use as input.
+ *
+ * Precisely, integer, rational and floating point, either real or
+ * complex, can be treated in input.
+ */
+typedef enum {
+    MPS_STRUCTURE_REAL_INTEGER,
+    MPS_STRUCTURE_REAL_RATIONAL,
+    MPS_STRUCTURE_REAL_FP,
+    MPS_STRUCTURE_COMPLEX_INTEGER,
+    MPS_STRUCTURE_COMPLEX_RATIONAL,
+    MPS_STRUCTURE_COMPLEX_FP
+} mps_structure;
+
+/**
+ * @brief Representation chosen for the polynomial
+ */
+typedef enum {
+    MPS_REPRESENTATION_SECULAR,
+    MPS_REPRESENTATION_MONOMIAL
+} mps_representation;
+
+/**
+ * @brief Configuration for an input stream; this struct
+ * contains the information on how the input stream should
+ * be parsed.
+ */
+typedef struct {
+
+    /**
+     * @brief Structure of the input data. For every
+     * structure a particular format is defined.
+     */
+    mps_structure structure;
+
+    /**
+     * @brief Algorithm to be used, that will determine
+     * the coefficients that will be passed to MPSolve.
+     */
+    mps_representation representation;
+
+} mps_parsing_configuration;
 
 
 /**

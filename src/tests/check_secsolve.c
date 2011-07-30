@@ -70,11 +70,10 @@ test_secsolve_on_pol(test_pol *pol)
     strncpy(s->goal, "aannc", 5);
 
     /* Set secular equation and start in floating point */
-    sec = mps_secular_equation_read_from_stream(s, input_stream);
-    s->secular_equation = sec;
-    sec->starting_case = pol->phase;
+    mps_parse_stream(s, input_stream);
+    s->secular_equation->starting_case = pol->phase;
 
-    mps_status_set_degree(s, sec->n);
+    mps_status_set_degree(s, s->n);
 
     if (!pol->ga)
       {

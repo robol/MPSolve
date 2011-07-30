@@ -105,7 +105,8 @@ main(int argc, char** argv)
     infile = fopen(argv[1], "r");
 
   /* Create new secular equation */
-  sec = mps_secular_equation_read_from_stream(s, infile);
+  mps_parse_stream(s, infile);
+  sec = s->secular_equation;
 
   /* Close the file if it's not stdin */
   if (argc == 2)

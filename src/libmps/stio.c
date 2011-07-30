@@ -119,21 +119,23 @@ mps_parse_option_line (mps_status* s, char* line, size_t length)
   /* Detect option about density-sparseness */
   if (mps_is_option(s, option, "dense"))
       input_option.flag = MPS_FLAG_DENSE;
-  if (mps_is_option(s, option, "sparse") == 0)
+  if (mps_is_option(s, option, "sparse"))
       input_option.flag = MPS_FLAG_SPARSE;
 
   /* Options on types */
-  if (mps_is_option(s, option, "integer") == 0)
+  if (mps_is_option(s, option, "integer"))
       input_option.flag = MPS_FLAG_INTEGER;
-  if (mps_is_option(s, option, "real") == 0)
+  if (mps_is_option(s, option, "real"))
       input_option.flag = MPS_FLAG_REAL;
-  if (mps_is_option(s, option, "rational") == 0)
+  if (mps_is_option(s, option, "complex"))
+      input_option.flag = MPS_FLAG_COMPLEX;
+  if (mps_is_option(s, option, "rational"))
       input_option.flag = MPS_FLAG_RATIONAL;
 
   /* Options on the input type */
-  if (mps_is_option(s, option, "secular") == 0)
+  if (mps_is_option(s, option, "secular"))
       input_option.flag = MPS_FLAG_SECULAR;
-  if (mps_is_option(s, option, "polynomial") == 0)
+  if (mps_is_option(s, option, "polynomial"))
       input_option.flag = MPS_FLAG_POLYNOMIAL;
 
   /* Parsing keys with values. If = is not found in the
@@ -159,85 +161,40 @@ mps_parse_option_line (mps_status* s, char* line, size_t length)
   return input_option;
 }
 
-mps_secular_equation*
-mps_secular_equation_read_from_stream(mps_status* s, FILE* input_stream)
+void
+mps_secular_equation_read_from_stream(mps_status* s, mps_parsing_configuration config,
+                                      FILE* input_stream)
 {
   mps_secular_equation* sec;
-  int i, r, n;
-  mps_boolean parsing_options = true;
-  size_t length;
-  mps_input_buffer *buffer;
-  mps_input_option input_option;
-
-  /* Create the input buffer */
-  buffer = mps_input_buffer_new (input_stream);
-
-  /* Set values for required options so we can identify
-   * their omission */
-  n = -1;
-
-  /* Read options, if present */
-  mps_skip_comments(input_stream);
-  while (parsing_options)
-  {
-    mps_input_buffer_readline(buffer);
-    if (strchr(buffer->line, ';') == NULL ||
-            mps_input_buffer_eof(buffer))
-    {
-        parsing_options = false;
-    }
-    else
-    {
-        input_option = mps_parse_option_line(s, buffer->line, length);
-
-        /* Parsing of the degree */
-        if (input_option.flag == MPS_KEY_DEGREE)
-        {
-            n = atoi(input_option.value);
-            if (n < 0)
-                mps_error(s, 1, "Degree must be a positive integer");
-        }
-    }
-  }
-
-  if (n == -1)
-      mps_error(s, 1, "Degree of the polynomial must be provided via the Degree=%d configuration option.");
-  else
-    MPS_DEBUG(s, "Degree: %d", n)
-
-
-  /* Check that the stream in the buffer is only composed
-   * by spaces */
-  for(i = 0; i < strlen(buffer->line); i++)
-  {
-      if (!isspace(buffer->line[i]))
-      {
-          mps_error(s, 1, "Options and input data are not separated by a newline.");
-          break;
-      }
-  }
-
-
+  int i;
 
   /* Read directly the secular equation in DPE, so we don't need
    * to have a fallback case if the coefficients are bigger than
    * what is supported by the standard floating point arithmetic */
-  sec = mps_secular_equation_new_raw(s, n);
+  sec = mps_secular_equation_new_raw(s, s->n);
 
-  for(i = 0; i < n; i++)
-    {
-      mps_skip_comments(input_stream);
-      rdpe_inp_str_flex(cdpe_Re(sec->adpc[i]), input_stream);
+  if (config.structure == MPS_STRUCTURE_COMPLEX_INTEGER)
+  {
+      for(i = 0; i < s->n; i++)
+        {
+          mps_skip_comments(input_stream);
+          rdpe_inp_str_flex(cdpe_Re(sec->adpc[i]), input_stream);
 
-      mps_skip_comments(input_stream);
-      rdpe_inp_str_flex(cdpe_Im(sec->adpc[i]), input_stream);
+          mps_skip_comments(input_stream);
+          rdpe_inp_str_flex(cdpe_Im(sec->adpc[i]), input_stream);
 
-      mps_skip_comments(input_stream);
-      rdpe_inp_str_flex(cdpe_Re(sec->bdpc[i]), input_stream);
+          mps_skip_comments(input_stream);
+          rdpe_inp_str_flex(cdpe_Re(sec->bdpc[i]), input_stream);
 
-      mps_skip_comments(input_stream);
-      rdpe_inp_str_flex(cdpe_Im(sec->bdpc[i]), input_stream);
-    }
+          mps_skip_comments(input_stream);
+          rdpe_inp_str_flex(cdpe_Im(sec->bdpc[i]), input_stream);
+        }
+  }
+  else
+  {
+      s->n = -1;
+      mps_error(s, 1, "Only complex integer input is supported until now");
+  }
 
   /* Deflate input, if identical b_i coefficients are found */
   mps_secular_deflate(s, sec);
@@ -253,15 +210,138 @@ mps_secular_equation_read_from_stream(mps_status* s, FILE* input_stream)
       cdpe_get_x(sec->bfpc[i], sec->bdpc[i]);
     }
 
-  return sec;
+  s->secular_equation = sec;
 }
+
+
+/**
+ * @brief Parse a stream for input data.
+ */
+void
+mps_parse_stream(mps_status* s, FILE* input_stream)
+{
+    mps_boolean parsing_options = true;
+    mps_input_buffer *buffer;
+    mps_input_option input_option;
+    mps_parsing_configuration config;
+    int i;
+    ssize_t length;
+
+    /* Set default values for the parsing configuration */
+    config.representation = MPS_REPRESENTATION_MONOMIAL;
+    config.structure = MPS_STRUCTURE_REAL_INTEGER;
+
+    /* Create a buffered line reader for the input stream
+     * that has been assigned to us */
+    buffer = mps_input_buffer_new(input_stream);
+
+    /* Set values for required options so we can identify
+     * their omission */
+    s->n = -1;
+
+    /* Skip initial comments in the stream */
+    mps_skip_comments(input_stream);
+
+    while (parsing_options)
+    {
+      mps_input_buffer_readline(buffer);
+      if (strchr(buffer->line, ';') == NULL ||
+              mps_input_buffer_eof(buffer))
+      {
+          parsing_options = false;
+      }
+      else
+      {
+          input_option = mps_parse_option_line(s, buffer->line, length);
+
+          /* Parsing of the degree */
+          if (input_option.flag == MPS_KEY_DEGREE)
+          {
+              s->n = atoi(input_option.value);
+              if (s->n < 0)
+                  mps_error(s, 1, "Degree must be a positive integer");
+          }
+
+          /* Parsing of representations */
+          else if (input_option.flag == MPS_FLAG_SECULAR)
+              config.representation = MPS_REPRESENTATION_SECULAR;
+
+          /* Parsing of algebraic structure of the input */
+          else if (input_option.flag == MPS_FLAG_REAL)
+          {
+              MPS_DEBUG(s, "Parsed MPS_FLAG_REAL")
+              switch (config.structure)
+              {
+              case MPS_STRUCTURE_REAL_INTEGER:
+              case MPS_STRUCTURE_COMPLEX_INTEGER:
+                config.structure = MPS_STRUCTURE_REAL_INTEGER;
+                break;
+              case MPS_STRUCTURE_REAL_RATIONAL:
+              case MPS_STRUCTURE_COMPLEX_RATIONAL:
+                config.structure = MPS_STRUCTURE_REAL_RATIONAL;
+                break;
+              case MPS_STRUCTURE_REAL_FP:
+              case MPS_STRUCTURE_COMPLEX_FP:
+                config.structure = MPS_STRUCTURE_REAL_FP;
+                break;
+              }
+          }
+          else if (input_option.flag == MPS_FLAG_COMPLEX)
+          {
+              switch (config.structure)
+              {
+              case MPS_STRUCTURE_REAL_INTEGER:
+              case MPS_STRUCTURE_COMPLEX_INTEGER:
+                config.structure = MPS_STRUCTURE_COMPLEX_INTEGER;
+                break;
+              case MPS_STRUCTURE_REAL_RATIONAL:
+              case MPS_STRUCTURE_COMPLEX_RATIONAL:
+                config.structure = MPS_STRUCTURE_COMPLEX_RATIONAL;
+                break;
+              case MPS_STRUCTURE_REAL_FP:
+              case MPS_STRUCTURE_COMPLEX_FP:
+                config.structure = MPS_STRUCTURE_COMPLEX_FP;
+                break;
+              }
+          }
+
+      }
+    }
+
+    if (s->n == -1)
+        mps_error(s, 1, "Degree of the polynomial must be provided via the Degree=%d configuration option.");
+    else
+    {
+      MPS_DEBUG(s, "Degree: %d", s->n)
+    }
+
+
+    /* Check that the stream in the buffer is only composed
+     * by spaces */
+    for(i = 0; i < strlen(buffer->line); i++)
+    {
+        if (!isspace(buffer->line[i]))
+        {
+            mps_error(s, 1, "Options and input data are not separated by a newline.");
+            break;
+        }
+    }
+
+    if (config.representation == MPS_REPRESENTATION_SECULAR)
+    {
+        if (config.structure == MPS_STRUCTURE_COMPLEX_INTEGER)
+            MPS_DEBUG(s, "config.structure is MPS_STRUCTURE_COMPLEX_INTEGER")
+        mps_secular_equation_read_from_stream(s, config, input_stream);
+    }
+}
+
 
 
 /*********************************************************
 *      SUBROUTINE READROOTS                              *
 *********************************************************/
 void
-msp_readroots(mps_status* s)
+mps_readroots(mps_status* s)
 {
   long digits;
   int i, read_elements;
@@ -547,7 +627,7 @@ mps_dump(mps_status* s, FILE * dmpstr)
   /* output current status */
   fprintf(dmpstr,
 	  "Phase=%d, In=%d, Out=%d, Uncertain=%d, Zero=%d, Clusters=%d\n",
-	  s->lastphase, s->count[0], s->count[1], s->count[2], s->zero_roots, s->nclust);
+          s->lastphase, s->count[0], s->count[1], s->count[2], s->zero_roots, s->nclust);
 
   /* output current approximations */
   fprintf(dmpstr, "\nCurrent approximations:\n");
