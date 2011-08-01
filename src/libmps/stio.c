@@ -157,7 +157,9 @@ mps_parse_option_line (mps_status* s, char* line, size_t length)
       input_option.value = equal_position + 1;
       /* Make a copy of the option to parse it without
        * equal sign and anything after it */
-      option = strdup(option);
+      c_ptr = option;
+      option = (char*) malloc (sizeof(char) * strlen(option));
+      strcpy (option, c_ptr);
       *strchr(option, '=') = '\0';
   }
 

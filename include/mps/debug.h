@@ -184,11 +184,25 @@ gmp_fprintf(s->logstr, templ); \
 #define MPS_DEBUG_THIS_CALL
 #endif
 
+/*
+ * Ansi C version implemented without using variadic macros, only for compatibility
+ * since could became imprecise when using complex debug instructions.
+ */
 #ifndef DISABLE_DEBUG
 #if __STDC_VERSION__ < 199901L
 #include <mps/interface.h>
-void MPS_DEBUG(mps_status* s, const char* templ, ...);
-void __MPS_DEBUG(mps_status* s, const char* templ, ...);
+#define MPS_DEBUG if (s->DOLOG && mps_is_a_tty(s->logstr))\
+    fprintf(s->logstr, "%s:%d \033[32;1m%s()\033[;0m ", __FILE__, __LINE__, __FUNCTION__); \
+    if (s->DOLOG && !mps_is_a_tty(s->logstr))\
+        fprintf(s->logstr, "%s:%d %s() ", __FILE__, __LINE__, __FUNCTION__); \
+    __c_impl__MPS_DEBUG
+#define __MPS_DEBUG if (s->DOLOG && mps_is_a_tty(s->logstr))\
+    fprintf(s->logstr, "%s:%d \033[32;1m%s()\033[;0m ", __FILE__, __LINE__, __FUNCTION__); \
+    if (s->DOLOG && !mps_is_a_tty(s->logstr))\
+        fprintf(s->logstr, "%s:%d %s() ", __FILE__, __LINE__, __FUNCTION__); \
+    __c_impl____MPS_DEBUG
+void __c_impl__MPS_DEBUG(mps_status* s, const char* templ, ...);
+void __c_impl____MPS_DEBUG(mps_status* s, const char* templ, ...);
 #endif
 #endif
 
