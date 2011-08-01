@@ -97,7 +97,7 @@ if (s->DOLOG) { \
  * output (useful for debugging values of variables).
  */
 #define __MPS_DEBUG_EQ(s, templ...) \
-    __MPS_DEBUG(s, templ) \
+    __MPS_DEBUG(s, templ); \
     if (s->DOLOG) { \
       fprintf(s->logstr, " = "); \
     }

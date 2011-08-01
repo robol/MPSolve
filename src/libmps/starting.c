@@ -1245,9 +1245,9 @@ mps_mrestart(mps_status* s) {
         /* Compute super center sc and super radius sr */
         mps_msrad(s, i, sc, sr);
 
-        MPS_DEBUG(s, "Clust = %d", i)
-        MPS_DEBUG_MPC(s, 10, sc, "Super center")
-        MPS_DEBUG_RDPE(s, sr, "Super radius")
+        MPS_DEBUG(s, "Clust = %d", i);
+        MPS_DEBUG_MPC(s, 10, sc, "Super center");
+        MPS_DEBUG_RDPE(s, sr, "Super radius");
 
         /* Check the relative width of the cluster
          * If it is greater than 1 do not shift
@@ -1261,12 +1261,12 @@ mps_mrestart(mps_status* s) {
         if (s->DOLOG) {
             rdpe_div(rtmp2, sr, rtmp);
         }
-        MPS_DEBUG_RDPE(s, rtmp2, "Relative width")
+        MPS_DEBUG_RDPE(s, rtmp2, "Relative width");
 
         if (rdpe_gt(sr, rtmp)) {
             for (j = s->punt[i]; j < s->punt[i + 1]; j++)
                 s->status[s->clust[j]][0] = 'c';
-            MPS_DEBUG(s, "Cluster %d relat. large: skip to the next component", i)
+            MPS_DEBUG(s, "Cluster %d relat. large: skip to the next component", i);
 
             mps_cluster_reassemble(s, MPS_ALL_CLUSTERS);
 

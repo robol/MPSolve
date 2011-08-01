@@ -181,7 +181,7 @@ mps_status_new() {
 
     /* Set standard precision */
     s->prec_out = (int) (0.9 * DBL_DIG * LOG2_10);
-    MPS_DEBUG(s, "Setting prec_out to %d digits", s->prec_out)
+    MPS_DEBUG(s, "Setting prec_out to %d digits", s->prec_out);
     s->prec_in = 0;
 
     return s;

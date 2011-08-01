@@ -218,11 +218,6 @@ mps_secular_dnewton(mps_status* s, cdpe_t x, rdpe_t rad, cdpe_t corr,
   cdpe_add_eq(ctmp, cdpe_one);
   cdpe_div_eq(corr, ctmp); */
 
-//  Comment out these lines to debug computation
-//  MPS_DEBUG_CDPE(s, pol, "pol")
-//  MPS_DEBUG_CDPE(s, fp,  "fp")
-//  MPS_DEBUG_CDPE(s, sumb, "sumb")
-
   if (!cdpe_eq_zero(fp))
     {
       cdpe_div(corr, pol, fp);
@@ -314,8 +309,6 @@ mps_secular_dnewton(mps_status* s, cdpe_t x, rdpe_t rad, cdpe_t corr,
   rdpe_mul_eq_d(apol, (sec->n + 3) * DBL_EPSILON);
 
   cdpe_mod(rtmp, pol);
-  //    if (rdpe_lt(rtmp, apol))
-  //            *again = false;
 
   /* If newton correction is less than
    * the modules of |x| multiplied for
@@ -330,7 +323,7 @@ mps_secular_dnewton(mps_status* s, cdpe_t x, rdpe_t rad, cdpe_t corr,
       /* If |corr| < |x| * DBL_EPSILON then stop */
       if (rdpe_lt(rtmp, rtmp2))
       {
-        MPS_DEBUG(s, "Setting again to false")
+        MPS_DEBUG(s, "Setting again to false");
         *again = false;
       }
     }
@@ -527,7 +520,7 @@ mps_secular_mnewton(mps_status* s, mpc_t x, rdpe_t rad, mpc_t corr,
     rdpe_mul_eq_d(g_corr, s->n);
     if (rdpe_eq_zero(g_corr))
     {
-        MPS_DEBUG(s, "Newton correction is zero")
+        MPS_DEBUG(s, "Newton correction is zero");
         rdpe_set_2dl(g_corr, 1.0, LONG_MIN);
     }
 
@@ -537,12 +530,12 @@ mps_secular_mnewton(mps_status* s, mpc_t x, rdpe_t rad, mpc_t corr,
     /* Set the radius, if convenient. */
     if (rdpe_gt(sigma, rdpe_zero) && rdpe_lt(g_corr, rad))
     {
-      MPS_DEBUG(s, "Setting newton correction")
+      MPS_DEBUG(s, "Setting newton correction");
       rdpe_set(rad, g_corr);
     }
     else
     {
-        MPS_DEBUG(s, "Discarding newton correction")
+        MPS_DEBUG(s, "Discarding newton correction");
     }
 
   }

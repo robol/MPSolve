@@ -430,7 +430,7 @@ mps_parse_stream(mps_status* s, FILE* input_stream,
         "Degree of the polynomial must be provided via the Degree=%d configuration option.");
     else
     {
-      MPS_DEBUG(s, "Degree: %d", s->n)
+      MPS_DEBUG(s, "Degree: %d", s->n);
     }
 
 
@@ -447,8 +447,6 @@ mps_parse_stream(mps_status* s, FILE* input_stream,
 
     if (config.representation == MPS_REPRESENTATION_SECULAR)
     {
-        if (config.structure == MPS_STRUCTURE_COMPLEX_INTEGER)
-            MPS_DEBUG(s, "config.structure is MPS_STRUCTURE_COMPLEX_INTEGER")
         mps_secular_equation_read_from_stream(s, config, input_stream);
     }
     else if (config.representation == MPS_REPRESENTATION_MONOMIAL)
@@ -916,28 +914,4 @@ mps_error(mps_status* st, int args, ...)
   exit(EXIT_FAILURE);	/* exit program         */
 }
 
-#if __STDC_VERSION__ < 199901L
-#ifndef DISABLE_DEBUG
-void
-MPS_DEBUG(mps_status* s, const char* templ, ...)
-{
-    
-    va_list ap; 
-    if (!s->DOLOG)
-        return;
-    va_start(ap, templ); 
-    gmp_vfprintf(s->logstr, templ, ap); 
-    fprintf(s->logstr, "\n"); 
-}
 
-void
-__MPS_DEBUG(mps_status* s, const char* templ, ...)
-{
-    va_list ap;
-    if (!s->DOLOG)
-        return;
-    va_start(ap, templ);
-    gmp_vfprintf(s->logstr, templ, ap); 
-}
-#endif
-#endif

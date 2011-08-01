@@ -32,7 +32,7 @@ mps_thread_get_core_number(mps_status* s)
    * return 0                                    */
   if (!cpuinfo)
     {
-      MPS_DEBUG(s, "Found %d cores on this system", cores)
+      MPS_DEBUG(s, "Found %d cores on this system", cores);
       return cores;
     }
 
@@ -45,7 +45,7 @@ mps_thread_get_core_number(mps_status* s)
           cores++;
     }
 
-  MPS_DEBUG(s, "Found %d cores on this system", cores)
+  MPS_DEBUG(s, "Found %d cores on this system", cores);
   return cores;
 }
 
@@ -239,7 +239,7 @@ mps_thread_fpolzer_worker(void* data_ptr)
 
               if (cplx_eq_zero(abcorr))
               {
-                  MPS_DEBUG(s, "Aberth correction is zero")
+                  MPS_DEBUG(s, "Aberth correction is zero");
                   cplx_set_d(abcorr, DBL_EPSILON, 0);
               }
 
@@ -414,7 +414,7 @@ mps_thread_dpolzer_worker(void* data_ptr)
               cdpe_sub(abcorr, cdpe_one, abcorr);
               if (cdpe_eq_zero(abcorr))
               {
-                  MPS_DEBUG(s, "Aberth correction is zero.")
+                  MPS_DEBUG(s, "Aberth correction is zero.");
                   s->lastphase = dpe_phase;
                   cdpe_set_d(abcorr, DBL_EPSILON, 0);
               }
@@ -614,7 +614,6 @@ mps_thread_mpolzer_worker(void* data_ptr)
             {
               /* Global lock to aberth step to reach a real Gauss-Seidel iteration */
               pthread_mutex_lock(data->global_aberth_mutex);
-              // MPS_DEBUG(s, "Locked global_aberth_mutex for root %d", job.i)
 
               /* Compute Aberth correction with locks so we can lock the
                * roots while reading them.                          */
@@ -637,7 +636,6 @@ mps_thread_mpolzer_worker(void* data_ptr)
               pthread_mutex_unlock(&data->aberth_mutex[l]);
 
               /* Let's with others aberth iterations */
-              // MPS_DEBUG(s, "Unlocked global_aberth_mutex for root %d", job.i)
               pthread_mutex_unlock(data->global_aberth_mutex);
               sched_yield();
             }

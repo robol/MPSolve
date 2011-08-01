@@ -35,6 +35,7 @@ libmps_la_SOURCES = \
 	 cluster.c \
 	 mptemp.c \
 	 stio.c \
+	 debug.c \
 	 gmptools.c \
 	 defaults.c \
 	 sort.c \

@@ -77,7 +77,7 @@ mps_secular_ga_fiterate(mps_status* s, int maxit)
                   isnan(cplx_Im(s->froot[i])) || isinf(cplx_Im(s->froot[i])) ||
                   isnan(s->frad[i]) || isinf(s->frad[i]))
                 {
-                  MPS_DEBUG(s, "Switching to DPE phase because NAN or INF was introduced in computation")
+                  MPS_DEBUG(s, "Switching to DPE phase because NAN or INF was introduced in computation");
                   cplx_set(s->froot[i], old_root);
                   s->frad[i] = old_rad;
                   s->lastphase = dpe_phase;
@@ -102,7 +102,7 @@ mps_secular_ga_fiterate(mps_status* s, int maxit)
     }
 
   /* Check if the roots are improvable in floating point */
-  MPS_DEBUG(s, "Performed %d iterations", nit)
+  MPS_DEBUG(s, "Performed %d iterations", nit);
   if (nit <= 2 * s->n)
       s->secular_equation->best_approx = true;
 
@@ -254,7 +254,7 @@ mps_secular_ga_miterate(mps_status* s, int maxit)
   mpc_clear(abcorr);
   mpc_clear(corr);
 
-  MPS_DEBUG(s, "Performed %d iterations", nit)
+  MPS_DEBUG(s, "Performed %d iterations", nit);
   if (nit <= 2 * s->n)
           s->secular_equation->best_approx = true;
 
@@ -315,7 +315,7 @@ mps_secular_ga_regenerate_coefficients_mp(mps_status* s)
               {
                 success = -1;
 
-                MPS_DEBUG(s, "Cannot regenerate coefficients, reusing old ones and setting best_approx to true.")
+                MPS_DEBUG(s, "Cannot regenerate coefficients, reusing old ones and setting best_approx to true.");
                 s->secular_equation->best_approx = true;
 
                 goto regenerate_m_exit;
@@ -400,7 +400,7 @@ mps_secular_ga_regenerate_coefficients(mps_status* s)
         mpc_set_cplx(sec->ampc[i], sec->afpc[i]);
       }
 
-    // Regeneration
+    /* Regeneration */
     if (mps_secular_ga_regenerate_coefficients_mp(s) != 0)
     {
         for(i = 0; i < s->n; i++)
@@ -441,7 +441,7 @@ mps_secular_ga_regenerate_coefficients(mps_status* s)
         mpc_set_cdpe(sec->bmpc[i], sec->bdpc[i]);
       }
 
-    // Regeneration
+    /* Regeneration */
     if (mps_secular_ga_regenerate_coefficients_mp(s) != 0)
     {
         for(i = 0; i < s->n; i++)
@@ -459,12 +459,6 @@ mps_secular_ga_regenerate_coefficients(mps_status* s)
     /* Free data */
     cdpe_vfree(old_da);
     cdpe_vfree(old_db);
-
-//    /* Debug new coefficients found */
-//    for (i = 0; i < s->n; i++)
-//      {
-//        MPS_DEBUG_CDPE(s, sec->adpc[i], "sec->adpc[%d]", i);
-//      }
 
     mps_secular_dstart(s, s->n, 0, (__rdpe_struct *) rdpe_zero,
         (__rdpe_struct *) rdpe_zero, s->eps_out);
@@ -489,7 +483,7 @@ mps_secular_ga_regenerate_coefficients(mps_status* s)
             mpc_set(sec->bmpc[i], s->mroot[i]);
           }
 
-        // Regeneration
+        /* Regeneration */
         if (mps_secular_ga_regenerate_coefficients_mp(s))
         {
             /* Finally set radius according to new computed a_i coefficients,
@@ -502,11 +496,11 @@ mps_secular_ga_regenerate_coefficients(mps_status* s)
      * so do not display it (unless we are trying to catch some errors on
      * coefficient regeneration). */
 
-//    for (i = 0; i < s->n; i++)
+/*    for (i = 0; i < s->n; i++)
 //      {
 //        MPS_DEBUG_MPC(s, 15, sec->ampc[i], "sec->ampc[%d]", i);
 //        MPS_DEBUG_MPC(s, 15, sec->bmpc[i], "sec->bmpc[%d]", i);
-//      }
+//      } */
 
      mpc_vclear(old_ma, s->n);
      mpc_vclear(old_mb, s->n);
@@ -657,17 +651,17 @@ mps_secular_ga_mpsolve(mps_status* s)
         {
       case float_phase:
         roots_computed = mps_secular_ga_fiterate(s, iteration_per_packet);
-        MPS_DEBUG(s, "%d roots were computed", roots_computed)
+        MPS_DEBUG(s, "%d roots were computed", roots_computed);
         break;
 
       case dpe_phase:
         roots_computed = mps_secular_ga_diterate(s, iteration_per_packet);
-        MPS_DEBUG(s, "%d roots were computed", roots_computed)
+        MPS_DEBUG(s, "%d roots were computed", roots_computed);
         break;
 
       case mp_phase:
         roots_computed = mps_secular_ga_miterate(s, iteration_per_packet);
-        MPS_DEBUG(s, "%d roots were computed", roots_computed)
+        MPS_DEBUG(s, "%d roots were computed", roots_computed);
         break;
 
       default:
