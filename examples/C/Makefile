@@ -10,7 +10,7 @@ all: mandelbrot root_of_unity
 
 
 CFLAGS=-I../../include -DNOMPTEMP
-LDFLAGS=-lmps -lm -lgmp -lpthread -L../../src -static
+LDFLAGS=-lmps -lm -lgmp -lpthread -L../../src/libmps/.libs -static
 CC=gcc
 
 mandelbrot: mandelbrot.c
