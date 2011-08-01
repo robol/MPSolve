@@ -131,6 +131,8 @@ mps_parse_option_line (mps_status* s, char* line, size_t length)
       input_option.flag = MPS_FLAG_COMPLEX;
   if (mps_is_option(s, option, "rational"))
       input_option.flag = MPS_FLAG_RATIONAL;
+  if (mps_is_option(s, option, "floatingpoint"))
+      input_option.flag = MPS_FLAG_FP;
 
   /* Options on the input type */
   if (mps_is_option(s, option, "secular"))
@@ -287,7 +289,6 @@ mps_parse_stream(mps_status* s, FILE* input_stream)
           /* Parsing of algebraic structure of the input */
           else if (input_option.flag == MPS_FLAG_REAL)
           {
-              MPS_DEBUG(s, "Parsed MPS_FLAG_REAL")
               switch (config.structure)
               {
               case MPS_STRUCTURE_REAL_INTEGER:
