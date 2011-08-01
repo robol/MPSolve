@@ -9,7 +9,7 @@
 #if __STDC_VERSION__ < 199901L
 #ifndef DISABLE_DEBUG
 void
-MPS_DEBUG(mps_status* s, const char* templ, ...)
+__c_impl__MPS_DEBUG(mps_status* s, const char* templ, ...)
 {
     va_list ap;
     if (!s->DOLOG)
@@ -20,7 +20,7 @@ MPS_DEBUG(mps_status* s, const char* templ, ...)
 }
 
 void
-__MPS_DEBUG(mps_status* s, const char* templ, ...)
+__c_impl____MPS_DEBUG(mps_status* s, const char* templ, ...)
 {
     va_list ap;
     if (!s->DOLOG)
