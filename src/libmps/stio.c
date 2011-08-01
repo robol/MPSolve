@@ -173,7 +173,9 @@ mps_secular_equation_read_from_stream(mps_status* s, mps_parsing_configuration c
    * what is supported by the standard floating point arithmetic */
   sec = mps_secular_equation_new_raw(s, s->n);
 
-  if (config.structure == MPS_STRUCTURE_COMPLEX_INTEGER)
+  /* Parsinf of integers and floating point is done with DPE */
+  if (config.structure == MPS_STRUCTURE_COMPLEX_INTEGER ||
+      config.structure == MPS_STRUCTURE_COMPLEX_FP)
   {
       for(i = 0; i < s->n; i++)
         {
@@ -190,10 +192,26 @@ mps_secular_equation_read_from_stream(mps_status* s, mps_parsing_configuration c
           rdpe_inp_str_flex(cdpe_Im(sec->bdpc[i]), input_stream);
         }
   }
-  else
+  else if (config.structure == MPS_STRUCTURE_REAL_INTEGER ||
+           config.structure == MPS_STRUCTURE_REAL_FP)
+  {
+      /* Parse only real coefficients, and set imaginary ones to zero */
+      for(i = 0; i < s->n; i++)
+        {
+          mps_skip_comments(input_stream);
+          rdpe_inp_str_flex(cdpe_Re(sec->adpc[i]), input_stream);
+          rdpe_set(cdpe_Im(sec->adpc[i]), rdpe_zero);
+
+          mps_skip_comments(input_stream);
+          rdpe_inp_str_flex(cdpe_Re(sec->bdpc[i]), input_stream);
+          rdpe_set(cdpe_Im(sec->bdpc[i]), rdpe_zero);
+        }
+
+  } else
   {
       s->n = -1;
-      mps_error(s, 1, "Only complex integer input is supported until now");
+      mps_error(s, 1,
+      "Rational input is not supported at the moment being");
   }
 
   /* Deflate input, if identical b_i coefficients are found */
@@ -305,6 +323,56 @@ mps_parse_stream(mps_status* s, FILE* input_stream)
               }
           }
 
+          /* Parsing of algebraic structure of the input, i.e.
+           * Integer, Rational or floating point */
+          else if (input_option.flag == MPS_FLAG_INTEGER)
+          {
+              switch (config.structure)
+              {
+              case MPS_STRUCTURE_REAL_INTEGER:
+              case MPS_STRUCTURE_REAL_RATIONAL:
+              case MPS_STRUCTURE_REAL_FP:
+                  config.structure = MPS_STRUCTURE_REAL_INTEGER;
+                  break;
+              case MPS_STRUCTURE_COMPLEX_INTEGER:
+              case MPS_STRUCTURE_COMPLEX_RATIONAL:
+              case MPS_STRUCTURE_COMPLEX_FP:
+                  config.structure = MPS_STRUCTURE_COMPLEX_INTEGER;
+                  break;
+              }
+          }
+          else if (input_option.flag == MPS_FLAG_RATIONAL)
+          {
+              switch (config.structure)
+              {
+              case MPS_STRUCTURE_REAL_INTEGER:
+              case MPS_STRUCTURE_REAL_RATIONAL:
+              case MPS_STRUCTURE_REAL_FP:
+                  config.structure = MPS_STRUCTURE_REAL_RATIONAL;
+                  break;
+              case MPS_STRUCTURE_COMPLEX_INTEGER:
+              case MPS_STRUCTURE_COMPLEX_RATIONAL:
+              case MPS_STRUCTURE_COMPLEX_FP:
+                  config.structure = MPS_STRUCTURE_COMPLEX_RATIONAL;
+                  break;
+              }
+          }
+          else if (input_option.flag == MPS_FLAG_FP)
+          {
+              switch (config.structure)
+              {
+              case MPS_STRUCTURE_REAL_INTEGER:
+              case MPS_STRUCTURE_REAL_RATIONAL:
+              case MPS_STRUCTURE_REAL_FP:
+                  config.structure = MPS_STRUCTURE_REAL_FP;
+                  break;
+              case MPS_STRUCTURE_COMPLEX_INTEGER:
+              case MPS_STRUCTURE_COMPLEX_RATIONAL:
+              case MPS_STRUCTURE_COMPLEX_FP:
+                  config.structure = MPS_STRUCTURE_COMPLEX_FP;
+                  break;
+              }
+          }
       }
     }
 
@@ -332,6 +400,12 @@ mps_parse_stream(mps_status* s, FILE* input_stream)
         if (config.structure == MPS_STRUCTURE_COMPLEX_INTEGER)
             MPS_DEBUG(s, "config.structure is MPS_STRUCTURE_COMPLEX_INTEGER")
         mps_secular_equation_read_from_stream(s, config, input_stream);
+    }
+    else if (config.representation == MPS_REPRESENTATION_MONOMIAL)
+    {
+        fprintf(s->logstr, "Only secular representation can be parse with secsolve at the moment being.\n"
+                "Use unisolve to solve regular polynomials.\n");
+        exit (EXIT_FAILURE);
     }
 }
 
