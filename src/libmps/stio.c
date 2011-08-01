@@ -16,6 +16,12 @@
 #include <mps/secular.h>
 #include <ctype.h>
 
+#ifndef __WINDOWS
+#include <unistd.h>
+#else
+#include <io.h>
+#endif
+
 #define ISZERO -1
 
 void
@@ -186,7 +192,6 @@ mps_secular_equation_read_from_stream(mps_status* s, mps_parsing_configuration c
 
           if (r == 0)
           {
-              s->n = -1;
               mps_error (s, 1,
                          "Error reading some coefficients of the secular equation.\n"
                          "Please check your input file.");
@@ -197,7 +202,6 @@ mps_secular_equation_read_from_stream(mps_status* s, mps_parsing_configuration c
 
           if (r == 0)
           {
-              s->n = -1;
               mps_error (s, 1,
                          "Error reading some coefficients of the secular equation.\n"
                          "Please check your input file.");
@@ -208,7 +212,6 @@ mps_secular_equation_read_from_stream(mps_status* s, mps_parsing_configuration c
 
           if (r == 0)
           {
-              s->n = -1;
               mps_error (s, 1,
                          "Error reading some coefficients of the secular equation.\n"
                          "Please check your input file.");
@@ -219,7 +222,6 @@ mps_secular_equation_read_from_stream(mps_status* s, mps_parsing_configuration c
 
           if (r == 0)
           {
-              s->n = -1;
               mps_error (s, 1,
                          "Error reading some coefficients of the secular equation.\n"
                          "Please check your input file.");
@@ -238,7 +240,6 @@ mps_secular_equation_read_from_stream(mps_status* s, mps_parsing_configuration c
 
           if (r == 0)
           {
-              s->n = -1;
               mps_error (s, 1,
                          "Error reading some coefficients of the secular equation.\n"
                          "Please check your input file.");
@@ -250,7 +251,6 @@ mps_secular_equation_read_from_stream(mps_status* s, mps_parsing_configuration c
 
           if (r == 0)
           {
-              s->n = -1;
               mps_error (s, 1,
                          "Error reading some coefficients of the secular equation.\n"
                          "Please check your input file.");
@@ -259,7 +259,6 @@ mps_secular_equation_read_from_stream(mps_status* s, mps_parsing_configuration c
 
   } else
   {
-      s->n = -1;
       mps_error(s, 1,
       "Rational input is not supported at the moment being");
   }
@@ -877,6 +876,20 @@ mps_warn(mps_status* st, char *s)
   }
 }
 
+/**
+ * @brief Check if the file descriptor associated to stream
+ * is bounded to a tty.
+ */
+mps_boolean
+mps_is_a_tty(FILE* stream)
+{
+#ifndef __WINDOWS
+    return isatty(stream->_fileno);
+#else
+    return _isatty(_fileno(stream));
+#endif
+}
+
 /*************************************************************
  *                     SUBROUTINE VAERROR                    *
  *************************************************************/
@@ -886,7 +899,10 @@ mps_error(mps_status* st, int args, ...)
   va_list ap;
   char * s;
 
-  mps_warn(st, "\033[31;1m!\033[0m MPSolve encountered an error:");		/* output error message */
+  if (mps_is_a_tty(st->logstr))
+    mps_warn(st, "\033[31;1m!\033[0m MPSolve encountered an error:");		/* output error message */
+  else
+    mps_warn(st, "! MPSolve encountered an error:");
   va_start(ap, args);
   while(args--) {
     s = va_arg(ap, char *);
