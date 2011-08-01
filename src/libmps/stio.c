@@ -168,7 +168,7 @@ mps_secular_equation_read_from_stream(mps_status* s, mps_parsing_configuration c
                                       FILE* input_stream)
 {
   mps_secular_equation* sec;
-  int i;
+  int i, r;
 
   /* Read directly the secular equation in DPE, so we don't need
    * to have a fallback case if the coefficients are bigger than
@@ -182,16 +182,48 @@ mps_secular_equation_read_from_stream(mps_status* s, mps_parsing_configuration c
       for(i = 0; i < s->n; i++)
         {
           mps_skip_comments(input_stream);
-          rdpe_inp_str_flex(cdpe_Re(sec->adpc[i]), input_stream);
+          r = rdpe_inp_str_flex(cdpe_Re(sec->adpc[i]), input_stream);
+
+          if (r == 0)
+          {
+              s->n = -1;
+              mps_error (s, 1,
+                         "Error reading some coefficients of the secular equation.\n"
+                         "Please check your input file.");
+          }
 
           mps_skip_comments(input_stream);
-          rdpe_inp_str_flex(cdpe_Im(sec->adpc[i]), input_stream);
+          r = rdpe_inp_str_flex(cdpe_Im(sec->adpc[i]), input_stream);
+
+          if (r == 0)
+          {
+              s->n = -1;
+              mps_error (s, 1,
+                         "Error reading some coefficients of the secular equation.\n"
+                         "Please check your input file.");
+          }
 
           mps_skip_comments(input_stream);
-          rdpe_inp_str_flex(cdpe_Re(sec->bdpc[i]), input_stream);
+          r = rdpe_inp_str_flex(cdpe_Re(sec->bdpc[i]), input_stream);
+
+          if (r == 0)
+          {
+              s->n = -1;
+              mps_error (s, 1,
+                         "Error reading some coefficients of the secular equation.\n"
+                         "Please check your input file.");
+          }
 
           mps_skip_comments(input_stream);
-          rdpe_inp_str_flex(cdpe_Im(sec->bdpc[i]), input_stream);
+          r = rdpe_inp_str_flex(cdpe_Im(sec->bdpc[i]), input_stream);
+
+          if (r == 0)
+          {
+              s->n = -1;
+              mps_error (s, 1,
+                         "Error reading some coefficients of the secular equation.\n"
+                         "Please check your input file.");
+          }
         }
   }
   else if (config.structure == MPS_STRUCTURE_REAL_INTEGER ||
@@ -201,12 +233,28 @@ mps_secular_equation_read_from_stream(mps_status* s, mps_parsing_configuration c
       for(i = 0; i < s->n; i++)
         {
           mps_skip_comments(input_stream);
-          rdpe_inp_str_flex(cdpe_Re(sec->adpc[i]), input_stream);
+          r = rdpe_inp_str_flex(cdpe_Re(sec->adpc[i]), input_stream);
           rdpe_set(cdpe_Im(sec->adpc[i]), rdpe_zero);
 
+          if (r == 0)
+          {
+              s->n = -1;
+              mps_error (s, 1,
+                         "Error reading some coefficients of the secular equation.\n"
+                         "Please check your input file.");
+          }
+
           mps_skip_comments(input_stream);
-          rdpe_inp_str_flex(cdpe_Re(sec->bdpc[i]), input_stream);
+          r = rdpe_inp_str_flex(cdpe_Re(sec->bdpc[i]), input_stream);
           rdpe_set(cdpe_Im(sec->bdpc[i]), rdpe_zero);
+
+          if (r == 0)
+          {
+              s->n = -1;
+              mps_error (s, 1,
+                         "Error reading some coefficients of the secular equation.\n"
+                         "Please check your input file.");
+          }
         }
 
   } else
@@ -838,7 +886,7 @@ mps_error(mps_status* st, int args, ...)
   va_list ap;
   char * s;
 
-  mps_warn(st, "! ");		/* output error message */
+  mps_warn(st, "\033[31;1m!\033[0m MPSolve encountered an error:");		/* output error message */
   va_start(ap, args);
   while(args--) {
     s = va_arg(ap, char *);
@@ -846,7 +894,9 @@ mps_error(mps_status* st, int args, ...)
   }
   va_end(ap);
 
-  mps_dump(st, st->logstr);		/* dump status		*/
+  /* Dump approximations, but only if they are present */
+  if (st->froot && st->lastphase)
+    mps_dump(st, st->logstr);		/* dump status		*/
   exit(EXIT_FAILURE);	/* exit program         */
 }
 

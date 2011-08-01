@@ -106,7 +106,10 @@ main(int argc, char** argv)
 
   /* Create new secular equation */
   mps_parsing_configuration default_configuration = {
+      /* .structure */
       MPS_STRUCTURE_COMPLEX_FP,
+
+      /* .representation */
       MPS_REPRESENTATION_SECULAR
   };
   mps_parse_stream(s, infile, default_configuration);
