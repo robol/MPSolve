@@ -238,7 +238,8 @@ mps_secular_equation_read_from_stream(mps_status* s, mps_parsing_configuration c
  * @brief Parse a stream for input data.
  */
 void
-mps_parse_stream(mps_status* s, FILE* input_stream)
+mps_parse_stream(mps_status* s, FILE* input_stream,
+                 mps_parsing_configuration default_configuration)
 {
     mps_boolean parsing_options = true;
     mps_input_buffer *buffer;
@@ -248,8 +249,7 @@ mps_parse_stream(mps_status* s, FILE* input_stream)
     ssize_t length;
 
     /* Set default values for the parsing configuration */
-    config.representation = MPS_REPRESENTATION_MONOMIAL;
-    config.structure = MPS_STRUCTURE_REAL_INTEGER;
+    config = default_configuration;
 
     /* Create a buffered line reader for the input stream
      * that has been assigned to us */
@@ -377,8 +377,10 @@ mps_parse_stream(mps_status* s, FILE* input_stream)
       }
     }
 
+    /* Since the Degree is a required parameter, we ask that it is provided. */
     if (s->n == -1)
-        mps_error(s, 1, "Degree of the polynomial must be provided via the Degree=%d configuration option.");
+        mps_error(s, 1,
+        "Degree of the polynomial must be provided via the Degree=%d configuration option.");
     else
     {
       MPS_DEBUG(s, "Degree: %d", s->n)

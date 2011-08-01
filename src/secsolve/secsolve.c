@@ -105,7 +105,11 @@ main(int argc, char** argv)
     infile = fopen(argv[1], "r");
 
   /* Create new secular equation */
-  mps_parse_stream(s, infile);
+  mps_parsing_configuration default_configuration = {
+      MPS_STRUCTURE_COMPLEX_FP,
+      MPS_REPRESENTATION_SECULAR
+  };
+  mps_parse_stream(s, infile, default_configuration);
   sec = s->secular_equation;
 
   /* Close the file if it's not stdin */
