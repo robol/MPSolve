@@ -404,8 +404,10 @@ mps_parse_stream(mps_status* s, FILE* input_stream)
     }
     else if (config.representation == MPS_REPRESENTATION_MONOMIAL)
     {
-        fprintf(s->logstr, "Only secular representation can be parse with secsolve at the moment being.\n"
-                "Use unisolve to solve regular polynomials.\n");
+        fprintf(s->logstr, "Only secular representation can be parsed using secsolve\n"
+                "at the moment being. Use unisolve to solve regular polynomials.\n"
+                "If your intention was actually to parse a secular equation use\n"
+                "the option Secular; in the input file.\n");
         exit (EXIT_FAILURE);
     }
 }
