@@ -46,8 +46,8 @@ test_unisolve_on_pol(test_pol *pol)
            pol->pol_file, pol->out_digits, (pol->phase == dpe_phase) ? "DPE" : "floating point");
   */
 
-  mpc_init2(root, prec);
-  mpc_init2(ctmp, prec);
+  mpc_init2(root,  prec);
+  mpc_init2(ctmp,  prec);
   mpf_init2(mroot, prec);
   mpf_init2(eps,   prec);
   mpf_init2(ftmp,  prec);

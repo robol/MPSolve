@@ -228,6 +228,7 @@ check_unisolve_LDFLAGS = -L${top_builddir}/src/libmps -lmps -lm -lgmp -lcheck
 EXTRA_DIST = \
 	secsolve/rand15.pol \
 	secsolve/test1000.pol \
+	secsolve/test100.pol \
 	secsolve/rand120.pol \
 	unisolve/lsr_24.pol \
 	unisolve/toep1_128.pol \
@@ -396,6 +397,7 @@ EXTRA_DIST = \
 	unisolve/mig1_100.pol \
 	../results/secsolve/test1000.res \
 	../results/secsolve/rand15.res \
+	../results/secsolve/test100.res \
 	../results/secsolve/rand120.res \
 	../results/unisolve/mand63.res \
 	../results/unisolve/kam2_1.res \

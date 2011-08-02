@@ -338,90 +338,47 @@ mps_parse_stream(mps_status* s, FILE* input_stream,
           /* Parsing of algebraic structure of the input */
           else if (input_option.flag == MPS_FLAG_REAL)
           {
-              switch (config.structure)
-              {
-              case MPS_STRUCTURE_REAL_INTEGER:
-              case MPS_STRUCTURE_COMPLEX_INTEGER:
+              /* Switch on algebraic structure that is already set */
+              if (MPS_STRUCTURE_IS_INTEGER(config.structure))
                 config.structure = MPS_STRUCTURE_REAL_INTEGER;
-                break;
-              case MPS_STRUCTURE_REAL_RATIONAL:
-              case MPS_STRUCTURE_COMPLEX_RATIONAL:
+              else if (MPS_STRUCTURE_IS_RATIONAL(config.structure))
                 config.structure = MPS_STRUCTURE_REAL_RATIONAL;
-                break;
-              case MPS_STRUCTURE_REAL_FP:
-              case MPS_STRUCTURE_COMPLEX_FP:
+              else if (MPS_STRUCTURE_IS_FP(config.structure))
                 config.structure = MPS_STRUCTURE_REAL_FP;
-                break;
-              }
           }
           else if (input_option.flag == MPS_FLAG_COMPLEX)
           {
-              switch (config.structure)
-              {
-              case MPS_STRUCTURE_REAL_INTEGER:
-              case MPS_STRUCTURE_COMPLEX_INTEGER:
+              /* Switch on algebraic structure that is already set */
+              if (MPS_STRUCTURE_IS_INTEGER(config.structure))
                 config.structure = MPS_STRUCTURE_COMPLEX_INTEGER;
-                break;
-              case MPS_STRUCTURE_REAL_RATIONAL:
-              case MPS_STRUCTURE_COMPLEX_RATIONAL:
+              else if (MPS_STRUCTURE_IS_RATIONAL(config.structure))
                 config.structure = MPS_STRUCTURE_COMPLEX_RATIONAL;
-                break;
-              case MPS_STRUCTURE_REAL_FP:
-              case MPS_STRUCTURE_COMPLEX_FP:
+              else if (MPS_STRUCTURE_IS_FP(config.structure))
                 config.structure = MPS_STRUCTURE_COMPLEX_FP;
-                break;
-              }
           }
 
           /* Parsing of algebraic structure of the input, i.e.
            * Integer, Rational or floating point */
           else if (input_option.flag == MPS_FLAG_INTEGER)
           {
-              switch (config.structure)
-              {
-              case MPS_STRUCTURE_REAL_INTEGER:
-              case MPS_STRUCTURE_REAL_RATIONAL:
-              case MPS_STRUCTURE_REAL_FP:
+              if (MPS_STRUCTURE_IS_REAL(config.structure))
                   config.structure = MPS_STRUCTURE_REAL_INTEGER;
-                  break;
-              case MPS_STRUCTURE_COMPLEX_INTEGER:
-              case MPS_STRUCTURE_COMPLEX_RATIONAL:
-              case MPS_STRUCTURE_COMPLEX_FP:
+              else if (MPS_STRUCTURE_IS_COMPLEX(config.structure))
                   config.structure = MPS_STRUCTURE_COMPLEX_INTEGER;
-                  break;
-              }
           }
           else if (input_option.flag == MPS_FLAG_RATIONAL)
           {
-              switch (config.structure)
-              {
-              case MPS_STRUCTURE_REAL_INTEGER:
-              case MPS_STRUCTURE_REAL_RATIONAL:
-              case MPS_STRUCTURE_REAL_FP:
+              if (MPS_STRUCTURE_IS_REAL(config.structure))
                   config.structure = MPS_STRUCTURE_REAL_RATIONAL;
-                  break;
-              case MPS_STRUCTURE_COMPLEX_INTEGER:
-              case MPS_STRUCTURE_COMPLEX_RATIONAL:
-              case MPS_STRUCTURE_COMPLEX_FP:
+              else if (MPS_STRUCTURE_IS_COMPLEX(config.structure))
                   config.structure = MPS_STRUCTURE_COMPLEX_RATIONAL;
-                  break;
-              }
           }
           else if (input_option.flag == MPS_FLAG_FP)
           {
-              switch (config.structure)
-              {
-              case MPS_STRUCTURE_REAL_INTEGER:
-              case MPS_STRUCTURE_REAL_RATIONAL:
-              case MPS_STRUCTURE_REAL_FP:
+              if (MPS_STRUCTURE_IS_FP(config.structure))
                   config.structure = MPS_STRUCTURE_REAL_FP;
-                  break;
-              case MPS_STRUCTURE_COMPLEX_INTEGER:
-              case MPS_STRUCTURE_COMPLEX_RATIONAL:
-              case MPS_STRUCTURE_COMPLEX_FP:
+              else if (MPS_STRUCTURE_IS_COMPLEX(config.structure))
                   config.structure = MPS_STRUCTURE_COMPLEX_FP;
-                  break;
-              }
           }
       }
     }

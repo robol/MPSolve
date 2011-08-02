@@ -145,6 +145,20 @@ typedef enum {
     MPS_STRUCTURE_COMPLEX_FP
 } mps_structure;
 
+/* STRUCTURES truth tables */
+const static short int mps_rational_structures [] = { 0 , 1, 0, 0, 1, 0 };
+const static short int mps_integer_structures [] = { 0, 0, 1, 0, 0, 1 };
+const static short int mps_fp_structures [] = { 1, 0, 0, 1, 0, 0 };
+const static short int mps_real_structures [] = { 1, 1, 1, 0, 0, 0 };
+const static short int mps_complex_structures [] = { 0, 0, 0, 1, 1, 1 };
+
+/* STRUCTURE related macros */
+#define MPS_STRUCTURE_IS_RATIONAL(x) (mps_rational_structures[(x)])
+#define MPS_STRUCTURE_IS_INTEGER(x)  (mps_integer_structures[(x)])
+#define MPS_STRUCTURE_IS_FP(x)       (mps_fp_structures[(x)])
+#define MPS_STRUCTURE_IS_REAL(x)     (mps_real_structures[(x)])
+#define MPS_STRUCTURE_IS_COMPLEX(x)  (mps_complex_structures[(x)])
+
 /**
  * @brief Representation chosen for the polynomial
  */
