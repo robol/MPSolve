@@ -147,7 +147,7 @@ END_TEST
 START_TEST (test_secsolve_altern)
 {
   /* Start with testing floating point without ga */
-  test_pol *pol = test_pol_new("test1000", "secsolve", 12, float_phase, false);
+  test_pol *pol = test_pol_new("test100", "secsolve", 10, float_phase, false);
   test_secsolve_on_pol(pol);
 
   /* then floating point with ga */
