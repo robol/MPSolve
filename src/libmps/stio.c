@@ -279,6 +279,23 @@ mps_secular_equation_read_from_stream(mps_status* s, mps_parsing_configuration c
       cdpe_get_x(sec->bfpc[i], sec->bdpc[i]);
     }
 
+  /* And finally put a copy in initial_ampc and
+   * inital_bmpc to perform regeneration */
+  for(i = 0; i < sec->n; i++)
+  {
+      if (MPS_STRUCTURE_IS_RATIONAL(config.structure))
+      {
+
+      }
+      else
+      {
+          /* Standard CDPE */
+          mpc_set_cdpe(sec->initial_ampc[i], sec->adpc[i]);
+          mpc_set_cdpe(sec->initial_bmpc[i], sec->bdpc[i]);
+      }
+
+  }
+
   s->secular_equation = sec;
 }
 
@@ -327,7 +344,7 @@ mps_parse_stream(mps_status* s, FILE* input_stream,
           if (input_option.flag == MPS_KEY_DEGREE)
           {
               s->n = atoi(input_option.value);
-              if (s->n < 0)
+              if (s->n <= 0)
                   mps_error(s, 1, "Degree must be a positive integer");
           }
 

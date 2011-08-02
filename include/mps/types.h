@@ -238,40 +238,16 @@ typedef struct
   mpc_t * bmpc;
 
   /**
-   * @brief Initial floating point coefficients saved for latter
+   * @brief Initial multiprecision coefficients saved for latter
    * regeneration in <code>mps_secular_ga_regenerate_coefficients()</code>.
    */
-  cplx_t* old_afpc;
-
-  /**
-   * @brief Initial floating point coefficients saved for latter
-   * regeneration in <code>mps_secular_ga_regenerate_coefficients()</code>.
-   */
-  cplx_t* old_bfpc;
-
-  /**
-   * @brief Initial CDPE coefficients saved for latter
-   * regeneration in <code>mps_secular_ga_regenerate_coefficients()</code>.
-   */
-  cdpe_t* old_adpc;
-
-  /**
-   * @brief Initial CDPE coefficients saved for latter
-   * regeneration in <code>mps_secular_ga_regenerate_coefficients()</code>.
-   */
-  cdpe_t* old_bdpc;
+  mpc_t*  initial_ampc;
 
   /**
    * @brief Initial multiprecision coefficients saved for latter
    * regeneration in <code>mps_secular_ga_regenerate_coefficients()</code>.
    */
-  mpc_t*  old_ampc;
-
-  /**
-   * @brief Initial multiprecision coefficients saved for latter
-   * regeneration in <code>mps_secular_ga_regenerate_coefficients()</code>.
-   */
-  mpc_t*  old_bmpc;
+  mpc_t*  initial_bmpc;
 
   /**
    * @brief Size of the vectors of the coefficients of the

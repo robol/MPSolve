@@ -43,9 +43,6 @@ void
 mps_secular_switch_phase(mps_status* s, mps_phase phase);
 
 void
-mps_secular_save_coefficients(mps_status* s, mps_secular_equation* sec);
-
-void
 mps_secular_raise_coefficient_precision(mps_status* s, int wp);
 
 void
