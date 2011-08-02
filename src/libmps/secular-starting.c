@@ -41,7 +41,7 @@ mps_secular_fstart(mps_status* s, int n, int i_clust, double clust_rad,
   for (i = 0; i < s->n; i++)
     {
       cplx_set_d(s->froot[l + i], cos(i * th + sigma), sin(i * th + sigma));
-      cplx_mul_eq_d(s->froot[l + i], 5 * DBL_EPSILON);
+      cplx_mul_eq_d(s->froot[l + i], DBL_EPSILON);
       cplx_add_eq(s->froot[l + i], sec->bfpc[l + i]);
     }
 }
@@ -77,7 +77,7 @@ mps_secular_dstart(mps_status* s, int n, int i_clust, rdpe_t clust_rad,
   for (i = 0; i < s->n; i++)
     {
       cdpe_set_d(s->droot[l + i], cos(i * th + sigma), sin(i * th + sigma));
-      cdpe_mul_eq_d(s->droot[l + i], 5 * DBL_EPSILON);
+      cdpe_mul_eq_d(s->droot[l + i], DBL_EPSILON);
       cdpe_add_eq(s->droot[l + i], sec->bdpc[l + i]);
     }
 }

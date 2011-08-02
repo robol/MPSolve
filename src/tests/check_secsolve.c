@@ -38,16 +38,18 @@ test_secsolve_on_pol(test_pol *pol)
 
     /* Output digit to test, default values. Script should normally
      * alter this with options on the command line. */
-    int i, j, prec = pol->out_digits * LOG2_10;
+    int i, j, prec = pol->out_digits * LOG2_10 + 10;
     int ch;
 
     /* Debug starting of this test */
+    /*
     if (pol->ga)
       printf("Starting test on polynomial file %s, with %d output digits required, using GA approach and %s arithmetic.\n",
            pol->pol_file, pol->out_digits, (pol->phase == dpe_phase) ? "DPE" : "floating point");
     else
         printf("Starting test on polynomial file %s, with %d output digits required, using MPSolve approach and %s arithmetic.\n",
              pol->pol_file, pol->out_digits, (pol->phase == dpe_phase) ? "DPE" : "floating point");
+     */
 
     mpc_init2(root, prec);
     mpc_init2(ctmp, prec);
@@ -55,7 +57,7 @@ test_secsolve_on_pol(test_pol *pol)
     mpf_init2(eps,   prec);
     mpf_init2(ftmp,  prec);
 
-    mpf_set_2dl(eps, 1.0, -pol->out_digits);
+    mpf_set_2dl(eps, 1.0, -pol->out_digits + 1);
 
     /* Open streams */
     input_stream = fopen(pol->pol_file, "r");
@@ -66,26 +68,30 @@ test_secsolve_on_pol(test_pol *pol)
 
     /* Some default values */
     mps_set_default_values(s);
-    s->prec_out = prec;
-    strncpy(s->goal, "aannc", 5);
+    s->n_threads = 1;
 
     /* Set secular equation and start in floating point */
-    mps_parse_stream(s, input_stream);
-    s->secular_equation->starting_case = pol->phase;
+    mps_parsing_configuration default_configuration = {
+        MPS_STRUCTURE_COMPLEX_FP,
+        MPS_REPRESENTATION_SECULAR
+    };
+    mps_parse_stream(s, input_stream, default_configuration);
+    sec = s->secular_equation;
+    sec->starting_case = pol->phase;
 
     mps_status_set_degree(s, s->n);
 
     if (!pol->ga)
       {
-        mps_status_select_algorithm(s, MPS_ALGORITHM_SECULAR_MPSOLVE);
         mps_allocate_data(s);
+        mps_status_select_algorithm(s, MPS_ALGORITHM_SECULAR_MPSOLVE);
       }
     else
         mps_status_select_algorithm(s, MPS_ALGORITHM_SECULAR_GA);
 
-    /* Solve the polynomial */
-    s->goal[0] = 'a';
-
+    s->prec_out =  (int) (pol->out_digits * LOG2_10) + 1;
+    strncpy(s->goal, "aannc", 5);
+    s->prec_in = 0;
     mps_mpsolve(s);
     mps_copy_roots(s);
 
@@ -101,7 +107,7 @@ test_secsolve_on_pol(test_pol *pol)
           {
             mpc_sub(ctmp, root, s->mroot[j]);
             mpc_mod(mroot, ctmp);
-            mpc_mod(ftmp, s->mroot[j]);
+            mpc_mod(ftmp, root);
             mpf_mul_eq(ftmp, eps);
             if (mpf_cmp(mroot, ftmp) <= 0)
               {
@@ -120,9 +126,15 @@ test_secsolve_on_pol(test_pol *pol)
     fclose (check_stream);
 
     fail_unless(passed == true, "Computed results are not exact to the required "
-                "precision, that is of %d digits.\n"
-                "Test configuration: pol: %s, ga: %d, starting_phase: %s",
-                pol->out_digits, pol->pol_file, pol->ga,
+                "precision.\n"
+                "\n"
+                " Dumping test configuration: \n"
+                "   => Polynomial file: %s;\n"
+                "   => Required digits: %d\n"
+                "   => Gemignani's approach: %s;\n"
+                "   => Starting phase: %s;\n",
+                pol->pol_file, pol->out_digits,
+                mps_boolean_to_string(pol->ga),
                 (pol->phase == float_phase) ? "float_phase" : "dpe_phase");
 }
 
@@ -135,7 +147,7 @@ END_TEST
 START_TEST (test_secsolve_altern)
 {
   /* Start with testing floating point without ga */
-  test_pol *pol = test_pol_new("test1000", "secsolve", 20, float_phase, false);
+  test_pol *pol = test_pol_new("test1000", "secsolve", 12, float_phase, false);
   test_secsolve_on_pol(pol);
 
   /* then floating point with ga */
@@ -188,7 +200,7 @@ main (void)
 
   /* Gemignani's approach */
   test_polynomials[standard++] = test_pol_new("rand15", "secsolve", 15, float_phase, true);
-  test_polynomials[standard++] = test_pol_new("rand15", "secsolve", 400, float_phase, true);
+  test_polynomials[standard++] = test_pol_new("rand15", "secsolve", 200, float_phase, true);
 
   /* Tests with rand120.pol */
   test_polynomials[standard++] = test_pol_new("rand120", "secsolve", 15, float_phase, false);

@@ -412,13 +412,16 @@ mps_secular_ga_regenerate_coefficients(mps_status* s)
     else
     {
         for(i = 0; i < s->n; i++)
+        {
+            mpc_get_cplx(sec->bfpc[i], sec->bmpc[i]);
             mpc_get_cplx(sec->afpc[i], sec->ampc[i]);
+        }
     }
 
     cplx_vfree(old_a);
     cplx_vfree(old_b);
 
-    mps_secular_fstart(s, s->n, 0, 0, 0, s->eps_out);
+    /* mps_secular_fstart(s, s->n, 0, 0, 0, s->eps_out); */
 
     break;
 
@@ -686,7 +689,7 @@ mps_secular_ga_mpsolve(mps_status* s)
 
       /* Instead of using else we recheck best approx because it could
        * have been set by the coefficient regeneration */
-      if (sec->best_approx || packet > 3)
+      if (sec->best_approx || packet > 5)
       {
           /* Going to multiprecision if we're not there yet */
           if (s->lastphase != mp_phase)

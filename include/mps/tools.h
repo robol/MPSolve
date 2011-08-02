@@ -34,6 +34,8 @@ extern "C" {
   typedef bool mps_boolean;
 #endif /* mps_boolean */
 
+#define mps_boolean_to_string(x) ((x) == true) ? "true" : "false"
+
 /* functions */
 void randomize(unsigned int seed);
 double drand(void);

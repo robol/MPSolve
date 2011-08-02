@@ -13,6 +13,7 @@
 #include <mps/gmptools.h>
 #include <stdio.h>
 #include <ctype.h>
+#include <string.h>
 
 int
 usage (const char* program_name)

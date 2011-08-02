@@ -47,4 +47,4 @@ test_pol_free(test_pol* pol);
 }
 #endif
 
-#endif // CHECK_IMPLEMENTATION_H
+#endif

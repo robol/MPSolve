@@ -37,12 +37,14 @@ test_unisolve_on_pol(test_pol *pol)
   int ch;
 
   /* Debug starting of this test */
-//  if (pol->ga)
-//    printf("Starting test on polynomial file %s, with %d output digits required, using GA approach and %s arithmetic.\n",
-//         pol->pol_file, pol->out_digits, (pol->phase == dpe_phase) ? "DPE" : "floating point");
-//  else
-//      printf("Starting test on polynomial file %s, with %d output digits required, using MPSolve approach and %s arithmetic.\n",
-//           pol->pol_file, pol->out_digits, (pol->phase == dpe_phase) ? "DPE" : "floating point");
+  /*
+  if (pol->ga)
+    printf("Starting test on polynomial file %s, with %d output digits required, using GA approach and %s arithmetic.\n",
+         pol->pol_file, pol->out_digits, (pol->phase == dpe_phase) ? "DPE" : "floating point");
+  else
+      printf("Starting test on polynomial file %s, with %d output digits required, using MPSolve approach and %s arithmetic.\n",
+           pol->pol_file, pol->out_digits, (pol->phase == dpe_phase) ? "DPE" : "floating point");
+  */
 
   mpc_init2(root, prec);
   mpc_init2(ctmp, prec);
@@ -63,7 +65,6 @@ test_unisolve_on_pol(test_pol *pol)
 
   mps_set_default_values(s);
   s->prec_out = prec;
-  // s->n_threads = 1;
   strncpy(s->goal, "aannc", 5);
   mps_read_poly(s, input_stream, poly);
 
@@ -103,11 +104,15 @@ test_unisolve_on_pol(test_pol *pol)
   fclose (check_stream);
 
   if (s->prec_in > pol->out_digits) {
-      if (!passed) {
-          fail("Computed results of polynomial %s are not exact to the required precision,\n"
-                  "that is of %d digits.\n", pol->pol_file, pol->out_digits);
-      }
-  }
+       fail_unless(passed == true, "Computed results are not exact to the required "
+                      "precision.\n"
+                      "\n"
+                      " Dumping test configuration: \n"
+                      "   => Polynomial file: %s;\n"
+                      "   => Required digits: %d\n",
+                      pol->pol_file, pol->out_digits);
+
+        }
 }
 
 
@@ -179,7 +184,7 @@ main (void)
       test_polynomials[n++] = test_pol_new_simple("umand31", digits[i]);
       test_polynomials[n++] = test_pol_new_simple("wilk20", digits[i]);
       test_polynomials[n++] = test_pol_new_simple("wilk40", digits[i]);
-      // test_polynomials[n++] = test_pol_new_simple("toep1_128", digits[i]);
+      /* test_polynomials[n++] = test_pol_new_simple("toep1_128", digits[i]); */
     }
 
 
@@ -189,7 +194,7 @@ main (void)
   srunner_run_all(sr, CK_VERBOSE);
 
   /* Get number of failed test and report */
-  // number_failed = srunner_ntests_failed(sr);
+  number_failed = srunner_ntests_failed(sr);
   srunner_free(sr);
 
   /* Cleanup */

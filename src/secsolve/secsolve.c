@@ -42,6 +42,7 @@ main(int argc, char** argv)
   int n;
 
   s = mps_status_new();
+  s->prec_in = 0;
   s->n_threads = 1;
 
   /* Gemignani's approach */
@@ -121,7 +122,6 @@ main(int argc, char** argv)
 
   /* Set secular equation in user data, so it will be
    * accessible by the secular equation routines. */
-  s->secular_equation = sec;
   sec->starting_case = phase;
 
   if (phase == dpe_phase)

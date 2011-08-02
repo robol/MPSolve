@@ -191,6 +191,12 @@ gmp_fprintf(s->logstr, templ); \
 #ifndef DISABLE_DEBUG
 #if __STDC_VERSION__ < 199901L
 #include <mps/interface.h>
+#ifdef MPS_DEBUG
+#undef MPS_DEBUG
+#endif
+#ifdef __MPS_DEBUG
+#undef __MPS_DEBUG
+#endif
 #define MPS_DEBUG if (s->DOLOG && mps_is_a_tty(s->logstr))\
     fprintf(s->logstr, "%s:%d \033[32;1m%s()\033[;0m ", __FILE__, __LINE__, __FUNCTION__); \
     if (s->DOLOG && !mps_is_a_tty(s->logstr))\

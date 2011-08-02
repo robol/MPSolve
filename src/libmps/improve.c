@@ -43,6 +43,7 @@ mps_improve(mps_status* st)
   if (st->DOLOG)
     fprintf(st->logstr, "Refining the roots ...\n");
 
+
   /* == 1 ==
    * compute the number mpnb_in of bits
    * corresponding to the given input precision.
@@ -70,6 +71,7 @@ mps_improve(mps_status* st)
     mps_mp_set_prec(st, mpnb_out * 2);
     mps_prepare_data(st, mpnb_out * 2);
   }
+
 
   /* == 3 ==
    * scan the approximations to apply Newton's iterations */
@@ -104,7 +106,7 @@ mps_improve(mps_status* st)
 	  rdpe_sub_eq(tmp, st->drad[j]);
 	  if (rdpe_gt(t, tmp))
 	    rdpe_set(t, tmp);
-	}
+        }
     }
 
     /*  == 3.2 ==
@@ -133,7 +135,6 @@ mps_improve(mps_status* st)
     m = (int) (log((mpnb_out - f) / g) / LOG2) + 1;
 
     /*  == 4 ==      Start Newton */
-
     rdpe_set(oldrad, st->drad[i]);
     for (j = 1; j <= m; j++) {
       if (st->DOLOG)
@@ -141,7 +142,7 @@ mps_improve(mps_status* st)
       g *= 2;
       st->mpwp = (long) (f + g + cnd);
       if (st->mpwp >= mpnb_in && mpnb_in != 0)
-	st->mpwp = mpnb_in;
+        st->mpwp = mpnb_in;
 
       tmpc_clear(nwtcorr);
       tmpc_init2(nwtcorr, st->mpwp);
