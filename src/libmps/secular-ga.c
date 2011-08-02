@@ -478,8 +478,8 @@ mps_secular_ga_regenerate_coefficients(mps_status* s)
     cdpe_vfree(old_da);
     cdpe_vfree(old_db);
 
-    mps_secular_dstart(s, s->n, 0, (__rdpe_struct *) rdpe_zero,
-        (__rdpe_struct *) rdpe_zero, s->eps_out);
+    /* mps_secular_dstart(s, s->n, 0, (__rdpe_struct *) rdpe_zero,
+        (__rdpe_struct *) rdpe_zero, s->eps_out); */
 
     break;
 
@@ -514,18 +514,20 @@ mps_secular_ga_regenerate_coefficients(mps_status* s)
      * so do not display it (unless we are trying to catch some errors on
      * coefficient regeneration). */
 
+        /*
     for (i = 0; i < s->n; i++)
           {
             MPS_DEBUG_MPC(s, 15, sec->ampc[i], "sec->ampc[%d]", i);
             MPS_DEBUG_MPC(s, 15, sec->bmpc[i], "sec->bmpc[%d]", i);
           }
+          */
 
      mpc_vclear(old_ma, s->n);
      mpc_vclear(old_mb, s->n);
      mpc_vfree(old_ma);
      mpc_vfree(old_mb);
 
-        mps_secular_mstart(s, s->n, 0, (__rdpe_struct *) rdpe_zero,
+      mps_secular_mstart(s, s->n, 0, (__rdpe_struct *) rdpe_zero,
             (__rdpe_struct *) rdpe_zero, s->eps_out);
 
     break;
