@@ -135,7 +135,7 @@ mps_secular_fnewton(mps_status* s, cplx_t x, double *rad, cplx_t corr,
         g_corr = cplx_mod(ssp) / sigma;
 
         /* Radius is n * newt_corr, if it's better that Gerschgorin's one */
-        dtmp = g_corr * sec->n + DBL_EPSILON;
+        dtmp = g_corr * sec->n;
         if (dtmp < *rad)
           *rad = dtmp;
 
@@ -290,7 +290,13 @@ mps_secular_dnewton(mps_status* s, cdpe_t x, rdpe_t rad, cdpe_t corr,
 
         /* Computation of radius */
         rdpe_mul_d(rad, g_corr, s->n);
-        rdpe_add_eq_d(rad, DBL_EPSILON);
+
+        if (rdpe_eq_zero(g_corr))
+        {
+            rdpe_t rdpe_small;
+            rdpe_set_2dl(rdpe_small, 1.0, LONG_MIN);
+            rdpe_add_eq(rad, rdpe_small);
+        }
       }
     else
     {

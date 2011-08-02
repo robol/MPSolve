@@ -18,8 +18,8 @@ mps_secular_dump(mps_status* s, mps_secular_equation* sec)
     MPS_DEBUG(s, "Dumping secular equation:");
     for(i = 0; i < sec->n; i++)
     {
-        MPS_DEBUG_CDPE(s, sec->adpc[i], "sec->adpc[%d]", i)
-        MPS_DEBUG_CDPE(s, sec->bdpc[i], "sec->bdpc[%d]", i)
+        MPS_DEBUG_CDPE(s, sec->adpc[i], "sec->adpc[%d]", i);
+        MPS_DEBUG_CDPE(s, sec->bdpc[i], "sec->bdpc[%d]", i);
     }
 }
 
@@ -36,14 +36,14 @@ mps_secular_deflate(mps_status* s, mps_secular_equation* sec)
       for (j = i + 1; j < sec->n; j++)
         {
           if (cdpe_eq(sec->bdpc[i], sec->bdpc[j]))
-            {
+          {
               cdpe_add_eq(sec->adpc[i], sec->adpc[j]);
 
               /* Copy other coefficients back of one position */
               for (k = j; k < sec->n - 1; k++)
                 {
-                  cdpe_set(sec->adpc[j], sec->adpc[j + 1]);
-                  cdpe_set(sec->bdpc[j], sec->bdpc[j + 1]);
+                  cdpe_set(sec->adpc[k], sec->adpc[k + 1]);
+                  cdpe_set(sec->bdpc[k], sec->bdpc[k + 1]);
                 }
 
               /* Decrement number of coefficients */

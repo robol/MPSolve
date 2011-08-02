@@ -2263,7 +2263,7 @@ void mps_dpolzer(mps_status* s, int *it, mps_boolean * excep) {
 void mps_dsolve(mps_status* s, mps_boolean d_after_f) {
 	int it_pack, iter, nit, oldnclust, i, j;
 	mps_boolean excep;
-	rdpe_t dummy;
+        rdpe_t dummy;
 
 	if (s->DOLOG) {
 		fprintf(s->logstr, "   DSOLVE: d_after_f= %d\n", d_after_f);
@@ -2315,6 +2315,8 @@ void mps_dsolve(mps_status* s, mps_boolean d_after_f) {
                 /* mps_dpolzer(s, &nit, &excep); */
                 mps_thread_dpolzer(s, &nit, &excep);
                 it_pack += nit;
+
+                MPS_DEBUG(s, "DPE packet completed in %d iterations", nit);
 
 		if (s->DOLOG)
                         fprintf(s->logstr, "Packet %d iterations= %d\n", iter, nit);

@@ -420,7 +420,6 @@ mps_thread_dpolzer_worker(void* data_ptr)
               }
 
               cdpe_div(abcorr, corr, abcorr);
-
               cdpe_sub_eq(s->droot[i], abcorr);
               cdpe_mod(rtmp, abcorr);
               rdpe_add_eq(s->drad[i], rtmp);
