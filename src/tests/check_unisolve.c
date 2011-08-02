@@ -184,7 +184,7 @@ main (void)
       test_polynomials[n++] = test_pol_new_simple("umand31", digits[i]);
       test_polynomials[n++] = test_pol_new_simple("wilk20", digits[i]);
       test_polynomials[n++] = test_pol_new_simple("wilk40", digits[i]);
-      /* test_polynomials[n++] = test_pol_new_simple("toep1_128", digits[i]); */
+      test_polynomials[n++] = test_pol_new_simple("toep1_128", digits[i]);
     }
 
 
