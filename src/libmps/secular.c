@@ -79,12 +79,20 @@ mps_secular_equation_new_raw(mps_status* s, unsigned long int n)
   sec->bmpc = mpc_valloc(n);
   sec->initial_ampc = mpc_valloc(n);
   sec->initial_bmpc = mpc_valloc(n);
+  sec->initial_ampqrc = mpq_valloc(n);
+  sec->initial_bmpqrc = mpq_valloc(n);
+  sec->initial_ampqic = mpq_valloc(n);
+  sec->initial_bmpqic = mpq_valloc(n);
 
   /* Init multiprecision arrays */
   mpc_vinit(sec->ampc, n);
   mpc_vinit(sec->bmpc, n);
   mpc_vinit(sec->initial_ampc, n);
   mpc_vinit(sec->initial_bmpc, n);
+  mpq_vinit(sec->initial_ampqrc, n);
+  mpq_vinit(sec->initial_bmpqrc, n);
+  mpq_vinit(sec->initial_ampqic, n);
+  mpq_vinit(sec->initial_bmpqic, n);
 
   sec->n = n;
   return sec;
@@ -149,8 +157,16 @@ mps_secular_equation_free(mps_secular_equation* s)
   /* And old coefficients */
   mpc_vclear(s->initial_ampc, s->n);
   mpc_vclear(s->initial_bmpc, s->n);
+  mpq_vclear(s->initial_ampqrc, s->n);
+  mpq_vclear(s->initial_bmpqrc, s->n);
+  mpq_vclear(s->initial_ampqic, s->n);
+  mpq_vclear(s->initial_bmpqic, s->n);
   mpc_vfree(s->initial_ampc);
   mpc_vfree(s->initial_bmpc);
+  mpq_vfree(s->initial_ampqrc);
+  mpq_vfree(s->initial_bmpqrc);
+  mpq_vfree(s->initial_ampqic);
+  mpq_vfree(s->initial_bmpqic);
 
   /* ...and then release it */
   free(s);

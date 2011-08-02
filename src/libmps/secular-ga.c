@@ -299,6 +299,21 @@ mps_secular_ga_regenerate_coefficients_mp(mps_status* s)
 
     mps_secular_raise_coefficient_precision(s, coeff_wp);
 
+    /* If the input was rational generate multiprecision floating
+     * point coefficient from the ones that the user originally
+     * provided */
+    if (MPS_STRUCTURE_IS_RATIONAL(sec->input_structure))
+    {
+        for(i = 0; i < s->n; i++)
+        {
+            mpf_set_q(mpc_Re(sec->initial_ampc[i]), sec->initial_ampqrc[i]);
+            mpf_set_q(mpc_Im(sec->initial_ampc[i]), sec->initial_ampqic[i]);
+            mpf_set_q(mpc_Re(sec->initial_bmpc[i]), sec->initial_bmpqrc[i]);
+            mpf_set_q(mpc_Im(sec->initial_bmpc[i]), sec->initial_bmpqic[i]);
+        }
+
+    }
+
     /* Compute the new a_i */
     for (i = 0; i < s->n; i++)
       {
@@ -499,11 +514,11 @@ mps_secular_ga_regenerate_coefficients(mps_status* s)
      * so do not display it (unless we are trying to catch some errors on
      * coefficient regeneration). */
 
-/*    for (i = 0; i < s->n; i++)
-//      {
-//        MPS_DEBUG_MPC(s, 15, sec->ampc[i], "sec->ampc[%d]", i);
-//        MPS_DEBUG_MPC(s, 15, sec->bmpc[i], "sec->bmpc[%d]", i);
-//      } */
+    for (i = 0; i < s->n; i++)
+          {
+            MPS_DEBUG_MPC(s, 15, sec->ampc[i], "sec->ampc[%d]", i);
+            MPS_DEBUG_MPC(s, 15, sec->bmpc[i], "sec->bmpc[%d]", i);
+          }
 
      mpc_vclear(old_ma, s->n);
      mpc_vclear(old_mb, s->n);

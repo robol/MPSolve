@@ -249,6 +249,20 @@ typedef struct
    */
   mpc_t*  initial_bmpc;
 
+  mpq_t*  initial_ampqrc;
+  mpq_t*  initial_bmpqrc;
+  mpq_t*  initial_ampqic;
+  mpq_t*  initial_bmpqic;
+
+  /**
+   * @brief Structure of the input coefficient parsed initially.
+   *
+   * Knowing this is important in order to understand how to determine
+   * high precision coefficients if they are available.
+   */
+  mps_structure input_structure;
+
+
   /**
    * @brief Size of the vectors of the coefficients of the
    * secular equation.

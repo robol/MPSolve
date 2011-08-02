@@ -11,6 +11,7 @@
 
 #include <stdarg.h>
 #include <string.h>
+#include <gmp.h>
 #include <mps/gmptools.h>
 #include <mps/core.h>
 #include <mps/secular.h>
@@ -177,6 +178,9 @@ mps_secular_equation_read_from_stream(mps_status* s, mps_parsing_configuration c
 {
   mps_secular_equation* sec;
   int i, r;
+  mpf_t ftmp;
+
+  mpf_init(ftmp);
 
   /* Read directly the secular equation in DPE, so we don't need
    * to have a fallback case if the coefficients are bigger than
@@ -259,11 +263,61 @@ mps_secular_equation_read_from_stream(mps_status* s, mps_parsing_configuration c
           }
         }
 
-  } else
+  } else if (MPS_STRUCTURE_IS_RATIONAL(config.structure))
   {
-      mps_error(s, 1,
-      "Rational input is not supported at the moment being");
+      for(i = 0; i < s->n; i++)
+      {
+          /* Read real part of the a_i */
+          mps_skip_comments(input_stream);
+          mpq_inp_str(sec->initial_ampqrc[i], input_stream, 10);
+          mpq_canonicalize(sec->initial_ampqrc[i]);
+
+          /* Read imaginary part of the a_i */
+          if (MPS_STRUCTURE_IS_COMPLEX(config.structure))
+          {
+              mps_skip_comments(input_stream);
+              mpq_inp_str(sec->initial_ampqic[i], input_stream, 10);
+              mpq_canonicalize(sec->initial_ampqic[i]);
+          }
+          else
+              mpq_set_ui(sec->initial_ampqic[i], 0, 0);
+
+          /* Read real part of the b_i */
+          mps_skip_comments(input_stream);
+          mpq_inp_str(sec->initial_bmpqrc[i], input_stream, 10);
+          mpq_canonicalize(sec->initial_bmpqrc[i]);
+
+          /* Read imaginary part of the b_i */
+          if (MPS_STRUCTURE_IS_COMPLEX(config.structure))
+          {
+              mps_skip_comments(input_stream);
+              mpq_inp_str(sec->initial_bmpqic[i], input_stream, 10);
+              mpq_canonicalize(sec->initial_bmpqic[i]);
+          }
+          else
+              mpq_set_ui(sec->initial_bmpqic[i], 0, 0);
+      }
+
+      /* Set DPE coefficients */
+      for(i = 0; i < s->n; i++)
+      {
+          mpf_set_q(ftmp, sec->initial_ampqrc[i]);
+          mpf_get_rdpe(cdpe_Re(sec->adpc[i]), ftmp);
+
+          mpf_set_q(ftmp, sec->initial_ampqic[i]);
+          mpf_get_rdpe(cdpe_Im(sec->adpc[i]), ftmp);
+
+          mpf_set_q(ftmp, sec->initial_bmpqrc[i]);
+          mpf_get_rdpe(cdpe_Re(sec->bdpc[i]), ftmp);
+
+          mpf_set_q(ftmp, sec->initial_bmpqic[i]);
+          mpf_get_rdpe(cdpe_Im(sec->bdpc[i]), ftmp);
+      }
+
+
   }
+
+  sec->input_structure = config.structure;
 
   /* Deflate input, if identical b_i coefficients are found */
   mps_secular_deflate(s, sec);
@@ -283,11 +337,10 @@ mps_secular_equation_read_from_stream(mps_status* s, mps_parsing_configuration c
    * inital_bmpc to perform regeneration */
   for(i = 0; i < sec->n; i++)
   {
-      if (MPS_STRUCTURE_IS_RATIONAL(config.structure))
-      {
-
-      }
-      else
+      /* This is needed only if the input was not rational,
+       * because in the other case the data has been
+       * directly read into the initial_* fields */
+      if (!MPS_STRUCTURE_IS_RATIONAL(config.structure))
       {
           /* Standard CDPE */
           mpc_set_cdpe(sec->initial_ampc[i], sec->adpc[i]);
@@ -297,6 +350,7 @@ mps_secular_equation_read_from_stream(mps_status* s, mps_parsing_configuration c
   }
 
   s->secular_equation = sec;
+  mpf_clear(ftmp);
 }
 
 
