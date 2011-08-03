@@ -16,16 +16,16 @@
  *                 MAIN                                    *
  **********************************************************/
 int
-main(int argc, char** argv)
+main (int argc, char **argv)
 {
 
   /* Allocate mps_status */
-  mps_status* s = malloc(sizeof(mps_status));
+  mps_status *s = malloc (sizeof (mps_status));
 
   /* set default values */
-  s->prec_in = -1;			/* default input precision */
+  s->prec_in = -1;		/* default input precision */
   s->prec_out = 1000;		/* default output precision */
-  strncpy(s->goal, "ianrv", 5);	/* default goal */
+  strncpy (s->goal, "ianrv", 5);	/* default goal */
 
   /* set flags */
   s->DOLOG = false;
@@ -39,14 +39,14 @@ main(int argc, char** argv)
 
   /* check I/O streams */
   if (s->instr == NULL)
-    mps_error(s, 1, "Cannot open input file");
+    mps_error (s, 1, "Cannot open input file");
   if (s->outstr == NULL)
-    mps_error(s, 1, "Cannot open output file");
+    mps_error (s, 1, "Cannot open output file");
   if (s->DOLOG && s->logstr == NULL)
-    mps_error(s, 1, "Cannot open log file");
+    mps_error (s, 1, "Cannot open log file");
 
   /* compute multivariate roots */
-  mps_rursolve(s);
+  mps_rursolve (s);
 
   return 0;
 }

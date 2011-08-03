@@ -9,7 +9,8 @@
 #define	MPS_INTERFACE_H
 
 #ifdef	__cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 /* Octave module workardound */
@@ -31,25 +32,27 @@ extern "C" {
  */
 
 /* functions in mps_defaults.c */
-void mps_set_default_values(mps_status* s);
+  void mps_set_default_values (mps_status * s);
 
 /* Functions in mps_main.c */
-void mps_mpsolve(mps_status* s);
-void mps_standard_mpsolve(mps_status* s);
+  void mps_mpsolve (mps_status * s);
+  void mps_standard_mpsolve (mps_status * s);
 
 /* functions in mps_interface.c */
-mps_status* mps_status_new();
-void mps_status_free(mps_status* s);
-int mps_status_set_poly_d(mps_status* s, cplx_t* coeff, long unsigned int n);
-int mps_status_set_poly_i(mps_status* s, int* coeff, long unsigned int n);
-int mps_status_get_roots_d(mps_status* s, cplx_t* roots, double* radius);
-int mps_status_set_poly_u(mps_status* s, int n, mps_fnewton_ptr fnewton,
-		mps_dnewton_ptr dnewton, mps_mnewton_ptr mnewton);
-void mps_status_allocate_poly_inplace(mps_status* s, int n);
-void mps_status_select_algorithm(mps_status* s, mps_algorithm algorithm);
-void mps_status_set_degree(mps_status* s, int n);
-int mps_status_get_roots_d(mps_status* s, cplx_t* roots, double* radius);
-int mps_status_get_roots_m(mps_status* s, mpc_t* roots, rdpe_t* radius);
+  mps_status *mps_status_new ();
+  void mps_status_free (mps_status * s);
+  int mps_status_set_poly_d (mps_status * s, cplx_t * coeff,
+			     long unsigned int n);
+  int mps_status_set_poly_i (mps_status * s, int *coeff, long unsigned int n);
+  int mps_status_get_roots_d (mps_status * s, cplx_t * roots, double *radius);
+  int mps_status_set_poly_u (mps_status * s, int n, mps_fnewton_ptr fnewton,
+			     mps_dnewton_ptr dnewton,
+			     mps_mnewton_ptr mnewton);
+  void mps_status_allocate_poly_inplace (mps_status * s, int n);
+  void mps_status_select_algorithm (mps_status * s, mps_algorithm algorithm);
+  void mps_status_set_degree (mps_status * s, int n);
+  int mps_status_get_roots_d (mps_status * s, cplx_t * roots, double *radius);
+  int mps_status_get_roots_m (mps_status * s, mpc_t * roots, rdpe_t * radius);
 
 #ifdef	__cplusplus
 }
@@ -59,5 +62,4 @@ int mps_status_get_roots_m(mps_status* s, mpc_t* roots, rdpe_t* radius);
 }
 #endif
 
-#endif	/* MPS_INTERFACE_H */
-
+#endif				/* MPS_INTERFACE_H */

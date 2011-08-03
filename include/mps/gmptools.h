@@ -10,7 +10,8 @@
 #define __GMPTOOLS_H__
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 /* needed header files */
@@ -28,10 +29,10 @@ extern "C" {
 
 /* missing functions */
 #ifndef mpz_swap
- void mpz_swap(mpz_t z1, mpz_t z2);
+  void mpz_swap (mpz_t z1, mpz_t z2);
 #endif
 #ifndef mpz_tstbit
- int mpz_tstbit(mpz_t z, unsigned long int pos);
+  int mpz_tstbit (mpz_t z, unsigned long int pos);
 #endif
 #define mpz_get_bit(Z, N)	mpz_tstbit(Z, N)
 
@@ -40,8 +41,8 @@ extern "C" {
 
 /* vector support functions */
 #define mpz_valloc(N)         (mpz_t *) malloc((N) * sizeof(mpz_t))
-void mpz_vinit(mpz_t v[], unsigned long int size);
-void mpz_vclear(mpz_t v[], unsigned long int size);
+  void mpz_vinit (mpz_t v[], unsigned long int size);
+  void mpz_vclear (mpz_t v[], unsigned long int size);
 #define mpz_vfree(V)          free(V)
 
 /**********************************************
@@ -53,18 +54,18 @@ void mpz_vclear(mpz_t v[], unsigned long int size);
 
 /* missing functions */
 #ifndef mpq_swap
- void mpq_swap(mpq_t q1, mpq_t q2);
+  void mpq_swap (mpq_t q1, mpq_t q2);
 #endif
 
 /* I/O */
 #ifndef mpq_out_str
-void mpq_out_str(FILE * stream, int base, mpq_t q);
+  void mpq_out_str (FILE * stream, int base, mpq_t q);
 #endif
 
 /* vector support functions */
 #define mpq_valloc(N)         (mpq_t *) malloc((N) * sizeof(mpq_t))
-void mpq_vinit(mpq_t v[], unsigned long int size);
-void mpq_vclear(mpq_t v[], unsigned long int size);
+  void mpq_vinit (mpq_t v[], unsigned long int size);
+  void mpq_vclear (mpq_t v[], unsigned long int size);
 #define mpq_vfree(V)          free(V)
 
 /**********************************************
@@ -76,24 +77,24 @@ void mpq_vclear(mpq_t v[], unsigned long int size);
 
 /* missing functions */
 #ifndef mpf_swap
- void mpf_swap(mpf_t f1, mpf_t f2);
+  void mpf_swap (mpf_t f1, mpf_t f2);
 #endif
-void mpf_set_2dl(mpf_t f, double d, long int l);
-void mpf_get_2dl(double *d, long int *l, mpf_t f);
-long int mpf_size_2(mpf_t f);
+  void mpf_set_2dl (mpf_t f, double d, long int l);
+  void mpf_get_2dl (double *d, long int *l, mpf_t f);
+  long int mpf_size_2 (mpf_t f);
 
 /* missing operators */
 #define mpf_inv(R, F)	      mpf_ui_div(R, 1, F)
 #define mpf_sqr(R, F)         mpf_mul(R, F, F)
-void mpf_add_si(mpf_t r, mpf_t f, long int i);
-void mpf_sub_si(mpf_t r, mpf_t f, long int i);
-void mpf_si_sub(mpf_t r, long int i, mpf_t f);
-void mpf_mul_si(mpf_t r, mpf_t f, long int i);
-void mpf_div_si(mpf_t r, mpf_t f, long int i);
+  void mpf_add_si (mpf_t r, mpf_t f, long int i);
+  void mpf_sub_si (mpf_t r, mpf_t f, long int i);
+  void mpf_si_sub (mpf_t r, long int i, mpf_t f);
+  void mpf_mul_si (mpf_t r, mpf_t f, long int i);
+  void mpf_div_si (mpf_t r, mpf_t f, long int i);
 #ifndef mpf_pow_ui
- void mpf_pow_ui(mpf_t r, mpf_t f, unsigned long int i);
+  void mpf_pow_ui (mpf_t r, mpf_t f, unsigned long int i);
 #endif
-void mpf_pow_si(mpf_t r, mpf_t f, long int i);
+  void mpf_pow_si (mpf_t r, mpf_t f, long int i);
 
 /* op= style operators for mpf_t */
 #define mpf_neg_eq(F)         mpf_neg(F, F)
@@ -124,9 +125,9 @@ void mpf_pow_si(mpf_t r, mpf_t f, long int i);
 
 /* vector support functions */
 #define mpf_valloc(N)         (mpf_t *) malloc((N) * sizeof(mpf_t))
-void mpf_vinit(mpf_t v[], unsigned long int size);
-void mpf_vinit2(mpf_t v[], unsigned long int size, unsigned long int prec);
-void mpf_vclear(mpf_t v[], unsigned long int size);
+  void mpf_vinit (mpf_t v[], unsigned long int size);
+  void mpf_vinit2 (mpf_t v[], unsigned long int size, unsigned long int prec);
+  void mpf_vclear (mpf_t v[], unsigned long int size);
 #define mpf_vfree(V)          free(V)
 
 #endif

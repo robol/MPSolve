@@ -6,7 +6,8 @@
  */
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 #ifndef THREADING_H_
@@ -22,7 +23,8 @@ extern "C" {
  * <code>mps_thread_dsolve()</code> or <code>mps_thread_msolve()</code>.
  *
  */
-typedef struct {
+  typedef struct
+  {
 
     /**
      * @brief The index if the root to iterate on.
@@ -38,7 +40,7 @@ typedef struct {
      * @brief i_clust The index of the cluster the root is in.
      */
     int i_clust;
-} mps_thread_job;
+  } mps_thread_job;
 
 
 /**
@@ -54,75 +56,77 @@ typedef struct {
  *
  * @see mps_thread_job_queue_next()
  */
-typedef struct {
+  typedef struct
+  {
 
   /**
    * @brief Maximum number of iteration to perform before
    *  raising an exeption.
    */
-  unsigned int max_iter;
+    unsigned int max_iter;
 
   /**
    * @brief Number of the roots of this problem (i.e. degree of
    * the polynomial).
    */
-  unsigned int n_roots;
+    unsigned int n_roots;
 
   /**
    * @brief Iterations that is being performed right now.
    */
-  int iter;
+    int iter;
 
   /**
    * @brief Next root to iterate on.
    */
-  int i;
+    int i;
 
   /**
    * @brief Index of the cluster the <code>i</code>-th root
    *  is into.
    */
-  int i_clust;
+    int i_clust;
 
   /**
    * @brief Internal mutex of the queue used to guarantee
    * exclusive access.
    */
-  pthread_mutex_t mutex;
-} mps_thread_job_queue;
+    pthread_mutex_t mutex;
+  } mps_thread_job_queue;
 
 /**
  * @brief Data packed to be passed to a new thread that will
  * perform floating point, dpe or multiprecision iterations.
  */
-typedef struct {
+  typedef struct
+  {
 
   /**
    * @brief Pointer to the integer that holds the number of zeros
    *  computed until now.
    */
-  int* nzeros;
+    int *nzeros;
 
   /**
    * @brief Pointer to the integer that holds the number of iterations
    *  performed until now.
    */
-  int* it;
+    int *it;
 
   /**
    * @brief  The pointer to the <code>mps_status</code> struct.
    */
-  mps_status* s;
+    mps_status *s;
 
   /**
    * @brief The index of this thread.
    */
-  int thread;
+    int thread;
 
   /**
    * @brief The total number of threads.
    */
-  int n_threads;
+    int n_threads;
 
   /**
    * @brief Pointer to the boolean excep value. Setting this to true
@@ -131,7 +135,7 @@ typedef struct {
    *  If this state is reached all threads returns because no more
    *  iteration are needed / useful.
    */
-  mps_boolean* excep;
+    mps_boolean *excep;
 
   /**
    * @brief Array of <code>n</code> mutexes where <code>n = s->n</code>, i.e.
@@ -141,39 +145,35 @@ typedef struct {
    * thread needs to read and/or write from/to
    * the i-th root.
    */
-  pthread_mutex_t* aberth_mutex;
-  pthread_mutex_t* global_aberth_mutex;
+    pthread_mutex_t *aberth_mutex;
+    pthread_mutex_t *global_aberth_mutex;
 
   /**
    * @brief Array of <code>n</code> mutexes that gets locked when a thread
    * start to iterate over a root. This is done to ensure that only a thread
    * at a time is iterating over a root.
    */
-  pthread_mutex_t* roots_mutex;
+    pthread_mutex_t *roots_mutex;
 
   /**
    * @brief Pointo the <code>mps_thread_job_queue</code> that the thread
    * may query for other work.
    */
-  mps_thread_job_queue* queue;
+    mps_thread_job_queue *queue;
 
 
 
-} mps_thread_worker_data;
+  } mps_thread_worker_data;
 
 /* EXPORTED ROUTINES */
 
-void
-mps_thread_fpolzer(mps_status* s, int* nit, mps_boolean* excep);
+  void mps_thread_fpolzer (mps_status * s, int *nit, mps_boolean * excep);
 
-void
-mps_thread_mpolzer(mps_status* s, int *nit, mps_boolean *excep);
+  void mps_thread_mpolzer (mps_status * s, int *nit, mps_boolean * excep);
 
-void
-mps_thread_dpolzer(mps_status* s, int *nit, mps_boolean *excep);
+  void mps_thread_dpolzer (mps_status * s, int *nit, mps_boolean * excep);
 
-int
-mps_thread_get_core_number (mps_status* s);
+  int mps_thread_get_core_number (mps_status * s);
 
 /* MACROS */
 
@@ -200,4 +200,4 @@ mps_thread_get_core_number (mps_status* s);
 }
 #endif
 
-#endif /* THREADING_H_ */
+#endif				/* THREADING_H_ */

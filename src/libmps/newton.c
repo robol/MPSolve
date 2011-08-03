@@ -49,84 +49,90 @@
  *  iteration is needed, to false otherwise.
  */
 void
-mps_fnewton(mps_status* s, int n, cplx_t z, double *radius, cplx_t corr,
-	    cplx_t fpc[], double fap[], mps_boolean * cont)
+mps_fnewton (mps_status * s, int n, cplx_t z, double *radius, cplx_t corr,
+	     cplx_t fpc[], double fap[], mps_boolean * cont)
 {
   int i;
   double ap, az, absp, azi, eps;
   cplx_t p, p1, zi, den, ppsp, tmp;
 
   eps = 4 * n * DBL_EPSILON;
-  az = cplx_mod(z);
+  az = cplx_mod (z);
 
   /* distinguish the cases |z|<=1, |z|>1 */
 
-  if (az <= 1) {
-    /*  case |z|<=1 */
-    cplx_set(p, fpc[n]);
-    cplx_set(p1, p);
-    for (i = n - 1; i > 0; i--) {
-      cplx_mul(tmp, p, z);
-      cplx_add(p, tmp, fpc[i]);
-      cplx_mul(tmp, p1, z);
-      cplx_add(p1, tmp, p);
+  if (az <= 1)
+    {
+      /*  case |z|<=1 */
+      cplx_set (p, fpc[n]);
+      cplx_set (p1, p);
+      for (i = n - 1; i > 0; i--)
+	{
+	  cplx_mul (tmp, p, z);
+	  cplx_add (p, tmp, fpc[i]);
+	  cplx_mul (tmp, p1, z);
+	  cplx_add (p1, tmp, p);
+	}
+      cplx_mul (tmp, p, z);
+      cplx_add (p, tmp, fpc[0]);
+      ap = fap[n];
+      for (i = n - 1; i >= 0; i--)
+	ap = ap * az + fap[i];
+      absp = cplx_mod (p);
+      *cont = (absp > ap * eps);
+      *radius = n * (absp + eps * ap) / cplx_mod (p1);
+      cplx_div (corr, p, p1);
     }
-    cplx_mul(tmp, p, z);
-    cplx_add(p, tmp, fpc[0]);
-    ap = fap[n];
-    for (i = n - 1; i >= 0; i--)
-      ap = ap * az + fap[i];
-    absp = cplx_mod(p);
-    *cont = (absp > ap * eps);
-    *radius = n * (absp + eps * ap) / cplx_mod(p1);
-    cplx_div(corr, p, p1);
-  } else {			/* case |z|>1 */
-    cplx_set(zi, z);
-    cplx_inv_eq(zi);
-    azi = 1.0 / az;
-    cplx_set(p, fpc[0]);
-    cplx_set(p1, p);
-    for (i = n - 1; i > 0; i--) {
-      cplx_mul(tmp, p, zi);
-      cplx_add(p, tmp, fpc[n - i]);
-      cplx_mul(tmp, p1, zi);
-      cplx_add(p1, tmp, p);
+  else
+    {				/* case |z|>1 */
+      cplx_set (zi, z);
+      cplx_inv_eq (zi);
+      azi = 1.0 / az;
+      cplx_set (p, fpc[0]);
+      cplx_set (p1, p);
+      for (i = n - 1; i > 0; i--)
+	{
+	  cplx_mul (tmp, p, zi);
+	  cplx_add (p, tmp, fpc[n - i]);
+	  cplx_mul (tmp, p1, zi);
+	  cplx_add (p1, tmp, p);
+	}
+      cplx_mul (tmp, p, zi);
+      cplx_add (p, tmp, fpc[n]);
+
+      ap = fap[0];
+      for (i = 1; i <= n; i++)
+	ap = ap * azi + fap[i];
+      absp = cplx_mod (p);
+      *cont = (absp > ap * eps);
+
+      cplx_mul_d (den, p, (double) n);
+      cplx_mul (ppsp, p1, zi);
+      cplx_sub_eq (den, ppsp);
+      cplx_mul_eq (den, zi);
+      if (cplx_mod (den) != 0)
+	{
+	  cplx_div (corr, p, den);
+	  ap = (ap * eps + absp) * n;
+	  ap = ap / cplx_mod (den);
+	  *radius = ap;
+	}
+      else
+	{
+	  cplx_mul (ppsp, p, z);
+	  cplx_div_eq (ppsp, p1);
+	  cplx_mul_d (den, ppsp, (double) n);
+	  cplx_sub_eq (den, cplx_one);
+	  cplx_div (corr, ppsp, den);
+	  cplx_mul_eq (corr, z);
+	  absp = cplx_mod (p);
+	  *cont = (absp > ap * eps);
+	  *radius = cplx_mod (ppsp) + (eps * ap * az) / cplx_mod (p1);
+	  *radius *= n / cplx_mod (den);
+	  *radius *= az;
+	}
+
     }
-    cplx_mul(tmp, p, zi);
-    cplx_add(p, tmp, fpc[n]);
-
-    ap = fap[0];
-    for (i = 1; i <= n; i++)
-      ap = ap * azi + fap[i];
-    absp = cplx_mod(p);
-    *cont = (absp > ap * eps);
-
-    cplx_mul_d(den,p,(double) n);
-    cplx_mul(ppsp,p1,zi);
-    cplx_sub_eq(den,ppsp);
-    cplx_mul_eq(den,zi);
-    if(cplx_mod(den) != 0) {
-      cplx_div(corr,p,den);
-      ap=(ap*eps+absp)*n;
-      ap=ap/cplx_mod(den);
-      *radius = ap;
-    }
-    else
-      { 
-	cplx_mul(ppsp, p, z);
-	cplx_div_eq(ppsp, p1);
-	cplx_mul_d(den, ppsp, (double) n);
-	cplx_sub_eq(den, cplx_one);
-	cplx_div(corr, ppsp, den);
-	cplx_mul_eq(corr, z);
-	absp = cplx_mod(p);
-	*cont = (absp > ap * eps);
-	*radius = cplx_mod(ppsp) + (eps * ap * az) / cplx_mod(p1);
-	*radius *= n / cplx_mod(den);
-	*radius *= az;
-      }
-
-  }
 }
 
 
@@ -162,8 +168,8 @@ mps_fnewton(mps_status* s, int n, cplx_t z, double *radius, cplx_t corr,
  * @see mps_fnewton()
  */
 void
-mps_dnewton(mps_status* s, int n, cdpe_t z, rdpe_t radius, cdpe_t corr,
-	    cdpe_t dpc[], rdpe_t dap[], mps_boolean * cont)
+mps_dnewton (mps_status * s, int n, cdpe_t z, rdpe_t radius, cdpe_t corr,
+	     cdpe_t dpc[], rdpe_t dap[], mps_boolean * cont)
 {
   int i;
   rdpe_t ap, az, absp, rnew, apeps, rtmp;
@@ -171,59 +177,65 @@ mps_dnewton(mps_status* s, int n, cdpe_t z, rdpe_t radius, cdpe_t corr,
   double eps;
 
   eps = DBL_EPSILON * n * 4;
-  cdpe_set(p, dpc[n]);
-  cdpe_set(p1, p);
-  for (i = n - 1; i > 0; i--) {
-    cdpe_mul(tmp, p, z);
-    cdpe_add(p, tmp, dpc[i]);
-    cdpe_mul(tmp, p1, z);
-    cdpe_add(p1, tmp, p);
-  }
-  cdpe_mul(tmp, p, z);
-  cdpe_add(p, tmp, dpc[0]);
-  if (cdpe_ne(p, cdpe_zero))
-    if (cdpe_eq(p1, cdpe_zero)) {
-      if (s->DOLOG)
-	fprintf(s->logstr, "%s", "NULL DERIVATIVE\n");
-      cdpe_set(corr, cdpe_zero);
+  cdpe_set (p, dpc[n]);
+  cdpe_set (p1, p);
+  for (i = n - 1; i > 0; i--)
+    {
+      cdpe_mul (tmp, p, z);
+      cdpe_add (p, tmp, dpc[i]);
+      cdpe_mul (tmp, p1, z);
+      cdpe_add (p1, tmp, p);
+    }
+  cdpe_mul (tmp, p, z);
+  cdpe_add (p, tmp, dpc[0]);
+  if (cdpe_ne (p, cdpe_zero))
+    if (cdpe_eq (p1, cdpe_zero))
+      {
+	if (s->DOLOG)
+	  fprintf (s->logstr, "%s", "NULL DERIVATIVE\n");
+	cdpe_set (corr, cdpe_zero);
+	*cont = false;
+	return;
+      }
+    else
+      cdpe_div (corr, p, p1);
+  else
+    {
+      cdpe_set (corr, cdpe_zero);
       *cont = false;
-      return;
-    } else
-      cdpe_div(corr, p, p1);
-  else {
-    cdpe_set(corr, cdpe_zero);
-    *cont = false;
-  }
-  cdpe_mod(az, z);
-  rdpe_set(ap, dap[n]);
-  for (i = n - 1; i >= 0; i--) {
-    rdpe_mul(rtmp, ap, az);
-    rdpe_add(ap, rtmp, dap[i]);
-  }
-  cdpe_mod(absp, p);
-  rdpe_mul_d(apeps, ap, eps);
-  *cont = rdpe_gt(absp, apeps);
-  rdpe_add(rnew, absp, apeps);
-  cdpe_mod(rtmp, p1);
+    }
+  cdpe_mod (az, z);
+  rdpe_set (ap, dap[n]);
+  for (i = n - 1; i >= 0; i--)
+    {
+      rdpe_mul (rtmp, ap, az);
+      rdpe_add (ap, rtmp, dap[i]);
+    }
+  cdpe_mod (absp, p);
+  rdpe_mul_d (apeps, ap, eps);
+  *cont = rdpe_gt (absp, apeps);
+  rdpe_add (rnew, absp, apeps);
+  cdpe_mod (rtmp, p1);
 
-  rdpe_div_eq(rnew, rtmp);
+  rdpe_div_eq (rnew, rtmp);
   if (*cont)
-    rdpe_mul_d(radius, rnew, (double) n);
-  else {
-    rdpe_mul_eq_d(rnew, (double) (n + 1));
-    if (rdpe_lt(rnew, radius))
-      rdpe_set(radius, rnew);
-  }
+    rdpe_mul_d (radius, rnew, (double) n);
+  else
+    {
+      rdpe_mul_eq_d (rnew, (double) (n + 1));
+      if (rdpe_lt (rnew, radius))
+	rdpe_set (radius, rnew);
+    }
 }
 
 /****************************************************
 *          FUNCTION INTLOG2                         *
 ****************************************************/
 int
-mps_intlog2(int n)
+mps_intlog2 (int n)
 {
   int k;
-  k = (int) (log(n) / LOG2);
+  k = (int) (log (n) / LOG2);
   if (1 << k < n)
     k++;
   return k;
@@ -244,8 +256,8 @@ mps_intlog2(int n)
  *  for temporary sparsity vectors.
  */
 void
-mps_parhorner(mps_status* st, int n, mpc_t x, mpc_t p[], 
-	      mps_boolean b[], mpc_t s, int n_thread)
+mps_parhorner (mps_status * st, int n, mpc_t x, mpc_t p[],
+	       mps_boolean b[], mpc_t s, int n_thread)
 {
   int m, j, i, i1, i2, q;
   tmpc_t tmp, y;
@@ -253,47 +265,52 @@ mps_parhorner(mps_status* st, int n, mpc_t x, mpc_t p[],
 
   /* Set the pointer for paraller horner to be thread specific
    * so there is not conflict with other threads.           */
-  mps_boolean* spar2 = mps_thread_get_spar2(st, n_thread);
-  mpc_t* mfpc2 = mps_thread_get_mfpc2(st, n_thread);
+  mps_boolean *spar2 = mps_thread_get_spar2 (st, n_thread);
+  mpc_t *mfpc2 = mps_thread_get_mfpc2 (st, n_thread);
 
-  tmpc_init2(tmp, st->mpwp);
-  tmpc_init2(y, st->mpwp);
+  tmpc_init2 (tmp, st->mpwp);
+  tmpc_init2 (y, st->mpwp);
 
   for (i = 0; i < n + 1; i++)
     spar2[i] = b[i];
   for (i = 0; i < n; i++)
-    if(b[i]) 
-      mpc_set(mfpc2[i], p[i]);
+    if (b[i])
+      mpc_set (mfpc2[i], p[i]);
 
-  q = mps_intlog2(n + 1);
+  q = mps_intlog2 (n + 1);
   m = n;
-  mpc_set(y, x);
-  for (j = 0; j < q; j++) {
-    spar2[m] = false;
-    m = (m + 1) >> 1;
-    for (i = 0; i < m; i++) {
-      i2 = (i << 1) + 1;
-      i1 = i2 - 1;
-      bi = spar2[i1] || spar2[i2];
-      if (bi) {
-	if (spar2[i1])
-	  if (spar2[i2]) {
-	    mpc_mul(tmp, y, mfpc2[i2]);
-	    mpc_add(mfpc2[i], mfpc2[i1], tmp);
-	  } else
-	    mpc_set(mfpc2[i], mfpc2[i1]);
-	else
-	  mpc_mul(mfpc2[i], y, mfpc2[i2]);
-      }
-      spar2[i] = bi;
+  mpc_set (y, x);
+  for (j = 0; j < q; j++)
+    {
+      spar2[m] = false;
+      m = (m + 1) >> 1;
+      for (i = 0; i < m; i++)
+	{
+	  i2 = (i << 1) + 1;
+	  i1 = i2 - 1;
+	  bi = spar2[i1] || spar2[i2];
+	  if (bi)
+	    {
+	      if (spar2[i1])
+		if (spar2[i2])
+		  {
+		    mpc_mul (tmp, y, mfpc2[i2]);
+		    mpc_add (mfpc2[i], mfpc2[i1], tmp);
+		  }
+		else
+		  mpc_set (mfpc2[i], mfpc2[i1]);
+	      else
+		mpc_mul (mfpc2[i], y, mfpc2[i2]);
+	    }
+	  spar2[i] = bi;
+	}
+      spar2[m] = false;
+      mpc_sqr_eq (y);
     }
-    spar2[m] = false;
-    mpc_sqr_eq(y);
-  }
-  mpc_set(s, mfpc2[0]);
+  mpc_set (s, mfpc2[0]);
 
-  tmpc_clear(y);
-  tmpc_clear(tmp);
+  tmpc_clear (y);
+  tmpc_clear (tmp);
 }
 
 /**
@@ -311,8 +328,9 @@ mps_parhorner(mps_status* st, int n, mpc_t x, mpc_t p[],
  *  for temporary sparsity vectors.
  */
 void
-mps_aparhorner(mps_status* st, 
-	       int n, rdpe_t x, rdpe_t p[], mps_boolean b[], rdpe_t s, int n_thread)
+mps_aparhorner (mps_status * st,
+		int n, rdpe_t x, rdpe_t p[], mps_boolean b[], rdpe_t s,
+		int n_thread)
 {
   int m, i, j, i1, i2, q;
   rdpe_t y, tmp;
@@ -320,39 +338,45 @@ mps_aparhorner(mps_status* st,
 
   /* Set the pointer for paraller horner to be thread specific
    * so there is not conflict with other threads.           */
-  mps_boolean* spar2 = mps_thread_get_spar2(st, n_thread);
-  rdpe_t* dap2 = mps_thread_get_dap2(st, n_thread);
+  mps_boolean *spar2 = mps_thread_get_spar2 (st, n_thread);
+  rdpe_t *dap2 = mps_thread_get_dap2 (st, n_thread);
 
   for (i = 0; i < n + 1; i++)
     spar2[i] = b[i];
   for (i = 0; i < n; i++)
-   if(b[i]) rdpe_set(dap2[i], p[i]); /* D99 */
-  q = mps_intlog2(n + 1);
+    if (b[i])
+      rdpe_set (dap2[i], p[i]);	/* D99 */
+  q = mps_intlog2 (n + 1);
   m = n;
-  rdpe_set(y, x);
-  for (j = 0; j < q; j++) {
-    spar2[m] = false;
-    m = (m + 1) >> 1;
-    for (i = 0; i < m; i++) {
-      i2 = (i << 1) + 1;
-      i1 = i2 - 1;
-      bi = spar2[i1] || spar2[i2];
-      if (bi) {
-	if (spar2[i1])
-	  if (spar2[i2]) {
-	    rdpe_mul(tmp, y, dap2[i2]);
-	    rdpe_add(dap2[i], dap2[i1], tmp);
-	  } else
-	    rdpe_set(dap2[i], dap2[i1]);
-	else
-	  rdpe_mul(dap2[i], y, dap2[i2]);
-      }
-      spar2[i] = bi;
+  rdpe_set (y, x);
+  for (j = 0; j < q; j++)
+    {
+      spar2[m] = false;
+      m = (m + 1) >> 1;
+      for (i = 0; i < m; i++)
+	{
+	  i2 = (i << 1) + 1;
+	  i1 = i2 - 1;
+	  bi = spar2[i1] || spar2[i2];
+	  if (bi)
+	    {
+	      if (spar2[i1])
+		if (spar2[i2])
+		  {
+		    rdpe_mul (tmp, y, dap2[i2]);
+		    rdpe_add (dap2[i], dap2[i1], tmp);
+		  }
+		else
+		  rdpe_set (dap2[i], dap2[i1]);
+	      else
+		rdpe_mul (dap2[i], y, dap2[i2]);
+	    }
+	  spar2[i] = bi;
+	}
+      spar2[m] = false;
+      rdpe_sqr_eq (y);
     }
-    spar2[m] = false;
-    rdpe_sqr_eq(y);
-  }
-  rdpe_set(s, dap2[0]);
+  rdpe_set (s, dap2[0]);
 }
 
 /**
@@ -393,9 +417,9 @@ mps_aparhorner(mps_status* st,
  * @see mps_dnewton()
  */
 void
-mps_mnewton(mps_status* s, int n, mpc_t z, rdpe_t radius, mpc_t corr,
-	    mpc_t mfpc[], mpc_t mfppc[], rdpe_t dap[],
-	    mps_boolean spar[], mps_boolean * cont, int n_thread)
+mps_mnewton (mps_status * s, int n, mpc_t z, rdpe_t radius, mpc_t corr,
+	     mpc_t mfpc[], mpc_t mfppc[], rdpe_t dap[],
+	     mps_boolean spar[], mps_boolean * cont, int n_thread)
 {
   int i, n1, n2;
   rdpe_t ap, az, absp, temp, rnew, ep, apeps;
@@ -404,95 +428,105 @@ mps_mnewton(mps_status* s, int n, mpc_t z, rdpe_t radius, mpc_t corr,
 
   /* Set the pointer for mnewton to be thread specific
    * so there is not conflict with other threads.      */
-  mps_boolean* spar2 = mps_thread_get_spar2(s, n_thread);
+  mps_boolean *spar2 = mps_thread_get_spar2 (s, n_thread);
 
-  tmpc_init2(p, s->mpwp);
-  tmpc_init2(p1, s->mpwp);
+  tmpc_init2 (p, s->mpwp);
+  tmpc_init2 (p1, s->mpwp);
 
-  rdpe_mul_d(ep, s->mp_epsilon, (double) (n * 4));
-  if (s->data_type[0] == 's') {	/* case of sparse polynomial */
-    n1 = n + 1;
-    n2 = n;
+  rdpe_mul_d (ep, s->mp_epsilon, (double) (n * 4));
+  if (s->data_type[0] == 's')
+    {				/* case of sparse polynomial */
+      n1 = n + 1;
+      n2 = n;
 
-    /* compute p(z) */
-    mps_parhorner(s, n1, z, mfpc, spar, p, n_thread);
-    mpc_get_cdpe(temp1, z);
-    cdpe_mod(az, temp1);
+      /* compute p(z) */
+      mps_parhorner (s, n1, z, mfpc, spar, p, n_thread);
+      mpc_get_cdpe (temp1, z);
+      cdpe_mod (az, temp1);
 
-    /* compute bound to the error */
-    mps_aparhorner(s, n1, az, dap, spar, ap, n_thread);
-    for (i = 0; i < n2; i++)
-      spar2[i] = spar[i + 1];
-    spar2[n2] = false;
+      /* compute bound to the error */
+      mps_aparhorner (s, n1, az, dap, spar, ap, n_thread);
+      for (i = 0; i < n2; i++)
+	spar2[i] = spar[i + 1];
+      spar2[n2] = false;
 
-    /* compute p'(z) */
-    mps_parhorner(s, n2, z, mfppc, spar2, p1, n_thread);
+      /* compute p'(z) */
+      mps_parhorner (s, n2, z, mfppc, spar2, p1, n_thread);
 
-  } else {			/*  dense polynomial */
-
-    /* commpute p(z) and p'(z) */
-    mpc_set(p, mfpc[n]);
-    mpc_set(p1, p);
-    for (i = n - 1; i > 0; i--) {
-      mpc_mul(p, p, z);
-      mpc_add(p, p, mfpc[i]);
-      mpc_mul(p1, p1, z);
-      mpc_add(p1, p1, p);
     }
-    mpc_mul(p, p, z);
-    mpc_add(p, p, mfpc[0]);
+  else
+    {				/*  dense polynomial */
 
-    /* compute bound to the error */
-    rdpe_set(ap, dap[n]);
-    mpc_get_cdpe(temp1, z);
-    cdpe_mod(az, temp1);
-    for (i = n - 1; i >= 0; i--) {
-      rdpe_mul(temp, ap, az);
-      rdpe_add(ap, temp, dap[i]);
+      /* commpute p(z) and p'(z) */
+      mpc_set (p, mfpc[n]);
+      mpc_set (p1, p);
+      for (i = n - 1; i > 0; i--)
+	{
+	  mpc_mul (p, p, z);
+	  mpc_add (p, p, mfpc[i]);
+	  mpc_mul (p1, p1, z);
+	  mpc_add (p1, p1, p);
+	}
+      mpc_mul (p, p, z);
+      mpc_add (p, p, mfpc[0]);
+
+      /* compute bound to the error */
+      rdpe_set (ap, dap[n]);
+      mpc_get_cdpe (temp1, z);
+      cdpe_mod (az, temp1);
+      for (i = n - 1; i >= 0; i--)
+	{
+	  rdpe_mul (temp, ap, az);
+	  rdpe_add (ap, temp, dap[i]);
+	}
     }
-  }
 
   /* common part */
-  if (!mpc_eq_zero(p))
-    if (mpc_eq_zero(p1)) {
-      if (s->DOLOG)
-	fprintf(s->logstr, "%s", "NULL DERIVATIVE\n");
+  if (!mpc_eq_zero (p))
+    if (mpc_eq_zero (p1))
+      {
+	if (s->DOLOG)
+	  fprintf (s->logstr, "%s", "NULL DERIVATIVE\n");
+	*cont = false;
+	mpc_set_ui (corr, 0U, 0U);
+	goto exit_sub;
+      }
+    else
+      mpc_div (corr, p, p1);
+  else
+    {
+      mpc_set_ui (corr, 0U, 0U);
       *cont = false;
-      mpc_set_ui(corr, 0U, 0U);
-      goto exit_sub;
-    } else
-      mpc_div(corr, p, p1);
-  else {
-    mpc_set_ui(corr, 0U, 0U);
-    *cont = false;
-    rdpe_mul(apeps, ap, ep);
-    mpc_get_cdpe(temp1, p1);
-    cdpe_mod(temp, temp1);
-    if (rdpe_eq_zero(temp)) {
-      fprintf(s->logstr, "%s", "NULL DERIVATIVE\n");
+      rdpe_mul (apeps, ap, ep);
+      mpc_get_cdpe (temp1, p1);
+      cdpe_mod (temp, temp1);
+      if (rdpe_eq_zero (temp))
+	{
+	  fprintf (s->logstr, "%s", "NULL DERIVATIVE\n");
+	  goto exit_sub;
+	}
+      rdpe_div (radius, apeps, temp);
+      rdpe_mul_eq_d (radius, (double) n + 1);
       goto exit_sub;
     }
-    rdpe_div(radius, apeps, temp);
-    rdpe_mul_eq_d(radius, (double) n + 1);
-    goto exit_sub;
-  }
-  mpc_get_cdpe(temp1, p);
-  cdpe_mod(absp, temp1);
-  mpc_get_cdpe(temp1, p1);
-  cdpe_mod(temp, temp1);
-  rdpe_mul(apeps, ap, ep);
-  *cont = rdpe_gt(absp, apeps);
-  rdpe_add(rnew, absp, apeps);
-  rdpe_div_eq(rnew, temp);
+  mpc_get_cdpe (temp1, p);
+  cdpe_mod (absp, temp1);
+  mpc_get_cdpe (temp1, p1);
+  cdpe_mod (temp, temp1);
+  rdpe_mul (apeps, ap, ep);
+  *cont = rdpe_gt (absp, apeps);
+  rdpe_add (rnew, absp, apeps);
+  rdpe_div_eq (rnew, temp);
   if (*cont)
-    rdpe_mul_d(radius, rnew, (double) n);
-  else {
-    rdpe_mul_eq_d(rnew, (double) (n + 1));
-    if (rdpe_lt(rnew, radius))
-      rdpe_set(radius, rnew);
-  }
+    rdpe_mul_d (radius, rnew, (double) n);
+  else
+    {
+      rdpe_mul_eq_d (rnew, (double) (n + 1));
+      if (rdpe_lt (rnew, radius))
+	rdpe_set (radius, rnew);
+    }
 
 exit_sub:
-  tmpc_clear(p1);
-  tmpc_clear(p);
+  tmpc_clear (p1);
+  tmpc_clear (p);
 }

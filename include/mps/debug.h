@@ -9,7 +9,8 @@
 #define	 DEBUG_H
 
 #ifdef	__cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 #ifndef __WINDOWS
@@ -207,8 +208,8 @@ gmp_fprintf(s->logstr, templ); \
     if (s->DOLOG && !mps_is_a_tty(s->logstr))\
         fprintf(s->logstr, "%s:%d %s() ", __FILE__, __LINE__, __FUNCTION__); \
     __c_impl____MPS_DEBUG
-void __c_impl__MPS_DEBUG(mps_status* s, const char* templ, ...);
-void __c_impl____MPS_DEBUG(mps_status* s, const char* templ, ...);
+  void __c_impl__MPS_DEBUG (mps_status * s, const char *templ, ...);
+  void __c_impl____MPS_DEBUG (mps_status * s, const char *templ, ...);
 #endif
 #endif
 
@@ -217,5 +218,4 @@ void __c_impl____MPS_DEBUG(mps_status* s, const char* templ, ...);
 }
 #endif
 
-#endif	/* DEBUG_H */
-
+#endif				/* DEBUG_H */

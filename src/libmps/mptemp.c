@@ -7,7 +7,7 @@
 **                                                        **
 ***********************************************************/
 
-#include <mps/mptemp.h>       /* NOMPTEMP may be defined here */
+#include <mps/mptemp.h>		/* NOMPTEMP may be defined here */
 #ifndef NOMPTEMP
 
 #ifdef THREAD_SAFE
@@ -39,115 +39,129 @@ short int initialized = 0;
 ***********************************************************/
 
 static mpf_t *mpfbuff = NULL;
-static long  *mpfprec = NULL;
+static long *mpfprec = NULL;
 static int mpfsize = 0;
 static int mpfstkp = 0;
 static int mpfallp = 0;
 
 tmpf_t
-gettmpf(long prec)
+gettmpf (long prec)
 {
 #ifdef THREAD_SAFE
   if (!initialized)
     {
-      pthread_mutex_init(&global_mutex, NULL);
+      pthread_mutex_init (&global_mutex, NULL);
       initialized = 1;
     }
-  pthread_mutex_lock(&global_mutex);
+  pthread_mutex_lock (&global_mutex);
 #endif
-  if (mpfstkp == mpfallp) {
-    if (mpfallp == mpfsize) {
-      if (mpfsize) {
-	mpfbuff = (mpf_t *) realloc(mpfbuff, 2 * mpfsize * sizeof(mpf_t));
-	mpfprec = (long *) realloc(mpfprec, 2 * mpfsize * sizeof(long));
-	mpfsize *= 2;
-      } else {
-	mpfbuff = (mpf_t *) malloc(MINBUFFSIZE * sizeof(mpf_t));
-	mpfprec = (long *) malloc(MINBUFFSIZE * sizeof(long));
-	mpfsize = MINBUFFSIZE;
-      }
+  if (mpfstkp == mpfallp)
+    {
+      if (mpfallp == mpfsize)
+	{
+	  if (mpfsize)
+	    {
+	      mpfbuff =
+		(mpf_t *) realloc (mpfbuff, 2 * mpfsize * sizeof (mpf_t));
+	      mpfprec =
+		(long *) realloc (mpfprec, 2 * mpfsize * sizeof (long));
+	      mpfsize *= 2;
+	    }
+	  else
+	    {
+	      mpfbuff = (mpf_t *) malloc (MINBUFFSIZE * sizeof (mpf_t));
+	      mpfprec = (long *) malloc (MINBUFFSIZE * sizeof (long));
+	      mpfsize = MINBUFFSIZE;
+	    }
+	}
+      mpf_init2 (mpfbuff[mpfallp], prec);
+      prec = mpf_get_prec (mpfbuff[mpfallp]);
+      mpfprec[mpfallp] = prec;
+      mpfallp++;
     }
-    mpf_init2(mpfbuff[mpfallp], prec);
-    prec = mpf_get_prec(mpfbuff[mpfallp]);
-    mpfprec[mpfallp] = prec;
-    mpfallp++;
-  }
 
-  if (mpfprec[mpfstkp] >= prec) 
-    mpf_set_prec_raw(mpfbuff[mpfstkp], prec);
-  else { /* we must increase variable precision */
-    mpf_set_prec_raw (mpfbuff[mpfstkp], mpfprec[mpfstkp]);
+  if (mpfprec[mpfstkp] >= prec)
+    mpf_set_prec_raw (mpfbuff[mpfstkp], prec);
+  else
+    {				/* we must increase variable precision */
+      mpf_set_prec_raw (mpfbuff[mpfstkp], mpfprec[mpfstkp]);
 
 #if MPTEMP_RENEW
-    mpf_clear(mpfbuff[mpfstkp]);
-    mpf_init2(mpfbuff[mpfstkp], prec);
+      mpf_clear (mpfbuff[mpfstkp]);
+      mpf_init2 (mpfbuff[mpfstkp], prec);
 #else /* raise precision */
-    mpf_set_prec(mpfbuff[mpfstkp], prec);
+      mpf_set_prec (mpfbuff[mpfstkp], prec);
 #endif /* MPTEMP_RENEW */
 
-    mpfprec[mpfstkp] = mpf_get_prec(mpfbuff[mpfstkp]);
-  }
+      mpfprec[mpfstkp] = mpf_get_prec (mpfbuff[mpfstkp]);
+    }
 
-  pthread_mutex_unlock(&global_mutex);
+  pthread_mutex_unlock (&global_mutex);
   return (tmpf_t) & mpfbuff[mpfstkp++];
 }
 
 int
-freetmpf(const tmpf_t fp)
+freetmpf (const tmpf_t fp)
 {
 #ifdef THREAD_SAFE
-  pthread_mutex_lock(&global_mutex);
+  pthread_mutex_lock (&global_mutex);
 #endif
 #if MPTEMP_CHECK
-  long prec = mpf_get_prec(fp);
+  long prec = mpf_get_prec (fp);
 #endif
 
-  if (mpfstkp-- == 0) {
-    fprintf(stderr, "Too many deallocations of temporary variables\n");
-    exit(EXIT_FAILURE);
-  }
+  if (mpfstkp-- == 0)
+    {
+      fprintf (stderr, "Too many deallocations of temporary variables\n");
+      exit (EXIT_FAILURE);
+    }
 
 #if MPTEMP_DEBUG
-  if (fp != mpfbuff[mpfstkp]) {
-    fprintf(stderr, "Incorrect deallocation of temporary variable\n");
-    exit(EXIT_FAILURE);
-  }
+  if (fp != mpfbuff[mpfstkp])
+    {
+      fprintf (stderr, "Incorrect deallocation of temporary variable\n");
+      exit (EXIT_FAILURE);
+    }
 #endif
 
 #if MPTEMP_CHECK
-  if (prec > mpfprec[mpfstkp]) {
-    fprintf(stderr, "Incorrect usage of temporary variable\n");
-    exit(EXIT_FAILURE);
-  }
+  if (prec > mpfprec[mpfstkp])
+    {
+      fprintf (stderr, "Incorrect usage of temporary variable\n");
+      exit (EXIT_FAILURE);
+    }
 #endif /* MPTEMP_CHECK */
 
 #ifdef THREAD_SAFE
-  pthread_mutex_unlock(&global_mutex);
+  pthread_mutex_unlock (&global_mutex);
 #endif
   return mpfstkp;
 }
 
 void
-mpftemp_clear(void)
+mpftemp_clear (void)
 {
   int i;
 
 #if MPTEMP_DEBUG
-  if (mpfstkp != 0) {
-    fprintf(stderr, "Some temporary variables are still in use\n");
-    exit(EXIT_FAILURE);
-  }
+  if (mpfstkp != 0)
+    {
+      fprintf (stderr, "Some temporary variables are still in use\n");
+      exit (EXIT_FAILURE);
+    }
 #endif
 
-  for (i = 0; i < mpfallp; i++) {
-    mpf_set_prec_raw (mpfbuff[i], mpfprec[i]);
-    mpf_clear(mpfbuff[i]);
-  }
+  for (i = 0; i < mpfallp; i++)
+    {
+      mpf_set_prec_raw (mpfbuff[i], mpfprec[i]);
+      mpf_clear (mpfbuff[i]);
+    }
 
-  if (mpfbuff) {
-    free(mpfbuff);
-    free(mpfprec);
-  }
+  if (mpfbuff)
+    {
+      free (mpfbuff);
+      free (mpfprec);
+    }
 
   mpfbuff = NULL;
   mpfprec = NULL;
@@ -161,100 +175,114 @@ mpftemp_clear(void)
 ***********************************************************/
 
 static mpc_t *mpcbuff = NULL;
-static long  *mpcprec = NULL;
+static long *mpcprec = NULL;
 static int mpcsize = 0;
 static int mpcstkp = 0;
 static int mpcallp = 0;
 
 tmpc_t
-gettmpc(long prec)
+gettmpc (long prec)
 {
-  if (mpcstkp == mpcallp) {
-    if (mpcallp == mpcsize) {
-      if (mpcsize) {
-	mpcbuff = (mpc_t *) realloc(mpcbuff, 2 * mpcsize * sizeof(mpc_t));
-	mpcprec = (long *) realloc(mpcprec, 2 * mpcsize * sizeof(long));
-	mpcsize *= 2;
-      } else {
-	mpcbuff = (mpc_t *) malloc(MINBUFFSIZE * sizeof(mpc_t));
-	mpcprec = (long *) malloc(MINBUFFSIZE * sizeof(long));
-	mpcsize = MINBUFFSIZE;
-      }
+  if (mpcstkp == mpcallp)
+    {
+      if (mpcallp == mpcsize)
+	{
+	  if (mpcsize)
+	    {
+	      mpcbuff =
+		(mpc_t *) realloc (mpcbuff, 2 * mpcsize * sizeof (mpc_t));
+	      mpcprec =
+		(long *) realloc (mpcprec, 2 * mpcsize * sizeof (long));
+	      mpcsize *= 2;
+	    }
+	  else
+	    {
+	      mpcbuff = (mpc_t *) malloc (MINBUFFSIZE * sizeof (mpc_t));
+	      mpcprec = (long *) malloc (MINBUFFSIZE * sizeof (long));
+	      mpcsize = MINBUFFSIZE;
+	    }
+	}
+      mpc_init2 (mpcbuff[mpcallp], prec);
+      prec = mpc_get_prec (mpcbuff[mpcallp]);
+      mpcprec[mpcallp] = prec;
+      mpcallp++;
     }
-    mpc_init2(mpcbuff[mpcallp], prec);
-    prec = mpc_get_prec(mpcbuff[mpcallp]);
-    mpcprec[mpcallp] = prec;
-    mpcallp++;
-  }
 
   if (mpcprec[mpcstkp] >= prec)
-    mpc_set_prec_raw(mpcbuff[mpcstkp], prec);
-  else { /* we must increase variable precision */
-    mpc_set_prec_raw (mpcbuff[mpcstkp], mpcprec[mpcstkp]);
+    mpc_set_prec_raw (mpcbuff[mpcstkp], prec);
+  else
+    {				/* we must increase variable precision */
+      mpc_set_prec_raw (mpcbuff[mpcstkp], mpcprec[mpcstkp]);
 
 #if MPTEMP_RENEW
-    mpc_clear(mpcbuff[mpcstkp]);
-    mpc_init2(mpcbuff[mpcstkp], prec);
+      mpc_clear (mpcbuff[mpcstkp]);
+      mpc_init2 (mpcbuff[mpcstkp], prec);
 #else /* raise precision */
-    mpc_set_prec(mpcbuff[mpcstkp], prec);
+      mpc_set_prec (mpcbuff[mpcstkp], prec);
 #endif /* MPTEMP_RENEW */
 
-    mpcprec[mpcstkp] = mpc_get_prec(mpcbuff[mpcstkp]);
-  } /* precision check */
+      mpcprec[mpcstkp] = mpc_get_prec (mpcbuff[mpcstkp]);
+    }				/* precision check */
 
   return (tmpc_t) & mpcbuff[mpcstkp++];
 }
 
 int
-freetmpc(const tmpc_t fp)
+freetmpc (const tmpc_t fp)
 {
 #if MPTEMP_CHECK
-  long prec = mpc_get_prec(fp);
+  long prec = mpc_get_prec (fp);
 #endif
 
-  if (mpcstkp-- == 0) {
-    fprintf(stderr, "Too many deallocations of temporary variables\n");
-    exit(EXIT_FAILURE);
-  }
+  if (mpcstkp-- == 0)
+    {
+      fprintf (stderr, "Too many deallocations of temporary variables\n");
+      exit (EXIT_FAILURE);
+    }
 
 #if MPTEMP_DEBUG
-  if (fp != mpcbuff[mpcstkp]) {
-    fprintf(stderr, "Incorrect deallocation of temporary variable\n");
-    exit(EXIT_FAILURE);
-  }
+  if (fp != mpcbuff[mpcstkp])
+    {
+      fprintf (stderr, "Incorrect deallocation of temporary variable\n");
+      exit (EXIT_FAILURE);
+    }
 #endif
 
 #if MPTEMP_CHECK
-  if (prec > mpcprec[mpcstkp]) {
-    fprintf(stderr, "Incorrect usage of temporary variable\n");
-    exit(EXIT_FAILURE);
-  }
+  if (prec > mpcprec[mpcstkp])
+    {
+      fprintf (stderr, "Incorrect usage of temporary variable\n");
+      exit (EXIT_FAILURE);
+    }
 #endif /* MPTEMP_CHECK */
 
   return mpcstkp;
 }
 
 void
-mpctemp_clear(void)
+mpctemp_clear (void)
 {
   int i;
 
 #if MPTEMP_DEBUG
-  if (mpcstkp != 0) {
-    fprintf(stderr, "Some temporary variable are still in use\n");
-    exit(EXIT_FAILURE);
-  }
+  if (mpcstkp != 0)
+    {
+      fprintf (stderr, "Some temporary variable are still in use\n");
+      exit (EXIT_FAILURE);
+    }
 #endif
 
-  for (i = 0; i < mpcallp; i++) {
-    mpc_set_prec_raw (mpcbuff[i], mpcprec[i]);
-    mpc_clear(mpcbuff[i]);
-  }
+  for (i = 0; i < mpcallp; i++)
+    {
+      mpc_set_prec_raw (mpcbuff[i], mpcprec[i]);
+      mpc_clear (mpcbuff[i]);
+    }
 
-  if (mpcbuff) {
-    free(mpcbuff);
-    free(mpcprec);
-  }
+  if (mpcbuff)
+    {
+      free (mpcbuff);
+      free (mpcprec);
+    }
 
   mpcbuff = NULL;
   mpcprec = NULL;
@@ -268,10 +296,10 @@ mpctemp_clear(void)
 ***********************************************************/
 
 void
-mptemp_clear(void)
+mptemp_clear (void)
 {
-  mpftemp_clear();
-  mpctemp_clear();
+  mpftemp_clear ();
+  mpctemp_clear ();
 }
 
 #endif /* NOMPTEMP */

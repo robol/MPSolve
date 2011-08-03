@@ -17,71 +17,74 @@
 
 /* random functions */
 void
-randomize(unsigned int seed)
+randomize (unsigned int seed)
 {
-  FILE * rf = NULL;
+  FILE *rf = NULL;
   int read_bytes;
 
-  if (!seed) {
-    seed = 1;
-    rf = fopen(RAND_SOURCE, "rb");
-    if (rf != NULL) {
-      read_bytes = fread(&seed, sizeof(int), 1, rf);
-      if (read_bytes != 1) {
-	fprintf(stderr, "Error while acquiring random seed!\n");
-      }
-      fclose(rf);
+  if (!seed)
+    {
+      seed = 1;
+      rf = fopen (RAND_SOURCE, "rb");
+      if (rf != NULL)
+	{
+	  read_bytes = fread (&seed, sizeof (int), 1, rf);
+	  if (read_bytes != 1)
+	    {
+	      fprintf (stderr, "Error while acquiring random seed!\n");
+	    }
+	  fclose (rf);
+	}
     }
-  }
-  srand(seed);
+  srand (seed);
 }
 
 double
-drand(void)
+drand (void)
 {
 #ifdef RAND_VAL
   return RAND_VAL;
 #else
-  return (double) rand() / RAND_MAX;
+  return (double) rand () / RAND_MAX;
 #endif
 }
 
 /* accessing doubles */
 double
-dbl_set_2dl(double d, long int l)
+dbl_set_2dl (double d, long int l)
 {
-  return ldexp(d, (int) l);
+  return ldexp (d, (int) l);
 }
 
 void
-dbl_get_2dl(double *rd, long int *rl, double d)
+dbl_get_2dl (double *rd, long int *rl, double d)
 {
   int i;
 
-  *rd = frexp(d, &i);
+  *rd = frexp (d, &i);
   *rl = i;
 }
 
 double
-dbl_get_mant(double d)
+dbl_get_mant (double d)
 {
   int i;
 
-  return frexp(d, &i);
+  return frexp (d, &i);
 }
 
 int
-dbl_get_exp(double d)
+dbl_get_exp (double d)
 {
   int i;
 
-  frexp(d, &i);
+  frexp (d, &i);
   return i;
 }
 
 /* vector support functions */
 void
-mps_boolean_vinit(mps_boolean v[], unsigned long int size)
+mps_boolean_vinit (mps_boolean v[], unsigned long int size)
 {
   unsigned long int i;
 
@@ -90,7 +93,7 @@ mps_boolean_vinit(mps_boolean v[], unsigned long int size)
 }
 
 void
-char_vinit(char v[], unsigned long int size)
+char_vinit (char v[], unsigned long int size)
 {
   unsigned long int i;
 
@@ -99,7 +102,7 @@ char_vinit(char v[], unsigned long int size)
 }
 
 void
-int_vinit(int v[], unsigned long int size)
+int_vinit (int v[], unsigned long int size)
 {
   unsigned long int i;
 
@@ -108,7 +111,7 @@ int_vinit(int v[], unsigned long int size)
 }
 
 void
-long_vinit(long v[], unsigned long int size)
+long_vinit (long v[], unsigned long int size)
 {
   unsigned long int i;
 
@@ -117,7 +120,7 @@ long_vinit(long v[], unsigned long int size)
 }
 
 void
-float_vinit(float v[], unsigned long int size)
+float_vinit (float v[], unsigned long int size)
 {
   unsigned long int i;
 
@@ -126,7 +129,7 @@ float_vinit(float v[], unsigned long int size)
 }
 
 void
-double_vinit(double v[], unsigned long int size)
+double_vinit (double v[], unsigned long int size)
 {
   unsigned long int i;
 

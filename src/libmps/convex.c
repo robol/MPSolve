@@ -36,7 +36,7 @@ const double TOLER = 0.4;	/* slope tolerace */
  * \f[ \{ (k, a_k) \ | \ k \in \{ lo, \dots, i \} \} \f]
  */
 int
-mps_left(mps_status* s, int i, int lo)
+mps_left (mps_status * s, int i, int lo)
 {
   if (i == lo)
     return lo;
@@ -55,7 +55,7 @@ mps_left(mps_status* s, int i, int lo)
  * \f[ \{ (k, a_k) \ | \ k \in \{ i, \dots, up \} \} \f]
  */
 int
-mps_right(mps_status* s, int i, int up)
+mps_right (mps_status * s, int i, int up)
 {
   if (i == up)
     return up;
@@ -79,15 +79,15 @@ mps_right(mps_status* s, int i, int up)
  * @param a  array with the points
  */
 mps_boolean
-mps_fctest(mps_status* s, int il, int i, int ir, double a[])
+mps_fctest (mps_status * s, int il, int i, int ir, double a[])
 {
   double s1, s2;
 
   s1 = (a[i] - a[il]) * (ir - i);
   s2 = (a[ir] - a[i]) * (i - il);
   /*#rimosso giugno 2000
-  return (s1 - s2 > (i-il)*(ir-i)*TOLER);
-  */
+     return (s1 - s2 > (i-il)*(ir-i)*TOLER);
+   */
   return (s1 - s2 > TOLER);
 }
 
@@ -101,40 +101,45 @@ mps_fctest(mps_status* s, int il, int i, int ir, double a[])
  * @param a array of points
  */
 void
-mps_fmerge(mps_status* s, int lo, int i, int up, double a[])
+mps_fmerge (mps_status * s, int lo, int i, int up, double a[])
 {
   int il, ir, ill, irr;
   mps_boolean tstl, tstr;
 
   ill = lo;
   irr = up;
-  il = mps_left(s, i, lo);
-  ir = mps_right(s, i, up);
-  if (mps_fctest(s, il, i, ir, a))
+  il = mps_left (s, i, lo);
+  ir = mps_right (s, i, up);
+  if (mps_fctest (s, il, i, ir, a))
     return;
   s->h[i] = false;
-  do {
-    if (il == lo)
-      tstl = true;
-    else {
-      ill = mps_left(s, il, lo);
-      tstl = mps_fctest(s, ill, il, ir, a);
+  do
+    {
+      if (il == lo)
+	tstl = true;
+      else
+	{
+	  ill = mps_left (s, il, lo);
+	  tstl = mps_fctest (s, ill, il, ir, a);
+	}
+      if (ir == up)
+	tstr = true;
+      else
+	{
+	  irr = mps_right (s, ir, up);
+	  tstr = mps_fctest (s, il, ir, irr, a);
+	}
+      if (!tstl)
+	{
+	  s->h[il] = false;
+	  il = ill;
+	}
+      if (!tstr)
+	{
+	  s->h[ir] = false;
+	  ir = irr;
+	}
     }
-    if (ir == up)
-      tstr = true;
-    else {
-      irr = mps_right(s, ir, up);
-      tstr = mps_fctest(s, il, ir, irr, a);
-    }
-    if (!tstl) {
-      s->h[il] = false;
-      il = ill;
-    }
-    if (!tstr) {
-      s->h[ir] = false;
-      ir = irr;
-    }
-  }
   while (!(tstl && tstr));
 }
 
@@ -149,7 +154,7 @@ mps_fmerge(mps_status* s, int lo, int i, int up, double a[])
  * @param n size of the vector <code>a</code>.
  */
 void
-mps_fconvex(mps_status* s, int n, double a[])
+mps_fconvex (mps_status * s, int n, double a[])
 {
   int m, c;
 
@@ -158,5 +163,5 @@ mps_fconvex(mps_status* s, int n, double a[])
 
   for (m = 1; m < s->n; m <<= 1)
     for (c = m; c < s->n; c += 2 * m)
-      mps_fmerge(s, c - m, c, MIN(s->n, c + m), a);
+      mps_fmerge (s, c - m, c, MIN (s->n, c + m), a);
 }

@@ -14,13 +14,13 @@
 #include <ctype.h>
 
 /* forward declarations */
-void update(int poly, int deg);
-void prescan(void);
-void scan(void);
-void skip(void);
-void skipnum(void);
-void copynum(void);
-void error(void);
+void update (int poly, int deg);
+void prescan (void);
+void scan (void);
+void skip (void);
+void skipnum (void);
+void copynum (void);
+void error (void);
 
 /* global variables */
 static int polydeg[100];
@@ -33,94 +33,100 @@ char c;
 
 /* main program */
 int
-main(int argc, char *argv[])
+main (int argc, char *argv[])
 {
   char *filename;
 
-  if (argc != 2) {
-    fprintf(stderr, "Input file missing\n");
-    exit(1);
-  }
+  if (argc != 2)
+    {
+      fprintf (stderr, "Input file missing\n");
+      exit (1);
+    }
   filename = argv[1];
 
-  if ((fp = fopen(filename, "r")) == NULL) {
-    fprintf(stderr, "Cannot open input file\n");
-    exit(1);
-  }
-  prescan();
-  rewind(fp);
-  scan();
+  if ((fp = fopen (filename, "r")) == NULL)
+    {
+      fprintf (stderr, "Cannot open input file\n");
+      exit (1);
+    }
+  prescan ();
+  rewind (fp);
+  scan ();
 
-  fclose(fp);
+  fclose (fp);
   return 0;
 }
 
 void
-prescan()
+prescan ()
 {
   int var, prec, deg;
 
-  if (!fscanf(fp, "%d", &var))
-    error();
-  if (!fscanf(fp, "%d", &prec))
-    error();
+  if (!fscanf (fp, "%d", &var))
+    error ();
+  if (!fscanf (fp, "%d", &prec))
+    error ();
 
-  skip();
+  skip ();
   if (c != '{')
-    error();
-  skip();			/* eat '{' */
-  for (poly = 0; c == '{'; poly++) {
-    do {
-      if (!fscanf(fp, "%d", &deg))
-	error();
-      update(poly, deg);
-      polymon[poly]++;
-      skipnum();
+    error ();
+  skip ();			/* eat '{' */
+  for (poly = 0; c == '{'; poly++)
+    {
+      do
+	{
+	  if (!fscanf (fp, "%d", &deg))
+	    error ();
+	  update (poly, deg);
+	  polymon[poly]++;
+	  skipnum ();
+	  if (c != ',' && c != '}')
+	    error ();
+	}
+      while (c == ',');
+      skip ();			/* eat '}' */
       if (c != ',' && c != '}')
-	error();
-    }
-    while (c == ',');
-    skip();			/* eat '}' */
-    if (c != ',' && c != '}')
-      error();
-    if (c == ',')
-      skip();			/* eat ',' */
-  }				/* for */
+	error ();
+      if (c == ',')
+	skip ();		/* eat ',' */
+    }				/* for */
   if (c != '}')
-    error();
+    error ();
 }
 
 void
-scan()
+scan ()
 {
   int var, prec, deg, mon;
 
-  fscanf(fp, "%d", &var);
+  fscanf (fp, "%d", &var);
   if (var != poly - 2)
-    error();
-  fscanf(fp, "%d", &prec);
-  printf("%d\n%d\n%d\n", var, degmax, prec);
+    error ();
+  fscanf (fp, "%d", &prec);
+  printf ("%d\n%d\n%d\n", var, degmax, prec);
 
-  skip();			/* eat first "{" */
-  skip();			/* eat '{' */
-  for (poly = 0; poly <= var + 1; poly++) {
-    printf("\nsri\n");
-    if (poly == 0)
-      printf("0\n");
-    printf("%d\n%d\n", polydeg[poly], polymon[poly]);
-    for (mon = 0; mon < polymon[poly]; mon++) {
-      fscanf(fp, "%d", &deg);
-      printf(" %d\n", deg);
-      copynum();
+  skip ();			/* eat first "{" */
+  skip ();			/* eat '{' */
+  for (poly = 0; poly <= var + 1; poly++)
+    {
+      printf ("\nsri\n");
+      if (poly == 0)
+	printf ("0\n");
+      printf ("%d\n%d\n", polydeg[poly], polymon[poly]);
+      for (mon = 0; mon < polymon[poly]; mon++)
+	{
+	  fscanf (fp, "%d", &deg);
+	  printf (" %d\n", deg);
+	  copynum ();
+	}
+      skip ();			/* eat '}' */
+      if (c == ',')
+	skip ();		/* eat ',' */
     }
-    skip();			/* eat '}' */
-    if (c == ',')
-      skip();			/* eat ',' */
-  }
 }
 
 void
-update(int poly, int deg)
+update (int poly, int deg)
 {
   if (polydeg[poly] < deg)
     polydeg[poly] = deg;
@@ -129,48 +135,50 @@ update(int poly, int deg)
 }
 
 void
-skip()
+skip ()
 {
-  c = fgetc(fp);
-  while (isspace(c))
-    c = fgetc(fp);
+  c = fgetc (fp);
+  while (isspace (c))
+    c = fgetc (fp);
 }
 
 void
-skipnum()
+skipnum ()
 {
-  skip();
+  skip ();
   if (c == '-' || c == '+')
-    c = fgetc(fp);
-  if (!isdigit(c))
-    error();
-  while (isdigit(c))
-    c = fgetc(fp);
-  if (!isspace(c) && c != ',' && c != '}')
-    error();
-  if (isspace(c))
-    skip();
+    c = fgetc (fp);
+  if (!isdigit (c))
+    error ();
+  while (isdigit (c))
+    c = fgetc (fp);
+  if (!isspace (c) && c != ',' && c != '}')
+    error ();
+  if (isspace (c))
+    skip ();
 }
 
 void
-copynum()
+copynum ()
 {
-  skip();
-  if (c == '-' || c == '+') {
-    putchar(c);
-    c = fgetc(fp);
-  }
-  while (isdigit(c)) {
-    putchar(c);
-    c = fgetc(fp);
-  }
-  putchar('\n');
-  skip();
+  skip ();
+  if (c == '-' || c == '+')
+    {
+      putchar (c);
+      c = fgetc (fp);
+    }
+  while (isdigit (c))
+    {
+      putchar (c);
+      c = fgetc (fp);
+    }
+  putchar ('\n');
+  skip ();
 }
 
 void
-error()
+error ()
 {
-  fprintf(stderr, "Bad input format\n");
-  exit(1);
+  fprintf (stderr, "Bad input format\n");
+  exit (1);
 }

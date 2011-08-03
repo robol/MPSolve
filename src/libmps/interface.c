@@ -57,8 +57,10 @@
  * Roots can then be obtained with the functions <code>mps_status_get_roots_*</code>
  *
  */
-void mps_mpsolve(mps_status* s) {
-    (*s->mpsolve_ptr)(s);
+void
+mps_mpsolve (mps_status * s)
+{
+  (*s->mpsolve_ptr) (s);
 }
 
 /**
@@ -72,43 +74,43 @@ void mps_mpsolve(mps_status* s) {
  *   applied to secular equations;
  */
 void
-mps_status_select_algorithm(mps_status* s, mps_algorithm algorithm)
+mps_status_select_algorithm (mps_status * s, mps_algorithm algorithm)
 {
-    /* First set algorithm in the mps_status */
-    s->algorithm = algorithm;
+  /* First set algorithm in the mps_status */
+  s->algorithm = algorithm;
 
-    switch (algorithm)
+  switch (algorithm)
     {
     case MPS_ALGORITHM_STANDARD_MPSOLVE:
-        s->mpsolve_ptr = MPS_MPSOLVE_PTR(mps_standard_mpsolve);
-        break;
+      s->mpsolve_ptr = MPS_MPSOLVE_PTR (mps_standard_mpsolve);
+      break;
 
     case MPS_ALGORITHM_SECULAR_MPSOLVE:
-        s->data_type = "uri";
+      s->data_type = "uri";
 
-        /* Set custom routines for newton quotient computation */
-        s->fnewton_usr = MPS_FNEWTON_PTR(mps_secular_fnewton);
-        s->dnewton_usr = MPS_DNEWTON_PTR(mps_secular_dnewton);
-        s->mnewton_usr = MPS_MNEWTON_PTR(mps_secular_mnewton);
+      /* Set custom routines for newton quotient computation */
+      s->fnewton_usr = MPS_FNEWTON_PTR (mps_secular_fnewton);
+      s->dnewton_usr = MPS_DNEWTON_PTR (mps_secular_dnewton);
+      s->mnewton_usr = MPS_MNEWTON_PTR (mps_secular_mnewton);
 
-        /* Set other custom functions */
-        s->check_data_usr = MPS_CHECK_DATA_PTR(mps_secular_check_data);
+      /* Set other custom functions */
+      s->check_data_usr = MPS_CHECK_DATA_PTR (mps_secular_check_data);
 
-        /* Set starting point custom routine */
-        s->fstart_usr = MPS_FSTART_PTR(mps_secular_fstart);
-        s->dstart_usr = MPS_DSTART_PTR(mps_secular_dstart);
+      /* Set starting point custom routine */
+      s->fstart_usr = MPS_FSTART_PTR (mps_secular_fstart);
+      s->dstart_usr = MPS_DSTART_PTR (mps_secular_dstart);
 
-        /* Set default routine for mpsolve loop */
-        s->mpsolve_ptr = MPS_MPSOLVE_PTR(mps_standard_mpsolve);
+      /* Set default routine for mpsolve loop */
+      s->mpsolve_ptr = MPS_MPSOLVE_PTR (mps_standard_mpsolve);
 
-        break;
+      break;
 
     case MPS_ALGORITHM_SECULAR_GA:
-        /* Nothing to be done for now, other than selecting the correct
-         * loop. */
-        s->mpsolve_ptr = MPS_MPSOLVE_PTR(mps_secular_ga_mpsolve);
-      
-        break;
+      /* Nothing to be done for now, other than selecting the correct
+       * loop. */
+      s->mpsolve_ptr = MPS_MPSOLVE_PTR (mps_secular_ga_mpsolve);
+
+      break;
     }
 }
 
@@ -116,51 +118,55 @@ mps_status_select_algorithm(mps_status* s, mps_algorithm algorithm)
  * @brief Allocate polynomial related variables directly in mps_status.
  */
 void
-mps_status_allocate_poly_inplace(mps_status* s, int n) {
+mps_status_allocate_poly_inplace (mps_status * s, int n)
+{
 
-    int i;
+  int i;
 
-    /* If n is provided, then we should allocate variables for a polynomial
-     * of degree n. If it is <= 0 then we can assume that is already set
-     * to the right vaule.
-     */
-    if (n > 0) {
-        s->deg = s->n = n;
+  /* If n is provided, then we should allocate variables for a polynomial
+   * of degree n. If it is <= 0 then we can assume that is already set
+   * to the right vaule.
+   */
+  if (n > 0)
+    {
+      s->deg = s->n = n;
     }
 
-    if (s->DOLOG)
-        fprintf(s->logstr, "Allocating polynomial in place\n");
+  if (s->DOLOG)
+    fprintf (s->logstr, "Allocating polynomial in place\n");
 
-    s->data_type = (char*) malloc(sizeof (char) * 3);
+  s->data_type = (char *) malloc (sizeof (char) * 3);
 
-    s->spar = mps_boolean_valloc(s->deg + 2);
+  s->spar = mps_boolean_valloc (s->deg + 2);
 
-    s->fpr = double_valloc(s->deg + 1);
-    s->fpc = cplx_valloc(s->deg + 1);
+  s->fpr = double_valloc (s->deg + 1);
+  s->fpc = cplx_valloc (s->deg + 1);
 
-    s->dpr = rdpe_valloc(s->deg + 1);
-    s->dpc = cdpe_valloc(s->deg + 1);
+  s->dpr = rdpe_valloc (s->deg + 1);
+  s->dpc = cdpe_valloc (s->deg + 1);
 
-    s->mip_r = mpz_valloc(s->deg + 1);
-    s->mip_i = mpz_valloc(s->deg + 1);
-    for (i = 0; i <= s->deg; i++) {
-        mpz_init(s->mip_r[i]);
-        mpz_init(s->mip_i[i]);
+  s->mip_r = mpz_valloc (s->deg + 1);
+  s->mip_i = mpz_valloc (s->deg + 1);
+  for (i = 0; i <= s->deg; i++)
+    {
+      mpz_init (s->mip_r[i]);
+      mpz_init (s->mip_i[i]);
     }
 
-    s->mqp_r = mpq_valloc(s->deg + 1);
-    s->mqp_i = mpq_valloc(s->deg + 1);
-    for (i = 0; i <= s->deg; i++) {
-        mpq_init(s->mqp_r[i]);
-        mpq_init(s->mqp_i[i]);
+  s->mqp_r = mpq_valloc (s->deg + 1);
+  s->mqp_i = mpq_valloc (s->deg + 1);
+  for (i = 0; i <= s->deg; i++)
+    {
+      mpq_init (s->mqp_r[i]);
+      mpq_init (s->mqp_i[i]);
     }
 
-    s->mfpr = mpf_valloc(s->deg + 1);
-    for (i = 0; i <= s->deg; i++)
-        mpf_init2(s->mfpr[i], s->prec_in);
-    s->mfpc = mpc_valloc(s->deg + 1);
-    for (i = 0; i <= s->deg; i++)
-        mpc_init2(s->mfpc[i], s->prec_in);
+  s->mfpr = mpf_valloc (s->deg + 1);
+  for (i = 0; i <= s->deg; i++)
+    mpf_init2 (s->mfpr[i], s->prec_in);
+  s->mfpc = mpc_valloc (s->deg + 1);
+  for (i = 0; i <= s->deg; i++)
+    mpc_init2 (s->mfpc[i], s->prec_in);
 
 }
 
@@ -168,23 +174,24 @@ mps_status_allocate_poly_inplace(mps_status* s, int n) {
  * @brief Allocate a new mps_status struct with default
  * options.
  */
-mps_status*
-mps_status_new() {
-    /* Allocate the new mps_status and load default options */
-    mps_status* s = (mps_status*) malloc(sizeof (mps_status));
-    mps_set_default_values(s);
+mps_status *
+mps_status_new ()
+{
+  /* Allocate the new mps_status and load default options */
+  mps_status *s = (mps_status *) malloc (sizeof (mps_status));
+  mps_set_default_values (s);
 
-    /* Set default streams */
-    s->instr = stdin;
-    s->outstr = stdout;
-    s->logstr = stdout;
+  /* Set default streams */
+  s->instr = stdin;
+  s->outstr = stdout;
+  s->logstr = stdout;
 
-    /* Set standard precision */
-    s->prec_out = (int) (0.9 * DBL_DIG * LOG2_10);
-    MPS_DEBUG(s, "Setting prec_out to %d digits", s->prec_out);
-    s->prec_in = 0;
+  /* Set standard precision */
+  s->prec_out = (int) (0.9 * DBL_DIG * LOG2_10);
+  MPS_DEBUG (s, "Setting prec_out to %d digits", s->prec_out);
+  s->prec_in = 0;
 
-    return s;
+  return s;
 }
 
 /**
@@ -193,9 +200,10 @@ mps_status_new() {
  * @param s the mps_status struct pointer to free.
  */
 void
-mps_status_free(mps_status* s) {
-   mps_free_data(s);
-   free (s);
+mps_status_free (mps_status * s)
+{
+  mps_free_data (s);
+  free (s);
 }
 
 /**
@@ -231,28 +239,29 @@ mps_status_free(mps_status* s) {
  *   <code>MPS_MNEWTON_PTR</code>.
  */
 int
-mps_status_set_poly_u(mps_status* s, int n, mps_fnewton_ptr fnewton,
-                      mps_dnewton_ptr dnewton, mps_mnewton_ptr mnewton) {
+mps_status_set_poly_u (mps_status * s, int n, mps_fnewton_ptr fnewton,
+		       mps_dnewton_ptr dnewton, mps_mnewton_ptr mnewton)
+{
 
-    /* Set degree and allocate data */
-    mps_status_set_degree(s, n);
-    mps_allocate_data(s);
+  /* Set degree and allocate data */
+  mps_status_set_degree (s, n);
+  mps_allocate_data (s);
 
-    /* TODO: Apart from u, what should be set here? */
-    s->data_type = "uri";
+  /* TODO: Apart from u, what should be set here? */
+  s->data_type = "uri";
 
-    /* Set functions */
-    s->fnewton_usr = fnewton;
-    s->dnewton_usr = dnewton;
-    s->mnewton_usr = mnewton;
+  /* Set functions */
+  s->fnewton_usr = fnewton;
+  s->dnewton_usr = dnewton;
+  s->mnewton_usr = mnewton;
 
-    return 0;
+  return 0;
 }
 
 void
-mps_status_set_degree(mps_status* s, int n)
+mps_status_set_degree (mps_status * s, int n)
 {
-    s->deg = s->n = n;
+  s->deg = s->n = n;
 }
 
 /**
@@ -266,27 +275,29 @@ mps_status_set_degree(mps_status* s, int n)
  * \f]
  */
 int
-mps_status_set_poly_d(mps_status* s, cplx_t* coeff, long unsigned int n) {
+mps_status_set_poly_d (mps_status * s, cplx_t * coeff, long unsigned int n)
+{
 
-    int i;
+  int i;
 
-    /* Allocate space for a polynomial of degree n */
-    mps_status_allocate_poly_inplace(s, n);
+  /* Allocate space for a polynomial of degree n */
+  mps_status_allocate_poly_inplace (s, n);
 
-    /* Set type to a dense, real, floating point polynomial */
-    s->data_type[0] = 'd';
-    s->data_type[1] = 'c';
-    s->data_type[2] = 'f';
+  /* Set type to a dense, real, floating point polynomial */
+  s->data_type[0] = 'd';
+  s->data_type[1] = 'c';
+  s->data_type[2] = 'f';
 
-    /* Fill polynomial coefficients */
-    for (i = 0; i <= n; i++) {
-        mpc_set_cplx(s->mfpc[i], coeff[i]);
+  /* Fill polynomial coefficients */
+  for (i = 0; i <= n; i++)
+    {
+      mpc_set_cplx (s->mfpc[i], coeff[i]);
     }
 
-    /* Allocate space for computation related data */
-    mps_allocate_data(s);
+  /* Allocate space for computation related data */
+  mps_allocate_data (s);
 
-    return 0;
+  return 0;
 }
 
 /**
@@ -300,27 +311,29 @@ mps_status_set_poly_d(mps_status* s, cplx_t* coeff, long unsigned int n) {
  * \f]
  */
 int
-mps_status_set_poly_i(mps_status* s, int* coeff, long unsigned int n) {
+mps_status_set_poly_i (mps_status * s, int *coeff, long unsigned int n)
+{
 
-    int i;
+  int i;
 
-    /* Allocate data in mps_status to hold the polynomial of degree n */
-    mps_status_allocate_poly_inplace(s, n);
+  /* Allocate data in mps_status to hold the polynomial of degree n */
+  mps_status_allocate_poly_inplace (s, n);
 
-    /* Dense, real, integer coefficients */
-    s->data_type[0] = 'd';
-    s->data_type[1] = 'r';
-    s->data_type[2] = 'i';
+  /* Dense, real, integer coefficients */
+  s->data_type[0] = 'd';
+  s->data_type[1] = 'r';
+  s->data_type[2] = 'i';
 
-    /* Fill polynomial */
-    for (i = 0; i <= n; i++) {
-        mpz_set_si(s->mip_r[i], coeff[i]);
+  /* Fill polynomial */
+  for (i = 0; i <= n; i++)
+    {
+      mpz_set_si (s->mip_r[i], coeff[i]);
     }
 
-    /* Allocate data for the computation */
-    mps_allocate_data(s);
+  /* Allocate data for the computation */
+  mps_allocate_data (s);
 
-    return 0;
+  return 0;
 }
 
 /**
@@ -329,29 +342,38 @@ mps_status_set_poly_i(mps_status* s, int* coeff, long unsigned int n) {
  * to the i-th inclusion radius.
  */
 int
-mps_status_get_roots_d(mps_status* s, cplx_t* roots, double* radius) {
-	int i;
-	for(i = 0; i < s->n; i++) {
+mps_status_get_roots_d (mps_status * s, cplx_t * roots, double *radius)
+{
+  int i;
+  for (i = 0; i < s->n; i++)
+    {
 
-	if (radius != NULL) {
-		  if (s->lastphase == float_phase ||
-				  s->lastphase == dpe_phase) {
-			  radius[i] = s->frad[i];
-		  }
-		  else {
-			  radius[i] = rdpe_get_d(s->drad[i]);
-		  }
+      if (radius != NULL)
+	{
+	  if (s->lastphase == float_phase || s->lastphase == dpe_phase)
+	    {
+	      radius[i] = s->frad[i];
+	    }
+	  else
+	    {
+	      radius[i] = rdpe_get_d (s->drad[i]);
+	    }
 
 	}
 
-	if (s->lastphase == mp_phase) {
-		  mpc_get_cplx(roots[i], s->mroot[i]);
-	  } else if (s->lastphase == float_phase) {
-		  cplx_set(roots[i], s->froot[i]);
-	  } else if (s->lastphase == dpe_phase) {
-		  cdpe_get_x(roots[i], s->droot[i]);
-	  }
-  }
+      if (s->lastphase == mp_phase)
+	{
+	  mpc_get_cplx (roots[i], s->mroot[i]);
+	}
+      else if (s->lastphase == float_phase)
+	{
+	  cplx_set (roots[i], s->froot[i]);
+	}
+      else if (s->lastphase == dpe_phase)
+	{
+	  cdpe_get_x (roots[i], s->droot[i]);
+	}
+    }
   return 0;
 
 }
@@ -360,7 +382,8 @@ mps_status_get_roots_d(mps_status* s, cplx_t* roots, double* radius) {
  * @brief Get the roots computed as multiprecision complex numbers.
  */
 int
-mps_status_get_roots_m(mps_status* s, mpc_t* roots, rdpe_t* radius) {
-    /* TODO: Implement mps_get_roots_d() */
-    return 0;
+mps_status_get_roots_m (mps_status * s, mpc_t * roots, rdpe_t * radius)
+{
+  /* TODO: Implement mps_get_roots_d() */
+  return 0;
 }

@@ -26,14 +26,14 @@
 #define ISZERO -1
 
 void
-mps_skip_comments (FILE* input_stream)
+mps_skip_comments (FILE * input_stream)
 {
-    char buf;
-    while ((buf = fgetc(input_stream)) == '!' || isspace(buf))
-        if (buf == '!')
-            /* Skip until newline */
-            while(fgetc(input_stream) != '\n');
-    ungetc(buf, input_stream);
+  char buf;
+  while ((buf = fgetc (input_stream)) == '!' || isspace (buf))
+    if (buf == '!')
+      /* Skip until newline */
+      while (fgetc (input_stream) != '\n');
+  ungetc (buf, input_stream);
 }
 
 /**
@@ -41,43 +41,43 @@ mps_skip_comments (FILE* input_stream)
  * identified by the given string
  */
 mps_boolean
-mps_is_option(mps_status *s, const char* option_string1, const char* option_string2)
+mps_is_option (mps_status * s, const char *option_string1,
+	       const char *option_string2)
 {
-    /* Skip initial spaces */
-    while (isspace(*option_string1))
-        option_string1++;
-    while (isspace(*option_string2))
-        option_string2++;
+  /* Skip initial spaces */
+  while (isspace (*option_string1))
+    option_string1++;
+  while (isspace (*option_string2))
+    option_string2++;
 
-    /* Compare char by char */
-    while ((tolower(*option_string1) == tolower(*option_string2)) &&
-           (*option_string1 != '\0') &&
-           (*option_string2 != '\0'))
+  /* Compare char by char */
+  while ((tolower (*option_string1) == tolower (*option_string2)) &&
+	 (*option_string1 != '\0') && (*option_string2 != '\0'))
     {
-        option_string1++;
-        option_string2++;
+      option_string1++;
+      option_string2++;
     }
 
-    /* We have arrived to the first different char or on the end of
-     * one of the two string. If one is at the end, the other must
-     * have only space characters left */
-    if (*option_string1 == '\0')
+  /* We have arrived to the first different char or on the end of
+   * one of the two string. If one is at the end, the other must
+   * have only space characters left */
+  if (*option_string1 == '\0')
     {
-        while(isspace(*option_string2))
-            option_string2++;
+      while (isspace (*option_string2))
+	option_string2++;
 
-        return (*option_string2 == '\0');
+      return (*option_string2 == '\0');
     }
 
-    if (*option_string2 == '\0')
+  if (*option_string2 == '\0')
     {
-        while(isspace(*option_string1))
-            option_string1++;
+      while (isspace (*option_string1))
+	option_string1++;
 
-        return (*option_string1 == '\0');
+      return (*option_string1 == '\0');
     }
 
-    return false;
+  return false;
 }
 
 /**
@@ -87,85 +87,87 @@ mps_is_option(mps_status *s, const char* option_string1, const char* option_stri
  * Valid options, recognized at the moment being are:
  */
 mps_input_option
-mps_parse_option_line (mps_status* s, char* line, size_t length)
+mps_parse_option_line (mps_status * s, char *line, size_t length)
 {
-  char* first_comment;
+  char *first_comment;
   char *option;
   char *c_ptr;
-  char* equal_position;
+  char *equal_position;
   mps_input_option input_option;
   size_t real_length;
 
   if (length > 255)
-      mps_error(s, 1, "Maximum line length exceeded (length > 255 while parsing)");
+    mps_error (s, 1,
+	       "Maximum line length exceeded (length > 255 while parsing)");
 
   /* Check if there are comments in this line */
-  if ((first_comment = strchr(line, '!')) != NULL)
-      real_length = (first_comment - line) / sizeof(char);
+  if ((first_comment = strchr (line, '!')) != NULL)
+    real_length = (first_comment - line) / sizeof (char);
   else
-      real_length = length;
+    real_length = length;
 
   c_ptr = line;
-  while (isspace(*c_ptr) && ((c_ptr < first_comment) || first_comment == NULL))
-  {
+  while (isspace (*c_ptr)
+	 && ((c_ptr < first_comment) || first_comment == NULL))
+    {
       c_ptr++;
       real_length--;
-  }
+    }
   option = c_ptr;
-  c_ptr = strchr(option, ';') - 1;
-  while (isspace(*--c_ptr) && real_length--);
+  c_ptr = strchr (option, ';') - 1;
+  while (isspace (*--c_ptr) && real_length--);
 
   /* Now we have the option that is pointed by option and is
    * real_lenght characters long */
   *(c_ptr + 2) = '\0';
-  MPS_DEBUG(s, "Parsed option: %s", option);
+  MPS_DEBUG (s, "Parsed option: %s", option);
 
   input_option.flag = MPS_FLAG_UNDEFINED;
   input_option.value = NULL;
 
   /* Detect option about density-sparseness */
-  if (mps_is_option(s, option, "dense"))
-      input_option.flag = MPS_FLAG_DENSE;
-  if (mps_is_option(s, option, "sparse"))
-      input_option.flag = MPS_FLAG_SPARSE;
+  if (mps_is_option (s, option, "dense"))
+    input_option.flag = MPS_FLAG_DENSE;
+  if (mps_is_option (s, option, "sparse"))
+    input_option.flag = MPS_FLAG_SPARSE;
 
   /* Options on types */
-  if (mps_is_option(s, option, "integer"))
-      input_option.flag = MPS_FLAG_INTEGER;
-  if (mps_is_option(s, option, "real"))
-      input_option.flag = MPS_FLAG_REAL;
-  if (mps_is_option(s, option, "complex"))
-      input_option.flag = MPS_FLAG_COMPLEX;
-  if (mps_is_option(s, option, "rational"))
-      input_option.flag = MPS_FLAG_RATIONAL;
-  if (mps_is_option(s, option, "floatingpoint"))
-      input_option.flag = MPS_FLAG_FP;
+  if (mps_is_option (s, option, "integer"))
+    input_option.flag = MPS_FLAG_INTEGER;
+  if (mps_is_option (s, option, "real"))
+    input_option.flag = MPS_FLAG_REAL;
+  if (mps_is_option (s, option, "complex"))
+    input_option.flag = MPS_FLAG_COMPLEX;
+  if (mps_is_option (s, option, "rational"))
+    input_option.flag = MPS_FLAG_RATIONAL;
+  if (mps_is_option (s, option, "floatingpoint"))
+    input_option.flag = MPS_FLAG_FP;
 
   /* Options on the input type */
-  if (mps_is_option(s, option, "secular"))
-      input_option.flag = MPS_FLAG_SECULAR;
-  if (mps_is_option(s, option, "polynomial"))
-      input_option.flag = MPS_FLAG_POLYNOMIAL;
+  if (mps_is_option (s, option, "secular"))
+    input_option.flag = MPS_FLAG_SECULAR;
+  if (mps_is_option (s, option, "polynomial"))
+    input_option.flag = MPS_FLAG_POLYNOMIAL;
 
   /* Parsing keys with values. If = is not found in the
    * input string, than an error has occurred so we should
    * return. */
-  equal_position = strchr(option, '=');
+  equal_position = strchr (option, '=');
   if (equal_position == NULL)
-      return input_option;
+    return input_option;
   else
-  {
+    {
       input_option.value = equal_position + 1;
       /* Make a copy of the option to parse it without
        * equal sign and anything after it */
       c_ptr = option;
-      option = (char*) malloc (sizeof(char) * strlen(option));
+      option = (char *) malloc (sizeof (char) * strlen (option));
       strcpy (option, c_ptr);
-      *strchr(option, '=') = '\0';
-  }
+      *strchr (option, '=') = '\0';
+    }
 
-  if (mps_is_option(s, option, "degree"))
-      input_option.flag = MPS_KEY_DEGREE;
+  if (mps_is_option (s, option, "degree"))
+    input_option.flag = MPS_KEY_DEGREE;
 
   /* Free the copy of the option */
   free (option);
@@ -173,184 +175,186 @@ mps_parse_option_line (mps_status* s, char* line, size_t length)
 }
 
 void
-mps_secular_equation_read_from_stream(mps_status* s, mps_parsing_configuration config,
-                                      FILE* input_stream)
+mps_secular_equation_read_from_stream (mps_status * s,
+				       mps_parsing_configuration config,
+				       FILE * input_stream)
 {
-  mps_secular_equation* sec;
+  mps_secular_equation *sec;
   int i, r;
   mpf_t ftmp;
 
-  mpf_init(ftmp);
+  mpf_init (ftmp);
 
   /* Read directly the secular equation in DPE, so we don't need
    * to have a fallback case if the coefficients are bigger than
    * what is supported by the standard floating point arithmetic */
-  sec = mps_secular_equation_new_raw(s, s->n);
+  sec = mps_secular_equation_new_raw (s, s->n);
 
   /* Parsinf of integers and floating point is done with DPE */
   if (config.structure == MPS_STRUCTURE_COMPLEX_INTEGER ||
       config.structure == MPS_STRUCTURE_COMPLEX_FP)
-  {
-      for(i = 0; i < s->n; i++)
-        {
-          mps_skip_comments(input_stream);
-          r = rdpe_inp_str_flex(cdpe_Re(sec->adpc[i]), input_stream);
+    {
+      for (i = 0; i < s->n; i++)
+	{
+	  mps_skip_comments (input_stream);
+	  r = rdpe_inp_str_flex (cdpe_Re (sec->adpc[i]), input_stream);
 
-          if (r == 0)
-          {
-              mps_error (s, 1,
-                         "Error reading some coefficients of the secular equation.\n"
-                         "Please check your input file.");
-          }
+	  if (r == 0)
+	    {
+	      mps_error (s, 1,
+			 "Error reading some coefficients of the secular equation.\n"
+			 "Please check your input file.");
+	    }
 
-          mps_skip_comments(input_stream);
-          r = rdpe_inp_str_flex(cdpe_Im(sec->adpc[i]), input_stream);
+	  mps_skip_comments (input_stream);
+	  r = rdpe_inp_str_flex (cdpe_Im (sec->adpc[i]), input_stream);
 
-          if (r == 0)
-          {
-              mps_error (s, 1,
-                         "Error reading some coefficients of the secular equation.\n"
-                         "Please check your input file.");
-          }
+	  if (r == 0)
+	    {
+	      mps_error (s, 1,
+			 "Error reading some coefficients of the secular equation.\n"
+			 "Please check your input file.");
+	    }
 
-          mps_skip_comments(input_stream);
-          r = rdpe_inp_str_flex(cdpe_Re(sec->bdpc[i]), input_stream);
+	  mps_skip_comments (input_stream);
+	  r = rdpe_inp_str_flex (cdpe_Re (sec->bdpc[i]), input_stream);
 
-          if (r == 0)
-          {
-              mps_error (s, 1,
-                         "Error reading some coefficients of the secular equation.\n"
-                         "Please check your input file.");
-          }
+	  if (r == 0)
+	    {
+	      mps_error (s, 1,
+			 "Error reading some coefficients of the secular equation.\n"
+			 "Please check your input file.");
+	    }
 
-          mps_skip_comments(input_stream);
-          r = rdpe_inp_str_flex(cdpe_Im(sec->bdpc[i]), input_stream);
+	  mps_skip_comments (input_stream);
+	  r = rdpe_inp_str_flex (cdpe_Im (sec->bdpc[i]), input_stream);
 
-          if (r == 0)
-          {
-              mps_error (s, 1,
-                         "Error reading some coefficients of the secular equation.\n"
-                         "Please check your input file.");
-          }
-        }
-  }
+	  if (r == 0)
+	    {
+	      mps_error (s, 1,
+			 "Error reading some coefficients of the secular equation.\n"
+			 "Please check your input file.");
+	    }
+	}
+    }
   else if (config.structure == MPS_STRUCTURE_REAL_INTEGER ||
-           config.structure == MPS_STRUCTURE_REAL_FP)
-  {
+	   config.structure == MPS_STRUCTURE_REAL_FP)
+    {
       /* Parse only real coefficients, and set imaginary ones to zero */
-      for(i = 0; i < s->n; i++)
-        {
-          mps_skip_comments(input_stream);
-          r = rdpe_inp_str_flex(cdpe_Re(sec->adpc[i]), input_stream);
-          rdpe_set(cdpe_Im(sec->adpc[i]), rdpe_zero);
+      for (i = 0; i < s->n; i++)
+	{
+	  mps_skip_comments (input_stream);
+	  r = rdpe_inp_str_flex (cdpe_Re (sec->adpc[i]), input_stream);
+	  rdpe_set (cdpe_Im (sec->adpc[i]), rdpe_zero);
 
-          if (r == 0)
-          {
-              mps_error (s, 1,
-                         "Error reading some coefficients of the secular equation.\n"
-                         "Please check your input file.");
-          }
+	  if (r == 0)
+	    {
+	      mps_error (s, 1,
+			 "Error reading some coefficients of the secular equation.\n"
+			 "Please check your input file.");
+	    }
 
-          mps_skip_comments(input_stream);
-          r = rdpe_inp_str_flex(cdpe_Re(sec->bdpc[i]), input_stream);
-          rdpe_set(cdpe_Im(sec->bdpc[i]), rdpe_zero);
+	  mps_skip_comments (input_stream);
+	  r = rdpe_inp_str_flex (cdpe_Re (sec->bdpc[i]), input_stream);
+	  rdpe_set (cdpe_Im (sec->bdpc[i]), rdpe_zero);
 
-          if (r == 0)
-          {
-              mps_error (s, 1,
-                         "Error reading some coefficients of the secular equation.\n"
-                         "Please check your input file.");
-          }
-        }
+	  if (r == 0)
+	    {
+	      mps_error (s, 1,
+			 "Error reading some coefficients of the secular equation.\n"
+			 "Please check your input file.");
+	    }
+	}
 
-  } else if (MPS_STRUCTURE_IS_RATIONAL(config.structure))
-  {
-      for(i = 0; i < s->n; i++)
-      {
-          /* Read real part of the a_i */
-          mps_skip_comments(input_stream);
-          mpq_inp_str(sec->initial_ampqrc[i], input_stream, 10);
-          mpq_canonicalize(sec->initial_ampqrc[i]);
+    }
+  else if (MPS_STRUCTURE_IS_RATIONAL (config.structure))
+    {
+      for (i = 0; i < s->n; i++)
+	{
+	  /* Read real part of the a_i */
+	  mps_skip_comments (input_stream);
+	  mpq_inp_str (sec->initial_ampqrc[i], input_stream, 10);
+	  mpq_canonicalize (sec->initial_ampqrc[i]);
 
-          /* Read imaginary part of the a_i */
-          if (MPS_STRUCTURE_IS_COMPLEX(config.structure))
-          {
-              mps_skip_comments(input_stream);
-              mpq_inp_str(sec->initial_ampqic[i], input_stream, 10);
-              mpq_canonicalize(sec->initial_ampqic[i]);
-          }
-          else
-              mpq_set_ui(sec->initial_ampqic[i], 0, 0);
+	  /* Read imaginary part of the a_i */
+	  if (MPS_STRUCTURE_IS_COMPLEX (config.structure))
+	    {
+	      mps_skip_comments (input_stream);
+	      mpq_inp_str (sec->initial_ampqic[i], input_stream, 10);
+	      mpq_canonicalize (sec->initial_ampqic[i]);
+	    }
+	  else
+	    mpq_set_ui (sec->initial_ampqic[i], 0, 0);
 
-          /* Read real part of the b_i */
-          mps_skip_comments(input_stream);
-          mpq_inp_str(sec->initial_bmpqrc[i], input_stream, 10);
-          mpq_canonicalize(sec->initial_bmpqrc[i]);
+	  /* Read real part of the b_i */
+	  mps_skip_comments (input_stream);
+	  mpq_inp_str (sec->initial_bmpqrc[i], input_stream, 10);
+	  mpq_canonicalize (sec->initial_bmpqrc[i]);
 
-          /* Read imaginary part of the b_i */
-          if (MPS_STRUCTURE_IS_COMPLEX(config.structure))
-          {
-              mps_skip_comments(input_stream);
-              mpq_inp_str(sec->initial_bmpqic[i], input_stream, 10);
-              mpq_canonicalize(sec->initial_bmpqic[i]);
-          }
-          else
-              mpq_set_ui(sec->initial_bmpqic[i], 0, 0);
-      }
+	  /* Read imaginary part of the b_i */
+	  if (MPS_STRUCTURE_IS_COMPLEX (config.structure))
+	    {
+	      mps_skip_comments (input_stream);
+	      mpq_inp_str (sec->initial_bmpqic[i], input_stream, 10);
+	      mpq_canonicalize (sec->initial_bmpqic[i]);
+	    }
+	  else
+	    mpq_set_ui (sec->initial_bmpqic[i], 0, 0);
+	}
 
       /* Set DPE coefficients */
-      for(i = 0; i < s->n; i++)
-      {
-          mpf_set_q(ftmp, sec->initial_ampqrc[i]);
-          mpf_get_rdpe(cdpe_Re(sec->adpc[i]), ftmp);
+      for (i = 0; i < s->n; i++)
+	{
+	  mpf_set_q (ftmp, sec->initial_ampqrc[i]);
+	  mpf_get_rdpe (cdpe_Re (sec->adpc[i]), ftmp);
 
-          mpf_set_q(ftmp, sec->initial_ampqic[i]);
-          mpf_get_rdpe(cdpe_Im(sec->adpc[i]), ftmp);
+	  mpf_set_q (ftmp, sec->initial_ampqic[i]);
+	  mpf_get_rdpe (cdpe_Im (sec->adpc[i]), ftmp);
 
-          mpf_set_q(ftmp, sec->initial_bmpqrc[i]);
-          mpf_get_rdpe(cdpe_Re(sec->bdpc[i]), ftmp);
+	  mpf_set_q (ftmp, sec->initial_bmpqrc[i]);
+	  mpf_get_rdpe (cdpe_Re (sec->bdpc[i]), ftmp);
 
-          mpf_set_q(ftmp, sec->initial_bmpqic[i]);
-          mpf_get_rdpe(cdpe_Im(sec->bdpc[i]), ftmp);
-      }
+	  mpf_set_q (ftmp, sec->initial_bmpqic[i]);
+	  mpf_get_rdpe (cdpe_Im (sec->bdpc[i]), ftmp);
+	}
 
 
-  }
+    }
 
   sec->input_structure = config.structure;
 
   /* Deflate input, if identical b_i coefficients are found */
-  mps_secular_deflate(s, sec);
+  mps_secular_deflate (s, sec);
 
   /* Copy coefficients back in other places */
-  for(i = 0; i < sec->n; i++)
+  for (i = 0; i < sec->n; i++)
     {
-      mpc_set_cdpe(sec->ampc[i], sec->adpc[i]);
-      mpc_set_cdpe(sec->bmpc[i], sec->bdpc[i]);
+      mpc_set_cdpe (sec->ampc[i], sec->adpc[i]);
+      mpc_set_cdpe (sec->bmpc[i], sec->bdpc[i]);
 
       /* Get floating points coefficients */
-      cdpe_get_x(sec->afpc[i], sec->adpc[i]);
-      cdpe_get_x(sec->bfpc[i], sec->bdpc[i]);
+      cdpe_get_x (sec->afpc[i], sec->adpc[i]);
+      cdpe_get_x (sec->bfpc[i], sec->bdpc[i]);
     }
 
   /* And finally put a copy in initial_ampc and
    * inital_bmpc to perform regeneration */
-  for(i = 0; i < sec->n; i++)
-  {
+  for (i = 0; i < sec->n; i++)
+    {
       /* This is needed only if the input was not rational,
        * because in the other case the data has been
        * directly read into the initial_* fields */
-      if (!MPS_STRUCTURE_IS_RATIONAL(config.structure))
-      {
-          /* Standard CDPE */
-          mpc_set_cdpe(sec->initial_ampc[i], sec->adpc[i]);
-          mpc_set_cdpe(sec->initial_bmpc[i], sec->bdpc[i]);
-      }
+      if (!MPS_STRUCTURE_IS_RATIONAL (config.structure))
+	{
+	  /* Standard CDPE */
+	  mpc_set_cdpe (sec->initial_ampc[i], sec->adpc[i]);
+	  mpc_set_cdpe (sec->initial_bmpc[i], sec->bdpc[i]);
+	}
 
-  }
+    }
 
   s->secular_equation = sec;
-  mpf_clear(ftmp);
+  mpf_clear (ftmp);
 }
 
 
@@ -358,134 +362,135 @@ mps_secular_equation_read_from_stream(mps_status* s, mps_parsing_configuration c
  * @brief Parse a stream for input data.
  */
 void
-mps_parse_stream(mps_status* s, FILE* input_stream,
-                 mps_parsing_configuration default_configuration)
+mps_parse_stream (mps_status * s, FILE * input_stream,
+		  mps_parsing_configuration default_configuration)
 {
-    mps_boolean parsing_options = true;
-    mps_input_buffer *buffer;
-    mps_input_option input_option;
-    mps_parsing_configuration config;
-    int i;
-    ssize_t length;
+  mps_boolean parsing_options = true;
+  mps_input_buffer *buffer;
+  mps_input_option input_option;
+  mps_parsing_configuration config;
+  int i;
+  ssize_t length;
 
-    /* Set default values for the parsing configuration */
-    config = default_configuration;
+  /* Set default values for the parsing configuration */
+  config = default_configuration;
 
-    /* Create a buffered line reader for the input stream
-     * that has been assigned to us */
-    buffer = mps_input_buffer_new(input_stream);
+  /* Create a buffered line reader for the input stream
+   * that has been assigned to us */
+  buffer = mps_input_buffer_new (input_stream);
 
-    /* Set values for required options so we can identify
-     * their omission */
-    s->n = -1;
+  /* Set values for required options so we can identify
+   * their omission */
+  s->n = -1;
 
-    /* Skip initial comments in the stream */
-    mps_skip_comments(input_stream);
+  /* Skip initial comments in the stream */
+  mps_skip_comments (input_stream);
 
-    while (parsing_options)
+  while (parsing_options)
     {
-      mps_input_buffer_readline(buffer);
-      if (strchr(buffer->line, ';') == NULL ||
-              mps_input_buffer_eof(buffer))
-      {
-          parsing_options = false;
-      }
+      mps_input_buffer_readline (buffer);
+      if (strchr (buffer->line, ';') == NULL || mps_input_buffer_eof (buffer))
+	{
+	  parsing_options = false;
+	}
       else
-      {
-          input_option = mps_parse_option_line(s, buffer->line, length);
+	{
+	  input_option = mps_parse_option_line (s, buffer->line, length);
 
-          /* Parsing of the degree */
-          if (input_option.flag == MPS_KEY_DEGREE)
-          {
-              s->n = atoi(input_option.value);
-              if (s->n <= 0)
-                  mps_error(s, 1, "Degree must be a positive integer");
-          }
+	  /* Parsing of the degree */
+	  if (input_option.flag == MPS_KEY_DEGREE)
+	    {
+	      s->n = atoi (input_option.value);
+	      if (s->n <= 0)
+		mps_error (s, 1, "Degree must be a positive integer");
+	    }
 
-          /* Parsing of representations */
-          else if (input_option.flag == MPS_FLAG_SECULAR)
-              config.representation = MPS_REPRESENTATION_SECULAR;
+	  /* Parsing of representations */
+	  else if (input_option.flag == MPS_FLAG_SECULAR)
+	    config.representation = MPS_REPRESENTATION_SECULAR;
 
-          /* Parsing of algebraic structure of the input */
-          else if (input_option.flag == MPS_FLAG_REAL)
-          {
-              /* Switch on algebraic structure that is already set */
-              if (MPS_STRUCTURE_IS_INTEGER(config.structure))
-                config.structure = MPS_STRUCTURE_REAL_INTEGER;
-              else if (MPS_STRUCTURE_IS_RATIONAL(config.structure))
-                config.structure = MPS_STRUCTURE_REAL_RATIONAL;
-              else if (MPS_STRUCTURE_IS_FP(config.structure))
-                config.structure = MPS_STRUCTURE_REAL_FP;
-          }
-          else if (input_option.flag == MPS_FLAG_COMPLEX)
-          {
-              /* Switch on algebraic structure that is already set */
-              if (MPS_STRUCTURE_IS_INTEGER(config.structure))
-                config.structure = MPS_STRUCTURE_COMPLEX_INTEGER;
-              else if (MPS_STRUCTURE_IS_RATIONAL(config.structure))
-                config.structure = MPS_STRUCTURE_COMPLEX_RATIONAL;
-              else if (MPS_STRUCTURE_IS_FP(config.structure))
-                config.structure = MPS_STRUCTURE_COMPLEX_FP;
-          }
+	  /* Parsing of algebraic structure of the input */
+	  else if (input_option.flag == MPS_FLAG_REAL)
+	    {
+	      /* Switch on algebraic structure that is already set */
+	      if (MPS_STRUCTURE_IS_INTEGER (config.structure))
+		config.structure = MPS_STRUCTURE_REAL_INTEGER;
+	      else if (MPS_STRUCTURE_IS_RATIONAL (config.structure))
+		config.structure = MPS_STRUCTURE_REAL_RATIONAL;
+	      else if (MPS_STRUCTURE_IS_FP (config.structure))
+		config.structure = MPS_STRUCTURE_REAL_FP;
+	    }
+	  else if (input_option.flag == MPS_FLAG_COMPLEX)
+	    {
+	      /* Switch on algebraic structure that is already set */
+	      if (MPS_STRUCTURE_IS_INTEGER (config.structure))
+		config.structure = MPS_STRUCTURE_COMPLEX_INTEGER;
+	      else if (MPS_STRUCTURE_IS_RATIONAL (config.structure))
+		config.structure = MPS_STRUCTURE_COMPLEX_RATIONAL;
+	      else if (MPS_STRUCTURE_IS_FP (config.structure))
+		config.structure = MPS_STRUCTURE_COMPLEX_FP;
+	    }
 
-          /* Parsing of algebraic structure of the input, i.e.
-           * Integer, Rational or floating point */
-          else if (input_option.flag == MPS_FLAG_INTEGER)
-          {
-              if (MPS_STRUCTURE_IS_REAL(config.structure))
-                  config.structure = MPS_STRUCTURE_REAL_INTEGER;
-              else if (MPS_STRUCTURE_IS_COMPLEX(config.structure))
-                  config.structure = MPS_STRUCTURE_COMPLEX_INTEGER;
-          }
-          else if (input_option.flag == MPS_FLAG_RATIONAL)
-          {
-              if (MPS_STRUCTURE_IS_REAL(config.structure))
-                  config.structure = MPS_STRUCTURE_REAL_RATIONAL;
-              else if (MPS_STRUCTURE_IS_COMPLEX(config.structure))
-                  config.structure = MPS_STRUCTURE_COMPLEX_RATIONAL;
-          }
-          else if (input_option.flag == MPS_FLAG_FP)
-          {
-              if (MPS_STRUCTURE_IS_FP(config.structure))
-                  config.structure = MPS_STRUCTURE_REAL_FP;
-              else if (MPS_STRUCTURE_IS_COMPLEX(config.structure))
-                  config.structure = MPS_STRUCTURE_COMPLEX_FP;
-          }
-      }
+	  /* Parsing of algebraic structure of the input, i.e.
+	   * Integer, Rational or floating point */
+	  else if (input_option.flag == MPS_FLAG_INTEGER)
+	    {
+	      if (MPS_STRUCTURE_IS_REAL (config.structure))
+		config.structure = MPS_STRUCTURE_REAL_INTEGER;
+	      else if (MPS_STRUCTURE_IS_COMPLEX (config.structure))
+		config.structure = MPS_STRUCTURE_COMPLEX_INTEGER;
+	    }
+	  else if (input_option.flag == MPS_FLAG_RATIONAL)
+	    {
+	      if (MPS_STRUCTURE_IS_REAL (config.structure))
+		config.structure = MPS_STRUCTURE_REAL_RATIONAL;
+	      else if (MPS_STRUCTURE_IS_COMPLEX (config.structure))
+		config.structure = MPS_STRUCTURE_COMPLEX_RATIONAL;
+	    }
+	  else if (input_option.flag == MPS_FLAG_FP)
+	    {
+	      if (MPS_STRUCTURE_IS_FP (config.structure))
+		config.structure = MPS_STRUCTURE_REAL_FP;
+	      else if (MPS_STRUCTURE_IS_COMPLEX (config.structure))
+		config.structure = MPS_STRUCTURE_COMPLEX_FP;
+	    }
+	}
     }
 
-    /* Since the Degree is a required parameter, we ask that it is provided. */
-    if (s->n == -1)
-        mps_error(s, 1,
-        "Degree of the polynomial must be provided via the Degree=%d configuration option.");
-    else
+  /* Since the Degree is a required parameter, we ask that it is provided. */
+  if (s->n == -1)
+    mps_error (s, 1,
+	       "Degree of the polynomial must be provided via the Degree=%d configuration option.");
+  else
     {
-      MPS_DEBUG(s, "Degree: %d", s->n);
+      MPS_DEBUG (s, "Degree: %d", s->n);
     }
 
 
-    /* Check that the stream in the buffer is only composed
-     * by spaces */
-    for(i = 0; i < strlen(buffer->line); i++)
+  /* Check that the stream in the buffer is only composed
+   * by spaces */
+  for (i = 0; i < strlen (buffer->line); i++)
     {
-        if (!isspace(buffer->line[i]))
-        {
-            mps_error(s, 1, "Options and input data are not separated by a newline.");
-            break;
-        }
+      if (!isspace (buffer->line[i]))
+	{
+	  mps_error (s, 1,
+		     "Options and input data are not separated by a newline.");
+	  break;
+	}
     }
 
-    if (config.representation == MPS_REPRESENTATION_SECULAR)
+  if (config.representation == MPS_REPRESENTATION_SECULAR)
     {
-        mps_secular_equation_read_from_stream(s, config, input_stream);
+      mps_secular_equation_read_from_stream (s, config, input_stream);
     }
-    else if (config.representation == MPS_REPRESENTATION_MONOMIAL)
+  else if (config.representation == MPS_REPRESENTATION_MONOMIAL)
     {
-        fprintf(s->logstr, "Only secular representation can be parsed using secsolve\n"
-                "at the moment being. Use unisolve to solve regular polynomials.\n"
-                "If your intention was actually to parse a secular equation use\n"
-                "the option Secular; in the input file.\n");
-        exit (EXIT_FAILURE);
+      fprintf (s->logstr,
+	       "Only secular representation can be parsed using secsolve\n"
+	       "at the moment being. Use unisolve to solve regular polynomials.\n"
+	       "If your intention was actually to parse a secular equation use\n"
+	       "the option Secular; in the input file.\n");
+      exit (EXIT_FAILURE);
     }
 }
 
@@ -495,50 +500,52 @@ mps_parse_stream(mps_status* s, FILE* input_stream,
 *      SUBROUTINE READROOTS                              *
 *********************************************************/
 void
-mps_readroots(mps_status* s)
+mps_readroots (mps_status * s)
 {
   long digits;
   int i, read_elements;
 
   if (s->DOLOG)
-    fprintf(s->logstr, "Reading roots...\n");
+    fprintf (s->logstr, "Reading roots...\n");
 
-  read_elements = fscanf(s->rtstr, "%ld", &digits);
-  if (!read_elements) {
-    mps_error(s, 1, "Error while reading roots, aborting.");
-  }
+  read_elements = fscanf (s->rtstr, "%ld", &digits);
+  if (!read_elements)
+    {
+      mps_error (s, 1, "Error while reading roots, aborting.");
+    }
 
   /* precision setup code goes here */
 
-  for(i=0; i<s->n; i++)
-    mpc_inp_str_u(s->mroot[i], s->rtstr, 10);
+  for (i = 0; i < s->n; i++)
+    mpc_inp_str_u (s->mroot[i], s->rtstr, 10);
 }
 
 /*********************************************************
 *      SUBROUTINE COUNTROOTS                             *
 *********************************************************/
 void
-mps_countroots(mps_status* s)
+mps_countroots (mps_status * s)
 {
   int k;
 
   if (s->DOLOG)
-    fprintf(s->logstr, "Counting roots...\n");
+    fprintf (s->logstr, "Counting roots...\n");
 
   s->count[0] = s->count[1] = s->count[2] = 0;
 
   for (k = 0; k < s->n; k++)
-    switch (s->status[k][2]) {
-    case 'i':
-      s->count[0]++;
-      break;
-    case 'o':
-      s->count[1]++;
-      break;
-    default:
-      s->count[2]++;
-      break;
-    }
+    switch (s->status[k][2])
+      {
+      case 'i':
+	s->count[0]++;
+	break;
+      case 'o':
+	s->count[1]++;
+	break;
+      default:
+	s->count[2]++;
+	break;
+      }
 
   if (s->goal[1] == 'o')
     s->count[1] += s->zero_roots;
@@ -550,298 +557,323 @@ mps_countroots(mps_status* s)
 *      SUBROUTINE OUTCOUNT                               *
 *********************************************************/
 void
-mps_outcount(mps_status* s)
+mps_outcount (mps_status * s)
 {
-  mps_countroots(s);
+  mps_countroots (s);
 
-  fprintf(s->outstr, "%d roots are inside;\n", s->count[0]);
-  fprintf(s->outstr, "%d roots are outside;\n", s->count[1]);
-  fprintf(s->outstr, "%d roots are uncertain.\n", s->count[2]);
-  if (s->DOLOG) {
-    fprintf(s->logstr, "%d roots are inside;\n", s->count[0]);
-    fprintf(s->logstr, "%d roots are outside;\n", s->count[1]);
-    fprintf(s->logstr, "%d roots are uncertain.\n", s->count[2]);
-  }
+  fprintf (s->outstr, "%d roots are inside;\n", s->count[0]);
+  fprintf (s->outstr, "%d roots are outside;\n", s->count[1]);
+  fprintf (s->outstr, "%d roots are uncertain.\n", s->count[2]);
+  if (s->DOLOG)
+    {
+      fprintf (s->logstr, "%d roots are inside;\n", s->count[0]);
+      fprintf (s->logstr, "%d roots are outside;\n", s->count[1]);
+      fprintf (s->logstr, "%d roots are uncertain.\n", s->count[2]);
+    }
 }
 
 /*********************************************************
 *      SUBROUTINE OUTFLOAT                               *
 *********************************************************/
 void
-mps_outfloat(mps_status* s, mpf_t f, rdpe_t rad, long out_digit, mps_boolean sign)
+mps_outfloat (mps_status * s, mpf_t f, rdpe_t rad, long out_digit,
+	      mps_boolean sign)
 {
   tmpf_t t;
   rdpe_t r, ro;
   double d;
   long l, digit, true_digit;
 
-  if (s->goal[4] == 'f') {
-    tmpf_init2(t, mpf_get_prec(f));
-    mpf_set(t, f);
-    mpf_out_str(s->outstr, 10, 0, t);
-    tmpf_clear(t);
-    return;
-  }
-
-  tmpf_init2(t, s->prec_out);
-
-  mpf_get_rdpe(ro, f);
-  if (s->goal[4] == 'g')
-    rdpe_out_str_u(s->outstr, ro);
-  else {
-    rdpe_abs_eq(ro);
-    if (rdpe_ne(ro, rdpe_zero))
-      rdpe_div(r, rad, ro);
-    else
-      rdpe_set_d(r, 1.0e-10);
-    digit = (long) (-rdpe_log10(r) - 0.5);
-    if (digit <= 0) {
-      rdpe_get_dl(&d, &l, ro);
-      fprintf(s->outstr, "0.e%ld", l);
-    } else {
-      true_digit = (long) (LOG10_2 * mpf_get_prec(f));
-      true_digit = MIN(digit, true_digit);
-      true_digit = MIN(true_digit, out_digit);
-      if (sign)
-	mpf_set(t, f);
-      else
-	mpf_abs(t, f);
-      mpf_out_str(s->outstr, 10, true_digit, t);
+  if (s->goal[4] == 'f')
+    {
+      tmpf_init2 (t, mpf_get_prec (f));
+      mpf_set (t, f);
+      mpf_out_str (s->outstr, 10, 0, t);
+      tmpf_clear (t);
+      return;
     }
-  }
 
-  tmpf_clear(t);
+  tmpf_init2 (t, s->prec_out);
+
+  mpf_get_rdpe (ro, f);
+  if (s->goal[4] == 'g')
+    rdpe_out_str_u (s->outstr, ro);
+  else
+    {
+      rdpe_abs_eq (ro);
+      if (rdpe_ne (ro, rdpe_zero))
+	rdpe_div (r, rad, ro);
+      else
+	rdpe_set_d (r, 1.0e-10);
+      digit = (long) (-rdpe_log10 (r) - 0.5);
+      if (digit <= 0)
+	{
+	  rdpe_get_dl (&d, &l, ro);
+	  fprintf (s->outstr, "0.e%ld", l);
+	}
+      else
+	{
+	  true_digit = (long) (LOG10_2 * mpf_get_prec (f));
+	  true_digit = MIN (digit, true_digit);
+	  true_digit = MIN (true_digit, out_digit);
+	  if (sign)
+	    mpf_set (t, f);
+	  else
+	    mpf_abs (t, f);
+	  mpf_out_str (s->outstr, 10, true_digit, t);
+	}
+    }
+
+  tmpf_clear (t);
 }
 
 /*********************************************************
 *      SUBROUTINE OUTROOT                                *
 *********************************************************/
 void
-mps_outroot(mps_status* s, int i)
+mps_outroot (mps_status * s, int i)
 {
-  static int num = 0; /* output roots count */
+  static int num = 0;		/* output roots count */
   long out_digit;
 
   out_digit = (long) (LOG10_2 * s->prec_out) + 10;
   num++;
 
   /* print format header */
-  switch (s->goal[4]) {
-  case 'c':
-  case 'f':
-    fprintf(s->outstr, "(");
-    break;
-  case 'v':
-    fprintf(s->outstr, "Root(%d) = ", num);
-    break;
-  }
+  switch (s->goal[4])
+    {
+    case 'c':
+    case 'f':
+      fprintf (s->outstr, "(");
+      break;
+    case 'v':
+      fprintf (s->outstr, "Root(%d) = ", num);
+      break;
+    }
 
   /* print real part */
   if (i == ISZERO || s->status[i][1] == 'I')
-    fprintf(s->outstr, "0");
+    fprintf (s->outstr, "0");
   else
-    mps_outfloat(s, mpc_Re(s->mroot[i]), s->drad[i], out_digit, true);
+    mps_outfloat (s, mpc_Re (s->mroot[i]), s->drad[i], out_digit, true);
 
   /* print format middle part */
-  switch (s->goal[4]) {
-  case 'b':
-    fprintf(s->outstr, " ");
-    break;
-  case 'g':
-    fprintf(s->outstr, "\t");
-    break;
-  case 'c':
-  case 'f':
-    fprintf(s->outstr, ", ");
-    break;
-  case 'v':
-    if (i == ISZERO || mpf_sgn(mpc_Im(s->mroot[i])) >= 0)
-      fprintf(s->outstr, " + I * ");
-    else
-      fprintf(s->outstr, " - I * ");
-    break;
-  }
+  switch (s->goal[4])
+    {
+    case 'b':
+      fprintf (s->outstr, " ");
+      break;
+    case 'g':
+      fprintf (s->outstr, "\t");
+      break;
+    case 'c':
+    case 'f':
+      fprintf (s->outstr, ", ");
+      break;
+    case 'v':
+      if (i == ISZERO || mpf_sgn (mpc_Im (s->mroot[i])) >= 0)
+	fprintf (s->outstr, " + I * ");
+      else
+	fprintf (s->outstr, " - I * ");
+      break;
+    }
 
   /* print imaginary part */
   if (i == ISZERO || s->status[i][1] == 'R')
-    fprintf(s->outstr, "0");
+    fprintf (s->outstr, "0");
   else
-    mps_outfloat(s, mpc_Im(s->mroot[i]), s->drad[i], out_digit, s->goal[4] != 'v');
+    mps_outfloat (s, mpc_Im (s->mroot[i]), s->drad[i], out_digit,
+		  s->goal[4] != 'v');
 
   /* print format ending */
-  switch (s->goal[4]) {
-  case 'c':
-    fprintf(s->outstr, ")");
-    break;
-  case 'f':
-    fprintf(s->outstr, ")\n");
-    if (i != ISZERO) {
-      rdpe_outln_str(s->outstr, s->drad[i]);
-      fprintf(s->outstr, "%4.3s\n", s->status[i]);
-    } else
-      fprintf(s->outstr, " 0\n ---\n");
-    break;
-  }
-  fprintf(s->outstr, "\n");
+  switch (s->goal[4])
+    {
+    case 'c':
+      fprintf (s->outstr, ")");
+      break;
+    case 'f':
+      fprintf (s->outstr, ")\n");
+      if (i != ISZERO)
+	{
+	  rdpe_outln_str (s->outstr, s->drad[i]);
+	  fprintf (s->outstr, "%4.3s\n", s->status[i]);
+	}
+      else
+	fprintf (s->outstr, " 0\n ---\n");
+      break;
+    }
+  fprintf (s->outstr, "\n");
 
   /* debug info */
-  if (s->DOLOG) {
-    if(i == ISZERO)
-      fprintf(s->logstr, "zero root %-4d = 0", num);
-    else {
-      fprintf(s->logstr, "root %-4d = ", i);
-      mpc_out_str_2(s->logstr, 10, 0, 0, s->mroot[i]);
-      fprintf(s->logstr, "\n");
-      fprintf(s->logstr, "  radius = ");
-      rdpe_outln_str(s->logstr, s->drad[i]);
-      fprintf(s->logstr, "  prec = %ld\n",
-	      (long) (mpc_get_prec(s->mroot[i])/LOG2_10));
-      fprintf(s->logstr, "  status = %4.3s\n", s->status[i]);
-      fprintf(s->logstr, "--------------------\n");
+  if (s->DOLOG)
+    {
+      if (i == ISZERO)
+	fprintf (s->logstr, "zero root %-4d = 0", num);
+      else
+	{
+	  fprintf (s->logstr, "root %-4d = ", i);
+	  mpc_out_str_2 (s->logstr, 10, 0, 0, s->mroot[i]);
+	  fprintf (s->logstr, "\n");
+	  fprintf (s->logstr, "  radius = ");
+	  rdpe_outln_str (s->logstr, s->drad[i]);
+	  fprintf (s->logstr, "  prec = %ld\n",
+		   (long) (mpc_get_prec (s->mroot[i]) / LOG2_10));
+	  fprintf (s->logstr, "  status = %4.3s\n", s->status[i]);
+	  fprintf (s->logstr, "--------------------\n");
+	}
     }
-  }
 }
 
 /*********************************************************
 *      SUBROUTINE OUTPUT                                 *
 *********************************************************/
 void
-mps_output(mps_status* s)
+mps_output (mps_status * s)
 {
   int i, ind;
 
   if (s->DOLOG)
-    fprintf(s->logstr, "--------------------\n");
+    fprintf (s->logstr, "--------------------\n");
 
   if (s->goal[0] == 'c')
-    mps_outcount(s);
-  else {
-    if (s->goal[1] != 'o')
-      for (i = 0; i < s->zero_roots; i++)
-        mps_outroot(s, ISZERO);
-    for (ind = 0; ind < s->n; ind++) {
-      i = s->order[ind];
-      if (s->status[i][2] == 'o')
-	continue;
-      mps_outroot(s, i);
+    mps_outcount (s);
+  else
+    {
+      if (s->goal[1] != 'o')
+	for (i = 0; i < s->zero_roots; i++)
+	  mps_outroot (s, ISZERO);
+      for (ind = 0; ind < s->n; ind++)
+	{
+	  i = s->order[ind];
+	  if (s->status[i][2] == 'o')
+	    continue;
+	  mps_outroot (s, i);
+	}
     }
-  }
 }
 
 /*********************************************************
 *      SUBROUTINE COPY_ROOTS                             *
 *********************************************************/
 void
-mps_copy_roots(mps_status* s)
+mps_copy_roots (mps_status * s)
 {
   int i;
 
-  switch (s->lastphase) {
-  case no_phase:
-    mps_error(s, 1, "Nothing to copy");
-    break;
+  switch (s->lastphase)
+    {
+    case no_phase:
+      mps_error (s, 1, "Nothing to copy");
+      break;
 
-  case float_phase:
-    if (s->DOSORT)
-      mps_fsort(s);
-    for (i = 0; i < s->n; i++) {
-      mpc_set_prec(s->mroot[i], DBL_MANT_DIG);
-      mpc_set_cplx(s->mroot[i], s->froot[i]);
-      rdpe_set_d(s->drad[i], s->frad[i]);
+    case float_phase:
+      if (s->DOSORT)
+	mps_fsort (s);
+      for (i = 0; i < s->n; i++)
+	{
+	  mpc_set_prec (s->mroot[i], DBL_MANT_DIG);
+	  mpc_set_cplx (s->mroot[i], s->froot[i]);
+	  rdpe_set_d (s->drad[i], s->frad[i]);
+	}
+      break;
+
+    case dpe_phase:
+      if (s->DOSORT)
+	mps_dsort (s);
+      for (i = 0; i < s->n; i++)
+	{
+	  mpc_set_prec (s->mroot[i], DBL_MANT_DIG);
+	  mpc_set_cdpe (s->mroot[i], s->droot[i]);
+	}
+      break;
+
+    case mp_phase:
+      if (s->DOSORT)
+	mps_msort (s);
+      break;
+
     }
-    break;
-
-  case dpe_phase:
-    if (s->DOSORT)
-      mps_dsort(s);
-    for (i = 0; i < s->n; i++) {
-      mpc_set_prec(s->mroot[i], DBL_MANT_DIG);
-      mpc_set_cdpe(s->mroot[i], s->droot[i]);
-    }
-    break;
-
-  case mp_phase:
-    if (s->DOSORT)
-      mps_msort(s);
-    break;
-
-  }
 }
 
 /*************************************************************
  *                     SUBROUTINE DUMP                       *
  *************************************************************/
 void
-mps_dump(mps_status* s, FILE * dmpstr)
+mps_dump (mps_status * s, FILE * dmpstr)
 {
   int i;
 
-  fprintf(dmpstr, "\nDumping...\n");
+  fprintf (dmpstr, "\nDumping...\n");
 
   /* output current status */
-  fprintf(dmpstr,
-	  "Phase=%d, In=%d, Out=%d, Uncertain=%d, Zero=%d, Clusters=%d\n",
-          s->lastphase, s->count[0], s->count[1], s->count[2], s->zero_roots, s->nclust);
+  fprintf (dmpstr,
+	   "Phase=%d, In=%d, Out=%d, Uncertain=%d, Zero=%d, Clusters=%d\n",
+	   s->lastphase, s->count[0], s->count[1], s->count[2], s->zero_roots,
+	   s->nclust);
 
   /* output current approximations */
-  fprintf(dmpstr, "\nCurrent approximations:\n");
-  for (i = 0; i < s->n; i++) {
-    fprintf(dmpstr, "%d:\t", i);
+  fprintf (dmpstr, "\nCurrent approximations:\n");
+  for (i = 0; i < s->n; i++)
+    {
+      fprintf (dmpstr, "%d:\t", i);
 
-    switch (s->lastphase) {
-    case no_phase:
-    case float_phase:
-      cplx_outln_str(dmpstr, s->froot[i]);
-      break;
+      switch (s->lastphase)
+	{
+	case no_phase:
+	case float_phase:
+	  cplx_outln_str (dmpstr, s->froot[i]);
+	  break;
 
-    case dpe_phase:
-      cdpe_outln_str(dmpstr, s->droot[i]);
-      break;
+	case dpe_phase:
+	  cdpe_outln_str (dmpstr, s->droot[i]);
+	  break;
 
-    case mp_phase:
-      mpc_outln_str(dmpstr, 10, 0, s->mroot[i]);
-      break;
+	case mp_phase:
+	  mpc_outln_str (dmpstr, 10, 0, s->mroot[i]);
+	  break;
+	}
     }
-  }
 
   /* output radii */
-  fprintf(dmpstr, "\nCurrent radii:\n");
-  for (i = 0; i < s->n; i++) {
-    fprintf(dmpstr, "%d:\t", i);
+  fprintf (dmpstr, "\nCurrent radii:\n");
+  for (i = 0; i < s->n; i++)
+    {
+      fprintf (dmpstr, "%d:\t", i);
 
-    switch (s->lastphase) {
-    case no_phase:
-    case float_phase:
-      fprintf(dmpstr, "%e\n", s->frad[i]);
-      break;
+      switch (s->lastphase)
+	{
+	case no_phase:
+	case float_phase:
+	  fprintf (dmpstr, "%e\n", s->frad[i]);
+	  break;
 
-    case dpe_phase:
-    case mp_phase:
-      rdpe_outln_str(dmpstr, s->drad[i]);
-      break;
+	case dpe_phase:
+	case mp_phase:
+	  rdpe_outln_str (dmpstr, s->drad[i]);
+	  break;
+	}
     }
-  }
 
   /* output position */
-  fprintf(dmpstr, "\nPos:\t");
+  fprintf (dmpstr, "\nPos:\t");
   for (i = 0; i < s->n; i++)
-    fprintf(dmpstr, "%4d", i);
+    fprintf (dmpstr, "%4d", i);
 
   /* output status information */
-  fprintf(dmpstr, "\nStatus:\t");
+  fprintf (dmpstr, "\nStatus:\t");
   for (i = 0; i < s->n; i++)
-    fprintf(dmpstr, "%4.3s", s->status[i]);
+    fprintf (dmpstr, "%4.3s", s->status[i]);
 
   /* output cluster information */
-  fprintf(dmpstr, "\nClust:\t");
+  fprintf (dmpstr, "\nClust:\t");
   for (i = 0; i < s->n; i++)
-    fprintf(dmpstr, "%4d", s->clust[i]);
+    fprintf (dmpstr, "%4d", s->clust[i]);
 
-  fprintf(dmpstr, "\nPunt:\t");
+  fprintf (dmpstr, "\nPunt:\t");
   for (i = 0; i < s->nclust; i++)
-    fprintf(dmpstr, "%4d", s->punt[i]);
+    fprintf (dmpstr, "%4d", s->punt[i]);
 
-  fprintf(dmpstr, "\n\n");
+  fprintf (dmpstr, "\n\n");
 }
 
 /**
@@ -852,25 +884,32 @@ mps_dump(mps_status* s, FILE * dmpstr)
  *  will be dumped.
  */
 void
-mps_dump_cluster_structure(mps_status* s, FILE* outstr)
+mps_dump_cluster_structure (mps_status * s, FILE * outstr)
 {
-    int i, j;
-    fprintf(outstr, "    MPS_DUMP_CLUSTER_STRUCTURE: Dumping cluster structure\n");
+  int i, j;
+  fprintf (outstr,
+	   "    MPS_DUMP_CLUSTER_STRUCTURE: Dumping cluster structure\n");
 
-    for(i = 0; i < s->nclust; i++) {
-        fprintf(outstr, "     Cluster %d contains %d roots:\n", i, s->punt[i+1] - s->punt[i]);
+  for (i = 0; i < s->nclust; i++)
+    {
+      fprintf (outstr, "     Cluster %d contains %d roots:\n", i,
+	       s->punt[i + 1] - s->punt[i]);
 
-        /* Dump cluster roots, but not more than 15 for line, to make
-         * the output readable. */
-        for(j = s->punt[i]; j < s->punt[i+1]; j++) {
-            /* Go to a newlint if 15 roots are printed out */
-            if ((j - s->punt[i]) % 15 == 0) { fprintf(outstr, "\n       "); }
+      /* Dump cluster roots, but not more than 15 for line, to make
+       * the output readable. */
+      for (j = s->punt[i]; j < s->punt[i + 1]; j++)
+	{
+	  /* Go to a newlint if 15 roots are printed out */
+	  if ((j - s->punt[i]) % 15 == 0)
+	    {
+	      fprintf (outstr, "\n       ");
+	    }
 
-            printf(" %d", s->clust[j]);
-        }
+	  printf (" %d", s->clust[j]);
+	}
 
-        /* Make space untile the next cluster */
-        fprintf(outstr, "\n\n");
+      /* Make space untile the next cluster */
+      fprintf (outstr, "\n\n");
     }
 }
 
@@ -878,30 +917,34 @@ mps_dump_cluster_structure(mps_status* s, FILE* outstr)
  * @brief Dump status of all the root approximations
  */
 void
-mps_dump_status(mps_status* s, FILE* outstr)
+mps_dump_status (mps_status * s, FILE * outstr)
 {
-	int i;
-	for(i = 0; i < s->n; i++) {
-		fprintf(outstr, "s->status[%d] = ", i);
-		fprintf(outstr, "'%c' '%c' '%c'\n", s->status[i][0],
-				s->status[i][1], s->status[i][2]);
-	}
+  int i;
+  for (i = 0; i < s->n; i++)
+    {
+      fprintf (outstr, "s->status[%d] = ", i);
+      fprintf (outstr, "'%c' '%c' '%c'\n", s->status[i][0],
+	       s->status[i][1], s->status[i][2]);
+    }
 }
 
 /*************************************************************
  *                     SUBROUTINE WARN                       *
  *************************************************************/
 void
-mps_warn(mps_status* st, char *s)
+mps_warn (mps_status * st, char *s)
 {
-  if (st->DOWARN) {
-    if (s[strlen(s)] == '\n') {
-      fprintf(st->logstr, "%s", s);
+  if (st->DOWARN)
+    {
+      if (s[strlen (s)] == '\n')
+	{
+	  fprintf (st->logstr, "%s", s);
+	}
+      else
+	{
+	  fprintf (st->logstr, "%s\n", s);
+	}
     }
-    else {
-    	fprintf(st->logstr, "%s\n", s);
-    }
-  }
 }
 
 /**
@@ -909,12 +952,12 @@ mps_warn(mps_status* st, char *s)
  * is bounded to a tty.
  */
 mps_boolean
-mps_is_a_tty(FILE* stream)
+mps_is_a_tty (FILE * stream)
 {
 #ifndef __WINDOWS
-    return isatty(stream->_fileno);
+  return isatty (stream->_fileno);
 #else
-    return _isatty(_fileno(stream));
+  return _isatty (_fileno (stream));
 #endif
 }
 
@@ -922,26 +965,25 @@ mps_is_a_tty(FILE* stream)
  *                     SUBROUTINE VAERROR                    *
  *************************************************************/
 void
-mps_error(mps_status* st, int args, ...)
+mps_error (mps_status * st, int args, ...)
 {
   va_list ap;
-  char * s;
+  char *s;
 
-  if (mps_is_a_tty(st->logstr))
-    mps_warn(st, "\033[31;1m!\033[0m MPSolve encountered an error:");		/* output error message */
+  if (mps_is_a_tty (st->logstr))
+    mps_warn (st, "\033[31;1m!\033[0m MPSolve encountered an error:");	/* output error message */
   else
-    mps_warn(st, "! MPSolve encountered an error:");
-  va_start(ap, args);
-  while(args--) {
-    s = va_arg(ap, char *);
-    mps_warn(st, s);		/* output error message */
-  }
-  va_end(ap);
+    mps_warn (st, "! MPSolve encountered an error:");
+  va_start (ap, args);
+  while (args--)
+    {
+      s = va_arg (ap, char *);
+      mps_warn (st, s);		/* output error message */
+    }
+  va_end (ap);
 
   /* Dump approximations, but only if they are present */
   if (st->froot && st->lastphase)
-    mps_dump(st, st->logstr);		/* dump status		*/
-  exit(EXIT_FAILURE);	/* exit program         */
+    mps_dump (st, st->logstr);	/* dump status          */
+  exit (EXIT_FAILURE);		/* exit program         */
 }
-
-

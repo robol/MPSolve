@@ -19,42 +19,42 @@
  *                 MAIN                                    *
  **********************************************************/
 int
-main(int argc, char *argv[])
+main (int argc, char *argv[])
 {
 
   mpspoly_t p;
-  mps_status* s = mps_status_new ();
+  mps_status *s = mps_status_new ();
 
- /* Make stdout synchronous so the debugging is more
+  /* Make stdout synchronous so the debugging is more
    * effective. */
-  setvbuf(stdout, NULL, _IONBF, 0);
+  setvbuf (stdout, NULL, _IONBF, 0);
 
   /* Set default values in s */
-  mps_set_default_values(s);
+  mps_set_default_values (s);
 
   /* set default goal */
-  strncpy(s->goal, "iannc", 5);
+  strncpy (s->goal, "iannc", 5);
 
   /* parse command line options */
-  mps_parse_opts(s, argc, argv);
+  mps_parse_opts (s, argc, argv);
 
   /* Read polynomial */
-  mps_read_poly(s, s->instr, p);
+  mps_read_poly (s, s->instr, p);
 
   /* Set polynomial */
-  mps_set_poly(s, p);
+  mps_set_poly (s, p);
 
   /* allocate global variables */
-  mps_allocate_data(s);
+  mps_allocate_data (s);
 
   /* approximate roots */
-  mps_mpsolve(s);
+  mps_mpsolve (s);
 
   /* copy roots */
-  mps_copy_roots(s);
+  mps_copy_roots (s);
 
   /* output roots */
-  mps_output(s);
+  mps_output (s);
 
   /* Free data */
   mps_status_free (s);

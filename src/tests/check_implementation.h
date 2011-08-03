@@ -2,7 +2,8 @@
 #define CHECK_IMPLEMENTATION_H
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 #include <check.h>
@@ -13,33 +14,27 @@ extern "C" {
 #include <mps/gmptools.h>
 #include <stdlib.h>
 
-typedef struct {
-    char* pol_file;
-    char* res_file;
+  typedef struct
+  {
+    char *pol_file;
+    char *res_file;
     int out_digits;
     mps_phase phase;
     mps_boolean ga;
-} test_pol;
+  } test_pol;
 
-void
-starting_setup();
+  void starting_setup ();
 
-void
-append_slash(char* dest);
+  void append_slash (char *dest);
 
-char*
-get_pol_file(const char* pol_name, const char* type_name);
+  char *get_pol_file (const char *pol_name, const char *type_name);
 
-char*
-get_res_file(const char* pol_name, const char* type_name);
+  char *get_res_file (const char *pol_name, const char *type_name);
 
-test_pol*
-test_pol_new(const char* name, const char* type_name,
-             int out_digits,
-             mps_phase phase, mps_boolean ga);
+  test_pol *test_pol_new (const char *name, const char *type_name,
+			  int out_digits, mps_phase phase, mps_boolean ga);
 
-void
-test_pol_free(test_pol* pol);
+  void test_pol_free (test_pol * pol);
 
 
 
