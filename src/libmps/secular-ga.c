@@ -299,8 +299,11 @@ regenerate_m_start:
   /* If the input was rational generate multiprecision floating
    * point coefficient from the ones that the user originally
    * provided */
-  if (MPS_STRUCTURE_IS_RATIONAL (sec->input_structure))
+  if (MPS_STRUCTURE_IS_RATIONAL (sec->input_structure) ||
+      MPS_STRUCTURE_IS_INTEGER (sec->input_structure))
     {
+      MPS_DEBUG (s,
+		 "Regenerating coefficients from the multiprecision input");
       for (i = 0; i < s->n; i++)
 	{
 	  mpf_set_q (mpc_Re (sec->initial_ampc[i]), sec->initial_ampqrc[i]);
@@ -379,7 +382,7 @@ regenerate_m_exit:
 void
 mps_secular_ga_regenerate_coefficients (mps_status * s)
 {
-  MPS_DEBUG_THIS_CALL cplx_t * old_b, *old_a;
+  MPS_DEBUG_THIS_CALL cplx_t *old_b, *old_a;
   cdpe_t *old_db, *old_da;
   mpc_t *old_ma, *old_mb;
   mps_secular_equation *sec;

@@ -154,8 +154,8 @@ extern "C"
 
 /* STRUCTURES truth tables */
   const static short int mps_rational_structures[] = { 0, 1, 0, 0, 1, 0 };
-  const static short int mps_integer_structures[] = { 0, 0, 1, 0, 0, 1 };
-  const static short int mps_fp_structures[] = { 1, 0, 0, 1, 0, 0 };
+  const static short int mps_integer_structures[] = { 1, 0, 0, 1, 0, 0 };
+  const static short int mps_fp_structures[] = { 0, 0, 1, 0, 0, 1 };
   const static short int mps_real_structures[] = { 1, 1, 1, 0, 0, 0 };
   const static short int mps_complex_structures[] = { 0, 0, 0, 1, 1, 1 };
 
@@ -182,7 +182,6 @@ extern "C"
  */
   typedef struct
   {
-
     /**
      * @brief Structure of the input data. For every
      * structure a particular format is defined.

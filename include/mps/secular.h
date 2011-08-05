@@ -63,7 +63,7 @@ extern "C"
 
   void mps_secular_ga_regenerate_coefficients (mps_status * s);
 
-    mps_boolean mps_secular_ga_check_stop (mps_status * s);
+  mps_boolean mps_secular_ga_check_stop (mps_status * s);
 
   void mps_secular_ga_mpsolve (mps_status * s);
 

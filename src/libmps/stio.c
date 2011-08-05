@@ -161,7 +161,7 @@ mps_parse_option_line (mps_status * s, char *line, size_t length)
       /* Make a copy of the option to parse it without
        * equal sign and anything after it */
       c_ptr = option;
-      option = (char *) malloc (sizeof (char) * strlen (option));
+      option = (char *) malloc (sizeof (char) * (strlen (option) + 1));
       strcpy (option, c_ptr);
       *strchr (option, '=') = '\0';
     }
@@ -189,15 +189,15 @@ mps_secular_equation_read_from_stream (mps_status * s,
    * to have a fallback case if the coefficients are bigger than
    * what is supported by the standard floating point arithmetic */
   sec = mps_secular_equation_new_raw (s, s->n);
+  sec->input_structure = config.structure;
 
   /* Parsinf of integers and floating point is done with DPE */
-  if (config.structure == MPS_STRUCTURE_COMPLEX_INTEGER ||
-      config.structure == MPS_STRUCTURE_COMPLEX_FP)
+  if (MPS_STRUCTURE_IS_FP (config.structure))
     {
       for (i = 0; i < s->n; i++)
 	{
-	  mps_skip_comments (input_stream);
-	  r = rdpe_inp_str_flex (cdpe_Re (sec->adpc[i]), input_stream);
+          mps_skip_comments (input_stream);
+          r = mpf_inp_str (mpc_Re (sec->initial_ampc[i]), input_stream, 10);
 
 	  if (r == 0)
 	    {
@@ -206,8 +206,26 @@ mps_secular_equation_read_from_stream (mps_status * s,
 			 "Please check your input file.");
 	    }
 
+	  /* Imaginary part, read only if the input is complex */
+	  if (MPS_STRUCTURE_IS_COMPLEX (config.structure))
+	    {
+	      mps_skip_comments (input_stream);
+              r = mpf_inp_str (mpc_Im (sec->initial_ampc[i]), input_stream, 10);
+
+	      if (r == 0)
+		{
+		  mps_error (s, 1,
+			     "Error reading some coefficients of the secular equation.\n"
+			     "Please check your input file.");
+		}
+	    }
+	  else
+	    {
+                mpf_set_ui (mpc_Im (sec->initial_ampc[i]), 0U);
+	    }
+
 	  mps_skip_comments (input_stream);
-	  r = rdpe_inp_str_flex (cdpe_Im (sec->adpc[i]), input_stream);
+          r = mpf_inp_str (mpc_Re (sec->initial_bmpc[i]), input_stream, 10);
 
 	  if (r == 0)
 	    {
@@ -216,58 +234,32 @@ mps_secular_equation_read_from_stream (mps_status * s,
 			 "Please check your input file.");
 	    }
 
-	  mps_skip_comments (input_stream);
-	  r = rdpe_inp_str_flex (cdpe_Re (sec->bdpc[i]), input_stream);
+	  /* Again, read the imaginary part only if the input is complex */
+	  if (MPS_STRUCTURE_IS_COMPLEX (config.structure))
+            {
+	      mps_skip_comments (input_stream);
+              r = mpf_inp_str (mpc_Im (sec->initial_bmpc[i]), input_stream, 10);
 
-	  if (r == 0)
-	    {
-	      mps_error (s, 1,
-			 "Error reading some coefficients of the secular equation.\n"
-			 "Please check your input file.");
+	      if (r == 0)
+		{
+		  mps_error (s, 1,
+			     "Error reading some coefficients of the secular equation.\n"
+			     "Please check your input file.");
+		}
 	    }
-
-	  mps_skip_comments (input_stream);
-	  r = rdpe_inp_str_flex (cdpe_Im (sec->bdpc[i]), input_stream);
-
-	  if (r == 0)
+	  else
 	    {
-	      mps_error (s, 1,
-			 "Error reading some coefficients of the secular equation.\n"
-			 "Please check your input file.");
+              mpf_set_ui (mpc_Im (sec->initial_bmpc[i]), 0U);
 	    }
 	}
     }
-  else if (config.structure == MPS_STRUCTURE_REAL_INTEGER ||
-	   config.structure == MPS_STRUCTURE_REAL_FP)
-    {
-      /* Parse only real coefficients, and set imaginary ones to zero */
-      for (i = 0; i < s->n; i++)
-	{
-	  mps_skip_comments (input_stream);
-	  r = rdpe_inp_str_flex (cdpe_Re (sec->adpc[i]), input_stream);
-	  rdpe_set (cdpe_Im (sec->adpc[i]), rdpe_zero);
-
-	  if (r == 0)
-	    {
-	      mps_error (s, 1,
-			 "Error reading some coefficients of the secular equation.\n"
-			 "Please check your input file.");
-	    }
-
-	  mps_skip_comments (input_stream);
-	  r = rdpe_inp_str_flex (cdpe_Re (sec->bdpc[i]), input_stream);
-	  rdpe_set (cdpe_Im (sec->bdpc[i]), rdpe_zero);
-
-	  if (r == 0)
-	    {
-	      mps_error (s, 1,
-			 "Error reading some coefficients of the secular equation.\n"
-			 "Please check your input file.");
-	    }
-	}
-
-    }
-  else if (MPS_STRUCTURE_IS_RATIONAL (config.structure))
+  /*
+   * Parsing of rational and integer input.
+   * Parsing of the integer input is done assuming the coefficients
+   * as a special case of the rational ones.
+   */
+  else if (MPS_STRUCTURE_IS_RATIONAL (config.structure) ||
+	   MPS_STRUCTURE_IS_INTEGER (config.structure))
     {
       for (i = 0; i < s->n; i++)
 	{
@@ -321,39 +313,29 @@ mps_secular_equation_read_from_stream (mps_status * s,
 
     }
 
-  sec->input_structure = config.structure;
-
-  /* Deflate input, if identical b_i coefficients are found */
-  mps_secular_deflate (s, sec);
-
   /* Copy coefficients back in other places */
   for (i = 0; i < sec->n; i++)
     {
-      mpc_set_cdpe (sec->ampc[i], sec->adpc[i]);
-      mpc_set_cdpe (sec->bmpc[i], sec->bdpc[i]);
+      /* Bulk copy of the MP coefficients */
+      mpc_set (sec->ampc[i], sec->initial_ampc[i]);
+      mpc_set (sec->bmpc[i], sec->initial_bmpc[i]);
+
+      /* CDPE coefficients */
+      mpc_get_cdpe (sec->adpc[i], sec->initial_ampc[i]);
+      mpc_get_cdpe (sec->bdpc[i], sec->initial_bmpc[i]);
 
       /* Get floating points coefficients */
       cdpe_get_x (sec->afpc[i], sec->adpc[i]);
       cdpe_get_x (sec->bfpc[i], sec->bdpc[i]);
-    }
 
-  /* And finally put a copy in initial_ampc and
-   * inital_bmpc to perform regeneration */
-  for (i = 0; i < sec->n; i++)
-    {
-      /* This is needed only if the input was not rational,
-       * because in the other case the data has been
-       * directly read into the initial_* fields */
-      if (!MPS_STRUCTURE_IS_RATIONAL (config.structure))
-	{
-	  /* Standard CDPE */
-	  mpc_set_cdpe (sec->initial_ampc[i], sec->adpc[i]);
-	  mpc_set_cdpe (sec->initial_bmpc[i], sec->bdpc[i]);
-	}
-
+      MPS_DEBUG_CPLX(s, sec->afpc[i], "sec->afpc[%d]", i);
     }
 
   s->secular_equation = sec;
+
+  /* Deflate input, if identical b_i coefficients are found */
+  mps_secular_deflate (s, sec);
+
   mpf_clear (ftmp);
 }
 
@@ -395,7 +377,7 @@ mps_parse_stream (mps_status * s, FILE * input_stream,
 	}
       else
 	{
-	  input_option = mps_parse_option_line (s, buffer->line, length);
+          input_option = mps_parse_option_line (s, buffer->line, strlen(buffer->line));
 
 	  /* Parsing of the degree */
 	  if (input_option.flag == MPS_KEY_DEGREE)
@@ -481,6 +463,7 @@ mps_parse_stream (mps_status * s, FILE * input_stream,
 
   if (config.representation == MPS_REPRESENTATION_SECULAR)
     {
+      MPS_DEBUG(s, "Parsing secular equation from stream");
       mps_secular_equation_read_from_stream (s, config, input_stream);
     }
   else if (config.representation == MPS_REPRESENTATION_MONOMIAL)
@@ -492,6 +475,7 @@ mps_parse_stream (mps_status * s, FILE * input_stream,
 	       "the option Secular; in the input file.\n");
       exit (EXIT_FAILURE);
     }
+
 }
 
 

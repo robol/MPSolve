@@ -10,8 +10,8 @@ extern "C"
 {
 #endif
 
-#ifndef THREADING_H_
-#define THREADING_H_
+#ifndef MPS_THREADING_H_
+#define MPS_THREADING_H_
 
 #include <pthread.h>
 #include <mps/core.h>
@@ -200,4 +200,4 @@ extern "C"
 }
 #endif
 
-#endif				/* THREADING_H_ */
+#endif				/* MPS_THREADING_H_ */
