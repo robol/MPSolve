@@ -20,6 +20,7 @@ extern "C"
 #endif
 
 #include <mps/gmptools.h>
+#include <gmp.h>
 
 /* Keep away assert() when compiling without debug */
 #ifdef DISABLE_DEBUG
