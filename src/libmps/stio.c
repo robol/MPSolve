@@ -195,8 +195,8 @@ mps_secular_equation_read_from_stream (mps_status * s,
     {
       for (i = 0; i < s->n; i++)
 	{
-          mps_skip_comments (input_stream);
-          r = mpf_inp_str (mpc_Re (sec->initial_ampc[i]), input_stream, 10);
+	  mps_skip_comments (input_stream);
+	  r = mpf_inp_str (mpc_Re (sec->initial_ampc[i]), input_stream, 10);
 
 	  if (r == 0)
 	    {
@@ -209,7 +209,8 @@ mps_secular_equation_read_from_stream (mps_status * s,
 	  if (MPS_STRUCTURE_IS_COMPLEX (config.structure))
 	    {
 	      mps_skip_comments (input_stream);
-              r = mpf_inp_str (mpc_Im (sec->initial_ampc[i]), input_stream, 10);
+	      r =
+		mpf_inp_str (mpc_Im (sec->initial_ampc[i]), input_stream, 10);
 
 	      if (r == 0)
 		{
@@ -220,11 +221,11 @@ mps_secular_equation_read_from_stream (mps_status * s,
 	    }
 	  else
 	    {
-                mpf_set_ui (mpc_Im (sec->initial_ampc[i]), 0U);
+	      mpf_set_ui (mpc_Im (sec->initial_ampc[i]), 0U);
 	    }
 
 	  mps_skip_comments (input_stream);
-          r = mpf_inp_str (mpc_Re (sec->initial_bmpc[i]), input_stream, 10);
+	  r = mpf_inp_str (mpc_Re (sec->initial_bmpc[i]), input_stream, 10);
 
 	  if (r == 0)
 	    {
@@ -235,9 +236,10 @@ mps_secular_equation_read_from_stream (mps_status * s,
 
 	  /* Again, read the imaginary part only if the input is complex */
 	  if (MPS_STRUCTURE_IS_COMPLEX (config.structure))
-            {
+	    {
 	      mps_skip_comments (input_stream);
-              r = mpf_inp_str (mpc_Im (sec->initial_bmpc[i]), input_stream, 10);
+	      r =
+		mpf_inp_str (mpc_Im (sec->initial_bmpc[i]), input_stream, 10);
 
 	      if (r == 0)
 		{
@@ -248,7 +250,7 @@ mps_secular_equation_read_from_stream (mps_status * s,
 	    }
 	  else
 	    {
-              mpf_set_ui (mpc_Im (sec->initial_bmpc[i]), 0U);
+	      mpf_set_ui (mpc_Im (sec->initial_bmpc[i]), 0U);
 	    }
 	}
     }
@@ -307,7 +309,7 @@ mps_secular_equation_read_from_stream (mps_status * s,
 
 	  mpf_set_q (ftmp, sec->initial_bmpqic[i]);
 	  mpf_get_rdpe (cdpe_Im (sec->bdpc[i]), ftmp);
-        }
+	}
     }
 
   /* Copy coefficients back in other places */
@@ -372,7 +374,8 @@ mps_parse_stream (mps_status * s, FILE * input_stream,
 	}
       else
 	{
-          input_option = mps_parse_option_line (s, buffer->line, strlen(buffer->line));
+	  input_option =
+	    mps_parse_option_line (s, buffer->line, strlen (buffer->line));
 
 	  /* Parsing of the degree */
 	  if (input_option.flag == MPS_KEY_DEGREE)
@@ -458,7 +461,7 @@ mps_parse_stream (mps_status * s, FILE * input_stream,
 
   if (config.representation == MPS_REPRESENTATION_SECULAR)
     {
-      MPS_DEBUG(s, "Parsing secular equation from stream");
+      MPS_DEBUG (s, "Parsing secular equation from stream");
       mps_secular_equation_read_from_stream (s, config, input_stream);
     }
   else if (config.representation == MPS_REPRESENTATION_MONOMIAL)

@@ -36,47 +36,59 @@ mps_secular_deflate (mps_status * s, mps_secular_equation * sec)
     {
       for (j = i + 1; j < sec->n; j++)
 	{
-            /* If the input is floating point check on the
-             * DPE input */
-            if (MPS_STRUCTURE_IS_FP (sec->input_structure))
-            {
-                if (mpc_eq (sec->initial_bmpc[i], sec->initial_bmpc[j], 100) == 0)
-                {
-                    MPS_DEBUG_MPC(s, 10, sec->initial_bmpc[i], "sec->initial_bmpc[%d]", i);
-                    MPS_DEBUG_MPC(s, 10, sec->initial_bmpc[j], "sec->initial_bmpc[%d]", j);
-                    mpc_add_eq (sec->initial_ampc[i], sec->initial_ampc[j]);
+	  /* If the input is floating point check on the
+	   * DPE input */
+	  if (MPS_STRUCTURE_IS_FP (sec->input_structure))
+	    {
+	      if (mpc_eq (sec->initial_bmpc[i], sec->initial_bmpc[j], 100) ==
+		  0)
+		{
+		  MPS_DEBUG_MPC (s, 10, sec->initial_bmpc[i],
+				 "sec->initial_bmpc[%d]", i);
+		  MPS_DEBUG_MPC (s, 10, sec->initial_bmpc[j],
+				 "sec->initial_bmpc[%d]", j);
+		  mpc_add_eq (sec->initial_ampc[i], sec->initial_ampc[j]);
 
-                    for (k = j; k < sec->n; k++)
-                    {
-                        mpc_set (sec->initial_ampc[k], sec->initial_ampc[k+1]);
-                        mpc_set (sec->initial_bmpc[k], sec->initial_bmpc[k+1]);
-                    }
+		  for (k = j; k < sec->n; k++)
+		    {
+		      mpc_set (sec->initial_ampc[k],
+			       sec->initial_ampc[k + 1]);
+		      mpc_set (sec->initial_bmpc[k],
+			       sec->initial_bmpc[k + 1]);
+		    }
 
-                    sec->n--; j--;
-                }
-            }
-            /* Otherwise, in the case of rational or integer input
-             * (that are handled in the same way) use initial_*mqpc
-             * values */
-            else if (MPS_STRUCTURE_IS_INTEGER (sec->input_structure) ||
-                     MPS_STRUCTURE_IS_RATIONAL (sec->input_structure))
-            {
-                if (mpq_equal (sec->initial_bmpqrc[i], sec->initial_bmpqrc[j]) &&
-                    mpq_equal (sec->initial_bmpqic[i], sec->initial_bmpqic[j]))
-                {
-                    mpq_add (sec->initial_ampqrc[i], sec->initial_ampqrc[i], sec->initial_ampqrc[j]);
-                    mpq_add (sec->initial_ampqic[i], sec->initial_ampqic[i], sec->initial_ampqic[j]);
+		  sec->n--;
+		  j--;
+		}
+	    }
+	  /* Otherwise, in the case of rational or integer input
+	   * (that are handled in the same way) use initial_*mqpc
+	   * values */
+	  else if (MPS_STRUCTURE_IS_INTEGER (sec->input_structure) ||
+		   MPS_STRUCTURE_IS_RATIONAL (sec->input_structure))
+	    {
+	      if (mpq_equal (sec->initial_bmpqrc[i], sec->initial_bmpqrc[j])
+		  && mpq_equal (sec->initial_bmpqic[i],
+				sec->initial_bmpqic[j]))
+		{
+		  mpq_add (sec->initial_ampqrc[i], sec->initial_ampqrc[i],
+			   sec->initial_ampqrc[j]);
+		  mpq_add (sec->initial_ampqic[i], sec->initial_ampqic[i],
+			   sec->initial_ampqic[j]);
 
-                    /* Copy other coefficients back of one position */
-                    for (k = j; k < sec->n - 1; k++)
-                      {
-                          mpq_set (sec->initial_ampqrc[k], sec->initial_ampqrc[k+1]);
-                          mpq_set (sec->initial_ampqic[k], sec->initial_ampqic[k+1]);
-                      }
+		  /* Copy other coefficients back of one position */
+		  for (k = j; k < sec->n - 1; k++)
+		    {
+		      mpq_set (sec->initial_ampqrc[k],
+			       sec->initial_ampqrc[k + 1]);
+		      mpq_set (sec->initial_ampqic[k],
+			       sec->initial_ampqic[k + 1]);
+		    }
 
-                    sec->n--; j--;
-                }
-            }
+		  sec->n--;
+		  j--;
+		}
+	    }
 	}
     }
 
@@ -84,40 +96,40 @@ mps_secular_deflate (mps_status * s, mps_secular_equation * sec)
    * according to it */
   if (MPS_STRUCTURE_IS_INTEGER (sec->input_structure) ||
       MPS_STRUCTURE_IS_RATIONAL (sec->input_structure))
-  {
+    {
       mpf_t ftmp;
       mpf_init (ftmp);
 
       /* Set DPE coefficients */
       for (i = 0; i < sec->n; i++)
-        {
-          mpf_set_q (ftmp, sec->initial_ampqrc[i]);
-          mpf_get_rdpe (cdpe_Re (sec->adpc[i]), ftmp);
+	{
+	  mpf_set_q (ftmp, sec->initial_ampqrc[i]);
+	  mpf_get_rdpe (cdpe_Re (sec->adpc[i]), ftmp);
 
-          mpf_set_q (ftmp, sec->initial_ampqic[i]);
-          mpf_get_rdpe (cdpe_Im (sec->adpc[i]), ftmp);
+	  mpf_set_q (ftmp, sec->initial_ampqic[i]);
+	  mpf_get_rdpe (cdpe_Im (sec->adpc[i]), ftmp);
 
-          mpf_set_q (ftmp, sec->initial_bmpqrc[i]);
-          mpf_get_rdpe (cdpe_Re (sec->bdpc[i]), ftmp);
+	  mpf_set_q (ftmp, sec->initial_bmpqrc[i]);
+	  mpf_get_rdpe (cdpe_Re (sec->bdpc[i]), ftmp);
 
-          mpf_set_q (ftmp, sec->initial_bmpqic[i]);
-          mpf_get_rdpe (cdpe_Im (sec->bdpc[i]), ftmp);
-        }
+	  mpf_set_q (ftmp, sec->initial_bmpqic[i]);
+	  mpf_get_rdpe (cdpe_Im (sec->bdpc[i]), ftmp);
+	}
 
       mpf_clear (ftmp);
-  }
+    }
 
   /* If the input was floating point update the coefficients using initial_*mpc
    * values */
   if (MPS_STRUCTURE_IS_FP (sec->input_structure))
-  {
+    {
       for (i = 0; i < sec->n; i++)
-      {
-          mpc_get_cdpe (sec->adpc[i], sec->ampc[i]);
-          mpc_get_cdpe (sec->bdpc[i], sec->bmpc[i]);
-      }
+	{
+	  mpc_get_cdpe (sec->adpc[i], sec->ampc[i]);
+	  mpc_get_cdpe (sec->bdpc[i], sec->bmpc[i]);
+	}
 
-  }
+    }
 
   MPS_DEBUG (s, "Secular equation deflated to degree %d", sec->n);
 }
