@@ -329,6 +329,7 @@ mps_secular_equation_read_from_stream (mps_status * s,
       cdpe_get_x (sec->bfpc[i], sec->bdpc[i]);
 
       MPS_DEBUG_CPLX(s, sec->afpc[i], "sec->afpc[%d]", i);
+      MPS_DEBUG_CPLX(s, sec->bfpc[i], "sec->bfpc[%d]", i);
     }
 
   s->secular_equation = sec;
