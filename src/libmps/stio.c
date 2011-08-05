@@ -308,9 +308,7 @@ mps_secular_equation_read_from_stream (mps_status * s,
 
 	  mpf_set_q (ftmp, sec->initial_bmpqic[i]);
 	  mpf_get_rdpe (cdpe_Im (sec->bdpc[i]), ftmp);
-	}
-
-
+        }
     }
 
   /* Copy coefficients back in other places */
@@ -327,9 +325,6 @@ mps_secular_equation_read_from_stream (mps_status * s,
       /* Get floating points coefficients */
       cdpe_get_x (sec->afpc[i], sec->adpc[i]);
       cdpe_get_x (sec->bfpc[i], sec->bdpc[i]);
-
-      MPS_DEBUG_CPLX(s, sec->afpc[i], "sec->afpc[%d]", i);
-      MPS_DEBUG_CPLX(s, sec->bfpc[i], "sec->bfpc[%d]", i);
     }
 
   s->secular_equation = sec;
