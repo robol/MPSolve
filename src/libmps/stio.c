@@ -474,6 +474,8 @@ mps_parse_stream (mps_status * s, FILE * input_stream,
       exit (EXIT_FAILURE);
     }
 
+  mps_input_buffer_free (buffer);
+
 }
 
 

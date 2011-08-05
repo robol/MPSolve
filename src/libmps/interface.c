@@ -132,10 +132,10 @@ mps_status_allocate_poly_inplace (mps_status * s, int n)
       s->deg = s->n = n;
     }
 
-  if (s->DOLOG)
-    fprintf (s->logstr, "Allocating polynomial in place\n");
+  MPS_DEBUG(s, "Allocating polynomial in place");
 
-  s->data_type = (char *) malloc (sizeof (char) * 3);
+  if (!s->data_type)
+    s->data_type = (char *) malloc (sizeof (char) * 3);
 
   s->spar = mps_boolean_valloc (s->deg + 2);
 
@@ -168,6 +168,41 @@ mps_status_allocate_poly_inplace (mps_status * s, int n)
   for (i = 0; i <= s->deg; i++)
     mpc_init2 (s->mfpc[i], s->prec_in);
 
+  /* Create the status and set all the roots as uncertain */
+  s->status = (char (*)[3]) char_valloc (3 * s->deg);
+  for(i = 0; i < s->deg; i++)
+  {
+      s->status[i][1] = 'w';
+      s->status[i][2] = 'u';
+  }
+
+}
+
+void
+mps_status_free_poly_inplace (mps_status * s)
+{
+    free (s->spar);
+    cplx_vfree (s->fpc);
+    rdpe_vfree (s->dpr);
+    rdpe_vfree (s->dpc);
+
+    mpz_vclear (s->mip_r, s->n);
+    mpz_vclear (s->mip_i, s->n);
+
+    mpz_vfree (s->mip_r);
+    mpz_vfree (s->mip_i);
+
+    mpq_vclear (s->mqp_r, s->n);
+    mpq_vclear (s->mqp_i, s->n);
+
+    mpq_vfree (s->mqp_r);
+    mpq_vfree (s->mqp_i);
+
+    mpf_vclear (s->mfpr, s->n);
+    mpc_vclear (s->mfpc, s->n);
+
+    mpf_vfree (s->mfpr);
+    mpf_vfree (s->mfpc);
 }
 
 /**

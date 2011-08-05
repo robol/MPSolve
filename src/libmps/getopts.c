@@ -27,6 +27,8 @@ void mps_print_help (mps_status * s);
 /**
  * @brief Parse command line options in a similar way of getopts.
  *
+ * @param opt A previous used mps_opts that can be re-used. If
+ * this is NULL it will be allocated.
  * @param argc_ptr The address in memory of the argc variable
  * obtained by the operating system.
  * @param argv_ptr The address in memory of the argv variable
@@ -51,26 +53,33 @@ void mps_print_help (mps_status * s);
  * can still parse other options such as filenames or similar, without
  * worrying about options switch.
  */
-mps_opt *
-mps_getopts (int *argc_ptr, char ***argv_ptr, const char *opt_format)
+mps_boolean
+mps_getopts (mps_opt** opt_ptr, int *argc_ptr, char ***argv_ptr, const char *opt_format)
 {
-  mps_opt *opt;
   char **argv = *argv_ptr;
   int argc = *argc_ptr;
   char *tmp;
+  mps_opt* opt;
   int i, l = strlen (opt_format), steps;
+
+  if ((*opt_ptr) == NULL)
+  {
+      (*opt_ptr) = (mps_opt*) malloc (sizeof(mps_opt));
+  }
+
+  opt = *opt_ptr;
 
   /* Check if there are other arguments to parse */
   if (!argc)
     {
-      return NULL;
+      free (opt);
+      return false;
     }
-  else
-    opt = malloc (sizeof (mps_opt));
 
   if (argc == 1)
     {
-      return NULL;
+      free (opt);
+      return false;
     }
 
   /* Scan for right offset */
@@ -91,7 +100,8 @@ mps_getopts (int *argc_ptr, char ***argv_ptr, const char *opt_format)
       /* Check if argc permutation was performed */
       if (steps == argc - 1)
 	{
-	  return NULL;
+          free (opt);
+          return false;
 	}
     }
 
@@ -112,7 +122,7 @@ mps_getopts (int *argc_ptr, char ***argv_ptr, const char *opt_format)
 	      (*argc_ptr)--;
 	      (*argv_ptr)[1] = argv[0];
 	      (*argv_ptr)++;
-	      return opt;
+              return true;
 	    }
 
 	  /* If the string is not terminated than we should
@@ -125,7 +135,7 @@ mps_getopts (int *argc_ptr, char ***argv_ptr, const char *opt_format)
 		  (*argc_ptr)--;
 		  (*argv_ptr)[1] = argv[0];
 		  (*argv_ptr)++;
-		  return opt;
+                  return true;
 		}
 	      else
 		{
@@ -133,7 +143,7 @@ mps_getopts (int *argc_ptr, char ***argv_ptr, const char *opt_format)
 		  (*argc_ptr)--;
 		  (*argv_ptr)[1] = argv[0];
 		  (*argv_ptr)++;
-		  return opt;
+                  return true;
 		}
 	    }
 
@@ -145,7 +155,7 @@ mps_getopts (int *argc_ptr, char ***argv_ptr, const char *opt_format)
 	      (*argc_ptr)--;
 	      (*argv_ptr)[1] = argv[0];
 	      (*argv_ptr)++;
-	      return opt;
+              return true;
 	    }
 
 	  /* Otherwise we can set the argument in the struct */
@@ -153,7 +163,7 @@ mps_getopts (int *argc_ptr, char ***argv_ptr, const char *opt_format)
 	  (*argc_ptr) -= 2;
 	  (*argv_ptr)[2] = argv[0];
 	  (*argv_ptr) += 2;
-	  return opt;
+          return true;
 	}
     }
 
@@ -163,7 +173,7 @@ mps_getopts (int *argc_ptr, char ***argv_ptr, const char *opt_format)
   (*argv_ptr)[1] = argv[0];
   (*argv_ptr)++;
 
-  return opt;
+  return true;
 }
 
 /**

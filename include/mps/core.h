@@ -126,7 +126,7 @@ extern "C"
 
 /* Function in mps_opts.c */
   void mps_parse_opts (mps_status * s, int argc, char *argv[]);
-  mps_opt *mps_getopts (int *argc_ptr, char ***argv_ptr,
+  mps_boolean mps_getopts (mps_opt ** opt, int *argc_ptr, char ***argv_ptr,
 			const char *opt_format);
 
 

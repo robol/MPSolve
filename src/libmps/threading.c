@@ -45,6 +45,8 @@ mps_thread_get_core_number (mps_status * s)
 	  cores++;
     }
 
+  fclose (cpuinfo);
+
   MPS_DEBUG (s, "Found %d cores on this system", cores);
   return cores;
 }
@@ -334,6 +336,7 @@ mps_thread_fpolzer (mps_status * s, int *it, mps_boolean * excep)
   free (data);
   free (threads);
   free (roots_mutex);
+  free (aberth_mutex);
   mps_thread_job_queue_free (queue);
 }
 

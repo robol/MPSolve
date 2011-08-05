@@ -324,6 +324,7 @@ mps_free_data (mps_status * s)
     mpc_clear (s->mfpc1[i]);
   mpc_vfree (s->mfpc1);
 
+  cplx_vfree (s->fppc);
   cplx_vfree (s->fppc1);
   for (i = 0; i <= s->deg; i++)
     {

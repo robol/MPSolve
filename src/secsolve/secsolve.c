@@ -53,7 +53,9 @@ main (int argc, char **argv)
   /* Parse options */
   mps_opt *opt;
   mps_phase phase = float_phase;
-  while ((opt = mps_getopts (&argc, &argv, "gn:dt:o:")))
+
+  opt = NULL;
+  while ((mps_getopts (&opt, &argc, &argv, "gn:dt:o:")))
     {
       switch (opt->optchar)
 	{
@@ -84,16 +86,14 @@ main (int argc, char **argv)
 	    case 'd':
 	      phase = dpe_phase;
 	      break;
-	    default:
+            default:
 	      usage (s, argv[0]);
 	    }
 	  break;
 	default:
 	  usage (s, argv[0]);
 	  break;
-	}
-
-      free (opt);
+        }
     }
 
   if (argc > 2)
