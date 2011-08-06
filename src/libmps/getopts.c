@@ -54,18 +54,19 @@ void mps_print_help (mps_status * s);
  * worrying about options switch.
  */
 mps_boolean
-mps_getopts (mps_opt** opt_ptr, int *argc_ptr, char ***argv_ptr, const char *opt_format)
+mps_getopts (mps_opt ** opt_ptr, int *argc_ptr, char ***argv_ptr,
+	     const char *opt_format)
 {
   char **argv = *argv_ptr;
   int argc = *argc_ptr;
   char *tmp;
-  mps_opt* opt;
+  mps_opt *opt;
   int i, l = strlen (opt_format), steps;
 
   if ((*opt_ptr) == NULL)
-  {
-      (*opt_ptr) = (mps_opt*) malloc (sizeof(mps_opt));
-  }
+    {
+      (*opt_ptr) = (mps_opt *) malloc (sizeof (mps_opt));
+    }
 
   opt = *opt_ptr;
 
@@ -100,8 +101,8 @@ mps_getopts (mps_opt** opt_ptr, int *argc_ptr, char ***argv_ptr, const char *opt
       /* Check if argc permutation was performed */
       if (steps == argc - 1)
 	{
-          free (opt);
-          return false;
+	  free (opt);
+	  return false;
 	}
     }
 
@@ -122,7 +123,7 @@ mps_getopts (mps_opt** opt_ptr, int *argc_ptr, char ***argv_ptr, const char *opt
 	      (*argc_ptr)--;
 	      (*argv_ptr)[1] = argv[0];
 	      (*argv_ptr)++;
-              return true;
+	      return true;
 	    }
 
 	  /* If the string is not terminated than we should
@@ -135,7 +136,7 @@ mps_getopts (mps_opt** opt_ptr, int *argc_ptr, char ***argv_ptr, const char *opt
 		  (*argc_ptr)--;
 		  (*argv_ptr)[1] = argv[0];
 		  (*argv_ptr)++;
-                  return true;
+		  return true;
 		}
 	      else
 		{
@@ -143,7 +144,7 @@ mps_getopts (mps_opt** opt_ptr, int *argc_ptr, char ***argv_ptr, const char *opt
 		  (*argc_ptr)--;
 		  (*argv_ptr)[1] = argv[0];
 		  (*argv_ptr)++;
-                  return true;
+		  return true;
 		}
 	    }
 
@@ -155,7 +156,7 @@ mps_getopts (mps_opt** opt_ptr, int *argc_ptr, char ***argv_ptr, const char *opt
 	      (*argc_ptr)--;
 	      (*argv_ptr)[1] = argv[0];
 	      (*argv_ptr)++;
-              return true;
+	      return true;
 	    }
 
 	  /* Otherwise we can set the argument in the struct */
@@ -163,7 +164,7 @@ mps_getopts (mps_opt** opt_ptr, int *argc_ptr, char ***argv_ptr, const char *opt
 	  (*argc_ptr) -= 2;
 	  (*argv_ptr)[2] = argv[0];
 	  (*argv_ptr) += 2;
-          return true;
+	  return true;
 	}
     }
 

@@ -619,11 +619,11 @@ mps_secular_ga_mpsolve (mps_status * s)
   /* Allocate other data */
   mps_allocate_data (s);
 
-  for(i = 0; i < s->n; i++)
-  {
+  for (i = 0; i < s->n; i++)
+    {
       s->status[i][1] = 'w';
       s->status[i][2] = 'u';
-  }
+    }
 
   /* Manually set FILE* pointer for streams.
    * More refined options will be added later. */
@@ -695,9 +695,9 @@ mps_secular_ga_mpsolve (mps_status * s)
       /* Check if all roots were approximated with the
        * given input precision                      */
       if (mps_secular_ga_check_stop (s))
-      {
-	return;
-      }
+	{
+	  return;
+	}
 
       /* If we can't stop recompute coefficients in higher precision and
        * continue to iterate, unless the best approximation possible in

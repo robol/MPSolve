@@ -1,16 +1,6 @@
 NULL = 
 
 bin_PROGRAMS = unisolve
-check_PROGRAMS = unisolve-test
-
-unisolve_test_SOURCES = \
-	unisolve-test.c \
-	$(NULL)
-
-unisolve_test_CFLAGS = \
-        -I${top_srcdir}/include \
-	$(UNISOLVE_CFLAGS) \
-	$(NULL)
 
 unisolve_CFLAGS = \
         -I${top_srcdir}/include \
@@ -23,10 +13,6 @@ unisolve_SOURCES = \
 
 unisolve_LDFLAGS = \
 	$(UNISOLVE_LIBS)
-	$(NULL)
-
-unisolve_test_LDFLAGS = \
-	$(UNISOLVE_LIBS) \
 	$(NULL)
 
 unisolve_LDADD = \

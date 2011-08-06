@@ -86,14 +86,14 @@ main (int argc, char **argv)
 	    case 'd':
 	      phase = dpe_phase;
 	      break;
-            default:
+	    default:
 	      usage (s, argv[0]);
 	    }
 	  break;
 	default:
 	  usage (s, argv[0]);
 	  break;
-        }
+	}
     }
 
   if (argc > 2)
