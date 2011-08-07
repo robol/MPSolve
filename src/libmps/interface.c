@@ -76,6 +76,8 @@ mps_mpsolve (mps_status * s)
 void
 mps_status_select_algorithm (mps_status * s, mps_algorithm algorithm)
 {
+  int i;
+
   /* First set algorithm in the mps_status */
   s->algorithm = algorithm;
 
@@ -109,6 +111,13 @@ mps_status_select_algorithm (mps_status * s, mps_algorithm algorithm)
       /* Nothing to be done for now, other than selecting the correct
        * loop. */
       s->mpsolve_ptr = MPS_MPSOLVE_PTR (mps_secular_ga_mpsolve);
+
+      /* Set the status to a neutral value, because we don't use it
+       * right now */
+      for (i = 0; i < s->n; i++) {
+          s->status[i][0] = 'u';
+          s->status[i][2] = 'w';
+      }
 
       break;
     }

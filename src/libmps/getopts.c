@@ -27,8 +27,10 @@ void mps_print_help (mps_status * s);
 /**
  * @brief Parse command line options in a similar way of getopts.
  *
- * @param opt A previous used mps_opts that can be re-used. If
- * this is NULL it will be allocated.
+ * @param op_ptr A pointer to a previous used mps_opts that can
+ * be re-used, or NULL. If this is NULL it will be allocated.
+ * When this function return false the opt_ptr is automatically
+ * freed.
  * @param argc_ptr The address in memory of the argc variable
  * obtained by the operating system.
  * @param argv_ptr The address in memory of the argv variable

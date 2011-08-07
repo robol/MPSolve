@@ -40,7 +40,11 @@ mps_secular_deflate (mps_status * s, mps_secular_equation * sec)
 	   * DPE input */
 	  if (MPS_STRUCTURE_IS_FP (sec->input_structure))
 	    {
-	      if (mpc_eq (sec->initial_bmpc[i], sec->initial_bmpc[j], 100) ==
+              /* Do not deflate in floating point, since it is not working
+               * correctly right now */
+              MPS_DEBUG(s, "Floating point deflation still has some rough edges, so it's disabled");
+              return;
+              if (mpc_eq (sec->initial_bmpc[i], sec->initial_bmpc[j], s->mpwp_max) ==
 		  0)
 		{
 		  MPS_DEBUG_MPC (s, 10, sec->initial_bmpc[i],
@@ -59,6 +63,7 @@ mps_secular_deflate (mps_status * s, mps_secular_equation * sec)
 
 		  sec->n--;
 		  j--;
+                  i--;
 		}
 	    }
 	  /* Otherwise, in the case of rational or integer input

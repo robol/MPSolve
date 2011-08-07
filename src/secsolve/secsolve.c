@@ -131,6 +131,10 @@ main (int argc, char **argv)
    * use standard mpsolve approach applied implicitly to the
    * secular equation. */
   mps_status_set_degree (s, sec->n);
+
+  /* Set user polynomial with our custom functions */
+  mps_allocate_data (s);
+
   if (ga)
     {
       /* Select the right algorithm */
@@ -138,9 +142,6 @@ main (int argc, char **argv)
     }
   else
     {
-      /* Set user polynomial with our custom functions */
-      mps_allocate_data (s);
-
       /* Select the right algorithm */
       mps_status_select_algorithm (s, MPS_ALGORITHM_SECULAR_MPSOLVE);
     }
