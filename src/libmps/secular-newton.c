@@ -148,8 +148,8 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
 	*rad = DBL_MAX;
 
       /* MPS_DEBUG (s, "Computed guaranteed newton radius = %e", g_corr * s->n);
-      MPS_DEBUG (s, "Non guaranteed newton radius: %e",
-                 cplx_mod (corr) * s->n); */
+         MPS_DEBUG (s, "Non guaranteed newton radius: %e",
+         cplx_mod (corr) * s->n); */
     }
   else
     {

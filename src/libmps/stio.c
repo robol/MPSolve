@@ -162,7 +162,7 @@ mps_parse_option_line (mps_status * s, char *line, size_t length)
       c_ptr = option;
       option = (char *) malloc (sizeof (char) * (strlen (option) + 1));
       strcpy (option, c_ptr);
-      *strchr (option, '=')= '\0';
+      *strchr (option, '=') = '\0';
     }
 
   if (mps_is_option (s, option, "degree"))
@@ -380,7 +380,7 @@ mps_parse_stream (mps_status * s, FILE * input_stream,
 	  /* Parsing of the degree */
 	  if (input_option.flag == MPS_KEY_DEGREE)
 	    {
-                MPS_DEBUG(s, "value : %s", input_option.value);
+	      MPS_DEBUG (s, "value : %s", input_option.value);
 	      s->n = atoi (input_option.value);
 	      if (s->n <= 0)
 		mps_error (s, 1, "Degree must be a positive integer");

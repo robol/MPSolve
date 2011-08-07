@@ -114,10 +114,11 @@ mps_status_select_algorithm (mps_status * s, mps_algorithm algorithm)
 
       /* Set the status to a neutral value, because we don't use it
        * right now */
-      for (i = 0; i < s->n; i++) {
-          s->status[i][0] = 'u';
-          s->status[i][2] = 'w';
-      }
+      for (i = 0; i < s->n; i++)
+	{
+	  s->status[i][0] = 'u';
+	  s->status[i][2] = 'w';
+	}
 
       break;
     }
