@@ -81,9 +81,9 @@ test_secsolve_on_pol (test_pol * pol)
 
   mps_status_set_degree (s, s->n);
 
+  mps_allocate_data (s);
   if (!pol->ga)
     {
-      mps_allocate_data (s);
       mps_status_select_algorithm (s, MPS_ALGORITHM_SECULAR_MPSOLVE);
     }
   else
