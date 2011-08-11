@@ -266,14 +266,14 @@ mps_secular_equation_read_from_stream (mps_status * s,
 	{
 	  /* Read real part of the a_i */
 	  mps_skip_comments (input_stream);
-          mpq_inp_str (sec->initial_ampqrc[i], input_stream, 10);
-          mpq_canonicalize (sec->initial_ampqrc[i]);
+	  mpq_inp_str (sec->initial_ampqrc[i], input_stream, 10);
+	  mpq_canonicalize (sec->initial_ampqrc[i]);
 
 	  /* Read imaginary part of the a_i */
 	  if (MPS_STRUCTURE_IS_COMPLEX (config.structure))
 	    {
 	      mps_skip_comments (input_stream);
-              mpq_inp_str (sec->initial_ampqic[i], input_stream, 10);
+	      mpq_inp_str (sec->initial_ampqic[i], input_stream, 10);
 	      mpq_canonicalize (sec->initial_ampqic[i]);
 	    }
 	  else

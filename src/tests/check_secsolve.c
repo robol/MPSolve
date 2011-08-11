@@ -89,6 +89,7 @@ test_secsolve_on_pol (test_pol * pol)
   else
     mps_status_select_algorithm (s, MPS_ALGORITHM_SECULAR_GA);
 
+  strncpy (s->goal, "aannc", 5);
   s->prec_out = (int) (pol->out_digits * LOG2_10) + 1;
   s->prec_in = 0;
 
@@ -141,7 +142,6 @@ START_TEST (test_secsolve)
 }
 
 END_TEST
-
 START_TEST (test_secsolve_altern)
 {
   /* Start with testing floating point without ga */
@@ -157,11 +157,10 @@ START_TEST (test_secsolve_altern)
 }
 
 END_TEST
-
 /**
  * @brief Create the secsolve test suite
  */
-Suite * secsolve_suite (int standard)
+  Suite * secsolve_suite (int standard)
 {
   Suite *s = suite_create ("secsolve");
 
@@ -195,17 +194,17 @@ main (void)
   test_polynomials[standard++] =
     test_pol_new ("rand15", "secsolve", 15, float_phase, false);
   test_polynomials[standard++] =
-    test_pol_new ("rand15", "secsolve", 200, float_phase, false);
+    test_pol_new ("rand15", "secsolve", 600, float_phase, false);
   test_polynomials[standard++] =
     test_pol_new ("rand15", "secsolve", 15, dpe_phase, false);
   test_polynomials[standard++] =
-    test_pol_new ("rand15", "secsolve", 200, dpe_phase, false);
+    test_pol_new ("rand15", "secsolve", 600, dpe_phase, false);
 
   /* Gemignani's approach */
   test_polynomials[standard++] =
     test_pol_new ("rand15", "secsolve", 15, float_phase, true);
   test_polynomials[standard++] =
-    test_pol_new ("rand15", "secsolve", 200, float_phase, true);
+    test_pol_new ("rand15", "secsolve", 600, float_phase, true);
 
   /* Tests with rand120.pol */
   test_polynomials[standard++] =
