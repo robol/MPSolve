@@ -139,6 +139,7 @@ mps_improve (mps_status * st)
       m = (int) (log ((mpnb_out - f) / g) / LOG2) + 1;
 
       /*  == 4 ==      Start Newton */
+      MPS_DEBUG_MPC(st, 200, st->mroot[i], "s->mroot[%d]", i);
       rdpe_set (oldrad, st->drad[i]);
       for (j = 1; j <= m; j++)
 	{
@@ -155,16 +156,18 @@ mps_improve (mps_status * st)
 	  mps_mp_set_prec (st, st->mpwp);
 	  mps_prepare_data (st, st->mpwp);
 	  if (st->data_type[0] != 'u')
+          {
 	    mps_mnewton (st, st->n, st->mroot[i], st->drad[i],
 			 nwtcorr, st->mfpc, st->mfppc, st->dap, st->spar,
 			 &again, 0);
+          }
 	  else if (st->mnewton_usr != NULL)
-	    {
+            {
 	      (*st->mnewton_usr) (st, st->mroot[i], st->drad[i], nwtcorr,
 				  &again);
 	    }
 	  else
-	    {
+            {
 	      mps_mnewton_usr (st, st->mroot[i], st->drad[i], nwtcorr,
 			       &again);
 	    }
@@ -181,11 +184,13 @@ mps_improve (mps_status * st)
 
 	  if (rdpe_eq (st->drad[i], rdpe_zero))
 	    rdpe_set (st->drad[i], newrad);
-	  if (rdpe_lt (newrad, st->drad[i]))
-	    rdpe_set (st->drad[i], newrad);
+          if (rdpe_lt (newrad, st->drad[i]))
+            rdpe_set (st->drad[i], newrad);
+
+          MPS_DEBUG_MPC(st, 200, st->mroot[i], "s->mroot[%d]", i);
 
 	  if (rdpe_lt (st->drad[i], tmp) || st->mpwp == mpnb_in)
-	    break;		/* loop1 */
+            break;		/* loop1 */
 	}
 
       /* update the record working precision for root i */

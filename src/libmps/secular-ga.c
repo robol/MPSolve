@@ -41,9 +41,7 @@ mps_secular_ga_fiterate (mps_status * s, int maxit)
 
   /* Iterate with newton until we have good approximations
    * of the roots */
-  /* Set again to true */
-  for (i = 0; i < s->n; i++)
-    s->again[i] = true;
+  mps_update (s);
 
   while (computed_roots < s->n && iterations < maxit - 1)
     {
@@ -103,9 +101,12 @@ mps_secular_ga_fiterate (mps_status * s, int maxit)
     }
 
   /* Check if the roots are improvable in floating point */
-  MPS_DEBUG (s, "Performed %d iterations", nit);
+  MPS_DEBUG (s, "Performed %d iterations with floating point arithmetic", nit);
   if (nit <= 2 * s->n)
     s->secular_equation->best_approx = true;
+
+  mps_fcluster (s, 2.0 * s->n);
+  mps_fmodify (s);
 
   /* Return the number of approximated roots */
   return computed_roots;
@@ -129,9 +130,7 @@ mps_secular_ga_diterate (mps_status * s, int maxit)
 
   /* Iterate with newton until we have good approximations
    * of the roots */
-  /* Set again to true */
-  for (i = 0; i < s->n; i++)
-    s->again[i] = true;
+  mps_update (s);
 
   while (computed_roots < s->n && iterations < maxit - 1)
     {
@@ -182,6 +181,9 @@ mps_secular_ga_diterate (mps_status * s, int maxit)
       s->secular_equation->best_approx = true;
     }
 
+  mps_dcluster (s, 2.0  * s->n);
+  mps_dmodify (s);
+
   /* Return the number of approximated roots */
   return computed_roots;
 }
@@ -212,9 +214,13 @@ mps_secular_ga_miterate (mps_status * s, int maxit)
 
   /* Iterate with newton until we have good approximations
    * of the roots */
-  /* Allocate again and set all to true */
-  for (i = 0; i < s->n; i++)
-    s->again[i] = true;
+  mps_update(s);
+
+  for(i = 0; i < s->n; i++)
+  {
+      if (s->again[i])
+          s->rootwp[i] = s->mpwp;
+  }
 
   while (computed_roots < s->n && iterations < maxit)
     {
@@ -254,6 +260,12 @@ mps_secular_ga_miterate (mps_status * s, int maxit)
   MPS_DEBUG (s, "Performed %d iterations", nit);
   if (nit <= 2 * s->n)
     s->secular_equation->best_approx = true;
+
+  /* Perform cluster analysis */
+  mps_mcluster (s, 2.0 * s->n);
+  mps_mnewtis (s);
+
+  mps_mmodify (s);
 
   /* Return the number of approximated roots */
   return computed_roots;
@@ -563,25 +575,22 @@ mps_secular_ga_check_stop (mps_status * s)
 	{
 
 	  /* Float case */
-	case float_phase:
-	  if (log (cplx_mod (s->froot[i])) - log (s->frad[i]) <
-	      s->prec_out * LOG10_2)
-	    return false;
+        case float_phase:
+            if (s->status[i][0] != 'i' &&
+                    s->status[i][0] != 'a')
+                return false;
 
 	  /* Multiprecision and DPE case are the same, since the radii
 	   * are always RDPE. */
 	case mp_phase:
-	  mpc_get_cdpe (root, s->mroot[i]);
-	  cdpe_mod (root_mod, root);
-	  if (rdpe_log10 (root_mod) - rdpe_log10 (s->drad[i]) <
-	      s->prec_out * LOG10_2)
-	    return false;
+            if (s->status[i][0] != 'i' &&
+                    s->status[i][0] != 'a')
+                return false;
 	  break;
-	case dpe_phase:
-	  cdpe_mod (root_mod, s->droot[i]);
-	  if (rdpe_log10 (root_mod) - rdpe_log10 (s->drad[i]) <
-	      s->prec_out * LOG10_2)
-	    return false;
+        case dpe_phase:
+            if (s->status[i][0] != 'i' &&
+                    s->status[i][0] != 'a')
+                return false;
 	  break;
 
 	default:
@@ -694,10 +703,11 @@ mps_secular_ga_mpsolve (mps_status * s)
 
       /* Check if all roots were approximated with the
        * given input precision                      */
-      if (mps_secular_ga_check_stop (s))
+      /* if (mps_secular_ga_check_stop (s))
 	{
+          mps_improve (s);
 	  return;
-	}
+        } */
 
       /* If we can't stop recompute coefficients in higher precision and
        * continue to iterate, unless the best approximation possible in
@@ -723,7 +733,10 @@ mps_secular_ga_mpsolve (mps_status * s)
 	    }
 
 	  packet = 0;
-	}
+        }
     }
   while (!mps_secular_ga_check_stop (s));
+
+  /* Improve the roots with newton */
+  mps_improve (s);
 }

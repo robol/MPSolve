@@ -10,6 +10,7 @@
 ***********************************************************/
 
 #include <mps/core.h>
+#include <mps/secular.h>
 
 static long int data_prec_max = 0;
 
@@ -261,8 +262,9 @@ mps_raise_data_raw (mps_status * s, long int prec)
 void
 mps_prepare_data (mps_status * s, long int prec)
 {
-  if (s->DOLOG)
-    fprintf (s->logstr, "Prepare data:  working precision =%ld bits\n", prec);
+  MPS_DEBUG_THIS_CALL
+
+  MPS_DEBUG(s, "Increasing working precision to %ld bits", prec);
 
   if (prec > data_prec_max)
     {
@@ -271,7 +273,14 @@ mps_prepare_data (mps_status * s, long int prec)
       data_prec_max = mps_raise_data (s, prec);
     }
   else
-    mps_raise_data_raw (s, prec);
+  {
+      /* Check if the algorithm is Standard MPSolve or the secular
+       * equation version */
+      if (s->mpsolve_ptr == MPS_MPSOLVE_PTR (mps_standard_mpsolve))
+          mps_raise_data_raw (s, prec);
+      else
+          mps_secular_raise_precision (s, prec);
+  }
 }
 
 /***********************************************************

@@ -80,8 +80,8 @@ test_secsolve_on_pol (test_pol * pol)
   sec->starting_case = pol->phase;
 
   mps_status_set_degree (s, s->n);
-
   mps_allocate_data (s);
+
   if (!pol->ga)
     {
       mps_status_select_algorithm (s, MPS_ALGORITHM_SECULAR_MPSOLVE);
@@ -90,8 +90,8 @@ test_secsolve_on_pol (test_pol * pol)
     mps_status_select_algorithm (s, MPS_ALGORITHM_SECULAR_GA);
 
   s->prec_out = (int) (pol->out_digits * LOG2_10) + 1;
-  strncpy (s->goal, "aannc", 5);
   s->prec_in = 0;
+
   mps_mpsolve (s);
   mps_copy_roots (s);
 
@@ -141,6 +141,7 @@ START_TEST (test_secsolve)
 }
 
 END_TEST
+
 START_TEST (test_secsolve_altern)
 {
   /* Start with testing floating point without ga */
@@ -156,10 +157,11 @@ START_TEST (test_secsolve_altern)
 }
 
 END_TEST
+
 /**
  * @brief Create the secsolve test suite
  */
-  Suite * secsolve_suite (int standard)
+Suite * secsolve_suite (int standard)
 {
   Suite *s = suite_create ("secsolve");
 

@@ -112,13 +112,11 @@ mps_status_select_algorithm (mps_status * s, mps_algorithm algorithm)
        * loop. */
       s->mpsolve_ptr = MPS_MPSOLVE_PTR (mps_secular_ga_mpsolve);
 
-      /* Set the status to a neutral value, because we don't use it
-       * right now */
-      for (i = 0; i < s->n; i++)
-	{
-	  s->status[i][0] = 'u';
-	  s->status[i][2] = 'w';
-	}
+      /* Set custom routines for newton quotient computation, that will
+       * become useful in mps_improve () */
+      s->fnewton_usr = MPS_FNEWTON_PTR (mps_secular_fnewton);
+      s->dnewton_usr = MPS_DNEWTON_PTR (mps_secular_dnewton);
+      s->mnewton_usr = MPS_MNEWTON_PTR (mps_secular_mnewton);
 
       break;
     }

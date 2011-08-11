@@ -286,7 +286,7 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
       cdpe_mod (sigma, sigma_tmp);
       rdpe_sub_eq (sigma, gamma);
 
-      if (rdpe_gt (sigma, rdpe_zero))
+      if (rdpe_gt (sigma, s->mp_epsilon))
 	{
 	  cdpe_mod (g_corr, ssp);
 	  rdpe_div_eq (g_corr, sigma);
@@ -343,6 +343,8 @@ void
 mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
 		     mps_boolean * again)
 {
+  MPS_DEBUG_THIS_CALL
+
   int i, j;
   mps_boolean x_is_b = false;
 
@@ -468,10 +470,10 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
    * 4) sigma = 1 + ssp*sumb - gamma
    *  Guaranteed 1 + S/s' * (\sum_i a_i / (x-b_i))
    *
-   * 5) g_corr = ssp / sigma
+   * 5) g_c orr = ssp / sigma
    *  That is, finally, the guaranteed newton correction.
    */
-  if (s->mpsolve_ptr == MPS_MPSOLVE_PTR (mps_standard_mpsolve))
+   if (s->mpsolve_ptr == MPS_MPSOLVE_PTR (mps_standard_mpsolve))
     {
       rdpe_t theta, ssp, gamma, sigma;
       rdpe_t fp_mod, pol_mod, sumb_mod;
@@ -536,15 +538,20 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
       MPS_DEBUG_RDPE (s, rtmp, "Non-guaranteed newton correction");
       MPS_DEBUG_RDPE (s, g_corr, "Computed newton correction");
 
+      rdpe_sub_eq(rtmp, g_corr);
+      MPS_DEBUG_RDPE (s, rtmp, "Difference");
+
       /* Set the radius, if convenient. */
-      if (rdpe_gt (sigma, rdpe_zero) && rdpe_lt (g_corr, rad))
-	{
-	  MPS_DEBUG (s, "Setting newton correction");
+      if (rdpe_gt (sigma, s->mp_epsilon) && rdpe_lt (g_corr, rad))
+        {
+          MPS_DEBUG (s, "Setting newton correction");
+          MPS_DEBUG_RDPE(s, sigma, "sigma");
 	  rdpe_set (rad, g_corr);
 	}
       else
 	{
 	  MPS_DEBUG (s, "Discarding newton correction");
+          MPS_DEBUG_RDPE(s, sigma, "sigma");
 	}
 
     }

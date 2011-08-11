@@ -105,6 +105,12 @@ main (int argc, char **argv)
   else
     infile = fopen (argv[1], "r");
 
+  if (!infile)
+  {
+      mps_error (s, 1, "Cannot open input file for read, aborting.");
+      return -1;
+  }
+
   /* Create new secular equation */
   mps_parsing_configuration default_configuration = {
     /* .structure */
