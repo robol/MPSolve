@@ -57,7 +57,7 @@ test_secsolve_on_pol (test_pol * pol)
   mpf_init2 (eps, prec);
   mpf_init2 (ftmp, prec);
 
-  mpf_set_2dl (eps, 1.0, -pol->out_digits + 1);
+  mpf_set_2dl (eps, 1.0, -pol->out_digits * LOG2_10 + 1);
 
   /* Open streams */
   input_stream = fopen (pol->pol_file, "r");
