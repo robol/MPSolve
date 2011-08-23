@@ -106,7 +106,7 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
    * 5) g_corr = ssp / sigma
    *  That is, finally, the guaranteed newton correction.
    */
-   if (s->mpsolve_ptr == MPS_MPSOLVE_PTR (mps_standard_mpsolve))
+  if (s->mpsolve_ptr == MPS_MPSOLVE_PTR (mps_standard_mpsolve))
     {
       double theta, gamma, sigma;
       cplx_t ssp, pol_div_fp, gamma_tmp, sigma_tmp;
@@ -365,13 +365,18 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
   mpc_init2 (ctmp, s->mpwp);
   mpc_init2 (ctmp2, s->mpwp);
 
+  MPS_DEBUG (s, "Starting with wp = %d", s->mpwp);
+
   /* Adjust precision of coefficients */
   if (s->mpwp != mpc_get_prec (sec->ampc[0]))
     {
+      MPS_DEBUG (s,
+		 "Increasing precision of the coefficients, since it was out of sync with s->mpwp");
       for (i = 0; i < sec->n; i++)
 	{
 	  mpc_set_prec (sec->ampc[i], s->mpwp);
 	  mpc_set_prec (sec->bmpc[i], s->mpwp);
+	  mpc_set_prec (s->mroot[i], s->mpwp);
 	}
     }
 
@@ -391,6 +396,7 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
 	  /* We are in the case where x = b_i so set j = i */
 	  j = i;
 	  mpc_set_ui (corr, 0U, 0U);
+
 	  for (i = 0; i < sec->n; i++)
 	    {
 	      if (i == j)
@@ -447,6 +453,8 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
 	mpc_set (corr, pol);
     }
 
+  MPS_DEBUG_MPC (s, 200, corr, "corr");
+
 
   /* We compute the following values in order to give a guaranteed
    * Newton inclusion circle:
@@ -471,88 +479,88 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
    * 5) g_c orr = ssp / sigma
    *  That is, finally, the guaranteed newton correction.
    */
-   if (s->mpsolve_ptr == MPS_MPSOLVE_PTR (mps_standard_mpsolve))
+  // if (s->mpsolve_ptr == MPS_MPSOLVE_PTR (mps_standard_mpsolve))
+  {
+    rdpe_t theta, ssp, gamma, sigma;
+    rdpe_t fp_mod, pol_mod, sumb_mod;
+    cdpe_t cdpe_tmp, pol_cdpe, fp_cdpe, ssp_cdpe, cdpe_tmp2;
+
+    /* Get the modulus of fp and pol */
+    mpc_get_cdpe (fp_cdpe, fp);
+    cdpe_mod (fp_mod, fp_cdpe);
+    mpc_get_cdpe (pol_cdpe, pol);
+    cdpe_mod (pol_mod, pol_cdpe);
+
+    /* Compute theta */
+    rdpe_mul_d (theta, s->mp_epsilon, s->n + 2 + 2 * sqrt (2));
+    rdpe_mul_eq (theta, fp_mod);
+
+    /* Compute ssp */
+    mpc_get_cdpe (cdpe_tmp, fp);
+    cdpe_set (cdpe_tmp2, cdpe_zero);
+    rdpe_set (cdpe_Re (cdpe_tmp2), theta);
+    cdpe_sub_eq (cdpe_tmp, cdpe_tmp2);
+    cdpe_div (ssp_cdpe, pol_cdpe, cdpe_tmp);
+    cdpe_mod (ssp, ssp_cdpe);
+
+    /* Compute gamma */
     {
-      rdpe_t theta, ssp, gamma, sigma;
-      rdpe_t fp_mod, pol_mod, sumb_mod;
-      cdpe_t cdpe_tmp, pol_cdpe, fp_cdpe, ssp_cdpe, cdpe_tmp2;
+      rdpe_t tmp;
+      cdpe_t pol_div_fp;
 
-      /* Get the modulus of fp and pol */
-      mpc_get_cdpe (fp_cdpe, fp);
-      cdpe_mod (fp_mod, fp_cdpe);
-      mpc_get_cdpe (pol_cdpe, pol);
-      cdpe_mod (pol_mod, pol_cdpe);
+      /* Compute pol/fp */
+      cdpe_div (pol_div_fp, pol_cdpe, fp_cdpe);
+      cdpe_sub_eq (pol_div_fp, ssp_cdpe);
+      rdpe_mul_d (gamma, s->mp_epsilon, s->n + 2 + sqrt (2));
+      rdpe_mul_eq (gamma, ssp);
+      cdpe_mod (tmp, pol_div_fp);
+      rdpe_add_eq (gamma, tmp);
+      rdpe_mul_eq (gamma, pol_mod);
+    }
 
-      /* Compute theta */
-      rdpe_mul_d (theta, s->mp_epsilon, s->n + 2 + 2 * sqrt (2));
-      rdpe_mul_eq (theta, fp_mod);
+    /* Compute sigma */
+    mpc_get_cdpe (cdpe_tmp, sumb);
+    cdpe_mod (sumb_mod, cdpe_tmp);
+    rdpe_mul (sigma, sumb_mod, ssp);
+    rdpe_sub_eq (sigma, gamma);
+    rdpe_add_eq (sigma, rdpe_one);
 
-      /* Compute ssp */
-      mpc_get_cdpe (cdpe_tmp, fp);
-      cdpe_set (cdpe_tmp2, cdpe_zero);
-      rdpe_set (cdpe_Re (cdpe_tmp2), theta);
-      cdpe_sub_eq (cdpe_tmp, cdpe_tmp2);
-      cdpe_div (ssp_cdpe, pol_cdpe, cdpe_tmp);
-      cdpe_mod (ssp, ssp_cdpe);
+    /* Compute g_corr */
+    rdpe_div (g_corr, ssp, sigma);
 
-      /* Compute gamma */
+    /* Compute non-guaranteed newton correction */
+    mpc_get_cdpe (cdpe_tmp, corr);
+    cdpe_mod (rtmp, cdpe_tmp);
+    rdpe_mul_eq_d (rtmp, s->n);
+
+    /* Radius is s->n * g_corr */
+    rdpe_mul_eq_d (g_corr, s->n);
+    if (rdpe_eq_zero (g_corr))
       {
-	rdpe_t tmp;
-	cdpe_t pol_div_fp;
-
-	/* Compute pol/fp */
-	cdpe_div (pol_div_fp, pol_cdpe, fp_cdpe);
-	cdpe_sub_eq (pol_div_fp, ssp_cdpe);
-	rdpe_mul_d (gamma, s->mp_epsilon, s->n + 2 + sqrt (2));
-	rdpe_mul_eq (gamma, ssp);
-	cdpe_mod (tmp, pol_div_fp);
-	rdpe_add_eq (gamma, tmp);
-	rdpe_mul_eq (gamma, pol_mod);
+	MPS_DEBUG (s, "Newton correction is zero");
+	rdpe_set_2dl (g_corr, 1.0, LONG_MIN);
       }
 
-      /* Compute sigma */
-      mpc_get_cdpe (cdpe_tmp, sumb);
-      cdpe_mod (sumb_mod, cdpe_tmp);
-      rdpe_mul (sigma, sumb_mod, ssp);
-      rdpe_sub_eq (sigma, gamma);
-      rdpe_add_eq (sigma, rdpe_one);
+    MPS_DEBUG_RDPE (s, rtmp, "Non-guaranteed newton correction");
+    MPS_DEBUG_RDPE (s, g_corr, "Computed newton correction");
 
-      /* Compute g_corr */
-      rdpe_div (g_corr, ssp, sigma);
+    rdpe_sub_eq (rtmp, g_corr);
+    MPS_DEBUG_RDPE (s, rtmp, "Difference");
 
-      /* Compute non-guaranteed newton correction */
-      mpc_get_cdpe (cdpe_tmp, corr);
-      cdpe_mod (rtmp, cdpe_tmp);
-      rdpe_mul_eq_d (rtmp, s->n);
+    /* Set the radius, if convenient. */
+    if (rdpe_gt (sigma, rdpe_zero) && rdpe_lt (g_corr, rad))
+      {
+	MPS_DEBUG (s, "Setting newton correction");
+	MPS_DEBUG_RDPE (s, sigma, "sigma");
+	rdpe_set (rad, g_corr);
+      }
+    else
+      {
+	MPS_DEBUG (s, "Discarding newton correction");
+	MPS_DEBUG_RDPE (s, sigma, "sigma");
+      }
 
-      /* Radius is s->n * g_corr */
-      rdpe_mul_eq_d (g_corr, s->n);
-      if (rdpe_eq_zero (g_corr))
-	{
-	  MPS_DEBUG (s, "Newton correction is zero");
-	  rdpe_set_2dl (g_corr, 1.0, LONG_MIN);
-	}
-
-      MPS_DEBUG_RDPE (s, rtmp, "Non-guaranteed newton correction");
-      MPS_DEBUG_RDPE (s, g_corr, "Computed newton correction");
-
-      rdpe_sub_eq (rtmp, g_corr);
-      MPS_DEBUG_RDPE (s, rtmp, "Difference");
-
-      /* Set the radius, if convenient. */
-      if (rdpe_gt (sigma, rdpe_zero) && rdpe_lt (g_corr, rad))
-	{
-	  MPS_DEBUG (s, "Setting newton correction");
-	  MPS_DEBUG_RDPE (s, sigma, "sigma");
-	  rdpe_set (rad, g_corr);
-	}
-      else
-	{
-	  MPS_DEBUG (s, "Discarding newton correction");
-	  MPS_DEBUG_RDPE (s, sigma, "sigma");
-	}
-
-    }
+  }
 
   /* Compute guaranteed modulus of pol */
   mpc_get_cdpe (cdtmp, pol);

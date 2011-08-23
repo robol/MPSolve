@@ -81,7 +81,12 @@ mps_improve (mps_status * st)
       if (st->DOLOG)
 	fprintf (st->logstr, "root %d\n", i);
       if (st->status[i][0] != 'i' || st->status[i][2] == 'o')
-	continue;		/* Do not refine approximated roots */
+	{
+	  MPS_DEBUG (st,
+		     "Not approximating root %d since it is already approximated",
+		     i);
+	  continue;		/* Do not refine approximated roots */
+	}
 
       /*  == 3.1 ==
        * for data_type[0]='d' compute  t=Min_j |root(i)-root(j)|-rad(j)-rad(i)
@@ -184,8 +189,8 @@ mps_improve (mps_status * st)
 
 	  if (rdpe_eq (st->drad[i], rdpe_zero))
 	    rdpe_set (st->drad[i], newrad);
-	  if (rdpe_lt (newrad, st->drad[i]))
-	    rdpe_set (st->drad[i], newrad);
+          if (rdpe_lt (newrad, st->drad[i]))
+            rdpe_set (st->drad[i], newrad);
 
 	  MPS_DEBUG_MPC (st, 200, st->mroot[i], "s->mroot[%d]", i);
 

@@ -145,6 +145,7 @@ main (int argc, char **argv)
     {
       /* Select the right algorithm */
       mps_status_select_algorithm (s, MPS_ALGORITHM_SECULAR_GA);
+      rdpe_set_2dl (s->eps_out, 1.0, -s->prec_out * LOG2_10);
     }
   else
     {
