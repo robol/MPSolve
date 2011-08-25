@@ -577,7 +577,7 @@ mps_secular_ga_check_stop (mps_status * s)
 
 	  /* Float case */
 	case float_phase:
-          if (s->status[i][0] != 'i' && s->status[i][0] != 'a')
+	  if (s->status[i][0] != 'i' && s->status[i][0] != 'a')
 	    return false;
 
 	  /* Multiprecision and DPE case are the same, since the radii
@@ -738,36 +738,58 @@ mps_secular_ga_mpsolve (mps_status * s)
   /* Before improving with newton we shall reuse
    * the original coefficients */
   for (i = 0; i < s->n; i++)
-  {
+    {
       if (MPS_STRUCTURE_IS_FP (s->secular_equation->input_structure))
-      {
-          mpc_set (s->secular_equation->ampc[i], s->secular_equation->initial_ampc[i]);
-          mpc_set (s->secular_equation->bmpc[i], s->secular_equation->initial_bmpc[i]);
-      }
+	{
+	  mpc_set (s->secular_equation->ampc[i],
+		   s->secular_equation->initial_ampc[i]);
+	  mpc_set (s->secular_equation->bmpc[i],
+		   s->secular_equation->initial_bmpc[i]);
+	}
       else
-      {
-          mps_error (s, 1, "Non floating point improvement of roots is still not supported.");
-      }
-  }
+	{
+            mpc_set_q (s->secular_equation->ampc[i],
+                       s->secular_equation->initial_ampqrc[i],
+                       s->secular_equation->initial_ampqic[i]);
+
+            mpc_set_q (s->secular_equation->bmpc[i],
+                       s->secular_equation->initial_bmpqrc[i],
+                       s->secular_equation->initial_bmpqic[i]);
+	}
+    }
 
   /* Improve the roots with newton */
-  // mps_improve (s);
+  /* mps_improve (s);
+  return; */
 
   // We should check the condition number here, or use the old mps_improve ()
   // functions that already considers it, adapting it to the new structure.
+#define MAX_ITERATIONS 150
   mps_secular_raise_precision (s, s->prec_out);
 
   mpc_t nwtcorr;
+  cdpe_t ctmp;
+  rdpe_t rtmp;
   mpc_init2 (nwtcorr, s->mpwp);
-  for(i = 0; i < s->n; i++)
-  {
+  for (i = 0; i < s->n; i++)
+    {
       int j;
-      for(j = 0; j < 10; j++)
-      {
-          mps_secular_mnewton (s, s->mroot[i], s->drad[i], nwtcorr, &s->again[i]);
-          mpc_sub_eq (s->mroot[i], nwtcorr);
-      }
-  }
+      for (j = 0; j < MAX_ITERATIONS; j++)
+	{
+	  mps_secular_mnewton (s, s->mroot[i], s->drad[i], nwtcorr,
+			       &s->again[i]);
+	  mpc_sub_eq (s->mroot[i], nwtcorr);
 
+          /* We shall check if the approximation is already good. */
+          mpc_get_cdpe (ctmp, s->mroot[i]);
+          cdpe_mod (rtmp, ctmp);
+          rdpe_div (rtmp, s->drad[i], rtmp);
+
+          if (rdpe_le (rtmp, s->mp_epsilon))
+              break;
+	}
+    }
   mpc_clear (nwtcorr);
+
+#undef MAX_ITERATIONS
 }

@@ -10,6 +10,7 @@
 ***********************************************************/
 
 #include <mps/core.h>
+#include <mps/secular.h>
 #include <math.h>
 
 /***********************************************************
@@ -144,7 +145,6 @@ mps_improve (mps_status * st)
       m = (int) (log ((mpnb_out - f) / g) / LOG2) + 1;
 
       /*  == 4 ==      Start Newton */
-      MPS_DEBUG_MPC (st, 200, st->mroot[i], "s->mroot[%d]", i);
       rdpe_set (oldrad, st->drad[i]);
       for (j = 1; j <= m; j++)
 	{
@@ -191,8 +191,6 @@ mps_improve (mps_status * st)
 	    rdpe_set (st->drad[i], newrad);
           if (rdpe_lt (newrad, st->drad[i]))
             rdpe_set (st->drad[i], newrad);
-
-	  MPS_DEBUG_MPC (st, 200, st->mroot[i], "s->mroot[%d]", i);
 
 	  if (rdpe_lt (st->drad[i], tmp) || st->mpwp == mpnb_in)
 	    break;		/* loop1 */
