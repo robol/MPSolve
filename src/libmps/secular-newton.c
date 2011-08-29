@@ -372,12 +372,13 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
     {
       MPS_DEBUG (s,
 		 "Increasing precision of the coefficients, since it was out of sync with s->mpwp");
+      MPS_DEBUG (s, "s->mpwp = %d, whilst precision of sec->ampc[i] is %d", s->mpwp, mpc_get_prec (sec->ampc[0]));
       for (i = 0; i < sec->n; i++)
 	{
 	  mpc_set_prec (sec->ampc[i], s->mpwp);
 	  mpc_set_prec (sec->bmpc[i], s->mpwp);
-	  mpc_set_prec (s->mroot[i], s->mpwp);
 	}
+      mpc_set_prec (x, s->mpwp);
     }
 
   /* Set some starting values */

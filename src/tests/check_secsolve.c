@@ -159,13 +159,9 @@ START_TEST (test_secsolve_altern)
 END_TEST
 START_TEST (test_secsolve_integer)
 {
-  /* Test integer parsing of secsolve, standard approach */
+  /* Test integer parsing of secsolve, ga approach */
   test_pol *pol =
-    test_pol_new ("integer", "secsolve", 250, float_phase, false);
-  test_secsolve_on_pol (pol);
-
-  /* Test integer parsing of secsolve, Gemignani's approach */
-  pol->ga = true;
+    test_pol_new ("integer", "secsolve", 250, float_phase, true);
   test_secsolve_on_pol (pol);
 
   test_pol_free (pol);

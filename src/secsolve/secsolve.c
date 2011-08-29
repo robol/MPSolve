@@ -156,7 +156,7 @@ main (int argc, char **argv)
   /* Solve the polynomial */
   strncpy (s->goal, "aannc", 5);
   mps_mpsolve (s);
-
+  
   /* Output the roots */
   mps_copy_roots (s);
   mps_output (s);

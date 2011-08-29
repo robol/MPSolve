@@ -307,7 +307,6 @@ mps_secular_raise_coefficient_precision (mps_status * s, int wp)
     {
       mpc_set_prec (sec->ampc[i], wp);
       mpc_set_prec (sec->bmpc[i], wp);
-      mpc_set_prec (s->mroot[i], wp);
 
       mpc_set_prec (sec->initial_ampc[i], wp);
       mpc_set_prec (sec->initial_bmpc[i], wp);
@@ -317,9 +316,22 @@ mps_secular_raise_coefficient_precision (mps_status * s, int wp)
 }
 
 void
+mps_secular_raise_root_precision (mps_status * s, int wp)
+{
+    MPS_DEBUG_THIS_CALL;
+    int i;
+
+    for (i = 0; i < s->n; i++) {
+	mpc_set_prec (s->mroot[i], wp);
+    }
+}
+
+void
 mps_secular_raise_precision (mps_status * s, int wp)
 {
+    MPS_DEBUG_THIS_CALL;
   mps_secular_raise_coefficient_precision (s, wp);
+  mps_secular_raise_root_precision (s, wp);
   s->mpwp = wp;
 }
 
