@@ -772,11 +772,6 @@ mps_secular_ga_mpsolve (mps_status * s)
   rdpe_t rtmp;
   mpc_init2 (nwtcorr, s->mpwp);
 
-  /* We should possibly check here if a recalculation
-   * of the coefficient could be done preserving
-   * necessary precision */
-
-  // mps_secular_raise_precision (s, s->prec_out);
   int starting_precision = s->mpwp;
 
   for (i = 0; i < s->n; i++)
@@ -784,14 +779,14 @@ mps_secular_ga_mpsolve (mps_status * s)
       int j;
 
       /* Reset precision of coefficients and of the root we're 
-      * interested in. */
+       * interested in. */
       if (s->mpwp != starting_precision)
-	  {
-	      mps_secular_raise_coefficient_precision (s, starting_precision);
-	      mpc_set_prec (s->mroot[i], starting_precision);
-	      mpc_set_prec (nwtcorr, starting_precision);
-	      s->mpwp = starting_precision;
-	  }
+	{
+	  mps_secular_raise_coefficient_precision (s, starting_precision);
+	  mpc_set_prec (s->mroot[i], starting_precision);
+	  mpc_set_prec (nwtcorr, starting_precision);
+	  s->mpwp = starting_precision;
+	}
 
       for (j = 0; j < MAX_ITERATIONS; j++)
 	{
@@ -808,15 +803,18 @@ mps_secular_ga_mpsolve (mps_status * s)
 	  cdpe_mod (rtmp, ctmp);
 	  rdpe_div (rtmp, s->drad[i], rtmp);
 
-	  if (rdpe_le (rtmp, s->eps_out)) {
+	  if (rdpe_le (rtmp, s->eps_out))
+	    {
+	      s->status[i][0] = 'a';
 	      break;
-	  }
-	  else {
+	    }
+	  else
+	    {
 	      s->mpwp *= 2;
 	      mps_secular_raise_coefficient_precision (s, s->mpwp);
 	      mpc_set_prec (nwtcorr, s->mpwp);
 	      mpc_set_prec (s->mroot[i], s->mpwp);
-	  }
+	    }
 	}
     }
   mpc_clear (nwtcorr);
