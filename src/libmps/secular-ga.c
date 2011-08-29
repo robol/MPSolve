@@ -615,6 +615,9 @@ mps_secular_ga_mpsolve (mps_status * s)
   mps_secular_equation *sec = mps_secular_equation_from_status (s);
   mps_phase phase = sec->starting_case;
 
+  /* Set the output desired for the output */
+  rdpe_set_2dl (s->eps_out, 1.0, -s->prec_out);
+
   /* Set degree and allocate polynomial-related variables
    * to allow initializitation to be performed. */
   s->deg = s->n = sec->n;
@@ -748,45 +751,56 @@ mps_secular_ga_mpsolve (mps_status * s)
 	}
       else
 	{
-            mpc_set_q (s->secular_equation->ampc[i],
-                       s->secular_equation->initial_ampqrc[i],
-                       s->secular_equation->initial_ampqic[i]);
+	  mpc_set_q (s->secular_equation->ampc[i],
+		     s->secular_equation->initial_ampqrc[i],
+		     s->secular_equation->initial_ampqic[i]);
 
-            mpc_set_q (s->secular_equation->bmpc[i],
-                       s->secular_equation->initial_bmpqrc[i],
-                       s->secular_equation->initial_bmpqic[i]);
+	  mpc_set_q (s->secular_equation->bmpc[i],
+		     s->secular_equation->initial_bmpqrc[i],
+		     s->secular_equation->initial_bmpqic[i]);
 	}
     }
 
   /* Improve the roots with newton */
   /* mps_improve (s);
-  return; */
+     return; */
 
   // We should check the condition number here, or use the old mps_improve ()
   // functions that already considers it, adapting it to the new structure.
 #define MAX_ITERATIONS 150
-  mps_secular_raise_precision (s, s->prec_out);
 
   mpc_t nwtcorr;
   cdpe_t ctmp;
   rdpe_t rtmp;
   mpc_init2 (nwtcorr, s->mpwp);
+
+  /* We should possibly check here if a recalculation
+   * of the coefficient could be done preserving
+   * necessary precision */
+
+  mps_secular_raise_precision (s, s->prec_out);
+
   for (i = 0; i < s->n; i++)
     {
       int j;
+
       for (j = 0; j < MAX_ITERATIONS; j++)
 	{
 	  mps_secular_mnewton (s, s->mroot[i], s->drad[i], nwtcorr,
 			       &s->again[i]);
 	  mpc_sub_eq (s->mroot[i], nwtcorr);
 
-          /* We shall check if the approximation is already good. */
-          mpc_get_cdpe (ctmp, s->mroot[i]);
-          cdpe_mod (rtmp, ctmp);
-          rdpe_div (rtmp, s->drad[i], rtmp);
+	  /* Debug iterations */
+	  MPS_DEBUG_MPC (s, 10, s->mroot[i], "s->mroot[%d]", i);
+	  MPS_DEBUG_RDPE (s, s->drad[i], "s->drad[%d]", i);
 
-          if (rdpe_le (rtmp, s->mp_epsilon))
-              break;
+	  /* Check if the approximation is already good. */
+	  mpc_get_cdpe (ctmp, s->mroot[i]);
+	  cdpe_mod (rtmp, ctmp);
+	  rdpe_div (rtmp, s->drad[i], rtmp);
+
+	  if (rdpe_le (rtmp, s->eps_out))
+	    break;
 	}
     }
   mpc_clear (nwtcorr);

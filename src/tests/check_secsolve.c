@@ -142,6 +142,7 @@ START_TEST (test_secsolve)
 }
 
 END_TEST
+
 START_TEST (test_secsolve_altern)
 {
   /* Start with testing floating point without ga */
@@ -155,8 +156,22 @@ START_TEST (test_secsolve_altern)
 
   test_pol_free (pol);
 }
-
 END_TEST
+
+START_TEST (test_secsolve_integer)
+{
+    /* Test integer parsing of secsolve, standard approach */
+    test_pol* pol = test_pol_new ("integer", "secsolve", 250, float_phase, false);
+    test_secsolve_on_pol (pol);
+
+    /* Test integer parsing of secsolve, Gemignani's approach */
+    pol->ga = true; 
+    test_secsolve_on_pol (pol);
+
+    test_pol_free (pol);
+}
+END_TEST
+
 /**
  * @brief Create the secsolve test suite
  */
@@ -173,6 +188,9 @@ END_TEST
 
   /* Case of a_i = (-1)^(i+1) , b_i = i */
   tcase_add_test (tc_mpsolve, test_secsolve_altern);
+
+  /* Integer parsing */
+  tcase_add_test (tc_mpsolve, test_secsolve_integer);
 
   /* Add test case to the suite */
   suite_add_tcase (s, tc_mpsolve);

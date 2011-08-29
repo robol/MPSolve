@@ -189,8 +189,8 @@ mps_improve (mps_status * st)
 
 	  if (rdpe_eq (st->drad[i], rdpe_zero))
 	    rdpe_set (st->drad[i], newrad);
-          if (rdpe_lt (newrad, st->drad[i]))
-            rdpe_set (st->drad[i], newrad);
+	  if (rdpe_lt (newrad, st->drad[i]))
+	    rdpe_set (st->drad[i], newrad);
 
 	  if (rdpe_lt (st->drad[i], tmp) || st->mpwp == mpnb_in)
 	    break;		/* loop1 */

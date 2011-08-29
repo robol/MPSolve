@@ -139,10 +139,10 @@ mps_parse_option_line (mps_status * s, char *line, size_t length)
   if (mps_is_option (s, option, "complex"))
     input_option.flag = MPS_FLAG_COMPLEX;
   if (mps_is_option (s, option, "rational"))
-  {
-      MPS_DEBUG(s, "Got rational");
-    input_option.flag = MPS_FLAG_RATIONAL;
-  }
+    {
+      MPS_DEBUG (s, "Got rational");
+      input_option.flag = MPS_FLAG_RATIONAL;
+    }
   if (mps_is_option (s, option, "floatingpoint"))
     input_option.flag = MPS_FLAG_FP;
 
@@ -157,10 +157,10 @@ mps_parse_option_line (mps_status * s, char *line, size_t length)
    * return. */
   equal_position = strchr (option, '=');
   if (equal_position == NULL)
-  {
-    MPS_DEBUG (s, "Parsed input_option.flag = %d", input_option.flag);
-    return input_option;
-  }
+    {
+      MPS_DEBUG (s, "Parsed input_option.flag = %d", input_option.flag);
+      return input_option;
+    }
   else
     {
       input_option.value = equal_position + 1;
@@ -197,7 +197,7 @@ mps_secular_equation_read_from_stream (mps_status * s,
   sec = mps_secular_equation_new_raw (s, s->n);
   sec->input_structure = config.structure;
 
-  MPS_DEBUG(s, "config.structure = %d", config.structure);
+  MPS_DEBUG (s, "config.structure = %d", config.structure);
 
   /* Parsinf of integers and floating point is done with DPE */
   if (MPS_STRUCTURE_IS_FP (config.structure))
@@ -210,7 +210,9 @@ mps_secular_equation_read_from_stream (mps_status * s,
 
 	  if (r == 0)
 	    {
-              MPS_DEBUG (s, "Error reading coefficient a[%d] of the secular equation (real part)", i);
+	      MPS_DEBUG (s,
+			 "Error reading coefficient a[%d] of the secular equation (real part)",
+			 i);
 	      mps_error (s, 1,
 			 "Error reading some coefficients of the secular equation.\n"
 			 "Please check your input file.");
@@ -218,14 +220,16 @@ mps_secular_equation_read_from_stream (mps_status * s,
 
 	  /* Imaginary part, read only if the input is complex */
 	  if (MPS_STRUCTURE_IS_COMPLEX (config.structure))
-            {
+	    {
 	      mps_skip_comments (input_stream);
 	      r =
 		mpf_inp_str (mpc_Im (sec->initial_ampc[i]), input_stream, 10);
 
 	      if (r == 0)
 		{
-                  MPS_DEBUG (s, "Error reading coefficient a[%d] of the secular equation (imaginary part)", i);
+		  MPS_DEBUG (s,
+			     "Error reading coefficient a[%d] of the secular equation (imaginary part)",
+			     i);
 		  mps_error (s, 1,
 			     "Error reading some coefficients of the secular equation.\n"
 			     "Please check your input file.");
@@ -241,7 +245,9 @@ mps_secular_equation_read_from_stream (mps_status * s,
 
 	  if (r == 0)
 	    {
-              MPS_DEBUG (s, "Error reading coefficient b[%d] of the secular equation (real part)", i);
+	      MPS_DEBUG (s,
+			 "Error reading coefficient b[%d] of the secular equation (real part)",
+			 i);
 	      mps_error (s, 1,
 			 "Error reading some coefficients of the secular equation.\n"
 			 "Please check your input file.");
@@ -255,8 +261,10 @@ mps_secular_equation_read_from_stream (mps_status * s,
 		mpf_inp_str (mpc_Im (sec->initial_bmpc[i]), input_stream, 10);
 
 	      if (r == 0)
-                {
-                  MPS_DEBUG (s, "Error reading coefficient b[%d] of the secular equation (imaginary part)", i);
+		{
+		  MPS_DEBUG (s,
+			     "Error reading coefficient b[%d] of the secular equation (imaginary part)",
+			     i);
 		  mps_error (s, 1,
 			     "Error reading some coefficients of the secular equation.\n"
 			     "Please check your input file.");
@@ -391,7 +399,7 @@ mps_parse_stream (mps_status * s, FILE * input_stream,
 	  input_option =
 	    mps_parse_option_line (s, buffer->line, strlen (buffer->line));
 
-          MPS_DEBUG (s, "Parsed option %d", input_option.flag);
+	  MPS_DEBUG (s, "Parsed option %d", input_option.flag);
 
 	  /* Parsing of the degree */
 	  if (input_option.flag == MPS_KEY_DEGREE)
@@ -408,7 +416,7 @@ mps_parse_stream (mps_status * s, FILE * input_stream,
 
 	  /* Parsing of algebraic structure of the input */
 	  else if (input_option.flag == MPS_FLAG_REAL)
-            {
+	    {
 	      /* Switch on algebraic structure that is already set */
 	      if (MPS_STRUCTURE_IS_INTEGER (config.structure))
 		config.structure = MPS_STRUCTURE_REAL_INTEGER;
