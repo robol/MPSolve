@@ -11,6 +11,13 @@
 #include <mps/mt.h>
 #include <mps/mpc.h>
 
+/**
+ * @brief Utility routine that dumps the DPE coefficients of the secular equation
+ * passed as second argument. It is only used for debugging purpose.
+ *
+ * @param s The mps_status of the computation
+ * @param sec The secular equation whose DPE coefficients will be dumped
+ */
 void
 mps_secular_dump (mps_status * s, mps_secular_equation * sec)
 {
@@ -26,6 +33,16 @@ mps_secular_dump (mps_status * s, mps_secular_equation * sec)
 /**
  * @brief Deflate a secular equation lowering the degree of the
  * polynomial that represent it, if that is possible.
+ *
+ * Please note the <code>s->n</code> and <code>s->deg</code>
+ * will not be touched by this routine, so you should check
+ * that they are set according to <code>sec->n</code> if deflation
+ * take place.
+ * 
+ * @see <code>mps_status_set_degree ()</code>
+ *
+ * @param s The mps_status of the computation
+ * @param sec The secular equation that will be deflated.
  */
 void
 mps_secular_deflate (mps_status * s, mps_secular_equation * sec)
@@ -145,6 +162,9 @@ mps_secular_deflate (mps_status * s, mps_secular_equation * sec)
  * @brief Raw version of mps_secular_equation_new that only
  * allocate space for the coefficients but relies on the user
  * to fill their values.
+ *
+ * @param s The mps_status of the computation.
+ * @param n The degree of the new secular equation to be created.
  */
 mps_secular_equation *
 mps_secular_equation_new_raw (mps_status * s, unsigned long int n)
@@ -186,6 +206,11 @@ mps_secular_equation_new_raw (mps_status * s, unsigned long int n)
 
 /**
  * @brief Create a new secular equation struct
+ * 
+ * @param s The mps_status of the computation.
+ * @param afpc The floating point complex numerator coefficients.
+ * @param bfpc The floating point complex denominator coefficients.
+ * @param n The degree of the secular equation.
  */
 mps_secular_equation *
 mps_secular_equation_new (mps_status * s, cplx_t * afpc, cplx_t * bfpc,
@@ -225,6 +250,11 @@ mps_secular_equation_new (mps_status * s, cplx_t * afpc, cplx_t * bfpc,
   return sec;
 }
 
+/**
+ * @brief Free a secular equation and the data in it.
+ *
+ * @param s The secular equation to be freed.
+ */
 void
 mps_secular_equation_free (mps_secular_equation * s)
 {
@@ -262,6 +292,13 @@ mps_secular_equation_free (mps_secular_equation * s)
 
 /**
  * @brief Evaluate secular equation in the point x.
+ *
+ * The evalutation will be done in floating point and this routine
+ * is used only for debugging purpose.
+ * 
+ * @param s The mps_status of the computation.
+ * @param x The point in which the secular equation will be evaluated.
+ * @param sec_ev The result of the evalutation (output variable). 
  */
 void
 mps_secular_evaluate (mps_status * s, cplx_t x, cplx_t sec_ev)
@@ -287,6 +324,11 @@ mps_secular_evaluate (mps_status * s, cplx_t x, cplx_t sec_ev)
   cplx_sub_eq (sec_ev, cplx_one);
 }
 
+/**
+ * @brief Secular version of <code>mps_check_data ()</code> that
+ * does nothing except to set the starting case according to
+ * <code>sec->starting_case</code>.
+ */
 void
 mps_secular_check_data (mps_status * s, char *which_case)
 {
@@ -297,6 +339,16 @@ mps_secular_check_data (mps_status * s, char *which_case)
   *which_case = (sec->starting_case == float_phase) ? 'f' : 'd';
 }
 
+/**
+ * @brief Raise precision of the coefficient of the secular equation
+ * (not the roots and neither the precison of the system) to <code>wp</code>.
+ *
+ * @param s The mps_status of the computation.
+ * @param wp The bits of precision to which the coefficients will be set.
+ *
+ * @see <code>mps_secular_raise_root_precision ()</code>
+ * @see <code>mps_secular_raise_precision ()</code>
+ */
 void
 mps_secular_raise_coefficient_precision (mps_status * s, int wp)
 {
@@ -315,6 +367,16 @@ mps_secular_raise_coefficient_precision (mps_status * s, int wp)
   MPS_DEBUG (s, "Precision of the coefficients is now at %d bits", wp);
 }
 
+/**
+ * @brief Raise precision of the roots (not the coefficients nor the
+ * system) to <code>wp</code> bits.
+ * 
+ * @param s The mps_status of the computation.
+ * @param wp The bits of precision to which the roots will be set.
+ *
+ * @see <code>mps_secular_raise_coefficient_precision ()</code>
+ * @see <code>mps_secular_raise_precision ()</code>
+ */
 void
 mps_secular_raise_root_precision (mps_status * s, int wp)
 {
@@ -327,6 +389,17 @@ mps_secular_raise_root_precision (mps_status * s, int wp)
     }
 }
 
+/**
+ * @brief Raise (or lower) the precision of the coefficients to
+ * <code>wp</code> bits. This will change precision of the coefficients
+ * via <code>mps_secular_raise_coefficient_precision ()</code>,
+ * of the roots via <code>mps_secular_raise_root_precision ()</code>
+ * and set <code>s->mpwp</code>.
+ *
+ * @param s The mps_status of the computation.
+ * @param wp The bits of precision to which all the computation will
+ * be brought.
+ */
 void
 mps_secular_raise_precision (mps_status * s, int wp)
 {
@@ -343,6 +416,9 @@ mps_secular_raise_precision (mps_status * s, int wp)
  * Note that for now this function is only able to handle switch
  * from floating point phases (i.e. float_phase or dpe_phase) to
  * multiprecision, and not coming back.
+ *
+ * @param s The mps_status of the computation.
+ * @param phase The phase to switch the computation to.
  */
 void
 mps_secular_switch_phase (mps_status * s, mps_phase phase)
@@ -400,6 +476,8 @@ mps_secular_switch_phase (mps_status * s, mps_phase phase)
  * @brief Update radii of the roots according to the coefficients
  * of the secular equation in this moment, if they are better of
  * the radii present now.
+ *
+ * @param s The mps_status of the computation.
  */
 void
 mps_secular_set_radii (mps_status * s)

@@ -285,6 +285,8 @@ mps_secular_ga_miterate (mps_status * s, int maxit)
  * <code>s</code> is a pointer to the <code>mps_status</code>
  * is <code>mps_secular_ga_regenerate_coefficients()</code> and
  * is the one that should be used
+ *
+ * @param s The mps_status of the computation.
  */
 int
 mps_secular_ga_regenerate_coefficients_mp (mps_status * s)
@@ -389,6 +391,8 @@ regenerate_m_exit:
  * @brief Regenerate \f$a_i\f$ and \f$b_i\f$ setting
  * \f$b_i = z_i\f$, i.e. the current root approximation
  * and recomputing \f$a_i\f$ accordingly.
+ *
+ * @param s The mps_status of the computation.
  */
 void
 mps_secular_ga_regenerate_coefficients (mps_status * s)
@@ -549,8 +553,13 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
 }
 
 
-/*
- * @brief Check if iterations can terminate
+/**
+ * @brief Check if iterations can terminate, i.e. if newton 
+ * isolation has been reached. If the target was approximation then 
+ * <code>mps_secular_improve ()</code> should be used to reach
+ * the required precision.
+ *
+ * @param s The mps_status of the computation.
  */
 mps_boolean
 mps_secular_ga_check_stop (mps_status * s)
@@ -600,8 +609,109 @@ mps_secular_ga_check_stop (mps_status * s)
 }
 
 /**
+ * @brief Improve the isolated roots. Should be called after isolation
+ * is reached and confirmed by <code>mps_secular_ga_check_stop ()</code>.
+ *
+ * @param s The mps_status of the computation.
+ */
+void
+mps_secular_ga_improve (mps_status * s)
+{
+  MPS_DEBUG_THIS_CALL;
+
+  int i;
+
+  /* Before improving with newton we shall reuse
+   * the original coefficients */
+  for (i = 0; i < s->n; i++)
+    {
+      if (MPS_STRUCTURE_IS_FP (s->secular_equation->input_structure))
+	{
+	  mpc_set (s->secular_equation->ampc[i],
+		   s->secular_equation->initial_ampc[i]);
+	  mpc_set (s->secular_equation->bmpc[i],
+		   s->secular_equation->initial_bmpc[i]);
+	}
+      else
+	{
+	  mpc_set_q (s->secular_equation->ampc[i],
+		     s->secular_equation->initial_ampqrc[i],
+		     s->secular_equation->initial_ampqic[i]);
+
+	  mpc_set_q (s->secular_equation->bmpc[i],
+		     s->secular_equation->initial_bmpqrc[i],
+		     s->secular_equation->initial_bmpqic[i]);
+	}
+    }
+
+  /* Improve the roots with newton */
+  /* mps_improve (s);
+     return; */
+  
+  // We should check the condition number here, or use the old mps_improve ()
+  // functions that already considers it, adapting it to the new structure.
+#define MAX_ITERATIONS 150
+
+  mpc_t nwtcorr;
+  cdpe_t ctmp;
+  rdpe_t rtmp;
+  mpc_init2 (nwtcorr, s->mpwp);
+
+  int starting_precision = s->mpwp;
+
+  for (i = 0; i < s->n; i++)
+    {
+      int j;
+
+      /* Reset precision of coefficients and of the root we're 
+       * interested in. */
+      if (s->mpwp != starting_precision)
+	{
+	  mps_secular_raise_coefficient_precision (s, starting_precision);
+	  mpc_set_prec (s->mroot[i], starting_precision);
+	  mpc_set_prec (nwtcorr, starting_precision);
+	  s->mpwp = starting_precision;
+	}
+
+      for (j = 0; j < MAX_ITERATIONS; j++)
+	{
+	  mps_secular_mnewton (s, s->mroot[i], s->drad[i], nwtcorr,
+			       &s->again[i]);
+	  mpc_sub_eq (s->mroot[i], nwtcorr);
+
+	  /* Debug iterations */
+	  MPS_DEBUG_MPC (s, 10, s->mroot[i], "s->mroot[%d]", i);
+	  MPS_DEBUG_RDPE (s, s->drad[i], "s->drad[%d]", i);
+
+	  /* Check if the approximation is already good. */
+	  mpc_get_cdpe (ctmp, s->mroot[i]);
+	  cdpe_mod (rtmp, ctmp);
+	  rdpe_div (rtmp, s->drad[i], rtmp);
+
+	  if (rdpe_le (rtmp, s->eps_out))
+	    {
+	      s->status[i][0] = 'a';
+	      break;
+	    }
+	  else
+	    {
+	      s->mpwp *= 2;
+	      mps_secular_raise_coefficient_precision (s, s->mpwp);
+	      mpc_set_prec (nwtcorr, s->mpwp);
+	      mpc_set_prec (s->mroot[i], s->mpwp);
+	    }
+	}
+    }
+  mpc_clear (nwtcorr);
+
+#undef MAX_ITERATIONS
+}
+
+/**
  * @brief MPSolve main function for the secular equation solving
  * using Gemignani's approach.
+ *
+ * @param s The mps_status of the computation.
  */
 void
 mps_secular_ga_mpsolve (mps_status * s)
@@ -736,88 +846,6 @@ mps_secular_ga_mpsolve (mps_status * s)
     }
   while (!mps_secular_ga_check_stop (s));
 
-  /* Before improving with newton we shall reuse
-   * the original coefficients */
-  for (i = 0; i < s->n; i++)
-    {
-      if (MPS_STRUCTURE_IS_FP (s->secular_equation->input_structure))
-	{
-	  mpc_set (s->secular_equation->ampc[i],
-		   s->secular_equation->initial_ampc[i]);
-	  mpc_set (s->secular_equation->bmpc[i],
-		   s->secular_equation->initial_bmpc[i]);
-	}
-      else
-	{
-	  mpc_set_q (s->secular_equation->ampc[i],
-		     s->secular_equation->initial_ampqrc[i],
-		     s->secular_equation->initial_ampqic[i]);
-
-	  mpc_set_q (s->secular_equation->bmpc[i],
-		     s->secular_equation->initial_bmpqrc[i],
-		     s->secular_equation->initial_bmpqic[i]);
-	}
-    }
-
-  /* Improve the roots with newton */
-  /* mps_improve (s);
-     return; */
-
-  // We should check the condition number here, or use the old mps_improve ()
-  // functions that already considers it, adapting it to the new structure.
-#define MAX_ITERATIONS 150
-
-  mpc_t nwtcorr;
-  cdpe_t ctmp;
-  rdpe_t rtmp;
-  mpc_init2 (nwtcorr, s->mpwp);
-
-  int starting_precision = s->mpwp;
-
-  for (i = 0; i < s->n; i++)
-    {
-      int j;
-
-      /* Reset precision of coefficients and of the root we're 
-       * interested in. */
-      if (s->mpwp != starting_precision)
-	{
-	  mps_secular_raise_coefficient_precision (s, starting_precision);
-	  mpc_set_prec (s->mroot[i], starting_precision);
-	  mpc_set_prec (nwtcorr, starting_precision);
-	  s->mpwp = starting_precision;
-	}
-
-      for (j = 0; j < MAX_ITERATIONS; j++)
-	{
-	  mps_secular_mnewton (s, s->mroot[i], s->drad[i], nwtcorr,
-			       &s->again[i]);
-	  mpc_sub_eq (s->mroot[i], nwtcorr);
-
-	  /* Debug iterations */
-	  MPS_DEBUG_MPC (s, 10, s->mroot[i], "s->mroot[%d]", i);
-	  MPS_DEBUG_RDPE (s, s->drad[i], "s->drad[%d]", i);
-
-	  /* Check if the approximation is already good. */
-	  mpc_get_cdpe (ctmp, s->mroot[i]);
-	  cdpe_mod (rtmp, ctmp);
-	  rdpe_div (rtmp, s->drad[i], rtmp);
-
-	  if (rdpe_le (rtmp, s->eps_out))
-	    {
-	      s->status[i][0] = 'a';
-	      break;
-	    }
-	  else
-	    {
-	      s->mpwp *= 2;
-	      mps_secular_raise_coefficient_precision (s, s->mpwp);
-	      mpc_set_prec (nwtcorr, s->mpwp);
-	      mpc_set_prec (s->mroot[i], s->mpwp);
-	    }
-	}
-    }
-  mpc_clear (nwtcorr);
-
-#undef MAX_ITERATIONS
+  /* Finally improve the roots if approximation is required */
+  mps_secular_ga_improve (s);
 }
