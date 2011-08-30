@@ -17,7 +17,7 @@ mps_secular_fstart (mps_status * s, int n, int i_clust, double clust_rad,
 		    double g, rdpe_t eps)
 {
   MPS_DEBUG_THIS_CALL;
-  
+
   int i, l = s->punt[i_clust];
   double th = pi2 / n;
   double sigma;

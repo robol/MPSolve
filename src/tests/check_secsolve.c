@@ -3,7 +3,7 @@
  */
 
 #include <check.h>
-#include <mps/interface.h>
+#include <mps/core.h>
 #include <mps/secular.h>
 #include <gmp.h>
 #include <mps/mpc.h>
