@@ -352,7 +352,9 @@ mps_secular_check_data (mps_status * s, char *which_case)
 void
 mps_secular_raise_coefficient_precision (mps_status * s, int wp)
 {
-  MPS_DEBUG_THIS_CALL int i;
+  MPS_DEBUG_THIS_CALL;
+
+  int i;
   mps_secular_equation *sec = (mps_secular_equation *) s->secular_equation;
 
   for (i = 0; i < s->n; i++)
@@ -423,7 +425,9 @@ mps_secular_raise_precision (mps_status * s, int wp)
 void
 mps_secular_switch_phase (mps_status * s, mps_phase phase)
 {
-  MPS_DEBUG_THIS_CALL int i = 0;
+  MPS_DEBUG_THIS_CALL;
+
+  int i = 0;
   mps_secular_equation *sec = (mps_secular_equation *) s->secular_equation;
   if (phase == mp_phase)
     {
@@ -482,7 +486,9 @@ mps_secular_switch_phase (mps_status * s, mps_phase phase)
 void
 mps_secular_set_radii (mps_status * s)
 {
-  MPS_DEBUG_THIS_CALL int i;
+  MPS_DEBUG_THIS_CALL;
+
+  int i;
   mps_secular_equation *sec = (mps_secular_equation *) s->secular_equation;
 
   /* Select right computation based on the phase we are in

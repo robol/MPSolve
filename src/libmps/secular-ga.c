@@ -29,7 +29,9 @@
 int
 mps_secular_ga_fiterate (mps_status * s, int maxit)
 {
-  MPS_DEBUG_THIS_CALL int computed_roots = 0;
+  MPS_DEBUG_THIS_CALL;
+
+  int computed_roots = 0;
   int iterations = 0;
   int i;
   int nit = 0;
@@ -124,7 +126,9 @@ mps_secular_ga_fiterate (mps_status * s, int maxit)
 int
 mps_secular_ga_diterate (mps_status * s, int maxit)
 {
-  MPS_DEBUG_THIS_CALL int computed_roots = 0;
+  MPS_DEBUG_THIS_CALL;
+
+  int computed_roots = 0;
   int iterations = 0;
   int i;
   int nit = 0;
@@ -200,7 +204,9 @@ mps_secular_ga_diterate (mps_status * s, int maxit)
 int
 mps_secular_ga_miterate (mps_status * s, int maxit)
 {
-  MPS_DEBUG_THIS_CALL int computed_roots = 0;
+  MPS_DEBUG_THIS_CALL;
+
+  int computed_roots = 0;
   int iterations = 0;
   int i;
   int nit = 0;
@@ -397,7 +403,9 @@ regenerate_m_exit:
 void
 mps_secular_ga_regenerate_coefficients (mps_status * s)
 {
-  MPS_DEBUG_THIS_CALL cplx_t *old_b, *old_a;
+  MPS_DEBUG_THIS_CALL;
+  
+  cplx_t *old_b, *old_a;
   cdpe_t *old_db, *old_da;
   mpc_t *old_ma, *old_mb;
   mps_secular_equation *sec;
@@ -564,7 +572,9 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
 mps_boolean
 mps_secular_ga_check_stop (mps_status * s)
 {
-  MPS_DEBUG_THIS_CALL double frad = pow (10, -s->prec_out);
+  MPS_DEBUG_THIS_CALL;
+
+  double frad = pow (10, -s->prec_out);
   rdpe_t drad, root_mod;
   cdpe_t root;
   int i;

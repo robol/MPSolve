@@ -343,7 +343,7 @@ void
 mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
 		     mps_boolean * again)
 {
-  MPS_DEBUG_THIS_CALL int i, j;
+  int i, j;
   mps_boolean x_is_b = false;
 
   /* Set again to true. If the convergence will be proved

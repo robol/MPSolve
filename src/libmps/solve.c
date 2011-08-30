@@ -2240,7 +2240,9 @@ mps_mmodify (mps_status * s)
 mps_boolean
 mps_check_stop (mps_status * s)
 {
-  MPS_DEBUG_THIS_CALL int i;
+  MPS_DEBUG_THIS_CALL;
+
+  int i;
   mps_boolean computed;
 
   computed = false;

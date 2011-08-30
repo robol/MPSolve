@@ -16,7 +16,9 @@ void
 mps_secular_fstart (mps_status * s, int n, int i_clust, double clust_rad,
 		    double g, rdpe_t eps)
 {
-  MPS_DEBUG_THIS_CALL int i, l = s->punt[i_clust];
+  MPS_DEBUG_THIS_CALL;
+  
+  int i, l = s->punt[i_clust];
   double th = pi2 / n;
   double sigma;
   mps_secular_equation *sec = (mps_secular_equation *) s->secular_equation;
@@ -49,7 +51,9 @@ void
 mps_secular_dstart (mps_status * s, int n, int i_clust, rdpe_t clust_rad,
 		    rdpe_t g, rdpe_t eps)
 {
-  MPS_DEBUG_THIS_CALL int i, l = s->punt[i_clust];
+  MPS_DEBUG_THIS_CALL;
+
+  int i, l = s->punt[i_clust];
   double th = pi2 / n;
   double sigma;
   mps_secular_equation *sec = (mps_secular_equation *) s->secular_equation;
@@ -84,7 +88,9 @@ void
 mps_secular_mstart (mps_status * s, int n, int i_clust, rdpe_t clust_rad,
 		    rdpe_t g, rdpe_t eps)
 {
-  MPS_DEBUG_THIS_CALL int i, l = s->punt[i_clust];
+  MPS_DEBUG_THIS_CALL;
+
+  int i, l = s->punt[i_clust];
   double th = pi2 / n;
   double sigma;
   mpc_t epsilon;

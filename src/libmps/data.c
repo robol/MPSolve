@@ -262,8 +262,8 @@ mps_raise_data_raw (mps_status * s, long int prec)
 void
 mps_prepare_data (mps_status * s, long int prec)
 {
-  MPS_DEBUG_THIS_CALL
-    MPS_DEBUG (s, "Increasing working precision to %ld bits", prec);
+  MPS_DEBUG_THIS_CALL;
+  MPS_DEBUG (s, "Increasing working precision to %ld bits", prec);
 
   if (prec > data_prec_max)
     {
