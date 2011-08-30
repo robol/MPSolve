@@ -26,8 +26,7 @@ usage (mps_status * s, const char *program)
 	   " -g          Use Gemignani's approach\n"
 	   " -t type     Type can be 'f' for floating point\n"
 	   "             or 'd' for DPE\n"
-	   " -n degree   Degree of the polynomial associated\n"
-	   "             associated with the secular equation.\n"
+	   " -i          Isolate the roots only, do not perform approximation\n"
 	   " -o digits   Exact digits of the roots given as output.\n",
 	   program);
 
@@ -39,11 +38,11 @@ main (int argc, char **argv)
 {
   mps_secular_equation *sec;
   mps_status *s;
-  int n;
 
   s = mps_status_new ();
   s->prec_in = 0;
   s->n_threads = 1;
+  strncpy (s->goal, "aannc", 5);
 
   /* Gemignani's approach */
   mps_boolean ga = false;
@@ -55,7 +54,7 @@ main (int argc, char **argv)
   mps_phase phase = float_phase;
 
   opt = NULL;
-  while ((mps_getopts (&opt, &argc, &argv, "gn:dt:o:")))
+  while ((mps_getopts (&opt, &argc, &argv, "gidt:o:")))
     {
       switch (opt->optchar)
 	{
@@ -67,11 +66,8 @@ main (int argc, char **argv)
 	case 'o':
 	  s->prec_out = atoi (opt->optvalue) * LOG2_10;
 	  break;
-	case 'n':
-	  if (opt->optvalue)
-	    n = atoi (opt->optvalue);
-	  else
-	    usage (s, argv[0]);
+	case 'i':
+	  s->goal[0] = 'i';
 	  break;
 	case 'd':
 	  s->DOLOG = true;
@@ -154,7 +150,6 @@ main (int argc, char **argv)
     }
 
   /* Solve the polynomial */
-  strncpy (s->goal, "aannc", 5);
   mps_mpsolve (s);
 
   /* Output the roots */

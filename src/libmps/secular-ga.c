@@ -647,7 +647,7 @@ mps_secular_ga_improve (mps_status * s)
   /* Improve the roots with newton */
   /* mps_improve (s);
      return; */
-  
+
   // We should check the condition number here, or use the old mps_improve ()
   // functions that already considers it, adapting it to the new structure.
 #define MAX_ITERATIONS 150
@@ -847,5 +847,6 @@ mps_secular_ga_mpsolve (mps_status * s)
   while (!mps_secular_ga_check_stop (s));
 
   /* Finally improve the roots if approximation is required */
-  mps_secular_ga_improve (s);
+  if (s->goal[0] == 'a')
+    mps_secular_ga_improve (s);
 }
