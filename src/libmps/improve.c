@@ -41,7 +41,7 @@ mps_improve (mps_status * s)
   rdpe_t tmp, t, st, sigma, newrad, oldrad, abroot;
   double f, g, cnd;
   mps_boolean again;
-  clock_t * my_timer = mps_start_timer ();
+  clock_t *my_timer = mps_start_timer ();
 
   if (s->DOLOG)
     fprintf (s->logstr, "Refining the roots ...\n");
@@ -197,7 +197,7 @@ mps_improve (mps_status * s)
 	  if (rdpe_eq (s->drad[i], rdpe_zero))
 	    rdpe_set (s->drad[i], newrad);
 	  if (rdpe_lt (newrad, s->drad[i]))
-	     rdpe_set (s->drad[i], newrad);
+	    rdpe_set (s->drad[i], newrad);
 
 	  if (rdpe_lt (s->drad[i], tmp) || s->mpwp == mpnb_in)
 	    break;		/* loop1 */

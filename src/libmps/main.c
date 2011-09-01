@@ -44,7 +44,7 @@ mps_standard_mpsolve (mps_status * s)
   int i, nzc;
   char which_case;
   mps_boolean d_after_f, computed, over_max;
-  clock_t * my_timer = mps_start_timer ();
+  clock_t *my_timer = mps_start_timer ();
 
   /* == 1 ==  Setup variables, i.e. copy coefficients
      into dpr, dpc and similar. */

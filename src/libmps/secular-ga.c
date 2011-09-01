@@ -89,7 +89,7 @@ mps_secular_ga_fiterate (mps_status * s, int maxit)
 		      cdpe_set_x (s->droot[i], s->froot[i]);
 		      rdpe_set_d (s->drad[i], s->frad[i]);
 		    }
-		  return computed_roots;
+		  return -1;
 		}
 
 	      /* Correct the radius */
@@ -413,7 +413,7 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
 
   /* Start timer and add execution time to the total counter */
 #ifndef DISABLE_DEBUG
-  clock_t * my_clock = mps_start_timer ();
+  clock_t *my_clock = mps_start_timer ();
 #endif
 
   sec = (mps_secular_equation *) s->secular_equation;
@@ -424,6 +424,8 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
       /* If we are in the float phase regenerate coefficients
        * starting from floating point */
     case float_phase:
+      
+      s->mpwp = 64;
 
       /* Allocate old_a and old_b */
       old_a = cplx_valloc (s->n);
@@ -467,6 +469,8 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
 
       /* If this is the DPE phase regenerate DPE coefficients */
     case dpe_phase:
+
+      s->mpwp = 64;
 
       /* Allocate old_a and old_b */
       old_da = cdpe_valloc (s->n);
@@ -817,8 +821,13 @@ mps_secular_ga_mpsolve (mps_status * s)
 	{
 	case float_phase:
 	  roots_computed = mps_secular_ga_fiterate (s, iteration_per_packet);
-	  MPS_DEBUG (s, "%d roots were computed", roots_computed);
-	  break;
+	  /* If the computation fails we need to switch to DPE so do not
+	   * break here, but continue the cycle. */
+	  if (roots_computed != -1)
+	    {
+	      MPS_DEBUG (s, "%d roots were computed", roots_computed);
+	      break;
+	    }
 
 	case dpe_phase:
 	  roots_computed = mps_secular_ga_diterate (s, iteration_per_packet);
@@ -843,6 +852,8 @@ mps_secular_ga_mpsolve (mps_status * s)
          mps_improve (s);
          return;
          } */
+      if (mps_secular_ga_check_stop (s))
+	break;
 
       /* If we can't stop recompute coefficients in higher precision and
        * continue to iterate, unless the best approximation possible in
@@ -883,17 +894,16 @@ mps_secular_ga_mpsolve (mps_status * s)
 #endif
       mps_secular_ga_improve (s);
 #ifndef DISABLE_DEBUG
-      MPS_DEBUG (s, "Improvement of roots took %u ms", 
+      MPS_DEBUG (s, "Improvement of roots took %u ms",
 		 mps_stop_timer (my_timer));
 #endif
     }
 
   /* Debug total time taken but only if debug is enabled */
 #ifndef DISABLE_DEBUG
-  MPS_DEBUG (s, "Total time using MPSolve: %u ms", 
+  MPS_DEBUG (s, "Total time using MPSolve: %u ms",
 	     mps_stop_timer (total_clock));
-  MPS_DEBUG (s, "Time used for regeneration: %u ms", 
-	     s->regeneration_time);
+  MPS_DEBUG (s, "Time used for regeneration: %u ms", s->regeneration_time);
 #endif
 
 }
