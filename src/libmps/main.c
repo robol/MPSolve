@@ -44,6 +44,7 @@ mps_standard_mpsolve (mps_status * s)
   int i, nzc;
   char which_case;
   mps_boolean d_after_f, computed, over_max;
+  clock_t * my_timer = mps_start_timer ();
 
   /* == 1 ==  Setup variables, i.e. copy coefficients
      into dpr, dpc and similar. */
@@ -233,6 +234,8 @@ exit_sub:
   /* == 11 ==  Restore to highest used precision */
   if (s->lastphase == mp_phase)
     mps_restore_data (s);
+
+  MPS_DEBUG (s, "Total time using MPSolve: %d ms", mps_stop_timer (my_timer));
 }
 
 /**

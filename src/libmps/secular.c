@@ -431,7 +431,7 @@ mps_secular_switch_phase (mps_status * s, mps_phase phase)
   mps_secular_equation *sec = (mps_secular_equation *) s->secular_equation;
   if (phase == mp_phase)
     {
-      s->mpwp = DBL_MANT_DIG;
+      s->mpwp = 64;
       mps_secular_raise_precision (s, 2 * s->mpwp);
       switch (s->lastphase)
 	{

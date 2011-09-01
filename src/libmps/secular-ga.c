@@ -411,6 +411,11 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
   mps_secular_equation *sec;
   int i, j;
 
+  /* Start timer and add execution time to the total counter */
+#ifndef DISABLE_DEBUG
+  clock_t * my_clock = mps_start_timer ();
+#endif
+
   sec = (mps_secular_equation *) s->secular_equation;
 
   switch (s->lastphase)
@@ -419,8 +424,6 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
       /* If we are in the float phase regenerate coefficients
        * starting from floating point */
     case float_phase:
-
-      s->mpwp = 56;
 
       /* Allocate old_a and old_b */
       old_a = cplx_valloc (s->n);
@@ -464,8 +467,6 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
 
       /* If this is the DPE phase regenerate DPE coefficients */
     case dpe_phase:
-
-      s->mpwp = 56;
 
       /* Allocate old_a and old_b */
       old_da = cdpe_valloc (s->n);
@@ -558,6 +559,11 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
       break;
 
     }				/* End of switch (s->lastphase) */
+
+  /* Sum execution time to the total counter */
+#ifndef DISABLE_DEBUG
+  s->regeneration_time += mps_stop_timer (my_clock);
+#endif
 }
 
 
@@ -681,10 +687,9 @@ mps_secular_ga_improve (mps_status * s)
 
       /* Find correct digits and maximum number of iterations */
       int correct_digits = rdpe_log10 (rtmp);
-      int iterations = log (s->prec_out / correct_digits / LOG2_10) * LOG2_10 + 1;
+      int iterations =
+	log (s->prec_out / correct_digits / LOG2_10) * LOG2_10 + 1;
 
-      MPS_DEBUG (s, "Performing %d iterations on root %d", iterations, i);
-      
       for (j = 0; j < iterations; j++)
 	{
 	  mps_secular_mnewton (s, s->mroot[i], s->drad[i], nwtcorr,
@@ -713,7 +718,7 @@ mps_secular_ga_improve (mps_status * s)
 	      mpc_set_prec (s->mroot[i], s->mpwp);
 	    }
 	}
-      
+
       /* Since we have passed the bound of the maximum allowed iterations
        * and quadratic convergence was guaranteed, the root is now 
        * approximated. */
@@ -740,6 +745,7 @@ mps_secular_ga_mpsolve (mps_status * s)
   mps_phase phase = sec->starting_case;
 
 #ifndef DISABLE_DEBUG
+  s->regeneration_time = 0;
   clock_t *total_clock = mps_start_timer ();
 #endif
 
@@ -853,7 +859,9 @@ mps_secular_ga_mpsolve (mps_status * s)
 	{
 	  /* Going to multiprecision if we're not there yet */
 	  if (s->lastphase != mp_phase)
-	    mps_secular_switch_phase (s, mp_phase);
+	    {
+	      mps_secular_switch_phase (s, mp_phase);
+	    }
 	  else
 	    {
 	      /* Raising precision otherwise */
@@ -869,18 +877,23 @@ mps_secular_ga_mpsolve (mps_status * s)
   /* Finally improve the roots if approximation is required */
   if (s->goal[0] == 'a')
     {
-      /* Clock the improvement */
+      /* Clock the improvement, if debug is enabled. */
+#ifndef DISABLE_DEBUG
       clock_t *my_timer = mps_start_timer ();
+#endif
       mps_secular_ga_improve (s);
-      unsigned long int delta = mps_stop_timer (my_timer);
-
-      MPS_DEBUG (s, "Improvement of roots took %u ms", delta);
+#ifndef DISABLE_DEBUG
+      MPS_DEBUG (s, "Improvement of roots took %u ms", 
+		 mps_stop_timer (my_timer));
+#endif
     }
 
   /* Debug total time taken but only if debug is enabled */
 #ifndef DISABLE_DEBUG
-  unsigned long int total_time = mps_stop_timer (total_clock);
-  MPS_DEBUG (s, "Total time using MPSolve: %u ms", total_time);
+  MPS_DEBUG (s, "Total time using MPSolve: %u ms", 
+	     mps_stop_timer (total_clock));
+  MPS_DEBUG (s, "Time used for regeneration: %u ms", 
+	     s->regeneration_time);
 #endif
 
 }

@@ -11,6 +11,7 @@
 
 #include <mps/core.h>
 #include <mps/secular.h>
+#include <mps/debug.h>
 #include <math.h>
 
 /***********************************************************
@@ -40,6 +41,7 @@ mps_improve (mps_status * s)
   rdpe_t tmp, t, st, sigma, newrad, oldrad, abroot;
   double f, g, cnd;
   mps_boolean again;
+  clock_t * my_timer = mps_start_timer ();
 
   if (s->DOLOG)
     fprintf (s->logstr, "Refining the roots ...\n");
@@ -71,7 +73,10 @@ mps_improve (mps_status * s)
   else
     {
       mps_mp_set_prec (s, mpnb_out * 2);
-      mps_prepare_data (s, mpnb_out * 2);
+      if (s->mpsolve_ptr == MPS_MPSOLVE_PTR (mps_standard_mpsolve))
+	mps_prepare_data (s, mpnb_out * 2);
+      else
+	mps_secular_raise_coefficient_precision (s, mpnb_out * 2);
     }
 
 
@@ -159,7 +164,11 @@ mps_improve (mps_status * s)
 	  tmpc_init2 (nwtcorr, s->mpwp);
 
 	  mps_mp_set_prec (s, s->mpwp);
-	  mps_prepare_data (s, s->mpwp);
+	  if (s->mpsolve_ptr == MPS_MPSOLVE_PTR (mps_standard_mpsolve))
+	    mps_prepare_data (s, s->mpwp);
+	  else
+	    mps_secular_raise_coefficient_precision (s, s->mpwp);
+
 	  if (s->data_type[0] != 'u')
 	    {
 	      mps_mnewton (s, s->n, s->mroot[i], s->drad[i],
@@ -168,13 +177,11 @@ mps_improve (mps_status * s)
 	    }
 	  else if (s->mnewton_usr != NULL)
 	    {
-	      (*s->mnewton_usr) (s, s->mroot[i], s->drad[i], nwtcorr,
-				 &again);
+	      (*s->mnewton_usr) (s, s->mroot[i], s->drad[i], nwtcorr, &again);
 	    }
 	  else
 	    {
-	      mps_mnewton_usr (s, s->mroot[i], s->drad[i], nwtcorr,
-			       &again);
+	      mps_mnewton_usr (s, s->mroot[i], s->drad[i], nwtcorr, &again);
 	    }
 	  mpc_sub_eq (s->mroot[i], nwtcorr);
 
@@ -190,7 +197,7 @@ mps_improve (mps_status * s)
 	  if (rdpe_eq (s->drad[i], rdpe_zero))
 	    rdpe_set (s->drad[i], newrad);
 	  if (rdpe_lt (newrad, s->drad[i]))
-	    rdpe_set (s->drad[i], newrad);
+	     rdpe_set (s->drad[i], newrad);
 
 	  if (rdpe_lt (s->drad[i], tmp) || s->mpwp == mpnb_in)
 	    break;		/* loop1 */
@@ -202,4 +209,6 @@ mps_improve (mps_status * s)
 
   tmpc_clear (nwtcorr);
   tmpc_clear (mtmp);
+
+  MPS_DEBUG (s, "Improvement of roots took %d ms", mps_stop_timer (my_timer));
 }

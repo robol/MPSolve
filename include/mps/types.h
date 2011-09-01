@@ -1043,6 +1043,11 @@ extern "C"
          */
     int n_threads;
 
+    /* DEBUG SECTIONS */
+
+    unsigned long int regeneration_time;
+    unsigned long int iteration_time;
+
   } mps_status;			/* End of typedef struct { ... */
 
 

@@ -332,7 +332,6 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
       /* If |corr| < |x| * DBL_EPSILON then stop */
       if (rdpe_lt (rtmp, rtmp2))
 	{
-	  MPS_DEBUG (s, "Setting again to false");
 	  *again = false;
 	}
     }
@@ -365,7 +364,7 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
   mpc_init2 (ctmp, s->mpwp);
   mpc_init2 (ctmp2, s->mpwp);
 
-  MPS_DEBUG (s, "Starting with wp = %d", s->mpwp);
+  /* MPS_DEBUG (s, "Starting with wp = %d", s->mpwp); */
 
   /* Adjust precision of coefficients */
   if (s->mpwp != mpc_get_prec (sec->ampc[0]))
@@ -455,7 +454,7 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
 	mpc_set (corr, pol);
     }
 
-  MPS_DEBUG_MPC (s, 200, corr, "corr");
+  /* MPS_DEBUG_MPC (s, 200, corr, "corr"); */
 
 
   /* We compute the following values in order to give a guaranteed
@@ -539,27 +538,27 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
     rdpe_mul_eq_d (g_corr, s->n);
     if (rdpe_eq_zero (g_corr))
       {
-	MPS_DEBUG (s, "Newton correction is zero");
+	/* MPS_DEBUG (s, "Newton correction is zero"); */
 	rdpe_set_2dl (g_corr, 1.0, LONG_MIN);
       }
 
-    MPS_DEBUG_RDPE (s, rtmp, "Non-guaranteed newton correction");
-    MPS_DEBUG_RDPE (s, g_corr, "Computed newton correction");
+    /* MPS_DEBUG_RDPE (s, rtmp, "Non-guaranteed newton correction");
+       MPS_DEBUG_RDPE (s, g_corr, "Computed newton correction"); */
 
-    rdpe_sub_eq (rtmp, g_corr);
-    MPS_DEBUG_RDPE (s, rtmp, "Difference");
+    /* rdpe_sub_eq (rtmp, g_corr);
+       MPS_DEBUG_RDPE (s, rtmp, "Difference"); */
 
     /* Set the radius, if convenient. */
     if (rdpe_gt (sigma, rdpe_zero) && rdpe_lt (g_corr, rad))
       {
-	MPS_DEBUG (s, "Setting newton correction");
-	MPS_DEBUG_RDPE (s, sigma, "sigma");
+	/* MPS_DEBUG (s, "Setting newton correction");
+	   MPS_DEBUG_RDPE (s, sigma, "sigma"); */
 	rdpe_set (rad, g_corr);
       }
     else
       {
-	MPS_DEBUG (s, "Discarding newton correction");
-	MPS_DEBUG_RDPE (s, sigma, "sigma");
+	/* MPS_DEBUG (s, "Discarding newton correction");
+	   MPS_DEBUG_RDPE (s, sigma, "sigma"); */
       }
 
   }

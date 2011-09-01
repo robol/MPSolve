@@ -97,21 +97,8 @@ mps_fcluster (mps_status * s, int nf)
   s->nclust++;
   s->punt[s->nclust] = s->n;
 
-  /* Debug the clusters found */
   if (s->DOLOG)
-    {
-      for (kk = 1; kk <= s->nclust; kk++)
-	{
-	  fprintf (s->logstr, "      MPS_FCLUSTER:"
-		   "Found cluster of %d roots: ",
-		   s->punt[kk] - s->punt[kk - 1]);
-	  for (k = s->punt[kk - 1]; k < s->punt[kk]; k++)
-	    {
-	      fprintf (s->logstr, "%d ", s->clust[k]);
-	    }
-	  fprintf (s->logstr, "\n");
-	}
-    }
+    mps_debug_cluster_structure (s);
 }
 
 /**
@@ -154,6 +141,43 @@ mps_dcluster (mps_status * s, int nf)
 
   s->nclust++;
   s->punt[s->nclust] = s->n;
+
+  if (s->DOLOG)
+    mps_debug_cluster_structure (s);
+}
+
+void
+mps_debug_cluster_structure (mps_status * s)
+{
+  int i, j;
+
+  /* Debug the clusters found */
+  if (s->DOLOG)
+    {
+      /* Debug isolated roots first */
+      __MPS_DEBUG (s, "Isolated roots: ");
+      for (i = 1; i <= s->nclust; i++)
+	{
+	  if (s->punt[i] == s->punt[i-1] + 1)
+	    {
+	      fprintf (s->logstr, "%d ", s->clust[s->punt[i]]);
+	    }
+	}
+      fprintf (s->logstr, "\n");
+	  
+
+      for (i = 1; i <= s->nclust; i++)
+	{
+	  if (s->punt[i] == s->punt[i-1] + 1)
+	    continue;
+	  __MPS_DEBUG (s, "Found cluster of %d roots: ", s->punt[i] - s->punt[i-1]);
+	  for (j = s->punt[i - 1]; j < s->punt[i]; j++)
+	    {
+	      fprintf (s->logstr, "%d ", s->clust[j]);
+	    }
+	  fprintf (s->logstr, "\n");
+	}
+    }
 }
 
 /**
@@ -250,21 +274,8 @@ mps_mcluster (mps_status * s, int nf)
     s->clust[i] = s->clust_out[i];
   s->punt[s->nclust] = s->n;
 
-  /* Debug the clusters found */
   if (s->DOLOG)
-    {
-      for (i = 1; i <= s->nclust; i++)
-	{
-	  fprintf (s->logstr, "      MPS_MCLUSTER:"
-		   "Found cluster of %d roots: ",
-		   s->punt[i] - s->punt[i - 1]);
-	  for (j = s->punt[i - 1]; j < s->punt[i]; j++)
-	    {
-	      fprintf (s->logstr, "%d ", s->clust[j]);
-	    }
-	  fprintf (s->logstr, "\n");
-	}
-    }
+    mps_debug_cluster_structure (s);
 }
 
 void
