@@ -654,14 +654,6 @@ mps_secular_ga_improve (mps_status * s)
 	}
     }
 
-  /* Improve the roots with newton */
-  /* mps_improve (s);
-     return; */
-
-  // We should check the condition number here, or use the old mps_improve ()
-  // functions that already considers it, adapting it to the new structure.
-#define MAX_ITERATIONS 150
-
   mpc_t nwtcorr;
   cdpe_t ctmp;
   rdpe_t rtmp;
@@ -683,7 +675,17 @@ mps_secular_ga_improve (mps_status * s)
 	  s->mpwp = starting_precision;
 	}
 
-      for (j = 0; j < MAX_ITERATIONS; j++)
+      mpc_get_cdpe (ctmp, s->mroot[i]);
+      cdpe_mod (rtmp, ctmp);
+      rdpe_div_eq (rtmp, s->drad[i]);
+
+      /* Find correct digits and maximum number of iterations */
+      int correct_digits = rdpe_log10 (rtmp);
+      int iterations = log (s->prec_out / correct_digits / LOG2_10) * LOG2_10 + 1;
+
+      MPS_DEBUG (s, "Performing %d iterations on root %d", iterations, i);
+      
+      for (j = 0; j < iterations; j++)
 	{
 	  mps_secular_mnewton (s, s->mroot[i], s->drad[i], nwtcorr,
 			       &s->again[i]);
@@ -711,10 +713,14 @@ mps_secular_ga_improve (mps_status * s)
 	      mpc_set_prec (s->mroot[i], s->mpwp);
 	    }
 	}
+      
+      /* Since we have passed the bound of the maximum allowed iterations
+       * and quadratic convergence was guaranteed, the root is now 
+       * approximated. */
+      s->status[i][0] = 'a';
     }
   mpc_clear (nwtcorr);
 
-#undef MAX_ITERATIONS
 }
 
 /**
@@ -732,7 +738,10 @@ mps_secular_ga_mpsolve (mps_status * s)
   int i;
   mps_secular_equation *sec = mps_secular_equation_from_status (s);
   mps_phase phase = sec->starting_case;
-  clock_t * total_clock = mps_start_timer ();
+
+#ifndef DISABLE_DEBUG
+  clock_t *total_clock = mps_start_timer ();
+#endif
 
   /* Set the output desired for the output */
   rdpe_set_2dl (s->eps_out, 1.0, -s->prec_out);
@@ -861,14 +870,17 @@ mps_secular_ga_mpsolve (mps_status * s)
   if (s->goal[0] == 'a')
     {
       /* Clock the improvement */
-      clock_t * my_timer = mps_start_timer ();
+      clock_t *my_timer = mps_start_timer ();
       mps_secular_ga_improve (s);
       unsigned long int delta = mps_stop_timer (my_timer);
 
       MPS_DEBUG (s, "Improvement of roots took %u ms", delta);
     }
 
-  /* Debug total time taken */
+  /* Debug total time taken but only if debug is enabled */
+#ifndef DISABLE_DEBUG
   unsigned long int total_time = mps_stop_timer (total_clock);
   MPS_DEBUG (s, "Total time using MPSolve: %u ms", total_time);
+#endif
+
 }

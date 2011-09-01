@@ -41,7 +41,7 @@ clock_t *
 mps_start_timer ()
 {
   /* Create a new timer */
-  clock_t * my_clock = (clock_t*) malloc (sizeof (clock_t));
+  clock_t *my_clock = (clock_t *) malloc (sizeof (clock_t));
 
   /* Get the time */
   (*my_clock) = clock ();
@@ -52,7 +52,7 @@ unsigned long int
 mps_stop_timer (clock_t * my_timer)
 {
   /* Get the difference of two clocks and store the 
-  * milliseconds. */
+   * milliseconds. */
   unsigned long int delta = clock () - *my_timer;
   delta /= (CLOCKS_PER_SEC / 1000);
 

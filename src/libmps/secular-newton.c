@@ -481,7 +481,7 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
    * 5) g_c orr = ssp / sigma
    *  That is, finally, the guaranteed newton correction.
    */
-  // if (s->mpsolve_ptr == MPS_MPSOLVE_PTR (mps_standard_mpsolve))
+  /* if (s->mpsolve_ptr == MPS_MPSOLVE_PTR (mps_standard_mpsolve)) */
   {
     rdpe_t theta, ssp, gamma, sigma;
     rdpe_t fp_mod, pol_mod, sumb_mod;
