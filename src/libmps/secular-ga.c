@@ -732,6 +732,7 @@ mps_secular_ga_mpsolve (mps_status * s)
   int i;
   mps_secular_equation *sec = mps_secular_equation_from_status (s);
   mps_phase phase = sec->starting_case;
+  clock_t * total_clock = mps_start_timer ();
 
   /* Set the output desired for the output */
   rdpe_set_2dl (s->eps_out, 1.0, -s->prec_out);
@@ -858,5 +859,16 @@ mps_secular_ga_mpsolve (mps_status * s)
 
   /* Finally improve the roots if approximation is required */
   if (s->goal[0] == 'a')
-    mps_secular_ga_improve (s);
+    {
+      /* Clock the improvement */
+      clock_t * my_timer = mps_start_timer ();
+      mps_secular_ga_improve (s);
+      unsigned long int delta = mps_stop_timer (my_timer);
+
+      MPS_DEBUG (s, "Improvement of roots took %u ms", delta);
+    }
+
+  /* Debug total time taken */
+  unsigned long int total_time = mps_stop_timer (total_clock);
+  MPS_DEBUG (s, "Total time using MPSolve: %u ms", total_time);
 }

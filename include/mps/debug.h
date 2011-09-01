@@ -21,6 +21,11 @@ extern "C"
 
 #include <mps/gmptools.h>
 #include <gmp.h>
+#include <time.h>
+
+  /* Timer functions */
+  clock_t * mps_start_timer ();
+  unsigned long int mps_stop_timer (clock_t * my_timer);
 
 /* Keep away assert() when compiling without debug */
 #ifdef DISABLE_DEBUG

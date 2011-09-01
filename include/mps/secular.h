@@ -65,6 +65,8 @@ extern "C"
 
   mps_boolean mps_secular_ga_check_stop (mps_status * s);
 
+  void mps_secular_ga_improve (mps_status * s);
+
   void mps_secular_ga_mpsolve (mps_status * s);
 
 /* Interface functions in mps_secular.c */
