@@ -431,8 +431,7 @@ mps_secular_switch_phase (mps_status * s, mps_phase phase)
   mps_secular_equation *sec = (mps_secular_equation *) s->secular_equation;
   if (phase == mp_phase)
     {
-      s->mpwp = 64;
-      mps_secular_raise_precision (s, 2 * s->mpwp);
+      mps_secular_raise_precision (s, MPS_SECULAR_STARTING_MP_PRECISION);
       switch (s->lastphase)
 	{
 	case float_phase:
@@ -501,7 +500,6 @@ mps_secular_set_radii (mps_status * s)
 	/* Floating point implementation */
 	double rad, total_rad = 0;
 
-	/* Compute total radius as \sum_i |sec->afpc[i]| */
 	for (i = 0; i < s->n; i++)
 	  total_rad += cplx_mod (sec->afpc[i]);
 

@@ -33,10 +33,8 @@ mps_mp_set_prec (mps_status * s, long int prec)
 void
 mps_allocate_data (mps_status * s)
 {
+  MPS_DEBUG_THIS_CALL;
   int i;
-
-  if (s->DOLOG)
-    fprintf (s->logstr, "Allocating data\n");
 
   s->clust = int_valloc (s->deg);
   s->punt = int_valloc (s->deg + 1);

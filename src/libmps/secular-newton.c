@@ -145,7 +145,11 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
 	    *again = false;
 	}
       else
-	*rad = DBL_MAX;
+	{
+	  /* If it was not posisble to compute the radius use the old one
+	   * plus the shift of the root */
+	  *rad += cplx_mod (corr) * (1 + DBL_EPSILON);
+	}
 
       /* MPS_DEBUG (s, "Computed guaranteed newton radius = %e", g_corr * s->n);
          MPS_DEBUG (s, "Non guaranteed newton radius: %e",
@@ -153,7 +157,9 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
     }
   else
     {
-      *rad = DBL_MAX;
+      /* If it was not posisble to compute the radius use the old one
+       * plus the shift of the root */
+      *rad += cplx_mod (corr) * (1 + DBL_EPSILON);
     }
 
   /* If the correction is not useful in the current precision do
@@ -173,9 +179,10 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
 
   mps_secular_equation *sec = (mps_secular_equation *) s->secular_equation;
 
-  cdpe_t pol, fp, sumb, ctmp, ctmp2;
+  cdpe_t pol, fp, sumb, ctmp, ctmp2, old_x;
   rdpe_t rtmp, rtmp2, apol, g_corr;
 
+  cdpe_set (old_x, x);
   cdpe_set (pol, cdpe_zero);
   cdpe_set (fp, cdpe_zero);
   cdpe_set (sumb, cdpe_zero);
@@ -303,12 +310,16 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
 	}
       else
 	{
-	  rdpe_set_d (rad, DBL_MAX);
+	  cdpe_sub_eq (old_x, x);
+	  cdpe_mod (rtmp, old_x);
+	  rdpe_add_eq (rad, rtmp);
 	}
     }
   else
     {
-      rdpe_set_d (rad, DBL_MAX);
+      cdpe_sub_eq (old_x, x);
+      cdpe_mod (rtmp, old_x);
+      rdpe_add_eq (rad, rtmp);
     }
 
   /* Compute \sum_i | a_i / (z - b_i) | + 1

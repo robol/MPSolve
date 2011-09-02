@@ -135,7 +135,13 @@ mps_secular_ga_diterate (mps_status * s, int maxit)
 
   /* Iterate with newton until we have good approximations
    * of the roots */
-  mps_update (s);
+  // mps_update (s);
+
+  for(i = 0; i < s->n; i++)
+    {
+      if (!s->again[i])
+	computed_roots++;
+    }
 
   while (computed_roots < s->n && iterations < maxit - 1)
     {
@@ -181,6 +187,7 @@ mps_secular_ga_diterate (mps_status * s, int maxit)
   /* Check if no more than 2 iterations per root
    * were computed, and in that case state that
    * a coefficient regeneration won't be of much help */
+  MPS_DEBUG (s, "Performed %d iterations", nit);
   if (nit <= 2 * s->n)
     {
       s->secular_equation->best_approx = true;
@@ -188,6 +195,25 @@ mps_secular_ga_diterate (mps_status * s, int maxit)
 
   mps_dcluster (s, 2.0 * s->n);
   mps_dmodify (s);
+
+  for (i = 0; i < s->n; i++)
+    {
+      if (s->status[i][0] == 'a' || s->status[i][0] == 'i')
+	{
+	  s->again[i] = false;
+	}
+      else
+	s->again[i] = true;
+    }
+
+  /* These lines are used to debug the again vector, but are not useful
+   * at the moment being */
+  /* __MPS_DEBUG (s, "Again vector = ");
+  for(i = 0; i < s->n; i++)
+    {
+      fprintf (s->logstr, "%d ", s->again[i]);
+    }
+    fprintf (s->logstr, "\n"); */
 
   /* Return the number of approximated roots */
   return computed_roots;
@@ -221,12 +247,14 @@ mps_secular_ga_miterate (mps_status * s, int maxit)
 
   /* Iterate with newton until we have good approximations
    * of the roots */
-  mps_update (s);
+  // mps_update (s);
 
   for (i = 0; i < s->n; i++)
     {
       if (s->again[i])
 	s->rootwp[i] = s->mpwp;
+      else
+	computed_roots++;
     }
 
   while (computed_roots < s->n && iterations < maxit)
@@ -272,6 +300,26 @@ mps_secular_ga_miterate (mps_status * s, int maxit)
   mps_mcluster (s, 2.0 * s->n);
   mps_mmodify (s);
 
+  for (i = 0; i < s->n; i++)
+    {
+      if (s->status[i][0] == 'a' || s->status[i][0] == 'i')
+	{
+	  s->again[i] = false;
+	}
+      else
+	s->again[i] = true;
+    }
+
+
+  /* These lines are used to debug the again vector, but are not useful
+   * at the moment being */
+  /* __MPS_DEBUG (s, "Again vector = ");
+  for(i = 0; i < s->n; i++)
+    {
+      fprintf (s->logstr, "%d ", s->again[i]);
+    }
+    fprintf (s->logstr, "\n"); */
+
   /* Return the number of approximated roots */
   return computed_roots;
 }
@@ -300,7 +348,7 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s)
   /* Declaration and initialization of the multprecision
    * variables that are used only in that case */
   int i, j;
-  int success = 1;
+  mps_boolean success = true;
   int coeff_wp = 2 * s->mpwp;
   mpc_t prod_b, sec_ev;
   mpc_t ctmp, btmp;
@@ -347,7 +395,7 @@ regenerate_m_start:
 	  /* If b - old_b is zero, abort the computation */
 	  if (mpc_eq_zero (btmp))
 	    {
-	      success = -1;
+	      success = false;
 
 	      MPS_DEBUG (s,
 			 "Cannot regenerate coefficients, reusing old ones and setting best_approx to true.");
@@ -424,8 +472,8 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
       /* If we are in the float phase regenerate coefficients
        * starting from floating point */
     case float_phase:
-      
-      s->mpwp = 64;
+
+      s->mpwp = MPS_SECULAR_EQUIVALENT_FP_PRECISION;
 
       /* Allocate old_a and old_b */
       old_a = cplx_valloc (s->n);
@@ -443,8 +491,9 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
 	}
 
       /* Regeneration */
-      if (mps_secular_ga_regenerate_coefficients_mp (s) != 0)
+      if (!mps_secular_ga_regenerate_coefficients_mp (s))
 	{
+	  MPS_DEBUG (s, "Regeneration of coefficients failed, reusing old ones");
 	  for (i = 0; i < s->n; i++)
 	    {
 	      cplx_set (sec->afpc[i], old_a[i]);
@@ -458,6 +507,8 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
 	      mpc_get_cplx (sec->bfpc[i], sec->bmpc[i]);
 	      mpc_get_cplx (sec->afpc[i], sec->ampc[i]);
 	    }
+
+	  mps_secular_set_radii (s);
 	}
 
       cplx_vfree (old_a);
@@ -470,7 +521,7 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
       /* If this is the DPE phase regenerate DPE coefficients */
     case dpe_phase:
 
-      s->mpwp = 64;
+      s->mpwp = MPS_SECULAR_EQUIVALENT_FP_PRECISION;
 
       /* Allocate old_a and old_b */
       old_da = cdpe_valloc (s->n);
@@ -487,7 +538,7 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
 	}
 
       /* Regeneration */
-      if (mps_secular_ga_regenerate_coefficients_mp (s) != 0)
+      if (!mps_secular_ga_regenerate_coefficients_mp (s))
 	{
 	  for (i = 0; i < s->n; i++)
 	    {
@@ -499,6 +550,8 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
 	{
 	  for (i = 0; i < s->n; i++)
 	    mpc_get_cdpe (sec->adpc[i], sec->ampc[i]);
+
+	  mps_secular_set_radii (s);
 	}
 
       /* Free data */
@@ -764,9 +817,6 @@ mps_secular_ga_mpsolve (mps_status * s)
   /* We set the selected phase */
   s->lastphase = phase;
 
-  /* Allocate other data */
-  mps_allocate_data (s);
-
   for (i = 0; i < s->n; i++)
     {
       s->status[i][1] = 'w';
@@ -786,7 +836,7 @@ mps_secular_ga_mpsolve (mps_status * s)
 
   /* Set phase */
   s->lastphase = phase;
-
+  
   /* Select initial approximations using the custom secular
    * routine and based on the phase selected by the user. */
   switch (s->lastphase)
@@ -811,6 +861,11 @@ mps_secular_ga_mpsolve (mps_status * s)
 
   /* Set initial radius */
   mps_secular_set_radii (s);
+
+  for(i = 0; i < s->n; i++)
+    {
+      s->again[i] = true;
+    }
 
   /* Cycle until approximated */
   do
@@ -847,11 +902,6 @@ mps_secular_ga_mpsolve (mps_status * s)
 
       /* Check if all roots were approximated with the
        * given input precision                      */
-      /* if (mps_secular_ga_check_stop (s))
-         {
-         mps_improve (s);
-         return;
-         } */
       if (mps_secular_ga_check_stop (s))
 	break;
 
@@ -898,7 +948,7 @@ mps_secular_ga_mpsolve (mps_status * s)
 		 mps_stop_timer (my_timer));
 #endif
     }
-
+  
   /* Debug total time taken but only if debug is enabled */
 #ifndef DISABLE_DEBUG
   MPS_DEBUG (s, "Total time using MPSolve: %u ms",

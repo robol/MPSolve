@@ -18,6 +18,23 @@ extern "C"
 #include <mps/mpc.h>
 #include <float.h>
 
+  /* CONSTANTS */
+
+  /**
+   * @brief This is the number of bits used when first passed
+   * in multiprecision. 
+   */
+#define MPS_SECULAR_STARTING_MP_PRECISION 64
+
+  /**
+   * @brief This is the higher precision supported by GMP that is 
+   * lower than the precision supported by the standard floating
+   * point machinery. It is used to set an "equivalent" precision
+   * in s->mpwp for the step of multiprecision coefficient regeneration.
+   */
+#define MPS_SECULAR_EQUIVALENT_FP_PRECISION 32
+
+
 /* MACROS */
 #define mps_secular_equation_from_status(s) (mps_secular_equation*) (s)->secular_equation
 
