@@ -137,7 +137,7 @@ mps_secular_ga_diterate (mps_status * s, int maxit)
    * of the roots */
   // mps_update (s);
 
-  for(i = 0; i < s->n; i++)
+  for (i = 0; i < s->n; i++)
     {
       if (!s->again[i])
 	computed_roots++;
@@ -209,11 +209,11 @@ mps_secular_ga_diterate (mps_status * s, int maxit)
   /* These lines are used to debug the again vector, but are not useful
    * at the moment being */
   /* __MPS_DEBUG (s, "Again vector = ");
-  for(i = 0; i < s->n; i++)
-    {
-      fprintf (s->logstr, "%d ", s->again[i]);
-    }
-    fprintf (s->logstr, "\n"); */
+     for(i = 0; i < s->n; i++)
+     {
+     fprintf (s->logstr, "%d ", s->again[i]);
+     }
+     fprintf (s->logstr, "\n"); */
 
   /* Return the number of approximated roots */
   return computed_roots;
@@ -314,11 +314,11 @@ mps_secular_ga_miterate (mps_status * s, int maxit)
   /* These lines are used to debug the again vector, but are not useful
    * at the moment being */
   /* __MPS_DEBUG (s, "Again vector = ");
-  for(i = 0; i < s->n; i++)
-    {
-      fprintf (s->logstr, "%d ", s->again[i]);
-    }
-    fprintf (s->logstr, "\n"); */
+     for(i = 0; i < s->n; i++)
+     {
+     fprintf (s->logstr, "%d ", s->again[i]);
+     }
+     fprintf (s->logstr, "\n"); */
 
   /* Return the number of approximated roots */
   return computed_roots;
@@ -493,7 +493,8 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
       /* Regeneration */
       if (!mps_secular_ga_regenerate_coefficients_mp (s))
 	{
-	  MPS_DEBUG (s, "Regeneration of coefficients failed, reusing old ones");
+	  MPS_DEBUG (s,
+		     "Regeneration of coefficients failed, reusing old ones");
 	  for (i = 0; i < s->n; i++)
 	    {
 	      cplx_set (sec->afpc[i], old_a[i]);
@@ -836,7 +837,7 @@ mps_secular_ga_mpsolve (mps_status * s)
 
   /* Set phase */
   s->lastphase = phase;
-  
+
   /* Select initial approximations using the custom secular
    * routine and based on the phase selected by the user. */
   switch (s->lastphase)
@@ -862,7 +863,7 @@ mps_secular_ga_mpsolve (mps_status * s)
   /* Set initial radius */
   mps_secular_set_radii (s);
 
-  for(i = 0; i < s->n; i++)
+  for (i = 0; i < s->n; i++)
     {
       s->again[i] = true;
     }
@@ -948,7 +949,7 @@ mps_secular_ga_mpsolve (mps_status * s)
 		 mps_stop_timer (my_timer));
 #endif
     }
-  
+
   /* Debug total time taken but only if debug is enabled */
 #ifndef DISABLE_DEBUG
   MPS_DEBUG (s, "Total time using MPSolve: %u ms",

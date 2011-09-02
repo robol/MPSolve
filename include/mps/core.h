@@ -89,6 +89,7 @@ extern "C"
   void mps_mcluster (mps_status * s, int nf);
   void mps_cluster_detach (mps_status * s, int i_clust);
   void mps_cluster_reassemble (mps_status * s, int i_clust);
+  void mps_debug_cluster_structure (mps_status * s);
 
 /* functions in mps_cnvx.c */
   void mps_fconvex (mps_status * s, int n, double a[]);
