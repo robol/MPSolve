@@ -39,8 +39,10 @@ main (int argc, char **argv)
   mps_secular_equation *sec;
   mps_status *s;
 
+  /* Create a new status */
   s = mps_status_new ();
   s->prec_in = 0;
+  
   s->n_threads = 1;
   strncpy (s->goal, "aannc", 5);
 

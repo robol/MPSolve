@@ -1046,7 +1046,9 @@ extern "C"
     /* DEBUG SECTIONS */
 
     unsigned long int regeneration_time;
-    unsigned long int iteration_time;
+    unsigned long int mp_iteration_time;
+    unsigned long int dpe_iteration_time;
+    unsigned long int fp_iteration_time;
 
   } mps_status;			/* End of typedef struct { ... */
 

@@ -18,7 +18,3 @@ unisolve_LDFLAGS = \
 unisolve_LDADD = \
 	$(top_builddir)/src/libmps/libmps.la \
 	$(NULL)
-
-unisolve_test_LDADD = \
-	$(top_builddir)/src/libmps/libmps.la \
-	$(NULL)
