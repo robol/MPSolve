@@ -35,9 +35,9 @@ mps_secular_ga_fiterate (mps_status * s, int maxit)
   int iterations = 0;
   int i;
   int nit = 0;
-  
+
 #ifndef DISABLE_DEBUG
-  clock_t * my_clock = mps_start_timer ();
+  clock_t *my_clock = mps_start_timer ();
 #endif
 
   mps_secular_equation *sec = s->secular_equation;
@@ -93,17 +93,17 @@ mps_secular_ga_fiterate (mps_status * s, int maxit)
 		      cdpe_set_x (s->droot[i], s->froot[i]);
 		      rdpe_set_d (s->drad[i], s->frad[i]);
 		    }
-            
-          #ifndef DISABLE_DEBUG
-          s->fp_iteration_time += mps_stop_timer (my_clock);
-          #endif
+
+#ifndef DISABLE_DEBUG
+		  s->fp_iteration_time += mps_stop_timer (my_clock);
+#endif
 		  return -1;
 		}
 
 	      /* Correct the radius */
 	      modcorr = cplx_mod (abcorr);
-          s->frad[i] += modcorr;
-    
+	      s->frad[i] += modcorr;
+
 
 	      if (!s->again[i])
 		computed_roots++;
@@ -119,7 +119,7 @@ mps_secular_ga_fiterate (mps_status * s, int maxit)
 
   mps_fcluster (s, 2.0 * s->n);
   mps_fmodify (s);
-  
+
   /* Count time taken  */
 #ifndef DISABLE_DEBUG
   s->fp_iteration_time += mps_stop_timer (my_clock);
@@ -146,14 +146,14 @@ mps_secular_ga_diterate (mps_status * s, int maxit)
   int iterations = 0;
   int i;
   int nit = 0;
-  
-  #ifndef DISABLE_DEBUG
-  clock_t * my_clock = mps_start_timer ();
-  #endif
+
+#ifndef DISABLE_DEBUG
+  clock_t *my_clock = mps_start_timer ();
+#endif
 
   /* Iterate with newton until we have good approximations
    * of the roots */
-   mps_update (s);
+  mps_update (s);
 
   for (i = 0; i < s->n; i++)
     {
@@ -232,11 +232,11 @@ mps_secular_ga_diterate (mps_status * s, int maxit)
      fprintf (s->logstr, "%d ", s->again[i]);
      }
      fprintf (s->logstr, "\n"); */
-     
+
   /* Clock the routine */
-  #ifndef DISABLE_DEBUG
+#ifndef DISABLE_DEBUG
   s->dpe_iteration_time += mps_stop_timer (my_clock);
-  #endif
+#endif
 
   /* Return the number of approximated roots */
   return computed_roots;
@@ -263,10 +263,10 @@ mps_secular_ga_miterate (mps_status * s, int maxit)
   mpc_t corr, abcorr;
   cdpe_t ctmp;
   rdpe_t modcorr;
-  
-  #ifndef DISABLE_DEBUG
-  clock_t * my_clock = mps_start_timer ();
-  #endif
+
+#ifndef DISABLE_DEBUG
+  clock_t *my_clock = mps_start_timer ();
+#endif
 
   /* Init data with the right precision */
   mpc_init2 (corr, s->mpwp);
@@ -345,11 +345,11 @@ mps_secular_ga_miterate (mps_status * s, int maxit)
      fprintf (s->logstr, "%d ", s->again[i]);
      }
      fprintf (s->logstr, "\n"); */
-     
+
   /* Clock the routine */
-  #ifndef DISABLE_DEBUG
+#ifndef DISABLE_DEBUG
   s->mp_iteration_time += mps_stop_timer (my_clock);
-  #endif
+#endif
 
   /* Return the number of approximated roots */
   return computed_roots;
@@ -679,7 +679,7 @@ mps_secular_ga_check_stop (mps_status * s)
 	case float_phase:
 	  if (s->status[i][0] != 'i' && s->status[i][0] != 'a')
 	    return false;
-      break;
+	  break;
 
 	  /* Multiprecision and DPE case are the same, since the radii
 	   * are always RDPE. */
@@ -714,9 +714,9 @@ mps_secular_ga_improve (mps_status * s)
   MPS_DEBUG_THIS_CALL;
 
   int i;
-  
+
   if (s->lastphase != mp_phase)
-      mps_secular_switch_phase (s, mp_phase);
+    mps_secular_switch_phase (s, mp_phase);
 
   /* Before improving with newton we shall reuse
    * the original coefficients */
@@ -769,38 +769,38 @@ mps_secular_ga_improve (mps_status * s)
       /* Find correct digits and maximum number of iterations */
       int correct_digits = rdpe_log10 (rtmp);
       int iterations =
-        log (s->prec_out / correct_digits / LOG2_10) * LOG2_10 + 1;
-        
+	log (s->prec_out / correct_digits / LOG2_10) * LOG2_10 + 1;
+
       MPS_DEBUG (s, "Performing %d max iterations on root %d", iterations, i);
 
       for (j = 0; j < iterations; j++)
-        {
-          mps_secular_mnewton (s, s->mroot[i], s->drad[i], nwtcorr,
+	{
+	  mps_secular_mnewton (s, s->mroot[i], s->drad[i], nwtcorr,
 			       &s->again[i]);
-	      mpc_sub_eq (s->mroot[i], nwtcorr);
+	  mpc_sub_eq (s->mroot[i], nwtcorr);
 
-          /* Debug iterations */
-          MPS_DEBUG_MPC (s, 10, s->mroot[i], "s->mroot[%d]", i);
-          MPS_DEBUG_RDPE (s, s->drad[i], "s->drad[%d]", i);
+	  /* Debug iterations */
+	  MPS_DEBUG_MPC (s, 10, s->mroot[i], "s->mroot[%d]", i);
+	  MPS_DEBUG_RDPE (s, s->drad[i], "s->drad[%d]", i);
 
-          /* Check if the approximation is already good. */
-          mpc_get_cdpe (ctmp, s->mroot[i]);
-          cdpe_mod (rtmp, ctmp);
-          rdpe_div (rtmp, s->drad[i], rtmp);
+	  /* Check if the approximation is already good. */
+	  mpc_get_cdpe (ctmp, s->mroot[i]);
+	  cdpe_mod (rtmp, ctmp);
+	  rdpe_div (rtmp, s->drad[i], rtmp);
 
-          if (rdpe_le (rtmp, s->eps_out))
-            {
-              s->status[i][0] = 'a';
-              break;
-            }
-          else
-            {
-              s->mpwp *= 2;
-              mps_secular_raise_coefficient_precision (s, s->mpwp);
-              mpc_set_prec (nwtcorr, s->mpwp);
-              mpc_set_prec (s->mroot[i], s->mpwp);
-            }
-        }
+	  if (rdpe_le (rtmp, s->eps_out))
+	    {
+	      s->status[i][0] = 'a';
+	      break;
+	    }
+	  else
+	    {
+	      s->mpwp *= 2;
+	      mps_secular_raise_coefficient_precision (s, s->mpwp);
+	      mpc_set_prec (nwtcorr, s->mpwp);
+	      mpc_set_prec (s->mroot[i], s->mpwp);
+	    }
+	}
 
       /* Since we have passed the bound of the maximum allowed iterations
        * and quadratic convergence was guaranteed, the root is now 
@@ -970,17 +970,20 @@ mps_secular_ga_mpsolve (mps_status * s)
   /* Finally improve the roots if approximation is required */
   if (s->goal[0] == 'a')
     {
-      clock_t * my_timer = mps_start_timer ();
+      clock_t *my_timer = mps_start_timer ();
       mps_secular_ga_improve (s);
-      MPS_DEBUG (s, "mps_secular_ga_improve took %u ms", mps_stop_timer (my_timer));
+      MPS_DEBUG (s, "mps_secular_ga_improve took %u ms",
+		 mps_stop_timer (my_timer));
     }
 
   /* Debug total time taken but only if debug is enabled */
 #ifndef DISABLE_DEBUG
   MPS_DEBUG (s, "Time used for regeneration: %u ms", s->regeneration_time);
-  MPS_DEBUG (s, "Time used in floating point iterations: %u ms", s->fp_iteration_time);
+  MPS_DEBUG (s, "Time used in floating point iterations: %u ms",
+	     s->fp_iteration_time);
   MPS_DEBUG (s, "Time used in DPE iterations: %u ms", s->dpe_iteration_time);
-  MPS_DEBUG (s, "Time used in multiprecision iterations: %u ms", s->mp_iteration_time);
+  MPS_DEBUG (s, "Time used in multiprecision iterations: %u ms",
+	     s->mp_iteration_time);
   MPS_DEBUG (s, "Total time using MPSolve: %u ms",
 	     mps_stop_timer (total_clock));
 #endif

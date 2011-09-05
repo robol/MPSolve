@@ -117,7 +117,7 @@ mps_status_select_algorithm (mps_status * s, mps_algorithm algorithm)
       s->fnewton_usr = MPS_FNEWTON_PTR (mps_secular_fnewton);
       s->dnewton_usr = MPS_DNEWTON_PTR (mps_secular_dnewton);
       s->mnewton_usr = MPS_MNEWTON_PTR (mps_secular_mnewton);
-      
+
       rdpe_set_2dl (s->eps_out, 1.0, -s->prec_out * LOG2_10);
 
       break;
