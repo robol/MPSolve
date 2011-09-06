@@ -104,16 +104,16 @@ dnewton_usr (cdpe_t x, rdpe_t rad, cdpe_t corr, mps_boolean * again)
   cdpe_mod (ax, x);
 
 /* auxiliary terms */
-  cdpe_mul (xm1s, xm1, xm1);	// (x-1)^2
-  cdpe_mul_2exp (xm1s2, xm1s, 1);	// 2(x-1)^2
-  cdpe_add (xm1s3, xm1s2, xm1s);	// 3(x-1)^2
-  cdpe_mul (xm1c, xm1, xm1s);	// (x-1)^3
-  cdpe_mod (axm1, xm1);		// |x-1|
-  rdpe_mul (axm1s, axm1, axm1);	// |x-1|^2
-  rdpe_mul (axm1c, axm1, axm1s);	// |x-1|^3
-  cdpe_mod (axm2, xm2);		// |x-2|
-  rdpe_mul_2exp (axm1c4, axm1c, 2);	// 4|x-1|^3
-  rdpe_mul_d (saxm1c, saxm1c, s1);	// 2s1 |t-1|^3
+  cdpe_mul (xm1s, xm1, xm1);    // (x-1)^2
+  cdpe_mul_2exp (xm1s2, xm1s, 1);       // 2(x-1)^2
+  cdpe_add (xm1s3, xm1s2, xm1s);        // 3(x-1)^2
+  cdpe_mul (xm1c, xm1, xm1s);   // (x-1)^3
+  cdpe_mod (axm1, xm1);         // |x-1|
+  rdpe_mul (axm1s, axm1, axm1); // |x-1|^2
+  rdpe_mul (axm1c, axm1, axm1s);        // |x-1|^3
+  cdpe_mod (axm2, xm2);         // |x-2|
+  rdpe_mul_2exp (axm1c4, axm1c, 2);     // 4|x-1|^3
+  rdpe_mul_d (saxm1c, saxm1c, s1);      // 2s1 |t-1|^3
 
 /* computation */
   for (i = 1; i <= m; i++)
@@ -142,7 +142,7 @@ dnewton_usr (cdpe_t x, rdpe_t rad, cdpe_t corr, mps_boolean * again)
       cdpe_add (ap, ap, ctmp1);
       cdpe_mul_2exp (ap, ap, 2);
       cdpe_mul (ctmp1, xm1s3, aq);
-      cdpe_add (ap, ap, ctmp1);	// a'
+      cdpe_add (ap, ap, ctmp1); // a'
 
       /* d */
       cdpe_mul (ctmp1, ccp, xm2);
@@ -152,7 +152,7 @@ dnewton_usr (cdpe_t x, rdpe_t rad, cdpe_t corr, mps_boolean * again)
       cdpe_mul (ctmp2, xm1s2, aap);
       cdpe_add (ctmp1, ctmp1, ctmp2);
       cdpe_mul_2exp (ctmp1, ctmp1, 1);
-      cdpe_add (dp, cs, ctmp1);	// d'
+      cdpe_add (dp, cs, ctmp1); // d'
 
       /* c */
       cdpe_mul (cp, cs, dp);
@@ -181,7 +181,7 @@ dnewton_usr (cdpe_t x, rdpe_t rad, cdpe_t corr, mps_boolean * again)
       rdpe_add (ean, ean, rtmp1);
       rdpe_mul (rtmp1, abscc, ec);
       rdpe_mul_2exp (rtmp1, rtmp1, 2);
-      rdpe_add (ean, rtmp1, ean);	//ean
+      rdpe_add (ean, rtmp1, ean);       //ean
 
       rdpe_mul_d (rtmp1, abscs, s4);
       rdpe_mul (ed, absc, ec);
@@ -194,7 +194,7 @@ dnewton_usr (cdpe_t x, rdpe_t rad, cdpe_t corr, mps_boolean * again)
       rdpe_add (rtmp1, rtmp1, rtmp2);
       rdpe_mul (rtmp1, rtmp1, axm1s);
       rdpe_mul_2exp (rtmp1, rtmp1, 1);
-      rdpe_add (ed, ed, rtmp1);	//ed
+      rdpe_add (ed, ed, rtmp1); //ed
 
       rdpe_mul_d (rtmp1, absd, s3);
       rdpe_add (rtmp1, rtmp1, ed);
@@ -202,7 +202,7 @@ dnewton_usr (cdpe_t x, rdpe_t rad, cdpe_t corr, mps_boolean * again)
       rdpe_mul (ecn, ec, absd);
       rdpe_mul (ecn, ecn, absc);
       rdpe_mul_2exp (ecn, ecn, 1);
-      rdpe_add (ecn, ecn, rtmp1);	//ecn
+      rdpe_add (ecn, ecn, rtmp1);       //ecn
 
 
       /* shift */
@@ -256,13 +256,13 @@ mnewton_usr (mpc_t x, rdpe_t rad, mpc_t corr, mps_boolean * again)
   cdpe_mod (ax, ctmp);
 
 /* initial conditions */
-  mpc_set_d (p0, 1.0, 0.0);	/* p0=1  */
-  mpc_set_d (p1, 1.0, 0.0);	/* p1=1  */
-  mpc_set_d (pp0, 0.0, 0.0);	/* p0'=0 */
-  mpc_set_d (pp1, 0.0, 0.0);	/* p1'=0 */
+  mpc_set_d (p0, 1.0, 0.0);     /* p0=1  */
+  mpc_set_d (p1, 1.0, 0.0);     /* p1=1  */
+  mpc_set_d (pp0, 0.0, 0.0);    /* p0'=0 */
+  mpc_set_d (pp1, 0.0, 0.0);    /* p1'=0 */
 
-  rdpe_set (ap0, rdpe_one);	/* |p0|=1 */
-  rdpe_set (ap1, rdpe_one);	/* |p1|=1 */
+  rdpe_set (ap0, rdpe_one);     /* |p0|=1 */
+  rdpe_set (ap1, rdpe_one);     /* |p1|=1 */
   rdpe_set (d0, rdpe_zero);
   rdpe_set (d1, d0);
 
@@ -307,17 +307,17 @@ mnewton_usr (mpc_t x, rdpe_t rad, mpc_t corr, mps_boolean * again)
       rdpe_mul (rtmp, rtmp, d0);
       rdpe_mul (rtmp, rtmp, ax);
 
-      rdpe_mul_2exp (rtmp, rtmp, 2);	/* 4 |x| |p0|^3 d0 */
+      rdpe_mul_2exp (rtmp, rtmp, 2);    /* 4 |x| |p0|^3 d0 */
 
       rdpe_mul (d2, d1, ap1);
 
-      rdpe_mul_2exp (d2, d2, 1);	/*  2 d1 |p1|  */
+      rdpe_mul_2exp (d2, d2, 1);        /*  2 d1 |p1|  */
       rdpe_add (d2, d2, rtmp);
 
       rdpe_mul (rtmp1, ap0, ap0);
-      rdpe_mul (rtmp1, rtmp1, rtmp1);	/*  |p0|^4 */
+      rdpe_mul (rtmp1, rtmp1, rtmp1);   /*  |p0|^4 */
       rdpe_mul (rtmp1, rtmp1, ax);
-      rdpe_mul_d (rtmp1, rtmp1, (double) 6.66);	/* |x|(4\sqrt 2 +1)|p0|^4 */
+      rdpe_mul_d (rtmp1, rtmp1, (double) 6.66); /* |x|(4\sqrt 2 +1)|p0|^4 */
       rdpe_add (rtmp1, rtmp1, ap2);
       rdpe_mul (rtmp, ap1, ap1);
       rdpe_mul_d (rtmp, rtmp, (double) 2.83);

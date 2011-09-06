@@ -18,7 +18,7 @@ exter "C"
 #include <gmp.h>
 #include <mps/mpc.h>
 
-#ifndef NOMPTEMP		/* enable MPTEMP variables              */
+#ifndef NOMPTEMP                /* enable MPTEMP variables              */
 
 /***********************************************************
 **                    MPTEMP ENABLED                      **
@@ -71,8 +71,8 @@ exter "C"
 
   typedef mpf_t tmpf_t;
 
-#define mpftemp_init()		/* void */
-#define mpftemp_clear()		/* void */
+#define mpftemp_init()          /* void */
+#define mpftemp_clear()         /* void */
 
 #define tmpf_init2(F, P)		mpf_init2(F, P)
 #define tmpf_init3(F, P, I)		mpf_init2(F, P)
@@ -83,16 +83,16 @@ exter "C"
 
   typedef mpc_t tmpc_t;
 
-#define mpctemp_init()		/* void */
-#define mpctemp_clear()		/* void */
+#define mpctemp_init()          /* void */
+#define mpctemp_clear()         /* void */
 
 #define tmpc_init2(C, P)		mpc_init2(C, P)
 #define tmpc_clear(C)			mpc_clear(C)
 
 /* global function prototypes */
 
-#define mptemp_init()		/* void */
-#define mptemp_clear()		/* void */
+#define mptemp_init()           /* void */
+#define mptemp_clear()          /* void */
 
 #endif /* ndef NOMPTEMP */
 

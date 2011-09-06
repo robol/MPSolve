@@ -42,7 +42,7 @@ obtained by means of a rounding error analysis of (1).
 ******************************************************/
 void
 mps_fnewton_usr (mps_status * s, cplx_t x, double *rad, cplx_t corr,
-		 mps_boolean * again)
+                 mps_boolean * again)
 {
   cplx_t p, pp, pt, tmp;
   double ap, ax, eps;
@@ -84,7 +84,7 @@ mps_fnewton_usr (mps_status * s, cplx_t x, double *rad, cplx_t corr,
 ******************************************************/
 void
 mps_dnewton_usr (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
-		 mps_boolean * again)
+                 mps_boolean * again)
 {
   cdpe_t p, pp, pt, tmp;
   rdpe_t ap, ax, eps, temp, apeps, atmp;
@@ -137,7 +137,7 @@ mps_dnewton_usr (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
 ******************************************************/
 void
 mps_mnewton_usr (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
-		 mps_boolean * again)
+                 mps_boolean * again)
 {
   int i, m;
   rdpe_t ap, ax, eps, temp, apeps, atmp;

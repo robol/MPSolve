@@ -50,7 +50,7 @@
  */
 void
 mps_fnewton (mps_status * s, int n, cplx_t z, double *radius, cplx_t corr,
-	     cplx_t fpc[], double fap[], mps_boolean * cont)
+             cplx_t fpc[], double fap[], mps_boolean * cont)
 {
   int i;
   double ap, az, absp, azi, eps;
@@ -67,42 +67,42 @@ mps_fnewton (mps_status * s, int n, cplx_t z, double *radius, cplx_t corr,
       cplx_set (p, fpc[n]);
       cplx_set (p1, p);
       for (i = n - 1; i > 0; i--)
-	{
-	  cplx_mul (tmp, p, z);
-	  cplx_add (p, tmp, fpc[i]);
-	  cplx_mul (tmp, p1, z);
-	  cplx_add (p1, tmp, p);
-	}
+        {
+          cplx_mul (tmp, p, z);
+          cplx_add (p, tmp, fpc[i]);
+          cplx_mul (tmp, p1, z);
+          cplx_add (p1, tmp, p);
+        }
       cplx_mul (tmp, p, z);
       cplx_add (p, tmp, fpc[0]);
       ap = fap[n];
       for (i = n - 1; i >= 0; i--)
-	ap = ap * az + fap[i];
+        ap = ap * az + fap[i];
       absp = cplx_mod (p);
       *cont = (absp > ap * eps);
       *radius = n * (absp + eps * ap) / cplx_mod (p1);
       cplx_div (corr, p, p1);
     }
   else
-    {				/* case |z|>1 */
+    {                           /* case |z|>1 */
       cplx_set (zi, z);
       cplx_inv_eq (zi);
       azi = 1.0 / az;
       cplx_set (p, fpc[0]);
       cplx_set (p1, p);
       for (i = n - 1; i > 0; i--)
-	{
-	  cplx_mul (tmp, p, zi);
-	  cplx_add (p, tmp, fpc[n - i]);
-	  cplx_mul (tmp, p1, zi);
-	  cplx_add (p1, tmp, p);
-	}
+        {
+          cplx_mul (tmp, p, zi);
+          cplx_add (p, tmp, fpc[n - i]);
+          cplx_mul (tmp, p1, zi);
+          cplx_add (p1, tmp, p);
+        }
       cplx_mul (tmp, p, zi);
       cplx_add (p, tmp, fpc[n]);
 
       ap = fap[0];
       for (i = 1; i <= n; i++)
-	ap = ap * azi + fap[i];
+        ap = ap * azi + fap[i];
       absp = cplx_mod (p);
       *cont = (absp > ap * eps);
 
@@ -111,26 +111,26 @@ mps_fnewton (mps_status * s, int n, cplx_t z, double *radius, cplx_t corr,
       cplx_sub_eq (den, ppsp);
       cplx_mul_eq (den, zi);
       if (cplx_mod (den) != 0)
-	{
-	  cplx_div (corr, p, den);
-	  ap = (ap * eps + absp) * n;
-	  ap = ap / cplx_mod (den);
-	  *radius = ap;
-	}
+        {
+          cplx_div (corr, p, den);
+          ap = (ap * eps + absp) * n;
+          ap = ap / cplx_mod (den);
+          *radius = ap;
+        }
       else
-	{
-	  cplx_mul (ppsp, p, z);
-	  cplx_div_eq (ppsp, p1);
-	  cplx_mul_d (den, ppsp, (double) n);
-	  cplx_sub_eq (den, cplx_one);
-	  cplx_div (corr, ppsp, den);
-	  cplx_mul_eq (corr, z);
-	  absp = cplx_mod (p);
-	  *cont = (absp > ap * eps);
-	  *radius = cplx_mod (ppsp) + (eps * ap * az) / cplx_mod (p1);
-	  *radius *= n / cplx_mod (den);
-	  *radius *= az;
-	}
+        {
+          cplx_mul (ppsp, p, z);
+          cplx_div_eq (ppsp, p1);
+          cplx_mul_d (den, ppsp, (double) n);
+          cplx_sub_eq (den, cplx_one);
+          cplx_div (corr, ppsp, den);
+          cplx_mul_eq (corr, z);
+          absp = cplx_mod (p);
+          *cont = (absp > ap * eps);
+          *radius = cplx_mod (ppsp) + (eps * ap * az) / cplx_mod (p1);
+          *radius *= n / cplx_mod (den);
+          *radius *= az;
+        }
 
     }
 }
@@ -169,7 +169,7 @@ mps_fnewton (mps_status * s, int n, cplx_t z, double *radius, cplx_t corr,
  */
 void
 mps_dnewton (mps_status * s, int n, cdpe_t z, rdpe_t radius, cdpe_t corr,
-	     cdpe_t dpc[], rdpe_t dap[], mps_boolean * cont)
+             cdpe_t dpc[], rdpe_t dap[], mps_boolean * cont)
 {
   int i;
   rdpe_t ap, az, absp, rnew, apeps, rtmp;
@@ -191,11 +191,11 @@ mps_dnewton (mps_status * s, int n, cdpe_t z, rdpe_t radius, cdpe_t corr,
   if (cdpe_ne (p, cdpe_zero))
     if (cdpe_eq (p1, cdpe_zero))
       {
-	if (s->DOLOG)
-	  fprintf (s->logstr, "%s", "NULL DERIVATIVE\n");
-	cdpe_set (corr, cdpe_zero);
-	*cont = false;
-	return;
+        if (s->DOLOG)
+          fprintf (s->logstr, "%s", "NULL DERIVATIVE\n");
+        cdpe_set (corr, cdpe_zero);
+        *cont = false;
+        return;
       }
     else
       cdpe_div (corr, p, p1);
@@ -224,7 +224,7 @@ mps_dnewton (mps_status * s, int n, cdpe_t z, rdpe_t radius, cdpe_t corr,
     {
       rdpe_mul_eq_d (rnew, (double) (n + 1));
       if (rdpe_lt (rnew, radius))
-	rdpe_set (radius, rnew);
+        rdpe_set (radius, rnew);
     }
 }
 
@@ -257,7 +257,7 @@ mps_intlog2 (int n)
  */
 void
 mps_parhorner (mps_status * st, int n, mpc_t x, mpc_t p[],
-	       mps_boolean b[], mpc_t s, int n_thread)
+               mps_boolean b[], mpc_t s, int n_thread)
 {
   int m, j, i, i1, i2, q;
   tmpc_t tmp, y;
@@ -285,25 +285,25 @@ mps_parhorner (mps_status * st, int n, mpc_t x, mpc_t p[],
       spar2[m] = false;
       m = (m + 1) >> 1;
       for (i = 0; i < m; i++)
-	{
-	  i2 = (i << 1) + 1;
-	  i1 = i2 - 1;
-	  bi = spar2[i1] || spar2[i2];
-	  if (bi)
-	    {
-	      if (spar2[i1])
-		if (spar2[i2])
-		  {
-		    mpc_mul (tmp, y, mfpc2[i2]);
-		    mpc_add (mfpc2[i], mfpc2[i1], tmp);
-		  }
-		else
-		  mpc_set (mfpc2[i], mfpc2[i1]);
-	      else
-		mpc_mul (mfpc2[i], y, mfpc2[i2]);
-	    }
-	  spar2[i] = bi;
-	}
+        {
+          i2 = (i << 1) + 1;
+          i1 = i2 - 1;
+          bi = spar2[i1] || spar2[i2];
+          if (bi)
+            {
+              if (spar2[i1])
+                if (spar2[i2])
+                  {
+                    mpc_mul (tmp, y, mfpc2[i2]);
+                    mpc_add (mfpc2[i], mfpc2[i1], tmp);
+                  }
+                else
+                  mpc_set (mfpc2[i], mfpc2[i1]);
+              else
+                mpc_mul (mfpc2[i], y, mfpc2[i2]);
+            }
+          spar2[i] = bi;
+        }
       spar2[m] = false;
       mpc_sqr_eq (y);
     }
@@ -329,8 +329,8 @@ mps_parhorner (mps_status * st, int n, mpc_t x, mpc_t p[],
  */
 void
 mps_aparhorner (mps_status * st,
-		int n, rdpe_t x, rdpe_t p[], mps_boolean b[], rdpe_t s,
-		int n_thread)
+                int n, rdpe_t x, rdpe_t p[], mps_boolean b[], rdpe_t s,
+                int n_thread)
 {
   int m, i, j, i1, i2, q;
   rdpe_t y, tmp;
@@ -345,7 +345,7 @@ mps_aparhorner (mps_status * st,
     spar2[i] = b[i];
   for (i = 0; i < n; i++)
     if (b[i])
-      rdpe_set (dap2[i], p[i]);	/* D99 */
+      rdpe_set (dap2[i], p[i]); /* D99 */
   q = mps_intlog2 (n + 1);
   m = n;
   rdpe_set (y, x);
@@ -354,25 +354,25 @@ mps_aparhorner (mps_status * st,
       spar2[m] = false;
       m = (m + 1) >> 1;
       for (i = 0; i < m; i++)
-	{
-	  i2 = (i << 1) + 1;
-	  i1 = i2 - 1;
-	  bi = spar2[i1] || spar2[i2];
-	  if (bi)
-	    {
-	      if (spar2[i1])
-		if (spar2[i2])
-		  {
-		    rdpe_mul (tmp, y, dap2[i2]);
-		    rdpe_add (dap2[i], dap2[i1], tmp);
-		  }
-		else
-		  rdpe_set (dap2[i], dap2[i1]);
-	      else
-		rdpe_mul (dap2[i], y, dap2[i2]);
-	    }
-	  spar2[i] = bi;
-	}
+        {
+          i2 = (i << 1) + 1;
+          i1 = i2 - 1;
+          bi = spar2[i1] || spar2[i2];
+          if (bi)
+            {
+              if (spar2[i1])
+                if (spar2[i2])
+                  {
+                    rdpe_mul (tmp, y, dap2[i2]);
+                    rdpe_add (dap2[i], dap2[i1], tmp);
+                  }
+                else
+                  rdpe_set (dap2[i], dap2[i1]);
+              else
+                rdpe_mul (dap2[i], y, dap2[i2]);
+            }
+          spar2[i] = bi;
+        }
       spar2[m] = false;
       rdpe_sqr_eq (y);
     }
@@ -418,8 +418,8 @@ mps_aparhorner (mps_status * st,
  */
 void
 mps_mnewton (mps_status * s, int n, mpc_t z, rdpe_t radius, mpc_t corr,
-	     mpc_t mfpc[], mpc_t mfppc[], rdpe_t dap[],
-	     mps_boolean spar[], mps_boolean * cont, int n_thread)
+             mpc_t mfpc[], mpc_t mfppc[], rdpe_t dap[],
+             mps_boolean spar[], mps_boolean * cont, int n_thread)
 {
   int i, n1, n2;
   rdpe_t ap, az, absp, temp, rnew, ep, apeps;
@@ -435,7 +435,7 @@ mps_mnewton (mps_status * s, int n, mpc_t z, rdpe_t radius, mpc_t corr,
 
   rdpe_mul_d (ep, s->mp_epsilon, (double) (n * 4));
   if (s->data_type[0] == 's')
-    {				/* case of sparse polynomial */
+    {                           /* case of sparse polynomial */
       n1 = n + 1;
       n2 = n;
 
@@ -447,7 +447,7 @@ mps_mnewton (mps_status * s, int n, mpc_t z, rdpe_t radius, mpc_t corr,
       /* compute bound to the error */
       mps_aparhorner (s, n1, az, dap, spar, ap, n_thread);
       for (i = 0; i < n2; i++)
-	spar2[i] = spar[i + 1];
+        spar2[i] = spar[i + 1];
       spar2[n2] = false;
 
       /* compute p'(z) */
@@ -455,18 +455,18 @@ mps_mnewton (mps_status * s, int n, mpc_t z, rdpe_t radius, mpc_t corr,
 
     }
   else
-    {				/*  dense polynomial */
+    {                           /*  dense polynomial */
 
       /* commpute p(z) and p'(z) */
       mpc_set (p, mfpc[n]);
       mpc_set (p1, p);
       for (i = n - 1; i > 0; i--)
-	{
-	  mpc_mul (p, p, z);
-	  mpc_add (p, p, mfpc[i]);
-	  mpc_mul (p1, p1, z);
-	  mpc_add (p1, p1, p);
-	}
+        {
+          mpc_mul (p, p, z);
+          mpc_add (p, p, mfpc[i]);
+          mpc_mul (p1, p1, z);
+          mpc_add (p1, p1, p);
+        }
       mpc_mul (p, p, z);
       mpc_add (p, p, mfpc[0]);
 
@@ -475,21 +475,21 @@ mps_mnewton (mps_status * s, int n, mpc_t z, rdpe_t radius, mpc_t corr,
       mpc_get_cdpe (temp1, z);
       cdpe_mod (az, temp1);
       for (i = n - 1; i >= 0; i--)
-	{
-	  rdpe_mul (temp, ap, az);
-	  rdpe_add (ap, temp, dap[i]);
-	}
+        {
+          rdpe_mul (temp, ap, az);
+          rdpe_add (ap, temp, dap[i]);
+        }
     }
 
   /* common part */
   if (!mpc_eq_zero (p))
     if (mpc_eq_zero (p1))
       {
-	if (s->DOLOG)
-	  fprintf (s->logstr, "%s", "NULL DERIVATIVE\n");
-	*cont = false;
-	mpc_set_ui (corr, 0U, 0U);
-	goto exit_sub;
+        if (s->DOLOG)
+          fprintf (s->logstr, "%s", "NULL DERIVATIVE\n");
+        *cont = false;
+        mpc_set_ui (corr, 0U, 0U);
+        goto exit_sub;
       }
     else
       mpc_div (corr, p, p1);
@@ -501,10 +501,10 @@ mps_mnewton (mps_status * s, int n, mpc_t z, rdpe_t radius, mpc_t corr,
       mpc_get_cdpe (temp1, p1);
       cdpe_mod (temp, temp1);
       if (rdpe_eq_zero (temp))
-	{
-	  fprintf (s->logstr, "%s", "NULL DERIVATIVE\n");
-	  goto exit_sub;
-	}
+        {
+          fprintf (s->logstr, "%s", "NULL DERIVATIVE\n");
+          goto exit_sub;
+        }
       rdpe_div (radius, apeps, temp);
       rdpe_mul_eq_d (radius, (double) n + 1);
       goto exit_sub;
@@ -523,7 +523,7 @@ mps_mnewton (mps_status * s, int n, mpc_t z, rdpe_t radius, mpc_t corr,
     {
       rdpe_mul_eq_d (rnew, (double) (n + 1));
       if (rdpe_lt (rnew, radius))
-	rdpe_set (radius, rnew);
+        rdpe_set (radius, rnew);
     }
 
 exit_sub:

@@ -64,7 +64,7 @@ test_secsolve_on_pol (test_pol * pol)
   check_stream = fopen (pol->res_file, "r");
 
   fail_if (!(input_stream && check_stream),
-	   "Cannot open one or more input files");
+           "Cannot open one or more input files");
 
   /* Some default values */
   mps_set_default_values (s);
@@ -105,17 +105,17 @@ test_secsolve_on_pol (test_pol * pol)
 
       passed = false;
       for (j = 0; j < s->n; j++)
-	{
-	  mpc_sub (ctmp, root, s->mroot[j]);
-	  mpc_mod (mroot, ctmp);
-	  mpc_mod (ftmp, root);
-	  mpf_mul_eq (ftmp, eps);
-	  if (mpf_cmp (mroot, ftmp) <= 0)
-	    {
-	      passed = true;
-	      break;
-	    }
-	}
+        {
+          mpc_sub (ctmp, root, s->mroot[j]);
+          mpc_mod (mroot, ctmp);
+          mpc_mod (ftmp, root);
+          mpf_mul_eq (ftmp, eps);
+          if (mpf_cmp (mroot, ftmp) <= 0)
+            {
+              passed = true;
+              break;
+            }
+        }
     }
 
   mpf_clear (mroot);
@@ -127,13 +127,13 @@ test_secsolve_on_pol (test_pol * pol)
   fclose (check_stream);
 
   fail_unless (passed == true,
-	       "Computed results are not exact to the required "
-	       "precision.\n" "\n" " Dumping test configuration: \n"
-	       "   => Polynomial file: %s;\n" "   => Required digits: %d\n"
-	       "   => Gemignani's approach: %s;\n"
-	       "   => Starting phase: %s;\n", pol->pol_file, pol->out_digits,
-	       mps_boolean_to_string (pol->ga),
-	       (pol->phase == float_phase) ? "float_phase" : "dpe_phase");
+               "Computed results are not exact to the required "
+               "precision.\n" "\n" " Dumping test configuration: \n"
+               "   => Polynomial file: %s;\n" "   => Required digits: %d\n"
+               "   => Gemignani's approach: %s;\n"
+               "   => Starting phase: %s;\n", pol->pol_file, pol->out_digits,
+               mps_boolean_to_string (pol->ga),
+               (pol->phase == float_phase) ? "float_phase" : "dpe_phase");
 }
 
 START_TEST (test_secsolve)

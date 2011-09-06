@@ -70,26 +70,26 @@ prescan ()
   skip ();
   if (c != '{')
     error ();
-  skip ();			/* eat '{' */
+  skip ();                      /* eat '{' */
   for (poly = 0; c == '{'; poly++)
     {
       do
-	{
-	  if (!fscanf (fp, "%d", &deg))
-	    error ();
-	  update (poly, deg);
-	  polymon[poly]++;
-	  skipnum ();
-	  if (c != ',' && c != '}')
-	    error ();
-	}
+        {
+          if (!fscanf (fp, "%d", &deg))
+            error ();
+          update (poly, deg);
+          polymon[poly]++;
+          skipnum ();
+          if (c != ',' && c != '}')
+            error ();
+        }
       while (c == ',');
-      skip ();			/* eat '}' */
+      skip ();                  /* eat '}' */
       if (c != ',' && c != '}')
-	error ();
+        error ();
       if (c == ',')
-	skip ();		/* eat ',' */
-    }				/* for */
+        skip ();                /* eat ',' */
+    }                           /* for */
   if (c != '}')
     error ();
 }
@@ -105,23 +105,23 @@ scan ()
   fscanf (fp, "%d", &prec);
   printf ("%d\n%d\n%d\n", var, degmax, prec);
 
-  skip ();			/* eat first "{" */
-  skip ();			/* eat '{' */
+  skip ();                      /* eat first "{" */
+  skip ();                      /* eat '{' */
   for (poly = 0; poly <= var + 1; poly++)
     {
       printf ("\nsri\n");
       if (poly == 0)
-	printf ("0\n");
+        printf ("0\n");
       printf ("%d\n%d\n", polydeg[poly], polymon[poly]);
       for (mon = 0; mon < polymon[poly]; mon++)
-	{
-	  fscanf (fp, "%d", &deg);
-	  printf (" %d\n", deg);
-	  copynum ();
-	}
-      skip ();			/* eat '}' */
+        {
+          fscanf (fp, "%d", &deg);
+          printf (" %d\n", deg);
+          copynum ();
+        }
+      skip ();                  /* eat '}' */
       if (c == ',')
-	skip ();		/* eat ',' */
+        skip ();                /* eat ',' */
     }
 }
 

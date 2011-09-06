@@ -119,14 +119,14 @@ mps_refine (mps_status * s, int i, long prec)
   for (j = 0; j < s->n; j++)
     if (j != i)
       {
-	mpc_sub (mtmp, s->mroot[j], s->mroot[i]);
-	mpc_get_cdpe (ctmp, mtmp);
-	cdpe_mod (tmp, ctmp);
-	rdpe_sub_eq (tmp, s->drad[i]);
-	if (rdpe_gt (t, tmp))
-	  rdpe_set (t, tmp);
-	rdpe_sub_eq (tmp, s->drad[j]);
-	rdpe_mul_eq (cond, tmp);
+        mpc_sub (mtmp, s->mroot[j], s->mroot[i]);
+        mpc_get_cdpe (ctmp, mtmp);
+        cdpe_mod (tmp, ctmp);
+        rdpe_sub_eq (tmp, s->drad[i]);
+        if (rdpe_gt (t, tmp))
+          rdpe_set (t, tmp);
+        rdpe_sub_eq (tmp, s->drad[j]);
+        rdpe_mul_eq (cond, tmp);
       }
 
   /* second:
@@ -171,14 +171,14 @@ mps_refine (mps_status * s, int i, long prec)
   for (j = 1; j <= m; j++)
     {
       if (s->DOLOG)
-	fprintf (s->logstr, "iter= %d\n", j);
+        fprintf (s->logstr, "iter= %d\n", j);
       g *= 2;
       s->mpwp = (long) (f + g + cnd);
       mpc_set_prec (nwtcorr, s->mpwp);
       mps_mp_set_prec (s, s->mpwp);
       mps_prepare_data (s, s->mpwp);
       mps_mnewton (s, s->n, s->mroot[i], s->drad[i], nwtcorr, s->mfpc,
-		   s->mfppc, s->dap, s->spar, &aga, 0);
+                   s->mfppc, s->dap, s->spar, &aga, 0);
       mpc_sub_eq (s->mroot[i], nwtcorr);
 
       /* correct radius, since the computed one is referred to the previous
@@ -190,7 +190,7 @@ mps_refine (mps_status * s, int i, long prec)
       cdpe_mod (tmp, ctmp);
       rdpe_mul_eq (tmp, s->eps_out);
       if (rdpe_lt (s->drad[i], tmp))
-	break;			/* loop1 */
+        break;                  /* loop1 */
     }
 
   /* Check for zero radius */

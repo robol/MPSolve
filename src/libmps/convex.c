@@ -25,7 +25,7 @@
 
 #include <mps/core.h>
 
-const double TOLER = 0.4;	/* slope tolerace */
+const double TOLER = 0.4;       /* slope tolerace */
 
 /**
  * @brief find max lo<j<=i : h[j]
@@ -116,29 +116,29 @@ mps_fmerge (mps_status * s, int lo, int i, int up, double a[])
   do
     {
       if (il == lo)
-	tstl = true;
+        tstl = true;
       else
-	{
-	  ill = mps_left (s, il, lo);
-	  tstl = mps_fctest (s, ill, il, ir, a);
-	}
+        {
+          ill = mps_left (s, il, lo);
+          tstl = mps_fctest (s, ill, il, ir, a);
+        }
       if (ir == up)
-	tstr = true;
+        tstr = true;
       else
-	{
-	  irr = mps_right (s, ir, up);
-	  tstr = mps_fctest (s, il, ir, irr, a);
-	}
+        {
+          irr = mps_right (s, ir, up);
+          tstr = mps_fctest (s, il, ir, irr, a);
+        }
       if (!tstl)
-	{
-	  s->h[il] = false;
-	  il = ill;
-	}
+        {
+          s->h[il] = false;
+          il = ill;
+        }
       if (!tstr)
-	{
-	  s->h[ir] = false;
-	  ir = irr;
-	}
+        {
+          s->h[ir] = false;
+          ir = irr;
+        }
     }
   while (!(tstl && tstr));
 }

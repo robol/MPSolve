@@ -455,14 +455,14 @@ mpc_pow_si (mpc_t rc, mpc_t c, register signed long int i)
     mpc_set (rc, t);
   else
     mpc_set_ui (rc, 1, 0);
-  i >>= 1;			/* divide i by 2 */
+  i >>= 1;                      /* divide i by 2 */
 
   while (i)
     {
       mpc_sqr_eq (t);
       if (i & 1)
-	mpc_mul_eq (rc, t);
-      i >>= 1;			/* divide i by 2 */
+        mpc_mul_eq (rc, t);
+      i >>= 1;                  /* divide i by 2 */
     }
 
   tmpc_clear (t);
@@ -539,7 +539,7 @@ mpc_eq_one (mpc_t c)
 /* I/O functions */
 size_t
 mpc_out_str_2u (FILE * f, int base, size_t n_digits_r,
-		size_t n_digits_i, mpc_t c)
+                size_t n_digits_i, mpc_t c)
 /* unformatted output */
 {
   if (f == NULL)
@@ -556,7 +556,7 @@ mpc_out_str_2u (FILE * f, int base, size_t n_digits_r,
 
 size_t
 mpc_out_str_2 (FILE * f, int base, size_t n_digits_r,
-	       size_t n_digits_i, mpc_t c)
+               size_t n_digits_i, mpc_t c)
 /* formatted output */
 {
   if (f == NULL)

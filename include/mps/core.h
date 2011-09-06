@@ -79,7 +79,7 @@ extern "C"
   void mps_daberth_s (mps_status * s, int j, int jc, cdpe_t abcorr);
   void mps_maberth_s (mps_status * s, int j, int jc, mpc_t abcorr);
   void mps_maberth_s_wl (mps_status * s, int j, int jc, mpc_t abcorr,
-			 pthread_mutex_t * aberth_mutex);
+                         pthread_mutex_t * aberth_mutex);
   void mps_mnewtis (mps_status * s);
 
 /* functions in mps_clus.c */
@@ -112,23 +112,23 @@ extern "C"
 
 /* functions in mps_newt.c */
   void mps_fnewton (mps_status * st, int n, cplx_t z, double *radius,
-		    cplx_t corr, cplx_t fpc[], double fap[],
-		    mps_boolean * cont);
+                    cplx_t corr, cplx_t fpc[], double fap[],
+                    mps_boolean * cont);
   void mps_dnewton (mps_status * st, int n, cdpe_t z, rdpe_t radius,
-		    cdpe_t corr, cdpe_t dpc[], rdpe_t dap[],
-		    mps_boolean * cont);
+                    cdpe_t corr, cdpe_t dpc[], rdpe_t dap[],
+                    mps_boolean * cont);
   void mps_mnewton (mps_status * st, int n, mpc_t z, rdpe_t radius,
-		    mpc_t corr, mpc_t mfpc[], mpc_t mfppc[], rdpe_t dap[],
-		    mps_boolean * spar, mps_boolean * cont, int n_thread);
+                    mpc_t corr, mpc_t mfpc[], mpc_t mfppc[], rdpe_t dap[],
+                    mps_boolean * spar, mps_boolean * cont, int n_thread);
   void mps_parhorner (mps_status * st, int n, mpc_t x, mpc_t p[],
-		      mps_boolean b[], mpc_t s, int n_thread);
+                      mps_boolean b[], mpc_t s, int n_thread);
   void mps_aparhorner (mps_status * st, int n, rdpe_t x, rdpe_t p[],
-		       mps_boolean b[], rdpe_t s, int n_thread);
+                       mps_boolean b[], rdpe_t s, int n_thread);
 
 /* Function in mps_opts.c */
   void mps_parse_opts (mps_status * s, int argc, char *argv[]);
   mps_boolean mps_getopts (mps_opt ** opt, int *argc_ptr, char ***argv_ptr,
-			   const char *opt_format);
+                           const char *opt_format);
 
 
 
@@ -155,22 +155,22 @@ extern "C"
 
 /* functions in mps_star.c */
   double mps_maximize_distance (mps_status * s, double last_sigma,
-				int i_cluster, int n);
+                                int i_cluster, int n);
   void mps_fstart (mps_status * s, int n, int i_clust, double clust_rad,
-		   double g, rdpe_t eps_out, double fap[]);
+                   double g, rdpe_t eps_out, double fap[]);
   void mps_dstart (mps_status * s, int n, int i_clust, rdpe_t clust_rad,
-		   rdpe_t g, rdpe_t eps_out, rdpe_t dap[]);
+                   rdpe_t g, rdpe_t eps_out, rdpe_t dap[]);
   void mps_mstart (mps_status * s, int n, int i_clust, rdpe_t clust_rad,
-		   rdpe_t g, rdpe_t dap[], mpc_t gg);
+                   rdpe_t g, rdpe_t dap[], mpc_t gg);
   void mps_frestart (mps_status * s);
   void mps_drestart (mps_status * s);
   void mps_mrestart (mps_status * s);
   void mps_fshift (mps_status * s, int m, int i_clust, double clust_rad,
-		   cplx_t g, rdpe_t eps);
+                   cplx_t g, rdpe_t eps);
   void mps_dshift (mps_status * s, int m, int i_clust, rdpe_t clust_rad,
-		   cdpe_t g, rdpe_t eps);
+                   cdpe_t g, rdpe_t eps);
   void mps_mshift (mps_status * s, int m, int i_clust, rdpe_t clust_rad,
-		   mpc_t g);
+                   mpc_t g);
 
 /* functions in mps_stio.c */
   void mps_readroots (mps_status * s);
@@ -208,11 +208,11 @@ extern "C"
 
 /* functions in mps_usr.c */
   void mps_fnewton_usr (mps_status * st, cplx_t x, double *rad, cplx_t corr,
-			mps_boolean * again);
+                        mps_boolean * again);
   void mps_dnewton_usr (mps_status * st, cdpe_t x, rdpe_t rad, cdpe_t corr,
-			mps_boolean * again);
+                        mps_boolean * again);
   void mps_mnewton_usr (mps_status * st, mpc_t x, rdpe_t rad, mpc_t corr,
-			mps_boolean * again);
+                        mps_boolean * again);
 
 /* Routines of Input/Output in stio.c */
   void mps_skip_comments (FILE * input_stream);
@@ -222,7 +222,7 @@ extern "C"
 
   void
     mps_parse_stream (mps_status * s, FILE * input_stream,
-		      mps_parsing_configuration default_configuration);
+                      mps_parsing_configuration default_configuration);
 
 /*
  * End of extern "C" {
@@ -233,4 +233,4 @@ extern "C"
 }
 #endif
 
-#endif				/* ndef MPS_CORE_H */
+#endif                          /* ndef MPS_CORE_H */

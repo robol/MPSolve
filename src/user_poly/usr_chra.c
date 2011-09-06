@@ -95,110 +95,110 @@ fnewton_usr (cplx_t x, double *rad, cplx_t corr, mps_boolean * again)
     ax = cplx_mod (x);
 
 /* auxiliary terms */
-    cplx_mul (xm1s, xm1, xm1);	// (x-1)^2
-    cplx_add (xm1s2, xm1s, xm1s);	// 2(x-1)^2
-    cplx_add (xm1s3, xm1s2, xm1s);	// 3(x-1)^2
-    cplx_mul (xm1c, xm1, xm1s);	// (x-1)^3
-    axm1 = cplx_mod (xm1);	// |x-1|
-    axm1s = axm1 * axm1;	// |x-1|^2
-    axm1c = axm1 * axm1s;	// |x-1|^3
-    axm2 = cplx_mod (xm2);	// |x-2|
+    cplx_mul (xm1s, xm1, xm1);  // (x-1)^2
+    cplx_add (xm1s2, xm1s, xm1s);       // 2(x-1)^2
+    cplx_add (xm1s3, xm1s2, xm1s);      // 3(x-1)^2
+    cplx_mul (xm1c, xm1, xm1s); // (x-1)^3
+    axm1 = cplx_mod (xm1);      // |x-1|
+    axm1s = axm1 * axm1;        // |x-1|^2
+    axm1c = axm1 * axm1s;       // |x-1|^3
+    axm2 = cplx_mod (xm2);      // |x-2|
 
 /* computation */
     for (i = 1; i <= m; i++)
       {
-	/* polynomial */
-	cplx_mul (as, a, a);
-	cplx_mul (aq, as, as);
-	cplx_mul (cs, c, c);
-	cplx_mul (cq, cs, cs);
-	cplx_mul (cc, cs, c);
-	cplx_mul (ac, as, a);
-	cplx_mul (na, xm1c, aq);
-	cplx_add (na, na, cq);
-	cplx_mul (d, cs, xm2);
-	cplx_mul (ctmp1, xm1s2, as);
-	cplx_add (d, d, ctmp1);
-	cplx_mul (nc, d, cs);
+        /* polynomial */
+        cplx_mul (as, a, a);
+        cplx_mul (aq, as, as);
+        cplx_mul (cs, c, c);
+        cplx_mul (cq, cs, cs);
+        cplx_mul (cc, cs, c);
+        cplx_mul (ac, as, a);
+        cplx_mul (na, xm1c, aq);
+        cplx_add (na, na, cq);
+        cplx_mul (d, cs, xm2);
+        cplx_mul (ctmp1, xm1s2, as);
+        cplx_add (d, d, ctmp1);
+        cplx_mul (nc, d, cs);
 
-	/* derivative  */
-	/* a */
-	cplx_mul (aap, a, ap);
-	cplx_mul (ccp, c, cp);
-	cplx_mul (ap, xm1c, as);
-	cplx_mul (ap, ap, aap);
-	cplx_mul (ctmp1, cs, ccp);
-	cplx_add (ap, ap, ctmp1);
-	cplx_mul_d (ap, ap, 4);
-	cplx_mul (ctmp1, xm1s3, aq);
-	cplx_add (ap, ap, ctmp1);	// a'
+        /* derivative  */
+        /* a */
+        cplx_mul (aap, a, ap);
+        cplx_mul (ccp, c, cp);
+        cplx_mul (ap, xm1c, as);
+        cplx_mul (ap, ap, aap);
+        cplx_mul (ctmp1, cs, ccp);
+        cplx_add (ap, ap, ctmp1);
+        cplx_mul_d (ap, ap, 4);
+        cplx_mul (ctmp1, xm1s3, aq);
+        cplx_add (ap, ap, ctmp1);       // a'
 
-	/* d */
-	cplx_mul (ctmp1, ccp, xm2);
-	cplx_mul (ctmp2, xm1, as);
-	cplx_add (ctmp2, ctmp2, ctmp2);
-	cplx_add (ctmp1, ctmp1, ctmp2);
-	cplx_mul (ctmp2, xm1s2, aap);
-	cplx_add (ctmp1, ctmp1, ctmp2);
-	cplx_add (ctmp1, ctmp1, ctmp1);
-	cplx_add (dp, cs, ctmp1);	// d'
+        /* d */
+        cplx_mul (ctmp1, ccp, xm2);
+        cplx_mul (ctmp2, xm1, as);
+        cplx_add (ctmp2, ctmp2, ctmp2);
+        cplx_add (ctmp1, ctmp1, ctmp2);
+        cplx_mul (ctmp2, xm1s2, aap);
+        cplx_add (ctmp1, ctmp1, ctmp2);
+        cplx_add (ctmp1, ctmp1, ctmp1);
+        cplx_add (dp, cs, ctmp1);       // d'
 
-	/* c */
-	cplx_mul (cp, cs, dp);
-	cplx_mul (ctmp1, ccp, d);
-	cplx_add (ctmp1, ctmp1, ctmp1);
-	cplx_add (cp, cp, ctmp1);
-
-
-	/* error bound */
-	absa = cplx_mod (a);
-	absc = cplx_mod (c);
-	absd = cplx_mod (d);
-	absas = absa * absa;
-	absac = absas * absa;
-	absaq = absas * absas;
-	abscs = absc * absc;
-	abscc = abscs * absc;
-	abscq = abscs * abscs;
-
-	rtmp1 = absac * ea;
-	rtmp1 = 4 * rtmp1;
-	ean = absaq * s1;
-	ean = ean + rtmp1;
-	ean = ean * axm1c;
-	rtmp1 = abscq * s2;
-	ean = ean + rtmp1;
-	rtmp1 = abscc * ec;
-	rtmp1 = 4 * rtmp1;
-	ean = rtmp1 + ean;	//ean
-
-	rtmp1 = abscs * s4;
-	ed = absc * ec;
-	ed = ed * 2;
-	ed = ed + rtmp1;
-	ed = ed * axm2;
-	rtmp1 = absas * s5;
-	rtmp2 = absa * ea;
-	rtmp2 = 2 * rtmp2;
-	rtmp1 = rtmp1 + rtmp2;
-	rtmp1 = rtmp1 * axm1s;
-	rtmp1 = 2 * rtmp1;
-	ed = ed + rtmp1;	//ed
-
-	rtmp1 = absd * s3;
-	rtmp1 = rtmp1 + ed;
-	rtmp1 = rtmp1 * abscs;
-	ecn = ec * absd;
-	ecn = ecn * absc;
-	ecn = 2 * ecn;
-	ecn = ecn + rtmp1;	//ecn
+        /* c */
+        cplx_mul (cp, cs, dp);
+        cplx_mul (ctmp1, ccp, d);
+        cplx_add (ctmp1, ctmp1, ctmp1);
+        cplx_add (cp, cp, ctmp1);
 
 
-	/* shift */
-	cplx_set (a, na);
-	cplx_set (c, nc);
-	ea = ean;
-	ec = ecn;
+        /* error bound */
+        absa = cplx_mod (a);
+        absc = cplx_mod (c);
+        absd = cplx_mod (d);
+        absas = absa * absa;
+        absac = absas * absa;
+        absaq = absas * absas;
+        abscs = absc * absc;
+        abscc = abscs * absc;
+        abscq = abscs * abscs;
+
+        rtmp1 = absac * ea;
+        rtmp1 = 4 * rtmp1;
+        ean = absaq * s1;
+        ean = ean + rtmp1;
+        ean = ean * axm1c;
+        rtmp1 = abscq * s2;
+        ean = ean + rtmp1;
+        rtmp1 = abscc * ec;
+        rtmp1 = 4 * rtmp1;
+        ean = rtmp1 + ean;      //ean
+
+        rtmp1 = abscs * s4;
+        ed = absc * ec;
+        ed = ed * 2;
+        ed = ed + rtmp1;
+        ed = ed * axm2;
+        rtmp1 = absas * s5;
+        rtmp2 = absa * ea;
+        rtmp2 = 2 * rtmp2;
+        rtmp1 = rtmp1 + rtmp2;
+        rtmp1 = rtmp1 * axm1s;
+        rtmp1 = 2 * rtmp1;
+        ed = ed + rtmp1;        //ed
+
+        rtmp1 = absd * s3;
+        rtmp1 = rtmp1 + ed;
+        rtmp1 = rtmp1 * abscs;
+        ecn = ec * absd;
+        ecn = ecn * absc;
+        ecn = 2 * ecn;
+        ecn = ecn + rtmp1;      //ecn
+
+
+        /* shift */
+        cplx_set (a, na);
+        cplx_set (c, nc);
+        ea = ean;
+        ec = ecn;
       }
 
 
@@ -206,7 +206,7 @@ fnewton_usr (cplx_t x, double *rad, cplx_t corr, mps_boolean * again)
 
     absa = cplx_mod (a);
     cplx_div (corr, a, ap);
-    *again = (ean < absa);	//rdpe_lt(ean, absa);
+    *again = (ean < absa);      //rdpe_lt(ean, absa);
     rtmp1 = cplx_mod (ap);
     absa = n * (absa + ean) / rtmp1;
     *rad = absa;
@@ -264,14 +264,14 @@ dnewton_usr (cdpe_t x, rdpe_t rad, cdpe_t corr, mps_boolean * again)
   cdpe_mod (ax, x);
 
 /* auxiliary terms */
-  cdpe_mul (xm1s, xm1, xm1);	// (x-1)^2
-  cdpe_mul_2exp (xm1s2, xm1s, 1);	// 2(x-1)^2
-  cdpe_add (xm1s3, xm1s2, xm1s);	// 3(x-1)^2
-  cdpe_mul (xm1c, xm1, xm1s);	// (x-1)^3
-  cdpe_mod (axm1, xm1);		// |x-1|
-  rdpe_mul (axm1s, axm1, axm1);	// |x-1|^2
-  rdpe_mul (axm1c, axm1, axm1s);	// |x-1|^3
-  cdpe_mod (axm2, xm2);		// |x-2|
+  cdpe_mul (xm1s, xm1, xm1);    // (x-1)^2
+  cdpe_mul_2exp (xm1s2, xm1s, 1);       // 2(x-1)^2
+  cdpe_add (xm1s3, xm1s2, xm1s);        // 3(x-1)^2
+  cdpe_mul (xm1c, xm1, xm1s);   // (x-1)^3
+  cdpe_mod (axm1, xm1);         // |x-1|
+  rdpe_mul (axm1s, axm1, axm1); // |x-1|^2
+  rdpe_mul (axm1c, axm1, axm1s);        // |x-1|^3
+  cdpe_mod (axm2, xm2);         // |x-2|
 
 /* computation */
   for (i = 1; i <= m; i++)
@@ -300,7 +300,7 @@ dnewton_usr (cdpe_t x, rdpe_t rad, cdpe_t corr, mps_boolean * again)
       cdpe_add (ap, ap, ctmp1);
       cdpe_mul_2exp (ap, ap, 2);
       cdpe_mul (ctmp1, xm1s3, aq);
-      cdpe_add (ap, ap, ctmp1);	// a'
+      cdpe_add (ap, ap, ctmp1); // a'
 
       /* d */
       cdpe_mul (ctmp1, ccp, xm2);
@@ -310,7 +310,7 @@ dnewton_usr (cdpe_t x, rdpe_t rad, cdpe_t corr, mps_boolean * again)
       cdpe_mul (ctmp2, xm1s2, aap);
       cdpe_add (ctmp1, ctmp1, ctmp2);
       cdpe_mul_2exp (ctmp1, ctmp1, 1);
-      cdpe_add (dp, cs, ctmp1);	// d'
+      cdpe_add (dp, cs, ctmp1); // d'
 
       /* c */
       cdpe_mul (cp, cs, dp);
@@ -339,7 +339,7 @@ dnewton_usr (cdpe_t x, rdpe_t rad, cdpe_t corr, mps_boolean * again)
       rdpe_add (ean, ean, rtmp1);
       rdpe_mul (rtmp1, abscc, ec);
       rdpe_mul_2exp (rtmp1, rtmp1, 2);
-      rdpe_add (ean, rtmp1, ean);	//ean
+      rdpe_add (ean, rtmp1, ean);       //ean
 
       rdpe_mul_d (rtmp1, abscs, s4);
       rdpe_mul (ed, absc, ec);
@@ -352,7 +352,7 @@ dnewton_usr (cdpe_t x, rdpe_t rad, cdpe_t corr, mps_boolean * again)
       rdpe_add (rtmp1, rtmp1, rtmp2);
       rdpe_mul (rtmp1, rtmp1, axm1s);
       rdpe_mul_2exp (rtmp1, rtmp1, 1);
-      rdpe_add (ed, ed, rtmp1);	//ed
+      rdpe_add (ed, ed, rtmp1); //ed
 
       rdpe_mul_d (rtmp1, absd, s3);
       rdpe_add (rtmp1, rtmp1, ed);
@@ -360,7 +360,7 @@ dnewton_usr (cdpe_t x, rdpe_t rad, cdpe_t corr, mps_boolean * again)
       rdpe_mul (ecn, ec, absd);
       rdpe_mul (ecn, ecn, absc);
       rdpe_mul_2exp (ecn, ecn, 1);
-      rdpe_add (ecn, ecn, rtmp1);	//ecn
+      rdpe_add (ecn, ecn, rtmp1);       //ecn
 
 
       /* shift */
@@ -428,13 +428,13 @@ mnewton_usr (mpc_t x, rdpe_t rad, mpc_t corr, mps_boolean * again)
   cdpe_mod (ax, ctmp);
 
 /* initial conditions */
-  mpc_set_d (p0, 1.0, 0.0);	/* p0=1  */
-  mpc_set_d (p1, 1.0, 0.0);	/* p1=1  */
-  mpc_set_d (pp0, 0.0, 0.0);	/* p0'=0 */
-  mpc_set_d (pp1, 0.0, 0.0);	/* p1'=0 */
+  mpc_set_d (p0, 1.0, 0.0);     /* p0=1  */
+  mpc_set_d (p1, 1.0, 0.0);     /* p1=1  */
+  mpc_set_d (pp0, 0.0, 0.0);    /* p0'=0 */
+  mpc_set_d (pp1, 0.0, 0.0);    /* p1'=0 */
 
-  rdpe_set (ap0, rdpe_one);	/* |p0|=1 */
-  rdpe_set (ap1, rdpe_one);	/* |p1|=1 */
+  rdpe_set (ap0, rdpe_one);     /* |p0|=1 */
+  rdpe_set (ap1, rdpe_one);     /* |p1|=1 */
   rdpe_set (d0, rdpe_zero);
   rdpe_set (d1, d0);
 
@@ -479,17 +479,17 @@ mnewton_usr (mpc_t x, rdpe_t rad, mpc_t corr, mps_boolean * again)
       rdpe_mul (rtmp, rtmp, d0);
       rdpe_mul (rtmp, rtmp, ax);
 
-      rdpe_mul_2exp (rtmp, rtmp, 2);	/* 4 |x| |p0|^3 d0 */
+      rdpe_mul_2exp (rtmp, rtmp, 2);    /* 4 |x| |p0|^3 d0 */
 
       rdpe_mul (d2, d1, ap1);
 
-      rdpe_mul_2exp (d2, d2, 1);	/*  2 d1 |p1|  */
+      rdpe_mul_2exp (d2, d2, 1);        /*  2 d1 |p1|  */
       rdpe_add (d2, d2, rtmp);
 
       rdpe_mul (rtmp1, ap0, ap0);
-      rdpe_mul (rtmp1, rtmp1, rtmp1);	/*  |p0|^4 */
+      rdpe_mul (rtmp1, rtmp1, rtmp1);   /*  |p0|^4 */
       rdpe_mul (rtmp1, rtmp1, ax);
-      rdpe_mul_d (rtmp1, rtmp1, (double) 6.66);	/* |x|(4\sqrt 2 +1)|p0|^4 */
+      rdpe_mul_d (rtmp1, rtmp1, (double) 6.66); /* |x|(4\sqrt 2 +1)|p0|^4 */
       rdpe_add (rtmp1, rtmp1, ap2);
       rdpe_mul (rtmp, ap1, ap1);
       rdpe_mul_d (rtmp, rtmp, (double) 2.83);

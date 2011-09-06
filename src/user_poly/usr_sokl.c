@@ -61,13 +61,13 @@ dnewton_usr (cdpe_t x, rdpe_t rad, cdpe_t corr, mps_boolean * again)
   cdpe_mod (ax, x);
 
   /* initial conditions */
-  cdpe_set (p0, cdpe_one);	/* p0=1   */
-  cdpe_set (p1, cdpe_one);	/* p1=1   */
-  cdpe_set (pp0, cdpe_zero);	/* p0'=0  */
-  cdpe_set (pp1, cdpe_zero);	/* p1'=0  */
+  cdpe_set (p0, cdpe_one);      /* p0=1   */
+  cdpe_set (p1, cdpe_one);      /* p1=1   */
+  cdpe_set (pp0, cdpe_zero);    /* p0'=0  */
+  cdpe_set (pp1, cdpe_zero);    /* p1'=0  */
 
-  rdpe_set (ap0, rdpe_one);	/* |p0|=1 */
-  rdpe_set (ap1, rdpe_one);	/* |p1|=1 */
+  rdpe_set (ap0, rdpe_one);     /* |p0|=1 */
+  rdpe_set (ap1, rdpe_one);     /* |p1|=1 */
   rdpe_set (d0, rdpe_zero);
   rdpe_set (d1, d0);
 
@@ -106,17 +106,17 @@ dnewton_usr (cdpe_t x, rdpe_t rad, cdpe_t corr, mps_boolean * again)
       rdpe_mul (rtmp, rtmp, d0);
       rdpe_mul (rtmp, rtmp, ax);
 
-      rdpe_mul_2exp (rtmp, rtmp, 2);	/* 4 |x| |p0|^3 d0 */
+      rdpe_mul_2exp (rtmp, rtmp, 2);    /* 4 |x| |p0|^3 d0 */
 
       rdpe_mul (d2, d1, ap1);
 
-      rdpe_mul_2exp (d2, d2, 1);	/*  2 d1 |p1|  */
+      rdpe_mul_2exp (d2, d2, 1);        /*  2 d1 |p1|  */
       rdpe_add (d2, d2, rtmp);
 
       rdpe_mul (rtmp1, ap0, ap0);
-      rdpe_mul (rtmp1, rtmp1, rtmp1);	/*  |p0|^4 */
+      rdpe_mul (rtmp1, rtmp1, rtmp1);   /*  |p0|^4 */
       rdpe_mul (rtmp1, rtmp1, ax);
-      rdpe_mul_d (rtmp1, rtmp1, (double) 6.66);	/* |x|(4\sqrt 2 +1)|p0|^4 */
+      rdpe_mul_d (rtmp1, rtmp1, (double) 6.66); /* |x|(4\sqrt 2 +1)|p0|^4 */
       rdpe_add (rtmp1, rtmp1, ap2);
       rdpe_mul (rtmp, ap1, ap1);
       rdpe_mul_d (rtmp, rtmp, (double) 2.83);
@@ -169,13 +169,13 @@ mnewton_usr (mpc_t x, rdpe_t rad, mpc_t corr, mps_boolean * again)
   cdpe_mod (ax, ctmp);
 
   /* initial conditions */
-  mpc_set_d (p0, 1.0, 0.0);	/* p0=1   */
-  mpc_set_d (p1, 1.0, 0.0);	/* p1=1   */
-  mpc_set_d (pp0, 0.0, 0.0);	/* p0'=0  */
-  mpc_set_d (pp1, 0.0, 0.0);	/* p1'=0  */
+  mpc_set_d (p0, 1.0, 0.0);     /* p0=1   */
+  mpc_set_d (p1, 1.0, 0.0);     /* p1=1   */
+  mpc_set_d (pp0, 0.0, 0.0);    /* p0'=0  */
+  mpc_set_d (pp1, 0.0, 0.0);    /* p1'=0  */
 
-  rdpe_set (ap0, rdpe_one);	/* |p0|=1 */
-  rdpe_set (ap1, rdpe_one);	/* |p1|=1 */
+  rdpe_set (ap0, rdpe_one);     /* |p0|=1 */
+  rdpe_set (ap1, rdpe_one);     /* |p1|=1 */
   rdpe_set (d0, rdpe_zero);
   rdpe_set (d1, d0);
 
@@ -217,17 +217,17 @@ mnewton_usr (mpc_t x, rdpe_t rad, mpc_t corr, mps_boolean * again)
       rdpe_mul (rtmp, rtmp, d0);
       rdpe_mul (rtmp, rtmp, ax);
 
-      rdpe_mul_2exp (rtmp, rtmp, 2);	/* 4 |x| |p0|^3 d0 */
+      rdpe_mul_2exp (rtmp, rtmp, 2);    /* 4 |x| |p0|^3 d0 */
 
       rdpe_mul (d2, d1, ap1);
 
-      rdpe_mul_2exp (d2, d2, 1);	/*  2 d1 |p1|  */
+      rdpe_mul_2exp (d2, d2, 1);        /*  2 d1 |p1|  */
       rdpe_add (d2, d2, rtmp);
 
       rdpe_mul (rtmp1, ap0, ap0);
-      rdpe_mul (rtmp1, rtmp1, rtmp1);	/*  |p0|^4 */
+      rdpe_mul (rtmp1, rtmp1, rtmp1);   /*  |p0|^4 */
       rdpe_mul (rtmp1, rtmp1, ax);
-      rdpe_mul_d (rtmp1, rtmp1, (double) 6.66);	/* |x|(4\sqrt 2 +1)|p0|^4 */
+      rdpe_mul_d (rtmp1, rtmp1, (double) 6.66); /* |x|(4\sqrt 2 +1)|p0|^4 */
       rdpe_add (rtmp1, rtmp1, ap2);
       rdpe_mul (rtmp, ap1, ap1);
       rdpe_mul_d (rtmp, rtmp, (double) 2.83);

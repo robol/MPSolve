@@ -78,7 +78,7 @@ get_res_file (const char *pol_name, const char *type_name)
 
 test_pol *
 test_pol_new (const char *name, const char *type_name,
-	      int out_digits, mps_phase phase, mps_boolean ga)
+              int out_digits, mps_phase phase, mps_boolean ga)
 {
   test_pol *t = malloc (sizeof (test_pol));
   t->pol_file = get_pol_file (name, type_name);

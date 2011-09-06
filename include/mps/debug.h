@@ -224,4 +224,4 @@ gmp_fprintf(s->logstr, templ); \
 }
 #endif
 
-#endif				/* DEBUG_H */
+#endif                          /* DEBUG_H */

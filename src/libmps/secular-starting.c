@@ -14,7 +14,7 @@
 
 void
 mps_secular_fstart (mps_status * s, int n, int i_clust, double clust_rad,
-		    double g, rdpe_t eps)
+                    double g, rdpe_t eps)
 {
   MPS_DEBUG_THIS_CALL;
 
@@ -31,9 +31,9 @@ mps_secular_fstart (mps_status * s, int n, int i_clust, double clust_rad,
       /* If this is the first cluster select sigma = 0. In the other
        * case try to maximize starting points distance. */
       if (i_clust == 0)
-	sigma = s->last_sigma = 0.1;
+        sigma = s->last_sigma = 0.1;
       else
-	sigma = mps_maximize_distance (s, s->last_sigma, i_clust, n);
+        sigma = mps_maximize_distance (s, s->last_sigma, i_clust, n);
     }
 
   /* The roots are set as the b_i plus a small correction that is the
@@ -41,7 +41,7 @@ mps_secular_fstart (mps_status * s, int n, int i_clust, double clust_rad,
   for (i = 0; i < s->n; i++)
     {
       cplx_set_d (s->froot[l + i], cos (i * th + sigma),
-		  sin (i * th + sigma));
+                  sin (i * th + sigma));
       cplx_mul_eq_d (s->froot[l + i], 10 * DBL_EPSILON);
       cplx_add_eq (s->froot[l + i], sec->bfpc[l + i]);
     }
@@ -49,7 +49,7 @@ mps_secular_fstart (mps_status * s, int n, int i_clust, double clust_rad,
 
 void
 mps_secular_dstart (mps_status * s, int n, int i_clust, rdpe_t clust_rad,
-		    rdpe_t g, rdpe_t eps)
+                    rdpe_t g, rdpe_t eps)
 {
   MPS_DEBUG_THIS_CALL;
 
@@ -66,19 +66,19 @@ mps_secular_dstart (mps_status * s, int n, int i_clust, rdpe_t clust_rad,
       /* If this is the first cluster select sigma = 0. In the other
        * case try to maximize starting points distance. */
       if (i_clust == 0)
-	{
-	  sigma = s->last_sigma = 0.1;
-	}
+        {
+          sigma = s->last_sigma = 0.1;
+        }
       else
-	{
-	  sigma = mps_maximize_distance (s, s->last_sigma, i_clust, n);
-	}
+        {
+          sigma = mps_maximize_distance (s, s->last_sigma, i_clust, n);
+        }
     }
 
   for (i = 0; i < s->n; i++)
     {
       cdpe_set_d (s->droot[l + i], cos (i * th + sigma),
-		  sin (i * th + sigma));
+                  sin (i * th + sigma));
       cdpe_mul_eq_d (s->droot[l + i], 10 * DBL_EPSILON);
       cdpe_add_eq (s->droot[l + i], sec->bdpc[l + i]);
     }
@@ -86,7 +86,7 @@ mps_secular_dstart (mps_status * s, int n, int i_clust, rdpe_t clust_rad,
 
 void
 mps_secular_mstart (mps_status * s, int n, int i_clust, rdpe_t clust_rad,
-		    rdpe_t g, rdpe_t eps)
+                    rdpe_t g, rdpe_t eps)
 {
   MPS_DEBUG_THIS_CALL;
 
@@ -109,13 +109,13 @@ mps_secular_mstart (mps_status * s, int n, int i_clust, rdpe_t clust_rad,
       /* If this is the first cluster select sigma = 0. In the other
        * case try to maximize starting points distance. */
       if (i_clust == 0)
-	{
-	  sigma = s->last_sigma = 0.1;
-	}
+        {
+          sigma = s->last_sigma = 0.1;
+        }
       else
-	{
-	  sigma = mps_maximize_distance (s, s->last_sigma, i_clust, n);
-	}
+        {
+          sigma = mps_maximize_distance (s, s->last_sigma, i_clust, n);
+        }
     }
 
   for (i = 0; i < s->n; i++)

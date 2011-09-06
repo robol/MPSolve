@@ -34,7 +34,7 @@ extern "C"
    * int matlab headers, already a false keyword defined, so
    * reusing it here make compilation fail. */
   typedef bool mps_boolean;
-#endif				/* mps_boolean */
+#endif                          /* mps_boolean */
 
 #define mps_boolean_to_string(x) ((x) == true) ? "true" : "false"
 

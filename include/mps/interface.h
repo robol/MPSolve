@@ -42,12 +42,12 @@ extern "C"
   mps_status *mps_status_new ();
   void mps_status_free (mps_status * s);
   int mps_status_set_poly_d (mps_status * s, cplx_t * coeff,
-			     long unsigned int n);
+                             long unsigned int n);
   int mps_status_set_poly_i (mps_status * s, int *coeff, long unsigned int n);
   int mps_status_get_roots_d (mps_status * s, cplx_t * roots, double *radius);
   int mps_status_set_poly_u (mps_status * s, int n, mps_fnewton_ptr fnewton,
-			     mps_dnewton_ptr dnewton,
-			     mps_mnewton_ptr mnewton);
+                             mps_dnewton_ptr dnewton,
+                             mps_mnewton_ptr mnewton);
   void mps_status_allocate_poly_inplace (mps_status * s, int n);
   void mps_status_select_algorithm (mps_status * s, mps_algorithm algorithm);
   void mps_status_set_degree (mps_status * s, int n);
@@ -62,4 +62,4 @@ extern "C"
 }
 #endif
 
-#endif				/* MPS_INTERFACE_H */
+#endif                          /* MPS_INTERFACE_H */

@@ -55,9 +55,9 @@ mexFunction (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
   for (i = 0; i < n; i++)
     {
       if (!imag_coeff)
-	cplx_set_d (coefficients[n - i - 1], real_coeff[i], 0.0);
+        cplx_set_d (coefficients[n - i - 1], real_coeff[i], 0.0);
       else
-	cplx_set_d (coefficients[n - i - 1], real_coeff[i], imag_coeff[i]);
+        cplx_set_d (coefficients[n - i - 1], real_coeff[i], imag_coeff[i]);
     }
 
   /* Solve the equation */

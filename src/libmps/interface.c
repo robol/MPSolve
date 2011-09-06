@@ -285,7 +285,7 @@ mps_status_free (mps_status * s)
  */
 int
 mps_status_set_poly_u (mps_status * s, int n, mps_fnewton_ptr fnewton,
-		       mps_dnewton_ptr dnewton, mps_mnewton_ptr mnewton)
+                       mps_dnewton_ptr dnewton, mps_mnewton_ptr mnewton)
 {
 
   /* Set degree and allocate data */
@@ -394,30 +394,30 @@ mps_status_get_roots_d (mps_status * s, cplx_t * roots, double *radius)
     {
 
       if (radius != NULL)
-	{
-	  if (s->lastphase == float_phase || s->lastphase == dpe_phase)
-	    {
-	      radius[i] = s->frad[i];
-	    }
-	  else
-	    {
-	      radius[i] = rdpe_get_d (s->drad[i]);
-	    }
+        {
+          if (s->lastphase == float_phase || s->lastphase == dpe_phase)
+            {
+              radius[i] = s->frad[i];
+            }
+          else
+            {
+              radius[i] = rdpe_get_d (s->drad[i]);
+            }
 
-	}
+        }
 
       if (s->lastphase == mp_phase)
-	{
-	  mpc_get_cplx (roots[i], s->mroot[i]);
-	}
+        {
+          mpc_get_cplx (roots[i], s->mroot[i]);
+        }
       else if (s->lastphase == float_phase)
-	{
-	  cplx_set (roots[i], s->froot[i]);
-	}
+        {
+          cplx_set (roots[i], s->froot[i]);
+        }
       else if (s->lastphase == dpe_phase)
-	{
-	  cdpe_get_x (roots[i], s->droot[i]);
-	}
+        {
+          cdpe_get_x (roots[i], s->droot[i]);
+        }
     }
   return 0;
 

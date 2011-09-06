@@ -289,7 +289,7 @@ extern "C"
    */
     mps_boolean best_approx;
 
-  } mps_secular_equation;	/* End of typedef struct {... */
+  } mps_secular_equation;       /* End of typedef struct {... */
 
 
 
@@ -320,19 +320,19 @@ extern "C"
  * @brief Function that computes \f$\frac{p}{p'}\f$ (floating point version)
  */
   typedef void (*mps_fnewton_ptr) (void *status, cplx_t, double *, cplx_t,
-				   mps_boolean *);
+                                   mps_boolean *);
 
 /**
  * @brief Function that computes \f$\frac{p}{p'}\f$ (dpe version)
  */
   typedef void (*mps_dnewton_ptr) (void *status, cdpe_t x, rdpe_t rad,
-				   cdpe_t corr, mps_boolean * again);
+                                   cdpe_t corr, mps_boolean * again);
 
 /**
  * @brief Function that computes \f$\frac{p}{p'}\f$ (multiprecision version)
  */
   typedef void (*mps_mnewton_ptr) (void *status, mpc_t x, rdpe_t rad,
-				   mpc_t corr, mps_boolean * again);
+                                   mpc_t corr, mps_boolean * again);
 
 /**
  * @brief Functions that check if float phase is needed or not and set
@@ -345,14 +345,14 @@ extern "C"
  * floating point iterations.
  */
   typedef void (*mps_fstart_ptr) (void *status, int n, int i_clust,
-				  double clust_rad, double g, rdpe_t eps);
+                                  double clust_rad, double g, rdpe_t eps);
 
 /**
  * @brief Function to dispose starting approximations in the case of
  * DPE iterations.
  */
   typedef void (*mps_dstart_ptr) (void *status, int n, int i_clust,
-				  rdpe_t clust_rad, rdpe_t g, rdpe_t eps);
+                                  rdpe_t clust_rad, rdpe_t g, rdpe_t eps);
 
 /**
  * @brief Routine that performs the computation loop to solve the polynomial
@@ -379,15 +379,15 @@ extern "C"
   typedef struct
   {
 
-    mps_boolean resume;		/* to complete                         */
-    mps_boolean chkrad;		/* check radii after completion        */
+    mps_boolean resume;         /* to complete                         */
+    mps_boolean chkrad;         /* check radii after completion        */
 
-	/**
+        /**
          * @brief Newton isolation of the cluster.
          */
     int newtis;
 
-	/**
+        /**
          * @brief Old value for the newton isolation of the cluster.
          */
     int newtis_old;
@@ -396,7 +396,7 @@ extern "C"
      * INPUT / OUTPUT STREAMS
      */
 
-	/**
+        /**
          * @brief <code>true</code> if log are needed. They will
          * be written to <code>logstr</code>
          *
@@ -404,28 +404,28 @@ extern "C"
          */
     mps_boolean DOLOG;
 
-	/**
+        /**
          * @brief <code>true</code> if warning are needed.
          */
     mps_boolean DOWARN;
 
-	/**
+        /**
          * @brief <code>true</code> if root sorting is desired. It will
          * be performed with routines in <code>mps_sort.c</code>.
          */
     mps_boolean DOSORT;
 
-	/**
+        /**
          * @brief Default input stream.
          */
     FILE *instr;
 
-	/**
+        /**
          * @brief Default output stream.
          */
     FILE *outstr;
 
-	/**
+        /**
          * @brief Default log stream
          */
     FILE *logstr;
@@ -436,29 +436,29 @@ extern "C"
      * CONSTANT, PARAMETERS
      */
 
-	/**
+        /**
          * @brief number of max packets of iterations
          */
     int max_pack;
 
-	/**
+        /**
          * @brief number of max iterations per packet
          */
     int max_it;
 
-	/**
+        /**
          * @brief Number of max newton iterations for gravity center
          * computations.
          */
     int max_newt_it;
 
-	/**
+        /**
          * @brief Maximum allowed number of bits for mp numbers: used in
          * high precision shift.
          */
     long int mpwp_max;
 
-	/**
+        /**
          * @brief stores the goal of the computation
          *
          * <code>goal</code> is an array of 5 chars with this meaning:
@@ -493,13 +493,13 @@ extern "C"
          */
     char goal[5];
 
-	/**
+        /**
          * @brief digits of required output precision
          *
          */
     long int prec_out;
 
-	/**
+        /**
          * @brief mps_boolean value that determine if we should
          * use a random seed for startingd points
          */
@@ -509,17 +509,17 @@ extern "C"
      * POLYNOMIAL DATA: SHARED VARIABLES
      */
 
-	/**
+        /**
          * @brief degree of zero-deflated polynomial.
          */
     int n;
 
-	/**
+        /**
          * @brief input degree and allocation size.
          */
     int deg;
 
-	/**
+        /**
          * @brief stores the input data type
          *
          * The value of <code>data_type[0]</code> can be:
@@ -539,13 +539,13 @@ extern "C"
          */
     char *data_type;
 
-	/**
+        /**
          * @brief Number of digits of input precision in its binary
          * representation.
          */
     long int prec_in;
 
-	/**
+        /**
          * @brief This array contains the structure of the sparse
          * polynomial.
          *
@@ -555,63 +555,63 @@ extern "C"
          */
     mps_boolean *spar;
 
-	/**
+        /**
          * @brief Standard real coefficients.
          */
     double *fpr;
 
-	/**
+        /**
          * @brief Standard complex coefficients.
          */
     cplx_t *fpc;
 
-	/**
+        /**
          * @brief Dpe real coefficients.
          */
     rdpe_t *dpr;
 
-	/**
+        /**
          * @brief Dpe complex coefficients.
          */
     cdpe_t *dpc;
 
-	/**
+        /**
          * @brief Real part of the integer input coefficients.
          */
     mpz_t *mip_r;
 
-	/**
+        /**
          * @brief Imaginary part of the integer input coefficients.
          */
     mpz_t *mip_i;
 
-	/**
+        /**
          * @brief Real part of rational input coefficients.
          */
     mpq_t *mqp_r;
 
-	/**
+        /**
          * @brief Imaginary part of rational input coefficients.
          */
     mpq_t *mqp_i;
 
-	/**
+        /**
          * @brief Multiprecision real coefficients.
          */
     mpf_t *mfpr;
 
-	/**
+        /**
          * @brief Multiprecision complex coefficients.
          */
     mpc_t *mfpc;
 
     /* Solution related variables */
-	/**
+        /**
          * @brief Last computing phase.
          */
     mps_phase lastphase;
 
-	/**
+        /**
          * @brief shift in the angle in the positioning of the
          * starting approximation for the last cluster. It will
          * be used to determine the new sigma to maximize distance
@@ -619,17 +619,17 @@ extern "C"
          */
     double last_sigma;
 
-	/**
+        /**
          * @brief Vector containing count of in, out and uncertaing roots.
          */
     int count[3];
 
-	/**
+        /**
          * @brief Number of zero roots.
          */
-    int zero_roots;		/* number of roots = 0                 */
+    int zero_roots;             /* number of roots = 0                 */
 
-	/**
+        /**
          * @brief Status of each approximation
          *
          * <code>status</code> is an array of char arrays
@@ -658,84 +658,84 @@ extern "C"
          *   - <code>o</code>: root out of \f$ \mathcal{S} \f$;
          *   - <code>u</code>: root uncertain;
          */
-    char (*status)[3];		/* status of each approximation        */
+    char (*status)[3];          /* status of each approximation        */
 
-	/**
+        /**
          * @brief Output index order
          */
     int *order;
 
-	/**
+        /**
          * @brief Root approximations as floating points complex
          * numbers.
          */
     cplx_t *froot;
 
-	/**
+        /**
          * @brief Root approximations as complex dpe numbers.
          */
     cdpe_t *droot;
 
-	/**
+        /**
          * @brief Root approsimations as complex multiprecision
          * numbers.
          */
     mpc_t *mroot;
 
-	/**
+        /**
          * @brief Radii of inclusion disks as real numbers.
          */
     double *frad;
 
-	/**
+        /**
          * @brief Radii of inclusion disks as dpe numbers.
          */
     rdpe_t *drad;
 
     /* lifetime global variables */
 
-	/**
+        /**
          * @brief <code>true</code> if the float phase should be skipped,
          * passing directly do dpe phase.
          */
     mps_boolean skip_float;
 
-	/**
+        /**
          * @brief Input precision of the coefficients.
          */
     rdpe_t eps_in;
 
-	/**
+        /**
          * @brief Output precision of the roots.
          */
     rdpe_t eps_out;
 
-	/**
+        /**
          * @brief Logarithm of the max modulus of the coefficients.
          */
     double lmax_coeff;
 
-	/**
+        /**
          * @brief Bits of working precision that mpsolve is using.
          */
     long int mpwp;
 
-	/**
+        /**
          * @brief Current multiprecision epsilon.
          */
     rdpe_t mp_epsilon;
 
-	/**
+        /**
          * @brief Log of the lower bound to the minumum distance of the roots
          */
     double sep;
 
-	/**
+        /**
          * @brief Number of active clusters.
          */
     int nclust;
 
-	/**
+        /**
          * @brief This <code>int</code> array keep information about
          * semi-converged roots that were removed by a cluster to
          * improve convergence speed.
@@ -747,7 +747,7 @@ extern "C"
          */
     int *clust_detached;
 
-	/**
+        /**
          * @brief indices of cluster components
          *
          * <code>clust</code> is an integer array containing the indexes
@@ -760,7 +760,7 @@ extern "C"
          */
     int *clust;
 
-	/**
+        /**
          * @brief begginning of each cluster
          *
          * <code>punt</code> is a vector of <code>nclust + 1</code> integers;
@@ -775,38 +775,38 @@ extern "C"
          */
     int *punt;
 
-	/**
+        /**
          * @brief Array containing working precisions used for each root.
          */
     long int *rootwp;
 
-	/**
+        /**
          * @brief Multiprecision complex coefficients of \f$p'(x)\f$.
          */
     mpc_t *mfppc;
 
-	/**
+        /**
          * @brief Array containing moduli of the coefficients as double numbers.
          */
     double *fap;
 
-	/**
+        /**
          * @brief Array containing moduli of the coefficients as dpe numbers.
          */
     rdpe_t *dap;
 
-	/**
+        /**
          * @brief Array that whose i-th component is set to <code>true</code> if
          * the i-th root needs more iterations.
          */
     mps_boolean *again;
 
-	/**
+        /**
          * @brief Array containing standard complex coefficients
          */
     cplx_t *fppc;
 
-	/**
+        /**
          * @brief Standard complex coefficients of the polynomial.
          *
          * This is used as a temporary vector while shifting the polynomial
@@ -814,7 +814,7 @@ extern "C"
          */
     cplx_t *fppc1;
 
-	/**
+        /**
          * @brief <code>dpe</code> complex coefficients of the polynomial.
          *
          * This is used as a temporary vector while shifting the polynomial
@@ -822,7 +822,7 @@ extern "C"
          */
     cdpe_t *dpc1;
 
-	/**
+        /**
          * @brief <code>dpe</code> complex coefficients of the polynomial.
          *
          * This is used as a temporary vector while shifting the polynomial
@@ -830,7 +830,7 @@ extern "C"
          */
     cdpe_t *dpc2;
 
-	/**
+        /**
          * @brief Multiprecision complex coefficients of the polynomial.
          *
          * This is used as a temporary vector while shifting the polynomial
@@ -838,7 +838,7 @@ extern "C"
          */
     mpc_t *mfpc1;
 
-	/**
+        /**
          * @brief Multiprecision complex coefficients of the polynomial.
          *
          * This is used as a temporary vector while shifting the polynomial
@@ -846,7 +846,7 @@ extern "C"
          */
     mpc_t *mfpc2;
 
-	/**
+        /**
          * @brief Multiprecision complex coefficients of the
          * first derivative of the polynomial.
          *
@@ -855,7 +855,7 @@ extern "C"
          */
     mpc_t *mfppc1;
 
-	/**
+        /**
          * @brief Vector representing sparsity of the polynomial in the
          * same way that <code>spar</code> does.
          *
@@ -865,7 +865,7 @@ extern "C"
          */
     mps_boolean *spar1;
 
-	/**
+        /**
          * @brief Vector representing sparsity of the polynomial in the
          * same way that <code>spar</code> does.
          *
@@ -875,14 +875,14 @@ extern "C"
          */
     mps_boolean *spar2;
 
-	/**
+        /**
          * @brief Old value of <code>punt</code> (temporary vector).
          *
          * @see punt
          */
     int *oldpunt;
 
-	/**
+        /**
          * @brief Vector containing the moduli of the coefficients
          * of the polynomial as floating point numbers.
          *
@@ -893,7 +893,7 @@ extern "C"
          */
     double *fap1;
 
-	/**
+        /**
          * @brief Vector containing the logarithm of the moduli of
          * the coefficients of the polynomial as floating
          * point numbers.
@@ -906,7 +906,7 @@ extern "C"
          */
     double *fap2;
 
-	/**
+        /**
          * @brief Vector containing the moduli of the coefficients
          * of the polynomial as <code>dpe</code> numbers.
          *
@@ -917,7 +917,7 @@ extern "C"
          */
     rdpe_t *dap1;
 
-	/**
+        /**
          * @brief Vector containing the logarithms of the moduli of
          * the coefficients
          * of the polynomial as <code>dpe</code> numbers.
@@ -929,7 +929,7 @@ extern "C"
          */
     rdpe_t *dap2;
 
-	/**
+        /**
          * @brief Vector needed for convex hull computation.
          *
          * It is <code>true</code> in position \f$j\f$ if
@@ -939,7 +939,7 @@ extern "C"
          */
     mps_boolean *h;
 
-	/**
+        /**
          * @brief Temporary vector containing the old value of
          * <code>again</code>.
          *
@@ -947,29 +947,29 @@ extern "C"
          */
     mps_boolean *again_old;
 
-    int *clust_aux;		/* auxiliary vector                    */
-    int *punt_aux;		/* auxiliary vector                    */
-    int *punt_out;		/* auxiliary vector                    */
-    int *clust_out;		/* auxiliary vector                    */
+    int *clust_aux;             /* auxiliary vector                    */
+    int *punt_aux;              /* auxiliary vector                    */
+    int *punt_out;              /* auxiliary vector                    */
+    int *clust_out;             /* auxiliary vector                    */
 
-	/**
+        /**
          * @brief The number of circles with initial approximations.
          */
     int n_radii;
 
-	/**
+        /**
          * @brief This variable is used to store the radii of the
          * circles with initial approximations.
          */
     double *fradii;
 
-	/**
+        /**
          * @brief This variable is used to store the radii of the
          * circles with initial approximations.
          */
     rdpe_t *dradii;
 
-	/**
+        /**
          * @brief This variable is used to store the partitioning
          * done when disposing initial approximations.
          */
@@ -977,59 +977,59 @@ extern "C"
 
     /* SECTION -- Algorihtmm selection */
 
-	/**
+        /**
          * @brief This is used in the program to switch behavious based
          * on the algorithm that is been used now.
          */
     mps_algorithm algorithm;
 
-	/**
+        /**
          * @brief Pointer to the function to perform newton in floating
          * point implemented by the user.
          */
     void (*fnewton_usr) (void *status, cplx_t, double *, cplx_t,
-			 mps_boolean *);
+                         mps_boolean *);
 
-	/**
+        /**
          * @brief Pointer to the function to perform newton in dpe
          * implemented by the user.
          */
     void (*dnewton_usr) (void *status, cdpe_t x, rdpe_t rad, cdpe_t corr,
-			 mps_boolean * again);
+                         mps_boolean * again);
 
-	/**
+        /**
          * @brief Pointer to the function to perform newton in multiprecision
          * implemented by the user.
          */
     void (*mnewton_usr) (void *status, mpc_t x, rdpe_t rad, mpc_t corr,
-			 mps_boolean * again);
+                         mps_boolean * again);
 
-	/**
+        /**
          * @brief Check data routine that has the task to determine if a float phase
          * can be performed or dpe are needed now.
          */
     void (*check_data_usr) (void *status, char *which_case);
 
-	/**
+        /**
          * @brief Routine to dispose starting approximations provided by the user
          */
     void (*fstart_usr) (void *status, int n, int i_clust, double clust_rad,
-			double g, rdpe_t eps);
+                        double g, rdpe_t eps);
 
-	/**
+        /**
          * @brief Routine to dispose starting approximations provided
          * by user in the case of DPE computation.
          */
     void (*dstart_usr) (void *status, int n, int i_clust, rdpe_t clust_rad,
-			rdpe_t g, rdpe_t eps);
+                        rdpe_t g, rdpe_t eps);
 
-	/**
+        /**
          * @brief Routine that performs the loop needed to coordinate
          * root finding. It has to be called to do the hard work.
          */
     void (*mpsolve_ptr) (void *status);
 
-	/**
+        /**
          * @brief A pointer that can be set to anything the user
          * would like to access during computations. It is meant to be
          * used when implementing fnewton, dnewton and mnewton
@@ -1038,7 +1038,7 @@ extern "C"
          */
     mps_secular_equation *secular_equation;
 
-	/**
+        /**
          * @brief Number of threads to be spawned.
          */
     int n_threads;
@@ -1050,7 +1050,7 @@ extern "C"
     unsigned long int dpe_iteration_time;
     unsigned long int fp_iteration_time;
 
-  } mps_status;			/* End of typedef struct { ... */
+  } mps_status;                 /* End of typedef struct { ... */
 
 
 

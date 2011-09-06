@@ -14,7 +14,7 @@
 
 void
 mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
-		     mps_boolean * again)
+                     mps_boolean * again)
 {
   int i;
   cplx_t ctmp, ctmp2, pol, fp, sumb;
@@ -33,11 +33,11 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
       cplx_sub (ctmp, x, sec->bfpc[i]);
 
       if (cplx_eq_zero (ctmp))
-	{
-	  *again = false;
-	  cplx_set (corr, cplx_zero);
-	  return;
-	}
+        {
+          *again = false;
+          cplx_set (corr, cplx_zero);
+          return;
+        }
 
       /* Compute (z-b_i)^{-1} */
       cplx_inv_eq (ctmp);
@@ -131,25 +131,25 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
       sigma = cplx_mod (sigma_tmp) - gamma;
 
       if (sigma > 0)
-	{
-	  g_corr = cplx_mod (ssp) / sigma;
+        {
+          g_corr = cplx_mod (ssp) / sigma;
 
-	  /* Radius is n * newt_corr, if it's better that Gerschgorin's one */
-	  dtmp = g_corr * sec->n;
-	  if (dtmp < *rad)
-	    *rad = dtmp;
+          /* Radius is n * newt_corr, if it's better that Gerschgorin's one */
+          dtmp = g_corr * sec->n;
+          if (dtmp < *rad)
+            *rad = dtmp;
 
-	  /* dtmp here is the guaranteed upper bound to the evaluation of the
-	   * secular equation   */
-	  if (dtmp < 2 * DBL_EPSILON)
-	    *again = false;
-	}
+          /* dtmp here is the guaranteed upper bound to the evaluation of the
+           * secular equation   */
+          if (dtmp < 2 * DBL_EPSILON)
+            *again = false;
+        }
       else
-	{
-	  /* If it was not posisble to compute the radius use the old one
-	   * plus the shift of the root */
-	  *rad += cplx_mod (corr) * (1 + DBL_EPSILON);
-	}
+        {
+          /* If it was not posisble to compute the radius use the old one
+           * plus the shift of the root */
+          *rad += cplx_mod (corr) * (1 + DBL_EPSILON);
+        }
 
       /* MPS_DEBUG (s, "Computed guaranteed newton radius = %e", g_corr * s->n);
          MPS_DEBUG (s, "Non guaranteed newton radius: %e",
@@ -172,7 +172,7 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
 
 void
 mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
-		     mps_boolean * again)
+                     mps_boolean * again)
 {
   int i;
   *again = true;
@@ -194,11 +194,11 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
       cdpe_sub (ctmp, x, sec->bdpc[i]);
 
       if (cdpe_eq_zero (ctmp))
-	{
-	  cdpe_set (corr, cdpe_zero);
-	  *again = false;
-	  return;
-	}
+        {
+          cdpe_set (corr, cdpe_zero);
+          *again = false;
+          return;
+        }
 
       /* Invert it, i.e. compute 1 / (z - b_i) */
       cdpe_inv_eq (ctmp);
@@ -294,26 +294,26 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
       rdpe_sub_eq (sigma, gamma);
 
       if (rdpe_gt (sigma, s->mp_epsilon))
-	{
-	  cdpe_mod (g_corr, ssp);
-	  rdpe_div_eq (g_corr, sigma);
+        {
+          cdpe_mod (g_corr, ssp);
+          rdpe_div_eq (g_corr, sigma);
 
-	  /* Computation of radius */
-	  rdpe_mul_d (rad, g_corr, s->n);
+          /* Computation of radius */
+          rdpe_mul_d (rad, g_corr, s->n);
 
-	  if (rdpe_eq_zero (g_corr))
-	    {
-	      rdpe_t rdpe_small;
-	      rdpe_set_2dl (rdpe_small, 1.0, LONG_MIN);
-	      rdpe_add_eq (rad, rdpe_small);
-	    }
-	}
+          if (rdpe_eq_zero (g_corr))
+            {
+              rdpe_t rdpe_small;
+              rdpe_set_2dl (rdpe_small, 1.0, LONG_MIN);
+              rdpe_add_eq (rad, rdpe_small);
+            }
+        }
       else
-	{
-	  cdpe_sub_eq (old_x, x);
-	  cdpe_mod (rtmp, old_x);
-	  rdpe_add_eq (rad, rtmp);
-	}
+        {
+          cdpe_sub_eq (old_x, x);
+          cdpe_mod (rtmp, old_x);
+          rdpe_add_eq (rad, rtmp);
+        }
     }
   else
     {
@@ -342,16 +342,16 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
 
       /* If |corr| < |x| * DBL_EPSILON then stop */
       if (rdpe_lt (rtmp, rtmp2))
-	{
-	  *again = false;
-	}
+        {
+          *again = false;
+        }
     }
 
 }
 
 void
 mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
-		     mps_boolean * again)
+                     mps_boolean * again)
 {
   int i, j;
   mps_boolean x_is_b = false;
@@ -381,14 +381,14 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
   if (s->mpwp != mpc_get_prec (sec->ampc[0]))
     {
       MPS_DEBUG (s,
-		 "Increasing precision of the coefficients, since it was out of sync with s->mpwp");
+                 "Increasing precision of the coefficients, since it was out of sync with s->mpwp");
       MPS_DEBUG (s, "s->mpwp = %d, whilst precision of sec->ampc[i] is %d",
-		 s->mpwp, mpc_get_prec (sec->ampc[0]));
+                 s->mpwp, mpc_get_prec (sec->ampc[0]));
       for (i = 0; i < sec->n; i++)
-	{
-	  mpc_set_prec (sec->ampc[i], s->mpwp);
-	  mpc_set_prec (sec->bmpc[i], s->mpwp);
-	}
+        {
+          mpc_set_prec (sec->ampc[i], s->mpwp);
+          mpc_set_prec (sec->bmpc[i], s->mpwp);
+        }
       mpc_set_prec (x, s->mpwp);
     }
 
@@ -404,28 +404,28 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
 
       /* Keep away the case where the difference is zero */
       if (mpc_eq_zero (ctmp))
-	{
-	  /* We are in the case where x = b_i so set j = i */
-	  j = i;
-	  mpc_set_ui (corr, 0U, 0U);
+        {
+          /* We are in the case where x = b_i so set j = i */
+          j = i;
+          mpc_set_ui (corr, 0U, 0U);
 
-	  for (i = 0; i < sec->n; i++)
-	    {
-	      if (i == j)
-		continue;
-	      mpc_sub (ctmp, sec->bmpc[j], sec->bmpc[i]);
-	      mpc_add (sumb, sec->ampc[i], sec->ampc[j]);
-	      mpc_div_eq (sumb, ctmp);
-	      mpc_add_eq (corr, sumb);
-	    }
+          for (i = 0; i < sec->n; i++)
+            {
+              if (i == j)
+                continue;
+              mpc_sub (ctmp, sec->bmpc[j], sec->bmpc[i]);
+              mpc_add (sumb, sec->ampc[i], sec->ampc[j]);
+              mpc_div_eq (sumb, ctmp);
+              mpc_add_eq (corr, sumb);
+            }
 
-	  mpc_sub_eq_ui (corr, 1U, 0U);
-	  mpc_inv_eq (corr);
-	  mpc_mul_eq (corr, sec->ampc[j]);
+          mpc_sub_eq_ui (corr, 1U, 0U);
+          mpc_inv_eq (corr);
+          mpc_mul_eq (corr, sec->ampc[j]);
 
-	  x_is_b = true;
-	  break;
-	}
+          x_is_b = true;
+          break;
+        }
 
       /* Compute (z-b_i)^{-1} */
       mpc_inv_eq (ctmp);
@@ -460,9 +460,9 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
       mpc_mul (ctmp2, sumb, pol);
       mpc_add (ctmp, fp, ctmp2);
       if (!mpc_eq_zero (ctmp))
-	mpc_div (corr, pol, ctmp);
+        mpc_div (corr, pol, ctmp);
       else
-	mpc_set (corr, pol);
+        mpc_set (corr, pol);
     }
 
   /* MPS_DEBUG_MPC (s, 200, corr, "corr"); */
@@ -549,8 +549,8 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
     rdpe_mul_eq_d (g_corr, s->n);
     if (rdpe_eq_zero (g_corr))
       {
-	/* MPS_DEBUG (s, "Newton correction is zero"); */
-	rdpe_set_2dl (g_corr, 1.0, LONG_MIN);
+        /* MPS_DEBUG (s, "Newton correction is zero"); */
+        rdpe_set_2dl (g_corr, 1.0, LONG_MIN);
       }
 
     /* MPS_DEBUG_RDPE (s, rtmp, "Non-guaranteed newton correction");
@@ -562,14 +562,14 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
     /* Set the radius, if convenient. */
     if (rdpe_gt (sigma, rdpe_zero) && rdpe_lt (g_corr, rad))
       {
-	/* MPS_DEBUG (s, "Setting newton correction");
-	   MPS_DEBUG_RDPE (s, sigma, "sigma"); */
-	rdpe_set (rad, g_corr);
+        /* MPS_DEBUG (s, "Setting newton correction");
+           MPS_DEBUG_RDPE (s, sigma, "sigma"); */
+        rdpe_set (rad, g_corr);
       }
     else
       {
-	/* MPS_DEBUG (s, "Discarding newton correction");
-	   MPS_DEBUG_RDPE (s, sigma, "sigma"); */
+        /* MPS_DEBUG (s, "Discarding newton correction");
+           MPS_DEBUG_RDPE (s, sigma, "sigma"); */
       }
 
   }
@@ -601,9 +601,9 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
       cdpe_mod (rtmp2, cdtmp);
 
       if (rdpe_lt (rtmp2, rtmp))
-	{
-	  *again = false;
-	}
+        {
+          *again = false;
+        }
     }
 
   /* Final cleanup */

@@ -34,7 +34,7 @@ mps_faberth (mps_status * s, int j, cplx_t abcorr)
   for (i = 0; i < s->n; i++)
     {
       if (i == j)
-	continue;
+        continue;
       cplx_sub (z, s->froot[j], s->froot[i]);
       cplx_inv_eq (z);
       cplx_add_eq (abcorr, z);
@@ -55,7 +55,7 @@ mps_daberth (mps_status * s, int j, cdpe_t abcorr)
   for (i = 0; i < s->n; i++)
     {
       if (i == j)
-	continue;
+        continue;
       cdpe_sub (z, s->droot[j], s->droot[i]);
       cdpe_inv_eq (z);
       cdpe_add_eq (abcorr, z);
@@ -79,7 +79,7 @@ mps_maberth (mps_status * s, int j, mpc_t abcorr)
   for (i = 0; i < s->n; i++)
     {
       if (i == j)
-	continue;
+        continue;
       mpc_sub (diff, s->mroot[j], s->mroot[i]);
       mpc_get_cdpe (z, diff);
       cdpe_inv_eq (z);
@@ -106,7 +106,7 @@ mps_faberth_s (mps_status * s, int j, int jc, cplx_t abcorr)
     {
       k = s->clust[i];
       if (k == j)
-	continue;
+        continue;
       cplx_sub (z, s->froot[j], s->froot[k]);
       cplx_inv_eq (z);
       cplx_add_eq (abcorr, z);
@@ -129,7 +129,7 @@ mps_daberth_s (mps_status * s, int j, int jc, cdpe_t abcorr)
     {
       k = s->clust[i];
       if (k == j)
-	continue;
+        continue;
       cdpe_sub (z, s->droot[j], s->droot[k]);
       cdpe_inv_eq (z);
       cdpe_add_eq (abcorr, z);
@@ -155,7 +155,7 @@ mps_maberth_s (mps_status * s, int j, int jc, mpc_t abcorr)
     {
       k = s->clust[i];
       if (k == j)
-	continue;
+        continue;
       mpc_sub (diff, s->mroot[j], s->mroot[k]);
       mpc_get_cdpe (z, diff);
       cdpe_inv_eq (z);
@@ -168,7 +168,7 @@ mps_maberth_s (mps_status * s, int j, int jc, mpc_t abcorr)
 
 void
 mps_maberth_s_wl (mps_status * s, int j, int jc, mpc_t abcorr,
-		  pthread_mutex_t * aberth_mutexes)
+                  pthread_mutex_t * aberth_mutexes)
 {
   int i, k;
   cdpe_t z, temp;
@@ -181,7 +181,7 @@ mps_maberth_s_wl (mps_status * s, int j, int jc, mpc_t abcorr,
     {
       k = s->clust[i];
       if (k == j)
-	continue;
+        continue;
       pthread_mutex_lock (&aberth_mutexes[k]);
       mpc_sub (diff, s->mroot[j], s->mroot[k]);
       pthread_mutex_unlock (&aberth_mutexes[k]);

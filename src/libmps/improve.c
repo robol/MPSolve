@@ -65,7 +65,7 @@ mps_improve (mps_status * s)
     mps_mp_set_prec (s, mpnb_in);
 
   /* tmpc_init2(mtmp, mpwp); *//* puo' essere settato a precisione minima */
-  tmpc_init2 (mtmp, mpnb_out * 2);	/* puo' essere settato a precisione minima */
+  tmpc_init2 (mtmp, mpnb_out * 2);      /* puo' essere settato a precisione minima */
   tmpc_init2 (nwtcorr, mpnb_out * 2);
 
   if (s->prec_in != 0 && s->data_type[0] != 'u')
@@ -74,9 +74,9 @@ mps_improve (mps_status * s)
     {
       mps_mp_set_prec (s, mpnb_out * 2);
       if (s->mpsolve_ptr == MPS_MPSOLVE_PTR (mps_standard_mpsolve))
-	mps_prepare_data (s, mpnb_out * 2);
+        mps_prepare_data (s, mpnb_out * 2);
       else
-	mps_secular_raise_coefficient_precision (s, mpnb_out * 2);
+        mps_secular_raise_coefficient_precision (s, mpnb_out * 2);
     }
 
 
@@ -85,14 +85,14 @@ mps_improve (mps_status * s)
   for (i = 0; i < s->n; i++)
     {
       if (s->DOLOG)
-	fprintf (s->logstr, "root %d\n", i);
+        fprintf (s->logstr, "root %d\n", i);
       if (s->status[i][0] != 'i' || s->status[i][2] == 'o')
-	{
-	  MPS_DEBUG (s,
-		     "Not approximating root %d since it is already approximated",
-		     i);
-	  continue;		/* Do not refine approximated roots */
-	}
+        {
+          MPS_DEBUG (s,
+                     "Not approximating root %d since it is already approximated",
+                     i);
+          continue;             /* Do not refine approximated roots */
+        }
 
       /*  == 3.1 ==
        * for data_type[0]='d' compute  t=Min_j |root(i)-root(j)|-rad(j)-rad(i)
@@ -100,29 +100,29 @@ mps_improve (mps_status * s)
        * This allows us to remove an O(n^2) complexity  */
 
       if (s->data_type[0] == 's')
-	rdpe_mul_d (t, s->drad[i], 5.0 * s->n);
+        rdpe_mul_d (t, s->drad[i], 5.0 * s->n);
       else
-	{
-	  k = i + 1;
-	  if (i == s->n - 1)
-	    k = 0;
-	  mpc_sub (mtmp, s->mroot[k], s->mroot[i]);
-	  mpc_get_cdpe (ctmp, mtmp);
-	  cdpe_mod (t, ctmp);
-	  rdpe_sub_eq (t, s->drad[k]);
-	  rdpe_sub_eq (t, s->drad[i]);
-	  for (j = 0; j < s->n; j++)
-	    if (j != i)
-	      {
-		mpc_sub (mtmp, s->mroot[j], s->mroot[i]);
-		mpc_get_cdpe (ctmp, mtmp);
-		cdpe_mod (tmp, ctmp);
-		rdpe_sub_eq (tmp, s->drad[i]);
-		rdpe_sub_eq (tmp, s->drad[j]);
-		if (rdpe_gt (t, tmp))
-		  rdpe_set (t, tmp);
-	      }
-	}
+        {
+          k = i + 1;
+          if (i == s->n - 1)
+            k = 0;
+          mpc_sub (mtmp, s->mroot[k], s->mroot[i]);
+          mpc_get_cdpe (ctmp, mtmp);
+          cdpe_mod (t, ctmp);
+          rdpe_sub_eq (t, s->drad[k]);
+          rdpe_sub_eq (t, s->drad[i]);
+          for (j = 0; j < s->n; j++)
+            if (j != i)
+              {
+                mpc_sub (mtmp, s->mroot[j], s->mroot[i]);
+                mpc_get_cdpe (ctmp, mtmp);
+                cdpe_mod (tmp, ctmp);
+                rdpe_sub_eq (tmp, s->drad[i]);
+                rdpe_sub_eq (tmp, s->drad[j]);
+                if (rdpe_gt (t, tmp))
+                  rdpe_set (t, tmp);
+              }
+        }
 
       /*  == 3.2 ==
        * compute an  estimate of the condition number in terms of bits
@@ -152,56 +152,56 @@ mps_improve (mps_status * s)
       /*  == 4 ==      Start Newton */
       rdpe_set (oldrad, s->drad[i]);
       for (j = 1; j <= m; j++)
-	{
-	  if (s->DOLOG)
-	    fprintf (s->logstr, "iter= %d\n", j);
-	  g *= 2;
-	  s->mpwp = (long) (f + g + cnd);
-	  if (s->mpwp >= mpnb_in && mpnb_in != 0)
-	    s->mpwp = mpnb_in;
+        {
+          if (s->DOLOG)
+            fprintf (s->logstr, "iter= %d\n", j);
+          g *= 2;
+          s->mpwp = (long) (f + g + cnd);
+          if (s->mpwp >= mpnb_in && mpnb_in != 0)
+            s->mpwp = mpnb_in;
 
-	  tmpc_clear (nwtcorr);
-	  tmpc_init2 (nwtcorr, s->mpwp);
+          tmpc_clear (nwtcorr);
+          tmpc_init2 (nwtcorr, s->mpwp);
 
-	  mps_mp_set_prec (s, s->mpwp);
-	  if (s->mpsolve_ptr == MPS_MPSOLVE_PTR (mps_standard_mpsolve))
-	    mps_prepare_data (s, s->mpwp);
-	  else
-	    mps_secular_raise_coefficient_precision (s, s->mpwp);
+          mps_mp_set_prec (s, s->mpwp);
+          if (s->mpsolve_ptr == MPS_MPSOLVE_PTR (mps_standard_mpsolve))
+            mps_prepare_data (s, s->mpwp);
+          else
+            mps_secular_raise_coefficient_precision (s, s->mpwp);
 
-	  if (s->data_type[0] != 'u')
-	    {
-	      mps_mnewton (s, s->n, s->mroot[i], s->drad[i],
-			   nwtcorr, s->mfpc, s->mfppc, s->dap, s->spar,
-			   &again, 0);
-	    }
-	  else if (s->mnewton_usr != NULL)
-	    {
-	      (*s->mnewton_usr) (s, s->mroot[i], s->drad[i], nwtcorr, &again);
-	    }
-	  else
-	    {
-	      mps_mnewton_usr (s, s->mroot[i], s->drad[i], nwtcorr, &again);
-	    }
-	  mpc_sub_eq (s->mroot[i], nwtcorr);
+          if (s->data_type[0] != 'u')
+            {
+              mps_mnewton (s, s->n, s->mroot[i], s->drad[i],
+                           nwtcorr, s->mfpc, s->mfppc, s->dap, s->spar,
+                           &again, 0);
+            }
+          else if (s->mnewton_usr != NULL)
+            {
+              (*s->mnewton_usr) (s, s->mroot[i], s->drad[i], nwtcorr, &again);
+            }
+          else
+            {
+              mps_mnewton_usr (s, s->mroot[i], s->drad[i], nwtcorr, &again);
+            }
+          mpc_sub_eq (s->mroot[i], nwtcorr);
 
-	  /* correct radius, since the computed one is referred to the previous
-	   * approximation. Due to the quadratic convergence the new approximation
-	   * the radius is bounded by 2^(-g-f+1)
-	   */
-	  rdpe_set_2dl (newrad, 1.0, (long) (-g - f + 1));
-	  rdpe_set (tmp, abroot);
-	  rdpe_mul_eq (newrad, tmp);
-	  rdpe_mul_eq (tmp, s->eps_out);
+          /* correct radius, since the computed one is referred to the previous
+           * approximation. Due to the quadratic convergence the new approximation
+           * the radius is bounded by 2^(-g-f+1)
+           */
+          rdpe_set_2dl (newrad, 1.0, (long) (-g - f + 1));
+          rdpe_set (tmp, abroot);
+          rdpe_mul_eq (newrad, tmp);
+          rdpe_mul_eq (tmp, s->eps_out);
 
-	  if (rdpe_eq (s->drad[i], rdpe_zero))
-	    rdpe_set (s->drad[i], newrad);
-	  if (rdpe_lt (newrad, s->drad[i]))
-	    rdpe_set (s->drad[i], newrad);
+          if (rdpe_eq (s->drad[i], rdpe_zero))
+            rdpe_set (s->drad[i], newrad);
+          if (rdpe_lt (newrad, s->drad[i]))
+            rdpe_set (s->drad[i], newrad);
 
-	  if (rdpe_lt (s->drad[i], tmp) || s->mpwp == mpnb_in)
-	    break;		/* loop1 */
-	}
+          if (rdpe_lt (s->drad[i], tmp) || s->mpwp == mpnb_in)
+            break;              /* loop1 */
+        }
 
       /* update the record working precision for root i */
       s->rootwp[i] = mpc_get_prec (s->mroot[i]);

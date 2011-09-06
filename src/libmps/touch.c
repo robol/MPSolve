@@ -38,7 +38,7 @@ mps_ftouchnwt (mps_status * s, int n, int i, int j)
   cplx_t ctmp;
   double t;
 
-  t = DBL_MAX / (2 * n);	/*#G added 27/4/98 */
+  t = DBL_MAX / (2 * n);        /*#G added 27/4/98 */
   if (s->frad[i] >= t || s->frad[j] >= t)
     return true;
 

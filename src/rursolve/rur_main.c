@@ -12,7 +12,7 @@
 #include <mps/poly.h>
 #include <mps/rursolve.h>
 
-mpz_t *mpdemo = NULL;		/* imaginary part of the integer input coeff. */
+mpz_t *mpdemo = NULL;           /* imaginary part of the integer input coeff. */
 
 /***********************************************************
  *           SUBROUTINE RURSOLVE                           *
@@ -99,11 +99,11 @@ mps_rursolve (mps_status * s)
       s->mfpc1 = (mpc_t *) realloc (s->mfpc1, (degmax + 1) * sizeof (mpc_t));
       s->mfpc2 = (mpc_t *) realloc (s->mfpc2, (degmax + 1) * sizeof (mpc_t));
       for (i = s->n; i <= degmax; i++)
-	{
-	  rdpe_set (s->dap1[i], rdpe_zero);
-	  mpc_init (s->mfpc1[i]);
-	  mpc_init (s->mfpc2[i]);
-	}
+        {
+          rdpe_set (s->dap1[i], rdpe_zero);
+          mpc_init (s->mfpc1[i]);
+          mpc_init (s->mfpc2[i]);
+        }
     }
 
   /* ==============================
@@ -114,33 +114,33 @@ mps_rursolve (mps_status * s)
   read_bytes = fscanf (s->instr, "%d", &deg);
 
   if (s->data_type[0] == 'd')
-    {				/* dense polynomial */
+    {                           /* dense polynomial */
       for (i = 0; i <= deg; i++)
-	{
-	  mpz_inp_str (mpdemo[i], s->instr, 10);
-	  /* represent integers as dpe */
-	  mpf_set_z (mptemp, mpdemo[i]);
-	  mpf_get_rdpe (s->dap1[i], mptemp);
-	  rdpe_abs_eq (s->dap1[i]);
-	}
+        {
+          mpz_inp_str (mpdemo[i], s->instr, 10);
+          /* represent integers as dpe */
+          mpf_set_z (mptemp, mpdemo[i]);
+          mpf_get_rdpe (s->dap1[i], mptemp);
+          rdpe_abs_eq (s->dap1[i]);
+        }
     }
   else
-    {				/* sparse polynomial  */
+    {                           /* sparse polynomial  */
       for (i = 0; i <= deg; i++)
-	{
-	  rdpe_set (s->dap1[i], rdpe_zero);
-	  mpz_set_ui (mpdemo[i], 0);
-	}
+        {
+          rdpe_set (s->dap1[i], rdpe_zero);
+          mpz_set_ui (mpdemo[i], 0);
+        }
       read_bytes = fscanf (s->instr, "%d", &nc);
       for (i = 0; i < nc; i++)
-	{
-	  read_bytes = fscanf (s->instr, "%d", &pos);
-	  mpz_inp_str (mpdemo[pos], s->instr, 10);
-	  /* represent integers as dpe */
-	  mpf_set_z (mptemp, mpdemo[pos]);
-	  mpf_get_rdpe (s->dap1[pos], mptemp);
-	  rdpe_abs_eq (s->dap1[pos]);
-	}
+        {
+          read_bytes = fscanf (s->instr, "%d", &pos);
+          mpz_inp_str (mpdemo[pos], s->instr, 10);
+          /* represent integers as dpe */
+          mpf_set_z (mptemp, mpdemo[pos]);
+          mpf_get_rdpe (s->dap1[pos], mptemp);
+          rdpe_abs_eq (s->dap1[pos]);
+        }
     }
 
   mpz_set (tnden, mpdemo[0]);
@@ -158,44 +158,44 @@ mps_rursolve (mps_status * s)
        * dprec: bit precision of the denominator mfpc[i] */
 
       if (s->DOLOG)
-	{
-	  fprintf (s->logstr, " Computed denominator=");
-	  mpc_out_str (s->logstr, 10, 0, res);
-	  fprintf (s->logstr, "\n i=%d, Prec root=%d, prec denom=%d\n", i,
-		   iprec, dprec);
-	}
+        {
+          fprintf (s->logstr, " Computed denominator=");
+          mpc_out_str (s->logstr, 10, 0, res);
+          fprintf (s->logstr, "\n i=%d, Prec root=%d, prec denom=%d\n", i,
+                   iprec, dprec);
+        }
 
       /* check precision */
       if (dprec < dig2)
-	{
-	  mps_refine (s, i, iprec + dig2 - dprec);
-	  mps_horner (s, res, &dprec, &iprec, deg, i);
+        {
+          mps_refine (s, i, iprec + dig2 - dprec);
+          mps_horner (s, res, &dprec, &iprec, deg, i);
 
-	  if (s->DOLOG)
-	    {
-	      fprintf (s->logstr, " Computed denominator=");
-	      mpc_out_str (s->logstr, 10, 0, res);
-	      fprintf (s->logstr, "\n i=%d, Prec root=%d, prec denom=%d\n", i,
-		       iprec, dprec);
-	    }
-	  if (s->DOLOG)
-	    {
-	      fprintf (s->logstr, " Refined denominatorn=");
-	      mpc_out_str (s->logstr, 10, 0, res);
-	      fprintf (s->logstr, "\n");
-	    }
-	}
+          if (s->DOLOG)
+            {
+              fprintf (s->logstr, " Computed denominator=");
+              mpc_out_str (s->logstr, 10, 0, res);
+              fprintf (s->logstr, "\n i=%d, Prec root=%d, prec denom=%d\n", i,
+                       iprec, dprec);
+            }
+          if (s->DOLOG)
+            {
+              fprintf (s->logstr, " Refined denominatorn=");
+              mpc_out_str (s->logstr, 10, 0, res);
+              fprintf (s->logstr, "\n");
+            }
+        }
 
       /* store denominator */
       mpc_set (sol[i][m - 1], res);
       precsol[i][m - 1] = dprec;
 
       if (s->DOLOG)
-	{
-	  fprintf (s->logstr, "Denominator[%d] = ", i);
-	  mpc_out_str (s->logstr, 10, 0, sol[i][m - 1]);
-	  fprintf (s->logstr, "\n");
-	}
+        {
+          fprintf (s->logstr, "Denominator[%d] = ", i);
+          mpc_out_str (s->logstr, 10, 0, sol[i][m - 1]);
+          fprintf (s->logstr, "\n");
+        }
     }
 
   /* ==============================
@@ -203,86 +203,86 @@ mps_rursolve (mps_status * s)
    * ============================== */
 
   for (j = 0; j < m; j++)
-    {				/* main loop */
+    {                           /* main loop */
       /* Read j-th numerator polynomial */
       read_bytes = fscanf (s->instr, "%3s", s->data_type);
       read_bytes = fscanf (s->instr, "%d", &deg);
 
       if (s->data_type[0] == 'd')
-	{			/* dense polynomial */
-	  for (i = 0; i <= deg; i++)
-	    {
-	      mpz_inp_str (mpdemo[i], s->instr, 10);
-	      /* represent integers as dpe */
-	      mpf_set_z (mptemp, mpdemo[i]);
-	      mpf_get_rdpe (s->dap1[i], mptemp);
-	      rdpe_abs_eq (s->dap1[i]);
-	    }
-	}
+        {                       /* dense polynomial */
+          for (i = 0; i <= deg; i++)
+            {
+              mpz_inp_str (mpdemo[i], s->instr, 10);
+              /* represent integers as dpe */
+              mpf_set_z (mptemp, mpdemo[i]);
+              mpf_get_rdpe (s->dap1[i], mptemp);
+              rdpe_abs_eq (s->dap1[i]);
+            }
+        }
       else
-	{			/* sparse polynomial */
-	  for (i = 0; i <= deg; i++)
-	    {
-	      rdpe_set (s->dap1[i], rdpe_zero);
-	      mpz_set_ui (mpdemo[i], 0);
-	    }
-	  read_bytes = fscanf (s->instr, "%d", &nc);
-	  for (i = 0; i < nc; i++)
-	    {
-	      read_bytes = fscanf (s->instr, "%d", &pos);
-	      mpz_inp_str (mpdemo[pos], s->instr, 10);
-	      /* represent integers as dpe */
-	      mpf_set_z (mptemp, mpdemo[pos]);
-	      mpf_get_rdpe (s->dap1[pos], mptemp);
-	      rdpe_abs_eq (s->dap1[pos]);
-	    }
-	}
+        {                       /* sparse polynomial */
+          for (i = 0; i <= deg; i++)
+            {
+              rdpe_set (s->dap1[i], rdpe_zero);
+              mpz_set_ui (mpdemo[i], 0);
+            }
+          read_bytes = fscanf (s->instr, "%d", &nc);
+          for (i = 0; i < nc; i++)
+            {
+              read_bytes = fscanf (s->instr, "%d", &pos);
+              mpz_inp_str (mpdemo[pos], s->instr, 10);
+              /* represent integers as dpe */
+              mpf_set_z (mptemp, mpdemo[pos]);
+              mpf_get_rdpe (s->dap1[pos], mptemp);
+              rdpe_abs_eq (s->dap1[pos]);
+            }
+        }
 
       /* compute numerators */
 
       for (i = 0; i < s->n; i++)
-	{
-	  mps_horner (s, res, &dprec, &iprec, deg, i);
+        {
+          mps_horner (s, res, &dprec, &iprec, deg, i);
 
-	  if (s->DOLOG)
-	    fprintf (s->logstr, "i=%d, Prec zero=%d, prec num=%d\n", i, iprec,
-		     dprec);
+          if (s->DOLOG)
+            fprintf (s->logstr, "i=%d, Prec zero=%d, prec num=%d\n", i, iprec,
+                     dprec);
 
-	  if (dprec < dig2)
-	    {
-	      mps_refine (s, i, iprec + dig2 - dprec);
-	      mps_horner (s, res, &dprec, &iprec, deg, i);
-	      if (s->DOLOG)
-		fprintf (s->logstr, "i=%d, Prec zero=%d, prec num=%d\n", i,
-			 iprec, dprec);
-	    }
+          if (dprec < dig2)
+            {
+              mps_refine (s, i, iprec + dig2 - dprec);
+              mps_horner (s, res, &dprec, &iprec, deg, i);
+              if (s->DOLOG)
+                fprintf (s->logstr, "i=%d, Prec zero=%d, prec num=%d\n", i,
+                         iprec, dprec);
+            }
 
-	  if (s->DOLOG)
-	    {
-	      fprintf (s->logstr, " Numerator (%d, %d) = ", j, i);
-	      mpc_out_str (s->logstr, 10, 0, res);
-	      fprintf (s->logstr, "\n");
-	    }
+          if (s->DOLOG)
+            {
+              fprintf (s->logstr, " Numerator (%d, %d) = ", j, i);
+              mpc_out_str (s->logstr, 10, 0, res);
+              fprintf (s->logstr, "\n");
+            }
 
-	  /* compute and store root i, j */
-	  mpc_div (sol[i][j], res, sol[i][m - 1]);
-	  precsol[i][j] = MIN (dprec, precsol[i][m - 1]);
+          /* compute and store root i, j */
+          mpc_div (sol[i][j], res, sol[i][m - 1]);
+          precsol[i][j] = MIN (dprec, precsol[i][m - 1]);
 
-	  if (s->DOLOG)
-	    fprintf (s->logstr, "Root prec. i=%d, j=%d prec=%d\n", i, j,
-		     precsol[i][j]);
-	}
+          if (s->DOLOG)
+            fprintf (s->logstr, "Root prec. i=%d, j=%d prec=%d\n", i, j,
+                     precsol[i][j]);
+        }
 
       if (s->zero_roots)
-	{
-	  mpf_set_z (rn, mpdemo[0]);
-	  mpf_set_z (rd, tnden);
-	  mpf_div (rn, rn, rd);
-	  mpf_set (mpc_Re (crn), rn);
-	  mpf_set_ui (mpc_Im (crn), 0);
-	  mpc_set (sol[s->n][j], crn);
-	}
-    }				/* main loop */
+        {
+          mpf_set_z (rn, mpdemo[0]);
+          mpf_set_z (rd, tnden);
+          mpf_div (rn, rn, rd);
+          mpf_set (mpc_Re (crn), rn);
+          mpf_set_ui (mpc_Im (crn), 0);
+          mpc_set (sol[s->n][j], crn);
+        }
+    }                           /* main loop */
 
   /* ==============================
    * Phase 7: output
@@ -293,11 +293,11 @@ mps_rursolve (mps_status * s)
       i = s->order[pos];
       fprintf (s->outstr, "\nRoot(%d) = (", pos + 1);
       for (j = 0; j < m; j++)
-	{
-	  mps_ruroutroot (s, sol[i][j], s->status[i][1], precsol[i][j], dig2);
-	  if (j < m - 1)
-	    fprintf (s->outstr, ",  ");
-	}
+        {
+          mps_ruroutroot (s, sol[i][j], s->status[i][1], precsol[i][j], dig2);
+          if (j < m - 1)
+            fprintf (s->outstr, ",  ");
+        }
       fprintf (s->outstr, ")\n");
     }
 
@@ -305,12 +305,12 @@ mps_rursolve (mps_status * s)
     {
       fprintf (s->outstr, "\nRoot(%d) = (", s->n + 1);
       for (j = 0; j < m; j++)
-	{
-	  mpf_set (rn, mpc_Re (sol[s->n][j]));
-	  mpf_out_str (s->outstr, 10, dig, rn);
-	  if (j < m - 1)
-	    fprintf (s->outstr, ",  ");
-	}
+        {
+          mpf_set (rn, mpc_Re (sol[s->n][j]));
+          mpf_out_str (s->outstr, 10, dig, rn);
+          if (j < m - 1)
+            fprintf (s->outstr, ",  ");
+        }
       fprintf (s->outstr, ")\n");
     }
 
@@ -343,7 +343,7 @@ mps_rursolve (mps_status * s)
 *********************************************************/
 void
 mps_ruroutroot (mps_status * s, mpc_t root, char status, long prec,
-		long out_prec)
+                long out_prec)
 {
   tmpf_t t;
   cdpe_t ctmp;
@@ -365,34 +365,34 @@ mps_ruroutroot (mps_status * s, mpc_t root, char status, long prec,
     {
       outdig = prec - (l - lr);
       if (outdig <= 0)
-	fprintf (s->outstr, "0.e%ld", (long) (lr * LOG10_2));
+        fprintf (s->outstr, "0.e%ld", (long) (lr * LOG10_2));
       else
-	{
-	  outdig = (long) (outdig * LOG10_2);
-	  if (mpf_sgn (mpc_Re (root)) < 0)
-	    fprintf (s->outstr, "-");
-	  mpf_abs (t, mpc_Re (root));
-	  mpf_out_str (s->outstr, 10, outdig, t);
-	}
+        {
+          outdig = (long) (outdig * LOG10_2);
+          if (mpf_sgn (mpc_Re (root)) < 0)
+            fprintf (s->outstr, "-");
+          mpf_abs (t, mpc_Re (root));
+          mpf_out_str (s->outstr, 10, outdig, t);
+        }
     }
 
   if (status != 'R')
     {
       if (mpf_sgn (mpc_Im (root)) >= 0)
-	fprintf (s->outstr, " + I * ");
+        fprintf (s->outstr, " + I * ");
       else
-	fprintf (s->outstr, " - I * ");
+        fprintf (s->outstr, " - I * ");
       mpf_get_rdpe (rtmp, mpc_Im (root));
       lr = rdpe_Esp (rtmp);
       outdig = prec - (l - lr);
       if (outdig <= 0)
-	fprintf (s->outstr, "0.e%ld", (long) (lr * LOG10_2));
+        fprintf (s->outstr, "0.e%ld", (long) (lr * LOG10_2));
       else
-	{
-	  outdig = (long) (outdig * LOG10_2);
-	  mpf_abs (t, mpc_Im (root));
-	  mpf_out_str (s->outstr, 10, outdig, t);
-	}
+        {
+          outdig = (long) (outdig * LOG10_2);
+          mpf_abs (t, mpc_Im (root));
+          mpf_out_str (s->outstr, 10, outdig, t);
+        }
     }
   tmpf_clear (t);
 }

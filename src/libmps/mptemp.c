@@ -7,7 +7,7 @@
 **                                                        **
 ***********************************************************/
 
-#include <mps/mptemp.h>		/* NOMPTEMP may be defined here */
+#include <mps/mptemp.h>         /* NOMPTEMP may be defined here */
 #ifndef NOMPTEMP
 
 #ifdef THREAD_SAFE
@@ -58,22 +58,22 @@ gettmpf (long prec)
   if (mpfstkp == mpfallp)
     {
       if (mpfallp == mpfsize)
-	{
-	  if (mpfsize)
-	    {
-	      mpfbuff =
-		(mpf_t *) realloc (mpfbuff, 2 * mpfsize * sizeof (mpf_t));
-	      mpfprec =
-		(long *) realloc (mpfprec, 2 * mpfsize * sizeof (long));
-	      mpfsize *= 2;
-	    }
-	  else
-	    {
-	      mpfbuff = (mpf_t *) malloc (MINBUFFSIZE * sizeof (mpf_t));
-	      mpfprec = (long *) malloc (MINBUFFSIZE * sizeof (long));
-	      mpfsize = MINBUFFSIZE;
-	    }
-	}
+        {
+          if (mpfsize)
+            {
+              mpfbuff =
+                (mpf_t *) realloc (mpfbuff, 2 * mpfsize * sizeof (mpf_t));
+              mpfprec =
+                (long *) realloc (mpfprec, 2 * mpfsize * sizeof (long));
+              mpfsize *= 2;
+            }
+          else
+            {
+              mpfbuff = (mpf_t *) malloc (MINBUFFSIZE * sizeof (mpf_t));
+              mpfprec = (long *) malloc (MINBUFFSIZE * sizeof (long));
+              mpfsize = MINBUFFSIZE;
+            }
+        }
       mpf_init2 (mpfbuff[mpfallp], prec);
       prec = mpf_get_prec (mpfbuff[mpfallp]);
       mpfprec[mpfallp] = prec;
@@ -83,7 +83,7 @@ gettmpf (long prec)
   if (mpfprec[mpfstkp] >= prec)
     mpf_set_prec_raw (mpfbuff[mpfstkp], prec);
   else
-    {				/* we must increase variable precision */
+    {                           /* we must increase variable precision */
       mpf_set_prec_raw (mpfbuff[mpfstkp], mpfprec[mpfstkp]);
 
 #if MPTEMP_RENEW
@@ -186,22 +186,22 @@ gettmpc (long prec)
   if (mpcstkp == mpcallp)
     {
       if (mpcallp == mpcsize)
-	{
-	  if (mpcsize)
-	    {
-	      mpcbuff =
-		(mpc_t *) realloc (mpcbuff, 2 * mpcsize * sizeof (mpc_t));
-	      mpcprec =
-		(long *) realloc (mpcprec, 2 * mpcsize * sizeof (long));
-	      mpcsize *= 2;
-	    }
-	  else
-	    {
-	      mpcbuff = (mpc_t *) malloc (MINBUFFSIZE * sizeof (mpc_t));
-	      mpcprec = (long *) malloc (MINBUFFSIZE * sizeof (long));
-	      mpcsize = MINBUFFSIZE;
-	    }
-	}
+        {
+          if (mpcsize)
+            {
+              mpcbuff =
+                (mpc_t *) realloc (mpcbuff, 2 * mpcsize * sizeof (mpc_t));
+              mpcprec =
+                (long *) realloc (mpcprec, 2 * mpcsize * sizeof (long));
+              mpcsize *= 2;
+            }
+          else
+            {
+              mpcbuff = (mpc_t *) malloc (MINBUFFSIZE * sizeof (mpc_t));
+              mpcprec = (long *) malloc (MINBUFFSIZE * sizeof (long));
+              mpcsize = MINBUFFSIZE;
+            }
+        }
       mpc_init2 (mpcbuff[mpcallp], prec);
       prec = mpc_get_prec (mpcbuff[mpcallp]);
       mpcprec[mpcallp] = prec;
@@ -211,7 +211,7 @@ gettmpc (long prec)
   if (mpcprec[mpcstkp] >= prec)
     mpc_set_prec_raw (mpcbuff[mpcstkp], prec);
   else
-    {				/* we must increase variable precision */
+    {                           /* we must increase variable precision */
       mpc_set_prec_raw (mpcbuff[mpcstkp], mpcprec[mpcstkp]);
 
 #if MPTEMP_RENEW
@@ -222,7 +222,7 @@ gettmpc (long prec)
 #endif /* MPTEMP_RENEW */
 
       mpcprec[mpcstkp] = mpc_get_prec (mpcbuff[mpcstkp]);
-    }				/* precision check */
+    }                           /* precision check */
 
   return (tmpc_t) & mpcbuff[mpcstkp++];
 }

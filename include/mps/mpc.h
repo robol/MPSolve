@@ -86,14 +86,14 @@ extern "C"
   void mpc_add (mpc_t rc, mpc_t c1, mpc_t c2);
   void mpc_add_f (mpc_t rc, mpc_t c, mpf_t f);
   void mpc_add_ui (mpc_t rc, mpc_t c, unsigned long int r,
-		   unsigned long int i);
+                   unsigned long int i);
   void mpc_sub (mpc_t rc, mpc_t c1, mpc_t c2);
   void mpc_sub_f (mpc_t rc, mpc_t c, mpf_t f);
   void mpc_f_sub (mpc_t rc, mpf_t f, mpc_t c);
   void mpc_sub_ui (mpc_t rc, mpc_t c, unsigned long int r,
-		   unsigned long int i);
+                   unsigned long int i);
   void mpc_ui_sub (mpc_t rc, unsigned long int r, unsigned long int i,
-		   mpc_t c);
+                   mpc_t c);
   void mpc_mul (mpc_t rc, mpc_t c1, mpc_t c2);
   void mpc_mul_f (mpc_t rc, mpc_t c, mpf_t f);
   void mpc_mul_ui (mpc_t rc, mpc_t c, unsigned long int i);
@@ -143,9 +143,9 @@ extern "C"
 
 /* I/O functions */
   size_t mpc_out_str_2u (FILE * f, int base, size_t n_digits_r,
-			 size_t n_digits_i, mpc_t c);
+                         size_t n_digits_i, mpc_t c);
   size_t mpc_out_str_2 (FILE * f, int base, size_t n_digits_r,
-			size_t n_digits_i, mpc_t c);
+                        size_t n_digits_i, mpc_t c);
 #define mpc_out_str_u(F, B, D, C)  mpc_out_str_2u(F, B, D, D, C)
 #define mpc_out_str(F, B, D, C)  mpc_out_str_2(F, B, D, D, C)
 #define mpc_outln_str_u(F, B, D, C)  mpc_out_str_2u(F, B, D, D, C); fputc('\n', F)

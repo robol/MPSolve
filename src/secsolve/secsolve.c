@@ -19,16 +19,16 @@ usage (mps_status * s, const char *program)
     return;
 
   fprintf (s->outstr,
-	   "Usage: %s [-dg] [-t type] [-n degree] [-o digits] [infile]\n"
-	   "\n"
-	   "Options:\n"
-	   " -d          Activate debug\n"
-	   " -g          Use Gemignani's approach\n"
-	   " -t type     Type can be 'f' for floating point\n"
-	   "             or 'd' for DPE\n"
-	   " -i          Isolate the roots only, do not perform approximation\n"
-	   " -o digits   Exact digits of the roots given as output.\n",
-	   program);
+           "Usage: %s [-dg] [-t type] [-n degree] [-o digits] [infile]\n"
+           "\n"
+           "Options:\n"
+           " -d          Activate debug\n"
+           " -g          Use Gemignani's approach\n"
+           " -t type     Type can be 'f' for floating point\n"
+           "             or 'd' for DPE\n"
+           " -i          Isolate the roots only, do not perform approximation\n"
+           " -o digits   Exact digits of the roots given as output.\n",
+           program);
 
   exit (EXIT_FAILURE);
 }
@@ -59,39 +59,39 @@ main (int argc, char **argv)
   while ((mps_getopts (&opt, &argc, &argv, "gidt:o:")))
     {
       switch (opt->optchar)
-	{
-	case 'g':
-	  /* Gemignani's approach. Regenerate b_i after floating
-	   * point cycle */
-	  ga = true;
-	  break;
-	case 'o':
-	  s->prec_out = atoi (opt->optvalue) * LOG2_10;
-	  break;
-	case 'i':
-	  s->goal[0] = 'i';
-	  break;
-	case 'd':
-	  s->DOLOG = true;
-	  s->logstr = stderr;
-	  break;
-	case 't':
-	  switch (opt->optvalue[0])
-	    {
-	    case 'f':
-	      phase = float_phase;
-	      break;
-	    case 'd':
-	      phase = dpe_phase;
-	      break;
-	    default:
-	      usage (s, argv[0]);
-	    }
-	  break;
-	default:
-	  usage (s, argv[0]);
-	  break;
-	}
+        {
+        case 'g':
+          /* Gemignani's approach. Regenerate b_i after floating
+           * point cycle */
+          ga = true;
+          break;
+        case 'o':
+          s->prec_out = atoi (opt->optvalue) * LOG2_10;
+          break;
+        case 'i':
+          s->goal[0] = 'i';
+          break;
+        case 'd':
+          s->DOLOG = true;
+          s->logstr = stderr;
+          break;
+        case 't':
+          switch (opt->optvalue[0])
+            {
+            case 'f':
+              phase = float_phase;
+              break;
+            case 'd':
+              phase = dpe_phase;
+              break;
+            default:
+              usage (s, argv[0]);
+            }
+          break;
+        default:
+          usage (s, argv[0]);
+          break;
+        }
     }
 
   if (argc > 2)

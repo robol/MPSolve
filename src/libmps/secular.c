@@ -52,68 +52,68 @@ mps_secular_deflate (mps_status * s, mps_secular_equation * sec)
   for (i = 0; i < sec->n; i++)
     {
       for (j = i + 1; j < sec->n; j++)
-	{
-	  /* If the input is floating point check on the
-	   * DPE input */
-	  if (MPS_STRUCTURE_IS_FP (sec->input_structure))
-	    {
-	      /* Do not deflate in floating point, since it is not working
-	       * correctly right now */
-	      MPS_DEBUG (s,
-			 "Floating point deflation still has some rough edges, so it's disabled");
-	      return;
-	      if (mpc_eq
-		  (sec->initial_bmpc[i], sec->initial_bmpc[j],
-		   s->mpwp_max) == 0)
-		{
-		  MPS_DEBUG_MPC (s, 10, sec->initial_bmpc[i],
-				 "sec->initial_bmpc[%d]", i);
-		  MPS_DEBUG_MPC (s, 10, sec->initial_bmpc[j],
-				 "sec->initial_bmpc[%d]", j);
-		  mpc_add_eq (sec->initial_ampc[i], sec->initial_ampc[j]);
+        {
+          /* If the input is floating point check on the
+           * DPE input */
+          if (MPS_STRUCTURE_IS_FP (sec->input_structure))
+            {
+              /* Do not deflate in floating point, since it is not working
+               * correctly right now */
+              MPS_DEBUG (s,
+                         "Floating point deflation still has some rough edges, so it's disabled");
+              return;
+              if (mpc_eq
+                  (sec->initial_bmpc[i], sec->initial_bmpc[j],
+                   s->mpwp_max) == 0)
+                {
+                  MPS_DEBUG_MPC (s, 10, sec->initial_bmpc[i],
+                                 "sec->initial_bmpc[%d]", i);
+                  MPS_DEBUG_MPC (s, 10, sec->initial_bmpc[j],
+                                 "sec->initial_bmpc[%d]", j);
+                  mpc_add_eq (sec->initial_ampc[i], sec->initial_ampc[j]);
 
-		  for (k = j; k < sec->n; k++)
-		    {
-		      mpc_set (sec->initial_ampc[k],
-			       sec->initial_ampc[k + 1]);
-		      mpc_set (sec->initial_bmpc[k],
-			       sec->initial_bmpc[k + 1]);
-		    }
+                  for (k = j; k < sec->n; k++)
+                    {
+                      mpc_set (sec->initial_ampc[k],
+                               sec->initial_ampc[k + 1]);
+                      mpc_set (sec->initial_bmpc[k],
+                               sec->initial_bmpc[k + 1]);
+                    }
 
-		  sec->n--;
-		  j--;
-		  i--;
-		}
-	    }
-	  /* Otherwise, in the case of rational or integer input
-	   * (that are handled in the same way) use initial_*mqpc
-	   * values */
-	  else if (MPS_STRUCTURE_IS_INTEGER (sec->input_structure) ||
-		   MPS_STRUCTURE_IS_RATIONAL (sec->input_structure))
-	    {
-	      if (mpq_equal (sec->initial_bmpqrc[i], sec->initial_bmpqrc[j])
-		  && mpq_equal (sec->initial_bmpqic[i],
-				sec->initial_bmpqic[j]))
-		{
-		  mpq_add (sec->initial_ampqrc[i], sec->initial_ampqrc[i],
-			   sec->initial_ampqrc[j]);
-		  mpq_add (sec->initial_ampqic[i], sec->initial_ampqic[i],
-			   sec->initial_ampqic[j]);
+                  sec->n--;
+                  j--;
+                  i--;
+                }
+            }
+          /* Otherwise, in the case of rational or integer input
+           * (that are handled in the same way) use initial_*mqpc
+           * values */
+          else if (MPS_STRUCTURE_IS_INTEGER (sec->input_structure) ||
+                   MPS_STRUCTURE_IS_RATIONAL (sec->input_structure))
+            {
+              if (mpq_equal (sec->initial_bmpqrc[i], sec->initial_bmpqrc[j])
+                  && mpq_equal (sec->initial_bmpqic[i],
+                                sec->initial_bmpqic[j]))
+                {
+                  mpq_add (sec->initial_ampqrc[i], sec->initial_ampqrc[i],
+                           sec->initial_ampqrc[j]);
+                  mpq_add (sec->initial_ampqic[i], sec->initial_ampqic[i],
+                           sec->initial_ampqic[j]);
 
-		  /* Copy other coefficients back of one position */
-		  for (k = j; k < sec->n - 1; k++)
-		    {
-		      mpq_set (sec->initial_ampqrc[k],
-			       sec->initial_ampqrc[k + 1]);
-		      mpq_set (sec->initial_ampqic[k],
-			       sec->initial_ampqic[k + 1]);
-		    }
+                  /* Copy other coefficients back of one position */
+                  for (k = j; k < sec->n - 1; k++)
+                    {
+                      mpq_set (sec->initial_ampqrc[k],
+                               sec->initial_ampqrc[k + 1]);
+                      mpq_set (sec->initial_ampqic[k],
+                               sec->initial_ampqic[k + 1]);
+                    }
 
-		  sec->n--;
-		  j--;
-		}
-	    }
-	}
+                  sec->n--;
+                  j--;
+                }
+            }
+        }
     }
 
   /* If the input was rational or integer, we need to reset the dpe coefficients
@@ -126,19 +126,19 @@ mps_secular_deflate (mps_status * s, mps_secular_equation * sec)
 
       /* Set DPE coefficients */
       for (i = 0; i < sec->n; i++)
-	{
-	  mpf_set_q (ftmp, sec->initial_ampqrc[i]);
-	  mpf_get_rdpe (cdpe_Re (sec->adpc[i]), ftmp);
+        {
+          mpf_set_q (ftmp, sec->initial_ampqrc[i]);
+          mpf_get_rdpe (cdpe_Re (sec->adpc[i]), ftmp);
 
-	  mpf_set_q (ftmp, sec->initial_ampqic[i]);
-	  mpf_get_rdpe (cdpe_Im (sec->adpc[i]), ftmp);
+          mpf_set_q (ftmp, sec->initial_ampqic[i]);
+          mpf_get_rdpe (cdpe_Im (sec->adpc[i]), ftmp);
 
-	  mpf_set_q (ftmp, sec->initial_bmpqrc[i]);
-	  mpf_get_rdpe (cdpe_Re (sec->bdpc[i]), ftmp);
+          mpf_set_q (ftmp, sec->initial_bmpqrc[i]);
+          mpf_get_rdpe (cdpe_Re (sec->bdpc[i]), ftmp);
 
-	  mpf_set_q (ftmp, sec->initial_bmpqic[i]);
-	  mpf_get_rdpe (cdpe_Im (sec->bdpc[i]), ftmp);
-	}
+          mpf_set_q (ftmp, sec->initial_bmpqic[i]);
+          mpf_get_rdpe (cdpe_Im (sec->bdpc[i]), ftmp);
+        }
 
       mpf_clear (ftmp);
     }
@@ -148,10 +148,10 @@ mps_secular_deflate (mps_status * s, mps_secular_equation * sec)
   if (MPS_STRUCTURE_IS_FP (sec->input_structure))
     {
       for (i = 0; i < sec->n; i++)
-	{
-	  mpc_get_cdpe (sec->adpc[i], sec->ampc[i]);
-	  mpc_get_cdpe (sec->bdpc[i], sec->bmpc[i]);
-	}
+        {
+          mpc_get_cdpe (sec->adpc[i], sec->ampc[i]);
+          mpc_get_cdpe (sec->bdpc[i], sec->bmpc[i]);
+        }
 
     }
 
@@ -214,7 +214,7 @@ mps_secular_equation_new_raw (mps_status * s, unsigned long int n)
  */
 mps_secular_equation *
 mps_secular_equation_new (mps_status * s, cplx_t * afpc, cplx_t * bfpc,
-			  unsigned long int n)
+                          unsigned long int n)
 {
   int i;
 
@@ -433,33 +433,33 @@ mps_secular_switch_phase (mps_status * s, mps_phase phase)
     {
       mps_secular_raise_precision (s, MPS_SECULAR_STARTING_MP_PRECISION);
       switch (s->lastphase)
-	{
-	case float_phase:
-	  /* Copy the approximated roots and the
-	   * secular equation coefficients */
-	  for (i = 0; i < s->n; i++)
-	    {
-	      mpc_set_cplx (s->mroot[i], s->froot[i]);
-	      mpc_set_cplx (sec->ampc[i], sec->afpc[i]);
-	      mpc_set_cplx (sec->bmpc[i], sec->bfpc[i]);
-	      rdpe_set_d (s->drad[i], s->frad[i]);
-	    }
-	  break;
+        {
+        case float_phase:
+          /* Copy the approximated roots and the
+           * secular equation coefficients */
+          for (i = 0; i < s->n; i++)
+            {
+              mpc_set_cplx (s->mroot[i], s->froot[i]);
+              mpc_set_cplx (sec->ampc[i], sec->afpc[i]);
+              mpc_set_cplx (sec->bmpc[i], sec->bfpc[i]);
+              rdpe_set_d (s->drad[i], s->frad[i]);
+            }
+          break;
 
-	case dpe_phase:
-	  /* Copy the coefficients and the approximated
-	   * roots into the multiprecision values    */
-	  for (i = 0; i < s->n; i++)
-	    {
-	      mpc_set_cdpe (s->mroot[i], s->droot[i]);
-	      mpc_set_cdpe (sec->ampc[i], sec->adpc[i]);
-	      mpc_set_cdpe (sec->bmpc[i], sec->bdpc[i]);
-	    }
+        case dpe_phase:
+          /* Copy the coefficients and the approximated
+           * roots into the multiprecision values    */
+          for (i = 0; i < s->n; i++)
+            {
+              mpc_set_cdpe (s->mroot[i], s->droot[i]);
+              mpc_set_cdpe (sec->ampc[i], sec->adpc[i]);
+              mpc_set_cdpe (sec->bmpc[i], sec->bdpc[i]);
+            }
 
-	default:
-	  break;
+        default:
+          break;
 
-	}
+        }
 
       /* Set lastphase to mp_phase */
       s->lastphase = mp_phase;
@@ -470,7 +470,7 @@ mps_secular_switch_phase (mps_status * s, mps_phase phase)
   else
     {
       fprintf (stderr, "mps_secular_switch_phase is only able to manage\n"
-	       "switches from float_phase or dpe_phase to mp_phase. Aborting.");
+               "switches from float_phase or dpe_phase to mp_phase. Aborting.");
       exit (EXIT_FAILURE);
     }
 }
@@ -497,90 +497,90 @@ mps_secular_set_radii (mps_status * s)
 
     case float_phase:
       {
-	/* Floating point implementation */
-	double rad, total_rad = 0;
+        /* Floating point implementation */
+        double rad, total_rad = 0;
 
-	for (i = 0; i < s->n; i++)
-	  total_rad += cplx_mod (sec->afpc[i]);
+        for (i = 0; i < s->n; i++)
+          total_rad += cplx_mod (sec->afpc[i]);
 
-	/* Check if the Gerschgorin's radii are more convenient */
-	for (i = 0; i < s->n; i++)
-	  {
-	    /* TODO: Use the guaranteed computation */
-	    rad =
-	      s->n * cplx_mod (sec->afpc[i]) * (1 +
-						s->n * s->n * DBL_EPSILON *
-						15);
-	    if (rad > total_rad)
-	      rad = total_rad;
+        /* Check if the Gerschgorin's radii are more convenient */
+        for (i = 0; i < s->n; i++)
+          {
+            /* TODO: Use the guaranteed computation */
+            rad =
+              s->n * cplx_mod (sec->afpc[i]) * (1 +
+                                                s->n * s->n * DBL_EPSILON *
+                                                15);
+            if (rad > total_rad)
+              rad = total_rad;
 
-	    if (rad < s->frad[i])
-	      {
-		s->frad[i] = rad;
-	      }
-	  }
+            if (rad < s->frad[i])
+              {
+                s->frad[i] = rad;
+              }
+          }
       }
       break;
     case dpe_phase:
     case mp_phase:
       {
-	/* DPE and multiprecision implementation */
-	rdpe_t rad, total_rad, rtmp;
-	cdpe_t ctmp;
-	rdpe_set (total_rad, rdpe_zero);
+        /* DPE and multiprecision implementation */
+        rdpe_t rad, total_rad, rtmp;
+        cdpe_t ctmp;
+        rdpe_set (total_rad, rdpe_zero);
 
-	/* Compute total radius as \sum_i |sec->afpc[i]| */
-	for (i = 0; i < s->n; i++)
-	  {
-	    if (s->lastphase == mp_phase)
-	      {
-		mpc_get_cdpe (ctmp, sec->ampc[i]);
-		cdpe_mod (rtmp, ctmp);
-	      }
-	    else
-	      /* We are in the DPE phase */
-	      cdpe_mod (rtmp, sec->adpc[i]);
+        /* Compute total radius as \sum_i |sec->afpc[i]| */
+        for (i = 0; i < s->n; i++)
+          {
+            if (s->lastphase == mp_phase)
+              {
+                mpc_get_cdpe (ctmp, sec->ampc[i]);
+                cdpe_mod (rtmp, ctmp);
+              }
+            else
+              /* We are in the DPE phase */
+              cdpe_mod (rtmp, sec->adpc[i]);
 
-	    rdpe_add_eq (total_rad, rtmp);
-	  }
+            rdpe_add_eq (total_rad, rtmp);
+          }
 
-	/* Compute guaranteed total rad */
-	rdpe_mul_d (rtmp, s->mp_epsilon, s->n);
-	rdpe_add_eq (total_rad, rtmp);
+        /* Compute guaranteed total rad */
+        rdpe_mul_d (rtmp, s->mp_epsilon, s->n);
+        rdpe_add_eq (total_rad, rtmp);
 
-	/* Check if the Gerschgorin's radii are more convenient */
-	for (i = 0; i < s->n; i++)
-	  {
-	    /* TODO: Use the guaranteed computation */
-	    if (s->lastphase == mp_phase)
-	      {
-		mpc_get_cdpe (ctmp, sec->ampc[i]);
-		cdpe_mod (rad, ctmp);
-		rdpe_add_eq (rad, s->mp_epsilon);
-	      }
-	    else
-	      {
-		/* We are in the DPE phase */
-		cdpe_mod (rad, sec->adpc[i]);
-		rdpe_add_eq (rad, s->mp_epsilon);
-	      }
+        /* Check if the Gerschgorin's radii are more convenient */
+        for (i = 0; i < s->n; i++)
+          {
+            /* TODO: Use the guaranteed computation */
+            if (s->lastphase == mp_phase)
+              {
+                mpc_get_cdpe (ctmp, sec->ampc[i]);
+                cdpe_mod (rad, ctmp);
+                rdpe_add_eq (rad, s->mp_epsilon);
+              }
+            else
+              {
+                /* We are in the DPE phase */
+                cdpe_mod (rad, sec->adpc[i]);
+                rdpe_add_eq (rad, s->mp_epsilon);
+              }
 
-	    /* Check which radius is smaller (here guaranteed radius is
-	     * computed). */
-	    rdpe_mul_d (rtmp, s->mp_epsilon, 9 * s->n);
-	    rdpe_add_eq (rtmp, rdpe_one);
-	    rdpe_mul_eq_d (rad, (double) s->n);
-	    rdpe_mul_eq (rad, rtmp);
+            /* Check which radius is smaller (here guaranteed radius is
+             * computed). */
+            rdpe_mul_d (rtmp, s->mp_epsilon, 9 * s->n);
+            rdpe_add_eq (rtmp, rdpe_one);
+            rdpe_mul_eq_d (rad, (double) s->n);
+            rdpe_mul_eq (rad, rtmp);
 
-	    if (rdpe_gt (rad, total_rad))
-	      rdpe_set (rad, total_rad);
+            if (rdpe_gt (rad, total_rad))
+              rdpe_set (rad, total_rad);
 
-	    /* If the radius is convenient set it */
-	    if (rdpe_lt (rad, s->drad[i]))
-	      {
-		rdpe_set (s->drad[i], rad);
-	      }
-	  }
+            /* If the radius is convenient set it */
+            if (rdpe_lt (rad, s->drad[i]))
+              {
+                rdpe_set (s->drad[i], rad);
+              }
+          }
       }
       break;
 

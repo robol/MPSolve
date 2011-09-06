@@ -27,7 +27,7 @@ mps_read_poly (mps_status * s, FILE * instr, mpspoly_t p)
   while ((i = fgetc (instr)) == '!' || isspace (i))
     if (i == '!')
       while (fgetc (instr) != '\n')
-	/* skip */ ;
+        /* skip */ ;
   ungetc (i, instr);
 
   /* read data type */
@@ -43,15 +43,15 @@ mps_read_poly (mps_status * s, FILE * instr, mpspoly_t p)
       /* Read input precision and abort on failure */
       read_elements = fscanf (instr, "%ld", &(p->prec_in));
       if (!read_elements)
-	{
-	  mps_error (s, 1, "Error reading input precision, aborting.");
-	}
+        {
+          mps_error (s, 1, "Error reading input precision, aborting.");
+        }
       p->prec_in = (long) (p->prec_in * LOG2_10);
     }
   else
-    {				/* override input precision */
+    {                           /* override input precision */
       read_elements = fscanf (instr, "%*d");
-      p->prec_in = s->prec_in;	/* load default */
+      p->prec_in = s->prec_in;  /* load default */
     }
 
   /* read degree */
@@ -67,9 +67,9 @@ mps_read_poly (mps_status * s, FILE * instr, mpspoly_t p)
     {
       read_elements = fscanf (instr, "%d", &num_coeff);
       if (!read_elements)
-	{
-	  mps_error (s, 1, "Error reading number of coefficients, aborting.");
-	}
+        {
+          mps_error (s, 1, "Error reading number of coefficients, aborting.");
+        }
     }
   else
     num_coeff = p->deg + 1;
@@ -100,91 +100,91 @@ mps_read_poly (mps_status * s, FILE * instr, mpspoly_t p)
     {
 
       if (p->data_type[0] == 's')
-	{
-	  read_elements = fscanf (instr, "%d", &indx);
-	  if (!read_elements)
-	    {
-	      mps_error (s, 1,
-			 "Error reading the polynomial coefficients, aborting.");
-	    }
-	  p->spar[indx] = true;
-	}
+        {
+          read_elements = fscanf (instr, "%d", &indx);
+          if (!read_elements)
+            {
+              mps_error (s, 1,
+                         "Error reading the polynomial coefficients, aborting.");
+            }
+          p->spar[indx] = true;
+        }
       else
-	indx = i;
+        indx = i;
 
       switch (p->data_type[1])
-	{			/* switch 1 */
+        {                       /* switch 1 */
 
-	case 'r':		/* Real */
+        case 'r':              /* Real */
 
-	  switch (p->data_type[2])
-	    {			/* switch 2 */
+          switch (p->data_type[2])
+            {                   /* switch 2 */
 
-	    case 'i':		/* Real - Integer Coefs */
-	      if (!mpz_inp_str (p->mip_r[indx], instr, 10))
-		mps_error (s, 1, "Error while reading coefficient");
-	      break;
+            case 'i':          /* Real - Integer Coefs */
+              if (!mpz_inp_str (p->mip_r[indx], instr, 10))
+                mps_error (s, 1, "Error while reading coefficient");
+              break;
 
-	    case 'q':		/* Real - Rational Coefs */
-	      if (!mpz_inp_str (mpq_numref (p->mqp_r[indx]), instr, 10))
-		mps_error (s, 1, "Error while reading coefficient");
-	      if (!mpz_inp_str (mpq_denref (p->mqp_r[indx]), instr, 10))
-		mps_error (s, 1, "Error while reading coefficient");
-	      mpq_canonicalize (p->mqp_r[indx]);
-	      break;
+            case 'q':          /* Real - Rational Coefs */
+              if (!mpz_inp_str (mpq_numref (p->mqp_r[indx]), instr, 10))
+                mps_error (s, 1, "Error while reading coefficient");
+              if (!mpz_inp_str (mpq_denref (p->mqp_r[indx]), instr, 10))
+                mps_error (s, 1, "Error while reading coefficient");
+              mpq_canonicalize (p->mqp_r[indx]);
+              break;
 
-	    case 'f':		/* Real - Big/Float Coefs */
-	      if (!mpf_inp_str (p->mfpr[indx], instr, 10))
-		mps_error (s, 1, "Error while reading coefficient");
-	      break;
+            case 'f':          /* Real - Big/Float Coefs */
+              if (!mpf_inp_str (p->mfpr[indx], instr, 10))
+                mps_error (s, 1, "Error while reading coefficient");
+              break;
 
-	    }			/* switch 2 */
-	  break;
+            }                   /* switch 2 */
+          break;
 
-	case 'c':		/* Complex */
+        case 'c':              /* Complex */
 
-	  switch (p->data_type[2])
-	    {			/* switch 3 */
+          switch (p->data_type[2])
+            {                   /* switch 3 */
 
-	    case 'i':		/* Complex - Integer Coefs */
-	      if (!mpz_inp_str (p->mip_r[indx], instr, 10))
-		mps_error (s, 1, "Error while reading coefficient");
-	      if (!mpz_inp_str (p->mip_i[indx], instr, 10))
-		mps_error (s, 1, "Error while reading coefficient");
-	      break;
+            case 'i':          /* Complex - Integer Coefs */
+              if (!mpz_inp_str (p->mip_r[indx], instr, 10))
+                mps_error (s, 1, "Error while reading coefficient");
+              if (!mpz_inp_str (p->mip_i[indx], instr, 10))
+                mps_error (s, 1, "Error while reading coefficient");
+              break;
 
-	    case 'q':		/* Complex - Rational Coefs */
-	      if (!mpz_inp_str (mpq_numref (p->mqp_r[indx]), instr, 10))
-		mps_error (s, 1, "Error while reading coefficient");
-	      if (!mpz_inp_str (mpq_denref (p->mqp_r[indx]), instr, 10))
-		mps_error (s, 1, "Error while reading coefficient");
-	      mpq_canonicalize (p->mqp_r[indx]);
-	      if (!mpz_inp_str (mpq_numref (p->mqp_i[indx]), instr, 10))
-		mps_error (s, 1, "Error while reading coefficient");
-	      if (!mpz_inp_str (mpq_denref (p->mqp_i[indx]), instr, 10))
-		mps_error (s, 1, "Error while reading coefficient");
-	      mpq_canonicalize (p->mqp_i[indx]);
-	      break;
+            case 'q':          /* Complex - Rational Coefs */
+              if (!mpz_inp_str (mpq_numref (p->mqp_r[indx]), instr, 10))
+                mps_error (s, 1, "Error while reading coefficient");
+              if (!mpz_inp_str (mpq_denref (p->mqp_r[indx]), instr, 10))
+                mps_error (s, 1, "Error while reading coefficient");
+              mpq_canonicalize (p->mqp_r[indx]);
+              if (!mpz_inp_str (mpq_numref (p->mqp_i[indx]), instr, 10))
+                mps_error (s, 1, "Error while reading coefficient");
+              if (!mpz_inp_str (mpq_denref (p->mqp_i[indx]), instr, 10))
+                mps_error (s, 1, "Error while reading coefficient");
+              mpq_canonicalize (p->mqp_i[indx]);
+              break;
 
-	    case 'f':		/* Complex - Big/Float Coefs */
-	      if (!mpf_inp_str (mpc_Re (p->mfpc[indx]), instr, 10))
-		mps_error (s, 1, "Error while reading coefficient");
-	      if (!mpf_inp_str (mpc_Im (p->mfpc[indx]), instr, 10))
-		mps_error (s, 1, "Error while reading coefficient");
-	      break;
+            case 'f':          /* Complex - Big/Float Coefs */
+              if (!mpf_inp_str (mpc_Re (p->mfpc[indx]), instr, 10))
+                mps_error (s, 1, "Error while reading coefficient");
+              if (!mpf_inp_str (mpc_Im (p->mfpc[indx]), instr, 10))
+                mps_error (s, 1, "Error while reading coefficient");
+              break;
 
-	    }			/* switch 3 */
-	}			/* switch 1 */
-    }				/* for */
+            }                   /* switch 3 */
+        }                       /* switch 1 */
+    }                           /* for */
 
   /* real begin */
   if (p->data_type[1] == 'r' && p->data_type[2] == 'f')
     for (indx = 0; indx <= p->deg; indx++)
       {
-	if (p->data_type[0] == 's' && !p->spar[indx])
-	  continue;
-	mpf_set (mpc_Re (p->mfpc[indx]), p->mfpr[indx]);
-	mpf_set_ui (mpc_Im (p->mfpc[indx]), 0);
+        if (p->data_type[0] == 's' && !p->spar[indx])
+          continue;
+        mpf_set (mpc_Re (p->mfpc[indx]), p->mfpr[indx]);
+        mpf_set_ui (mpc_Im (p->mfpc[indx]), 0);
       }
   /* real end */
 }
@@ -228,49 +228,49 @@ mps_validate_poly (mps_status * s, mpspoly_t p, int num_coeff)
 
       /* type */
       switch (p->data_type[0])
-	{
-	case 'u':
-	  fprintf (s->logstr, "User polynomial\n");
-	  break;
-	case 's':
-	  fprintf (s->logstr, "Sparse polynomial\n");
-	  fprintf (s->logstr, "Num_coeff.= %d\n", num_coeff);
-	  break;
-	case 'd':
-	  fprintf (s->logstr, "Dense polynomial\n");
-	  break;
-	}
+        {
+        case 'u':
+          fprintf (s->logstr, "User polynomial\n");
+          break;
+        case 's':
+          fprintf (s->logstr, "Sparse polynomial\n");
+          fprintf (s->logstr, "Num_coeff.= %d\n", num_coeff);
+          break;
+        case 'd':
+          fprintf (s->logstr, "Dense polynomial\n");
+          break;
+        }
 
       /* ring */
       switch (p->data_type[1])
-	{
-	case 'r':
-	  fprintf (s->logstr, "Real case\n");
-	  break;
-	case 'c':
-	  fprintf (s->logstr, "Complex polynomial\n");
-	  break;
-	}
+        {
+        case 'r':
+          fprintf (s->logstr, "Real case\n");
+          break;
+        case 'c':
+          fprintf (s->logstr, "Complex polynomial\n");
+          break;
+        }
 
       /* coefficient */
       switch (p->data_type[2])
-	{
-	case 'i':
-	  fprintf (s->logstr, "Integer case\n");
-	  break;
-	case 'q':
-	  fprintf (s->logstr, "Rational case\n");
-	  break;
-	case 'f':
-	  fprintf (s->logstr, "Float case\n");
-	  break;
-	case 'd':
-	  fprintf (s->logstr, "DPE case\n");
-	  break;
-	case 'b':
-	  fprintf (s->logstr, "Bigfloat case\n");
-	  break;
-	}
+        {
+        case 'i':
+          fprintf (s->logstr, "Integer case\n");
+          break;
+        case 'q':
+          fprintf (s->logstr, "Rational case\n");
+          break;
+        case 'f':
+          fprintf (s->logstr, "Float case\n");
+          break;
+        case 'd':
+          fprintf (s->logstr, "DPE case\n");
+          break;
+        case 'b':
+          fprintf (s->logstr, "Bigfloat case\n");
+          break;
+        }
     }
 }
 

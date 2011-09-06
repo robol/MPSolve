@@ -32,7 +32,7 @@ extern "C"
   char *get_res_file (const char *pol_name, const char *type_name);
 
   test_pol *test_pol_new (const char *name, const char *type_name,
-			  int out_digits, mps_phase phase, mps_boolean ga);
+                          int out_digits, mps_phase phase, mps_boolean ga);
 
   void test_pol_free (test_pol * pol);
 

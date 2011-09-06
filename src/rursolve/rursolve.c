@@ -23,9 +23,9 @@ main (int argc, char **argv)
   mps_status *s = malloc (sizeof (mps_status));
 
   /* set default values */
-  s->prec_in = -1;		/* default input precision */
-  s->prec_out = 1000;		/* default output precision */
-  strncpy (s->goal, "ianrv", 5);	/* default goal */
+  s->prec_in = -1;              /* default input precision */
+  s->prec_out = 1000;           /* default output precision */
+  strncpy (s->goal, "ianrv", 5);        /* default goal */
 
   /* set flags */
   s->DOLOG = false;

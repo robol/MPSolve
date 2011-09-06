@@ -19,17 +19,17 @@ extern "C"
 
 #include <mps/core.h>
 
-  extern mpz_t *mpdemo;		/* imaginary part of the integer input coeff. */
+  extern mpz_t *mpdemo;         /* imaginary part of the integer input coeff. */
 
 /* functions in main.c */
   void mps_rursolve (mps_status * s);
 
 /* functions in hor.c */
   void mps_horner (mps_status * s, mpc_t y, int *dprec, int *iprec, int deg,
-		   int i);
+                   int i);
   void mps_refine (mps_status * s, int i, long prec);
   void mps_ruroutroot (mps_status * s, mpc_t root, char status, long prec,
-		       long out_prec);
+                       long out_prec);
 
 
 /*
@@ -41,4 +41,4 @@ extern "C"
 }
 #endif
 
-#endif				/* ndef MPS_RURSOLVE_H */
+#endif                          /* ndef MPS_RURSOLVE_H */

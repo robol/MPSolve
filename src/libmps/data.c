@@ -121,83 +121,83 @@ mps_raise_data (mps_status * s, long int prec)
     {
       /* raise the precision of  mfpc */
       for (k = 0; k < s->n + 1; k++)
-	if (s->data_type[0] != 's' || s->spar[k])
-	  mpc_set_prec (s->mfpc[k], prec);
+        if (s->data_type[0] != 's' || s->spar[k])
+          mpc_set_prec (s->mfpc[k], prec);
 
       for (i = 0; i <= s->n; i++)
-	if (s->data_type[0] != 's' || s->spar[i])
-	  {
-	    switch (s->data_type[1])
-	      {
-	      case 'r':	/* real */
-		/* the real case should be adjusted later on */
-		switch (s->data_type[2])
-		  {
-		  case 'i':	/* integer */
-		    mpf_set_z (mpc_Re (s->mfpc[i]), s->mip_r[i]);
-		    mpf_set_ui (mpc_Im (s->mfpc[i]), 0);
-		    break;
-		  case 'q':	/* rational */
-		    mpf_set_q (mpc_Re (s->mfpc[i]), s->mqp_r[i]);
-		    mpf_set_ui (mpc_Im (s->mfpc[i]), 0);
-		    /* GMP 2.0.2 bug begin */
-		    if (mpf_sgn (mpc_Re (s->mfpc[i])) !=
-			mpq_sgn (s->mqp_r[i]))
-		      mpf_neg (mpc_Re (s->mfpc[i]), mpc_Re (s->mfpc[i]));
-		    /* GMP bug end */
-		    break;
-		  case 'b':	/* big float */
-		    break;	/* nothing to do */
-		  case 'f':	/* float */
-		    /* real case
-		       mpc_set_d(mfpc[i], fpr[i], 0.0);
-		     */
-		    break;
-		  default:
-		    mps_error (s, 1, "Mistake in goal");
-		    break;
-		  }
-		break;
-	      case 'c':	/* complex */
-		switch (s->data_type[2])
-		  {
-		  case 'i':	/* integer */
-		    mpc_set_z (s->mfpc[i], s->mip_r[i], s->mip_i[i]);
-		    break;
-		  case 'q':	/* rational */
-		    mpc_set_q (s->mfpc[i], s->mqp_r[i], s->mqp_i[i]);
-		    /* GMP 2.0.2 bug begin */
-		    if (mpf_sgn (mpc_Re (s->mfpc[i])) !=
-			mpq_sgn (s->mqp_r[i]))
-		      mpf_neg (mpc_Re (s->mfpc[i]), mpc_Re (s->mfpc[i]));
-		    if (mpf_sgn (mpc_Im (s->mfpc[i])) !=
-			mpq_sgn (s->mqp_i[i]))
-		      mpf_neg (mpc_Im (s->mfpc[i]), mpc_Im (s->mfpc[i]));
-		    /* GMP bug end */
-		    break;
-		  case 'b':	/* big float */
-		    break;	/* nothing to do */
-		  case 'f':	/* float */
-		    /* real case
-		       mpc_set_cplx(mfpc[i], fpc[i]);
-		     */
-		    break;
-		  default:
-		    mps_error (s, 1, "Mistake in goal");
-		    break;
-		  }
-	      }
-	  }
+        if (s->data_type[0] != 's' || s->spar[i])
+          {
+            switch (s->data_type[1])
+              {
+              case 'r':        /* real */
+                /* the real case should be adjusted later on */
+                switch (s->data_type[2])
+                  {
+                  case 'i':    /* integer */
+                    mpf_set_z (mpc_Re (s->mfpc[i]), s->mip_r[i]);
+                    mpf_set_ui (mpc_Im (s->mfpc[i]), 0);
+                    break;
+                  case 'q':    /* rational */
+                    mpf_set_q (mpc_Re (s->mfpc[i]), s->mqp_r[i]);
+                    mpf_set_ui (mpc_Im (s->mfpc[i]), 0);
+                    /* GMP 2.0.2 bug begin */
+                    if (mpf_sgn (mpc_Re (s->mfpc[i])) !=
+                        mpq_sgn (s->mqp_r[i]))
+                      mpf_neg (mpc_Re (s->mfpc[i]), mpc_Re (s->mfpc[i]));
+                    /* GMP bug end */
+                    break;
+                  case 'b':    /* big float */
+                    break;      /* nothing to do */
+                  case 'f':    /* float */
+                    /* real case
+                       mpc_set_d(mfpc[i], fpr[i], 0.0);
+                     */
+                    break;
+                  default:
+                    mps_error (s, 1, "Mistake in goal");
+                    break;
+                  }
+                break;
+              case 'c':        /* complex */
+                switch (s->data_type[2])
+                  {
+                  case 'i':    /* integer */
+                    mpc_set_z (s->mfpc[i], s->mip_r[i], s->mip_i[i]);
+                    break;
+                  case 'q':    /* rational */
+                    mpc_set_q (s->mfpc[i], s->mqp_r[i], s->mqp_i[i]);
+                    /* GMP 2.0.2 bug begin */
+                    if (mpf_sgn (mpc_Re (s->mfpc[i])) !=
+                        mpq_sgn (s->mqp_r[i]))
+                      mpf_neg (mpc_Re (s->mfpc[i]), mpc_Re (s->mfpc[i]));
+                    if (mpf_sgn (mpc_Im (s->mfpc[i])) !=
+                        mpq_sgn (s->mqp_i[i]))
+                      mpf_neg (mpc_Im (s->mfpc[i]), mpc_Im (s->mfpc[i]));
+                    /* GMP bug end */
+                    break;
+                  case 'b':    /* big float */
+                    break;      /* nothing to do */
+                  case 'f':    /* float */
+                    /* real case
+                       mpc_set_cplx(mfpc[i], fpc[i]);
+                     */
+                    break;
+                  default:
+                    mps_error (s, 1, "Mistake in goal");
+                    break;
+                  }
+              }
+          }
     }
 
   /* Raise the precision of p' */
   if (s->data_type[0] == 's')
     for (k = 0; k < s->n; k++)
       if (s->spar[k + 1])
-	{
-	  mpc_set_prec (s->mfppc[k], prec);
-	  mpc_mul_ui (s->mfppc[k], s->mfpc[k + 1], k + 1);
-	}
+        {
+          mpc_set_prec (s->mfppc[k], prec);
+          mpc_mul_ui (s->mfppc[k], s->mfpc[k + 1], k + 1);
+        }
 
   /* raise the precision of auxiliary variables */
   for (k = 0; k < s->n + 1; k++)
@@ -236,7 +236,7 @@ mps_raise_data_raw (mps_status * s, long int prec)
   if (s->data_type[0] == 's')
     for (k = 0; k < s->n; k++)
       if (s->spar[k + 1])
-	mpc_set_prec_raw (s->mfppc[k], prec);
+        mpc_set_prec_raw (s->mfppc[k], prec);
 
   /* raise the precision of auxiliary variables */
   for (k = 0; k < s->n + 1; k++)
@@ -266,7 +266,7 @@ mps_prepare_data (mps_status * s, long int prec)
   if (prec > data_prec_max)
     {
       if (data_prec_max)
-	mps_raise_data_raw (s, data_prec_max);
+        mps_raise_data_raw (s, data_prec_max);
       data_prec_max = mps_raise_data (s, prec);
     }
   else
@@ -274,9 +274,9 @@ mps_prepare_data (mps_status * s, long int prec)
       /* Check if the algorithm is Standard MPSolve or the secular
        * equation version */
       if (s->mpsolve_ptr == MPS_MPSOLVE_PTR (mps_standard_mpsolve))
-	mps_raise_data_raw (s, prec);
+        mps_raise_data_raw (s, prec);
       else
-	mps_secular_raise_precision (s, prec);
+        mps_secular_raise_precision (s, prec);
     }
 }
 

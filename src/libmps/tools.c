@@ -27,14 +27,14 @@ randomize (unsigned int seed)
       seed = 1;
       rf = fopen (RAND_SOURCE, "rb");
       if (rf != NULL)
-	{
-	  read_bytes = fread (&seed, sizeof (int), 1, rf);
-	  if (read_bytes != 1)
-	    {
-	      fprintf (stderr, "Error while acquiring random seed!\n");
-	    }
-	  fclose (rf);
-	}
+        {
+          read_bytes = fread (&seed, sizeof (int), 1, rf);
+          if (read_bytes != 1)
+            {
+              fprintf (stderr, "Error while acquiring random seed!\n");
+            }
+          fclose (rf);
+        }
     }
   srand (seed);
 }

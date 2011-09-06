@@ -83,17 +83,17 @@ test_unisolve_on_pol (test_pol * pol)
 
       passed = false;
       for (j = 0; j < s->n; j++)
-	{
-	  mpc_sub (ctmp, root, s->mroot[j]);
-	  mpc_mod (mroot, ctmp);
-	  mpc_mod (ftmp, s->mroot[j]);
-	  mpf_mul_eq (ftmp, eps);
-	  if (mpf_cmp (mroot, ftmp) <= 0)
-	    {
-	      passed = true;
-	      break;
-	    }
-	}
+        {
+          mpc_sub (ctmp, root, s->mroot[j]);
+          mpc_mod (mroot, ctmp);
+          mpc_mod (ftmp, s->mroot[j]);
+          mpf_mul_eq (ftmp, eps);
+          if (mpf_cmp (mroot, ftmp) <= 0)
+            {
+              passed = true;
+              break;
+            }
+        }
     }
 
   mpf_clear (mroot);
@@ -107,11 +107,11 @@ test_unisolve_on_pol (test_pol * pol)
   if (s->prec_in > pol->out_digits)
     {
       fail_unless (passed == true,
-		   "Computed results are not exact to the required "
-		   "precision.\n" "\n" " Dumping test configuration: \n"
-		   "   => Polynomial file: %s;\n"
-		   "   => Required digits: %d\n", pol->pol_file,
-		   pol->out_digits);
+                   "Computed results are not exact to the required "
+                   "precision.\n" "\n" " Dumping test configuration: \n"
+                   "   => Polynomial file: %s;\n"
+                   "   => Required digits: %d\n", pol->pol_file,
+                   pol->out_digits);
 
     }
 }

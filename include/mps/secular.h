@@ -24,7 +24,7 @@ extern "C"
    * @brief This is the number of bits used when first passed
    * in multiprecision. 
    */
-#define MPS_SECULAR_STARTING_MP_PRECISION 64
+#define MPS_SECULAR_STARTING_MP_PRECISION 128
 
   /**
    * @brief This is the higher precision supported by GMP that is 
@@ -32,7 +32,7 @@ extern "C"
    * point machinery. It is used to set an "equivalent" precision
    * in s->mpwp for the step of multiprecision coefficient regeneration.
    */
-#define MPS_SECULAR_EQUIVALENT_FP_PRECISION 32
+#define MPS_SECULAR_EQUIVALENT_FP_PRECISION (MPS_SECULAR_STARTING_MP_PRECISION / 2)
 
 
 /* MACROS */
@@ -41,13 +41,13 @@ extern "C"
 /* Routines in secular-newton.c */
   void
     mps_secular_fnewton (mps_status * st, cplx_t x, double *rad, cplx_t corr,
-			 mps_boolean * again);
+                         mps_boolean * again);
   void
     mps_secular_dnewton (mps_status * st, cdpe_t x, rdpe_t rad, cdpe_t corr,
-			 mps_boolean * again);
+                         mps_boolean * again);
   void
     mps_secular_mnewton (mps_status * st, mpc_t x, rdpe_t rad, mpc_t corr,
-			 mps_boolean * again);
+                         mps_boolean * again);
 
 /* Routines in secular.c */
   void mps_secular_deflate (mps_status * s, mps_secular_equation * sec);
@@ -63,13 +63,13 @@ extern "C"
 /* Routines in secular-starting.c */
   void
     mps_secular_fstart (mps_status * s, int n, int i_clust, double clust_rad,
-			double g, rdpe_t eps);
+                        double g, rdpe_t eps);
   void
     mps_secular_dstart (mps_status * s, int n, int i_clust, rdpe_t clust_rad,
-			rdpe_t g, rdpe_t eps);
+                        rdpe_t g, rdpe_t eps);
   void
     mps_secular_mstart (mps_status * s, int n, int i_clust, rdpe_t clust_rad,
-			rdpe_t g, rdpe_t eps);
+                        rdpe_t g, rdpe_t eps);
 
 /* Routines in secular-ga.c */
   int mps_secular_ga_fiterate (mps_status * s, int maxit);
@@ -88,12 +88,12 @@ extern "C"
 
 /* Interface functions in mps_secular.c */
   mps_secular_equation *mps_secular_equation_new (mps_status * s,
-						  cplx_t * afpc,
-						  cplx_t * bfpc,
-						  unsigned long int n);
+                                                  cplx_t * afpc,
+                                                  cplx_t * bfpc,
+                                                  unsigned long int n);
 
   mps_secular_equation *mps_secular_equation_new_raw (mps_status * s,
-						      unsigned long int n);
+                                                      unsigned long int n);
 
   void mps_secular_equation_free (mps_secular_equation * s);
 
@@ -103,4 +103,4 @@ extern "C"
 }
 #endif
 
-#endif				/* SECULAR_H */
+#endif                          /* SECULAR_H */

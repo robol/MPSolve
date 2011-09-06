@@ -250,14 +250,14 @@ mpf_pow_ui (mpf_t r, mpf_t f, register unsigned long int i)
     mpf_set (r, t);
   else
     mpf_set_ui (r, 1);
-  i >>= 1;			/* divide i by 2 */
+  i >>= 1;                      /* divide i by 2 */
 
   while (i)
     {
       mpf_sqr_eq (t);
       if (i & 1)
-	mpf_mul_eq (r, t);
-      i >>= 1;			/* divide i by 2 */
+        mpf_mul_eq (r, t);
+      i >>= 1;                  /* divide i by 2 */
     }
 
   mpf_clear (t);

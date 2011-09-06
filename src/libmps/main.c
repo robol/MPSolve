@@ -55,7 +55,7 @@ mps_standard_mpsolve (mps_status * s)
   over_max = false;
 
   /* == 2 ==  Resume from pre-computed roots */
-  if (s->resume)		/* to complete */
+  if (s->resume)                /* to complete */
     mps_error (s, 1, "Resume not supported yet");
 
   /* == 3 ==  Check data and get starting phase */
@@ -78,55 +78,55 @@ mps_standard_mpsolve (mps_status * s)
       /* Check data but only if the user has provided a suitable
        * check_data routine. */
       if (s->check_data_usr != NULL)
-	(*s->check_data_usr) (s, &which_case);
+        (*s->check_data_usr) (s, &which_case);
       else
-	/* Otherwise fallback on the standard check_data routine */
-	mps_check_data (s, &which_case);
+        /* Otherwise fallback on the standard check_data routine */
+        mps_check_data (s, &which_case);
     }
 
   if (s->DOLOG)
     fprintf (s->logstr, "Which_case = %c, skip_float= %d\n", which_case,
-	     s->skip_float);
+             s->skip_float);
 
   /* == 4 ==  Float phase */
   if (which_case == 'f')
     {
       if (s->DOLOG)
-	fprintf (s->logstr, "Float phase ...\n");
+        fprintf (s->logstr, "Float phase ...\n");
       mps_fsolve (s, &d_after_f);
       s->lastphase = float_phase;
 
       if (s->DOLOG)
-	mps_dump (s, s->logstr);
+        mps_dump (s, s->logstr);
 
       computed = mps_check_stop (s);
       if (computed && s->goal[0] != 'a')
-	goto exit_sub;
+        goto exit_sub;
       /* stop for COUNT and ISOLATE goals */
     }
 
   /* == 5 ==  DPE phase */
   if (which_case == 'd' || d_after_f)
-    {				/* DPE phase */
+    {                           /* DPE phase */
       if (s->DOLOG)
-	fprintf (s->logstr, "DPE phase ...\n");
+        fprintf (s->logstr, "DPE phase ...\n");
       /* If we are arriving from a float phase copy the floating points
        * roots approximations in the DPE root approximations. */
       if (d_after_f)
-	for (i = 0; i < s->n; i++)
-	  {
-	    rdpe_set_d (s->drad[i], s->frad[i]);
-	    cdpe_set_x (s->droot[i], s->froot[i]);
-	  }
+        for (i = 0; i < s->n; i++)
+          {
+            rdpe_set_d (s->drad[i], s->frad[i]);
+            cdpe_set_x (s->droot[i], s->froot[i]);
+          }
       s->lastphase = dpe_phase;
       mps_dsolve (s, d_after_f);
 
       if (s->DOLOG)
-	mps_dump (s, s->logstr);
+        mps_dump (s, s->logstr);
 
       computed = mps_check_stop (s);
       if (computed && s->goal[0] != 'a')
-	goto exit_sub;
+        goto exit_sub;
     }
 
   /* == 6 ==   Allocate MP variables mfpc, mroot, drad, mfppc, mfppc1
@@ -144,12 +144,12 @@ mps_standard_mpsolve (mps_status * s)
   for (i = 0; i < s->n; i++)
     {
       if (which_case == 'd' || d_after_f)
-	mpc_set_cdpe (s->mroot[i], s->droot[i]);
+        mpc_set_cdpe (s->mroot[i], s->droot[i]);
       else
-	{
-	  mpc_set_cplx (s->mroot[i], s->froot[i]);
-	  rdpe_set_d (s->drad[i], s->frad[i]);
-	}
+        {
+          mpc_set_cplx (s->mroot[i], s->froot[i]);
+          rdpe_set_d (s->drad[i], s->frad[i]);
+        }
     }
   if (computed && s->goal[0] == 'a')
     goto exit_sub;
@@ -157,22 +157,22 @@ mps_standard_mpsolve (mps_status * s)
   /* == 7 ==  Start MPsolve loop */
   s->mpwp = DBL_MANT_DIG;
   while (!computed && s->mpwp < s->mpwp_max && (s->prec_in == 0 || s->mpwp
-						< s->prec_in))
+                                                < s->prec_in))
     {
 
       s->mpwp *= 2;
 
       if (s->prec_in != 0 && s->mpwp > s->prec_in)
-	s->mpwp = s->prec_in + (int) (log (4.0 * s->n) / LOG2);
+        s->mpwp = s->prec_in + (int) (log (4.0 * s->n) / LOG2);
 
       if (s->mpwp > s->mpwp_max)
-	{
-	  s->mpwp = s->mpwp_max;
-	  over_max = true;
-	}
+        {
+          s->mpwp = s->mpwp_max;
+          over_max = true;
+        }
 
       if (s->DOLOG)
-	fprintf (s->logstr, "MAIN: mp_loop: mpwp=%ld\n", s->mpwp);
+        fprintf (s->logstr, "MAIN: mp_loop: mpwp=%ld\n", s->mpwp);
 
       /* == 7.1 ==   prepare data according to the current precision */
       mps_mp_set_prec (s, s->mpwp);
@@ -180,23 +180,23 @@ mps_standard_mpsolve (mps_status * s)
 
       /* == 7.2 ==   Call msolve with the current precision */
       if (s->DOLOG)
-	fprintf (s->logstr, "MAIN: now call msolve nclust=%d\n", s->nclust);
+        fprintf (s->logstr, "MAIN: now call msolve nclust=%d\n", s->nclust);
       mps_msolve (s);
       s->lastphase = mp_phase;
 
       /* if (s->DOLOG) dump(logstr); */
 
       if (s->DOLOG)
-	{			/* count isolated zeros */
-	  nzc = 0;
-	  for (i = 0; i < s->n; i++)
-	    {
-	      if (s->status[i][0] == 'i' || s->status[i][0] == 'a')
-		nzc++;
-	    }
-	  fprintf (s->logstr, "MAIN: isolated %d roots\n", nzc);
-	  fprintf (s->logstr, "MAIN: after msolve check stop\n");
-	}
+        {                       /* count isolated zeros */
+          nzc = 0;
+          for (i = 0; i < s->n; i++)
+            {
+              if (s->status[i][0] == 'i' || s->status[i][0] == 'a')
+                nzc++;
+            }
+          fprintf (s->logstr, "MAIN: isolated %d roots\n", nzc);
+          fprintf (s->logstr, "MAIN: after msolve check stop\n");
+        }
 
       /* == 7.3 ==  Check the stop condition */
       computed = mps_check_stop (s);
@@ -204,17 +204,17 @@ mps_standard_mpsolve (mps_status * s)
 
       /* == 7.4 ==  reset the status vector */
       for (i = 0; i < s->n; i++)
-	if (s->status[i][0] == 'C')
-	  s->status[i][0] = 'c';
+        if (s->status[i][0] == 'C')
+          s->status[i][0] = 'c';
     }
 
   /* == 8 ==  Check for termination */
   if (!computed)
     {
       if (over_max)
-	mps_error (s, 1, "Reached the maximum working precision");
+        mps_error (s, 1, "Reached the maximum working precision");
       else
-	mps_warn (s, "Reached the input precision");
+        mps_warn (s, "Reached the input precision");
     }
 
 exit_sub:
@@ -254,21 +254,21 @@ mps_setup (mps_status * s)
       fprintf (s->logstr, "Data type = %3s\n", s->data_type);
       fprintf (s->logstr, "Degree    = %d\n", s->n);
       fprintf (s->logstr, "Input prec.  = %ld digits\n", (long) (s->prec_in
-								 * LOG10_2));
+                                                                 * LOG10_2));
       fprintf (s->logstr, "Output prec. = %ld digits\n", (long) (s->prec_out
-								 * LOG10_2));
+                                                                 * LOG10_2));
     }
 
   /* setup temporary vectors */
   if (s->data_type[0] == 's')
     for (i = 0; i <= s->n; i++)
       {
-	s->fap[i] = 0.0;
-	s->fpr[i] = 0.0;
-	rdpe_set (s->dap[i], rdpe_zero);
-	cplx_set (s->fpc[i], cplx_zero);
-	rdpe_set (s->dpr[i], rdpe_zero);
-	cdpe_set (s->dpc[i], cdpe_zero);
+        s->fap[i] = 0.0;
+        s->fpr[i] = 0.0;
+        rdpe_set (s->dap[i], rdpe_zero);
+        cplx_set (s->fpc[i], cplx_zero);
+        rdpe_set (s->dpr[i], rdpe_zero);
+        cdpe_set (s->dpc[i], cdpe_zero);
       }
 
   /* setup status and clusters so that there is only one cluster
@@ -308,7 +308,7 @@ mps_setup (mps_status * s)
 
   /* compute DPE approximations */
   if (s->data_type[0] == 'u')
-    return;			/* nothing to do */
+    return;                     /* nothing to do */
 
   /* init temporary mp variables */
   tmpf_init2 (mptemp, DBL_MANT_DIG);
@@ -320,84 +320,84 @@ mps_setup (mps_status * s)
     {
 
       if (s->data_type[0] == 's' && !s->spar[i])
-	continue;
+        continue;
 
       switch (s->data_type[1])
-	{			/* switch 1 */
+        {                       /* switch 1 */
 
-	case 'r':		/* Real */
+        case 'r':              /* Real */
 
-	  switch (s->data_type[2])
-	    {			/* switch 2 */
+          switch (s->data_type[2])
+            {                   /* switch 2 */
 
-	    case 'i':		/* Real - Integer Coefs */
-	      mpf_set_z (mptemp, s->mip_r[i]);
-	      mpf_get_rdpe (s->dpr[i], mptemp);
-	      break;
+            case 'i':          /* Real - Integer Coefs */
+              mpf_set_z (mptemp, s->mip_r[i]);
+              mpf_get_rdpe (s->dpr[i], mptemp);
+              break;
 
-	    case 'q':		/* Real - Rational Coefs */
-	      mpf_set_q (mptemp, s->mqp_r[i]);
-	      mpf_get_rdpe (s->dpr[i], mptemp);
-	      /*#G GMP 2.0.2 bug begin */
-	      if (rdpe_sgn (s->dpr[i]) != mpq_sgn (s->mqp_r[i]))
-		rdpe_neg_eq (s->dpr[i]);
-	      /*#G GMP bug end */
-	      break;
+            case 'q':          /* Real - Rational Coefs */
+              mpf_set_q (mptemp, s->mqp_r[i]);
+              mpf_get_rdpe (s->dpr[i], mptemp);
+              /*#G GMP 2.0.2 bug begin */
+              if (rdpe_sgn (s->dpr[i]) != mpq_sgn (s->mqp_r[i]))
+                rdpe_neg_eq (s->dpr[i]);
+              /*#G GMP bug end */
+              break;
 
-	    case 'f':		/* Real - Big/Float Coefs */
-	      mpf_get_rdpe (s->dpr[i], s->mfpr[i]);
-	      break;
+            case 'f':          /* Real - Big/Float Coefs */
+              mpf_get_rdpe (s->dpr[i], s->mfpr[i]);
+              break;
 
-	    }			/* switch 2 */
+            }                   /* switch 2 */
 
-	  cdpe_set_e (s->dpc[i], s->dpr[i], rdpe_zero);
+          cdpe_set_e (s->dpc[i], s->dpr[i], rdpe_zero);
 
-	  /* compute dap[i] and check for float phase */
-	  rdpe_abs (s->dap[i], s->dpr[i]);
-	  rdpe_abs (s->dap[i], s->dpr[i]);
-	  if (rdpe_gt (s->dap[i], rdpe_maxd)
-	      || rdpe_lt (s->dap[i], rdpe_mind))
-	    s->skip_float = true;
+          /* compute dap[i] and check for float phase */
+          rdpe_abs (s->dap[i], s->dpr[i]);
+          rdpe_abs (s->dap[i], s->dpr[i]);
+          if (rdpe_gt (s->dap[i], rdpe_maxd)
+              || rdpe_lt (s->dap[i], rdpe_mind))
+            s->skip_float = true;
 
-	  break;		/* switch 1 */
+          break;                /* switch 1 */
 
-	case 'c':		/* Complex */
+        case 'c':              /* Complex */
 
-	  switch (s->data_type[2])
-	    {			/* switch 3 */
+          switch (s->data_type[2])
+            {                   /* switch 3 */
 
-	    case 'i':		/* Complex - Integer Coefs */
-	      mpc_set_z (mptempc, s->mip_r[i], s->mip_i[i]);
-	      mpc_get_cdpe (s->dpc[i], mptempc);
-	      break;
+            case 'i':          /* Complex - Integer Coefs */
+              mpc_set_z (mptempc, s->mip_r[i], s->mip_i[i]);
+              mpc_get_cdpe (s->dpc[i], mptempc);
+              break;
 
-	    case 'q':		/* Complex - Rational Coefs */
-	      mpc_set_q (mptempc, s->mqp_r[i], s->mqp_i[i]);
-	      mpc_get_cdpe (s->dpc[i], mptempc);
-	      /*#G GMP 2.0.2 bug begin */
-	      if (rdpe_sgn (cdpe_Re (s->dpc[i])) != mpq_sgn (s->mqp_r[i]))
-		rdpe_neg_eq (cdpe_Re (s->dpc[i]));
-	      if (rdpe_sgn (cdpe_Im (s->dpc[i])) != mpq_sgn (s->mqp_i[i]))
-		rdpe_neg_eq (cdpe_Im (s->dpc[i]));
-	      /*#G GMP bug end */
-	      break;
+            case 'q':          /* Complex - Rational Coefs */
+              mpc_set_q (mptempc, s->mqp_r[i], s->mqp_i[i]);
+              mpc_get_cdpe (s->dpc[i], mptempc);
+              /*#G GMP 2.0.2 bug begin */
+              if (rdpe_sgn (cdpe_Re (s->dpc[i])) != mpq_sgn (s->mqp_r[i]))
+                rdpe_neg_eq (cdpe_Re (s->dpc[i]));
+              if (rdpe_sgn (cdpe_Im (s->dpc[i])) != mpq_sgn (s->mqp_i[i]))
+                rdpe_neg_eq (cdpe_Im (s->dpc[i]));
+              /*#G GMP bug end */
+              break;
 
-	    case 'f':		/* Complex - Big/Float Coefs */
-	      mpc_get_cdpe (s->dpc[i], s->mfpc[i]);
-	      break;
+            case 'f':          /* Complex - Big/Float Coefs */
+              mpc_get_cdpe (s->dpc[i], s->mfpc[i]);
+              break;
 
-	    }			/* switch 3 */
+            }                   /* switch 3 */
 
-	  /* compute dap[i] */
-	  cdpe_mod (s->dap[i], s->dpc[i]);
-	  if (rdpe_gt (s->dap[i], rdpe_maxd)
-	      || rdpe_lt (s->dap[i], rdpe_mind))
-	    s->skip_float = true;
+          /* compute dap[i] */
+          cdpe_mod (s->dap[i], s->dpc[i]);
+          if (rdpe_gt (s->dap[i], rdpe_maxd)
+              || rdpe_lt (s->dap[i], rdpe_mind))
+            s->skip_float = true;
 
-	  break;
+          break;
 
-	}			/* switch 1 */
-    }				/* for */
+        }                       /* switch 1 */
+    }                           /* for */
 
   /* free temporary mp variables */
   tmpf_clear (mptemp);
@@ -411,19 +411,19 @@ mps_setup (mps_status * s)
   if (!s->skip_float)
     for (i = 0; i <= s->n; i++)
       {
-	if (s->data_type[0] == 's' || !s->spar[i])
-	  continue;
-	if (s->data_type[1] == 'r')
-	  {
-	    s->fpr[i] = rdpe_get_d (s->dpr[i]);
-	    s->fap[i] = fabs (s->fpr[i]);
-	    cplx_set_d (s->fpc[i], s->fpr[i], 0.0);
-	  }
-	else
-	  {
-	    cdpe_get_x (s->fpc[i], s->dpc[i]);
-	    s->fap[i] = cplx_mod (s->fpc[i]);
-	  }
+        if (s->data_type[0] == 's' || !s->spar[i])
+          continue;
+        if (s->data_type[1] == 'r')
+          {
+            s->fpr[i] = rdpe_get_d (s->dpr[i]);
+            s->fap[i] = fabs (s->fpr[i]);
+            cplx_set_d (s->fpc[i], s->fpr[i], 0.0);
+          }
+        else
+          {
+            cdpe_get_x (s->fpc[i], s->dpc[i]);
+            s->fap[i] = cplx_mod (s->fpc[i]);
+          }
       }
 }
 
@@ -451,11 +451,11 @@ mps_check_data (mps_status * s, char *which_case)
   if (s->data_type[0] == 'u')
     {
       if (s->goal[2] == 'm')
-	mps_error (s, 1,
-		   "Multiplicity detection not yet implemented for user polynomial");
+        mps_error (s, 1,
+                   "Multiplicity detection not yet implemented for user polynomial");
       if (s->goal[3] != 'n')
-	mps_error (s, 1,
-		   "Real/imaginary detection not yet implemented for user polynomial");
+        mps_error (s, 1,
+                   "Real/imaginary detection not yet implemented for user polynomial");
       *which_case = 'd';
       return;
     }
@@ -465,7 +465,7 @@ mps_check_data (mps_status * s, char *which_case)
     {
       mps_warn (s, "The leading coefficient is zero");
       do
-	(s->n)--;
+        (s->n)--;
       while (rdpe_eq (s->dap[s->n], rdpe_zero));
     }
 
@@ -477,23 +477,23 @@ mps_check_data (mps_status * s, char *which_case)
   if (s->zero_roots)
     {
       for (i = 0; i <= s->n - s->zero_roots; i++)
-	{
-	  rdpe_set (s->dap[i], s->dap[i + s->zero_roots]);
-	  s->fap[i] = s->fap[i + s->zero_roots];
-	  s->fpr[i] = s->fpr[i + s->zero_roots];
-	  cplx_set (s->fpc[i], s->fpc[i + s->zero_roots]);
-	  rdpe_set (s->dpr[i], s->dpr[i + s->zero_roots]);
-	  cdpe_set (s->dpc[i], s->dpc[i + s->zero_roots]);
-	  mpf_set (s->mfpr[i], s->mfpr[i + s->zero_roots]);
-	  mpc_set (s->mfpc[i], s->mfpc[i + s->zero_roots]);
-	  if (i < s->n - s->zero_roots)
-	    mpc_set (s->mfppc[i], s->mfppc[i + s->zero_roots]);
-	  mpz_set (s->mip_r[i], s->mip_r[i + s->zero_roots]);
-	  mpz_set (s->mip_i[i], s->mip_i[i + s->zero_roots]);
-	  mpq_set (s->mqp_r[i], s->mqp_r[i + s->zero_roots]);
-	  mpq_set (s->mqp_i[i], s->mqp_i[i + s->zero_roots]);
-	  s->spar[i] = s->spar[i + s->zero_roots];
-	}
+        {
+          rdpe_set (s->dap[i], s->dap[i + s->zero_roots]);
+          s->fap[i] = s->fap[i + s->zero_roots];
+          s->fpr[i] = s->fpr[i + s->zero_roots];
+          cplx_set (s->fpc[i], s->fpc[i + s->zero_roots]);
+          rdpe_set (s->dpr[i], s->dpr[i + s->zero_roots]);
+          cdpe_set (s->dpc[i], s->dpc[i + s->zero_roots]);
+          mpf_set (s->mfpr[i], s->mfpr[i + s->zero_roots]);
+          mpc_set (s->mfpc[i], s->mfpc[i + s->zero_roots]);
+          if (i < s->n - s->zero_roots)
+            mpc_set (s->mfppc[i], s->mfppc[i + s->zero_roots]);
+          mpz_set (s->mip_r[i], s->mip_r[i + s->zero_roots]);
+          mpz_set (s->mip_i[i], s->mip_i[i + s->zero_roots]);
+          mpq_set (s->mqp_r[i], s->mqp_r[i + s->zero_roots]);
+          mpq_set (s->mqp_i[i], s->mqp_i[i + s->zero_roots]);
+          s->spar[i] = s->spar[i + s->zero_roots];
+        }
       s->n = s->n - s->zero_roots;
     }
 
@@ -515,17 +515,17 @@ mps_check_data (mps_status * s, char *which_case)
     switch (s->data_type[2])
       {
       case 'i':
-	mps_compute_sep (s);
-	break;
+        mps_compute_sep (s);
+        break;
       case 'q':
-	mps_warn (s, "The multiplicity option has not been yet implemented");
-	s->sep = 0.0;
-	break;
+        mps_warn (s, "The multiplicity option has not been yet implemented");
+        s->sep = 0.0;
+        break;
       default:
-	mps_warn (s, "The input polynomial has neither integer nor rational");
-	mps_warn (s, " coefficients: unable to compute multiplicities");
-	s->sep = 0.0;
-	break;
+        mps_warn (s, "The input polynomial has neither integer nor rational");
+        mps_warn (s, " coefficients: unable to compute multiplicities");
+        s->sep = 0.0;
+        break;
       }
 
   /* Real/Imaginary detection */
@@ -533,19 +533,19 @@ mps_check_data (mps_status * s, char *which_case)
     switch (s->data_type[2])
       {
       case 'i':
-	mps_compute_sep (s);
-	break;
+        mps_compute_sep (s);
+        break;
       case 'q':
-	mps_warn (s,
-		  "The  real/imaginary option has not been yet implemented");
-	s->sep = 0.0;
-	break;
+        mps_warn (s,
+                  "The  real/imaginary option has not been yet implemented");
+        s->sep = 0.0;
+        break;
       default:
-	mps_warn (s, "The input polynomial has neither integer nor rational");
-	mps_warn (s,
-		  " coefficients: unable to perform real/imaginary options");
-	s->sep = 0.0;
-	break;
+        mps_warn (s, "The input polynomial has neither integer nor rational");
+        mps_warn (s,
+                  " coefficients: unable to perform real/imaginary options");
+        s->sep = 0.0;
+        break;
       }
 
   /* Select cases (dpe or floating point)
@@ -564,21 +564,21 @@ mps_check_data (mps_status * s, char *which_case)
       rdpe_sqrt_eq (min_coeff);
       /* min_coeff = sqrt(dhuge*dtiny/(min_coeff*max_coeff)) */
       for (i = 0; i <= s->n; i++)
-	{
-	  rdpe_mul (tmp, s->dap[i], min_coeff);
-	  s->fap[i] = rdpe_get_d (tmp);
-	  if (s->data_type[1] == 'c')
-	    {
-	      cdpe_mul_e (ctmp, s->dpc[i], min_coeff);
-	      cdpe_get_x (s->fpc[i], ctmp);
-	    }
-	  else
-	    {
-	      /* fpr(i)=dpr(i)*min_coeff !! DARIO riattiva dopo impl. caso reale */
-	      cdpe_mul_e (ctmp, s->dpc[i], min_coeff);
-	      cdpe_get_x (s->fpc[i], ctmp);
-	    }
-	}
+        {
+          rdpe_mul (tmp, s->dap[i], min_coeff);
+          s->fap[i] = rdpe_get_d (tmp);
+          if (s->data_type[1] == 'c')
+            {
+              cdpe_mul_e (ctmp, s->dpc[i], min_coeff);
+              cdpe_get_x (s->fpc[i], ctmp);
+            }
+          else
+            {
+              /* fpr(i)=dpr(i)*min_coeff !! DARIO riattiva dopo impl. caso reale */
+              cdpe_mul_e (ctmp, s->dpc[i], min_coeff);
+              cdpe_get_x (s->fpc[i], ctmp);
+            }
+        }
     }
   else
     *which_case = 'd';

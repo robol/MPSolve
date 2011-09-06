@@ -26,7 +26,7 @@ extern "C"
 /* ----   definition  ---- */
   typedef struct
   {
-    double r, i;		/* re, im */
+    double r, i;                /* re, im */
   } __cplx_struct;
 
   typedef __cplx_struct cplx_t[1];
@@ -41,9 +41,9 @@ extern "C"
 #define cplx_Move(X1, X2) (*X1 = *X2)
 
 /* base constants */
-  extern const cplx_t cplx_zero;	/* complex zero  (0, 0)    */
-  extern const cplx_t cplx_one;	/* complex one   (1, 0)    */
-  extern const cplx_t cplx_i;	/* imag. unit    (0, 1)    */
+  extern const cplx_t cplx_zero;        /* complex zero  (0, 0)    */
+  extern const cplx_t cplx_one; /* complex one   (1, 0)    */
+  extern const cplx_t cplx_i;   /* imag. unit    (0, 1)    */
 
 /* built constants */
   cplx_cp cplx_d (double r, double i);
@@ -129,8 +129,8 @@ extern "C"
 /* ----   definition  ---- */
   typedef struct
   {
-    double m;			/* mantissa */
-    long e;			/* exponent */
+    double m;                   /* mantissa */
+    long e;                     /* exponent */
   } __rdpe_struct;
 
   typedef __rdpe_struct rdpe_t[1];
@@ -145,12 +145,12 @@ extern "C"
 #define rdpe_Move(E1, E2) (*E1 = *E2)
 
 /* base constants */
-  extern const rdpe_t rdpe_zero;	/* zero as rdpe num.       */
-  extern const rdpe_t rdpe_one;	/* one as rdpe num.        */
-  extern const rdpe_t rdpe_maxd;	/* max double as rdpe      */
-  extern const rdpe_t rdpe_mind;	/* min pos. double as rdpe */
-  extern const rdpe_t RDPE_MAX;	/* max rdpe number         */
-  extern const rdpe_t RDPE_MIN;	/* min pos. rdpe  number   */
+  extern const rdpe_t rdpe_zero;        /* zero as rdpe num.       */
+  extern const rdpe_t rdpe_one; /* one as rdpe num.        */
+  extern const rdpe_t rdpe_maxd;        /* max double as rdpe      */
+  extern const rdpe_t rdpe_mind;        /* min pos. double as rdpe */
+  extern const rdpe_t RDPE_MAX; /* max rdpe number         */
+  extern const rdpe_t RDPE_MIN; /* min pos. rdpe  number   */
 
 /* built constants */
   rdpe_cp rdpe_d (double d);
@@ -259,7 +259,7 @@ extern "C"
 /* ---- definition ---- */
   typedef struct
   {
-    rdpe_t r, i;		/* re, im */
+    rdpe_t r, i;                /* re, im */
   } __cdpe_struct;
 
   typedef __cdpe_struct cdpe_t[1];
@@ -274,9 +274,9 @@ extern "C"
 #define cdpe_Move(C1, C2) (*C1 = *C2)
 
 /* base constants */
-  extern const cdpe_t cdpe_zero;	/* cdpe zero     (0, 0)    */
-  extern const cdpe_t cdpe_one;	/* cdpe one      (1, 0)    */
-  extern const cdpe_t cdpe_i;	/* cdpe I        (0, 1)    */
+  extern const cdpe_t cdpe_zero;        /* cdpe zero     (0, 0)    */
+  extern const cdpe_t cdpe_one; /* cdpe one      (1, 0)    */
+  extern const cdpe_t cdpe_i;   /* cdpe I        (0, 1)    */
 
 /* built constants */
   cdpe_cp cdpe_d (double r, double i);
@@ -293,7 +293,7 @@ extern "C"
   void cdpe_set_d (cdpe_t c, double dr, double di);
   void cdpe_set_dl (cdpe_t c, double dr, long int lr, double di, long int li);
   void cdpe_set_2dl (cdpe_t c, double dr, long int lr,
-		     double di, long int li);
+                     double di, long int li);
   int cdpe_set_str (cdpe_t c, const char *s);
 
 /* conversion */

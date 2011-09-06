@@ -184,7 +184,7 @@ void
 cplx_sqr (cplx_t rx, const cplx_t x)
 /* rx = x * x */
 {
-  double d;			/* necessary when rx=x1 or rx=x2 */
+  double d;                     /* necessary when rx=x1 or rx=x2 */
 
   d = cplx_Re (x) * cplx_Re (x) - cplx_Im (x) * cplx_Im (x);
   cplx_Im (rx) = 2.0 * cplx_Re (x) * cplx_Im (x);
@@ -233,7 +233,7 @@ void
 cplx_mul (cplx_t rx, const cplx_t x1, const cplx_t x2)
 /* rx = x1 * x2 */
 {
-  double d;			/* necessary when rx=x1 or rx=x2 */
+  double d;                     /* necessary when rx=x1 or rx=x2 */
 
   d = cplx_Re (x1) * cplx_Re (x2) - cplx_Im (x1) * cplx_Im (x2);
   cplx_Im (rx) = cplx_Im (x1) * cplx_Re (x2) + cplx_Re (x1) * cplx_Im (x2);
@@ -283,9 +283,9 @@ cplx_pow_si (cplx_t rx, const cplx_t x, register signed long int i)
   while (i)
     {
       if (i & 1)
-	cplx_mul_eq (rx, t);
+        cplx_mul_eq (rx, t);
       cplx_sqr_eq (t);
-      i >>= 1;			/* divide i by 2 */
+      i >>= 1;                  /* divide i by 2 */
     }
 }
 
@@ -324,20 +324,20 @@ cplx_inv_eq (cplx_t x)
   if (fabs (cplx_Re (x)) > fabs (cplx_Im (x)))
     {
       d1 = cplx_Im (x) / cplx_Re (x);
-      if (DBL_MAX / (1.0 + d1 * d1) < fabs (cplx_Re (x)))	/*#G 27/4/98 */
-	d2 = 0.0;		/*#G 27/4/98 */
-      else			/*#G 27/4/98 */
-	d2 = 1.0 / (cplx_Re (x) * (1.0 + d1 * d1));
+      if (DBL_MAX / (1.0 + d1 * d1) < fabs (cplx_Re (x)))       /*#G 27/4/98 */
+        d2 = 0.0;               /*#G 27/4/98 */
+      else                      /*#G 27/4/98 */
+        d2 = 1.0 / (cplx_Re (x) * (1.0 + d1 * d1));
       cplx_Re (x) = d2;
       cplx_Im (x) = -d2 * d1;
     }
   else
     {
       d1 = cplx_Re (x) / cplx_Im (x);
-      if (DBL_MAX / (1.0 + d1 * d1) < fabs (cplx_Re (x)))	/*#G 27/4/98 */
-	d2 = 0.0;		/*#G 27/4/98 */
-      else			/*#G 27/4/98 */
-	d2 = 1.0 / (cplx_Im (x) * (1.0 + d1 * d1));
+      if (DBL_MAX / (1.0 + d1 * d1) < fabs (cplx_Re (x)))       /*#G 27/4/98 */
+        d2 = 0.0;               /*#G 27/4/98 */
+      else                      /*#G 27/4/98 */
+        d2 = 1.0 / (cplx_Im (x) * (1.0 + d1 * d1));
       cplx_Im (x) = -d2;
       cplx_Re (x) = d2 * d1;
     }
@@ -446,9 +446,9 @@ cplx_pow_eq_si (cplx_t x, register signed long int i)
   while (i)
     {
       if (i & 1)
-	cplx_mul_eq (x, t);
+        cplx_mul_eq (x, t);
       cplx_sqr_eq (t);
-      i >>= 1;			/* divide i by 2 */
+      i >>= 1;                  /* divide i by 2 */
     }
 }
 
@@ -599,7 +599,7 @@ rdpe_set_dl (rdpe_t e, double d, long int l)
       rdpe_Mnt (e) = pow (2.0, modf (rdpe_Mnt (e), &x));
     }
   else
-    {				/* d < 0 */
+    {                           /* d < 0 */
       rdpe_Mnt (e) = log (-d) / LOG_2 + l * LOG2_10;
       rdpe_Mnt (e) = -pow (2.0, modf (rdpe_Mnt (e), &x));
     }
@@ -653,7 +653,7 @@ rdpe_get_dl (double *d, long int *l, const rdpe_t e)
       *l = (long int) x;
     }
   else
-    {				/* rdpe_Mnt(e) > 0 */
+    {                           /* rdpe_Mnt(e) > 0 */
       *d = log10 (-rdpe_Mnt (e)) + rdpe_Esp (e) * LOG10_2;
       *d = -pow (10.0, modf (*d, &x));
       *l = (long int) x;
@@ -765,14 +765,14 @@ rdpe_exp (rdpe_t re, const rdpe_t e)
   if (i >= 0)
     while (i > 0)
       {
-	rdpe_sqr_eq (re);
-	i--;
+        rdpe_sqr_eq (re);
+        i--;
       }
   else
     while (i < 0)
       {
-	rdpe_sqrt_eq (re);
-	i++;
+        rdpe_sqrt_eq (re);
+        i++;
       }
 }
 
@@ -863,7 +863,7 @@ rdpe_add (rdpe_t re, const rdpe_t e1, const rdpe_t e2)
       rdpe_Norm (re);
     }
   else
-    {				/* delta < 0 */
+    {                           /* delta < 0 */
       rdpe_Mnt (re) = ldexp (rdpe_Mnt (e1), (int) delta) + rdpe_Mnt (e2);
       rdpe_Esp (re) = rdpe_Esp (e2);
       rdpe_Norm (re);
@@ -910,7 +910,7 @@ rdpe_sub (rdpe_t re, const rdpe_t e1, const rdpe_t e2)
       rdpe_Norm (re);
     }
   else
-    {				/* delta < 0 */
+    {                           /* delta < 0 */
       rdpe_Mnt (re) = ldexp (rdpe_Mnt (e1), (int) delta) - rdpe_Mnt (e2);
       rdpe_Esp (re) = rdpe_Esp (e2);
       rdpe_Norm (re);
@@ -976,9 +976,9 @@ rdpe_pow_si (rdpe_t re, const rdpe_t e, register signed long int i)
   while (i)
     {
       if (i & 1)
-	rdpe_mul_eq (re, t);
+        rdpe_mul_eq (re, t);
       rdpe_sqr_eq (t);
-      i >>= 1;			/* divide i by 2 */
+      i >>= 1;                  /* divide i by 2 */
     }
 }
 
@@ -1022,7 +1022,7 @@ rdpe_sqr_eq (rdpe_t e)
 /* e = e * e */
 {
   rdpe_Mnt (e) *= rdpe_Mnt (e);
-  rdpe_Esp (e) <<= 1;		/* multiply by 2 */
+  rdpe_Esp (e) <<= 1;           /* multiply by 2 */
   rdpe_Norm (e);
 }
 
@@ -1031,7 +1031,7 @@ rdpe_sqrt_eq (rdpe_t e)
 /* e = e^(1/2) */
 {
   if (rdpe_Esp (e) & 1)
-    {				/* odd test */
+    {                           /* odd test */
       rdpe_Mnt (e) = sqrt (rdpe_Mnt (e) / 2.0);
       rdpe_Esp (e) = (rdpe_Esp (e) + 1) / 2;
     }
@@ -1055,14 +1055,14 @@ rdpe_exp_eq (rdpe_t e)
   if (i >= 0)
     while (i > 0)
       {
-	rdpe_sqr_eq (e);
-	i--;
+        rdpe_sqr_eq (e);
+        i--;
       }
   else
     while (i < 0)
       {
-	rdpe_sqrt_eq (e);
-	i++;
+        rdpe_sqrt_eq (e);
+        i++;
       }
 }
 
@@ -1144,7 +1144,7 @@ rdpe_add_eq (rdpe_t re, const rdpe_t e)
       rdpe_Norm (re);
     }
   else
-    {				/* delta < 0 */
+    {                           /* delta < 0 */
       rdpe_Mnt (re) = ldexp (rdpe_Mnt (re), (int) delta) + rdpe_Mnt (e);
       rdpe_Esp (re) = rdpe_Esp (e);
       rdpe_Norm (re);
@@ -1185,7 +1185,7 @@ rdpe_sub_eq (rdpe_t re, const rdpe_t e)
       rdpe_Norm (re);
     }
   else
-    {				/* delta < 0 */
+    {                           /* delta < 0 */
       rdpe_Mnt (re) = ldexp (rdpe_Mnt (re), (int) delta) - rdpe_Mnt (e);
       rdpe_Esp (re) = rdpe_Esp (e);
       rdpe_Norm (re);
@@ -1240,9 +1240,9 @@ rdpe_pow_eq_si (rdpe_t e, register signed long int i)
   while (i)
     {
       if (i & 1)
-	rdpe_mul_eq (e, t);
+        rdpe_mul_eq (e, t);
       rdpe_sqr_eq (t);
-      i >>= 1;			/* divide i by 2 */
+      i >>= 1;                  /* divide i by 2 */
     }
 }
 
@@ -1681,7 +1681,7 @@ cdpe_sqr (cdpe_t rc, const cdpe_t c)
   rdpe_mul (e1, cdpe_Re (c), cdpe_Re (c));
   rdpe_mul (e2, cdpe_Im (c), cdpe_Im (c));
   rdpe_mul (cdpe_Im (rc), cdpe_Im (c), cdpe_Re (c));
-  rdpe_Esp (cdpe_Im (rc)) += 1;	/* multiply by 2 */
+  rdpe_Esp (cdpe_Im (rc)) += 1; /* multiply by 2 */
   rdpe_sub (cdpe_Re (rc), e1, e2);
 }
 
@@ -1732,7 +1732,7 @@ cdpe_mul (cdpe_t rc, const cdpe_t c1, const cdpe_t c2)
 
   rdpe_mul (e1, cdpe_Re (c1), cdpe_Re (c2));
   rdpe_mul (e2, cdpe_Im (c1), cdpe_Im (c2));
-  rdpe_sub (e3, e1, e2);	/* needed when rc=c1 or rc=c2 */
+  rdpe_sub (e3, e1, e2);        /* needed when rc=c1 or rc=c2 */
   rdpe_mul (e1, cdpe_Im (c1), cdpe_Re (c2));
   rdpe_mul (e2, cdpe_Re (c1), cdpe_Im (c2));
   rdpe_Move (cdpe_Re (rc), e3);
@@ -1758,7 +1758,7 @@ cdpe_mul_x (cdpe_t rc, const cdpe_t c, const cplx_t x)
 
   rdpe_mul_d (e1, cdpe_Re (c), cplx_Re (x));
   rdpe_mul_d (e2, cdpe_Im (c), cplx_Im (x));
-  rdpe_sub (e3, e1, e2);	/* needed when rc=c1 or rc=c2 */
+  rdpe_sub (e3, e1, e2);        /* needed when rc=c1 or rc=c2 */
   rdpe_mul_d (e1, cdpe_Im (c), cplx_Re (x));
   rdpe_mul_d (e2, cdpe_Re (c), cplx_Im (x));
   rdpe_Move (cdpe_Re (rc), e3);
@@ -1788,7 +1788,7 @@ void
 cdpe_div (cdpe_t rc, const cdpe_t c1, const cdpe_t c2)
 /* rc = c1 / c2 */
 {
-  cdpe_t t;			/* needed when rc=c1 or rc=c2 */
+  cdpe_t t;                     /* needed when rc=c1 or rc=c2 */
   rdpe_t e1, e2, e3;
 
   cdpe_smod (e1, c2);
@@ -1850,9 +1850,9 @@ cdpe_pow_si (cdpe_t rc, const cdpe_t c, register signed long int i)
   while (i)
     {
       if (i & 1)
-	cdpe_mul_eq (rc, t);
+        cdpe_mul_eq (rc, t);
       cdpe_sqr_eq (t);
-      i >>= 1;			/* divide i by 2 */
+      i >>= 1;                  /* divide i by 2 */
     }
 }
 
@@ -1904,7 +1904,7 @@ cdpe_sqr_eq (cdpe_t c)
   rdpe_sqr (e1, cdpe_Re (c));
   rdpe_sqr (e2, cdpe_Im (c));
   rdpe_mul_eq (cdpe_Im (c), cdpe_Re (c));
-  rdpe_Esp (cdpe_Im (c)) += 1;	/* multiply by 2 */
+  rdpe_Esp (cdpe_Im (c)) += 1;  /* multiply by 2 */
   rdpe_sub (cdpe_Re (c), e1, e2);
 }
 
@@ -1981,7 +1981,7 @@ cdpe_mul_eq_x (cdpe_t c, const cplx_t x)
 
   rdpe_mul_d (e1, cdpe_Re (c), cplx_Re (x));
   rdpe_mul_d (e2, cdpe_Im (c), cplx_Im (x));
-  rdpe_sub (e3, e1, e2);	/* needed when rc=c1 or rc=c2 */
+  rdpe_sub (e3, e1, e2);        /* needed when rc=c1 or rc=c2 */
   rdpe_mul_d (e1, cdpe_Im (c), cplx_Re (x));
   rdpe_mul_d (e2, cdpe_Re (c), cplx_Im (x));
   rdpe_Move (cdpe_Re (c), e3);
@@ -2069,9 +2069,9 @@ cdpe_pow_eq_si (cdpe_t c, register signed long int i)
   while (i)
     {
       if (i & 1)
-	cdpe_mul_eq (c, t);
+        cdpe_mul_eq (c, t);
       cdpe_sqr_eq (t);
-      i >>= 1;			/* divide i by 2 */
+      i >>= 1;                  /* divide i by 2 */
     }
 }
 
