@@ -128,24 +128,23 @@ mps_fnewton (mps_status * s, int n, cplx_t z, double *radius, cplx_t corr,
           absp = cplx_mod (p);
           *cont = (absp > ap * eps);
           /* *radius = cplx_mod (ppsp) + (eps * ap * az) / cplx_mod (p1);
-          *radius *= n / cplx_mod (den);
-          *radius *= az; */
+           *radius *= n / cplx_mod (den);
+           *radius *= az; */
 
         }
 
     }
-    
-              *radius = cplx_mod (p) * s->n / s->fap[0];
-          cplx_t diff;
-          for (i = 0; i < s->n; i++)
-          {
-              cplx_sub (diff, z, s->froot[i]);
-              if (cplx_eq_zero (diff))
-                continue;
-              *radius /= cplx_mod (diff);
-          }
-          
-          MPS_DEBUG (s, "Radius: %e", *radius);
+
+  /* Computation of the radius using Gerschgorin */
+  *radius = cplx_mod (p) * s->n / s->fap[0];
+  cplx_t diff;
+  for (i = 0; i < s->n; i++)
+    {
+      cplx_sub (diff, z, s->froot[i]);
+      if (cplx_eq_zero (diff))
+        continue;
+      *radius /= cplx_mod (diff);
+    }
 }
 
 
@@ -227,18 +226,21 @@ mps_dnewton (mps_status * s, int n, cdpe_t z, rdpe_t radius, cdpe_t corr,
   cdpe_mod (absp, p);
   rdpe_mul_d (apeps, ap, eps);
   *cont = rdpe_gt (absp, apeps);
-  rdpe_add (rnew, absp, apeps);
-  cdpe_mod (rtmp, p1);
-
-  rdpe_div_eq (rnew, rtmp);
-  if (*cont)
-    rdpe_mul_d (radius, rnew, (double) n);
-  else
-    {
-      rdpe_mul_eq_d (rnew, (double) (n + 1));
-      if (rdpe_lt (rnew, radius))
-        rdpe_set (radius, rnew);
-    }
+    
+  /* Computation of the radius via Gerschgorin */
+  rdpe_mul_d (rnew, absp, s->n);
+  rdpe_div_eq (rnew, s->dap[0]);
+  for (i = 0; i < s->n; i++)
+  {
+    cdpe_sub (tmp, z, s->droot[i]);
+    if (cdpe_eq (tmp, cdpe_zero))
+      continue;
+    cdpe_mod (rtmp, tmp);
+    rdpe_div_eq (rnew, rtmp);
+  }
+ 
+  if (rdpe_lt (rnew, radius))
+    rdpe_set (radius, rnew);
 }
 
 /****************************************************
@@ -530,35 +532,33 @@ mps_mnewton (mps_status * s, int n, mpc_t z, rdpe_t radius, mpc_t corr,
   rdpe_mul (apeps, ap, ep);
   *cont = rdpe_gt (absp, apeps);
   /* rdpe_add (rnew, absp, apeps);
-  rdpe_div_eq (rnew, temp); */
-  
-  if (*cont)
-  {
-    /* rdpe_mul_d (radius, rnew, (double) n); */
+     rdpe_div_eq (rnew, temp); */
 
-  }
+  if (*cont)
+    {
+      /* rdpe_mul_d (radius, rnew, (double) n); */
+
+    }
   else
     {
       /* rdpe_mul_eq_d (rnew, (double) (n + 1)); */
     }
-    
+
   rdpe_mul_d (rnew, absp, s->n);
   rdpe_div_eq (rnew, s->dap[0]);
-  
-  for(i = 0; i < s->n; i++)
+
+  for (i = 0; i < s->n; i++)
     {
-        mpc_sub (diff, z, s->mroot[i]);
-        mpc_get_cdpe (temp1, diff);
-        if (cdpe_eq (temp1, cdpe_zero))
-          continue;
-        cdpe_mod (absdiff, temp1);
-        rdpe_div_eq (rnew, absdiff);
+      mpc_sub (diff, z, s->mroot[i]);
+      mpc_get_cdpe (temp1, diff);
+      if (cdpe_eq (temp1, cdpe_zero))
+        continue;
+      cdpe_mod (absdiff, temp1);
+      rdpe_div_eq (rnew, absdiff);
     }
-    
+
   if (rdpe_lt (rnew, radius))
     rdpe_set (radius, rnew);
-    
-  MPS_DEBUG_RDPE (s, radius, "Radius");
 
 exit_sub:
   tmpc_clear (p1);
