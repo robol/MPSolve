@@ -81,23 +81,23 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
   cplx_mul (corr, pol, sumb);
   cplx_add_eq (corr, fp);
   cplx_div (corr, pol, corr);
-    
+
   /* Computation of radius with Gerschgorin */
   double new_rad = cplx_mod (pol) * s->n;
   for (i = 0; i < s->n; i++)
-  {
+    {
       if (cplx_eq (s->froot[i], x))
         continue;
       cplx_sub (ctmp, s->froot[i], x);
       new_rad /= cplx_mod (ctmp);
-  }
-  
+    }
+
   /* Correct the old radius with the move that we are doing
    * and check if the new proposed radius is preferable. */
   *rad += cplx_mod (corr);
   if (new_rad < *rad)
     *rad = new_rad;
-    
+
 
   /* If the correction is not useful in the current precision do
    * not iterate more   */
@@ -178,16 +178,16 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
   rdpe_t new_rad;
   cdpe_mod (new_rad, pol);
   rdpe_mul_eq_d (new_rad, s->n);
-  
+
   for (i = 0; i < s->n; i++)
-  {
+    {
       if (cdpe_eq (s->droot[i], x))
         continue;
       cdpe_sub (ctmp, s->droot[i], x);
       cdpe_mod (rtmp, ctmp);
       rdpe_div (new_rad, new_rad, rtmp);
-  }
-  
+    }
+
   /* Correct the old radius with the move that we are doing
    * and check if the new proposed radius is preferable. */
   cdpe_mod (rtmp, corr);
@@ -343,22 +343,22 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
   rdpe_t new_rad;
   cdpe_t x_cdpe;
   mpc_get_cdpe (x_cdpe, x);
-  
+
   mpc_get_cdpe (cdtmp, pol);
   cdpe_mod (new_rad, cdtmp);
   rdpe_mul_eq_d (new_rad, s->n);
-  
+
   for (i = 0; i < s->n; i++)
-  {
+    {
       mpc_sub (ctmp, x, s->mroot[i]);
       mpc_get_cdpe (cdtmp, ctmp);
       if (cdpe_eq_zero (cdtmp))
         continue;
-      
+
       cdpe_mod (rtmp, cdtmp);
       rdpe_div (new_rad, new_rad, rtmp);
-  }
-  
+    }
+
   /* Correct the old radius with the move that we are doing
    * and check if the new proposed radius is preferable. */
   mpc_get_cdpe (cdtmp, corr);

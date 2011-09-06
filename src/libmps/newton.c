@@ -127,12 +127,25 @@ mps_fnewton (mps_status * s, int n, cplx_t z, double *radius, cplx_t corr,
           cplx_mul_eq (corr, z);
           absp = cplx_mod (p);
           *cont = (absp > ap * eps);
-          *radius = cplx_mod (ppsp) + (eps * ap * az) / cplx_mod (p1);
+          /* *radius = cplx_mod (ppsp) + (eps * ap * az) / cplx_mod (p1);
           *radius *= n / cplx_mod (den);
-          *radius *= az;
+          *radius *= az; */
+
         }
 
     }
+    
+              *radius = cplx_mod (p) * s->n / s->fap[0];
+          cplx_t diff;
+          for (i = 0; i < s->n; i++)
+          {
+              cplx_sub (diff, z, s->froot[i]);
+              if (cplx_eq_zero (diff))
+                continue;
+              *radius /= cplx_mod (diff);
+          }
+          
+          MPS_DEBUG (s, "Radius: %e", *radius);
 }
 
 
@@ -422,9 +435,9 @@ mps_mnewton (mps_status * s, int n, mpc_t z, rdpe_t radius, mpc_t corr,
              mps_boolean spar[], mps_boolean * cont, int n_thread)
 {
   int i, n1, n2;
-  rdpe_t ap, az, absp, temp, rnew, ep, apeps;
+  rdpe_t ap, az, absp, temp, rnew, ep, apeps, absdiff;
   cdpe_t temp1;
-  tmpc_t p, p1;
+  tmpc_t p, p1, diff;
 
   /* Set the pointer for mnewton to be thread specific
    * so there is not conflict with other threads.      */
@@ -432,6 +445,7 @@ mps_mnewton (mps_status * s, int n, mpc_t z, rdpe_t radius, mpc_t corr,
 
   tmpc_init2 (p, s->mpwp);
   tmpc_init2 (p1, s->mpwp);
+  tmpc_init2 (diff, s->mpwp);
 
   rdpe_mul_d (ep, s->mp_epsilon, (double) (n * 4));
   if (s->data_type[0] == 's')
@@ -515,18 +529,39 @@ mps_mnewton (mps_status * s, int n, mpc_t z, rdpe_t radius, mpc_t corr,
   cdpe_mod (temp, temp1);
   rdpe_mul (apeps, ap, ep);
   *cont = rdpe_gt (absp, apeps);
-  rdpe_add (rnew, absp, apeps);
-  rdpe_div_eq (rnew, temp);
+  /* rdpe_add (rnew, absp, apeps);
+  rdpe_div_eq (rnew, temp); */
+  
   if (*cont)
-    rdpe_mul_d (radius, rnew, (double) n);
+  {
+    /* rdpe_mul_d (radius, rnew, (double) n); */
+
+  }
   else
     {
-      rdpe_mul_eq_d (rnew, (double) (n + 1));
-      if (rdpe_lt (rnew, radius))
-        rdpe_set (radius, rnew);
+      /* rdpe_mul_eq_d (rnew, (double) (n + 1)); */
     }
+    
+  rdpe_mul_d (rnew, absp, s->n);
+  rdpe_div_eq (rnew, s->dap[0]);
+  
+  for(i = 0; i < s->n; i++)
+    {
+        mpc_sub (diff, z, s->mroot[i]);
+        mpc_get_cdpe (temp1, diff);
+        if (cdpe_eq (temp1, cdpe_zero))
+          continue;
+        cdpe_mod (absdiff, temp1);
+        rdpe_div_eq (rnew, absdiff);
+    }
+    
+  if (rdpe_lt (rnew, radius))
+    rdpe_set (radius, rnew);
+    
+  MPS_DEBUG_RDPE (s, radius, "Radius");
 
 exit_sub:
   tmpc_clear (p1);
   tmpc_clear (p);
+  tmpc_clear (diff);
 }
