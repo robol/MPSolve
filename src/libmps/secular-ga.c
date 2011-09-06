@@ -296,7 +296,7 @@ mps_secular_ga_miterate (mps_status * s, int maxit)
           for (j = s->punt[i]; j < s->punt[i + 1]; j++)
             {
               k = s->clust[j];
-			  if (s->again[k])
+              if (s->again[k])
                 {
                   nit++;
                   mps_secular_mnewton (s, s->mroot[k], s->drad[k], corr,

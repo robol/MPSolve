@@ -81,86 +81,23 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
   cplx_mul (corr, pol, sumb);
   cplx_add_eq (corr, fp);
   cplx_div (corr, pol, corr);
-
-
-  /* We compute the following values in order to give a guaranteed
-   * Newton inclusion circle:
-   *
-   * 1) theta = |fp| * (n + 8 + 3*sqrt(2)) * u
-   *  This is used so fp - theta is less than the real
-   *  value of sum_i a_i / (x - b_i)^2
-   *
-   * 2) ssp = pol / (fp - theta);
-   *  This is the guaranteed S/S' that we can compute
-   *  and that will be used to compute
-   *
-   * 3) gamma = ssp*sec*(n + 2 + sqrt(2))*u +
-   *     sec * (pol/fp - ssp) =
-   *     = sec * (ssp * (n+2+sqrt(2))*u + (pol/fp - ssp))
-   *  This is used in the next step to give a minoration
-   *  sigma of 1 + S/s' * (\sum_i a_i / (x-b_i))
-   *
-   * 4) sigma = |1 + ssp*sumb| - gamma
-   *  Guaranteed 1 + S/s' * (\sum_i a_i / (x-b_i))
-   *
-   * 5) g_corr = ssp / sigma
-   *  That is, finally, the guaranteed newton correction.
-   */
-  if (s->mpsolve_ptr == MPS_MPSOLVE_PTR (mps_standard_mpsolve))
-    {
-      double theta, gamma, sigma;
-      cplx_t ssp, pol_div_fp, gamma_tmp, sigma_tmp;
-
-      theta = cplx_mod (fp) * (s->n + 8 + 3 * sqrt (2)) * DBL_EPSILON;
-
-      /* Compute ssp */
-      cplx_sub (ssp, fp, cplx_d (theta, 0));
-      cplx_inv_eq (ssp);
-      cplx_mul_eq (ssp, pol);
-
-      /* Compute gamma */
-      cplx_mul_d (gamma_tmp, ssp, (s->n + 2 + sqrt (2)) * DBL_EPSILON);
-      cplx_div (pol_div_fp, pol, fp);
-      cplx_sub_eq (pol_div_fp, ssp);
-      gamma = cplx_mod (pol) * (cplx_mod (gamma_tmp) + cplx_mod (pol_div_fp));
-
-      /* Computation of ssp * sumb in order to compute sigma */
-      cplx_mul (sigma_tmp, ssp, sumb);
-      cplx_add_eq (sigma_tmp, cplx_one);
-
-      sigma = cplx_mod (sigma_tmp) - gamma;
-
-      if (sigma > 0)
-        {
-          g_corr = cplx_mod (ssp) / sigma;
-
-          /* Radius is n * newt_corr, if it's better that Gerschgorin's one */
-          dtmp = g_corr * sec->n;
-          if (dtmp < *rad)
-            *rad = dtmp;
-
-          /* dtmp here is the guaranteed upper bound to the evaluation of the
-           * secular equation   */
-          if (dtmp < 2 * DBL_EPSILON)
-            *again = false;
-        }
-      else
-        {
-          /* If it was not posisble to compute the radius use the old one
-           * plus the shift of the root */
-          *rad += cplx_mod (corr) * (1 + DBL_EPSILON);
-        }
-
-      /* MPS_DEBUG (s, "Computed guaranteed newton radius = %e", g_corr * s->n);
-         MPS_DEBUG (s, "Non guaranteed newton radius: %e",
-         cplx_mod (corr) * s->n); */
-    }
-  else
-    {
-      /* If it was not posisble to compute the radius use the old one
-       * plus the shift of the root */
-      *rad += cplx_mod (corr) * (1 + DBL_EPSILON);
-    }
+    
+  /* Computation of radius with Gerschgorin */
+  double new_rad = cplx_mod (pol) * s->n;
+  for (i = 0; i < s->n; i++)
+  {
+      if (cplx_eq (s->froot[i], x))
+        continue;
+      cplx_sub (ctmp, s->froot[i], x);
+      new_rad /= cplx_mod (ctmp);
+  }
+  
+  /* Correct the old radius with the move that we are doing
+   * and check if the new proposed radius is preferable. */
+  *rad += cplx_mod (corr);
+  if (new_rad < *rad)
+    *rad = new_rad;
+    
 
   /* If the correction is not useful in the current precision do
    * not iterate more   */
@@ -237,90 +174,26 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
       cdpe_set (corr, pol);
     }
 
-  /* We compute the following values in order to give a guaranteed
-   * Newton inclusion circle:
-   *
-   * 1) theta = |fp| * (n + 8 + 3*sqrt(2)) * u
-   *  This is used so fp - theta is less than the real
-   *  value of sum_i a_i / (x - b_i)^2
-   *
-   * 2) ssp = pol / (fp - theta);
-   *  This is the guaranteed S/S' that we can compute
-   *  and that will be used to compute
-   *
-   * 3) gamma = ssp*sec*(n + 2 + sqrt(2))*u +
-   *     sec * (pol/fp - ssp) =
-   *     = sec * (ssp * (n+2+sqrt(2))*u + (pol/fp - ssp))
-   *  This is used in the next step to give a minoration
-   *  sigma of 1 + S/s' * (\sum_i a_i / (x-b_i))
-   *
-   * 4) sigma = |1 + ssp*sumb| - gamma
-   *  Guaranteed 1 + S/s' * (\sum_i a_i / (x-b_i))
-   *
-   * 5) g_corr = ssp / sigma
-   *  That is, finally, the guaranteed newton correction.
-   */
-  if (s->mpsolve_ptr == MPS_MPSOLVE_PTR (mps_standard_mpsolve))
-    {
-      rdpe_t theta, gamma, sigma, rdpe_tmp;
-      cdpe_t ssp, pol_div_fp, gamma_tmp, sigma_tmp, cdpe_tmp;
-
-      cdpe_mod (theta, fp);
-      rdpe_mul_eq_d (theta, s->n + 8 + 3 * sqrt (2) * DBL_EPSILON);
-
-      /* Compute ssp */
-      cdpe_set (cdpe_tmp, cdpe_zero);
-      rdpe_set (cdpe_Re (cdpe_tmp), theta);
-      cdpe_sub (ssp, fp, cdpe_tmp);
-      cdpe_inv_eq (ssp);
-      cdpe_mul_eq (ssp, pol);
-
-      /* Compute gamma */
-      cdpe_mul_d (gamma_tmp, ssp, (s->n + 2 + sqrt (2)) * DBL_EPSILON);
-      cdpe_div (pol_div_fp, pol, fp);
-      cdpe_sub_eq (pol_div_fp, ssp);
-
-      cdpe_mod (gamma, gamma_tmp);
-      cdpe_mod (rdpe_tmp, pol_div_fp);
-      rdpe_add_eq (gamma, rdpe_tmp);
-      cdpe_mod (rdpe_tmp, pol);
-      rdpe_mul_eq (gamma, rdpe_tmp);
-
-      /* Computation of ssp * sumb in order to compute sigma */
-      cdpe_mul (sigma_tmp, ssp, sumb);
-      cdpe_add_eq (sigma_tmp, cdpe_one);
-
-      cdpe_mod (sigma, sigma_tmp);
-      rdpe_sub_eq (sigma, gamma);
-
-      if (rdpe_gt (sigma, s->mp_epsilon))
-        {
-          cdpe_mod (g_corr, ssp);
-          rdpe_div_eq (g_corr, sigma);
-
-          /* Computation of radius */
-          rdpe_mul_d (rad, g_corr, s->n);
-
-          if (rdpe_eq_zero (g_corr))
-            {
-              rdpe_t rdpe_small;
-              rdpe_set_2dl (rdpe_small, 1.0, LONG_MIN);
-              rdpe_add_eq (rad, rdpe_small);
-            }
-        }
-      else
-        {
-          cdpe_sub_eq (old_x, x);
-          cdpe_mod (rtmp, old_x);
-          rdpe_add_eq (rad, rtmp);
-        }
-    }
-  else
-    {
-      cdpe_sub_eq (old_x, x);
-      cdpe_mod (rtmp, old_x);
-      rdpe_add_eq (rad, rtmp);
-    }
+  /* Computation of radius with Gerschgorin */
+  rdpe_t new_rad;
+  cdpe_mod (new_rad, pol);
+  rdpe_mul_eq_d (new_rad, s->n);
+  
+  for (i = 0; i < s->n; i++)
+  {
+      if (cdpe_eq (s->droot[i], x))
+        continue;
+      cdpe_sub (ctmp, s->droot[i], x);
+      cdpe_mod (rtmp, ctmp);
+      rdpe_div (new_rad, new_rad, rtmp);
+  }
+  
+  /* Correct the old radius with the move that we are doing
+   * and check if the new proposed radius is preferable. */
+  cdpe_mod (rtmp, corr);
+  rdpe_add_eq (rad, rtmp);
+  if (rdpe_le (new_rad, rad))
+    rdpe_set (rad, new_rad);
 
   /* Compute \sum_i | a_i / (z - b_i) | + 1
    * and check if the secular equation is smaller
@@ -378,7 +251,8 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
   /* MPS_DEBUG (s, "Starting with wp = %d", s->mpwp); */
 
   /* Adjust precision of coefficients */
-  if (s->mpwp != mpc_get_prec (sec->ampc[0]))
+  if (s->mpwp < mpc_get_prec (sec->ampc[0]) / 2
+      || s->mpwp > 2 * mpc_get_prec (sec->ampc[0]))
     {
       MPS_DEBUG (s,
                  "Increasing precision of the coefficients, since it was out of sync with s->mpwp");
@@ -465,114 +339,33 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
         mpc_set (corr, pol);
     }
 
-  /* MPS_DEBUG_MPC (s, 200, corr, "corr"); */
-
-
-  /* We compute the following values in order to give a guaranteed
-   * Newton inclusion circle:
-   *
-   * 1) theta = |fp| * (n + 8 + 3*sqrt(2)) * u
-   *  This is used so fp - theta is less than the real
-   *  value of sum_i a_i / (x - b_i)^2
-   *
-   * 2) ssp = pol / (fp - theta);
-   *  This is the guaranteed S/S' that we can compute
-   *  and that will be used to compute
-   *
-   * 3) gamma = ssp*sec*(n + 2 + sqrt(2))*u +
-   *     sec * (pol/fp - ssp) =
-   *     = sec * (ssp * (n+2+sqrt(2))*u + (pol/fp - ssp))
-   *  This is used in the next step to give a minoration
-   *  sigma of 1 + S/s' * (\sum_i a_i / (x-b_i))
-   *
-   * 4) sigma = 1 + ssp*sumb - gamma
-   *  Guaranteed 1 + S/s' * (\sum_i a_i / (x-b_i))
-   *
-   * 5) g_c orr = ssp / sigma
-   *  That is, finally, the guaranteed newton correction.
-   */
-  /* if (s->mpsolve_ptr == MPS_MPSOLVE_PTR (mps_standard_mpsolve)) */
+  /* Computation of radius with Gerschgorin */
+  rdpe_t new_rad;
+  cdpe_t x_cdpe;
+  mpc_get_cdpe (x_cdpe, x);
+  
+  mpc_get_cdpe (cdtmp, pol);
+  cdpe_mod (new_rad, cdtmp);
+  rdpe_mul_eq_d (new_rad, s->n);
+  
+  for (i = 0; i < s->n; i++)
   {
-    rdpe_t theta, ssp, gamma, sigma;
-    rdpe_t fp_mod, pol_mod, sumb_mod;
-    cdpe_t cdpe_tmp, pol_cdpe, fp_cdpe, ssp_cdpe, cdpe_tmp2;
-
-    /* Get the modulus of fp and pol */
-    mpc_get_cdpe (fp_cdpe, fp);
-    cdpe_mod (fp_mod, fp_cdpe);
-    mpc_get_cdpe (pol_cdpe, pol);
-    cdpe_mod (pol_mod, pol_cdpe);
-
-    /* Compute theta */
-    rdpe_mul_d (theta, s->mp_epsilon, s->n + 2 + 2 * sqrt (2));
-    rdpe_mul_eq (theta, fp_mod);
-
-    /* Compute ssp */
-    mpc_get_cdpe (cdpe_tmp, fp);
-    cdpe_set (cdpe_tmp2, cdpe_zero);
-    rdpe_set (cdpe_Re (cdpe_tmp2), theta);
-    cdpe_sub_eq (cdpe_tmp, cdpe_tmp2);
-    cdpe_div (ssp_cdpe, pol_cdpe, cdpe_tmp);
-    cdpe_mod (ssp, ssp_cdpe);
-
-    /* Compute gamma */
-    {
-      rdpe_t tmp;
-      cdpe_t pol_div_fp;
-
-      /* Compute pol/fp */
-      cdpe_div (pol_div_fp, pol_cdpe, fp_cdpe);
-      cdpe_sub_eq (pol_div_fp, ssp_cdpe);
-      rdpe_mul_d (gamma, s->mp_epsilon, s->n + 2 + sqrt (2));
-      rdpe_mul_eq (gamma, ssp);
-      cdpe_mod (tmp, pol_div_fp);
-      rdpe_add_eq (gamma, tmp);
-      rdpe_mul_eq (gamma, pol_mod);
-    }
-
-    /* Compute sigma */
-    mpc_get_cdpe (cdpe_tmp, sumb);
-    cdpe_mod (sumb_mod, cdpe_tmp);
-    rdpe_mul (sigma, sumb_mod, ssp);
-    rdpe_sub_eq (sigma, gamma);
-    rdpe_add_eq (sigma, rdpe_one);
-
-    /* Compute g_corr */
-    rdpe_div (g_corr, ssp, sigma);
-
-    /* Compute non-guaranteed newton correction */
-    mpc_get_cdpe (cdpe_tmp, corr);
-    cdpe_mod (rtmp, cdpe_tmp);
-    rdpe_mul_eq_d (rtmp, s->n);
-
-    /* Radius is s->n * g_corr */
-    rdpe_mul_eq_d (g_corr, s->n);
-    if (rdpe_eq_zero (g_corr))
-      {
-        /* MPS_DEBUG (s, "Newton correction is zero"); */
-        rdpe_set_2dl (g_corr, 1.0, LONG_MIN);
-      }
-
-    /* MPS_DEBUG_RDPE (s, rtmp, "Non-guaranteed newton correction");
-       MPS_DEBUG_RDPE (s, g_corr, "Computed newton correction"); */
-
-    /* rdpe_sub_eq (rtmp, g_corr);
-       MPS_DEBUG_RDPE (s, rtmp, "Difference"); */
-
-    /* Set the radius, if convenient. */
-    if (rdpe_gt (sigma, rdpe_zero) && rdpe_lt (g_corr, rad))
-      {
-        /* MPS_DEBUG (s, "Setting newton correction");
-           MPS_DEBUG_RDPE (s, sigma, "sigma"); */
-        rdpe_set (rad, g_corr);
-      }
-    else
-      {
-        /* MPS_DEBUG (s, "Discarding newton correction");
-           MPS_DEBUG_RDPE (s, sigma, "sigma"); */
-      }
-
+      mpc_sub (ctmp, x, s->mroot[i]);
+      mpc_get_cdpe (cdtmp, ctmp);
+      if (cdpe_eq_zero (cdtmp))
+        continue;
+      
+      cdpe_mod (rtmp, cdtmp);
+      rdpe_div (new_rad, new_rad, rtmp);
   }
+  
+  /* Correct the old radius with the move that we are doing
+   * and check if the new proposed radius is preferable. */
+  mpc_get_cdpe (cdtmp, corr);
+  cdpe_mod (rtmp, cdtmp);
+  rdpe_add_eq (rad, rtmp);
+  if (rdpe_le (new_rad, rad))
+    rdpe_set (rad, new_rad);
 
   /* Compute guaranteed modulus of pol */
   mpc_get_cdpe (cdtmp, pol);
