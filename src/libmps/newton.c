@@ -226,19 +226,19 @@ mps_dnewton (mps_status * s, int n, cdpe_t z, rdpe_t radius, cdpe_t corr,
   cdpe_mod (absp, p);
   rdpe_mul_d (apeps, ap, eps);
   *cont = rdpe_gt (absp, apeps);
-    
+
   /* Computation of the radius via Gerschgorin */
   rdpe_mul_d (rnew, absp, s->n);
   rdpe_div_eq (rnew, s->dap[0]);
   for (i = 0; i < s->n; i++)
-  {
-    cdpe_sub (tmp, z, s->droot[i]);
-    if (cdpe_eq (tmp, cdpe_zero))
-      continue;
-    cdpe_mod (rtmp, tmp);
-    rdpe_div_eq (rnew, rtmp);
-  }
- 
+    {
+      cdpe_sub (tmp, z, s->droot[i]);
+      if (cdpe_eq (tmp, cdpe_zero))
+        continue;
+      cdpe_mod (rtmp, tmp);
+      rdpe_div_eq (rnew, rtmp);
+    }
+
   if (rdpe_lt (rnew, radius))
     rdpe_set (radius, rnew);
 }

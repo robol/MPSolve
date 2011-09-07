@@ -94,9 +94,10 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
 
   /* Correct the old radius with the move that we are doing
    * and check if the new proposed radius is preferable. */
-  *rad += cplx_mod (corr);
   if (new_rad < *rad)
     *rad = new_rad;
+  else
+    *rad += cplx_mod (corr);
 
 
   /* If the correction is not useful in the current precision do
@@ -190,10 +191,13 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
 
   /* Correct the old radius with the move that we are doing
    * and check if the new proposed radius is preferable. */
-  cdpe_mod (rtmp, corr);
-  rdpe_add_eq (rad, rtmp);
   if (rdpe_le (new_rad, rad))
     rdpe_set (rad, new_rad);
+  else
+  {
+    cdpe_mod (rtmp, corr);
+    rdpe_add_eq (rad, rtmp);
+  }
 
   /* Compute \sum_i | a_i / (z - b_i) | + 1
    * and check if the secular equation is smaller
@@ -361,11 +365,14 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
 
   /* Correct the old radius with the move that we are doing
    * and check if the new proposed radius is preferable. */
-  mpc_get_cdpe (cdtmp, corr);
-  cdpe_mod (rtmp, cdtmp);
-  rdpe_add_eq (rad, rtmp);
   if (rdpe_le (new_rad, rad))
     rdpe_set (rad, new_rad);
+  else
+  { 
+    mpc_get_cdpe (cdtmp, corr);
+    cdpe_mod (rtmp, cdtmp);
+    rdpe_add_eq (rad, rtmp);
+  }
 
   /* Compute guaranteed modulus of pol */
   mpc_get_cdpe (cdtmp, pol);

@@ -115,8 +115,8 @@ mps_secular_ga_fiterate (mps_status * s, int maxit)
   /* Check if the roots are improvable in floating point */
   MPS_DEBUG (s, "Performed %d iterations with floating point arithmetic",
              nit);
-  // if (nit <= 2 * s->n)
-  if (computed_roots == s->n)
+  if (nit <= 2 * s->n)
+  // if (computed_roots == s->n)
     s->secular_equation->best_approx = true;
 
   mps_fcluster (s, 2.0 * s->n);
@@ -208,8 +208,8 @@ mps_secular_ga_diterate (mps_status * s, int maxit)
    * were computed, and in that case state that
    * a coefficient regeneration won't be of much help */
   MPS_DEBUG (s, "Performed %d iterations", nit);
-  // if (nit <= 2 * s->n)
-  if (computed_roots == s->n)
+  if (nit <= 2 * s->n)
+  // if (computed_roots == s->n)
     {
       s->secular_equation->best_approx = true;
     }
@@ -326,8 +326,8 @@ mps_secular_ga_miterate (mps_status * s, int maxit)
   mpc_clear (corr);
 
   MPS_DEBUG (s, "Performed %d iterations", nit);
-  // if (nit <= 2 * s->n)
-  if (computed_roots == s->n)
+  if (nit <= 2 * s->n)
+  // if (computed_roots == s->n)
     s->secular_equation->best_approx = true;
 
   /* Perform cluster analysis */
