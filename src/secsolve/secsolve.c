@@ -43,7 +43,6 @@ main (int argc, char **argv)
   s = mps_status_new ();
   s->prec_in = 0;
 
-  s->n_threads = 1;
   strncpy (s->goal, "aannc", 5);
 
   /* Gemignani's approach */

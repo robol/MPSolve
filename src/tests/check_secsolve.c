@@ -68,7 +68,6 @@ test_secsolve_on_pol (test_pol * pol)
 
   /* Some default values */
   mps_set_default_values (s);
-  s->n_threads = 1;
 
   /* Set secular equation and start in floating point */
   mps_parsing_configuration default_configuration = {
