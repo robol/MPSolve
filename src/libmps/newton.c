@@ -233,10 +233,10 @@ mps_dnewton (mps_status * s, int n, cdpe_t z, rdpe_t radius, cdpe_t corr,
     {
       cdpe_sub (tmp, z, s->droot[i]);
       if (!cdpe_eq (tmp, cdpe_zero))
-      {
-        cdpe_mod (rtmp, tmp);
-        rdpe_div_eq (rnew, rtmp);
-      }
+        {
+          cdpe_mod (rtmp, tmp);
+          rdpe_div_eq (rnew, rtmp);
+        }
     }
 
   if (rdpe_lt (rnew, radius))
@@ -552,10 +552,10 @@ mps_mnewton (mps_status * s, int n, mpc_t z, rdpe_t radius, mpc_t corr,
       mpc_sub (diff, z, s->mroot[i]);
       mpc_get_cdpe (temp1, diff);
       if (!cdpe_eq (temp1, cdpe_zero))
-      {
-        cdpe_mod (absdiff, temp1);
-        rdpe_div_eq (rnew, absdiff);
-      }
+        {
+          cdpe_mod (absdiff, temp1);
+          rdpe_div_eq (rnew, absdiff);
+        }
     }
 
   if (rdpe_lt (rnew, radius))

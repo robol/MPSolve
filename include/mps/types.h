@@ -381,6 +381,11 @@ extern "C"
 
     mps_boolean resume;         /* to complete                         */
     mps_boolean chkrad;         /* check radii after completion        */
+    
+    /**
+     * @brief Byte containing the flags of debug enabled.
+     */
+    short int debug_level;
 
         /**
          * @brief Newton isolation of the cluster.

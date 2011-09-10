@@ -11,6 +11,7 @@
 
 #include <mps/core.h>
 #include <mps/secular.h>
+#include <mps/debug.h>
 
 static long int data_prec_max = 0;
 
@@ -303,8 +304,9 @@ mps_free_data (mps_status * s)
 {
   int i;
 
-  if (s->DOLOG)
-    fprintf (s->logstr, "Unallocating data...\n");
+  if (s->debug_level & MPS_DEBUG_MEMORY) {
+    MPS_DEBUG (s, "Deallocating data");
+  }
 
   free (s->clust);
   free (s->punt);
@@ -372,11 +374,9 @@ mps_free_data (mps_status * s)
   free (s->fradii);
   rdpe_vfree (s->dradii);
 
-  if (s->DOLOG)
-    fprintf (s->logstr, "...temporaries...\n");
+  if (s->debug_level & MPS_DEBUG_MEMORY) {
+    MPS_DEBUG (s, "Deallocating emporaries variables");
+  }
 
   mptemp_clear ();
-
-  if (s->DOLOG)
-    fprintf (s->logstr, "...done\n");
 }

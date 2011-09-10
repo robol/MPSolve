@@ -82,8 +82,8 @@ mps_secular_ga_fiterate (mps_status * s, int maxit)
                   || isinf (cplx_Im (s->froot[i])) || isnan (s->frad[i])
                   || isinf (s->frad[i]))
                 {
-                  MPS_DEBUG (s,
-                             "Switching to DPE phase because NAN or INF was introduced in computation");
+                    MPS_DEBUG_WITH_INFO (s,
+                               "Switching to DPE phase because NAN or INF was introduced in computation");
                   cplx_set (s->froot[i], old_root);
                   s->frad[i] = old_rad;
                   s->lastphase = dpe_phase;
@@ -113,15 +113,15 @@ mps_secular_ga_fiterate (mps_status * s, int maxit)
     }
 
   /* Check if the roots are improvable in floating point */
-  MPS_DEBUG (s, "Performed %d iterations with floating point arithmetic",
+  MPS_DEBUG_WITH_INFO (s, "Performed %d iterations with floating point arithmetic",
              nit);
-  if (nit <= 2 * s->n)
-    // if (computed_roots == s->n)
+  // if (nit <= 2 * s->n)
+  if (computed_roots == s->n)
     s->secular_equation->best_approx = true;
 
   mps_fcluster (s, 2.0 * s->n);
   mps_fmodify (s);
-  
+
   for (i = 0; i < s->n; i++)
     {
       if (s->status[i][0] == 'a' || s->status[i][0] == 'i')
@@ -217,7 +217,7 @@ mps_secular_ga_diterate (mps_status * s, int maxit)
   /* Check if no more than 2 iterations per root
    * were computed, and in that case state that
    * a coefficient regeneration won't be of much help */
-  MPS_DEBUG (s, "Performed %d iterations", nit);
+  MPS_DEBUG_WITH_INFO (s, "Performed %d iterations", nit);
   if (nit <= 2 * s->n)
     // if (computed_roots == s->n)
     {
@@ -335,9 +335,9 @@ mps_secular_ga_miterate (mps_status * s, int maxit)
   mpc_clear (abcorr);
   mpc_clear (corr);
 
-  MPS_DEBUG (s, "Performed %d iterations", nit);
-  if (nit <= 2 * s->n)
-    // if (computed_roots == s->n)
+  MPS_DEBUG_WITH_INFO (s, "Performed %d iterations", nit);
+  // if (nit <= 2 * s->n)
+  if (computed_roots == s->n)
     s->secular_equation->best_approx = true;
 
   /* Perform cluster analysis */
@@ -418,7 +418,7 @@ regenerate_m_start:
   if (MPS_STRUCTURE_IS_RATIONAL (sec->input_structure) ||
       MPS_STRUCTURE_IS_INTEGER (sec->input_structure))
     {
-      MPS_DEBUG (s,
+      MPS_DEBUG_WITH_INFO (s,
                  "Regenerating coefficients from the multiprecision input");
       for (i = 0; i < s->n; i++)
         {
@@ -446,7 +446,7 @@ regenerate_m_start:
             {
               success = false;
 
-              MPS_DEBUG (s,
+              MPS_DEBUG_WITH_INFO (s,
                          "Cannot regenerate coefficients, reusing old ones and setting best_approx to true.");
               s->secular_equation->best_approx = true;
 
@@ -542,7 +542,7 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
       /* Regeneration */
       if (!mps_secular_ga_regenerate_coefficients_mp (s))
         {
-          MPS_DEBUG (s,
+          MPS_DEBUG_WITH_INFO (s,
                      "Regeneration of coefficients failed, reusing old ones");
           for (i = 0; i < s->n; i++)
             {
@@ -719,7 +719,7 @@ mps_secular_ga_check_stop (mps_status * s)
         }
     }
 
-  MPS_DEBUG (s, "Stop conditions were satisfied");
+  MPS_DEBUG_WITH_INFO (s, "Stop conditions were satisfied");
   return true;
 }
 
@@ -793,7 +793,9 @@ mps_secular_ga_improve (mps_status * s)
         log (s->prec_out / correct_digits / LOG2_10) * LOG2_10 + 1;
       iterations = (iterations > 0) ? iterations : 0;
 
-      MPS_DEBUG (s, "Performing %d max iterations on root %d", iterations, i);
+      if (s->debug_level & MPS_DEBUG_IMPROVEMENT) {
+        MPS_DEBUG (s, "Performing %d max iterations on root %d", iterations, i);
+      }
 
       for (j = 0; j < iterations; j++)
         {
@@ -802,8 +804,10 @@ mps_secular_ga_improve (mps_status * s)
           mpc_sub_eq (s->mroot[i], nwtcorr);
 
           /* Debug iterations */
-          MPS_DEBUG_MPC (s, 10, s->mroot[i], "s->mroot[%d]", i);
-          MPS_DEBUG_RDPE (s, s->drad[i], "s->drad[%d]", i);
+          if (s->debug_level & MPS_DEBUG_IMPROVEMENT) {
+            MPS_DEBUG_MPC (s, 10, s->mroot[i], "s->mroot[%d]", i);
+            MPS_DEBUG_RDPE (s, s->drad[i], "s->drad[%d]", i);
+          }
 
           /* Check if the approximation is already good. */
           mpc_get_cdpe (ctmp, s->mroot[i]);
@@ -928,23 +932,26 @@ mps_secular_ga_mpsolve (mps_status * s)
       switch (s->lastphase)
         {
         case float_phase:
+          MPS_DEBUG_WITH_INFO (s, "Starting floating point iterations");
           roots_computed = mps_secular_ga_fiterate (s, iteration_per_packet);
           /* If the computation fails we need to switch to DPE so do not
            * break here, but continue the cycle. */
           if (roots_computed != -1)
             {
-              MPS_DEBUG (s, "%d roots were computed", roots_computed);
+              MPS_DEBUG_WITH_INFO (s, "%d roots were computed to the best precision available", roots_computed);
               break;
             }
 
         case dpe_phase:
+          MPS_DEBUG_WITH_INFO (s, "Starting DPE iterations");
           roots_computed = mps_secular_ga_diterate (s, iteration_per_packet);
-          MPS_DEBUG (s, "%d roots were computed", roots_computed);
+          MPS_DEBUG_WITH_INFO (s, "%d roots were computed to the best precision available", roots_computed);
           break;
 
         case mp_phase:
+          MPS_DEBUG_WITH_INFO (s, "Starting MP iterations");
           roots_computed = mps_secular_ga_miterate (s, iteration_per_packet);
-          MPS_DEBUG (s, "%d roots were computed", roots_computed);
+          MPS_DEBUG_WITH_INFO (s, "%d roots were computed to the best precision available", roots_computed);
           break;
 
         default:
@@ -994,12 +1001,16 @@ mps_secular_ga_mpsolve (mps_status * s)
     {
       clock_t *my_timer = mps_start_timer ();
       mps_secular_ga_improve (s);
-      MPS_DEBUG (s, "mps_secular_ga_improve took %u ms",
-                 mps_stop_timer (my_timer));
+      unsigned int improve_time = mps_stop_timer (my_timer);
+      if (s->debug_level & MPS_DEBUG_TIMINGS) {
+        MPS_DEBUG (s, "mps_secular_ga_improve took %u ms",
+                   improve_time);
+      }
     }
 
   /* Debug total time taken but only if debug is enabled */
 #ifndef DISABLE_DEBUG
+if (s->debug_level & MPS_DEBUG_TIMINGS) {
   MPS_DEBUG (s, "Time used for regeneration: %u ms", s->regeneration_time);
   MPS_DEBUG (s, "Time used in floating point iterations: %u ms",
              s->fp_iteration_time);
@@ -1008,6 +1019,7 @@ mps_secular_ga_mpsolve (mps_status * s)
              s->mp_iteration_time);
   MPS_DEBUG (s, "Total time using MPSolve: %u ms",
              mps_stop_timer (total_clock));
+}
 #endif
 
 }

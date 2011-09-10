@@ -59,7 +59,7 @@ mps_secular_deflate (mps_status * s, mps_secular_equation * sec)
             {
               /* Do not deflate in floating point, since it is not working
                * correctly right now */
-              MPS_DEBUG (s,
+              MPS_DEBUG_WITH_INFO (s,
                          "Floating point deflation still has some rough edges, so it's disabled");
               return;
               if (mpc_eq
@@ -366,7 +366,7 @@ mps_secular_raise_coefficient_precision (mps_status * s, int wp)
       mpc_set_prec (sec->initial_bmpc[i], wp);
     }
   rdpe_set_2dl (s->mp_epsilon, 1.0, -wp);
-  MPS_DEBUG (s, "Precision of the coefficients is now at %d bits", wp);
+  // MPS_DEBUG_WITH_INFO (s, "Precision of the coefficients is now at %d bits", wp);
 }
 
 /**

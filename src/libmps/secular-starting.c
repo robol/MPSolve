@@ -95,11 +95,17 @@ mps_secular_mstart (mps_status * s, int n, int i_clust, rdpe_t clust_rad,
   double sigma;
   mpc_t epsilon;
   mps_secular_equation *sec = (mps_secular_equation *) s->secular_equation;
+  
+  rdpe_t r_eps;
+  rdpe_set_2dl (r_eps, 1.0, - (s->mpwp / LOG2_10 / 2));
 
   mpc_init2 (epsilon, s->mpwp);
   mpc_set_ui (epsilon, 0, 0);
-  mpf_set_rdpe (mpc_Re (epsilon), s->mp_epsilon);
-  MPS_DEBUG_MPC (s, 100, epsilon, "epsilon");
+  
+  mpf_set_rdpe (mpc_Re (epsilon), r_eps);
+  if (s->debug_level & MPS_DEBUG_APPROXIMATIONS) {
+    MPS_DEBUG_MPC (s, 100, epsilon, "epsilon");
+  }
 
   /* Get best sigma possible */
   if (s->random_seed)

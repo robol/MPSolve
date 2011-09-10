@@ -27,6 +27,7 @@ mps_set_default_values (mps_status * s)
   s->DOLOG = false;             /* if nonzero enables the logging      */
   s->DOWARN = true;             /* if nonzero enables the warnings     */
   s->DOSORT = true;             /* if nonzero enables root sorting     */
+  s->debug_level = MPS_DEBUG_INFO;
 
   /* I/O streams */
   s->instr = NULL;              /* input stream                        */

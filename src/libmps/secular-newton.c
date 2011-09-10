@@ -256,19 +256,19 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
 
   /* Adjust precision of coefficients */
   /* if (s->mpwp < mpc_get_prec (sec->ampc[0]) / 2
-      || s->mpwp > 2 * mpc_get_prec (sec->ampc[0]))
-    {
-      MPS_DEBUG (s,
-                 "Increasing precision of the coefficients, since it was out of sync with s->mpwp");
-      MPS_DEBUG (s, "s->mpwp = %d, whilst precision of sec->ampc[i] is %d",
-                 s->mpwp, mpc_get_prec (sec->ampc[0]));
-      for (i = 0; i < sec->n; i++)
-        {
-          mpc_set_prec (sec->ampc[i], s->mpwp);
-          mpc_set_prec (sec->bmpc[i], s->mpwp);
-        }
-      mpc_set_prec (x, s->mpwp);
-    } */
+     || s->mpwp > 2 * mpc_get_prec (sec->ampc[0]))
+     {
+     MPS_DEBUG (s,
+     "Increasing precision of the coefficients, since it was out of sync with s->mpwp");
+     MPS_DEBUG (s, "s->mpwp = %d, whilst precision of sec->ampc[i] is %d",
+     s->mpwp, mpc_get_prec (sec->ampc[0]));
+     for (i = 0; i < sec->n; i++)
+     {
+     mpc_set_prec (sec->ampc[i], s->mpwp);
+     mpc_set_prec (sec->bmpc[i], s->mpwp);
+     }
+     mpc_set_prec (x, s->mpwp);
+     } */
 
   /* Set some starting values */
   mpc_set_d (sumb, 0, 0);
@@ -302,6 +302,7 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
           mpc_mul_eq (corr, sec->ampc[j]);
 
           x_is_b = true;
+          // MPS_DEBUG_WITH_INFO (s, "x is b, aaaargh!")
           break;
         }
 

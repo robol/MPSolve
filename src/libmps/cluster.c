@@ -150,6 +150,9 @@ void
 mps_debug_cluster_structure (mps_status * s)
 {
   int i, j;
+  
+  if (!(s->debug_level & MPS_DEBUG_CLUSTER))
+    return;
 
   /* Debug the clusters found */
   if (s->DOLOG)

@@ -5,8 +5,8 @@
  * Created on 23 aprile 2011, 11.00
  */
 
-#ifndef DEBUG_H
-#define	 DEBUG_H
+#ifndef MPS_DEBUG_H
+#define	 MPS_DEBUG_H
 
 #ifdef	__cplusplus
 extern "C"
@@ -52,7 +52,15 @@ extern "C"
  * @brief Print a debug information.
  */
 #if __STDC_VERSION__ >= 199901L
-#define MPS_DEBUG(s, templ...) __MPS_DEBUG(s,templ) ; \
+
+/**
+ * @brief Shorthand for compiling with the MPS_DEBUG_INFO level.
+ */
+#define MPS_DEBUG_WITH_INFO(s, templ...) if (s->debug_level & MPS_DEBUG_INFO) { \
+    MPS_DEBUG(s, templ); \
+}
+
+#define MPS_DEBUG(s, templ...) __MPS_DEBUG(s, templ) ; \
 if (s->DOLOG) { \
     fprintf(s->logstr, "\n"); \
 }
@@ -113,7 +121,7 @@ if (s->DOLOG) { \
  * @brief Debug that a function is going to be called.
  */
 #ifndef __WINDOWS
-#define MPS_DEBUG_CALL(s, function) if (s->DOLOG) { \
+#define MPS_DEBUG_CALL(s, function) if (s->DOLOG && (s->debug_level & MPS_DEBUG_FUNCTION_CALLS)) { \
   if (isatty(s->logstr->_fileno)) { \
     __MPS_DEBUG(s, "Called \033[31;1m"); \
   } \
@@ -129,7 +137,7 @@ else \
 }\
 }
 #else
-#define MPS_DEBUG_CALL(s, function) if (s->DOLOG) { \
+#define MPS_DEBUG_CALL(s, function) if (s->DOLOG && (s->debug_level & MPS_DEBUG_FUNCTION_CALLS)) { \
   if (_isatty(_fileno(s->logstr))) { \
     __MPS_DEBUG(s, "Called \033[31;1m"); \
   } \
@@ -219,6 +227,64 @@ gmp_fprintf(s->logstr, templ); \
 #endif
 #endif
 
+
+/**
+ * @brief This is the flag that enables debugging of general
+ * information about the flow of the program.
+ */
+ #define MPS_DEBUG_INFO     (0x01 << 0)
+ 
+ /**
+  * @brief This is the flag used to debug cluster-related
+  * informations.
+  */
+ #define MPS_DEBUG_CLUSTER  (0x01 << 1)
+ 
+ /**
+  * @brief This is the flag used to debug informations on
+  * approximations during the execution of MPSolve.
+  */
+ #define MPS_DEBUG_APPROXIMATIONS (0x01 << 2)
+ 
+ /**
+  * @brief Flag used to show debug about final approximation
+  * of the roots using newton iterations.
+  */
+ #define MPS_DEBUG_IMPROVEMENT (0x01 << 3)
+ 
+ /**
+  * @brief Flag used to obtain information about timings in 
+  * the algorithm.
+  */
+#define MPS_DEBUG_TIMINGS (0x01 << 4)
+
+/**
+ * @brief Debug function calls
+ */
+ #define MPS_DEBUG_FUNCTION_CALLS (0x01 << 5)
+ 
+ /**
+  * @brief Debug I/O informations
+  */
+ #define MPS_DEBUG_IO (0x01 << 6)
+ 
+ /**
+  * @brief Debug memory management
+  */
+ #define MPS_DEBUG_MEMORY (0x01 << 7)
+
+ /**
+  * @brief This is the flag used to debug informations
+  * about virtually every step in the program, it enables
+  * every debug level.
+  */
+ #define MPS_DEBUG_TRACE    (0xFF)
+
+#define MPS_DEBUG_IF(debug_level, debug_intruction) \
+    if (debug_level & s->debug_level) { \
+        debug_instruction; \
+}
+    
 
 #ifdef	__cplusplus
 }
