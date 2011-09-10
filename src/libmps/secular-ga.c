@@ -48,7 +48,7 @@ mps_secular_ga_fiterate (mps_status * s, int maxit)
 
   /* Iterate with newton until we have good approximations
    * of the roots */
-  mps_update (s);
+  // mps_update (s);
 
   while (computed_roots < s->n && iterations < maxit - 1)
     {
@@ -116,11 +116,21 @@ mps_secular_ga_fiterate (mps_status * s, int maxit)
   MPS_DEBUG (s, "Performed %d iterations with floating point arithmetic",
              nit);
   if (nit <= 2 * s->n)
-  // if (computed_roots == s->n)
+    // if (computed_roots == s->n)
     s->secular_equation->best_approx = true;
 
   mps_fcluster (s, 2.0 * s->n);
   mps_fmodify (s);
+  
+  for (i = 0; i < s->n; i++)
+    {
+      if (s->status[i][0] == 'a' || s->status[i][0] == 'i')
+        {
+          s->again[i] = false;
+        }
+      else
+        s->again[i] = true;
+    }
 
   /* Count time taken  */
 #ifndef DISABLE_DEBUG
@@ -155,7 +165,7 @@ mps_secular_ga_diterate (mps_status * s, int maxit)
 
   /* Iterate with newton until we have good approximations
    * of the roots */
-  mps_update (s);
+  // mps_update (s);
 
   for (i = 0; i < s->n; i++)
     {
@@ -209,7 +219,7 @@ mps_secular_ga_diterate (mps_status * s, int maxit)
    * a coefficient regeneration won't be of much help */
   MPS_DEBUG (s, "Performed %d iterations", nit);
   if (nit <= 2 * s->n)
-  // if (computed_roots == s->n)
+    // if (computed_roots == s->n)
     {
       s->secular_equation->best_approx = true;
     }
@@ -327,7 +337,7 @@ mps_secular_ga_miterate (mps_status * s, int maxit)
 
   MPS_DEBUG (s, "Performed %d iterations", nit);
   if (nit <= 2 * s->n)
-  // if (computed_roots == s->n)
+    // if (computed_roots == s->n)
     s->secular_equation->best_approx = true;
 
   /* Perform cluster analysis */
@@ -965,7 +975,6 @@ mps_secular_ga_mpsolve (mps_status * s)
           if (s->lastphase != mp_phase)
             {
               mps_secular_switch_phase (s, mp_phase);
-              memset (s->again, true, s->n);
             }
           else
             {

@@ -156,7 +156,7 @@ mps_debug_cluster_structure (mps_status * s)
     {
       /* Debug isolated roots first */
       __MPS_DEBUG (s, "Isolated roots: ");
-      for (i = 1; i < s->nclust; i++)
+      for (i = 1; i <= s->nclust; i++)
         {
           if (s->punt[i] == s->punt[i - 1] + 1)
             {
@@ -164,8 +164,7 @@ mps_debug_cluster_structure (mps_status * s)
             }
         }
       fprintf (s->logstr, "\n");
-
-
+    
       for (i = 1; i <= s->nclust; i++)
         {
           if (s->punt[i] == s->punt[i - 1] + 1)

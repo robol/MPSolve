@@ -194,10 +194,10 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
   if (rdpe_le (new_rad, rad))
     rdpe_set (rad, new_rad);
   else
-  {
-    cdpe_mod (rtmp, corr);
-    rdpe_add_eq (rad, rtmp);
-  }
+    {
+      cdpe_mod (rtmp, corr);
+      rdpe_add_eq (rad, rtmp);
+    }
 
   /* Compute \sum_i | a_i / (z - b_i) | + 1
    * and check if the secular equation is smaller
@@ -255,7 +255,7 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
   /* MPS_DEBUG (s, "Starting with wp = %d", s->mpwp); */
 
   /* Adjust precision of coefficients */
-  if (s->mpwp < mpc_get_prec (sec->ampc[0]) / 2
+  /* if (s->mpwp < mpc_get_prec (sec->ampc[0]) / 2
       || s->mpwp > 2 * mpc_get_prec (sec->ampc[0]))
     {
       MPS_DEBUG (s,
@@ -268,7 +268,7 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
           mpc_set_prec (sec->bmpc[i], s->mpwp);
         }
       mpc_set_prec (x, s->mpwp);
-    }
+    } */
 
   /* Set some starting values */
   mpc_set_d (sumb, 0, 0);
@@ -368,11 +368,11 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
   if (rdpe_le (new_rad, rad))
     rdpe_set (rad, new_rad);
   else
-  { 
-    mpc_get_cdpe (cdtmp, corr);
-    cdpe_mod (rtmp, cdtmp);
-    rdpe_add_eq (rad, rtmp);
-  }
+    {
+      mpc_get_cdpe (cdtmp, corr);
+      cdpe_mod (rtmp, cdtmp);
+      rdpe_add_eq (rad, rtmp);
+    }
 
   /* Compute guaranteed modulus of pol */
   mpc_get_cdpe (cdtmp, pol);

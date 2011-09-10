@@ -154,7 +154,7 @@ main (int argc, char **argv)
 
   /* Output the roots */
   mps_copy_roots (s);
-  mps_output (s);
+  // mps_output (s);
 
   /* Free used data */
   mps_secular_equation_free (sec);
