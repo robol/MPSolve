@@ -40,7 +40,7 @@ mps_secular_fstart (mps_status * s, int n, int i_clust, double clust_rad,
   double a_eps = 0;
   double tmp;
   if (sec->need_restart)
-  {
+    {
       for (i = 0; i < s->n; i++)
         {
           tmp = cplx_mod (s->secular_equation->afpc[i]);
@@ -49,7 +49,7 @@ mps_secular_fstart (mps_status * s, int n, int i_clust, double clust_rad,
         }
       a_eps *= s->n;
       a_eps *= DBL_EPSILON;
-  }
+    }
   else
     a_eps = DBL_EPSILON;
 
@@ -62,7 +62,7 @@ mps_secular_fstart (mps_status * s, int n, int i_clust, double clust_rad,
       cplx_mul_eq_d (s->froot[l + i], a_eps);
       cplx_add_eq (s->froot[l + i], sec->bfpc[l + i]);
     }
-    
+
   sec->need_restart = false;
 }
 
@@ -76,12 +76,12 @@ mps_secular_dstart (mps_status * s, int n, int i_clust, rdpe_t clust_rad,
   double th = pi2 / n;
   double sigma;
   mps_secular_equation *sec = (mps_secular_equation *) s->secular_equation;
-  
+
   cdpe_t ceps;
   cdpe_set (ceps, cdpe_zero);
-  
+
   if (sec->need_restart)
-  {
+    {
       /* Determine a suitable epsilon to move the roots */
       rdpe_t tmp;
       for (i = 0; i < s->n; i++)
@@ -91,7 +91,7 @@ mps_secular_dstart (mps_status * s, int n, int i_clust, rdpe_t clust_rad,
             rdpe_set (cdpe_Re (ceps), tmp);
         }
       rdpe_mul_eq_d (cdpe_Re (ceps), s->n * DBL_EPSILON);
-  }
+    }
   else
     {
       rdpe_set_d (cdpe_Re (ceps), DBL_EPSILON);
@@ -122,7 +122,7 @@ mps_secular_dstart (mps_status * s, int n, int i_clust, rdpe_t clust_rad,
       cdpe_add_eq (s->droot[l + i], sec->bdpc[l + i]);
       rdpe_add_eq (s->drad[i], eps);
     }
-    
+
   sec->need_restart = false;
 }
 
@@ -141,9 +141,9 @@ mps_secular_mstart (mps_status * s, int n, int i_clust, rdpe_t clust_rad,
   rdpe_t r_eps;
   rdpe_t rtmp;
   rdpe_set (r_eps, rdpe_zero);
-  
+
   if (sec->need_restart)
-  {
+    {
       for (i = 0; i < s->n; i++)
         {
           cdpe_mod (rtmp, s->droot[i]);
@@ -152,12 +152,12 @@ mps_secular_mstart (mps_status * s, int n, int i_clust, rdpe_t clust_rad,
         }
       rdpe_mul_eq_d (r_eps, s->n);
       rdpe_mul_eq (r_eps, s->mp_epsilon);
-  }
-  else 
-  {
+    }
+  else
+    {
       rdpe_set (r_eps, s->mp_epsilon);
-  }
-  
+    }
+
   mpc_init2 (epsilon, s->mpwp);
   mpc_set_ui (epsilon, 0, 0);
 
