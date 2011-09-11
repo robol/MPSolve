@@ -69,6 +69,14 @@ mps_secular_dstart (mps_status * s, int n, int i_clust, rdpe_t clust_rad,
   double th = pi2 / n;
   double sigma;
   mps_secular_equation *sec = (mps_secular_equation *) s->secular_equation;
+  cdpe_t ceps;
+  cdpe_set (ceps, cdpe_zero);
+  
+  rdpe_set (cdpe_Re (ceps), eps);
+  if (cdpe_eq_zero (ceps) || !MPS_STRUCTURE_IS_FP (s->secular_equation->input_structure))
+  {
+      rdpe_set_d (cdpe_Re (ceps), DBL_EPSILON);
+  }
 
   /* Get best sigma possible */
   if (s->random_seed)
@@ -86,25 +94,14 @@ mps_secular_dstart (mps_status * s, int n, int i_clust, rdpe_t clust_rad,
           sigma = mps_maximize_distance (s, s->last_sigma, i_clust, n);
         }
     }
-    
-  /* Determine a suitable epsilon to move the roots */
-  double a_eps = 0;
-  double tmp;
-  for (i = 0; i < s->n; i++)
-  {
-      tmp = cplx_mod (s->secular_equation->afpc[i]);
-      if (tmp > a_eps)
-        a_eps = tmp;
-  }
-  a_eps *= s->n;
-  a_eps *= DBL_EPSILON;
 
   for (i = 0; i < s->n; i++)
     {
       cdpe_set_d (s->droot[l + i], cos (i * th + sigma),
                   sin (i * th + sigma));
-      cdpe_mul_eq_d (s->droot[l + i], a_eps);
+      cdpe_mul_eq (s->droot[l + i], ceps);
       cdpe_add_eq (s->droot[l + i], sec->bdpc[l + i]);
+      rdpe_add_eq (s->drad[i], eps);
     }
 }
 
@@ -163,7 +160,7 @@ mps_secular_mstart (mps_status * s, int n, int i_clust, rdpe_t clust_rad,
       mpc_set_d (s->mroot[l + i], cos (i * th + sigma), sin (i * th + sigma));
       mpc_mul_eq (s->mroot[l + i], epsilon);
       mpc_add_eq (s->mroot[l + i], sec->bmpc[l + i]);
-      rdpe_add_eq (s->drad[i], s->mp_epsilon);
+      rdpe_add_eq (s->drad[i], r_eps);
     }
 
   mpc_clear (epsilon);
