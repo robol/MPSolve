@@ -288,6 +288,13 @@ extern "C"
    * can be obtained with the current precision
    */
     mps_boolean best_approx;
+    
+  /**
+   * @brief Flag set to true if the coefficients have been regenerated
+   * but the roots hasn't been moved yet, so it's not safe to perform
+   * iterations without going into floating point exceptions.
+   */
+   mps_boolean need_restart;
 
   } mps_secular_equation;       /* End of typedef struct {... */
 

@@ -201,6 +201,7 @@ mps_secular_equation_new_raw (mps_status * s, unsigned long int n)
   mpq_vinit (sec->initial_bmpqic, n);
 
   sec->n = n;
+  sec->need_restart = true;
   return sec;
 }
 

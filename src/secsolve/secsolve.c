@@ -174,12 +174,12 @@ main (int argc, char **argv)
   /* Set secular equation in user data, so it will be
    * accessible by the secular equation routines. */
   sec->starting_case = phase;
-  
+
   /* Use always DPE with non floating point input */
   if (!MPS_STRUCTURE_IS_FP (s->secular_equation->input_structure))
-  {
+    {
       sec->starting_case = dpe_phase;
-  }
+    }
 
   if (phase == dpe_phase)
     s->skip_float = true;

@@ -159,8 +159,7 @@ END_TEST
 START_TEST (test_secsolve_integer)
 {
   /* Test integer parsing of secsolve, ga approach */
-  test_pol *pol =
-    test_pol_new ("integer", "secsolve", 250, dpe_phase, true);
+  test_pol *pol = test_pol_new ("integer", "secsolve", 250, dpe_phase, true);
   test_secsolve_on_pol (pol);
 
   test_pol_free (pol);

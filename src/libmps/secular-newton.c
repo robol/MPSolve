@@ -39,30 +39,31 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
           cplx_set (prod_b, cplx_one);
           cplx_set (corr, cplx_zero);
           for (j = 0; j < s->n; j++)
-          {
+            {
               if (i == j)
                 continue;
               cplx_add (ctmp, sec->afpc[i], sec->afpc[j]);
               cplx_sub (sumb, x, sec->bfpc[j]);
               cplx_div_eq (ctmp, sumb);
               cplx_add_eq (corr, ctmp);
-          }
+            }
           cplx_sub_eq (corr, cplx_one);
           cplx_inv_eq (corr);
           cplx_mul_eq (corr, sec->afpc[i]);
-          
+
           MPS_DEBUG_CPLX (s, corr, "corr");
-          
+
           *again = true;
           return;
         }
-        
-      /* Computation of prod [ (z - b_i) / (z - z_j) ]*/
+
+      /* Computation of prod [ (z - b_i) / (z - z_j) ] */
       cplx_mul_eq (prod_b, ctmp);
       cplx_sub (ctmp2, x, sec->bfpc[i]);
-      if (!cplx_eq_zero (ctmp2)) {
-            cplx_div_eq (prod_b, ctmp2);
-      }
+      if (!cplx_eq_zero (ctmp2))
+        {
+          cplx_div_eq (prod_b, ctmp2);
+        }
 
       /* Compute (z-b_i)^{-1} */
       cplx_inv_eq (ctmp);
@@ -106,10 +107,10 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
   cplx_mul (corr, pol, sumb);
   cplx_add_eq (corr, fp);
   cplx_div (corr, pol, corr);
-  
+
   /* Computation of radius with Gerschgorin */
   double new_rad;
-  
+
   cplx_mul_eq (pol, prod_b);
   new_rad = cplx_mod (pol) * s->n + DBL_EPSILON;
 
@@ -325,7 +326,7 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
           x_is_b = true;
           break;
         }
-        
+
       /* Compute prod [ (z - b_i) / (z - z_j) ] that will be used for
        * Gerschgorin radius */
       mpc_get_cdpe (cdtmp2, ctmp);
@@ -333,9 +334,9 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
       mpc_sub (ctmp2, x, s->mroot[i]);
       mpc_get_cdpe (cdtmp2, ctmp2);
       if (!cdpe_eq_zero (cdtmp2))
-      {
+        {
           cdpe_div_eq (prod_b, cdtmp2);
-      }
+        }
 
       /* Compute (z-b_i)^{-1} */
       mpc_inv_eq (ctmp);

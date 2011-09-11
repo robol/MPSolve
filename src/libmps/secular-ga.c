@@ -50,7 +50,7 @@ mps_secular_ga_fiterate (mps_status * s, int maxit)
    * and mark them as computed */
   for (i = 0; i < s->n; i++)
     if (!s->again[i])
-        computed_roots++;
+      computed_roots++;
 
   while (computed_roots < s->n && iterations < maxit - 1)
     {
@@ -118,13 +118,13 @@ mps_secular_ga_fiterate (mps_status * s, int maxit)
   MPS_DEBUG_WITH_INFO (s,
                        "Performed %d iterations with floating point arithmetic",
                        nit);
-                       
+
   if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
-  {
+    {
       mps_dump (s, s->logstr);
-  }
-  if (nit <= 2 * s->n) // && computed_roots == s->n)
-  // if (computed_roots == s->n)
+    }
+  if (nit <= 2 * s->n)          // && computed_roots == s->n)
+    // if (computed_roots == s->n)
     s->secular_equation->best_approx = true;
 
   mps_fcluster (s, 2.0 * s->n);
@@ -134,9 +134,9 @@ mps_secular_ga_fiterate (mps_status * s, int maxit)
     {
       if (s->status[i][0] == 'C')
         s->status[i][0] = 'c';
-      
+
       if (s->status[i][0] == 'a' || s->status[i][0] == 'i')
-          s->again[i] = false;
+        s->again[i] = false;
       else
         s->again[i] = true;
     }
@@ -227,9 +227,9 @@ mps_secular_ga_diterate (mps_status * s, int maxit)
    * a coefficient regeneration won't be of much help */
   MPS_DEBUG_WITH_INFO (s, "Performed %d iterations", nit);
   if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
-  {
+    {
       mps_dump (s, s->logstr);
-  }
+    }
   if (nit <= 2 * s->n)
     // if (computed_roots == s->n)
     {
@@ -244,7 +244,7 @@ mps_secular_ga_diterate (mps_status * s, int maxit)
       if (s->status[i][0] == 'C')
         s->status[i][0] = 'c';
       if (s->status[i][0] == 'a' || s->status[i][0] == 'i')
-          s->again[i] = false;
+        s->again[i] = false;
       else
         s->again[i] = true;
     }
@@ -349,7 +349,7 @@ mps_secular_ga_miterate (mps_status * s, int maxit)
 
   MPS_DEBUG_WITH_INFO (s, "Performed %d iterations", nit);
   if (nit <= 2 * s->n)
-  // if (computed_roots == s->n)
+    // if (computed_roots == s->n)
     s->secular_equation->best_approx = true;
 
   /* Perform cluster analysis */
@@ -526,6 +526,7 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
 #endif
 
   sec = (mps_secular_equation *) s->secular_equation;
+  sec->need_restart = true;
 
   switch (s->lastphase)
     {
@@ -576,7 +577,7 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
       cplx_vfree (old_a);
       cplx_vfree (old_b);
 
-      mps_secular_fstart(s, s->n, 0, 0, 0, s->eps_out);
+      mps_secular_fstart (s, s->n, 0, 0, 0, s->eps_out);
 
       break;
 
@@ -602,8 +603,9 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
       /* Regeneration */
       if (!mps_secular_ga_regenerate_coefficients_mp (s))
         {
-          MPS_DEBUG_WITH_INFO (s, "Regeneration of the coefficients failed, reusing old ones.")
-          for (i = 0; i < s->n; i++)
+          MPS_DEBUG_WITH_INFO (s,
+                               "Regeneration of the coefficients failed, reusing old ones.")
+            for (i = 0; i < s->n; i++)
             {
               cdpe_set (sec->adpc[i], old_da[i]);
               cdpe_set (sec->bdpc[i], old_db[i]);
@@ -620,21 +622,9 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
       /* Free data */
       cdpe_vfree (old_da);
       cdpe_vfree (old_db);
-    
-      /* Determine a suitable epsilon to move the roots */
-      rdpe_t a_eps;
-      rdpe_set (a_eps, rdpe_zero);
-      rdpe_t tmp;
-      for (i = 0; i < s->n; i++)
-      {
-          cdpe_mod (tmp, s->secular_equation->adpc[i]);
-          if (rdpe_gt (tmp, a_eps))
-            rdpe_set (a_eps, tmp);
-      }
-      rdpe_mul_eq_d (a_eps, s->n * DBL_EPSILON);
 
-      mps_secular_dstart(s, s->n, 0, (__rdpe_struct *) rdpe_zero,
-          (__rdpe_struct *) rdpe_zero, s->eps_out);
+      mps_secular_dstart (s, s->n, 0, (__rdpe_struct *) rdpe_zero,
+                          (__rdpe_struct *) rdpe_zero, s->eps_out);
 
       break;
 
@@ -721,27 +711,36 @@ mps_secular_ga_check_stop (mps_status * s)
           /* Float case */
         case float_phase:
           if (s->status[i][0] != 'i' && s->status[i][0] != 'a'
-              && s->status[i][0] != 'o') {
-                MPS_DEBUG_WITH_INFO (s, "Root %d is not isolated, nor approximated, so we can't stop now.", i);
-                return false;
-              }
+              && s->status[i][0] != 'o')
+            {
+              MPS_DEBUG_WITH_INFO (s,
+                                   "Root %d is not isolated, nor approximated, so we can't stop now.",
+                                   i);
+              return false;
+            }
           break;
 
           /* Multiprecision and DPE case are the same, since the radii
            * are always RDPE. */
         case mp_phase:
           if (s->status[i][0] != 'i' && s->status[i][0] != 'a'
-              && s->status[i][0] != 'o') {
-                MPS_DEBUG_WITH_INFO (s, "Root %d is not isolated, nor approximated, so we can't stop now.", i);
-            return false;
-              }
+              && s->status[i][0] != 'o')
+            {
+              MPS_DEBUG_WITH_INFO (s,
+                                   "Root %d is not isolated, nor approximated, so we can't stop now.",
+                                   i);
+              return false;
+            }
           break;
         case dpe_phase:
           if (s->status[i][0] != 'i' && s->status[i][0] != 'a'
-              && s->status[i][0] != 'o') {
-                MPS_DEBUG_WITH_INFO (s, "Root %d is not isolated, nor approximated, so we can't stop now.", i);
-            return false;
-              }
+              && s->status[i][0] != 'o')
+            {
+              MPS_DEBUG_WITH_INFO (s,
+                                   "Root %d is not isolated, nor approximated, so we can't stop now.",
+                                   i);
+              return false;
+            }
           break;
 
         default:
@@ -887,7 +886,7 @@ mps_secular_ga_mpsolve (mps_status * s)
   rdpe_t r_eps;
   mps_secular_equation *sec = mps_secular_equation_from_status (s);
   mps_phase phase = sec->starting_case;
-  
+
   rdpe_set_d (r_eps, DBL_EPSILON);
 
 #ifndef DISABLE_DEBUG
