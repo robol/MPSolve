@@ -225,13 +225,13 @@ main (void)
     test_pol_new ("rand120", "secsolve", 15, dpe_phase, false);
   test_polynomials[standard++] =
     test_pol_new ("rand120", "secsolve", 15, float_phase, true);
-    
+
   /* Tests with deg500.pol */
-  test_polynomials[standard++] = 
+  test_polynomials[standard++] =
     test_pol_new ("deg500", "secsolve", 15, float_phase, false);
-  test_polynomials[standard++] = 
+  test_polynomials[standard++] =
     test_pol_new ("deg500", "secsolve", 15, dpe_phase, false);
-  test_polynomials[standard++] = 
+  test_polynomials[standard++] =
     test_pol_new ("deg500", "secsolve", 15, float_phase, true);
 
   /* Create a new test suite for secsolve and run it */

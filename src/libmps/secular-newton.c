@@ -139,7 +139,7 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
 
   mps_secular_equation *sec = (mps_secular_equation *) s->secular_equation;
 
-  cdpe_t pol, fp, sumb, ctmp, ctmp2, old_x;
+  cdpe_t pol, fp, sumb, ctmp, ctmp2, old_x, prod_b;
   rdpe_t rtmp, rtmp2, apol, g_corr;
 
   cdpe_set (old_x, x);
@@ -152,6 +152,13 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
     {
       /* Compute z - b_i */
       cdpe_sub (ctmp, x, sec->bdpc[i]);
+      
+      /* Compute prod [ (z - b_i) / (z - z_j) ] */
+      cdpe_mul_eq (prod_b, ctmp);
+      cdpe_sub (ctmp2, x, s->droot[i]);
+      if (!cdpe_eq_zero (ctmp2)) {
+          cdpe_div_eq (prod_b, ctmp2);
+      }
 
       if (cdpe_eq_zero (ctmp))
         {
@@ -200,6 +207,8 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
   /* Computation of radius with Gerschgorin */
   rdpe_t new_rad;
   cdpe_mod (new_rad, pol);
+  cdpe_mod (rtmp, prod_b);
+  rdpe_mul_eq (new_rad, rtmp);
   rdpe_mul_eq_d (new_rad, s->n);
 
   for (i = 0; i < s->n; i++)
