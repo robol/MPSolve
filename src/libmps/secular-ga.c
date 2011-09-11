@@ -488,7 +488,7 @@ regenerate_m_start:
     }
 
 
-  mps_secular_raise_coefficient_precision (s, s->mpwp);
+  /* mps_secular_raise_coefficient_precision (s, s->mpwp); */
 
 
 regenerate_m_exit:

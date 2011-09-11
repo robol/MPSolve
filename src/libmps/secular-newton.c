@@ -152,13 +152,14 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
     {
       /* Compute z - b_i */
       cdpe_sub (ctmp, x, sec->bdpc[i]);
-      
+
       /* Compute prod [ (z - b_i) / (z - z_j) ] */
       cdpe_mul_eq (prod_b, ctmp);
       cdpe_sub (ctmp2, x, s->droot[i]);
-      if (!cdpe_eq_zero (ctmp2)) {
+      if (!cdpe_eq_zero (ctmp2))
+        {
           cdpe_div_eq (prod_b, ctmp2);
-      }
+        }
 
       if (cdpe_eq_zero (ctmp))
         {
