@@ -82,42 +82,45 @@ main (int argc, char **argv)
         case 'd':
           s->DOLOG = true;
           s->logstr = stderr;
-          
+
           if (!opt->optvalue)
             break;
-          
+
           /* If debugging was enabled, parse debug_level */
-          while (*opt->optvalue) {
-            switch (*opt->optvalue++) {
+          while (*opt->optvalue)
+            {
+              switch (*opt->optvalue++)
+                {
                 case 't':
-                    s->debug_level |= MPS_DEBUG_TRACE;
-                    break;
+                  s->debug_level |= MPS_DEBUG_TRACE;
+                  break;
                 case 'a':
-                    s->debug_level |= MPS_DEBUG_APPROXIMATIONS;
-                    break;
+                  s->debug_level |= MPS_DEBUG_APPROXIMATIONS;
+                  break;
                 case 'c':
-                    s->debug_level |= MPS_DEBUG_CLUSTER;
-                    break;
+                  s->debug_level |= MPS_DEBUG_CLUSTER;
+                  break;
                 case 'i':
-                    s->debug_level |= MPS_DEBUG_IMPROVEMENT;
-                    break;
+                  s->debug_level |= MPS_DEBUG_IMPROVEMENT;
+                  break;
                 case 'w':
-                    s->debug_level |= MPS_DEBUG_TIMINGS;
-                    break;
+                  s->debug_level |= MPS_DEBUG_TIMINGS;
+                  break;
                 case 'o':
-                    s->debug_level |= MPS_DEBUG_IO;
-                    break;
+                  s->debug_level |= MPS_DEBUG_IO;
+                  break;
                 case 'm':
-                    s->debug_level |= MPS_DEBUG_MEMORY;
-                    break;
+                  s->debug_level |= MPS_DEBUG_MEMORY;
+                  break;
                 case 'f':
-                    s->debug_level |= MPS_DEBUG_FUNCTION_CALLS;
-                    break;
+                  s->debug_level |= MPS_DEBUG_FUNCTION_CALLS;
+                  break;
                 default:
-                    mps_error (s, 2, "Unrecgnozied debug option: %c", opt->optvalue);
-                    break;
+                  mps_error (s, 2, "Unrecgnozied debug option: %c",
+                             opt->optvalue);
+                  break;
+                }
             }
-          }
           break;
         case 't':
           switch (opt->optvalue[0])

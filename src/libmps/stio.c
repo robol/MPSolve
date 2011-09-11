@@ -120,9 +120,10 @@ mps_parse_option_line (mps_status * s, char *line, size_t length)
   /* Now we have the option that is pointed by option and is
    * real_length characters long */
   *(c_ptr + 1) = '\0';
-  if (s->debug_level & MPS_DEBUG_IO) {
-    MPS_DEBUG (s, "Parsed option: %s", option);
-  }
+  if (s->debug_level & MPS_DEBUG_IO)
+    {
+      MPS_DEBUG (s, "Parsed option: %s", option);
+    }
 
   input_option.flag = MPS_FLAG_UNDEFINED;
   input_option.value = NULL;
@@ -141,7 +142,7 @@ mps_parse_option_line (mps_status * s, char *line, size_t length)
   if (mps_is_option (s, option, "complex"))
     input_option.flag = MPS_FLAG_COMPLEX;
   if (mps_is_option (s, option, "rational"))
-      input_option.flag = MPS_FLAG_RATIONAL;
+    input_option.flag = MPS_FLAG_RATIONAL;
   if (mps_is_option (s, option, "floatingpoint"))
     input_option.flag = MPS_FLAG_FP;
 
@@ -157,9 +158,10 @@ mps_parse_option_line (mps_status * s, char *line, size_t length)
   equal_position = strchr (option, '=');
   if (equal_position == NULL)
     {
-      if (s->debug_level & MPS_DEBUG_IO) {
-        MPS_DEBUG (s, "Parsed input_option.flag = %d", input_option.flag);
-      }
+      if (s->debug_level & MPS_DEBUG_IO)
+        {
+          MPS_DEBUG (s, "Parsed input_option.flag = %d", input_option.flag);
+        }
       return input_option;
     }
   else
@@ -397,9 +399,10 @@ mps_parse_stream (mps_status * s, FILE * input_stream,
           input_option =
             mps_parse_option_line (s, buffer->line, strlen (buffer->line));
 
-          if (s->debug_level & MPS_DEBUG_IO) {
-            MPS_DEBUG (s, "Parsed option %d", input_option.flag);
-          }
+          if (s->debug_level & MPS_DEBUG_IO)
+            {
+              MPS_DEBUG (s, "Parsed option %d", input_option.flag);
+            }
 
           /* Parsing of the degree */
           if (input_option.flag == MPS_KEY_DEGREE)
@@ -485,9 +488,10 @@ mps_parse_stream (mps_status * s, FILE * input_stream,
 
   if (config.representation == MPS_REPRESENTATION_SECULAR)
     {
-      if (s->debug_level & MPS_DEBUG_IO) {
-        MPS_DEBUG (s, "Parsing secular equation from stream");
-      }
+      if (s->debug_level & MPS_DEBUG_IO)
+        {
+          MPS_DEBUG (s, "Parsing secular equation from stream");
+        }
       mps_secular_equation_read_from_stream (s, config, input_stream);
     }
   else if (config.representation == MPS_REPRESENTATION_MONOMIAL)

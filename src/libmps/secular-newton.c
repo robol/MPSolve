@@ -17,7 +17,7 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
                      mps_boolean * again)
 {
   int i;
-  cplx_t ctmp, ctmp2, pol, fp, sumb;
+  cplx_t ctmp, ctmp2, pol, fp, sumb, prod_b;
   double dtmp, g_corr;
   *again = true;
 
@@ -26,6 +26,7 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
   cplx_set (pol, cplx_zero);
   cplx_set (fp, cplx_zero);
   cplx_set (sumb, cplx_zero);
+  cplx_set (prod_b, cplx_one);
 
   for (i = 0; i < sec->n; i++)
     {
@@ -34,10 +35,34 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
 
       if (cplx_eq_zero (ctmp))
         {
-          *again = false;
+          int j;
+          cplx_set (prod_b, cplx_one);
           cplx_set (corr, cplx_zero);
+          for (j = 0; j < s->n; j++)
+          {
+              if (i == j)
+                continue;
+              cplx_add (ctmp, sec->afpc[i], sec->afpc[j]);
+              cplx_sub (sumb, x, sec->bfpc[j]);
+              cplx_div_eq (ctmp, sumb);
+              cplx_add_eq (corr, ctmp);
+          }
+          cplx_sub_eq (corr, cplx_one);
+          cplx_inv_eq (corr);
+          cplx_mul_eq (corr, sec->afpc[i]);
+          
+          MPS_DEBUG_CPLX (s, corr, "corr");
+          
+          *again = true;
           return;
         }
+        
+      /* Computation of prod [ (z - b_i) / (z - z_j) ]*/
+      cplx_mul_eq (prod_b, ctmp);
+      cplx_sub (ctmp2, x, sec->bfpc[i]);
+      if (!cplx_eq_zero (ctmp2)) {
+            cplx_div_eq (prod_b, ctmp2);
+      }
 
       /* Compute (z-b_i)^{-1} */
       cplx_inv_eq (ctmp);
@@ -81,16 +106,12 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
   cplx_mul (corr, pol, sumb);
   cplx_add_eq (corr, fp);
   cplx_div (corr, pol, corr);
-
+  
   /* Computation of radius with Gerschgorin */
-  double new_rad = cplx_mod (pol) * s->n;
-  for (i = 0; i < s->n; i++)
-    {
-      if (cplx_eq (s->froot[i], x))
-        continue;
-      cplx_sub (ctmp, s->froot[i], x);
-      new_rad /= cplx_mod (ctmp);
-    }
+  double new_rad;
+  
+  cplx_mul_eq (pol, prod_b);
+  new_rad = cplx_mod (pol) * s->n + DBL_EPSILON;
 
   /* Correct the old radius with the move that we are doing
    * and check if the new proposed radius is preferable. */
@@ -242,7 +263,7 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
 
   /* Declare temporary variables */
   mpc_t sumb, pol, fp, ctmp, ctmp2;
-  cdpe_t cdtmp, cdtmp2;
+  cdpe_t cdtmp, cdtmp2, prod_b;
   rdpe_t rtmp, rtmp2, g_corr;
 
   /* Set working precision */
@@ -302,9 +323,19 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
           mpc_mul_eq (corr, sec->ampc[j]);
 
           x_is_b = true;
-          // MPS_DEBUG_WITH_INFO (s, "x is b, aaaargh!")
           break;
         }
+        
+      /* Compute prod [ (z - b_i) / (z - z_j) ] that will be used for
+       * Gerschgorin radius */
+      mpc_get_cdpe (cdtmp2, ctmp);
+      cdpe_mul_eq (prod_b, cdtmp2);
+      mpc_sub (ctmp2, x, s->mroot[i]);
+      mpc_get_cdpe (cdtmp2, ctmp2);
+      if (!cdpe_eq_zero (cdtmp2))
+      {
+          cdpe_div_eq (prod_b, cdtmp2);
+      }
 
       /* Compute (z-b_i)^{-1} */
       mpc_inv_eq (ctmp);
@@ -351,6 +382,8 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
 
   mpc_get_cdpe (cdtmp, pol);
   cdpe_mod (new_rad, cdtmp);
+  cdpe_mod (rtmp, prod_b);
+  rdpe_mul_eq (new_rad, rtmp);
   rdpe_mul_eq_d (new_rad, s->n);
 
   for (i = 0; i < s->n; i++)

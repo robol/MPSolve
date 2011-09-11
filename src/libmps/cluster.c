@@ -150,7 +150,7 @@ void
 mps_debug_cluster_structure (mps_status * s)
 {
   int i, j;
-  
+
   if (!(s->debug_level & MPS_DEBUG_CLUSTER))
     return;
 
@@ -167,7 +167,7 @@ mps_debug_cluster_structure (mps_status * s)
             }
         }
       fprintf (s->logstr, "\n");
-    
+
       for (i = 1; i <= s->nclust; i++)
         {
           if (s->punt[i] == s->punt[i - 1] + 1)

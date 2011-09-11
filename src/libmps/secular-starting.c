@@ -35,6 +35,18 @@ mps_secular_fstart (mps_status * s, int n, int i_clust, double clust_rad,
       else
         sigma = mps_maximize_distance (s, s->last_sigma, i_clust, n);
     }
+    
+  /* Determine a suitable epsilon to move the roots */
+  double a_eps = 0;
+  double tmp;
+  for (i = 0; i < s->n; i++)
+  {
+      tmp = cplx_mod (s->secular_equation->afpc[i]);
+      if (tmp > a_eps)
+        a_eps = tmp;
+  }
+  a_eps *= s->n;
+  a_eps *= DBL_EPSILON;
 
   /* The roots are set as the b_i plus a small correction that is the
    * disposition on the unit cicle scaled to DBL_EPSILON */
@@ -42,7 +54,7 @@ mps_secular_fstart (mps_status * s, int n, int i_clust, double clust_rad,
     {
       cplx_set_d (s->froot[l + i], cos (i * th + sigma),
                   sin (i * th + sigma));
-      cplx_mul_eq_d (s->froot[l + i], 10 * DBL_EPSILON);
+      cplx_mul_eq_d (s->froot[l + i], a_eps);
       cplx_add_eq (s->froot[l + i], sec->bfpc[l + i]);
     }
 }
@@ -74,12 +86,24 @@ mps_secular_dstart (mps_status * s, int n, int i_clust, rdpe_t clust_rad,
           sigma = mps_maximize_distance (s, s->last_sigma, i_clust, n);
         }
     }
+    
+  /* Determine a suitable epsilon to move the roots */
+  double a_eps = 0;
+  double tmp;
+  for (i = 0; i < s->n; i++)
+  {
+      tmp = cplx_mod (s->secular_equation->afpc[i]);
+      if (tmp > a_eps)
+        a_eps = tmp;
+  }
+  a_eps *= s->n;
+  a_eps *= DBL_EPSILON;
 
   for (i = 0; i < s->n; i++)
     {
       cdpe_set_d (s->droot[l + i], cos (i * th + sigma),
                   sin (i * th + sigma));
-      cdpe_mul_eq_d (s->droot[l + i], 10 * DBL_EPSILON);
+      cdpe_mul_eq_d (s->droot[l + i], a_eps);
       cdpe_add_eq (s->droot[l + i], sec->bdpc[l + i]);
     }
 }
@@ -95,17 +119,27 @@ mps_secular_mstart (mps_status * s, int n, int i_clust, rdpe_t clust_rad,
   double sigma;
   mpc_t epsilon;
   mps_secular_equation *sec = (mps_secular_equation *) s->secular_equation;
-  
+
   rdpe_t r_eps;
-  rdpe_set_2dl (r_eps, 1.0, - (s->mpwp / LOG2_10 / 2));
+  rdpe_t rtmp;
+  rdpe_set (r_eps, rdpe_zero);
+  for (i = 0; i < s->n; i++)
+  {
+      cdpe_mod (rtmp, s->droot[i]);
+      if (rdpe_gt (rtmp, r_eps))
+        rdpe_set (r_eps, rtmp);
+  }
+  rdpe_mul_eq_d (r_eps, s->n);
+  rdpe_mul_eq (r_eps, s->mp_epsilon);
 
   mpc_init2 (epsilon, s->mpwp);
   mpc_set_ui (epsilon, 0, 0);
-  
+
   mpf_set_rdpe (mpc_Re (epsilon), r_eps);
-  if (s->debug_level & MPS_DEBUG_APPROXIMATIONS) {
-    MPS_DEBUG_MPC (s, 100, epsilon, "epsilon");
-  }
+  if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
+    {
+      MPS_DEBUG_MPC (s, 100, epsilon, "epsilon");
+    }
 
   /* Get best sigma possible */
   if (s->random_seed)

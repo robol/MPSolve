@@ -232,26 +232,26 @@ gmp_fprintf(s->logstr, templ); \
  * @brief This is the flag that enables debugging of general
  * information about the flow of the program.
  */
- #define MPS_DEBUG_INFO     (0x01 << 0)
- 
+#define MPS_DEBUG_INFO     (0x01 << 0)
+
  /**
   * @brief This is the flag used to debug cluster-related
   * informations.
   */
- #define MPS_DEBUG_CLUSTER  (0x01 << 1)
- 
+#define MPS_DEBUG_CLUSTER  (0x01 << 1)
+
  /**
   * @brief This is the flag used to debug informations on
   * approximations during the execution of MPSolve.
   */
- #define MPS_DEBUG_APPROXIMATIONS (0x01 << 2)
- 
+#define MPS_DEBUG_APPROXIMATIONS (0x01 << 2)
+
  /**
   * @brief Flag used to show debug about final approximation
   * of the roots using newton iterations.
   */
- #define MPS_DEBUG_IMPROVEMENT (0x01 << 3)
- 
+#define MPS_DEBUG_IMPROVEMENT (0x01 << 3)
+
  /**
   * @brief Flag used to obtain information about timings in 
   * the algorithm.
@@ -261,30 +261,30 @@ gmp_fprintf(s->logstr, templ); \
 /**
  * @brief Debug function calls
  */
- #define MPS_DEBUG_FUNCTION_CALLS (0x01 << 5)
- 
+#define MPS_DEBUG_FUNCTION_CALLS (0x01 << 5)
+
  /**
   * @brief Debug I/O informations
   */
- #define MPS_DEBUG_IO (0x01 << 6)
- 
+#define MPS_DEBUG_IO (0x01 << 6)
+
  /**
   * @brief Debug memory management
   */
- #define MPS_DEBUG_MEMORY (0x01 << 7)
+#define MPS_DEBUG_MEMORY (0x01 << 7)
 
  /**
   * @brief This is the flag used to debug informations
   * about virtually every step in the program, it enables
   * every debug level.
   */
- #define MPS_DEBUG_TRACE    (0xFF)
+#define MPS_DEBUG_TRACE    (0xFF)
 
 #define MPS_DEBUG_IF(debug_level, debug_intruction) \
     if (debug_level & s->debug_level) { \
         debug_instruction; \
 }
-    
+
 
 #ifdef	__cplusplus
 }

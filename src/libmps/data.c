@@ -304,9 +304,10 @@ mps_free_data (mps_status * s)
 {
   int i;
 
-  if (s->debug_level & MPS_DEBUG_MEMORY) {
-    MPS_DEBUG (s, "Deallocating data");
-  }
+  if (s->debug_level & MPS_DEBUG_MEMORY)
+    {
+      MPS_DEBUG (s, "Deallocating data");
+    }
 
   free (s->clust);
   free (s->punt);
@@ -374,9 +375,10 @@ mps_free_data (mps_status * s)
   free (s->fradii);
   rdpe_vfree (s->dradii);
 
-  if (s->debug_level & MPS_DEBUG_MEMORY) {
-    MPS_DEBUG (s, "Deallocating emporaries variables");
-  }
+  if (s->debug_level & MPS_DEBUG_MEMORY)
+    {
+      MPS_DEBUG (s, "Deallocating emporaries variables");
+    }
 
   mptemp_clear ();
 }
