@@ -64,7 +64,7 @@ main (int argc, char **argv)
   mps_phase phase = float_phase;
 
   opt = NULL;
-  while ((mps_getopts (&opt, &argc, &argv, "gid:t:o:")))
+  while ((mps_getopts (&opt, &argc, &argv, "gid::t:o:")))
     {
       switch (opt->optchar)
         {
@@ -84,7 +84,11 @@ main (int argc, char **argv)
           s->logstr = stderr;
 
           if (!opt->optvalue)
+          {
+            /* If no specific debug domain has been specified, trace. */
+            s->debug_level != MPS_DEBUG_TRACE;
             break;
+          }
 
           /* If debugging was enabled, parse debug_level */
           while (*opt->optvalue)

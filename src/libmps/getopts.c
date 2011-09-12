@@ -127,6 +127,21 @@ mps_getopts (mps_opt ** opt_ptr, int *argc_ptr, char ***argv_ptr,
               (*argv_ptr)++;
               return true;
             }
+            
+          /* Check if the parameter has an optional argument. If that's the
+           * case, don't bother if there are no arguments.
+           */
+          if (i <= l + 2 && (opt_format[i+1] == ':' && opt_format[i+2] ==':'))
+          {
+              if (argv[1][2] == '\0')
+              {
+                  opt->optvalue = NULL;
+                  (*argc_ptr)--;
+                  (*argv_ptr)[1] = argv[0];
+                  (*argv_ptr)++;
+                  return true;
+              }
+          }
 
           /* If the string is not terminated than we should
            * expect to find the parameter attached to it */
