@@ -95,15 +95,6 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
   dtmp = cplx_mod (pol) * (DBL_EPSILON + 1) + (s->n + 1);
 
   /* Compute newton correction */
-  /* cplx_div(corr, pol, fp);
-
-     cplx_mul(ctmp, corr, sumb);
-     cplx_add_eq(ctmp, cplx_one);
-
-     if (!cplx_eq(ctmp, cplx_zero))
-     cplx_div_eq(corr, ctmp); */
-
-  /* New newton correction */
   cplx_mul (corr, pol, sumb);
   cplx_add_eq (corr, fp);
   cplx_div (corr, pol, corr);
@@ -161,10 +152,28 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
           cdpe_div_eq (prod_b, ctmp2);
         }
 
+      /* Alternative computation if x is one of the b_i */
       if (cdpe_eq_zero (ctmp))
         {
+          int j;
+          cdpe_set (prod_b, cdpe_one);
           cdpe_set (corr, cdpe_zero);
-          *again = false;
+          for (j = 0; j < s->n; j++)
+            {
+              if (i == j)
+                continue;
+              cdpe_add (ctmp, sec->adpc[i], sec->adpc[j]);
+              cdpe_sub (sumb, x, sec->bdpc[j]);
+              cdpe_div_eq (ctmp, sumb);
+              cdpe_add_eq (corr, ctmp);
+            }
+          cdpe_sub_eq (corr, cdpe_one);
+          cdpe_inv_eq (corr);
+          cdpe_mul_eq (corr, sec->adpc[i]);
+
+          MPS_DEBUG_CDPE (s, corr, "corr");
+
+          *again = true;
           return;
         }
 
@@ -189,21 +198,9 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
   cdpe_sub_eq (pol, cdpe_one);
 
   /* Compute correction */
-  cdpe_mul (ctmp, pol, sumb);
-  cdpe_add_eq (fp, ctmp);
-  /* cdpe_div(corr, pol, fp);
-     cdpe_mul(ctmp, corr, sumb);
-     cdpe_add_eq(ctmp, cdpe_one);
-     cdpe_div_eq(corr, ctmp); */
-
-  if (!cdpe_eq_zero (fp))
-    {
-      cdpe_div (corr, pol, fp);
-    }
-  else
-    {
-      cdpe_set (corr, pol);
-    }
+  cdpe_mul (corr, pol, sumb);
+  cdpe_add_eq (corr, fp);
+  cdpe_div (corr, pol, corr);
 
   /* Computation of radius with Gerschgorin */
   rdpe_t new_rad;
@@ -211,15 +208,8 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
   cdpe_mod (rtmp, prod_b);
   rdpe_mul_eq (new_rad, rtmp);
   rdpe_mul_eq_d (new_rad, s->n);
+  rdpe_mul_eq_d (new_rad, DBL_EPSILON);
 
-  for (i = 0; i < s->n; i++)
-    {
-      if (cdpe_eq (s->droot[i], x))
-        continue;
-      cdpe_sub (ctmp, s->droot[i], x);
-      cdpe_mod (rtmp, ctmp);
-      rdpe_div (new_rad, new_rad, rtmp);
-    }
 
   /* Correct the old radius with the move that we are doing
    * and check if the new proposed radius is preferable. */
