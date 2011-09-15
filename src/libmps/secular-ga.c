@@ -123,12 +123,13 @@ mps_secular_ga_fiterate (mps_status * s, int maxit)
     {
       mps_dump (s, s->logstr);
     }
-    
+
   if (nit <= s->n && computed_roots == s->n)
-  {
-    MPS_DEBUG_WITH_INFO (s, "Iterations were less that the roots and all the roots were computed");
-    s->secular_equation->best_approx = true;
-  }
+    {
+      MPS_DEBUG_WITH_INFO (s,
+                           "Iterations were less that the roots and all the roots were computed");
+      s->secular_equation->best_approx = true;
+    }
 
   mps_fcluster (s, 2.0 * s->n);
   mps_fmodify (s);
@@ -969,7 +970,7 @@ mps_secular_ga_mpsolve (mps_status * s)
     {
       skip_check_stop = false;
       s->secular_equation->best_approx = false;
-      
+
       /* Perform an iteration of floating point Aberth method */
       switch (s->lastphase)
         {
@@ -1018,13 +1019,13 @@ mps_secular_ga_mpsolve (mps_status * s)
        * this precision has been reached. In that case increase the precision
        * of the computation. */
       if (sec->best_approx)
-          mps_secular_ga_regenerate_coefficients (s);
+        mps_secular_ga_regenerate_coefficients (s);
       else
-          skip_check_stop = true;
+        skip_check_stop = true;
 
       /* Instead of using else we recheck best approx because it could
        * have been set by the coefficient regeneration */
-      if (roots_computed == s->n || packet > 15)
+      if (roots_computed == s->n || packet > s->max_pack)
         {
           /* Going to multiprecision if we're not there yet */
           if (s->lastphase != mp_phase)
