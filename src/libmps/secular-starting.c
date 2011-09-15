@@ -59,9 +59,11 @@ mps_secular_fstart (mps_status * s, int n, int i_clust, double clust_rad,
     {
       cplx_set_d (s->froot[l + i], cos (i * th + sigma),
                   sin (i * th + sigma));
-      cplx_mul_eq_d (s->froot[l + i], 4 * cplx_mod (s->secular_equation->bfpc[i + l]) * DBL_EPSILON);
+      cplx_mul_eq_d (s->froot[l + i],
+                     4 * cplx_mod (s->secular_equation->bfpc[i + l]) *
+                     DBL_EPSILON);
       cplx_add_eq (s->froot[l + i], sec->bfpc[l + i]);
-      MPS_DEBUG_CPLX (s, s->froot[i+l], "s->froot[%d]", l+i);
+      MPS_DEBUG_CPLX (s, s->froot[i + l], "s->froot[%d]", l + i);
     }
 
   sec->need_restart = false;
@@ -77,7 +79,7 @@ mps_secular_dstart (mps_status * s, int n, int i_clust, rdpe_t clust_rad,
   double th = pi2 / n;
   double sigma;
   mps_secular_equation *sec = (mps_secular_equation *) s->secular_equation;
-  
+
   cdpe_t ceps;
   cdpe_set (ceps, cdpe_zero);
 
@@ -102,7 +104,7 @@ mps_secular_dstart (mps_status * s, int n, int i_clust, rdpe_t clust_rad,
     {
       cdpe_mod (cdpe_Re (ceps), s->secular_equation->bdpc[l + i]);
       rdpe_mul_eq_d (cdpe_Re (ceps), 4 * DBL_EPSILON);
-      
+
       cdpe_set_d (s->droot[l + i], cos (i * th + sigma),
                   sin (i * th + sigma));
       cdpe_mul_eq (s->droot[l + i], ceps);
@@ -128,7 +130,7 @@ mps_secular_mstart (mps_status * s, int n, int i_clust, rdpe_t clust_rad,
   cdpe_t ctmp;
   rdpe_t rtmp;
   rdpe_set (r_eps, rdpe_zero);
-  
+
   mpc_init2 (epsilon, s->mpwp);
   mpc_set_ui (epsilon, 0, 0);
 
@@ -156,7 +158,7 @@ mps_secular_mstart (mps_status * s, int n, int i_clust, rdpe_t clust_rad,
       cdpe_mod (r_eps, ctmp);
       rdpe_mul_eq (r_eps, s->mp_epsilon);
       mpf_set_rdpe (mpc_Re (epsilon), r_eps);
-      
+
       mpc_set_d (s->mroot[l + i], cos (i * th + sigma), sin (i * th + sigma));
       mpc_mul_eq (s->mroot[l + i], epsilon);
       mpc_add_eq (s->mroot[l + i], sec->bmpc[l + i]);

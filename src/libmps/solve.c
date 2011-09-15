@@ -2757,7 +2757,7 @@ mps_dsolve (mps_status * s, mps_boolean d_after_f)
     for (i = 0; i < s->n; i++)
       if (s->status[i][0] == 'x')
         s->status[i][0] = 'c';
-        
+
   if (s->DOLOG)
     mps_dump (s, s->logstr);
 

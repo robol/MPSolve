@@ -84,11 +84,11 @@ main (int argc, char **argv)
           s->logstr = stderr;
 
           if (!opt->optvalue)
-          {
-            /* If no specific debug domain has been specified, trace. */
-            s->debug_level != MPS_DEBUG_TRACE;
-            break;
-          }
+            {
+              /* If no specific debug domain has been specified, trace. */
+              s->debug_level != MPS_DEBUG_TRACE;
+              break;
+            }
 
           /* If debugging was enabled, parse debug_level */
           while (*opt->optvalue)

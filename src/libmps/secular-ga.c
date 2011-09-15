@@ -123,9 +123,12 @@ mps_secular_ga_fiterate (mps_status * s, int maxit)
     {
       mps_dump (s, s->logstr);
     }
-  if (nit <= 2 * s->n)          // && computed_roots == s->n)
-    // if (computed_roots == s->n)
+    
+  if (nit <= s->n && computed_roots == s->n)
+  {
+    MPS_DEBUG_WITH_INFO (s, "Iterations were less that the roots and all the roots were computed");
     s->secular_equation->best_approx = true;
+  }
 
   mps_fcluster (s, 2.0 * s->n);
   mps_fmodify (s);
@@ -883,6 +886,7 @@ mps_secular_ga_mpsolve (mps_status * s)
   int packet;
   int iteration_per_packet = 10;
   int i;
+  mps_boolean skip_check_stop = false;
   rdpe_t r_eps;
   mps_secular_equation *sec = mps_secular_equation_from_status (s);
   mps_phase phase = sec->starting_case;
@@ -963,7 +967,9 @@ mps_secular_ga_mpsolve (mps_status * s)
   /* Cycle until approximated */
   do
     {
+      skip_check_stop = false;
       s->secular_equation->best_approx = false;
+      
       /* Perform an iteration of floating point Aberth method */
       switch (s->lastphase)
         {
@@ -1011,14 +1017,14 @@ mps_secular_ga_mpsolve (mps_status * s)
        * continue to iterate, unless the best approximation possible in
        * this precision has been reached. In that case increase the precision
        * of the computation. */
-      if (!sec->best_approx)
-        {
+      if (sec->best_approx)
           mps_secular_ga_regenerate_coefficients (s);
-        }
+      else
+          skip_check_stop = true;
 
       /* Instead of using else we recheck best approx because it could
        * have been set by the coefficient regeneration */
-      if (sec->best_approx || packet > 15)
+      if (roots_computed == s->n || packet > 15)
         {
           /* Going to multiprecision if we're not there yet */
           if (s->lastphase != mp_phase)
@@ -1030,13 +1036,14 @@ mps_secular_ga_mpsolve (mps_status * s)
               /* Raising precision otherwise */
               mps_secular_raise_precision (s, 2 * s->mpwp);
               mps_secular_ga_regenerate_coefficients (s);
+              skip_check_stop = false;
             }
 
 
           packet = 0;
         }
     }
-  while (!mps_secular_ga_check_stop (s));
+  while (skip_check_stop || !mps_secular_ga_check_stop (s));
 
   /* Finally improve the roots if approximation is required */
   if (s->goal[0] == 'a')
