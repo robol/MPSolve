@@ -95,12 +95,14 @@ mps_secular_deflate (mps_status * s, mps_secular_equation * sec)
                   && mpq_equal (sec->initial_bmpqic[i],
                                 sec->initial_bmpqic[j]))
                 {
-                  MPS_DEBUG_WITH_INFO (s, "Coefficients b[%d] and b[%d] are equal, deflating", i, j);   
+                  MPS_DEBUG_WITH_INFO (s,
+                                       "Coefficients b[%d] and b[%d] are equal, deflating",
+                                       i, j);
                   mpq_add (sec->initial_ampqrc[i], sec->initial_ampqrc[i],
                            sec->initial_ampqrc[j]);
                   mpq_add (sec->initial_ampqic[i], sec->initial_ampqic[i],
                            sec->initial_ampqic[j]);
-                           
+
 
                   /* Copy other coefficients back of one position */
                   for (k = j; k < sec->n - 1; k++)

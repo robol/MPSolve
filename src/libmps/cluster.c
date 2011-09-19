@@ -39,7 +39,7 @@ mps_cluster_reset (mps_status * s)
   s->punt[0] = 0;
   s->punt[1] = s->n;
   s->nclust = 1;
-  
+
   /* Reset cluster status of the roots */
   for (i = 0; i < s->n; i++)
     {
