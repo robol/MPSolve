@@ -77,7 +77,7 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
       /* Add a_i / (z - b_i) to pol */
       cplx_add_eq (pol, ctmp2);
 
-      /* Compute a_i / (z - b_i)^2 */
+      /* Compute a_i / (z - b_i)^2a */
       cplx_mul_eq (ctmp2, ctmp);
 
       /* Add it to fp */
@@ -103,7 +103,7 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
   double new_rad;
 
   cplx_mul_eq (pol, prod_b);
-  new_rad = cplx_mod (pol) * s->n + DBL_EPSILON;
+  new_rad = cplx_mod (pol) * s->n + DBL_MIN;
 
   /* Correct the old radius with the move that we are doing
    * and check if the new proposed radius is preferable. */
@@ -208,8 +208,8 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
   cdpe_mod (rtmp, prod_b);
   rdpe_mul_eq (new_rad, rtmp);
   rdpe_mul_eq_d (new_rad, s->n);
-  rdpe_mul_eq_d (new_rad, DBL_EPSILON);
-
+  // rdpe_mul_eq_d (new_rad, DBL_EPSILON);
+  rdpe_add_eq_d   (new_rad, DBL_MIN);
 
   /* Correct the old radius with the move that we are doing
    * and check if the new proposed radius is preferable. */
@@ -329,7 +329,13 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
 
       /* Compute prod [ (z - b_i) / (z - z_j) ] that will be used for
        * Gerschgorin radius */
-      mpc_get_cdpe (cdtmp2, ctmp);
+      if (!MPS_STRUCTURE_IS_FP (s->secular_equation->input_structure))
+        {
+          mpc_sub (ctmp2, x, s->secular_equation->initial_ampc[i]);
+          mpc_get_cdpe (cdtmp2, ctmp2);
+        }
+      else
+        mpc_get_cdpe (cdtmp2, ctmp);
       cdpe_mul_eq (prod_b, cdtmp2);
       mpc_sub (ctmp2, x, s->mroot[i]);
       mpc_get_cdpe (cdtmp2, ctmp2);
@@ -383,8 +389,11 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
 
   mpc_get_cdpe (cdtmp, pol);
   cdpe_mod (new_rad, cdtmp);
+  rdpe_mul_eq_d (new_rad, 1 + 4 * DBL_EPSILON);
   cdpe_mod (rtmp, prod_b);
+  rdpe_mul_eq_d (rtmp, 1 + 4 * DBL_EPSILON);
   rdpe_mul_eq (new_rad, rtmp);
+  rdpe_mul_eq_d (new_rad, 1 + DBL_EPSILON);
   rdpe_mul_eq_d (new_rad, s->n);
 
   for (i = 0; i < s->n; i++)

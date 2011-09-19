@@ -708,6 +708,9 @@ mps_secular_ga_check_stop (mps_status * s)
   MPS_DEBUG_THIS_CALL;
 
   int i;
+  
+  if (!MPS_STRUCTURE_IS_FP (s->secular_equation->input_structure) && s->lastphase != mp_phase)
+    return false;
 
   for (i = 0; i < s->n; i++)
     {
@@ -830,8 +833,15 @@ mps_secular_ga_improve (mps_status * s)
 
       if (s->debug_level & MPS_DEBUG_IMPROVEMENT)
         {
-          MPS_DEBUG (s, "Performing %d max iterations on root %d", iterations,
-                     i);
+          if (iterations != 0)
+            {
+              MPS_DEBUG (s, "Performing %d max iterations on root %d", iterations,
+                         i);
+            }
+          else
+            {
+              MPS_DEBUG (s, "Not improving root %d, since it is already approximated", i);
+            }
         }
 
       for (j = 0; j < iterations; j++)
@@ -914,13 +924,7 @@ mps_secular_ga_mpsolve (mps_status * s)
 
   /* We set the selected phase */
   s->lastphase = phase;
-
-  for (i = 0; i < s->n; i++)
-    {
-      s->status[i][0] = 'c';
-      s->status[i][1] = 'w';
-      s->status[i][2] = 'u';
-    }
+  mps_cluster_reset (s);
 
   /* Manually set FILE* pointer for streams.
    * More refined options will be added later. */
@@ -1013,7 +1017,11 @@ mps_secular_ga_mpsolve (mps_status * s)
       /* Check if all roots were approximated with the
        * given input precision                      */
       if (mps_secular_ga_check_stop (s))
-        break;
+        {
+          if (MPS_STRUCTURE_IS_FP (sec->input_structure))
+            break;
+        }
+            
 
       /* If we can't stop recompute coefficients in higher precision and
        * continue to iterate, unless the best approximation possible in
@@ -1032,6 +1040,17 @@ mps_secular_ga_mpsolve (mps_status * s)
           if (s->lastphase != mp_phase)
             {
               mps_secular_switch_phase (s, mp_phase);
+              
+              /* If going in MP from integer or rational input
+               * we reset cluster structure since we would like
+               * to recompute it with the original coefficients.
+               */
+              if (!MPS_STRUCTURE_IS_FP (sec->input_structure))
+                {
+                  MPS_DEBUG_WITH_INFO (s, "Resetting cluster structure for the MP phase");
+                  mps_cluster_reset (s);
+                  skip_check_stop = true;
+                }
             }
           else
             {

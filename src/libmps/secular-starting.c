@@ -104,9 +104,7 @@ mps_secular_dstart (mps_status * s, int n, int i_clust, rdpe_t clust_rad,
   for (i = 0; i < s->n; i++)
     {
       cdpe_mod (cdpe_Re (ceps), s->secular_equation->bdpc[l + i]);
-      cdpe_mod (rtmp, s->secular_equation->bdpc[l + i]);
       rdpe_mul_eq_d (cdpe_Re (ceps), 4 * DBL_EPSILON);
-      rdpe_mul_eq (cdpe_Re (ceps), rtmp);
 
       cdpe_set_d (s->droot[l + i], cos (i * th + sigma),
                   sin (i * th + sigma));
