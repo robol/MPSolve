@@ -135,6 +135,8 @@ mps_secular_ga_fiterate (mps_status * s, int maxit)
   mps_fcluster (s, 2.0 * s->n);
   mps_fmodify (s);
 
+
+
   for (i = 0; i < s->n; i++)
     {
       if (s->status[i][0] == 'C')
@@ -237,8 +239,7 @@ mps_secular_ga_diterate (mps_status * s, int maxit)
     {
       mps_dump (s, s->logstr);
     }
-  if (nit <= 2 * s->n)
-    // if (computed_roots == s->n)
+  if (computed_roots == s->n)
     {
       s->secular_equation->best_approx = true;
     }
@@ -363,8 +364,7 @@ mps_secular_ga_miterate (mps_status * s, int maxit)
   mpc_clear (corr);
 
   MPS_DEBUG_WITH_INFO (s, "Performed %d iterations", nit);
-  if (nit <= 2 * s->n)
-    // if (computed_roots == s->n)
+  if (computed_roots == s->n)
     s->secular_equation->best_approx = true;
 
   /* Perform cluster analysis */
