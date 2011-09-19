@@ -200,6 +200,7 @@ mps_secular_ga_diterate (mps_status * s, int maxit)
               mps_secular_dnewton (s, s->droot[i], s->drad[i], corr,
                                    &s->again[i]);
 
+	      
               /* Apply Aberth correction */
               mps_daberth (s, i, abcorr);
               cdpe_mul_eq (abcorr, corr);
@@ -1030,7 +1031,6 @@ mps_secular_ga_mpsolve (mps_status * s)
           break;
         }
 
-
       /* If we can't stop recompute coefficients in higher precision and
        * continue to iterate, unless the best approximation possible in
        * this precision has been reached. In that case increase the precision
@@ -1058,7 +1058,6 @@ mps_secular_ga_mpsolve (mps_status * s)
               mps_secular_ga_regenerate_coefficients (s);
               skip_check_stop = false;
             }
-
 
           packet = 0;
         }
