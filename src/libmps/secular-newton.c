@@ -208,8 +208,16 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
   cdpe_mod (rtmp, prod_b);
   rdpe_mul_eq (new_rad, rtmp);
   rdpe_mul_eq_d (new_rad, s->n);
-  // rdpe_mul_eq_d (new_rad, DBL_EPSILON);
-  rdpe_add_eq_d (new_rad, DBL_MIN);
+  
+  /* Check for the rad for being zero. If that is
+   * the case, set the root as approximated, with
+   * a radius of .5 * 10^{-d_out} * |x| */
+  if (rdpe_eq (new_rad, rdpe_zero)) 
+    {
+      rdpe_set_2dl (new_rad, 0.5, -s->prec_out);
+      cdpe_mod (rtmp, x);
+      rdpe_mul_eq (new_rad, rtmp);
+    }
 
   /* Correct the old radius with the move that we are doing
    * and check if the new proposed radius is preferable. */
@@ -220,14 +228,6 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
       cdpe_mod (rtmp, corr);
       rdpe_add_eq (rad, rtmp);
     }
-
-  /* Compute \sum_i | a_i / (z - b_i) | + 1
-   * and check if the secular equation is smaller
-   * than this multiplied for n * epsilon */
-  rdpe_add_eq (apol, rdpe_one);
-  rdpe_mul_eq_d (apol, (sec->n + 3) * DBL_EPSILON);
-
-  cdpe_mod (rtmp, pol);
 
   /* If newton correction is less than
    * the modules of |x| multiplied for

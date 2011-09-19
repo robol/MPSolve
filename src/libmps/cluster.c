@@ -47,6 +47,7 @@ mps_cluster_reset (mps_status * s)
       s->status[i][1] = 'w';
       s->status[i][2] = 'u';
     }
+
 }
 
 /**
@@ -167,22 +168,22 @@ mps_debug_cluster_structure (mps_status * s)
     {
       /* Debug isolated roots first */
       __MPS_DEBUG (s, "Isolated roots: ");
-      for (i = 1; i <= s->nclust; i++)
+      for (i = 0; i < s->nclust; i++)
         {
-          if (s->punt[i] == s->punt[i - 1] + 1)
+          if (s->punt[i+1] == s->punt[i] + 1)
             {
               fprintf (s->logstr, "%d ", s->clust[s->punt[i]]);
             }
         }
       fprintf (s->logstr, "\n");
 
-      for (i = 1; i <= s->nclust; i++)
+      for (i = 0; i < s->nclust; i++)
         {
-          if (s->punt[i] == s->punt[i - 1] + 1)
+          if (s->punt[i + 1] == s->punt[i] + 1)
             continue;
           __MPS_DEBUG (s, "Found cluster of %d roots: ",
-                       s->punt[i] - s->punt[i - 1]);
-          for (j = s->punt[i - 1]; j < s->punt[i]; j++)
+                       s->punt[i + 1] - s->punt[i]);
+          for (j = s->punt[i]; j < s->punt[i + 1]; j++)
             {
               fprintf (s->logstr, "%d ", s->clust[j]);
             }

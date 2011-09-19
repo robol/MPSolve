@@ -106,7 +106,7 @@ mps_secular_ga_fiterate (mps_status * s, int maxit)
               /* Correct the radius */
               modcorr = cplx_mod (abcorr);
               s->frad[i] += modcorr;
-	      
+
               if (!s->again[i])
                 computed_roots++;
             }
@@ -347,8 +347,6 @@ mps_secular_ga_miterate (mps_status * s, int maxit)
                   mpc_get_cdpe (ctmp, s->mroot[k]);
                   cdpe_mod (rtmp, ctmp);
                   rdpe_div_eq (modcorr, rtmp);
-
-                  MPS_DEBUG_RDPE (s, modcorr, "Relative correction");
 
                   if (!s->again[k])
                     computed_roots++;
@@ -717,9 +715,9 @@ mps_secular_ga_check_stop (mps_status * s)
 
   int i;
 
-  if (!MPS_STRUCTURE_IS_FP (s->secular_equation->input_structure)
-      && s->lastphase != mp_phase)
-    return false;
+    /* if  (!MPS_STRUCTURE_IS_FP (s->secular_equation->input_structure) */
+    /*   && s->lastphase != mp_phase) */
+    /* return false; */
 
   for (i = 0; i < s->n; i++)
     {
@@ -955,22 +953,22 @@ mps_secular_ga_mpsolve (mps_status * s)
    * routine and based on the phase selected by the user. */
   switch (s->lastphase)
     {
-    case float_phase:
-      mps_secular_fstart (s, s->n, 0, 0.0, 0.0, s->eps_out);
-      break;
+    case  float_phase: 
+       mps_secular_fstart (s, s->n, 0, 0.0, 0.0, s->eps_out); 
+       break; 
 
-    case dpe_phase:
-      mps_secular_dstart (s, s->n, 0, (__rdpe_struct *) rdpe_zero,
-                          (__rdpe_struct *) rdpe_zero, s->eps_out);
-      break;
+     case dpe_phase: 
+       mps_secular_dstart (s, s->n, 0, (__rdpe_struct *) rdpe_zero, 
+                           (__rdpe_struct *) rdpe_zero, s->eps_out); 
+       break; 
 
-    case mp_phase:
-      mps_secular_mstart (s, s->n, 0, (__rdpe_struct *) rdpe_zero,
-                          (__rdpe_struct *) rdpe_zero, s->eps_out);
-      break;
+     case mp_phase: 
+       mps_secular_mstart (s, s->n, 0, (__rdpe_struct *) rdpe_zero, 
+                           (__rdpe_struct *) rdpe_zero, s->eps_out); 
+       break;
 
-    default:
-      break;
+     default: 
+       break;
     }
 
   /* Set initial radius */
@@ -1041,10 +1039,10 @@ mps_secular_ga_mpsolve (mps_status * s)
         mps_secular_ga_regenerate_coefficients (s);
       else
         skip_check_stop = true;
-
+      
       /* Instead of using else we recheck best approx because it could
        * have been set by the coefficient regeneration */
-      if (roots_computed == s->n || (packet > s->max_pack ||
+      if (roots_computed == s->n || (packet > 15 ||
                                      (s->lastphase == mp_phase
                                       && packet > 3)))
         {
@@ -1052,19 +1050,7 @@ mps_secular_ga_mpsolve (mps_status * s)
           if (s->lastphase != mp_phase)
             {
               mps_secular_switch_phase (s, mp_phase);
-
-              /* If going in MP from integer or rational input
-               * we reset cluster structure since we would like
-               * to recompute it with the original coefficients.
-               */
-              if (false && !MPS_STRUCTURE_IS_FP (sec->input_structure))
-                {
-                  MPS_DEBUG_WITH_INFO (s,
-                                       "Resetting cluster structure for the MP phase");
-                  mps_cluster_reset (s);
-                  skip_check_stop = true;
-                }
-            }
+	    }
           else
             {
               /* Raising precision otherwise */
