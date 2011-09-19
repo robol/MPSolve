@@ -52,6 +52,8 @@ mps_secular_ga_fiterate (mps_status * s, int maxit)
     if (!s->again[i])
       computed_roots++;
 
+  MPS_DEBUG_WITH_INFO (s, "%d roots are already computed before this iteration packet", computed_roots)
+
   while (computed_roots < s->n && iterations < maxit - 1)
     {
       cplx_t corr, abcorr;
