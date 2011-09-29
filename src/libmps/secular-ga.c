@@ -416,14 +416,17 @@ mps_secular_ga_miterate (mps_status * s, int maxit)
 
   /* These lines are used to debug the again vector, but are not useful
    * at the moment being */
-   __MPS_DEBUG (s, "Again vector = ");
-     for(i = 0; i < s->n; i++)
-     {
-       fprintf (s->logstr, "%d ", s->again[i]);
-     }
-     fprintf (s->logstr, "\n");
-     mps_dump (s, s->logstr);
-
+  if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
+    {
+      __MPS_DEBUG (s, "Again vector = ");
+      for (i = 0; i < s->n; i++)
+	{
+	  fprintf (s->logstr, "%d ", s->again[i]);
+	}
+      fprintf (s->logstr, "\n");
+      mps_dump (s, s->logstr);
+    }
+  
   /* Clock the routine */
 #ifndef DISABLE_DEBUG
   s->mp_iteration_time += mps_stop_timer (my_clock);
