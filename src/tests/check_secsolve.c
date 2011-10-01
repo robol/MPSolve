@@ -161,10 +161,23 @@ START_TEST (test_secsolve_integer)
   /* Test integer parsing of secsolve, ga approach */
   test_pol *pol = test_pol_new ("integer", "secsolve", 250, dpe_phase, true);
   test_secsolve_on_pol (pol);
-
   test_pol_free (pol);
 }
+END_TEST
 
+/**
+ * @brief Simple test the checks if floating point exception
+ * arise in this simple secular equation, that is likely to trigger
+ * cancellation problems. 
+ */
+START_TEST (test_secsolve_simple)
+{
+  test_pol *pol = test_pol_new ("simple", "secsolve", 15, float_phase, true);
+  test_secsolve_on_pol (pol);
+  pol->ga = false;
+  test_secsolve_on_pol (pol);
+  test_pol_free (pol);
+}
 END_TEST
 /**
  * @brief Create the secsolve test suite
@@ -185,6 +198,9 @@ END_TEST
 
   /* Integer parsing */
   tcase_add_test (tc_mpsolve, test_secsolve_integer);
+
+  /* Simple secular equation with cancellation problems */
+  tcase_add_test (tc_mpsolve, test_secsolve_simple);
 
   /* Add test case to the suite */
   suite_add_tcase (s, tc_mpsolve);
