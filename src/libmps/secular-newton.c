@@ -51,7 +51,7 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
           cplx_inv_eq (corr);
           cplx_mul_eq (corr, sec->afpc[i]);
 
-          MPS_DEBUG_CPLX (s, corr, "corr");
+          MPS_DEBUG_CPLX (s, corr, "x - b_i is zero, so computing the roots with an alternate method gives corr");
 
           *again = true;
           return;
@@ -97,7 +97,10 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
   /* Compute newton correction */
   cplx_mul (corr, pol, sumb);
   cplx_add_eq (corr, fp);
-  cplx_div (corr, pol, corr);
+  if (cplx_eq_zero (corr))
+      cplx_set (corr, pol);
+  else
+    cplx_div (corr, pol, corr);
 
   /* Computation of radius with Gerschgorin */
   double new_rad;
@@ -109,9 +112,6 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
    * and check if the new proposed radius is preferable. */
   if (new_rad < *rad)
     *rad = new_rad;
-  else
-    *rad += cplx_mod (corr);
-
 
   /* If the correction is not useful in the current precision do
    * not iterate more   */
@@ -132,6 +132,7 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
 
   cdpe_t pol, fp, sumb, ctmp, ctmp2, old_x, prod_b;
   rdpe_t rtmp, rtmp2, apol, g_corr;
+  mps_boolean x_is_b = false;
 
   cdpe_set (old_x, x);
   cdpe_set (pol, cdpe_zero);
@@ -156,6 +157,7 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
       if (cdpe_eq_zero (ctmp))
         {
           int j;
+	  x_is_b = true;
           cdpe_set (prod_b, cdpe_one);
           cdpe_set (corr, cdpe_zero);
           for (j = 0; j < s->n; j++)
@@ -164,17 +166,17 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
                 continue;
               cdpe_add (ctmp, sec->adpc[i], sec->adpc[j]);
               cdpe_sub (sumb, x, sec->bdpc[j]);
-              cdpe_div_eq (ctmp, sumb);
-              cdpe_add_eq (corr, ctmp);
+	      cdpe_div_eq (ctmp, sumb);
+	      cdpe_add_eq (corr, ctmp);
             }
           cdpe_sub_eq (corr, cdpe_one);
           cdpe_inv_eq (corr);
           cdpe_mul_eq (corr, sec->adpc[i]);
 
-          MPS_DEBUG_CDPE (s, corr, "corr");
+          MPS_DEBUG_CDPE (s, corr, "Correction computed in the special case where x == b_i, corr");
 
           *again = true;
-          return;
+	  return;
         }
 
       /* Invert it, i.e. compute 1 / (z - b_i) */
@@ -200,20 +202,28 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
   /* Compute correction */
   cdpe_mul (corr, pol, sumb);
   cdpe_add_eq (corr, fp);
-  cdpe_div (corr, pol, corr);
+  if (cdpe_eq_zero (corr))
+    cdpe_set (corr, pol);
+  else
+    cdpe_div (corr, pol, corr);
 
   /* Computation of radius with Gerschgorin */
+ dradius_computation: ;
   rdpe_t new_rad;
   cdpe_mod (new_rad, pol);
   cdpe_mod (rtmp, prod_b);
   rdpe_mul_eq (new_rad, rtmp);
   rdpe_mul_eq_d (new_rad, s->n);
+
+  MPS_DEBUG_RDPE (s, new_rad, "new_rad");
+  MPS_DEBUG_CDPE (s, corr, "corr");
   
   /* Check for the rad for being zero. If that is
    * the case, set the root as approximated, with
    * a radius of .5 * 10^{-d_out} * |x| */
   if (rdpe_eq (new_rad, rdpe_zero)) 
     {
+      MPS_DEBUG_WITH_INFO (s, "The radius is zero, so preparing the root for output");
       rdpe_set_2dl (new_rad, 0.5, -s->prec_out);
       cdpe_mod (rtmp, x);
       rdpe_mul_eq (new_rad, rtmp);

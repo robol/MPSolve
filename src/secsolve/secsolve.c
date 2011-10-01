@@ -182,7 +182,7 @@ main (int argc, char **argv)
   /* Use always DPE with non floating point input */
   if (!MPS_STRUCTURE_IS_FP (s->secular_equation->input_structure))
     {
-      sec->starting_case = dpe_phase;
+      // sec->starting_case = dpe_phase;
     }
 
   if (phase == dpe_phase)

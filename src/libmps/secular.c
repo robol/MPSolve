@@ -546,6 +546,7 @@ mps_secular_set_radii (mps_status * s)
               /* We are in the DPE phase */
               cdpe_mod (rtmp, sec->adpc[i]);
 
+	    rdpe_mul_eq_d (rtmp, 1 + 4 * DBL_EPSILON);
             rdpe_add_eq (total_rad, rtmp);
           }
 

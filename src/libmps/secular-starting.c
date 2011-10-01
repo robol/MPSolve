@@ -105,11 +105,14 @@ mps_secular_dstart (mps_status * s, int n, int i_clust, rdpe_t clust_rad,
     {
       cdpe_mod (cdpe_Re (ceps), s->secular_equation->bdpc[l + i]);
       rdpe_mul_eq_d (cdpe_Re (ceps), 4 * DBL_EPSILON);
-
       cdpe_set_d (s->droot[l + i], cos (i * th + sigma),
                   sin (i * th + sigma));
       cdpe_mul_eq (s->droot[l + i], ceps);
       cdpe_add_eq (s->droot[l + i], sec->bdpc[l + i]);
+
+      /* Just an experiment to see if the new method in secular-newton
+       * is working */
+      /* cdpe_set (s->droot[l +i], sec->bdpc[l + i]); */
     }
 
   sec->need_restart = false;

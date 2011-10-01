@@ -321,15 +321,19 @@ mps_secular_equation_read_from_stream (mps_status * s,
       for (i = 0; i < s->n; i++)
         {
           mpf_set_q (ftmp, sec->initial_ampqrc[i]);
+	  mpf_set (mpc_Re (sec->initial_ampc[i]), ftmp);
           mpf_get_rdpe (cdpe_Re (sec->adpc[i]), ftmp);
 
           mpf_set_q (ftmp, sec->initial_ampqic[i]);
+	  mpf_set (mpc_Im (sec->initial_ampc[i]), ftmp);
           mpf_get_rdpe (cdpe_Im (sec->adpc[i]), ftmp);
 
           mpf_set_q (ftmp, sec->initial_bmpqrc[i]);
+	  mpf_set (mpc_Re (sec->initial_bmpc[i]), ftmp);
           mpf_get_rdpe (cdpe_Re (sec->bdpc[i]), ftmp);
 
           mpf_set_q (ftmp, sec->initial_bmpqic[i]);
+	  mpf_set (mpc_Im (sec->initial_bmpc[i]), ftmp);
           mpf_get_rdpe (cdpe_Im (sec->bdpc[i]), ftmp);
         }
     }
