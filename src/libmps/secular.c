@@ -59,8 +59,7 @@ mps_secular_deflate (mps_status * s, mps_secular_equation * sec)
             {
               /* Do not deflate in floating point, since it is not working
                * correctly right now */
-              MPS_DEBUG_WITH_INFO (s,
-                                   "Floating point deflation still has some rough edges, so it's disabled");
+              MPS_DEBUG_WITH_INFO (s, "Floating point deflation still has some rough edges, so it's disabled");
               return;
               if (mpc_eq
                   (sec->initial_bmpc[i], sec->initial_bmpc[j],

@@ -36,6 +36,8 @@ mps_secular_ga_fiterate (mps_status * s, int maxit)
   int iterations = 0;
   int i;
   int nit = 0;
+  int it_threshold;
+  int old_cr;
 
 #ifndef DISABLE_DEBUG
   clock_t *my_clock = mps_start_timer ();
@@ -51,6 +53,16 @@ mps_secular_ga_fiterate (mps_status * s, int maxit)
   for (i = 0; i < s->n; i++)
     if (!s->again[i])
       computed_roots++;
+
+  /* Set the iterations threshold to 2 iterations
+   * for every non approximated root. */
+  it_threshold = 2 * (s->n - computed_roots);
+
+  /* Save the number of already computed roots se we can check if this
+   * packet has been an improvement on that */
+  old_cr = computed_roots;
+  if (s->debug_level & MPS_DEBUG_PACKETS)
+    MPS_DEBUG (s, "There are %d roots already approximated", old_cr);
 
   MPS_DEBUG_WITH_INFO (s, "%d roots are already computed before this iteration packet", computed_roots)
 
@@ -116,21 +128,14 @@ mps_secular_ga_fiterate (mps_status * s, int maxit)
     }
 
   /* Check if the roots are improvable in floating point */
-  MPS_DEBUG_WITH_INFO (s,
-                       "Performed %d iterations with floating point arithmetic",
+  MPS_DEBUG_WITH_INFO (s, "Performed %d iterations with floating point arithmetic",
                        nit);
 
   if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
-    {
       mps_dump (s, s->logstr);
-    }
 
-  if (nit <= s->n && computed_roots == s->n)
-    {
-      MPS_DEBUG_WITH_INFO (s,
-                           "Iterations were less that the roots and all the roots were computed");
+  if (nit <= it_threshold || old_cr == computed_roots)
       s->secular_equation->best_approx = true;
-    }
 
   mps_fcluster (s, 2.0 * s->n);
   mps_fmodify (s);
@@ -139,11 +144,6 @@ mps_secular_ga_fiterate (mps_status * s, int maxit)
     {
       if (s->status[i][0] == 'C')
         s->status[i][0] = 'c';
-
-      if (s->status[i][0] == 'a' || s->status[i][0] == 'i')
-        s->again[i] = false;
-      else
-        s->again[i] = true;
     }
 
   /* Count time taken  */
@@ -173,6 +173,7 @@ mps_secular_ga_diterate (mps_status * s, int maxit)
   int i;
   int nit = 0;
   int it_threshold;
+  int old_cr;
 
 #ifndef DISABLE_DEBUG
   clock_t *my_clock = mps_start_timer ();
@@ -190,6 +191,12 @@ mps_secular_ga_diterate (mps_status * s, int maxit)
   /* Set the iterations threshold to 2 iterations
    * for every non approximated root. */
   it_threshold = 2 * (s->n - computed_roots);
+  
+  /* Save the old number of computed roots */
+  old_cr = computed_roots;
+
+  if (s->debug_level & MPS_DEBUG_PACKETS)
+    MPS_DEBUG (s, "There are %d roots already approximated", computed_roots);
 
   /* Use this dump only for debugging purpose */
   /* mps_dump (s, s->logstr); */
@@ -244,8 +251,10 @@ mps_secular_ga_diterate (mps_status * s, int maxit)
     {
       mps_dump (s, s->logstr);
     }
-  if (nit <= it_threshold)
+  if (nit <= it_threshold || (old_cr == computed_roots))
     {
+      if (s->debug_level & MPS_DEBUG_PACKETS)
+	MPS_DEBUG (s, "Setting best_approx to true");
       s->secular_equation->best_approx = true;
     }
 
@@ -256,10 +265,10 @@ mps_secular_ga_diterate (mps_status * s, int maxit)
     {
       if (s->status[i][0] == 'C')
         s->status[i][0] = 'c';
-      if (s->status[i][0] == 'a' || s->status[i][0] == 'i')
-        s->again[i] = false;
-      else
-        s->again[i] = true;
+      /* if (s->status[i][0] == 'a' || s->status[i][0] == 'i') */
+      /*   s->again[i] = false; */
+      /* else */
+      /*   s->again[i] = true; */
     }
 
   /* These lines are used to debug the again vector, but are not useful
@@ -706,18 +715,16 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
         }
 
 
-      /* This is too much verbose to be enabled even in the debugged version,
-       * so do not display it (unless we are trying to catch some errors on
-       * coefficient regeneration). */
-
-      /*
-         for (i = 0; i < s->n; i++)
-         {
-         MPS_DEBUG_MPC(s, 15, sec->ampc[i], "sec->ampc[%d]", i);
-         MPS_DEBUG_MPC(s, 15, sec->bmpc[i], "sec->bmpc[%d]", i);
-         }
-       */
-
+      if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
+	{
+	  MPS_DEBUG (s, "Dumping regenerated coefficients");
+	  for (i = 0; i < s->n; i++)
+	    {
+	      MPS_DEBUG_MPC(s, 15, sec->ampc[i], "sec->ampc[%d]", i);
+	      MPS_DEBUG_MPC(s, 15, sec->bmpc[i], "sec->bmpc[%d]", i);
+	    }
+	}
+       
       mpc_vclear (old_ma, s->n);
       mpc_vclear (old_mb, s->n);
       mpc_vfree (old_ma);
@@ -732,6 +739,11 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
       break;
 
     }                           /* End of switch (s->lastphase) */
+
+  /* If the coefficients have been regenerated, all the roots are candidates
+   * for being iterated more */
+  for (int i = 0; i < s->n; ++i)
+      s->again[i] = true;
 
   /* Sum execution time to the total counter */
 #ifndef DISABLE_DEBUG
@@ -785,7 +797,7 @@ mps_secular_ga_check_stop (mps_status * s)
                                    "Root %d is not isolated, nor approximated, so we can't stop now.",
                                    i);
 	      MPS_DEBUG_WITH_INFO (s,
-				   "Status of root %d: %d", i, s->status[i][0]);
+				   "Status of root %d: %c", i, s->status[i][0]);
               return false;
             }
           break;

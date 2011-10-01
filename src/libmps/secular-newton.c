@@ -215,8 +215,8 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
   rdpe_mul_eq (new_rad, rtmp);
   rdpe_mul_eq_d (new_rad, s->n);
 
-  MPS_DEBUG_RDPE (s, new_rad, "new_rad");
-  MPS_DEBUG_CDPE (s, corr, "corr");
+  /* MPS_DEBUG_RDPE (s, new_rad, "new_rad");
+     MPS_DEBUG_CDPE (s, corr, "corr"); */
   
   /* Check for the rad for being zero. If that is
    * the case, set the root as approximated, with

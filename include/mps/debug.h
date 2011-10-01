@@ -56,14 +56,19 @@ extern "C"
 /**
  * @brief Shorthand for compiling with the MPS_DEBUG_INFO level.
  */
-#define MPS_DEBUG_WITH_INFO(s, templ...) if (s->debug_level & MPS_DEBUG_INFO) { \
-    MPS_DEBUG(s, templ); \
+#define MPS_DEBUG_WITH_INFO(s, templ...) { \
+  if (s->debug_level & MPS_DEBUG_INFO) {   \
+    MPS_DEBUG(s, templ);		   \
+  }					   \
 }
 
-#define MPS_DEBUG(s, templ...) __MPS_DEBUG(s, templ) ; \
-if (s->DOLOG) { \
-    fprintf(s->logstr, "\n"); \
+#define MPS_DEBUG(s, templ...) { \
+  __MPS_DEBUG(s, templ) ;	 \
+  if (s->DOLOG) {		 \
+    fprintf(s->logstr, "\n");	 \
+  }				 \
 }
+
 #endif
 
 /**
@@ -212,16 +217,20 @@ gmp_fprintf(s->logstr, templ); \
 #ifdef __MPS_DEBUG
 #undef __MPS_DEBUG
 #endif
-#define MPS_DEBUG if (s->DOLOG && mps_is_a_tty(s->logstr))\
+#define MPS_DEBUG { \
+  if (s->DOLOG && mps_is_a_tty(s->logstr))				\
     fprintf(s->logstr, "%s:%d \033[32;1m%s()\033[;0m ", __FILE__, __LINE__, __FUNCTION__); \
     if (s->DOLOG && !mps_is_a_tty(s->logstr))\
         fprintf(s->logstr, "%s:%d %s() ", __FILE__, __LINE__, __FUNCTION__); \
-    __c_impl__MPS_DEBUG
-#define __MPS_DEBUG if (s->DOLOG && mps_is_a_tty(s->logstr))\
+    __c_impl__MPS_DEBUG \
+      }
+#define __MPS_DEBUG { \
+  if (s->DOLOG && mps_is_a_tty(s->logstr))				\
     fprintf(s->logstr, "%s:%d \033[32;1m%s()\033[;0m ", __FILE__, __LINE__, __FUNCTION__); \
     if (s->DOLOG && !mps_is_a_tty(s->logstr))\
         fprintf(s->logstr, "%s:%d %s() ", __FILE__, __LINE__, __FUNCTION__); \
-    __c_impl____MPS_DEBUG
+    __c_impl____MPS_DEBUG \
+}
   void __c_impl__MPS_DEBUG (mps_status * s, const char *templ, ...);
   void __c_impl____MPS_DEBUG (mps_status * s, const char *templ, ...);
 #endif
@@ -274,16 +283,21 @@ gmp_fprintf(s->logstr, templ); \
 #define MPS_DEBUG_MEMORY (0x01 << 7)
 
  /**
+  * @brief Debug checks for the convergence
+  * of the various iterations packets.
+  */
+#define MPS_DEBUG_PACKETS (0x01 << 8)
+
+ /**
   * @brief This is the flag used to debug informations
   * about virtually every step in the program, it enables
   * every debug level.
   */
-#define MPS_DEBUG_TRACE    (0xFF)
+#define MPS_DEBUG_TRACE    (0xFFFF)
 
-#define MPS_DEBUG_IF(debug_level, debug_intruction) \
-    if (debug_level & s->debug_level) { \
+#define MPS_DEBUG_IF(s, debug_level, debug_instruction)	if (debug_level & s->debug_level) { \
         debug_instruction; \
-}
+    }
 
 
 #ifdef	__cplusplus
