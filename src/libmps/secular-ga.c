@@ -135,8 +135,6 @@ mps_secular_ga_fiterate (mps_status * s, int maxit)
   mps_fcluster (s, 2.0 * s->n);
   mps_fmodify (s);
 
-
-
   for (i = 0; i < s->n; i++)
     {
       if (s->status[i][0] == 'C')
@@ -192,6 +190,9 @@ mps_secular_ga_diterate (mps_status * s, int maxit)
   /* Set the iterations threshold to 2 iterations
    * for every non approximated root. */
   it_threshold = 2 * (s->n - computed_roots);
+
+  /* Use this dump only for debugging purpose */
+  /* mps_dump (s, s->logstr); */
 
   while (computed_roots < s->n && iterations < maxit - 1)
     {
@@ -981,8 +982,14 @@ mps_secular_ga_mpsolve (mps_status * s)
   s->outstr = s->rtstr = stdout;
   packet = 0;
 
+  /* Set the maximum possible radius even in DPE, since
+   * we may be starting directly from the DPE phase */
   for (i = 0; i < s->n; i++)
-    s->frad[i] = DBL_MAX;
+    {
+      s->frad[i] = DBL_MAX;
+      rdpe_set (s->drad[i], RDPE_MAX);
+    }
+  
 
   /* Set initial cluster structure as no cluster structure. */
   mps_cluster_reset (s);
