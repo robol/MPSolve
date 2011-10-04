@@ -341,11 +341,12 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
        * Gerschgorin radius */
       if (!MPS_STRUCTURE_IS_FP (s->secular_equation->input_structure))
         {
-          mpc_sub (ctmp2, x, s->secular_equation->initial_ampc[i]);
+          mpc_sub (ctmp2, x, s->secular_equation->initial_bmpc[i]);
           mpc_get_cdpe (cdtmp2, ctmp2);
         }
       else
         mpc_get_cdpe (cdtmp2, ctmp);
+
       cdpe_mul_eq (prod_b, cdtmp2);
       mpc_sub (ctmp2, x, s->mroot[i]);
       mpc_get_cdpe (cdtmp2, ctmp2);
@@ -406,16 +407,16 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
   rdpe_mul_eq_d (new_rad, 1 + DBL_EPSILON);
   rdpe_mul_eq_d (new_rad, s->n);
 
-  for (i = 0; i < s->n; i++)
-    {
-      mpc_sub (ctmp, x, s->mroot[i]);
-      mpc_get_cdpe (cdtmp, ctmp);
-      if (cdpe_eq_zero (cdtmp))
-        continue;
+  /* for (i = 0; i < s->n; i++) */
+  /*   { */
+  /*     mpc_sub (ctmp, x, s->mroot[i]); */
+  /*     mpc_get_cdpe (cdtmp, ctmp); */
+  /*     if (cdpe_eq_zero (cdtmp)) */
+  /*       continue; */
 
-      cdpe_mod (rtmp, cdtmp);
-      rdpe_div (new_rad, new_rad, rtmp);
-    }
+  /*     cdpe_mod (rtmp, cdtmp); */
+  /*     rdpe_div (new_rad, new_rad, rtmp); */
+  /*   } */
 
   /* Correct the old radius with the move that we are doing
    * and check if the new proposed radius is preferable. */
