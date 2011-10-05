@@ -306,6 +306,7 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
   mpc_set_d (sumb, 0, 0);
   mpc_set_d (pol, 0, 0);
   mpc_set_d (fp, 0, 0);
+  cdpe_set (prod_b, cdpe_one);
 
   for (i = 0; i < sec->n; i++)
     {
@@ -339,12 +340,12 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
 
       /* Compute prod [ (z - b_i) / (z - z_j) ] that will be used for
        * Gerschgorin radius */
-      if (!MPS_STRUCTURE_IS_FP (s->secular_equation->input_structure))
-        {
-          mpc_sub (ctmp2, x, s->secular_equation->initial_bmpc[i]);
-          mpc_get_cdpe (cdtmp2, ctmp2);
-        }
-      else
+       if (!MPS_STRUCTURE_IS_FP (s->secular_equation->input_structure)) 
+         { 
+           mpc_sub (ctmp2, x, s->secular_equation->initial_bmpc[i]); 
+           mpc_get_cdpe (cdtmp2, ctmp2); 
+         } 
+       else 
         mpc_get_cdpe (cdtmp2, ctmp);
 
       cdpe_mul_eq (prod_b, cdtmp2);
@@ -358,7 +359,7 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
       /* Compute (z-b_i)^{-1} */
       mpc_inv_eq (ctmp);
 
-      /* Multiply sum of (z-b_i)^{-1} */
+      /* Add to the sum of (z-b_i)^{-1} */
       mpc_add_eq (sumb, ctmp);
 
       /* Compute a_i / (z - b_i)  */
@@ -374,10 +375,6 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
       mpc_sub_eq (fp, ctmp2);
     }
 
-  /* Get in cdtmp the sum of a_i / (z - b_i) that will be useful later */
-  mpc_get_cdpe (cdtmp, pol);
-  cdpe_mod (rtmp, cdtmp);
-
   /* If x != b_i for every b_i finalize the computation */
   if (!x_is_b)
     {
@@ -390,7 +387,10 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
       if (!mpc_eq_zero (ctmp))
         mpc_div (corr, pol, ctmp);
       else
-        mpc_set (corr, pol);
+	{
+	  MPS_DEBUG (s, "The derivative is null!");
+	  mpc_set (corr, pol);
+	}
     }
 
   /* Computation of radius with Gerschgorin */
@@ -406,6 +406,9 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
   rdpe_mul_eq (new_rad, rtmp);
   rdpe_mul_eq_d (new_rad, 1 + DBL_EPSILON);
   rdpe_mul_eq_d (new_rad, s->n);
+
+  /* MPS_DEBUG_MPC (s, 10, x, "x"); */
+  /* MPS_DEBUG_MPC (s, 10, pol, "pol"); */
 
   /* for (i = 0; i < s->n; i++) */
   /*   { */

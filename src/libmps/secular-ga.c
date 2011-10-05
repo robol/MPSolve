@@ -434,6 +434,11 @@ mps_secular_ga_miterate (mps_status * s, int maxit)
 	  fprintf (s->logstr, "%d ", s->again[i]);
 	}
       fprintf (s->logstr, "\n");
+      __MPS_DEBUG (s, "Status = ");
+      for (i = 0; i < s->n; i++)
+	{
+	  fprintf (s->logstr, "%c ", s->status[i][0]);
+	}
       mps_dump (s, s->logstr);
     }
   
@@ -1084,7 +1089,7 @@ mps_secular_ga_mpsolve (mps_status * s)
       packet++;
 
       /* Check if all roots were approximated with the
-       * given input precision                      */
+       * given input precision                      */      
       if (mps_secular_ga_check_stop (s))
         {
           break;
@@ -1094,16 +1099,14 @@ mps_secular_ga_mpsolve (mps_status * s)
        * continue to iterate, unless the best approximation possible in
        * this precision has been reached. In that case increase the precision
        * of the computation. */
-      if (sec->best_approx)
-        mps_secular_ga_regenerate_coefficients (s);
-      else
-        skip_check_stop = true;
+      if (s->lastphase != mp_phase)
+	{
+	  if (sec->best_approx)
+	    mps_secular_ga_regenerate_coefficients (s);
+	  else
+	    skip_check_stop = true;
+	}
       
-      /* Instead of using else we recheck best approx because it could
-       * have been set by the coefficient regeneration */
-      /* if (roots_computed == s->n || (packet > 15 ||
-                                     (s->lastphase == mp_phase
-				     && packet > 3))) */
       if (packet > s->max_pack)
 	{
 	  mps_error (s, 1, "Maximum number of iteration passed. Aborting.");
@@ -1122,7 +1125,7 @@ mps_secular_ga_mpsolve (mps_status * s)
               /* Raising precision otherwise */
               mps_secular_raise_precision (s, 2 * s->mpwp);
               mps_secular_ga_regenerate_coefficients (s);
-              skip_check_stop = false;
+              skip_check_stop = true;
 
 	      for (i = 0; i < s->n; ++i)
 		{
