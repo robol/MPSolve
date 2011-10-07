@@ -82,7 +82,7 @@ mps_secular_ga_fiterate (mps_status * s, int maxit)
               cplx_set (old_root, s->froot[i]);
               old_rad = s->frad[i];
               mps_secular_fnewton (s, s->froot[i], &s->frad[i], corr,
-                                   &s->again[i]);
+                                   &s->again[i], &i);
 
               /* Apply Aberth correction */
               mps_faberth (s, i, abcorr);
@@ -215,7 +215,7 @@ mps_secular_ga_diterate (mps_status * s, int maxit)
             {
               nit++;
               mps_secular_dnewton (s, s->droot[i], s->drad[i], corr,
-                                   &s->again[i]);
+                                   &s->again[i], &i);
 	      
               /* Apply Aberth correction */
               mps_daberth (s, i, abcorr);
@@ -230,7 +230,6 @@ mps_secular_ga_diterate (mps_status * s, int maxit)
                   /* Correct the radius */
                   cdpe_mod (modcorr, abcorr);
                   rdpe_add_eq (s->drad[i], modcorr);
-
                 }
               else
                 {
@@ -370,7 +369,7 @@ mps_secular_ga_miterate (mps_status * s, int maxit)
                 {
                   nit++;
                   mps_secular_mnewton (s, s->mroot[k], s->drad[k], corr,
-                                       &s->again[k]);
+                                       &s->again[k], &k);
 
                   /* Apply Aberth correction */
                   mps_maberth_s (s, k, i, abcorr);
@@ -480,6 +479,8 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s)
   mpc_t prod_b, sec_ev;
   mpc_t ctmp, btmp;
   mps_secular_equation *sec = s->secular_equation;
+  rdpe_t eps_tmp, rtmp, sec_eps, rtmp2;
+  cdpe_t cdtmp, cdtmp2;
 
 regenerate_m_start:
 
@@ -514,10 +515,26 @@ regenerate_m_start:
       mpc_set_ui (prod_b, 1, 0);
       mpc_set_ui (sec_ev, 0, 0);
 
+      /* Set the regeneration of epsilon of this root to zero and keep
+       * the module of b[i] in here since will be used later */
+      rdpe_set (sec->dregeneration_epsilon[i], rdpe_zero);
+      rdpe_set (sec_eps, rdpe_zero);
+      mpc_get_cdpe (cdtmp, sec->bmpc[i]);
+      cdpe_mod (eps_tmp, cdtmp);
+
       for (j = 0; j < sec->n; j++)
         {
           /* Compute 1 / (b_i - old_b_j) */
           mpc_sub (btmp, sec->bmpc[i], sec->initial_bmpc[j]);
+
+	  /* Compute the local error given here */
+	  mpc_get_cdpe (cdtmp, sec->initial_bmpc[j]);
+	  cdpe_mod (rtmp, cdtmp);
+	  rdpe_add_eq (rtmp, eps_tmp);
+	  mpc_get_cdpe (cdtmp2, btmp);
+	  cdpe_mod (rtmp2, cdtmp2);
+	  rdpe_div_eq (rtmp, rtmp2);
+	  rdpe_mul_eq (sec->dregeneration_epsilon[i], rtmp);
 
           /* If b - old_b is zero, abort the computation */
           if (mpc_eq_zero (btmp))
@@ -537,6 +554,12 @@ regenerate_m_start:
           mpc_mul_eq (ctmp, sec->initial_ampc[j]);
           mpc_add_eq (sec_ev, ctmp);
 
+	  /* Save the module of a_j / (b_i - old_b_j) to compute the
+	   * error later */
+	  mpc_get_cdpe (cdtmp, ctmp);
+	  cdpe_mod (rtmp, cdtmp);
+	  rdpe_add_eq (sec_eps, rtmp);
+
           /* Multiply prod_b for
            * b_i - b_j if i \neq j and prod_old_b
            * for b_i - old_b_i.  */
@@ -545,17 +568,51 @@ regenerate_m_start:
             {
               mpc_sub (ctmp, sec->bmpc[i], sec->bmpc[j]);
               mpc_div_eq (prod_b, ctmp);
+
+	      /* Compute the error in here */
+	      mpc_get_cdpe (cdtmp, sec->bmpc[j]);
+	      cdpe_mod (rtmp, cdtmp);
+	      rdpe_add_eq (rtmp, eps_tmp);
+	      mpc_get_cdpe (cdtmp2, ctmp);
+	      cdpe_mod (rtmp2, cdtmp2);
+	      rdpe_div_eq (rtmp, rtmp2);
+	      rdpe_add_eq (sec->dregeneration_epsilon[i], rtmp);
             }
         }
 
       /* Compute the new a_i as sec_ev * prod_old_b / prod_b */
       mpc_sub_eq_ui (sec_ev, 1, 0);
       mpc_mul (sec->ampc[i], sec_ev, prod_b);
+
+      /* Compute the error obtained */
+      rdpe_add_eq (sec_eps, rdpe_one);
+      rdpe_mul_eq (sec->dregeneration_epsilon[i], s->mp_epsilon);
+      rdpe_mul_eq (sec_eps, s->mp_epsilon);
+
+      /* Relative error */
+      mpc_get_cdpe (cdtmp, sec_ev);
+      cdpe_mod (rtmp, cdtmp);
+      /* MPS_DEBUG_RDPE (s, sec->dregeneration_epsilon[i], "dreg"); */
+      /* MPS_DEBUG_RDPE (s, sec_eps, "sec_eps"); */
+      /* MPS_DEBUG_RDPE (s, rtmp, "sec_ev"); */
+      rdpe_div_eq (sec_eps, rtmp);
+
+      /* Sum the two for the moltiplication */
+      rdpe_add_eq (sec->dregeneration_epsilon[i], sec_eps);
+      if (s->debug_level & MPS_DEBUG_REGENERATION)
+	{
+	  MPS_DEBUG_RDPE (s, sec_eps, "Relative error on sec_ev(b_%d)", i);
+	  MPS_DEBUG_RDPE (s, sec->dregeneration_epsilon[i],
+			  "Relative error on a_%d", i);
+	}
+      /* And the get the abolute error */
+      /* mpc_get_cdpe (cdtmp, sec->ampc[i]); cdpe_mod (rtmp, cdtmp);
+	 rdpe_mul_eq (sec->dregeneration_epsilon[i], rtmp); */
     }
 
-
-  /* mps_secular_raise_coefficient_precision (s, s->mpwp); */
-
+  
+  mps_secular_raise_coefficient_precision (s, s->mpwp);
+  rdpe_set_2dl (s->mp_epsilon, 1.0, -s->mpwp + 1);
 
 regenerate_m_exit:
 
@@ -592,7 +649,6 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
 #endif
 
   sec = (mps_secular_equation *) s->secular_equation;
-  sec->need_restart = true;
 
   switch (s->lastphase)
     {
@@ -634,8 +690,10 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
             {
               mpc_get_cplx (sec->bfpc[i], sec->bmpc[i]);
               mpc_get_cplx (sec->afpc[i], sec->ampc[i]);
+	      sec->fregeneration_epsilon[i] = rdpe_get_d (sec->dregeneration_epsilon[i]);
             }
 
+	  
           mps_secular_set_radii (s);
         }
 
@@ -915,7 +973,7 @@ mps_secular_ga_improve (mps_status * s)
       for (j = 0; j < iterations; j++)
         {
           mps_secular_mnewton (s, s->mroot[i], s->drad[i], nwtcorr,
-                               &s->again[i]);
+                               &s->again[i], NULL);
           mpc_sub_eq (s->mroot[i], nwtcorr);
 
           /* Debug iterations */
@@ -1113,7 +1171,7 @@ mps_secular_ga_mpsolve (mps_status * s)
 	  return;
 	}
 
-      if (s->secular_equation->best_approx)
+      if (s->secular_equation->best_approx && packet > 4)
         {
           /* Going to multiprecision if we're not there yet */
           if (s->lastphase != mp_phase)

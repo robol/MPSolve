@@ -41,13 +41,13 @@ extern "C"
 /* Routines in secular-newton.c */
   void
     mps_secular_fnewton (mps_status * st, cplx_t x, double *rad, cplx_t corr,
-                         mps_boolean * again);
+                         mps_boolean * again, void * user_data);
   void
     mps_secular_dnewton (mps_status * st, cdpe_t x, rdpe_t rad, cdpe_t corr,
-                         mps_boolean * again);
+                         mps_boolean * again, void * user_data);
   void
     mps_secular_mnewton (mps_status * st, mpc_t x, rdpe_t rad, mpc_t corr,
-                         mps_boolean * again);
+                         mps_boolean * again, void * user_data);
 
 /* Routines in secular.c */
   void mps_secular_deflate (mps_status * s, mps_secular_equation * sec);

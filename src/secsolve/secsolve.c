@@ -74,7 +74,7 @@ main (int argc, char **argv)
           ga = true;
           break;
         case 'o':
-          s->prec_out = atoi (opt->optvalue) * LOG2_10;
+          s->prec_out = atoi (opt->optvalue) * LOG2_10 + 2;
           break;
         case 'i':
           s->goal[0] = 'i';

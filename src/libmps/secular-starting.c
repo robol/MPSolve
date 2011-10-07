@@ -36,23 +36,6 @@ mps_secular_fstart (mps_status * s, int n, int i_clust, double clust_rad,
         sigma = mps_maximize_distance (s, s->last_sigma, i_clust, n);
     }
 
-  /* Determine a suitable epsilon to move the roots */
-  double a_eps = 0;
-  double tmp;
-  if (sec->need_restart)
-    {
-      for (i = 0; i < s->n; i++)
-        {
-          tmp = cplx_mod (s->secular_equation->afpc[i]);
-          if (tmp > a_eps)
-            a_eps = tmp;
-        }
-      a_eps *= s->n;
-      a_eps *= DBL_EPSILON;
-    }
-  else
-    a_eps = DBL_EPSILON;
-
   /* The roots are set as the b_i plus a small correction that is the
    * disposition on the unit cicle scaled to DBL_EPSILON */
   for (i = 0; i < s->n; i++)
@@ -66,7 +49,6 @@ mps_secular_fstart (mps_status * s, int n, int i_clust, double clust_rad,
       MPS_DEBUG_CPLX (s, s->froot[i + l], "s->froot[%d]", l + i);
     }
 
-  sec->need_restart = false;
 }
 
 void
@@ -115,7 +97,6 @@ mps_secular_dstart (mps_status * s, int n, int i_clust, rdpe_t clust_rad,
       /* cdpe_set (s->droot[l +i], sec->bdpc[l + i]); */
     }
 
-  sec->need_restart = false;
 }
 
 void
@@ -170,5 +151,4 @@ mps_secular_mstart (mps_status * s, int n, int i_clust, rdpe_t clust_rad,
     }
 
   mpc_clear (epsilon);
-  sec->need_restart = false;
 }

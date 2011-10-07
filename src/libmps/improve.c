@@ -177,7 +177,7 @@ mps_improve (mps_status * s)
             }
           else if (s->mnewton_usr != NULL)
             {
-              (*s->mnewton_usr) (s, s->mroot[i], s->drad[i], nwtcorr, &again);
+              (*s->mnewton_usr) (s, s->mroot[i], s->drad[i], nwtcorr, &again, NULL);
             }
           else
             {

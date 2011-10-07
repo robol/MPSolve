@@ -203,8 +203,12 @@ mps_secular_equation_new_raw (mps_status * s, unsigned long int n)
   mpq_vinit (sec->initial_ampqic, n);
   mpq_vinit (sec->initial_bmpqic, n);
 
+  /* Epsilon arrays */
+  sec->dregeneration_epsilon = rdpe_valloc (n);
+  sec->fregeneration_epsilon = double_valloc (n);
+
   sec->n = n;
-  sec->need_restart = true;
+  
   return sec;
 }
 
@@ -288,6 +292,10 @@ mps_secular_equation_free (mps_secular_equation * s)
   mpq_vfree (s->initial_bmpqrc);
   mpq_vfree (s->initial_ampqic);
   mpq_vfree (s->initial_bmpqic);
+
+  /* Epsilon arrays */
+  rdpe_vfree (s->dregeneration_epsilon);
+  free (s->fregeneration_epsilon);
 
   /* ...and then release it */
   free (s);

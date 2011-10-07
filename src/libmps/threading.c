@@ -223,7 +223,7 @@ mps_thread_fpolzer_worker (void *data_ptr)
             }
           else if (s->fnewton_usr != NULL)
             {
-              (*s->fnewton_usr) (s, froot, &s->frad[i], corr, &s->again[i]);
+              (*s->fnewton_usr) (s, froot, &s->frad[i], corr, &s->again[i], NULL);
             }
           else
             {
@@ -394,7 +394,7 @@ mps_thread_dpolzer_worker (void *data_ptr)
           else if (s->dnewton_usr != NULL)
             {
               (*s->dnewton_usr) (s, s->droot[i], s->drad[i], corr,
-                                 &s->again[i]);
+                                 &s->again[i], NULL);
             }
           else
             {
@@ -608,7 +608,7 @@ mps_thread_mpolzer_worker (void *data_ptr)
             }
           else /* user's polynomial */ if (s->mnewton_usr != NULL)
             {
-              (*s->mnewton_usr) (s, mroot, s->drad[l], corr, &s->again[l]);
+              (*s->mnewton_usr) (s, mroot, s->drad[l], corr, &s->again[l], NULL);
             }
           else
             {

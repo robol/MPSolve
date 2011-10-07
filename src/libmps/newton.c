@@ -547,6 +547,7 @@ mps_mnewton (mps_status * s, int n, mpc_t z, rdpe_t radius, mpc_t corr,
   rdpe_mul_d (rnew, absp, s->n);
   rdpe_div_eq (rnew, s->dap[0]);
 
+  rdpe_set (temp, rdpe_one);
   for (i = 0; i < s->n; i++)
     {
       mpc_sub (diff, z, s->mroot[i]);
@@ -554,9 +555,11 @@ mps_mnewton (mps_status * s, int n, mpc_t z, rdpe_t radius, mpc_t corr,
       if (!cdpe_eq (temp1, cdpe_zero))
         {
           cdpe_mod (absdiff, temp1);
-          rdpe_div_eq (rnew, absdiff);
+	  rdpe_mul_eq (temp, absdiff);
+          // rdpe_div_eq (rnew, absdiff);
         }
     }
+  rdpe_div_eq (rnew, temp);
 
   if (rdpe_lt (rnew, radius))
     rdpe_set (radius, rnew);
