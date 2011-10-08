@@ -78,7 +78,10 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
       cplx_add_eq (pol, ctmp2);
 
       /* Add its modulus to sec_eps */
-      sec_eps += cplx_mod (ctmp2) * (s->secular_equation->fregeneration_epsilon[*k] + DBL_EPSILON);
+      if (k)
+	sec_eps += cplx_mod (ctmp2) * (s->secular_equation->fregeneration_epsilon[*k] + DBL_EPSILON);
+      else
+	sec_eps += cplx_mod (ctmp2) * DBL_EPSILON;
 
       /* Compute a_i / (z - b_i)^2a */
       cplx_mul_eq (ctmp2, ctmp);
@@ -198,7 +201,10 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
       cdpe_mul (ctmp2, sec->adpc[i], ctmp);
       cdpe_add_eq (pol, ctmp2);
       cdpe_mod (rtmp, ctmp2);
-      rdpe_mul_eq (rtmp, s->secular_equation->dregeneration_epsilon[*k]);
+      if (k)
+	rdpe_mul_eq (rtmp, s->secular_equation->dregeneration_epsilon[*k]);
+      else
+	rdpe_mul_eq (rtmp, s->mp_epsilon);
       rdpe_add_eq (apol, rtmp);
 
       /* Compute a / (z - b_i)^2 and add it to the first derivative */
