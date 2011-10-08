@@ -136,13 +136,13 @@ mps_fnewton (mps_status * s, int n, cplx_t z, double *radius, cplx_t corr,
     }
 
   /* Computation of the radius using Gerschgorin */
-  *radius = cplx_mod (p) * s->n / s->fap[0];
+  *radius = cplx_mod (p) * s->n / s->fap[0] * (1 + DBL_EPSILON);
   cplx_t diff;
   for (i = 0; i < s->n; i++)
     {
       cplx_sub (diff, z, s->froot[i]);
       if (!cplx_eq_zero (diff))
-        *radius /= cplx_mod (diff);
+        *radius /= cplx_mod (diff) * (1 - DBL_EPSILON);
     }
 }
 
