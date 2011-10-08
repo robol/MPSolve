@@ -497,8 +497,7 @@ regenerate_m_start:
   if (MPS_STRUCTURE_IS_RATIONAL (sec->input_structure) ||
       MPS_STRUCTURE_IS_INTEGER (sec->input_structure))
     {
-      MPS_DEBUG_WITH_INFO (s,
-                           "Regenerating coefficients from the multiprecision input");
+      MPS_DEBUG_WITH_INFO (s, "Regenerating coefficients from the multiprecision input");
       for (i = 0; i < s->n; i++)
         {
           mpf_set_q (mpc_Re (sec->initial_ampc[i]), sec->initial_ampqrc[i]);
@@ -506,7 +505,6 @@ regenerate_m_start:
           mpf_set_q (mpc_Re (sec->initial_bmpc[i]), sec->initial_bmpqrc[i]);
           mpf_set_q (mpc_Im (sec->initial_bmpc[i]), sec->initial_bmpqic[i]);
         }
-
     }
 
   /* Compute the new a_i */
@@ -527,7 +525,8 @@ regenerate_m_start:
           /* Compute 1 / (b_i - old_b_j) */
           mpc_sub (btmp, sec->bmpc[i], sec->initial_bmpc[j]);
 
-	  /* Compute the local error given here */
+	  /* Compute the local relative error that ios introduce here, as 
+	  * eps = (|b_i| + |old_b_j|) * mp_eps / (b_i - old_b_j) + mp_eps*/
 	  mpc_get_cdpe (cdtmp, sec->initial_bmpc[j]);
 	  cdpe_mod (rtmp, cdtmp);
 	  rdpe_add_eq (rtmp, eps_tmp);
@@ -540,11 +539,9 @@ regenerate_m_start:
           if (mpc_eq_zero (btmp))
             {
               success = false;
-
               MPS_DEBUG_WITH_INFO (s,
                                    "Cannot regenerate coefficients, reusing old ones and setting best_approx to true.");
               s->secular_equation->best_approx = true;
-
               goto regenerate_m_exit;
             }
 
@@ -555,7 +552,7 @@ regenerate_m_start:
           mpc_add_eq (sec_ev, ctmp);
 
 	  /* Save the module of a_j / (b_i - old_b_j) to compute the
-	   * error later */
+	   * relative error in the secular equation evalutation later */
 	  mpc_get_cdpe (cdtmp, ctmp);
 	  cdpe_mod (rtmp, cdtmp);
 	  rdpe_add_eq (sec_eps, rtmp);
@@ -605,9 +602,6 @@ regenerate_m_start:
 	  MPS_DEBUG_RDPE (s, sec->dregeneration_epsilon[i],
 			  "Relative error on a_%d", i);
 	}
-      /* And the get the abolute error */
-      /* mpc_get_cdpe (cdtmp, sec->ampc[i]); cdpe_mod (rtmp, cdtmp);
-	 rdpe_mul_eq (sec->dregeneration_epsilon[i], rtmp); */
     }
 
   
@@ -951,6 +945,8 @@ mps_secular_ga_improve (mps_status * s)
 
       /* Find correct digits and maximum number of iterations */
       int correct_digits = rdpe_log10 (rtmp);
+      if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
+	MPS_DEBUG (s, "Root %d has %d correct digits", i, correct_digits);
       int iterations =
         log (s->prec_out / correct_digits / LOG2_10) * LOG2_10 + 1;
       iterations = (iterations > 0) ? iterations : 0;

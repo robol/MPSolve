@@ -376,6 +376,8 @@ mps_secular_raise_coefficient_precision (mps_status * s, int wp)
 
       mpc_set_prec (sec->initial_ampc[i], wp);
       mpc_set_prec (sec->initial_bmpc[i], wp);
+
+      
     }
   rdpe_set_2dl (s->mp_epsilon, 1.0, -wp);
   // MPS_DEBUG_WITH_INFO (s, "Precision of the coefficients is now at %d bits", wp);
@@ -443,6 +445,14 @@ mps_secular_switch_phase (mps_status * s, mps_phase phase)
   mps_secular_equation *sec = (mps_secular_equation *) s->secular_equation;
   if (phase == mp_phase)
     {
+      /* Debug the approximations that we have now before going
+       * to the multiprecision phase */
+      if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
+	{
+	  MPS_DEBUG (s, "Dumping current approximations before starting MP");
+	  mps_dump (s, s->logstr);
+	}
+
       mps_secular_raise_precision (s, MPS_SECULAR_STARTING_MP_PRECISION);
       switch (s->lastphase)
         {

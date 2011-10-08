@@ -342,13 +342,13 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
 
       /* Compute prod [ (z - b_i) / (z - z_j) ] that will be used for
        * Gerschgorin radius */
-      if (false && !MPS_STRUCTURE_IS_FP (s->secular_equation->input_structure)) 
-         { 
-           mpc_sub (ctmp2, x, s->secular_equation->initial_bmpc[i]); 
-           mpc_get_cdpe (cdtmp2, ctmp2); 
-         } 
-       else 
-        mpc_get_cdpe (cdtmp2, ctmp);
+      /* if (false && !MPS_STRUCTURE_IS_FP (s->secular_equation->input_structure))  */
+      /*    {  */
+      /*      mpc_sub (ctmp2, x, s->secular_equation->initial_bmpc[i]);  */
+      /*      mpc_get_cdpe (cdtmp2, ctmp2);  */
+      /*    }  */
+      /*  else  */
+      mpc_get_cdpe (cdtmp2, ctmp);
 
       cdpe_mul_eq (prod_b, cdtmp2);
       mpc_sub (ctmp2, x, s->mroot[i]);
@@ -374,7 +374,12 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
       mpc_get_cdpe (cdtmp, ctmp2);
       cdpe_mod (rtmp, cdtmp);
       if (k)
+	{
 	  rdpe_mul_eq (rtmp, s->secular_equation->dregeneration_epsilon[*k]);
+	  /* MPS_DEBUG_RDPE (s, s->secular_equation->dregeneration_epsilon[*k], */
+	  /* 		  "dregeneration_epsilon[%d]", *k); */
+	  /* MPS_DEBUG_RDPE (s, rtmp, "rtmp"); */
+	}
       else
 	rdpe_mul_eq (rtmp, s->mp_epsilon);
       rdpe_add_eq (s_eps, rtmp);
@@ -415,31 +420,27 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
   rdpe_mul_eq_d (new_rad, 1 + 4 * DBL_EPSILON);
 
   /* FIXME: Add the right epsilon here */
-  rdpe_mul_eq (s_eps, s->mp_epsilon);
-  rdpe_add_eq (new_rad, s_eps);
-  MPS_DEBUG_RDPE (s, s_eps, "s_eps");
+  /* rdpe_mul_eq (s_eps, ); */
+  rdpe_add_eq (s_eps, rdpe_one);
+  rdpe_mul_eq (new_rad, s_eps);
 
-  cdpe_mod (rtmp, prod_b);
-  rdpe_mul_eq_d (rtmp, 1 + 4 * DBL_EPSILON);
-  rdpe_mul_eq (new_rad, rtmp);
-  rdpe_mul_eq_d (new_rad, 1 + DBL_EPSILON);
-  rdpe_mul_eq_d (new_rad, s->n);
-
-  MPS_DEBUG_RDPE (s, new_rad, "Radius");
-
-  /* MPS_DEBUG_MPC (s, 10, x, "x"); */
-  MPS_DEBUG_MPC (s, 10, pol, "pol");
-
-  /* for (i = 0; i < s->n; i++) */
-  /*   { */
-  /*     mpc_sub (ctmp, x, s->mroot[i]); */
-  /*     mpc_get_cdpe (cdtmp, ctmp); */
-  /*     if (cdpe_eq_zero (cdtmp)) */
-  /*       continue; */
-
-  /*     cdpe_mod (rtmp, cdtmp); */
-  /*     rdpe_div (new_rad, new_rad, rtmp); */
-  /*   } */
+  /* If the relative error is greater than one
+   * follow an alternative approach, at least if
+   * we have the index on which we are iterating.*/
+  if (rdpe_lt (s_eps, rdpe_one))
+    {
+      cdpe_mod (rtmp, prod_b);
+      rdpe_mul_eq_d (rtmp, 1 + 4 * DBL_EPSILON);
+      rdpe_mul_eq (new_rad, rtmp);
+      rdpe_mul_eq_d (new_rad, 1 + DBL_EPSILON);
+      rdpe_mul_eq_d (new_rad, s->n);
+    }
+  else
+    {
+      rdpe_set (new_rad, RDPE_MAX);
+      if (s->debug_level & MPS_DEBUG_REGENERATION)
+	MPS_DEBUG (s, "The secular equation coefficients are badly conditioned, not using them to determine the inclusion radius");
+    }
 
   /* Correct the old radius with the move that we are doing
    * and check if the new proposed radius is preferable. */
