@@ -89,7 +89,7 @@ test_secsolve_on_pol (test_pol * pol)
     mps_status_select_algorithm (s, MPS_ALGORITHM_SECULAR_GA);
 
   strncpy (s->goal, "aannc", 5);
-  s->prec_out = (int) (pol->out_digits * LOG2_10) + 1;
+  s->prec_out = (int) ((pol->out_digits + 1) * LOG2_10) + 1;
   s->prec_in = 0;
 
   mps_mpsolve (s);
@@ -179,6 +179,20 @@ START_TEST (test_secsolve_simple)
   test_pol_free (pol);
 }
 END_TEST
+
+/**
+ * @brief Test secsolve on some secular representation
+ * of the wilkinson polynonmials. 
+ */
+START_TEST (test_secsolve_wilkinson)
+{
+  test_pol *pol = test_pol_new ("wilk20", "secsolve", 11, float_phase, true);
+  test_secsolve_on_pol (pol);
+
+  test_pol_free (pol);
+}
+END_TEST
+
 /**
  * @brief Create the secsolve test suite
  */
@@ -201,6 +215,9 @@ END_TEST
 
   /* Simple secular equation with cancellation problems */
   tcase_add_test (tc_mpsolve, test_secsolve_simple);
+
+  /* Wilkinson polynomials */
+  tcase_add_test (tc_mpsolve, test_secsolve_wilkinson);
 
   /* Add test case to the suite */
   suite_add_tcase (s, tc_mpsolve);
