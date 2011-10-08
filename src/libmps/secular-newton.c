@@ -111,7 +111,10 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
 
   /* Computation of radius with Gerschgorin */
   double new_rad;
-  new_rad = cplx_mod (pol) * s->n * prod_b * (1 + sec_eps);
+  if ((!k) || sec_eps < 1)
+    new_rad = cplx_mod (pol) * s->n * prod_b * (1 + sec_eps);
+  else
+    new_rad = DBL_MAX;
 
   /* Correct the old radius with the move that we are doing
    * and check if the new proposed radius is preferable. */
@@ -432,7 +435,11 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
 
   /* If the relative error is greater than one
    * follow an alternative approach, at least if
-   * we have the index on which we are iterating.*/
+   * we have the index on which we are iterating.
+   *
+   * Skip this step if the integer k of the index we
+   * are iterating on was not given in input, meaning
+   * that we should not consider the conditioning. */
   if (rdpe_lt (s_eps, rdpe_one) || (!k))
     {
       cdpe_mod (rtmp, prod_b);
@@ -451,7 +458,9 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
   /* Correct the old radius with the move that we are doing
    * and check if the new proposed radius is preferable. */
   if (rdpe_le (new_rad, rad))
-    rdpe_set (rad, new_rad);
+    {
+      rdpe_set (rad, new_rad);
+    }
   else
     {
       mpc_get_cdpe (cdtmp, corr);

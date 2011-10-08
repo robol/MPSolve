@@ -920,7 +920,7 @@ mps_secular_ga_improve (mps_status * s)
 
   mpc_t nwtcorr;
   cdpe_t ctmp;
-  rdpe_t rtmp;
+  rdpe_t rtmp, old_rad;
   mpc_init2 (nwtcorr, s->mpwp);
 
   int starting_precision = s->mpwp;
@@ -968,9 +968,20 @@ mps_secular_ga_improve (mps_status * s)
 
       for (j = 0; j < iterations; j++)
         {
+	  rdpe_set (old_rad, s->drad[i]);
           mps_secular_mnewton (s, s->mroot[i], s->drad[i], nwtcorr,
                                &s->again[i], NULL);
           mpc_sub_eq (s->mroot[i], nwtcorr);
+
+	  /* Compute quadratic radius */
+	  mpc_get_cdpe (ctmp, s->mroot[i]);
+	  cdpe_mod (rtmp, ctmp);
+	  rdpe_div_eq (old_rad, rtmp);
+	  rdpe_mul_eq (old_rad, old_rad);
+	  rdpe_mul_eq (old_rad, rtmp);
+
+	  if (rdpe_lt (old_rad, s->drad[i]))
+	    rdpe_set (s->drad[i], old_rad);
 
           /* Debug iterations */
           if (s->debug_level & MPS_DEBUG_IMPROVEMENT)
