@@ -136,7 +136,7 @@ mps_fnewton (mps_status * s, int n, cplx_t z, double *radius, cplx_t corr,
    *
    *  radius_i = n |p(x)| / (\prod_{j \neq i} |x_i - x_j|) 
    */
-  *radius = cplx_mod (p) * s->n / s->fap[0] * (1 + DBL_EPSILON);
+  *radius = cplx_mod (p) * s->n / fap[0] * (1 + DBL_EPSILON);
   cplx_t diff;
   for (i = 0; i < s->n; i++)
     {
@@ -232,7 +232,7 @@ mps_dnewton (mps_status * s, int n, cdpe_t z, rdpe_t radius, cdpe_t corr,
    *  radius_i = n |p(x)| / (\prod_{j \neq i} |x_i - x_j|) 
    */
   rdpe_mul_d (rnew, absp, s->n * (1 + DBL_EPSILON));
-  rdpe_div_eq (rnew, s->dap[0]);
+  rdpe_div_eq (rnew, dap[0]);
   for (i = 0; i < s->n; i++)
     {
       cdpe_sub (tmp, z, s->droot[i]);
@@ -244,7 +244,7 @@ mps_dnewton (mps_status * s, int n, cdpe_t z, rdpe_t radius, cdpe_t corr,
         }
     }
 
-  if (rdpe_lt (rnew, radius))
+  if (rdpe_le (rnew, radius))
     rdpe_set (radius, rnew);
 }
 
@@ -543,7 +543,7 @@ mps_mnewton (mps_status * s, int n, mpc_t z, rdpe_t radius, mpc_t corr,
    *  radius_i = n |p(x)| / (\prod_{j \neq i} |x_i - x_j|) 
    */
   rdpe_mul_d (rnew, absp, s->n);
-  rdpe_div_eq (rnew, s->dap[0]);
+  rdpe_div_eq (rnew, dap[0]);
   rdpe_add (rtmp, s->mp_epsilon, rdpe_one);
   rdpe_mul_eq (rnew, rtmp);
 
@@ -562,7 +562,7 @@ mps_mnewton (mps_status * s, int n, mpc_t z, rdpe_t radius, mpc_t corr,
     }
   rdpe_div_eq (rnew, temp);
 
-  if (rdpe_lt (rnew, radius))
+  if (rdpe_le (rnew, radius))
     rdpe_set (radius, rnew);
 
 exit_sub:
