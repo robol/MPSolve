@@ -127,15 +127,15 @@ mps_fnewton (mps_status * s, int n, cplx_t z, double *radius, cplx_t corr,
           cplx_mul_eq (corr, z);
           absp = cplx_mod (p);
           *cont = (absp > ap * eps);
-          /* *radius = cplx_mod (ppsp) + (eps * ap * az) / cplx_mod (p1);
-           *radius *= n / cplx_mod (den);
-           *radius *= az; */
-
         }
 
     }
 
-  /* Computation of the radius using Gerschgorin */
+  /* Computation of the radius using Gerschgorin, i.e. the radius
+   * of inclusion of the root i is equal to:
+   *
+   *  radius_i = n |p(x)| / (\prod_{j \neq i} |x_i - x_j|) 
+   */
   *radius = cplx_mod (p) * s->n / s->fap[0] * (1 + DBL_EPSILON);
   cplx_t diff;
   for (i = 0; i < s->n; i++)
@@ -226,8 +226,12 @@ mps_dnewton (mps_status * s, int n, cdpe_t z, rdpe_t radius, cdpe_t corr,
   rdpe_mul_d (apeps, ap, eps);
   *cont = rdpe_gt (absp, apeps);
 
-  /* Computation of the radius via Gerschgorin */
-  rdpe_mul_d (rnew, absp, s->n);
+  /* Computation of the radius using Gerschgorin, i.e. the radius
+   * of inclusion of the root i is equal to:
+   *
+   *  radius_i = n |p(x)| / (\prod_{j \neq i} |x_i - x_j|) 
+   */
+  rdpe_mul_d (rnew, absp, s->n * (1 + DBL_EPSILON));
   rdpe_div_eq (rnew, s->dap[0]);
   for (i = 0; i < s->n; i++)
     {
@@ -235,6 +239,7 @@ mps_dnewton (mps_status * s, int n, cdpe_t z, rdpe_t radius, cdpe_t corr,
       if (!cdpe_eq (tmp, cdpe_zero))
         {
           cdpe_mod (rtmp, tmp);
+	  rdpe_mul_eq_d (rtmp, 1 - DBL_EPSILON);
           rdpe_div_eq (rnew, rtmp);
         }
     }
@@ -437,7 +442,7 @@ mps_mnewton (mps_status * s, int n, mpc_t z, rdpe_t radius, mpc_t corr,
              mps_boolean spar[], mps_boolean * cont, int n_thread)
 {
   int i, n1, n2;
-  rdpe_t ap, az, absp, temp, rnew, ep, apeps, absdiff;
+  rdpe_t ap, az, absp, temp, rnew, ep, apeps, absdiff, rtmp;
   cdpe_t temp1;
   tmpc_t p, p1, diff;
 
@@ -531,21 +536,16 @@ mps_mnewton (mps_status * s, int n, mpc_t z, rdpe_t radius, mpc_t corr,
   cdpe_mod (temp, temp1);
   rdpe_mul (apeps, ap, ep);
   *cont = rdpe_gt (absp, apeps);
-  /* rdpe_add (rnew, absp, apeps);
-     rdpe_div_eq (rnew, temp); */
 
-  if (*cont)
-    {
-      /* rdpe_mul_d (radius, rnew, (double) n); */
-
-    }
-  else
-    {
-      /* rdpe_mul_eq_d (rnew, (double) (n + 1)); */
-    }
-
+  /* Computation of the radius using Gerschgorin, i.e. the radius
+   * of inclusion of the root i is equal to:
+   *
+   *  radius_i = n |p(x)| / (\prod_{j \neq i} |x_i - x_j|) 
+   */
   rdpe_mul_d (rnew, absp, s->n);
   rdpe_div_eq (rnew, s->dap[0]);
+  rdpe_add (rtmp, s->mp_epsilon, rdpe_one);
+  rdpe_mul_eq (rnew, rtmp);
 
   rdpe_set (temp, rdpe_one);
   for (i = 0; i < s->n; i++)
@@ -555,8 +555,9 @@ mps_mnewton (mps_status * s, int n, mpc_t z, rdpe_t radius, mpc_t corr,
       if (!cdpe_eq (temp1, cdpe_zero))
         {
           cdpe_mod (absdiff, temp1);
+	  rdpe_sub (rtmp, rdpe_one, s->mp_epsilon);
+	  rdpe_mul_eq (absdiff, rtmp);
 	  rdpe_mul_eq (temp, absdiff);
-          // rdpe_div_eq (rnew, absdiff);
         }
     }
   rdpe_div_eq (rnew, temp);
