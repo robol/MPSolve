@@ -687,7 +687,6 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
 	      sec->fregeneration_epsilon[i] = rdpe_get_d (sec->dregeneration_epsilon[i]);
             }
 
-	  
           mps_secular_set_radii (s);
         }
 
@@ -891,6 +890,7 @@ mps_secular_ga_improve (mps_status * s)
   MPS_DEBUG_THIS_CALL;
 
   int i;
+  mps_secular_equation  * sec = s->secular_equation;
 
   if (s->lastphase != mp_phase)
     mps_secular_switch_phase (s, mp_phase);
@@ -916,6 +916,8 @@ mps_secular_ga_improve (mps_status * s)
                      s->secular_equation->initial_bmpqrc[i],
                      s->secular_equation->initial_bmpqic[i]);
         }
+      rdpe_set (sec->dregeneration_epsilon[i],
+		s->mp_epsilon);
     }
 
   mpc_t nwtcorr;
@@ -945,7 +947,7 @@ mps_secular_ga_improve (mps_status * s)
 
       /* Find correct digits and maximum number of iterations */
       int correct_digits = rdpe_log10 (rtmp);
-      if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
+      if (s->debug_level & MPS_DEBUG_IMPROVEMENT)
 	MPS_DEBUG (s, "Root %d has %d correct digits", i, correct_digits);
       int iterations =
         log (s->prec_out / correct_digits / LOG2_10) * LOG2_10 + 1;
@@ -970,7 +972,7 @@ mps_secular_ga_improve (mps_status * s)
         {
 	  rdpe_set (old_rad, s->drad[i]);
           mps_secular_mnewton (s, s->mroot[i], s->drad[i], nwtcorr,
-                               &s->again[i], NULL);
+                               &s->again[i], &i);
           mpc_sub_eq (s->mroot[i], nwtcorr);
 
 	  /* Compute quadratic radius */
@@ -980,8 +982,8 @@ mps_secular_ga_improve (mps_status * s)
 	  rdpe_mul_eq (old_rad, old_rad);
 	  rdpe_mul_eq (old_rad, rtmp);
 
-	  if (rdpe_lt (old_rad, s->drad[i]))
-	    rdpe_set (s->drad[i], old_rad);
+	   if (rdpe_lt (old_rad, s->drad[i])) 
+	     rdpe_set (s->drad[i], old_rad); 
 
           /* Debug iterations */
           if (s->debug_level & MPS_DEBUG_IMPROVEMENT)

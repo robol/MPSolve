@@ -378,12 +378,16 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
       if (k)
 	{
 	  rdpe_mul_eq (rtmp, s->secular_equation->dregeneration_epsilon[*k]);
-	  /* MPS_DEBUG_RDPE (s, s->secular_equation->dregeneration_epsilon[*k], */
-	  /* 		  "dregeneration_epsilon[%d]", *k); */
-	  /* MPS_DEBUG_RDPE (s, rtmp, "rtmp"); */
+	   /* MPS_DEBUG_RDPE (s, s->secular_equation->dregeneration_epsilon[*k],  */
+	   /* 		  "dregeneration_epsilon[%d]", *k);  */
+	   /* MPS_DEBUG_RDPE (s, rtmp, "rtmp");  */
 	}
       else
-	rdpe_mul_eq (rtmp, s->mp_epsilon);
+	{
+	  rdpe_mul_eq (rtmp, s->mp_epsilon);
+	  rdpe_mul_eq_d (rtmp, 4);
+	}
+
       rdpe_add_eq (s_eps, rtmp);
 
       /* Compute a_i / (z - b_i)^2 */
@@ -441,6 +445,8 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
    * that we should not consider the conditioning. */
   if (rdpe_lt (s_eps, rdpe_one) || (!k))
     {
+      if (!k)
+	MPS_DEBUG_RDPE (s, s_eps, "s_eps");
       cdpe_mod (rtmp, prod_b);
       rdpe_mul_eq_d (rtmp, 1 + 4 * DBL_EPSILON);
       rdpe_mul_eq (new_rad, rtmp);
