@@ -93,6 +93,7 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
   /* Compute secular function */
   cplx_sub_eq (pol, cplx_one);
   sec_eps += DBL_EPSILON;
+  sec_eps /= cplx_mod (pol);
 
   /* If S(z) is the secular equation and
    * |S(z)| < eps => |z - z_0| < eps(1 + u) + (n+1)u
@@ -218,6 +219,10 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
   /* Compute poly */
   cdpe_sub_eq (pol, cdpe_one);
   rdpe_add_eq (apol, s->mp_epsilon);
+  
+  /* Compute relative error in apol */
+  cdpe_mod (rtmp, pol);
+  rdpe_div_eq (apol, rtmp);
 
   /* Compute correction */
   cdpe_mul (corr, pol, sumb);
@@ -233,15 +238,11 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
 
   cdpe_mod (new_rad, pol);
 
-  /* FIXME: Make a real check of that is the epsilon here. */
-  rdpe_add_eq_d (new_rad, 10 * s->n * DBL_EPSILON);
+  /* Compute the guaranteed inclusion radius */
   rdpe_mul_eq (new_rad, prod_b);
-  rdpe_mul_eq_d (new_rad, 1 + 8.0 * DBL_EPSILON);
-  rdpe_mul_eq_d (new_rad, s->n * (1.0 + DBL_EPSILON));
-  rdpe_add_eq (new_rad, apol);
-
-  /* MPS_DEBUG_RDPE (s, new_rad, "new_rad");
-     MPS_DEBUG_CDPE (s, corr, "corr"); */
+  rdpe_add_eq (apol, rdpe_one);
+  rdpe_mul_eq_d (apol, s->n);
+  rdpe_mul_eq (new_rad, apol);
   
   /* Check for the rad for being zero. If that is
    * the case, set the root as approximated, with
@@ -349,14 +350,6 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
           break;
         }
 
-      /* Compute prod [ (z - b_i) / (z - z_j) ] that will be used for
-       * Gerschgorin radius */
-      /* if (false && !MPS_STRUCTURE_IS_FP (s->secular_equation->input_structure))  */
-      /*    {  */
-      /*      mpc_sub (ctmp2, x, s->secular_equation->initial_bmpc[i]);  */
-      /*      mpc_get_cdpe (cdtmp2, ctmp2);  */
-      /*    }  */
-      /*  else  */
       mpc_get_cdpe (cdtmp2, ctmp);
 
       cdpe_mul_eq (prod_b, cdtmp2);
@@ -406,7 +399,7 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
       /* Subtract one from pol */
       mpc_sub_eq_ui (pol, 1, 0);
       rdpe_add_eq (s_eps, s->mp_epsilon);
-
+      
       /* Compute correction */
       mpc_mul (ctmp2, sumb, pol);
       mpc_add (ctmp, fp, ctmp2);
@@ -426,6 +419,12 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
   mpc_get_cdpe (x_cdpe, x);
   mpc_get_cdpe (cdtmp, pol);
   cdpe_mod (new_rad, cdtmp);
+
+  /* Compute relative error on pol using new_rad, so we can
+   * compute the error bound using 1 + s_eps * fl(radius) 
+   */
+  rdpe_div_eq (s_eps, new_rad);
+
   rdpe_mul_eq_d (new_rad, 1 + 4 * DBL_EPSILON);
 
   /* FIXME: Add the right epsilon here */

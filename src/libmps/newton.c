@@ -537,6 +537,11 @@ mps_mnewton (mps_status * s, int n, mpc_t z, rdpe_t radius, mpc_t corr,
   rdpe_mul (apeps, ap, ep);
   *cont = rdpe_gt (absp, apeps);
 
+  /* rdpe_add (rnew, absp, apeps); */
+  /* rdpe_div_eq (rnew, temp); */
+
+  /* rdpe_mul_d (radius, rnew, (double) n); */
+
   /* Computation of the radius using Gerschgorin, i.e. the radius
    * of inclusion of the root i is equal to:
    *
@@ -562,8 +567,8 @@ mps_mnewton (mps_status * s, int n, mpc_t z, rdpe_t radius, mpc_t corr,
     }
   rdpe_div_eq (rnew, temp);
 
-  if (rdpe_le (rnew, radius))
-    rdpe_set (radius, rnew);
+   if (rdpe_le (rnew, radius)) 
+     rdpe_set (radius, rnew); 
 
 exit_sub:
   tmpc_clear (p1);
