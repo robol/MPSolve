@@ -106,7 +106,7 @@ mps_fcompute_starting_radii (mps_status * s, int n, int i_clust,
                              double clust_rad, double g, rdpe_t eps,
                              double fap[])
 {
-
+  MPS_DEBUG_THIS_CALL;
   const double big = DBL_MAX, small = DBL_MIN;
   const double xbig = log (big), xsmall = log (small);
 
@@ -141,10 +141,13 @@ mps_fcompute_starting_radii (mps_status * s, int n, int i_clust,
     temp = 2 * xsmall;
 
   for (i = 0; i <= n; i++)
-    if (fap[i] != 0.0)
-      s->fap2[i] = log (fap[i]);
-    else
-      s->fap2[i] = temp;
+    {
+      if (fap[i] != 0.0)
+	s->fap2[i] = log (fap[i]);
+      else
+	s->fap2[i] = temp;
+      MPS_DEBUG (s, "s->fap2[%d] = %e", i, s->fap[i]);
+    }
 
   /* Compute convex hull */
   mps_fconvex (s, n, s->fap2);
@@ -271,6 +274,7 @@ void
 mps_fstart (mps_status * s, int n, int i_clust, double clust_rad,
             double g, rdpe_t eps, double fap[])
 {
+  MPS_DEBUG_THIS_CALL;
   int i, j, jj, l, nzeros = 0;
   double sigma, th, ang, r = 0;
   rdpe_t tmp;
@@ -298,6 +302,7 @@ mps_fstart (mps_status * s, int n, int i_clust, double clust_rad,
    * approximations equally spaced points in the unit circle.  */
   if (s->data_type[0] == 'u')
     {
+      MPS_DEBUG (s, "User polynomial is provided, so not using Newton polygon");
       ang = pi2 / n;
       for (i = 0; i < n; i++)
         {
@@ -335,6 +340,10 @@ mps_fstart (mps_status * s, int n, int i_clust, double clust_rad,
                                sigma),
                       r * sin (ang * jj + th * s->partitioning[i + 1] +
                                sigma));
+	  if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
+	    {
+	      MPS_DEBUG_CPLX (s, s->froot[l], "s->froot[%d]", l);
+	    }
         }
 
 

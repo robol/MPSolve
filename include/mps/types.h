@@ -105,7 +105,7 @@ extern "C"
       MPS_FLAG_FP,
 
       MPS_FLAG_SECULAR,
-      MPS_FLAG_POLYNOMIAL,
+      MPS_FLAG_MONOMIAL,
 
       MPS_FLAG_DENSE,
       MPS_FLAG_SPARSE,
@@ -174,6 +174,9 @@ extern "C"
       MPS_REPRESENTATION_SECULAR,
       MPS_REPRESENTATION_MONOMIAL
     } mps_representation;
+
+#define MPS_REPRESENTATION_IS_SECULAR(x) ((x) == MPS_REPRESENTATION_SECULAR)
+#define MPS_REPRESENTATION_IS_MONOMIAL(x) ((x) == MPS_REPRESENTATION_MONOMIAL)
 
   /**
    * @brief Configuration for an input stream; this struct
@@ -288,6 +291,13 @@ extern "C"
      * high precision coefficients if they are available.
      */
     mps_structure input_structure;
+
+    /**
+     * @brief Representation of the input data.
+     *
+     *
+     */
+    mps_representation input_representation;
 
     /**
      * @brief Size of the vectors of the coefficients of the
@@ -408,7 +418,6 @@ extern "C"
 #define MPS_DSTART_PTR(x) (mps_dstart_ptr) &(x)
 #define MPS_MPSOLVE_PTR(x) (mps_mpsolve_ptr) &(x)
 
-
   /**
    * @brief this struct holds the state of the mps computation
    */
@@ -421,7 +430,7 @@ extern "C"
     /**
      * @brief Byte containing the flags of debug enabled.
      */
-    short int debug_level;
+    unsigned int debug_level;
 
     /**
      * @brief Newton isolation of the cluster.

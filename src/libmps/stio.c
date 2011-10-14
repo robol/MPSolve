@@ -149,8 +149,8 @@ mps_parse_option_line (mps_status * s, char *line, size_t length)
   /* Options on the input type */
   if (mps_is_option (s, option, "secular"))
     input_option.flag = MPS_FLAG_SECULAR;
-  if (mps_is_option (s, option, "polynomial"))
-    input_option.flag = MPS_FLAG_POLYNOMIAL;
+  if (mps_is_option (s, option, "monomial"))
+    input_option.flag = MPS_FLAG_MONOMIAL;
 
   /* Parsing keys with values. If = is not found in the
    * input string, than an error has occurred so we should
@@ -184,6 +184,95 @@ mps_parse_option_line (mps_status * s, char *line, size_t length)
 }
 
 void
+mps_secular_equation_read_from_stream_poly (mps_status * s,
+					    mps_parsing_configuration config,
+					    FILE * input_stream)
+{
+  mps_secular_equation *sec;
+  int i, r;
+  mpf_t ftmp;
+
+  mpf_init (ftmp);
+
+  /* Read directly the secular equation in DPE, so we don't need
+   * to have a fallback case if the coefficients are bigger than
+   * what is supported by the standard floating point arithmetic */
+  sec = mps_secular_equation_new_raw (s, s->n);
+  sec->input_structure = config.structure;
+  sec->input_representation = config.representation;
+
+  /* Preallocate the data that we need */
+  s->spar = mps_boolean_valloc (s->n + 2);
+  s->mfpc = mpc_valloc (s->n + 1);
+  s->dpc  = cdpe_valloc (s->n + 1);
+  s->fpc  = cplx_valloc (s->n + 1);
+  s->dap  = rdpe_valloc (s->n + 1);
+  s->fap  = double_valloc (s->n + 1);
+  mpc_vinit (s->mfpc, s->n + 1);
+
+  /* We still do not support sparse input */
+  for (i = 0; i < s->n; ++i)
+      s->spar[i] = true;
+
+  if (MPS_STRUCTURE_IS_FP (sec->input_structure))
+    {
+      for (i = 0; i < s->n + 1; ++i)
+	{
+	  mps_skip_comments (input_stream);
+	  if (!mpf_inp_str (mpc_Re (s->mfpc[i]), input_stream, 10))
+	    mps_error (s, 1, "Error parsing coefficients of the polynomial");
+
+	  if (MPS_STRUCTURE_IS_COMPLEX (sec->input_structure))
+	    {
+	      mps_skip_comments (input_stream);
+	      if (!mpf_inp_str (mpc_Im (s->mfpc[i]), input_stream, 10))
+		mps_error (s, 1, "Error parsing coefficients of the polynomial");
+	    }
+	  else
+	    mpf_set_ui (mpc_Im (s->mfpc[i]), 0U);
+	}
+    }
+  else if (MPS_STRUCTURE_IS_RATIONAL (sec->input_structure) ||
+	   MPS_STRUCTURE_IS_INTEGER (sec->input_structure))
+    {
+      for (i = 0; i < s->n + 1; ++i)
+	{
+	  mps_skip_comments (input_stream);
+	  if (!mpq_inp_str (sec->initial_bmpqrc[i], input_stream, 10))
+	    mps_error (s, 1, "Error parsing coefficients of the polynomial");
+      
+	  if (MPS_STRUCTURE_IS_COMPLEX (sec->input_structure))
+	    {
+	      mps_skip_comments (input_stream);
+	      if (!mpq_inp_str (sec->initial_bmpqic[i], input_stream, 10))
+		mps_error (s, 1, "Error parsing coefficients of the polynomial");
+	    }
+	  else
+	    mpq_set_ui (sec->initial_bmpqic[i], 0U, 0U);
+
+	  /* Copy coefficients in the floating point ones */
+	  mpf_set_q (mpc_Re (s->mfpc[i]), sec->initial_bmpqrc[i]);
+	  mpf_set_q (mpc_Im (s->mfpc[i]), sec->initial_bmpqic[i]);
+	}
+      
+    }
+
+  /* Copy coefficients back in other places */
+  for (i = 0; i < s->n + 1; ++i)
+    {
+      mpc_get_cplx (s->fpc[i], s->mfpc[i]);
+      mpc_get_cdpe (s->dpc[i], s->mfpc[i]);
+
+      /* Compute modules of coefficients */
+      cdpe_mod (s->dap[i], s->dpc[i]);
+      s->fap[i] = rdpe_get_d (s->dap[i]);
+    }
+
+  s->secular_equation = sec;
+  mpf_clear (ftmp);
+}
+
+void
 mps_secular_equation_read_from_stream (mps_status * s,
                                        mps_parsing_configuration config,
                                        FILE * input_stream)
@@ -199,8 +288,9 @@ mps_secular_equation_read_from_stream (mps_status * s,
    * what is supported by the standard floating point arithmetic */
   sec = mps_secular_equation_new_raw (s, s->n);
   sec->input_structure = config.structure;
+  sec->input_representation = config.representation;
 
-  /* Parsinf of integers and floating point is done with DPE */
+  /* Parsing of integers and floating point is done with Multiprecision */
   if (MPS_STRUCTURE_IS_FP (config.structure))
     {
       for (i = 0; i < s->n; i++)
@@ -419,6 +509,8 @@ mps_parse_stream (mps_status * s, FILE * input_stream,
           /* Parsing of representations */
           else if (input_option.flag == MPS_FLAG_SECULAR)
             config.representation = MPS_REPRESENTATION_SECULAR;
+	  else if (input_option.flag == MPS_FLAG_MONOMIAL)
+	    config.representation = MPS_REPRESENTATION_MONOMIAL;
 
           /* Parsing of algebraic structure of the input */
           else if (input_option.flag == MPS_FLAG_REAL)
@@ -500,12 +592,12 @@ mps_parse_stream (mps_status * s, FILE * input_stream,
     }
   else if (config.representation == MPS_REPRESENTATION_MONOMIAL)
     {
-      fprintf (s->logstr,
-               "Only secular representation can be parsed using secsolve\n"
-               "at the moment being. Use unisolve to solve regular polynomials.\n"
-               "If your intention was actually to parse a secular equation use\n"
-               "the option Secular; in the input file.\n");
-      exit (EXIT_FAILURE);
+      if (s->debug_level & MPS_DEBUG_IO)
+	MPS_DEBUG (s, "Parsing polynomial from stream");
+
+      mps_secular_equation_read_from_stream_poly (s, config, input_stream);
+      
+      // exit (EXIT_FAILURE);
     }
 
   mps_input_buffer_free (buffer);

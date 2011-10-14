@@ -48,8 +48,11 @@ mps_allocate_data (mps_status * s)
   s->order = int_valloc (s->deg);
   s->rootwp = long_valloc (s->deg);
 
-  s->fap = double_valloc (s->deg + 1);
-  s->dap = rdpe_valloc (s->deg + 1);
+  if (!s->fap)
+    s->fap = double_valloc (s->deg + 1);
+
+  if (!s->dap)
+    s->dap = rdpe_valloc (s->deg + 1);
 
   s->frad = double_valloc (s->deg);
   s->froot = cplx_valloc (s->deg);
@@ -349,7 +352,6 @@ mps_free_data (mps_status * s)
   free (s->mfppc);
   free (s->mfppc1);
   free (s->mfpc2);
-
 
   /* free temporary vectors */
   free (s->spar1);

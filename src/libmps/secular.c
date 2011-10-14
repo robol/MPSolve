@@ -23,10 +23,30 @@ mps_secular_dump (mps_status * s, mps_secular_equation * sec)
 {
   int i;
   MPS_DEBUG (s, "Dumping secular equation:");
-  for (i = 0; i < sec->n; i++)
+
+  switch (s->lastphase)
     {
-      MPS_DEBUG_CDPE (s, sec->adpc[i], "sec->adpc[%d]", i);
-      MPS_DEBUG_CDPE (s, sec->bdpc[i], "sec->bdpc[%d]", i);
+    case float_phase:
+      for (i = 0; i < s->n; ++i)
+	{
+	  MPS_DEBUG_CPLX (s, sec->afpc[i], "sec->afpc[%d]", i);
+	  MPS_DEBUG_CPLX (s, sec->bfpc[i], "sec->bfpc[%d]", i);
+	}
+      break;
+    case dpe_phase:
+      for (i = 0; i < sec->n; i++)
+	{
+	  MPS_DEBUG_CDPE (s, sec->adpc[i], "sec->adpc[%d]", i);
+	  MPS_DEBUG_CDPE (s, sec->bdpc[i], "sec->bdpc[%d]", i);
+	}
+      break;
+    case mp_phase:
+      for (i = 0; i < s->n; ++i)
+	{
+	  MPS_DEBUG_MPC (s, 20, sec->ampc[i], "sec->ampc[%d]", i);
+	  MPS_DEBUG_MPC (s, 20, sec->bmpc[i], "sec->bmpc[%d]", i);
+	}
+      break;
     }
 }
 
@@ -188,20 +208,20 @@ mps_secular_equation_new_raw (mps_status * s, unsigned long int n)
   sec->bmpc = mpc_valloc (n);
   sec->initial_ampc = mpc_valloc (n);
   sec->initial_bmpc = mpc_valloc (n);
-  sec->initial_ampqrc = mpq_valloc (n);
-  sec->initial_bmpqrc = mpq_valloc (n);
-  sec->initial_ampqic = mpq_valloc (n);
-  sec->initial_bmpqic = mpq_valloc (n);
+  sec->initial_ampqrc = mpq_valloc (n + 1);
+  sec->initial_bmpqrc = mpq_valloc (n + 1);
+  sec->initial_ampqic = mpq_valloc (n + 1);
+  sec->initial_bmpqic = mpq_valloc (n + 1);
 
   /* Init multiprecision arrays */
   mpc_vinit (sec->ampc, n);
   mpc_vinit (sec->bmpc, n);
   mpc_vinit (sec->initial_ampc, n);
   mpc_vinit (sec->initial_bmpc, n);
-  mpq_vinit (sec->initial_ampqrc, n);
-  mpq_vinit (sec->initial_bmpqrc, n);
-  mpq_vinit (sec->initial_ampqic, n);
-  mpq_vinit (sec->initial_bmpqic, n);
+  mpq_vinit (sec->initial_ampqrc, n + 1);
+  mpq_vinit (sec->initial_bmpqrc, n + 1);
+  mpq_vinit (sec->initial_ampqic, n + 1);
+  mpq_vinit (sec->initial_bmpqic, n + 1);
 
   /* Epsilon arrays */
   sec->dregeneration_epsilon = rdpe_valloc (n);
@@ -282,10 +302,10 @@ mps_secular_equation_free (mps_secular_equation * s)
   /* And old coefficients */
   mpc_vclear (s->initial_ampc, s->n);
   mpc_vclear (s->initial_bmpc, s->n);
-  mpq_vclear (s->initial_ampqrc, s->n);
-  mpq_vclear (s->initial_bmpqrc, s->n);
-  mpq_vclear (s->initial_ampqic, s->n);
-  mpq_vclear (s->initial_bmpqic, s->n);
+  mpq_vclear (s->initial_ampqrc, s->n + 1);
+  mpq_vclear (s->initial_bmpqrc, s->n + 1);
+  mpq_vclear (s->initial_ampqic, s->n + 1);
+  mpq_vclear (s->initial_bmpqic, s->n + 1);
   mpc_vfree (s->initial_ampc);
   mpc_vfree (s->initial_bmpc);
   mpq_vfree (s->initial_ampqrc);
@@ -373,14 +393,20 @@ mps_secular_raise_coefficient_precision (mps_status * s, int wp)
     {
       mpc_set_prec (sec->ampc[i], wp);
       mpc_set_prec (sec->bmpc[i], wp);
+    }
 
+  for (i = 0; i < s->n; i++)
+    {
       mpc_set_prec (sec->initial_ampc[i], wp);
       mpc_set_prec (sec->initial_bmpc[i], wp);
-
-      
     }
+  
+  if (MPS_REPRESENTATION_IS_MONOMIAL (sec->input_structure))
+    mps_raise_data_raw (s);
+
   rdpe_set_2dl (s->mp_epsilon, 1.0, -wp);
-  // MPS_DEBUG_WITH_INFO (s, "Precision of the coefficients is now at %d bits", wp);
+  MPS_DEBUG_WITH_INFO (s, "Precision of the coefficients is now at %d bits", wp);
+  MPS_DEBUG_RDPE (s, s->mp_epsilon, "Machine epsilon is s->mp_epsilon");
 }
 
 /**
@@ -523,16 +549,15 @@ mps_secular_set_radii (mps_status * s)
         double rad, total_rad = 0;
 
         for (i = 0; i < s->n; i++)
-          total_rad += cplx_mod (sec->afpc[i]);
+          total_rad += cplx_mod (sec->afpc[i]) * (1 + sec->fregeneration_epsilon[i]);
 
         /* Check if the Gerschgorin's radii are more convenient */
         for (i = 0; i < s->n; i++)
           {
             /* TODO: Use the guaranteed computation */
             rad =
-              s->n * cplx_mod (sec->afpc[i]) * (1 +
-                                                s->n * s->n * DBL_EPSILON *
-                                                15);
+              s->n * cplx_mod (sec->afpc[i]) * (1 + sec->fregeneration_epsilon[i]);
+
             if (rad > total_rad)
               rad = total_rad;
 

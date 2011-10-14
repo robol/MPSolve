@@ -46,6 +46,9 @@ mps_standard_mpsolve (mps_status * s)
   mps_boolean d_after_f, computed, over_max;
   clock_t *my_timer = mps_start_timer ();
 
+  if (s->DOLOG)
+    s->debug_level |= MPS_DEBUG_TRACE;
+
   /* == 1 ==  Setup variables, i.e. copy coefficients
      into dpr, dpc and similar. */
   mps_setup (s);

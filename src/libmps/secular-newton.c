@@ -432,9 +432,8 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
   rdpe_mul_eq_d (new_rad, 1 + 4 * DBL_EPSILON);
 
   /* FIXME: Add the right epsilon here */
-  /* rdpe_mul_eq (s_eps, ); */
-  rdpe_add_eq (s_eps, rdpe_one);
-  rdpe_mul_eq (new_rad, s_eps);
+   rdpe_add (rtmp, s_eps, rdpe_one); 
+   rdpe_mul_eq (new_rad, rtmp); 
 
   /* If the relative error is greater than one
    * follow an alternative approach, at least if
@@ -445,8 +444,10 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
    * that we should not consider the conditioning. */
   if (rdpe_lt (s_eps, rdpe_one) || (!k))
     {
-      if (!k)
-	MPS_DEBUG_RDPE (s, s_eps, "s_eps");
+      if (!k) 
+	{
+	  MPS_DEBUG_RDPE (s, s_eps, "s_eps");
+	}
       cdpe_mod (rtmp, prod_b);
       rdpe_mul_eq_d (rtmp, 1 + 4 * DBL_EPSILON);
       rdpe_mul_eq (new_rad, rtmp);
