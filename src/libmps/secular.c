@@ -533,10 +533,20 @@ mps_secular_switch_phase (mps_status * s, mps_phase phase)
 void
 mps_secular_set_radii (mps_status * s)
 {
-  MPS_DEBUG_THIS_CALL;
+  /* MPS_DEBUG_THIS_CALL; */
+  
+  /*
+   * This call is disabled because it computed the radius of inclusion
+   * as if the froot are the b_i, that is not always true. Should be revised
+   * to be used again, or dropeed since the same computation is already
+   * done in the mps_secular_*newton routines, now.
+   */
+
+  return;
 
   int i;
   mps_secular_equation *sec = (mps_secular_equation *) s->secular_equation;
+
 
   /* Select right computation based on the phase we are in
    * right now   */
@@ -546,20 +556,24 @@ mps_secular_set_radii (mps_status * s)
     case float_phase:
       {
         /* Floating point implementation */
+	cplx_t diff;
         double rad, total_rad = 0;
 
         for (i = 0; i < s->n; i++)
-          total_rad += cplx_mod (sec->afpc[i]) * (1 + sec->fregeneration_epsilon[i]);
+          total_rad += cplx_mod (sec->afpc[i]) * (1 + (sec->fregeneration_epsilon[i] + DBL_EPSILON));
 
         /* Check if the Gerschgorin's radii are more convenient */
         for (i = 0; i < s->n; i++)
           {
             /* TODO: Use the guaranteed computation */
-            rad =
-              s->n * cplx_mod (sec->afpc[i]) * (1 + sec->fregeneration_epsilon[i]);
+            rad = s->n * cplx_mod (sec->afpc[i]) * (1 + s->n * (sec->fregeneration_epsilon[i] + DBL_EPSILON));
 
-            if (rad > total_rad)
-              rad = total_rad;
+             if (rad > total_rad) 
+               rad = total_rad; 
+
+	     /* Add to rad the distance of the root from b_i */
+	     cplx_sub (diff, sec->bfpc[i], s->froot[i]);
+	     rad += cplx_mod (diff) * (1 + DBL_EPSILON);
 
             if (rad < s->frad[i])
               {
@@ -572,7 +586,7 @@ mps_secular_set_radii (mps_status * s)
     case mp_phase:
       {
         /* DPE and multiprecision implementation */
-        rdpe_t rad, total_rad, rtmp;
+        rdpe_t rad, total_rad, rtmp, rad_eps;
         cdpe_t ctmp;
         rdpe_set (total_rad, rdpe_zero);
 
@@ -588,8 +602,10 @@ mps_secular_set_radii (mps_status * s)
               /* We are in the DPE phase */
               cdpe_mod (rtmp, sec->adpc[i]);
 
-	    rdpe_mul_eq_d (rtmp, 1 + 4 * DBL_EPSILON);
-            rdpe_add_eq (total_rad, rtmp);
+	    rdpe_set (rad_eps, sec->dregeneration_epsilon[i]);
+	    rdpe_mul_eq (rad_eps, rtmp);
+	    // rdpe_mul_eq_d (rtmp, 1 + 4 * DBL_EPSILON);
+            rdpe_add_eq (total_rad, rad_eps);
           }
 
         /* Compute guaranteed total rad */
@@ -599,18 +615,20 @@ mps_secular_set_radii (mps_status * s)
         /* Check if the Gerschgorin's radii are more convenient */
         for (i = 0; i < s->n; i++)
           {
+	    rdpe_set (rad_eps, rdpe_one);
+	    rdpe_add_eq (rad_eps, sec->dregeneration_epsilon[i]);
             /* TODO: Use the guaranteed computation */
             if (s->lastphase == mp_phase)
               {
                 mpc_get_cdpe (ctmp, sec->ampc[i]);
                 cdpe_mod (rad, ctmp);
-                rdpe_add_eq (rad, s->mp_epsilon);
+                rdpe_mul_eq (rad, rad_eps);
               }
             else
               {
                 /* We are in the DPE phase */
                 cdpe_mod (rad, sec->adpc[i]);
-                rdpe_add_eq (rad, s->mp_epsilon);
+                rdpe_mul_eq (rad, rad_eps);
               }
 
             /* Check which radius is smaller (here guaranteed radius is
@@ -620,13 +638,13 @@ mps_secular_set_radii (mps_status * s)
             rdpe_mul_eq_d (rad, (double) s->n);
             rdpe_mul_eq (rad, rtmp);
 
-            if (rdpe_gt (rad, total_rad))
-              rdpe_set (rad, total_rad);
+             if (rdpe_gt (rad, total_rad)) 
+               rdpe_set (rad, total_rad); 
 
             /* If the radius is convenient set it */
             if (rdpe_lt (rad, s->drad[i]))
               {
-                rdpe_set (s->drad[i], rad);
+                // rdpe_set (s->drad[i], rad);
               }
           }
       }

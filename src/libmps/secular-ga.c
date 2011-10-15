@@ -854,7 +854,7 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
             {
               mpc_get_cplx (sec->bfpc[i], sec->bmpc[i]);
               mpc_get_cplx (sec->afpc[i], sec->ampc[i]);
-	      sec->fregeneration_epsilon[i] = rdpe_get_d (sec->dregeneration_epsilon[i]);
+	      sec->fregeneration_epsilon[i] = rdpe_get_d (sec->dregeneration_epsilon[i]) + DBL_EPSILON;
 
 	      MPS_DEBUG_CPLX (s, sec->afpc[i], "sec->afpc[%d]", i);	      
 	      MPS_DEBUG_CPLX (s, sec->bfpc[i], "sec->bfpc[%d]", i);
@@ -905,7 +905,7 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
           for (i = 0; i < s->n; i++)
 	    {
 	      mpc_get_cdpe (sec->adpc[i], sec->ampc[i]);
-	      // rdpe_add_eq_d (sec->dregeneration_epsilon[i], DBL_EPSILON);
+	      rdpe_add_eq_d (sec->dregeneration_epsilon[i], DBL_EPSILON);
 	    }
           mps_secular_set_radii (s);
         }
@@ -1432,7 +1432,7 @@ mps_secular_ga_mpsolve (mps_status * s)
       else if (MPS_REPRESENTATION_IS_MONOMIAL (sec->input_representation))
 	{
 	  clock_t *my_timer = mps_start_timer ();
-	  mps_improve (s);
+	  mps_secular_ga_improve (s);
 	  unsigned int improve_time = mps_stop_timer (my_timer);
 	  if (s->debug_level & MPS_DEBUG_TIMINGS)
 	    {
