@@ -280,11 +280,12 @@ mps_secular_equation_read_from_stream_poly (mps_status * s,
 void
 mps_secular_equation_read_from_stream (mps_status * s,
                                        mps_parsing_configuration config,
-                                       FILE * input_stream)
+                                       mps_input_buffer * buffer)
 {
   mps_secular_equation *sec;
   int i, r;
   mpf_t ftmp;
+  char * token;
 
   mpf_init (ftmp);
 
@@ -300,10 +301,8 @@ mps_secular_equation_read_from_stream (mps_status * s,
     {
       for (i = 0; i < s->n; i++)
         {
-          mps_skip_comments (input_stream);
-          r = mpf_inp_str (mpc_Re (sec->initial_ampc[i]), input_stream, 10);
-
-          if (r == 0)
+	  token = mps_input_buffer_next_token (buffer);
+          if (!token || (mpf_set_str (mpc_Re (sec->initial_ampc[i]), token, 10) != 0))
             {
               MPS_DEBUG (s,
                          "Error reading coefficient a[%d] of the secular equation (real part)",
@@ -312,15 +311,13 @@ mps_secular_equation_read_from_stream (mps_status * s,
                          "Error reading some coefficients of the secular equation.\n"
                          "Please check your input file.");
             }
+	  free (token);
 
           /* Imaginary part, read only if the input is complex */
           if (MPS_STRUCTURE_IS_COMPLEX (config.structure))
             {
-              mps_skip_comments (input_stream);
-              r =
-                mpf_inp_str (mpc_Im (sec->initial_ampc[i]), input_stream, 10);
-
-              if (r == 0)
+	      token = mps_input_buffer_next_token (buffer);
+              if (!token || (mpf_set_str (mpc_Im (sec->initial_ampc[i]), token, 10) != 0))
                 {
                   MPS_DEBUG (s,
                              "Error reading coefficient a[%d] of the secular equation (imaginary part)",
@@ -329,16 +326,15 @@ mps_secular_equation_read_from_stream (mps_status * s,
                              "Error reading some coefficients of the secular equation.\n"
                              "Please check your input file.");
                 }
+	      free (token);
             }
           else
             {
               mpf_set_ui (mpc_Im (sec->initial_ampc[i]), 0U);
             }
 
-          mps_skip_comments (input_stream);
-          r = mpf_inp_str (mpc_Re (sec->initial_bmpc[i]), input_stream, 10);
-
-          if (r == 0)
+	  token = mps_input_buffer_next_token (buffer);
+          if (!token || (mpf_set_str (mpc_Re (sec->initial_bmpc[i]), token, 10) != 0))
             {
               MPS_DEBUG (s,
                          "Error reading coefficient b[%d] of the secular equation (real part)",
@@ -347,15 +343,13 @@ mps_secular_equation_read_from_stream (mps_status * s,
                          "Error reading some coefficients of the secular equation.\n"
                          "Please check your input file.");
             }
+	  free (token);
 
           /* Again, read the imaginary part only if the input is complex */
           if (MPS_STRUCTURE_IS_COMPLEX (config.structure))
             {
-              mps_skip_comments (input_stream);
-              r =
-                mpf_inp_str (mpc_Im (sec->initial_bmpc[i]), input_stream, 10);
-
-              if (r == 0)
+	      token = mps_input_buffer_next_token (buffer);
+	      if (!token || (mpf_set_str (mpc_Im (sec->initial_bmpc[i]), token, 10) != 0))
                 {
                   MPS_DEBUG (s,
                              "Error reading coefficient b[%d] of the secular equation (imaginary part)",
@@ -364,6 +358,7 @@ mps_secular_equation_read_from_stream (mps_status * s,
                              "Error reading some coefficients of the secular equation.\n"
                              "Please check your input file.");
                 }
+	      free (token);
             }
           else
             {
@@ -382,31 +377,51 @@ mps_secular_equation_read_from_stream (mps_status * s,
       for (i = 0; i < s->n; i++)
         {
           /* Read real part of the a_i */
-          mps_skip_comments (input_stream);
-          mpq_inp_str (sec->initial_ampqrc[i], input_stream, 10);
+	  token = mps_input_buffer_next_token (buffer);
+          if (!token || (mpq_set_str (sec->initial_ampqrc[i], token, 10) != 0))
+	    {
+	      MPS_DEBUG (s, "Error reading the coefficients a[%d] of the secular equation (real part)", i);
+	      mps_error (s, 1, "Error reading some coefficients of the secular equation.\nPlease check your input file");
+	    }
           mpq_canonicalize (sec->initial_ampqrc[i]);
+	  free (token);
 
           /* Read imaginary part of the a_i */
           if (MPS_STRUCTURE_IS_COMPLEX (config.structure))
             {
-              mps_skip_comments (input_stream);
-              mpq_inp_str (sec->initial_ampqic[i], input_stream, 10);
+	      token = mps_input_buffer_next_token (buffer);
+              if (!token || (mpq_set_str (sec->initial_ampqic[i], token, 10) != 0))
+		{	      
+		  MPS_DEBUG (s, "Error reading the coefficients a[%d] of the secular equation (imaginary part)", i);
+		  mps_error (s, 1, "Error reading some coefficients of the secular equation.\nPlease check your input file");
+		}
               mpq_canonicalize (sec->initial_ampqic[i]);
+	      free (token);
             }
           else
             mpq_set_ui (sec->initial_ampqic[i], 0, 0);
 
           /* Read real part of the b_i */
-          mps_skip_comments (input_stream);
-          mpq_inp_str (sec->initial_bmpqrc[i], input_stream, 10);
+	  token = mps_input_buffer_next_token (buffer);
+          if (!token || (mpq_set_str (sec->initial_bmpqrc[i], token, 10) != 0))
+	    {	      
+	      MPS_DEBUG (s, "Error reading the coefficients b[%d] of the secular equation (real part)", i);
+	      mps_error (s, 1, "Error reading some coefficients of the secular equation.\nPlease check your input file");
+	    }	    
           mpq_canonicalize (sec->initial_bmpqrc[i]);
+	  free (token);
 
           /* Read imaginary part of the b_i */
           if (MPS_STRUCTURE_IS_COMPLEX (config.structure))
             {
-              mps_skip_comments (input_stream);
-              mpq_inp_str (sec->initial_bmpqic[i], input_stream, 10);
+	      token = mps_input_buffer_next_token (buffer);
+              if (!token || (mpq_set_str (sec->initial_bmpqic[i], token, 10) != 0))
+		{	      
+		  MPS_DEBUG (s, "Error reading the coefficients b[%d] of the secular equation (imaginary part)", i);
+		  mps_error (s, 1, "Error reading some coefficients of the secular equation.\nPlease check your input file");
+		}	    
               mpq_canonicalize (sec->initial_bmpqic[i]);
+	      free (token);
             }
           else
             mpq_set_ui (sec->initial_bmpqic[i], 0, 0);
@@ -602,7 +617,7 @@ mps_parse_stream (mps_status * s, FILE * input_stream,
         {
           MPS_DEBUG (s, "Parsing secular equation from stream");
         }
-      mps_secular_equation_read_from_stream (s, config, input_stream);
+      mps_secular_equation_read_from_stream (s, config, buffer);
     }
   else if (config.representation == MPS_REPRESENTATION_MONOMIAL)
     {
