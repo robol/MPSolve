@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <mps/core.h>
 #include <string.h>
+#include <ctype.h>
 
 /**
  * @brief Create a new input buffer associated with the
@@ -17,11 +18,20 @@ mps_input_buffer *
 mps_input_buffer_new (FILE * stream)
 {
   mps_input_buffer *buf;
+  int i;
   buf = (mps_input_buffer *) malloc (sizeof (mps_input_buffer));
 
   /* Set initial values */
   buf->stream = stream;
   buf->line = NULL;
+
+  /* Set history size */
+  buf->history_size = MPS_INPUT_BUFFER_HISTORY_DEFAULT_SIZE;
+
+  /* Allocate space for the lines kept in history */
+  buf->history = (char **) malloc (sizeof (char *));
+  for (i = 0; i < buf->history_size; ++i)
+      buf->history[i] = NULL;
 
   return buf;
 }
@@ -33,10 +43,24 @@ mps_input_buffer_new (FILE * stream)
 void
 mps_input_buffer_free (mps_input_buffer * buffer)
 {
+  int i;
   if (buffer->line)
     free (buffer->line);
 
+  for (i = 0; i < buffer->history_size; ++i)
+    {
+      if (buffer->history[i])
+	free (buffer->history[i]);
+    }
+
+  free (buffer->history);
   free (buffer);
+}
+
+void
+mps_input_buffer_set_history_size (mps_input_buffer * buffer, size_t size)
+{
+  // TODO: Implement this
 }
 
 /**
@@ -60,14 +84,87 @@ mps_input_buffer_readline (mps_input_buffer * buf)
   ssize_t read_chars;
   ssize_t length;
 
-  /* Free the old line if still present */
+  /* Move the old line in the buffer, if it's not NULL */
   if (buf->line != NULL)
-    length = strlen (buf->line);
+    {
+      int new_pos = (buf->last - 1 + buf->history_size) % buf->history_size;
+      length = strlen (buf->line);
+      
+      /* Check if the line that is going to be overwritten
+       * has something in it, and if that's the case, free it */
+      if (buf->history[new_pos] != NULL)
+	free (buf->history[new_pos]);
+      
+      /* Push the old line in history */
+      buf->history[new_pos] = buf->line;
+      buf->last = new_pos;
+      buf->line = NULL;
+    }
 
   /* Read a new line. On the first step buf->line is NULL
    * so a new space is allocated in there, that will be
    * reused on the subsequent calls. */
   read_chars = getline (&buf->line, &length, buf->stream);
-
+  buf->last_token = buf->line;
+  
   return buf->line;
+}
+
+/**
+ * @brief This function returns the next token that is in the buffer
+ * but hasn't been read yet. 
+ *
+ * It will automagically read new lines if the one in the buffer does
+ * not contains anything useful, and return NULL if the stream finish.
+ *
+ * The returned token shall be freed by the caller.
+ */
+char *
+mps_input_buffer_next_token (mps_input_buffer * buf)
+{
+  char * token = NULL;
+  char * ret;
+  size_t token_size = 0;
+  char * last_char;
+
+  if (!buf->line)
+    {
+      if (mps_input_buffer_eof (buf))
+	return NULL;
+      mps_input_buffer_readline (buf);
+    }
+
+  last_char = buf->line + strlen (buf->line);
+
+  do {
+    /* See if we have found the starting of the token, selecting 
+    * things that are not spaces nor end NULL characters. */
+    if (!(isspace (*buf->last_token) || !*buf->last_token) && !token)
+      {
+	token = buf->last_token;
+      }
+
+    /* If we have already started parsing, then increase dimension */
+    if (token)
+      token_size++;
+    buf->last_token++;
+  } while ((buf->last_token < last_char) && (!token || !isspace (*buf->last_token)));
+
+  /* Check if we have parsed something or if we need to read another line */
+  if (!token && (buf->last_token >= last_char))
+    {
+      if (mps_input_buffer_eof (buf))
+	return NULL;
+      mps_input_buffer_readline (buf);
+      return mps_input_buffer_next_token (buf);
+    }
+
+  /* Allocate the space for the token if we have found it */
+  ret = (char *) malloc (sizeof (char) * (token_size + 1));
+  
+  /* Copy the token in ret and set the NULL character in the end */
+  strncpy (ret, token, token_size);
+  ret[token_size] = '\0';
+
+  return ret;
 }

@@ -66,10 +66,13 @@ extern "C"
 /* FUNCTIONS */
 
 /* Functions in input-buffer.c */
+#define MPS_INPUT_BUFFER_HISTORY_DEFAULT_SIZE 3
   mps_input_buffer *mps_input_buffer_new (FILE * stream);
   char *mps_input_buffer_readline (mps_input_buffer * buf);
   void mps_input_buffer_free (mps_input_buffer * buf);
+  void mps_input_buffer_set_history_size (mps_input_buffer * buf, size_t size);
   mps_boolean mps_input_buffer_eof (mps_input_buffer * buf);
+  char * mps_input_buffer_next_token (mps_input_buffer * buf);
 
 /* functions in mps_aber.c */
   void mps_faberth (mps_status * s, int j, cplx_t abcorr);

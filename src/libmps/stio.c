@@ -466,6 +466,7 @@ mps_parse_stream (mps_status * s, FILE * input_stream,
   mps_parsing_configuration config;
   int i;
   ssize_t length;
+  char * line;
 
   /* Set default values for the parsing configuration */
   config = default_configuration;
@@ -484,14 +485,19 @@ mps_parse_stream (mps_status * s, FILE * input_stream,
   while (parsing_options)
     {
       mps_input_buffer_readline (buffer);
-      if (strchr (buffer->line, ';') == NULL || mps_input_buffer_eof (buffer))
+      line = strdup (buffer->line);
+      if (strchr (line, ';') == NULL || mps_input_buffer_eof (buffer))
         {
+	  if (s->debug_level & MPS_DEBUG_IO)
+	    {
+	      MPS_DEBUG (s, "Finished parsing options");
+	    }
           parsing_options = false;
         }
       else
         {
           input_option =
-            mps_parse_option_line (s, buffer->line, strlen (buffer->line));
+            mps_parse_option_line (s, line, strlen (line));
 
           if (s->debug_level & MPS_DEBUG_IO)
             {
@@ -558,6 +564,9 @@ mps_parse_stream (mps_status * s, FILE * input_stream,
                 config.structure = MPS_STRUCTURE_COMPLEX_FP;
             }
         }
+
+      /* Free the line obtained */
+      free (line);
     }
 
   /* Since the Degree is a required parameter, we ask that it is provided. */

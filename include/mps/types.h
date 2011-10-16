@@ -84,6 +84,44 @@ extern "C"
      * <code>mps_input_buffer_readline()</code>
      */
     char *line;
+    
+    /**
+     * @brief Lines that have been read before this. 
+     *
+     * The number of lines that are remembered is set
+     * by the variable MPS_INPUT_BUFFER_HISTORY_DEFAULT_SIZE,
+     * but can be overriden by calling 
+     * <code>mps_input_buffer_set_history_size()</code>.
+     */
+    char **history;
+
+    /**
+     * @brief Size of the history that is been kept in memory.
+     *
+     * This value should never be modified directly, but can
+     * be tweaked using <code>mps_input_buffer_set_history_size()</code>.
+     */
+    size_t history_size;
+
+    /**
+     * @brief Index of the last line inserted in history.
+     *
+     * This is used internally by the mps_input_buffer to implement
+     * a circular buffer.
+     */
+    int last;
+
+    /**
+     * @brief This is a pointer to the last parsed char in the buffer->line
+     * string.
+     * 
+     * It is used by mps_input_buffer_next_token() to determine the last
+     * thing read and if there is the need to read another line.
+     *
+     * As for <code>last</code>, this pointer should never be manually
+     * modified, even if you think that you know what you're doing.
+     */
+    char * last_token;
 
   } mps_input_buffer;
 
