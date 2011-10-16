@@ -186,11 +186,12 @@ mps_parse_option_line (mps_status * s, char *line, size_t length)
 void
 mps_secular_equation_read_from_stream_poly (mps_status * s,
 					    mps_parsing_configuration config,
-					    FILE * input_stream)
+					    mps_input_buffer * buffer)
 {
   mps_secular_equation *sec;
   int i, r;
   mpf_t ftmp;
+  char * token;
 
   mpf_init (ftmp);
 
@@ -218,15 +219,17 @@ mps_secular_equation_read_from_stream_poly (mps_status * s,
     {
       for (i = 0; i < s->n + 1; ++i)
 	{
-	  mps_skip_comments (input_stream);
-	  if (!mpf_inp_str (mpc_Re (s->mfpc[i]), input_stream, 10))
+	  token = mps_input_buffer_next_token (buffer);
+	  if (!token || (mpf_set_str (mpc_Re (s->mfpc[i]), token, 10) != 0))
 	    mps_error (s, 1, "Error parsing coefficients of the polynomial");
+	  free (token);
 
 	  if (MPS_STRUCTURE_IS_COMPLEX (sec->input_structure))
 	    {
-	      mps_skip_comments (input_stream);
-	      if (!mpf_inp_str (mpc_Im (s->mfpc[i]), input_stream, 10))
+	      token = mps_input_buffer_next_token (buffer);
+	      if (!token || (mpf_set_str (mpc_Im (s->mfpc[i]), token, 10) != 0))
 		mps_error (s, 1, "Error parsing coefficients of the polynomial");
+	      free (token);
 	    }
 	  else
 	    mpf_set_ui (mpc_Im (s->mfpc[i]), 0U);
@@ -237,15 +240,17 @@ mps_secular_equation_read_from_stream_poly (mps_status * s,
     {
       for (i = 0; i < s->n + 1; ++i)
 	{
-	  mps_skip_comments (input_stream);
-	  if (!mpq_inp_str (sec->initial_bmpqrc[i], input_stream, 10))
+	  token = mps_input_buffer_next_token (buffer);
+	  if (!token || (mpq_set_str (sec->initial_bmpqrc[i], token, 10) != 0))
 	    mps_error (s, 1, "Error parsing coefficients of the polynomial");
+	  free (token);
       
 	  if (MPS_STRUCTURE_IS_COMPLEX (sec->input_structure))
 	    {
-	      mps_skip_comments (input_stream);
-	      if (!mpq_inp_str (sec->initial_bmpqic[i], input_stream, 10))
+	      token = mps_input_buffer_next_token (buffer);
+	      if (!token || (mpq_set_str (sec->initial_bmpqic[i], token, 10) != 0))
 		mps_error (s, 1, "Error parsing coefficients of the polynomial");
+	      free (token);
 	    }
 	  else
 	    mpq_set_ui (sec->initial_bmpqic[i], 0U, 0U);
@@ -581,15 +586,15 @@ mps_parse_stream (mps_status * s, FILE * input_stream,
 
   /* Check that the stream in the buffer is only composed
    * by spaces */
-  for (i = 0; i < strlen (buffer->line); i++)
-    {
-      if (!isspace (buffer->line[i]))
-        {
-          mps_error (s, 1,
-                     "Options and input data are not separated by a newline.");
-          break;
-        }
-    }
+  /* for (i = 0; i < strlen (buffer->line); i++) */
+  /*   { */
+  /*     if (!isspace (buffer->line[i])) */
+  /*       { */
+  /*         mps_error (s, 1, */
+  /*                    "Options and input data are not separated by a newline."); */
+  /*         break; */
+  /*       } */
+  /*   } */
 
   if (config.representation == MPS_REPRESENTATION_SECULAR)
     {
@@ -604,13 +609,10 @@ mps_parse_stream (mps_status * s, FILE * input_stream,
       if (s->debug_level & MPS_DEBUG_IO)
 	MPS_DEBUG (s, "Parsing polynomial from stream");
 
-      mps_secular_equation_read_from_stream_poly (s, config, input_stream);
-      
-      // exit (EXIT_FAILURE);
+      mps_secular_equation_read_from_stream_poly (s, config, buffer);
     }
 
   mps_input_buffer_free (buffer);
-
 }
 
 
