@@ -9,6 +9,11 @@
 ** (C) 2001, Dipartimento di Matematica, FRISCO LTR 21024 **
 ***********************************************************/
 
+/**
+ * @file
+ * @brief Routines for I/O in MPSolve
+ */
+
 #include <stdarg.h>
 #include <string.h>
 #include <mps/gmptools.h>
@@ -1086,6 +1091,8 @@ mps_warn (mps_status * st, char *s)
 /**
  * @brief Check if the file descriptor associated to stream
  * is bounded to a tty.
+ *
+ * @param stream the stream to check
  */
 mps_boolean
 mps_is_a_tty (FILE * stream)
