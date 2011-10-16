@@ -441,6 +441,7 @@ mps_setup (mps_status * s)
  * if a floating point phase is enough, or to <code>'d'</code> if
  * a <code>dpe</code> phase is needed.
  * 
+ * @param s The <code>mps_status</code> associated with the current computation.
  * @param which_case the address of the variable which_case;
  */
 void

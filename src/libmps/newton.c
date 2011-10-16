@@ -169,9 +169,9 @@ mps_fnewton (mps_status * s, int n, cplx_t z, double *radius, cplx_t corr,
  *  computed inclusion radius.
  * @param corr Value that will be set to the newton correction,
  *  once computed.
- * @param fpc Array with the DPE coefficients of the
+ * @param dpc Array with the DPE coefficients of the
  *  polynomial.
- * @param fap Array with the DPE moduli of the coefficient
+ * @param dap Array with the DPE moduli of the coefficient
  *  of the polynomial.
  * @param cont mps_boolean value that will be set to true if another
  *  iteration is needed, to false otherwise.
@@ -426,12 +426,20 @@ mps_aparhorner (mps_status * st,
  *  computed inclusion radius.
  * @param corr Value that will be set to the newton correction,
  *  once computed.
- * @param fpc Array with the DPE coefficients of the
+ * @param mfpc Array with the multiprecision coefficients of the
  *  polynomial.
- * @param fap Array with the DPE moduli of the coefficient
+ * @param mfppc Array with the multiprecision value of the coefficients
+ * of the first derivative of the polynomial.
+ * @param dap Array with the DPE moduli of the coefficient
  *  of the polynomial.
+ * @param spar Array describing the sparsity of the polynomial, i.e.
+ * 0 where the coefficients is zero and 1 where it is not zero.
  * @param cont mps_boolean value that will be set to true if another
  *  iteration is needed, to false otherwise.
+ * @param n_thread The ID identifying the thread that is calling this routine.
+ * It should be an integer between zero and the number of thread in this
+ * instace of unisolve, and it's used to get a thread-specific memory
+ * are to do some local bookkeeping for sparsity. 
  *
  * @see mps_fnewton()
  * @see mps_dnewton()

@@ -181,6 +181,7 @@ mps_update (mps_status * s)
  * This routines the super radius of the <code>i</code>-th cluster,
  * i.e. the radius of the inclusion disc for the whole cluster
  *
+ * @param s The <code>mps_status</code> associated with the current computation.
  * @param i Index of the cluster;
  * @param sc Center of the cluster;
  * @param sr Double that will be set to the super radius of the cluster;
@@ -2329,6 +2330,7 @@ mps_check_stop (mps_status * s)
  *   <code>again[i]=true</code> means iterate on the <code>i</code>-th 
  *   component
  *
+ * @param s The <code>mps_status</code> associated with the current computation.
  * @param d_after_f this variable is <code>true</code> if dpe
  * are needed after the floating point pass. 
  */
@@ -2514,6 +2516,7 @@ mps_fsolve (mps_status * s, mps_boolean * d_after_f)
  * approximation is in
  * the root neighbourhood. Stop if <code>again[i]=false</code> for any <code>i</code>.
  *
+ * @param s The <code>mps_status</code> associated with the current computation.
  * @param it Index of the component on which the iteration is needed. 
  * @param excep This variable is set to <code>true</code> if after <code>nit</code> 
  * iterations some approximation is still out of the root neighbourhood.

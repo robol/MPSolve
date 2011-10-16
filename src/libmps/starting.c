@@ -259,6 +259,7 @@ mps_fcompute_starting_radii (mps_status * s, int n, int i_clust,
  * The status vector is changed into <code>'x'</code> for the components that
  * cannot be represented as double.
  *
+ * @param s The <code>mps_status</code> associated with the current computation.
  * @param n number of roots in the cluster.
  * @param i_clust index of cluster to analyze.
  * @param clust_rad radius of cluster.
@@ -682,7 +683,6 @@ mps_dstart (mps_status * s, int n, int i_clust, rdpe_t clust_rad,
  * @param i_clust Index of the cluster to analyze.
  * @param clust_rad radius of the cluster.
  * @param g new gravity center where the polynomial has been shifted.
- * @param eps out epsilon.
  * @param dap[] Array with the moduli of the coefficients.
  *
  * @see mps_mstart()

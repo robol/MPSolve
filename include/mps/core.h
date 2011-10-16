@@ -28,8 +28,8 @@
  * this file is needed to access all the MPSolve routines by
  * MPSolve internals.
  *
- * If you need an interface for using mps as a library try
- * #include <mps/interface.h>
+ * If you need an interface for using mps as a library try to
+ * include the header file <code>mps/interface.h</code>.
  *
  * @brief Header file for libmps
  */

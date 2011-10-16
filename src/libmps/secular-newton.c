@@ -18,7 +18,7 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
 {
   int i;
   cplx_t ctmp, ctmp2, pol, fp, sumb;
-  double dtmp, prod_b = 1.0, sec_eps = 0.0;
+  double dtmp, prod_b = 1.0, sec_eps = 0.0, new_rad;
   int * k = (int*) user_data;
   *again = true;
 
@@ -111,7 +111,6 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
     cplx_div (corr, pol, corr);
 
   /* Computation of radius with Gerschgorin */
-  double new_rad;
   if ((!k) || sec_eps < 1)
     new_rad = cplx_mod (pol) * s->n * prod_b * (1 + sec_eps);
   else

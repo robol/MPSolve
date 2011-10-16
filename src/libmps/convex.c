@@ -73,6 +73,7 @@ mps_right (mps_status * s, int i, int up)
  * of the line from \f$P_1\f$ to \f$P_2\f$ is at least <code>TOLER</code>
  * less than the slope of the line joining \f$P_2\f$ and \f$P_3\f$. 
  * 
+ * @param s The <code>mps_status</code> associated with the current computation.
  * @param il index of the first point
  * @param i  index of the middle point
  * @param ir index of the last point
@@ -93,6 +94,8 @@ mps_fctest (mps_status * s, int il, int i, int ir, double a[])
 
 /**
  * @brief Merge two adjacent convex hulls [lo, i] and [i, hi].
+ *
+ * @param s The <code>mps_status</code> associated with the current computation.
  * @param lo starting index of the points of the first convex hull
  * in the vector <code>a</code>.
  * @param i last index of the points in the first convex hull and
@@ -150,6 +153,7 @@ mps_fmerge (mps_status * s, int lo, int i, int up, double a[])
  * is in the mps_boolean vector <code>h[]</code>. The algorithm successively
  * merges adjacent convex hulls of sizes 2, 4, 8, ...
  *
+ * @param s The <code>mps_status</code> associated with the current computation.
  * @param a vector of points whose convex hull must be computed.
  * @param n size of the vector <code>a</code>.
  */

@@ -69,6 +69,8 @@ mps_cluster_reset (mps_status * s)
  * <code>nclust</code> is the
  * number of clusters.
  *
+ * @param s  The <code>mps_status</code> associated with the current
+ *           computaion.
  * @param nf see above for a detailed description.
  */
 void

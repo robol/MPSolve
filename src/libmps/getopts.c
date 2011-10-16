@@ -27,7 +27,7 @@ void mps_print_help (mps_status * s);
 /**
  * @brief Parse command line options in a similar way of getopts.
  *
- * @param op_ptr A pointer to a previous used mps_opts that can
+ * @param opt_ptr A pointer to a previous used mps_opts that can
  * be re-used, or NULL. If this is NULL it will be allocated.
  * When this function return false the opt_ptr is automatically
  * freed.
@@ -203,6 +203,7 @@ mps_getopts (mps_opt ** opt_ptr, int *argc_ptr, char ***argv_ptr,
  *
  * @brief Parse options from command line.
  *
+ * @param s The <code>mps_status</code> associated with the current computation.
  * @param argc
  *   Argoment counter as obtained from the main()
  *   function.

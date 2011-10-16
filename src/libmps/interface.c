@@ -277,11 +277,11 @@ mps_status_free (mps_status * s)
  *   <code>(void*)(mps_status* s, cdpe_t x, rdpe_t rad, cdpe_t corr, mps_boolean * again)</code>
  *   and can be passed to the function with the right casting using the macro
  *   <code>MPS_DNEWTON_PTR</code>.
- * @param fnewton The routine that performs the computation of the newton correction in
+ * @param mnewton The routine that performs the computation of the newton correction in
  *   multiprecision. It must be of the type
  *   <code>(void*)(mps_status* s, mpc_t x, rdpe_t rad, mpc_t corr, mps_boolean * again)</code>
  *   and can be passed to the function with the right casting using the macro
- *   <code>MPS_MNEWTON_PTR</code>.
+ *   <code>MPS_MNEWTON_PTR</code>. 
  */
 int
 mps_status_set_poly_u (mps_status * s, int n, mps_fnewton_ptr fnewton,

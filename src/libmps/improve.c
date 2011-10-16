@@ -9,27 +9,55 @@
 ** (C) 2001, Dipartimento di Matematica, FRISCO LTR 21024 **
 ***********************************************************/
 
+/**
+ * @file
+ * @brief File containing the implemenation of the improvement functions
+ */
+
 #include <mps/core.h>
 #include <mps/secular.h>
 #include <mps/debug.h>
 #include <math.h>
 
-/***********************************************************
- *                       IMPROVE
- ***********************************************************
- Improve all the approximations up to prec_out digits
- For each approximation compute the value of sigma such that
-    e_j < e_0 * sigma **(2**j)  sigma=k/(k-1)=1/(1-t), k=1/t,
-    t = Min_j |root(i)-root(j)|-rad(j)
- Then compute the number of digits needed for the j-th
- iteration i.e., digits=log(e_j/|x|)+cond, where
- log(e_j/|x|) = f+g**(2**j), ...
- cond = log(rad/eps),
- cond ~ norm(p)(1+|root(i)|/(a_n prod_{j != i}|root(i)-root(j)|
- and cond ~ radius(i)/(eps |root(i)|) for user-defined polyn.
- mpwp denotes the number of bits of the current working
- precision.
- ************************************************************/
+
+/**
+ * @brief Improve all the approximations up to prec_out digits.
+ *
+ * For each approximation compute the value of sigma such that, given some
+ * approximations \f$x_j\f$ of the roots, \f$r_j\f$ the values of the
+ * inclusion radii and \f$d_i\f$ the number of correct digits:
+ * \f[
+ *   e_j < e_0 * \sigma^{2^j} \qquad \sigma=\frac{k}{k-1}=\frac{1}{1-t} \qquad k=\frac{1}{t}
+ * \f]
+ * and
+ * \f[
+ *   t = \min_j |z_i-z_j|-r_j
+ * \f]
+ * Then compute the number of digits needed for the j-th
+ * iteration i.e., if \f$cond\f$ is the conditioning of the root: 
+ * \f[
+ *   d_j = \log(\frac{e_j}{|x|}) + cond
+ * \f]
+ * where 
+ * \f[ 
+ *   \log(\frac{e_j}{|x|}) = (f+g){2j} \qquad
+ *   cond = \log(\frac{rad}{\epsilon})
+ * \f] 
+ * and
+ * \f[ 
+ *   cond \approx \lVert p \rVert (1+ \frac{|x_i|}{a_n \prod_{j \neq i} |x_i-x_j|}
+ * \f]
+ * and
+ * \f[ 
+ *   cond \approx \frac{r_i}{\epsilon |x_i|}
+ * \f] 
+ * for user-defined polynomials.
+ *
+ * <code>s->mpwp</code> denotes the number of bits of the current working
+ * precision.
+ *
+ * @param s The mps_status associated with the computation.
+ */
 void
 mps_improve (mps_status * s)
 {
@@ -164,6 +192,10 @@ mps_improve (mps_status * s)
           tmpc_init2 (nwtcorr, s->mpwp);
 
           mps_mp_set_prec (s, s->mpwp);
+
+	  /* If using the standard MPSolve algorithm then use the old
+	   * mps_prepare_data routine, otherwise use the one that
+	   * raises the precision of the coefficients */
           if (s->mpsolve_ptr == MPS_MPSOLVE_PTR (mps_standard_mpsolve))
             mps_prepare_data (s, s->mpwp);
           else
@@ -187,8 +219,7 @@ mps_improve (mps_status * s)
 
           /* correct radius, since the computed one is referred to the previous
            * approximation. Due to the quadratic convergence the new approximation
-           * the radius is bounded by 2^(-g-f+1)
-           */
+           * the radius is bounded by 2^(-g-f+1) */
           rdpe_set_2dl (newrad, 1.0, (long) (-g - f + 1));
           rdpe_set (tmp, abroot);
           rdpe_mul_eq (newrad, tmp);
