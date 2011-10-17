@@ -176,7 +176,7 @@ extern "C"
       fprintf(s->logstr, "%s:%d %s() ",				\
 	      __FILE__, __LINE__, __FUNCTION__);		\
     }								\
-    gmp_fprintf(s->logstr, templ);				\
+    fprintf(s->logstr, templ);				\
   }
 #else
 #define __MPS_DEBUG(s, templ...) if (s->DOLOG) {		\
@@ -188,7 +188,7 @@ extern "C"
       fprintf(s->logstr, "%s:%d %s() ",				\
 	      __FILE__, __LINE__, __FUNCTION__);		\
     }								\
-    gmp_fprintf(s->logstr, templ);				\
+    fprintf(s->logstr, templ);				\
   }
 #endif
 

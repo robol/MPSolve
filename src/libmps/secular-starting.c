@@ -116,7 +116,7 @@ mps_secular_mstart (mps_status * s, int n, int i_clust, rdpe_t clust_rad,
   rdpe_t rtmp;
   rdpe_set (r_eps, rdpe_zero);
 
-  mpc_init2 (epsilon, s->mpwp);
+  mpc_init2 (epsilon, mpc_get_prec (s->mroot[0]));
   mpc_set_ui (epsilon, 0, 0);
 
   /* Get best sigma possible */

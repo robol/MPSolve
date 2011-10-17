@@ -379,7 +379,7 @@ mps_free_data (mps_status * s)
 
   if (s->debug_level & MPS_DEBUG_MEMORY)
     {
-      MPS_DEBUG (s, "Deallocating emporaries variables");
+      MPS_DEBUG (s, "Deallocating temporaries variables");
     }
 
   mptemp_clear ();

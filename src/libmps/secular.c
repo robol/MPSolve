@@ -91,7 +91,7 @@ mps_secular_deflate (mps_status * s, mps_secular_equation * sec)
                                  "sec->initial_bmpc[%d]", j);
                   mpc_add_eq (sec->initial_ampc[i], sec->initial_ampc[j]);
 
-                  for (k = j; k < sec->n; k++)
+                  for (k = j; k < sec->n - 1; k++)
                     {
                       mpc_set (sec->initial_ampc[k],
                                sec->initial_ampc[k + 1]);
@@ -401,8 +401,8 @@ mps_secular_raise_coefficient_precision (mps_status * s, int wp)
       mpc_set_prec (sec->initial_bmpc[i], wp);
     }
   
-  if (MPS_REPRESENTATION_IS_MONOMIAL (sec->input_structure))
-    mps_raise_data_raw (s);
+  if (MPS_REPRESENTATION_IS_MONOMIAL (sec->input_representation))
+      mps_raise_data_raw (s, wp);
 
   rdpe_set_2dl (s->mp_epsilon, 1.0, -wp);
   MPS_DEBUG_WITH_INFO (s, "Precision of the coefficients is now at %d bits", wp);

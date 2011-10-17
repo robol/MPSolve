@@ -314,6 +314,8 @@ mps_secular_equation_read_from_stream (mps_status * s,
   sec->input_structure = config.structure;
   sec->input_representation = config.representation;
 
+  MPS_DEBUG (s, "sec->input_representation: %d", sec->input_representation);
+
   /* Parsing of integers and floating point is done with Multiprecision */
   if (MPS_STRUCTURE_IS_FP (config.structure))
     {
@@ -390,7 +392,7 @@ mps_secular_equation_read_from_stream (mps_status * s,
    * as a special case of the rational ones.
    */
   else if (MPS_STRUCTURE_IS_RATIONAL (config.structure) ||
-           MPS_STRUCTURE_IS_INTEGER (config.structure))
+           MPS_STRUCTURE_IS_INTEGER  (config.structure))
     {
       for (i = 0; i < s->n; i++)
         {
