@@ -161,7 +161,7 @@ main (int argc, char **argv)
     }
 
   /* Create new secular equation */
-  mps_parsing_configuration default_configuration = {
+  mps_input_configuration default_configuration = {
     /* .structure */
     MPS_STRUCTURE_COMPLEX_FP,
 

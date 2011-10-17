@@ -235,7 +235,7 @@ extern "C"
      */
     mps_representation representation;
 
-  } mps_parsing_configuration;
+  } mps_input_configuration;
 
 
   /**

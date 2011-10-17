@@ -201,7 +201,7 @@ mps_parse_option_line (mps_status * s, char *line, size_t length)
 
 void
 mps_secular_equation_read_from_stream_poly (mps_status * s,
-					    mps_parsing_configuration config,
+					    mps_input_configuration config,
 					    mps_input_buffer * buffer)
 {
   mps_secular_equation *sec;
@@ -297,7 +297,7 @@ mps_secular_equation_read_from_stream_poly (mps_status * s,
 
 void
 mps_secular_equation_read_from_stream (mps_status * s,
-                                       mps_parsing_configuration config,
+                                       mps_input_configuration config,
                                        mps_input_buffer * buffer)
 {
   mps_secular_equation *sec;
@@ -502,12 +502,12 @@ mps_secular_equation_read_from_stream (mps_status * s,
  */
 void
 mps_parse_stream (mps_status * s, FILE * input_stream,
-                  mps_parsing_configuration default_configuration)
+                  mps_input_configuration default_configuration)
 {
   mps_boolean parsing_options = true;
   mps_input_buffer *buffer;
   mps_input_option input_option;
-  mps_parsing_configuration config;
+  mps_input_configuration config;
   int i;
   ssize_t length;
   char * line;
