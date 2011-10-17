@@ -1074,7 +1074,6 @@ mps_secular_ga_improve (mps_status * s)
    * the original coefficients */
   for (i = 0; i < s->n; i++)
     {
-      break;
       if (MPS_REPRESENTATION_IS_SECULAR (sec->input_representation))
 	{
 	  if (MPS_STRUCTURE_IS_FP (s->secular_equation->input_structure))
@@ -1152,7 +1151,6 @@ mps_secular_ga_improve (mps_status * s)
 
       for (j = 0; j < iterations; j++)
         {	     
-	  mps_secular_ga_regenerate_coefficients (s);
 	  rdpe_set (old_rad, s->drad[i]);
           mps_secular_mnewton (s, s->mroot[i], s->drad[i], nwtcorr,
                                &s->again[i], &i);
@@ -1242,7 +1240,7 @@ mps_secular_ga_mpsolve (mps_status * s)
   if (MPS_REPRESENTATION_IS_SECULAR (sec->input_representation))
     s->data_type = "uri";
   else if (MPS_REPRESENTATION_IS_MONOMIAL (sec->input_representation))
-    s->data_type = "uri";
+    s->data_type = "dri";
 
   /* We set the selected phase */
   s->lastphase = phase;
