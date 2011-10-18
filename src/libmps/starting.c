@@ -987,12 +987,14 @@ mps_mstart (mps_status * s, int n, int i_clust, rdpe_t clust_rad,
       rdpe_set (rtmp2, g);
       rdpe_mul_eq (rtmp2, s->eps_out);
       if (rdpe_le (rtmp1, rtmp2))
-        for (j = 0; j < s->punt[i_clust + 1] - s->punt[i_clust]; j++)
-          {
-            l = s->clust[s->punt[i_clust] + j];
-            s->status[l][0] = 'o';
-            rdpe_mul_d (s->drad[l], r, (double) nzeros);
-          }
+	{
+	  for (j = 0; j < s->punt[i_clust + 1] - s->punt[i_clust]; j++)
+	    {
+	      l = s->clust[s->punt[i_clust] + j];
+	      s->status[l][0] = 'o';
+	      rdpe_mul_d (s->drad[l], r, (double) nzeros);
+	    }
+	}
       rdpe_set (clust_rad, s->dradii[i]);
     }
 

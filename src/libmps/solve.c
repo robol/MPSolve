@@ -295,7 +295,12 @@ mps_msrad (mps_status * s, int i, mpc_t sc, rdpe_t sr)
       cdpe_mod (rtmp, cdtmp);
       rdpe_add_eq (rtmp, s->drad[l]);
       if (rdpe_lt (sr, rtmp))
-        rdpe_set (sr, rtmp);
+	  rdpe_set (sr, rtmp);
+      else
+	{
+	  MPS_DEBUG_RDPE (s, sr, "sr");
+	  MPS_DEBUG_RDPE (s, rtmp, "rtmp");
+	}
     }
 
   tmpf_clear (sum);

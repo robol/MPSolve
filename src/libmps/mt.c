@@ -1312,10 +1312,19 @@ rdpe_lt (const rdpe_t e1, const rdpe_t e2)
 {
   rdpe_t t;
 
-   /* if (rdpe_Esp (e1) > rdpe_Esp (e2))  */
-   /*   return 0;  */
-   /* if (rdpe_Esp (e2) > rdpe_Esp (e1))  */
-   /*   return 1;  */
+  if (rdpe_Mnt (e1) > 0 && rdpe_Mnt (e2) < 0)
+    return 1;
+  if (rdpe_Mnt (e1) < 0 && rdpe_Mnt (e1) > 0)
+    return 0;
+
+  /* This check works only if the numbers are non zero */
+  if (rdpe_Mnt (e1) != 0 && rdpe_Mnt (e2) != 0)
+    {
+      if (rdpe_Esp (e1) > rdpe_Esp (e2)) 
+	return 0;
+      if (rdpe_Esp (e2) > rdpe_Esp (e1)) 
+	return 1; 
+    }
 
   rdpe_sub (t, e1, e2);
   return rdpe_Mnt (t) < 0.0;
@@ -1331,10 +1340,15 @@ rdpe_le (const rdpe_t e1, const rdpe_t e2)
     return 1;
   if (rdpe_Mnt (e1) < 0 && rdpe_Mnt (e1) > 0)
     return 0;
-  if (rdpe_Esp (e1) > rdpe_Esp (e2)) 
-    return 0;
-  if (rdpe_Esp (e2) > rdpe_Esp (e1)) 
-    return 1; 
+
+  /* This check works only if the numbers are non zero */
+  if (rdpe_Mnt (e1) != 0 && rdpe_Mnt (e2) != 0)
+    {
+      if (rdpe_Esp (e1) > rdpe_Esp (e2)) 
+	return 0;
+      if (rdpe_Esp (e2) > rdpe_Esp (e1)) 
+	return 1;
+    }
 
   rdpe_sub (t, e1, e2);
   return rdpe_Mnt (t) <= 0.0;
@@ -1346,11 +1360,19 @@ rdpe_gt (const rdpe_t e1, const rdpe_t e2)
 {
   rdpe_t t;
 
-  /* if (rdpe_Esp (e1) > rdpe_Esp (e2)) */
-  /*   return 1; */
-  /* if (rdpe_Esp (e2) > rdpe_Esp (e1)) */
-  /*   return 0; */
+  if (rdpe_Mnt (e1) > 0 && rdpe_Mnt (e2) < 0)
+    return 0;
+  if (rdpe_Mnt (e1) < 0 && rdpe_Mnt (e1) > 0)
+    return 1;
 
+  /* This check works only if both DPE are non zero */
+  if (rdpe_Mnt (e1) != 0 && rdpe_Mnt (e2) != 0)
+    {       
+      if (rdpe_Esp (e1) > rdpe_Esp (e2)) 
+	return 1; 
+      if (rdpe_Esp (e2) > rdpe_Esp (e1)) 
+	return 0; 
+    }
 
   rdpe_sub (t, e1, e2);
   return rdpe_Mnt (t) > 0.0;
@@ -1366,10 +1388,15 @@ rdpe_ge (const rdpe_t e1, const rdpe_t e2)
     return 0;
   if (rdpe_Mnt (e1) < 0 && rdpe_Mnt (e1) > 0)
     return 1;
-   if (rdpe_Esp (e1) > rdpe_Esp (e2)) 
-     return 1; 
-   if (rdpe_Esp (e2) > rdpe_Esp (e1)) 
-     return 0; 
+
+  /* This check works only if both DPE are non zero */
+  if (rdpe_Mnt (e1) != 0 && rdpe_Mnt (e2) != 0)
+    {       
+      if (rdpe_Esp (e1) > rdpe_Esp (e2)) 
+	return 1; 
+      if (rdpe_Esp (e2) > rdpe_Esp (e1)) 
+	return 0; 
+    }
 
   rdpe_sub (t, e1, e2);
   return rdpe_Mnt (t) >= 0.0;
