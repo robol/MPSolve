@@ -330,7 +330,7 @@ mps_secular_ga_miterate (mps_status * s, int maxit)
 {
   MPS_DEBUG_THIS_CALL;
 
-  MPS_DEBUG_WITH_INFO (s, "Precision is at %d bits", s->mpwp);
+  MPS_DEBUG_WITH_INFO (s, "Precision is at %ld bits", s->mpwp);
   MPS_DEBUG_RDPE (s, s->mp_epsilon, "Machine epsilon is s->mp_epsilon");
 
   int computed_roots = 0;
@@ -509,10 +509,9 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s)
 
   mps_secular_raise_coefficient_precision (s, coeff_wp);
 
-  if (MPS_REPRESENTATION_IS_MONOMIAL (sec->input_representation))
+  if (MPS_REPRESENTATION_IS_MONOMIAL (s->config))
     {
-      mpc_t diff, prod_b, m_one, ctmp;
-      
+      mpc_t diff, prod_b, m_one, ctmp;      
       MPS_DEBUG_WITH_INFO (s, "Regenerating coefficients from polynomial input");
 
       /* Init multiprecision values */
@@ -541,8 +540,8 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s)
        *   a_i = -p(b_i) / \prod_{i \neq j} (b_i - b_j)
        *
        */
-      if (MPS_STRUCTURE_IS_INTEGER (sec->input_structure) 
-	  || MPS_STRUCTURE_IS_RATIONAL (sec->input_structure))
+      if (MPS_STRUCTURE_IS_INTEGER (s->config) 
+	  || MPS_STRUCTURE_IS_RATIONAL (s->config))
 	{
 	  for (i = 0; i < s->n + 1; ++i)
 	    {
@@ -649,7 +648,7 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s)
       mpc_clear (m_one);
       mpc_clear (ctmp);
     }
-  else if (MPS_REPRESENTATION_IS_SECULAR (sec->input_representation))
+  else if (MPS_REPRESENTATION_IS_SECULAR (s->config))
     {
       mpc_t prod_b, sec_ev;
       mpc_t ctmp, btmp;
@@ -663,8 +662,8 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s)
       /* If the input was rational generate multiprecision floating
        * point coefficient from the ones that the user originally
        * provided */
-      if (MPS_STRUCTURE_IS_RATIONAL (sec->input_structure) ||
-	  MPS_STRUCTURE_IS_INTEGER (sec->input_structure))
+      if (MPS_STRUCTURE_IS_RATIONAL (s->config) ||
+	  MPS_STRUCTURE_IS_INTEGER (s->config))
 	{
 	  MPS_DEBUG_WITH_INFO (s, "Regenerating coefficients from the multiprecision input");
 	  for (i = 0; i < s->n; i++)
@@ -781,7 +780,7 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s)
       mpc_clear (btmp);
 
 
-    } /* End of if (MPS_REPRESENTATION_IS_SECULAR (sec->input_representation)) */
+    } /* End of if (MPS_REPRESENTATION_IS_SECULAR (s->config)) */
   
   mps_secular_raise_coefficient_precision (s, s->mpwp);
   rdpe_set_2dl (s->mp_epsilon, 1.0, -s->mpwp + 1);
@@ -1074,9 +1073,9 @@ mps_secular_ga_improve (mps_status * s)
    * the original coefficients */
   for (i = 0; i < s->n; i++)
     {
-      if (MPS_REPRESENTATION_IS_SECULAR (sec->input_representation))
+      if (MPS_REPRESENTATION_IS_SECULAR (s->config))
 	{
-	  if (MPS_STRUCTURE_IS_FP (s->secular_equation->input_structure))
+	  if (MPS_STRUCTURE_IS_FP (s->config))
 	    {
 	      mpc_set (s->secular_equation->ampc[i],
 		       s->secular_equation->initial_ampc[i]);
@@ -1094,7 +1093,7 @@ mps_secular_ga_improve (mps_status * s)
 			 s->secular_equation->initial_bmpqic[i]);
 	    }
 	}
-      else if (MPS_REPRESENTATION_IS_MONOMIAL (sec->input_representation))
+      else if (MPS_REPRESENTATION_IS_MONOMIAL (s->config))
 	{
 	  
 	}
@@ -1237,9 +1236,9 @@ mps_secular_ga_mpsolve (mps_status * s)
    * to allow initializitation to be performed. */
   s->deg = s->n = sec->n;
 
-  if (MPS_REPRESENTATION_IS_SECULAR (sec->input_representation))
+  if (MPS_REPRESENTATION_IS_SECULAR (s->config))
     s->data_type = "uri";
-  else if (MPS_REPRESENTATION_IS_MONOMIAL (sec->input_representation))
+  else if (MPS_REPRESENTATION_IS_MONOMIAL (s->config))
     s->data_type = "dri";
 
   /* We set the selected phase */
@@ -1266,7 +1265,7 @@ mps_secular_ga_mpsolve (mps_status * s)
 
   /* If the input was polynomial we need to determined the secular
    * coefficients */
-  if (MPS_REPRESENTATION_IS_MONOMIAL (sec->input_representation))
+  if (MPS_REPRESENTATION_IS_MONOMIAL (s->config))
     {
       int nit;
       mps_boolean excep;
@@ -1417,7 +1416,7 @@ mps_secular_ga_mpsolve (mps_status * s)
   /* Finally improve the roots if approximation is required */
   if (s->goal[0] == 'a')
     {
-      if (MPS_REPRESENTATION_IS_SECULAR (sec->input_representation))
+      if (MPS_REPRESENTATION_IS_SECULAR (s->config))
 	{
 	  clock_t *my_timer = mps_start_timer ();
 	  mps_secular_ga_improve (s);
@@ -1427,7 +1426,7 @@ mps_secular_ga_mpsolve (mps_status * s)
 	      MPS_DEBUG (s, "mps_secular_ga_improve took %u ms", improve_time);
 	    }
 	}
-      else if (MPS_REPRESENTATION_IS_MONOMIAL (sec->input_representation))
+      else if (MPS_REPRESENTATION_IS_MONOMIAL (s->config))
 	{
 	  clock_t *my_timer = mps_start_timer ();
 	  mps_secular_ga_improve (s);
@@ -1443,15 +1442,15 @@ mps_secular_ga_mpsolve (mps_status * s)
 #ifndef DISABLE_DEBUG
   if (s->debug_level & MPS_DEBUG_TIMINGS)
     {
-      MPS_DEBUG (s, "Time used for regeneration: %u ms",
+      MPS_DEBUG (s, "Time used for regeneration: %ld ms",
                  s->regeneration_time);
-      MPS_DEBUG (s, "Time used in floating point iterations: %u ms",
+      MPS_DEBUG (s, "Time used in floating point iterations: %ld ms",
                  s->fp_iteration_time);
-      MPS_DEBUG (s, "Time used in DPE iterations: %u ms",
+      MPS_DEBUG (s, "Time used in DPE iterations: %ld ms",
                  s->dpe_iteration_time);
-      MPS_DEBUG (s, "Time used in multiprecision iterations: %u ms",
+      MPS_DEBUG (s, "Time used in multiprecision iterations: %ld ms",
                  s->mp_iteration_time);
-      MPS_DEBUG (s, "Total time using MPSolve: %u ms",
+      MPS_DEBUG (s, "Total time using MPSolve: %ld ms",
                  mps_stop_timer (total_clock));
     }
 #endif

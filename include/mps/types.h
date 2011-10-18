@@ -198,11 +198,11 @@ extern "C"
   const static short int mps_complex_structures[] = { 0, 0, 0, 1, 1, 1 };
 
   /* STRUCTURE related macros */
-#define MPS_STRUCTURE_IS_RATIONAL(x) (mps_rational_structures[(x)])
-#define MPS_STRUCTURE_IS_INTEGER(x)  (mps_integer_structures[(x)])
-#define MPS_STRUCTURE_IS_FP(x)       (mps_fp_structures[(x)])
-#define MPS_STRUCTURE_IS_REAL(x)     (mps_real_structures[(x)])
-#define MPS_STRUCTURE_IS_COMPLEX(x)  (mps_complex_structures[(x)])
+#define MPS_STRUCTURE_IS_RATIONAL(x) (mps_rational_structures[(x)->structure])
+#define MPS_STRUCTURE_IS_INTEGER(x)  (mps_integer_structures[(x)->structure])
+#define MPS_STRUCTURE_IS_FP(x)       (mps_fp_structures[(x)->structure])
+#define MPS_STRUCTURE_IS_REAL(x)     (mps_real_structures[(x)->structure])
+#define MPS_STRUCTURE_IS_COMPLEX(x)  (mps_complex_structures[(x)->structure])
 
   /**
    * @brief Representation chosen for the polynomial
@@ -213,8 +213,8 @@ extern "C"
       MPS_REPRESENTATION_MONOMIAL
     } mps_representation;
 
-#define MPS_REPRESENTATION_IS_SECULAR(x) ((x) == MPS_REPRESENTATION_SECULAR)
-#define MPS_REPRESENTATION_IS_MONOMIAL(x) ((x) == MPS_REPRESENTATION_MONOMIAL)
+#define MPS_REPRESENTATION_IS_SECULAR(x)  ((x)->representation == MPS_REPRESENTATION_SECULAR)
+#define MPS_REPRESENTATION_IS_MONOMIAL(x) ((x)->representation == MPS_REPRESENTATION_MONOMIAL)
 
   /**
    * @brief Configuration for an input stream; this struct
@@ -321,21 +321,6 @@ extern "C"
      * This value is the imaginary part of the \f$b_i\f$ coefficients.
      */
     mpq_t *initial_bmpqic;
-
-    /**
-     * @brief Structure of the input coefficient parsed initially.
-     *
-     * Knowing this is important in order to understand how to determine
-     * high precision coefficients if they are available.
-     */
-    mps_structure input_structure;
-
-    /**
-     * @brief Representation of the input data.
-     *
-     *
-     */
-    mps_representation input_representation;
 
     /**
      * @brief Size of the vectors of the coefficients of the
@@ -469,6 +454,11 @@ extern "C"
      * @brief Byte containing the flags of debug enabled.
      */
     unsigned int debug_level;
+
+    /**
+     * @brief Configuration of the input of MPSolve
+     */
+    mps_input_configuration * config;
 
     /**
      * @brief Newton isolation of the cluster.

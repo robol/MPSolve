@@ -75,7 +75,7 @@ mps_secular_deflate (mps_status * s, mps_secular_equation * sec)
         {
           /* If the input is floating point check on the
            * DPE input */
-          if (MPS_STRUCTURE_IS_FP (sec->input_structure))
+          if (MPS_STRUCTURE_IS_FP (s->config))
             {
               /* Do not deflate in floating point, since it is not working
                * correctly right now */
@@ -107,8 +107,8 @@ mps_secular_deflate (mps_status * s, mps_secular_equation * sec)
           /* Otherwise, in the case of rational or integer input
            * (that are handled in the same way) use initial_*mqpc
            * values */
-          else if (MPS_STRUCTURE_IS_INTEGER (sec->input_structure) ||
-                   MPS_STRUCTURE_IS_RATIONAL (sec->input_structure))
+          else if (MPS_STRUCTURE_IS_INTEGER (s->config) ||
+                   MPS_STRUCTURE_IS_RATIONAL (s->config))
             {
               if (mpq_equal (sec->initial_bmpqrc[i], sec->initial_bmpqrc[j])
                   && mpq_equal (sec->initial_bmpqic[i],
@@ -141,8 +141,8 @@ mps_secular_deflate (mps_status * s, mps_secular_equation * sec)
 
   /* If the input was rational or integer, we need to reset the dpe coefficients
    * according to it */
-  if (MPS_STRUCTURE_IS_INTEGER (sec->input_structure) ||
-      MPS_STRUCTURE_IS_RATIONAL (sec->input_structure))
+  if (MPS_STRUCTURE_IS_INTEGER (s->config) ||
+      MPS_STRUCTURE_IS_RATIONAL (s->config))
     {
       mpf_t ftmp;
       mpf_init (ftmp);
@@ -168,7 +168,7 @@ mps_secular_deflate (mps_status * s, mps_secular_equation * sec)
 
   /* If the input was floating point update the coefficients using initial_*mpc
    * values */
-  if (MPS_STRUCTURE_IS_FP (sec->input_structure))
+  if (MPS_STRUCTURE_IS_FP (s->config))
     {
       for (i = 0; i < sec->n; i++)
         {
@@ -178,7 +178,7 @@ mps_secular_deflate (mps_status * s, mps_secular_equation * sec)
 
     }
 
-  MPS_DEBUG (s, "Secular equation deflated to degree %d", sec->n);
+  MPS_DEBUG (s, "Secular equation deflated to degree %lu", sec->n);
 }
 
 /**
@@ -401,7 +401,7 @@ mps_secular_raise_coefficient_precision (mps_status * s, int wp)
       mpc_set_prec (sec->initial_bmpc[i], wp);
     }
   
-  if (MPS_REPRESENTATION_IS_MONOMIAL (sec->input_representation))
+  if (MPS_REPRESENTATION_IS_MONOMIAL (s->config))
       mps_raise_data_raw (s, wp);
 
   rdpe_set_2dl (s->mp_epsilon, 1.0, -wp);

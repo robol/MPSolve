@@ -168,7 +168,8 @@ main (int argc, char **argv)
     /* .representation */
     MPS_REPRESENTATION_SECULAR
   };
-  mps_parse_stream (s, infile, default_configuration);
+
+  mps_parse_stream (s, infile, &default_configuration);
   sec = s->secular_equation;
 
   /* Close the file if it's not stdin */
@@ -180,7 +181,7 @@ main (int argc, char **argv)
   sec->starting_case = phase;
 
   /* Use always DPE with non floating point input */
-  if (!MPS_STRUCTURE_IS_FP (s->secular_equation->input_structure))
+  if (!MPS_STRUCTURE_IS_FP (s->config))
     {
       // sec->starting_case = dpe_phase;
     }

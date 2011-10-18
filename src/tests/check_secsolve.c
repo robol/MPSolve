@@ -70,11 +70,11 @@ test_secsolve_on_pol (test_pol * pol)
   mps_set_default_values (s);
 
   /* Set secular equation and start in floating point */
-  mps_parsing_configuration default_configuration = {
+  mps_input_configuration default_configuration = {
     MPS_STRUCTURE_COMPLEX_FP,
     MPS_REPRESENTATION_SECULAR
   };
-  mps_parse_stream (s, input_stream, default_configuration);
+  mps_parse_stream (s, input_stream, &default_configuration);
   sec = s->secular_equation;
   sec->starting_case = pol->phase;
 
