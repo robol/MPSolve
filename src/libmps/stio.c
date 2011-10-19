@@ -228,7 +228,7 @@ mps_secular_equation_read_from_stream_poly (mps_status * s,
   for (i = 0; i < s->n; ++i)
       s->spar[i] = true;
 
-  if (MPS_STRUCTURE_IS_FP (s->input_config))
+  if (MPS_INPUT_CONFIG_IS_FP (s->input_config))
     {
       for (i = 0; i < s->n + 1; ++i)
 	{
@@ -237,7 +237,7 @@ mps_secular_equation_read_from_stream_poly (mps_status * s,
 	    mps_raise_parsing_error (s, token, "Error parsing coefficients of the polynomial");
 	  free (token);
 
-	  if (MPS_STRUCTURE_IS_COMPLEX (s->input_config))
+	  if (MPS_INPUT_CONFIG_IS_COMPLEX (s->input_config))
 	    {
 	      token = mps_input_buffer_next_token (buffer);
 	      if (!token || (mpf_set_str (mpc_Im (s->mfpc[i]), token, 10) != 0))
@@ -248,8 +248,8 @@ mps_secular_equation_read_from_stream_poly (mps_status * s,
 	    mpf_set_ui (mpc_Im (s->mfpc[i]), 0U);
 	}
     }
-  else if (MPS_STRUCTURE_IS_RATIONAL (s->input_config) ||
-	   MPS_STRUCTURE_IS_INTEGER (s->input_config))
+  else if (MPS_INPUT_CONFIG_IS_RATIONAL (s->input_config) ||
+	   MPS_INPUT_CONFIG_IS_INTEGER (s->input_config))
     {
       for (i = 0; i < s->n + 1; ++i)
 	{
@@ -259,7 +259,7 @@ mps_secular_equation_read_from_stream_poly (mps_status * s,
 	  mpq_canonicalize (sec->initial_bmpqrc[i]);
 	  free (token);
       
-	  if (MPS_STRUCTURE_IS_COMPLEX (s->input_config))
+	  if (MPS_INPUT_CONFIG_IS_COMPLEX (s->input_config))
 	    {
 	      token = mps_input_buffer_next_token (buffer);
 	      if (!token || (mpq_set_str (sec->initial_bmpqic[i], token, 10) != 0))
@@ -309,7 +309,7 @@ mps_secular_equation_read_from_stream (mps_status * s,
   sec = mps_secular_equation_new_raw (s, s->n);
 
   /* Parsing of integers and floating point is done with Multiprecision */
-  if (MPS_STRUCTURE_IS_FP (s->input_config))
+  if (MPS_INPUT_CONFIG_IS_FP (s->input_config))
     {
       for (i = 0; i < s->n; i++)
         {
@@ -326,7 +326,7 @@ mps_secular_equation_read_from_stream (mps_status * s,
 	  free (token);
 
           /* Imaginary part, read only if the input is complex */
-          if (MPS_STRUCTURE_IS_COMPLEX (s->input_config))
+          if (MPS_INPUT_CONFIG_IS_COMPLEX (s->input_config))
             {
 	      token = mps_input_buffer_next_token (buffer);
               if (!token || (mpf_set_str (mpc_Im (sec->initial_ampc[i]), token, 10) != 0))
@@ -358,7 +358,7 @@ mps_secular_equation_read_from_stream (mps_status * s,
 	  free (token);
 
           /* Again, read the imaginary part only if the input is complex */
-          if (MPS_STRUCTURE_IS_COMPLEX (s->input_config))
+          if (MPS_INPUT_CONFIG_IS_COMPLEX (s->input_config))
             {
 	      token = mps_input_buffer_next_token (buffer);
 	      if (!token || (mpf_set_str (mpc_Im (sec->initial_bmpc[i]), token, 10) != 0))
@@ -383,8 +383,8 @@ mps_secular_equation_read_from_stream (mps_status * s,
    * Parsing of the integer input is done assuming the coefficients
    * as a special case of the rational ones.
    */
-  else if (MPS_STRUCTURE_IS_RATIONAL (s->input_config) ||
-           MPS_STRUCTURE_IS_INTEGER  (s->input_config))
+  else if (MPS_INPUT_CONFIG_IS_RATIONAL (s->input_config) ||
+           MPS_INPUT_CONFIG_IS_INTEGER  (s->input_config))
     {
       for (i = 0; i < s->n; i++)
         {
@@ -400,7 +400,7 @@ mps_secular_equation_read_from_stream (mps_status * s,
 	  free (token);
 
           /* Read imaginary part of the a_i */
-          if (MPS_STRUCTURE_IS_COMPLEX (s->input_config))
+          if (MPS_INPUT_CONFIG_IS_COMPLEX (s->input_config))
             {
 	      token = mps_input_buffer_next_token (buffer);
               if (!token || (mpq_set_str (sec->initial_ampqic[i], token, 10) != 0))
@@ -427,7 +427,7 @@ mps_secular_equation_read_from_stream (mps_status * s,
 	  free (token);
 
           /* Read imaginary part of the b_i */
-          if (MPS_STRUCTURE_IS_COMPLEX (s->input_config))
+          if (MPS_INPUT_CONFIG_IS_COMPLEX (s->input_config))
             {
 	      token = mps_input_buffer_next_token (buffer);
               if (!token || (mpq_set_str (sec->initial_bmpqic[i], token, 10) != 0))
@@ -553,21 +553,21 @@ mps_parse_stream (mps_status * s, FILE * input_stream)
           else if (input_option.flag == MPS_FLAG_REAL)
             {
               /* Switch on algebraic structure that is already set */
-              if (MPS_STRUCTURE_IS_INTEGER (s->input_config))
+              if (MPS_INPUT_CONFIG_IS_INTEGER (s->input_config))
                 s->input_config->structure = MPS_STRUCTURE_REAL_INTEGER;
-              else if (MPS_STRUCTURE_IS_RATIONAL (s->input_config))
+              else if (MPS_INPUT_CONFIG_IS_RATIONAL (s->input_config))
                 s->input_config->structure = MPS_STRUCTURE_REAL_RATIONAL;
-              else if (MPS_STRUCTURE_IS_FP (s->input_config))
+              else if (MPS_INPUT_CONFIG_IS_FP (s->input_config))
                 s->input_config->structure = MPS_STRUCTURE_REAL_FP;
             }
           else if (input_option.flag == MPS_FLAG_COMPLEX)
             {
               /* Switch on algebraic structure that is already set */
-              if (MPS_STRUCTURE_IS_INTEGER (s->input_config))
+              if (MPS_INPUT_CONFIG_IS_INTEGER (s->input_config))
                 s->input_config->structure = MPS_STRUCTURE_COMPLEX_INTEGER;
-              else if (MPS_STRUCTURE_IS_RATIONAL (s->input_config))
+              else if (MPS_INPUT_CONFIG_IS_RATIONAL (s->input_config))
                 s->input_config->structure = MPS_STRUCTURE_COMPLEX_RATIONAL;
-              else if (MPS_STRUCTURE_IS_FP (s->input_config))
+              else if (MPS_INPUT_CONFIG_IS_FP (s->input_config))
                 s->input_config->structure = MPS_STRUCTURE_COMPLEX_FP;
             }
 
@@ -575,23 +575,23 @@ mps_parse_stream (mps_status * s, FILE * input_stream)
            * Integer, Rational or floating point */
           else if (input_option.flag == MPS_FLAG_INTEGER)
             {
-              if (MPS_STRUCTURE_IS_REAL (s->input_config))
+              if (MPS_INPUT_CONFIG_IS_REAL (s->input_config))
                 s->input_config->structure = MPS_STRUCTURE_REAL_INTEGER;
-              else if (MPS_STRUCTURE_IS_COMPLEX (s->input_config))
+              else if (MPS_INPUT_CONFIG_IS_COMPLEX (s->input_config))
                 s->input_config->structure = MPS_STRUCTURE_COMPLEX_INTEGER;
             }
           else if (input_option.flag == MPS_FLAG_RATIONAL)
             {
-              if (MPS_STRUCTURE_IS_REAL (s->input_config))
+              if (MPS_INPUT_CONFIG_IS_REAL (s->input_config))
                 s->input_config->structure = MPS_STRUCTURE_REAL_RATIONAL;
-              else if (MPS_STRUCTURE_IS_COMPLEX (s->input_config))
+              else if (MPS_INPUT_CONFIG_IS_COMPLEX (s->input_config))
                 s->input_config->structure = MPS_STRUCTURE_COMPLEX_RATIONAL;
             }
           else if (input_option.flag == MPS_FLAG_FP)
             {
-              if (MPS_STRUCTURE_IS_FP (s->input_config))
+              if (MPS_INPUT_CONFIG_IS_FP (s->input_config))
                 s->input_config->structure = MPS_STRUCTURE_REAL_FP;
-              else if (MPS_STRUCTURE_IS_COMPLEX (s->input_config))
+              else if (MPS_INPUT_CONFIG_IS_COMPLEX (s->input_config))
                 s->input_config->structure = MPS_STRUCTURE_COMPLEX_FP;
             }
         }
@@ -621,7 +621,7 @@ mps_parse_stream (mps_status * s, FILE * input_stream)
   /*       } */
   /*   } */
 
-  if (MPS_REPRESENTATION_IS_SECULAR (s->input_config))
+  if (MPS_INPUT_CONFIG_IS_SECULAR (s->input_config))
     {
       if (s->debug_level & MPS_DEBUG_IO)
         {
@@ -629,7 +629,7 @@ mps_parse_stream (mps_status * s, FILE * input_stream)
         }
       mps_secular_equation_read_from_stream (s, buffer);
     }
-  else if (MPS_REPRESENTATION_IS_MONOMIAL (s->input_config))
+  else if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
     {
       if (s->debug_level & MPS_DEBUG_IO)
 	MPS_DEBUG (s, "Parsing polynomial from stream");

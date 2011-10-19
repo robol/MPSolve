@@ -509,7 +509,7 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s)
 
   mps_secular_raise_coefficient_precision (s, coeff_wp);
 
-  if (MPS_REPRESENTATION_IS_MONOMIAL (s->input_config))
+  if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
     {
       mpc_t diff, prod_b, m_one, ctmp;      
       MPS_DEBUG_WITH_INFO (s, "Regenerating coefficients from polynomial input");
@@ -540,8 +540,8 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s)
        *   a_i = -p(b_i) / \prod_{i \neq j} (b_i - b_j)
        *
        */
-      if (MPS_STRUCTURE_IS_INTEGER (s->input_config) 
-	  || MPS_STRUCTURE_IS_RATIONAL (s->input_config))
+      if (MPS_INPUT_CONFIG_IS_INTEGER (s->input_config) 
+	  || MPS_INPUT_CONFIG_IS_RATIONAL (s->input_config))
 	{
 	  for (i = 0; i < s->n + 1; ++i)
 	    {
@@ -648,7 +648,7 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s)
       mpc_clear (m_one);
       mpc_clear (ctmp);
     }
-  else if (MPS_REPRESENTATION_IS_SECULAR (s->input_config))
+  else if (MPS_INPUT_CONFIG_IS_SECULAR (s->input_config))
     {
       mpc_t prod_b, sec_ev;
       mpc_t ctmp, btmp;
@@ -662,8 +662,8 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s)
       /* If the input was rational generate multiprecision floating
        * point coefficient from the ones that the user originally
        * provided */
-      if (MPS_STRUCTURE_IS_RATIONAL (s->input_config) ||
-	  MPS_STRUCTURE_IS_INTEGER (s->input_config))
+      if (MPS_INPUT_CONFIG_IS_RATIONAL (s->input_config) ||
+	  MPS_INPUT_CONFIG_IS_INTEGER (s->input_config))
 	{
 	  MPS_DEBUG_WITH_INFO (s, "Regenerating coefficients from the multiprecision input");
 	  for (i = 0; i < s->n; i++)
@@ -780,7 +780,7 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s)
       mpc_clear (btmp);
 
 
-    } /* End of if (MPS_REPRESENTATION_IS_SECULAR (s->input_config)) */
+    } /* End of if (MPS_INPUT_CONFIG_IS_SECULAR (s->input_config)) */
   
   mps_secular_raise_coefficient_precision (s, s->mpwp);
   rdpe_set_2dl (s->mp_epsilon, 1.0, -s->mpwp + 1);
@@ -997,7 +997,7 @@ mps_secular_ga_check_stop (mps_status * s)
 
   int i;
 
-    /* if  (!MPS_STRUCTURE_IS_FP (s->secular_equation->input_structure) */
+    /* if  (!MPS_INPUT_CONFIG_IS_FP (s->secular_equation->input_structure) */
     /*   && s->lastphase != mp_phase) */
     /* return false; */
 
@@ -1073,9 +1073,9 @@ mps_secular_ga_improve (mps_status * s)
    * the original coefficients */
   for (i = 0; i < s->n; i++)
     {
-      if (MPS_REPRESENTATION_IS_SECULAR (s->input_config))
+      if (MPS_INPUT_CONFIG_IS_SECULAR (s->input_config))
 	{
-	  if (MPS_STRUCTURE_IS_FP (s->input_config))
+	  if (MPS_INPUT_CONFIG_IS_FP (s->input_config))
 	    {
 	      mpc_set (s->secular_equation->ampc[i],
 		       s->secular_equation->initial_ampc[i]);
@@ -1093,7 +1093,7 @@ mps_secular_ga_improve (mps_status * s)
 			 s->secular_equation->initial_bmpqic[i]);
 	    }
 	}
-      else if (MPS_REPRESENTATION_IS_MONOMIAL (s->input_config))
+      else if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
 	{
 	  
 	}
@@ -1236,9 +1236,9 @@ mps_secular_ga_mpsolve (mps_status * s)
    * to allow initializitation to be performed. */
   s->deg = s->n = sec->n;
 
-  if (MPS_REPRESENTATION_IS_SECULAR (s->input_config))
+  if (MPS_INPUT_CONFIG_IS_SECULAR (s->input_config))
     s->data_type = "uri";
-  else if (MPS_REPRESENTATION_IS_MONOMIAL (s->input_config))
+  else if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
     s->data_type = "dri";
 
   /* We set the selected phase */
@@ -1265,7 +1265,7 @@ mps_secular_ga_mpsolve (mps_status * s)
 
   /* If the input was polynomial we need to determined the secular
    * coefficients */
-  if (MPS_REPRESENTATION_IS_MONOMIAL (s->input_config))
+  if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
     {
       int nit;
       mps_boolean excep;
@@ -1416,7 +1416,7 @@ mps_secular_ga_mpsolve (mps_status * s)
   /* Finally improve the roots if approximation is required */
   if (s->goal[0] == 'a')
     {
-      if (MPS_REPRESENTATION_IS_SECULAR (s->input_config))
+      if (MPS_INPUT_CONFIG_IS_SECULAR (s->input_config))
 	{
 	  clock_t *my_timer = mps_start_timer ();
 	  mps_secular_ga_improve (s);
@@ -1426,7 +1426,7 @@ mps_secular_ga_mpsolve (mps_status * s)
 	      MPS_DEBUG (s, "mps_secular_ga_improve took %u ms", improve_time);
 	    }
 	}
-      else if (MPS_REPRESENTATION_IS_MONOMIAL (s->input_config))
+      else if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
 	{
 	  clock_t *my_timer = mps_start_timer ();
 	  mps_secular_ga_improve (s);

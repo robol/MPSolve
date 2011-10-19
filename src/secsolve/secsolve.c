@@ -176,7 +176,7 @@ main (int argc, char **argv)
   sec->starting_case = phase;
 
   /* Use always DPE with non floating point input */
-  if (!MPS_STRUCTURE_IS_FP (s->input_config))
+  if (!MPS_INPUT_CONFIG_IS_FP (s->input_config))
     {
       // sec->starting_case = dpe_phase;
     }
