@@ -415,7 +415,7 @@ mps_fmodify (mps_status * s)
           tmpr = cplx_mod (s->froot[s->clust[s->punt[i]]]);
           tmpr = s->frad[s->clust[s->punt[i]]] / tmpr;
           tmpr = log (tmpr);
-          if (tmpr < -s->prec_out * LOG2)
+          if (tmpr < -s->output_config->prec * LOG2)
             s->status[s->clust[s->punt[i]]][0] = 'a';
         }
       /* Scan inside the cluster */
@@ -1037,7 +1037,7 @@ mps_dmodify (mps_status * s)
           cdpe_mod (tmpr, s->droot[s->clust[s->punt[i]]]);
           rdpe_div (tmpr, s->drad[s->clust[s->punt[i]]], tmpr);
           rtmp = rdpe_log (tmpr);
-          if (rtmp < -s->prec_out * LOG2)
+          if (rtmp < -s->output_config->prec * LOG2)
             s->status[s->clust[s->punt[i]]][0] = 'a';
         }
       /* Scan inside the cluster */
@@ -1661,7 +1661,7 @@ mps_mmodify (mps_status * s)
           cdpe_mod (tmpr, tmpc);
           rdpe_div (tmpr, s->drad[s->clust[s->punt[i]]], tmpr);
           rtmp = rdpe_log (tmpr);
-          if (rtmp < -s->prec_out * LOG2)
+          if (rtmp < -s->output_config->prec * LOG2)
             {
               s->status[s->clust[s->punt[i]]][0] = 'a';
             }

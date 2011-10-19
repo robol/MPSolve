@@ -79,11 +79,11 @@ mps_improve (mps_status * s)
    * compute the number mpnb_in of bits
    * corresponding to the given input precision.
    * Set mpnb_in=0 if the input precision is infinite (prec_in=0) */
-  if (s->prec_in == 0)
+  if (s->input_config->prec == 0)
     mpnb_in = 0;
   else
-    mpnb_in = (long) (s->prec_in * LOG2_10 + log (4.0 * s->n) / LOG2);
-  mpnb_out = (long) (s->prec_out * LOG2_10);
+    mpnb_in = (long) (s->input_config->prec * LOG2_10 + log (4.0 * s->n) / LOG2);
+  mpnb_out = (long) (s->output_config->prec * LOG2_10);
 
   /* == 2  ==
    * compute the coefficients of the polynomial as mpc_t with mpnb_in bits
@@ -96,7 +96,7 @@ mps_improve (mps_status * s)
   tmpc_init2 (mtmp, mpnb_out * 2);      /* puo' essere settato a precisione minima */
   tmpc_init2 (nwtcorr, mpnb_out * 2);
 
-  if (s->prec_in != 0 && s->data_type[0] != 'u')
+  if (s->input_config->prec != 0 && s->data_type[0] != 'u')
     mps_prepare_data (s, mpnb_in);
   else
     {
@@ -241,5 +241,5 @@ mps_improve (mps_status * s)
   tmpc_clear (nwtcorr);
   tmpc_clear (mtmp);
 
-  MPS_DEBUG (s, "Improvement of roots took %d ms", mps_stop_timer (my_timer));
+  MPS_DEBUG (s, "Improvement of roots took %lu ms", mps_stop_timer (my_timer));
 }

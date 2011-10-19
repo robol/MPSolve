@@ -50,7 +50,7 @@ main (int argc, char **argv)
 
   /* Create a new status */
   s = mps_status_new ();
-  s->prec_in = 0;
+  s->input_config->prec = 0;
 
   strncpy (s->goal, "aannc", 5);
 
@@ -74,7 +74,7 @@ main (int argc, char **argv)
           ga = true;
           break;
         case 'o':
-          s->prec_out = (atoi (opt->optvalue) + 1) * LOG2_10 + 1;
+          s->output_config->prec = (atoi (opt->optvalue) + 1) * LOG2_10 + 1;
           break;
         case 'i':
           s->goal[0] = 'i';
@@ -161,15 +161,10 @@ main (int argc, char **argv)
     }
 
   /* Create new secular equation */
-  mps_input_configuration default_configuration = {
-    /* .structure */
-    MPS_STRUCTURE_COMPLEX_FP,
+  s->input_config->structure  = MPS_STRUCTURE_COMPLEX_FP;
+  s->input_config->representation = MPS_REPRESENTATION_SECULAR;
 
-    /* .representation */
-    MPS_REPRESENTATION_SECULAR
-  };
-
-  mps_parse_stream (s, infile, &default_configuration);
+  mps_parse_stream (s, infile);
   sec = s->secular_equation;
 
   /* Close the file if it's not stdin */
@@ -181,7 +176,7 @@ main (int argc, char **argv)
   sec->starting_case = phase;
 
   /* Use always DPE with non floating point input */
-  if (!MPS_STRUCTURE_IS_FP (s->config))
+  if (!MPS_STRUCTURE_IS_FP (s->input_config))
     {
       // sec->starting_case = dpe_phase;
     }

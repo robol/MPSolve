@@ -249,7 +249,7 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
   if (rdpe_eq (new_rad, rdpe_zero)) 
     {
       MPS_DEBUG_WITH_INFO (s, "The radius is zero, so preparing the root for output");
-      rdpe_set_2dl (new_rad, 0.5, -s->prec_out);
+      rdpe_set_2dl (new_rad, 0.5, -s->output_config->prec);
       cdpe_mod (rtmp, x);
       rdpe_mul_eq (new_rad, rtmp);
       MPS_DEBUG_RDPE (s, new_rad, "Computed radius ");
@@ -488,7 +488,7 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
     *again = false;
 
   /* Check if newton correction is less than
-   * the modules of x for s->prec_out, and if
+   * the modules of x for s->output_config->prec, and if
    * that's the case, stop. */
   if (*again)
     {

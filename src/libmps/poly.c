@@ -38,7 +38,7 @@ mps_read_poly (mps_status * s, FILE * instr, mpspoly_t p)
     }
 
   /* read and convert prec_in from base 10 to base 2 */
-  if (s->prec_in == -1)
+  if (s->input_config->prec == -1)
     {
       /* Read input precision and abort on failure */
       read_elements = fscanf (instr, "%ld", &(p->prec_in));
@@ -51,7 +51,7 @@ mps_read_poly (mps_status * s, FILE * instr, mpspoly_t p)
   else
     {                           /* override input precision */
       read_elements = fscanf (instr, "%*d");
-      p->prec_in = s->prec_in;  /* load default */
+      p->prec_in = s->input_config->prec;  /* load default */
     }
 
   /* read degree */
@@ -283,7 +283,7 @@ mps_set_poly (mps_status * s, mpspoly_t p)
   s->n = p->n;
   s->deg = p->deg;
   s->data_type = p->data_type;
-  s->prec_in = p->prec_in;
+  s->input_config->prec = p->prec_in;
   s->spar = p->spar;
   s->fpr = p->fpr;
   s->fpc = p->fpc;
@@ -303,7 +303,7 @@ mps_set_poly (mps_status * s, mpspoly_t p)
 void
 mps_update_poly (mps_status * s, mpspoly_t p)
 {
-  p->prec_in = s->prec_in;
+  p->prec_in = s->input_config->prec;
   p->n = s->n;
 }
 

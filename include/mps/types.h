@@ -235,7 +235,28 @@ extern "C"
      */
     mps_representation representation;
 
+    /**
+     * @brief Digits of guaranteed input precision.
+     */
+    long int prec;
+
   } mps_input_configuration;
+
+  /**
+   * @brief Configuration for the output.
+   *
+   * This struct holds the information on what has to be
+   * computed by MPSolve, such as the desired output precision
+   * and the search set for the roots, etc.
+   */
+  typedef struct
+  {
+    /**
+     * @brief Digits of required output precision
+     */
+    long int prec;
+
+  } mps_output_configuration;
 
 
   /**
@@ -458,7 +479,12 @@ extern "C"
     /**
      * @brief Configuration of the input of MPSolve
      */
-    mps_input_configuration * config;
+    mps_input_configuration * input_config;
+
+    /**
+     * @brief Output configuration for MPSolve.
+     */
+    mps_output_configuration * output_config;
 
     /**
      * @brief Newton isolation of the cluster.
@@ -572,12 +598,6 @@ extern "C"
     char goal[5];
 
     /**
-     * @brief digits of required output precision
-     *
-     */
-    long int prec_out;
-
-    /**
      * @brief mps_boolean value that determine if we should
      * use a random seed for startingd points
      */
@@ -616,12 +636,6 @@ extern "C"
      * - <code>'f'</code> means floating point coefficients;
      */
     char *data_type;
-
-    /**
-     * @brief Number of digits of input precision in its binary
-     * representation.
-     */
-    long int prec_in;
 
     /**
      * @brief This array contains the structure of the sparse

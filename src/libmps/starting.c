@@ -354,12 +354,14 @@ mps_fstart (mps_status * s, int n, int i_clust, double clust_rad,
         {
           rdpe_mul_d (tmp, eps, g);
           if (r * nzeros <= rdpe_get_d (tmp))
-            for (j = 0; j < s->punt[i_clust + 1] - s->punt[i_clust]; j++)
-              {
-                l = s->clust[s->punt[i_clust] + j];
-                s->status[l][0] = 'o';
-                s->frad[l] = r * nzeros;
-              }
+	    {
+	      for (j = 0; j < s->punt[i_clust + 1] - s->punt[i_clust]; j++)
+		{
+		  l = s->clust[s->punt[i_clust] + j];
+		  s->status[l][0] = 'o';
+		  s->frad[l] = r * nzeros;
+		}
+	    }
         }
 
     }
@@ -662,12 +664,14 @@ mps_dstart (mps_status * s, int n, int i_clust, rdpe_t clust_rad,
               rdpe_mul (tmp, g, eps);
               rdpe_mul_d (tmp1, r, (double) nzeros);
               if (rdpe_lt (tmp1, tmp))
-                for (j = 0; j <= s->punt[i_clust + 1] - s->punt[i_clust]; j++)
-                  {
-                    l = s->clust[s->punt[i_clust] + j];
-                    s->status[l][0] = 'o';
-                    rdpe_set (s->drad[l], tmp1);
-                  }
+		{
+		  for (j = 0; j <= s->punt[i_clust + 1] - s->punt[i_clust]; j++)
+		    {
+		      l = s->clust[s->punt[i_clust] + j];
+		      s->status[l][0] = 'o';
+		      rdpe_set (s->drad[l], tmp1);
+		    }
+		}
             }
         }
     }
@@ -992,7 +996,7 @@ mps_mstart (mps_status * s, int n, int i_clust, rdpe_t clust_rad,
 	    {
 	      l = s->clust[s->punt[i_clust] + j];
 	      s->status[l][0] = 'o';
-	      rdpe_mul_d (s->drad[l], r, (double) nzeros);
+	      rdpe_mul_d (s->drad[l], rtmp1, (double) nzeros);
 	    }
 	}
       rdpe_set (clust_rad, s->dradii[i]);
@@ -1736,7 +1740,7 @@ mps_mshift (mps_status * s, int m, int i_clust, rdpe_t clust_rad, mpc_t g)
         {
           mpwp_temp += s->mpwp;
 
-          if (mpwp_temp > mpwp_max || mpwp_temp > s->prec_out * m * 2)
+          if (mpwp_temp > mpwp_max || mpwp_temp > s->output_config->prec * m * 2)
             {
               MPS_DEBUG (s,
                          "Reached the maximum allowed precision in mshift");

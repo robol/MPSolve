@@ -64,12 +64,18 @@ test_unisolve_on_pol (test_pol * pol)
     }
 
   mps_set_default_values (s);
-  s->prec_out = prec;
+
+
   strncpy (s->goal, "aannc", 5);
   mps_read_poly (s, input_stream, poly);
-
   mps_set_poly (s, poly);
   mps_allocate_data (s);
+
+  /* Set the logstr to stderr, so the program won't segfault if there is the
+   * need to write something to the console */
+  s->logstr = stderr;
+  s->output_config->prec = prec;
+
   mps_mpsolve (s);
   mps_copy_roots (s);
 
@@ -98,12 +104,13 @@ test_unisolve_on_pol (test_pol * pol)
   mpf_clear (mroot);
   mpf_clear (eps);
   mpc_clear (root);
-  mps_status_free (s);
+  mpc_clear (ctmp);
+  mpf_clear (ftmp);
 
   fclose (input_stream);
   fclose (check_stream);
 
-  if (s->prec_in > pol->out_digits)
+  if (s->input_config->prec > pol->out_digits)
     {
       fail_unless (passed == true,
                    "Computed results are not exact to the required "
@@ -113,6 +120,9 @@ test_unisolve_on_pol (test_pol * pol)
                    pol->out_digits);
 
     }
+
+  mps_status_free (s);
+
 }
 
 
@@ -120,12 +130,12 @@ START_TEST (test_unisolve)
 {
   test_unisolve_on_pol (test_polynomials[_i]);
 }
-
 END_TEST
+
 /**
  * @brief Create the unisolve test suite
  */
-  Suite * unisolve_suite (int n)
+Suite * unisolve_suite (int n)
 {
   Suite *s = suite_create ("unisolve");
 

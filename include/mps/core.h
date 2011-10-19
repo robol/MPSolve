@@ -224,8 +224,7 @@ extern "C"
   mps_parse_option_line (mps_status * s, char *line, size_t length);
 
   void
-  mps_parse_stream (mps_status * s, FILE * input_stream,
-		    mps_input_configuration * default_configuration);
+  mps_parse_stream (mps_status * s, FILE * input_stream);
 
 /*
  * End of extern "C" {

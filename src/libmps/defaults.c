@@ -50,10 +50,10 @@ mps_set_default_values (mps_status * s)
   s->mpwp_max = 1000000000;     /* maximum allowed bits for mp         */
   /*   numbers: used in hi-prec. shifts  */
   strncpy (s->goal, "iannc", 5);        /* stores the goal, by default "iannc" */
-  s->prec_out = 2 * DBL_DIG;    /* digits of required output precision */
+  s->output_config->prec = 2 * DBL_DIG;    /* digits of required output precision */
 
   /* polynomial data - shared variables */
-  s->prec_in = -1;              /* number of digits of input precision */
+  s->input_config->prec = -1;              /* number of digits of input precision */
   /*   override input file if != -1      */
   s->data_type = NULL;          /* stores the input data type          */
   s->spar = NULL;               /* sparsity structure of polynomial    */

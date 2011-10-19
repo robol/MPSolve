@@ -70,11 +70,10 @@ test_secsolve_on_pol (test_pol * pol)
   mps_set_default_values (s);
 
   /* Set secular equation and start in floating point */
-  mps_input_configuration default_configuration = {
-    MPS_STRUCTURE_COMPLEX_FP,
-    MPS_REPRESENTATION_SECULAR
-  };
-  mps_parse_stream (s, input_stream, &default_configuration);
+  s->input_config->structure = MPS_STRUCTURE_COMPLEX_FP;
+  s->input_config->representation = MPS_REPRESENTATION_SECULAR;
+
+  mps_parse_stream (s, input_stream);
   sec = s->secular_equation;
   sec->starting_case = pol->phase;
 
@@ -89,8 +88,8 @@ test_secsolve_on_pol (test_pol * pol)
     mps_status_select_algorithm (s, MPS_ALGORITHM_SECULAR_GA);
 
   strncpy (s->goal, "aannc", 5);
-  s->prec_out = (int) ((pol->out_digits + 1) * LOG2_10) + 1;
-  s->prec_in = 0;
+  s->output_config->prec = (int) ((pol->out_digits + 1) * LOG2_10) + 1;
+  s->input_config->prec = 0;
 
   mps_mpsolve (s);
   mps_copy_roots (s);

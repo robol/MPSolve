@@ -118,7 +118,7 @@ mps_status_select_algorithm (mps_status * s, mps_algorithm algorithm)
       s->dnewton_usr = MPS_DNEWTON_PTR (mps_secular_dnewton);
       s->mnewton_usr = MPS_MNEWTON_PTR (mps_secular_mnewton);
 
-      rdpe_set_2dl (s->eps_out, 1.0, -s->prec_out * LOG2_10);
+      rdpe_set_2dl (s->eps_out, 1.0, -s->output_config->prec * LOG2_10);
 
       break;
     }
@@ -173,10 +173,10 @@ mps_status_allocate_poly_inplace (mps_status * s, int n)
 
   s->mfpr = mpf_valloc (s->deg + 1);
   for (i = 0; i <= s->deg; i++)
-    mpf_init2 (s->mfpr[i], s->prec_in);
+    mpf_init2 (s->mfpr[i], s->input_config->prec);
   s->mfpc = mpc_valloc (s->deg + 1);
   for (i = 0; i <= s->deg; i++)
-    mpc_init2 (s->mfpc[i], s->prec_in);
+    mpc_init2 (s->mfpc[i], s->input_config->prec);
 
   /* Create the status and set all the roots as uncertain */
   s->status = (char (*)[3]) char_valloc (3 * s->deg);
@@ -224,17 +224,22 @@ mps_status_new ()
 {
   /* Allocate the new mps_status and load default options */
   mps_status *s = (mps_status *) malloc (sizeof (mps_status));
-  mps_set_default_values (s);
 
   /* Set default streams */
   s->instr = stdin;
   s->outstr = stdout;
   s->logstr = stdout;
 
+  /* Allocate space for the configurations */
+  s->input_config  = (mps_input_configuration *) malloc (sizeof (mps_input_configuration));
+  s->output_config = (mps_output_configuration *) malloc (sizeof (mps_output_configuration));
+
+  mps_set_default_values (s);
+
   /* Set standard precision */
-  s->prec_out = (int) (0.9 * DBL_DIG * LOG2_10);
-  MPS_DEBUG (s, "Setting prec_out to %d digits", s->prec_out);
-  s->prec_in = 0;
+  s->output_config->prec = (int) (0.9 * DBL_DIG * LOG2_10);
+  MPS_DEBUG (s, "Setting prec_out to %ld digits", s->output_config->prec);
+  s->input_config->prec = 0;
 
   return s;
 }
@@ -248,6 +253,10 @@ void
 mps_status_free (mps_status * s)
 {
   mps_free_data (s);
+
+  // free (s->input_config);
+  // free (s->output_config);
+
   free (s);
 }
 

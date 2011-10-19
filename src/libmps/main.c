@@ -159,14 +159,14 @@ mps_standard_mpsolve (mps_status * s)
 
   /* == 7 ==  Start MPsolve loop */
   s->mpwp = DBL_MANT_DIG;
-  while (!computed && s->mpwp < s->mpwp_max && (s->prec_in == 0 || s->mpwp
-                                                < s->prec_in))
+  while (!computed && s->mpwp < s->mpwp_max && (s->input_config->prec == 0 || s->mpwp
+                                                < s->input_config->prec))
     {
 
       s->mpwp *= 2;
 
-      if (s->prec_in != 0 && s->mpwp > s->prec_in)
-        s->mpwp = s->prec_in + (int) (log (4.0 * s->n) / LOG2);
+      if (s->input_config->prec != 0 && s->mpwp > s->input_config->prec)
+        s->mpwp = s->input_config->prec + (int) (log (4.0 * s->n) / LOG2);
 
       if (s->mpwp > s->mpwp_max)
         {
@@ -238,7 +238,7 @@ exit_sub:
   if (s->lastphase == mp_phase)
     mps_restore_data (s);
 
-  MPS_DEBUG (s, "Total time using MPSolve: %d ms", mps_stop_timer (my_timer));
+  MPS_DEBUG (s, "Total time using MPSolve: %lu ms", mps_stop_timer (my_timer));
 }
 
 /**
@@ -256,9 +256,9 @@ mps_setup (mps_status * s)
       fprintf (s->logstr, "Goal      = %5s\n", s->goal);
       fprintf (s->logstr, "Data type = %3s\n", s->data_type);
       fprintf (s->logstr, "Degree    = %d\n", s->n);
-      fprintf (s->logstr, "Input prec.  = %ld digits\n", (long) (s->prec_in
+      fprintf (s->logstr, "Input prec.  = %ld digits\n", (long) (s->input_config->prec
                                                                  * LOG10_2));
-      fprintf (s->logstr, "Output prec. = %ld digits\n", (long) (s->prec_out
+      fprintf (s->logstr, "Output prec. = %ld digits\n", (long) (s->output_config->prec
                                                                  * LOG10_2));
     }
 
@@ -295,8 +295,8 @@ mps_setup (mps_status * s)
   s->punt[1] = s->n;
 
   /* set input and output epsilon */
-  rdpe_set_2dl (s->eps_in, 1.0, 1 - s->prec_in);
-  rdpe_set_2dl (s->eps_out, 1.0, 1 - s->prec_out);
+  rdpe_set_2dl (s->eps_in, 1.0, 1 - s->input_config->prec);
+  rdpe_set_2dl (s->eps_out, 1.0, 1 - s->output_config->prec);
 
   /* precision of each root */
   for (i = 0; i < s->n; i++)
