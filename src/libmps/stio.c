@@ -200,52 +200,42 @@ mps_parse_option_line (mps_status * s, char *line, size_t length)
 }
 
 void
-mps_secular_equation_read_from_stream_poly (mps_status * s,
-					    mps_input_buffer * buffer)
+mps_monomial_poly_read_from_stream (mps_status * s,
+				    mps_input_buffer * buffer)
 {
-  mps_secular_equation *sec;
+  mps_monomial_poly * poly;
   int i, r;
   mpf_t ftmp;
   char * token;
 
   mpf_init (ftmp);
 
-  /* Read directly the secular equation in DPE, so we don't need
-   * to have a fallback case if the coefficients are bigger than
-   * what is supported by the standard floating point arithmetic */
-  sec = mps_secular_equation_new_raw (s, s->n);
-
-  /* Preallocate the data that we need */
-  s->spar = mps_boolean_valloc (s->n + 2);
-  s->mfpc = mpc_valloc (s->n + 1);
-  s->dpc  = cdpe_valloc (s->n + 1);
-  s->fpc  = cplx_valloc (s->n + 1);
-  s->dap  = rdpe_valloc (s->n + 1);
-  s->fap  = double_valloc (s->n + 1);
-  mpc_vinit (s->mfpc, s->n + 1);
+  /* Allocate space for the polynomial, since we need this even
+   * if we are trying to solve the associated secular_equation */
+  poly = mps_monomial_poly_new (s, s->n);
 
   /* We still do not support sparse input */
   for (i = 0; i < s->n; ++i)
-      s->spar[i] = true;
+      poly->spar[i] = true;
 
   if (MPS_INPUT_CONFIG_IS_FP (s->input_config))
     {
       for (i = 0; i < s->n + 1; ++i)
 	{
 	  token = mps_input_buffer_next_token (buffer);
-	  if (!token || (mpf_set_str (mpc_Re (s->mfpc[i]), token, 10) != 0))
+	  if (!token || (mpf_set_str (mpc_Re (poly->mfpc[i]), token, 10) != 0))
 	    mps_raise_parsing_error (s, token, "Error parsing coefficients of the polynomial");
 	  free (token);
 
 	  if (MPS_INPUT_CONFIG_IS_COMPLEX (s->input_config))
 	    {
 	      token = mps_input_buffer_next_token (buffer);
-	      if (!token || (mpf_set_str (mpc_Im (s->mfpc[i]), token, 10) != 0))
+	      if (!token || (mpf_set_str (mpc_Im (poly->mfpc[i]), token, 10) != 0))
 		mps_raise_parsing_error (s, token, "Error parsing coefficients of the polynomial");
 	      free (token);
 	    }
 	  else
-	    mpf_set_ui (mpc_Im (s->mfpc[i]), 0U);
+	    mpf_set_ui (mpc_Im (poly->mfpc[i]), 0U);
 	}
     }
   else if (MPS_INPUT_CONFIG_IS_RATIONAL (s->input_config) ||
@@ -254,25 +244,25 @@ mps_secular_equation_read_from_stream_poly (mps_status * s,
       for (i = 0; i < s->n + 1; ++i)
 	{
 	  token = mps_input_buffer_next_token (buffer);
-	  if (!token || (mpq_set_str (sec->initial_bmpqrc[i], token, 10) != 0))
+	  if (!token || (mpq_set_str (poly->initial_mqp_r[i], token, 10) != 0))
 	    mps_raise_parsing_error (s, token, "Error parsing coefficients of the polynomial");
-	  mpq_canonicalize (sec->initial_bmpqrc[i]);
+	  mpq_canonicalize (poly->initial_mqp_r[i]);
 	  free (token);
       
 	  if (MPS_INPUT_CONFIG_IS_COMPLEX (s->input_config))
 	    {
 	      token = mps_input_buffer_next_token (buffer);
-	      if (!token || (mpq_set_str (sec->initial_bmpqic[i], token, 10) != 0))
+	      if (!token || (mpq_set_str (poly->initial_mqp_i[i], token, 10) != 0))
 		mps_raise_parsing_error (s, token, "Error parsing coefficients of the polynomial");
-	      mpq_canonicalize (sec->initial_bmpqic[i]);
+	      mpq_canonicalize (poly->initial_mqp_i[i]);
 	      free (token);
 	    }
 	  else
-	    mpq_set_ui (sec->initial_bmpqic[i], 0U, 0U);
+	    mpq_set_ui (poly->initial_mqp_i[i], 0U, 0U);
 
 	  /* Copy coefficients in the floating point ones */
-	  mpf_set_q (mpc_Re (s->mfpc[i]), sec->initial_bmpqrc[i]);
-	  mpf_set_q (mpc_Im (s->mfpc[i]), sec->initial_bmpqic[i]);
+	  mpf_set_q (mpc_Re (poly->mfpc[i]), poly->initial_mqp_r[i]);
+	  mpf_set_q (mpc_Im (poly->mfpc[i]), poly->initial_mqp_i[i]);
 	}
       
     }
@@ -280,15 +270,15 @@ mps_secular_equation_read_from_stream_poly (mps_status * s,
   /* Copy coefficients back in other places */
   for (i = 0; i < s->n + 1; ++i)
     {
-      mpc_get_cplx (s->fpc[i], s->mfpc[i]);
-      mpc_get_cdpe (s->dpc[i], s->mfpc[i]);
+      mpc_get_cplx (poly->fpc[i], poly->mfpc[i]);
+      mpc_get_cdpe (poly->dpc[i], poly->mfpc[i]);
 
       /* Compute modules of coefficients */
-      cdpe_mod (s->dap[i], s->dpc[i]);
-      s->fap[i] = rdpe_get_d (s->dap[i]);
+      cdpe_mod (poly->dap[i], poly->dpc[i]);
+      poly->fap[i] = rdpe_get_d (poly->dap[i]);
     }
 
-  s->secular_equation = sec;
+  s->monomial_poly = poly;
   mpf_clear (ftmp);
 }
 
@@ -634,7 +624,7 @@ mps_parse_stream (mps_status * s, FILE * input_stream)
       if (s->debug_level & MPS_DEBUG_IO)
 	MPS_DEBUG (s, "Parsing polynomial from stream");
 
-      mps_secular_equation_read_from_stream_poly (s, buffer);
+      mps_monomial_poly_read_from_stream (s, buffer);
     }
 
   mps_input_buffer_free (buffer);

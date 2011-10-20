@@ -146,7 +146,6 @@ mps_fcompute_starting_radii (mps_status * s, int n, int i_clust,
 	s->fap2[i] = log (fap[i]);
       else
 	s->fap2[i] = temp;
-      MPS_DEBUG (s, "s->fap2[%d] = %e", i, s->fap[i]);
     }
 
   /* Compute convex hull */

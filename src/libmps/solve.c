@@ -2532,6 +2532,7 @@ mps_fpolzer (mps_status * s, int *it, mps_boolean * excep)
   int i, iter, nzeros;
   cplx_t corr, abcorr;
   double rad1, modcorr;
+  mps_monomial_poly * p = s->monomial_poly;
 
   /* initialize the iteration counter */
   *it = 0;
@@ -2567,7 +2568,7 @@ mps_fpolzer (mps_status * s, int *it, mps_boolean * excep)
               if (s->data_type[0] != 'u')
                 {
                   mps_fnewton (s, s->n, s->froot[i], &s->frad[i], corr,
-                               s->fpc, s->fap, &s->again[i]);
+                               p->fpc, p->fap, &s->again[i]);
                   if (iter == 0 && !s->again[i] && s->frad[i] > rad1 && rad1
                       != 0)
                     s->frad[i] = rad1;
@@ -2628,6 +2629,7 @@ mps_dpolzer (mps_status * s, int *it, mps_boolean * excep)
   int iter, i, nzeros;
   rdpe_t rad1, rtmp;
   cdpe_t corr, abcorr;
+  mps_monomial_poly * p = s->monomial_poly;
 
   /* initialize the iteration counter */
   *it = 0;
@@ -2656,8 +2658,8 @@ mps_dpolzer (mps_status * s, int *it, mps_boolean * excep)
               rdpe_set (rad1, s->drad[i]);
               if (s->data_type[0] != 'u')
                 {
-                  mps_dnewton (s, s->n, s->droot[i], s->drad[i], corr, s->dpc,
-                               s->dap, &s->again[i]);
+                  mps_dnewton (s, s->n, s->droot[i], s->drad[i], corr, p->dpc,
+                               p->dap, &s->again[i]);
                   if (iter == 0 && !s->again[i] && rdpe_gt (s->drad[i], rad1)
                       && rdpe_ne (rad1, rdpe_zero))
                     rdpe_set (s->drad[i], rad1);
@@ -2719,6 +2721,7 @@ mps_dsolve (mps_status * s, mps_boolean d_after_f)
   int it_pack, iter, nit, oldnclust, i, j;
   mps_boolean excep;
   rdpe_t dummy;
+  mps_monomial_poly * p = s->monomial_poly;
 
   if (s->DOLOG)
     {
@@ -2758,7 +2761,7 @@ mps_dsolve (mps_status * s, mps_boolean d_after_f)
   if (s->dstart_usr)
     (*s->dstart_usr) (s, s->n, 0, dummy, dummy, dummy);
   else
-    mps_dstart (s, s->n, 0, dummy, dummy, dummy, s->dap);
+    mps_dstart (s, s->n, 0, dummy, dummy, dummy, p->dap);
 
   /* Now adjust the status vector */
   if (d_after_f)
@@ -2888,6 +2891,7 @@ mps_msolve (mps_status * s)
   int iter, nit, oldnclust, i, j, it_pack;
   mps_boolean excep;
   int nzc;
+  mps_monomial_poly * p;
 
   /* == 1 == Initialize variables */
   it_pack = 0;
@@ -3176,6 +3180,7 @@ mps_mpolzer (mps_status * s, int *it, mps_boolean * excep)
   tmpc_t corr, abcorr;
   rdpe_t eps, rad1, rtmp;
   cdpe_t ctmp;
+  mps_monomial_poly * p = s->monomial_poly;
 
   tmpc_init2 (abcorr, s->mpwp);
   tmpc_init2 (corr, s->mpwp);
@@ -3210,7 +3215,7 @@ mps_mpolzer (mps_status * s, int *it, mps_boolean * excep)
                       /* sparse/dense polynomial */
                       rdpe_set (rad1, s->drad[l]);
                       mps_mnewton (s, s->n, s->mroot[l], s->drad[l], corr,
-                                   s->mfpc, s->mfppc, s->dap, s->spar,
+                                   p->mfpc, p->mfppc, p->dap, p->spar,
                                    &s->again[l], 0);
                       if (iter == 0 && !s->again[l] && rdpe_gt (s->drad[l],
                                                                 rad1)

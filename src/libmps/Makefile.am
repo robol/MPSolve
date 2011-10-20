@@ -58,6 +58,7 @@ libmps_la_SOURCES = \
 	 secular-starting.c \
 	 secular-ga.c \
          input-buffer.c \
+	 monomial-poly.c \
 	$(NULL)
 
 libmps_la_LIBADD = \

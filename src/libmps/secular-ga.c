@@ -504,6 +504,7 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s)
   int precision_increase_ratio = 2;
   int coeff_wp = precision_increase_ratio * s->mpwp;
   mps_secular_equation *sec = s->secular_equation;
+  mps_monomial_poly *p = s->monomial_poly;
   rdpe_t eps_tmp, rtmp, sec_eps, rtmp2;
   cdpe_t cdtmp, cdtmp2;
 
@@ -522,13 +523,8 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s)
 
       s->mpwp = coeff_wp;
 
-      for (i = 0; i < s->n; ++i)
-	{
-	  mpc_set_prec (s->mfpc[i], coeff_wp);
-	}
-
       mpc_set_ui (m_one, 0U, 0U);
-      mpc_sub_eq (m_one, s->mfpc[s->n]);
+      mpc_sub_eq (m_one, p->mfpc[s->n]);
 
       
       /*
@@ -545,10 +541,10 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s)
 	{
 	  for (i = 0; i < s->n + 1; ++i)
 	    {
-	      mpf_set_q (mpc_Re (s->mfpc[i]), sec->initial_bmpqrc[i]);
-	      mpf_set_q (mpc_Im (s->mfpc[i]), sec->initial_bmpqic[i]);
+	      mpf_set_q (mpc_Re (p->mfpc[i]), p->initial_mqp_r[i]);
+	      mpf_set_q (mpc_Im (p->mfpc[i]), p->initial_mqp_i[i]);
 
-	      MPS_DEBUG_MPC (s, 15, s->mfpc[i], "s->mfpc[%d]", i);
+	      MPS_DEBUG_MPC (s, 15, p->mfpc[i], "p->mfpc[%d]", i);
 	    }
 	}
 
@@ -558,24 +554,24 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s)
 	   * compute the error */
 	  mpc_get_cdpe (cdtmp, sec->bmpc[i]);
 	  cdpe_mod (rtmp, cdtmp);
-	  mps_aparhorner (s, s->n, rtmp, s->dap, s->spar, sec_eps, 0);
+	  mps_aparhorner (s, s->n, rtmp, p->dap, p->spar, sec_eps, 0);
 
-	  rdpe_set (sec_eps, s->dap[s->n]);
+	  rdpe_set (sec_eps, p->dap[s->n]);
 	  mpc_get_cdpe (cdtmp, sec->bmpc[i]);
 	  cdpe_mod (rtmp2, cdtmp);
 	  for (j = s->n - 1; j >= 0; j--)
 	    {
 	      rdpe_mul (rtmp, sec_eps, rtmp2);
-	      rdpe_add (sec_eps, rtmp, s->dap[j]);
+	      rdpe_add (sec_eps, rtmp, p->dap[j]);
 	    }
 	  rdpe_mul_eq_d (sec_eps, s->n * 4);
 
 	  /* Evaluate the polynomial with horner */
-	  mps_parhorner (s, s->n, sec->bmpc[i], s->mfpc, s->spar, sec->ampc[i], 0);
-	  mpc_set (sec->ampc[i], s->mfpc[s->n]); 
+	  mps_parhorner (s, s->n, sec->bmpc[i], p->mfpc, p->spar, sec->ampc[i], 0);
+	  mpc_set (sec->ampc[i], p->mfpc[s->n]); 
 	  for (j = s->n - 1; j >= 0; j--) 
 	    { 
-	      mpc_div (ctmp, s->mfpc[j], sec->ampc[i]);
+	      mpc_div (ctmp, p->mfpc[j], sec->ampc[i]);
 	      mpc_add_eq (ctmp, sec->bmpc[i]); 
 	      mpc_mul_eq (sec->ampc[i], ctmp); 
 	    } 
@@ -1216,6 +1212,7 @@ mps_secular_ga_mpsolve (mps_status * s)
   mps_boolean skip_check_stop = false;
   rdpe_t r_eps;
   mps_secular_equation *sec = mps_secular_equation_from_status (s);
+  mps_monomial_poly *poly = s->monomial_poly;
   mps_phase phase = sec->starting_case;
 
   rdpe_set_d (r_eps, DBL_EPSILON);

@@ -119,6 +119,9 @@ mps_set_default_values (mps_status * s)
 
   s->random_seed = 0;
 
+  s->secular_equation = NULL;
+  s->monomial_poly = NULL;
+
   /* Default algorithm */
   mps_status_select_algorithm (s, MPS_ALGORITHM_STANDARD_MPSOLVE);
 }

@@ -402,7 +402,7 @@ mps_secular_raise_coefficient_precision (mps_status * s, int wp)
     }
   
   if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
-      mps_raise_data_raw (s, wp);
+    mps_monomial_poly_raise_precision (s, s->monomial_poly, wp);
 
   rdpe_set_2dl (s->mp_epsilon, 1.0, -wp);
   MPS_DEBUG_WITH_INFO (s, "Precision of the coefficients is now at %d bits", wp);

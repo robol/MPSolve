@@ -46,7 +46,9 @@ int
 main (int argc, char **argv)
 {
   mps_secular_equation *sec;
+  mps_monomial_poly *poly;
   mps_status *s;
+  int i;
 
   /* Create a new status */
   s = mps_status_new ();
@@ -164,8 +166,14 @@ main (int argc, char **argv)
   s->input_config->structure  = MPS_STRUCTURE_COMPLEX_FP;
   s->input_config->representation = MPS_REPRESENTATION_SECULAR;
 
+  /* Parse the input stream and if a polynomial is given as output, 
+   * allocate also a secular equation to be used in regeneration */
   mps_parse_stream (s, infile);
+  if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
+    s->secular_equation = mps_secular_equation_new_raw (s, s->n);
+
   sec = s->secular_equation;
+  poly = s->monomial_poly;
 
   /* Close the file if it's not stdin */
   if (argc == 2)
@@ -174,12 +182,6 @@ main (int argc, char **argv)
   /* Set secular equation in user data, so it will be
    * accessible by the secular equation routines. */
   sec->starting_case = phase;
-
-  /* Use always DPE with non floating point input */
-  if (!MPS_INPUT_CONFIG_IS_FP (s->input_config))
-    {
-      // sec->starting_case = dpe_phase;
-    }
 
   if (phase == dpe_phase)
     s->skip_float = true;

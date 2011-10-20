@@ -50,7 +50,7 @@ mps_allocate_data (mps_status * s)
 
   if (!s->fap)
     s->fap = double_valloc (s->deg + 1);
-
+  
   if (!s->dap)
     s->dap = rdpe_valloc (s->deg + 1);
 

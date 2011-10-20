@@ -81,7 +81,7 @@ am_libmps_la_OBJECTS = user.lo getopts.lo solve.lo main.lo data.lo \
 	improve.lo test.lo newton.lo mpc.lo link.lo touch.lo \
 	interface.lo threading.lo secular.lo secular-newton.lo \
 	secular-starting.lo secular-ga.lo input-buffer.lo \
-	$(am__objects_1)
+	monomial-poly.lo $(am__objects_1)
 libmps_la_OBJECTS = $(am_libmps_la_OBJECTS)
 AM_V_lt = $(am__v_lt_$(V))
 am__v_lt_ = $(am__v_lt_$(AM_DEFAULT_VERBOSITY))
@@ -316,6 +316,7 @@ libmps_la_SOURCES = \
 	 secular-starting.c \
 	 secular-ga.c \
          input-buffer.c \
+	 monomial-poly.c \
 	$(NULL)
 
 libmps_la_LIBADD = \
@@ -412,6 +413,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/interface.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/link.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/monomial-poly.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mpc.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mptemp.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mt.Plo@am__quote@
