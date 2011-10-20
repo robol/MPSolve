@@ -291,7 +291,7 @@ extern "C"
     /**
      * @brief The degree of the polynomial.
      */
-    long int n;
+    int n;
 
     /**
      * @brief This array contains the structure of the sparse
