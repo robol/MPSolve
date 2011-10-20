@@ -210,11 +210,15 @@ extern "C"
   typedef enum
     {
       MPS_REPRESENTATION_SECULAR,
-      MPS_REPRESENTATION_MONOMIAL
+      MPS_REPRESENTATION_DENSE_MONOMIAL,
+      MPS_REPRESENTATION_SPARSE_MONOMIAL
     } mps_representation;
 
-#define MPS_INPUT_CONFIG_IS_SECULAR(x)  ((x)->representation == MPS_REPRESENTATION_SECULAR)
-#define MPS_INPUT_CONFIG_IS_MONOMIAL(x) ((x)->representation == MPS_REPRESENTATION_MONOMIAL)
+  const static short int mps_secular_representations[]  = { 1, 0, 0 };
+  const static short int mps_monomial_representations[] = { 0, 1, 1 };
+
+#define MPS_INPUT_CONFIG_IS_SECULAR(x)  (mps_secular_representations[(x->representation)])
+#define MPS_INPUT_CONFIG_IS_MONOMIAL(x) (mps_monomial_representations[(x->representation)])
 
   /**
    * @brief Configuration for an input stream; this struct
@@ -599,7 +603,7 @@ extern "C"
 
     /**
      * @brief mps_boolean value that determine if we should
-     * use a random seed for startingd points
+     * use a random seed for starting points
      */
     mps_boolean random_seed;
 

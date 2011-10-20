@@ -547,7 +547,7 @@ mps_parse_stream (mps_status * s, FILE * input_stream)
           else if (input_option.flag == MPS_FLAG_SECULAR)
             s->input_config->representation = MPS_REPRESENTATION_SECULAR;
 	  else if (input_option.flag == MPS_FLAG_MONOMIAL)
-	    s->input_config->representation = MPS_REPRESENTATION_MONOMIAL;
+	    s->input_config->representation = MPS_REPRESENTATION_DENSE_MONOMIAL;
 
           /* Parsing of algebraic structure of the input */
           else if (input_option.flag == MPS_FLAG_REAL)

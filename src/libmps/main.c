@@ -291,8 +291,12 @@ mps_setup (mps_status * s)
 
   /* Indexes of the first (and only) cluster start from
    * 0 and reach n */
-  s->punt[0] = 0;
-  s->punt[1] = s->n;
+  mps_cluster_reset (s);
+
+  /* Check if the numer of thread is greater of the number of roots,
+     and in that case decrease it */
+  if (s->n_threads > s->deg)
+    s->n_threads = s->deg;
 
   /* set input and output epsilon */
   rdpe_set_2dl (s->eps_in, 1.0, 1 - s->input_config->prec);

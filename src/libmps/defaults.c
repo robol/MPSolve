@@ -9,6 +9,7 @@
 ** (C) 2001, Dipartimento di Matematica, FRISCO LTR 21024 **
 ***********************************************************/
 
+#include <stdio.h>
 #include <float.h>
 #include <mps/core.h>
 #include <mps/threading.h>
@@ -17,7 +18,6 @@
 void
 mps_set_default_values (mps_status * s)
 {
-
   /* flags */
   s->skip_float = false;        /* set to true to skip float phase     */
   s->resume = false;            /* resume from pre-computed roots      */
@@ -30,9 +30,9 @@ mps_set_default_values (mps_status * s)
   s->debug_level = 0;
 
   /* I/O streams */
-  s->instr = NULL;              /* input stream                        */
-  s->outstr = NULL;             /* output stream                       */
-  s->logstr = NULL;             /* log stream                          */
+  s->instr = stdin;              /* input stream                        */
+  s->outstr = stdout;             /* output stream                       */
+  s->logstr = stderr;             /* log stream                          */
   s->rtstr = NULL;              /* root stream                         */
 
   /* constants/parameters */

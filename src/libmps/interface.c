@@ -316,6 +316,11 @@ void
 mps_status_set_degree (mps_status * s, int n)
 {
   s->deg = s->n = n;
+  
+  /* Check if the numer of thread is greater of the number of roots,
+     and in that case decrease it */
+  if (s->n_threads > s->deg)
+    s->n_threads = s->deg;
 }
 
 /**
