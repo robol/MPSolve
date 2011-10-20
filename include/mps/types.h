@@ -210,24 +210,28 @@ extern "C"
   typedef enum
     {
       MPS_REPRESENTATION_SECULAR,
-      MPS_REPRESENTATION_DENSE_MONOMIAL,
-      MPS_REPRESENTATION_SPARSE_MONOMIAL,
-      MPS_REPRESENTATION_USER_MONOMIAL,
+      MPS_REPRESENTATION_MONOMIAL,
     } mps_representation;
 
-  const static short int mps_secular_representations[]  = { 1, 0, 0, 0 };
-  const static short int mps_monomial_representations[] = { 0, 1, 1, 1 };
+  const static short int mps_secular_representations[]  = { 1, 0 };
+  const static short int mps_monomial_representations[] = { 0, 1 };
 
 #define MPS_INPUT_CONFIG_IS_SECULAR(x)  (mps_secular_representations[(x->representation)])
 #define MPS_INPUT_CONFIG_IS_MONOMIAL(x) (mps_monomial_representations[(x->representation)])
 
-  const static short int mps_user_representations[]   = { 0, 0, 0, 1 };
-  const static short int mps_sparse_representations[] = { 0, 0, 1, 0 };
-  const static short int mps_dense_representations[]  = { 0, 1, 0, 0 };
+  typedef enum {
+    MPS_DENSITY_DENSE,
+    MPS_DENSITY_SPARSE,
+    MPS_DENSITY_USER,
+  } mps_density;
 
-#define MPS_INPUT_CONFIG_IS_USER(x)     (mps_user_representations[(x)])
-#define MPS_INPUT_CONFIG_IS_SPARSE(x)   (mps_sparse_representation[(x)])
-#define MPS_INPUT_CONFIG_IS_DENSE(x)    (mps_dense_representation[(x)])
+  const static short int mps_user_representations[]   = { 0, 0, 1 };
+  const static short int mps_sparse_representations[] = { 0, 1, 0 };
+  const static short int mps_dense_representations[]  = { 1, 0, 0 };
+
+#define MPS_INPUT_CONFIG_IS_USER(x)     (mps_user_representations[(x->density)])
+#define MPS_INPUT_CONFIG_IS_SPARSE(x)   (mps_sparse_representations[(x->density)])
+#define MPS_INPUT_CONFIG_IS_DENSE(x)    (mps_dense_representations[(x->density)])
 
   /**
    * @brief Configuration for an input stream; this struct
@@ -247,6 +251,13 @@ extern "C"
      * the coefficients that will be passed to MPSolve.
      */
     mps_representation representation;
+
+    /**
+     * @brief Density of the coefficients, or MPS_DENSITY_USER
+     * if the coefficients (or the newton fraction) is provided
+     * via a user routine
+     */
+    mps_density density;
 
     /**
      * @brief Digits of guaranteed input precision.

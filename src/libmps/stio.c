@@ -44,6 +44,9 @@ void
 mps_raise_parsing_error (mps_status * s, const char * token, 
 			 const char * message)
 {
+  if (!token)
+    mps_error (s, 1, message);
+
   char * output = (char *) malloc (sizeof (char) * (strlen (token) + strlen ("Parsing error near the token: ") + 1));
   sprintf (output, "Parsing error near the token: %s", token);
 
@@ -218,64 +221,141 @@ mps_monomial_poly_read_from_stream (mps_status * s,
   for (i = 0; i < s->n; ++i)
       poly->spar[i] = true;
 
-  if (MPS_INPUT_CONFIG_IS_FP (s->input_config))
+  /* Dense parsing */
+  if (MPS_INPUT_CONFIG_IS_DENSE (s->input_config))
     {
-      for (i = 0; i < s->n + 1; ++i)
+      if (MPS_INPUT_CONFIG_IS_FP (s->input_config))
 	{
-	  token = mps_input_buffer_next_token (buffer);
-	  if (!token || (mpf_set_str (mpc_Re (poly->mfpc[i]), token, 10) != 0))
-	    mps_raise_parsing_error (s, token, "Error parsing coefficients of the polynomial");
-	  free (token);
-
-	  if (MPS_INPUT_CONFIG_IS_COMPLEX (s->input_config))
+	  for (i = 0; i < s->n + 1; ++i)
 	    {
 	      token = mps_input_buffer_next_token (buffer);
-	      if (!token || (mpf_set_str (mpc_Im (poly->mfpc[i]), token, 10) != 0))
+	      if (!token || (mpf_set_str (mpc_Re (poly->mfpc[i]), token, 10) != 0))
 		mps_raise_parsing_error (s, token, "Error parsing coefficients of the polynomial");
 	      free (token);
+
+	      if (MPS_INPUT_CONFIG_IS_COMPLEX (s->input_config))
+		{
+		  token = mps_input_buffer_next_token (buffer);
+		  if (!token || (mpf_set_str (mpc_Im (poly->mfpc[i]), token, 10) != 0))
+		    mps_raise_parsing_error (s, token, "Error parsing coefficients of the polynomial");
+		  free (token);
+		}
+	      else
+		mpf_set_ui (mpc_Im (poly->mfpc[i]), 0U);
 	    }
-	  else
-	    mpf_set_ui (mpc_Im (poly->mfpc[i]), 0U);
 	}
-    }
-  else if (MPS_INPUT_CONFIG_IS_RATIONAL (s->input_config) ||
-	   MPS_INPUT_CONFIG_IS_INTEGER (s->input_config))
-    {
-      for (i = 0; i < s->n + 1; ++i)
+      else if (MPS_INPUT_CONFIG_IS_RATIONAL (s->input_config) ||
+	       MPS_INPUT_CONFIG_IS_INTEGER (s->input_config))
 	{
-	  token = mps_input_buffer_next_token (buffer);
-	  if (!token || (mpq_set_str (poly->initial_mqp_r[i], token, 10) != 0))
-	    mps_raise_parsing_error (s, token, "Error parsing coefficients of the polynomial");
-	  mpq_canonicalize (poly->initial_mqp_r[i]);
-	  free (token);
-      
-	  if (MPS_INPUT_CONFIG_IS_COMPLEX (s->input_config))
+	  for (i = 0; i < s->n + 1; ++i)
 	    {
 	      token = mps_input_buffer_next_token (buffer);
-	      if (!token || (mpq_set_str (poly->initial_mqp_i[i], token, 10) != 0))
+	      if (!token || (mpq_set_str (poly->initial_mqp_r[i], token, 10) != 0))
 		mps_raise_parsing_error (s, token, "Error parsing coefficients of the polynomial");
-	      mpq_canonicalize (poly->initial_mqp_i[i]);
+	      mpq_canonicalize (poly->initial_mqp_r[i]);
 	      free (token);
-	    }
-	  else
-	    mpq_set_ui (poly->initial_mqp_i[i], 0U, 0U);
-
-	  /* Copy coefficients in the floating point ones */
-	  mpf_set_q (mpc_Re (poly->mfpc[i]), poly->initial_mqp_r[i]);
-	  mpf_set_q (mpc_Im (poly->mfpc[i]), poly->initial_mqp_i[i]);
-	}
       
-    }
+	      if (MPS_INPUT_CONFIG_IS_COMPLEX (s->input_config))
+		{
+		  token = mps_input_buffer_next_token (buffer);
+		  if (!token || (mpq_set_str (poly->initial_mqp_i[i], token, 10) != 0))
+		    mps_raise_parsing_error (s, token, "Error parsing coefficients of the polynomial");
+		  mpq_canonicalize (poly->initial_mqp_i[i]);
+		  free (token);
+		}
+	      else
+		mpq_set_ui (poly->initial_mqp_i[i], 0U, 0U);
+
+	      /* Copy coefficients in the floating point ones */
+	      mpf_set_q (mpc_Re (poly->mfpc[i]), poly->initial_mqp_r[i]);
+	      mpf_set_q (mpc_Im (poly->mfpc[i]), poly->initial_mqp_i[i]);
+	    }
+	}
+    } /* closes if (MPS_INPUT_CONFIG_IS_DENSE (s->input_config)) */
+  else if (MPS_INPUT_CONFIG_IS_SPARSE (s->input_config))
+    {
+      /* Set all the spar to false, since we have still not read
+       * any coefficient */
+      for (i = 0; i < s->n; ++i)
+	poly->spar[i] = false;
+
+      while ((token = mps_input_buffer_next_token (buffer)))
+	{
+	  /* Read the index from the buffer */
+	  if (!sscanf (token, "%d", &i))
+	    mps_raise_parsing_error (s, token, "Error while parsing the degree of a monomial");
+
+	  if (poly->spar[i])
+	    mps_raise_parsing_error (s, token, "A monomial of the same degree has been inserted twice");
+	  else
+	    poly->spar[i] = true;
+	  free (token);
+
+	  if (MPS_INPUT_CONFIG_IS_FP (s->input_config))
+	    {
+	      token = mps_input_buffer_next_token (buffer);
+	      if (!token || (mpf_set_str (mpc_Re (poly->mfpc[i]), token, 10) != 0))
+		mps_raise_parsing_error (s, token, "Error parsing coefficients of the polynomial");
+	      free (token);
+	  
+	      if (MPS_INPUT_CONFIG_IS_COMPLEX (s->input_config))
+		{
+		  token = mps_input_buffer_next_token (buffer);
+		  if (!token || (mpf_set_str (mpc_Im (poly->mfpc[i]), token, 10) != 0))
+		    mps_raise_parsing_error (s, token, "Error parsing coefficients of the polynomial");
+		  free (token);
+		}
+	      else
+		mpf_set_ui (mpc_Im (poly->mfpc[i]), 0U);
+	    }
+	  else if (MPS_INPUT_CONFIG_IS_RATIONAL (s->input_config) ||
+		   MPS_INPUT_CONFIG_IS_INTEGER (s->input_config))
+	    {
+
+	      token = mps_input_buffer_next_token (buffer);
+	      if (!token || (mpq_set_str (poly->initial_mqp_r[i], token, 10) != 0))
+		mps_raise_parsing_error (s, token, "Error parsing coefficients of the polynomial");
+	      mpq_canonicalize (poly->initial_mqp_r[i]);
+	      free (token);
+      
+	      if (MPS_INPUT_CONFIG_IS_COMPLEX (s->input_config))
+		{
+		  token = mps_input_buffer_next_token (buffer);
+		  if (!token || (mpq_set_str (poly->initial_mqp_i[i], token, 10) != 0))
+		    mps_raise_parsing_error (s, token, "Error parsing coefficients of the polynomial");
+		  mpq_canonicalize (poly->initial_mqp_i[i]);
+		  free (token);
+		}
+	      else
+		mpq_set_ui (poly->initial_mqp_i[i], 0U, 0U);
+
+	      /* Copy coefficients in the floating point ones */
+	      mpf_set_q (mpc_Re (poly->mfpc[i]), poly->initial_mqp_r[i]);
+	      mpf_set_q (mpc_Im (poly->mfpc[i]), poly->initial_mqp_i[i]);
+	    }
+	}
+    } /* closes if (MPS_INPUT_CONFIG_IS_SPARSE (s->input_config)) */
 
   /* Copy coefficients back in other places */
   for (i = 0; i < s->n + 1; ++i)
     {
-      mpc_get_cplx (poly->fpc[i], poly->mfpc[i]);
-      mpc_get_cdpe (poly->dpc[i], poly->mfpc[i]);
+      if (poly->spar[i])
+	{
+	  mpc_get_cplx (poly->fpc[i], poly->mfpc[i]);
+	  mpc_get_cdpe (poly->dpc[i], poly->mfpc[i]);
 
-      /* Compute modules of coefficients */
-      cdpe_mod (poly->dap[i], poly->dpc[i]);
-      poly->fap[i] = rdpe_get_d (poly->dap[i]);
+	  /* Compute modules of coefficients */
+	  cdpe_mod (poly->dap[i], poly->dpc[i]);
+	  poly->fap[i] = rdpe_get_d (poly->dap[i]);
+	}
+      else
+	{
+	  cplx_set (poly->fpc[i], cplx_zero);
+	  cdpe_set (poly->dpc[i], cdpe_zero);
+	  
+	  rdpe_set (poly->dap[i], rdpe_zero);
+	  poly->fap[i] = 0.0f;
+	}
     }
 
   s->monomial_poly = poly;
@@ -537,7 +617,13 @@ mps_parse_stream (mps_status * s, FILE * input_stream)
           else if (input_option.flag == MPS_FLAG_SECULAR)
             s->input_config->representation = MPS_REPRESENTATION_SECULAR;
 	  else if (input_option.flag == MPS_FLAG_MONOMIAL)
-	    s->input_config->representation = MPS_REPRESENTATION_DENSE_MONOMIAL;
+	    s->input_config->representation = MPS_REPRESENTATION_MONOMIAL;
+
+	  /* And of dense and or sparse input */
+	  else if (input_option.flag == MPS_FLAG_SPARSE)
+	    s->input_config->density = MPS_DENSITY_SPARSE;
+	  else if (input_option.flag == MPS_FLAG_DENSE)
+	    s->input_config->density = MPS_DENSITY_DENSE;	      
 
           /* Parsing of algebraic structure of the input */
           else if (input_option.flag == MPS_FLAG_REAL)
