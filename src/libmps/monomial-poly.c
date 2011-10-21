@@ -102,9 +102,9 @@ mps_monomial_poly_raise_precision (mps_status * s, mps_monomial_poly * mp, long 
   /* Raise the precision of p' */
   if (s->data_type[0] == 's')
     for (k = 0; k < s->n; k++)
-      if (s->spar[k + 1])
+      if (mp->spar[k + 1])
         {
-          mpc_set_prec (s->mfppc[k], prec);
-          mpc_mul_ui (s->mfppc[k], s->mfpc[k + 1], k + 1);
+          mpc_set_prec (mp->mfppc[k], prec);
+          mpc_mul_ui (mp->mfppc[k], mp->mfpc[k + 1], k + 1);
         }
 }

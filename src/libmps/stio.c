@@ -655,7 +655,7 @@ mps_parse_stream_old (mps_status * s, mps_input_buffer * buffer)
   poly = mps_monomial_poly_new (s, s->n);
 
   /* We still do not support sparse input */
-  for (i = 0; i < s->n; ++i)
+  for (i = 0; i <= s->n; ++i)
       poly->spar[i] = true;
 
   /* Dense parsing */
@@ -719,7 +719,7 @@ mps_parse_stream_old (mps_status * s, mps_input_buffer * buffer)
 
       /* Set all the spar to false, since we have still not read
        * any coefficient */
-      for (i = 0; i < s->n; ++i)
+      for (i = 0; i <= s->n; ++i)
 	poly->spar[i] = false;
 
       while ((token = mps_input_buffer_next_token (buffer)))
@@ -728,7 +728,6 @@ mps_parse_stream_old (mps_status * s, mps_input_buffer * buffer)
 	  if (!sscanf (token, "%d", &i))
 	    mps_raise_parsing_error (s, token, "Error while parsing the degree of a monomial");
 
-	  fprintf (stderr, "%d\n", i);
 	  if (poly->spar[i])
 	    mps_raise_parsing_error (s, token, "A monomial of the same degree has been inserted twice");
 	  else
@@ -780,7 +779,7 @@ mps_parse_stream_old (mps_status * s, mps_input_buffer * buffer)
     } /* closes if (MPS_INPUT_CONFIG_IS_SPARSE (s->input_config)) */
 
   /* Copy coefficients back in other places */
-  for (i = 0; i < s->n + 1; ++i)
+  for (i = 0; i <= s->n; ++i)
     {
       if (poly->spar[i])
 	{
@@ -790,6 +789,9 @@ mps_parse_stream_old (mps_status * s, mps_input_buffer * buffer)
 	  /* Compute modules of coefficients */
 	  cdpe_mod (poly->dap[i], poly->dpc[i]);
 	  poly->fap[i] = rdpe_get_d (poly->dap[i]);
+
+	  if (s->data_type[2] == 'f')
+	    mpf_set (poly->mfpr[i], mpc_Re (poly->mfpc[i]));
 	}
       else
 	{
@@ -798,7 +800,12 @@ mps_parse_stream_old (mps_status * s, mps_input_buffer * buffer)
 	  
 	  rdpe_set (poly->dap[i], rdpe_zero);
 	  poly->fap[i] = 0.0f;
+
+	  if (s->data_type[2] == 'f')
+	    mpf_set (poly->mfpr[i], mpc_Re (poly->mfpc[i]));
 	}
+
+      MPS_DEBUG_RDPE (s, poly->dap[i], "poly->dap[%d]", i);
     }
 
   s->monomial_poly = poly;

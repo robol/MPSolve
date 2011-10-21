@@ -71,6 +71,7 @@ mps_dcmp (const void *a, const void *b)
 void
 mps_dsort (mps_status * s)
 {
+  mps_monomial_poly *p = s->monomial_poly;
   int i;
 
   for (i = 0; i < s->n; i++)

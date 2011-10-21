@@ -69,6 +69,7 @@ mps_improve (mps_status * s)
   rdpe_t tmp, t, st, sigma, newrad, oldrad, abroot;
   double f, g, cnd;
   mps_boolean again;
+  mps_monomial_poly *p = s->monomial_poly;
   clock_t *my_timer = mps_start_timer ();
 
   if (s->DOLOG)
@@ -204,7 +205,7 @@ mps_improve (mps_status * s)
           if (s->data_type[0] != 'u')
             {
               mps_mnewton (s, s->n, s->mroot[i], s->drad[i],
-                           nwtcorr, s->mfpc, s->mfppc, s->dap, s->spar,
+                           nwtcorr, p->mfpc, p->mfppc, p->dap, p->spar,
                            &again, 0);
             }
           else if (s->mnewton_usr != NULL)

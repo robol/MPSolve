@@ -1040,6 +1040,7 @@ mps_frestart (mps_status * s)
   double sr, sum, rad, rtmp, rtmp1;
   cplx_t sc, g, corr, ctmp;
   mps_boolean tst, cont;
+  mps_monomial_poly *p = s->monomial_poly;
 
   /* For user's polynomials skip the restart stage (not yet implemented) */
   if (s->data_type[0] == 'u')
@@ -1116,16 +1117,16 @@ mps_frestart (mps_status * s)
       sum = 0.0;
       for (j = 0; j <= s->n; j++)
         {
-          sum += cplx_mod (s->fpc[j]);
-          cplx_set (s->fppc[j], s->fpc[j]);
+          sum += cplx_mod (p->fpc[j]);
+          cplx_set (p->fppc[j], p->fpc[j]);
         }
       for (j = 1; j < s->punt[i + 1] - s->punt[i]; j++)
         {
           for (k = 0; k <= s->n - j; k++)
-            cplx_mul_d (s->fppc[k], s->fppc[k + 1], (double) (k + 1));
+            cplx_mul_d (p->fppc[k], p->fppc[k + 1], (double) (k + 1));
         }
       for (j = 0; j < s->n - (s->punt[i + 1] - s->punt[i]) + 2; j++)
-        s->fap1[j] = cplx_mod (s->fppc[j]);
+        s->fap1[j] = cplx_mod (p->fppc[j]);
 
       /* Apply at most max_newt_it steps of Newton's iterations
        * to the above derivative starting from the super center
@@ -1136,7 +1137,7 @@ mps_frestart (mps_status * s)
         {                       /* loop_newt: */
           rad = 0.0;
           mps_fnewton (s, s->n - (s->punt[i + 1] - s->punt[i]) + 1, g,
-                       &rad, corr, s->fppc, s->fap1, &cont);
+                       &rad, corr, p->fppc, s->fap1, &cont);
           cplx_sub_eq (g, corr);
           if (!cont)
             break;
@@ -1213,6 +1214,7 @@ mps_drestart (mps_status * s)
   rdpe_t sr, rad, rtmp, rtmp1;
   cdpe_t sc, g, corr, ctmp;
   mps_boolean tst, cont;
+  mps_monomial_poly *p = s->monomial_poly;
 
   /*  For user's polynomials skip the restart stage (not yet implemented) */
   if (s->data_type[0] == 'u')
@@ -1290,7 +1292,7 @@ mps_drestart (mps_status * s)
        * equal to the multiplicity of the cluster -1. */
 
       for (j = 0; j <= s->n; j++)
-        cdpe_set (s->dpc2[j], s->dpc[j]);
+        cdpe_set (s->dpc2[j], p->dpc[j]);
       for (j = 1; j < s->punt[i + 1] - s->punt[i]; j++)
         {
           for (k = 0; k <= s->n - j; k++)
@@ -1360,6 +1362,7 @@ mps_mrestart (mps_status * s)
   tmpf_t rea, srmp;
   tmpc_t sc, corr, temp;
   mpc_t g;
+  mps_monomial_poly* p = s->monomial_poly;
 
   /* For user's polynomials skip the restart stage (not yet implemented) */
   if (s->data_type[0] == 'u')
@@ -1477,7 +1480,7 @@ mps_mrestart (mps_status * s)
        * equal to the multiplicity of the cluster -1. */
 
       for (j = 0; j <= s->n; j++)
-        mpc_set (s->mfpc1[j], s->mfpc[j]);
+        mpc_set (s->mfpc1[j], p->mfpc[j]);
       for (j = 1; j < s->punt[i + 1] - s->punt[i]; j++)
         {
           for (k = 0; k <= s->n - j; k++)
@@ -1609,13 +1612,14 @@ mps_fshift (mps_status * s, int m, int i_clust, double clust_rad,
   int i, j;
   double prec, ag;
   cplx_t t;
+  mps_monomial_poly *p = s->monomial_poly;
 
   /* Perform divisions */
 
   prec = DBL_EPSILON;
   ag = cplx_mod (g);
   for (i = 0; i <= s->n; i++)
-    cplx_set (s->fppc1[i], s->fpc[i]);
+    cplx_set (s->fppc1[i], p->fpc[i]);
   for (i = 0; i <= m; i++)
     {
       cplx_set (t, s->fppc1[s->n]);
@@ -1625,12 +1629,12 @@ mps_fshift (mps_status * s, int m, int i_clust, double clust_rad,
           cplx_add_eq (t, s->fppc1[j]);
           cplx_set (s->fppc1[j], t);
         }
-      cplx_set (s->fppc[i], t);
+      cplx_set (p->fppc[i], t);
     }
 
   /* start */
   for (i = 0; i <= m; i++)
-    s->fap1[i] = cplx_mod (s->fppc[i]);
+    s->fap1[i] = cplx_mod (p->fppc[i]);
 
   /* If there is a custom starting point function use it, otherwise
    * use the default one */
@@ -1650,11 +1654,12 @@ mps_dshift (mps_status * s, int m, int i_clust, rdpe_t clust_rad,
   int i, j;
   rdpe_t prec, ag;
   cdpe_t t;
+  mps_monomial_poly *p;
 
   rdpe_set_d (prec, DBL_EPSILON);
   cdpe_mod (ag, g);
   for (i = 0; i <= s->n; i++)
-    cdpe_set (s->dpc1[i], s->dpc[i]);
+    cdpe_set (s->dpc1[i], p->dpc[i]);
   for (i = 0; i <= m; i++)
     {
       cdpe_set (t, s->dpc1[s->n]);
@@ -1688,6 +1693,7 @@ mps_mshift (mps_status * s, int m, int i_clust, rdpe_t clust_rad, mpc_t g)
   rdpe_t ag, ap, abp, as, mp_ep;
   cdpe_t abd;
   mpc_t t;
+  mps_monomial_poly *p = s->monomial_poly;
 
   mpc_init2 (t, s->mpwp);
 
@@ -1701,7 +1707,7 @@ mps_mshift (mps_status * s, int m, int i_clust, rdpe_t clust_rad, mpc_t g)
   mpc_get_cdpe (abd, g);
   cdpe_mod (ag, abd);
   for (i = 0; i <= s->n; i++)
-    mpc_set (s->mfpc1[i], s->mfpc[i]);
+    mpc_set (s->mfpc1[i], p->mfpc[i]);
   rdpe_set (as, rdpe_zero);
   rdpe_set (ap, rdpe_one);
   mpc_set_ui (t, 0, 0);
@@ -1713,12 +1719,12 @@ mps_mshift (mps_status * s, int m, int i_clust, rdpe_t clust_rad, mpc_t g)
 
   do
     {                           /* loop */
-      mpc_set (t, s->mfpc1[s->n]);
-      mpc_get_cdpe (abd, s->mfpc[s->n]);
+      mpc_set (t, s->mfpc1[p->n]);
+      mpc_get_cdpe (abd, p->mfpc[s->n]);
       cdpe_mod (ap, abd);
       for (j = s->n - 1; j >= 0; j--)
         {
-          mpc_get_cdpe (abd, s->mfpc[j]);
+          mpc_get_cdpe (abd, p->mfpc[j]);
           cdpe_mod (abp, abd);
           rdpe_mul_eq (ap, ag);
           rdpe_mul_eq_d (abp, (double) j);
@@ -1753,7 +1759,7 @@ mps_mshift (mps_status * s, int m, int i_clust, rdpe_t clust_rad, mpc_t g)
             mpwp_max = mpwp_temp;
 
           for (j = 0; j <= s->n; j++)
-            mpc_set (s->mfpc1[j], s->mfpc[j]);
+            mpc_set (s->mfpc1[j], p->mfpc[j]);
         }
     }
   while (rdpe_lt (as, ap) && (k <= m)); /* loop */

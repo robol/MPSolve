@@ -7,7 +7,6 @@
 
 #include <mps/debug.h>
 #include <mps/core.h>
-#include <mps/poly.h>
 #include <mps/link.h>
 #include <mps/secular.h>
 #include <mps/debug.h>
@@ -1267,13 +1266,14 @@ mps_secular_ga_mpsolve (mps_status * s)
     {
       int nit;
       mps_boolean excep;
+      mps_monomial_poly *p = s->monomial_poly;
 
       if (s->lastphase == float_phase)
-	mps_fstart (s, s->n, 0, 0.0, 0.0, s->eps_out, s->fap);
+	mps_fstart (s, s->n, 0, 0.0, 0.0, s->eps_out, p->fap);
       else
 	mps_dstart (s, s->n, 0, (__rdpe_struct *) rdpe_zero,
 		    (__rdpe_struct *) rdpe_zero, s->eps_out,
-		    s->dap);
+		    p->dap);
 
       mps_secular_ga_regenerate_coefficients (s);
     }

@@ -4,7 +4,6 @@
 
 #include <check.h>
 #include <mps/core.h>
-#include <mps/poly.h>
 #include <gmp.h>
 #include <mps/mpc.h>
 #include <mps/gmptools.h>
@@ -24,7 +23,6 @@ test_pol **test_polynomials;
 int
 test_unisolve_on_pol (test_pol * pol)
 {
-  mpspoly_t poly;
   mps_status *s = mps_status_new ();
   FILE *input_stream;
   FILE *check_stream;
@@ -64,11 +62,9 @@ test_unisolve_on_pol (test_pol * pol)
     }
 
   mps_set_default_values (s);
-
-
   strncpy (s->goal, "aannc", 5);
-  mps_read_poly (s, input_stream, poly);
-  mps_set_poly (s, poly);
+
+  mps_parse_stream (s, input_stream);
   mps_allocate_data (s);
 
   /* Set the logstr to stderr, so the program won't segfault if there is the

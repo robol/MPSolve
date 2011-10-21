@@ -56,17 +56,17 @@ mps_set_default_values (mps_status * s)
   s->input_config->prec = -1;              /* number of digits of input precision */
   /*   override input file if != -1      */
   s->data_type = NULL;          /* stores the input data type          */
-  s->spar = NULL;               /* sparsity structure of polynomial    */
-  s->fpr = NULL;                /* standard real coefficients          */
-  s->fpc = NULL;                /* standard complex coefficients       */
-  s->dpr = NULL;                /* dpe real coefficients               */
-  s->dpc = NULL;                /* dpe complex coefficients            */
-  s->mip_r = NULL;              /* real part of integer input coefs    */
-  s->mip_i = NULL;              /* imag. part of integer input coefs   */
-  s->mqp_r = NULL;              /* real part of rational input coeff.  */
-  s->mqp_i = NULL;              /* imag. part of rational input coefs  */
-  s->mfpr = NULL;               /* multiprecision real coefficients    */
-  s->mfpc = NULL;               /* multiprecision complex coefficients */
+  /* s->spar = NULL;               /\* sparsity structure of polynomial    *\/ */
+  /* s->fpr = NULL;                /\* standard real coefficients          *\/ */
+  /* s->fpc = NULL;                /\* standard complex coefficients       *\/ */
+  /* s->dpr = NULL;                /\* dpe real coefficients               *\/ */
+  /* s->dpc = NULL;                /\* dpe complex coefficients            *\/ */
+  /* s->mip_r = NULL;              /\* real part of integer input coefs    *\/ */
+  /* s->mip_i = NULL;              /\* imag. part of integer input coefs   *\/ */
+  /* s->mqp_r = NULL;              /\* real part of rational input coeff.  *\/ */
+  /* s->mqp_i = NULL;              /\* imag. part of rational input coefs  *\/ */
+  /* s->mfpr = NULL;               /\* multiprecision real coefficients    *\/ */
+  /* s->mfpc = NULL;               /\* multiprecision complex coefficients *\/ */
   s->zero_roots = 0;
 
   /* soution related variables */
@@ -81,11 +81,11 @@ mps_set_default_values (mps_status * s)
   s->clust = NULL;              /* indices of components of clusters   */
   s->punt = NULL;               /* beginning of each cluster           */
   s->rootwp = NULL;             /* working precision used for each root */
-  s->mfppc = NULL;              /* multiprecision complex coeffs of p' */
-  s->fap = NULL;                /* moduli of the coefficients as double */
-  s->dap = NULL;                /* moduli of the coefficients as dpe   */
+  /* s->mfppc = NULL;              /\* multiprecision complex coeffs of p' *\/ */
+  /* s->fap = NULL;                /\* moduli of the coefficients as double *\/ */
+  /* s->dap = NULL;                /\* moduli of the coefficients as dpe   *\/ */
   s->again = NULL;              /* flag vector: true where more        */
-  s->fppc = NULL;               /* standard complex coefficients       */
+  /* s->fppc = NULL;               /\* standard complex coefficients       *\/ */
   s->fppc1 = NULL;              /* standard complex coefficients       */
   s->dpc1 = NULL;               /* dpe complex coefficients            */
   s->dpc2 = NULL;               /* dpe complex coefficients            */

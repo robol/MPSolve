@@ -264,16 +264,16 @@ mps_setup (mps_status * s)
     }
 
   /* setup temporary vectors */
-  if (s->data_type[0] == 's')
-    for (i = 0; i <= s->n; i++)
-      {
-        p->fap[i] = 0.0;
-        p->fpr[i] = 0.0;
-        rdpe_set (p->dap[i], rdpe_zero);
-        cplx_set (p->fpc[i], cplx_zero);
-        rdpe_set (p->dpr[i], rdpe_zero);
-        cdpe_set (p->dpc[i], cdpe_zero);
-      }
+   if (s->data_type[0] == 's') 
+     for (i = 0; i <= s->n; i++) 
+       { 
+         p->fap[i] = 0.0; 
+         p->fpr[i] = 0.0; 
+         rdpe_set (p->dap[i], rdpe_zero); 
+         cplx_set (p->fpc[i], cplx_zero); 
+         rdpe_set (p->dpr[i], rdpe_zero); 
+         cdpe_set (p->dpc[i], cdpe_zero); 
+       }  
 
   /* setup status and clusters so that there is only one cluster
    *  containing all the roots */
@@ -296,8 +296,8 @@ mps_setup (mps_status * s)
 
   /* Check if the numer of thread is greater of the number of roots,
      and in that case decrease it */
-  if (s->n_threads > p->n)
-    s->n_threads = p->n;
+  if (s->n_threads > s->n)
+    s->n_threads = s->n;
 
   /* set input and output epsilon */
   rdpe_set_2dl (s->eps_in, 1.0, 1 - s->input_config->prec);
@@ -334,7 +334,6 @@ mps_setup (mps_status * s)
         {                       /* switch 1 */
 
         case 'r':              /* Real */
-
           switch (s->data_type[2])
             {                   /* switch 2 */
 
@@ -351,7 +350,6 @@ mps_setup (mps_status * s)
             case 'f':          /* Real - Big/Float Coefs */
               mpf_get_rdpe (p->dpr[i], p->mfpr[i]);
               break;
-
             }                   /* switch 2 */
 
           cdpe_set_e (p->dpc[i], p->dpr[i], rdpe_zero);

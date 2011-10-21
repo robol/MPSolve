@@ -743,65 +743,65 @@ extern "C"
      */
     char *data_type;
 
-    /**
-     * @brief This array contains the structure of the sparse
-     * polynomial.
-     *
-     * <code>spar[i]</code> is <code>true</code> if and only if
-     * the i-th coefficients of the polynomial is a non-zero
-     * coefficients
-     */
-    mps_boolean *spar;
+    /* /\** */
+    /*  * @brief This array contains the structure of the sparse */
+    /*  * polynomial. */
+    /*  * */
+    /*  * <code>spar[i]</code> is <code>true</code> if and only if */
+    /*  * the i-th coefficients of the polynomial is a non-zero */
+    /*  * coefficients */
+    /*  *\/ */
+    /* mps_boolean *spar; */
 
-    /**
-     * @brief Standard real coefficients.
-     */
-    double *fpr;
+    /* /\** */
+    /*  * @brief Standard real coefficients. */
+    /*  *\/ */
+    /* double *fpr; */
 
-    /**
-     * @brief Standard complex coefficients.
-     */
-    cplx_t *fpc;
+    /* /\** */
+    /*  * @brief Standard complex coefficients. */
+    /*  *\/ */
+    /* cplx_t *fpc; */
 
-    /**
-     * @brief Dpe real coefficients.
-     */
-    rdpe_t *dpr;
+    /* /\** */
+    /*  * @brief Dpe real coefficients. */
+    /*  *\/ */
+    /* rdpe_t *dpr; */
 
-    /**
-     * @brief Dpe complex coefficients.
-     */
-    cdpe_t *dpc;
+    /* /\** */
+    /*  * @brief Dpe complex coefficients. */
+    /*  *\/ */
+    /* cdpe_t *dpc; */
 
-    /**
-     * @brief Real part of the integer input coefficients.
-     */
-    mpz_t *mip_r;
+    /* /\** */
+    /*  * @brief Real part of the integer input coefficients. */
+    /*  *\/ */
+    /* mpz_t *mip_r; */
 
-    /**
-     * @brief Imaginary part of the integer input coefficients.
-     */
-    mpz_t *mip_i;
+    /* /\** */
+    /*  * @brief Imaginary part of the integer input coefficients. */
+    /*  *\/ */
+    /* mpz_t *mip_i; */
 
-    /**
-     * @brief Real part of rational input coefficients.
-     */
-    mpq_t *mqp_r;
+    /* /\** */
+    /*  * @brief Real part of rational input coefficients. */
+    /*  *\/ */
+    /* mpq_t *mqp_r; */
 
-    /**
-     * @brief Imaginary part of rational input coefficients.
-     */
-    mpq_t *mqp_i;
+    /* /\** */
+    /*  * @brief Imaginary part of rational input coefficients. */
+    /*  *\/ */
+    /* mpq_t *mqp_i; */
 
-    /**
-     * @brief Multiprecision real coefficients.
-     */
-    mpf_t *mfpr;
+    /* /\** */
+    /*  * @brief Multiprecision real coefficients. */
+    /*  *\/ */
+    /* mpf_t *mfpr; */
 
-    /**
-     * @brief Multiprecision complex coefficients.
-     */
-    mpc_t *mfpc;
+    /* /\** */
+    /*  * @brief Multiprecision complex coefficients. */
+    /*  *\/ */
+    /* mpc_t *mfpc; */
 
     /* Solution related variables */
     /**
@@ -978,20 +978,20 @@ extern "C"
      */
     long int *rootwp;
 
-    /**
-     * @brief Multiprecision complex coefficients of \f$p'(x)\f$.
-     */
-    mpc_t *mfppc;
+    /* /\** */
+    /*  * @brief Multiprecision complex coefficients of \f$p'(x)\f$. */
+    /*  *\/ */
+    /* mpc_t *mfppc; */
 
-    /**
-     * @brief Array containing moduli of the coefficients as double numbers.
-     */
-    double *fap;
+    /* /\** */
+    /*  * @brief Array containing moduli of the coefficients as double numbers. */
+    /*  *\/ */
+    /* double *fap; */
 
-    /**
-     * @brief Array containing moduli of the coefficients as dpe numbers.
-     */
-    rdpe_t *dap;
+    /* /\** */
+    /*  * @brief Array containing moduli of the coefficients as dpe numbers. */
+    /*  *\/ */
+    /* rdpe_t *dap; */
 
     /**
      * @brief Array that whose i-th component is set to <code>true</code> if
@@ -999,10 +999,10 @@ extern "C"
      */
     mps_boolean *again;
 
-    /**
-     * @brief Array containing standard complex coefficients
-     */
-    cplx_t *fppc;
+    /* /\** */
+    /*  * @brief Array containing standard complex coefficients */
+    /*  *\/ */
+    /* cplx_t *fppc; */
 
     /**
      * @brief Standard complex coefficients of the polynomial.

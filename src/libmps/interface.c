@@ -39,7 +39,6 @@
  */
 
 #include <mps/core.h>
-#include <mps/poly.h>
 #include <mps/link.h>
 #include <mps/secular.h>
 #include <gmp.h>
@@ -124,96 +123,6 @@ mps_status_select_algorithm (mps_status * s, mps_algorithm algorithm)
     }
 }
 
-/**
- * @brief Allocate polynomial related variables directly in mps_status.
- */
-void
-mps_status_allocate_poly_inplace (mps_status * s, int n)
-{
-
-  int i;
-
-  /* If n is provided, then we should allocate variables for a polynomial
-   * of degree n. If it is <= 0 then we can assume that is already set
-   * to the right vaule.
-   */
-  if (n > 0)
-    {
-      s->deg = s->n = n;
-    }
-
-  MPS_DEBUG (s, "Allocating polynomial in place");
-
-  if (!s->data_type)
-    s->data_type = (char *) malloc (sizeof (char) * 3);
-
-  s->spar = mps_boolean_valloc (s->deg + 2);
-
-  s->fpr = double_valloc (s->deg + 1);
-  s->fpc = cplx_valloc (s->deg + 1);
-
-  s->dpr = rdpe_valloc (s->deg + 1);
-  s->dpc = cdpe_valloc (s->deg + 1);
-
-  s->mip_r = mpz_valloc (s->deg + 1);
-  s->mip_i = mpz_valloc (s->deg + 1);
-  for (i = 0; i <= s->deg; i++)
-    {
-      mpz_init (s->mip_r[i]);
-      mpz_init (s->mip_i[i]);
-    }
-
-  s->mqp_r = mpq_valloc (s->deg + 1);
-  s->mqp_i = mpq_valloc (s->deg + 1);
-  for (i = 0; i <= s->deg; i++)
-    {
-      mpq_init (s->mqp_r[i]);
-      mpq_init (s->mqp_i[i]);
-    }
-
-  s->mfpr = mpf_valloc (s->deg + 1);
-  for (i = 0; i <= s->deg; i++)
-    mpf_init2 (s->mfpr[i], s->input_config->prec);
-  s->mfpc = mpc_valloc (s->deg + 1);
-  for (i = 0; i <= s->deg; i++)
-    mpc_init2 (s->mfpc[i], s->input_config->prec);
-
-  /* Create the status and set all the roots as uncertain */
-  s->status = (char (*)[3]) char_valloc (3 * s->deg);
-  for (i = 0; i < s->deg; i++)
-    {
-      s->status[i][1] = 'w';
-      s->status[i][2] = 'u';
-    }
-
-}
-
-void
-mps_status_free_poly_inplace (mps_status * s)
-{
-  free (s->spar);
-  cplx_vfree (s->fpc);
-  rdpe_vfree (s->dpr);
-  rdpe_vfree (s->dpc);
-
-  mpz_vclear (s->mip_r, s->n);
-  mpz_vclear (s->mip_i, s->n);
-
-  mpz_vfree (s->mip_r);
-  mpz_vfree (s->mip_i);
-
-  mpq_vclear (s->mqp_r, s->n);
-  mpq_vclear (s->mqp_i, s->n);
-
-  mpq_vfree (s->mqp_r);
-  mpq_vfree (s->mqp_i);
-
-  mpf_vclear (s->mfpr, s->n);
-  mpc_vclear (s->mfpc, s->n);
-
-  mpf_vfree (s->mfpr);
-  mpf_vfree (s->mfpc);
-}
 
 /**
  * @brief Allocate a new mps_status struct with default
@@ -340,7 +249,7 @@ mps_status_set_poly_d (mps_status * s, cplx_t * coeff, long unsigned int n)
   int i;
 
   /* Allocate space for a polynomial of degree n */
-  mps_status_allocate_poly_inplace (s, n);
+  mps_monomial_poly * p = mps_monomial_poly_new (s, n);
 
   /* Set type to a dense, real, floating point polynomial */
   s->data_type[0] = 'd';
@@ -350,7 +259,7 @@ mps_status_set_poly_d (mps_status * s, cplx_t * coeff, long unsigned int n)
   /* Fill polynomial coefficients */
   for (i = 0; i <= n; i++)
     {
-      mpc_set_cplx (s->mfpc[i], coeff[i]);
+      mpc_set_cplx (p->mfpc[i], coeff[i]);
     }
 
   /* Allocate space for computation related data */
@@ -376,17 +285,17 @@ mps_status_set_poly_i (mps_status * s, int *coeff, long unsigned int n)
   int i;
 
   /* Allocate data in mps_status to hold the polynomial of degree n */
-  mps_status_allocate_poly_inplace (s, n);
+  mps_monomial_poly * p = mps_monomial_poly_new (s, n);
 
   /* Dense, real, integer coefficients */
   s->data_type[0] = 'd';
   s->data_type[1] = 'r';
-  s->data_type[2] = 'i';
+  s->data_type[2] = 'q';
 
   /* Fill polynomial */
   for (i = 0; i <= n; i++)
     {
-      mpz_set_si (s->mip_r[i], coeff[i]);
+      mpq_set_si (p->initial_mqp_r[i], coeff[i], 1U);
     }
 
   /* Allocate data for the computation */

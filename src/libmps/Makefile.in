@@ -77,7 +77,7 @@ libmps_la_DEPENDENCIES = $(am__DEPENDENCIES_1)
 am__objects_1 =
 am_libmps_la_OBJECTS = user.lo getopts.lo solve.lo main.lo data.lo \
 	cluster.lo mptemp.lo stio.lo debug.lo gmptools.lo defaults.lo \
-	sort.lo tools.lo poly.lo starting.lo convex.lo mt.lo aberth.lo \
+	sort.lo tools.lo starting.lo convex.lo mt.lo aberth.lo \
 	improve.lo test.lo newton.lo mpc.lo link.lo touch.lo \
 	interface.lo threading.lo secular.lo secular-newton.lo \
 	secular-starting.lo secular-ga.lo input-buffer.lo \
@@ -266,7 +266,6 @@ include_HEADERS = \
         ${top_srcdir}/include/mps/interface.h \
         ${top_srcdir}/include/mps/gmptools.h \
         ${top_srcdir}/include/mps/mpc.h \
-        ${top_srcdir}/include/mps/poly.h \
         ${top_srcdir}/include/mps/mptemp.h \
         ${top_srcdir}/include/mps/debug.h \
         ${top_srcdir}/include/mps/mt.h \
@@ -298,7 +297,6 @@ libmps_la_SOURCES = \
 	 defaults.c \
 	 sort.c \
 	 tools.c \
-	 poly.c \
 	 starting.c \
 	 convex.c \
 	 mt.c \
@@ -418,7 +416,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mptemp.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mt.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/newton.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/poly.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/secular-ga.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/secular-newton.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/secular-starting.Plo@am__quote@

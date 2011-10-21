@@ -48,11 +48,11 @@ mps_allocate_data (mps_status * s)
   s->order = int_valloc (s->deg);
   s->rootwp = long_valloc (s->deg);
 
-  if (!s->fap)
-    s->fap = double_valloc (s->deg + 1);
+  /* if (!s->fap) */
+  /*   s->fap = double_valloc (s->deg + 1); */
   
-  if (!s->dap)
-    s->dap = rdpe_valloc (s->deg + 1);
+  /* if (!s->dap) */
+  /*   s->dap = rdpe_valloc (s->deg + 1); */
 
   s->frad = double_valloc (s->deg);
   s->froot = cplx_valloc (s->deg);
@@ -63,16 +63,16 @@ mps_allocate_data (mps_status * s)
   for (i = 0; i < s->deg; i++)
     mpc_init2 (s->mroot[i], 0);
 
-  s->fppc = cplx_valloc (s->deg + 1);
+  /* s->fppc = cplx_valloc (s->deg + 1); */
   s->fppc1 = cplx_valloc (s->deg + 1);
 
   s->mfpc1 = mpc_valloc (s->deg + 1);
   for (i = 0; i <= s->deg; i++)
     mpc_init2 (s->mfpc1[i], 0);
 
-  s->mfppc = mpc_valloc (s->deg + 1);
-  for (i = 0; i <= s->deg; i++)
-    mpc_init2 (s->mfppc[i], 0);
+  /* s->mfppc = mpc_valloc (s->deg + 1); */
+  /* for (i = 0; i <= s->deg; i++) */
+  /*   mpc_init2 (s->mfppc[i], 0); */
 
   s->mfppc1 = mpc_valloc (s->deg + 1);
   for (i = 0; i <= s->deg; i++)
@@ -317,8 +317,8 @@ mps_free_data (mps_status * s)
   free (s->rootwp);
   free (s->order);
 
-  free (s->fap);
-  rdpe_vfree (s->dap);
+  /* free (s->fap); */
+  /* rdpe_vfree (s->dap); */
 
   free (s->frad);
   rdpe_vfree (s->drad);
@@ -333,11 +333,11 @@ mps_free_data (mps_status * s)
     mpc_clear (s->mfpc1[i]);
   mpc_vfree (s->mfpc1);
 
-  cplx_vfree (s->fppc);
+  /* cplx_vfree (s->fppc); */
   cplx_vfree (s->fppc1);
   for (i = 0; i <= s->deg; i++)
     {
-      mpc_clear (s->mfppc[i]);
+      /* mpc_clear (s->mfppc[i]); */
       mpc_clear (s->mfppc1[i]);
     }
 
@@ -346,7 +346,7 @@ mps_free_data (mps_status * s)
       mpc_clear (s->mfpc2[i]);
     }
 
-  free (s->mfppc);
+  /* free (s->mfppc); */
   free (s->mfppc1);
   free (s->mfpc2);
 
