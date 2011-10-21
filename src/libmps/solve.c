@@ -2345,6 +2345,7 @@ mps_fsolve (mps_status * s, mps_boolean * d_after_f)
   mps_boolean excep;
   int it_pack, iter, nit, oldnclust, i, j;
   rdpe_t eps_out;
+  mps_monomial_poly *p = s->monomial_poly;
 
   /* == 1 ==  Initialize variables */
   it_pack = 0;
@@ -2365,7 +2366,7 @@ mps_fsolve (mps_status * s, mps_boolean * d_after_f)
   if (s->fstart_usr)
     (*s->fstart_usr) (s, s->n, 0, 0.0, 0.0, eps_out);
   else
-    mps_fstart (s, s->n, 0, 0.0, 0.0, eps_out, s->fap);
+    mps_fstart (s, s->n, 0, 0.0, 0.0, eps_out, p->fap);
 
         /***************
 	 this part of code performs shift in the gravity center of the roots
