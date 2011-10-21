@@ -464,6 +464,7 @@ mps_secular_ga_miterate (mps_status * s, int maxit)
 	{
 	  fprintf (s->logstr, "%c ", s->status[i][0]);
 	}
+      fprintf (s->logstr, "\n");
       // mps_dump (s, s->logstr);
     }
   
