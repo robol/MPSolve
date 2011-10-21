@@ -248,6 +248,7 @@ void
 mps_setup (mps_status * s)
 {
   int i;
+  mps_monomial_poly *p = s->monomial_poly;
   tmpf_t mptemp;
   tmpc_t mptempc;
 
@@ -266,12 +267,12 @@ mps_setup (mps_status * s)
   if (s->data_type[0] == 's')
     for (i = 0; i <= s->n; i++)
       {
-        s->fap[i] = 0.0;
-        s->fpr[i] = 0.0;
-        rdpe_set (s->dap[i], rdpe_zero);
-        cplx_set (s->fpc[i], cplx_zero);
-        rdpe_set (s->dpr[i], rdpe_zero);
-        cdpe_set (s->dpc[i], cdpe_zero);
+        p->fap[i] = 0.0;
+        p->fpr[i] = 0.0;
+        rdpe_set (p->dap[i], rdpe_zero);
+        cplx_set (p->fpc[i], cplx_zero);
+        rdpe_set (p->dpr[i], rdpe_zero);
+        cdpe_set (p->dpc[i], cdpe_zero);
       }
 
   /* setup status and clusters so that there is only one cluster
@@ -295,8 +296,8 @@ mps_setup (mps_status * s)
 
   /* Check if the numer of thread is greater of the number of roots,
      and in that case decrease it */
-  if (s->n_threads > s->deg)
-    s->n_threads = s->deg;
+  if (s->n_threads > p->n)
+    s->n_threads = p->n;
 
   /* set input and output epsilon */
   rdpe_set_2dl (s->eps_in, 1.0, 1 - s->input_config->prec);
@@ -326,7 +327,7 @@ mps_setup (mps_status * s)
   for (i = 0; i <= s->n; i++)
     {
 
-      if (s->data_type[0] == 's' && !s->spar[i])
+      if (s->data_type[0] == 's' && !p->spar[i])
         continue;
 
       switch (s->data_type[1])
@@ -338,32 +339,28 @@ mps_setup (mps_status * s)
             {                   /* switch 2 */
 
             case 'i':          /* Real - Integer Coefs */
-              mpf_set_z (mptemp, s->mip_r[i]);
-              mpf_get_rdpe (s->dpr[i], mptemp);
-              break;
-
             case 'q':          /* Real - Rational Coefs */
-              mpf_set_q (mptemp, s->mqp_r[i]);
-              mpf_get_rdpe (s->dpr[i], mptemp);
+              mpf_set_q (mptemp, p->initial_mqp_r[i]);
+              mpf_get_rdpe (p->dpr[i], mptemp);
               /*#G GMP 2.0.2 bug begin */
-              if (rdpe_sgn (s->dpr[i]) != mpq_sgn (s->mqp_r[i]))
-                rdpe_neg_eq (s->dpr[i]);
+              if (rdpe_sgn (p->dpr[i]) != mpq_sgn (p->initial_mqp_r[i]))
+                rdpe_neg_eq (p->dpr[i]);
               /*#G GMP bug end */
               break;
 
             case 'f':          /* Real - Big/Float Coefs */
-              mpf_get_rdpe (s->dpr[i], s->mfpr[i]);
+              mpf_get_rdpe (p->dpr[i], p->mfpr[i]);
               break;
 
             }                   /* switch 2 */
 
-          cdpe_set_e (s->dpc[i], s->dpr[i], rdpe_zero);
+          cdpe_set_e (p->dpc[i], p->dpr[i], rdpe_zero);
 
           /* compute dap[i] and check for float phase */
-          rdpe_abs (s->dap[i], s->dpr[i]);
-          rdpe_abs (s->dap[i], s->dpr[i]);
-          if (rdpe_gt (s->dap[i], rdpe_maxd)
-              || rdpe_lt (s->dap[i], rdpe_mind))
+          rdpe_abs (p->dap[i], p->dpr[i]);
+          rdpe_abs (p->dap[i], p->dpr[i]);
+          if (rdpe_gt (p->dap[i], rdpe_maxd)
+              || rdpe_lt (p->dap[i], rdpe_mind))
             s->skip_float = true;
 
           break;                /* switch 1 */
@@ -374,31 +371,27 @@ mps_setup (mps_status * s)
             {                   /* switch 3 */
 
             case 'i':          /* Complex - Integer Coefs */
-              mpc_set_z (mptempc, s->mip_r[i], s->mip_i[i]);
-              mpc_get_cdpe (s->dpc[i], mptempc);
-              break;
-
             case 'q':          /* Complex - Rational Coefs */
-              mpc_set_q (mptempc, s->mqp_r[i], s->mqp_i[i]);
-              mpc_get_cdpe (s->dpc[i], mptempc);
+              mpc_set_q (mptempc, p->initial_mqp_r[i], p->initial_mqp_i[i]);
+              mpc_get_cdpe (p->dpc[i], mptempc);
               /*#G GMP 2.0.2 bug begin */
-              if (rdpe_sgn (cdpe_Re (s->dpc[i])) != mpq_sgn (s->mqp_r[i]))
-                rdpe_neg_eq (cdpe_Re (s->dpc[i]));
-              if (rdpe_sgn (cdpe_Im (s->dpc[i])) != mpq_sgn (s->mqp_i[i]))
-                rdpe_neg_eq (cdpe_Im (s->dpc[i]));
+              if (rdpe_sgn (cdpe_Re (p->dpc[i])) != mpq_sgn (p->initial_mqp_r[i]))
+                rdpe_neg_eq (cdpe_Re (p->dpc[i]));
+              if (rdpe_sgn (cdpe_Im (p->dpc[i])) != mpq_sgn (p->initial_mqp_i[i]))
+                rdpe_neg_eq (cdpe_Im (p->dpc[i]));
               /*#G GMP bug end */
               break;
 
             case 'f':          /* Complex - Big/Float Coefs */
-              mpc_get_cdpe (s->dpc[i], s->mfpc[i]);
+              mpc_get_cdpe (p->dpc[i], p->mfpc[i]);
               break;
 
             }                   /* switch 3 */
 
           /* compute dap[i] */
-          cdpe_mod (s->dap[i], s->dpc[i]);
-          if (rdpe_gt (s->dap[i], rdpe_maxd)
-              || rdpe_lt (s->dap[i], rdpe_mind))
+          cdpe_mod (p->dap[i], p->dpc[i]);
+          if (rdpe_gt (p->dap[i], rdpe_maxd)
+              || rdpe_lt (p->dap[i], rdpe_mind))
             s->skip_float = true;
 
           break;
@@ -416,20 +409,20 @@ mps_setup (mps_status * s)
 
   /* prepare floating point vectors */
   if (!s->skip_float)
-    for (i = 0; i <= s->n; i++)
+    for (i = 0; i <= p->n; i++)
       {
-        if (s->data_type[0] == 's' || !s->spar[i])
+        if (s->data_type[0] == 's' || !p->spar[i])
           continue;
         if (s->data_type[1] == 'r')
           {
-            s->fpr[i] = rdpe_get_d (s->dpr[i]);
-            s->fap[i] = fabs (s->fpr[i]);
-            cplx_set_d (s->fpc[i], s->fpr[i], 0.0);
+            p->fpr[i] = rdpe_get_d (p->dpr[i]);
+            p->fap[i] = fabs (p->fpr[i]);
+            cplx_set_d (p->fpc[i], p->fpr[i], 0.0);
           }
         else
           {
-            cdpe_get_x (s->fpc[i], s->dpc[i]);
-            s->fap[i] = cplx_mod (s->fpc[i]);
+            cdpe_get_x (p->fpc[i], p->dpc[i]);
+            p->fap[i] = cplx_mod (p->fpc[i]);
           }
       }
 }
@@ -452,6 +445,7 @@ void
 mps_check_data (mps_status * s, char *which_case)
 {
   rdpe_t min_coeff, max_coeff, tmp;
+  mps_monomial_poly *p = s->monomial_poly;
   cdpe_t ctmp;
   int i;
 
@@ -469,53 +463,51 @@ mps_check_data (mps_status * s, char *which_case)
     }
 
   /* Check consistency of input */
-  if (rdpe_eq (s->dap[s->n], rdpe_zero))
+  if (rdpe_eq (p->dap[s->n], rdpe_zero))
     {
       mps_warn (s, "The leading coefficient is zero");
       do
         (s->n)--;
-      while (rdpe_eq (s->dap[s->n], rdpe_zero));
+      while (rdpe_eq (p->dap[s->n], rdpe_zero));
     }
 
   /* count number of zero roots (undeflated input polynomial) */
   s->zero_roots = 0;
-  while (rdpe_eq (s->dap[s->zero_roots], rdpe_zero))
+  while (rdpe_eq (p->dap[s->zero_roots], rdpe_zero))
     (s->zero_roots)++;
   /* shift down input vectors */
   if (s->zero_roots)
     {
       for (i = 0; i <= s->n - s->zero_roots; i++)
         {
-          rdpe_set (s->dap[i], s->dap[i + s->zero_roots]);
-          s->fap[i] = s->fap[i + s->zero_roots];
-          s->fpr[i] = s->fpr[i + s->zero_roots];
-          cplx_set (s->fpc[i], s->fpc[i + s->zero_roots]);
-          rdpe_set (s->dpr[i], s->dpr[i + s->zero_roots]);
-          cdpe_set (s->dpc[i], s->dpc[i + s->zero_roots]);
-          mpf_set (s->mfpr[i], s->mfpr[i + s->zero_roots]);
-          mpc_set (s->mfpc[i], s->mfpc[i + s->zero_roots]);
+          rdpe_set (p->dap[i], p->dap[i + s->zero_roots]);
+          p->fap[i] = p->fap[i + s->zero_roots];
+          p->fpr[i] = p->fpr[i + s->zero_roots];
+          cplx_set (p->fpc[i], p->fpc[i + s->zero_roots]);
+          rdpe_set (p->dpr[i], p->dpr[i + s->zero_roots]);
+          cdpe_set (p->dpc[i], p->dpc[i + s->zero_roots]);
+          mpf_set (p->mfpr[i], p->mfpr[i + s->zero_roots]);
+          mpc_set (p->mfpc[i], p->mfpc[i + s->zero_roots]);
           if (i < s->n - s->zero_roots)
-            mpc_set (s->mfppc[i], s->mfppc[i + s->zero_roots]);
-          mpz_set (s->mip_r[i], s->mip_r[i + s->zero_roots]);
-          mpz_set (s->mip_i[i], s->mip_i[i + s->zero_roots]);
-          mpq_set (s->mqp_r[i], s->mqp_r[i + s->zero_roots]);
-          mpq_set (s->mqp_i[i], s->mqp_i[i + s->zero_roots]);
-          s->spar[i] = s->spar[i + s->zero_roots];
+            mpc_set (p->mfppc[i], p->mfppc[i + s->zero_roots]);
+          mpq_set (p->initial_mqp_r[i], p->initial_mqp_r[i + s->zero_roots]);
+          mpq_set (p->initial_mqp_i[i], p->initial_mqp_i[i + s->zero_roots]);
+          p->spar[i] = p->spar[i + s->zero_roots];
         }
       s->n = s->n - s->zero_roots;
     }
 
   /* Compute min_coeff */
-  if (rdpe_lt (s->dap[0], s->dap[s->n]))
-    rdpe_set (min_coeff, s->dap[0]);
+  if (rdpe_lt (p->dap[0], p->dap[s->n]))
+    rdpe_set (min_coeff, p->dap[0]);
   else
-    rdpe_set (min_coeff, s->dap[s->n]);
+    rdpe_set (min_coeff, p->dap[s->n]);
 
   /* Compute max_coeff and its logarithm */
-  rdpe_set (max_coeff, s->dap[0]);
+  rdpe_set (max_coeff, p->dap[0]);
   for (i = 1; i <= s->n; i++)
-    if (rdpe_lt (max_coeff, s->dap[i]))
-      rdpe_set (max_coeff, s->dap[i]);
+    if (rdpe_lt (max_coeff, p->dap[i]))
+      rdpe_set (max_coeff, p->dap[i]);
   s->lmax_coeff = rdpe_log (max_coeff);
 
   /*  Multiplicity and sep */
@@ -573,18 +565,18 @@ mps_check_data (mps_status * s, char *which_case)
       /* min_coeff = sqrt(dhuge*dtiny/(min_coeff*max_coeff)) */
       for (i = 0; i <= s->n; i++)
         {
-          rdpe_mul (tmp, s->dap[i], min_coeff);
-          s->fap[i] = rdpe_get_d (tmp);
+          rdpe_mul (tmp, p->dap[i], min_coeff);
+          p->fap[i] = rdpe_get_d (tmp);
           if (s->data_type[1] == 'c')
             {
-              cdpe_mul_e (ctmp, s->dpc[i], min_coeff);
-              cdpe_get_x (s->fpc[i], ctmp);
+              cdpe_mul_e (ctmp, p->dpc[i], min_coeff);
+              cdpe_get_x (p->fpc[i], ctmp);
             }
           else
             {
               /* fpr(i)=dpr(i)*min_coeff !! DARIO riattiva dopo impl. caso reale */
-              cdpe_mul_e (ctmp, s->dpc[i], min_coeff);
-              cdpe_get_x (s->fpc[i], ctmp);
+              cdpe_mul_e (ctmp, p->dpc[i], min_coeff);
+              cdpe_get_x (p->fpc[i], ctmp);
             }
         }
     }

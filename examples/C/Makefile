@@ -9,7 +9,7 @@ all: mandelbrot root_of_unity
 	@echo "  LD_LIBRARY_PATH=../../src ./root_of_unity"
 
 
-CFLAGS=-I../../include -DNOMPTEMP
+CFLAGS=-I../../include -DNOMPTEMP -g -O0
 LDFLAGS=-lmps -lm -lgmp -lpthread -L../../src/libmps/.libs -static
 CC=gcc
 

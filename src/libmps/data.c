@@ -116,6 +116,7 @@ long int
 mps_raise_data (mps_status * s, long int prec)
 {
   int i, k;
+  mps_monomial_poly *p = s->monomial_poly;
 
   /* raise the precision of  mroot */
   for (k = 0; k < s->n; k++)
@@ -125,11 +126,11 @@ mps_raise_data (mps_status * s, long int prec)
     {
       /* raise the precision of  mfpc */
       for (k = 0; k < s->n + 1; k++)
-        if (s->data_type[0] != 's' || s->spar[k])
-          mpc_set_prec (s->mfpc[k], prec);
+        if (s->data_type[0] != 's' || p->spar[k])
+          mpc_set_prec (p->mfpc[k], prec);
 
       for (i = 0; i <= s->n; i++)
-        if (s->data_type[0] != 's' || s->spar[i])
+        if (s->data_type[0] != 's' || p->spar[i])
           {
             switch (s->data_type[1])
               {
@@ -138,16 +139,13 @@ mps_raise_data (mps_status * s, long int prec)
                 switch (s->data_type[2])
                   {
                   case 'i':    /* integer */
-                    mpf_set_z (mpc_Re (s->mfpc[i]), s->mip_r[i]);
-                    mpf_set_ui (mpc_Im (s->mfpc[i]), 0);
-                    break;
                   case 'q':    /* rational */
-                    mpf_set_q (mpc_Re (s->mfpc[i]), s->mqp_r[i]);
-                    mpf_set_ui (mpc_Im (s->mfpc[i]), 0);
+                    mpf_set_q (mpc_Re (p->mfpc[i]), p->initial_mqp_r[i]);
+                    mpf_set_ui (mpc_Im (p->mfpc[i]), 0);
                     /* GMP 2.0.2 bug begin */
-                    if (mpf_sgn (mpc_Re (s->mfpc[i])) !=
-                        mpq_sgn (s->mqp_r[i]))
-                      mpf_neg (mpc_Re (s->mfpc[i]), mpc_Re (s->mfpc[i]));
+                    if (mpf_sgn (mpc_Re (p->mfpc[i])) !=
+                        mpq_sgn (p->initial_mqp_r[i]))
+                      mpf_neg (mpc_Re (p->mfpc[i]), mpc_Re (p->mfpc[i]));
                     /* GMP bug end */
                     break;
                   case 'b':    /* big float */
@@ -166,17 +164,15 @@ mps_raise_data (mps_status * s, long int prec)
                 switch (s->data_type[2])
                   {
                   case 'i':    /* integer */
-                    mpc_set_z (s->mfpc[i], s->mip_r[i], s->mip_i[i]);
-                    break;
                   case 'q':    /* rational */
-                    mpc_set_q (s->mfpc[i], s->mqp_r[i], s->mqp_i[i]);
+                    mpc_set_q (p->mfpc[i], p->initial_mqp_r[i], p->initial_mqp_i[i]);
                     /* GMP 2.0.2 bug begin */
-                    if (mpf_sgn (mpc_Re (s->mfpc[i])) !=
-                        mpq_sgn (s->mqp_r[i]))
-                      mpf_neg (mpc_Re (s->mfpc[i]), mpc_Re (s->mfpc[i]));
-                    if (mpf_sgn (mpc_Im (s->mfpc[i])) !=
-                        mpq_sgn (s->mqp_i[i]))
-                      mpf_neg (mpc_Im (s->mfpc[i]), mpc_Im (s->mfpc[i]));
+                    if (mpf_sgn (mpc_Re (p->mfpc[i])) !=
+                        mpq_sgn (p->initial_mqp_r[i]))
+                      mpf_neg (mpc_Re (p->mfpc[i]), mpc_Re (p->mfpc[i]));
+                    if (mpf_sgn (mpc_Im (p->mfpc[i])) !=
+                        mpq_sgn (p->initial_mqp_i[i]))
+                      mpf_neg (mpc_Im (p->mfpc[i]), mpc_Im (p->mfpc[i]));
                     /* GMP bug end */
                     break;
                   case 'b':    /* big float */
@@ -197,10 +193,10 @@ mps_raise_data (mps_status * s, long int prec)
   /* Raise the precision of p' */
   if (s->data_type[0] == 's')
     for (k = 0; k < s->n; k++)
-      if (s->spar[k + 1])
+      if (p->spar[k + 1])
         {
-          mpc_set_prec (s->mfppc[k], prec);
-          mpc_mul_ui (s->mfppc[k], s->mfpc[k + 1], k + 1);
+          mpc_set_prec (p->mfppc[k], prec);
+          mpc_mul_ui (p->mfppc[k], p->mfpc[k + 1], k + 1);
         }
 
   /* raise the precision of auxiliary variables */
@@ -226,6 +222,7 @@ void
 mps_raise_data_raw (mps_status * s, long int prec)
 {
   int k;
+  mps_monomial_poly *p = s->monomial_poly;
 
   /* raise the precision of  mroot */
   for (k = 0; k < s->n; k++)
@@ -234,13 +231,13 @@ mps_raise_data_raw (mps_status * s, long int prec)
   /* raise the precision of  mfpc */
   if (s->data_type[0] != 'u')
     for (k = 0; k < s->n + 1; k++)
-      mpc_set_prec_raw (s->mfpc[k], prec);
+      mpc_set_prec_raw (p->mfpc[k], prec);
 
   /* Raise the precision of sparse vectors */
   if (s->data_type[0] == 's')
     for (k = 0; k < s->n; k++)
-      if (s->spar[k + 1])
-        mpc_set_prec_raw (s->mfppc[k], prec);
+      if (p->spar[k + 1])
+        mpc_set_prec_raw (p->mfppc[k], prec);
 
   /* raise the precision of auxiliary variables */
   for (k = 0; k < s->n + 1; k++)

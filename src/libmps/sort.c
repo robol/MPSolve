@@ -42,17 +42,18 @@ void
 mps_fsort (mps_status * s)
 {
   int i;
+  mps_monomial_poly *p = s->monomial_poly;
 
   for (i = 0; i < s->n; i++)
     {
-      cplx_Re (s->fppc[i]) = cplx_Re (s->froot[i]);
-      cplx_Im (s->fppc[i]) = i;
+      cplx_Re (p->fppc[i]) = cplx_Re (s->froot[i]);
+      cplx_Im (p->fppc[i]) = i;
     }
 
-  qsort (s->fppc, s->n, sizeof (cplx_t), mps_fcmp);
+  qsort (p->fppc, s->n, sizeof (cplx_t), mps_fcmp);
 
   for (i = 0; i < s->n; i++)
-    s->order[i] = (int) cplx_Im (s->fppc[i]);
+    s->order[i] = (int) cplx_Im (p->fppc[i]);
 }
 
 /*********************************************************

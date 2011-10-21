@@ -165,6 +165,7 @@ mps_thread_fpolzer_worker (void *data_ptr)
 {
   mps_thread_worker_data *data = (mps_thread_worker_data *) data_ptr;
   mps_status *s = data->s;
+  mps_monomial_poly *p = s->monomial_poly;
   int i, iter, j;
   cplx_t corr, abcorr, froot, z;
   double rad1, modcorr;
@@ -207,7 +208,7 @@ mps_thread_fpolzer_worker (void *data_ptr)
 
           if (s->data_type[0] != 'u')
             {
-              mps_fnewton (s, s->n, froot, &s->frad[i], corr, s->fpc, s->fap,
+              mps_fnewton (s, s->n, froot, &s->frad[i], corr, p->fpc, p->fap,
                            &s->again[i]);
               if (iter == 0 && !s->again[i] && s->frad[i] > rad1 && rad1 != 0)
                 s->frad[i] = rad1;
@@ -353,6 +354,7 @@ mps_thread_dpolzer_worker (void *data_ptr)
   /* Parse input data */
   mps_thread_worker_data *data = (mps_thread_worker_data *) data_ptr;
   mps_status *s = data->s;
+  mps_monomial_poly *p = s->monomial_poly;
   mps_thread_job job;
 
   while (!(*data->excep) && (*data->nzeros < s->n))
@@ -385,8 +387,8 @@ mps_thread_dpolzer_worker (void *data_ptr)
 
           if (s->data_type[0] != 'u')
             {
-              mps_dnewton (s, s->n, s->droot[i], s->drad[i], corr, s->dpc,
-                           s->dap, &s->again[i]);
+              mps_dnewton (s, s->n, s->droot[i], s->drad[i], corr, p->dpc,
+                           p->dap, &s->again[i]);
               if (iter == 0 && !s->again[i] && rdpe_gt (s->drad[i], rad1)
                   && rdpe_ne (rad1, rdpe_zero))
                 rdpe_set (s->drad[i], rad1);
@@ -527,6 +529,7 @@ mps_thread_mpolzer_worker (void *data_ptr)
 {
   mps_thread_worker_data *data = (mps_thread_worker_data *) data_ptr;
   mps_status *s = data->s;
+  mps_monomial_poly *p = s->monomial_poly;
   mps_thread_job job;
   int iter, l, k;
   tmpc_t corr, abcorr, mroot, diff;
@@ -589,8 +592,8 @@ mps_thread_mpolzer_worker (void *data_ptr)
             {
               /* sparse/dense polynomial */
               rdpe_set (rad1, s->drad[l]);
-              mps_mnewton (s, s->n, mroot, s->drad[l], corr, s->mfpc,
-                           s->mfppc, s->dap, s->spar, &s->again[l],
+              mps_mnewton (s, s->n, mroot, s->drad[l], corr, p->mfpc,
+                           p->mfppc, p->dap, p->spar, &s->again[l],
                            data->thread);
               if (iter == 0 && !s->again[l] && rdpe_gt (s->drad[l], rad1)
                   && rdpe_ne (rad1, rdpe_zero))

@@ -22,7 +22,6 @@ int
 main (int argc, char *argv[])
 {
 
-  mpspoly_t p;
   mps_status *s = mps_status_new ();
 
   /* Make stdout synchronous so the debugging is more
@@ -39,10 +38,11 @@ main (int argc, char *argv[])
   mps_parse_opts (s, argc, argv);
 
   /* Read polynomial */
-  mps_read_poly (s, s->instr, p);
+  mps_parse_stream (s, s->instr);
+  // mps_read_poly (s, s->instr, p);
 
   /* Set polynomial */
-  mps_set_poly (s, p);
+  // mps_set_poly (s, p);
 
   /* allocate global variables */
   mps_allocate_data (s);

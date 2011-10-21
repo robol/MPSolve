@@ -633,6 +633,12 @@ mps_parse_stream_old (mps_status * s, mps_input_buffer * buffer)
       break;
     }
 
+  /* For backward temporary compatibility with the old MPSolve routines
+   * that have not been migrated to the new API yet, we set data_type */
+  if (!s->data_type)
+    s->data_type = (char *) malloc (sizeof(char) * 4);
+  strncpy (s->data_type, data_type, 3);
+
   /* Read precision and degree */
   token = mps_input_buffer_next_token (buffer);
   if (!token || !sscanf (token, "%ld", &s->input_config->prec))
@@ -643,6 +649,7 @@ mps_parse_stream_old (mps_status * s, mps_input_buffer * buffer)
   if (!token || !sscanf (token, "%d", &s->n))
       mps_error (s, 1, "Error reading the degree of the polynomial");
   free (token);
+  s->deg = s->n;
 
   /* Allocate the polynomial */
   poly = mps_monomial_poly_new (s, s->n);
@@ -721,6 +728,7 @@ mps_parse_stream_old (mps_status * s, mps_input_buffer * buffer)
 	  if (!sscanf (token, "%d", &i))
 	    mps_raise_parsing_error (s, token, "Error while parsing the degree of a monomial");
 
+	  fprintf (stderr, "%d\n", i);
 	  if (poly->spar[i])
 	    mps_raise_parsing_error (s, token, "A monomial of the same degree has been inserted twice");
 	  else

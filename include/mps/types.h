@@ -314,6 +314,11 @@ extern "C"
     cplx_t *fpc;
 
     /**
+     * @brief Array containing standard complex coefficients
+     */
+    cplx_t *fppc;
+
+    /**
      * @brief Dpe real coefficients.
      */
     rdpe_t *dpr;
