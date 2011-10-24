@@ -15,6 +15,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <gmp.h>
+#include <string.h>
 
 int
 main (int argc, char **argv)
@@ -22,7 +23,19 @@ main (int argc, char **argv)
 
   /* n is the degree of the polynomial,
    * i is used as counter */
-  int n, i;
+  long int n = 0, i;
+  mps_monomial_poly *p;
+  mps_status *s;
+
+  mpq_t one, m_one, zero;
+
+  mpq_init (one);
+  mpq_init (m_one);
+  mpq_init (zero);
+
+  mpq_set_si (one, 1, 1);
+  mpq_set_si (m_one, -1, 1);
+  mpq_set_si (zero, 0, 1);
 
   /* Get n from command line */
   if (argc > 1)
@@ -35,24 +48,29 @@ main (int argc, char **argv)
     {
       n = 5;
     }
+  
+  s = mps_status_new ();
+  p = mps_monomial_poly_new (s, n);
 
-  /* Allocate space for the coefficients and fill it */
-  cplx_t *coeff = cplx_valloc (n + 1);
+  mps_monomial_poly_set_coefficient_q (s, p, 0, m_one, zero);
+  mps_monomial_poly_set_coefficient_q (s, p, n, one, zero);
 
-  /* Set first and last coefficients */
-  cplx_set_d (coeff[0], (double) -1, 0);
-  cplx_set_d (coeff[n], (double) 1, 0);
-  for (i = 1; i < n; i++)
-    {
-      cplx_set (coeff[i], cplx_zero);
-    }
+  /* Set sparsity vector */
+  memset (p->spar, 0, sizeof (mps_boolean) * (n + 1));
+  p->spar[0] = true;
+  p->spar[n] = true;
+  s->deg = s->n = p->n;
 
-  /* Allocate space to hold the results */
+  /* Set the input polynomial */
+  mps_status_set_input_poly (s, p, MPS_STRUCTURE_REAL_INTEGER);
+
+  /* FIXME: The data type should be determined with the new API, 
+   * not in this old way. */
+  s->data_type = "sci";
+  
+  /* Allocate space to hold the results. We check only floating point results
+   * in here */
   cplx_t *results = cplx_valloc (n);
-
-  /* Create a new mps_status and set the polynomial */
-  mps_status *s = mps_status_new ();
-  mps_status_set_poly_d (s, coeff, n);
 
   /* Actually solve the polynomial */
   mps_mpsolve (s);

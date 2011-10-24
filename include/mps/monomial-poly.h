@@ -6,11 +6,6 @@ extern "C"
 {
 #endif
 
-/* Octave module workardound */
-#ifdef __UNDEF_CPLUSPLUS
-#undef __cplusplus
-#endif
-
   #include <mps/core.h>
   #include <gmp.h>
 
@@ -29,10 +24,6 @@ extern "C"
 
 
 #ifdef	__cplusplus
-}
-#endif
-
-#ifdef __UNDEF_CPLUSPLUS
 }
 #endif
 

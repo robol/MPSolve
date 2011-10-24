@@ -215,11 +215,11 @@ main (int argc, char **argv)
   mps_status_set_poly_u (s, n, MPS_FNEWTON_PTR (fnewton_usr),   /* floating point */
                          MPS_DNEWTON_PTR (dnewton_usr), /* dpe version    */
                          MPS_MNEWTON_PTR (mnewton_usr));        /* multiprecision */
+
   /* Start computation */
   mps_mpsolve (s);
 
   /* Output roots */
-  mps_copy_roots (s);
   mps_output (s);
 
   return EXIT_SUCCESS;

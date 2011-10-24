@@ -46,6 +46,8 @@ mps_standard_mpsolve (mps_status * s)
   mps_boolean d_after_f, computed, over_max;
   clock_t *my_timer = mps_start_timer ();
 
+  mps_allocate_data (s);
+
   if (s->DOLOG)
     s->debug_level |= MPS_DEBUG_TRACE;
 
@@ -239,6 +241,9 @@ exit_sub:
     mps_restore_data (s);
 
   MPS_DEBUG (s, "Total time using MPSolve: %lu ms", mps_stop_timer (my_timer));
+
+  /* Finally copy the roots ready for output */
+  mps_copy_roots (s);
 }
 
 /**

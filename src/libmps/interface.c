@@ -40,7 +40,6 @@
 
 #include <mps/core.h>
 #include <mps/link.h>
-#include <mps/secular.h>
 #include <gmp.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -163,8 +162,8 @@ mps_status_free (mps_status * s)
 {
   mps_free_data (s);
 
-  // free (s->input_config);
-  // free (s->output_config);
+  free (s->input_config);
+  free (s->output_config);
 
   free (s);
 }
@@ -205,10 +204,11 @@ int
 mps_status_set_poly_u (mps_status * s, int n, mps_fnewton_ptr fnewton,
                        mps_dnewton_ptr dnewton, mps_mnewton_ptr mnewton)
 {
+  mps_monomial_poly *p = mps_monomial_poly_new (s, n);
+  s->monomial_poly = p;
 
   /* Set degree and allocate data */
   mps_status_set_degree (s, n);
-  mps_allocate_data (s);
 
   /* TODO: Apart from u, what should be set here? */
   s->data_type = "uri";
@@ -217,6 +217,10 @@ mps_status_set_poly_u (mps_status * s, int n, mps_fnewton_ptr fnewton,
   s->fnewton_usr = fnewton;
   s->dnewton_usr = dnewton;
   s->mnewton_usr = mnewton;
+
+  s->input_config->structure = MPS_STRUCTURE_REAL_INTEGER;
+  s->input_config->density = MPS_DENSITY_USER;
+  s->input_config->representation = MPS_REPRESENTATION_MONOMIAL;
 
   return 0;
 }
@@ -230,6 +234,42 @@ mps_status_set_degree (mps_status * s, int n)
      and in that case decrease it */
   if (s->n_threads > s->deg)
     s->n_threads = s->deg;
+}
+
+/**
+ * @brief Set the monomial poly p as the input polynomial for 
+ * the current equation.
+ *
+ * @param s The mps_status to set the monomial_poly into.
+ * @param p The mps_monomial_poly to solve.
+ * @param structure The algebraic structure of the polynomial. This can
+ * be, for example, <code>MPS_STRUCTURE_REAL_INTEGER</code> or similar values. 
+ * What is set here will determine the fields of the poly that will be looked for data.
+ */
+void
+mps_status_set_input_poly (mps_status * s, mps_monomial_poly * p, mps_structure structure)
+{
+  int i;
+  s->monomial_poly = p;
+  mps_status_set_degree (s, p->n);
+
+  /* Set the right flag for the input */
+  s->input_config->representation = MPS_REPRESENTATION_MONOMIAL;
+
+  /* Check if the input polynomial is sparse or not. We can simply check if
+   * the again vector is all of true values */
+  s->input_config->density = MPS_DENSITY_DENSE;
+  for (i = 0; i <= p->n; ++i)
+    {
+      if (!p->spar[i])
+	{
+	  s->input_config->density = MPS_DENSITY_SPARSE;
+	  break;
+	}
+    }
+
+  /* Set the mps_structure passed as input */
+  s->input_config->structure = structure;
 }
 
 /**
@@ -252,19 +292,16 @@ mps_status_set_poly_d (mps_status * s, cplx_t * coeff, long unsigned int n)
   mps_monomial_poly * p = mps_monomial_poly_new (s, n);
 
   /* Set type to a dense, real, floating point polynomial */
-  s->data_type[0] = 'd';
-  s->data_type[1] = 'c';
-  s->data_type[2] = 'f';
+  s->data_type = "dcf";
 
   /* Fill polynomial coefficients */
   for (i = 0; i <= n; i++)
     {
       mpc_set_cplx (p->mfpc[i], coeff[i]);
+      cplx_set (p->fpc[i], coeff[i]);
+      cdpe_set_x (p->dpc[i], coeff[i]);
     }
-
-  /* Allocate space for computation related data */
-  mps_allocate_data (s);
-
+  
   return 0;
 }
 
@@ -288,18 +325,13 @@ mps_status_set_poly_i (mps_status * s, int *coeff, long unsigned int n)
   mps_monomial_poly * p = mps_monomial_poly_new (s, n);
 
   /* Dense, real, integer coefficients */
-  s->data_type[0] = 'd';
-  s->data_type[1] = 'r';
-  s->data_type[2] = 'q';
+  s->data_type = "drq";
 
   /* Fill polynomial */
   for (i = 0; i <= n; i++)
     {
       mpq_set_si (p->initial_mqp_r[i], coeff[i], 1U);
     }
-
-  /* Allocate data for the computation */
-  mps_allocate_data (s);
 
   return 0;
 }
@@ -352,6 +384,6 @@ mps_status_get_roots_d (mps_status * s, cplx_t * roots, double *radius)
 int
 mps_status_get_roots_m (mps_status * s, mpc_t * roots, rdpe_t * radius)
 {
-  /* TODO: Implement mps_get_roots_d() */
+  /* TODO: Implement mps_get_roots_m() */
   return 0;
 }

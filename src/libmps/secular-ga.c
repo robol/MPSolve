@@ -1215,6 +1215,8 @@ mps_secular_ga_mpsolve (mps_status * s)
   mps_monomial_poly *poly = s->monomial_poly;
   mps_phase phase = sec->starting_case;
 
+  mps_allocate_data (s);
+
   rdpe_set_d (r_eps, DBL_EPSILON);
 
 #ifndef DISABLE_DEBUG
@@ -1435,6 +1437,9 @@ mps_secular_ga_mpsolve (mps_status * s)
 	    }
 	}
     }
+
+  /* Finally copy the roots ready for output */
+  mps_copy_roots (s);
 
   /* Debug total time taken but only if debug is enabled */
 #ifndef DISABLE_DEBUG

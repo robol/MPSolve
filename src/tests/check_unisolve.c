@@ -65,7 +65,6 @@ test_unisolve_on_pol (test_pol * pol)
   strncpy (s->goal, "aannc", 5);
 
   mps_parse_stream (s, input_stream);
-  mps_allocate_data (s);
 
   /* Set the logstr to stderr, so the program won't segfault if there is the
    * need to write something to the console */
@@ -73,7 +72,6 @@ test_unisolve_on_pol (test_pol * pol)
   s->output_config->prec = prec;
 
   mps_mpsolve (s);
-  mps_copy_roots (s);
 
   /* Test if roots are equal to the roots provided in the check */
   for (i = 0; i < s->n; i++)

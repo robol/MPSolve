@@ -43,14 +43,8 @@ main (int argc, char *argv[])
   /* Set polynomial */
   // mps_set_poly (s, p);
 
-  /* allocate global variables */
-  mps_allocate_data (s);
-
   /* approximate roots */
   mps_mpsolve (s);
-
-  /* copy roots */
-  mps_copy_roots (s);
 
   /* output roots */
   mps_output (s);

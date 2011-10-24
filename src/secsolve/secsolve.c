@@ -191,9 +191,6 @@ main (int argc, char **argv)
    * secular equation. */
   mps_status_set_degree (s, sec->n);
 
-  /* Set user polynomial with our custom functions */
-  mps_allocate_data (s);
-
   if (ga)
     {
       /* Select the right algorithm */
@@ -209,7 +206,6 @@ main (int argc, char **argv)
   mps_mpsolve (s);
 
   /* Output the roots */
-  mps_copy_roots (s);
   mps_output (s);
 
   /* Free used data */

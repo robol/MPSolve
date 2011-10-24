@@ -227,11 +227,6 @@ extern "C"
   void
   mps_parse_stream (mps_status * s, FILE * input_stream);
 
-  /* Routines in monomial_poly.c */
-  mps_monomial_poly * mps_monomial_poly_new (mps_status * s, long int degree);
-  void mps_monomial_poly_free (mps_status * s, mps_monomial_poly * mp);
-  void mps_monomial_poly_raise_precision (mps_status * s, mps_monomial_poly * mp, long int prec);
-  
 
 /*
  * End of extern "C" {

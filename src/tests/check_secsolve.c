@@ -78,7 +78,6 @@ test_secsolve_on_pol (test_pol * pol)
   sec->starting_case = pol->phase;
 
   mps_status_set_degree (s, s->n);
-  mps_allocate_data (s);
 
   if (!pol->ga)
     {
@@ -92,7 +91,6 @@ test_secsolve_on_pol (test_pol * pol)
   s->input_config->prec = 0;
 
   mps_mpsolve (s);
-  mps_copy_roots (s);
 
   /* Test if roots are equal to the roots provided in the check */
   for (i = 0; i < s->n; i++)

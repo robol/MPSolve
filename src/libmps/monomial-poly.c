@@ -108,3 +108,32 @@ mps_monomial_poly_raise_precision (mps_status * s, mps_monomial_poly * mp, long 
           mpc_mul_ui (mp->mfppc[k], mp->mfpc[k + 1], k + 1);
         }
 }
+
+/**
+ * @brief This routine can be used to set the i-th coefficients of the 
+ * polynomial with a multiprecision rational number. 
+ *
+ * @param s The mps_status the will be used for the computation. This shall be passed
+ * along with the polynomial because it manages user interaction and can perform
+ * error handling.
+ *
+ * @param mp The monomial_poly that will hold the coefficient.
+ * @param i  The exponent of the monomial to which the coefficient is related.
+ * @param real_part The real part of the coefficient.
+ * @param imag_part The imaginary part of the coefficients.
+ */
+void
+mps_monomial_poly_set_coefficient_q (mps_status * s, mps_monomial_poly * mp, long int i, 
+				     mpq_t real_part, mpq_t imag_part)
+{
+  /* Set the coefficients first */
+  mpq_set (mp->initial_mqp_r[i], real_part);
+  mpq_set (mp->initial_mqp_i[i], imag_part);
+
+  /* Then update the other coefficients */
+  mpf_set_q (mpc_Re (mp->mfpc[i]), real_part);
+  mpf_set_q (mpc_Im (mp->mfpc[i]), imag_part);
+
+  mpc_get_cdpe (mp->dpc[i], mp->mfpc[i]);
+  mpc_get_cplx (mp->fpc[i], mp->mfpc[i]);
+}
