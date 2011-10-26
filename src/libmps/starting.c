@@ -362,7 +362,6 @@ mps_fstart (mps_status * s, int n, int i_clust, double clust_rad,
 		}
 	    }
         }
-
     }
 }
 
@@ -661,23 +660,25 @@ mps_dstart (mps_status * s, int n, int i_clust, rdpe_t clust_rad,
 	      MPS_DEBUG_CDPE (s, s->droot[l], "s->droot[%d]", l);
 	    }
 
-          /* If the new radius of the cluster is relatively small, then
-           * set the status component equal to 'o' (output) */
-          if (rdpe_ne (g, rdpe_zero))
-            {
-              rdpe_mul (tmp, g, eps);
-              rdpe_mul_d (tmp1, r, (double) nzeros);
-              if (rdpe_lt (tmp1, tmp))
+	}
+
+      /* If the new radius of the cluster is relatively small, then
+       * set the status component equal to 'o' (output) */
+      if (rdpe_ne (g, rdpe_zero))
+	{
+	  rdpe_mul (tmp, g, eps);
+	  rdpe_mul_d (tmp1, r, (double) nzeros);
+	  if (rdpe_lt (tmp1, tmp))
+	    {
+	      for (j = 0; j <= s->punt[i_clust + 1] - s->punt[i_clust]; j++)
 		{
-		  for (j = 0; j <= s->punt[i_clust + 1] - s->punt[i_clust]; j++)
-		    {
-		      l = s->clust[s->punt[i_clust] + j];
-		      s->status[l][0] = 'o';
-		      rdpe_set (s->drad[l], tmp1);
-		    }
+		  l = s->clust[s->punt[i_clust] + j];
+		  s->status[l][0] = 'o';
+		  rdpe_set (s->drad[l], tmp1);
 		}
-            }
-        }
+	    }
+	}
+        
     }
 
 }
