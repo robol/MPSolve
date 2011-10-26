@@ -169,8 +169,6 @@ main (int argc, char **argv)
   /* Parse the input stream and if a polynomial is given as output, 
    * allocate also a secular equation to be used in regeneration */
   mps_parse_stream (s, infile);
-  if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
-    s->secular_equation = mps_secular_equation_new_raw (s, s->n);
 
   sec = s->secular_equation;
   poly = s->monomial_poly;
@@ -179,18 +177,12 @@ main (int argc, char **argv)
   if (argc == 2)
     fclose (infile);
 
-  /* Set secular equation in user data, so it will be
-   * accessible by the secular equation routines. */
-  sec->starting_case = phase;
-
   if (phase == dpe_phase)
     s->skip_float = true;
 
   /* If we choose gemignani's approach follow it, otherwise
    * use standard mpsolve approach applied implicitly to the
    * secular equation. */
-  mps_status_set_degree (s, sec->n);
-
   if (ga)
     {
       /* Select the right algorithm */
@@ -202,6 +194,9 @@ main (int argc, char **argv)
       mps_status_select_algorithm (s, MPS_ALGORITHM_SECULAR_MPSOLVE);
     }
 
+  /* Select the starting phase according to user input */
+  s->input_config->starting_phase = phase;
+
   /* Solve the polynomial */
   mps_mpsolve (s);
 
@@ -209,6 +204,5 @@ main (int argc, char **argv)
   mps_output (s);
 
   /* Free used data */
-  mps_secular_equation_free (sec);
   mps_status_free (s);
 }

@@ -264,6 +264,15 @@ extern "C"
      */
     long int prec;
 
+    /**
+     * @brief Selet the starting phase for the computation.
+     *
+     * Should be <code>float_phase</code> in the majority of
+     * cases, and <code>dpe_phase</code> if the computation
+     * is not manageable with the usual IEEE1354 limits.
+     */
+    mps_phase starting_phase;
+
   } mps_input_configuration;
 
   /**

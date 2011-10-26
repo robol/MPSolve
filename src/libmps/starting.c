@@ -656,6 +656,11 @@ mps_dstart (mps_status * s, int n, int i_clust, rdpe_t clust_rad,
                 s->status[l][0] = 'f';
             }
 
+	  if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
+	    {
+	      MPS_DEBUG_CDPE (s, s->droot[l], "s->droot[%d]", l);
+	    }
+
           /* If the new radius of the cluster is relatively small, then
            * set the status component equal to 'o' (output) */
           if (rdpe_ne (g, rdpe_zero))

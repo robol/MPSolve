@@ -92,6 +92,12 @@ mps_secular_dstart (mps_status * s, int n, int i_clust, rdpe_t clust_rad,
       cdpe_mul_eq (s->droot[l + i], ceps);
       cdpe_add_eq (s->droot[l + i], sec->bdpc[l + i]);
 
+      if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
+	{
+	  MPS_DEBUG_CDPE (s, s->droot[l], "s->droot[%d]", l);
+	}
+
+
       /* Just an experiment to see if the new method in secular-newton
        * is working */
       /* cdpe_set (s->droot[l +i], sec->bdpc[l + i]); */

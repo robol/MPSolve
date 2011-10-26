@@ -34,6 +34,9 @@ test_unisolve_on_pol (test_pol * pol)
   int i, j, prec = pol->out_digits * LOG2_10;
   int ch;
 
+
+  fprintf (stderr, "Checking %-30s [\033[34;1mchecking\033[0m]", pol->pol_file);
+
   /* Debug starting of this test */
   /*
      if (pol->ga)
@@ -104,16 +107,23 @@ test_unisolve_on_pol (test_pol * pol)
   fclose (input_stream);
   fclose (check_stream);
 
+
   if (s->input_config->prec > pol->out_digits)
     {
+      if (passed)
+	fprintf (stderr, "\rChecking %-30s [\033[32;1m  done  \033[0m]\n", pol->pol_file);
+      else
+	fprintf (stderr, "\rChecking %-30s [\033[31;1m failed \033[0m]\n", pol->pol_file);
+
       fail_unless (passed == true,
                    "Computed results are not exact to the required "
                    "precision.\n" "\n" " Dumping test configuration: \n"
                    "   => Polynomial file: %s;\n"
                    "   => Required digits: %d\n", pol->pol_file,
                    pol->out_digits);
-
     }
+  else
+    fprintf (stderr, "\rChecking %-30s [\033[32;1m  done  \033[0m]\n", pol->pol_file);
 
   mps_status_free (s);
 

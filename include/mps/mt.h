@@ -55,6 +55,9 @@ extern "C"
   void cplx_set_d (cplx_t x, double dr, double di);
   int cplx_set_str (cplx_t x, const char *s);
 
+  /* check floating point exceptions */
+  int cplx_check_fpe (cplx_t x);
+
 /* conversion */
   void cplx_get_d (double *dr, double *di, const cplx_t x);
   char *cplx_get_str (char *s, const cplx_t x);

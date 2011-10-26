@@ -20,7 +20,6 @@
 int
 main (int argc, char **argv)
 {
-
   /* n is the degree of the polynomial,
    * i is used as counter */
   long int n = 0, i;

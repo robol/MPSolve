@@ -62,6 +62,22 @@ const cplx_t cplx_zero = { {0.0, 0.0} };
 const cplx_t cplx_one = { {1.0, 0.0} };
 const cplx_t cplx_i = { {0.0, 1.0} };
 
+int
+cplx_check_fpe (cplx_t c)
+/* Check if the components are NaN or Inf */
+{
+  int fp = 0;
+  if (isnan (cplx_Re (c)))
+    fp += 1;
+  if (isnan (cplx_Im (c)))
+    fp += (1 << 1);
+  if (isinf (cplx_Re (c)))
+    fp += (1 << 2);
+  if (isinf (cplx_Im(c)))
+    fp += (1 << 3);
+  return fp;
+}
+
 cplx_cp
 cplx_d (double r, double i)
 /* return (r, i) */

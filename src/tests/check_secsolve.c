@@ -41,6 +41,8 @@ test_secsolve_on_pol (test_pol * pol)
   int i, j, prec = pol->out_digits * LOG2_10 + 10;
   int ch;
 
+  fprintf (stderr, "Checking %-30s [\033[34;1mchecking\033[0m]", pol->pol_file);
+
   /* Debug starting of this test */
   /*
      if (pol->ga)
@@ -72,17 +74,15 @@ test_secsolve_on_pol (test_pol * pol)
   /* Set secular equation and start in floating point */
   s->input_config->structure = MPS_STRUCTURE_COMPLEX_FP;
   s->input_config->representation = MPS_REPRESENTATION_SECULAR;
+  s->input_config->density = MPS_DENSITY_DENSE;
 
   mps_parse_stream (s, input_stream);
-  sec = s->secular_equation;
-  sec->starting_case = pol->phase;
 
-  mps_status_set_degree (s, s->n);
+  sec = s->secular_equation;
+  s->input_config->starting_phase = pol->phase;
 
   if (!pol->ga)
-    {
       mps_status_select_algorithm (s, MPS_ALGORITHM_SECULAR_MPSOLVE);
-    }
   else
     mps_status_select_algorithm (s, MPS_ALGORITHM_SECULAR_GA);
 
@@ -117,10 +117,17 @@ test_secsolve_on_pol (test_pol * pol)
   mpf_clear (mroot);
   mpf_clear (eps);
   mpc_clear (root);
+
   mps_status_free (s);
 
   fclose (input_stream);
   fclose (check_stream);
+
+  if (passed)
+    fprintf (stderr, "\rChecking %-30s [\033[32;1m  done  \033[0m]\n", pol->pol_file);
+  else
+    fprintf (stderr, "\rChecking %-30s [\033[31;1m failed \033[0m]\n", pol->pol_file);
+
 
   fail_unless (passed == true,
                "Computed results are not exact to the required "
@@ -200,6 +207,14 @@ START_TEST (test_secsolve_wilkinson)
 }
 END_TEST
 
+START_TEST (test_secsolve_nroots)
+{
+  test_pol *pol = test_pol_new ("nroots50", "unisolve", 11, float_phase, true);
+  test_secsolve_on_pol (pol);
+  test_pol_free (pol);
+}
+END_TEST
+
 /**
  * @brief Create the secsolve test suite
  */
@@ -225,6 +240,9 @@ END_TEST
 
   /* Wilkinson polynomials */
   tcase_add_test (tc_mpsolve, test_secsolve_wilkinson);
+
+  /* Roots of the unity */
+  tcase_add_test (tc_mpsolve, test_secsolve_nroots);
 
   /* Add test case to the suite */
   suite_add_tcase (s, tc_mpsolve);

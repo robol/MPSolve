@@ -78,7 +78,7 @@ extern "C"
 
   int mps_secular_ga_miterate (mps_status * s, int maxit);
 
-  void mps_secular_ga_regenerate_coefficients (mps_status * s);
+  mps_boolean mps_secular_ga_regenerate_coefficients (mps_status * s);
 
   mps_boolean mps_secular_ga_check_stop (mps_status * s);
 

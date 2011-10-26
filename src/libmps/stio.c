@@ -358,7 +358,7 @@ mps_monomial_poly_read_from_stream (mps_status * s,
 	}
     }
 
-  s->monomial_poly = poly;
+  mps_status_set_input_poly (s, poly, s->input_config->structure);
   mpf_clear (ftmp);
 }
 
@@ -551,6 +551,7 @@ mps_secular_equation_read_from_stream (mps_status * s,
     }
 
   s->secular_equation = sec;
+  mps_status_set_degree (s, sec->n);
 
   /* Deflate input, if identical b_i coefficients are found */
   mps_secular_deflate (s, sec);
@@ -808,7 +809,7 @@ mps_parse_stream_old (mps_status * s, mps_input_buffer * buffer)
       MPS_DEBUG_RDPE (s, poly->dap[i], "poly->dap[%d]", i);
     }
 
-  s->monomial_poly = poly;
+  mps_status_set_input_poly (s, poly, s->input_config->structure);
   mpf_clear (ftmp);
   mps_input_buffer_free (buffer);
 }

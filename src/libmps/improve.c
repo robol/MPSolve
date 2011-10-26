@@ -72,8 +72,10 @@ mps_improve (mps_status * s)
   mps_monomial_poly *p = s->monomial_poly;
   clock_t *my_timer = mps_start_timer ();
 
-  if (s->DOLOG)
-    fprintf (s->logstr, "Refining the roots ...\n");
+   if (s->debug_level & MPS_DEBUG_IMPROVEMENT) 
+     { 
+       MPS_DEBUG (s, "Refining the roots"); 
+     } 
 
 
   /* == 1 ==
@@ -102,10 +104,15 @@ mps_improve (mps_status * s)
   else
     {
       mps_mp_set_prec (s, mpnb_out * 2);
+      // if (MPS_INPUT_CONFIG_IS_SECULAR (s->input_config))
       if (s->mpsolve_ptr == MPS_MPSOLVE_PTR (mps_standard_mpsolve))
-        mps_prepare_data (s, mpnb_out * 2);
+	{
+	  mps_prepare_data (s, mpnb_out * 2);
+	}
       else
-        mps_secular_raise_coefficient_precision (s, mpnb_out * 2);
+	{
+	  mps_secular_raise_coefficient_precision (s, mpnb_out * 2);
+	}
     }
 
 

@@ -118,6 +118,12 @@ mps_status_select_algorithm (mps_status * s, mps_algorithm algorithm)
 
       rdpe_set_2dl (s->eps_out, 1.0, -s->output_config->prec * LOG2_10);
 
+      /* Check if the secular equation is allocate or if only the
+       * polynomial is present. In the last case, allocate an empty
+       * secular equation to hold the data during the computation. */
+      if (!s->secular_equation)
+	s->secular_equation = mps_secular_equation_new_raw (s, s->monomial_poly->n);
+
       break;
     }
 }
@@ -164,6 +170,12 @@ mps_status_free (mps_status * s)
 
   free (s->input_config);
   free (s->output_config);
+
+  /* Check if secular equation or monomial poly need to be freed */
+  if (s->monomial_poly)
+    mps_monomial_poly_free (s, s->monomial_poly);
+  if (s->secular_equation)
+    mps_secular_equation_free (s->secular_equation);
 
   free (s);
 }
@@ -375,7 +387,6 @@ mps_status_get_roots_d (mps_status * s, cplx_t * roots, double *radius)
         }
     }
   return 0;
-
 }
 
 /**
