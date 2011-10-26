@@ -1538,6 +1538,7 @@ mps_mrestart (mps_status * s)
       if (j == s->max_newt_it)
         {
           MPS_DEBUG (s, "Exceeded maximum number of Newton iterations.");
+	  mps_cluster_reassemble (s, MPS_ALL_CLUSTERS);
           goto loop1;
         }
       mpc_sub (temp, sc, g);
