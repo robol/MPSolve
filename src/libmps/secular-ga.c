@@ -551,6 +551,9 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s, int prec_ratio)
 
       for (i = 0; i < s->n; ++i)
 	{
+	  /* Set the epsilon on this a_i to zero */
+	  rdpe_set (sec->dregeneration_epsilon[i], rdpe_zero);
+	  
 	  /* Evaluate the polynomial with absolute values to 
 	   * compute the error */
 	  mpc_get_cdpe (cdtmp, sec->bmpc[i]);
@@ -1320,13 +1323,15 @@ mps_secular_ga_mpsolve (mps_status * s)
       char which_case;
       mps_check_data (s, &which_case);
 
+      MPS_DEBUG(s, "Check data resulted in %c", which_case);
+
       if (which_case == 'f')
 	s->lastphase = float_phase;
       else
 	s->lastphase = dpe_phase;
 
       if (s->lastphase == float_phase)
-	mps_fstart (s, s->n, 0, 0.0, 0.0, s->eps_out, p->fap);
+	  mps_fstart (s, s->n, 0, 0.0, 0.0, s->eps_out, p->fap);
       else
 	mps_dstart (s, s->n, 0, (__rdpe_struct *) rdpe_zero,
 		    (__rdpe_struct *) rdpe_zero, s->eps_out,
@@ -1339,6 +1344,7 @@ mps_secular_ga_mpsolve (mps_status * s)
 	{
 	  if (s->lastphase == float_phase)
 	    {
+	      MPS_DEBUG(s, "Switching to DPE phase since initial regeneration of the coefficients did not succeed.");
 	      s->lastphase = dpe_phase;
 	      mps_dstart (s, s->n, 0, (__rdpe_struct *) rdpe_zero,
 			  (__rdpe_struct *) rdpe_zero, s->eps_out,

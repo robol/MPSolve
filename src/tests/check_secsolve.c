@@ -68,9 +68,6 @@ test_secsolve_on_pol (test_pol * pol)
   fail_if (!(input_stream && check_stream),
            "Cannot open one or more input files");
 
-  /* Some default values */
-  mps_set_default_values (s);
-
   /* Set secular equation and start in floating point */
   s->input_config->structure = MPS_STRUCTURE_COMPLEX_FP;
   s->input_config->representation = MPS_REPRESENTATION_SECULAR;
@@ -80,9 +77,13 @@ test_secsolve_on_pol (test_pol * pol)
 
   sec = s->secular_equation;
   s->input_config->starting_phase = pol->phase;
+  s->DOLOG = pol->DOLOG;
+  if (pol->DOLOG)
+    s->debug_level |= MPS_DEBUG_TRACE;
+  
 
   if (!pol->ga)
-      mps_status_select_algorithm (s, MPS_ALGORITHM_SECULAR_MPSOLVE);
+    mps_status_select_algorithm (s, MPS_ALGORITHM_SECULAR_MPSOLVE);
   else
     mps_status_select_algorithm (s, MPS_ALGORITHM_SECULAR_GA);
 
@@ -209,9 +210,36 @@ END_TEST
 
 START_TEST (test_secsolve_nroots)
 {
+  /* Testing secsolve on some polynomial of the type x^n - 1 */
   test_pol *pol = test_pol_new ("nroots50", "unisolve", 11, float_phase, true);
   test_secsolve_on_pol (pol);
+  test_pol_free (pol);  
+}
+END_TEST
+
+START_TEST (test_secsolve_kam)
+{
+  /* Testing the kam polynomials */
+  test_pol *pol = test_pol_new ("kam1_1", "unisolve", 11, float_phase, true);
+  test_secsolve_on_pol (pol);
   test_pol_free (pol);
+}
+END_TEST
+
+START_TEST (test_secsolve_mand)
+{
+  /* Testing secsolve on the mandelbrot polynomials */
+
+  /* Mandelbrot classic, degree 63 */
+  test_pol *pol = test_pol_new ("mand63", "unisolve", 11, float_phase, true);
+  test_secsolve_on_pol (pol);
+  test_pol_free (pol);
+
+  /* Mandelbrot classic, degree 127 */
+  pol = test_pol_new ("mand127", "unisolve", 11, float_phase, true);
+  test_secsolve_on_pol (pol);
+  test_pol_free (pol);
+  
 }
 END_TEST
 
@@ -243,6 +271,13 @@ END_TEST
 
   /* Roots of the unity */
   tcase_add_test (tc_mpsolve, test_secsolve_nroots);
+
+  /* Kam polynomials */
+  /* Still not ready. */
+  /* tcase_add_test (tc_mpsolve, test_secsolve_kam); */
+
+  /* Mandelbrot polynomials */
+  tcase_add_test (tc_mpsolve, test_secsolve_mand);
 
   /* Add test case to the suite */
   suite_add_tcase (s, tc_mpsolve);

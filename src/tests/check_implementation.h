@@ -21,6 +21,7 @@ extern "C"
     int out_digits;
     mps_phase phase;
     mps_boolean ga;
+    mps_boolean DOLOG;
   } test_pol;
 
   void starting_setup ();
