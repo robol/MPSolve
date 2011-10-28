@@ -111,15 +111,12 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
     cplx_div (corr, pol, corr);
 
   /* Computation of radius with Gerschgorin */
-  if ((!k) || sec_eps < 1)
-    new_rad = cplx_mod (pol) * s->n * prod_b * (1 + sec_eps);
-  else
-    new_rad = DBL_MAX;
+  new_rad = cplx_mod (pol) * s->n * prod_b * (1 + sec_eps) + (cplx_mod (x) * DBL_EPSILON);
 
   /* Correct the old radius with the move that we are doing
    * and check if the new proposed radius is preferable. */
-  if (new_rad < *rad)
-    *rad = new_rad;
+  /* if (new_rad < *rad) */
+  /*   *rad = new_rad; */
 
   /* If the correction is not useful in the current precision do
    * not iterate more   */
@@ -242,30 +239,16 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
   rdpe_add_eq (apol, rdpe_one);
   rdpe_mul_eq_d (apol, s->n);
   rdpe_mul_eq (new_rad, apol);
-  
-  /* Check for the rad for being zero. If that is
-   * the case, set the root as approximated, with
-   * a radius of .5 * 10^{-d_out} * |x| */
-  if (rdpe_eq (new_rad, rdpe_zero)) 
-    {
-      MPS_DEBUG_WITH_INFO (s, "The radius is zero, so preparing the root for output");
-      rdpe_set_2dl (new_rad, 0.5, -s->output_config->prec);
-      cdpe_mod (rtmp, x);
-      rdpe_mul_eq (new_rad, rtmp);
-      MPS_DEBUG_RDPE (s, new_rad, "Computed radius ");
-      *again = false;
-    }
+
+  /* Add the representation error */
+  cdpe_mod (rtmp, x);
+  rdpe_mul_eq (rtmp, s->mp_epsilon);
+  rdpe_add_eq (new_rad, rtmp);
 
   /* Correct the old radius with the move that we are doing
    * and check if the new proposed radius is preferable. */
-  if (rdpe_le (new_rad, rad))
-    rdpe_set (rad, new_rad);
-  else
-    {
-      cdpe_mod (rtmp, corr);
-      rdpe_add_eq (rad, rtmp);
-    }
-
+  rdpe_set (rad, new_rad);
+  
   /* If newton correction is less than
    * the modules of |x| multiplied for
    * for epsilon stop */
@@ -441,74 +424,58 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
    * Skip this step if the integer k of the index we
    * are iterating on was not given in input, meaning
    * that we should not consider the conditioning. */
-  if (rdpe_lt (s_eps, rdpe_one) || (!k))
-    {
-      if (!k) 
-	{
-	  MPS_DEBUG_RDPE (s, s_eps, "s_eps");
-	}
-      cdpe_mod (rtmp, prod_b);
-      rdpe_mul_eq_d (rtmp, 1 + 4 * DBL_EPSILON);
-      rdpe_mul_eq (new_rad, rtmp);
-      rdpe_mul_eq_d (new_rad, 1 + DBL_EPSILON);
-      rdpe_mul_eq_d (new_rad, s->n);
-    }
-  else
-    {
-      rdpe_set (new_rad, RDPE_MAX);
-      if (s->debug_level & MPS_DEBUG_REGENERATION)
-	MPS_DEBUG (s, "The secular equation coefficients are badly conditioned, not using them to determine the inclusion radius");
-    }
+   cdpe_mod (rtmp, prod_b);
+   rdpe_mul_eq_d (rtmp, 1 + 4 * DBL_EPSILON);
+   rdpe_mul_eq (new_rad, rtmp);
+   rdpe_mul_eq_d (new_rad, 1 + DBL_EPSILON);
+   rdpe_mul_eq_d (new_rad, s->n);
+
+   /* Add the representation error to the radius */
+   mpc_get_cdpe (cdtmp, x);
+   cdpe_mod (rtmp, cdtmp);
+   rdpe_mul_eq (rtmp, s->mp_epsilon);
+   rdpe_add_eq (new_rad, rtmp);
 
   /* Correct the old radius with the move that we are doing
    * and check if the new proposed radius is preferable. */
-  if (rdpe_le (new_rad, rad))
-    {
-      rdpe_set (rad, new_rad);
-    }
-  else
-    {
-      mpc_get_cdpe (cdtmp, corr);
-      cdpe_mod (rtmp, cdtmp);
-      rdpe_add_eq (rad, rtmp);
-    }
+   rdpe_set (rad, new_rad);
 
-  /* Compute guaranteed modulus of pol */
-  mpc_get_cdpe (cdtmp, pol);
-  cdpe_mod (rtmp, cdtmp);
-  rdpe_add (rtmp2, s->mp_epsilon, rdpe_one);
-  rdpe_mul_eq_d (rtmp2, 1 + s->n);
-  rdpe_mul_eq (rtmp, rtmp2);
+   /* Compute guaranteed modulus of pol */
+   mpc_get_cdpe (cdtmp, pol);
+   cdpe_mod (rtmp, cdtmp);
+   rdpe_add (rtmp2, s->mp_epsilon, rdpe_one);
+   rdpe_mul_eq_d (rtmp2, 1 + s->n);
+   rdpe_mul_eq (rtmp, rtmp2);
 
-  /* Epsilon for us */
-  rdpe_mul_d (rtmp2, s->mp_epsilon, 2);
+   /* Epsilon for us */
+   rdpe_mul_d (rtmp2, s->mp_epsilon, 2);
+   
+   /* If |S(x)| < eps stop */
+   if (rdpe_lt (rtmp, s->mp_epsilon))
+     *again = false;
 
-  /* If |S(x)| < eps stop */
-  if (rdpe_lt (rtmp, s->mp_epsilon))
-    *again = false;
+   /* Check if newton correction is less than
+    * the modules of x for s->output_config->prec, and if
+    * that's the case, stop. */
+   if (*again)
+     {
+       mpc_get_cdpe (cdtmp, x);
+       cdpe_mod (rtmp, cdtmp);
+       rdpe_mul_eq (rtmp, s->mp_epsilon);
 
-  /* Check if newton correction is less than
-   * the modules of x for s->output_config->prec, and if
-   * that's the case, stop. */
-  if (*again)
-    {
-      mpc_get_cdpe (cdtmp, x);
-      cdpe_mod (rtmp, cdtmp);
-      rdpe_mul_eq (rtmp, s->mp_epsilon);
-
-      mpc_get_cdpe (cdtmp, corr);
-      cdpe_mod (rtmp2, cdtmp);
-
-      if (rdpe_lt (rtmp2, rtmp))
-        {
-          *again = false;
-        }
-    }
+       mpc_get_cdpe (cdtmp, corr);
+       cdpe_mod (rtmp2, cdtmp);
+       
+       if (rdpe_lt (rtmp2, rtmp))
+	 {
+	   *again = false;
+	 }
+     }
 
   /* Final cleanup */
-  mpc_clear (fp);
-  mpc_clear (pol);
-  mpc_clear (sumb);
-  mpc_clear (ctmp);
-  mpc_clear (ctmp2);
+   mpc_clear (fp);
+   mpc_clear (pol);
+   mpc_clear (sumb);
+   mpc_clear (ctmp);
+   mpc_clear (ctmp2);
 }

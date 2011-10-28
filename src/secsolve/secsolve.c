@@ -177,9 +177,6 @@ main (int argc, char **argv)
   if (argc == 2)
     fclose (infile);
 
-  if (phase == dpe_phase)
-    s->skip_float = true;
-
   /* If we choose gemignani's approach follow it, otherwise
    * use standard mpsolve approach applied implicitly to the
    * secular equation. */

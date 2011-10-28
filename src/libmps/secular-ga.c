@@ -77,6 +77,11 @@ mps_secular_ga_fiterate (mps_status * s, int maxit)
         {
           if (s->again[i])
             {
+	      if (cplx_eq (s->froot[i], sec->bfpc[i]))
+		{
+		  s->again[i] = false;
+		  continue;
+		}
               nit++;
               cplx_set (old_root, s->froot[i]);
               old_rad = s->frad[i];
@@ -199,6 +204,7 @@ mps_secular_ga_diterate (mps_status * s, int maxit)
   int nit = 0;
   int it_threshold;
   int old_cr;
+  mps_secular_equation *sec = s->secular_equation;
 
 #ifndef DISABLE_DEBUG
   clock_t *my_clock = mps_start_timer ();
@@ -508,6 +514,22 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s, int prec_ratio)
   mps_monomial_poly *p = s->monomial_poly;
   rdpe_t eps_tmp, rtmp, sec_eps, rtmp2;
   cdpe_t cdtmp, cdtmp2;
+  rdpe_t root_epsilon;
+
+  switch (s->lastphase)
+    {
+      /* If we are in floating point then the roots are know to
+       * DBL_EPSILON precision */
+    case float_phase:
+    case dpe_phase:
+      rdpe_set_d (root_epsilon, DBL_EPSILON);
+      break;
+      /* But if we are in multiprecision we can check the epsilon by looking
+       * at s->mp_epsilon */
+    case mp_phase:
+      rdpe_set (root_epsilon, s->mp_epsilon);
+      break;
+    }
 
   mps_secular_raise_coefficient_precision (s, coeff_wp);
 
@@ -569,6 +591,7 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s, int prec_ratio)
 	      rdpe_add (sec_eps, rtmp, p->dap[j]);
 	    }
 	  rdpe_mul_eq_d (sec_eps, s->n * 4);
+	  rdpe_mul_eq (sec_eps, s->mp_epsilon);
 
 	  /* Evaluate the polynomial with horner */
 	  mps_parhorner (s, s->n, sec->bmpc[i], p->mfpc, p->spar, sec->ampc[i], 0);
@@ -578,9 +601,20 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s, int prec_ratio)
 	      mpc_div (ctmp, p->mfpc[j], sec->ampc[i]);
 	      mpc_add_eq (ctmp, sec->bmpc[i]); 
 	      mpc_mul_eq (sec->ampc[i], ctmp); 
-	    } 
+	    }
+
 	  /* MPS_DEBUG_MPC (s, coeff_wp, sec->bmpc[i], "sec->bmpc[%d]", i); */
 	  /* MPS_DEBUG_MPC (s, coeff_wp, sec->ampc[i], "sec->ampc[%d]", i); */
+
+	  /* Add to sec_eps the error induced by the approximation on the roots */
+	   rdpe_set (rtmp, rdpe_zero); 
+	   for (j = 0; j <= s->n; j++) 
+	     { 
+	       rdpe_mul_d (rtmp2, p->dap[j], j); 
+	       rdpe_add_eq (rtmp, rtmp2); 
+	     } 
+	   rdpe_mul_eq (rtmp, root_epsilon); 
+	   rdpe_add_eq (sec_eps, rtmp);
 
 	  /* Compute relative error in polynomial horner */
 	  mpc_get_cdpe (cdtmp, sec->ampc[i]);
@@ -630,8 +664,9 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s, int prec_ratio)
 	  MPS_DEBUG_RDPE (s, sec_eps, "sec_eps");
 
 	  /* Finalize error computation */
-	  rdpe_add_eq (sec->dregeneration_epsilon[i], sec_eps);
+	  // rdpe_mul_eq (sec->dregeneration_epsilon[i], s->mp_epsilon);
 	  rdpe_mul_eq (sec->dregeneration_epsilon[i], s->mp_epsilon);
+	  rdpe_add_eq (sec->dregeneration_epsilon[i], sec_eps);
 
 	  if (s->debug_level & MPS_DEBUG_REGENERATION)
 	    {
@@ -639,11 +674,11 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s, int prec_ratio)
 			      "Relative error on a_%d", i);
 	    }
 
-	  if (rdpe_gt (sec->dregeneration_epsilon[i], rdpe_one))
-	    {
-	      success = false;
-	      goto regenerate_m_exit;
-	    }
+	  /* if (rdpe_gt (sec->dregeneration_epsilon[i], rdpe_one)) */
+	  /*   { */
+	  /*     success = false; */
+	  /*     goto regenerate_m_exit; */
+	  /*   } */
 	}
 
       s->mpwp = coeff_wp / precision_increase_ratio;
