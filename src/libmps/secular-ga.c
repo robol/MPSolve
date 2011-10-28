@@ -675,12 +675,6 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s, int prec_ratio)
 	      MPS_DEBUG_RDPE (s, sec->dregeneration_epsilon[i],
 			      "Relative error on a_%d", i);
 	    }
-
-	  /* if (rdpe_gt (sec->dregeneration_epsilon[i], rdpe_one)) */
-	  /*   { */
-	  /*     success = false; */
-	  /*     goto regenerate_m_exit; */
-	  /*   } */
 	}
 
       s->mpwp = coeff_wp / precision_increase_ratio;
@@ -812,6 +806,13 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s, int prec_ratio)
 	      MPS_DEBUG_RDPE (s, sec->dregeneration_epsilon[i],
 			      "Relative error on a_%d", i);
 	    }
+
+	   if (rdpe_gt (sec->dregeneration_epsilon[i], rdpe_one)) 
+	     { 
+	       success = false; 
+	       goto regenerate_m_exit; 
+	     } 
+
 	}
 
     regenerate_m_exit:
@@ -1063,6 +1064,12 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
 #ifndef DISABLE_DEBUG
   s->regeneration_time += mps_stop_timer (my_clock);
 #endif
+
+  if (successful_regeneration)
+    {
+      for (i = 0; i < s->n; i++)
+	  s->again[i] = true;
+    }
 
   return successful_regeneration;
 }
