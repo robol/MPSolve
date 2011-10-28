@@ -533,7 +533,7 @@ mps_secular_switch_phase (mps_status * s, mps_phase phase)
 void
 mps_secular_set_radii (mps_status * s)
 {
-  /* MPS_DEBUG_THIS_CALL; */
+  MPS_DEBUG_THIS_CALL;
   
   /*
    * This call is disabled because it computed the radius of inclusion
@@ -542,7 +542,7 @@ mps_secular_set_radii (mps_status * s)
    * done in the mps_secular_*newton routines, now.
    */
 
-  return;
+  /* return; */
 
   int i;
   mps_secular_equation *sec = (mps_secular_equation *) s->secular_equation;
@@ -567,14 +567,11 @@ mps_secular_set_radii (mps_status * s)
           {
             /* TODO: Use the guaranteed computation */
             rad = s->n * cplx_mod (sec->afpc[i]) * (1 + s->n * (sec->fregeneration_epsilon[i] + DBL_EPSILON));
-
-             if (rad > total_rad) 
-               rad = total_rad; 
-
-	     /* Add to rad the distance of the root from b_i */
-	     cplx_sub (diff, sec->bfpc[i], s->froot[i]);
-	     rad += cplx_mod (diff) * (1 + DBL_EPSILON);
-
+	    
+	    /* Add to rad the distance of the root from b_i */
+	    cplx_sub (diff, sec->bfpc[i], s->froot[i]);
+	    rad += cplx_mod (diff) * (1 + DBL_EPSILON);
+	    
             if (rad < s->frad[i])
               {
                 s->frad[i] = rad;
@@ -638,13 +635,13 @@ mps_secular_set_radii (mps_status * s)
             rdpe_mul_eq_d (rad, (double) s->n);
             rdpe_mul_eq (rad, rtmp);
 
-             if (rdpe_gt (rad, total_rad)) 
-               rdpe_set (rad, total_rad); 
+             /* if (rdpe_gt (rad, total_rad))  */
+             /*   rdpe_set (rad, total_rad);  */
 
             /* If the radius is convenient set it */
             if (rdpe_lt (rad, s->drad[i]))
               {
-                // rdpe_set (s->drad[i], rad);
+                rdpe_set (s->drad[i], rad);
               }
           }
       }
