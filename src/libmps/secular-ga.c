@@ -79,9 +79,9 @@ mps_secular_ga_fiterate (mps_status * s, int maxit)
             {
 	      if (cplx_eq (s->froot[i], sec->bfpc[i]))
 		{
-		  s->again[i] = false;
 		  continue;
 		}
+
               nit++;
               cplx_set (old_root, s->froot[i]);
               old_rad = s->frad[i];
@@ -244,6 +244,8 @@ mps_secular_ga_diterate (mps_status * s, int maxit)
         {
           if (s->again[i])
             {
+	      if (cdpe_eq (s->droot[i], sec->bdpc[i]))
+		continue;
               nit++;
               mps_secular_dnewton (s, s->droot[i], s->drad[i], corr,
                                    &s->again[i], &i);
