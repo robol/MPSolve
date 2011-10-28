@@ -218,7 +218,7 @@ mps_monomial_poly_read_from_stream (mps_status * s,
   poly = mps_monomial_poly_new (s, s->n);
 
   /* We still do not support sparse input */
-  for (i = 0; i < s->n; ++i)
+  for (i = 0; i <= s->n; ++i)
       poly->spar[i] = true;
 
   /* Dense parsing */
