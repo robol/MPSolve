@@ -203,7 +203,6 @@ START_TEST (test_secsolve_wilkinson)
 
   /* Testing the wilkinson polynomial of degree 80 */
   pol = test_pol_new ("wilk80", "secsolve", 11, float_phase, true);
-  pol->DOLOG = true;
   test_secsolve_on_pol (pol);
   test_pol_free (pol);
 }
