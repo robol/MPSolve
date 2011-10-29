@@ -215,6 +215,17 @@ mps_secular_ga_diterate (mps_status * s, int maxit)
 
   for (i = 0; i < s->n; i++)
     {
+      /* Set again to false if the root is already approximated */
+      if (s->status[i][0] == 'a' || s->status[i][0] == 'i'
+	  || s->status[i][0] == 'o')
+	{
+	  MPS_DEBUG_WITH_INFO (s, "Setting again[%d] to false since the root is ready for output (or isolated)", i);
+	  s->again[i] = false;
+	}
+    }
+
+  for (i = 0; i < s->n; i++)
+    {
       if (!s->again[i])
         computed_roots++;
     }
@@ -355,6 +366,10 @@ mps_secular_ga_miterate (mps_status * s, int maxit)
   clock_t *my_clock = mps_start_timer ();
 #endif
 
+  /* The data used to determined if the radius has been
+   * set and to intercommunicate with the iterator */
+  mps_secular_iteration_data user_data;
+
   /* Init data with the right precision */
   mpc_init2 (corr, s->mpwp);
   mpc_init2 (abcorr, s->mpwp);
@@ -368,7 +383,7 @@ mps_secular_ga_miterate (mps_status * s, int maxit)
       if (s->status[i][0] == 'a' || s->status[i][0] == 'i'
 	  || s->status[i][0] == 'o')
 	{
-	  MPS_DEBUG_WITH_INFO (s, "Setting again[%d] to false", i);
+	  MPS_DEBUG_WITH_INFO (s, "Setting again[%d] to false since the root is ready for output (or isolated)", i);
 	  s->again[i] = false;
 	}
 
@@ -401,8 +416,11 @@ mps_secular_ga_miterate (mps_status * s, int maxit)
               if (s->again[k])
                 {
                   nit++;
+
+		  /* Set the correct index */
+		  user_data.k = k;
                   mps_secular_mnewton (s, s->mroot[k], s->drad[k], corr,
-                                       &s->again[k], &k);
+                                       &s->again[k], &user_data);
 
                   /* Apply Aberth correction */
                   mps_maberth_s (s, k, i, abcorr);
@@ -410,6 +428,14 @@ mps_secular_ga_miterate (mps_status * s, int maxit)
                   mpc_ui_sub (abcorr, 1, 0, abcorr);
                   mpc_div (abcorr, corr, abcorr);
                   mpc_sub_eq (s->mroot[k], abcorr);
+
+		  if (!user_data.radius_set)
+		    {
+		      fprintf (stderr, "Radius not set\n");
+		      mpc_get_cdpe (ctmp, abcorr);
+		      cdpe_mod (rtmp, ctmp);
+		      rdpe_add_eq (s->drad[k], rtmp);
+		    }
 
                   /* Correct the radius */
                   mpc_get_cdpe (ctmp, abcorr);
@@ -731,7 +757,7 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s, int prec_ratio)
 	      /* Compute 1 / (b_i - old_b_j) */
 	      mpc_sub (btmp, sec->bmpc[i], sec->initial_bmpc[j]);
 
-	      /* Compute the local relative error that ios introduce here, as 
+	      /* Compute the local relative error that is introduce here, as 
 	       * eps = (|b_i| + |old_b_j|) * mp_eps / (b_i - old_b_j) + mp_eps*/
 	      mpc_get_cdpe (cdtmp, sec->initial_bmpc[j]);
 	      cdpe_mod (rtmp, cdtmp);
@@ -806,13 +832,13 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s, int prec_ratio)
 	      MPS_DEBUG_RDPE (s, sec->dregeneration_epsilon[i],
 			      "Relative error on a_%d", i);
 	    }
-
-	   if (rdpe_gt (sec->dregeneration_epsilon[i], rdpe_one)) 
-	     { 
-	       success = false; 
-	       goto regenerate_m_exit; 
-	     } 
-
+	  
+	  rdpe_set_2dl (rtmp, 1.0, -s->mpwp); 
+	  if (rdpe_gt (sec->dregeneration_epsilon[i], rtmp))  
+	    {  
+	      success = false;  
+	      goto regenerate_m_exit;  
+	    }
 	}
 
     regenerate_m_exit:
@@ -1213,6 +1239,7 @@ mps_secular_ga_improve (mps_status * s)
   mpc_t nwtcorr;
   cdpe_t ctmp;
   rdpe_t rtmp, old_rad;
+  mps_secular_iteration_data user_data;
 
   mpc_init2 (nwtcorr, s->mpwp);
 
@@ -1260,8 +1287,9 @@ mps_secular_ga_improve (mps_status * s)
       for (j = 0; j < iterations; j++)
         {	     
 	  rdpe_set (old_rad, s->drad[i]);
+	  user_data.k = i;
           mps_secular_mnewton (s, s->mroot[i], s->drad[i], nwtcorr,
-                               &s->again[i], &i);
+                               &s->again[i], &user_data);
           mpc_sub_eq (s->mroot[i], nwtcorr);
 
 	  /* Compute quadratic radius */
@@ -1362,8 +1390,9 @@ mps_secular_ga_mpsolve (mps_status * s)
   for (i = 0; i < s->n; i++)
     {
       s->frad[i] = DBL_MAX;
-      rdpe_set (s->drad[i], RDPE_MAX);
+      rdpe_set_d (s->drad[i], DBL_MAX);
     }
+
   
   /* Set initial cluster structure as no cluster structure. */
   mps_cluster_reset (s);

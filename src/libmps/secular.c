@@ -577,6 +577,15 @@ mps_secular_set_radii (mps_status * s)
                 s->frad[i] = rad;
               }
           }
+
+	  mps_fcluster (s, 2.0 * s->n);  
+	  mps_fmodify  (s);  
+
+	  for(i = 0; i < s->n; i++) 
+	    { 
+	      if (s->status[i][0] == 'C') 
+	        s->status[i][0] = 'c'; 
+	    }
       }
       break;
     case dpe_phase:
@@ -630,7 +639,10 @@ mps_secular_set_radii (mps_status * s)
 
             /* Check which radius is smaller (here guaranteed radius is
              * computed). */
-            rdpe_mul_d (rtmp, s->mp_epsilon, 9 * s->n);
+	    if (s->lastphase == mp_phase)
+	      rdpe_mul_d (rtmp, s->mp_epsilon, 9 * s->n);
+	    else
+	      rdpe_set_d (rtmp, DBL_EPSILON * 9 * s->n);
             rdpe_add_eq (rtmp, rdpe_one);
             rdpe_mul_eq_d (rad, (double) s->n);
             rdpe_mul_eq (rad, rtmp);
@@ -645,6 +657,24 @@ mps_secular_set_radii (mps_status * s)
               }
           }
       }
+      
+       if (s->lastphase == mp_phase) 
+       	{ 
+       	  mps_mcluster (s, 2.0 * s->n); 
+       	  mps_mmodify (s); 
+       	} 
+       else 
+       	{ 
+       	  mps_dcluster (s, 2.0 * s->n); 
+       	  mps_dmodify (s); 
+       	} 
+
+       for(i = 0; i < s->n; i++) 
+       	{ 
+       	  if (s->status[i][0] == 'C') 
+       	    s->status[i][0] = 'c'; 
+       	} 
+
       break;
 
     default:

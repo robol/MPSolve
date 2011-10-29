@@ -34,6 +34,24 @@ extern "C"
    */
 #define MPS_SECULAR_EQUIVALENT_FP_PRECISION (MPS_SECULAR_STARTING_MP_PRECISION / 2)
 
+  typedef struct {
+    /**
+     * @brief The index of the roots on which the iterations
+     * is being carried out.
+     */
+    long int k;
+
+    /**
+     * @brief The state of the iteration. This is a pointer
+     * to a boolean that tells if the iterator has been
+     * able to set a radius or not, because the radius
+     * that was there before was better.
+     */
+    mps_boolean radius_set;
+
+  } mps_secular_iteration_data;
+    
+
 
 /* MACROS */
 #define mps_secular_equation_from_status(s) (mps_secular_equation*) (s)->secular_equation

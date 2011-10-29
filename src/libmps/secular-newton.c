@@ -115,7 +115,7 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
 
   /* Correct the old radius with the move that we are doing
    * and check if the new proposed radius is preferable. */
-  if (new_rad < *rad || (*rad == 0)) 
+  // if (new_rad < *rad || (*rad == 0)) 
      *rad = new_rad; 
 
   /* If the correction is not useful in the current precision do
@@ -247,8 +247,7 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
 
   /* Correct the old radius with the move that we are doing
    * and check if the new proposed radius is preferable. */
-   if (rdpe_lt (new_rad, rad) || rdpe_eq_zero (rad))
-     rdpe_set (rad, new_rad);
+  rdpe_set (rad, new_rad);
   
   /* If newton correction is less than
    * the modules of |x| multiplied for
@@ -275,7 +274,8 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
 {
   int i, j;
   mps_boolean x_is_b = false;
-  int * k = ((int*) user_data);
+  // int * k = ((int*) user_data);
+  mps_secular_iteration_data *data = (mps_secular_iteration_data*) user_data;
 
   /* Set again to true. If the convergence will be proved
    * during the iteration it will be set to false */
@@ -358,9 +358,9 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
       /* Compute the right epsilon for this element */
       mpc_get_cdpe (cdtmp, ctmp2);
       cdpe_mod (rtmp, cdtmp);
-      if (k)
+      if (user_data)
 	{
-	  rdpe_mul_eq (rtmp, s->secular_equation->dregeneration_epsilon[*k]);
+	  rdpe_mul_eq (rtmp, s->secular_equation->dregeneration_epsilon[data->k]);
 	   /* MPS_DEBUG_RDPE (s, s->secular_equation->dregeneration_epsilon[*k],  */
 	   /* 		  "dregeneration_epsilon[%d]", *k);  */
 	   /* MPS_DEBUG_RDPE (s, rtmp, "rtmp");  */
@@ -439,8 +439,9 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
 
   /* Correct the old radius with the move that we are doing
    * and check if the new proposed radius is preferable. */
-   if (rdpe_lt (new_rad, rad) || rdpe_eq_zero (rad))
-     rdpe_set (rad, new_rad);
+   if (data)
+     data->radius_set = true;
+   rdpe_set (rad, new_rad);
 
    /* Compute guaranteed modulus of pol */
    mpc_get_cdpe (cdtmp, pol);
