@@ -192,8 +192,6 @@ mps_debug_cluster_structure (mps_status * s)
           fprintf (s->logstr, "\n");
         }
     }
-
-  mps_dump (s, s->logstr);
 }
 
 /**

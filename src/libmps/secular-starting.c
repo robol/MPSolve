@@ -110,7 +110,6 @@ mps_secular_dstart (mps_status * s, int n, int i_clust, rdpe_t clust_rad,
 	  if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
 	    {
 	      MPS_DEBUG_CDPE (s, s->droot[l+i], "s->droot[%d]", l+i);
-	      MPS_DEBUG_RDPE (s, s->drad[l+i], "s->drad[%d]", l+i);
 	    }
 	}
 

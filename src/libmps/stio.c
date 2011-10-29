@@ -682,8 +682,7 @@ mps_parse_stream_old (mps_status * s, mps_input_buffer * buffer)
 		mpf_set_ui (mpc_Im (poly->mfpc[i]), 0U);
 	    }
 	}
-      else if (MPS_INPUT_CONFIG_IS_RATIONAL (s->input_config) ||
-	       MPS_INPUT_CONFIG_IS_INTEGER (s->input_config))
+      else if (MPS_INPUT_CONFIG_IS_INTEGER (s->input_config))
 	{
 	  for (i = 0; i < s->n + 1; ++i)
 	    {
@@ -708,6 +707,12 @@ mps_parse_stream_old (mps_status * s, mps_input_buffer * buffer)
 	      mpf_set_q (mpc_Re (poly->mfpc[i]), poly->initial_mqp_r[i]);
 	      mpf_set_q (mpc_Im (poly->mfpc[i]), poly->initial_mqp_i[i]);
 	    }
+	}
+      else if (MPS_INPUT_CONFIG_IS_RATIONAL (s->input_config))
+	{
+	  /* We need a special case for the rationls since they are not 
+	   * writte with the '/' character that GMP understands. */
+	  mps_error (s, 1, "Parsing rational from old MPSolve format is not supported yet.");
 	}
     } /* closes if (MPS_INPUT_CONFIG_IS_DENSE (s->input_config)) */
   else if (MPS_INPUT_CONFIG_IS_SPARSE (s->input_config))

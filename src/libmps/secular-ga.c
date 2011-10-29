@@ -1486,10 +1486,10 @@ mps_secular_ga_mpsolve (mps_status * s)
 
       /* Check if all roots were approximated with the
        * given input precision                      */      
-      if (mps_secular_ga_check_stop (s))
-        {
-          ; // break;
-        }
+       if (mps_secular_ga_check_stop (s)) 
+       	  break; 
+       else 
+	 skip_check_stop = true; 
 
       /* If we can't stop recompute coefficients in higher precision and
        * continue to iterate, unless the best approximation possible in
@@ -1509,7 +1509,7 @@ mps_secular_ga_mpsolve (mps_status * s)
 	  return;
 	}
 
-      if (s->secular_equation->best_approx && packet > 4)
+      if (sec->best_approx && packet > 4)
         {
           /* Going to multiprecision if we're not there yet */
           if (s->lastphase != mp_phase)
@@ -1538,8 +1538,8 @@ mps_secular_ga_mpsolve (mps_status * s)
           packet = 0;
         }
 
-      if (s->lastphase != mp_phase)
-	skip_check_stop = true;
+      /* if (s->lastphase != mp_phase) */
+      /* 	skip_check_stop = true; */
     }
   while (skip_check_stop || !mps_secular_ga_check_stop (s));
 

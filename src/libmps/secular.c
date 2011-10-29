@@ -192,6 +192,7 @@ mps_secular_deflate (mps_status * s, mps_secular_equation * sec)
 mps_secular_equation *
 mps_secular_equation_new_raw (mps_status * s, unsigned long int n)
 {
+  int i;
   mps_secular_equation *sec =
     (mps_secular_equation *) malloc (sizeof (mps_secular_equation));
 
@@ -226,6 +227,13 @@ mps_secular_equation_new_raw (mps_status * s, unsigned long int n)
   /* Epsilon arrays */
   sec->dregeneration_epsilon = rdpe_valloc (n);
   sec->fregeneration_epsilon = double_valloc (n);
+
+  /* Set the epsilon array to zero */
+  for (i = 0; i < n; i++)
+    {
+      sec->fregeneration_epsilon[i] = 0.0d;
+      rdpe_set (sec->dregeneration_epsilon[i], rdpe_zero);
+    }
 
   sec->n = n;
   
