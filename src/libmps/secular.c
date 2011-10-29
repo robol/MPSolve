@@ -670,7 +670,7 @@ mps_secular_set_radii (mps_status * s)
        	} 
 
        for(i = 0; i < s->n; i++) 
-       	{ 
+       	{
        	  if (s->status[i][0] == 'C') 
        	    s->status[i][0] = 'c'; 
        	} 

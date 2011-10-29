@@ -40,14 +40,17 @@ mps_secular_fstart (mps_status * s, int n, int i_clust, double clust_rad,
    * disposition on the unit cicle scaled to DBL_EPSILON */
   for (i = 0; i < s->n; i++)
     {
-      cplx_set_d (s->froot[l + i], cos (i * th + sigma),
-                  sin (i * th + sigma));
-      cplx_mul_eq_d (s->froot[l + i],
-                     cplx_mod (s->secular_equation->bfpc[i + l]) *
-                     DBL_EPSILON * 4.0);
-      cplx_add_eq (s->froot[l + i], sec->bfpc[l + i]);
-      s->frad[l+i] += 4 * DBL_EPSILON;
-      MPS_DEBUG_CPLX (s, s->froot[i + l], "s->froot[%d]", l + i);
+      if (s->status[i][0] != 'a' && s->status[i][0] != 'i' && s->status[i][0] != 'o')
+	{
+	  cplx_set_d (s->froot[l + i], cos (i * th + sigma),
+		      sin (i * th + sigma));
+	  cplx_mul_eq_d (s->froot[l + i],
+			 cplx_mod (s->secular_equation->bfpc[i + l]) *
+			 DBL_EPSILON * 4.0);
+	  s->frad[l+i] += cplx_mod (s->froot[l+i]);
+	  cplx_add_eq (s->froot[l + i], sec->bfpc[l + i]);
+	  MPS_DEBUG_CPLX (s, s->froot[i + l], "s->froot[%d]", l + i);
+	}
     }
 
   mps_fcluster (s, 2.0 * s->n);
@@ -93,20 +96,27 @@ mps_secular_dstart (mps_status * s, int n, int i_clust, rdpe_t clust_rad,
 
   for (i = 0; i < s->n; i++)
     {
-      cdpe_mod (cdpe_Re (ceps), s->secular_equation->bdpc[l + i]);
-      rdpe_mul_eq_d (cdpe_Re (ceps), 4 * DBL_EPSILON);
-      cdpe_set_d (s->droot[l + i], cos (i * th + sigma),
-                  sin (i * th + sigma));
-      cdpe_mul_eq (s->droot[l + i], ceps);
-      cdpe_add_eq (s->droot[l + i], sec->bdpc[l + i]);
-
-      if (!rdpe_eq (s->drad[i], RDPE_MAX))
-	rdpe_add_eq (s->drad[i], cdpe_Re (ceps));
-
-      if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
+      if (s->status[i][0] != 'a' && s->status[i][0] != 'i' && s->status[i][0] != 'o')
 	{
-	  MPS_DEBUG_CDPE (s, s->droot[l+i], "s->droot[%d]", l+i);
-	  MPS_DEBUG_RDPE (s, s->drad[l+i], "s->drad[%d]", l+i);
+	  cdpe_mod (cdpe_Re (ceps), s->secular_equation->bdpc[l + i]);
+	  rdpe_mul_eq_d (cdpe_Re (ceps), 4 * DBL_EPSILON);
+	  cdpe_set_d (s->droot[l + i], cos (i * th + sigma),
+		      sin (i * th + sigma));
+	  cdpe_mul_eq (s->droot[l + i], ceps);
+
+	  if (!rdpe_eq (s->drad[i], RDPE_MAX))
+	    {
+	      cdpe_mod (rtmp, s->droot[l + i]);
+	      rdpe_add_eq (s->drad[i], rtmp);
+	    }
+
+	  cdpe_add_eq (s->droot[l + i], sec->bdpc[l + i]);
+	  
+	  if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
+	    {
+	      MPS_DEBUG_CDPE (s, s->droot[l+i], "s->droot[%d]", l+i);
+	      MPS_DEBUG_RDPE (s, s->drad[l+i], "s->drad[%d]", l+i);
+	    }
 	}
 
       /* Just an experiment to see if the new method in secular-newton
@@ -170,8 +180,13 @@ mps_secular_mstart (mps_status * s, int n, int i_clust, rdpe_t clust_rad,
 
       mpc_set_d (s->mroot[l + i], cos (i * th + sigma), sin (i * th + sigma));
       mpc_mul_eq (s->mroot[l + i], epsilon);
+
+      mpc_get_cdpe (ctmp, s->mroot[l + i]);
+      cdpe_mod (rtmp, ctmp);
+      rdpe_add_eq (s->drad[i], rtmp);
+
       mpc_add_eq (s->mroot[l + i], sec->bmpc[l + i]);
-      rdpe_add_eq (s->drad[i], r_eps);
+
     }
 
   mps_mcluster (s, 2.0 * s->n);

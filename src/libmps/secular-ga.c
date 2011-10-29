@@ -833,12 +833,12 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s, int prec_ratio)
 			      "Relative error on a_%d", i);
 	    }
 	  
-	  rdpe_set_2dl (rtmp, 1.0, -s->mpwp); 
-	  if (rdpe_gt (sec->dregeneration_epsilon[i], rtmp))  
-	    {  
-	      success = false;  
-	      goto regenerate_m_exit;  
-	    }
+	  /* rdpe_set_2dl (rtmp, 1.0, 1.0);  */
+	  /* if (rdpe_gt (sec->dregeneration_epsilon[i], rtmp))   */
+	  /*   {   */
+	  /*     success = false;   */
+	  /*     goto regenerate_m_exit;   */
+	  /*   } */
 	}
 
     regenerate_m_exit:
