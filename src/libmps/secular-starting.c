@@ -54,12 +54,7 @@ mps_secular_fstart (mps_status * s, int n, int i_clust, double clust_rad,
     }
 
   mps_fcluster (s, 2.0 * s->n);
-  mps_fmodify (s);
-  
-  for (i = 0; i < s->n; i++)
-    if (s->status[i][0] == 'C')
-      s->status[i][0] = 'c';
-
+  mps_fmodify (s, false);
 }
 
 void
@@ -125,12 +120,7 @@ mps_secular_dstart (mps_status * s, int n, int i_clust, rdpe_t clust_rad,
     }
 
   mps_dcluster (s, 2.0 * s->n);
-  mps_dmodify (s);
-  
-  for (i = 0; i < s->n; i++)
-    if (s->status[i][0] == 'C')
-      s->status[i][0] = 'c';
-
+  mps_dmodify (s, false);
 }
 
 void
@@ -190,11 +180,7 @@ mps_secular_mstart (mps_status * s, int n, int i_clust, rdpe_t clust_rad,
     }
 
   mps_mcluster (s, 2.0 * s->n);
-  mps_mmodify (s);
+  mps_mmodify (s, false);
   
-  for (i = 0; i < s->n; i++)
-    if (s->status[i][0] == 'C')
-      s->status[i][0] = 'c';
-
   mpc_clear (epsilon);
 }

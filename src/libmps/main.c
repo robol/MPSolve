@@ -205,7 +205,7 @@ mps_standard_mpsolve (mps_status * s)
 
       /* == 7.3 ==  Check the stop condition */
       computed = mps_check_stop (s);
-      mps_mmodify (s);
+      mps_mmodify (s, true);
 
       /* == 7.4 ==  reset the status vector */
       for (i = 0; i < s->n; i++)

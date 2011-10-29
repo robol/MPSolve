@@ -146,9 +146,9 @@ extern "C"
   void mps_fsrad (mps_status * s, int i, cplx_t sc, double *sr);
   void mps_dsrad (mps_status * s, int i, cdpe_t sc, rdpe_t sr);
   void mps_msrad (mps_status * s, int i, mpc_t sc, rdpe_t sr);
-  void mps_fmodify (mps_status * s);
-  void mps_dmodify (mps_status * s);
-  void mps_mmodify (mps_status * s);
+  void mps_fmodify (mps_status * s, mps_boolean track_new_cluster);
+  void mps_dmodify (mps_status * s, mps_boolean track_new_cluster);
+  void mps_mmodify (mps_status * s, mps_boolean track_new_cluster);
   mps_boolean mps_check_stop (mps_status * s);
   void mps_fsolve (mps_status * s, mps_boolean * d_after_f);
   void mps_dsolve (mps_status * s, mps_boolean d_after_f);

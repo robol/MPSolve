@@ -168,13 +168,7 @@ mps_secular_ga_fiterate (mps_status * s, int maxit)
       s->secular_equation->best_approx = true;
     }
    mps_fcluster (s, 2.0 * s->n); 
-   mps_fmodify (s); 
-
-  for (i = 0; i < s->n; i++)
-    {
-      if (s->status[i][0] == 'C')
-        s->status[i][0] = 'c';
-    }
+   mps_fmodify (s, false); 
 
   /* Count time taken  */
 #ifndef DISABLE_DEBUG
@@ -302,17 +296,7 @@ mps_secular_ga_diterate (mps_status * s, int maxit)
     }
 
   mps_dcluster (s, 2.0 * s->n);
-  mps_dmodify (s);
-
-  for (i = 0; i < s->n; i++)
-    {
-      if (s->status[i][0] == 'C')
-        s->status[i][0] = 'c';
-      /* if (s->status[i][0] == 'a' || s->status[i][0] == 'i') */
-      /*   s->again[i] = false; */
-      /* else */
-      /*   s->again[i] = true; */
-    }
+  mps_dmodify (s, false);
 
   /* These lines are used to debug the again vector, but are not useful
    * at the moment being */
@@ -463,24 +447,7 @@ mps_secular_ga_miterate (mps_status * s, int maxit)
 
   /* Perform cluster analysis */
   mps_mcluster (s, 2.0 * s->n);
-  mps_mmodify (s);
-
-  for (i = 0; i < s->n; i++) 
-    {
-      if (s->status[i][0] == 'C') 
-	s->status[i][0] = 'c';    
-    }
-
-  /* for (i = 0; i < s->n; i++) */
-  /*   { */
-  /*     if (s->status[i][0] == 'a' || s->status[i][0] == 'i') */
-  /*       { */
-  /*         s->again[i] = false; */
-  /*       } */
-  /*     else */
-  /*       s->again[i] = true; */
-  /*   } */
-
+  mps_mmodify (s, false);
 
   /* These lines are used to debug the again vector, but are not useful
    * at the moment being */

@@ -579,13 +579,7 @@ mps_secular_set_radii (mps_status * s)
           }
 
 	  mps_fcluster (s, 2.0 * s->n);  
-	  mps_fmodify  (s);  
-
-	  for(i = 0; i < s->n; i++) 
-	    { 
-	      if (s->status[i][0] == 'C') 
-	        s->status[i][0] = 'c'; 
-	    }
+	  mps_fmodify (s, false);
       }
       break;
     case dpe_phase:
@@ -661,18 +655,12 @@ mps_secular_set_radii (mps_status * s)
        if (s->lastphase == mp_phase) 
        	{ 
        	  mps_mcluster (s, 2.0 * s->n); 
-       	  mps_mmodify (s); 
+       	  mps_mmodify (s, false); 
        	} 
        else 
        	{ 
        	  mps_dcluster (s, 2.0 * s->n); 
-       	  mps_dmodify (s); 
-       	} 
-
-       for(i = 0; i < s->n; i++) 
-       	{
-       	  if (s->status[i][0] == 'C') 
-       	    s->status[i][0] = 'c'; 
+       	  mps_dmodify (s, false); 
        	} 
 
       break;
