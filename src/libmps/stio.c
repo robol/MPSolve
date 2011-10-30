@@ -718,7 +718,6 @@ mps_parse_stream_old (mps_status * s, mps_input_buffer * buffer)
 	   */
 	  for (i = 0; i <= s->n; ++i)
 	    {
-	      
 	      /* Numerator of the real part of the coefficient */
 	      token = mps_input_buffer_next_token (buffer);
 	      if (!token || (mpq_set_str (qtmp, token, 10)) != 0)
@@ -800,8 +799,7 @@ mps_parse_stream_old (mps_status * s, mps_input_buffer * buffer)
 	      else
 		mpf_set_ui (mpc_Im (poly->mfpc[i]), 0U);
 	    }
-	  else if (MPS_INPUT_CONFIG_IS_RATIONAL (s->input_config) ||
-		   MPS_INPUT_CONFIG_IS_INTEGER (s->input_config))
+	  else if (MPS_INPUT_CONFIG_IS_INTEGER (s->input_config))
 	    {
 	      token = mps_input_buffer_next_token (buffer);
 	      if (!token || (mpq_set_str (poly->initial_mqp_r[i], token, 10) != 0))
@@ -824,6 +822,45 @@ mps_parse_stream_old (mps_status * s, mps_input_buffer * buffer)
 	      mpf_set_q (mpc_Re (poly->mfpc[i]), poly->initial_mqp_r[i]);
 	      mpf_set_q (mpc_Im (poly->mfpc[i]), poly->initial_mqp_i[i]);
 	    }
+	  else if (MPS_INPUT_CONFIG_IS_RATIONAL (s->input_config))
+	    {
+	      /* Numerator of the real part of the coefficient */
+	      token = mps_input_buffer_next_token (buffer);
+	      if (!token || (mpq_set_str (qtmp, token, 10)) != 0)
+		mps_raise_parsing_error (s, token, "Error parsing the numerator of a coefficient");
+	      mpq_set (poly->initial_mqp_r[i], qtmp);
+	      free (token);
+
+	      /* Denominator of the real part of the coefficient */
+	      token = mps_input_buffer_next_token (buffer);
+	      if (!token || (mpq_set_str (qtmp, token, 10)) != 0)
+		mps_raise_parsing_error (s, token, "Error parsing the denominator of a coefficient");
+	      free (token);
+
+	      mpq_div (poly->initial_mqp_r[i], poly->initial_mqp_r[i], qtmp);
+	      mpq_canonicalize (poly->initial_mqp_r[i]);
+
+	      if (MPS_INPUT_CONFIG_IS_COMPLEX (s->input_config))
+		{
+		  /* Numerator of the real part of the coefficient */
+		  token = mps_input_buffer_next_token (buffer);
+		  if (!token || (mpq_set_str (qtmp, token, 10)) != 0)
+		    mps_raise_parsing_error (s, token, "Error parsing the numerator of a coefficient");
+		  mpq_set (poly->initial_mqp_i[i], qtmp);
+		  free (token);
+
+		  /* Denominator of the real part of the coefficient */
+		  token = mps_input_buffer_next_token (buffer);
+		  if (!token || (mpq_set_str (qtmp, token, 10)) != 0)
+		    mps_raise_parsing_error (s, token, "Error parsing the denominator of a coefficient");
+		  free (token);
+
+		  mpq_div (poly->initial_mqp_i[i], poly->initial_mqp_i[i], qtmp);
+		  mpq_canonicalize (poly->initial_mqp_i[i]);
+		}
+	      else
+		mpq_set_ui (poly->initial_mqp_i[i], 0U, 0U);
+	    }
 	}
     } /* closes if (MPS_INPUT_CONFIG_IS_SPARSE (s->input_config)) */
 
@@ -832,6 +869,14 @@ mps_parse_stream_old (mps_status * s, mps_input_buffer * buffer)
     {
       if (poly->spar[i])
 	{
+	  if (MPS_INPUT_CONFIG_IS_INTEGER (s->input_config) ||
+	      MPS_INPUT_CONFIG_IS_RATIONAL (s->input_config))
+	    {
+	      mpf_set_q (mpc_Re (poly->mfpc[i]), poly->initial_mqp_r[i]);
+	      mpf_set_q (mpc_Im (poly->mfpc[i]), poly->initial_mqp_r[i]);
+	    }
+
+
 	  mpc_get_cplx (poly->fpc[i], poly->mfpc[i]);
 	  mpc_get_cdpe (poly->dpc[i], poly->mfpc[i]);
 
