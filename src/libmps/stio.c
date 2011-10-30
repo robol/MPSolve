@@ -869,12 +869,12 @@ mps_parse_stream_old (mps_status * s, mps_input_buffer * buffer)
     {
       if (poly->spar[i])
 	{
-	  if (MPS_INPUT_CONFIG_IS_INTEGER (s->input_config) ||
-	      MPS_INPUT_CONFIG_IS_RATIONAL (s->input_config))
-	    {
-	      mpf_set_q (mpc_Re (poly->mfpc[i]), poly->initial_mqp_r[i]);
-	      mpf_set_q (mpc_Im (poly->mfpc[i]), poly->initial_mqp_r[i]);
-	    }
+	   if (MPS_INPUT_CONFIG_IS_INTEGER (s->input_config) || 
+	       MPS_INPUT_CONFIG_IS_RATIONAL (s->input_config)) 
+	     { 
+	       mpf_set_q (mpc_Re (poly->mfpc[i]), poly->initial_mqp_r[i]); 
+	       mpf_set_q (mpc_Im (poly->mfpc[i]), poly->initial_mqp_i[i]); 
+	     }
 
 
 	  mpc_get_cplx (poly->fpc[i], poly->mfpc[i]);
@@ -904,6 +904,7 @@ mps_parse_stream_old (mps_status * s, mps_input_buffer * buffer)
 
   mps_status_set_input_poly (s, poly, s->input_config->structure);
   mpf_clear (ftmp);
+  mpq_clear (qtmp);
   mps_input_buffer_free (buffer);
 }
 
