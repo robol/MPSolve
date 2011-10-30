@@ -567,7 +567,9 @@ mps_parse_stream_old (mps_status * s, mps_input_buffer * buffer)
   char data_type[3];
   char *token;
   mpf_t ftmp;
+  mpq_t qtmp;
 
+  mpq_init (qtmp);
   mpf_init (ftmp);
 
   s->input_config->representation = MPS_REPRESENTATION_MONOMIAL;
@@ -710,9 +712,50 @@ mps_parse_stream_old (mps_status * s, mps_input_buffer * buffer)
 	}
       else if (MPS_INPUT_CONFIG_IS_RATIONAL (s->input_config))
 	{
-	  /* We need a special case for the rationls since they are not 
-	   * writte with the '/' character that GMP understands. */
-	  mps_error (s, 1, "Parsing rational from old MPSolve format is not supported yet.");
+	  /* The old MPSolve format for the rational input is not understood
+	   * by GMP that expect rational to be represented as n / d, and here
+	   * we have two separate tokens n d
+	   */
+	  for (i = 0; i <= s->n; ++i)
+	    {
+	      
+	      /* Numerator of the real part of the coefficient */
+	      token = mps_input_buffer_next_token (buffer);
+	      if (!token || (mpq_set_str (qtmp, token, 10)) != 0)
+		mps_raise_parsing_error (s, token, "Error parsing the numerator of a coefficient");
+	      mpq_set (poly->initial_mqp_r[i], qtmp);
+	      free (token);
+
+	      /* Denominator of the real part of the coefficient */
+	      token = mps_input_buffer_next_token (buffer);
+	      if (!token || (mpq_set_str (qtmp, token, 10)) != 0)
+		mps_raise_parsing_error (s, token, "Error parsing the denominator of a coefficient");
+	      free (token);
+
+	      mpq_div (poly->initial_mqp_r[i], poly->initial_mqp_r[i], qtmp);
+	      mpq_canonicalize (poly->initial_mqp_r[i]);
+
+	      if (MPS_INPUT_CONFIG_IS_COMPLEX (s->input_config))
+		{
+		  /* Numerator of the real part of the coefficient */
+		  token = mps_input_buffer_next_token (buffer);
+		  if (!token || (mpq_set_str (qtmp, token, 10)) != 0)
+		    mps_raise_parsing_error (s, token, "Error parsing the numerator of a coefficient");
+		  mpq_set (poly->initial_mqp_i[i], qtmp);
+		  free (token);
+
+		  /* Denominator of the real part of the coefficient */
+		  token = mps_input_buffer_next_token (buffer);
+		  if (!token || (mpq_set_str (qtmp, token, 10)) != 0)
+		    mps_raise_parsing_error (s, token, "Error parsing the denominator of a coefficient");
+		  free (token);
+
+		  mpq_div (poly->initial_mqp_i[i], poly->initial_mqp_i[i], qtmp);
+		  mpq_canonicalize (poly->initial_mqp_i[i]);
+		}
+	      else
+		mpq_set_ui (poly->initial_mqp_i[i], 0U, 0U);
+	    }	  
 	}
     } /* closes if (MPS_INPUT_CONFIG_IS_DENSE (s->input_config)) */
   else if (MPS_INPUT_CONFIG_IS_SPARSE (s->input_config))
