@@ -42,18 +42,20 @@ void
 mps_fsort (mps_status * s)
 {
   int i;
-  mps_monomial_poly *p = s->monomial_poly;
+  cplx_t *real_parts = cplx_valloc (s->n);
 
   for (i = 0; i < s->n; i++)
     {
-      cplx_Re (p->fppc[i]) = cplx_Re (s->froot[i]);
-      cplx_Im (p->fppc[i]) = i;
+      cplx_Re (real_parts[i]) = cplx_Re (s->froot[i]);
+      cplx_Im (real_parts[i]) = i;
     }
 
-  qsort (p->fppc, s->n, sizeof (cplx_t), mps_fcmp);
+  qsort (real_parts, s->n, sizeof (cplx_t), mps_fcmp);
 
   for (i = 0; i < s->n; i++)
-    s->order[i] = (int) cplx_Im (p->fppc[i]);
+    s->order[i] = (int) cplx_Im (real_parts[i]);
+
+  cplx_vfree (real_parts);
 }
 
 /*********************************************************
@@ -71,19 +73,21 @@ mps_dcmp (const void *a, const void *b)
 void
 mps_dsort (mps_status * s)
 {
-  mps_monomial_poly *p = s->monomial_poly;
+  cdpe_t * real_parts = cdpe_valloc (s->n);
   int i;
 
   for (i = 0; i < s->n; i++)
     {
-      rdpe_set (cdpe_Re (s->dpc1[i]), cdpe_Re (s->droot[i]));
-      rdpe_set_d (cdpe_Im (s->dpc1[i]), i);
+      rdpe_set (cdpe_Re (real_parts[i]), cdpe_Re (s->droot[i]));
+      rdpe_set_d (cdpe_Im (real_parts[i]), i);
     }
 
-  qsort (s->dpc1, s->n, sizeof (cdpe_t), mps_dcmp);
+  qsort (real_parts, s->n, sizeof (cdpe_t), mps_dcmp);
 
   for (i = 0; i < s->n; i++)
-    s->order[i] = (int) rdpe_get_d (cdpe_Im (s->dpc1[i]));
+    s->order[i] = (int) rdpe_get_d (cdpe_Im (real_parts[i]));
+
+  cdpe_vfree (real_parts);
 }
 
 /*********************************************************
@@ -102,15 +106,20 @@ void
 mps_msort (mps_status * s)
 {
   int i;
+  mpc_t * real_parts = mpc_valloc (s->n);
+  mpc_vinit (real_parts, s->n);
 
   for (i = 0; i < s->n; i++)
     {
-      mpf_set (mpc_Re (s->mfpc1[i]), mpc_Re (s->mroot[i]));
-      mpf_set_ui (mpc_Im (s->mfpc1[i]), i);
+      mpf_set (mpc_Re (real_parts[i]), mpc_Re (s->mroot[i]));
+      mpf_set_ui (mpc_Im (real_parts[i]), i);
     }
 
-  qsort (s->mfpc1, s->n, sizeof (mpc_t), mps_mcmp);
+  qsort (real_parts, s->n, sizeof (mpc_t), mps_mcmp);
 
   for (i = 0; i < s->n; i++)
-    s->order[i] = (int) mpf_get_d (mpc_Im (s->mfpc1[i]));
+    s->order[i] = (int) mpf_get_d (mpc_Im (real_parts[i]));
+
+  mpc_vclear (real_parts, s->n);
+  mpc_vfree (real_parts);
 }
