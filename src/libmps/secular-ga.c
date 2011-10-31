@@ -37,6 +37,7 @@ mps_secular_ga_fiterate (mps_status * s, int maxit)
   int nit = 0;
   int it_threshold;
   int old_cr;
+  mps_secular_iteration_data data;
 
 #ifndef DISABLE_DEBUG
   clock_t *my_clock = mps_start_timer ();
@@ -85,8 +86,12 @@ mps_secular_ga_fiterate (mps_status * s, int maxit)
               nit++;
               cplx_set (old_root, s->froot[i]);
               old_rad = s->frad[i];
+	      
+	      /* Prepare the data to be passed for secular-newton */
+	      data.k = i;
+
               mps_secular_fnewton (s, s->froot[i], &s->frad[i], corr,
-                                   &s->again[i], &i);
+                                   &s->again[i], &data);
 
               /* Apply Aberth correction */
               mps_faberth (s, i, abcorr);
@@ -94,12 +99,6 @@ mps_secular_ga_fiterate (mps_status * s, int maxit)
               cplx_sub (abcorr, cplx_one, abcorr);
               cplx_div (abcorr, corr, abcorr);
               cplx_sub_eq (s->froot[i], abcorr);
-
-	      // MPS_DEBUG_CPLX (s, abcorr, "aberth_correction");
-	      /* MPS_DEBUG (s, "Iteration %d", nit); */
-	      /* MPS_DEBUG_CPLX (s, corr, "corr"); */
-	      /* MPS_DEBUG_CPLX (s, abcorr, "abcorr"); */
-	      /* mps_dump (s, s->logstr); */
 
               /* Check if we need to switch to DPE */
               if (isnan (cplx_Re (s->froot[i]))
@@ -199,6 +198,7 @@ mps_secular_ga_diterate (mps_status * s, int maxit)
   int it_threshold;
   int old_cr;
   mps_secular_equation *sec = s->secular_equation;
+  mps_secular_iteration_data data;
 
 #ifndef DISABLE_DEBUG
   clock_t *my_clock = mps_start_timer ();
@@ -252,8 +252,12 @@ mps_secular_ga_diterate (mps_status * s, int maxit)
 	      if (cdpe_eq (s->droot[i], sec->bdpc[i]))
 		continue;
               nit++;
+
+	      /* Prepare data for the dnewton routine */
+	      data.k = i;
+
               mps_secular_dnewton (s, s->droot[i], s->drad[i], corr,
-                                   &s->again[i], &i);
+                                   &s->again[i], &data);
 	      
               /* Apply Aberth correction */
               mps_daberth (s, i, abcorr);

@@ -19,7 +19,7 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
   int i;
   cplx_t ctmp, ctmp2, pol, fp, sumb;
   double dtmp, prod_b = 1.0, sec_eps = 0.0, new_rad;
-  int * k = (int*) user_data;
+  mps_secular_iteration_data * data = user_data;
   *again = true;
 
   mps_secular_equation *sec = (mps_secular_equation *) s->secular_equation;
@@ -78,8 +78,8 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
       cplx_add_eq (pol, ctmp2);
 
       /* Add its modulus to sec_eps */
-      if (k)
-	sec_eps += cplx_mod (ctmp2) * (s->secular_equation->fregeneration_epsilon[*k] + DBL_EPSILON);
+      if (user_data)
+	sec_eps += cplx_mod (ctmp2) * (s->secular_equation->fregeneration_epsilon[data->k] + DBL_EPSILON);
       else
 	sec_eps += cplx_mod (ctmp2) * DBL_EPSILON;
 
@@ -135,6 +135,7 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
   *again = true;
 
   mps_secular_equation *sec = (mps_secular_equation *) s->secular_equation;
+  mps_secular_iteration_data * data = user_data;
 
   cdpe_t pol, fp, sumb, ctmp, ctmp2, old_x;
   rdpe_t rtmp, rtmp2, apol, g_corr, prod_b;
@@ -201,8 +202,8 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
       cdpe_mul (ctmp2, sec->adpc[i], ctmp);
       cdpe_add_eq (pol, ctmp2);
       cdpe_mod (rtmp, ctmp2);
-      if (k)
-	rdpe_mul_eq (rtmp, s->secular_equation->dregeneration_epsilon[*k]);
+      if (user_data)
+	rdpe_mul_eq (rtmp, s->secular_equation->dregeneration_epsilon[data->k]);
       else
 	rdpe_mul_eq (rtmp, s->mp_epsilon);
       rdpe_add_eq (apol, rtmp);
@@ -361,9 +362,6 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
       if (user_data)
 	{
 	  rdpe_mul_eq (rtmp, s->secular_equation->dregeneration_epsilon[data->k]);
-	   /* MPS_DEBUG_RDPE (s, s->secular_equation->dregeneration_epsilon[*k],  */
-	   /* 		  "dregeneration_epsilon[%d]", *k);  */
-	   /* MPS_DEBUG_RDPE (s, rtmp, "rtmp");  */
 	}
       else
 	{
