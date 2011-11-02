@@ -1086,6 +1086,8 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
           mpc_set_cdpe (sec->bmpc[i], sec->bdpc[i]);
         }
 
+      mps_secular_ga_update_coefficients (s);
+
       /* Regeneration */
       bits = mps_secular_ga_required_regenerations_bits (s);
       if (!(successful_regeneration = mps_secular_ga_regenerate_coefficients_mp (s, bits)))
@@ -1133,6 +1135,8 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
           mpc_set (old_mb[i], sec->bmpc[i]);
           mpc_set (sec->bmpc[i], s->mroot[i]);
         }
+
+      mps_secular_ga_update_coefficients (s);
 
       /* Regeneration */
       bits = mps_secular_ga_required_regenerations_bits (s);
