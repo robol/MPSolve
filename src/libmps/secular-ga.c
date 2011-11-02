@@ -962,7 +962,7 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
   cdpe_t *old_db, *old_da;
   mpc_t *old_ma, *old_mb;
   mps_secular_equation *sec;
-  int i, j, ratio, bits;
+  int i, j, bits;
   mps_boolean successful_regeneration = false;
 
   sec = (mps_secular_equation *) s->secular_equation;
@@ -1122,13 +1122,14 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
         }
 
       /* Regeneration */
-      if (mps_secular_ga_regenerate_coefficients_mp (s, 2 * s->mpwp))
+      bits = mps_secular_ga_required_regenerations_bits (s);
+      if (mps_secular_ga_regenerate_coefficients_mp (s, bits))
         {
+	  mps_secular_ga_update_coefficients (s);
           /* Finally set radius according to new computed a_i coefficients,
            * if they are convenient   */
           mps_secular_set_radii (s);
         }
-
 
       if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
 	{
