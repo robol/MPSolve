@@ -482,6 +482,123 @@ mps_secular_ga_miterate (mps_status * s, int maxit)
 }
 
 /**
+ * @brief Update all the coefficients of the secular equation, and their
+ * moduli, using the recomputed one stored in the multiprecision version.
+ */
+void
+mps_secular_ga_update_coefficients (mps_status * s)
+{
+  int i;
+  mps_secular_equation * sec = s->secular_equation;
+  for (i = 0; i < s->n; ++i)
+    {
+      mpc_get_cplx (sec->afpc[i], sec->ampc[i]);
+      mpc_get_cplx (sec->bfpc[i], sec->bmpc[i]);
+
+      mpc_get_cdpe (sec->adpc[i], sec->ampc[i]);
+      mpc_get_cdpe (sec->bdpc[i], sec->bmpc[i]);
+
+      cdpe_mod (sec->aadpc[i], sec->adpc[i]);
+      cdpe_mod (sec->abdpc[i], sec->bdpc[i]);
+
+      sec->aafpc[i] = cplx_mod (sec->afpc[i]);
+      sec->abfpc[i] = cplx_mod (sec->bfpc[i]);
+    }
+}
+
+/**
+ * @brief Determine the precision required to bound the relative
+ * error on the regenerated coefficients.
+ */
+int
+mps_secular_ga_required_regenerations_bits (mps_status * s)
+{
+  rdpe_t root_epsilon;
+  rdpe_t pol_eps;
+  rdpe_t regeneration_epsilon;
+  rdpe_t total_eps;
+  int i, j;
+
+  rdpe_set_2dl (root_epsilon, 1.0, -s->mpwp);
+  rdpe_set (total_eps, rdpe_zero);
+
+  if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
+    {
+      mps_monomial_poly * p = s->monomial_poly;
+      mps_secular_equation * sec = s->secular_equation;
+
+      /* We start by computing ap(|x|) / |p(x)| where
+       * ap(x) is the polynomial with the coefficients
+       * equal to the module of the ones of p(x) */
+      cdpe_t pol, ctmp;
+      rdpe_t apol, rtmp, rtmp2;
+
+      for (i = 0; i < s->n; ++i)
+	{
+	  /* Horner on the polynomial */
+	  cdpe_set (pol, p->dpc[s->n]);
+	  for (j = s->n - 1; j > 0; --j)
+	    {
+	      cdpe_div (ctmp, p->dpc[j], pol);
+	      cdpe_add_eq (ctmp, sec->bdpc[i]);
+	      cdpe_mul_eq (pol, ctmp);
+	    }
+	  cdpe_add_eq (pol, p->dpc[0]);
+
+	  /* Horner on the polynomial with the modulus as coefficients */
+	  rdpe_set (apol, rdpe_one);
+	  cdpe_mod (rtmp2, sec->bdpc[i]);
+	  for (j = s->n; j > 0; j--)
+	    {
+	      rdpe_div (rtmp, p->dap[j], apol);
+	      rdpe_add_eq (rtmp, rtmp2);
+	      rdpe_mul_eq (apol, rtmp);
+	    }
+	  rdpe_add_eq (apol, p->dap[0]);
+
+	  /* Compute the conditioning on the computation of p(b_i) */
+	  cdpe_mod (rtmp, pol);
+	  rdpe_div (pol_eps, apol, rtmp);
+
+	  /* Check the conditioning on the difference b_i - b_j. We can 
+	  * bound this value with (|b_i| + |b_j|) * u / |b_i - b_j| */
+	  rdpe_set (regeneration_epsilon, rdpe_zero);
+	  for(j = 0; j < s->n; j++)
+	    {
+	      if (i == j)
+		continue;
+
+	      cdpe_sub (ctmp, sec->bdpc[i], sec->bdpc[j]);
+	      cdpe_mod (rtmp, ctmp);
+	      
+	      rdpe_add (rtmp2, sec->abdpc[i], sec->abdpc[j]);
+	      
+	      if (!rdpe_eq_zero (rtmp))
+		{
+		  rdpe_div_eq (rtmp, rtmp2);
+		  rdpe_add_eq (regeneration_epsilon, rtmp);
+		}
+	    }
+
+	  rdpe_add_eq (regeneration_epsilon, pol_eps);
+
+	  /* Check if the new relative error is bigger than the 
+	   * previous one. */
+	  if (rdpe_gt (regeneration_epsilon, total_eps))
+	    rdpe_set (total_eps, regeneration_epsilon);
+	}
+
+
+      /* We need now to determine the required bits of precision to
+       * get a relative error smaller than the required one. */
+      return (rdpe_log (total_eps) * LOG2 + s->mpwp / 2);
+    }
+  else if (MPS_INPUT_CONFIG_IS_SECULAR (s->input_config))
+    return 2 * s->mpwp;
+  
+}
+
+/**
  * @brief Regenerate the coefficients \f$a_i\f$ based on
  * the \f$b_i\f$.
  *

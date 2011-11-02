@@ -548,6 +548,12 @@ mps_secular_equation_read_from_stream (mps_status * s,
       /* Get floating points coefficients */
       cdpe_get_x (sec->afpc[i], sec->adpc[i]);
       cdpe_get_x (sec->bfpc[i], sec->bdpc[i]);
+
+      /* Store mouduli of the coefficients */
+      cdpe_mod (sec->aadpc[i], sec->adpc[i]);
+      cdpe_mod (sec->abdpc[i], sec->bdpc[i]);
+      sec->aafpc[i] = cplx_mod (sec->afpc[i]);
+      sec->abfpc[i] = cplx_mod (sec->bfpc[i]);
     }
 
   s->secular_equation = sec;
@@ -1046,18 +1052,6 @@ mps_parse_stream (mps_status * s, FILE * input_stream)
     {
       MPS_DEBUG (s, "Degree: %d", s->n);
     }
-
-  /* Check that the stream in the buffer is only composed
-   * by spaces */
-  /* for (i = 0; i < strlen (buffer->line); i++) */
-  /*   { */
-  /*     if (!isspace (buffer->line[i])) */
-  /*       { */
-  /*         mps_error (s, 1, */
-  /*                    "Options and input data are not separated by a newline."); */
-  /*         break; */
-  /*       } */
-  /*   } */
 
   if (MPS_INPUT_CONFIG_IS_SECULAR (s->input_config))
     {

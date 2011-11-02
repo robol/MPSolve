@@ -1585,6 +1585,7 @@ mps_mrestart (mps_status * s)
 
           MPS_DEBUG (s, "DO NOT PERFORM RESTART, "
                      "new radius of the cluster is larger");
+	  mps_cluster_reassemble (s, MPS_ALL_CLUSTERS);
 
           goto loop1;
         }

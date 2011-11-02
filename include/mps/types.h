@@ -423,6 +423,30 @@ extern "C"
     mpc_t *bmpc;
 
     /**
+     * @brief Moduli of the floating point a_i
+     * coefficients of the secular equation.
+     */
+    double *aafpc;
+
+    /**
+     * @brief Moduli of the floating point b_i 
+     * coefficients of the secular equation.
+     */
+    double *abfpc;
+
+    /**
+     * @brief DPE Moduli of the CDPE of Multiprecision a_i 
+     * coefficients of the secular equation.
+     */
+    rdpe_t *aadpc;
+    
+    /**
+     * @brief DPE Moduli of the CDPE of Multiprecision b_i 
+     * coefficients of the secular equation.
+     */
+    rdpe_t *abdpc;
+
+    /**
      * @brief Initial multiprecision coefficients saved for latter
      * regeneration in <code>mps_secular_ga_regenerate_coefficients()</code>.
      */

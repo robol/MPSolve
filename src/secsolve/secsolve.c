@@ -170,6 +170,7 @@ main (int argc, char **argv)
    * allocate also a secular equation to be used in regeneration */
   mps_parse_stream (s, infile);
 
+  /* Set polynomial and secular equation into the mps_status */
   sec = s->secular_equation;
   poly = s->monomial_poly;
 

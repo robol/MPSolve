@@ -214,6 +214,12 @@ mps_secular_equation_new_raw (mps_status * s, unsigned long int n)
   sec->initial_ampqic = mpq_valloc (n + 1);
   sec->initial_bmpqic = mpq_valloc (n + 1);
 
+  /* Allocate space for the moduli of the coefficients */
+  sec->aadpc = rdpe_valloc (n);
+  sec->abdpc = rdpe_valloc (n);
+  sec->aafpc = double_valloc (n);
+  sec->abfpc = double_valloc (n);
+
   /* Init multiprecision arrays */
   mpc_vinit (sec->ampc, n);
   mpc_vinit (sec->bmpc, n);
@@ -306,6 +312,11 @@ mps_secular_equation_free (mps_secular_equation * s)
 
   mpc_vfree (s->ampc);
   mpc_vfree (s->bmpc);
+
+  rdpe_vfree (s->aadpc);
+  rdpe_vfree (s->abdpc);
+  double_vfree (s->aafpc);
+  double_vfree (s->abfpc);
 
   /* And old coefficients */
   mpc_vclear (s->initial_ampc, s->n);
