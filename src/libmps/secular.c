@@ -237,7 +237,7 @@ mps_secular_equation_new_raw (mps_status * s, unsigned long int n)
   /* Set the epsilon array to zero */
   for (i = 0; i < n; i++)
     {
-      sec->fregeneration_epsilon[i] = 0.0d;
+      sec->fregeneration_epsilon[i] = 0.0f;
       rdpe_set (sec->dregeneration_epsilon[i], rdpe_zero);
     }
 
