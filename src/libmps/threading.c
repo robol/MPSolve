@@ -688,6 +688,28 @@ void
 mps_thread_mpolzer (mps_status * s, int *it, mps_boolean * excep)
 {
   int i, nzeros = 0, n_threads = s->n_threads;
+
+  *it = 0;
+  *excep = false;
+
+  /* Check if we have already approxmiated roots */
+  for (i = 0; i < s->n; i++)
+    if (!s->again[i])
+      nzeros++;
+  if (nzeros == s->n)
+    {
+      return;
+    }
+
+  if (s->n_threads > (s->n - nzeros))
+    n_threads = s->n - nzeros;
+  else
+    n_threads = s->n_threads;
+
+  // n_threads = 1;
+
+  MPS_DEBUG (s, "Spawning %d threads", n_threads);
+
   pthread_t *threads = (pthread_t *) malloc (sizeof (pthread_t) * n_threads);
   mps_thread_worker_data *data;
 
@@ -706,19 +728,6 @@ mps_thread_mpolzer (mps_status * s, int *it, mps_boolean * excep)
 
   /* Create a new work queue */
   mps_thread_job_queue *queue = mps_thread_job_queue_new (s);
-
-  *it = 0;
-  *excep = false;
-
-  /* Count the number of approximations in the root neighbourhood */
-  for (i = 0; i < s->n; i++)
-    if (!s->again[i])
-      nzeros++;
-  if (nzeros == s->n)
-    {
-      free (threads);
-      return;
-    }
 
   data = (mps_thread_worker_data *) malloc (sizeof (mps_thread_worker_data)
                                             * n_threads);
