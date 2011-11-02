@@ -86,8 +86,11 @@ test_pol_new (const char *name, const char *type_name,
   t->out_digits = out_digits;
   t->phase = phase;
   t->ga = ga;
+  t->DOLOG = false;
   return t;
 }
+
+
 
 void
 test_pol_free (test_pol * pol)

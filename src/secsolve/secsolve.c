@@ -46,11 +46,13 @@ int
 main (int argc, char **argv)
 {
   mps_secular_equation *sec;
+  mps_monomial_poly *poly;
   mps_status *s;
+  int i;
 
   /* Create a new status */
   s = mps_status_new ();
-  s->prec_in = 0;
+  s->input_config->prec = 0;
 
   strncpy (s->goal, "aannc", 5);
 
@@ -74,7 +76,7 @@ main (int argc, char **argv)
           ga = true;
           break;
         case 'o':
-          s->prec_out = (atoi (opt->optvalue) + 1) * LOG2_10 + 1;
+          s->output_config->prec = (atoi (opt->optvalue) + 1) * LOG2_10 + 1;
           break;
         case 'i':
           s->goal[0] = 'i';
@@ -161,42 +163,24 @@ main (int argc, char **argv)
     }
 
   /* Create new secular equation */
-  mps_input_configuration default_configuration = {
-    /* .structure */
-    MPS_STRUCTURE_COMPLEX_FP,
+  s->input_config->structure  = MPS_STRUCTURE_COMPLEX_FP;
+  s->input_config->representation = MPS_REPRESENTATION_SECULAR;
 
-    /* .representation */
-    MPS_REPRESENTATION_SECULAR
-  };
+  /* Parse the input stream and if a polynomial is given as output, 
+   * allocate also a secular equation to be used in regeneration */
+  mps_parse_stream (s, infile);
 
-  mps_parse_stream (s, infile, &default_configuration);
+  /* Set polynomial and secular equation into the mps_status */
   sec = s->secular_equation;
+  poly = s->monomial_poly;
 
   /* Close the file if it's not stdin */
   if (argc == 2)
     fclose (infile);
 
-  /* Set secular equation in user data, so it will be
-   * accessible by the secular equation routines. */
-  sec->starting_case = phase;
-
-  /* Use always DPE with non floating point input */
-  if (!MPS_STRUCTURE_IS_FP (s->config))
-    {
-      // sec->starting_case = dpe_phase;
-    }
-
-  if (phase == dpe_phase)
-    s->skip_float = true;
-
   /* If we choose gemignani's approach follow it, otherwise
    * use standard mpsolve approach applied implicitly to the
    * secular equation. */
-  mps_status_set_degree (s, sec->n);
-
-  /* Set user polynomial with our custom functions */
-  mps_allocate_data (s);
-
   if (ga)
     {
       /* Select the right algorithm */
@@ -208,14 +192,15 @@ main (int argc, char **argv)
       mps_status_select_algorithm (s, MPS_ALGORITHM_SECULAR_MPSOLVE);
     }
 
+  /* Select the starting phase according to user input */
+  s->input_config->starting_phase = phase;
+
   /* Solve the polynomial */
   mps_mpsolve (s);
 
   /* Output the roots */
-  mps_copy_roots (s);
   mps_output (s);
 
   /* Free used data */
-  mps_secular_equation_free (sec);
   mps_status_free (s);
 }

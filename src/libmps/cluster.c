@@ -312,9 +312,17 @@ mps_cluster_detachment_reset (mps_status * s)
 void
 mps_cluster_detach (mps_status * s, int i_clust)
 {
+  MPS_DEBUG_THIS_CALL;
+
   int i, ind, n_aux, j;
   rdpe_t precision, rtmp;
   tmpf_t ftmp;
+
+  if (s->debug_level & MPS_DEBUG_CLUSTER)
+    {
+      MPS_DEBUG (s, "Debugging cluster structure before root detaching");
+      mps_debug_cluster_structure (s);
+    }
 
   tmpf_init2 (ftmp, s->mpwp);
 
@@ -393,6 +401,7 @@ mps_cluster_detach (mps_status * s, int i_clust)
 
               /* Set s->punt */
               s->punt[i + 2] = s->punt[i + 1] + 1;
+	      s->nclust++;
 
               /* Start from the next root, that is shifted one position back */
               j--;
@@ -409,13 +418,28 @@ mps_cluster_detach (mps_status * s, int i_clust)
 
   tmpf_clear (ftmp);
 
+  if (s->debug_level & MPS_DEBUG_CLUSTER)
+    {
+      MPS_DEBUG (s, "Debugging cluster structure after root detaching");
+      mps_debug_cluster_structure (s);
+    }
+
+
 }
 
 
 void
 mps_cluster_reassemble (mps_status * s, int i_clust)
 {
-  int i, l, j;
+  MPS_DEBUG_THIS_CALL;
+
+  int i, l, j, old_nclust, k;
+
+  if (s->debug_level & MPS_DEBUG_CLUSTER)
+    {
+      MPS_DEBUG (s, "Debugging cluster structure before reassembling the original one");
+      mps_debug_cluster_structure (s);
+    }
 
   if (i_clust == MPS_ALL_CLUSTERS)
     for (j = 0; j < s->nclust; j++)
@@ -424,12 +448,13 @@ mps_cluster_reassemble (mps_status * s, int i_clust)
         return;
       }
 
+  MPS_DEBUG (s, "Reassembling cluster %d", i_clust);
+
   for (i = 0; i < s->nclust; i++)
     {
 
       if (s->clust_detached[i] == i_clust)
         {
-
           MPS_DEBUG (s, "Recompacting cluster %d and %d", i_clust, i);
 
           /* We need this to be true to make the reassembling of
@@ -454,18 +479,24 @@ mps_cluster_reassemble (mps_status * s, int i_clust)
               s->punt[j - 1] = s->punt[j];
               s->clust_detached[j - 1] = s->clust_detached[j];
             }
-          s->punt[s->nclust - 1] = s->punt[s->nclust];
 
+          s->punt[s->nclust - 1] = s->punt[s->nclust];
           s->nclust--;
           for (j = 0; j < s->nclust; j++)
             {
-              if (s->clust_detached[j] > i_clust)
+              if (s->clust_detached[j] > i)
                 {
                   s->clust_detached[j]--;
                 }
             }
 
-          s->clust_detached[i] = -1;
+	  i--;
         }
+    }
+
+  if (s->debug_level & MPS_DEBUG_CLUSTER)
+    {
+      MPS_DEBUG (s, "Debugging cluster structure after restoring the original one");
+      mps_debug_cluster_structure (s);
     }
 }

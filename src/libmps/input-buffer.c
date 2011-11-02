@@ -29,9 +29,10 @@ mps_input_buffer_new (FILE * stream)
   buf->history_size = MPS_INPUT_BUFFER_HISTORY_DEFAULT_SIZE;
 
   /* Allocate space for the lines kept in history */
-  buf->history = (char **) malloc (sizeof (char *));
+  buf->history = (char **) malloc (sizeof (char *) * buf->history_size);
   for (i = 0; i < buf->history_size; ++i)
       buf->history[i] = NULL;
+  buf->last = 0;
 
   return buf;
 }
@@ -83,17 +84,18 @@ mps_input_buffer_readline (mps_input_buffer * buf)
 {
   ssize_t read_chars;
   ssize_t length;
+  int new_pos;
 
   /* Move the old line in the buffer, if it's not NULL */
   if (buf->line != NULL)
     {
-      int new_pos = (buf->last - 1 + buf->history_size) % buf->history_size;
+      new_pos = (buf->last - 1 + buf->history_size) % buf->history_size;
       length = strlen (buf->line);
       
       /* Check if the line that is going to be overwritten
        * has something in it, and if that's the case, free it */
       if (buf->history[new_pos] != NULL)
-	free (buf->history[new_pos]);
+	  free (buf->history[new_pos]);
       
       /* Push the old line in history */
       buf->history[new_pos] = buf->line;

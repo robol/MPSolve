@@ -308,39 +308,42 @@ mps_msrad (mps_status * s, int i, mpc_t sc, rdpe_t sr)
   tmpc_clear (ctmp);
 }
 
-/******************************************************
- *           SUBROUTINE FMODIFY                        *
- *******************************************************
- Modify the vector 'status' according to the goal, and
- to the location of the roots.
- 
- The subroutine is used also for marking the new cluster
- that have been detected between two consecutive packets
- of Aberth's iteration.
- ==1== The subroutine changes into 'C' the components of
- status[:1) corresponding to old clusters, keeping
- status[:,1)='c' for the new formed clusters.
- In this way applying restart selects new starting
- approximations only for the new detected clusters.
- ==2== For the components for which 
- status[:,1]!='C', 'f', 'x' performs the following
- analysis:
- If the cluster has mult=1 mark it with status[:1)='i'
- if is also approximated mark it with status(:1)='a'
- Check if c*u and i*u (i.e., uncertain set) can 
- be made certain according to goal[1]
- 
- ==3== 
- Perform the same with options, that is,
- If multiplicity is on then check if a cluster
- corresponds to a  multiple root
- If detect real then detect real roots
- if detect imaginary then detect imaginary roots
- If detect both then detect both imaginary and
- real roots
- **************************************************/
+/**
+ * @brief Modify the vector 'status' according to the goal, and
+ * to the location of the roots.
+ *
+ * @param s The mps_status associated to the current computation.
+ * @param track_new_cluster true if old clusters should be marked
+ * with 'C' instead of 'c', so they are recognizable (for shifting).
+ *
+ * The subroutine is used also for marking the new cluster
+ * that have been detected between two consecutive packets
+ * of Aberth's iteration.
+ * 
+ * -# The subroutine changes into 'C' the components of
+ * status[:1) corresponding to old clusters, keeping
+ * status[:,1)='c' for the new formed clusters.
+ * In this way applying restart selects new starting
+ * approximations only for the new detected clusters.
+ *
+ * -# For the components for which 
+ * status[:,1]!='C', 'f', 'x' performs the following
+ * analysis:
+ * If the cluster has mult=1 mark it with status[:1)='i'
+ * if is also approximated mark it with status(:1)='a'
+ * Check if c*u and i*u (i.e., uncertain set) can 
+ * be made certain according to goal[1]
+ *
+ * -# Perform the same with options, that is,
+ * If multiplicity is on then check if a cluster
+ * corresponds to a  multiple root
+ * If detect real then detect real roots
+ * if detect imaginary then detect imaginary roots
+ * If detect both then detect both imaginary and
+ * real roots
+ */
 void
-mps_fmodify (mps_status * s)
+mps_fmodify (mps_status * s, mps_boolean track_new_cluster)
 {
   int i, j, l, k, nnewclust, i_new, i_old, ip1, i1, l1, j1, nf, j2, l2;
   double sr, tmpr, afri, sep1;
@@ -349,9 +352,14 @@ mps_fmodify (mps_status * s)
 
   /* ==1== Change into 'C' the components of status for old clusters */
   nf = 2 * s->n;                /* Isolation factor */
-  for (i = 0; i < s->n; i++)
-    if (s->status[i][0] == 'c')
-      s->status[i][0] = 'C';
+
+  /* Mark old cluster with 'C' if requested */
+  if (track_new_cluster)
+    {
+      for (i = 0; i < s->n; i++)
+	if (s->status[i][0] == 'c')
+	  s->status[i][0] = 'C';
+    }
 
   i_old = 0;
   i_new = 0;
@@ -415,7 +423,7 @@ mps_fmodify (mps_status * s)
           tmpr = cplx_mod (s->froot[s->clust[s->punt[i]]]);
           tmpr = s->frad[s->clust[s->punt[i]]] / tmpr;
           tmpr = log (tmpr);
-          if (tmpr < -s->prec_out * LOG2)
+          if (tmpr < -s->output_config->prec * LOG2)
             s->status[s->clust[s->punt[i]]][0] = 'a';
         }
       /* Scan inside the cluster */
@@ -959,11 +967,17 @@ mps_fmodify (mps_status * s)
     }
 }
 
-/****************************************************
- *           SUBROUTINE DMODIFY                      *
- ****************************************************/
+/**
+ * @brief The DPE version of <code>mps_fmodify()</code>.
+ *
+ * @param s The mps_status associated to the current computation.
+ * @param track_new_cluster true if old clusters should be marked
+ * with 'C' instead of 'c', so they are recognizable (for shifting).
+ *
+ * @see mps_fmodify()
+ */
 void
-mps_dmodify (mps_status * s)
+mps_dmodify (mps_status * s, mps_boolean track_new_cluster)
 {
   int i, j, l, k, nnewclust, i_new, i_old, ip1, i1, l1, j1, j2, l2, nf;
   double rtmp, sep1;
@@ -973,9 +987,13 @@ mps_dmodify (mps_status * s)
 
   /* ==1==  Change into 'C' the components of status for old clusters */
   nf = 2 * s->n;                /* Isolation factor */
-  for (i = 0; i < s->n; i++)
-    if (s->status[i][0] == 'c')
-      s->status[i][0] = 'C';
+
+  if (track_new_cluster)
+    {
+      for (i = 0; i < s->n; i++)
+	if (s->status[i][0] == 'c')
+	  s->status[i][0] = 'C';
+    }
 
   i_old = 0;
   i_new = 0;
@@ -1037,7 +1055,7 @@ mps_dmodify (mps_status * s)
           cdpe_mod (tmpr, s->droot[s->clust[s->punt[i]]]);
           rdpe_div (tmpr, s->drad[s->clust[s->punt[i]]], tmpr);
           rtmp = rdpe_log (tmpr);
-          if (rtmp < -s->prec_out * LOG2)
+          if (rtmp < -s->output_config->prec * LOG2)
             s->status[s->clust[s->punt[i]]][0] = 'a';
         }
       /* Scan inside the cluster */
@@ -1576,11 +1594,18 @@ mps_dmodify (mps_status * s)
     }
 }
 
-/****************************************************
- *           SUBROUTINE MMODIFY                      *
- ****************************************************/
+/**
+ * @brief The multiprecision version of the routine
+ * <code>mps_fmodify()</code>. 
+ *
+ * @param s The mps_status associated to the current computation.
+ * @param track_new_cluster true if old clusters should be marked
+ * with 'C' instead of 'c', so they are recognizable (for shifting).
+ *
+ * @see mps_fmodify()
+ */
 void
-mps_mmodify (mps_status * s)
+mps_mmodify (mps_status * s, mps_boolean track_new_cluster)
 {
   int i, j, l, k, nnewclust, i_new, i_old, ip1, i1, l1, j1, nf, j2, l2;
   double rtmp, sep1;
@@ -1595,9 +1620,13 @@ mps_mmodify (mps_status * s)
 
   /* ==1==  Change into 'C' the components of status for old clusters */
   nf = 2 * s->n;                /* Isolation factor */
-  for (i = 0; i < s->n; i++)
-    if (s->status[i][0] == 'c')
-      s->status[i][0] = 'C';
+
+  if (track_new_cluster)
+    {
+      for (i = 0; i < s->n; i++)
+	if (s->status[i][0] == 'c')
+	  s->status[i][0] = 'C';
+    }
 
   i_old = 0;
   i_new = 0;
@@ -1661,7 +1690,7 @@ mps_mmodify (mps_status * s)
           cdpe_mod (tmpr, tmpc);
           rdpe_div (tmpr, s->drad[s->clust[s->punt[i]]], tmpr);
           rtmp = rdpe_log (tmpr);
-          if (rtmp < -s->prec_out * LOG2)
+          if (rtmp < -s->output_config->prec * LOG2)
             {
               s->status[s->clust[s->punt[i]]][0] = 'a';
             }
@@ -2345,6 +2374,7 @@ mps_fsolve (mps_status * s, mps_boolean * d_after_f)
   mps_boolean excep;
   int it_pack, iter, nit, oldnclust, i, j;
   rdpe_t eps_out;
+  mps_monomial_poly *p = s->monomial_poly;
 
   /* == 1 ==  Initialize variables */
   it_pack = 0;
@@ -2365,7 +2395,7 @@ mps_fsolve (mps_status * s, mps_boolean * d_after_f)
   if (s->fstart_usr)
     (*s->fstart_usr) (s, s->n, 0, 0.0, 0.0, eps_out);
   else
-    mps_fstart (s, s->n, 0, 0.0, 0.0, eps_out, s->fap);
+    mps_fstart (s, s->n, 0, 0.0, 0.0, eps_out, p->fap);
 
         /***************
 	 this part of code performs shift in the gravity center of the roots
@@ -2432,7 +2462,7 @@ mps_fsolve (mps_status * s, mps_boolean * d_after_f)
                */
               if (s->DOLOG)
                 fprintf (s->logstr, "   FSOLVE: call modify\n");
-              mps_fmodify (s);
+              mps_fmodify (s, true);
 
               if (iter == 0)
                 for (i = 0; i < s->n; i++)
@@ -2502,7 +2532,7 @@ mps_fsolve (mps_status * s, mps_boolean * d_after_f)
 
   if (s->DOLOG)
     fprintf (s->logstr, "   FSOLVE: call modify\n");
-  mps_fmodify (s);
+  mps_fmodify (s, true);
 
   /* reset the status vector */
   for (j = 0; j < s->n; j++)
@@ -2532,6 +2562,7 @@ mps_fpolzer (mps_status * s, int *it, mps_boolean * excep)
   int i, iter, nzeros;
   cplx_t corr, abcorr;
   double rad1, modcorr;
+  mps_monomial_poly * p = s->monomial_poly;
 
   /* initialize the iteration counter */
   *it = 0;
@@ -2567,7 +2598,7 @@ mps_fpolzer (mps_status * s, int *it, mps_boolean * excep)
               if (s->data_type[0] != 'u')
                 {
                   mps_fnewton (s, s->n, s->froot[i], &s->frad[i], corr,
-                               s->fpc, s->fap, &s->again[i]);
+                               p->fpc, p->fap, &s->again[i]);
                   if (iter == 0 && !s->again[i] && s->frad[i] > rad1 && rad1
                       != 0)
                     s->frad[i] = rad1;
@@ -2628,6 +2659,7 @@ mps_dpolzer (mps_status * s, int *it, mps_boolean * excep)
   int iter, i, nzeros;
   rdpe_t rad1, rtmp;
   cdpe_t corr, abcorr;
+  mps_monomial_poly * p = s->monomial_poly;
 
   /* initialize the iteration counter */
   *it = 0;
@@ -2656,8 +2688,8 @@ mps_dpolzer (mps_status * s, int *it, mps_boolean * excep)
               rdpe_set (rad1, s->drad[i]);
               if (s->data_type[0] != 'u')
                 {
-                  mps_dnewton (s, s->n, s->droot[i], s->drad[i], corr, s->dpc,
-                               s->dap, &s->again[i]);
+                  mps_dnewton (s, s->n, s->droot[i], s->drad[i], corr, p->dpc,
+                               p->dap, &s->again[i]);
                   if (iter == 0 && !s->again[i] && rdpe_gt (s->drad[i], rad1)
                       && rdpe_ne (rad1, rdpe_zero))
                     rdpe_set (s->drad[i], rad1);
@@ -2719,6 +2751,7 @@ mps_dsolve (mps_status * s, mps_boolean d_after_f)
   int it_pack, iter, nit, oldnclust, i, j;
   mps_boolean excep;
   rdpe_t dummy;
+  mps_monomial_poly * p = s->monomial_poly;
 
   if (s->DOLOG)
     {
@@ -2758,7 +2791,7 @@ mps_dsolve (mps_status * s, mps_boolean d_after_f)
   if (s->dstart_usr)
     (*s->dstart_usr) (s, s->n, 0, dummy, dummy, dummy);
   else
-    mps_dstart (s, s->n, 0, dummy, dummy, dummy, s->dap);
+    mps_dstart (s, s->n, 0, dummy, dummy, dummy, p->dap);
 
   /* Now adjust the status vector */
   if (d_after_f)
@@ -2805,7 +2838,7 @@ mps_dsolve (mps_status * s, mps_boolean d_after_f)
             {
               if (s->DOLOG)
                 fprintf (s->logstr, "   DSOLVE: call dmodify\n");
-              mps_dmodify (s);
+              mps_dmodify (s, true);
 
               if (iter == 0 && !d_after_f)
                 for (i = 0; i < s->n; i++)
@@ -2871,7 +2904,7 @@ mps_dsolve (mps_status * s, mps_boolean d_after_f)
 
   if (s->DOLOG)
     fprintf (s->logstr, "   DSOLVE: now call dmodify\n");
-  mps_dmodify (s);
+  mps_dmodify (s, true);
 
   /* reset the status vector */
   for (j = 0; j < s->n; j++)
@@ -2888,6 +2921,7 @@ mps_msolve (mps_status * s)
   int iter, nit, oldnclust, i, j, it_pack;
   mps_boolean excep;
   int nzc;
+  mps_monomial_poly * p;
 
   /* == 1 == Initialize variables */
   it_pack = 0;
@@ -2915,7 +2949,7 @@ mps_msolve (mps_status * s)
     fprintf (s->logstr, "  MSOLVE: call checkstop\n");
   if (mps_check_stop (s))
     {
-      mps_mmodify (s);
+      mps_mmodify (s, true);
 
       /* reset the status vector */
       for (j = 0; j < s->n; j++)
@@ -2937,7 +2971,7 @@ mps_msolve (mps_status * s)
     {
       if (s->DOLOG)
         fprintf (s->logstr, "  MSOLVE: call mmodify and return\n");
-      mps_mmodify (s);
+      mps_mmodify (s, true);
 
       /* reset the status vector */
       for (j = 0; j < s->n; j++)
@@ -2981,7 +3015,7 @@ mps_msolve (mps_status * s)
         {
           if (s->DOLOG)
             fprintf (s->logstr, "  MSOLVE: call mmodify and return\n");
-          mps_mmodify (s);
+          mps_mmodify (s, true);
 
           /* reset the status vector */
           for (j = 0; j < s->n; j++)
@@ -3034,7 +3068,7 @@ mps_msolve (mps_status * s)
             {
               if (s->DOLOG)
                 fprintf (s->logstr, "  MSOLVE: call modify\n");
-              mps_mmodify (s);
+              mps_mmodify (s, true);
               if (iter == 0)
                 /* if first packet: reset the status vector */
                 for (j = 0; j < s->n; j++)
@@ -3090,7 +3124,7 @@ mps_msolve (mps_status * s)
                 fprintf (s->logstr, "  MSOLVE: call checkstop\n");
               if (mps_check_stop (s))
                 {
-                  mps_mmodify (s);
+                  mps_mmodify (s, true);
 
                   /* reset the s->status vector */
                   for (j = 0; j < s->n; j++)
@@ -3112,7 +3146,7 @@ mps_msolve (mps_status * s)
                 {
                   if (s->DOLOG)
                     fprintf (s->logstr, "  MSOLVE: call mmodify and return");
-                  mps_mmodify (s);
+                  mps_mmodify (s, true);
 
                   /* reset the s->status vector */
                   for (j = 0; j < s->n; j++)
@@ -3142,7 +3176,7 @@ mps_msolve (mps_status * s)
 
   if (s->DOLOG)
     fprintf (s->logstr, "  MSOLVE:  call mmodify\n");
-  mps_mmodify (s);
+  mps_mmodify (s, true);
 
   for (j = 0; j < s->n; j++)
     if (s->status[j][0] == 'C')
@@ -3176,6 +3210,7 @@ mps_mpolzer (mps_status * s, int *it, mps_boolean * excep)
   tmpc_t corr, abcorr;
   rdpe_t eps, rad1, rtmp;
   cdpe_t ctmp;
+  mps_monomial_poly * p = s->monomial_poly;
 
   tmpc_init2 (abcorr, s->mpwp);
   tmpc_init2 (corr, s->mpwp);
@@ -3210,7 +3245,7 @@ mps_mpolzer (mps_status * s, int *it, mps_boolean * excep)
                       /* sparse/dense polynomial */
                       rdpe_set (rad1, s->drad[l]);
                       mps_mnewton (s, s->n, s->mroot[l], s->drad[l], corr,
-                                   s->mfpc, s->mfppc, s->dap, s->spar,
+                                   p->mfpc, p->mfppc, p->dap, p->spar,
                                    &s->again[l], 0);
                       if (iter == 0 && !s->again[l] && rdpe_gt (s->drad[l],
                                                                 rad1)

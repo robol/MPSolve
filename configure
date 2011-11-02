@@ -643,6 +643,8 @@ CXXCPP
 ac_ct_CXX
 CXXFLAGS
 CXX
+AM_BACKSLASH
+AM_DEFAULT_VERBOSITY
 am__fastdepCC_FALSE
 am__fastdepCC_TRUE
 CCDEPMODE
@@ -762,6 +764,7 @@ with_gnu_ld
 with_sysroot
 enable_libtool_lock
 enable_dependency_tracking
+enable_silent_rules
 enable_debug
 '
       ac_precious_vars='build_alias
@@ -1411,6 +1414,8 @@ Optional Features:
                           do not reject slow dependency extractors
   --disable-dependency-tracking
                           speeds up one-time build
+  --enable-silent-rules   less verbose build output (undo: `make V=1')
+  --disable-silent-rules  verbose build output (undo: `make V=0')
   --disable-debug         Disable debug prints in the code
 
 Optional Packages:
@@ -11461,7 +11466,18 @@ fi
 
 
 
-# m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
+# Check whether --enable-silent-rules was given.
+if test "${enable_silent_rules+set}" = set; then :
+  enableval=$enable_silent_rules;
+fi
+
+case $enable_silent_rules in # (((
+  yes) AM_DEFAULT_VERBOSITY=0;;
+   no) AM_DEFAULT_VERBOSITY=1;;
+    *) AM_DEFAULT_VERBOSITY=0;;
+esac
+AM_BACKSLASH='\'
+
 
 # Checks for programs.
 ac_ext=cpp

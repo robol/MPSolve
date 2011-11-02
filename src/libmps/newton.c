@@ -244,8 +244,7 @@ mps_dnewton (mps_status * s, int n, cdpe_t z, rdpe_t radius, cdpe_t corr,
         }
     }
 
-  if (rdpe_le (rnew, radius))
-    rdpe_set (radius, rnew);
+  rdpe_set (radius, rnew);
 }
 
 /****************************************************
@@ -575,8 +574,7 @@ mps_mnewton (mps_status * s, int n, mpc_t z, rdpe_t radius, mpc_t corr,
     }
   rdpe_div_eq (rnew, temp);
 
-   if (rdpe_le (rnew, radius)) 
-     rdpe_set (radius, rnew); 
+  rdpe_set (radius, rnew); 
 
 exit_sub:
   tmpc_clear (p1);

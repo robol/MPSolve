@@ -75,7 +75,7 @@ mps_secular_deflate (mps_status * s, mps_secular_equation * sec)
         {
           /* If the input is floating point check on the
            * DPE input */
-          if (MPS_STRUCTURE_IS_FP (s->config))
+          if (MPS_INPUT_CONFIG_IS_FP (s->input_config))
             {
               /* Do not deflate in floating point, since it is not working
                * correctly right now */
@@ -107,8 +107,8 @@ mps_secular_deflate (mps_status * s, mps_secular_equation * sec)
           /* Otherwise, in the case of rational or integer input
            * (that are handled in the same way) use initial_*mqpc
            * values */
-          else if (MPS_STRUCTURE_IS_INTEGER (s->config) ||
-                   MPS_STRUCTURE_IS_RATIONAL (s->config))
+          else if (MPS_INPUT_CONFIG_IS_INTEGER (s->input_config) ||
+                   MPS_INPUT_CONFIG_IS_RATIONAL (s->input_config))
             {
               if (mpq_equal (sec->initial_bmpqrc[i], sec->initial_bmpqrc[j])
                   && mpq_equal (sec->initial_bmpqic[i],
@@ -141,8 +141,8 @@ mps_secular_deflate (mps_status * s, mps_secular_equation * sec)
 
   /* If the input was rational or integer, we need to reset the dpe coefficients
    * according to it */
-  if (MPS_STRUCTURE_IS_INTEGER (s->config) ||
-      MPS_STRUCTURE_IS_RATIONAL (s->config))
+  if (MPS_INPUT_CONFIG_IS_INTEGER (s->input_config) ||
+      MPS_INPUT_CONFIG_IS_RATIONAL (s->input_config))
     {
       mpf_t ftmp;
       mpf_init (ftmp);
@@ -168,7 +168,7 @@ mps_secular_deflate (mps_status * s, mps_secular_equation * sec)
 
   /* If the input was floating point update the coefficients using initial_*mpc
    * values */
-  if (MPS_STRUCTURE_IS_FP (s->config))
+  if (MPS_INPUT_CONFIG_IS_FP (s->input_config))
     {
       for (i = 0; i < sec->n; i++)
         {
@@ -192,6 +192,7 @@ mps_secular_deflate (mps_status * s, mps_secular_equation * sec)
 mps_secular_equation *
 mps_secular_equation_new_raw (mps_status * s, unsigned long int n)
 {
+  int i;
   mps_secular_equation *sec =
     (mps_secular_equation *) malloc (sizeof (mps_secular_equation));
 
@@ -213,6 +214,12 @@ mps_secular_equation_new_raw (mps_status * s, unsigned long int n)
   sec->initial_ampqic = mpq_valloc (n + 1);
   sec->initial_bmpqic = mpq_valloc (n + 1);
 
+  /* Allocate space for the moduli of the coefficients */
+  sec->aadpc = rdpe_valloc (n);
+  sec->abdpc = rdpe_valloc (n);
+  sec->aafpc = double_valloc (n);
+  sec->abfpc = double_valloc (n);
+
   /* Init multiprecision arrays */
   mpc_vinit (sec->ampc, n);
   mpc_vinit (sec->bmpc, n);
@@ -226,6 +233,13 @@ mps_secular_equation_new_raw (mps_status * s, unsigned long int n)
   /* Epsilon arrays */
   sec->dregeneration_epsilon = rdpe_valloc (n);
   sec->fregeneration_epsilon = double_valloc (n);
+
+  /* Set the epsilon array to zero */
+  for (i = 0; i < n; i++)
+    {
+      sec->fregeneration_epsilon[i] = 0.0d;
+      rdpe_set (sec->dregeneration_epsilon[i], rdpe_zero);
+    }
 
   sec->n = n;
   
@@ -298,6 +312,11 @@ mps_secular_equation_free (mps_secular_equation * s)
 
   mpc_vfree (s->ampc);
   mpc_vfree (s->bmpc);
+
+  rdpe_vfree (s->aadpc);
+  rdpe_vfree (s->abdpc);
+  double_vfree (s->aafpc);
+  double_vfree (s->abfpc);
 
   /* And old coefficients */
   mpc_vclear (s->initial_ampc, s->n);
@@ -401,8 +420,8 @@ mps_secular_raise_coefficient_precision (mps_status * s, int wp)
       mpc_set_prec (sec->initial_bmpc[i], wp);
     }
   
-  if (MPS_REPRESENTATION_IS_MONOMIAL (s->config))
-      mps_raise_data_raw (s, wp);
+  if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
+    mps_monomial_poly_raise_precision (s, s->monomial_poly, wp);
 
   rdpe_set_2dl (s->mp_epsilon, 1.0, -wp);
   MPS_DEBUG_WITH_INFO (s, "Precision of the coefficients is now at %d bits", wp);
@@ -533,7 +552,7 @@ mps_secular_switch_phase (mps_status * s, mps_phase phase)
 void
 mps_secular_set_radii (mps_status * s)
 {
-  /* MPS_DEBUG_THIS_CALL; */
+  MPS_DEBUG_THIS_CALL;
   
   /*
    * This call is disabled because it computed the radius of inclusion
@@ -542,7 +561,7 @@ mps_secular_set_radii (mps_status * s)
    * done in the mps_secular_*newton routines, now.
    */
 
-  return;
+  /* return; */
 
   int i;
   mps_secular_equation *sec = (mps_secular_equation *) s->secular_equation;
@@ -567,19 +586,19 @@ mps_secular_set_radii (mps_status * s)
           {
             /* TODO: Use the guaranteed computation */
             rad = s->n * cplx_mod (sec->afpc[i]) * (1 + s->n * (sec->fregeneration_epsilon[i] + DBL_EPSILON));
-
-             if (rad > total_rad) 
-               rad = total_rad; 
-
-	     /* Add to rad the distance of the root from b_i */
-	     cplx_sub (diff, sec->bfpc[i], s->froot[i]);
-	     rad += cplx_mod (diff) * (1 + DBL_EPSILON);
-
+	    
+	    /* Add to rad the distance of the root from b_i */
+	    cplx_sub (diff, sec->bfpc[i], s->froot[i]);
+	    rad += cplx_mod (diff) * (1 + DBL_EPSILON);
+	    
             if (rad < s->frad[i])
               {
                 s->frad[i] = rad;
               }
           }
+
+	  mps_fcluster (s, 2.0 * s->n);  
+	  mps_fmodify (s, false);
       }
       break;
     case dpe_phase:
@@ -633,21 +652,36 @@ mps_secular_set_radii (mps_status * s)
 
             /* Check which radius is smaller (here guaranteed radius is
              * computed). */
-            rdpe_mul_d (rtmp, s->mp_epsilon, 9 * s->n);
+	    if (s->lastphase == mp_phase)
+	      rdpe_mul_d (rtmp, s->mp_epsilon, 9 * s->n);
+	    else
+	      rdpe_set_d (rtmp, DBL_EPSILON * 9 * s->n);
             rdpe_add_eq (rtmp, rdpe_one);
             rdpe_mul_eq_d (rad, (double) s->n);
             rdpe_mul_eq (rad, rtmp);
 
-             if (rdpe_gt (rad, total_rad)) 
-               rdpe_set (rad, total_rad); 
+             /* if (rdpe_gt (rad, total_rad))  */
+             /*   rdpe_set (rad, total_rad);  */
 
             /* If the radius is convenient set it */
             if (rdpe_lt (rad, s->drad[i]))
               {
-                // rdpe_set (s->drad[i], rad);
+                rdpe_set (s->drad[i], rad);
               }
           }
       }
+      
+       if (s->lastphase == mp_phase) 
+       	{ 
+       	  mps_mcluster (s, 2.0 * s->n); 
+       	  mps_mmodify (s, false); 
+       	} 
+       else 
+       	{ 
+       	  mps_dcluster (s, 2.0 * s->n); 
+       	  mps_dmodify (s, false); 
+       	} 
+
       break;
 
     default:

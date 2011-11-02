@@ -69,21 +69,24 @@ mps_improve (mps_status * s)
   rdpe_t tmp, t, st, sigma, newrad, oldrad, abroot;
   double f, g, cnd;
   mps_boolean again;
+  mps_monomial_poly *p = s->monomial_poly;
   clock_t *my_timer = mps_start_timer ();
 
-  if (s->DOLOG)
-    fprintf (s->logstr, "Refining the roots ...\n");
+   if (s->debug_level & MPS_DEBUG_IMPROVEMENT) 
+     { 
+       MPS_DEBUG (s, "Refining the roots"); 
+     } 
 
 
   /* == 1 ==
    * compute the number mpnb_in of bits
    * corresponding to the given input precision.
    * Set mpnb_in=0 if the input precision is infinite (prec_in=0) */
-  if (s->prec_in == 0)
+  if (s->input_config->prec == 0)
     mpnb_in = 0;
   else
-    mpnb_in = (long) (s->prec_in * LOG2_10 + log (4.0 * s->n) / LOG2);
-  mpnb_out = (long) (s->prec_out * LOG2_10);
+    mpnb_in = (long) (s->input_config->prec * LOG2_10 + log (4.0 * s->n) / LOG2);
+  mpnb_out = (long) (s->output_config->prec * LOG2_10);
 
   /* == 2  ==
    * compute the coefficients of the polynomial as mpc_t with mpnb_in bits
@@ -96,15 +99,20 @@ mps_improve (mps_status * s)
   tmpc_init2 (mtmp, mpnb_out * 2);      /* puo' essere settato a precisione minima */
   tmpc_init2 (nwtcorr, mpnb_out * 2);
 
-  if (s->prec_in != 0 && s->data_type[0] != 'u')
+  if (s->input_config->prec != 0 && s->data_type[0] != 'u')
     mps_prepare_data (s, mpnb_in);
   else
     {
       mps_mp_set_prec (s, mpnb_out * 2);
+      // if (MPS_INPUT_CONFIG_IS_SECULAR (s->input_config))
       if (s->mpsolve_ptr == MPS_MPSOLVE_PTR (mps_standard_mpsolve))
-        mps_prepare_data (s, mpnb_out * 2);
+	{
+	  mps_prepare_data (s, mpnb_out * 2);
+	}
       else
-        mps_secular_raise_coefficient_precision (s, mpnb_out * 2);
+	{
+	  mps_secular_raise_coefficient_precision (s, mpnb_out * 2);
+	}
     }
 
 
@@ -204,7 +212,7 @@ mps_improve (mps_status * s)
           if (s->data_type[0] != 'u')
             {
               mps_mnewton (s, s->n, s->mroot[i], s->drad[i],
-                           nwtcorr, s->mfpc, s->mfppc, s->dap, s->spar,
+                           nwtcorr, p->mfpc, p->mfppc, p->dap, p->spar,
                            &again, 0);
             }
           else if (s->mnewton_usr != NULL)
@@ -241,5 +249,5 @@ mps_improve (mps_status * s)
   tmpc_clear (nwtcorr);
   tmpc_clear (mtmp);
 
-  MPS_DEBUG (s, "Improvement of roots took %d ms", mps_stop_timer (my_timer));
+  MPS_DEBUG (s, "Improvement of roots took %lu ms", mps_stop_timer (my_timer));
 }

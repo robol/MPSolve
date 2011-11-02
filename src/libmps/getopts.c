@@ -229,8 +229,8 @@ mps_parse_opts (mps_status * s, int argc, char *argv[])
   s->rtstr = stdin;
 
   /* set default values */
-  s->prec_in = -1;              /* if != -1 ignore precision from file */
-  s->prec_out = 2 * DBL_DIG;    /* default output precision            */
+  s->input_config->prec = -1;              /* if != -1 ignore precision from file */
+  s->output_config->prec = 2 * DBL_DIG;    /* default output precision            */
   s->random_seed = false;
 
   /* parse options */
@@ -247,10 +247,10 @@ mps_parse_opts (mps_status * s, int argc, char *argv[])
         switch (argv[i][1])
           {
           case 'i':
-            s->prec_in = atol (argv[i] + 2);
-            if (s->prec_in < 0 || errno)
+            s->input_config->prec = atol (argv[i] + 2);
+            if (s->input_config->prec < 0 || errno)
               mps_error (s, 2, "Wrong input precision: ", argv[i] + 2);
-            s->prec_in = (long) (s->prec_in * LOG2_10);
+            s->input_config->prec = (long) (s->input_config->prec * LOG2_10);
             break;
 
           case 'r':
@@ -258,10 +258,10 @@ mps_parse_opts (mps_status * s, int argc, char *argv[])
             break;
 
           case 'o':
-            s->prec_out = atol (argv[i] + 2);
-            if (s->prec_out <= 0 || errno)
+            s->output_config->prec = atol (argv[i] + 2);
+            if (s->output_config->prec <= 0 || errno)
               mps_error (s, 2, "Wrong output precision: ", argv[i] + 2);
-            s->prec_out = (long) (s->prec_out * LOG2_10);
+            s->output_config->prec = (long) (s->output_config->prec * LOG2_10);
             break;
 
             /* goal */
@@ -526,7 +526,7 @@ mps_print_help (mps_status * s)
   fprintf (s->outstr, " OPTIONS (defaults in square brackets):\n");
   fprintf (s->outstr, " -in\tn = input precision, in decimal digits [0]\n");
   fprintf (s->outstr, " -on\tn = output precision, in decimal digits [%ld]\n",
-           s->prec_out);
+           s->output_config->prec);
   fprintf (s->outstr, " -Gc\tc = Goal: (a)pproximate, [i]solate, (c)ount\n");
   fprintf (s->outstr, " -Sc\tc = Search set: [a]ll, (r)ight, (l)eft, (u)p, "
            "(d)own complex plane\n");

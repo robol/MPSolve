@@ -8,7 +8,6 @@ include_HEADERS = \
         ${top_srcdir}/include/mps/interface.h \
         ${top_srcdir}/include/mps/gmptools.h \
         ${top_srcdir}/include/mps/mpc.h \
-        ${top_srcdir}/include/mps/poly.h \
         ${top_srcdir}/include/mps/mptemp.h \
         ${top_srcdir}/include/mps/debug.h \
         ${top_srcdir}/include/mps/mt.h \
@@ -40,7 +39,6 @@ libmps_la_SOURCES = \
 	 defaults.c \
 	 sort.c \
 	 tools.c \
-	 poly.c \
 	 starting.c \
 	 convex.c \
 	 mt.c \
@@ -58,6 +56,7 @@ libmps_la_SOURCES = \
 	 secular-starting.c \
 	 secular-ga.c \
          input-buffer.c \
+	 monomial-poly.c \
 	$(NULL)
 
 libmps_la_LIBADD = \

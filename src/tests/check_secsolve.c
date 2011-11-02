@@ -41,6 +41,8 @@ test_secsolve_on_pol (test_pol * pol)
   int i, j, prec = pol->out_digits * LOG2_10 + 10;
   int ch;
 
+  fprintf (stderr, "Checking %-30s [\033[34;1mchecking\033[0m]", pol->pol_file);
+
   /* Debug starting of this test */
   /*
      if (pol->ga)
@@ -66,34 +68,30 @@ test_secsolve_on_pol (test_pol * pol)
   fail_if (!(input_stream && check_stream),
            "Cannot open one or more input files");
 
-  /* Some default values */
-  mps_set_default_values (s);
-
   /* Set secular equation and start in floating point */
-  mps_input_configuration default_configuration = {
-    MPS_STRUCTURE_COMPLEX_FP,
-    MPS_REPRESENTATION_SECULAR
-  };
-  mps_parse_stream (s, input_stream, &default_configuration);
-  sec = s->secular_equation;
-  sec->starting_case = pol->phase;
+  s->input_config->structure = MPS_STRUCTURE_COMPLEX_FP;
+  s->input_config->representation = MPS_REPRESENTATION_SECULAR;
+  s->input_config->density = MPS_DENSITY_DENSE;
 
-  mps_status_set_degree (s, s->n);
-  mps_allocate_data (s);
+  mps_parse_stream (s, input_stream);
+
+  sec = s->secular_equation;
+  s->input_config->starting_phase = pol->phase;
+  s->DOLOG = pol->DOLOG;
+  if (pol->DOLOG)
+    s->debug_level |= MPS_DEBUG_TRACE;
+  
 
   if (!pol->ga)
-    {
-      mps_status_select_algorithm (s, MPS_ALGORITHM_SECULAR_MPSOLVE);
-    }
+    mps_status_select_algorithm (s, MPS_ALGORITHM_SECULAR_MPSOLVE);
   else
     mps_status_select_algorithm (s, MPS_ALGORITHM_SECULAR_GA);
 
   strncpy (s->goal, "aannc", 5);
-  s->prec_out = (int) ((pol->out_digits + 1) * LOG2_10) + 1;
-  s->prec_in = 0;
+  s->output_config->prec = (int) ((pol->out_digits + 1) * LOG2_10) + 1;
+  s->input_config->prec = 0;
 
   mps_mpsolve (s);
-  mps_copy_roots (s);
 
   /* Test if roots are equal to the roots provided in the check */
   for (i = 0; i < s->n; i++)
@@ -120,10 +118,17 @@ test_secsolve_on_pol (test_pol * pol)
   mpf_clear (mroot);
   mpf_clear (eps);
   mpc_clear (root);
+
   mps_status_free (s);
 
   fclose (input_stream);
   fclose (check_stream);
+
+  if (passed)
+    fprintf (stderr, "\rChecking %-30s [\033[32;1m  done  \033[0m]\n", pol->pol_file);
+  else
+    fprintf (stderr, "\rChecking %-30s [\033[31;1m failed \033[0m]\n", pol->pol_file);
+
 
   fail_unless (passed == true,
                "Computed results are not exact to the required "
@@ -203,6 +208,41 @@ START_TEST (test_secsolve_wilkinson)
 }
 END_TEST
 
+START_TEST (test_secsolve_nroots)
+{
+  /* Testing secsolve on some polynomial of the type x^n - 1 */
+  test_pol *pol = test_pol_new ("nroots50", "unisolve", 11, float_phase, true);
+  test_secsolve_on_pol (pol);
+  test_pol_free (pol);  
+}
+END_TEST
+
+START_TEST (test_secsolve_kam)
+{
+  /* Testing the kam polynomials */
+  test_pol *pol = test_pol_new ("kam1_1", "unisolve", 11, float_phase, true);
+  test_secsolve_on_pol (pol);
+  test_pol_free (pol);
+}
+END_TEST
+
+START_TEST (test_secsolve_mand)
+{
+  /* Testing secsolve on the mandelbrot polynomials */
+
+  /* Mandelbrot classic, degree 63 */
+  test_pol *pol = test_pol_new ("mand63", "unisolve", 11, float_phase, true);
+  test_secsolve_on_pol (pol);
+  test_pol_free (pol);
+
+  /* Mandelbrot classic, degree 127 */
+  pol = test_pol_new ("mand127", "unisolve", 11, float_phase, true);
+  test_secsolve_on_pol (pol);
+  test_pol_free (pol);
+  
+}
+END_TEST
+
 /**
  * @brief Create the secsolve test suite
  */
@@ -228,6 +268,16 @@ END_TEST
 
   /* Wilkinson polynomials */
   tcase_add_test (tc_mpsolve, test_secsolve_wilkinson);
+
+  /* Roots of the unity */
+  tcase_add_test (tc_mpsolve, test_secsolve_nroots);
+
+  /* Kam polynomials */
+  /* Still not ready. */
+  /* tcase_add_test (tc_mpsolve, test_secsolve_kam); */
+
+  /* Mandelbrot polynomials */
+  tcase_add_test (tc_mpsolve, test_secsolve_mand);
 
   /* Add test case to the suite */
   suite_add_tcase (s, tc_mpsolve);

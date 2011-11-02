@@ -7,7 +7,6 @@
 
 #include <mps/debug.h>
 #include <mps/core.h>
-#include <mps/poly.h>
 #include <mps/link.h>
 #include <mps/secular.h>
 #include <mps/debug.h>
@@ -38,6 +37,7 @@ mps_secular_ga_fiterate (mps_status * s, int maxit)
   int nit = 0;
   int it_threshold;
   int old_cr;
+  mps_secular_iteration_data data;
 
 #ifndef DISABLE_DEBUG
   clock_t *my_clock = mps_start_timer ();
@@ -78,11 +78,20 @@ mps_secular_ga_fiterate (mps_status * s, int maxit)
         {
           if (s->again[i])
             {
+	      if (cplx_eq (s->froot[i], sec->bfpc[i]))
+		{
+		  continue;
+		}
+
               nit++;
               cplx_set (old_root, s->froot[i]);
               old_rad = s->frad[i];
+	      
+	      /* Prepare the data to be passed for secular-newton */
+	      data.k = i;
+
               mps_secular_fnewton (s, s->froot[i], &s->frad[i], corr,
-                                   &s->again[i], &i);
+                                   &s->again[i], &data);
 
               /* Apply Aberth correction */
               mps_faberth (s, i, abcorr);
@@ -90,12 +99,6 @@ mps_secular_ga_fiterate (mps_status * s, int maxit)
               cplx_sub (abcorr, cplx_one, abcorr);
               cplx_div (abcorr, corr, abcorr);
               cplx_sub_eq (s->froot[i], abcorr);
-
-	      // MPS_DEBUG_CPLX (s, abcorr, "aberth_correction");
-	      /* MPS_DEBUG (s, "Iteration %d", nit); */
-	      /* MPS_DEBUG_CPLX (s, corr, "corr"); */
-	      /* MPS_DEBUG_CPLX (s, abcorr, "abcorr"); */
-	      /* mps_dump (s, s->logstr); */
 
               /* Check if we need to switch to DPE */
               if (isnan (cplx_Re (s->froot[i]))
@@ -164,13 +167,7 @@ mps_secular_ga_fiterate (mps_status * s, int maxit)
       s->secular_equation->best_approx = true;
     }
    mps_fcluster (s, 2.0 * s->n); 
-   mps_fmodify (s); 
-
-  for (i = 0; i < s->n; i++)
-    {
-      if (s->status[i][0] == 'C')
-        s->status[i][0] = 'c';
-    }
+   mps_fmodify (s, false); 
 
   /* Count time taken  */
 #ifndef DISABLE_DEBUG
@@ -200,6 +197,8 @@ mps_secular_ga_diterate (mps_status * s, int maxit)
   int nit = 0;
   int it_threshold;
   int old_cr;
+  mps_secular_equation *sec = s->secular_equation;
+  mps_secular_iteration_data data;
 
 #ifndef DISABLE_DEBUG
   clock_t *my_clock = mps_start_timer ();
@@ -207,6 +206,17 @@ mps_secular_ga_diterate (mps_status * s, int maxit)
 
   /* Iterate with newton until we have good approximations
    * of the roots */
+
+  for (i = 0; i < s->n; i++)
+    {
+      /* Set again to false if the root is already approximated */
+      if (s->status[i][0] == 'a' || s->status[i][0] == 'i'
+	  || s->status[i][0] == 'o')
+	{
+	  MPS_DEBUG_WITH_INFO (s, "Setting again[%d] to false since the root is ready for output (or isolated)", i);
+	  s->again[i] = false;
+	}
+    }
 
   for (i = 0; i < s->n; i++)
     {
@@ -239,9 +249,15 @@ mps_secular_ga_diterate (mps_status * s, int maxit)
         {
           if (s->again[i])
             {
+	      if (cdpe_eq (s->droot[i], sec->bdpc[i]))
+		continue;
               nit++;
+
+	      /* Prepare data for the dnewton routine */
+	      data.k = i;
+
               mps_secular_dnewton (s, s->droot[i], s->drad[i], corr,
-                                   &s->again[i], &i);
+                                   &s->again[i], &data);
 	      
               /* Apply Aberth correction */
               mps_daberth (s, i, abcorr);
@@ -284,17 +300,7 @@ mps_secular_ga_diterate (mps_status * s, int maxit)
     }
 
   mps_dcluster (s, 2.0 * s->n);
-  mps_dmodify (s);
-
-  for (i = 0; i < s->n; i++)
-    {
-      if (s->status[i][0] == 'C')
-        s->status[i][0] = 'c';
-      /* if (s->status[i][0] == 'a' || s->status[i][0] == 'i') */
-      /*   s->again[i] = false; */
-      /* else */
-      /*   s->again[i] = true; */
-    }
+  mps_dmodify (s, false);
 
   /* These lines are used to debug the again vector, but are not useful
    * at the moment being */
@@ -348,6 +354,10 @@ mps_secular_ga_miterate (mps_status * s, int maxit)
   clock_t *my_clock = mps_start_timer ();
 #endif
 
+  /* The data used to determined if the radius has been
+   * set and to intercommunicate with the iterator */
+  mps_secular_iteration_data user_data;
+
   /* Init data with the right precision */
   mpc_init2 (corr, s->mpwp);
   mpc_init2 (abcorr, s->mpwp);
@@ -361,7 +371,7 @@ mps_secular_ga_miterate (mps_status * s, int maxit)
       if (s->status[i][0] == 'a' || s->status[i][0] == 'i'
 	  || s->status[i][0] == 'o')
 	{
-	  MPS_DEBUG_WITH_INFO (s, "Setting again[%d] to false", i);
+	  MPS_DEBUG_WITH_INFO (s, "Setting again[%d] to false since the root is ready for output (or isolated)", i);
 	  s->again[i] = false;
 	}
 
@@ -394,8 +404,11 @@ mps_secular_ga_miterate (mps_status * s, int maxit)
               if (s->again[k])
                 {
                   nit++;
+
+		  /* Set the correct index */
+		  user_data.k = k;
                   mps_secular_mnewton (s, s->mroot[k], s->drad[k], corr,
-                                       &s->again[k], &k);
+                                       &s->again[k], &user_data);
 
                   /* Apply Aberth correction */
                   mps_maberth_s (s, k, i, abcorr);
@@ -403,6 +416,14 @@ mps_secular_ga_miterate (mps_status * s, int maxit)
                   mpc_ui_sub (abcorr, 1, 0, abcorr);
                   mpc_div (abcorr, corr, abcorr);
                   mpc_sub_eq (s->mroot[k], abcorr);
+
+		  if (!user_data.radius_set)
+		    {
+		      fprintf (stderr, "Radius not set\n");
+		      mpc_get_cdpe (ctmp, abcorr);
+		      cdpe_mod (rtmp, ctmp);
+		      rdpe_add_eq (s->drad[k], rtmp);
+		    }
 
                   /* Correct the radius */
                   mpc_get_cdpe (ctmp, abcorr);
@@ -430,24 +451,7 @@ mps_secular_ga_miterate (mps_status * s, int maxit)
 
   /* Perform cluster analysis */
   mps_mcluster (s, 2.0 * s->n);
-  mps_mmodify (s);
-
-  for (i = 0; i < s->n; i++) 
-    {
-      if (s->status[i][0] == 'C') 
-	s->status[i][0] = 'c';    
-    }
-
-  /* for (i = 0; i < s->n; i++) */
-  /*   { */
-  /*     if (s->status[i][0] == 'a' || s->status[i][0] == 'i') */
-  /*       { */
-  /*         s->again[i] = false; */
-  /*       } */
-  /*     else */
-  /*       s->again[i] = true; */
-  /*   } */
-
+  mps_mmodify (s, false);
 
   /* These lines are used to debug the again vector, but are not useful
    * at the moment being */
@@ -478,6 +482,136 @@ mps_secular_ga_miterate (mps_status * s, int maxit)
 }
 
 /**
+ * @brief Update all the coefficients of the secular equation, and their
+ * moduli, using the recomputed one stored in the multiprecision version.
+ */
+void
+mps_secular_ga_update_coefficients (mps_status * s)
+{
+  int i;
+  mps_secular_equation * sec = s->secular_equation;
+  for (i = 0; i < s->n; ++i)
+    {
+      mpc_get_cplx (sec->afpc[i], sec->ampc[i]);
+      mpc_get_cplx (sec->bfpc[i], sec->bmpc[i]);
+
+      mpc_get_cdpe (sec->adpc[i], sec->ampc[i]);
+      mpc_get_cdpe (sec->bdpc[i], sec->bmpc[i]);
+
+      cdpe_mod (sec->aadpc[i], sec->adpc[i]);
+      cdpe_mod (sec->abdpc[i], sec->bdpc[i]);
+
+      sec->aafpc[i] = cplx_mod (sec->afpc[i]);
+      sec->abfpc[i] = cplx_mod (sec->bfpc[i]);
+    }
+}
+
+/**
+ * @brief Determine the precision required to bound the relative
+ * error on the regenerated coefficients.
+ */
+int
+mps_secular_ga_required_regenerations_bits (mps_status * s)
+{
+  rdpe_t root_epsilon;
+  rdpe_t pol_eps;
+  rdpe_t regeneration_epsilon;
+  rdpe_t total_eps;
+  int required_bits;
+  int i, j;
+
+  rdpe_set_2dl (root_epsilon, 1.0, -s->mpwp);
+  rdpe_set (total_eps, rdpe_zero);
+
+  if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
+    {
+      mps_monomial_poly * p = s->monomial_poly;
+      mps_secular_equation * sec = s->secular_equation;
+
+      /* We start by computing ap(|x|) / |p(x)| where
+       * ap(x) is the polynomial with the coefficients
+       * equal to the module of the ones of p(x) */
+      cdpe_t pol, ctmp;
+      rdpe_t apol, rtmp, rtmp2;
+
+      for (i = 0; i < s->n; ++i)
+	{
+	  /* Horner on the polynomial */
+	  cdpe_set (pol, p->dpc[s->n]);
+	  for (j = s->n - 1; j > 0; --j)
+	    {
+	      cdpe_div (ctmp, p->dpc[j], pol);
+	      cdpe_add_eq (ctmp, sec->bdpc[i]);
+	      cdpe_mul_eq (pol, ctmp);
+	    }
+	  cdpe_add_eq (pol, p->dpc[0]);
+
+	  /* Horner on the polynomial with the modulus as coefficients */
+	  rdpe_set (apol, p->dap[s->n]);
+	  cdpe_mod (rtmp2, sec->bdpc[i]);
+	  for (j = s->n; j > 0; j--)
+	    {
+	      rdpe_div (rtmp, p->dap[j], apol);
+	      rdpe_add_eq (rtmp, rtmp2);
+	      rdpe_mul_eq (apol, rtmp);
+	    }
+	  rdpe_add_eq (apol, p->dap[0]);
+
+	  /* Compute the conditioning on the computation of p(b_i) */
+	  cdpe_mod (rtmp, pol);
+	  rdpe_div (pol_eps, apol, rtmp);
+
+	  /* Check the conditioning on the difference b_i - b_j. We can 
+	  * bound this value with (|b_i| + |b_j|) * u / |b_i - b_j| */
+	  rdpe_set (regeneration_epsilon, rdpe_zero);
+	  for(j = 0; j < s->n; j++)
+	    {
+	      if (i == j)
+		continue;
+
+	      cdpe_sub (ctmp, sec->bdpc[i], sec->bdpc[j]);
+	      cdpe_mod (rtmp, ctmp);
+	      
+	      rdpe_add (rtmp2, sec->abdpc[i], sec->abdpc[j]);
+	      
+	      if (!rdpe_eq_zero (rtmp))
+		{
+		  rdpe_div_eq (rtmp, rtmp2);
+		  rdpe_add_eq (regeneration_epsilon, rtmp);
+		}
+	    }
+
+	  rdpe_add_eq (regeneration_epsilon, pol_eps);
+
+	  MPS_DEBUG_RDPE (s, apol, "apol");
+	  MPS_DEBUG_CDPE (s, pol, "pol");
+
+	  MPS_DEBUG_RDPE (s, regeneration_epsilon, "regeneration_epsilon");
+
+	  /* Check if the new relative error is bigger than the 
+	   * previous one. */
+	  if (rdpe_gt (regeneration_epsilon, total_eps))
+	    rdpe_set (total_eps, regeneration_epsilon);
+	}
+
+
+      /* We need now to determine the required bits of precision to
+       * get a relative error smaller than the required one. */
+      required_bits = (rdpe_log (total_eps) * LOG2 + s->mpwp / 2);
+
+      if (s->debug_level & MPS_DEBUG_REGENERATION)
+	{
+	  MPS_DEBUG (s, "%d bits are required to regenerate the coefficients", required_bits);
+	}
+
+      return required_bits;
+    }
+  else if (MPS_INPUT_CONFIG_IS_SECULAR (s->input_config))
+    return 2 * s->mpwp;
+  
+}
+
+/**
  * @brief Regenerate the coefficients \f$a_i\f$ based on
  * the \f$b_i\f$.
  *
@@ -494,23 +628,41 @@ mps_secular_ga_miterate (mps_status * s, int maxit)
  * is the one that should be used
  *
  * @param s The mps_status of the computation.
+ * @param bits The bits of precision used in regeneration
  */
 int
-mps_secular_ga_regenerate_coefficients_mp (mps_status * s)
+mps_secular_ga_regenerate_coefficients_mp (mps_status * s, int bits)
 {
   /* Declaration and initialization of the multprecision
    * variables that are used only in that case */
   int i, j;
   mps_boolean success = true;
-  int precision_increase_ratio = 2;
-  int coeff_wp = precision_increase_ratio * s->mpwp;
+  int coeff_wp = bits;
+  int old_wp = s->mpwp;
   mps_secular_equation *sec = s->secular_equation;
+  mps_monomial_poly *p = s->monomial_poly;
   rdpe_t eps_tmp, rtmp, sec_eps, rtmp2;
   cdpe_t cdtmp, cdtmp2;
+  rdpe_t root_epsilon;
+
+  switch (s->lastphase)
+    {
+      /* If we are in floating point then the roots are know to
+       * DBL_EPSILON precision */
+    case float_phase:
+    case dpe_phase:
+      rdpe_set_d (root_epsilon, DBL_EPSILON);
+      break;
+      /* But if we are in multiprecision we can check the epsilon by looking
+       * at s->mp_epsilon */
+    case mp_phase:
+      rdpe_set (root_epsilon, s->mp_epsilon);
+      break;
+    }
 
   mps_secular_raise_coefficient_precision (s, coeff_wp);
 
-  if (MPS_REPRESENTATION_IS_MONOMIAL (s->config))
+  if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
     {
       mpc_t diff, prod_b, m_one, ctmp;      
       MPS_DEBUG_WITH_INFO (s, "Regenerating coefficients from polynomial input");
@@ -523,13 +675,8 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s)
 
       s->mpwp = coeff_wp;
 
-      for (i = 0; i < s->n; ++i)
-	{
-	  mpc_set_prec (s->mfpc[i], coeff_wp);
-	}
-
       mpc_set_ui (m_one, 0U, 0U);
-      mpc_sub_eq (m_one, s->mfpc[s->n]);
+      mpc_sub_eq (m_one, p->mfpc[s->n]);
 
       
       /*
@@ -541,47 +688,62 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s)
        *   a_i = -p(b_i) / \prod_{i \neq j} (b_i - b_j)
        *
        */
-      if (MPS_STRUCTURE_IS_INTEGER (s->config) 
-	  || MPS_STRUCTURE_IS_RATIONAL (s->config))
+      if (MPS_INPUT_CONFIG_IS_INTEGER (s->input_config) 
+	  || MPS_INPUT_CONFIG_IS_RATIONAL (s->input_config))
 	{
 	  for (i = 0; i < s->n + 1; ++i)
 	    {
-	      mpf_set_q (mpc_Re (s->mfpc[i]), sec->initial_bmpqrc[i]);
-	      mpf_set_q (mpc_Im (s->mfpc[i]), sec->initial_bmpqic[i]);
+	      mpf_set_q (mpc_Re (p->mfpc[i]), p->initial_mqp_r[i]);
+	      mpf_set_q (mpc_Im (p->mfpc[i]), p->initial_mqp_i[i]);
 
-	      MPS_DEBUG_MPC (s, 15, s->mfpc[i], "s->mfpc[%d]", i);
+	      MPS_DEBUG_MPC (s, 15, p->mfpc[i], "p->mfpc[%d]", i);
 	    }
 	}
 
       for (i = 0; i < s->n; ++i)
 	{
+	  /* Set the epsilon on this a_i to zero */
+	  rdpe_set (sec->dregeneration_epsilon[i], rdpe_zero);
+	  
 	  /* Evaluate the polynomial with absolute values to 
 	   * compute the error */
 	  mpc_get_cdpe (cdtmp, sec->bmpc[i]);
 	  cdpe_mod (rtmp, cdtmp);
-	  mps_aparhorner (s, s->n, rtmp, s->dap, s->spar, sec_eps, 0);
+	  mps_aparhorner (s, s->n, rtmp, p->dap, p->spar, sec_eps, 0);
 
-	  rdpe_set (sec_eps, s->dap[s->n]);
+	  rdpe_set (sec_eps, p->dap[s->n]);
 	  mpc_get_cdpe (cdtmp, sec->bmpc[i]);
 	  cdpe_mod (rtmp2, cdtmp);
 	  for (j = s->n - 1; j >= 0; j--)
 	    {
 	      rdpe_mul (rtmp, sec_eps, rtmp2);
-	      rdpe_add (sec_eps, rtmp, s->dap[j]);
+	      rdpe_add (sec_eps, rtmp, p->dap[j]);
 	    }
 	  rdpe_mul_eq_d (sec_eps, s->n * 4);
+	  rdpe_mul_eq (sec_eps, s->mp_epsilon);
 
 	  /* Evaluate the polynomial with horner */
-	  mps_parhorner (s, s->n, sec->bmpc[i], s->mfpc, s->spar, sec->ampc[i], 0);
-	  mpc_set (sec->ampc[i], s->mfpc[s->n]); 
+	  mps_parhorner (s, s->n, sec->bmpc[i], p->mfpc, p->spar, sec->ampc[i], 0);
+	  mpc_set (sec->ampc[i], p->mfpc[s->n]); 
 	  for (j = s->n - 1; j >= 0; j--) 
 	    { 
-	      mpc_div (ctmp, s->mfpc[j], sec->ampc[i]);
+	      mpc_div (ctmp, p->mfpc[j], sec->ampc[i]);
 	      mpc_add_eq (ctmp, sec->bmpc[i]); 
 	      mpc_mul_eq (sec->ampc[i], ctmp); 
-	    } 
+	    }
+
 	  /* MPS_DEBUG_MPC (s, coeff_wp, sec->bmpc[i], "sec->bmpc[%d]", i); */
 	  /* MPS_DEBUG_MPC (s, coeff_wp, sec->ampc[i], "sec->ampc[%d]", i); */
+
+	  /* Add to sec_eps the error induced by the approximation on the roots */
+	   rdpe_set (rtmp, rdpe_zero); 
+	   for (j = 0; j <= s->n; j++) 
+	     { 
+	       rdpe_mul_d (rtmp2, p->dap[j], j); 
+	       rdpe_add_eq (rtmp, rtmp2); 
+	     } 
+	   rdpe_mul_eq (rtmp, root_epsilon); 
+	   rdpe_add_eq (sec_eps, rtmp);
 
 	  /* Compute relative error in polynomial horner */
 	  mpc_get_cdpe (cdtmp, sec->ampc[i]);
@@ -631,8 +793,9 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s)
 	  MPS_DEBUG_RDPE (s, sec_eps, "sec_eps");
 
 	  /* Finalize error computation */
-	  rdpe_add_eq (sec->dregeneration_epsilon[i], sec_eps);
+	  // rdpe_mul_eq (sec->dregeneration_epsilon[i], s->mp_epsilon);
 	  rdpe_mul_eq (sec->dregeneration_epsilon[i], s->mp_epsilon);
+	  rdpe_add_eq (sec->dregeneration_epsilon[i], sec_eps);
 
 	  if (s->debug_level & MPS_DEBUG_REGENERATION)
 	    {
@@ -641,15 +804,13 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s)
 	    }
 	}
 
-      s->mpwp = coeff_wp / precision_increase_ratio;
-
       /* Clear requested storage */
       mpc_clear (diff);
       mpc_clear (prod_b);
       mpc_clear (m_one);
       mpc_clear (ctmp);
     }
-  else if (MPS_REPRESENTATION_IS_SECULAR (s->config))
+  else if (MPS_INPUT_CONFIG_IS_SECULAR (s->input_config))
     {
       mpc_t prod_b, sec_ev;
       mpc_t ctmp, btmp;
@@ -663,8 +824,8 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s)
       /* If the input was rational generate multiprecision floating
        * point coefficient from the ones that the user originally
        * provided */
-      if (MPS_STRUCTURE_IS_RATIONAL (s->config) ||
-	  MPS_STRUCTURE_IS_INTEGER (s->config))
+      if (MPS_INPUT_CONFIG_IS_RATIONAL (s->input_config) ||
+	  MPS_INPUT_CONFIG_IS_INTEGER (s->input_config))
 	{
 	  MPS_DEBUG_WITH_INFO (s, "Regenerating coefficients from the multiprecision input");
 	  for (i = 0; i < s->n; i++)
@@ -695,7 +856,7 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s)
 	      /* Compute 1 / (b_i - old_b_j) */
 	      mpc_sub (btmp, sec->bmpc[i], sec->initial_bmpc[j]);
 
-	      /* Compute the local relative error that ios introduce here, as 
+	      /* Compute the local relative error that is introduce here, as 
 	       * eps = (|b_i| + |old_b_j|) * mp_eps / (b_i - old_b_j) + mp_eps*/
 	      mpc_get_cdpe (cdtmp, sec->initial_bmpc[j]);
 	      cdpe_mod (rtmp, cdtmp);
@@ -770,6 +931,13 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s)
 	      MPS_DEBUG_RDPE (s, sec->dregeneration_epsilon[i],
 			      "Relative error on a_%d", i);
 	    }
+	  
+	  /* rdpe_set_2dl (rtmp, 1.0, 1.0);  */
+	  /* if (rdpe_gt (sec->dregeneration_epsilon[i], rtmp))   */
+	  /*   {   */
+	  /*     success = false;   */
+	  /*     goto regenerate_m_exit;   */
+	  /*   } */
 	}
 
     regenerate_m_exit:
@@ -781,7 +949,9 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s)
       mpc_clear (btmp);
 
 
-    } /* End of if (MPS_REPRESENTATION_IS_SECULAR (s->config)) */
+    } /* End of if (MPS_INPUT_CONFIG_IS_SECULAR (s->input_config)) */
+
+  s->mpwp = old_wp;
   
   mps_secular_raise_coefficient_precision (s, s->mpwp);
   rdpe_set_2dl (s->mp_epsilon, 1.0, -s->mpwp + 1);
@@ -796,7 +966,7 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s)
  *
  * @param s The mps_status of the computation.
  */
-void
+mps_boolean
 mps_secular_ga_regenerate_coefficients (mps_status * s)
 {
   MPS_DEBUG_THIS_CALL;
@@ -805,14 +975,22 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
   cdpe_t *old_db, *old_da;
   mpc_t *old_ma, *old_mb;
   mps_secular_equation *sec;
-  int i, j;
+  int i, j, bits;
+  mps_boolean successful_regeneration = false;
+
+  sec = (mps_secular_equation *) s->secular_equation;
+
+  /* Copy the old regeneration epsilon that may come handy
+   * in the case the regeneration does not work */
+  rdpe_t *old_dregeneration_epsilon = rdpe_valloc (s->n);
+
+  for (i = 0; i < s->n; i++)
+    rdpe_set (old_dregeneration_epsilon[i], sec->dregeneration_epsilon[i]);
 
   /* Start timer and add execution time to the total counter */
 #ifndef DISABLE_DEBUG
   clock_t *my_clock = mps_start_timer ();
 #endif
-
-  sec = (mps_secular_equation *) s->secular_equation;
 
   switch (s->lastphase)
     {
@@ -832,16 +1010,15 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
         {
           cplx_set (old_a[i], sec->afpc[i]);
           cplx_set (old_b[i], sec->bfpc[i]);
-          cplx_set (sec->bfpc[i], s->froot[i]);
-          mpc_set_cplx (sec->bmpc[i], sec->bfpc[i]);
-          mpc_set_cplx (sec->ampc[i], sec->afpc[i]);
+	  mpc_set_cplx (sec->bmpc[i], s->froot[i]);
         }
 
+      mps_secular_ga_update_coefficients (s);
+
       /* Regeneration */
-      if (!mps_secular_ga_regenerate_coefficients_mp (s))
+      bits = mps_secular_ga_required_regenerations_bits (s);
+      if (!(successful_regeneration = mps_secular_ga_regenerate_coefficients_mp (s, bits)))
         {
-          MPS_DEBUG_WITH_INFO (s,
-                               "Regeneration of coefficients failed, reusing old ones");
           for (i = 0; i < s->n; i++)
             {
               cplx_set (sec->afpc[i], old_a[i]);
@@ -850,11 +1027,31 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
         }
       else
         {
+	  mps_secular_ga_update_coefficients (s);
           for (i = 0; i < s->n; i++)
             {
-              mpc_get_cplx (sec->bfpc[i], sec->bmpc[i]);
-              mpc_get_cplx (sec->afpc[i], sec->ampc[i]);
 	      sec->fregeneration_epsilon[i] = rdpe_get_d (sec->dregeneration_epsilon[i]) + DBL_EPSILON;
+
+	      /* We may risk that NaN or inf have been introduced because of huge
+	       * coefficients computed, so let's check it and in the case of failure 
+	       * switch to DPE. */
+	      if (cplx_check_fpe (sec->afpc[i]) || cplx_check_fpe (sec->bfpc[i]) ||
+		  (cplx_mod (sec->afpc[i]) > 1.0e300) ||
+		  (cplx_mod (sec->bfpc[i]) > 1.0e300))
+		{
+		  successful_regeneration = false;
+		  if (s->debug_level & MPS_DEBUG_REGENERATION)
+		    {
+		      MPS_DEBUG (s, "Found floating point exception in regenerated coefficients, reusing old ones.");
+		    }
+		  
+		  for (i = 0; i < s->n; i++)
+		    {
+		      cplx_set (sec->afpc[i], old_a[i]);
+		      cplx_set (sec->bfpc[i], old_b[i]);
+		    }
+		  break;
+		}
 
 	      MPS_DEBUG_CPLX (s, sec->afpc[i], "sec->afpc[%d]", i);	      
 	      MPS_DEBUG_CPLX (s, sec->bfpc[i], "sec->bfpc[%d]", i);
@@ -889,26 +1086,28 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
           mpc_set_cdpe (sec->bmpc[i], sec->bdpc[i]);
         }
 
+      mps_secular_ga_update_coefficients (s);
+
       /* Regeneration */
-      if (!mps_secular_ga_regenerate_coefficients_mp (s))
+      bits = mps_secular_ga_required_regenerations_bits (s);
+      if (!(successful_regeneration = mps_secular_ga_regenerate_coefficients_mp (s, bits)))
         {
-          MPS_DEBUG_WITH_INFO (s,
-                               "Regeneration of the coefficients failed, reusing old ones.")
             for (i = 0; i < s->n; i++)
             {
               cdpe_set (sec->adpc[i], old_da[i]);
               cdpe_set (sec->bdpc[i], old_db[i]);
             }
-        }
+	}
       else
         {
+	  mps_secular_ga_update_coefficients (s);
           for (i = 0; i < s->n; i++)
-	    {
-	      mpc_get_cdpe (sec->adpc[i], sec->ampc[i]);
 	      rdpe_add_eq_d (sec->dregeneration_epsilon[i], DBL_EPSILON);
-	    }
           mps_secular_set_radii (s);
         }
+      
+      MPS_DEBUG_CDPE (s, sec->bdpc[0], "sec->bdpc[%d]", 0);
+      MPS_DEBUG_CDPE (s, sec->adpc[0], "sec->adpc[%d]", 0);
 
       /* Free data */
       cdpe_vfree (old_da);
@@ -937,14 +1136,17 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
           mpc_set (sec->bmpc[i], s->mroot[i]);
         }
 
+      mps_secular_ga_update_coefficients (s);
+
       /* Regeneration */
-      if (mps_secular_ga_regenerate_coefficients_mp (s))
+      bits = mps_secular_ga_required_regenerations_bits (s);
+      if (mps_secular_ga_regenerate_coefficients_mp (s, bits))
         {
+	  mps_secular_ga_update_coefficients (s);
           /* Finally set radius according to new computed a_i coefficients,
            * if they are convenient   */
           mps_secular_set_radii (s);
         }
-
 
       if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
 	{
@@ -963,7 +1165,6 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
 
       mps_secular_mstart (s, s->n, 0, (__rdpe_struct *) rdpe_zero,
                           (__rdpe_struct *) rdpe_zero, s->eps_out);
-
       break;
 
     default:
@@ -980,6 +1181,23 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
 #ifndef DISABLE_DEBUG
   s->regeneration_time += mps_stop_timer (my_clock);
 #endif
+
+  if (successful_regeneration)
+    {
+      for (i = 0; i < s->n; i++)
+	  s->again[i] = true;
+    }
+  else
+    {
+      for (i = 0; i < s->n; i++)
+	rdpe_set (sec->dregeneration_epsilon[i], old_dregeneration_epsilon[i]);
+
+      rdpe_vfree (old_dregeneration_epsilon);
+    }
+
+  mps_secular_set_radii (s);
+
+  return successful_regeneration;
 }
 
 
@@ -998,7 +1216,7 @@ mps_secular_ga_check_stop (mps_status * s)
 
   int i;
 
-    /* if  (!MPS_STRUCTURE_IS_FP (s->secular_equation->input_structure) */
+    /* if  (!MPS_INPUT_CONFIG_IS_FP (s->secular_equation->input_structure) */
     /*   && s->lastphase != mp_phase) */
     /* return false; */
 
@@ -1074,9 +1292,9 @@ mps_secular_ga_improve (mps_status * s)
    * the original coefficients */
   for (i = 0; i < s->n; i++)
     {
-      if (MPS_REPRESENTATION_IS_SECULAR (s->config))
+      if (MPS_INPUT_CONFIG_IS_SECULAR (s->input_config))
 	{
-	  if (MPS_STRUCTURE_IS_FP (s->config))
+	  if (MPS_INPUT_CONFIG_IS_FP (s->input_config))
 	    {
 	      mpc_set (s->secular_equation->ampc[i],
 		       s->secular_equation->initial_ampc[i]);
@@ -1094,7 +1312,7 @@ mps_secular_ga_improve (mps_status * s)
 			 s->secular_equation->initial_bmpqic[i]);
 	    }
 	}
-      else if (MPS_REPRESENTATION_IS_MONOMIAL (s->config))
+      else if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
 	{
 	  
 	}
@@ -1105,6 +1323,7 @@ mps_secular_ga_improve (mps_status * s)
   mpc_t nwtcorr;
   cdpe_t ctmp;
   rdpe_t rtmp, old_rad;
+  mps_secular_iteration_data user_data;
 
   mpc_init2 (nwtcorr, s->mpwp);
 
@@ -1133,7 +1352,7 @@ mps_secular_ga_improve (mps_status * s)
       if (s->debug_level & MPS_DEBUG_IMPROVEMENT)
 	MPS_DEBUG (s, "Root %d has %d correct digits", i, correct_digits);
       int iterations =
-        log (s->prec_out / correct_digits / LOG2_10) * LOG2_10 + 1;
+        log (s->output_config->prec / correct_digits / LOG2_10) * LOG2_10 + 1;
       iterations = (iterations > 0) ? iterations : 0;
 
       if (s->debug_level & MPS_DEBUG_IMPROVEMENT)
@@ -1152,8 +1371,9 @@ mps_secular_ga_improve (mps_status * s)
       for (j = 0; j < iterations; j++)
         {	     
 	  rdpe_set (old_rad, s->drad[i]);
+	  user_data.k = i;
           mps_secular_mnewton (s, s->mroot[i], s->drad[i], nwtcorr,
-                               &s->again[i], &i);
+                               &s->again[i], &user_data);
           mpc_sub_eq (s->mroot[i], nwtcorr);
 
 	  /* Compute quadratic radius */
@@ -1217,8 +1437,10 @@ mps_secular_ga_mpsolve (mps_status * s)
   mps_boolean skip_check_stop = false;
   rdpe_t r_eps;
   mps_secular_equation *sec = mps_secular_equation_from_status (s);
+  mps_monomial_poly *poly = s->monomial_poly;
   mps_phase phase = sec->starting_case;
 
+  mps_allocate_data (s);
   rdpe_set_d (r_eps, DBL_EPSILON);
 
 #ifndef DISABLE_DEBUG
@@ -1231,19 +1453,16 @@ mps_secular_ga_mpsolve (mps_status * s)
 #endif
 
   /* Set the output desired for the output */
-  rdpe_set_2dl (s->eps_out, 1.0, -s->prec_out);
+  rdpe_set_2dl (s->eps_out, 1.0, -s->output_config->prec);
 
   /* Set degree and allocate polynomial-related variables
    * to allow initializitation to be performed. */
   s->deg = s->n = sec->n;
 
-  if (MPS_REPRESENTATION_IS_SECULAR (s->config))
+  if (MPS_INPUT_CONFIG_IS_SECULAR (s->input_config))
     s->data_type = "uri";
-  else if (MPS_REPRESENTATION_IS_MONOMIAL (s->config))
+  else if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
     s->data_type = "dri";
-
-  /* We set the selected phase */
-  s->lastphase = phase;
 
   /* Manually set FILE* pointer for streams.
    * More refined options will be added later. */
@@ -1255,30 +1474,57 @@ mps_secular_ga_mpsolve (mps_status * s)
   for (i = 0; i < s->n; i++)
     {
       s->frad[i] = DBL_MAX;
-      rdpe_set (s->drad[i], RDPE_MAX);
+      rdpe_set_d (s->drad[i], DBL_MAX);
     }
+
   
   /* Set initial cluster structure as no cluster structure. */
   mps_cluster_reset (s);
 
   /* Set phase */
-  s->lastphase = phase;
+  s->lastphase = s->input_config->starting_phase;
 
   /* If the input was polynomial we need to determined the secular
    * coefficients */
-  if (MPS_REPRESENTATION_IS_MONOMIAL (s->config))
+  if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
     {
       int nit;
       mps_boolean excep;
+      mps_monomial_poly *p = s->monomial_poly;
+
+      /* Check data first */
+      char which_case;
+      mps_check_data (s, &which_case);
+
+      MPS_DEBUG(s, "Check data resulted in %c", which_case);
+
+      if (which_case == 'f')
+	s->lastphase = float_phase;
+      else
+	s->lastphase = dpe_phase;
 
       if (s->lastphase == float_phase)
-	mps_fstart (s, s->n, 0, 0.0, 0.0, s->eps_out, s->fap);
+	  mps_fstart (s, s->n, 0, 0.0, 0.0, s->eps_out, p->fap);
       else
 	mps_dstart (s, s->n, 0, (__rdpe_struct *) rdpe_zero,
 		    (__rdpe_struct *) rdpe_zero, s->eps_out,
-		    s->dap);
+		    p->dap);
 
-      mps_secular_ga_regenerate_coefficients (s);
+      /* Check if we can manage to perform the recomputatio of the
+       * coefficients. If in floating point, switch do DPE if it fail.
+       */
+      if (!mps_secular_ga_regenerate_coefficients (s))
+	{
+	  if (s->lastphase == float_phase)
+	    {
+	      MPS_DEBUG(s, "Switching to DPE phase since initial regeneration of the coefficients did not succeed.");
+	      s->lastphase = dpe_phase;
+	      mps_dstart (s, s->n, 0, (__rdpe_struct *) rdpe_zero,
+			  (__rdpe_struct *) rdpe_zero, s->eps_out,
+			  p->dap);
+	      mps_secular_ga_regenerate_coefficients (s);
+	    }
+	}
     }
 
   /* Select initial approximations using the custom secular
@@ -1357,10 +1603,10 @@ mps_secular_ga_mpsolve (mps_status * s)
 
       /* Check if all roots were approximated with the
        * given input precision                      */      
-      if (mps_secular_ga_check_stop (s))
-        {
-          ; // break;
-        }
+       if (mps_secular_ga_check_stop (s)) 
+       	  break; 
+       else 
+	 skip_check_stop = true; 
 
       /* If we can't stop recompute coefficients in higher precision and
        * continue to iterate, unless the best approximation possible in
@@ -1380,7 +1626,7 @@ mps_secular_ga_mpsolve (mps_status * s)
 	  return;
 	}
 
-      if (s->secular_equation->best_approx && packet > 4)
+      if (sec->best_approx && packet > 4)
         {
           /* Going to multiprecision if we're not there yet */
           if (s->lastphase != mp_phase)
@@ -1409,15 +1655,15 @@ mps_secular_ga_mpsolve (mps_status * s)
           packet = 0;
         }
 
-      if (s->lastphase != mp_phase)
-	skip_check_stop = true;
+      /* if (s->lastphase != mp_phase) */
+      /* 	skip_check_stop = true; */
     }
   while (skip_check_stop || !mps_secular_ga_check_stop (s));
 
   /* Finally improve the roots if approximation is required */
   if (s->goal[0] == 'a')
     {
-      if (MPS_REPRESENTATION_IS_SECULAR (s->config))
+      if (MPS_INPUT_CONFIG_IS_SECULAR (s->input_config))
 	{
 	  clock_t *my_timer = mps_start_timer ();
 	  mps_secular_ga_improve (s);
@@ -1427,7 +1673,7 @@ mps_secular_ga_mpsolve (mps_status * s)
 	      MPS_DEBUG (s, "mps_secular_ga_improve took %u ms", improve_time);
 	    }
 	}
-      else if (MPS_REPRESENTATION_IS_MONOMIAL (s->config))
+      else if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
 	{
 	  clock_t *my_timer = mps_start_timer ();
 	  mps_secular_ga_improve (s);
@@ -1438,6 +1684,9 @@ mps_secular_ga_mpsolve (mps_status * s)
 	    }
 	}
     }
+
+  /* Finally copy the roots ready for output */
+  mps_copy_roots (s);
 
   /* Debug total time taken but only if debug is enabled */
 #ifndef DISABLE_DEBUG

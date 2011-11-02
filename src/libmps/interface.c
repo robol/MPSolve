@@ -39,9 +39,7 @@
  */
 
 #include <mps/core.h>
-#include <mps/poly.h>
 #include <mps/link.h>
-#include <mps/secular.h>
 #include <gmp.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -118,102 +116,18 @@ mps_status_select_algorithm (mps_status * s, mps_algorithm algorithm)
       s->dnewton_usr = MPS_DNEWTON_PTR (mps_secular_dnewton);
       s->mnewton_usr = MPS_MNEWTON_PTR (mps_secular_mnewton);
 
-      rdpe_set_2dl (s->eps_out, 1.0, -s->prec_out * LOG2_10);
+      rdpe_set_2dl (s->eps_out, 1.0, -s->output_config->prec * LOG2_10);
+
+      /* Check if the secular equation is allocate or if only the
+       * polynomial is present. In the last case, allocate an empty
+       * secular equation to hold the data during the computation. */
+      if (!s->secular_equation)
+	s->secular_equation = mps_secular_equation_new_raw (s, s->monomial_poly->n);
 
       break;
     }
 }
 
-/**
- * @brief Allocate polynomial related variables directly in mps_status.
- */
-void
-mps_status_allocate_poly_inplace (mps_status * s, int n)
-{
-
-  int i;
-
-  /* If n is provided, then we should allocate variables for a polynomial
-   * of degree n. If it is <= 0 then we can assume that is already set
-   * to the right vaule.
-   */
-  if (n > 0)
-    {
-      s->deg = s->n = n;
-    }
-
-  MPS_DEBUG (s, "Allocating polynomial in place");
-
-  if (!s->data_type)
-    s->data_type = (char *) malloc (sizeof (char) * 3);
-
-  s->spar = mps_boolean_valloc (s->deg + 2);
-
-  s->fpr = double_valloc (s->deg + 1);
-  s->fpc = cplx_valloc (s->deg + 1);
-
-  s->dpr = rdpe_valloc (s->deg + 1);
-  s->dpc = cdpe_valloc (s->deg + 1);
-
-  s->mip_r = mpz_valloc (s->deg + 1);
-  s->mip_i = mpz_valloc (s->deg + 1);
-  for (i = 0; i <= s->deg; i++)
-    {
-      mpz_init (s->mip_r[i]);
-      mpz_init (s->mip_i[i]);
-    }
-
-  s->mqp_r = mpq_valloc (s->deg + 1);
-  s->mqp_i = mpq_valloc (s->deg + 1);
-  for (i = 0; i <= s->deg; i++)
-    {
-      mpq_init (s->mqp_r[i]);
-      mpq_init (s->mqp_i[i]);
-    }
-
-  s->mfpr = mpf_valloc (s->deg + 1);
-  for (i = 0; i <= s->deg; i++)
-    mpf_init2 (s->mfpr[i], s->prec_in);
-  s->mfpc = mpc_valloc (s->deg + 1);
-  for (i = 0; i <= s->deg; i++)
-    mpc_init2 (s->mfpc[i], s->prec_in);
-
-  /* Create the status and set all the roots as uncertain */
-  s->status = (char (*)[3]) char_valloc (3 * s->deg);
-  for (i = 0; i < s->deg; i++)
-    {
-      s->status[i][1] = 'w';
-      s->status[i][2] = 'u';
-    }
-
-}
-
-void
-mps_status_free_poly_inplace (mps_status * s)
-{
-  free (s->spar);
-  cplx_vfree (s->fpc);
-  rdpe_vfree (s->dpr);
-  rdpe_vfree (s->dpc);
-
-  mpz_vclear (s->mip_r, s->n);
-  mpz_vclear (s->mip_i, s->n);
-
-  mpz_vfree (s->mip_r);
-  mpz_vfree (s->mip_i);
-
-  mpq_vclear (s->mqp_r, s->n);
-  mpq_vclear (s->mqp_i, s->n);
-
-  mpq_vfree (s->mqp_r);
-  mpq_vfree (s->mqp_i);
-
-  mpf_vclear (s->mfpr, s->n);
-  mpc_vclear (s->mfpc, s->n);
-
-  mpf_vfree (s->mfpr);
-  mpf_vfree (s->mfpc);
-}
 
 /**
  * @brief Allocate a new mps_status struct with default
@@ -224,17 +138,22 @@ mps_status_new ()
 {
   /* Allocate the new mps_status and load default options */
   mps_status *s = (mps_status *) malloc (sizeof (mps_status));
-  mps_set_default_values (s);
 
   /* Set default streams */
   s->instr = stdin;
   s->outstr = stdout;
   s->logstr = stdout;
 
+  /* Allocate space for the configurations */
+  s->input_config  = (mps_input_configuration *) malloc (sizeof (mps_input_configuration));
+  s->output_config = (mps_output_configuration *) malloc (sizeof (mps_output_configuration));
+
+  mps_set_default_values (s);
+
   /* Set standard precision */
-  s->prec_out = (int) (0.9 * DBL_DIG * LOG2_10);
-  MPS_DEBUG (s, "Setting prec_out to %d digits", s->prec_out);
-  s->prec_in = 0;
+  s->output_config->prec = (int) (0.9 * DBL_DIG * LOG2_10);
+  MPS_DEBUG (s, "Setting prec_out to %ld digits", s->output_config->prec);
+  s->input_config->prec = 0;
 
   return s;
 }
@@ -248,6 +167,16 @@ void
 mps_status_free (mps_status * s)
 {
   mps_free_data (s);
+
+  free (s->input_config);
+  free (s->output_config);
+
+  /* Check if secular equation or monomial poly need to be freed */
+  if (s->monomial_poly)
+    mps_monomial_poly_free (s, s->monomial_poly);
+  if (s->secular_equation)
+    mps_secular_equation_free (s->secular_equation);
+
   free (s);
 }
 
@@ -287,10 +216,11 @@ int
 mps_status_set_poly_u (mps_status * s, int n, mps_fnewton_ptr fnewton,
                        mps_dnewton_ptr dnewton, mps_mnewton_ptr mnewton)
 {
+  mps_monomial_poly *p = mps_monomial_poly_new (s, n);
+  s->monomial_poly = p;
 
   /* Set degree and allocate data */
   mps_status_set_degree (s, n);
-  mps_allocate_data (s);
 
   /* TODO: Apart from u, what should be set here? */
   s->data_type = "uri";
@@ -300,6 +230,10 @@ mps_status_set_poly_u (mps_status * s, int n, mps_fnewton_ptr fnewton,
   s->dnewton_usr = dnewton;
   s->mnewton_usr = mnewton;
 
+  s->input_config->structure = MPS_STRUCTURE_REAL_INTEGER;
+  s->input_config->density = MPS_DENSITY_USER;
+  s->input_config->representation = MPS_REPRESENTATION_MONOMIAL;
+
   return 0;
 }
 
@@ -307,6 +241,47 @@ void
 mps_status_set_degree (mps_status * s, int n)
 {
   s->deg = s->n = n;
+  
+  /* Check if the numer of thread is greater of the number of roots,
+     and in that case decrease it */
+  if (s->n_threads > s->deg)
+    s->n_threads = s->deg;
+}
+
+/**
+ * @brief Set the monomial poly p as the input polynomial for 
+ * the current equation.
+ *
+ * @param s The mps_status to set the monomial_poly into.
+ * @param p The mps_monomial_poly to solve.
+ * @param structure The algebraic structure of the polynomial. This can
+ * be, for example, <code>MPS_STRUCTURE_REAL_INTEGER</code> or similar values. 
+ * What is set here will determine the fields of the poly that will be looked for data.
+ */
+void
+mps_status_set_input_poly (mps_status * s, mps_monomial_poly * p, mps_structure structure)
+{
+  int i;
+  s->monomial_poly = p;
+  mps_status_set_degree (s, p->n);
+
+  /* Set the right flag for the input */
+  s->input_config->representation = MPS_REPRESENTATION_MONOMIAL;
+
+  /* Check if the input polynomial is sparse or not. We can simply check if
+   * the again vector is all of true values */
+  s->input_config->density = MPS_DENSITY_DENSE;
+  for (i = 0; i <= p->n; ++i)
+    {
+      if (!p->spar[i])
+	{
+	  s->input_config->density = MPS_DENSITY_SPARSE;
+	  break;
+	}
+    }
+
+  /* Set the mps_structure passed as input */
+  s->input_config->structure = structure;
 }
 
 /**
@@ -326,22 +301,19 @@ mps_status_set_poly_d (mps_status * s, cplx_t * coeff, long unsigned int n)
   int i;
 
   /* Allocate space for a polynomial of degree n */
-  mps_status_allocate_poly_inplace (s, n);
+  mps_monomial_poly * p = mps_monomial_poly_new (s, n);
 
   /* Set type to a dense, real, floating point polynomial */
-  s->data_type[0] = 'd';
-  s->data_type[1] = 'c';
-  s->data_type[2] = 'f';
+  s->data_type = "dcf";
 
   /* Fill polynomial coefficients */
   for (i = 0; i <= n; i++)
     {
-      mpc_set_cplx (s->mfpc[i], coeff[i]);
+      mpc_set_cplx (p->mfpc[i], coeff[i]);
+      cplx_set (p->fpc[i], coeff[i]);
+      cdpe_set_x (p->dpc[i], coeff[i]);
     }
-
-  /* Allocate space for computation related data */
-  mps_allocate_data (s);
-
+  
   return 0;
 }
 
@@ -362,21 +334,16 @@ mps_status_set_poly_i (mps_status * s, int *coeff, long unsigned int n)
   int i;
 
   /* Allocate data in mps_status to hold the polynomial of degree n */
-  mps_status_allocate_poly_inplace (s, n);
+  mps_monomial_poly * p = mps_monomial_poly_new (s, n);
 
   /* Dense, real, integer coefficients */
-  s->data_type[0] = 'd';
-  s->data_type[1] = 'r';
-  s->data_type[2] = 'i';
+  s->data_type = "drq";
 
   /* Fill polynomial */
   for (i = 0; i <= n; i++)
     {
-      mpz_set_si (s->mip_r[i], coeff[i]);
+      mpq_set_si (p->initial_mqp_r[i], coeff[i], 1U);
     }
-
-  /* Allocate data for the computation */
-  mps_allocate_data (s);
 
   return 0;
 }
@@ -420,7 +387,6 @@ mps_status_get_roots_d (mps_status * s, cplx_t * roots, double *radius)
         }
     }
   return 0;
-
 }
 
 /**
@@ -429,6 +395,6 @@ mps_status_get_roots_d (mps_status * s, cplx_t * roots, double *radius)
 int
 mps_status_get_roots_m (mps_status * s, mpc_t * roots, rdpe_t * radius)
 {
-  /* TODO: Implement mps_get_roots_d() */
+  /* TODO: Implement mps_get_roots_m() */
   return 0;
 }

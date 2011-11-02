@@ -103,6 +103,7 @@ extern "C"
   void mps_prepare_data (mps_status * s, long int prec);
   void mps_restore_data (mps_status * s);
   void mps_free_data (mps_status * s);
+  void mps_raise_data_raw (mps_status * s, long int prec);
 
 /* functions in mps_impr.c */
   void mps_improve (mps_status * s);
@@ -145,9 +146,9 @@ extern "C"
   void mps_fsrad (mps_status * s, int i, cplx_t sc, double *sr);
   void mps_dsrad (mps_status * s, int i, cdpe_t sc, rdpe_t sr);
   void mps_msrad (mps_status * s, int i, mpc_t sc, rdpe_t sr);
-  void mps_fmodify (mps_status * s);
-  void mps_dmodify (mps_status * s);
-  void mps_mmodify (mps_status * s);
+  void mps_fmodify (mps_status * s, mps_boolean track_new_cluster);
+  void mps_dmodify (mps_status * s, mps_boolean track_new_cluster);
+  void mps_mmodify (mps_status * s, mps_boolean track_new_cluster);
   mps_boolean mps_check_stop (mps_status * s);
   void mps_fsolve (mps_status * s, mps_boolean * d_after_f);
   void mps_dsolve (mps_status * s, mps_boolean d_after_f);
@@ -224,8 +225,8 @@ extern "C"
   mps_parse_option_line (mps_status * s, char *line, size_t length);
 
   void
-  mps_parse_stream (mps_status * s, FILE * input_stream,
-		    mps_input_configuration * default_configuration);
+  mps_parse_stream (mps_status * s, FILE * input_stream);
+
 
 /*
  * End of extern "C" {

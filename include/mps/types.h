@@ -198,11 +198,11 @@ extern "C"
   const static short int mps_complex_structures[] = { 0, 0, 0, 1, 1, 1 };
 
   /* STRUCTURE related macros */
-#define MPS_STRUCTURE_IS_RATIONAL(x) (mps_rational_structures[(x)->structure])
-#define MPS_STRUCTURE_IS_INTEGER(x)  (mps_integer_structures[(x)->structure])
-#define MPS_STRUCTURE_IS_FP(x)       (mps_fp_structures[(x)->structure])
-#define MPS_STRUCTURE_IS_REAL(x)     (mps_real_structures[(x)->structure])
-#define MPS_STRUCTURE_IS_COMPLEX(x)  (mps_complex_structures[(x)->structure])
+#define MPS_INPUT_CONFIG_IS_RATIONAL(x) (mps_rational_structures[(x)->structure])
+#define MPS_INPUT_CONFIG_IS_INTEGER(x)  (mps_integer_structures[(x)->structure])
+#define MPS_INPUT_CONFIG_IS_FP(x)       (mps_fp_structures[(x)->structure])
+#define MPS_INPUT_CONFIG_IS_REAL(x)     (mps_real_structures[(x)->structure])
+#define MPS_INPUT_CONFIG_IS_COMPLEX(x)  (mps_complex_structures[(x)->structure])
 
   /**
    * @brief Representation chosen for the polynomial
@@ -210,11 +210,28 @@ extern "C"
   typedef enum
     {
       MPS_REPRESENTATION_SECULAR,
-      MPS_REPRESENTATION_MONOMIAL
+      MPS_REPRESENTATION_MONOMIAL,
     } mps_representation;
 
-#define MPS_REPRESENTATION_IS_SECULAR(x)  ((x)->representation == MPS_REPRESENTATION_SECULAR)
-#define MPS_REPRESENTATION_IS_MONOMIAL(x) ((x)->representation == MPS_REPRESENTATION_MONOMIAL)
+  const static short int mps_secular_representations[]  = { 1, 0 };
+  const static short int mps_monomial_representations[] = { 0, 1 };
+
+#define MPS_INPUT_CONFIG_IS_SECULAR(x)  (mps_secular_representations[(x->representation)])
+#define MPS_INPUT_CONFIG_IS_MONOMIAL(x) (mps_monomial_representations[(x->representation)])
+
+  typedef enum {
+    MPS_DENSITY_DENSE,
+    MPS_DENSITY_SPARSE,
+    MPS_DENSITY_USER,
+  } mps_density;
+
+  const static short int mps_user_representations[]   = { 0, 0, 1 };
+  const static short int mps_sparse_representations[] = { 0, 1, 0 };
+  const static short int mps_dense_representations[]  = { 1, 0, 0 };
+
+#define MPS_INPUT_CONFIG_IS_USER(x)     (mps_user_representations[(x->density)])
+#define MPS_INPUT_CONFIG_IS_SPARSE(x)   (mps_sparse_representations[(x->density)])
+#define MPS_INPUT_CONFIG_IS_DENSE(x)    (mps_dense_representations[(x->density)])
 
   /**
    * @brief Configuration for an input stream; this struct
@@ -235,8 +252,127 @@ extern "C"
      */
     mps_representation representation;
 
+    /**
+     * @brief Density of the coefficients, or MPS_DENSITY_USER
+     * if the coefficients (or the newton fraction) is provided
+     * via a user routine
+     */
+    mps_density density;
+
+    /**
+     * @brief Digits of guaranteed input precision.
+     */
+    long int prec;
+
+    /**
+     * @brief Selet the starting phase for the computation.
+     *
+     * Should be <code>float_phase</code> in the majority of
+     * cases, and <code>dpe_phase</code> if the computation
+     * is not manageable with the usual IEEE1354 limits.
+     */
+    mps_phase starting_phase;
+
   } mps_input_configuration;
 
+  /**
+   * @brief Configuration for the output.
+   *
+   * This struct holds the information on what has to be
+   * computed by MPSolve, such as the desired output precision
+   * and the search set for the roots, etc.
+   */
+  typedef struct
+  {
+    /**
+     * @brief Digits of required output precision
+     */
+    long int prec;
+
+  } mps_output_configuration;
+
+  /**
+   * @brief Data regarding a polynomial represented in the monomial
+   * base.
+   */
+  typedef struct {
+
+    /**
+     * @brief The degree of the polynomial.
+     */
+    int n;
+
+    /**
+     * @brief This array contains the structure of the sparse
+     * polynomial.
+     *
+     * <code>spar[i]</code> is <code>true</code> if and only if
+     * the i-th coefficients of the polynomial is a non-zero
+     * coefficients
+     */
+    mps_boolean *spar;
+
+    /**
+     * @brief Standard real coefficients.
+     */
+    double *fpr;
+
+    /**
+     * @brief Standard complex coefficients.
+     */
+    cplx_t *fpc;
+
+    /**
+     * @brief Array containing standard complex coefficients
+     */
+    cplx_t *fppc;
+
+    /**
+     * @brief Dpe real coefficients.
+     */
+    rdpe_t *dpr;
+
+    /**
+     * @brief Dpe complex coefficients.
+     */
+    cdpe_t *dpc;
+
+    /**
+     * @brief Multiprecision real coefficients.
+     */
+    mpf_t *mfpr;
+
+    /**
+     * @brief Multiprecision complex coefficients.
+     */
+    mpc_t *mfpc;
+
+    /**
+     * @brief Multiprecision complex coefficients of \f$p'(x)\f$.
+     */
+    mpc_t *mfppc;
+
+    /**
+     * @brief Array containing moduli of the coefficients as double numbers.
+     */
+    double *fap;
+
+    /**
+     * @brief Array containing moduli of the coefficients as dpe numbers.
+     */
+    rdpe_t *dap;
+
+    /**
+     * @brief Real part of rational input coefficients.
+     */
+    mpq_t *initial_mqp_r;
+
+    /**
+     * @brief Imaginary part of rational input coefficients.
+     */
+    mpq_t *initial_mqp_i;
+        
+  } mps_monomial_poly;
 
   /**
    * @brief Secular equation data.
@@ -285,6 +421,30 @@ extern "C"
      * version.
      */
     mpc_t *bmpc;
+
+    /**
+     * @brief Moduli of the floating point a_i
+     * coefficients of the secular equation.
+     */
+    double *aafpc;
+
+    /**
+     * @brief Moduli of the floating point b_i 
+     * coefficients of the secular equation.
+     */
+    double *abfpc;
+
+    /**
+     * @brief DPE Moduli of the CDPE of Multiprecision a_i 
+     * coefficients of the secular equation.
+     */
+    rdpe_t *aadpc;
+    
+    /**
+     * @brief DPE Moduli of the CDPE of Multiprecision b_i 
+     * coefficients of the secular equation.
+     */
+    rdpe_t *abdpc;
 
     /**
      * @brief Initial multiprecision coefficients saved for latter
@@ -458,7 +618,12 @@ extern "C"
     /**
      * @brief Configuration of the input of MPSolve
      */
-    mps_input_configuration * config;
+    mps_input_configuration * input_config;
+
+    /**
+     * @brief Output configuration for MPSolve.
+     */
+    mps_output_configuration * output_config;
 
     /**
      * @brief Newton isolation of the cluster.
@@ -572,14 +737,8 @@ extern "C"
     char goal[5];
 
     /**
-     * @brief digits of required output precision
-     *
-     */
-    long int prec_out;
-
-    /**
      * @brief mps_boolean value that determine if we should
-     * use a random seed for startingd points
+     * use a random seed for starting points
      */
     mps_boolean random_seed;
 
@@ -616,72 +775,6 @@ extern "C"
      * - <code>'f'</code> means floating point coefficients;
      */
     char *data_type;
-
-    /**
-     * @brief Number of digits of input precision in its binary
-     * representation.
-     */
-    long int prec_in;
-
-    /**
-     * @brief This array contains the structure of the sparse
-     * polynomial.
-     *
-     * <code>spar[i]</code> is <code>true</code> if and only if
-     * the i-th coefficients of the polynomial is a non-zero
-     * coefficients
-     */
-    mps_boolean *spar;
-
-    /**
-     * @brief Standard real coefficients.
-     */
-    double *fpr;
-
-    /**
-     * @brief Standard complex coefficients.
-     */
-    cplx_t *fpc;
-
-    /**
-     * @brief Dpe real coefficients.
-     */
-    rdpe_t *dpr;
-
-    /**
-     * @brief Dpe complex coefficients.
-     */
-    cdpe_t *dpc;
-
-    /**
-     * @brief Real part of the integer input coefficients.
-     */
-    mpz_t *mip_r;
-
-    /**
-     * @brief Imaginary part of the integer input coefficients.
-     */
-    mpz_t *mip_i;
-
-    /**
-     * @brief Real part of rational input coefficients.
-     */
-    mpq_t *mqp_r;
-
-    /**
-     * @brief Imaginary part of rational input coefficients.
-     */
-    mpq_t *mqp_i;
-
-    /**
-     * @brief Multiprecision real coefficients.
-     */
-    mpf_t *mfpr;
-
-    /**
-     * @brief Multiprecision complex coefficients.
-     */
-    mpc_t *mfpc;
 
     /* Solution related variables */
     /**
@@ -859,30 +952,15 @@ extern "C"
     long int *rootwp;
 
     /**
-     * @brief Multiprecision complex coefficients of \f$p'(x)\f$.
-     */
-    mpc_t *mfppc;
-
-    /**
-     * @brief Array containing moduli of the coefficients as double numbers.
-     */
-    double *fap;
-
-    /**
-     * @brief Array containing moduli of the coefficients as dpe numbers.
-     */
-    rdpe_t *dap;
-
-    /**
      * @brief Array that whose i-th component is set to <code>true</code> if
      * the i-th root needs more iterations.
      */
     mps_boolean *again;
 
-    /**
-     * @brief Array containing standard complex coefficients
-     */
-    cplx_t *fppc;
+    /* /\** */
+    /*  * @brief Array containing standard complex coefficients */
+    /*  *\/ */
+    /* cplx_t *fppc; */
 
     /**
      * @brief Standard complex coefficients of the polynomial.
@@ -1108,13 +1186,19 @@ extern "C"
     void (*mpsolve_ptr) (void *status);
 
     /**
+     * @brief A pointer to the polynomial that is being solve or
+     * NULL if there is no such monomial representation.
+     */
+    mps_monomial_poly * monomial_poly;
+
+    /**
      * @brief A pointer that can be set to anything the user
      * would like to access during computations. It is meant to be
      * used when implementing fnewton, dnewton and mnewton
      * functions to provide additional data for the
      * computing of the polynomial.
      */
-    mps_secular_equation *secular_equation;
+    mps_secular_equation * secular_equation;
 
     /**
      * @brief Number of threads to be spawned.

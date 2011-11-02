@@ -18,13 +18,16 @@ extern "C"
 #undef __cplusplus
 #endif
 
+#include <stdlib.h>
+#include <stdio.h>
+#include <pthread.h>
 #include <gmp.h>
 #include <mps/types.h>
 #include <mps/mt.h>
 #include <mps/mpc.h>
 #include <mps/tools.h>
-#include <stdlib.h>
-#include <stdio.h>
+#include <mps/monomial-poly.h>
+#include <mps/secular.h>
 
 
 /*
@@ -43,6 +46,7 @@ extern "C"
   void mps_status_free (mps_status * s);
   int mps_status_set_poly_d (mps_status * s, cplx_t * coeff,
                              long unsigned int n);
+  void mps_status_set_input_poly (mps_status * s, mps_monomial_poly * p, mps_structure structure);
   int mps_status_set_poly_i (mps_status * s, int *coeff, long unsigned int n);
   int mps_status_get_roots_d (mps_status * s, cplx_t * roots, double *radius);
   int mps_status_set_poly_u (mps_status * s, int n, mps_fnewton_ptr fnewton,
