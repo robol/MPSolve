@@ -615,17 +615,17 @@ mps_secular_ga_required_regenerations_bits (mps_status * s)
  * is the one that should be used
  *
  * @param s The mps_status of the computation.
- * @param prec_ratio The multiplier for the precision in the regeneration.
+ * @param bits The bits of precision used in regeneration
  */
 int
-mps_secular_ga_regenerate_coefficients_mp (mps_status * s, int prec_ratio)
+mps_secular_ga_regenerate_coefficients_mp (mps_status * s, int bits)
 {
   /* Declaration and initialization of the multprecision
    * variables that are used only in that case */
   int i, j;
   mps_boolean success = true;
-  int precision_increase_ratio = prec_ratio;
-  int coeff_wp = precision_increase_ratio * s->mpwp;
+  int coeff_wp = bits;
+  int old_wp = s->mpwp;
   mps_secular_equation *sec = s->secular_equation;
   mps_monomial_poly *p = s->monomial_poly;
   rdpe_t eps_tmp, rtmp, sec_eps, rtmp2;
@@ -791,8 +791,6 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s, int prec_ratio)
 	    }
 	}
 
-      s->mpwp = coeff_wp / precision_increase_ratio;
-
       /* Clear requested storage */
       mpc_clear (diff);
       mpc_clear (prod_b);
@@ -939,6 +937,8 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s, int prec_ratio)
 
 
     } /* End of if (MPS_INPUT_CONFIG_IS_SECULAR (s->input_config)) */
+
+  s->mpwp = old_wp;
   
   mps_secular_raise_coefficient_precision (s, s->mpwp);
   rdpe_set_2dl (s->mp_epsilon, 1.0, -s->mpwp + 1);
@@ -962,7 +962,7 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
   cdpe_t *old_db, *old_da;
   mpc_t *old_ma, *old_mb;
   mps_secular_equation *sec;
-  int i, j, ratio;
+  int i, j, ratio, bits;
   mps_boolean successful_regeneration = false;
 
   sec = (mps_secular_equation *) s->secular_equation;
@@ -1003,30 +1003,20 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
         }
 
       /* Regeneration */
-      ratio = 2;
-      while (!mps_secular_ga_regenerate_coefficients_mp (s, ratio) && ratio < 16)
+      bits = mps_secular_ga_required_regenerations_bits (s);
+      if (!(successful_regeneration = mps_secular_ga_regenerate_coefficients_mp (s, bits)))
         {
-	  ratio *= 2;
-          MPS_DEBUG_WITH_INFO (s,
-                               "Regeneration of coefficients failed, increasing the ration to %d", ratio);
           for (i = 0; i < s->n; i++)
             {
               cplx_set (sec->afpc[i], old_a[i]);
               cplx_set (sec->bfpc[i], old_b[i]);
             }
         }
-
-      /* If the ratio hasn't reached the maximum value, i.e. 32, the regenration has
-       * been successful. */
-      if (ratio != 32)
-	successful_regeneration = true;
-
-      if (successful_regeneration)
+      else
         {
+	  mps_secular_ga_update_coefficients (s);
           for (i = 0; i < s->n; i++)
             {
-              mpc_get_cplx (sec->bfpc[i], sec->bmpc[i]);
-              mpc_get_cplx (sec->afpc[i], sec->ampc[i]);
 	      sec->fregeneration_epsilon[i] = rdpe_get_d (sec->dregeneration_epsilon[i]) + DBL_EPSILON;
 
 	      /* We may risk that NaN or inf have been introduced because of huge
@@ -1084,33 +1074,22 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
         }
 
       /* Regeneration */
-      ratio = 2;
-      while (!mps_secular_ga_regenerate_coefficients_mp (s, ratio) && ratio < 16)
+      bits = mps_secular_ga_required_regenerations_bits (s);
+      if (!(successful_regeneration = mps_secular_ga_regenerate_coefficients_mp (s, bits)))
         {
-	  ratio *= 2;
-          MPS_DEBUG_WITH_INFO (s,
-                               "Regeneration of the coefficients failed, increasing ratio to %d.", ratio)
             for (i = 0; i < s->n; i++)
             {
               cdpe_set (sec->adpc[i], old_da[i]);
               cdpe_set (sec->bdpc[i], old_db[i]);
             }
-        }
-
-      if (ratio != 32)
-	successful_regeneration = true;
-
-      if (successful_regeneration)
+	}
+      else
         {
+	  mps_secular_ga_update_coefficients (s);
           for (i = 0; i < s->n; i++)
-	    {
-	      mpc_get_cdpe (sec->adpc[i], sec->ampc[i]);
-	      mpc_get_cdpe (sec->bdpc[i], sec->bmpc[i]);
 	      rdpe_add_eq_d (sec->dregeneration_epsilon[i], DBL_EPSILON);
-	    }
           mps_secular_set_radii (s);
         }
-
       
       MPS_DEBUG_CDPE (s, sec->bdpc[0], "sec->bdpc[%d]", 0);
       MPS_DEBUG_CDPE (s, sec->adpc[0], "sec->adpc[%d]", 0);
@@ -1143,7 +1122,7 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
         }
 
       /* Regeneration */
-      if (mps_secular_ga_regenerate_coefficients_mp (s, 2))
+      if (mps_secular_ga_regenerate_coefficients_mp (s, 2 * s->mpwp))
         {
           /* Finally set radius according to new computed a_i coefficients,
            * if they are convenient   */
