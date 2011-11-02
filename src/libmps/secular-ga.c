@@ -517,6 +517,7 @@ mps_secular_ga_required_regenerations_bits (mps_status * s)
   rdpe_t pol_eps;
   rdpe_t regeneration_epsilon;
   rdpe_t total_eps;
+  int required_bits;
   int i, j;
 
   rdpe_set_2dl (root_epsilon, 1.0, -s->mpwp);
@@ -546,7 +547,7 @@ mps_secular_ga_required_regenerations_bits (mps_status * s)
 	  cdpe_add_eq (pol, p->dpc[0]);
 
 	  /* Horner on the polynomial with the modulus as coefficients */
-	  rdpe_set (apol, rdpe_one);
+	  rdpe_set (apol, p->dap[s->n]);
 	  cdpe_mod (rtmp2, sec->bdpc[i]);
 	  for (j = s->n; j > 0; j--)
 	    {
@@ -582,6 +583,11 @@ mps_secular_ga_required_regenerations_bits (mps_status * s)
 
 	  rdpe_add_eq (regeneration_epsilon, pol_eps);
 
+	  MPS_DEBUG_RDPE (s, apol, "apol");
+	  MPS_DEBUG_CDPE (s, pol, "pol");
+
+	  MPS_DEBUG_RDPE (s, regeneration_epsilon, "regeneration_epsilon");
+
 	  /* Check if the new relative error is bigger than the 
 	   * previous one. */
 	  if (rdpe_gt (regeneration_epsilon, total_eps))
@@ -591,7 +597,14 @@ mps_secular_ga_required_regenerations_bits (mps_status * s)
 
       /* We need now to determine the required bits of precision to
        * get a relative error smaller than the required one. */
-      return (rdpe_log (total_eps) * LOG2 + s->mpwp / 2);
+      required_bits = (rdpe_log (total_eps) * LOG2 + s->mpwp / 2);
+
+      if (s->debug_level & MPS_DEBUG_REGENERATION)
+	{
+	  MPS_DEBUG (s, "%d bits are required to regenerate the coefficients", required_bits);
+	}
+
+      return required_bits;
     }
   else if (MPS_INPUT_CONFIG_IS_SECULAR (s->input_config))
     return 2 * s->mpwp;
@@ -997,10 +1010,10 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
         {
           cplx_set (old_a[i], sec->afpc[i]);
           cplx_set (old_b[i], sec->bfpc[i]);
-          cplx_set (sec->bfpc[i], s->froot[i]);
-          mpc_set_cplx (sec->bmpc[i], sec->bfpc[i]);
-          mpc_set_cplx (sec->ampc[i], sec->afpc[i]);
+	  mpc_set_cplx (sec->bmpc[i], s->froot[i]);
         }
+
+      mps_secular_ga_update_coefficients (s);
 
       /* Regeneration */
       bits = mps_secular_ga_required_regenerations_bits (s);
@@ -1148,7 +1161,6 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
 
       mps_secular_mstart (s, s->n, 0, (__rdpe_struct *) rdpe_zero,
                           (__rdpe_struct *) rdpe_zero, s->eps_out);
-
       break;
 
     default:
