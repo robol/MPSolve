@@ -1162,7 +1162,7 @@ mps_outfloat (mps_status * s, mpf_t f, rdpe_t rad, long out_digit,
   double d;
   long l, digit, true_digit;
 
-  if (s->goal[4] == 'f')
+  if (s->output_config->format == MPS_OUTPUT_FORMAT_FULL)
     {
       tmpf_init2 (t, mpf_get_prec (f));
       mpf_set (t, f);
@@ -1174,7 +1174,7 @@ mps_outfloat (mps_status * s, mpf_t f, rdpe_t rad, long out_digit,
   tmpf_init2 (t, s->output_config->prec);
 
   mpf_get_rdpe (ro, f);
-  if (s->goal[4] == 'g')
+  if (s->output_config->format == MPS_OUTPUT_FORMAT_GNUPLOT)
     rdpe_out_str_u (s->outstr, ro);
   else
     {
@@ -1218,13 +1218,13 @@ mps_outroot (mps_status * s, int i)
   num++;
 
   /* print format header */
-  switch (s->goal[4])
+  switch (s->output_config->format)
     {
-    case 'c':
-    case 'f':
+    case MPS_OUTPUT_FORMAT_COMPACT:
+    case MPS_OUTPUT_FORMAT_FULL:
       fprintf (s->outstr, "(");
       break;
-    case 'v':
+    case MPS_OUTPUT_FORMAT_VERBOSE:
       fprintf (s->outstr, "Root(%d) = ", num);
       break;
     }
@@ -1236,19 +1236,19 @@ mps_outroot (mps_status * s, int i)
     mps_outfloat (s, mpc_Re (s->mroot[i]), s->drad[i], out_digit, true);
 
   /* print format middle part */
-  switch (s->goal[4])
+  switch (s->output_config->format)
     {
-    case 'b':
+    case MPS_OUTPUT_FORMAT_BARE:
       fprintf (s->outstr, " ");
       break;
-    case 'g':
+    case MPS_OUTPUT_FORMAT_GNUPLOT:
       fprintf (s->outstr, "\t");
       break;
-    case 'c':
-    case 'f':
+    case MPS_OUTPUT_FORMAT_COMPACT:
+    case MPS_OUTPUT_FORMAT_FULL:
       fprintf (s->outstr, ", ");
       break;
-    case 'v':
+    case MPS_OUTPUT_FORMAT_VERBOSE:
       if (i == ISZERO || mpf_sgn (mpc_Im (s->mroot[i])) >= 0)
         fprintf (s->outstr, " + I * ");
       else
@@ -1261,15 +1261,15 @@ mps_outroot (mps_status * s, int i)
     fprintf (s->outstr, "0");
   else
     mps_outfloat (s, mpc_Im (s->mroot[i]), s->drad[i], out_digit,
-                  s->goal[4] != 'v');
+                  s->output_config->format != MPS_OUTPUT_FORMAT_VERBOSE);
 
   /* print format ending */
-  switch (s->goal[4])
+  switch (s->output_config->format)
     {
-    case 'c':
+    case MPS_OUTPUT_FORMAT_COMPACT:
       fprintf (s->outstr, ")");
       break;
-    case 'f':
+    case MPS_OUTPUT_FORMAT_FULL:
       fprintf (s->outstr, ")\n");
       if (i != ISZERO)
         {

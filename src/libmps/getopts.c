@@ -401,18 +401,23 @@ mps_parse_opts (mps_status * s, int argc, char *argv[])
               {
               case 'b':
                 s->goal[4] = 'b';
+		s->output_config->format = MPS_OUTPUT_FORMAT_BARE;
                 break;
               case 'g':
                 s->goal[4] = 'g';
+		s->output_config->format = MPS_OUTPUT_FORMAT_GNUPLOT;
                 break;
               case 'c':
                 s->goal[4] = 'c';
+		s->output_config->format = MPS_OUTPUT_FORMAT_COMPACT;
                 break;
               case 'v':
                 s->goal[4] = 'v';
+		s->output_config->format = MPS_OUTPUT_FORMAT_VERBOSE;
                 break;
               case 'f':
                 s->goal[4] = 'f';
+		s->output_config->format = MPS_OUTPUT_FORMAT_FULL;
                 break;
               default:
                 mps_error (s, 3, "Bad output format switch: ", argv[i] + 2,

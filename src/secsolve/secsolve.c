@@ -32,6 +32,12 @@ usage (mps_status * s, const char *program)
            "               m: Memory management\n"
            "               f: Function calls\n"
            "               Example: -dfi for function calls and improvement\n"
+	   " -O format   Select format for output:\n"
+	   "               f: Full output\n"
+	   "               b: Bare output\n"
+	   "               c: Compact output\n"
+	   "               v: Verbose output\n"
+	   "               g: Gnuplot-ready output\n"
            " -g          Use Gemignani's approach\n"
            " -t type     Type can be 'f' for floating point\n"
            "             or 'd' for DPE\n"
@@ -66,10 +72,37 @@ main (int argc, char **argv)
   mps_phase phase = float_phase;
 
   opt = NULL;
-  while ((mps_getopts (&opt, &argc, &argv, "gid::t:o:")))
+  while ((mps_getopts (&opt, &argc, &argv, "gid::t:o:O:")))
     {
       switch (opt->optchar)
         {
+	case 'O':
+	  /* Select the desired output format */
+	  if (!opt->optvalue)
+	    mps_error (s, 1, "An argument is needed for option 'O'");
+	  
+	  switch (*opt->optvalue)
+	    {
+	    case 'f':
+	      s->output_config->format = MPS_OUTPUT_FORMAT_FULL;
+	      break;
+	    case 'b':
+	      s->output_config->format = MPS_OUTPUT_FORMAT_BARE;
+	      break;
+	    case 'g':
+	      s->output_config->format = MPS_OUTPUT_FORMAT_GNUPLOT;
+	      break;
+	    case 'v':
+	      s->output_config->format = MPS_OUTPUT_FORMAT_VERBOSE;
+	      break;
+	    case 'c':
+	      s->output_config->format = MPS_OUTPUT_FORMAT_COMPACT;
+	      break;
+	    default:
+	      mps_error (s, 1, "The selected output format is not supported");
+	      break;
+	    }
+	    
         case 'g':
           /* Gemignani's approach. Regenerate b_i after floating
            * point cycle */

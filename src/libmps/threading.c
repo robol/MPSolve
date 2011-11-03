@@ -706,8 +706,6 @@ mps_thread_mpolzer (mps_status * s, int *it, mps_boolean * excep)
   else
     n_threads = s->n_threads;
 
-  // n_threads = 1;
-
   MPS_DEBUG (s, "Spawning %d threads", n_threads);
 
   pthread_t *threads = (pthread_t *) malloc (sizeof (pthread_t) * n_threads);

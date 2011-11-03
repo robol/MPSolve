@@ -219,6 +219,12 @@ extern "C"
 #define MPS_INPUT_CONFIG_IS_SECULAR(x)  (mps_secular_representations[(x->representation)])
 #define MPS_INPUT_CONFIG_IS_MONOMIAL(x) (mps_monomial_representations[(x->representation)])
 
+  /**
+   * @brief Density of the polynomial, or 
+   * MPS_DENSITY_USER if density doesn't make sense
+   * since user routines are provided to compute
+   * the newton fraction.
+   */
   typedef enum {
     MPS_DENSITY_DENSE,
     MPS_DENSITY_SPARSE,
@@ -232,6 +238,17 @@ extern "C"
 #define MPS_INPUT_CONFIG_IS_USER(x)     (mps_user_representations[(x->density)])
 #define MPS_INPUT_CONFIG_IS_SPARSE(x)   (mps_sparse_representations[(x->density)])
 #define MPS_INPUT_CONFIG_IS_DENSE(x)    (mps_dense_representations[(x->density)])
+
+  /**
+   * @brief Desired output format for the roots.
+   */
+  typedef enum {
+    MPS_OUTPUT_FORMAT_COMPACT,
+    MPS_OUTPUT_FORMAT_GNUPLOT,
+    MPS_OUTPUT_FORMAT_BARE,
+    MPS_OUTPUT_FORMAT_FULL,
+    MPS_OUTPUT_FORMAT_VERBOSE
+  } mps_output_format;
 
   /**
    * @brief Configuration for an input stream; this struct
@@ -288,6 +305,18 @@ extern "C"
      * @brief Digits of required output precision
      */
     long int prec;
+
+    /**
+     * @brief Desired output format.
+     *
+     * Could be one of
+     *  MPS_OUTPUT_FORMAT_BARE
+     *  MPS_OUTPUT_FORMAT_GNUPLOT
+     *  MPS_OUTPUT_FORMAT_COMPACT
+     *  MPS_OUTPUT_FORMAT_VERBOSE
+     *  MPS_OUTPUT_FORMAT_FULL
+     */
+    mps_output_format format;
 
   } mps_output_configuration;
 
