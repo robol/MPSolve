@@ -1352,7 +1352,7 @@ mps_secular_ga_improve (mps_status * s)
       if (s->debug_level & MPS_DEBUG_IMPROVEMENT)
 	MPS_DEBUG (s, "Root %d has %d correct digits", i, correct_digits);
       int iterations =
-        log (s->output_config->prec / correct_digits / LOG2_10) * LOG2_10 + 1;
+        log (1.0 * s->output_config->prec / correct_digits / LOG2_10) * LOG2_10 + 1;
       iterations = (iterations > 0) ? iterations : 0;
 
       if (s->debug_level & MPS_DEBUG_IMPROVEMENT)

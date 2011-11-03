@@ -93,7 +93,12 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
   /* Compute secular function */
   cplx_sub_eq (pol, cplx_one);
   sec_eps += DBL_EPSILON;
-  sec_eps /= cplx_mod (pol);
+
+  if (!cplx_eq_zero (pol))
+    sec_eps /= cplx_mod (pol);
+  else
+    sec_eps = 0;
+	
 
   /* If S(z) is the secular equation and
    * |S(z)| < eps => |z - z_0| < eps(1 + u) + (n+1)u
