@@ -769,7 +769,9 @@ mps_mcompute_starting_radii (mps_status * s, int n, int i_clust,
   /* Set last point of the partitioning */
   s->partitioning[s->n_radii] = n;
 
-  /* Compact radius that are too near */
+  /* Compact radius that are too near, but not if we are shifting. */
+  if (rdpe_ne (g, rdpe_zero))
+    return;
   for (i = 0; i < s->n_radii; i++)
     {
       /* Scan next radii to see if they are near the
