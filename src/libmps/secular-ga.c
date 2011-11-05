@@ -1467,6 +1467,7 @@ mps_secular_ga_mpsolve (mps_status * s)
     {
       s->frad[i] = DBL_MAX;
       rdpe_set_d (s->drad[i], DBL_MAX);
+      s->rootwp[i] = 53;
     }
 
   
@@ -1668,7 +1669,7 @@ mps_secular_ga_mpsolve (mps_status * s)
       else if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
 	{
 	  clock_t *my_timer = mps_start_timer ();
-	  mps_secular_ga_improve (s);
+	  mps_improve (s);
 	  unsigned int improve_time = mps_stop_timer (my_timer);
 	  if (s->debug_level & MPS_DEBUG_TIMINGS)
 	    {
