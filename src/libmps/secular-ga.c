@@ -1264,25 +1264,22 @@ mps_secular_ga_check_stop (mps_status * s)
 }
 
 /**
- * @brief Improve the isolated roots. Should be called after isolation
- * is reached and confirmed by <code>mps_secular_ga_check_stop ()</code>.
- *
- * @param s The mps_status of the computation.
+ * @brief Load the original coefficients of the secular equation.
+ * 
+ * This routine is used to load in the fields ampc and bmpc the original
+ * coefficients of the secular equation, mainly in the improvement of the
+ * isolated roots where the original coefficients (and not the rigenerated
+ * one) are used. 
  */
 void
-mps_secular_ga_improve (mps_status * s)
+mps_secular_ga_load_initial_coefficients (mps_status * s)
 {
   MPS_DEBUG_THIS_CALL;
 
   int i;
-  mps_secular_equation  * sec = s->secular_equation;
+  mps_secular_equation * sec = s->secular_equation;
 
-  if (s->lastphase != mp_phase)
-    mps_secular_switch_phase (s, mp_phase);
-
-  /* Before improving with newton we shall reuse
-   * the original coefficients */
-  for (i = 0; i < s->n; i++)
+ for (i = 0; i < s->n; i++)
     {
       if (MPS_INPUT_CONFIG_IS_SECULAR (s->input_config))
 	{
@@ -1304,17 +1301,35 @@ mps_secular_ga_improve (mps_status * s)
 			 s->secular_equation->initial_bmpqic[i]);
 	    }
 	}
-      else if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
-	{
-	  
-	}
       rdpe_set (sec->dregeneration_epsilon[i],
 		s->mp_epsilon);
     }
+}
 
+/**
+ * @brief Improve the isolated roots. Should be called after isolation
+ * is reached and confirmed by <code>mps_secular_ga_check_stop ()</code>.
+ *
+ * @param s The mps_status of the computation.
+ */
+void
+mps_secular_ga_improve (mps_status * s)
+{
+  MPS_DEBUG_THIS_CALL;
+
+  int i;
+  mps_secular_equation  * sec = s->secular_equation;
+
+  if (s->lastphase != mp_phase)
+    mps_secular_switch_phase (s, mp_phase);
+
+  /* Before improving with newton we shall reuse
+   * the original coefficients */
+  mps_secular_ga_load_initial_coefficients (s);
+ 
   mpc_t nwtcorr;
   cdpe_t ctmp;
-  rdpe_t rtmp, old_rad;
+  rdpe_t rtmp, old_rad, abroot;
   mps_secular_iteration_data user_data;
 
   mpc_init2 (nwtcorr, s->mpwp);
@@ -1360,23 +1375,33 @@ mps_secular_ga_improve (mps_status * s)
 	    }
         }
 
+      rdpe_set_d (sec->dregeneration_epsilon[i], 4 * DBL_EPSILON);
+
       for (j = 0; j < iterations; j++)
-        {	     
+        { 
 	  rdpe_set (old_rad, s->drad[i]);
 	  user_data.k = i;
           mps_secular_mnewton (s, s->mroot[i], s->drad[i], nwtcorr,
                                &s->again[i], &user_data);
-          mpc_sub_eq (s->mroot[i], nwtcorr);
 
 	  /* Compute quadratic radius */
-	  mpc_get_cdpe (ctmp, s->mroot[i]);
-	  cdpe_mod (rtmp, ctmp);
-	  rdpe_div_eq (old_rad, rtmp);
-	  rdpe_mul_eq (old_rad, old_rad);
-	  rdpe_mul_eq (old_rad, rtmp);
+	  mpc_get_cdpe (ctmp, s->mroot[i]); 
+	  cdpe_mod (rtmp, ctmp); 
+	  rdpe_div_eq (old_rad, rtmp); 
+	  rdpe_mul_eq (old_rad, old_rad); 
+	  rdpe_mul_eq (old_rad, rtmp); 
 
-	  if (rdpe_lt (old_rad, s->drad[i]))  
-	    rdpe_set (s->drad[i], old_rad);  
+	  /* if (rdpe_lt (old_rad, s->drad[i]))    */
+
+	  /* Apply newton correction */
+	  mpc_sub_eq (s->mroot[i], nwtcorr);
+
+	  mpc_get_cdpe (ctmp, s->mroot[i]);
+	  cdpe_mod (abroot, ctmp);
+	  
+	  correct_digits *= 2;
+	  rdpe_set_dl (s->drad[i], 1.0, -correct_digits + 1);
+	  rdpe_mul_eq (s->drad[i], abroot);
 
           /* Debug iterations */
           if (s->debug_level & MPS_DEBUG_IMPROVEMENT)
@@ -1401,6 +1426,7 @@ mps_secular_ga_improve (mps_status * s)
               mps_secular_raise_coefficient_precision (s, s->mpwp);
               mpc_set_prec (nwtcorr, s->mpwp);
               mpc_set_prec (s->mroot[i], s->mpwp);
+	      mps_secular_ga_load_initial_coefficients (s);
             }
         }
 
