@@ -245,7 +245,13 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
 
   /* Correct the old radius with the move that we are doing
    * and check if the new proposed radius is preferable. */
-  rdpe_set (rad, new_rad);
+  if (data)
+    data->radius_set = true;
+
+  if (rdpe_lt (new_rad, rad) || !data)
+    rdpe_set (rad, new_rad);
+  else 
+    data->radius_set = false;
   
   /* If newton correction is less than
    * the modules of |x| multiplied for
@@ -436,7 +442,11 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
    * and check if the new proposed radius is preferable. */
    if (data)
      data->radius_set = true;
-   rdpe_set (rad, new_rad);
+
+   if (rdpe_lt (new_rad, rad) || (!data))
+     rdpe_set (rad, new_rad);
+   else
+     data->radius_set = false;
 
    /* Compute guaranteed modulus of pol */
    mpc_get_cdpe (cdtmp, pol);

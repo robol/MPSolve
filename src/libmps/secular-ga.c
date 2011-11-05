@@ -417,14 +417,6 @@ mps_secular_ga_miterate (mps_status * s, int maxit)
                   mpc_div (abcorr, corr, abcorr);
                   mpc_sub_eq (s->mroot[k], abcorr);
 
-		  if (!user_data.radius_set)
-		    {
-		      fprintf (stderr, "Radius not set\n");
-		      mpc_get_cdpe (ctmp, abcorr);
-		      cdpe_mod (rtmp, ctmp);
-		      rdpe_add_eq (s->drad[k], rtmp);
-		    }
-
                   /* Correct the radius */
                   mpc_get_cdpe (ctmp, abcorr);
                   cdpe_mod (modcorr, ctmp);
