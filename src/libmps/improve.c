@@ -114,8 +114,8 @@ mps_improve (mps_status * s)
    * scan the approximations to apply Newton's iterations */
   for (i = 0; i < s->n; i++)
     {
-      if (s->DOLOG)
-        fprintf (s->logstr, "root %d\n", i);
+      if (s->debug_level & MPS_DEBUG_IMPROVEMENT)
+        MPS_DEBUG (s, "Starting to refine root %d", i);
       if (s->status[i][0] != 'i' || s->status[i][2] == 'o')
         {
           MPS_DEBUG (s,
@@ -183,8 +183,8 @@ mps_improve (mps_status * s)
       rdpe_set (oldrad, s->drad[i]);
       for (j = 1; j <= m; j++)
         {
-          if (s->DOLOG)
-            fprintf (s->logstr, "iter= %d\n", j);
+          if (s->debug_level & MPS_DEBUG_IMPROVEMENT)
+            MPS_DEBUG (s, "Iteration %d of the improvement of root %d", j, i);
           g *= 2;
           s->mpwp = (long) (f + g + cnd);
           if (s->mpwp >= mpnb_in && mpnb_in != 0)
