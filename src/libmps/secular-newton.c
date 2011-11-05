@@ -80,6 +80,7 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
     sec_eps /= cplx_mod (pol);
   else
     {
+      data->radius_set = false;
       *again = false;
       return;
     }
@@ -104,8 +105,15 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
 
   /* Correct the old radius with the move that we are doing
    * and check if the new proposed radius is preferable. */
-  // if (new_rad < *rad || (*rad == 0)) 
-     *rad = new_rad; 
+  if (new_rad < *rad || (*rad == 0) || (!data))
+    {
+      *rad = new_rad;
+      data->radius_set = true;
+    }
+  else
+    {
+      data->radius_set = false;      
+    }
 
   /* If the correction is not useful in the current precision do
    * not iterate more   */
