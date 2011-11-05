@@ -104,14 +104,9 @@ mps_improve (mps_status * s)
   else
     {
       mps_mp_set_prec (s, mpnb_out * 2);
-      if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
-	{
-	  mps_prepare_data (s, mpnb_out * 2);
-	}
-      else
-	{
-	  mps_secular_raise_coefficient_precision (s, mpnb_out * 2);
-	}
+      mps_prepare_data (s, mpnb_out * 2);
+      if (MPS_INPUT_CONFIG_IS_SECULAR (s->input_config))
+	mps_secular_raise_coefficient_precision (s, mpnb_out * 2);
     }
 
 
@@ -203,10 +198,9 @@ mps_improve (mps_status * s)
 	  /* If using the standard MPSolve algorithm then use the old
 	   * mps_prepare_data routine, otherwise use the one that
 	   * raises the precision of the coefficients */
-          if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
-            mps_prepare_data (s, s->mpwp);
-          else
-            mps_secular_raise_coefficient_precision (s, s->mpwp);
+	  mps_prepare_data (s, s->mpwp);
+          if (MPS_INPUT_CONFIG_IS_SECULAR (s->input_config))
+	      mps_secular_raise_coefficient_precision (s, s->mpwp);
 
           if (s->data_type[0] != 'u')
             {
