@@ -597,7 +597,7 @@ mps_secular_ga_required_regenerations_bits (mps_status * s)
 
       /* We need now to determine the required bits of precision to
        * get a relative error smaller than the required one. */
-      required_bits = (rdpe_log (total_eps) * LOG2 + s->mpwp / 2);
+      required_bits = (rdpe_log (total_eps) * LOG2 + s->mpwp);
 
       if (s->debug_level & MPS_DEBUG_REGENERATION)
 	{

@@ -35,24 +35,6 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
 
       if (cplx_eq_zero (ctmp))
         {
-          int j;
-	  prod_b = 1.0;
-          cplx_set (corr, cplx_zero);
-          for (j = 0; j < s->n; j++)
-            {
-              if (i == j)
-                continue;
-              cplx_add (ctmp, sec->afpc[i], sec->afpc[j]);
-              cplx_sub (sumb, x, sec->bfpc[j]);
-              cplx_div_eq (ctmp, sumb);
-              cplx_add_eq (corr, ctmp);
-            }
-          cplx_sub_eq (corr, cplx_one);
-          cplx_inv_eq (corr);
-          cplx_mul_eq (corr, sec->afpc[i]);
-
-          MPS_DEBUG_CPLX (s, corr, "x - b_i is zero, so computing the roots with an alternate method gives corr");
-
           *again = true;
           return;
         }
@@ -97,8 +79,11 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
   if (!cplx_eq_zero (pol))
     sec_eps /= cplx_mod (pol);
   else
-    sec_eps = 0;
-	
+    {
+      data->radius_set = false;
+      *again = false;
+      return;
+    }
 
   /* If S(z) is the secular equation and
    * |S(z)| < eps => |z - z_0| < eps(1 + u) + (n+1)u
@@ -116,12 +101,19 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
     cplx_div (corr, pol, corr);
 
   /* Computation of radius with Gerschgorin */
-  new_rad = cplx_mod (pol) * s->n * prod_b * (1 + sec_eps) + (cplx_mod (x) * DBL_EPSILON);
+  new_rad = (cplx_mod (pol)) * s->n * prod_b * (1 + sec_eps) + (cplx_mod (x) * DBL_EPSILON);
 
   /* Correct the old radius with the move that we are doing
    * and check if the new proposed radius is preferable. */
-  // if (new_rad < *rad || (*rad == 0)) 
-     *rad = new_rad; 
+  if (new_rad < *rad || (*rad == 0) || (!data))
+    {
+      *rad = new_rad;
+      data->radius_set = true;
+    }
+  else
+    {
+      data->radius_set = false;      
+    }
 
   /* If the correction is not useful in the current precision do
    * not iterate more   */
