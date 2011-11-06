@@ -79,6 +79,9 @@ test_unisolve_on_pol (test_pol * pol)
   /* Test if roots are equal to the roots provided in the check */
   for (i = 0; i < s->n; i++)
     {
+      rdpe_t rtmp;
+      cdpe_t cdtmp;
+
       while (isspace (ch = getc (check_stream)));
       ungetc (ch, check_stream);
       mpc_inp_str (root, check_stream, 10);
@@ -87,14 +90,14 @@ test_unisolve_on_pol (test_pol * pol)
       for (j = 0; j < s->n; j++)
         {
           mpc_sub (ctmp, root, s->mroot[j]);
-          mpc_mod (mroot, ctmp);
-          mpc_mod (ftmp, s->mroot[j]);
-          mpf_mul_eq (ftmp, eps);
-          if (mpf_cmp (mroot, ftmp) <= 0)
-            {
-              passed = true;
-              break;
-            }
+	  mpc_get_cdpe (cdtmp, ctmp);
+	  cdpe_mod (rtmp, ctmp);
+
+	  if (rdpe_le (rtmp, s->drad[i]))
+	    {
+	      passed = true;
+	      break;
+	    }
         }
     }
 

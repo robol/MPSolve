@@ -1389,9 +1389,7 @@ mps_secular_ga_improve (mps_status * s)
 	  cdpe_mod (rtmp, ctmp); 
 	  rdpe_div_eq (old_rad, rtmp); 
 	  rdpe_mul_eq (old_rad, old_rad); 
-	  rdpe_mul_eq (old_rad, rtmp); 
-
-	  /* if (rdpe_lt (old_rad, s->drad[i]))    */
+	  rdpe_mul_eq (old_rad, rtmp);
 
 	  /* Apply newton correction */
 	  mpc_sub_eq (s->mroot[i], nwtcorr);
