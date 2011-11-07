@@ -87,17 +87,31 @@ test_secsolve_on_pol (test_pol * pol)
   else
     mps_status_select_algorithm (s, MPS_ALGORITHM_SECULAR_GA);
 
-  strncpy (s->goal, "aannc", 5);
+  strncpy (s->goal, "iannc", 5);
   s->output_config->prec = (int) ((pol->out_digits + 1) * LOG2_10) + 1;
   s->input_config->prec = 0;
 
   mps_mpsolve (s);
 
+  printf("Computed results are not exact to the required "
+	 "precision.\n" "\n" " Dumping test configuration: \n"
+	 "   => Polynomial file: %s;\n" "   => Required digits: %d\n"
+	 "   => Gemignani's approach: %s;\n"
+	 "   => Starting phase: %s;\n", pol->pol_file, pol->out_digits,
+	 mps_boolean_to_string (pol->ga),
+	 (pol->phase == float_phase) ? "float_phase" : "dpe_phase");;
+  
+
   /* Test if roots are equal to the roots provided in the check */
   for (i = 0; i < s->n; i++)
     {
-      rdpe_t rtmp;
+      rdpe_t rtmp, min_dist;
       cdpe_t cdtmp;
+
+      rdpe_set (min_dist, RDPE_MAX);
+
+      mpc_clear (root);
+      mpc_init2 (root, mpc_get_prec (s->mroot[i]));
 
       while (isspace (ch = getc (check_stream)));
       ungetc (ch, check_stream);
@@ -109,16 +123,32 @@ test_secsolve_on_pol (test_pol * pol)
           mpc_sub (ctmp, root, s->mroot[j]);
 
 	  mpc_get_cdpe (cdtmp, ctmp);
-	  cdpe_mod (rtmp, ctmp);
+	  cdpe_mod (rtmp, cdtmp);
 
-	  if (rdpe_le (rtmp, s->drad[i]))
-	    {
-	      passed = true;
-	      break;
-	    }
+	  if (rdpe_le (rtmp, min_dist))
+	      rdpe_set (min_dist, rtmp);
         }
-    }
 
+      if (rdpe_le (min_dist, s->drad[i]))
+	passed = true;
+      else
+	{
+	  /* printf("Setting passed to true with root %d\n", i); */
+	  /* printf ("s->mroot[%d] = ", i);  */
+	  /* mpc_out_str (stdout, 10, 20, s->mroot[i]);  */
+	  /* printf("\n");  */
+
+	  /* printf("s->drad[%d] = ", i); */
+	  /* rdpe_out_str (stdout, s->drad[i]);  */
+	  /* // printf("%e", s->frad[i]); */
+	  /* printf("\n");  */
+	  
+	  /* printf("min_dist[%d] = ", i);  */
+	  /* rdpe_out_str (stdout, min_dist);  */
+	  /* printf("\n");  */
+	}
+      
+    }
   mpf_clear (mroot);
   mpf_clear (eps);
   mpc_clear (root);
@@ -247,6 +277,19 @@ START_TEST (test_secsolve_mand)
 }
 END_TEST
 
+START_TEST (test_secsolve_exp)
+{
+  /* Testing secsolve on truncated exponential series */
+  test_pol * pol = test_pol_new ("exp50", "unisolve", 11, float_phase, true);
+  test_secsolve_on_pol (pol);
+  test_pol_free (pol);
+
+  pol = test_pol_new ("exp100", "unisolve", 11, float_phase, true);
+  test_secsolve_on_pol (pol);
+  test_pol_free (pol);
+}
+END_TEST
+
 /**
  * @brief Create the secsolve test suite
  */
@@ -279,6 +322,9 @@ END_TEST
   /* Kam polynomials */
   /* Still not ready. */
   /* tcase_add_test (tc_mpsolve, test_secsolve_kam); */
+
+  /* Exponentials */
+  tcase_add_test (tc_mpsolve, test_secsolve_exp);
 
   /* Mandelbrot polynomials */
   tcase_add_test (tc_mpsolve, test_secsolve_mand);

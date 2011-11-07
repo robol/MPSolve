@@ -559,8 +559,8 @@ static rdpe_t temp_rdpe;
 /* constants */
 const rdpe_t rdpe_zero = { {0.0, 0L} };
 const rdpe_t rdpe_one = { {0.5, 1L} };
-const rdpe_t RDPE_MAX = { {0.5, LONG_MAX} };
-const rdpe_t RDPE_MIN = { {0.5, LONG_MIN} };
+const rdpe_t RDPE_MAX = { {0.5, LONG_MAX << 10} };
+const rdpe_t RDPE_MIN = { {0.5, LONG_MIN >> 10} };
 const rdpe_t rdpe_maxd = { {0.5, DBL_MAX_EXP} };
 const rdpe_t rdpe_mind = { {0.5, DBL_MIN_EXP} };
 

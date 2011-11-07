@@ -1355,7 +1355,7 @@ mps_secular_ga_improve (mps_status * s)
       rdpe_div_eq (rtmp, s->drad[i]);
 
       /* Find correct digits and maximum number of iterations */
-      int correct_digits = rdpe_log10 (rtmp);
+      int correct_digits = rdpe_log10 (rtmp) - 1;
       if (s->debug_level & MPS_DEBUG_IMPROVEMENT)
 	MPS_DEBUG (s, "Root %d has %d correct digits", i, correct_digits);
       int iterations =
@@ -1399,6 +1399,7 @@ mps_secular_ga_improve (mps_status * s)
 	  
 	  correct_digits *= 2;
 	  rdpe_set_dl (s->drad[i], 1.0, -correct_digits + 1);
+	  rdpe_add_eq (s->drad[i], s->mp_epsilon);
 	  rdpe_mul_eq (s->drad[i], abroot);
 
           /* Debug iterations */
@@ -1474,6 +1475,7 @@ mps_secular_ga_mpsolve (mps_status * s)
   /* Set degree and allocate polynomial-related variables
    * to allow initializitation to be performed. */
   s->deg = s->n = sec->n;
+  s->n_threads = 1;
 
   if (MPS_INPUT_CONFIG_IS_SECULAR (s->input_config))
     s->data_type = "uri";
@@ -1630,7 +1632,10 @@ mps_secular_ga_mpsolve (mps_status * s)
       if (s->lastphase != mp_phase)
 	{
 	  if (sec->best_approx)
-	    mps_secular_ga_regenerate_coefficients (s);
+	    {
+	      mps_secular_ga_regenerate_coefficients (s);
+	      skip_check_stop = false;
+	    }
 	  else
 	    skip_check_stop = true;
 	}
@@ -1648,13 +1653,14 @@ mps_secular_ga_mpsolve (mps_status * s)
             {
               mps_secular_switch_phase (s, mp_phase);
 	      mps_secular_ga_regenerate_coefficients (s);
+	      skip_check_stop = false;
 	    }
           else
             {
               /* Raising precision otherwise */
               mps_secular_raise_precision (s, 2 * s->mpwp);
               mps_secular_ga_regenerate_coefficients (s);
-              skip_check_stop = true;
+              skip_check_stop = false;
 
 	      for (i = 0; i < s->n; ++i)
 		{
@@ -1699,6 +1705,9 @@ mps_secular_ga_mpsolve (mps_status * s)
 	    }
 	}
     }
+
+  if (s->lastphase == mp_phase)
+    mps_restore_data (s);
 
   /* Finally copy the roots ready for output */
   mps_copy_roots (s);

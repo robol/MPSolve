@@ -19,7 +19,7 @@
 #include <float.h>
 #include <mps/core.h>
 #include <mps/interface.h>
-
+#include <fenv.h>
 
 
 /**
@@ -45,6 +45,8 @@ mps_standard_mpsolve (mps_status * s)
   char which_case;
   mps_boolean d_after_f, computed, over_max;
   clock_t *my_timer = mps_start_timer ();
+
+  feenableexcept (FE_INVALID|FE_DIVBYZERO|FE_OVERFLOW);
 
   mps_allocate_data (s);
 
