@@ -43,6 +43,7 @@
 #include <gmp.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 /**
  * @brief Call the real polynomial (or secular equation, or whatever) solver
@@ -86,7 +87,7 @@ mps_status_select_algorithm (mps_status * s, mps_algorithm algorithm)
       break;
 
     case MPS_ALGORITHM_SECULAR_MPSOLVE:
-      s->data_type = "uri";
+      s->data_type = strdup ("uri");
 
       /* Set custom routines for newton quotient computation */
       s->fnewton_usr = MPS_FNEWTON_PTR (mps_secular_fnewton);
@@ -145,7 +146,7 @@ mps_status_new ()
   s->logstr = stdout;
 
   /* Allocate space for the configurations */
-  s->input_config  = (mps_input_configuration *) malloc (sizeof (mps_input_configuration));
+  s->input_config  = (mps_input_configuration  *) malloc (sizeof (mps_input_configuration));
   s->output_config = (mps_output_configuration *) malloc (sizeof (mps_output_configuration));
 
   mps_set_default_values (s);
@@ -177,6 +178,7 @@ mps_status_free (mps_status * s)
   if (s->secular_equation)
     mps_secular_equation_free (s->secular_equation);
 
+  free (s->data_type);
   free (s);
 }
 
@@ -223,7 +225,7 @@ mps_status_set_poly_u (mps_status * s, int n, mps_fnewton_ptr fnewton,
   mps_status_set_degree (s, n);
 
   /* TODO: Apart from u, what should be set here? */
-  s->data_type = "uri";
+  s->data_type = strdup ("uri");
 
   /* Set functions */
   s->fnewton_usr = fnewton;
@@ -304,7 +306,7 @@ mps_status_set_poly_d (mps_status * s, cplx_t * coeff, long unsigned int n)
   mps_monomial_poly * p = mps_monomial_poly_new (s, n);
 
   /* Set type to a dense, real, floating point polynomial */
-  s->data_type = "dcf";
+  s->data_type = strdup ("dcf");
 
   /* Fill polynomial coefficients */
   for (i = 0; i <= n; i++)
@@ -337,7 +339,7 @@ mps_status_set_poly_i (mps_status * s, int *coeff, long unsigned int n)
   mps_monomial_poly * p = mps_monomial_poly_new (s, n);
 
   /* Dense, real, integer coefficients */
-  s->data_type = "drq";
+  s->data_type = strdup ("drq");
 
   /* Fill polynomial */
   for (i = 0; i <= n; i++)

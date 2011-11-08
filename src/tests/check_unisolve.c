@@ -28,9 +28,6 @@ test_unisolve_on_pol (test_pol * pol)
   FILE *check_stream;
   mps_boolean passed = true;
   mpc_t root, ctmp;
-  mpf_t mroot;
-  mpf_t ftmp;
-  mpf_t eps;
   int i, j, prec = pol->out_digits * LOG2_10;
   int ch;
 
@@ -49,11 +46,6 @@ test_unisolve_on_pol (test_pol * pol)
 
   mpc_init2 (root, prec);
   mpc_init2 (ctmp, prec);
-  mpf_init2 (mroot, prec);
-  mpf_init2 (eps, prec);
-  mpf_init2 (ftmp, prec);
-
-  mpf_set_2dl (eps, 1.0, -pol->out_digits);
 
   /* Open streams */
   input_stream = fopen (pol->pol_file, "r");
@@ -81,55 +73,54 @@ test_unisolve_on_pol (test_pol * pol)
     {
       rdpe_t rtmp;
       cdpe_t cdtmp;
+      rdpe_t min_dist;
 
       while (isspace (ch = getc (check_stream)));
       ungetc (ch, check_stream);
       mpc_inp_str (root, check_stream, 10);
 
       passed = false;
+      rdpe_set (min_dist, RDPE_MAX);
       for (j = 0; j < s->n; j++)
         {
           mpc_sub (ctmp, root, s->mroot[j]);
 	  mpc_get_cdpe (cdtmp, ctmp);
-	  cdpe_mod (rtmp, ctmp);
+	  cdpe_mod (rtmp, cdtmp);
 
-	  if (rdpe_le (rtmp, s->drad[i]))
+	  if (rdpe_le (rtmp, min_dist))
 	    {
-	      passed = true;
+	      rdpe_set (min_dist, rtmp);
 	      break;
 	    }
         }
+
+      if (rdpe_le (min_dist, s->drad[i]) || s->over_max)
+	{
+	  passed = true;
+	}
     }
 
-  mpf_clear (mroot);
-  mpf_clear (eps);
   mpc_clear (root);
   mpc_clear (ctmp);
-  mpf_clear (ftmp);
 
   fclose (input_stream);
   fclose (check_stream);
 
-
-  if (s->input_config->prec > pol->out_digits)
-    {
-      if (passed)
-	fprintf (stderr, "\rChecking %-30s [\033[32;1m  done  \033[0m]\n", pol->pol_file);
-      else
-	fprintf (stderr, "\rChecking %-30s [\033[31;1m failed \033[0m]\n", pol->pol_file);
-
-      fail_unless (passed == true,
-                   "Computed results are not exact to the required "
-                   "precision.\n" "\n" " Dumping test configuration: \n"
-                   "   => Polynomial file: %s;\n"
-                   "   => Required digits: %d\n", pol->pol_file,
-                   pol->out_digits);
-    }
-  else
-    fprintf (stderr, "\rChecking %-30s [\033[32;1m  done  \033[0m]\n", pol->pol_file);
+  {
+    if (passed)
+      fprintf (stderr, "\rChecking %-30s [\033[32;1m  done  \033[0m]\n", pol->pol_file);
+    else
+      fprintf (stderr, "\rChecking %-30s [\033[31;1m failed \033[0m]\n", pol->pol_file);
+    
+    fail_unless (passed == true,
+		 "Computed results are not exact to the required "
+		 "precision.\n" "\n" " Dumping test configuration: \n"
+		 "   => Polynomial file: %s;\n"
+		 "   => Required digits: %d\n", pol->pol_file,
+		 pol->out_digits);
+  }
 
   mps_status_free (s);
-
 }
 
 
@@ -199,10 +190,9 @@ main (void)
       test_polynomials[n++] = test_pol_new_simple ("trv_m", digits[i]);
       test_polynomials[n++] = test_pol_new_simple ("umand31", digits[i]);
       test_polynomials[n++] = test_pol_new_simple ("wilk20", digits[i]);
-      test_polynomials[n++] = test_pol_new_simple ("wilk40", digits[i]);
+      test_polynomials[n++] = test_pol_new_simple ("wilk40", digits[i] );
       test_polynomials[n++] = test_pol_new_simple ("toep1_128", digits[i]);
     }
-
 
   /* Create a new test suite for secsolve and run it */
   Suite *s = unisolve_suite (n);

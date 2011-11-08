@@ -569,7 +569,7 @@ void
 mps_parse_stream_old (mps_status * s, mps_input_buffer * buffer)
 {
   int i;
-  mps_monomial_poly *poly = s->monomial_poly;
+  mps_monomial_poly *poly;
   char data_type[3];
   char *token;
   mpf_t ftmp;
@@ -644,14 +644,14 @@ mps_parse_stream_old (mps_status * s, mps_input_buffer * buffer)
 
   /* For backward temporary compatibility with the old MPSolve routines
    * that have not been migrated to the new API yet, we set data_type */
-  if (!s->data_type)
-    s->data_type = (char *) malloc (sizeof(char) * 4);
-  strncpy (s->data_type, data_type, 3);
+  s->data_type = strdup (data_type);
 
   /* Read precision and degree */
   token = mps_input_buffer_next_token (buffer);
   if (!token || !sscanf (token, "%ld", &s->input_config->prec))
     mps_error (s, 1, "Error while reading the input precision of the coefficients");
+  else 
+    s->input_config->prec *= LOG2_10; 
   free (token);
 
   token = mps_input_buffer_next_token (buffer);
@@ -882,7 +882,6 @@ mps_parse_stream_old (mps_status * s, mps_input_buffer * buffer)
 	       mpf_set_q (mpc_Im (poly->mfpc[i]), poly->initial_mqp_i[i]); 
 	     }
 
-
 	  mpc_get_cplx (poly->fpc[i], poly->mfpc[i]);
 	  mpc_get_cdpe (poly->dpc[i], poly->mfpc[i]);
 
@@ -892,6 +891,8 @@ mps_parse_stream_old (mps_status * s, mps_input_buffer * buffer)
 
 	  if (s->data_type[2] == 'f')
 	    mpf_set (poly->mfpr[i], mpc_Re (poly->mfpc[i]));
+
+	  MPS_DEBUG_MPC (s, 15, poly->mfpc[i], "s->mfpc[%d]", i);
 	}
       else
 	{
@@ -911,7 +912,6 @@ mps_parse_stream_old (mps_status * s, mps_input_buffer * buffer)
   mps_status_set_input_poly (s, poly, s->input_config->structure);
   mpf_clear (ftmp);
   mpq_clear (qtmp);
-  mps_input_buffer_free (buffer);
 }
 
 
@@ -943,7 +943,7 @@ mps_parse_stream (mps_status * s, FILE * input_stream)
   while (parsing_options)
     {
       mps_input_buffer_readline (buffer);
-      line = strdup (buffer->line);
+      line = buffer->line;
       if (strchr (line, ';') == NULL || mps_input_buffer_eof (buffer))
         {
 	  if (s->debug_level & MPS_DEBUG_IO)
@@ -958,6 +958,7 @@ mps_parse_stream (mps_status * s, FILE * input_stream)
 	       * to parse it that way */
 	      MPS_DEBUG (s, "This is not a MPSolve 3.0 pol file, so trying with 2.x format");
 	      mps_parse_stream_old (s, buffer);
+	      mps_input_buffer_free (buffer);
 	      return;
 	    }
           parsing_options = false;
@@ -1040,8 +1041,6 @@ mps_parse_stream (mps_status * s, FILE * input_stream)
             }
         }
 
-      /* Free the line obtained */
-      free (line);
     }
 
   /* Since the Degree is a required parameter, we ask that it is provided. */

@@ -1183,10 +1183,10 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
     {
       for (i = 0; i < s->n; i++)
 	rdpe_set (sec->dregeneration_epsilon[i], old_dregeneration_epsilon[i]);
-
-      rdpe_vfree (old_dregeneration_epsilon);
     }
 
+
+  rdpe_vfree (old_dregeneration_epsilon);
   mps_secular_set_radii (s);
 
   return successful_regeneration;
@@ -1457,6 +1457,8 @@ mps_secular_ga_mpsolve (mps_status * s)
   mps_monomial_poly *poly = s->monomial_poly;
   mps_phase phase = sec->starting_case;
 
+  s->n_threads = 1;
+
   mps_allocate_data (s);
   rdpe_set_d (r_eps, DBL_EPSILON);
 
@@ -1475,12 +1477,11 @@ mps_secular_ga_mpsolve (mps_status * s)
   /* Set degree and allocate polynomial-related variables
    * to allow initializitation to be performed. */
   s->deg = s->n = sec->n;
-  s->n_threads = 1;
 
   if (MPS_INPUT_CONFIG_IS_SECULAR (s->input_config))
-    s->data_type = "uri";
+    s->data_type = strdup ("uri");
   else if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
-    s->data_type = "dri";
+    s->data_type = strdup ("dri");
 
   /* Manually set FILE* pointer for streams.
    * More refined options will be added later. */
@@ -1714,6 +1715,7 @@ mps_secular_ga_mpsolve (mps_status * s)
 
   /* Debug total time taken but only if debug is enabled */
 #ifndef DISABLE_DEBUG
+  long total_time = mps_stop_timer (total_clock);
   if (s->debug_level & MPS_DEBUG_TIMINGS)
     {
       MPS_DEBUG (s, "Time used for regeneration: %ld ms",
@@ -1725,7 +1727,7 @@ mps_secular_ga_mpsolve (mps_status * s)
       MPS_DEBUG (s, "Time used in multiprecision iterations: %ld ms",
                  s->mp_iteration_time);
       MPS_DEBUG (s, "Total time using MPSolve: %ld ms",
-                 mps_stop_timer (total_clock));
+                 total_time);
     }
 #endif
 

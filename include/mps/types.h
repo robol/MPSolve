@@ -645,6 +645,11 @@ extern "C"
     unsigned int debug_level;
 
     /**
+     * @brief True if the computation has reached the maximum allowed precision.
+     */
+    mps_boolean over_max;
+
+    /**
      * @brief Configuration of the input of MPSolve
      */
     mps_input_configuration * input_config;
@@ -803,7 +808,7 @@ extern "C"
      * - <code>'b'</code> means bigfloat coefficents;
      * - <code>'f'</code> means floating point coefficients;
      */
-    char *data_type;
+    char * data_type;
 
     /* Solution related variables */
     /**

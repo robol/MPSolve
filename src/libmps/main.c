@@ -46,7 +46,7 @@ mps_standard_mpsolve (mps_status * s)
   mps_boolean d_after_f, computed, over_max;
   clock_t *my_timer = mps_start_timer ();
 
-  feenableexcept (FE_INVALID|FE_DIVBYZERO|FE_OVERFLOW);
+  // feenableexcept (FE_INVALID|FE_DIVBYZERO|FE_OVERFLOW);
 
   mps_allocate_data (s);
 
@@ -219,9 +219,19 @@ mps_standard_mpsolve (mps_status * s)
   if (!computed)
     {
       if (over_max)
-        mps_error (s, 1, "Reached the maximum working precision");
+	{
+	  s->over_max = true;
+	  // mps_error (s, 1, "Reached the maximum working precision");
+	  MPS_DEBUG (s, "Reached the maximum working precision");
+	  goto exit_sub;
+	}
       else
-        mps_warn (s, "Reached the input precision");
+	{
+	  // mps_warn (s, "Reached the input precision");
+	  MPS_DEBUG (s, "Reached the input precision");
+	  goto exit_sub;
+	}
+	  
     }
 
 exit_sub:
@@ -242,7 +252,8 @@ exit_sub:
   if (s->lastphase == mp_phase)
     mps_restore_data (s);
 
-  MPS_DEBUG (s, "Total time using MPSolve: %lu ms", mps_stop_timer (my_timer));
+  long total_time = mps_stop_timer (my_timer);
+  MPS_DEBUG (s, "Total time using MPSolve: %lu ms", total_time);
 
   /* Finally copy the roots ready for output */
   mps_copy_roots (s);

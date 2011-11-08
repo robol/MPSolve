@@ -186,6 +186,9 @@ mps_maberth_s_wl (mps_status * s, int j, int jc, mpc_t abcorr,
       mpc_sub (diff, s->mroot[j], s->mroot[k]);
       pthread_mutex_unlock (&aberth_mutexes[k]);
       mpc_get_cdpe (z, diff);
+
+      if (cdpe_eq_zero(z))
+	continue;
       cdpe_inv_eq (z);
       cdpe_add_eq (temp, z);
     }

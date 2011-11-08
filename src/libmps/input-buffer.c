@@ -136,12 +136,10 @@ mps_input_buffer_next_token (mps_input_buffer * buf)
       mps_input_buffer_readline (buf);
     }
 
-  last_char = buf->line + strlen (buf->line);
-
   do {
     /* See if we have found the starting of the token, selecting 
     * things that are not spaces nor end NULL characters. */
-    if (!(isspace (*buf->last_token) || !*buf->last_token) && !token)
+    if (!(isspace (*buf->last_token) || (*buf->last_token == '\0')) && (token == NULL))
       {
 	token = buf->last_token;
       }
@@ -150,10 +148,10 @@ mps_input_buffer_next_token (mps_input_buffer * buf)
     if (token)
       token_size++;
     buf->last_token++;
-  } while ((buf->last_token < last_char) && (!token || !isspace (*buf->last_token)));
+  } while ((*buf->last_token != '\0') && (!token || !isspace (*buf->last_token)));
 
   /* Check if we have parsed something or if we need to read another line */
-  if (!token && (buf->last_token >= last_char))
+  if (!token && (*buf->last_token == '\0'))
     {
       if (mps_input_buffer_eof (buf))
 	return NULL;

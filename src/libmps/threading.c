@@ -51,23 +51,6 @@ mps_thread_get_core_number (mps_status * s)
   return cores;
 }
 
-/**
- * @brief Get a pointer to an array of n+2 booleans
- * that is local to the thread.
- */
-#define mps_thread_get_spar2(s, n_thread) (s->spar2 + (s->n + 2) * (n_thread))
-
-/**
- * @brief Get a pointer to an array of n+2 multiprecision
- * that is local to the thread.
- */
-#define mps_thread_get_mfpc2(s, n_thread) (s->mfpc2 + (s->n + 1) * (n_thread))
-
-/**
- * @brief Get a pointer to an array of n+2 DPE
- * that is local to the thread.
- */
-#define mps_thread_get_dap2(s, n_thread) (s->dap2 + (s->n + 1) * (n_thread))
 
 /**
  * @brief Create a new mps_thread_job_queue that can
@@ -560,7 +543,7 @@ mps_thread_mpolzer_worker (void *data_ptr)
       if (job.iter == MPS_THREAD_JOB_EXCEP)
         {
           (*data->excep) = true;
-          return 0;
+	  goto endfun;
         }
 
       l = s->clust[job.i];

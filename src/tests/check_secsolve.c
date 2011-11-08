@@ -87,19 +87,19 @@ test_secsolve_on_pol (test_pol * pol)
   else
     mps_status_select_algorithm (s, MPS_ALGORITHM_SECULAR_GA);
 
-  strncpy (s->goal, "iannc", 5);
+  strncpy (s->goal, "aannc", 5);
   s->output_config->prec = (int) ((pol->out_digits + 1) * LOG2_10) + 1;
   s->input_config->prec = 0;
 
   mps_mpsolve (s);
 
-  printf("Computed results are not exact to the required "
-	 "precision.\n" "\n" " Dumping test configuration: \n"
-	 "   => Polynomial file: %s;\n" "   => Required digits: %d\n"
-	 "   => Gemignani's approach: %s;\n"
-	 "   => Starting phase: %s;\n", pol->pol_file, pol->out_digits,
-	 mps_boolean_to_string (pol->ga),
-	 (pol->phase == float_phase) ? "float_phase" : "dpe_phase");;
+  /* printf("Computed results are not exact to the required " */
+  /* 	 "precision.\n" "\n" " Dumping test configuration: \n" */
+  /* 	 "   => Polynomial file: %s;\n" "   => Required digits: %d\n" */
+  /* 	 "   => Gemignani's approach: %s;\n" */
+  /* 	 "   => Starting phase: %s;\n", pol->pol_file, pol->out_digits, */
+  /* 	 mps_boolean_to_string (pol->ga), */
+  /* 	 (pol->phase == float_phase) ? "float_phase" : "dpe_phase");; */
   
 
   /* Test if roots are equal to the roots provided in the check */

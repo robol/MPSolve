@@ -181,7 +181,7 @@ extern "C"
  * @brief Get a pointer to an array of n+2 booleans
  * that is local to the thread.
  */
-#define mps_thread_get_spar2(s, n_thread) (s->spar2 + (s->n + 2) * (n_thread))
+#define mps_thread_get_spar2(s, n_thread) (s->spar2 + (s->n + 1) * (n_thread))
 
 /**
  * @brief Get a pointer to an array of n+2 multiprecision

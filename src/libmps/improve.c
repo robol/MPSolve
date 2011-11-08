@@ -242,5 +242,6 @@ mps_improve (mps_status * s)
   tmpc_clear (nwtcorr);
   tmpc_clear (mtmp);
 
-  MPS_DEBUG (s, "Improvement of roots took %lu ms", mps_stop_timer (my_timer));
+  long improve_time = mps_stop_timer (my_timer);
+  MPS_DEBUG (s, "Improvement of roots took %lu ms", improve_time);
 }

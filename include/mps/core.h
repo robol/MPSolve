@@ -66,7 +66,7 @@ extern "C"
 /* FUNCTIONS */
 
 /* Functions in input-buffer.c */
-#define MPS_INPUT_BUFFER_HISTORY_DEFAULT_SIZE 3
+#define MPS_INPUT_BUFFER_HISTORY_DEFAULT_SIZE 2
   mps_input_buffer *mps_input_buffer_new (FILE * stream);
   char *mps_input_buffer_readline (mps_input_buffer * buf);
   void mps_input_buffer_free (mps_input_buffer * buf);

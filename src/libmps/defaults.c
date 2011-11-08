@@ -118,9 +118,13 @@ mps_set_default_values (mps_status * s)
   s->dstart_usr = NULL;
 
   s->random_seed = 0;
+  s->newtis = 0;
 
   s->secular_equation = NULL;
   s->monomial_poly = NULL;
+
+  /* Output */
+  s->output_config->format = MPS_OUTPUT_FORMAT_COMPACT;
 
   /* Default algorithm */
   mps_status_select_algorithm (s, MPS_ALGORITHM_STANDARD_MPSOLVE);

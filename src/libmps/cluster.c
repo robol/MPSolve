@@ -38,6 +38,8 @@ mps_cluster_reset (mps_status * s)
   /* Reset delimiters */
   s->punt[0] = 0;
   s->punt[1] = s->n;
+  s->oldpunt[0] = 0;
+  s->oldpunt[1] = s->n;
   s->nclust = 1;
 
   /* Reset cluster status of the roots */

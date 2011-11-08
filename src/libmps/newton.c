@@ -136,14 +136,16 @@ mps_fnewton (mps_status * s, int n, cplx_t z, double *radius, cplx_t corr,
    *
    *  radius_i = n |p(x)| / (\prod_{j \neq i} |x_i - x_j|) 
    */
-  *radius = cplx_mod (p) * s->n / fap[0] * (1 + DBL_EPSILON);
+  *radius = cplx_mod (p) * n;
+  
   cplx_t diff;
-  for (i = 0; i < s->n; i++)
+  for (i = 0; i < n; i++)
     {
       cplx_sub (diff, z, s->froot[i]);
       if (!cplx_eq_zero (diff))
         *radius /= cplx_mod (diff) * (1 - DBL_EPSILON);
     }
+  *radius /= fap[n] * (1 - DBL_EPSILON);
 }
 
 
@@ -231,9 +233,9 @@ mps_dnewton (mps_status * s, int n, cdpe_t z, rdpe_t radius, cdpe_t corr,
    *
    *  radius_i = n |p(x)| / (\prod_{j \neq i} |x_i - x_j|) 
    */
-  rdpe_mul_d (rnew, absp, s->n * (1 + DBL_EPSILON));
-  rdpe_div_eq (rnew, dap[0]);
-  for (i = 0; i < s->n; i++)
+  rdpe_mul_d (rnew, absp, n * (1 + DBL_EPSILON));
+  rdpe_div_eq (rnew, dap[n]);
+  for (i = 0; i < n; i++)
     {
       cdpe_sub (tmp, z, s->droot[i]);
       if (!cdpe_eq (tmp, cdpe_zero))
@@ -554,13 +556,13 @@ mps_mnewton (mps_status * s, int n, mpc_t z, rdpe_t radius, mpc_t corr,
    *
    *  radius_i = n |p(x)| / (\prod_{j \neq i} |x_i - x_j|) 
    */
-  rdpe_mul_d (rnew, absp, s->n);
-  rdpe_div_eq (rnew, dap[0]);
+  rdpe_mul_d (rnew, absp, n);
+  rdpe_div_eq (rnew, dap[n]);
   rdpe_add (rtmp, s->mp_epsilon, rdpe_one);
   rdpe_mul_eq (rnew, rtmp);
 
   rdpe_set (temp, rdpe_one);
-  for (i = 0; i < s->n; i++)
+  for (i = 0; i < n; i++)
     {
       mpc_sub (diff, z, s->mroot[i]);
       mpc_get_cdpe (temp1, diff);
