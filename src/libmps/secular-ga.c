@@ -624,7 +624,7 @@ mps_secular_ga_required_regenerations_bits (mps_status * s)
       return 4 * s->mpwp;
     }
   else if (MPS_INPUT_CONFIG_IS_SECULAR (s->input_config))
-    return 2 * s->mpwp;
+    return 4 * s->mpwp;
   
 }
 

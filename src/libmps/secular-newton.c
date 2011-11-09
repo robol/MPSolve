@@ -83,24 +83,18 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
   else
     cplx_div (corr, pol, corr);
 
-  /* If S(z) is the secular equation and
-   * |S(z)| < eps => |z - z_0| < eps(1 + u) + (n+1)u
-   * where z_0 is the real root and u the machine precision,
-   * that we can assume that z_0 is a pseudo root, i.e. solution
-   * to a problem with small perturbed coefficients. */
-  /* dtmp = apol * (DBL_EPSILON + 1) + (s->n + 1); */
+  /* If the approximation falls in the root neighbourhood then we can stop */
+  if ((asum / apol + 1) * DBL_EPSILON > 1)
+    {
+      MPS_DEBUG (s, "Setting again to false on root %ld for root neighbourhood", data->k);
+      *again = false;
+    }
 
   /* If the correction is not useful in the current precision do
    * not iterate more   */
   if (*again && (cplx_mod (corr) < cplx_mod (x) * DBL_EPSILON))
     {
       MPS_DEBUG (s, "Setting again to false on root %ld for small Newton correction", data->k);
-      *again = false;
-    }
-
-  if ((asum / apol + 1) * DBL_EPSILON > 1)
-    {
-      MPS_DEBUG (s, "Setting again to false on root %ld for root neighbourhood", data->k);
       *again = false;
     }
 
@@ -119,20 +113,22 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
 {
   int i;
   int* k = (int*) user_data;
-  *again = true;
 
   mps_secular_equation *sec = (mps_secular_equation *) s->secular_equation;
   mps_secular_iteration_data * data = user_data;
 
   cdpe_t pol, fp, sumb, ctmp, ctmp2, old_x;
-  rdpe_t rtmp, rtmp2, apol, g_corr, prod_b;
+  rdpe_t rtmp, rtmp2, apol, g_corr, prod_b, asum;
   mps_boolean x_is_b = false;
+
+  *again = true;
 
   cdpe_set (old_x, x);
   cdpe_set (pol, cdpe_zero);
   cdpe_set (fp, cdpe_zero);
   cdpe_set (sumb, cdpe_zero);
   rdpe_set (apol, rdpe_zero);
+  rdpe_set (asum, rdpe_zero);
   rdpe_set (prod_b, rdpe_one);
 
   for (i = 0; i < sec->n; i++)
@@ -140,8 +136,7 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
       /* Compute z - b_i */
       cdpe_sub (ctmp, x, sec->bdpc[i]);
 
-      /* Compute prod [ (z - b_i) / (z - z_j) ] 
-       */
+      /* Compute prod [ (z - b_i) / (z - z_j) ] */
       cdpe_mod (rtmp, ctmp);
       rdpe_mul_eq (prod_b, rtmp);
       rdpe_mul_eq_d (prod_b, 1 + 4.0 * DBL_EPSILON);
@@ -155,29 +150,7 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
 
       /* Alternative computation if x is one of the b_i */
       if (cdpe_eq_zero (ctmp))
-        {
-          int j;
-	  x_is_b = true;
-          rdpe_set (prod_b, rdpe_one);
-          cdpe_set (corr, cdpe_zero);
-          for (j = 0; j < s->n; j++)
-            {
-              if (i == j)
-                continue;
-              cdpe_add (ctmp, sec->adpc[i], sec->adpc[j]);
-              cdpe_sub (sumb, x, sec->bdpc[j]);
-	      cdpe_div_eq (ctmp, sumb);
-	      cdpe_add_eq (corr, ctmp);
-            }
-          cdpe_sub_eq (corr, cdpe_one);
-          cdpe_inv_eq (corr);
-          cdpe_mul_eq (corr, sec->adpc[i]);
-
-          MPS_DEBUG_CDPE (s, corr, "Correction computed in the special case where x == b_i, corr");
-
-          *again = true;
 	  return;
-        }
 
       /* Invert it, i.e. compute 1 / (z - b_i) */
       cdpe_inv_eq (ctmp);
@@ -189,11 +162,8 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
       cdpe_mul (ctmp2, sec->adpc[i], ctmp);
       cdpe_add_eq (pol, ctmp2);
       cdpe_mod (rtmp, ctmp2);
-      if (user_data)
-	rdpe_mul_eq (rtmp, s->secular_equation->dregeneration_epsilon[data->k]);
-      else
-	rdpe_mul_eq (rtmp, s->mp_epsilon);
-      rdpe_add_eq (apol, rtmp);
+      rdpe_mul_eq_d (rtmp, i + 2);
+      rdpe_add_eq (asum, rtmp);
 
       /* Compute a / (z - b_i)^2 and add it to the first derivative */
       cdpe_mul_eq (ctmp2, ctmp);
@@ -202,11 +172,7 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
 
   /* Compute poly */
   cdpe_sub_eq (pol, cdpe_one);
-  rdpe_add_eq (apol, s->mp_epsilon);
-  
-  /* Compute relative error in apol */
-  cdpe_mod (rtmp, pol);
-  rdpe_div_eq (apol, rtmp);
+  cdpe_mod (apol, pol);
 
   /* Compute correction */
   cdpe_mul (corr, pol, sumb);
@@ -217,21 +183,19 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
     cdpe_div (corr, pol, corr);
 
   /* Computation of radius with Gerschgorin */
- dradius_computation: ;
   rdpe_t new_rad;
 
-  cdpe_mod (new_rad, pol);
-
-  /* Compute the guaranteed inclusion radius */
+  /* Compute the guaranteed radius */
+  rdpe_set (new_rad, apol);
+  rdpe_mul_eq_d (new_rad, s->n);
   rdpe_mul_eq (new_rad, prod_b);
-  rdpe_add_eq (apol, rdpe_one);
-  rdpe_mul_eq_d (apol, s->n);
-  rdpe_mul_eq (new_rad, apol);
 
-  /* Add the representation error */
-  cdpe_mod (rtmp, x);
-  rdpe_mul_eq (rtmp, s->mp_epsilon);
-  rdpe_add_eq (new_rad, rtmp);
+  rdpe_set (rtmp, asum);
+  rdpe_div_eq (rtmp, apol);
+  rdpe_add_eq (rtmp, rdpe_one);
+  rdpe_add_eq_d (rtmp, 3 * s->n);
+  rdpe_mul_eq_d (rtmp, DBL_EPSILON);
+  rdpe_mul_eq (new_rad, rtmp);
 
   /* Correct the old radius with the move that we are doing
    * and check if the new proposed radius is preferable. */
@@ -256,8 +220,19 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
       /* If |corr| < |x| * DBL_EPSILON then stop */
       if (rdpe_lt (rtmp, rtmp2))
         {
+	  MPS_DEBUG (s, "dit Setting again on root %d to false because the Newton correction is too small", data->k);
           *again = false;
         }
+
+      rdpe_set (rtmp, asum);
+      rdpe_div_eq (rtmp, apol);
+      rdpe_add_eq (rtmp, rdpe_one);
+      rdpe_mul_eq_d (rtmp, DBL_EPSILON);
+      if (rdpe_ge (rtmp, rdpe_one))
+	{
+	  MPS_DEBUG (s, "dit Setting again on root %d to false because the approximation is in the root neighbourhood", data->k);
+	  *again = false;
+	}
     }
 
 }
