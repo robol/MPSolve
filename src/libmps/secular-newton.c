@@ -108,7 +108,8 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
   if (new_rad < *rad || (*rad == 0) || (!data))
     {
       *rad = new_rad;
-      data->radius_set = true;
+      if (data)
+	data->radius_set = true;
     }
   else
     {

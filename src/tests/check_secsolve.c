@@ -32,9 +32,6 @@ test_secsolve_on_pol (test_pol * pol)
   FILE *check_stream;
   mps_boolean passed = true;
   mpc_t root, ctmp;
-  mpf_t mroot;
-  mpf_t ftmp;
-  mpf_t eps;
 
   /* Output digit to test, default values. Script should normally
    * alter this with options on the command line. */
@@ -55,11 +52,6 @@ test_secsolve_on_pol (test_pol * pol)
 
   mpc_init2 (root, prec);
   mpc_init2 (ctmp, prec);
-  mpf_init2 (mroot, prec);
-  mpf_init2 (eps, prec);
-  mpf_init2 (ftmp, prec);
-
-  mpf_set_2dl (eps, 1.0, -pol->out_digits * LOG2_10 + 1);
 
   /* Open streams */
   input_stream = fopen (pol->pol_file, "r");
@@ -149,9 +141,9 @@ test_secsolve_on_pol (test_pol * pol)
 	}
       
     }
-  mpf_clear (mroot);
-  mpf_clear (eps);
+
   mpc_clear (root);
+  mpc_clear (ctmp);
 
   mps_status_free (s);
 

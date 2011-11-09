@@ -179,6 +179,14 @@ mps_status_free (mps_status * s)
     mps_secular_equation_free (s->secular_equation);
 
   free (s->data_type);
+
+  /* Close input and output streams if they're not stdin, stdout and
+   * stderr */
+  if (s->instr != stdin && s->instr != NULL)
+    fclose (s->instr);
+  if (s->logstr != stderr && s->logstr != stdout && s->logstr != NULL)
+    fclose (s->logstr);  
+
   free (s);
 }
 

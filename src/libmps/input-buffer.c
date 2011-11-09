@@ -82,7 +82,7 @@ mps_input_buffer_eof (mps_input_buffer * buffer)
 int
 mps_input_buffer_readline (mps_input_buffer * buf)
 {
-  ssize_t read_chars;
+  int read_chars = 0;
   ssize_t length;
   int new_pos;
 
@@ -106,9 +106,10 @@ mps_input_buffer_readline (mps_input_buffer * buf)
   /* Read a new line. On the first step buf->line is NULL
    * so a new space is allocated in there, that will be
    * reused on the subsequent calls. */
+
   read_chars = getline (&buf->line, &length, buf->stream);
   buf->last_token = buf->line;
-
+  
   return read_chars;
 }
 
@@ -131,8 +132,6 @@ mps_input_buffer_next_token (mps_input_buffer * buf)
 
   if (!buf->line)
     {
-      if (mps_input_buffer_eof (buf))
-	return NULL;
       if (mps_input_buffer_readline (buf) == -1)
 	return NULL;
     }
@@ -144,6 +143,8 @@ mps_input_buffer_next_token (mps_input_buffer * buf)
 	  (*buf->last_token == '\0')) && 
 	(token == NULL))
       {
+	if (buf->last_token == '\0')
+	  break;
 	token = buf->last_token;
       }
 
@@ -151,13 +152,12 @@ mps_input_buffer_next_token (mps_input_buffer * buf)
     if (token)
       token_size++;
     buf->last_token++;
-  } while ((*buf->last_token != '\0') && (!token || !isspace (*buf->last_token)));
+  } while ( ((token == NULL) || !isspace (*buf->last_token)) && 
+	    (*buf->last_token != '\0') );
 
   /* Check if we have parsed something or if we need to read another line */
-  if (!token && (*buf->last_token == '\0'))
+  if ((token == NULL))
     {
-      if (mps_input_buffer_eof (buf))
-	return NULL;
       if (mps_input_buffer_readline (buf) == -1)
 	return NULL;
       return mps_input_buffer_next_token (buf);

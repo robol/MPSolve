@@ -776,7 +776,7 @@ mps_parse_stream_old (mps_status * s, mps_input_buffer * buffer)
       for (i = 0; i <= s->n; ++i)
 	poly->spar[i] = false;
 
-      while ((token = mps_input_buffer_next_token (buffer)))
+      while ((token = mps_input_buffer_next_token (buffer)) != NULL)
 	{
 	  /* Read the index from the buffer */
 	  if (!sscanf (token, "%d", &i))

@@ -387,7 +387,7 @@ mps_secular_check_data (mps_status * s, char *which_case)
    * the possibility to start in pure floating point we
    * use the DPE version. */
   mps_secular_equation *sec = (mps_secular_equation *) s->secular_equation;
-  *which_case = (sec->starting_case == float_phase) ? 'f' : 'd';
+  *which_case = (s->input_config->starting_phase == float_phase) ? 'f' : 'd';
 }
 
 /**
