@@ -17,10 +17,12 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
                      mps_boolean * again, void * user_data)
 {
   int i;
-  cplx_t ctmp, ctmp2, pol, fp, sumb, sum;
-  double dtmp, prod_b = 1.0, sec_eps = 0.0, new_rad;
+  cplx_t ctmp, ctmp2, pol, fp, sumb;
+  double apol, prod_b = 1.0, new_rad;
   double asum = 0.0f;
   mps_secular_iteration_data * data = user_data;
+
+  /* First set again to true */
   *again = true;
 
   mps_secular_equation *sec = (mps_secular_equation *) s->secular_equation;
@@ -35,10 +37,7 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
       cplx_sub (ctmp, x, sec->bfpc[i]);
 
       if (cplx_eq_zero (ctmp))
-        {
-          // *again = true;
           return;
-        }
 
       /* Computation of prod [ (z - b_i) / (z - z_j) ] */
       prod_b *= cplx_mod (ctmp);
@@ -57,16 +56,11 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
       /* Compute a_i / (z - b_i) */
       cplx_mul (ctmp2, sec->afpc[i], ctmp);
       
+      /* Compute the sum of module of (a_i/(z-b_i)) * (i + 2) */
       asum += cplx_mod (ctmp2) * (i + 2);
 
       /* Add a_i / (z - b_i) to pol */
       cplx_add_eq (pol, ctmp2);
-
-      /* Add its modulus to sec_eps */
-      if (user_data)
-	sec_eps += cplx_mod (ctmp2) * (s->secular_equation->fregeneration_epsilon[data->k] + DBL_EPSILON);
-      else
-	sec_eps += cplx_mod (ctmp2) * DBL_EPSILON;
 
       /* Compute a_i / (z - b_i)^2a */
       cplx_mul_eq (ctmp2, ctmp);
@@ -76,26 +70,10 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
     }
 
   /* Compute secular function */
-  cplx_set (sum, pol);
   cplx_sub_eq (pol, cplx_one);
-  sec_eps += DBL_EPSILON;
 
-  if (!cplx_eq_zero (pol))
-    sec_eps /= cplx_mod (pol);
-  else
-    {
-      MPS_DEBUG (s, "S(x) == 0");
-      data->radius_set = false;
-      *again = false;
-      return;
-    }
-
-  /* If S(z) is the secular equation and
-   * |S(z)| < eps => |z - z_0| < eps(1 + u) + (n+1)u
-   * where z_0 is the real root and u the machine precision,
-   * that we can assume that z_0 is a pseudo root, i.e. solution
-   * to a problem with small perturbed coefficients. */
-  dtmp = cplx_mod (pol) * (DBL_EPSILON + 1) + (s->n + 1);
+  /* Compute the module of pol */
+  apol = cplx_mod (pol);
 
   /* Compute newton correction */
   cplx_mul (corr, pol, sumb);
@@ -105,36 +83,34 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
   else
     cplx_div (corr, pol, corr);
 
-  /* Correct the old radius with the move that we are doing
-   * and check if the new proposed radius is preferable. */
-  if (new_rad < *rad || (*rad == 0) || (!data))
-    {
-      *rad = new_rad;
-      if (data)
-	data->radius_set = true;
-    }
-  else
-    {
-      data->radius_set = false;      
-    }
+  /* If S(z) is the secular equation and
+   * |S(z)| < eps => |z - z_0| < eps(1 + u) + (n+1)u
+   * where z_0 is the real root and u the machine precision,
+   * that we can assume that z_0 is a pseudo root, i.e. solution
+   * to a problem with small perturbed coefficients. */
+  /* dtmp = apol * (DBL_EPSILON + 1) + (s->n + 1); */
 
   /* If the correction is not useful in the current precision do
    * not iterate more   */
   if (*again && (cplx_mod (corr) < cplx_mod (x) * DBL_EPSILON))
     {
-      MPS_DEBUG (s, "Setting again to false on root %d for small Newton correction", data->k);
+      MPS_DEBUG (s, "Setting again to false on root %ld for small Newton correction", data->k);
       *again = false;
     }
 
-  if ((asum / cplx_mod (pol) + 1) * DBL_EPSILON > 1)
+  if ((asum / apol + 1) * DBL_EPSILON > 1)
     {
-      MPS_DEBUG (s, "Setting again to false on root %d for root neighbourhood", data->k);
+      MPS_DEBUG (s, "Setting again to false on root %ld for root neighbourhood", data->k);
       *again = false;
     }
 
   /* Computation of radius with Gerschgorin */
-  new_rad = (cplx_mod (pol)) * s->n * prod_b * (1 + (3 * s->n + (asum/cplx_mod(pol) + 1)) * DBL_EPSILON) + 
-    (cplx_mod (x) * DBL_EPSILON);
+  new_rad = (apol * s->n * prod_b * (1 + (3 * s->n + (asum/apol + 1)) * DBL_EPSILON)) + (cplx_mod (x) * DBL_EPSILON);
+
+  /* Correct the old radius with the move that we are doing
+   * and check if the new proposed radius is preferable. */
+  if (new_rad < *rad || (*rad == 0) || (!data))
+      *rad = new_rad;
 }
 
 void
