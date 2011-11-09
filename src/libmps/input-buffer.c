@@ -79,7 +79,7 @@ mps_input_buffer_eof (mps_input_buffer * buffer)
  * @brief Read a new line in the buffer, replacing the one
  * present now.
  */
-char *
+int
 mps_input_buffer_readline (mps_input_buffer * buf)
 {
   ssize_t read_chars;
@@ -108,8 +108,8 @@ mps_input_buffer_readline (mps_input_buffer * buf)
    * reused on the subsequent calls. */
   read_chars = getline (&buf->line, &length, buf->stream);
   buf->last_token = buf->line;
-  
-  return buf->line;
+
+  return read_chars;
 }
 
 /**
@@ -133,13 +133,16 @@ mps_input_buffer_next_token (mps_input_buffer * buf)
     {
       if (mps_input_buffer_eof (buf))
 	return NULL;
-      mps_input_buffer_readline (buf);
+      if (mps_input_buffer_readline (buf) == -1)
+	return NULL;
     }
 
   do {
     /* See if we have found the starting of the token, selecting 
     * things that are not spaces nor end NULL characters. */
-    if (!(isspace (*buf->last_token) || (*buf->last_token == '\0')) && (token == NULL))
+    if (!(isspace (*buf->last_token) || 
+	  (*buf->last_token == '\0')) && 
+	(token == NULL))
       {
 	token = buf->last_token;
       }
@@ -155,7 +158,8 @@ mps_input_buffer_next_token (mps_input_buffer * buf)
     {
       if (mps_input_buffer_eof (buf))
 	return NULL;
-      mps_input_buffer_readline (buf);
+      if (mps_input_buffer_readline (buf) == -1)
+	return NULL;
       return mps_input_buffer_next_token (buf);
     }
 
