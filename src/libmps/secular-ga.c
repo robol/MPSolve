@@ -36,7 +36,6 @@ mps_secular_ga_fiterate (mps_status * s, int maxit)
   int i;
   int nit = 0;
   int it_threshold;
-  int old_cr;
   mps_secular_iteration_data data;
 
 #ifndef DISABLE_DEBUG
@@ -48,22 +47,31 @@ mps_secular_ga_fiterate (mps_status * s, int maxit)
   double old_rad;
   cplx_t old_root;
 
-  /* Check the roots that are already isolated or approximated
-   * and mark them as computed */
+  /* Mark the approximated roots as ready for output */
   for (i = 0; i < s->n; i++)
-    if (!s->again[i])
-      computed_roots++;
+    {
+      /* Set again to false if the root is already approximated */
+      if (s->status[i][0] == 'a' || s->status[i][0] == 'i'
+	  || s->status[i][0] == 'o')
+	{
+	  if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
+	    {
+	      MPS_DEBUG_WITH_INFO (s, "Setting again[%d] to false since the root is ready for output (or isolated)", i);
+	    }
+	  s->again[i] = false;
+	}
+
+      if (!s->again[i])
+        computed_roots++;
+    }
 
   /* Set the iterations threshold to 2 iterations
    * for every non approximated root. */
   it_threshold = 2 * (s->n - computed_roots);
 
-  /* Save the number of already computed roots se we can check if this
-   * packet has been an improvement on that */
-  old_cr = computed_roots;
   if (s->debug_level & MPS_DEBUG_PACKETS)
     {
-      MPS_DEBUG (s, "There are %d roots already approximated", old_cr);
+      MPS_DEBUG (s, "There are %d roots with again set to false", computed_roots);
     }
 
   while (computed_roots < s->n && iterations < maxit - 1)
@@ -79,11 +87,12 @@ mps_secular_ga_fiterate (mps_status * s, int maxit)
           if (s->again[i])
             {
 	      if (cplx_eq (s->froot[i], sec->bfpc[i]))
-		{
-		  continue;
-		}
+		continue;
 
               nit++;
+
+	      /* Save the old root in case that we occur in floating point
+	       * exceptions */
               cplx_set (old_root, s->froot[i]);
               old_rad = s->frad[i];
 	      
@@ -158,7 +167,7 @@ mps_secular_ga_fiterate (mps_status * s, int maxit)
   if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
       mps_dump (s, s->logstr);
 
-  if (nit <= it_threshold || old_cr == computed_roots)
+  if (nit <= it_threshold)
     {
       if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
 	{
@@ -166,8 +175,21 @@ mps_secular_ga_fiterate (mps_status * s, int maxit)
 	}
       s->secular_equation->best_approx = true;
     }
+
    mps_fcluster (s, 2.0 * s->n); 
    mps_fmodify (s, false); 
+
+  /* These lines are used to debug the again vector, but are not useful
+   * at the moment being */
+  if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
+    {
+      __MPS_DEBUG (s, "Again vector = ");
+      for(i = 0; i < s->n; i++)
+	{
+	  fprintf (s->logstr, "%d ", s->again[i]);
+	}
+      fprintf (s->logstr, "\n");
+    }
 
   /* Count time taken  */
 #ifndef DISABLE_DEBUG
@@ -575,10 +597,10 @@ mps_secular_ga_required_regenerations_bits (mps_status * s)
 
 	  rdpe_add_eq (regeneration_epsilon, pol_eps);
 
-	  MPS_DEBUG_RDPE (s, apol, "apol");
-	  MPS_DEBUG_CDPE (s, pol, "pol");
+	  /* MPS_DEBUG_RDPE (s, apol, "apol"); */
+	  /* MPS_DEBUG_CDPE (s, pol, "pol"); */
 
-	  MPS_DEBUG_RDPE (s, regeneration_epsilon, "regeneration_epsilon");
+	  /* MPS_DEBUG_RDPE (s, regeneration_epsilon, "regeneration_epsilon"); */
 
 	  /* Check if the new relative error is bigger than the 
 	   * previous one. */
@@ -596,7 +618,10 @@ mps_secular_ga_required_regenerations_bits (mps_status * s)
 	  MPS_DEBUG (s, "%d bits are required to regenerate the coefficients", required_bits);
 	}
 
-      return required_bits;
+      // return required_bits;
+      // global_required_bits *= 2;
+      // return global_required_bits;
+      return 4 * s->mpwp;
     }
   else if (MPS_INPUT_CONFIG_IS_SECULAR (s->input_config))
     return 2 * s->mpwp;
@@ -1452,6 +1477,7 @@ mps_secular_ga_mpsolve (mps_status * s)
   int iteration_per_packet = 10;
   int i;
   mps_boolean skip_check_stop = false;
+  mps_boolean just_regenerated = false;
   rdpe_t r_eps;
   mps_secular_equation *sec = mps_secular_equation_from_status (s);
   mps_monomial_poly *poly = s->monomial_poly;
@@ -1472,7 +1498,7 @@ mps_secular_ga_mpsolve (mps_status * s)
 #endif
 
   /* Set the output desired for the output */
-  rdpe_set_2dl (s->eps_out, 1.0, -s->output_config->prec);
+  rdpe_set_dl (s->eps_out, 1.0, -s->output_config->prec);
 
   /* Set degree and allocate polynomial-related variables
    * to allow initializitation to be performed. */
@@ -1542,6 +1568,7 @@ mps_secular_ga_mpsolve (mps_status * s)
 			  p->dap);
 	      mps_secular_ga_regenerate_coefficients (s);
 	    }
+	  just_regenerated = true;
 	}
     }
 
@@ -1617,6 +1644,7 @@ mps_secular_ga_mpsolve (mps_status * s)
           break;
         }
 
+      /* Increase the packet counter */
       packet++;
 
       /* Check if all roots were approximated with the
@@ -1625,60 +1653,49 @@ mps_secular_ga_mpsolve (mps_status * s)
        	  break; 
        else 
 	 skip_check_stop = true; 
+       
+       /* Check thet we haven't passed the maximum number of allowed iterations */
+       if (packet > s->max_pack)
+	 {
+	   mps_error (s, 1, "Maximum number of iteration passed. Aborting.");
+	   return;
+	 }
 
-      /* If we can't stop recompute coefficients in higher precision and
-       * continue to iterate, unless the best approximation possible in
-       * this precision has been reached. In that case increase the precision
-       * of the computation. */
-      if (s->lastphase != mp_phase)
-	{
-	  if (sec->best_approx)
-	    {
-	      mps_secular_ga_regenerate_coefficients (s);
-	      skip_check_stop = false;
-	    }
-	  else
-	    skip_check_stop = true;
-	}
-      
-      if (packet > s->max_pack)
-	{
-	  mps_error (s, 1, "Maximum number of iteration passed. Aborting.");
-	  return;
-	}
+       /* If the iterations has ended in less than 2 * not_computed_roots iterations
+	* and we have just regenerated the coefficients, we should increase precision. */
+       if (sec->best_approx && just_regenerated)
+	 {
+	   skip_check_stop = false;
 
-      if (sec->best_approx && packet > 4)
-        {
-          /* Going to multiprecision if we're not there yet */
-          if (s->lastphase != mp_phase)
-            {
-              mps_secular_switch_phase (s, mp_phase);
-	      mps_secular_ga_regenerate_coefficients (s);
-	      skip_check_stop = false;
-	    }
+	   /* Going to multiprecision if we're not there yet */
+	   if (s->lastphase != mp_phase)
+	     {
+	       mps_secular_switch_phase (s, mp_phase);
+	       mps_secular_ga_regenerate_coefficients (s);
+	     }
           else
             {
               /* Raising precision otherwise */
               mps_secular_raise_precision (s, 2 * s->mpwp);
               mps_secular_ga_regenerate_coefficients (s);
-              skip_check_stop = false;
-
-	      for (i = 0; i < s->n; ++i)
-		{
-		  if (s->status[i][0] != 'a' ||
-		      s->status[i][0] != 'o' ||
-		      s->status[i][0] != 'i')
-		    {
-		      s->again[i] = true;
-		    }
-		}
             }
 
-          packet = 0;
+	   /* Set the packet counter to zero, we are restarting */
+	   packet = 0;
         }
 
-      /* if (s->lastphase != mp_phase) */
-      /* 	skip_check_stop = true; */
+      /* If we can't stop recompute coefficients in higher precision and
+       * continue to iterate, unless the best approximation possible in
+       * this precision has been reached. In that case increase the precision
+       * of the computation. */
+       if (roots_computed == s->n)
+	 {
+	   mps_secular_ga_regenerate_coefficients (s);
+	   just_regenerated = true;
+	   skip_check_stop = false;
+	 }
+       else
+	 just_regenerated = false;
     }
   while (skip_check_stop || !mps_secular_ga_check_stop (s));
 

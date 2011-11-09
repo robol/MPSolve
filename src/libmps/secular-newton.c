@@ -17,8 +17,9 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
                      mps_boolean * again, void * user_data)
 {
   int i;
-  cplx_t ctmp, ctmp2, pol, fp, sumb;
+  cplx_t ctmp, ctmp2, pol, fp, sumb, sum;
   double dtmp, prod_b = 1.0, sec_eps = 0.0, new_rad;
+  double asum = 0.0f;
   mps_secular_iteration_data * data = user_data;
   *again = true;
 
@@ -35,7 +36,7 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
 
       if (cplx_eq_zero (ctmp))
         {
-          *again = true;
+          // *again = true;
           return;
         }
 
@@ -55,6 +56,8 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
 
       /* Compute a_i / (z - b_i) */
       cplx_mul (ctmp2, sec->afpc[i], ctmp);
+      
+      asum += cplx_mod (ctmp2) * (i + 2);
 
       /* Add a_i / (z - b_i) to pol */
       cplx_add_eq (pol, ctmp2);
@@ -73,6 +76,7 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
     }
 
   /* Compute secular function */
+  cplx_set (sum, pol);
   cplx_sub_eq (pol, cplx_one);
   sec_eps += DBL_EPSILON;
 
@@ -80,6 +84,7 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
     sec_eps /= cplx_mod (pol);
   else
     {
+      MPS_DEBUG (s, "S(x) == 0");
       data->radius_set = false;
       *again = false;
       return;
@@ -100,9 +105,6 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
   else
     cplx_div (corr, pol, corr);
 
-  /* Computation of radius with Gerschgorin */
-  new_rad = (cplx_mod (pol)) * s->n * prod_b * (1 + sec_eps) + (cplx_mod (x) * DBL_EPSILON);
-
   /* Correct the old radius with the move that we are doing
    * and check if the new proposed radius is preferable. */
   if (new_rad < *rad || (*rad == 0) || (!data))
@@ -120,8 +122,19 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
    * not iterate more   */
   if (*again && (cplx_mod (corr) < cplx_mod (x) * DBL_EPSILON))
     {
+      MPS_DEBUG (s, "Setting again to false on root %d for small Newton correction", data->k);
       *again = false;
     }
+
+  if ((asum / cplx_mod (pol) + 1) * DBL_EPSILON > 1)
+    {
+      MPS_DEBUG (s, "Setting again to false on root %d for root neighbourhood", data->k);
+      *again = false;
+    }
+
+  /* Computation of radius with Gerschgorin */
+  new_rad = (cplx_mod (pol)) * s->n * prod_b * (1 + (3 * s->n + (asum/cplx_mod(pol) + 1)) * DBL_EPSILON) + 
+    (cplx_mod (x) * DBL_EPSILON);
 }
 
 void
