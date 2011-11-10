@@ -101,8 +101,6 @@ mps_dtouchnwt (mps_status * s, int n, int i, int j)
 mps_boolean
 mps_mtouchnwt (mps_status * s, int n, int i, int j)
 {
-  MPS_DEBUG_THIS_CALL;
-
   tmpc_t mtmp;
   cdpe_t ctmp;
   rdpe_t dtmp1, dtmp2;

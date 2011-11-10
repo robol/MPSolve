@@ -47,6 +47,8 @@ mps_secular_ga_fiterate (mps_status * s, int maxit)
   double old_rad;
   cplx_t old_root;
 
+  sec->best_approx = false;
+
   /* Mark the approximated roots as ready for output */
   for (i = 0; i < s->n; i++)
     {
@@ -74,7 +76,7 @@ mps_secular_ga_fiterate (mps_status * s, int maxit)
       MPS_DEBUG (s, "There are %d roots with again set to false", computed_roots);
     }
 
-  while (computed_roots < s->n && iterations < maxit - 1)
+  while (computed_roots < s->n && iterations < maxit)
     {
       cplx_t corr, abcorr;
       double modcorr;
@@ -218,7 +220,6 @@ mps_secular_ga_diterate (mps_status * s, int maxit)
   int i;
   int nit = 0;
   int it_threshold;
-  int old_cr;
   mps_secular_equation *sec = s->secular_equation;
   mps_secular_iteration_data data;
 
@@ -226,9 +227,10 @@ mps_secular_ga_diterate (mps_status * s, int maxit)
   clock_t *my_clock = mps_start_timer ();
 #endif
 
+  sec->best_approx = false;
+
   /* Iterate with newton until we have good approximations
    * of the roots */
-
   for (i = 0; i < s->n; i++)
     {
       /* Set again to false if the root is already approximated */
@@ -249,17 +251,13 @@ mps_secular_ga_diterate (mps_status * s, int maxit)
   /* Set the iterations threshold to 2 iterations
    * for every non approximated root. */
   it_threshold = 2 * (s->n - computed_roots);
-  
-  /* Save the old number of computed roots */
-  old_cr = computed_roots;
 
   if (s->debug_level & MPS_DEBUG_PACKETS)
-    MPS_DEBUG (s, "There are %d roots already approximated", computed_roots);
+    MPS_DEBUG (s, "There are %d roots with again set to false", computed_roots);
 
   /* Use this dump only for debugging purpose */
   /* mps_dump (s, s->logstr); */
-
-  while (computed_roots < s->n && iterations < maxit - 1)
+  while (computed_roots < s->n && iterations < maxit)
     {
       cdpe_t corr, abcorr;
       rdpe_t modcorr;
@@ -296,9 +294,7 @@ mps_secular_ga_diterate (mps_status * s, int maxit)
                   rdpe_add_eq (s->drad[i], modcorr);
                 }
               else
-                {
                   s->again[i] = true;
-                }
 
               if (!s->again[i])
                 computed_roots++;
@@ -314,7 +310,8 @@ mps_secular_ga_diterate (mps_status * s, int maxit)
     {
       mps_dump (s, s->logstr);
     }
-  if (nit <= it_threshold || (old_cr == computed_roots))
+
+  if (nit <= it_threshold)
     {
       if (s->debug_level & MPS_DEBUG_PACKETS)
 	MPS_DEBUG (s, "Setting best_approx to true");
@@ -372,6 +369,8 @@ mps_secular_ga_miterate (mps_status * s, int maxit)
   cdpe_t ctmp;
   rdpe_t modcorr, rtmp;
 
+  mps_secular_equation * sec = s->secular_equation;
+
 #ifndef DISABLE_DEBUG
   clock_t *my_clock = mps_start_timer ();
 #endif
@@ -384,9 +383,10 @@ mps_secular_ga_miterate (mps_status * s, int maxit)
   mpc_init2 (corr, s->mpwp);
   mpc_init2 (abcorr, s->mpwp);
 
+  sec->best_approx = false;
+
   /* Iterate with newton until we have good approximations
    * of the roots */
-  
   for (i = 0; i < s->n; i++)
     {
       /* Set again to false if the root is already approximated */
@@ -459,8 +459,12 @@ mps_secular_ga_miterate (mps_status * s, int maxit)
   mpc_clear (abcorr);
   mpc_clear (corr);
 
-  MPS_DEBUG_WITH_INFO (s, "Performed %d iterations", nit);
-  if (nit <= it_threshold || computed_roots == old_cr)
+  if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
+    {
+      MPS_DEBUG (s, "Performed %d iterations", nit);
+    }
+
+  if (nit <= it_threshold)
     s->secular_equation->best_approx = true;
 
   /* Perform cluster analysis */
@@ -611,7 +615,9 @@ mps_secular_ga_required_regenerations_bits (mps_status * s)
 
       /* We need now to determine the required bits of precision to
        * get a relative error smaller than the required one. */
-      required_bits = (rdpe_log (total_eps) * LOG2 + s->mpwp);
+      required_bits = (rdpe_log (total_eps) * LOG2 + s->mpwp) + 64;
+      required_bits /= 64;
+      required_bits *= 64;
 
       if (s->debug_level & MPS_DEBUG_REGENERATION)
 	{
@@ -621,10 +627,10 @@ mps_secular_ga_required_regenerations_bits (mps_status * s)
       // return required_bits;
       // global_required_bits *= 2;
       // return global_required_bits;
-      return 4 * s->mpwp;
+      return 8 * s->mpwp;
     }
   else if (MPS_INPUT_CONFIG_IS_SECULAR (s->input_config))
-    return 4 * s->mpwp;
+    return 16 * s->mpwp;
   
 }
 
@@ -1679,6 +1685,8 @@ mps_secular_ga_mpsolve (mps_status * s)
               mps_secular_raise_precision (s, 2 * s->mpwp);
               mps_secular_ga_regenerate_coefficients (s);
             }
+
+	   just_regenerated = true;
 
 	   /* Set the packet counter to zero, we are restarting */
 	   packet = 0;
