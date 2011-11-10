@@ -5,6 +5,11 @@
  * Created on 29 aprile 2011, 16.26
  */
 
+/**
+ * @file 
+ * @brief Header file for secular-related routines.
+ */
+
 #ifndef SECULAR_H
 #define	 SECULAR_H
 
@@ -34,6 +39,13 @@ extern "C"
    */
 #define MPS_SECULAR_EQUIVALENT_FP_PRECISION (MPS_SECULAR_STARTING_MP_PRECISION / 2)
 
+  /**
+   * @brief This is a struct that represent an iteration on a root. It contains
+   * information that could be useful for mps_secular_*iterate() routine to determine
+   * some error bound and provide a method for the routine to communicate if
+   * it was able to set the radius or not (by setting the <coderadius_set</code> 
+   * in the right way.
+   */
   typedef struct {
     /**
      * @brief The index of the roots on which the iterations
@@ -53,10 +65,10 @@ extern "C"
     
 
 
-/* MACROS */
+  /* MACROS */
 #define mps_secular_equation_from_status(s) (mps_secular_equation*) (s)->secular_equation
 
-/* Routines in secular-newton.c */
+  /* Routines in secular-newton.c */
   void
     mps_secular_fnewton (mps_status * st, cplx_t x, double *rad, cplx_t corr,
                          mps_boolean * again, void * user_data);
@@ -67,7 +79,14 @@ extern "C"
     mps_secular_mnewton (mps_status * st, mpc_t x, rdpe_t rad, mpc_t corr,
                          mps_boolean * again, void * user_data);
 
-/* Routines in secular.c */
+  /* Routines in secular-regeneration.c */
+  int mps_secular_ga_required_regenerations_bits (mps_status * s);
+
+  int mps_secular_ga_regenerate_coefficients_mp (mps_status * s, int bits);
+
+  mps_boolean mps_secular_ga_regenerate_coefficients (mps_status * s);
+
+  /* Routines in secular.c */
   void mps_secular_deflate (mps_status * s, mps_secular_equation * sec);
 
   void mps_secular_check_data (mps_status * s, char *which_case);
@@ -78,33 +97,31 @@ extern "C"
 
   void mps_secular_raise_precision (mps_status * s, int wp);
 
-/* Routines in secular-starting.c */
-  void
-    mps_secular_fstart (mps_status * s, int n, int i_clust, double clust_rad,
-                        double g, rdpe_t eps);
-  void
-    mps_secular_dstart (mps_status * s, int n, int i_clust, rdpe_t clust_rad,
-                        rdpe_t g, rdpe_t eps);
-  void
-    mps_secular_mstart (mps_status * s, int n, int i_clust, rdpe_t clust_rad,
-                        rdpe_t g, rdpe_t eps);
+  /* Routines in secular-starting.c */
+  void mps_secular_fstart (mps_status * s, int n, int i_clust, double clust_rad,
+			   double g, rdpe_t eps);
+  void mps_secular_dstart (mps_status * s, int n, int i_clust, rdpe_t clust_rad,
+			   rdpe_t g, rdpe_t eps);
+  void mps_secular_mstart (mps_status * s, int n, int i_clust, rdpe_t clust_rad,
+			   rdpe_t g, rdpe_t eps);
 
-/* Routines in secular-ga.c */
+  /* Routines in secular-iteration.c */
   int mps_secular_ga_fiterate (mps_status * s, int maxit);
 
   int mps_secular_ga_diterate (mps_status * s, int maxit);
 
   int mps_secular_ga_miterate (mps_status * s, int maxit);
-
-  mps_boolean mps_secular_ga_regenerate_coefficients (mps_status * s);
-
+  
+  /* Routines in secular-ga.c */
   mps_boolean mps_secular_ga_check_stop (mps_status * s);
 
   void mps_secular_ga_improve (mps_status * s);
 
   void mps_secular_ga_mpsolve (mps_status * s);
 
-/* Interface functions in mps_secular.c */
+  void mps_secular_ga_update_coefficients (mps_status * s);
+
+  /* Interface functions in secular.c */
   mps_secular_equation *mps_secular_equation_new (mps_status * s,
                                                   cplx_t * afpc,
                                                   cplx_t * bfpc,

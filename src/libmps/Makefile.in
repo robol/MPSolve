@@ -80,8 +80,9 @@ am_libmps_la_OBJECTS = user.lo getopts.lo solve.lo main.lo data.lo \
 	sort.lo tools.lo starting.lo convex.lo mt.lo aberth.lo \
 	improve.lo test.lo newton.lo mpc.lo link.lo touch.lo \
 	interface.lo threading.lo secular.lo secular-newton.lo \
-	secular-starting.lo secular-ga.lo input-buffer.lo \
-	monomial-poly.lo $(am__objects_1)
+	secular-starting.lo secular-ga.lo secular-regeneration.lo \
+	secular-iteration.lo input-buffer.lo monomial-poly.lo \
+	$(am__objects_1)
 libmps_la_OBJECTS = $(am_libmps_la_OBJECTS)
 AM_V_lt = $(am__v_lt_$(V))
 am__v_lt_ = $(am__v_lt_$(AM_DEFAULT_VERBOSITY))
@@ -313,6 +314,8 @@ libmps_la_SOURCES = \
 	 secular-newton.c \
 	 secular-starting.c \
 	 secular-ga.c \
+	 secular-regeneration.c \
+	 secular-iteration.c \
          input-buffer.c \
 	 monomial-poly.c \
 	$(NULL)
@@ -417,7 +420,9 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mt.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/newton.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/secular-ga.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/secular-iteration.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/secular-newton.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/secular-regeneration.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/secular-starting.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/secular.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/solve.Plo@am__quote@

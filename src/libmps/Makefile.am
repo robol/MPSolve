@@ -55,6 +55,8 @@ libmps_la_SOURCES = \
 	 secular-newton.c \
 	 secular-starting.c \
 	 secular-ga.c \
+	 secular-regeneration.c \
+	 secular-iteration.c \
          input-buffer.c \
 	 monomial-poly.c \
 	$(NULL)
