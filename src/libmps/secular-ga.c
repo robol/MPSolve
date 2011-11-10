@@ -298,7 +298,7 @@ mps_secular_ga_mpsolve (mps_status * s)
 {
   int roots_computed = 0;
   int packet;
-  int iteration_per_packet = 10;
+  int iteration_per_packet = s->max_it;
   int i;
   mps_boolean skip_check_stop = false;
   mps_boolean just_regenerated = false;

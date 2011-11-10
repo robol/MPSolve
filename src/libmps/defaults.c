@@ -36,9 +36,9 @@ mps_set_default_values (mps_status * s)
   s->rtstr = NULL;              /* root stream                         */
 
   /* constants/parameters */
-  s->max_pack = 1000;           /* number of max packets of iterations */
+  s->max_pack = 100000;           /* number of max packets of iterations */
   s->max_it = 150;               /* number of max iterations per packet */
-  s->max_newt_it = 15;          /* number of max newton iterations for */
+  s->max_newt_it = 15;           /* number of max newton iterations for */
 
   /* Set number of threads to 1.5 * number_of_cores, if this is
    * computable. Set it to 12 otherwise.                     */

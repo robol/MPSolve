@@ -18,7 +18,7 @@ mps_secular_ga_required_regenerations_bits (mps_status * s)
   rdpe_t regeneration_epsilon;
   rdpe_t total_eps;
   int required_bits;
-  int i, j;
+  int i, j, wp;
 
   /* Workaround to make setting the multiplier easy */
   char * multiplier_env = getenv("MULTIPLIER");
@@ -26,92 +26,73 @@ mps_secular_ga_required_regenerations_bits (mps_status * s)
   if (multiplier_env)
     sscanf (multiplier_env, "%d", &multiplier);
 
-  rdpe_set_2dl (root_epsilon, 1.0, -s->mpwp);
-  rdpe_set (total_eps, rdpe_zero);
+  rdpe_t required_eps;
+  rdpe_set_2dl (required_eps, 1.0, -s->mpwp);
+
+  wp = s->mpwp;
 
   if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
     {
       mps_monomial_poly * p = s->monomial_poly;
       mps_secular_equation * sec = s->secular_equation;
 
-      /* We start by computing ap(|x|) / |p(x)| where
-       * ap(x) is the polynomial with the coefficients
-       * equal to the module of the ones of p(x) */
-      cdpe_t pol, ctmp;
-      rdpe_t apol, rtmp, rtmp2;
+      do {
 
-      for (i = 0; i < s->n; ++i)
-	{
-	  /* Horner on the polynomial */
-	  cdpe_set (pol, p->dpc[s->n]);
-	  for (j = s->n - 1; j > 0; --j)
-	    {
-	      cdpe_div (ctmp, p->dpc[j], pol);
-	      cdpe_add_eq (ctmp, sec->bdpc[i]);
-	      cdpe_mul_eq (pol, ctmp);
-	    }
-	  cdpe_add_eq (pol, p->dpc[0]);
+	rdpe_set_2dl (root_epsilon, 1.0, -wp);
+	rdpe_set (total_eps, rdpe_zero);
 
-	  /* Horner on the polynomial with the modulus as coefficients */
-	  rdpe_set (apol, p->dap[s->n]);
-	  cdpe_mod (rtmp2, sec->bdpc[i]);
-	  for (j = s->n; j > 0; j--)
-	    {
-	      rdpe_div (rtmp, p->dap[j], apol);
-	      rdpe_add_eq (rtmp, rtmp2);
-	      rdpe_mul_eq (apol, rtmp);
-	    }
-	  rdpe_add_eq (apol, p->dap[0]);
+	if (s->debug_level & MPS_DEBUG_REGENERATION)
+	  {
+	    MPS_DEBUG (s, "Trying to compute regeneration error with wp = %d", wp);
+	    MPS_DEBUG_RDPE (s, root_epsilon, "Epsilon in this wp is set to eps");
+	  }
 
-	  /* Compute the conditioning on the computation of p(b_i) */
-	  cdpe_mod (rtmp, pol);
-	  rdpe_div (pol_eps, apol, rtmp);
+	for (i = 0; i < s->n; i++)
+	  {
+	    rdpe_t rtmp, rtmp2;
+	    cdpe_t ss, pol, ctmp;
+	    
+	    rdpe_set (regeneration_epsilon, root_epsilon);
 
-	  /* Check the conditioning on the difference b_i - b_j. We can 
-	  * bound this value with (|b_i| + |b_j|) * u / |b_i - b_j| */
-	  rdpe_set (regeneration_epsilon, rdpe_zero);
-	  for(j = 0; j < s->n; j++)
-	    {
-	      if (i == j)
-		continue;
+	    /* Perform horner with checking of the error */
+	    cdpe_set (pol, p->dpc[s->n]);
+	    for (j = s->n - 1; j >= 0; j--)
+	      {
+		cdpe_mul (ss, sec->bdpc[i], pol);
+		cdpe_add_eq (ss, p->dpc[j]);
+		cdpe_div (ctmp, pol, ss);
+		cdpe_mod (rtmp, ctmp);
 
-	      cdpe_sub (ctmp, sec->bdpc[i], sec->bdpc[j]);
-	      cdpe_mod (rtmp, ctmp);
-	      
-	      rdpe_add (rtmp2, sec->abdpc[i], sec->abdpc[j]);
-	      
-	      if (!rdpe_eq_zero (rtmp))
-		{
-		  rdpe_div_eq (rtmp, rtmp2);
-		  rdpe_add_eq (regeneration_epsilon, rtmp);
-		}
-	    }
+		rdpe_set (rtmp2, root_epsilon);
+		rdpe_add_eq (rtmp2, regeneration_epsilon);
+		rdpe_mul_eq (rtmp, rtmp2);
+		rdpe_add_eq (regeneration_epsilon, rtmp);
 
-	  rdpe_add_eq (regeneration_epsilon, pol_eps);
+		cdpe_div (ctmp, p->dpc[j], ss);
+		cdpe_mod (rtmp, ctmp);
+		rdpe_mul_eq (rtmp, regeneration_epsilon);
+		rdpe_add_eq (regeneration_epsilon, rtmp);
 
-	  /* MPS_DEBUG_RDPE (s, apol, "apol"); */
-	  /* MPS_DEBUG_CDPE (s, pol, "pol"); */
+		cdpe_set (pol, ss);
+	      }
+	    
+	    /* Check if the new relative error is bigger than the 
+	     * previous one. */
+	    if (rdpe_gt (regeneration_epsilon, total_eps))
+	      {
+		rdpe_set (total_eps, regeneration_epsilon);
+	      }
+	  }
 
-	  /* MPS_DEBUG_RDPE (s, regeneration_epsilon, "regeneration_epsilon"); */
+	if (s->debug_level & MPS_DEBUG_REGENERATION)
+	  {
+	    MPS_DEBUG_RDPE (s, regeneration_epsilon, "regeneration_epsilon");
+	    MPS_DEBUG_RDPE (s, required_eps, "required epsilon");
+	  }
 
-	  /* Check if the new relative error is bigger than the 
-	   * previous one. */
-	  if (rdpe_gt (regeneration_epsilon, total_eps))
-	    rdpe_set (total_eps, regeneration_epsilon);
-	}
+      } while (rdpe_gt (regeneration_epsilon, required_eps) && (wp *= 2));
 
-
-      /* We need now to determine the required bits of precision to
-       * get a relative error smaller than the required one. */
-      required_bits = (rdpe_log (total_eps) * LOG2 + s->mpwp) + 64;
-      required_bits /= 64;
-      required_bits *= 64;
-
-      if (s->debug_level & MPS_DEBUG_REGENERATION)
-	{
-	  MPS_DEBUG (s, "%d bits are required to regenerate the coefficients", required_bits);
-	}
-
+      return wp;
       // return required_bits;
       // global_required_bits *= 2;
       // return global_required_bits;
