@@ -5,6 +5,11 @@
  *      Author: leonardo
  */
 
+/**
+ * @file
+ * @brief Multithreading iterations for MPSolve.
+ */
+
 #ifdef __cplusplus
 extern "C"
 {

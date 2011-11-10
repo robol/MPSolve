@@ -6,6 +6,12 @@
 **                 (fiorent@dm.unipi.it)                  **
 ***********************************************************/
 
+/**
+ * @file
+ * @brief Additional functions used to complete the GMP package with what
+ * is needed in MPSolve.
+ */
+
 #ifndef __GMPTOOLS_H__
 #define __GMPTOOLS_H__
 

@@ -9,13 +9,6 @@
  ** (C) 2001, Dipartimento di Matematica, FRISCO LTR 21024 **
  ***********************************************************/
 
-/**
- * @file
- * @brief Routines to compute starting approximations
- * for the algorithm
- *
- */
-
 #include <math.h>
 #include <float.h>
 #include <limits.h>

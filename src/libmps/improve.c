@@ -9,11 +9,6 @@
 ** (C) 2001, Dipartimento di Matematica, FRISCO LTR 21024 **
 ***********************************************************/
 
-/**
- * @file
- * @brief File containing the implemenation of the improvement functions
- */
-
 #include <mps/core.h>
 #include <mps/secular.h>
 #include <mps/debug.h>

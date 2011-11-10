@@ -1,8 +1,3 @@
-/**
- * @file 
- * @brief Implementation of the routines for the regeneration of the coefficients.
- */
-
 #include <mps/debug.h>
 #include <mps/core.h>
 #include <mps/link.h>
@@ -24,6 +19,12 @@ mps_secular_ga_required_regenerations_bits (mps_status * s)
   rdpe_t total_eps;
   int required_bits;
   int i, j;
+
+  /* Workaround to make setting the multiplier easy */
+  char * multiplier_env = getenv("MULTIPLIER");
+  int multiplier = 2;
+  if (multiplier_env)
+    sscanf (multiplier_env, "%d", &multiplier);
 
   rdpe_set_2dl (root_epsilon, 1.0, -s->mpwp);
   rdpe_set (total_eps, rdpe_zero);
@@ -114,10 +115,10 @@ mps_secular_ga_required_regenerations_bits (mps_status * s)
       // return required_bits;
       // global_required_bits *= 2;
       // return global_required_bits;
-      return 8 * s->mpwp;
+      return multiplier * s->mpwp;
     }
   else if (MPS_INPUT_CONFIG_IS_SECULAR (s->input_config))
-    return 16 * s->mpwp;
+    return multiplier * s->mpwp;
   
 }
 

@@ -1,9 +1,3 @@
-/**
- * @file
- * @brief Implementation of the routines common to all the
- * checks
- */
-
 #include <check_implementation.h>
 
 void

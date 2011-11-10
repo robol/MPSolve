@@ -9,12 +9,6 @@
  ** (C) 2001, Dipartimento di Matematica, FRISCO LTR 21024 **
  ***********************************************************/
 
-/**
- * @file
- * @brief Implementation of the routines to solve the polynomial
- * equation
- */
-
 #include <math.h>
 #include <mps/gmptools.h>
 #include <float.h>

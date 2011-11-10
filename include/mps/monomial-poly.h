@@ -1,6 +1,12 @@
 #ifndef __MPS_MONOMIAL_POLY_H
 #define __MPS_MONOMIAL_POLY_H
 
+/**
+ * @file
+ * @brief Implementation of the allocation and edit functions for the 
+ * handling of monomial polynomials. 
+ */
+
 #ifdef	__cplusplus
 extern "C"
 {

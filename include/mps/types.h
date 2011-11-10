@@ -575,20 +575,20 @@ extern "C"
   /**
    * @brief Function that computes \f$\frac{p}{p'}\f$ (floating point version)
    */
-  typedef void (*mps_fnewton_ptr) (void *status, cplx_t, double *, cplx_t,
+  typedef void (*mps_fnewton_ptr) (void * status, cplx_t, double *, cplx_t,
                                    mps_boolean *, void * user_data);
 
   /**
    * @brief Function that computes \f$\frac{p}{p'}\f$ (dpe version)
    */
-  typedef void (*mps_dnewton_ptr) (void *status, cdpe_t x, rdpe_t rad,
+  typedef void (*mps_dnewton_ptr) (void * status, cdpe_t x, rdpe_t rad,
                                    cdpe_t corr, mps_boolean * again, 
 				   void * user_data);
 
   /**
    * @brief Function that computes \f$\frac{p}{p'}\f$ (multiprecision version)
    */
-  typedef void (*mps_mnewton_ptr) (void *status, mpc_t x, rdpe_t rad,
+  typedef void (*mps_mnewton_ptr) (void * status, mpc_t x, rdpe_t rad,
                                    mpc_t corr, mps_boolean * again,
 				   void * user_data);
 
@@ -959,7 +959,7 @@ extern "C"
      * of roots in every cluster.
      *
      * The indexes of the <code>j+1</code>th cluster are
-     * <code>clust[punt[j] : punt[j+1]]
+     * <code>clust[punt[j] : punt[j+1]]</code>.
      *
      * @see punt
      */

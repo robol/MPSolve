@@ -5,11 +5,6 @@
  *      Author: leonardo
  */
 
-/**
- * @file
- * @brief Implementation of coordination routines for multithreading.
- */
-
 #include <float.h>
 #include <mps/core.h>
 #include <mps/threading.h>

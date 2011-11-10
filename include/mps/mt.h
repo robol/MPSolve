@@ -8,6 +8,15 @@
 ** (C) 1997, Dipartimento di Matematica, FRISCO LTR 21024 **
 ***********************************************************/
 
+/**
+ * @file
+ * @brief Library with extended types in C.
+ * 
+ * It contains complex types based on double and
+ * DPE types (Double Plus Exponent) in real and
+ * complex versions.
+ */
+
 #ifndef __MT_H__
 #define __MT_H__
 

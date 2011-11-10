@@ -1,10 +1,3 @@
-/**
- * @file
- * @brief This file contains the implementation of an input buffer that
- * wraps around a FILE* and make parsing it line per line more pleasant
- * that handling the FILE* directly.
- */
-
 #include <stdio.h>
 #include <mps/core.h>
 #include <string.h>

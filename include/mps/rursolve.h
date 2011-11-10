@@ -9,6 +9,11 @@
 ** (C) 1999, Dipartimento di Matematica, FRISCO LTR 21024 **
 ***********************************************************/
 
+/**
+ * @file
+ * @brief Deprecated polynomial solver on which MPSolve is based. 
+ */
+
 #ifndef MPS_RURSOLVE_H
 #define MPS_RURSOLVE_H
 

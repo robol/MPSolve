@@ -9,11 +9,6 @@
 ** (C) 2001, Dipartimento di Matematica, FRISCO LTR 21024 **
 ***********************************************************/
 
-/**
- * @file
- * @brief Routines for I/O in MPSolve
- */
-
 #include <stdarg.h>
 #include <string.h>
 #include <mps/gmptools.h>

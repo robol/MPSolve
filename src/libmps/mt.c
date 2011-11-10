@@ -229,6 +229,14 @@ cplx_flip (cplx_t rx, const cplx_t x)
   cplx_Im (rx) = t;
 }
 
+/**
+ * @brief Add the complex number <code>x1</code> and <code>x2</code> and
+ * store the result in <code>rx</code>
+ *
+ * @param rx The place where the result will be stored.
+ * @param x1 The left operand of the addition.
+ * @param x2 The right operand of the addition.
+ */
 void
 cplx_add (cplx_t rx, const cplx_t x1, const cplx_t x2)
 /* rx = x1 + x2 */
@@ -237,6 +245,15 @@ cplx_add (cplx_t rx, const cplx_t x1, const cplx_t x2)
   cplx_Im (rx) = cplx_Im (x1) + cplx_Im (x2);
 }
 
+/**
+ * @brief Substract from <code>x1</code> the value
+ * stored in <code>x2</code> and store the result
+ * in <code>rx</code>.
+ * 
+ * @param rx The place where the result will be stored.
+ * @param x1 The left operand of the subtraction.
+ * @param x2 The right operand of the subtraction.
+ */
 void
 cplx_sub (cplx_t rx, const cplx_t x1, const cplx_t x2)
 /* rx = x1 - x2 */
@@ -245,6 +262,15 @@ cplx_sub (cplx_t rx, const cplx_t x1, const cplx_t x2)
   cplx_Im (rx) = cplx_Im (x1) - cplx_Im (x2);
 }
 
+/**
+ * @brief Multiply the value stored in <code>x1</code>
+ * and in <code>x2</code> and store the result in
+ * <code>rx</code>.
+ *
+ * @param rx The place where the result wil be stored.
+ * @param x1 The left operand of the multiplication.
+ * @param x2 The right operando of the multiplication.
+ */
 void
 cplx_mul (cplx_t rx, const cplx_t x1, const cplx_t x2)
 /* rx = x1 * x2 */
@@ -264,6 +290,14 @@ cplx_mul_d (cplx_t rx, const cplx_t x, double d)
   cplx_Im (rx) = cplx_Im (x) * d;
 }
 
+/**
+ * @brief Divide the complex value in <code>x1</code> by the
+ * value in <code>x2</code> and store the results in <code>rx</code>.
+ *
+ * @param rx The place where the result will be stored.
+ * @param x1 The left operand of the division.
+ * @param x2 The right operando of the division.
+ */
 void
 cplx_div (cplx_t rx, const cplx_t x1, const cplx_t x2)
   /* rx = x1 / x2 */

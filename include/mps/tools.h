@@ -6,6 +6,15 @@
 **                 (fiorent@dm.unipi.it)                  **
 ***********************************************************/
 
+/**
+ * @file
+ * @brief Header containing various tools used to interact 
+ * with the system.
+ *
+ * It contains convenience function to obtain random values,
+ * and define the <code>mps_boolean</code> type.
+ */
+
 #ifndef MPS_TOOLS_H_
 #define MPS_TOOLS_H_
 

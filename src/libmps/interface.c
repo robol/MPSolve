@@ -5,38 +5,6 @@
  *      Author: Leonardo Robol <robol@poisson.phc.unipi.it>
  */
 
-/**
- * 	@file
- * 	@brief Implementation of the routines to interact with MPSolve
- * 	as a library.
- */
-
-/**
- * @mainpage Using MPSolve as a library
- *
- * @section Installation Installing MPSolve system-wide
- * First, you need to get MPSolve. You can get the latest release via <code>git</code>
- * or download it via <code>http</code> grabbing it at http://www.dm.unipi.it/...
- * If you downloaded the source tarball this operation is pretty straightforward.
- * You can simply unpack it and then
- * @code
- *   make
- *   [sudo] make install
- * @endcode
- *
- * These commands will install the library <code>libmps.so</code> in your system library
- * directory. In this way you will be able compile your source file using a command similar
- * to
- * @code
- * gcc -o myprogram -lmps -lgmp -lm myprogram.c.
- * @endcode
- *
- * @section Interface Using the libmps interface
- *
- * The library provides some useful routine to interact with the polynomial solver. Most of
- * them are designed to handle polynomial definition and are implemented in mps_interface.c
- *
- */
 
 #include <mps/core.h>
 #include <mps/link.h>

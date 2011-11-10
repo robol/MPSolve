@@ -1,8 +1,3 @@
-/**
- * @file 
- * @brief Implementation of the iterations routines for secular equations.
- */
-
 #include <mps/debug.h>
 #include <mps/core.h>
 #include <mps/link.h>

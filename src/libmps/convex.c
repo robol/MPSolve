@@ -9,9 +9,8 @@
 ** (C) 2001, Dipartimento di Matematica, FRISCO LTR 21024 **
 ***********************************************************/
 
-/**
- * @file
- * @brief Routines for the computation of convex hulls.
+/*
+ * Routines for the computation of convex hulls.
  *
  * More specifically, the routine <code>fconvex</code> is the one
  * that is intentended to be used and, given a vector of double 

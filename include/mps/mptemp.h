@@ -6,6 +6,12 @@
 **                 (fiorent@dm.unipi.it)                  **
 ***********************************************************/
 
+/**
+ * @file
+ * @brief Implementation of the functions to handle 
+ * temporary multiprecision variables. 
+ */
+
 #ifndef __MPTEMP_H__
 #define __MPTEMP_H__
 

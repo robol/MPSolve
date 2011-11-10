@@ -43,8 +43,8 @@ extern "C"
    * @brief This is a struct that represent an iteration on a root. It contains
    * information that could be useful for mps_secular_*iterate() routine to determine
    * some error bound and provide a method for the routine to communicate if
-   * it was able to set the radius or not (by setting the <coderadius_set</code> 
-   * in the right way.
+   * it was able to set the radius or not (by setting the <code>radius_set</code> 
+   * in the right way).
    */
   typedef struct {
     /**

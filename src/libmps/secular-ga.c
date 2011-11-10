@@ -14,13 +14,10 @@
 #include <string.h>
 
 /**
- * @file
- * @brief Implementation of secular routines for the GA algorithm
- */
-
-/**
  * @brief Update all the coefficients of the secular equation, and their
  * moduli, using the recomputed one stored in the multiprecision version.
+ * 
+ * @param s The mps_status of the computation.
  */
 void
 mps_secular_ga_update_coefficients (mps_status * s)

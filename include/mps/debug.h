@@ -5,6 +5,12 @@
  * Created on 23 aprile 2011, 11.00
  */
 
+/**
+ * @file
+ * @brief Debugging functions, that honor the status os <code>s->DOLOG</code> and 
+ * autodetect if the output stream is or not a tty to select the best output method.
+ */
+
 #ifndef MPS_DEBUG_H
 #define	 MPS_DEBUG_H
 

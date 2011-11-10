@@ -15,11 +15,6 @@
 #include <mps/core.h>
 
 /**
- * @file
- * @brief Implementation of the routines to perform cluster analysis
- */
-
-/**
  * @brief Reset cluster structure information contained in <code>s</code>. After
  * the call to this routine the roots will be considered as a unique big cluster,
  * discarding every information present before.

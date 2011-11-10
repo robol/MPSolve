@@ -6,6 +6,12 @@
 **                 (fiorent@dm.unipi.it)                  **
 ***********************************************************/
 
+/**
+ * @file
+ * @brief Multiprecision complex type, based on mpf multiprecision
+ * floating point type.
+ */
+
 #ifndef __MPC_H__
 #define __MPC_H__
 

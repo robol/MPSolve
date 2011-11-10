@@ -11,14 +11,6 @@
 
 #include <mps/core.h>
 
-/**
- * @file
- * @brief Implementation of sorting algorithms
- *
- * In this file are implemented the routines to sort roots
- * comparing their real parts.
- */
-
 /********************************************************
 *      SUBROUTINE FCMP                                  *
 *********************************************************/

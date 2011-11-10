@@ -9,12 +9,6 @@
  ** (C) 2001, Dipartimento di Matematica, FRISCO LTR 21024 **
  ***********************************************************/
 
-/**
- * @file
- * @brief Implementation of option parsing
- *
- */
-
 #include <string.h>
 #include <errno.h>
 #include <stdlib.h>
@@ -37,7 +31,7 @@ void mps_print_help (mps_status * s);
  * obtained by the operating system.
  * @param opt_format The option that <code>mps_getopts()</code>
  * has to look for. It is passed as a string like
- * <code>"ab:n" where the <code>":"</code> means that the preceding
+ * <code>"ab:n"</code> where the <code>":"</code> means that the preceding
  * character needs an argument, while single characters not followed
  * by <code>":"</code> don't expect one. In this case a correct call
  * to the program would be

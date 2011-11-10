@@ -1,8 +1,3 @@
-/**
- * @file
- * @brief Implementation of the debug functions.
- */
-
 #include <mps/interface.h>
 #include <stdarg.h>
 #include <time.h>

@@ -1,6 +1,16 @@
 #ifndef CHECK_IMPLEMENTATION_H
 #define CHECK_IMPLEMENTATION_H
 
+/**
+ * @file
+ * @brief This file contains the implementation of the checks and some 
+ * commodify function to create them.
+ *
+ * Its main usefulness is to autolocate polynomial files in the tests
+ * directory based on the <code>srcdir</code> environment variable
+ * that is set by autotools when checking. 
+ */
+
 #ifdef __cplusplus
 extern "C"
 {
@@ -14,6 +24,9 @@ extern "C"
 #include <mps/gmptools.h>
 #include <stdlib.h>
 
+  /**
+   * @brief Test polynomials to be passed to the function <code>test_*_on_pol()</code>
+   */
   typedef struct
   {
     char *pol_file;

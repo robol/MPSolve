@@ -9,12 +9,6 @@
 ** (C) 2001, Dipartimento di Matematica, FRISCO LTR 21024 **
 ***********************************************************/
 
-/**
- * @file
- * @brief Implementation of the newton correction computation
- * routines.
- */
-
 #include <float.h>
 #include <mps/gmptools.h>
 #include <mps/core.h>
