@@ -77,8 +77,8 @@ mps_secular_ga_fiterate (mps_status * s, int maxit)
         {
           if (s->again[i])
             {
-	      if (cplx_eq (s->froot[i], sec->bfpc[i]))
-		continue;
+	      /* if (cplx_eq (s->froot[i], sec->bfpc[i])) */
+	      /* 	continue; */
 
               nit++;
 

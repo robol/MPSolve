@@ -49,7 +49,7 @@ mps_secular_ga_required_regenerations_bits (mps_status * s)
 
 	for (i = 0; i < s->n; i++)
 	  {
-	    rdpe_t rtmp, rtmp2;
+	    rdpe_t rtmp, rtmp2, apol;
 	    cdpe_t ss, pol, ctmp;
 	    
 	    rdpe_set (regeneration_epsilon, root_epsilon);
@@ -75,6 +75,27 @@ mps_secular_ga_required_regenerations_bits (mps_status * s)
 
 		cdpe_set (pol, ss);
 	      }
+
+	    /* cdpe_set (pol, p->dpc[s->n]); */
+	    /* for (j = s->n - 1; j > 0; j--) */
+	    /*   { */
+	    /* 	cdpe_mul_eq (pol, sec->bdpc[i]); */
+	    /* 	cdpe_add_eq (pol, p->dpc[j]); */
+	    /*   } */
+	    /* cdpe_add_eq (pol, p->dpc[0]); */
+
+	    /* rdpe_set (apol, p->dap[s->n]); */
+	    /* cdpe_mod (rtmp2, sec->bdpc[i]); */
+	    /* for (j = s->n - 1; j > 0; j--) */
+	    /*   { */
+	    /* 	rdpe_mul_eq (apol, rtmp2); */
+	    /* 	rdpe_add_eq (apol, p->dap[j]); */
+	    /*   } */
+	    /* rdpe_add_eq (apol, p->dap[0]); */
+
+	    /* cdpe_mod (rtmp, pol); */
+	    /* rdpe_div_eq (apol, rtmp); */
+	    /* rdpe_mul (regeneration_epsilon, apol, root_epsilon); */
 	    
 	    /* Check if the new relative error is bigger than the 
 	     * previous one. */
@@ -92,11 +113,7 @@ mps_secular_ga_required_regenerations_bits (mps_status * s)
 
       } while (rdpe_gt (regeneration_epsilon, required_eps) && (wp *= 2));
 
-      return wp;
-      // return required_bits;
-      // global_required_bits *= 2;
-      // return global_required_bits;
-      return multiplier * s->mpwp;
+      return 2 * wp;
     }
   else if (MPS_INPUT_CONFIG_IS_SECULAR (s->input_config))
     return multiplier * s->mpwp;
@@ -188,7 +205,7 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s, int bits)
 	      mpf_set_q (mpc_Re (p->mfpc[i]), p->initial_mqp_r[i]);
 	      mpf_set_q (mpc_Im (p->mfpc[i]), p->initial_mqp_i[i]);
 
-	      MPS_DEBUG_MPC (s, 15, p->mfpc[i], "p->mfpc[%d]", i);
+	      /* MPS_DEBUG_MPC (s, 15, p->mfpc[i], "p->mfpc[%d]", i); */
 	    }
 	}
 
@@ -266,7 +283,7 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s, int bits)
 	      rdpe_add_eq (sec->dregeneration_epsilon[i], eps_tmp);
 	    }
 
-	  MPS_DEBUG_MPC (s, 15, prod_b, "prod_b");
+	  /* MPS_DEBUG_MPC (s, 15, prod_b, "prod_b"); */
 	  
 	  /* Actually divide the result and store it in
 	   * a_i, as requested. */
@@ -281,19 +298,19 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s, int bits)
 	      MPS_DEBUG_MPC (s, 10, sec->bmpc[i], "b_%d", i);
 	    }
 
-	  MPS_DEBUG_RDPE (s, sec->dregeneration_epsilon[i], "error on b_%d differences", i);
-	  MPS_DEBUG_RDPE (s, sec_eps, "sec_eps");
+	  /* MPS_DEBUG_RDPE (s, sec->dregeneration_epsilon[i], "error on b_%d differences", i); */
+	  /* MPS_DEBUG_RDPE (s, sec_eps, "sec_eps"); */
 
 	  /* Finalize error computation */
 	  // rdpe_mul_eq (sec->dregeneration_epsilon[i], s->mp_epsilon);
 	  rdpe_mul_eq (sec->dregeneration_epsilon[i], s->mp_epsilon);
 	  rdpe_add_eq (sec->dregeneration_epsilon[i], sec_eps);
 
-	  if (s->debug_level & MPS_DEBUG_REGENERATION)
-	    {
-	      MPS_DEBUG_RDPE (s, sec->dregeneration_epsilon[i],
-			      "Relative error on a_%d", i);
-	    }
+	  /* if (s->debug_level & MPS_DEBUG_REGENERATION) */
+	  /*   { */
+	  /*     MPS_DEBUG_RDPE (s, sec->dregeneration_epsilon[i], */
+	  /* 		      "Relative error on a_%d", i); */
+	  /*   } */
 	}
 
       /* Clear requested storage */
@@ -417,12 +434,12 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s, int bits)
 	  /* Sum the two for the moltiplication */
 	  rdpe_add_eq (sec->dregeneration_epsilon[i], sec_eps);
 
-	  if (s->debug_level & MPS_DEBUG_REGENERATION)
-	    {
-	      MPS_DEBUG_RDPE (s, sec_eps, "Relative error on sec_ev(b_%d)", i);
-	      MPS_DEBUG_RDPE (s, sec->dregeneration_epsilon[i],
-			      "Relative error on a_%d", i);
-	    }
+	  /* if (s->debug_level & MPS_DEBUG_REGENERATION) */
+	  /*   { */
+	  /*     MPS_DEBUG_RDPE (s, sec_eps, "Relative error on sec_ev(b_%d)", i); */
+	  /*     MPS_DEBUG_RDPE (s, sec->dregeneration_epsilon[i], */
+	  /* 		      "Relative error on a_%d", i); */
+	  /*   } */
 	  
 	  /* rdpe_set_2dl (rtmp, 1.0, 1.0);  */
 	  /* if (rdpe_gt (sec->dregeneration_epsilon[i], rtmp))   */

@@ -105,8 +105,8 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
 
   /* Correct the old radius with the move that we are doing
    * and check if the new proposed radius is preferable. */
-  if (new_rad < *rad || (*rad == 0) || (!data))
-      *rad = new_rad;
+   if (new_rad < *rad || (*rad == 0) || (!data)) 
+       *rad = new_rad;
 }
 
 void
