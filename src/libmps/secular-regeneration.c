@@ -173,12 +173,12 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s, int bits)
 
   if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
     {
-      mpc_t diff, prod_b, m_one, ctmp;      
+      mpc_t mprod_b, m_one, ctmp;      
+      cdpe_t prod_b, diff;
       MPS_DEBUG_WITH_INFO (s, "Regenerating coefficients from polynomial input");
 
       /* Init multiprecision values */
-      mpc_init2 (diff, coeff_wp);
-      mpc_init2 (prod_b, coeff_wp);
+      mpc_init2 (mprod_b, coeff_wp);
       mpc_init2 (m_one, coeff_wp);
       mpc_init2 (ctmp, coeff_wp);
 
@@ -204,91 +204,38 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s, int bits)
 	    {
 	      mpf_set_q (mpc_Re (p->mfpc[i]), p->initial_mqp_r[i]);
 	      mpf_set_q (mpc_Im (p->mfpc[i]), p->initial_mqp_i[i]);
-
-	      /* MPS_DEBUG_MPC (s, 15, p->mfpc[i], "p->mfpc[%d]", i); */
 	    }
 	}
 
       for (i = 0; i < s->n; ++i)
 	{
-	  /* Set the epsilon on this a_i to zero */
-	  rdpe_set (sec->dregeneration_epsilon[i], rdpe_zero);
-	  
-	  /* Evaluate the polynomial with absolute values to 
-	   * compute the error */
-	  mpc_get_cdpe (cdtmp, sec->bmpc[i]);
-	  cdpe_mod (rtmp, cdtmp);
-	  mps_aparhorner (s, s->n, rtmp, p->dap, p->spar, sec_eps, 0);
-
-	  rdpe_set (sec_eps, p->dap[s->n]);
-	  mpc_get_cdpe (cdtmp, sec->bmpc[i]);
-	  cdpe_mod (rtmp2, cdtmp);
-	  for (j = s->n - 1; j >= 0; j--)
-	    {
-	      rdpe_mul (rtmp, sec_eps, rtmp2);
-	      rdpe_add (sec_eps, rtmp, p->dap[j]);
-	    }
-	  rdpe_mul_eq_d (sec_eps, s->n * 4);
-	  rdpe_mul_eq (sec_eps, s->mp_epsilon);
-
-	  /* Evaluate the polynomial with horner */
-	  mps_parhorner (s, s->n, sec->bmpc[i], p->mfpc, p->spar, sec->ampc[i], 0);
 	  mpc_set (sec->ampc[i], p->mfpc[s->n]); 
 	  for (j = s->n - 1; j >= 0; j--) 
 	    { 
-	      mpc_div (ctmp, p->mfpc[j], sec->ampc[i]);
-	      mpc_add_eq (ctmp, sec->bmpc[i]); 
-	      mpc_mul_eq (sec->ampc[i], ctmp); 
+	      mpc_mul_eq (sec->ampc[i], sec->bmpc[i]);
+	      mpc_add_eq (sec->ampc[i], p->mfpc[j]);
 	    }
 
 	  /* MPS_DEBUG_MPC (s, coeff_wp, sec->bmpc[i], "sec->bmpc[%d]", i); */
 	  /* MPS_DEBUG_MPC (s, coeff_wp, sec->ampc[i], "sec->ampc[%d]", i); */
 
-	  /* Add to sec_eps the error induced by the approximation on the roots */
-	   rdpe_set (rtmp, rdpe_zero); 
-	   for (j = 0; j <= s->n; j++) 
-	     { 
-	       rdpe_mul_d (rtmp2, p->dap[j], j); 
-	       rdpe_add_eq (rtmp, rtmp2); 
-	     } 
-	   rdpe_mul_eq (rtmp, root_epsilon); 
-	   rdpe_add_eq (sec_eps, rtmp);
-
-	  /* Compute relative error in polynomial horner */
-	  mpc_get_cdpe (cdtmp, sec->ampc[i]);
-	  cdpe_mod (rtmp, cdtmp);
-	  rdpe_div_eq (sec_eps, rtmp);
-
-	  /* Prepare some data for error computation, precisely |b_i| */
-	  mpc_get_cdpe (cdtmp, sec->bmpc[i]);
-	  cdpe_mod (rtmp, cdtmp);
-
 	  /* Compute the difference of the b_i */
-	  mpc_set_ui (prod_b, 1U, 0U);
+	  cdpe_set (prod_b, cdpe_one);
 	  for (j = 0; j < s->n; ++j)
 	    {
 	      if (i == j)
 		continue;
 
-	      mpc_sub (diff, sec->bmpc[i], sec->bmpc[j]);
-	      mpc_mul_eq (prod_b, diff);
-
-	      /* Compute the local error here */
-	      mpc_get_cdpe (cdtmp2, diff);
-	      cdpe_mod (rtmp2, cdtmp2);
-	      mpc_get_cdpe (cdtmp2, sec->bmpc[j]);
-	      cdpe_mod (eps_tmp, cdtmp2);
-	      rdpe_add_eq (eps_tmp, rtmp);
-	      rdpe_div_eq (eps_tmp, rtmp2);
-	      rdpe_add_eq (sec->dregeneration_epsilon[i], eps_tmp);
+	      cdpe_sub (diff, sec->bdpc[i], sec->bdpc[j]);
+	      cdpe_mul_eq (prod_b, diff);
 	    }
 
 	  /* MPS_DEBUG_MPC (s, 15, prod_b, "prod_b"); */
 	  
 	  /* Actually divide the result and store it in
 	   * a_i, as requested. */
-	  mpc_div_eq (sec->ampc[i], prod_b);
-	  // mpc_mul_ui (sec->ampc[i], sec->ampc[i], -1U);
+	  mpc_set_cdpe (mprod_b, prod_b);
+	  mpc_div_eq (sec->ampc[i], mprod_b);
 	  mpc_mul_eq (sec->ampc[i], m_one);
 
 	  /* Debug computed coefficients */
@@ -297,25 +244,10 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s, int bits)
 	      MPS_DEBUG_MPC (s, 10, sec->ampc[i], "a_%d", i);
 	      MPS_DEBUG_MPC (s, 10, sec->bmpc[i], "b_%d", i);
 	    }
-
-	  /* MPS_DEBUG_RDPE (s, sec->dregeneration_epsilon[i], "error on b_%d differences", i); */
-	  /* MPS_DEBUG_RDPE (s, sec_eps, "sec_eps"); */
-
-	  /* Finalize error computation */
-	  // rdpe_mul_eq (sec->dregeneration_epsilon[i], s->mp_epsilon);
-	  rdpe_mul_eq (sec->dregeneration_epsilon[i], s->mp_epsilon);
-	  rdpe_add_eq (sec->dregeneration_epsilon[i], sec_eps);
-
-	  /* if (s->debug_level & MPS_DEBUG_REGENERATION) */
-	  /*   { */
-	  /*     MPS_DEBUG_RDPE (s, sec->dregeneration_epsilon[i], */
-	  /* 		      "Relative error on a_%d", i); */
-	  /*   } */
 	}
 
       /* Clear requested storage */
-      mpc_clear (diff);
-      mpc_clear (prod_b);
+      mpc_clear (mprod_b);
       mpc_clear (m_one);
       mpc_clear (ctmp);
     }
