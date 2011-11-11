@@ -390,7 +390,16 @@ mps_secular_ga_mpsolve (mps_status * s)
 	      mps_dstart (s, s->n, 0, (__rdpe_struct *) rdpe_zero,
 			  (__rdpe_struct *) rdpe_zero, s->eps_out,
 			  p->dap);
-	      mps_secular_ga_regenerate_coefficients (s);
+	      if (!mps_secular_ga_regenerate_coefficients (s))
+		{
+		  MPS_DEBUG (s, "Initial generation of the secular equation coefficients did not succeed");
+		  return;
+		}
+	    }
+	  else
+	    {
+	      MPS_DEBUG (s, "Initial generation of the secular equation coefficients did not succeed");
+	      return;
 	    }
 	  just_regenerated = true;
 	}
@@ -489,6 +498,7 @@ mps_secular_ga_mpsolve (mps_status * s)
 	* and we have just regenerated the coefficients, we should increase precision. */
        if (sec->best_approx && just_regenerated)
 	 {
+	 raise_precision:
 	   skip_check_stop = false;
 
 	   /* Going to multiprecision if we're not there yet */
@@ -516,9 +526,17 @@ mps_secular_ga_mpsolve (mps_status * s)
        * of the computation. */
        if (roots_computed == s->n)
 	 {
-	   mps_secular_ga_regenerate_coefficients (s);
-	   just_regenerated = true;
-	   skip_check_stop = false;
+	   MPS_DEBUG (s, "Regenerating coefficients because n roots were approximated");
+	   if (mps_secular_ga_regenerate_coefficients (s))
+	     {
+	       just_regenerated = true;
+	       skip_check_stop = false;
+	     }
+	   else
+	     {
+	       MPS_DEBUG (s, "Raising precision");
+	       goto raise_precision;
+	     }
 	 }
        else
 	 just_regenerated = false;

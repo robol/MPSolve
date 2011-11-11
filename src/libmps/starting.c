@@ -153,6 +153,7 @@ mps_fcompute_starting_radii (mps_status * s, int n, int i_clust,
         iold = s->partitioning[s->n_radii];
         nzeros = i - iold;
         temp = (s->fap2[iold] - s->fap2[i]) / nzeros;
+
         /* if the radius is too small to be represented as double, set it
          * to the minimum  representable double */
         if (temp < xsmall)      /* if (temp < MAX(xsmall, -xbig)) DARIO Giugno 23 */
@@ -385,8 +386,8 @@ mps_dcompute_starting_radii (mps_status * s, int n, int i_clust,
   double temp;
   rdpe_t r, tmp;
 
-  xbig = rdpe_log (RDPE_MAX);
-  xsmall = rdpe_log (RDPE_MIN);
+  xbig = LONG_MAX;
+  xsmall = LONG_MIN;
 
   ni = 0;
   nzeros = 0;
@@ -417,7 +418,7 @@ mps_dcompute_starting_radii (mps_status * s, int n, int i_clust,
     temp = -2.0 * (LONG_MAX * LOG2);
   for (i = 0; i <= n; i++)
     if (rdpe_ne (dap[i], rdpe_zero))
-      s->fap2[i] = rdpe_log (dap[i]);
+	s->fap2[i] = rdpe_log (dap[i]);
     else
       s->fap2[i] = temp;
 
@@ -433,6 +434,7 @@ mps_dcompute_starting_radii (mps_status * s, int n, int i_clust,
         iold = s->partitioning[s->n_radii];
         nzeros = i - iold;
         temp = (s->fap2[iold] - s->fap2[i]) / nzeros;
+
         /* if the radius is too small to be represented as double, set it
          * to the minimum  representable double */
         if (temp < xsmall)
@@ -446,8 +448,8 @@ mps_dcompute_starting_radii (mps_status * s, int n, int i_clust,
         /* if the radius is representable as double, compute it    */
         if ((temp < xbig) && (temp > xsmall))
           rdpe_set_d (r, temp);
+	MPS_DEBUG_RDPE (s, r, "r");
         rdpe_exp_eq (r);
-
 
         /* if the radius is greater than the radius of the cluster
          * set the radius equal to the radius of the cluster */

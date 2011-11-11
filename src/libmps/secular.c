@@ -561,7 +561,7 @@ mps_secular_set_radii (mps_status * s)
    * done in the mps_secular_*newton routines, now.
    */
 
-  /* return;  */
+  return;
 
   int i;
   mps_secular_equation *sec = (mps_secular_equation *) s->secular_equation;
@@ -585,7 +585,8 @@ mps_secular_set_radii (mps_status * s)
         for (i = 0; i < s->n; i++)
           {
             /* TODO: Use the guaranteed computation */
-            rad = s->n * cplx_mod (sec->afpc[i]) * (1 + s->n * (sec->fregeneration_epsilon[i] + DBL_EPSILON));
+            rad = s->n * cplx_mod (sec->afpc[i]) * (1 + s->n * (sec->fregeneration_epsilon[i] + DBL_EPSILON))
+	      + cplx_mod (s->froot[i]) * DBL_EPSILON * 4;
 	    
 	    /* Add to rad the distance of the root from b_i */
 	    cplx_sub (diff, sec->bfpc[i], s->froot[i]);
@@ -605,7 +606,7 @@ mps_secular_set_radii (mps_status * s)
     case mp_phase:
       {
         /* DPE and multiprecision implementation */
-        rdpe_t rad, total_rad, rtmp, rad_eps;
+        rdpe_t rad, total_rad, rtmp, rad_eps, rtmp2;
         cdpe_t ctmp;
         rdpe_set (total_rad, rdpe_zero);
 
@@ -635,7 +636,9 @@ mps_secular_set_radii (mps_status * s)
         for (i = 0; i < s->n; i++)
           {
 	    rdpe_set (rad_eps, rdpe_one);
-	    rdpe_add_eq (rad_eps, sec->dregeneration_epsilon[i]);
+	    // rdpe_add_eq (rad_eps, sec->dregeneration_epsilon[i]);
+	    rdpe_add_eq_d (rad_eps, s->n * DBL_EPSILON * 4);
+
             /* TODO: Use the guaranteed computation */
             if (s->lastphase == mp_phase)
               {
@@ -653,12 +656,21 @@ mps_secular_set_radii (mps_status * s)
             /* Check which radius is smaller (here guaranteed radius is
              * computed). */
 	    if (s->lastphase == mp_phase)
-	      rdpe_mul_d (rtmp, s->mp_epsilon, 9 * s->n);
+	      {
+		rdpe_mul_d (rtmp, s->mp_epsilon, 9 * s->n);
+		mpc_get_cdpe (ctmp, s->mroot[i]);
+		cdpe_mod (rtmp2, ctmp);
+		rdpe_mul_eq (rtmp, rtmp2);
+	      }
 	    else
-	      rdpe_set_d (rtmp, DBL_EPSILON * 9 * s->n);
-            rdpe_add_eq (rtmp, rdpe_one);
+	      {
+		rdpe_set_d (rtmp, DBL_EPSILON * 9 * s->n);
+		cdpe_mod (rtmp2, s->droot[i]);
+		rdpe_mul_eq (rtmp, rtmp2);
+	      }
+
             rdpe_mul_eq_d (rad, (double) s->n);
-            rdpe_mul_eq (rad, rtmp);
+            rdpe_add_eq (rad, rtmp);
 
              /* if (rdpe_gt (rad, total_rad))  */
              /*   rdpe_set (rad, total_rad);  */

@@ -173,7 +173,7 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s, int bits)
 
   if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
     {
-      mpc_t mprod_b, m_one, ctmp;      
+      mpc_t mprod_b, m_one, ctmp, mdiff;
       cdpe_t prod_b, diff;
       MPS_DEBUG_WITH_INFO (s, "Regenerating coefficients from polynomial input");
 
@@ -181,6 +181,7 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s, int bits)
       mpc_init2 (mprod_b, coeff_wp);
       mpc_init2 (m_one, coeff_wp);
       mpc_init2 (ctmp, coeff_wp);
+      mpc_init2 (mdiff, coeff_wp);
 
       s->mpwp = coeff_wp;
 
@@ -226,11 +227,20 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s, int bits)
 	      if (i == j)
 		continue;
 
-	      cdpe_sub (diff, sec->bdpc[i], sec->bdpc[j]);
+	      mpc_sub (mdiff, sec->bmpc[i], sec->bmpc[j]);
+	      mpc_get_cdpe (diff, mdiff);
+
+	      /* If the difference is zero than regeneration cannot succeed, and means
+	       * that we need more precision in the roots */
+	      if (cdpe_eq_zero (diff))
+		{
+		  success = false;
+		  goto monomial_regenerate_exit;
+		}
 	      cdpe_mul_eq (prod_b, diff);
 	    }
 
-	  /* MPS_DEBUG_MPC (s, 15, prod_b, "prod_b"); */
+	   /* MPS_DEBUG_MPC (s, 15, mprod_b, "prod_b");  */
 	  
 	  /* Actually divide the result and store it in
 	   * a_i, as requested. */
@@ -246,7 +256,9 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s, int bits)
 	    }
 	}
 
+    monomial_regenerate_exit:
       /* Clear requested storage */
+      mpc_clear (mdiff);
       mpc_clear (mprod_b);
       mpc_clear (m_one);
       mpc_clear (ctmp);
@@ -533,11 +545,19 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
       bits = mps_secular_ga_required_regenerations_bits (s);
       if (!(successful_regeneration = mps_secular_ga_regenerate_coefficients_mp (s, bits)))
         {
-            for (i = 0; i < s->n; i++)
+	  MPS_DEBUG (s, "Regeneration failed");
+	  for (i = 0; i < s->n; i++)
             {
               cdpe_set (sec->adpc[i], old_da[i]);
               cdpe_set (sec->bdpc[i], old_db[i]);
+	      
+	      mpc_set_cdpe (sec->ampc[i], old_da[i]);
+	      mpc_set_cdpe (sec->bmpc[i], old_db[i]);
             }
+
+	  mps_secular_ga_update_coefficients (s);
+	  MPS_DEBUG (s ,"Ahi ahi ahi");
+	  break;
 	}
       else
         {
@@ -613,11 +633,6 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
 
     }                           /* End of switch (s->lastphase) */
 
-  /* If the coefficients have been regenerated, all the roots are candidates
-   * for being iterated more */
-  for (int i = 0; i < s->n; ++i)
-      s->again[i] = true;
-
   /* Sum execution time to the total counter */
 #ifndef DISABLE_DEBUG
   s->regeneration_time += mps_stop_timer (my_clock);
@@ -627,6 +642,7 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
     {
       for (i = 0; i < s->n; i++)
 	  s->again[i] = true;
+      mps_secular_set_radii (s);
     }
   else
     {
@@ -634,9 +650,7 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
 	rdpe_set (sec->dregeneration_epsilon[i], old_dregeneration_epsilon[i]);
     }
 
-
   rdpe_vfree (old_dregeneration_epsilon);
-  mps_secular_set_radii (s);
 
   return successful_regeneration;
 }
