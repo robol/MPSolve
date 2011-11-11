@@ -77,7 +77,7 @@ mps_secular_ga_fiterate (mps_status * s, int maxit)
         {
           if (s->again[i])
             {
-	      MPS_DEBUG (s, "Iterating on root %d", i);
+	      /* MPS_DEBUG (s, "Iterating on root %d", i); */
 	      /* if (cplx_eq (s->froot[i], sec->bfpc[i])) */
 	      /* 	continue; */
 
@@ -146,8 +146,8 @@ mps_secular_ga_fiterate (mps_status * s, int maxit)
               modcorr = cplx_mod (abcorr);
               s->frad[i] += modcorr;
 
-	      MPS_DEBUG (s, "modcorr = %e", modcorr);
-	      MPS_DEBUG_CPLX (s, s->froot[i], "s->froot[%d]", i);
+	      /* MPS_DEBUG (s, "modcorr = %e", modcorr); */
+	      /* MPS_DEBUG_CPLX (s, s->froot[i], "s->froot[%d]", i); */
 
 	      if (modcorr < cplx_mod (s->froot[i]) * 4 * DBL_EPSILON)
 		{
