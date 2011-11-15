@@ -185,9 +185,8 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s, int bits)
 
       s->mpwp = coeff_wp;
 
-      mpc_set_ui (m_one, 0U, 0U);
-      mpc_sub_eq (m_one, p->mfpc[s->n]);
-
+      mpc_set_si (m_one, -1, 0);
+      mpc_div_eq (m_one, p->mfpc[s->n]);
       
       /*
        * The new coefficients of the secular equation can be computed
