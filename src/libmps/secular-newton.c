@@ -39,7 +39,10 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
       cplx_sub (ctmp, x, sec->bfpc[i]);
 
       if (cplx_eq_zero (ctmp))
+	{
+	  *again = false;
           return;
+	}
 
       /* Computation of prod [ (z - b_i) / (z - z_j) ] */
       prod_b *= cplx_mod (ctmp);
@@ -150,7 +153,10 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
 
       /* Alternative computation if x is one of the b_i */
       if (cdpe_eq_zero (ctmp))
+	{
+	  *again = false;
 	  return;
+	}
 
       /* Invert it, i.e. compute 1 / (z - b_i) */
       cdpe_inv_eq (ctmp);
@@ -277,6 +283,12 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
     {
       /* Compute z - b_i */
       mpc_sub (ctmp, x, sec->bmpc[i]);
+
+      if (mpc_eq_zero (ctmp))
+	{
+	  *again = false;
+	  return;
+	}
 
       mpc_get_cdpe (cdtmp2, ctmp);
 
