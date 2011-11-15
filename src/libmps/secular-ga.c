@@ -409,16 +409,16 @@ mps_secular_ga_mpsolve (mps_status * s)
    * routine and based on the phase selected by the user. */
   switch (s->lastphase)
     {
-    case  float_phase: 
-       mps_secular_fstart (s, s->n, 0, 0.0, 0.0, s->eps_out); 
+    case  float_phase:
+      mps_secular_fstart (s, s->n, 0, 0.0, 0.0, s->eps_out);
        break;
 
-     case dpe_phase: 
+     case dpe_phase:
        mps_secular_dstart (s, s->n, 0, (__rdpe_struct *) rdpe_zero, 
                            (__rdpe_struct *) rdpe_zero, s->eps_out); 
        break; 
 
-     case mp_phase: 
+    case mp_phase:
        mps_secular_mstart (s, s->n, 0, (__rdpe_struct *) rdpe_zero, 
                            (__rdpe_struct *) rdpe_zero, s->eps_out); 
        break;
@@ -446,7 +446,7 @@ mps_secular_ga_mpsolve (mps_status * s)
         {
         case float_phase:
           MPS_DEBUG_WITH_INFO (s, "Starting floating point iterations");
-          roots_computed = mps_secular_ga_fiterate (s, iteration_per_packet);
+          roots_computed = mps_secular_ga_fiterate (s, iteration_per_packet, just_regenerated);
           /* If the computation fails we need to switch to DPE so do not
            * break here, but continue the cycle. */
           if (roots_computed != -1)
@@ -459,7 +459,7 @@ mps_secular_ga_mpsolve (mps_status * s)
 
         case dpe_phase:
           MPS_DEBUG_WITH_INFO (s, "Starting DPE iterations");
-          roots_computed = mps_secular_ga_diterate (s, iteration_per_packet);
+          roots_computed = mps_secular_ga_diterate (s, iteration_per_packet, just_regenerated);
           MPS_DEBUG_WITH_INFO (s,
                                "%d roots were computed to the best precision available",
                                roots_computed);
@@ -467,7 +467,7 @@ mps_secular_ga_mpsolve (mps_status * s)
 
         case mp_phase:
           MPS_DEBUG_WITH_INFO (s, "Starting MP iterations");
-          roots_computed = mps_secular_ga_miterate (s, iteration_per_packet);
+          roots_computed = mps_secular_ga_miterate (s, iteration_per_packet, just_regenerated);
           MPS_DEBUG_WITH_INFO (s,
                                "%d roots were computed to the best precision available",
                                roots_computed);
@@ -496,7 +496,7 @@ mps_secular_ga_mpsolve (mps_status * s)
 
        /* If the iterations has ended in less than 2 * not_computed_roots iterations
 	* and we have just regenerated the coefficients, we should increase precision. */
-       if (sec->best_approx && just_regenerated)
+       if (sec->best_approx)
 	 {
 	 raise_precision:
 	   skip_check_stop = false;

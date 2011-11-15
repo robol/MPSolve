@@ -16,7 +16,7 @@
  * @return The number of approximated roots after the iteration.
  */
 int
-mps_secular_ga_fiterate (mps_status * s, int maxit)
+mps_secular_ga_fiterate (mps_status * s, int maxit, mps_boolean just_regenerated)
 {
   MPS_DEBUG_THIS_CALL;
 
@@ -35,6 +35,9 @@ mps_secular_ga_fiterate (mps_status * s, int maxit)
 
   double old_rad;
   cplx_t old_root;
+
+  double * old_radii = double_valloc (s->n);
+  memcpy (old_radii, s->frad, s->n * sizeof (double));
 
   sec->best_approx = false;
 
@@ -171,13 +174,22 @@ mps_secular_ga_fiterate (mps_status * s, int maxit)
   if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
       mps_dump (s, s->logstr);
 
-  if (nit <= it_threshold)
+  if (nit <= it_threshold && just_regenerated)
     {
       if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
 	{
 	  MPS_DEBUG (s, "Setting approximation as best_approx");
 	}
       s->secular_equation->best_approx = true;
+    }
+
+  /* Work around to pass in higher precision if roots cannot be approximated */
+  if (computed_roots != s->n)
+    sec->best_approx = true;
+  for (i = 0; i < s->n; i++)
+    {
+      if (s->again[i] && old_radii[i] > s->frad[i])
+	sec->best_approx = false;
     }
 
    mps_fcluster (s, 2.0 * s->n); 
@@ -200,6 +212,8 @@ mps_secular_ga_fiterate (mps_status * s, int maxit)
   s->fp_iteration_time += mps_stop_timer (my_clock);
 #endif
 
+  double_vfree (old_radii);
+
   /* Return the number of approximated roots */
   return computed_roots;
 }
@@ -213,7 +227,7 @@ mps_secular_ga_fiterate (mps_status * s, int maxit)
  * @return The number of approximated roots after the iteration.
  */
 int
-mps_secular_ga_diterate (mps_status * s, int maxit)
+mps_secular_ga_diterate (mps_status * s, int maxit, mps_boolean just_regenerated)
 {
   MPS_DEBUG_THIS_CALL;
 
@@ -230,6 +244,9 @@ mps_secular_ga_diterate (mps_status * s, int maxit)
 #endif
 
   sec->best_approx = false;
+
+  rdpe_t * old_radii = rdpe_valloc (s->n);
+  memcpy (old_radii, s->drad, s->n * sizeof (__rdpe_struct));
 
   /* Iterate with newton until we have good approximations
    * of the roots */
@@ -313,11 +330,20 @@ mps_secular_ga_diterate (mps_status * s, int maxit)
       mps_dump (s, s->logstr);
     }
 
-  if (nit <= it_threshold)
+  if (nit <= it_threshold && just_regenerated)
     {
       if (s->debug_level & MPS_DEBUG_PACKETS)
 	MPS_DEBUG (s, "Setting best_approx to true");
       s->secular_equation->best_approx = true;
+    }
+
+  /* Work around to pass in higher precision if roots cannot be approximated */
+  if (computed_roots != s->n)
+    sec->best_approx = true;
+  for (i = 0; i < s->n; i++)
+    {
+      if (s->again[i] && rdpe_gt (old_radii[i], s->drad[i]))
+	sec->best_approx = false;
     }
 
   mps_dcluster (s, 2.0 * s->n);
@@ -340,6 +366,8 @@ mps_secular_ga_diterate (mps_status * s, int maxit)
   s->dpe_iteration_time += mps_stop_timer (my_clock);
 #endif
 
+  rdpe_vfree (old_radii);
+
   /* Return the number of approximated roots */
   return computed_roots;
 }
@@ -353,7 +381,7 @@ mps_secular_ga_diterate (mps_status * s, int maxit)
  * @return The number of approximated roots after the iteration.
  */
 int
-mps_secular_ga_miterate (mps_status * s, int maxit)
+mps_secular_ga_miterate (mps_status * s, int maxit, mps_boolean just_regenerated)
 {
   MPS_DEBUG_THIS_CALL;
 
@@ -466,7 +494,7 @@ mps_secular_ga_miterate (mps_status * s, int maxit)
       MPS_DEBUG (s, "Performed %d iterations", nit);
     }
 
-  if (nit <= it_threshold)
+  if (nit <= it_threshold && just_regenerated)
     s->secular_equation->best_approx = true;
 
   /* Perform cluster analysis */

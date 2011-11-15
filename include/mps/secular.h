@@ -106,11 +106,11 @@ extern "C"
 			   rdpe_t g, rdpe_t eps);
 
   /* Routines in secular-iteration.c */
-  int mps_secular_ga_fiterate (mps_status * s, int maxit);
+  int mps_secular_ga_fiterate (mps_status * s, int maxit, mps_boolean just_regenerated);
 
-  int mps_secular_ga_diterate (mps_status * s, int maxit);
+  int mps_secular_ga_diterate (mps_status * s, int maxit, mps_boolean just_regenerated);
 
-  int mps_secular_ga_miterate (mps_status * s, int maxit);
+  int mps_secular_ga_miterate (mps_status * s, int maxit, mps_boolean just_regenerated);
   
   /* Routines in secular-ga.c */
   mps_boolean mps_secular_ga_check_stop (mps_status * s);
