@@ -55,25 +55,78 @@ mps_secular_ga_required_regenerations_bits (mps_status * s)
 	    rdpe_set (regeneration_epsilon, root_epsilon);
 
 	    /* Perform horner with checking of the error */
-	    cdpe_set (pol, p->dpc[s->n]);
-	    for (j = s->n - 1; j >= 0; j--)
+	    if (MPS_INPUT_CONFIG_IS_SPARSE (s->input_config))
 	      {
-		cdpe_mul (ss, sec->bdpc[i], pol);
-		cdpe_add_eq (ss, p->dpc[j]);
-		cdpe_div (ctmp, pol, ss);
-		cdpe_mod (rtmp, ctmp);
+		int skip = 0;
+		cdpe_set (pol, p->dpc[s->n]);
+		for (j = s->n - 1; j >= 0; j--)
+		  {
+		    if (!p->spar[j])
+		      {
+			int power = 0, t, remaining;
 
-		rdpe_set (rtmp2, root_epsilon);
-		rdpe_add_eq (rtmp2, regeneration_epsilon);
-		rdpe_mul_eq (rtmp, rtmp2);
-		rdpe_add_eq (regeneration_epsilon, rtmp);
+			/* Determine how many coefficients we shall skip */
+			skip = j;
+			while (!p->spar[j] && (j >= 0)) { j--; }
+			skip = skip - j + 1;
 
-		cdpe_div (ctmp, p->dpc[j], ss);
-		cdpe_mod (rtmp, ctmp);
-		rdpe_mul_eq (rtmp, regeneration_epsilon);
-		rdpe_add_eq (regeneration_epsilon, rtmp);
+			/* Smarter less complex way needed */
+			cdpe_set (ss, cdpe_one);
+			while (power != skip)
+			  {
+			    cdpe_set (ctmp, sec->bdpc[i]);
+			    t = 2;
+			    remaining = skip - power;
+			    while (t < remaining)
+			      {
+				cdpe_mul_eq (ctmp, ctmp);
+				t *= 2;
+			      }
+			    t /= 2;
+			    power += t;
+			    cdpe_mul_eq (ss, ctmp);
+			  }
 
-		cdpe_set (pol, ss);
+			cdpe_add_eq (ss, p->dpc[j]);
+			cdpe_div (ctmp, pol, ss);
+			cdpe_mod (rtmp, ctmp);
+			
+			rdpe_set (rtmp2, root_epsilon);
+			rdpe_add_eq (rtmp2, regeneration_epsilon);
+			rdpe_mul_eq (rtmp, rtmp2);
+			rdpe_add_eq (regeneration_epsilon, rtmp);
+		    
+			cdpe_div (ctmp, p->dpc[j], ss);
+			cdpe_mod (rtmp, ctmp);
+			rdpe_mul_eq (rtmp, regeneration_epsilon);
+			rdpe_add_eq (regeneration_epsilon, rtmp);
+		    
+			cdpe_set (pol, ss);
+		      }
+		  }
+	      }
+	    else
+	      {
+		cdpe_set (pol, p->dpc[s->n]);
+		for (j = s->n - 1; j >= 0; j--)
+		  {
+		    cdpe_mul (ss, sec->bdpc[i], pol);
+		    cdpe_add_eq (ss, p->dpc[j]);
+		    cdpe_div (ctmp, pol, ss);
+		    cdpe_mod (rtmp, ctmp);
+		    
+		    rdpe_set (rtmp2, root_epsilon);
+		    rdpe_add_eq (rtmp2, regeneration_epsilon);
+		    rdpe_mul_eq (rtmp, rtmp2);
+		    rdpe_add_eq (regeneration_epsilon, rtmp);
+		    
+		    cdpe_div (ctmp, p->dpc[j], ss);
+		    cdpe_mod (rtmp, ctmp);
+		    rdpe_mul_eq (rtmp, regeneration_epsilon);
+		    rdpe_add_eq (regeneration_epsilon, rtmp);
+		    
+		    cdpe_set (pol, ss);
+		  }
 	      }
 
 	    /* cdpe_set (pol, p->dpc[s->n]); */
