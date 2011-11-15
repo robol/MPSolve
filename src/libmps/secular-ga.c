@@ -515,6 +515,7 @@ mps_secular_ga_mpsolve (mps_status * s)
             }
 
 	   just_regenerated = true;
+	   sec->best_approx = false;
 
 	   /* Set the packet counter to zero, we are restarting */
 	   packet = 0;
@@ -526,7 +527,7 @@ mps_secular_ga_mpsolve (mps_status * s)
        * of the computation. */
        if (roots_computed == s->n)
 	 {
-	   MPS_DEBUG (s, "Regenerating coefficients because n roots were approximated");
+	   MPS_DEBUG (s, "Regenerating coefficients because %d roots were approximated", s->n);
 	   if (mps_secular_ga_regenerate_coefficients (s))
 	     {
 	       just_regenerated = true;

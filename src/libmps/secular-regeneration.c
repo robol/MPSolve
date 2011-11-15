@@ -139,7 +139,7 @@ mps_secular_ga_required_regenerations_bits (mps_status * s)
  * @param s The mps_status of the computation.
  * @param bits The bits of precision used in regeneration
  */
-int
+mps_boolean
 mps_secular_ga_regenerate_coefficients_mp (mps_status * s, int bits)
 {
   /* Declaration and initialization of the multprecision
@@ -232,6 +232,7 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s, int bits)
 	       * that we need more precision in the roots */
 	      if (cdpe_eq_zero (diff))
 		{
+		  MPS_DEBUG (s, "Regeneration of the coefficients failed because sec->bdpc[%d] == sec->bdpc[%d]", i, j);
 		  success = false;
 		  goto monomial_regenerate_exit;
 		}
@@ -407,6 +408,11 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s, int bits)
   mps_secular_raise_coefficient_precision (s, s->mpwp);
   rdpe_set_2dl (s->mp_epsilon, 1.0, -s->mpwp + 1);
 
+  if (!success)
+    {
+      MPS_DEBUG (s, "Regeneration of the coefficients failed");
+    }
+
   return success;
 }
 
@@ -427,7 +433,7 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
   mpc_t *old_ma, *old_mb;
   mps_secular_equation *sec;
   int i, j, bits;
-  mps_boolean successful_regeneration = false;
+  mps_boolean successful_regeneration = true;
 
   sec = (mps_secular_equation *) s->secular_equation;
 
