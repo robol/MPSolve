@@ -322,7 +322,7 @@ mps_secular_ga_mpsolve (mps_status * s)
 #endif
 
   /* Set the output desired for the output */
-  rdpe_set_dl (s->eps_out, 1.0, -s->output_config->prec);
+  rdpe_set_2dl (s->eps_out, 1.0, -s->output_config->prec);
 
   /* Set degree and allocate polynomial-related variables
    * to allow initializitation to be performed. */

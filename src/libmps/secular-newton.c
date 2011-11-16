@@ -38,6 +38,8 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
       /* Compute z - b_i */
       cplx_sub (ctmp, x, sec->bfpc[i]);
 
+      /* Check if we are in the case where z == b_i and return,
+       * without doing any further iteration */
       if (cplx_eq_zero (ctmp))
 	{
 	  *again = false;
@@ -46,7 +48,7 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
 
       /* Computation of prod [ (z - b_i) / (z - z_j) ] */
       prod_b *= cplx_mod (ctmp);
-      cplx_sub (ctmp2, x, sec->bfpc[i]);
+      cplx_sub (ctmp2, x, s->froot[i]);
       if (!cplx_eq_zero (ctmp2))
         {
 	  prod_b /= cplx_mod (ctmp2);
@@ -88,8 +90,10 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
   else
     cplx_div (corr, pol, corr);
 
+  double asum_on_apol = asum / apol;
+
   /* If the approximation falls in the root neighbourhood then we can stop */
-  if ((asum / apol + 1) * MPS_2SQRT2 * DBL_EPSILON > 1)
+  if ((asum_on_apol + 1) * MPS_2SQRT2 * DBL_EPSILON > 1)
     {
       MPS_DEBUG (s, "Setting again to false on root %ld for root neighbourhood", data->k);
       *again = false;
@@ -103,8 +107,11 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
       *again = false;
     }
 
+  MPS_DEBUG_CPLX (s, pol, "pol");
+  MPS_DEBUG (s, "apol = %e, asum = %e, prod_b = %e", apol, asum, prod_b);
+
   /* Computation of radius with Gerschgorin */
-  new_rad = (apol * s->n * prod_b * (1 + (3 * s->n + (asum/apol + 1)) * 4 * DBL_EPSILON)) + (cplx_mod (x) * 4 * DBL_EPSILON);
+  new_rad = (apol * s->n * prod_b * (1 + (3 * s->n + (asum_on_apol + 1)) * 4 * DBL_EPSILON)) + (cplx_mod (x) * 4 * DBL_EPSILON);
 
   /* Correct the old radius with the move that we are doing
    * and check if the new proposed radius is preferable. */
@@ -297,7 +304,7 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
 
       mpc_sub (ctmp2, x, s->mroot[i]);
       mpc_get_cdpe (cdtmp2, ctmp2);
-      if (!cdpe_eq_zero (cdtmp2))
+      if (data->k != i)
         {
 	  cdpe_mod (rtmp2, cdtmp2);
           rdpe_div_eq (prod_b, rtmp2);

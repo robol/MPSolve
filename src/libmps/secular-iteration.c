@@ -499,7 +499,6 @@ mps_secular_ga_miterate (mps_status * s, int maxit, mps_boolean just_regenerated
 	  fprintf (s->logstr, "%c ", s->status[i][0]);
 	}
       fprintf (s->logstr, "\n");
-      // mps_dump (s, s->logstr);
     }
   
   /* Clock the routine */

@@ -342,6 +342,7 @@ mps_fmodify (mps_status * s, mps_boolean track_new_cluster)
   int i, j, l, k, nnewclust, i_new, i_old, ip1, i1, l1, j1, nf, j2, l2;
   double sr, tmpr, afri, sep1;
   cplx_t sc;
+  rdpe_t rtmp;
   mps_boolean tcr, tcr1;
 
   /* ==1== Change into 'C' the components of status for old clusters */
@@ -430,6 +431,12 @@ mps_fmodify (mps_status * s, mps_boolean track_new_cluster)
 			 and for counting only
 			 *************************************************/
           afri = cplx_mod (s->froot[i]);
+	  
+	  /* Check if the root, even if clustered, is approximated */
+	  rdpe_set_d (rtmp, s->frad[l] / cplx_mod (s->froot[l]));
+	  if (rdpe_le (rtmp, s->eps_out))
+	    s->status[l][0] = 'o';
+
           if (s->status[l][0] == 'x' && s->goal[0] == 'c')
             {
               if ((s->goal[1] == 'i' && afri < 1) || (s->goal[1] == 'o'
