@@ -539,7 +539,7 @@ mps_print_help (mps_status * s)
   fprintf (s->outstr,
            " -Dc\tc = Detect: [n]one, (r)eal/(i)maginary/(b)oth\n");
   fprintf (s->outstr,
-           " -Oc\tc = Output format: (b)are, (g)nuplot, [c]ompact, (gf) gnuplot pipe-ready format"
+           " -Oc\tc = Output format: (b)are, (g)nuplot, [c]ompact, (gf) gnuplot pipe-ready format "
            "(v)erbose, (f)ull\n");
   fprintf (s->outstr,
            " -Hn\tn = random seed, taken from /dev/random if exists\n");
