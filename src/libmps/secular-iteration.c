@@ -183,15 +183,6 @@ mps_secular_ga_fiterate (mps_status * s, int maxit, mps_boolean just_regenerated
       s->secular_equation->best_approx = true;
     }
 
-  /* Work around to pass in higher precision if roots cannot be approximated */
-  if (computed_roots != s->n)
-    sec->best_approx = true;
-  for (i = 0; i < s->n; i++)
-    {
-      if (s->again[i] && old_radii[i] > s->frad[i])
-	sec->best_approx = false;
-    }
-
    mps_fcluster (s, 2.0 * s->n); 
    mps_fmodify (s, false); 
 
@@ -335,15 +326,6 @@ mps_secular_ga_diterate (mps_status * s, int maxit, mps_boolean just_regenerated
       if (s->debug_level & MPS_DEBUG_PACKETS)
 	MPS_DEBUG (s, "Setting best_approx to true");
       s->secular_equation->best_approx = true;
-    }
-
-  /* Work around to pass in higher precision if roots cannot be approximated */
-  if (computed_roots != s->n)
-    sec->best_approx = true;
-  for (i = 0; i < s->n; i++)
-    {
-      if (s->again[i] && rdpe_gt (old_radii[i], s->drad[i]))
-	sec->best_approx = false;
     }
 
   mps_dcluster (s, 2.0 * s->n);
