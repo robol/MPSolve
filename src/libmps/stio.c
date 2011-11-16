@@ -1168,7 +1168,8 @@ mps_outfloat (mps_status * s, mpf_t f, rdpe_t rad, long out_digit,
   tmpf_init2 (t, s->output_config->prec);
 
   mpf_get_rdpe (ro, f);
-  if (s->output_config->format == MPS_OUTPUT_FORMAT_GNUPLOT)
+  if (s->output_config->format == MPS_OUTPUT_FORMAT_GNUPLOT ||
+      s->output_config->format == MPS_OUTPUT_FORMAT_GNUPLOT_FULL)
     rdpe_out_str_u (s->outstr, ro);
   else
     {
@@ -1236,6 +1237,7 @@ mps_outroot (mps_status * s, int i)
       fprintf (s->outstr, " ");
       break;
     case MPS_OUTPUT_FORMAT_GNUPLOT:
+    case MPS_OUTPUT_FORMAT_GNUPLOT_FULL:
       fprintf (s->outstr, "\t");
       break;
     case MPS_OUTPUT_FORMAT_COMPACT:
@@ -1307,6 +1309,17 @@ mps_output (mps_status * s)
   if (s->DOLOG)
     fprintf (s->logstr, "--------------------\n");
 
+  /* Start with plotting instructions in the case of 
+   * MPS_OUTPUT_GNUPLOT_FULL, so the output can be
+   * piped directly to gnuplot */
+  if (s->output_config->format == MPS_OUTPUT_FORMAT_GNUPLOT_FULL)
+    {
+      fprintf (s->outstr, "# MPSolve output for GNUPLOT\n");
+      fprintf (s->outstr, "# Make user that this output is piped into gnuplot using a command like\n");
+      fprintf (s->outstr, "# ./***solve -Ogf | gnuplot \n");
+      fprintf (s->outstr, "plot '-' title 'Computed roots'\n");
+    }
+
   if (s->goal[0] == 'c')
     mps_outcount (s);
   else
@@ -1321,6 +1334,14 @@ mps_output (mps_status * s)
             continue;
           mps_outroot (s, i);
         }
+    }
+
+  if (s->output_config->format == MPS_OUTPUT_FORMAT_GNUPLOT_FULL)
+    {
+      fprintf (s->outstr, "e\n");
+      fprintf (s->outstr, "pause mouse close\n");
+      fprintf (s->outstr, "# End of MPSolve GNUPLOT output. If you are seeing this maybe\n");
+      fprintf (s->outstr, "# you forgot to pipe the ***solve command into gnuplot?\n");
     }
 }
 

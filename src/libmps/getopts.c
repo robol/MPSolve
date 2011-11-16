@@ -400,6 +400,9 @@ mps_parse_opts (mps_status * s, int argc, char *argv[])
               case 'g':
                 s->goal[4] = 'g';
 		s->output_config->format = MPS_OUTPUT_FORMAT_GNUPLOT;
+
+		if (argv[i][3] == 'f')
+		  s->output_config->format = MPS_OUTPUT_FORMAT_GNUPLOT_FULL;
                 break;
               case 'c':
                 s->goal[4] = 'c';
@@ -417,7 +420,9 @@ mps_parse_opts (mps_status * s, int argc, char *argv[])
                 mps_error (s, 3, "Bad output format switch: ", argv[i] + 2,
                            ", use b|c|f|g|v");
               }
-            if (strlen (argv[i]) != 3)
+	    
+	    /* Workaround for the case where gnuplot full format is selected */
+            if (strlen (argv[i]) != 3 && argv[i][2] != 'g' && argv[i][3] != 'f')
               mps_error (s, 2, "Bad output option: ", argv[i]);
             break;
 
@@ -534,7 +539,7 @@ mps_print_help (mps_status * s)
   fprintf (s->outstr,
            " -Dc\tc = Detect: [n]one, (r)eal/(i)maginary/(b)oth\n");
   fprintf (s->outstr,
-           " -Oc\tc = Output format: (b)are, (g)nuplot, [c]ompact, "
+           " -Oc\tc = Output format: (b)are, (g)nuplot, [c]ompact, [gf] gnuplot pipe-ready format"
            "(v)erbose, (f)ull\n");
   fprintf (s->outstr,
            " -Hn\tn = random seed, taken from /dev/random if exists\n");

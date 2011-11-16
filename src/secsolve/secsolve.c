@@ -38,12 +38,14 @@ usage (mps_status * s, const char *program)
 	   "               c: Compact output\n"
 	   "               v: Verbose output\n"
 	   "               g: Gnuplot-ready output\n"
+	   "               gf: Gnuplot-full mode, can be piped to gnuplot -persist. For example:\n"
+	   "                   %s -g -Ogf myfile.pol | gnuplot \n"
            " -g          Use Gemignani's approach\n"
            " -t type     Type can be 'f' for floating point\n"
            "             or 'd' for DPE\n"
            " -i          Isolate the roots only, do not perform approximation\n"
            " -o digits   Exact digits of the roots given as output.\n",
-           program);
+           program, program);
 
   exit (EXIT_FAILURE);
 }
@@ -91,6 +93,8 @@ main (int argc, char **argv)
 	      break;
 	    case 'g':
 	      s->output_config->format = MPS_OUTPUT_FORMAT_GNUPLOT;
+	      if (*(opt->optvalue + 1) == 'f')
+		s->output_config->format = MPS_OUTPUT_FORMAT_GNUPLOT_FULL;
 	      break;
 	    case 'v':
 	      s->output_config->format = MPS_OUTPUT_FORMAT_VERBOSE;
