@@ -44,7 +44,8 @@ mps_secular_ga_update_coefficients (mps_status * s)
 
 /**
  * @brief Check if iterations can terminate, i.e. if newton 
- * isolation has been reached. If the target was approximation then 
+ * isolation has been reached, if the target was approximate. 
+ * If the target was approximation then 
  * <code>mps_secular_improve ()</code> should be used to reach
  * the required precision.
  *
