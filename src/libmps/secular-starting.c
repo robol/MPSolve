@@ -165,6 +165,7 @@ mps_secular_mstart (mps_status * s, int n, int i_clust, rdpe_t clust_rad,
       mpc_get_cdpe (ctmp, s->mroot[l + i]);
       cdpe_mod (r_eps, ctmp);
       rdpe_mul_eq (r_eps, s->mp_epsilon);
+      rdpe_mul_eq_d (r_eps, 4.0);
       mpf_set_rdpe (mpc_Re (epsilon), r_eps);
 
       mpc_set_d (s->mroot[l + i], cos (i * th + sigma), sin (i * th + sigma));

@@ -33,12 +33,6 @@ mps_secular_ga_fiterate (mps_status * s, int maxit, mps_boolean just_regenerated
 
   mps_secular_equation *sec = s->secular_equation;
 
-  double old_rad;
-  cplx_t old_root;
-
-  double * old_radii = double_valloc (s->n);
-  memcpy (old_radii, s->frad, s->n * sizeof (double));
-
   sec->best_approx = false;
 
   /* Mark the approximated roots as ready for output */
@@ -80,16 +74,11 @@ mps_secular_ga_fiterate (mps_status * s, int maxit, mps_boolean just_regenerated
         {
           if (s->again[i])
             {
-	      /* MPS_DEBUG (s, "Iterating on root %d", i); */
+	       MPS_DEBUG (s, "Iterating on root %d", i); 
 	      /* if (cplx_eq (s->froot[i], sec->bfpc[i])) */
 	      /* 	continue; */
 
               nit++;
-
-	      /* Save the old root in case that we occur in floating point
-	       * exceptions */
-              cplx_set (old_root, s->froot[i]);
-              old_rad = s->frad[i];
 	      
 	      /* Prepare the data to be passed for secular-newton */
 	      data.k = i;
@@ -105,45 +94,45 @@ mps_secular_ga_fiterate (mps_status * s, int maxit, mps_boolean just_regenerated
               cplx_sub_eq (s->froot[i], abcorr);
 
               /* Check if we need to switch to DPE */
-              if (isnan (cplx_Re (s->froot[i]))
-                  || isinf (cplx_Re (s->froot[i]))
-                  || isnan (cplx_Im (s->froot[i]))
-                  || isinf (cplx_Im (s->froot[i])) || isnan (s->frad[i])
-                  || isinf (s->frad[i])
-		  || s->status[i][0] == 'x')
-                {
-		  if (s->status[i][0] != 'x')
-		    {
-		      MPS_DEBUG_WITH_INFO (s,
-					   "Switching to DPE phase because NAN or INF was introduced in computation");
-		    }
-		  else
-		    {
-		      s->status[i][0] = 'c';
-		      MPS_DEBUG_WITH_INFO (s, "Switching to DPE phase because there is an approximation not representable in double");
-		    }
-                  cplx_set (s->froot[i], old_root);
-                  s->frad[i] = old_rad;
-                  s->lastphase = dpe_phase;
+/*               if (isnan (cplx_Re (s->froot[i])) */
+/*                   || isinf (cplx_Re (s->froot[i])) */
+/*                   || isnan (cplx_Im (s->froot[i])) */
+/*                   || isinf (cplx_Im (s->froot[i])) || isnan (s->frad[i]) */
+/*                   || isinf (s->frad[i]) */
+/* 		  || s->status[i][0] == 'x') */
+/*                 { */
+/* 		  if (s->status[i][0] != 'x') */
+/* 		    { */
+/* 		      MPS_DEBUG_WITH_INFO (s, */
+/* 					   "Switching to DPE phase because NAN or INF was introduced in computation"); */
+/* 		    } */
+/* 		  else */
+/* 		    { */
+/* 		      s->status[i][0] = 'c'; */
+/* 		      MPS_DEBUG_WITH_INFO (s, "Switching to DPE phase because there is an approximation not representable in double"); */
+/* 		    } */
+/*                   cplx_set (s->froot[i], old_root); */
+/*                   s->frad[i] = old_rad; */
+/*                   s->lastphase = dpe_phase; */
 
-                  /* Copy roots, radius and coefficients */
-                  for (i = 0; i < s->n; i++)
-                    {
-                      cdpe_set_x (s->droot[i], s->froot[i]);
-                      rdpe_set_d (s->drad[i], s->frad[i]);
+/*                   /\* Copy roots, radius and coefficients *\/ */
+/*                   for (i = 0; i < s->n; i++) */
+/*                     { */
+/*                       cdpe_set_x (s->droot[i], s->froot[i]); */
+/*                       rdpe_set_d (s->drad[i], s->frad[i]); */
 
-		      cdpe_set_x (sec->adpc[i], sec->afpc[i]);
-		      cdpe_set_x (sec->bdpc[i], sec->bfpc[i]);
+/* 		      cdpe_set_x (sec->adpc[i], sec->afpc[i]); */
+/* 		      cdpe_set_x (sec->bdpc[i], sec->bfpc[i]); */
 
-		      MPS_DEBUG_CDPE (s, sec->adpc[i], "sec->adpc[%d]", i);
-		      MPS_DEBUG_CDPE (s, sec->bdpc[i], "sec->bdpc[%d]", i);
-                    }
+/* 		      MPS_DEBUG_CDPE (s, sec->adpc[i], "sec->adpc[%d]", i); */
+/* 		      MPS_DEBUG_CDPE (s, sec->bdpc[i], "sec->bdpc[%d]", i); */
+/*                     } */
 
-#ifndef DISABLE_DEBUG
-                  s->fp_iteration_time += mps_stop_timer (my_clock);
-#endif
-                  return -1;
-                }
+/* #ifndef DISABLE_DEBUG */
+/*                   s->fp_iteration_time += mps_stop_timer (my_clock); */
+/* #endif */
+/*                   return -1; */
+/*                 } */
 
               /* Correct the radius */
               modcorr = cplx_mod (abcorr);
@@ -202,8 +191,6 @@ mps_secular_ga_fiterate (mps_status * s, int maxit, mps_boolean just_regenerated
 #ifndef DISABLE_DEBUG
   s->fp_iteration_time += mps_stop_timer (my_clock);
 #endif
-
-  double_vfree (old_radii);
 
   /* Return the number of approximated roots */
   return computed_roots;

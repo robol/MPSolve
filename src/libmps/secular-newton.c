@@ -79,6 +79,27 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
   /* Compute secular function */
   cplx_sub_eq (pol, cplx_one);
 
+  /* Cfr it with the evaluation of the polynomial */
+  mps_monomial_poly * p = s->monomial_poly;
+  cplx_set (ctmp, p->fpc[s->n]);
+  for (i = s->n - 1; i >= 0; i--)
+    {
+      cplx_mul_eq (ctmp, x);
+      cplx_add_eq (ctmp, p->fpc[i]);
+    }
+  cplx_div_eq (ctmp, p->fpc[s->n]);
+  for (i = 0; i < s->n; i++)
+    {
+      cplx_sub (ctmp2, x, sec->bfpc[i]);
+      cplx_div_eq (ctmp, ctmp2);
+    }
+  cplx_set (ctmp2, cplx_zero);
+  cplx_Re (ctmp2) = -1.0f;
+  cplx_mul_eq (ctmp, ctmp2);
+
+  MPS_DEBUG_CPLX (s, pol, "pol");
+  MPS_DEBUG_CPLX (s, ctmp, "horner_pol");
+
   /* Compute the module of pol */
   apol = cplx_mod (pol);
 
@@ -97,11 +118,12 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
     {
       MPS_DEBUG (s, "Setting again to false on root %ld for root neighbourhood", data->k);
       *again = false;
+      return;
     }
 
   /* If the correction is not useful in the current precision do
-   * not iterate more   */
-  if (*again && (cplx_mod (corr) < cplx_mod (x) * MPS_2SQRT2 * DBL_EPSILON))
+   * not iterate more */
+  if (*again && (cplx_mod (corr) < cplx_mod (x) * DBL_EPSILON))
     {
       MPS_DEBUG (s, "Setting again to false on root %ld for small Newton correction", data->k);
       *again = false;
@@ -109,14 +131,15 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
 
   MPS_DEBUG_CPLX (s, pol, "pol");
   MPS_DEBUG (s, "apol = %e, asum = %e, prod_b = %e", apol, asum, prod_b);
+  MPS_DEBUG (s, "asum_on_apol: %e", asum_on_apol);
 
   /* Computation of radius with Gerschgorin */
   new_rad = (apol * s->n * prod_b * (1 + (3 * s->n + (asum_on_apol + 1)) * 4 * DBL_EPSILON)) + (cplx_mod (x) * 4 * DBL_EPSILON);
 
   /* Correct the old radius with the move that we are doing
    * and check if the new proposed radius is preferable. */
-   if (new_rad < *rad || (*rad == 0) || (!data)) 
-       *rad = new_rad;
+  if (new_rad < *rad || (*rad == 0) || (!data)) 
+     *rad = new_rad;
 }
 
 void
@@ -208,6 +231,7 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
   rdpe_add_eq (rtmp, rdpe_one);
   rdpe_add_eq_d (rtmp, 3 * s->n);
   rdpe_mul_eq_d (rtmp, DBL_EPSILON);
+  rdpe_add_eq (rtmp, rdpe_one);
   rdpe_mul_eq (new_rad, rtmp);
 
   /* Correct the old radius with the move that we are doing
@@ -223,31 +247,27 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
   /* If newton correction is less than
    * the modules of |x| multiplied for
    * for epsilon stop */
-  if (*again)
+  /* Computation of |x| and |corr| */
+  cdpe_mod (rtmp, corr);
+  cdpe_mod (rtmp2, x);
+  rdpe_mul_eq_d (rtmp2, sec->n * DBL_EPSILON);
+  
+  /* If |corr| < |x| * DBL_EPSILON then stop */
+  if (rdpe_lt (rtmp, rtmp2))
     {
-      /* Computation of |x| and |corr| */
-      cdpe_mod (rtmp, corr);
-      cdpe_mod (rtmp2, x);
-      rdpe_mul_eq_d (rtmp2, sec->n * DBL_EPSILON);
-
-      /* If |corr| < |x| * DBL_EPSILON then stop */
-      if (rdpe_lt (rtmp, rtmp2))
-        {
-	  MPS_DEBUG (s, "Setting again on root %ld to false because the Newton correction is too small", data->k);
-          *again = false;
-        }
-
-      rdpe_set (rtmp, asum);
-      rdpe_div_eq (rtmp, apol);
-      rdpe_add_eq (rtmp, rdpe_one);
-      rdpe_mul_eq_d (rtmp, DBL_EPSILON);
-      if (rdpe_ge (rtmp, rdpe_one))
-	{
-	  MPS_DEBUG (s, "Setting again on root %ld to false because the approximation is in the root neighbourhood", data->k);
-	  *again = false;
-	}
+      MPS_DEBUG (s, "Setting again on root %ld to false because the Newton correction is too small", data->k);
+      *again = false;
     }
 
+  rdpe_set (rtmp, asum);
+  rdpe_div_eq (rtmp, apol);
+  rdpe_add_eq (rtmp, rdpe_one);
+  rdpe_mul_eq_d (rtmp, DBL_EPSILON);
+  if (rdpe_ge (rtmp, rdpe_one))
+    {
+      MPS_DEBUG (s, "Setting again on root %ld to false because the approximation is in the root neighbourhood", data->k);
+      *again = false;
+    }
 }
 
 void
@@ -336,7 +356,9 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
 
    /* If x != b_i for every b_i finalize the computation */
   /* Subtract one from pol */
+  MPS_DEBUG_MPC (s, 10, pol, "pol");
   mpc_sub_eq_ui (pol, 1, 0);
+  MPS_DEBUG_MPC (s, 10, pol, "pol");
       
   /* Compute correction */
   mpc_mul (ctmp2, sumb, pol);
@@ -361,34 +383,39 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
   mpc_get_cdpe (x_cdpe, x);
   cdpe_mod (ax, x_cdpe);
 
+  /* new_rad = (apol * s->n * prod_b * (1 + (3 * s->n + (asum_on_apol + 1)) * 4 * DBL_EPSILON)) + (cplx_mod (x) * 4 * DBL_EPSILON); */
+
   /* Compute the guaranteed radius */
   rdpe_set (new_rad, apol);
   rdpe_mul_eq_d (new_rad, s->n);
   rdpe_mul_eq (new_rad, prod_b);
 
+  MPS_DEBUG_RDPE (s, prod_b, "prod_b");
+  MPS_DEBUG_RDPE (s, new_rad, "apol * n * prod_b");
+
   rdpe_set (rtmp, asum);
   rdpe_div_eq (rtmp, apol);
   rdpe_add_eq (rtmp, rdpe_one);
   rdpe_add_eq_d (rtmp, 3 * s->n);
-  rdpe_mul_eq_d (rtmp, DBL_EPSILON);
+  // rdpe_mul_eq_d (rtmp, DBL_EPSILON);
+  rdpe_mul_eq (rtmp, s->mp_epsilon);
+  rdpe_mul_eq_d (rtmp, 4);
+  rdpe_add_eq (rtmp, rdpe_one);
   rdpe_mul_eq (new_rad, rtmp);
+
+  rdpe_mul (rtmp, ax, s->mp_epsilon);
+  rdpe_add_eq (new_rad, rtmp);
+
+  rdpe_div (rtmp, asum, apol);
   
-  if (rdpe_lt (new_rad, rad) || (!data))
-    rdpe_set (rad, new_rad);
-
-  /* Compute guaranteed modulus of pol */
-  mpc_get_cdpe (cdtmp, pol);
-  cdpe_mod (rtmp, cdtmp);
-  rdpe_add (rtmp2, s->mp_epsilon, rdpe_one);
-  rdpe_mul_eq_d (rtmp2, 1 + s->n);
-  rdpe_mul_eq (rtmp, rtmp2);
-
-  /* Epsilon for us */
-  rdpe_mul_d (rtmp2, s->mp_epsilon, 2);
-   
-  /* If |S(x)| < eps stop */
-  if (rdpe_lt (rtmp, s->mp_epsilon))
-    *again = false;
+  rdpe_set_d (rtmp2, 4.0 * s->n);
+  if ((rdpe_lt (new_rad, rad) || (!data)) && (rdpe_lt (rtmp, rtmp2)))
+    {
+      MPS_DEBUG_RDPE (s, asum, "asum");
+      MPS_DEBUG_RDPE (s, apol, "apol");
+      MPS_DEBUG_RDPE (s, new_rad, "Setting rad");
+      rdpe_set (rad, new_rad);
+    }
 
   /* Check if newton correction is less than
    * the modules of x for s->output_config->prec, and if

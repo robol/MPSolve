@@ -22,7 +22,7 @@ mps_secular_ga_required_regenerations_bits (mps_status * s)
 
   /* Workaround to make setting the multiplier easy */
   char * multiplier_env = getenv("MULTIPLIER");
-  int multiplier = 2;
+  int multiplier = 1;
   if (multiplier_env)
     sscanf (multiplier_env, "%d", &multiplier);
 
@@ -107,11 +107,19 @@ mps_secular_ga_required_regenerations_bits (mps_status * s)
 	      }
 	    else
 	      {
+		mps_boolean mp_needed = false;
 		cdpe_set (pol, p->dpc[s->n]);
 		for (j = s->n - 1; j >= 0; j--)
 		  {
 		    cdpe_mul (ss, sec->bdpc[i], pol);
 		    cdpe_add_eq (ss, p->dpc[j]);
+
+		    if (cdpe_eq_zero (ss))
+		      {
+			mp_needed = true;
+			break;
+		      }
+
 		    cdpe_div (ctmp, pol, ss);
 		    cdpe_mod (rtmp, ctmp);
 		    
@@ -126,6 +134,53 @@ mps_secular_ga_required_regenerations_bits (mps_status * s)
 		    rdpe_add_eq (regeneration_epsilon, rtmp);
 		    
 		    cdpe_set (pol, ss);
+		  }
+
+		mpc_t mpol, mss, mctmp;
+
+		while (mp_needed)
+		  {
+		    mpc_init2 (mpol, wp);
+		    mpc_init2 (mss, wp);
+		    mpc_init2 (mctmp, wp);
+		    
+		    mp_needed = false;
+
+		    mpc_set (mpol, p->mfpc[s->n]);
+		    for (j = s->n - 1; j >= 0; j--)
+		      {
+			mpc_mul (mss, sec->bmpc[i], mpol);
+			mpc_add_eq (mss, p->mfpc[j]);
+			
+			if (mpc_eq_zero (mss))
+			  {
+			    mp_needed = true;
+			    wp *= 2;
+			    break;
+			  }
+
+			mpc_div (mctmp, mpol, mss);
+			mpc_get_cdpe (ctmp, mctmp);
+			cdpe_mod (rtmp, ctmp);
+		    
+			rdpe_set (rtmp2, root_epsilon);
+			rdpe_add_eq (rtmp2, regeneration_epsilon);
+			rdpe_mul_eq (rtmp, rtmp2);
+			rdpe_add_eq (regeneration_epsilon, rtmp);
+		    
+			mpc_div (mctmp, p->mfpc[j], mss);
+			mpc_get_cdpe (ctmp, mctmp);
+			cdpe_mod (rtmp, ctmp);
+
+			rdpe_mul_eq (rtmp, regeneration_epsilon);
+			rdpe_add_eq (regeneration_epsilon, rtmp);
+		    
+			mpc_set (mpol, mss);
+		      }
+
+		    mpc_clear (mpol);
+		    mpc_clear (mss);
+		    mpc_clear (mctmp);
 		  }
 	      }
 
@@ -166,7 +221,7 @@ mps_secular_ga_required_regenerations_bits (mps_status * s)
 
       } while (rdpe_gt (regeneration_epsilon, required_eps) && (wp *= 2));
 
-      return 2 * wp;
+      return wp;
     }
   else if (MPS_INPUT_CONFIG_IS_SECULAR (s->input_config))
     return multiplier * s->mpwp;
