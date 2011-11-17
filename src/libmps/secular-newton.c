@@ -417,8 +417,8 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
   rdpe_mul_eq_d (new_rad, s->n);
   rdpe_mul_eq (new_rad, prod_b);
 
-  MPS_DEBUG_RDPE (s, prod_b, "prod_b");
-  MPS_DEBUG_RDPE (s, new_rad, "apol * n * prod_b");
+  /* MPS_DEBUG_RDPE (s, prod_b, "prod_b"); */
+  /* MPS_DEBUG_RDPE (s, new_rad, "apol * n * prod_b"); */
 
   rdpe_set (rtmp, asum);
   rdpe_div_eq (rtmp, apol);
