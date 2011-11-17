@@ -1618,7 +1618,7 @@ mps_mmodify (mps_status * s, mps_boolean track_new_cluster)
 {
   int i, j, l, k, nnewclust, i_new, i_old, ip1, i1, l1, j1, nf, j2, l2;
   double rtmp, sep1;
-  rdpe_t sr, tmpr;
+  rdpe_t sr, tmpr, tmpr2;
   cdpe_t tmpc;
   mps_boolean tcr, tcr1;
   tmpf_t tmpf;
