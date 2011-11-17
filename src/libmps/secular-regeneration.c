@@ -221,7 +221,7 @@ mps_secular_ga_required_regenerations_bits (mps_status * s)
 
       } while (rdpe_gt (regeneration_epsilon, required_eps) && (wp *= 2));
 
-      return wp;
+      return 2 * wp;
     }
   else if (MPS_INPUT_CONFIG_IS_SECULAR (s->input_config))
     return multiplier * s->mpwp;

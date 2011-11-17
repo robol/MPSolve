@@ -74,7 +74,7 @@ mps_secular_ga_fiterate (mps_status * s, int maxit, mps_boolean just_regenerated
         {
           if (s->again[i])
             {
-	       MPS_DEBUG (s, "Iterating on root %d", i); 
+	       /* MPS_DEBUG (s, "Iterating on root %d", i);  */
 	      /* if (cplx_eq (s->froot[i], sec->bfpc[i])) */
 	      /* 	continue; */
 

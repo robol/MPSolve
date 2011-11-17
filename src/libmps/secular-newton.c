@@ -80,28 +80,36 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
   cplx_sub_eq (pol, cplx_one);
 
   /* Cfr it with the evaluation of the polynomial */
-  mps_monomial_poly * p = s->monomial_poly;
-  cplx_set (ctmp, p->fpc[s->n]);
-  for (i = s->n - 1; i >= 0; i--)
-    {
-      cplx_mul_eq (ctmp, x);
-      cplx_add_eq (ctmp, p->fpc[i]);
-    }
-  cplx_div_eq (ctmp, p->fpc[s->n]);
-  for (i = 0; i < s->n; i++)
-    {
-      cplx_sub (ctmp2, x, sec->bfpc[i]);
-      cplx_div_eq (ctmp, ctmp2);
-    }
-  cplx_set (ctmp2, cplx_zero);
-  cplx_Re (ctmp2) = -1.0f;
-  cplx_mul_eq (ctmp, ctmp2);
+  /* mps_monomial_poly * p = s->monomial_poly; */
+  /* cplx_set (ctmp, p->fpc[s->n]); */
+  /* for (i = s->n - 1; i >= 0; i--) */
+  /*   { */
+  /*     cplx_mul_eq (ctmp, x); */
+  /*     cplx_add_eq (ctmp, p->fpc[i]); */
+  /*   } */
+  /* cplx_div_eq (ctmp, p->fpc[s->n]); */
+  /* for (i = 0; i < s->n; i++) */
+  /*   { */
+  /*     cplx_sub (ctmp2, x, sec->bfpc[i]); */
+  /*     cplx_div_eq (ctmp, ctmp2); */
+  /*   } */
+  /* cplx_set (ctmp2, cplx_zero); */
+  /* cplx_Re (ctmp2) = -1.0f; */
+  /* cplx_mul_eq (ctmp, ctmp2); */
 
-  MPS_DEBUG_CPLX (s, pol, "pol");
-  MPS_DEBUG_CPLX (s, ctmp, "horner_pol");
+  /* MPS_DEBUG_CPLX (s, pol, "pol"); */
+  /* MPS_DEBUG_CPLX (s, ctmp, "horner_pol"); */
 
   /* Compute the module of pol */
   apol = cplx_mod (pol);
+  apol -= 4 * DBL_EPSILON * asum;
+
+  if (apol < 0)
+    {
+      MPS_DEBUG (s, "Setting again to false on root %ld for root neighbourhood", data->k);
+      *again = false;
+      return;
+    }
 
   /* Compute newton correction */
   cplx_mul (corr, pol, sumb);
@@ -129,12 +137,15 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
       *again = false;
     }
 
-  MPS_DEBUG_CPLX (s, pol, "pol");
-  MPS_DEBUG (s, "apol = %e, asum = %e, prod_b = %e", apol, asum, prod_b);
-  MPS_DEBUG (s, "asum_on_apol: %e", asum_on_apol);
+  /* MPS_DEBUG_CPLX (s, pol, "pol"); */
+  /* MPS_DEBUG (s, "apol = %e, asum = %e, prod_b = %e", apol, asum, prod_b); */
+  /* MPS_DEBUG (s, "asum_on_apol: %e", asum_on_apol); */
 
   /* Computation of radius with Gerschgorin */
   new_rad = (apol * s->n * prod_b * (1 + (3 * s->n + (asum_on_apol + 1)) * 4 * DBL_EPSILON)) + (cplx_mod (x) * 4 * DBL_EPSILON);
+
+  /* MPS_DEBUG (s, "rad computed: %e", new_rad); */
+  /* MPS_DEBUG_CPLX (s, s->froot[data->k], "s->froot[%d]", data->k); */
 
   /* Correct the old radius with the move that we are doing
    * and check if the new proposed radius is preferable. */

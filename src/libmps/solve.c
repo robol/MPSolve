@@ -433,9 +433,9 @@ mps_fmodify (mps_status * s, mps_boolean track_new_cluster)
           afri = cplx_mod (s->froot[i]);
 	  
 	  /* Check if the root, even if clustered, is approximated */
-	   /* rdpe_set_d (rtmp, s->frad[l] / cplx_mod (s->froot[l]));  */
-	   /* if (rdpe_le (rtmp, s->eps_out))  */
-	   /*   s->status[l][0] = 'o';  */
+	   /* rdpe_set_d (rtmp, s->frad[l] / cplx_mod (s->froot[l]));    */
+	   /* if (rdpe_le (rtmp, s->eps_out))    */
+	   /*   s->status[l][0] = 'o';    */
 
           if (s->status[l][0] == 'x' && s->goal[0] == 'c')
             {
