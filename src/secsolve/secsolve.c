@@ -215,6 +215,14 @@ main (int argc, char **argv)
   if (argc == 2)
     fclose (infile);
 
+  /* Select ga if we are in the case of monomial input, since is the only algorithm
+   * that we can use. */
+  if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config) && !ga)
+    {
+      ga = true;
+      MPS_DEBUG (s, "Selecting algorithm MPS_ALGORITHM_SECULAR_GA since MPS_ALGORITHM_SECULAR_MPSOLVE is not available for monomial input");
+    }
+
   /* If we choose gemignani's approach follow it, otherwise
    * use standard mpsolve approach applied implicitly to the
    * secular equation. */
