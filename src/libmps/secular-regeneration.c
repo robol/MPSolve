@@ -393,42 +393,6 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s, int bits, cdpe_t * ol
 	    } /* Close the case where the coefficient are not approximated or isolated */
 	  else
 	    {
-	      /* Applying horner to evaluate the polynomial */
-	      mpc_set (sec->ampc[i], p->mfpc[s->n]); 
-	      for (j = s->n - 1; j >= 0; j--) 
-		{ 
-		  mpc_mul_eq (sec->ampc[i], sec->bmpc[i]);
-		  mpc_add_eq (sec->ampc[i], p->mfpc[j]);
-		}
-
-	      /* Compute the difference of the b_i */
-	      cdpe_set (prod_b, cdpe_one);
-	      for (j = 0; j < s->n; ++j)
-		{
-		  if (i == j)
-		    continue;
-		  
-		  cdpe_sub (diff, sec->bdpc[j], sec->bdpc[i]);
-		  
-		  /* If the difference is zero than regeneration cannot succeed, and means
-		   * that we need more precision in the roots */
-		  if (cdpe_eq_zero (diff))
-		{
-		  MPS_DEBUG (s, "Regeneration of the coefficients failed because sec->bdpc[%d] == sec->bdpc[%d]", i, j);
-		  success = false;
-		  goto monomial_regenerate_exit;
-		}
-		  cdpe_mul_eq (prod_b, diff);
-		}
-
-	      /* MPS_DEBUG_MPC (s, 15, mprod_b, "prod_b");  */
-	      
-	      /* Actually divide the result and store it in
-	       * a_i, as requested. */
-	      mpc_set_cdpe (mprod_b, prod_b);
-	      mpc_div_eq (sec->ampc[i], mprod_b);
-	      mpc_div_eq (sec->ampc[i], p->mfpc[s->n]);
-
 	      /* We should not recompute the polynomial here since the approximation
 	       * hasn't changed. */
 	       cdpe_set (prod_b, cdpe_one); 

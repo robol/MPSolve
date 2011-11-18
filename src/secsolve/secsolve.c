@@ -131,7 +131,8 @@ main (int argc, char **argv)
 
           /* If debugging was enabled, parse debug_level */
           while (*opt->optvalue)
-            {
+            {	      
+	      char output[255];
               switch (*opt->optvalue++)
                 {
                 case 't':
@@ -159,8 +160,8 @@ main (int argc, char **argv)
                   s->debug_level |= MPS_DEBUG_FUNCTION_CALLS;
                   break;
                 default:
-                  mps_error (s, 2, "Unrecgnozied debug option: %c",
-                             opt->optvalue);
+		  sprintf (output, "Unrecognized debug option: %c", *(opt->optvalue - 1));
+                  mps_error (s, 1, output);
                   break;
                 }
             }
