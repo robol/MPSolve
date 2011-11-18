@@ -283,7 +283,7 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s, int bits, cdpe_t * ol
 
   if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
     {
-      mpc_t mprod_b, ctmp, mdiff;
+      mpc_t mprod_b, ctmp, mdiff, lc;
       cdpe_t prod_b, diff, cdtmp;
 
       MPS_DEBUG_WITH_INFO (s, "Regenerating coefficients from polynomial input");
@@ -292,6 +292,10 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s, int bits, cdpe_t * ol
       mpc_init2 (mprod_b, coeff_wp);
       mpc_init2 (ctmp, coeff_wp);
       mpc_init2 (mdiff, coeff_wp);
+      mpc_init2 (lc, coeff_wp);
+
+      mpc_set_si (lc, -1, 0);
+      mpc_div_eq (lc, p->mfpc[s->n]);
 
       s->mpwp = coeff_wp;
       
@@ -379,7 +383,7 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s, int bits, cdpe_t * ol
 	       * a_i, as requested. */
 	      mpc_set_cdpe (mprod_b, prod_b);
 	      mpc_div_eq (sec->ampc[i], mprod_b);
-	      mpc_div_eq (sec->ampc[i], p->mfpc[s->n]);
+	      mpc_mul_eq (sec->ampc[i], lc);
 	  
 	      /* Debug computed coefficients */
 	      if (s->debug_level & MPS_DEBUG_REGENERATION)
@@ -463,6 +467,7 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s, int bits, cdpe_t * ol
       mpc_clear (mdiff);
       mpc_clear (mprod_b);
       mpc_clear (ctmp);
+      mpc_clear (lc);
       mps_boolean_vfree (root_changed);
     }
   else if (MPS_INPUT_CONFIG_IS_SECULAR (s->input_config))
