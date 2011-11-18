@@ -449,7 +449,7 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
       MPS_DEBUG_RDPE (s, apol, "apol");
       MPS_DEBUG_RDPE (s, new_rad, "Setting rad");
       rdpe_set (rad, new_rad);
-      MPS_DEBUG_MPC (s, 40, s->mroot[data->k], "s->mroot[%d]", data->k);
+      MPS_DEBUG_MPC (s, 40, s->mroot[data->k], "s->mroot[%ld]", data->k);
       MPS_DEBUG_MPC (s, 40, corr, "corr");
     }
 
