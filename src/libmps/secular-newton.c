@@ -102,7 +102,6 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
 
   /* Compute the module of pol */
   apol = cplx_mod (pol);
-  apol -= 4 * DBL_EPSILON * asum;
 
   if (apol < 0)
     {
@@ -122,10 +121,11 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
   else
     cplx_div (corr, pol, corr);
 
-  double asum_on_apol = asum / apol;
+  double asum_on_apol = asum / (apol - 4 * DBL_EPSILON * asum);
 
   /* If the approximation falls in the root neighbourhood then we can stop */
-  if ((asum_on_apol + 1) * MPS_2SQRT2 * DBL_EPSILON > 1)
+  if ((asum_on_apol + 1) * MPS_2SQRT2 * DBL_EPSILON > 1 ||
+      (asum_on_apol < 0))
     {
       if (data)
 	{
@@ -151,7 +151,7 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
   /* MPS_DEBUG (s, "asum_on_apol: %e", asum_on_apol); */
 
   /* Computation of radius with Gerschgorin */
-  new_rad = (apol * s->n * prod_b * (1 + (3 * s->n + (asum_on_apol + 1)) * 4 * DBL_EPSILON)) + (cplx_mod (x) * 4 * DBL_EPSILON);
+  new_rad = ((apol) * s->n * prod_b * (1 + (3 * s->n + (asum_on_apol + 1)) * 4 * DBL_EPSILON)) + (cplx_mod (x) * 4 * DBL_EPSILON);
 
   /* MPS_DEBUG (s, "rad computed: %e", new_rad); */
   /* MPS_DEBUG_CPLX (s, s->froot[data->k], "s->froot[%d]", data->k); */
@@ -314,7 +314,7 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
   /* Declare temporary variables */
   mpc_t sumb, pol, fp, ctmp, ctmp2;
   cdpe_t cdtmp, cdtmp2;
-  rdpe_t rtmp, rtmp2, apol, asum, prod_b;
+  rdpe_t rtmp, rtmp2, apol, asum, prod_b, asum_on_apol;
 
   /* Set working precision */
   mpc_init2 (sumb, s->mpwp);
@@ -413,18 +413,28 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
   /* new_rad = (apol * s->n * prod_b * (1 + (3 * s->n + (asum_on_apol + 1)) * 4 * DBL_EPSILON)) + (cplx_mod (x) * 4 * DBL_EPSILON); */
 
   /* Compute the guaranteed radius */
-  rdpe_set (new_rad, apol);
+  rdpe_mul (rtmp, asum, s->mp_epsilon);
+  rdpe_add (new_rad, apol, rtmp);
   rdpe_mul_eq_d (new_rad, s->n);
   rdpe_mul_eq (new_rad, prod_b);
 
   /* MPS_DEBUG_RDPE (s, prod_b, "prod_b"); */
   /* MPS_DEBUG_RDPE (s, new_rad, "apol * n * prod_b"); */
 
-  rdpe_set (rtmp, asum);
-  rdpe_div_eq (rtmp, apol);
-  rdpe_add_eq (rtmp, rdpe_one);
+  rdpe_mul (rtmp2, asum, s->mp_epsilon);
+  rdpe_sub (rtmp2, apol, rtmp2);
+  if (rdpe_le (rtmp2, rdpe_zero))
+    {
+      *again = false;
+      return;
+    }
+
+  /* This is asum / apol */
+  rdpe_div (asum_on_apol, asum, rtmp2);
+  
+  rdpe_add (rtmp, asum_on_apol, rdpe_one);
   rdpe_add_eq_d (rtmp, 3 * s->n);
-  // rdpe_mul_eq_d (rtmp, DBL_EPSILON);
+  rdpe_add_eq (rtmp, rdpe_one);
   rdpe_mul_eq (rtmp, s->mp_epsilon);
   rdpe_mul_eq_d (rtmp, 4);
   rdpe_add_eq (rtmp, rdpe_one);
@@ -433,14 +443,14 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
   rdpe_mul (rtmp, ax, s->mp_epsilon);
   rdpe_add_eq (new_rad, rtmp);
 
-  rdpe_div (rtmp, asum, apol);
-  
   if (rdpe_lt (new_rad, rad))
     {
       MPS_DEBUG_RDPE (s, asum, "asum");
       MPS_DEBUG_RDPE (s, apol, "apol");
       MPS_DEBUG_RDPE (s, new_rad, "Setting rad");
       rdpe_set (rad, new_rad);
+      MPS_DEBUG_MPC (s, 40, s->mroot[data->k], "s->mroot[%d]", data->k);
+      MPS_DEBUG_MPC (s, 40, corr, "corr");
     }
 
   /* Check if newton correction is less than

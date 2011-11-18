@@ -433,9 +433,9 @@ mps_fmodify (mps_status * s, mps_boolean track_new_cluster)
           afri = cplx_mod (s->froot[i]);
 	  
 	  /* Check if the root, even if clustered, is approximated */
-	   /* rdpe_set_d (rtmp, s->frad[l] / cplx_mod (s->froot[l]));    */
-	   /* if (rdpe_le (rtmp, s->eps_out))    */
-	   /*   s->status[l][0] = 'o';    */
+	     rdpe_set_d (rtmp, s->frad[l] / cplx_mod (s->froot[l]));     
+	     if (rdpe_le (rtmp, s->eps_out))     
+	       s->status[l][0] = 'o';     
 
           if (s->status[l][0] == 'x' && s->goal[0] == 'c')
             {
@@ -1618,7 +1618,7 @@ mps_mmodify (mps_status * s, mps_boolean track_new_cluster)
 {
   int i, j, l, k, nnewclust, i_new, i_old, ip1, i1, l1, j1, nf, j2, l2;
   double rtmp, sep1;
-  rdpe_t sr, tmpr;
+  rdpe_t sr, tmpr, tmpr2;
   cdpe_t tmpc;
   mps_boolean tcr, tcr1;
   tmpf_t tmpf;
@@ -1659,6 +1659,14 @@ mps_mmodify (mps_status * s, mps_boolean track_new_cluster)
                   for (k = 0; k < nnewclust; k++)
                     {           /* loop3: */
                       i1 = i_new + k;
+
+		      /* Check if the root, even if clustered, is approximated */
+		      rdpe_set (tmpr, s->drad[i1]);
+		      cdpe_mod (tmpr2, s->droot[i1]);
+		      rdpe_div_eq (tmpr, tmpr2);
+		      if (rdpe_le (tmpr, s->eps_out)) 
+			s->status[i1][0] = 'o'; 
+
                                                 /*****************************************
 						 scan the entries of each new cluster set
 						 status[l][0]='i' if the cluster has multip=1 and
