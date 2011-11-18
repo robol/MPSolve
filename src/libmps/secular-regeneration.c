@@ -322,15 +322,20 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s, int bits, cdpe_t * ol
 
       for (i = 0; i < s->n; i++)
 	{
+	  if ((s->status[i][0] != 'a' && s->status[i][0] != 'o' && s->status[i][0] != 'i'))
+	    {
+	      root_changed[i] = true;
+	      continue;
+	    }
 	  cdpe_sub (diff, old_b[i], sec->bdpc[i]);
 	  cdpe_mod (rtmp, diff);
 	  cdpe_mod (rtmp2, sec->bdpc[i]);
 	  rdpe_div_eq (rtmp, rtmp2);
-	  if (rdpe_le (rtmp, root_epsilon) && (s->status[i][0] == 'a' || s->status[i][0] == 'o' || s->status[i][0] == 'i'))
+	  if (rdpe_le (rtmp, root_epsilon))
 	    {
 	      if (s->debug_level & MPS_DEBUG_REGENERATION)
 		{
-		  MPS_DEBUG (s, "b_%d hans't changed, so I will not recompute p(b_%d)", i, i);
+		  MPS_DEBUG (s, "b_%d hasn't changed, so p(b_%d) will not be recomputed", i, i);
 		}
 	      root_changed[i] = false;
 	    }
