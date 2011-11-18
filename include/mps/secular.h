@@ -82,7 +82,7 @@ extern "C"
   /* Routines in secular-regeneration.c */
   int mps_secular_ga_required_regenerations_bits (mps_status * s);
 
-  mps_boolean mps_secular_ga_regenerate_coefficients_mp (mps_status * s, int bits);
+  mps_boolean mps_secular_ga_regenerate_coefficients_mp (mps_status * s, int bits, cdpe_t * old_b);
 
   mps_boolean mps_secular_ga_regenerate_coefficients (mps_status * s);
 

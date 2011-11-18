@@ -221,7 +221,7 @@ mps_secular_ga_required_regenerations_bits (mps_status * s)
 
       } while (rdpe_gt (regeneration_epsilon, required_eps) && (wp *= 2));
 
-      return wp;
+      return 2 * wp;
     }
   else if (MPS_INPUT_CONFIG_IS_SECULAR (s->input_config))
     return multiplier * s->mpwp;
@@ -246,9 +246,11 @@ mps_secular_ga_required_regenerations_bits (mps_status * s)
  *
  * @param s The mps_status of the computation.
  * @param bits The bits of precision used in regeneration
+ * @param old_b Old b_i coefficients from which we are regenerating from. These are used
+ * to adjust the a_i for already approximated roots.
  */
 mps_boolean
-mps_secular_ga_regenerate_coefficients_mp (mps_status * s, int bits)
+mps_secular_ga_regenerate_coefficients_mp (mps_status * s, int bits, cdpe_t * old_b)
 {
   /* Declaration and initialization of the multprecision
    * variables that are used only in that case */
@@ -281,20 +283,17 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s, int bits)
 
   if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
     {
-      mpc_t mprod_b, m_one, ctmp, mdiff;
-      cdpe_t prod_b, diff;
+      mpc_t mprod_b, ctmp, mdiff;
+      cdpe_t prod_b, diff, cdtmp;
+
       MPS_DEBUG_WITH_INFO (s, "Regenerating coefficients from polynomial input");
 
       /* Init multiprecision values */
       mpc_init2 (mprod_b, coeff_wp);
-      mpc_init2 (m_one, coeff_wp);
       mpc_init2 (ctmp, coeff_wp);
       mpc_init2 (mdiff, coeff_wp);
 
       s->mpwp = coeff_wp;
-
-      mpc_set_si (m_one, -1, 0);
-      mpc_div_eq (m_one, p->mfpc[s->n]);
       
       /*
        * The new coefficients of the secular equation can be computed
@@ -315,51 +314,147 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s, int bits)
 	    }
 	}
 
+      mps_boolean * root_changed = mps_boolean_valloc (s->n);
+
+      for (i = 0; i < s->n; i++)
+	{
+	  cdpe_sub (diff, old_b[i], sec->bdpc[i]);
+	  cdpe_mod (rtmp, diff);
+	  cdpe_mod (rtmp2, sec->bdpc[i]);
+	  rdpe_div_eq (rtmp, rtmp2);
+	  if (rdpe_le (rtmp, root_epsilon) && (s->status[i][0] == 'a' || s->status[i][0] == 'o' || s->status[i][0] == 'i'))
+	    {
+	      if (s->debug_level & MPS_DEBUG_REGENERATION)
+		{
+		  MPS_DEBUG (s, "b_%d hans't changed, so I will not recompute p(b_%d)", i, i);
+		}
+	      root_changed[i] = false;
+	    }
+	  else
+	    {
+	      root_changed[i] = true;
+	    }
+	}
+
       for (i = 0; i < s->n; ++i)
 	{
-	  mpc_set (sec->ampc[i], p->mfpc[s->n]); 
-	  for (j = s->n - 1; j >= 0; j--) 
-	    { 
-	      mpc_mul_eq (sec->ampc[i], sec->bmpc[i]);
-	      mpc_add_eq (sec->ampc[i], p->mfpc[j]);
-	    }
-
-	  /* MPS_DEBUG_MPC (s, coeff_wp, sec->bmpc[i], "sec->bmpc[%d]", i); */
-	  /* MPS_DEBUG_MPC (s, coeff_wp, sec->ampc[i], "sec->ampc[%d]", i); */
-
-	  /* Compute the difference of the b_i */
-	  cdpe_set (prod_b, cdpe_one);
-	  for (j = 0; j < s->n; ++j)
+	  if (root_changed[i] || true)
 	    {
-	      if (i == j)
-		continue;
+	      /* Applying horner to evaluate the polynomial */
+	      mpc_set (sec->ampc[i], p->mfpc[s->n]); 
+	      for (j = s->n - 1; j >= 0; j--) 
+		{ 
+		  mpc_mul_eq (sec->ampc[i], sec->bmpc[i]);
+		  mpc_add_eq (sec->ampc[i], p->mfpc[j]);
+		}
 
-	      cdpe_sub (diff, sec->bdpc[i], sec->bdpc[j]);
+	      MPS_DEBUG_MPC (s, 15, sec->ampc[i], "pol(b_%d)", i);
 
-	      /* If the difference is zero than regeneration cannot succeed, and means
-	       * that we need more precision in the roots */
-	      if (cdpe_eq_zero (diff))
+	      /* MPS_DEBUG_MPC (s, coeff_wp, sec->bmpc[i], "sec->bmpc[%d]", i); */
+	      /* MPS_DEBUG_MPC (s, coeff_wp, sec->ampc[i], "sec->ampc[%d]", i); */
+
+	      /* Compute the difference of the b_i */
+	      cdpe_set (prod_b, cdpe_one);
+	      for (j = 0; j < s->n; ++j)
+		{
+		  if (i == j)
+		    continue;
+		  
+		  cdpe_sub (diff, sec->bdpc[j], sec->bdpc[i]);
+		  
+		  /* If the difference is zero than regeneration cannot succeed, and means
+		   * that we need more precision in the roots */
+		  if (cdpe_eq_zero (diff))
 		{
 		  MPS_DEBUG (s, "Regeneration of the coefficients failed because sec->bdpc[%d] == sec->bdpc[%d]", i, j);
 		  success = false;
 		  goto monomial_regenerate_exit;
 		}
-	      cdpe_mul_eq (prod_b, diff);
-	    }
+		  cdpe_mul_eq (prod_b, diff);
+		}
 
-	   /* MPS_DEBUG_MPC (s, 15, mprod_b, "prod_b");  */
+	      /* MPS_DEBUG_MPC (s, 15, mprod_b, "prod_b");  */
+	      
+	      /* Actually divide the result and store it in
+	       * a_i, as requested. */
+	      mpc_set_cdpe (mprod_b, prod_b);
+	      mpc_div_eq (sec->ampc[i], mprod_b);
+	      mpc_div_eq (sec->ampc[i], p->mfpc[s->n]);
 	  
-	  /* Actually divide the result and store it in
-	   * a_i, as requested. */
-	  mpc_set_cdpe (mprod_b, prod_b);
-	  mpc_div_eq (sec->ampc[i], mprod_b);
-	  mpc_mul_eq (sec->ampc[i], m_one);
+	      /* Debug computed coefficients */
+	      if (s->debug_level & MPS_DEBUG_REGENERATION)
+		{
+		  MPS_DEBUG_MPC (s, 10, sec->ampc[i], "a_%d", i);
+		  MPS_DEBUG_MPC (s, 10, sec->bmpc[i], "b_%d", i);
+		}
 
-	  /* Debug computed coefficients */
-	  if (s->debug_level & MPS_DEBUG_REGENERATION)
+	    } /* Close the case where the coefficient are not approximated or isolated */
+	  else
 	    {
-	      MPS_DEBUG_MPC (s, 10, sec->ampc[i], "a_%d", i);
-	      MPS_DEBUG_MPC (s, 10, sec->bmpc[i], "b_%d", i);
+	      /* Applying horner to evaluate the polynomial */
+	      mpc_set (sec->ampc[i], p->mfpc[s->n]); 
+	      for (j = s->n - 1; j >= 0; j--) 
+		{ 
+		  mpc_mul_eq (sec->ampc[i], sec->bmpc[i]);
+		  mpc_add_eq (sec->ampc[i], p->mfpc[j]);
+		}
+
+	      MPS_DEBUG_MPC (s, 15, sec->ampc[i], "pol(b_%d)", i);
+
+	      /* Compute the difference of the b_i */
+	      cdpe_set (prod_b, cdpe_one);
+	      for (j = 0; j < s->n; ++j)
+		{
+		  if (i == j)
+		    continue;
+		  
+		  cdpe_sub (diff, sec->bdpc[j], sec->bdpc[i]);
+		  
+		  /* If the difference is zero than regeneration cannot succeed, and means
+		   * that we need more precision in the roots */
+		  if (cdpe_eq_zero (diff))
+		{
+		  MPS_DEBUG (s, "Regeneration of the coefficients failed because sec->bdpc[%d] == sec->bdpc[%d]", i, j);
+		  success = false;
+		  goto monomial_regenerate_exit;
+		}
+		  cdpe_mul_eq (prod_b, diff);
+		}
+
+	      /* MPS_DEBUG_MPC (s, 15, mprod_b, "prod_b");  */
+	      
+	      /* Actually divide the result and store it in
+	       * a_i, as requested. */
+	      mpc_set_cdpe (mprod_b, prod_b);
+	      mpc_div_eq (sec->ampc[i], mprod_b);
+	      mpc_div_eq (sec->ampc[i], p->mfpc[s->n]);
+
+	      MPS_DEBUG_MPC (s, 15, sec->ampc[i], "real value of a_%d", i);
+
+	      /* We should not recompute the polynomial here since the approximation
+	       * hasn't changed. */
+	       MPS_DEBUG (s, "Doing it for root %d", i); 
+	       MPS_DEBUG_MPC (s, 15, sec->bmpc[i], "sec->bmpc[%d]", i); 
+	       cdpe_set (prod_b, cdpe_one); 
+	       for (j = 1; j < s->n; j++) 
+	       	{ 
+	       	  if (i == j || !root_changed[i])
+	       	    continue; 
+
+	       	  cdpe_sub (diff, old_b[j], sec->bdpc[i]); 
+	       	  cdpe_sub (cdtmp, sec->bdpc[j], sec->bdpc[i]); 
+	       	  cdpe_div_eq (diff, cdtmp); 
+	       	  cdpe_mul_eq (prod_b, diff); 
+
+	       	  // MPS_DEBUG_CDPE (s, prod_b, "prod_b"); 
+	       	} 
+
+	       MPS_DEBUG_MPC (s, 15, sec->ampc[i], "a_%d before regeneration", i); 
+
+	       mpc_set_cdpe (mprod_b, prod_b); 
+	       mpc_div_eq (sec->ampc[i], mprod_b); 
+
+	       MPS_DEBUG_MPC (s, 15, sec->ampc[i], "a_%d after regeneration", i); 
 	    }
 	}
 
@@ -367,8 +462,8 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s, int bits)
       /* Clear requested storage */
       mpc_clear (mdiff);
       mpc_clear (mprod_b);
-      mpc_clear (m_one);
       mpc_clear (ctmp);
+      mps_boolean_vfree (root_changed);
     }
   else if (MPS_INPUT_CONFIG_IS_SECULAR (s->input_config))
     {
@@ -569,12 +664,15 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
       old_a = cplx_valloc (s->n);
       old_b = cplx_valloc (s->n);
 
+      old_db = cdpe_valloc (s->n);
+
       /* Copy the old coefficients, and set the new
        * b_i with the current roots approximations. */
       for (i = 0; i < s->n; i++)
         {
           cplx_set (old_a[i], sec->afpc[i]);
           cplx_set (old_b[i], sec->bfpc[i]);
+	  cdpe_set_x (old_db[i], old_b[i]);
 	  mpc_set_cplx (sec->bmpc[i], s->froot[i]);
         }
 
@@ -582,7 +680,7 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
 
       /* Regeneration */
       bits = mps_secular_ga_required_regenerations_bits (s);
-      if (!(successful_regeneration = mps_secular_ga_regenerate_coefficients_mp (s, bits)))
+      if (!(successful_regeneration = mps_secular_ga_regenerate_coefficients_mp (s, bits, old_db)))
         {
           for (i = 0; i < s->n; i++)
             {
@@ -627,6 +725,7 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
 
       cplx_vfree (old_a);
       cplx_vfree (old_b);
+      cdpe_vfree (old_db);
 
       mps_secular_fstart (s, s->n, 0, 0, 0, s->eps_out);
 
@@ -655,7 +754,7 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
 
       /* Regeneration */
       bits = mps_secular_ga_required_regenerations_bits (s);
-      if (!(successful_regeneration = mps_secular_ga_regenerate_coefficients_mp (s, bits)))
+      if (!(successful_regeneration = mps_secular_ga_regenerate_coefficients_mp (s, bits, old_db)))
         {
 	  MPS_DEBUG (s, "Regeneration failed");
 	  for (i = 0; i < s->n; i++)
@@ -696,6 +795,7 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
       /* Allocate old_a and old_b */
       old_ma = mpc_valloc (s->n);
       old_mb = mpc_valloc (s->n);
+      old_db = cdpe_valloc (s->n);
 
       mpc_vinit2 (old_ma, s->n, 2 * s->mpwp);
       mpc_vinit2 (old_mb, s->n, 2 * s->mpwp);
@@ -707,13 +807,14 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
           mpc_set (old_ma[i], sec->ampc[i]);
           mpc_set (old_mb[i], sec->bmpc[i]);
           mpc_set (sec->bmpc[i], s->mroot[i]);
+	  mpc_get_cdpe (old_db[i], old_mb[i]);
         }
 
       mps_secular_ga_update_coefficients (s);
 
       /* Regeneration */
       bits = mps_secular_ga_required_regenerations_bits (s);
-      if (mps_secular_ga_regenerate_coefficients_mp (s, bits))
+      if (mps_secular_ga_regenerate_coefficients_mp (s, bits, old_db))
         {
 	  mps_secular_ga_update_coefficients (s);
           /* Finally set radius according to new computed a_i coefficients,

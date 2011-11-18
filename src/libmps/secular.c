@@ -576,16 +576,13 @@ mps_secular_set_radii (mps_status * s)
       {
         /* Floating point implementation */
 	cplx_t diff;
-        double rad, total_rad = 0;
-
-        for (i = 0; i < s->n; i++)
-          total_rad += cplx_mod (sec->afpc[i]) * (1 + (sec->fregeneration_epsilon[i] + DBL_EPSILON));
+        double rad;
 
         /* Check if the Gerschgorin's radii are more convenient */
         for (i = 0; i < s->n; i++)
           {
             /* TODO: Use the guaranteed computation */
-            rad = s->n * cplx_mod (sec->afpc[i]) * (1 + s->n * (sec->fregeneration_epsilon[i] + DBL_EPSILON))
+            rad = s->n * cplx_mod (sec->afpc[i]) * (1 + s->n * DBL_EPSILON)
 	      + cplx_mod (s->froot[i]) * DBL_EPSILON * 4;
 	    
 	    /* Add to rad the distance of the root from b_i */
