@@ -49,7 +49,8 @@ mps_secular_fstart (mps_status * s, int n, int i_clust, double clust_rad,
 			 DBL_EPSILON * 4.0);
 	  s->frad[l+i] += cplx_mod (s->froot[l+i]);
 	  cplx_add_eq (s->froot[l + i], sec->bfpc[l + i]);
-	  MPS_DEBUG_CPLX (s, s->froot[i + l], "s->froot[%d]", l + i);
+	  if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
+	    MPS_DEBUG_CPLX (s, s->froot[i + l], "s->froot[%d]", l + i);
 	}
     }
 

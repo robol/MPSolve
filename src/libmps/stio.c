@@ -887,7 +887,10 @@ mps_parse_stream_old (mps_status * s, mps_input_buffer * buffer)
 	  if (s->data_type[2] == 'f')
 	    mpf_set (poly->mfpr[i], mpc_Re (poly->mfpc[i]));
 
-	  MPS_DEBUG_MPC (s, 15, poly->mfpc[i], "s->mfpc[%d]", i);
+	  if (s->debug_level & MPS_DEBUG_IO)
+	    {
+	      MPS_DEBUG_MPC (s, 15, poly->mfpc[i], "s->mfpc[%d]", i);
+	    }
 	}
       else
 	{
@@ -901,7 +904,10 @@ mps_parse_stream_old (mps_status * s, mps_input_buffer * buffer)
 	    mpf_set (poly->mfpr[i], mpc_Re (poly->mfpc[i]));
 	}
 
-      MPS_DEBUG_RDPE (s, poly->dap[i], "poly->dap[%d]", i);
+      if (s->debug_level & MPS_DEBUG_IO)
+	{
+	  MPS_DEBUG_RDPE (s, poly->dap[i], "poly->dap[%d]", i);
+	}
     }
 
   mps_status_set_input_poly (s, poly, s->input_config->structure);
@@ -951,7 +957,7 @@ mps_parse_stream (mps_status * s, FILE * input_stream)
 	      /* This may be the case where an old format MPSolve file has been
 	       * given to MPSolve, since no option has been specified, so trying
 	       * to parse it that way */
-	      MPS_DEBUG (s, "This is not a MPSolve 3.0 pol file, so trying with 2.x format");
+	      MPS_DEBUG_WITH_INFO (s, "This is not a MPSolve 3.0 pol file, so trying with 2.x format");
 	      mps_parse_stream_old (s, buffer);
 	      mps_input_buffer_free (buffer);
 	      return;

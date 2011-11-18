@@ -262,7 +262,9 @@ void
 mps_prepare_data (mps_status * s, long int prec)
 {
   MPS_DEBUG_THIS_CALL;
-  MPS_DEBUG (s, "Increasing working precision to %ld bits", prec);
+
+  if (s->debug_level & MPS_DEBUG_MEMORY)
+    MPS_DEBUG (s, "Increasing working precision to %ld bits", prec);
 
   if (prec > data_prec_max)
     {
@@ -289,8 +291,8 @@ mps_prepare_data (mps_status * s, long int prec)
 void
 mps_restore_data (mps_status * s)
 {
-  if (s->DOLOG)
-    fprintf (s->logstr, "Restore data to %ld bits\n", data_prec_max);
+  if (s->debug_level & MPS_DEBUG_MEMORY)
+    MPS_DEBUG (s, "Restore data to %ld bits", data_prec_max);
 
   if (data_prec_max)
     mps_raise_data_raw (s, data_prec_max);

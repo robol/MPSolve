@@ -425,7 +425,8 @@ mps_secular_raise_coefficient_precision (mps_status * s, int wp)
 
   rdpe_set_2dl (s->mp_epsilon, 1.0, -wp);
   MPS_DEBUG_WITH_INFO (s, "Precision of the coefficients is now at %d bits", wp);
-  MPS_DEBUG_RDPE (s, s->mp_epsilon, "Machine epsilon is s->mp_epsilon");
+  if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
+    MPS_DEBUG_RDPE (s, s->mp_epsilon, "Machine epsilon is s->mp_epsilon");
 }
 
 /**

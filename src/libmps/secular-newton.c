@@ -127,7 +127,7 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
   if ((asum_on_apol + 1) * MPS_2SQRT2 * DBL_EPSILON > 1 ||
       (asum_on_apol < 0))
     {
-      if (data)
+      if (data && s->debug_level & MPS_DEBUG_APPROXIMATIONS)
 	{
 	  MPS_DEBUG (s, "Setting again to false on root %ld for root neighbourhood", data->k);
 	}
@@ -139,7 +139,7 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
    * not iterate more */
   if (*again && (cplx_mod (corr) < cplx_mod (x) * DBL_EPSILON))
     {
-      if (data)
+      if (data && s->debug_level & MPS_DEBUG_APPROXIMATIONS)
 	{
 	  MPS_DEBUG (s, "Setting again to false on root %ld for small Newton correction", data->k);
 	}

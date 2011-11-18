@@ -81,33 +81,41 @@ extern "C"
    * @brief Debug the value of a complex multiprecision
    * variable.
    */
-#define MPS_DEBUG_MPC(s, digits, c, name...) __MPS_DEBUG_EQ(s, name);	\
-  if (s->DOLOG) {							\
-    mpc_outln_str(s->logstr, 10, digits, c);				\
+#define MPS_DEBUG_MPC(s, digits, c, name...) {	\
+    __MPS_DEBUG_EQ(s, name);			\
+    if (s->DOLOG) {				\
+      mpc_outln_str(s->logstr, 10, digits, c);	\
+    }						\
   }
 
   /**
    * @brief Debug the value of a rdpe variable.
    */
-#define MPS_DEBUG_RDPE(s, r, name...) __MPS_DEBUG_EQ(s, name);	\
-  if (s->DOLOG) {						\
-    rdpe_outln_str(s->logstr, r);				\
+#define MPS_DEBUG_RDPE(s, r, name...) {		\
+    __MPS_DEBUG_EQ(s, name);			\
+    if (s->DOLOG) {				\
+      rdpe_outln_str(s->logstr, r);		\
+    }						\
   }
 
   /**
    * @brief Debug the value of a cdpe variable.
    */
-#define MPS_DEBUG_CDPE(s, c, name...) __MPS_DEBUG_EQ(s, name);	\
-  if (s->DOLOG) {						\
-    cdpe_outln_str(s->logstr, c);				\
+#define MPS_DEBUG_CDPE(s, c, name...) {		\
+    __MPS_DEBUG_EQ(s, name);			\
+    if (s->DOLOG) {				\
+      cdpe_outln_str(s->logstr, c);		\
+    }						\
   }
 
   /**
    * @brief Debug the values of a cplx_t variable
    */
-#define MPS_DEBUG_CPLX(s, c, name...)  __MPS_DEBUG_EQ(s, name); \
-  if (s->DOLOG) {						\
-    cplx_outln_str(s->logstr, c);				\
+#define MPS_DEBUG_CPLX(s, c, name...) {		\
+    __MPS_DEBUG_EQ(s, name);			\
+    if (s->DOLOG) {				\
+      cplx_outln_str(s->logstr, c);		\
+    }						\
   }
 
   /**
@@ -182,7 +190,7 @@ extern "C"
       fprintf(s->logstr, "%s:%d %s() ",				\
 	      __FILE__, __LINE__, __FUNCTION__);		\
     }								\
-    fprintf(s->logstr, templ);				\
+    fprintf(s->logstr, templ);					\
   }
 #else
 #define __MPS_DEBUG(s, templ...) if (s->DOLOG) {		\
@@ -194,7 +202,7 @@ extern "C"
       fprintf(s->logstr, "%s:%d %s() ",				\
 	      __FILE__, __LINE__, __FUNCTION__);		\
     }								\
-    fprintf(s->logstr, templ);				\
+    fprintf(s->logstr, templ);					\
   }
 #endif
 

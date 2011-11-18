@@ -211,7 +211,8 @@ mps_fcompute_starting_radii (mps_status * s, int n, int i_clust,
           continue;
         }
 
-      MPS_DEBUG (s, "Compacting circles from %d to %d", i, j);
+      if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
+	MPS_DEBUG (s, "Compacting circles from %d to %d", i, j);
 
       /* We shall now compact circles between i and j, so
        * we start computing the mean of the radius */
@@ -296,7 +297,8 @@ mps_fstart (mps_status * s, int n, int i_clust, double clust_rad,
    * approximations equally spaced points in the unit circle.  */
   if (s->data_type[0] == 'u')
     {
-      MPS_DEBUG (s, "User polynomial is provided, so not using Newton polygon");
+      if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
+	MPS_DEBUG (s, "User polynomial is provided, so not using Newton polygon");
       ang = pi2 / n;
       for (i = 0; i < n; i++)
         {

@@ -113,9 +113,9 @@ mps_improve (mps_status * s)
         MPS_DEBUG (s, "Starting to refine root %d", i);
       if (s->status[i][0] != 'i' || s->status[i][2] == 'o')
         {
-          MPS_DEBUG (s,
-                     "Not approximating root %d since it is already approximated",
-                     i);
+	  if (s->debug_level & MPS_DEBUG_IMPROVEMENT)
+	    MPS_DEBUG (s, "Not approximating root %d since it is already approximated", i);
+
           continue;             /* Do not refine approximated roots */
         }
 
@@ -238,5 +238,6 @@ mps_improve (mps_status * s)
   tmpc_clear (mtmp);
 
   long improve_time = mps_stop_timer (my_timer);
-  MPS_DEBUG (s, "Improvement of roots took %lu ms", improve_time);
+  if (s->debug_level & MPS_DEBUG_TIMINGS)
+    MPS_DEBUG (s, "Improvement of roots took %lu ms", improve_time);
 }

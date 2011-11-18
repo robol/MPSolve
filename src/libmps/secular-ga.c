@@ -364,9 +364,8 @@ mps_secular_ga_mpsolve (mps_status * s)
       /* Check data first */
       char which_case;
       mps_check_data (s, &which_case);
-      // which_case = 'd';
 
-      MPS_DEBUG(s, "Check data resulted in %c", which_case);
+      MPS_DEBUG_WITH_INFO (s, "Check data resulted in %c", which_case);
 
       if (which_case == 'f')
 	s->lastphase = float_phase;
@@ -529,7 +528,8 @@ mps_secular_ga_mpsolve (mps_status * s)
        * of the computation. */
        if (roots_computed == s->n)
 	 {
-	   MPS_DEBUG (s, "Regenerating coefficients because %d roots were approximated", s->n);
+	   if (s->debug_level & MPS_DEBUG_REGENERATION)
+	     MPS_DEBUG (s, "Regenerating coefficients because %d roots were approximated", s->n);
 	   if (mps_secular_ga_regenerate_coefficients (s))
 	     {
 	       just_regenerated = true;

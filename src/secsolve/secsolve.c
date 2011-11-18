@@ -221,7 +221,7 @@ main (int argc, char **argv)
   if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config) && !ga)
     {
       ga = true;
-      MPS_DEBUG (s, "Selecting algorithm MPS_ALGORITHM_SECULAR_GA since MPS_ALGORITHM_SECULAR_MPSOLVE is not available for monomial input");
+      MPS_DEBUG_WITH_INFO (s, "Selecting algorithm MPS_ALGORITHM_SECULAR_GA since MPS_ALGORITHM_SECULAR_MPSOLVE is not available for monomial input");
     }
 
   /* If we choose gemignani's approach follow it, otherwise

@@ -666,9 +666,7 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
 		{
 		  successful_regeneration = false;
 		  if (s->debug_level & MPS_DEBUG_REGENERATION)
-		    {
 		      MPS_DEBUG (s, "Found floating point exception in regenerated coefficients, reusing old ones.");
-		    }
 		  
 		  for (i = 0; i < s->n; i++)
 		    {
@@ -678,8 +676,11 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
 		  break;
 		}
 
-	      MPS_DEBUG_CPLX (s, sec->afpc[i], "sec->afpc[%d]", i);	      
-	      MPS_DEBUG_CPLX (s, sec->bfpc[i], "sec->bfpc[%d]", i);
+	      if (s->debug_level & MPS_DEBUG_REGENERATION)
+		{
+		  MPS_DEBUG_CPLX (s, sec->afpc[i], "sec->afpc[%d]", i);	      
+		  MPS_DEBUG_CPLX (s, sec->bfpc[i], "sec->bfpc[%d]", i);
+		}
             }
 
           mps_secular_set_radii (s);
