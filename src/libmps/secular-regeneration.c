@@ -364,7 +364,7 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s, int bits, cdpe_t * ol
 		  if (i == j)
 		    continue;
 		  
-		  cdpe_sub (diff, sec->bdpc[j], sec->bdpc[i]);
+		  cdpe_sub (diff, sec->bdpc[i], sec->bdpc[j]);
 		  
 		  /* If the difference is zero than regeneration cannot succeed, and means
 		   * that we need more precision in the roots */
