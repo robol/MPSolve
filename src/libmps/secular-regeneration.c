@@ -352,8 +352,6 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s, int bits, cdpe_t * ol
 		  mpc_add_eq (sec->ampc[i], p->mfpc[j]);
 		}
 
-	      MPS_DEBUG_MPC (s, 15, sec->ampc[i], "pol(b_%d)", i);
-
 	      /* MPS_DEBUG_MPC (s, coeff_wp, sec->bmpc[i], "sec->bmpc[%d]", i); */
 	      /* MPS_DEBUG_MPC (s, coeff_wp, sec->ampc[i], "sec->ampc[%d]", i); */
 
@@ -403,8 +401,6 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s, int bits, cdpe_t * ol
 		  mpc_add_eq (sec->ampc[i], p->mfpc[j]);
 		}
 
-	      MPS_DEBUG_MPC (s, 15, sec->ampc[i], "pol(b_%d)", i);
-
 	      /* Compute the difference of the b_i */
 	      cdpe_set (prod_b, cdpe_one);
 	      for (j = 0; j < s->n; ++j)
@@ -433,12 +429,8 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s, int bits, cdpe_t * ol
 	      mpc_div_eq (sec->ampc[i], mprod_b);
 	      mpc_div_eq (sec->ampc[i], p->mfpc[s->n]);
 
-	      MPS_DEBUG_MPC (s, 15, sec->ampc[i], "real value of a_%d", i);
-
 	      /* We should not recompute the polynomial here since the approximation
 	       * hasn't changed. */
-	       MPS_DEBUG (s, "Doing it for root %d", i); 
-	       MPS_DEBUG_MPC (s, 15, sec->bmpc[i], "sec->bmpc[%d]", i); 
 	       cdpe_set (prod_b, cdpe_one); 
 	       for (j = 1; j < s->n; j++) 
 	       	{ 
@@ -451,14 +443,10 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s, int bits, cdpe_t * ol
 	       	  cdpe_mul_eq (prod_b, diff); 
 
 	       	  // MPS_DEBUG_CDPE (s, prod_b, "prod_b"); 
-	       	} 
-
-	       MPS_DEBUG_MPC (s, 15, sec->ampc[i], "a_%d before regeneration", i); 
+	       	}
 
 	       mpc_set_cdpe (mprod_b, prod_b); 
-	       mpc_div_eq (sec->ampc[i], mprod_b); 
-
-	       MPS_DEBUG_MPC (s, 15, sec->ampc[i], "a_%d after regeneration", i); 
+	       mpc_div_eq (sec->ampc[i], mprod_b);
 	    }
 	}
 
