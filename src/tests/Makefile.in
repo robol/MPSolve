@@ -33,7 +33,8 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-EXTRA_PROGRAMS = check_unisolve$(EXEEXT) check_secsolve$(EXEEXT)
+EXTRA_PROGRAMS = check_dpe$(EXEEXT) check_unisolve$(EXEEXT) \
+	check_secsolve$(EXEEXT)
 subdir = src/tests
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -47,13 +48,20 @@ mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
+am_check_dpe_OBJECTS = check_dpe-check_dpe.$(OBJEXT) \
+	check_dpe-check_implementation.$(OBJEXT)
+check_dpe_OBJECTS = $(am_check_dpe_OBJECTS)
+check_dpe_LDADD = $(LDADD)
+AM_V_lt = $(am__v_lt_$(V))
+am__v_lt_ = $(am__v_lt_$(AM_DEFAULT_VERBOSITY))
+am__v_lt_0 = --silent
+check_dpe_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(check_dpe_CFLAGS) \
+	$(CFLAGS) $(check_dpe_LDFLAGS) $(LDFLAGS) -o $@
 am_check_secsolve_OBJECTS = check_secsolve-check_secsolve.$(OBJEXT) \
 	check_secsolve-check_implementation.$(OBJEXT)
 check_secsolve_OBJECTS = $(am_check_secsolve_OBJECTS)
 check_secsolve_LDADD = $(LDADD)
-AM_V_lt = $(am__v_lt_$(V))
-am__v_lt_ = $(am__v_lt_$(AM_DEFAULT_VERBOSITY))
-am__v_lt_0 = --silent
 check_secsolve_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(check_secsolve_CFLAGS) $(CFLAGS) $(check_secsolve_LDFLAGS) \
@@ -92,8 +100,10 @@ am__v_CCLD_0 = @echo "  CCLD    " $@;
 AM_V_GEN = $(am__v_GEN_$(V))
 am__v_GEN_ = $(am__v_GEN_$(AM_DEFAULT_VERBOSITY))
 am__v_GEN_0 = @echo "  GEN     " $@;
-SOURCES = $(check_secsolve_SOURCES) $(check_unisolve_SOURCES)
-DIST_SOURCES = $(check_secsolve_SOURCES) $(check_unisolve_SOURCES)
+SOURCES = $(check_dpe_SOURCES) $(check_secsolve_SOURCES) \
+	$(check_unisolve_SOURCES)
+DIST_SOURCES = $(check_dpe_SOURCES) $(check_secsolve_SOURCES) \
+	$(check_unisolve_SOURCES)
 ETAGS = etags
 CTAGS = ctags
 am__tty_colors = \
@@ -244,6 +254,9 @@ check_secsolve_LDFLAGS = -L${top_builddir}/src/libmps -lmps -lm -lgmp -lcheck
 check_unisolve_SOURCES = check_unisolve.c check_implementation.c check_implementation.h
 check_unisolve_CFLAGS = $(CHECK_CFLAGS) -I${top_srcdir}/include
 check_unisolve_LDFLAGS = -L${top_builddir}/src/libmps -lmps -lm -lgmp -lcheck
+check_dpe_SOURCES = check_dpe.c check_implementation.c check_implementation.h
+check_dpe_CFLAGS = $(CHECK_CFLAGS) -I${top_srcdir}/include
+check_dpe_LDFLAGS = -L${top_builddir}/src/libmps -lmps -lm -lgmp -lcheck
 EXTRA_DIST = \
 	secsolve/rand15.pol \
 	secsolve/test1000.pol \
@@ -493,6 +506,9 @@ clean-checkPROGRAMS:
 	list=`for p in $$list; do echo "$$p"; done | sed 's/$(EXEEXT)$$//'`; \
 	echo " rm -f" $$list; \
 	rm -f $$list
+check_dpe$(EXEEXT): $(check_dpe_OBJECTS) $(check_dpe_DEPENDENCIES) $(EXTRA_check_dpe_DEPENDENCIES) 
+	@rm -f check_dpe$(EXEEXT)
+	$(AM_V_CCLD)$(check_dpe_LINK) $(check_dpe_OBJECTS) $(check_dpe_LDADD) $(LIBS)
 check_secsolve$(EXEEXT): $(check_secsolve_OBJECTS) $(check_secsolve_DEPENDENCIES) $(EXTRA_check_secsolve_DEPENDENCIES) 
 	@rm -f check_secsolve$(EXEEXT)
 	$(AM_V_CCLD)$(check_secsolve_LINK) $(check_secsolve_OBJECTS) $(check_secsolve_LDADD) $(LIBS)
@@ -506,6 +522,8 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/check_dpe-check_dpe.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/check_dpe-check_implementation.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/check_secsolve-check_implementation.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/check_secsolve-check_secsolve.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/check_unisolve-check_implementation.Po@am__quote@
@@ -531,6 +549,34 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LTCOMPILE) -c -o $@ $<
+
+check_dpe-check_dpe.o: check_dpe.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(check_dpe_CFLAGS) $(CFLAGS) -MT check_dpe-check_dpe.o -MD -MP -MF $(DEPDIR)/check_dpe-check_dpe.Tpo -c -o check_dpe-check_dpe.o `test -f 'check_dpe.c' || echo '$(srcdir)/'`check_dpe.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/check_dpe-check_dpe.Tpo $(DEPDIR)/check_dpe-check_dpe.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='check_dpe.c' object='check_dpe-check_dpe.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(check_dpe_CFLAGS) $(CFLAGS) -c -o check_dpe-check_dpe.o `test -f 'check_dpe.c' || echo '$(srcdir)/'`check_dpe.c
+
+check_dpe-check_dpe.obj: check_dpe.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(check_dpe_CFLAGS) $(CFLAGS) -MT check_dpe-check_dpe.obj -MD -MP -MF $(DEPDIR)/check_dpe-check_dpe.Tpo -c -o check_dpe-check_dpe.obj `if test -f 'check_dpe.c'; then $(CYGPATH_W) 'check_dpe.c'; else $(CYGPATH_W) '$(srcdir)/check_dpe.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/check_dpe-check_dpe.Tpo $(DEPDIR)/check_dpe-check_dpe.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='check_dpe.c' object='check_dpe-check_dpe.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(check_dpe_CFLAGS) $(CFLAGS) -c -o check_dpe-check_dpe.obj `if test -f 'check_dpe.c'; then $(CYGPATH_W) 'check_dpe.c'; else $(CYGPATH_W) '$(srcdir)/check_dpe.c'; fi`
+
+check_dpe-check_implementation.o: check_implementation.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(check_dpe_CFLAGS) $(CFLAGS) -MT check_dpe-check_implementation.o -MD -MP -MF $(DEPDIR)/check_dpe-check_implementation.Tpo -c -o check_dpe-check_implementation.o `test -f 'check_implementation.c' || echo '$(srcdir)/'`check_implementation.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/check_dpe-check_implementation.Tpo $(DEPDIR)/check_dpe-check_implementation.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='check_implementation.c' object='check_dpe-check_implementation.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(check_dpe_CFLAGS) $(CFLAGS) -c -o check_dpe-check_implementation.o `test -f 'check_implementation.c' || echo '$(srcdir)/'`check_implementation.c
+
+check_dpe-check_implementation.obj: check_implementation.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(check_dpe_CFLAGS) $(CFLAGS) -MT check_dpe-check_implementation.obj -MD -MP -MF $(DEPDIR)/check_dpe-check_implementation.Tpo -c -o check_dpe-check_implementation.obj `if test -f 'check_implementation.c'; then $(CYGPATH_W) 'check_implementation.c'; else $(CYGPATH_W) '$(srcdir)/check_implementation.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/check_dpe-check_implementation.Tpo $(DEPDIR)/check_dpe-check_implementation.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='check_implementation.c' object='check_dpe-check_implementation.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(check_dpe_CFLAGS) $(CFLAGS) -c -o check_dpe-check_implementation.obj `if test -f 'check_implementation.c'; then $(CYGPATH_W) 'check_implementation.c'; else $(CYGPATH_W) '$(srcdir)/check_implementation.c'; fi`
 
 check_secsolve-check_secsolve.o: check_secsolve.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(check_secsolve_CFLAGS) $(CFLAGS) -MT check_secsolve-check_secsolve.o -MD -MP -MF $(DEPDIR)/check_secsolve-check_secsolve.Tpo -c -o check_secsolve-check_secsolve.o `test -f 'check_secsolve.c' || echo '$(srcdir)/'`check_secsolve.c

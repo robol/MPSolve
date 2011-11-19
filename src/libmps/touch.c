@@ -73,6 +73,10 @@ mps_dtouchnwt (mps_status * s, int n, int i, int j)
 
   rdpe_add (dtmp1, s->drad[i], s->drad[j]);
 
+  /* if (rdpe_Esp (dtmp1) < rdpe_Esp (s->drad[i]) || */
+  /*     rdpe_Esp (dtmp1) < rdpe_Esp (s->drad[j])) */
+  /*     return true; */
+      
   rdpe_mul_eq_d (dtmp1, (double) n);
   cdpe_sub (ctmp, s->droot[i], s->droot[j]);
   cdpe_mod (dtmp2, ctmp);
@@ -108,6 +112,11 @@ mps_mtouchnwt (mps_status * s, int n, int i, int j)
   tmpc_init2 (mtmp, s->mpwp);
 
   rdpe_add (dtmp1, s->drad[i], s->drad[j]);
+
+  /* if (rdpe_Esp (dtmp1) < rdpe_Esp (s->drad[i]) || */
+  /*     rdpe_Esp (dtmp1) < rdpe_Esp (s->drad[j])) */
+  /*     return true; */
+
   rdpe_mul_eq_d (dtmp1, (double) n);
   mpc_sub (mtmp, s->mroot[i], s->mroot[j]);
   mpc_get_cdpe (ctmp, mtmp);

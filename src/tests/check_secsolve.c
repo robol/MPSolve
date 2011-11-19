@@ -83,6 +83,9 @@ test_secsolve_on_pol (test_pol * pol)
   s->output_config->prec = (int) ((pol->out_digits + 1) * LOG2_10) + 1;
   s->input_config->prec = 0;
 
+  s->logstr = stderr;
+  s->n_threads = 1;
+
   mps_mpsolve (s);
 
   /* printf("Computed results are not exact to the required " */
@@ -99,7 +102,7 @@ test_secsolve_on_pol (test_pol * pol)
     {
       rdpe_t rtmp, min_dist;
       cdpe_t cdtmp;
-
+      
       rdpe_set (min_dist, RDPE_MAX);
 
       mpc_clear (root);

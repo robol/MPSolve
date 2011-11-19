@@ -31,7 +31,6 @@ test_unisolve_on_pol (test_pol * pol)
   int i, j, prec = pol->out_digits * LOG2_10;
   int ch;
 
-
   fprintf (stderr, "Checking %-30s [\033[34;1mchecking\033[0m]", pol->pol_file);
 
   /* Debug starting of this test */
@@ -44,8 +43,8 @@ test_unisolve_on_pol (test_pol * pol)
      pol->pol_file, pol->out_digits, (pol->phase == dpe_phase) ? "DPE" : "floating point");
    */
 
-  mpc_init2 (root, prec);
-  mpc_init2 (ctmp, prec);
+  mpc_init2 (root, 2 * prec);
+  mpc_init2 (ctmp, 2 * prec);
 
   /* Open streams */
   input_stream = fopen (pol->pol_file, "r");
@@ -69,6 +68,7 @@ test_unisolve_on_pol (test_pol * pol)
   mps_mpsolve (s);
 
   /* Test if roots are equal to the roots provided in the check */
+  passed = true;
   for (i = 0; i < s->n; i++)
     {
       rdpe_t rtmp;
@@ -80,17 +80,22 @@ test_unisolve_on_pol (test_pol * pol)
       mpc_inp_str (root, check_stream, 10);
 
       passed = false;
-      rdpe_set (min_dist, RDPE_MAX);
-      for (j = 0; j < s->n; j++)
+
+      mpc_sub (ctmp, root, s->mroot[0]);
+      mpc_get_cdpe (cdtmp, ctmp);
+      cdpe_mod (rtmp, cdtmp);
+      rdpe_set (min_dist, rtmp);
+
+      for (j = 1; j < s->n; j++)
         {
           mpc_sub (ctmp, root, s->mroot[j]);
 	  mpc_get_cdpe (cdtmp, ctmp);
 	  cdpe_mod (rtmp, cdtmp);
 
+
 	  if (rdpe_le (rtmp, min_dist))
 	    {
 	      rdpe_set (min_dist, rtmp);
-	      break;
 	    }
         }
 
@@ -106,21 +111,19 @@ test_unisolve_on_pol (test_pol * pol)
   fclose (input_stream);
   fclose (check_stream);
 
-  {
-    if (passed)
-      fprintf (stderr, "\rChecking %-30s [\033[32;1m  done  \033[0m]\n", pol->pol_file);
-    else
-      fprintf (stderr, "\rChecking %-30s [\033[31;1m failed \033[0m]\n", pol->pol_file);
-    
-    fail_unless (passed == true,
-		 "Computed results are not exact to the required "
-		 "precision.\n" "\n" " Dumping test configuration: \n"
-		 "   => Polynomial file: %s;\n"
-		 "   => Required digits: %d\n", pol->pol_file,
-		 pol->out_digits);
-  }
-
   mps_status_free (s);
+
+  if (passed)
+    fprintf (stderr, "\rChecking %-30s [\033[32;1m  done  \033[0m]\n", pol->pol_file);
+  else
+    fprintf (stderr, "\rChecking %-30s [\033[31;1m failed \033[0m]\n", pol->pol_file);
+  
+  fail_unless (passed == true,
+	       "Computed results are not exact to the required "
+	       "precision.\n" "\n" " Dumping test configuration: \n"
+	       "   => Polynomial file: %s;\n"
+	       "   => Required digits: %d\n", pol->pol_file,
+	       pol->out_digits);
 }
 
 

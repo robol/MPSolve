@@ -38,10 +38,6 @@ main (int argc, char *argv[])
 
   /* Read polynomial */
   mps_parse_stream (s, s->instr);
-  // mps_read_poly (s, s->instr, p);
-
-  /* Set polynomial */
-  // mps_set_poly (s, p);
 
   /* approximate roots */
   mps_mpsolve (s);

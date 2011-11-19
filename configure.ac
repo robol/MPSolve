@@ -52,7 +52,7 @@ SECSOLVE_LIBS="-lm -lgmp"
 PKG_CHECK_MODULES([CHECKING], [check >= 0.9.4], 
   [enable_check=yes], [enable_check=no])
 AS_IF([test "x$enable_check" = "xyes"], [
-	CHECK_PROGRAMS="check_secsolve check_unisolve"
+	CHECK_PROGRAMS="check_dpe check_secsolve check_unisolve"
 ])
 AC_SUBST(CHECK_PROGRAMS)
 AC_SUBST(CHECK_CFLAGS)

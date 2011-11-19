@@ -593,8 +593,8 @@ static rdpe_t temp_rdpe;
 /* constants */
 const rdpe_t rdpe_zero = { {0.0, 0L} };
 const rdpe_t rdpe_one = { {0.5, 1L} };
-const rdpe_t RDPE_MAX = { {0.5, LONG_MAX << 10} };
-const rdpe_t RDPE_MIN = { {0.5, LONG_MIN >> 10} };
+const rdpe_t RDPE_MAX = { {0.5, LONG_MAX } };
+const rdpe_t RDPE_MIN = { {0.5, LONG_MIN } };
 const rdpe_t rdpe_maxd = { {0.5, DBL_MAX_EXP} };
 const rdpe_t rdpe_mind = { {0.5, DBL_MIN_EXP} };
 
@@ -1363,17 +1363,17 @@ rdpe_lt (const rdpe_t e1, const rdpe_t e2)
   rdpe_t t;
 
   if (rdpe_Mnt (e1) > 0 && rdpe_Mnt (e2) < 0)
-    return 1;
+      return 1;
   if (rdpe_Mnt (e1) < 0 && rdpe_Mnt (e1) > 0)
-    return 0;
+      return 0;
 
   /* This check works only if the numbers are non zero */
   if (rdpe_Mnt (e1) != 0 && rdpe_Mnt (e2) != 0)
     {
-      if (rdpe_Esp (e1) > rdpe_Esp (e2)) 
-	return 0;
+      if (rdpe_Esp (e1) > rdpe_Esp (e2))
+	  return 0;
       if (rdpe_Esp (e2) > rdpe_Esp (e1)) 
-	return 1; 
+	  return 1; 
     }
 
   rdpe_sub (t, e1, e2);

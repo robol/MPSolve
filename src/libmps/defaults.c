@@ -18,6 +18,9 @@
 void
 mps_set_default_values (mps_status * s)
 {
+  char * t = "";
+  mps_parse_opts (s, 1, &t);
+
   /* flags */
   s->skip_float = false;        /* set to true to skip float phase     */
   s->resume = false;            /* resume from pre-computed roots      */
