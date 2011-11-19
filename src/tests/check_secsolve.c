@@ -282,6 +282,18 @@ START_TEST (test_secsolve_exp)
 }
 END_TEST
 
+START_TEST (test_secsolve_mignotte)
+{
+  test_pol * pol = test_pol_new ("mig1_100", "unisolve", 11, float_phase, true);
+  test_secsolve_on_pol (pol);
+  test_pol_free (pol);
+
+  pol = test_pol_new ("mig1_200", "unisolve", 11, float_phase, true);
+  test_secsolve_on_pol (pol);
+  test_pol_free (pol);
+}
+END_TEST
+
 /**
  * @brief Create the secsolve test suite
  */
@@ -312,14 +324,16 @@ END_TEST
   tcase_add_test (tc_mpsolve, test_secsolve_nroots);
 
   /* Kam polynomials */
-  /* Still not ready. */
-  /* tcase_add_test (tc_mpsolve, test_secsolve_kam); */
+  tcase_add_test (tc_mpsolve, test_secsolve_kam);
 
   /* Exponentials */
   tcase_add_test (tc_mpsolve, test_secsolve_exp);
 
   /* Mandelbrot polynomials */
   tcase_add_test (tc_mpsolve, test_secsolve_mand);
+
+  /* Chebyshev */
+  tcase_add_test (tc_mpsolve, test_secsolve_mignotte);
 
   /* Add test case to the suite */
   suite_add_tcase (s, tc_mpsolve);
