@@ -78,7 +78,6 @@ test_mpsolve (char * pol_file, char * res_file, mps_algorithm algorithm)
    	  mpc_sub (ctmp, root, s->mroot[j]);   
      	  mpc_get_cdpe (cdtmp, ctmp);   
      	  cdpe_mod (rtmp, cdtmp);   
-
 	  
      	  if (rdpe_le (rtmp, min_dist))   
      	    {   

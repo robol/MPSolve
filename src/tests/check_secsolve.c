@@ -156,15 +156,18 @@ test_secsolve_on_pol (test_pol * pol)
   else
     fprintf (stderr, "\rChecking %-30s [\033[31;1m failed \033[0m]\n", pol->pol_file);
 
-
-  fail_unless (passed == true,
-               "Computed results are not exact to the required "
-               "precision.\n" "\n" " Dumping test configuration: \n"
-               "   => Polynomial file: %s;\n" "   => Required digits: %d\n"
-               "   => Gemignani's approach: %s;\n"
-               "   => Starting phase: %s;\n", pol->pol_file, pol->out_digits,
-               mps_boolean_to_string (pol->ga),
-               (pol->phase == float_phase) ? "float_phase" : "dpe_phase");
+  if (getenv ("MPS_VERBOSE_TEST"))
+    fail_unless (passed == true,
+		 "Computed results are not exact to the required "
+		 "precision.\n" "\n" " Dumping test configuration: \n"
+		 "   => Polynomial file: %s;\n" "   => Required digits: %d\n"
+		 "   => Gemignani's approach: %s;\n"
+		 "   => Starting phase: %s;\n", pol->pol_file, pol->out_digits,
+		 mps_boolean_to_string (pol->ga),
+		 (pol->phase == float_phase) ? "float_phase" : "dpe_phase");
+  else
+    fail_unless (passed == true,
+		 "Computed results are not exact to the required ");    
 
   return passed;
 }
@@ -232,6 +235,15 @@ START_TEST (test_secsolve_wilkinson)
 
   /* Testing the wilkinson polynomial of degree 80 */
   pol = test_pol_new ("wilk80", "secsolve", 11, float_phase, true);
+  test_secsolve_on_pol (pol);
+  test_pol_free (pol);
+}
+END_TEST
+
+START_TEST (test_secsolve_wilkinson_monomial)
+{
+  /* Testinf the wilkinson polynomial of degree 20 */
+  test_pol *pol = test_pol_new ("wilk20", "unisolve", 11, float_phase, true);
   test_secsolve_on_pol (pol);
   test_pol_free (pol);
 }
@@ -306,40 +318,47 @@ END_TEST
 
   /* Create a test case for the standard MPSolve case and
    * one for the Gemignani's approach. */
-  TCase *tc_mpsolve = tcase_create ("Secsolve");
+  TCase *tc_secular = tcase_create ("Secular equation");
 
   /* Add our tests */
-  tcase_add_loop_test (tc_mpsolve, test_secsolve, 0, standard);
+  tcase_add_loop_test (tc_secular, test_secsolve, 0, standard);
 
   /* Case of a_i = (-1)^(i+1) , b_i = i */
-  tcase_add_test (tc_mpsolve, test_secsolve_altern);
+  tcase_add_test (tc_secular, test_secsolve_altern);
 
   /* Integer parsing */
-  tcase_add_test (tc_mpsolve, test_secsolve_integer);
+  tcase_add_test (tc_secular, test_secsolve_integer);
 
   /* Simple secular equation with cancellation problems */
-  tcase_add_test (tc_mpsolve, test_secsolve_simple);
+  tcase_add_test (tc_secular, test_secsolve_simple);
 
   /* Wilkinson polynomials */
-  tcase_add_test (tc_mpsolve, test_secsolve_wilkinson);
+  tcase_add_test (tc_secular, test_secsolve_wilkinson);
+
+  /* MONOMIAL TEST CASE */
+  TCase *tc_monomial = tcase_create ("Monomial input");
 
   /* Roots of the unity */
-  tcase_add_test (tc_mpsolve, test_secsolve_nroots);
+  tcase_add_test (tc_monomial, test_secsolve_nroots);
 
   /* Kam polynomials */
-  tcase_add_test (tc_mpsolve, test_secsolve_kam);
+  tcase_add_test (tc_monomial, test_secsolve_kam);
 
   /* Exponentials */
-  tcase_add_test (tc_mpsolve, test_secsolve_exp);
+  tcase_add_test (tc_monomial, test_secsolve_exp);
 
   /* Mandelbrot polynomials */
-  tcase_add_test (tc_mpsolve, test_secsolve_mand);
+  tcase_add_test (tc_monomial, test_secsolve_mand);
 
   /* Chebyshev */
-  tcase_add_test (tc_mpsolve, test_secsolve_mignotte);
+  tcase_add_test (tc_monomial, test_secsolve_mignotte);
+
+  /* Wilkinson polynomials */
+  tcase_add_test (tc_monomial, test_secsolve_wilkinson_monomial);
 
   /* Add test case to the suite */
-  suite_add_tcase (s, tc_mpsolve);
+  suite_add_tcase (s, tc_secular);
+  suite_add_tcase (s, tc_monomial);
 
   return s;
 }
@@ -389,7 +408,7 @@ main (void)
   /* Create a new test suite for secsolve and run it */
   Suite *s = secsolve_suite (standard);
   SRunner *sr = srunner_create (s);
-  srunner_run_all (sr, CK_VERBOSE);
+  srunner_run_all (sr, CK_NORMAL);
 
   /* Get number of failed test and report */
   number_failed = srunner_ntests_failed (sr);

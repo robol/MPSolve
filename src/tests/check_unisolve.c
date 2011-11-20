@@ -118,12 +118,17 @@ test_unisolve_on_pol (test_pol * pol)
   else
     fprintf (stderr, "\rChecking %-30s [\033[31;1m failed \033[0m]\n", pol->pol_file);
   
-  fail_unless (passed == true,
-	       "Computed results are not exact to the required "
-	       "precision.\n" "\n" " Dumping test configuration: \n"
-	       "   => Polynomial file: %s;\n"
-	       "   => Required digits: %d\n", pol->pol_file,
-	       pol->out_digits);
+  if (getenv ("MPS_VERBOSE_TEST"))
+    fail_unless (passed == true,
+		 "Computed results are not exact to the required "
+		 "precision.\n" "\n" " Dumping test configuration: \n"
+		 "   => Polynomial file: %s;\n"
+		 "   => Required digits: %d\n", pol->pol_file,
+		 pol->out_digits);
+  else
+    fail_unless (passed == true,
+		 "Computed results are not exact to the required ");
+  
 
   return passed;
 }
@@ -202,7 +207,7 @@ main (void)
   /* Create a new test suite for secsolve and run it */
   Suite *s = unisolve_suite (n);
   SRunner *sr = srunner_create (s);
-  srunner_run_all (sr, CK_VERBOSE);
+  srunner_run_all (sr, CK_NORMAL);
 
   /* Get number of failed test and report */
   number_failed = srunner_ntests_failed (sr);

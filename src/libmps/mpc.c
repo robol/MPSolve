@@ -18,6 +18,8 @@
 void
 mpc_init (mpc_t c)
 {
+  printf ("mpc_init () called\n");
+  abort ();
   mpf_init (mpc_Re (c));
   mpf_init (mpc_Im (c));
 }
