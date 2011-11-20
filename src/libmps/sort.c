@@ -99,7 +99,7 @@ mps_msort (mps_status * s)
 {
   int i;
   mpc_t * real_parts = mpc_valloc (s->n);
-  mpc_vinit (real_parts, s->n);
+  mpc_vinit2 (real_parts, s->n, s->mpwp);
 
   for (i = 0; i < s->n; i++)
     {

@@ -51,8 +51,8 @@ test_mpsolve (char * pol_file, char * res_file, mps_algorithm algorithm)
   mps_status_select_algorithm (s, algorithm);
   mps_mpsolve (s); 
   
-  mpc_init (root);   
-  mpc_init (ctmp);   
+  mpc_init2 (root, s->data_prec_max);
+  mpc_init2 (ctmp, s->data_prec_max);
     
   /* Test if roots are equal to the roots provided in the check */   
   passed = true;   

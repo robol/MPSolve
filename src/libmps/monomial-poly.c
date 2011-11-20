@@ -21,8 +21,8 @@ mps_monomial_poly_new (mps_status * s, long int degree)
   mp->mfpc = mpc_valloc (degree + 1);
   mp->mfpr = mpf_valloc (degree + 1);
 
-  mpf_vinit (mp->mfpr, degree + 1);
-  mpc_vinit (mp->mfpc, degree + 1);
+  mpf_vinit2 (mp->mfpr, degree + 1, s->mpwp);
+  mpc_vinit2 (mp->mfpc, degree + 1, s->mpwp);
 
   /* Allocate space for the moduli of the coefficients */
   mp->fap = double_valloc (degree + 1);
@@ -31,7 +31,7 @@ mps_monomial_poly_new (mps_status * s, long int degree)
   /* Allocate space for the coefficients of the derivative */
   mp->fppc = cplx_valloc (degree);
   mp->mfppc = mpc_valloc (degree + 1);
-  mpc_vinit (mp->mfppc, degree + 1);
+  mpc_vinit2 (mp->mfppc, degree + 1, s->mpwp);
 
   /* Allocate space for the coefficients initially parsed as
    * exact */

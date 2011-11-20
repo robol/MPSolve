@@ -223,10 +223,10 @@ mps_secular_equation_new_raw (mps_status * s, unsigned long int n)
   sec->abfpc = double_valloc (n);
 
   /* Init multiprecision arrays */
-  mpc_vinit (sec->ampc, n);
-  mpc_vinit (sec->bmpc, n);
-  mpc_vinit (sec->initial_ampc, n);
-  mpc_vinit (sec->initial_bmpc, n);
+  mpc_vinit2 (sec->ampc, n, s->mpwp);
+  mpc_vinit2 (sec->bmpc, n, s->mpwp);
+  mpc_vinit2 (sec->initial_ampc, n, s->mpwp);
+  mpc_vinit2 (sec->initial_bmpc, n, s->mpwp);
   mpq_vinit (sec->initial_ampqrc, n + 1);
   mpq_vinit (sec->initial_bmpqrc, n + 1);
   mpq_vinit (sec->initial_ampqic, n + 1);
