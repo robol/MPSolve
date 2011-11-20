@@ -237,6 +237,14 @@ START_TEST (test_secsolve_wilkinson_monomial)
   test_pol *pol = test_pol_new ("wilk20", "unisolve", 11, float_phase, true);
   test_secsolve_on_pol (pol);
   test_pol_free (pol);
+
+  pol = test_pol_new ("wilk40", "unisolve", 11, float_phase, true);
+  test_secsolve_on_pol (pol);
+  test_pol_free (pol);
+
+  pol = test_pol_new ("wilk80", "unisolve", 11, float_phase, true);
+  test_secsolve_on_pol (pol);
+  test_pol_free (pol);
 }
 END_TEST
 

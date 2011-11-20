@@ -92,7 +92,6 @@ test_unisolve_on_pol (test_pol * pol)
 	  mpc_get_cdpe (cdtmp, ctmp);
 	  cdpe_mod (rtmp, cdtmp);
 
-
 	  if (rdpe_le (rtmp, min_dist))
 	    {
 	      rdpe_set (min_dist, rtmp);
@@ -111,9 +110,7 @@ test_unisolve_on_pol (test_pol * pol)
 	   printf("\n");  
 
 	   printf("s->drad[%d] = ", i); 
-	   rdpe_out_str (stdout, s->drad[i]);  
-	   printf("%e", s->frad[i]); 
-	   printf("\n");  
+	   rdpe_out_str (stdout, s->drad[i]); printf ("\n");
 	  
 	   printf("min_dist[%d] = ", i);  
 	   rdpe_out_str (stdout, min_dist);  

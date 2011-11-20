@@ -831,6 +831,16 @@ void
 rdpe_mul (rdpe_t re, const rdpe_t e1, const rdpe_t e2)
 /* re = e1 * e2 */
 {
+  if (rdpe_Esp (e1) >= 0 && (rdpe_Esp (e2) >= LONG_MAX - rdpe_Esp (e1)))
+    {
+      rdpe_set (re, RDPE_MAX);
+      return;
+    }
+  if (rdpe_Esp (e1) <= 0 && (rdpe_Esp (e2) <= LONG_MIN - rdpe_Esp (e1)))
+    {
+      rdpe_set (re, RDPE_MAX);
+      return;
+    }
   rdpe_Mnt (re) = rdpe_Mnt (e1) * rdpe_Mnt (e2);
   rdpe_Esp (re) = rdpe_Esp (e1) + rdpe_Esp (e2);
   rdpe_Norm (re);
@@ -840,6 +850,18 @@ void
 rdpe_mul_d (rdpe_t re, const rdpe_t e, double d)
 /* re = e * d */
 {
+  int esp;
+  frexp (d, &esp);
+  if (rdpe_Esp (e) >= 0 && (esp >= LONG_MAX - rdpe_Esp (e)))
+    {
+      rdpe_set (re, RDPE_MAX);
+      return;
+    }
+  if (rdpe_Esp (e) <= 0 && (esp <= LONG_MIN - rdpe_Esp (e)))
+    {
+      rdpe_set (re, RDPE_MAX);
+      return;
+    }
   rdpe_Mnt (re) = rdpe_Mnt (e) * d;
   rdpe_Esp (re) = rdpe_Esp (e);
   rdpe_Norm (re);
@@ -884,6 +906,18 @@ rdpe_add (rdpe_t re, const rdpe_t e1, const rdpe_t e2)
 /* re = e1 + e2 */
 {
   long delta;
+
+  /* Check for overflows */
+  if (rdpe_Mnt (e1) > 0 && rdpe_Mnt (e2) > 0 && rdpe_Esp (e1) == LONG_MAX && rdpe_Esp (e2) == LONG_MAX)
+    {
+      rdpe_set (re, RDPE_MAX);
+      return;
+    }
+  if (rdpe_Mnt (e1) < 0 && rdpe_Mnt (e2) < 0 && rdpe_Esp (e1) == LONG_MAX && rdpe_Esp (e2) == LONG_MAX)
+    {
+      rdpe_set_dl (re, -0.5, LONG_MAX);
+      return;
+    }
 
   if (rdpe_Mnt (e2) == 0.0)
     {
@@ -1120,7 +1154,17 @@ rdpe_exp_eq (rdpe_t e)
 void
 rdpe_mul_eq (rdpe_t re, const rdpe_t e)
 /* re = re * e */
-{
+{;
+  if (rdpe_Esp (re) >= 0 && (rdpe_Esp (e) >= LONG_MAX - rdpe_Esp (re)))
+    {
+      rdpe_set (re, RDPE_MAX);
+      return;
+    }
+  if (rdpe_Esp (re) <= 0 && (rdpe_Esp (e) <= LONG_MIN - rdpe_Esp (re)))
+    {
+      rdpe_set (re, RDPE_MAX);
+      return;
+    }
   rdpe_Mnt (re) *= rdpe_Mnt (e);
   rdpe_Esp (re) += rdpe_Esp (e);
   rdpe_Norm (re);
@@ -1130,6 +1174,18 @@ void
 rdpe_mul_eq_d (rdpe_t e, double d)
 /* e = e * d */
 {
+  int esp;
+  frexp (d, &esp);
+  if (rdpe_Esp (e) >= 0 && (esp >= LONG_MAX - rdpe_Esp (e)))
+    {
+      rdpe_set (e, RDPE_MAX);
+      return;
+    }
+  if (rdpe_Esp (e) <= 0 && (esp <= LONG_MIN - rdpe_Esp (e)))
+    {
+      rdpe_set (e, RDPE_MAX);
+      return;
+    }
   rdpe_Mnt (e) *= d;
   rdpe_Norm (e);
 }

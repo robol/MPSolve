@@ -42,7 +42,7 @@ mpc_clear (mpc_t c)
 void
 mpc_set_prec (mpc_t c, unsigned long int prec)
 {
-  if (1 || mpf_get_prec (mpc_Re (c)) < prec)
+  if (mpf_get_prec (mpc_Re (c)) < prec)
     {
       mpf_set_prec (mpc_Re (c), prec);
       mpf_set_prec (mpc_Im (c), prec);

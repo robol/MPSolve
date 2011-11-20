@@ -684,10 +684,10 @@ mps_thread_mpolzer (mps_status * s, int *it, mps_boolean * excep)
       return;
     }
 
-  /* if (s->n_threads > (s->n - nzeros)) */
-  /*   n_threads = s->n - nzeros; */
-  /* else */
-  /*   n_threads = s->n_threads; */
+   if (s->n_threads > (s->n - nzeros)) 
+     n_threads = s->n - nzeros; 
+   else 
+     n_threads = s->n_threads; 
 
   MPS_DEBUG (s, "Spawning %d threads", n_threads);
 

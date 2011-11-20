@@ -105,6 +105,11 @@ mps_allocate_data (mps_status * s)
   s->fradii = double_valloc (s->deg + 1);
   s->partitioning = int_valloc (s->deg + 2);
   s->dradii = rdpe_valloc (s->deg + 1);
+
+  /* Setting some default here, that were not settable because we didn't know
+   * the degree of the polynomial */
+  for (i = 0; i < s->n; i++) 
+    s->rootwp[i] = DBL_DIG * LOG2_10;
 }
 
 /***********************************************************
