@@ -103,6 +103,23 @@ test_unisolve_on_pol (test_pol * pol)
 	{
 	  passed = true;
 	}
+      else if (getenv ("MPS_VERBOSE_TEST"))
+	{
+	   printf("Setting passed to false with root %d\n", i); 
+	   printf ("s->mroot[%d] = ", i);  
+	   mpc_out_str (stdout, 10, 20, s->mroot[i]);  
+	   printf("\n");  
+
+	   printf("s->drad[%d] = ", i); 
+	   rdpe_out_str (stdout, s->drad[i]);  
+	   printf("%e", s->frad[i]); 
+	   printf("\n");  
+	  
+	   printf("min_dist[%d] = ", i);  
+	   rdpe_out_str (stdout, min_dist);  
+	   printf("\n");  
+	}
+
     }
 
   mpc_clear (root);

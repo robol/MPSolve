@@ -78,22 +78,13 @@ test_secsolve_on_pol (test_pol * pol)
     mps_status_select_algorithm (s, MPS_ALGORITHM_SECULAR_GA);
 
   strncpy (s->goal, "iannc", 5);
-  s->output_config->prec = (int) ((pol->out_digits + 1) * LOG2_10) + 1;
+  s->output_config->prec = (int) ((pol->out_digits + 2) * LOG2_10) + 1;
   s->input_config->prec = 0;
 
   s->logstr = stderr;
   s->n_threads = 1;
 
-  mps_mpsolve (s);
-
-  /* printf("Computed results are not exact to the required " */
-  /* 	 "precision.\n" "\n" " Dumping test configuration: \n" */
-  /* 	 "   => Polynomial file: %s;\n" "   => Required digits: %d\n" */
-  /* 	 "   => Gemignani's approach: %s;\n" */
-  /* 	 "   => Starting phase: %s;\n", pol->pol_file, pol->out_digits, */
-  /* 	 mps_boolean_to_string (pol->ga), */
-  /* 	 (pol->phase == float_phase) ? "float_phase" : "dpe_phase");; */
-  
+  mps_mpsolve (s);  
 
   /* Test if roots are equal to the roots provided in the check */
   for (i = 0; i < s->n; i++)
@@ -124,21 +115,21 @@ test_secsolve_on_pol (test_pol * pol)
 
       if (rdpe_le (min_dist, s->drad[i]))
 	passed = true;
-      else
+      else if (getenv ("MPS_VERBOSE_TEST"))
 	{
-	  /* printf("Setting passed to true with root %d\n", i); */
-	  /* printf ("s->mroot[%d] = ", i);  */
-	  /* mpc_out_str (stdout, 10, 20, s->mroot[i]);  */
-	  /* printf("\n");  */
+	   printf("Setting passed to false with root %d\n", i); 
+	   printf ("s->mroot[%d] = ", i);  
+	   mpc_out_str (stdout, 10, 20, s->mroot[i]);  
+	   printf("\n");  
 
-	  /* printf("s->drad[%d] = ", i); */
-	  /* rdpe_out_str (stdout, s->drad[i]);  */
-	  /* // printf("%e", s->frad[i]); */
-	  /* printf("\n");  */
+	   printf("s->drad[%d] = ", i); 
+	   rdpe_out_str (stdout, s->drad[i]);  
+	   printf("%e", s->frad[i]); 
+	   printf("\n");  
 	  
-	  /* printf("min_dist[%d] = ", i);  */
-	  /* rdpe_out_str (stdout, min_dist);  */
-	  /* printf("\n");  */
+	   printf("min_dist[%d] = ", i);  
+	   rdpe_out_str (stdout, min_dist);  
+	   printf("\n");  
 	}
       
     }
