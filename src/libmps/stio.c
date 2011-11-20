@@ -1033,7 +1033,7 @@ mps_parse_stream (mps_status * s, FILE * input_stream)
             }
           else if (input_option.flag == MPS_FLAG_FP)
             {
-              if (MPS_INPUT_CONFIG_IS_FP (s->input_config))
+              if (MPS_INPUT_CONFIG_IS_REAL (s->input_config))
                 s->input_config->structure = MPS_STRUCTURE_REAL_FP;
               else if (MPS_INPUT_CONFIG_IS_COMPLEX (s->input_config))
                 s->input_config->structure = MPS_STRUCTURE_COMPLEX_FP;
