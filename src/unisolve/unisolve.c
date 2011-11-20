@@ -13,6 +13,14 @@
 #include <stdio.h>
 #include <mps/core.h>
 #include <mps/interface.h>
+#include <mcheck.h>
+
+void
+abortfn (enum mcheck_status status)
+{
+  printf("Ok, ho beccato un error di memoria\n");
+  abort ();
+}
 
 /***********************************************************
  *                 MAIN                                    *
@@ -20,7 +28,7 @@
 int
 main (int argc, char *argv[])
 {
-
+  mcheck (abortfn);
   mps_status *s = mps_status_new ();
 
   /* Make stdout synchronous so the debugging is more

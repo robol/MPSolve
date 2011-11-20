@@ -42,7 +42,7 @@ mps_raise_parsing_error (mps_status * s, const char * token,
   if (!token)
     mps_error (s, 1, message);
 
-  char * output = (char *) malloc (sizeof (char) * (strlen (token) + strlen ("Parsing error near the token: ") + 1));
+  char * output = (char *) mps_malloc (sizeof (char) * (strlen (token) + strlen ("Parsing error near the token: ") + 1));
   sprintf (output, "Parsing error near the token: %s", token);
 
   mps_error (s, 2, output, message);
@@ -184,7 +184,7 @@ mps_parse_option_line (mps_status * s, char *line, size_t length)
       /* Make a copy of the option to parse it without
        * equal sign and anything after it */
       c_ptr = option;
-      option = (char *) malloc (sizeof (char) * (strlen (option) + 1));
+      option = (char *) mps_malloc (sizeof (char) * (strlen (option) + 1));
       strcpy (option, c_ptr);
       *strchr (option, '=') = '\0';
     }

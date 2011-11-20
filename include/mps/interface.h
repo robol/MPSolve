@@ -130,7 +130,10 @@ extern "C"
   void mps_standard_mpsolve (mps_status * s);
 
   /* functions in mps_interface.c */
-  mps_status *mps_status_new (void);
+  void * mps_malloc (size_t size);
+  void * mps_alloca (size_t size);
+  mps_status * mps_status_new (void);
+  void mps_status_init (mps_status * s);
   void mps_status_free (mps_status * s);
   int mps_status_set_poly_d (mps_status * s, cplx_t * coeff,
 			     long unsigned int n);

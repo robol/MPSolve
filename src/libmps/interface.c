@@ -31,6 +31,32 @@ mps_mpsolve (mps_status * s)
 }
 
 /**
+ * @brief Allocator for memory to be used in mpsolve.
+ */
+void *
+mps_malloc (size_t size)
+{
+  /* fprintf (stderr, "Allocating %lu bytes of memory\n", size); */
+  register void *value = malloc (size);
+  if (value == 0)
+    {
+      fprintf (stderr, "virtual memory exhausted");
+      exit (1);
+    }
+  return value;
+}
+
+/**
+ * @brief Allocate size bytes on the stack
+ */
+void *
+mps_alloca (size_t size)
+{
+  register void *value = alloca (size);
+  return value;
+}
+
+/**
  * @brief Select algorithm to use for computation.
  *
  * Valid values for this field are
@@ -104,16 +130,22 @@ mps_status *
 mps_status_new ()
 {
   /* Allocate the new mps_status and load default options */
-  mps_status * s = (mps_status*) malloc (sizeof (mps_status));
+  mps_status * s = (mps_status*) mps_malloc (sizeof (mps_status));
+  mps_status_init (s);
+  return s;
+}
 
+void
+mps_status_init (mps_status * s)
+{
   /* Set default streams */
   s->instr = stdin;
   s->outstr = stdout;
   s->logstr = stdout;
 
   /* Allocate space for the configurations */
-  s->input_config  = (mps_input_configuration  *) malloc (sizeof (mps_input_configuration));
-  s->output_config = (mps_output_configuration *) malloc (sizeof (mps_output_configuration));
+  s->input_config  = (mps_input_configuration  *) mps_malloc (sizeof (mps_input_configuration));
+  s->output_config = (mps_output_configuration *) mps_malloc (sizeof (mps_output_configuration));
 
   mps_set_default_values (s);
 
@@ -121,8 +153,6 @@ mps_status_new ()
   s->output_config->prec = (int) (0.9 * DBL_DIG * LOG2_10);
   MPS_DEBUG (s, "Setting prec_out to %ld digits", s->output_config->prec);
   s->input_config->prec = 0;
-
-  return s;
 }
 
 /**

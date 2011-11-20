@@ -6,7 +6,7 @@
 mps_monomial_poly *
 mps_monomial_poly_new (mps_status * s, long int degree)
 {
-  mps_monomial_poly  * mp = malloc (sizeof (mps_monomial_poly));
+  mps_monomial_poly  * mp = mps_malloc (sizeof (mps_monomial_poly));
   
   /* Set the degree of the polynomial */
   mp->n = degree;

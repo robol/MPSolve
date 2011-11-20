@@ -10,7 +10,7 @@ set_timeout (int timeout)
 }
 
 void
-starting_setup ()
+starting_setup (void)
 {
   /* Set a reasonable timeout to make the solving possible, but
    * preventing deadlocking of process out of control */

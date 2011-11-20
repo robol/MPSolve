@@ -12,7 +12,7 @@ mps_input_buffer_new (FILE * stream)
 {
   mps_input_buffer *buf;
   int i;
-  buf = (mps_input_buffer *) malloc (sizeof (mps_input_buffer));
+  buf = (mps_input_buffer *) mps_malloc (sizeof (mps_input_buffer));
 
   /* Set initial values */
   buf->stream = stream;
@@ -22,7 +22,7 @@ mps_input_buffer_new (FILE * stream)
   buf->history_size = MPS_INPUT_BUFFER_HISTORY_DEFAULT_SIZE;
 
   /* Allocate space for the lines kept in history */
-  buf->history = (char **) malloc (sizeof (char *) * buf->history_size);
+  buf->history = (char **) mps_malloc (sizeof (char *) * buf->history_size);
   for (i = 0; i < buf->history_size; ++i)
       buf->history[i] = NULL;
   buf->last = 0;
@@ -156,7 +156,7 @@ mps_input_buffer_next_token (mps_input_buffer * buf)
     }
 
   /* Allocate the space for the token if we have found it */
-  ret = (char *) malloc (sizeof (char) * (token_size + 1));
+  ret = (char *) mps_malloc (sizeof (char) * (token_size + 1));
   
   /* Copy the token in ret and set the NULL character in the end */
   strncpy (ret, token, token_size);

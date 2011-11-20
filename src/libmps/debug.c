@@ -36,7 +36,7 @@ clock_t *
 mps_start_timer ()
 {
   /* Create a new timer */
-  clock_t *my_clock = (clock_t *) malloc (sizeof (clock_t));
+  clock_t *my_clock = (clock_t *) mps_malloc (sizeof (clock_t));
 
   /* Get the time */
   (*my_clock) = clock ();

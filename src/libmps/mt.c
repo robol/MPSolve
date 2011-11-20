@@ -14,6 +14,7 @@
 #include <float.h>
 #include <limits.h>
 #include <mps/mt.h>
+#include <mps/interface.h>
 
 /***********************************************************
 **              machine dependent constants               **
@@ -128,7 +129,7 @@ char *
 cplx_get_str (char *s, const cplx_t x)
 /* output to string as (re , im) */
 {
-  if (s == NULL && (s = (char *) malloc (DEF_STR_SIZE)) == NULL)
+  if (s == NULL && (s = (char *) mps_malloc (DEF_STR_SIZE)) == NULL)
     return NULL;
   sprintf (s, CPLX_OUT_FMT, cplx_Re (x), cplx_Im (x));
   return s;
@@ -731,7 +732,7 @@ rdpe_get_str (char *s, const rdpe_t e)
   double d;
   long int l;
 
-  if (s == NULL && (s = (char *) malloc (DEF_STR_SIZE)) == NULL)
+  if (s == NULL && (s = (char *) mps_malloc (DEF_STR_SIZE)) == NULL)
     return NULL;
   rdpe_get_dl (&d, &l, e);
   sprintf (s, RDPE_OUT_FMT, d, l);
@@ -1716,7 +1717,7 @@ cdpe_get_str (char *s, const cdpe_t c)
   double dr, di;
   long int lr, li;
 
-  if (s == NULL && (s = (char *) malloc (DEF_STR_SIZE)) == NULL)
+  if (s == NULL && (s = (char *) mps_malloc (DEF_STR_SIZE)) == NULL)
     return NULL;
   rdpe_get_dl (&dr, &lr, cdpe_Re (c));
   rdpe_get_dl (&di, &li, cdpe_Im (c));

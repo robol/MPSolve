@@ -27,7 +27,8 @@ mps_thread_get_core_number (mps_status * s)
    * return 0                                    */
   if (!cpuinfo)
     {
-      MPS_DEBUG (s, "Found %d cores on this system", cores);
+      if (s->debug_level & MPS_DEBUG_MEMORY)
+	MPS_DEBUG (s, "Found %d cores on this system", cores);
       return cores;
     }
 
@@ -42,7 +43,8 @@ mps_thread_get_core_number (mps_status * s)
 
   fclose (cpuinfo);
 
-  MPS_DEBUG (s, "Found %d cores on this system", cores);
+  if (s->debug_level & MPS_DEBUG_MEMORY)
+    MPS_DEBUG (s, "Found %d cores on this system", cores);
   return cores;
 }
 
@@ -56,7 +58,7 @@ mps_thread_job_queue_new (mps_status * s)
 {
   /* Space allocation and related jobs */
   mps_thread_job_queue *q;
-  q = (mps_thread_job_queue *) malloc (sizeof (mps_thread_job_queue));
+  q = (mps_thread_job_queue *) mps_malloc (sizeof (mps_thread_job_queue));
   pthread_mutex_init (&q->mutex, NULL);
 
   /* Set initial data */
@@ -261,12 +263,12 @@ void
 mps_thread_fpolzer (mps_status * s, int *it, mps_boolean * excep)
 {
   int i, nzeros = 0, n_threads = s->n_threads;
-  pthread_t *threads = (pthread_t *) malloc (sizeof (pthread_t) * n_threads);
+  pthread_t *threads = (pthread_t *) mps_malloc (sizeof (pthread_t) * n_threads);
   mps_thread_worker_data *data;
   pthread_mutex_t *aberth_mutex =
-    (pthread_mutex_t *) malloc (sizeof (pthread_mutex_t) * s->n);
+    (pthread_mutex_t *) mps_malloc (sizeof (pthread_mutex_t) * s->n);
   pthread_mutex_t *roots_mutex =
-    (pthread_mutex_t *) malloc (sizeof (pthread_mutex_t) * s->n);
+    (pthread_mutex_t *) mps_malloc (sizeof (pthread_mutex_t) * s->n);
 
   for (i = 0; i < s->n; i++)
     {
@@ -290,8 +292,8 @@ mps_thread_fpolzer (mps_status * s, int *it, mps_boolean * excep)
       return;
     }
 
-  data = (mps_thread_worker_data *) malloc (sizeof (mps_thread_worker_data)
-                                            * n_threads);
+  data = (mps_thread_worker_data *) mps_malloc (sizeof (mps_thread_worker_data)
+						* n_threads);
 
   for (i = 0; i < n_threads; i++)
     {
@@ -453,18 +455,18 @@ mps_thread_dpolzer (mps_status * s, int *it, mps_boolean * excep)
     return;
 
   /* Allocate threads */
-  threads = (pthread_t *) malloc (sizeof (pthread_t) * s->n_threads);
+  threads = (pthread_t *) mps_malloc (sizeof (pthread_t) * s->n_threads);
 
   /* Prepare queue */
   mps_thread_job_queue *queue = mps_thread_job_queue_new (s);
 
   /* Allocate space for thread data */
-  data = (mps_thread_worker_data *) malloc (sizeof (mps_thread_worker_data)
+  data = (mps_thread_worker_data *) mps_malloc (sizeof (mps_thread_worker_data)
                                             * s->n_threads);
 
   /* Allocate mutexes and init them */
-  aberth_mutex = (pthread_mutex_t *) malloc (sizeof (pthread_mutex_t) * s->n);
-  roots_mutex = (pthread_mutex_t *) malloc (sizeof (pthread_mutex_t) * s->n);
+  aberth_mutex = (pthread_mutex_t *) mps_malloc (sizeof (pthread_mutex_t) * s->n);
+  roots_mutex = (pthread_mutex_t *) mps_malloc (sizeof (pthread_mutex_t) * s->n);
   for (i = 0; i < s->n; i++)
     {
       pthread_mutex_init (&aberth_mutex[i], NULL);
@@ -689,14 +691,14 @@ mps_thread_mpolzer (mps_status * s, int *it, mps_boolean * excep)
 
   MPS_DEBUG (s, "Spawning %d threads", n_threads);
 
-  pthread_t *threads = (pthread_t *) malloc (sizeof (pthread_t) * n_threads);
+  pthread_t *threads = (pthread_t *) mps_malloc (sizeof (pthread_t) * n_threads);
   mps_thread_worker_data *data;
 
   /* Allocate and the init mutexes needed by the routine */
   pthread_mutex_t *roots_mutex =
-    (pthread_mutex_t *) malloc (sizeof (pthread_mutex_t) * s->n);
+    (pthread_mutex_t *) mps_malloc (sizeof (pthread_mutex_t) * s->n);
   pthread_mutex_t *aberth_mutex =
-    (pthread_mutex_t *) malloc (sizeof (pthread_mutex_t) * s->n);
+    (pthread_mutex_t *) mps_malloc (sizeof (pthread_mutex_t) * s->n);
   pthread_mutex_t global_aberth_mutex = PTHREAD_MUTEX_INITIALIZER;
 
   for (i = 0; i < s->n; i++)
@@ -708,7 +710,7 @@ mps_thread_mpolzer (mps_status * s, int *it, mps_boolean * excep)
   /* Create a new work queue */
   mps_thread_job_queue *queue = mps_thread_job_queue_new (s);
 
-  data = (mps_thread_worker_data *) malloc (sizeof (mps_thread_worker_data)
+  data = (mps_thread_worker_data *) mps_malloc (sizeof (mps_thread_worker_data)
                                             * n_threads);
 
   /* Set data to be passed to every thread and actually spawn the threads. */

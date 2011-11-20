@@ -71,7 +71,7 @@ test_unisolve_on_pol (test_pol * pol)
   passed = true;
   for (i = 0; i < s->n; i++)
     {
-      rdpe_t rtmp;c
+      rdpe_t rtmp;
       cdpe_t cdtmp;
       rdpe_t min_dist;
 
@@ -124,6 +124,8 @@ test_unisolve_on_pol (test_pol * pol)
 	       "   => Polynomial file: %s;\n"
 	       "   => Required digits: %d\n", pol->pol_file,
 	       pol->out_digits);
+
+  return passed;
 }
 
 

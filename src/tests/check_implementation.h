@@ -37,7 +37,7 @@ extern "C"
     mps_boolean DOLOG;
   } test_pol;
 
-  void starting_setup ();
+  void starting_setup (void);
 
   void append_slash (char *dest);
 

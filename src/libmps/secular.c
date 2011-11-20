@@ -196,7 +196,7 @@ mps_secular_equation_new_raw (mps_status * s, unsigned long int n)
 {
   int i;
   mps_secular_equation *sec =
-    (mps_secular_equation *) malloc (sizeof (mps_secular_equation));
+    (mps_secular_equation *) mps_malloc (sizeof (mps_secular_equation));
 
   /* Allocate floating point coefficients */
   sec->afpc = cplx_valloc (n);

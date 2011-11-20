@@ -740,6 +740,11 @@ extern "C"
     long int mpwp_max;
 
     /**
+     * @brief Maximum precision reached during the computation.
+     */
+    long int data_prec_max;
+
+    /**
      * @brief stores the goal of the computation
      *
      * <code>goal</code> is an array of 5 chars with this meaning:

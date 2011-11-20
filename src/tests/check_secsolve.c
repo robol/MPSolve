@@ -26,7 +26,6 @@ test_pol **test_polynomials;
 int
 test_secsolve_on_pol (test_pol * pol)
 {
-  mps_secular_equation *sec;
   mps_status *s = mps_status_new ();
   FILE *input_stream;
   FILE *check_stream;
@@ -67,7 +66,6 @@ test_secsolve_on_pol (test_pol * pol)
 
   mps_parse_stream (s, input_stream);
 
-  sec = s->secular_equation;
   s->input_config->starting_phase = pol->phase;
   s->DOLOG = pol->DOLOG;
   if (pol->DOLOG)
@@ -167,6 +165,8 @@ test_secsolve_on_pol (test_pol * pol)
                "   => Starting phase: %s;\n", pol->pol_file, pol->out_digits,
                mps_boolean_to_string (pol->ga),
                (pol->phase == float_phase) ? "float_phase" : "dpe_phase");
+
+  return passed;
 }
 
 START_TEST (test_secsolve)

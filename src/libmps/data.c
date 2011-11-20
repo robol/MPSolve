@@ -13,8 +13,6 @@
 #include <mps/secular.h>
 #include <mps/debug.h>
 
-static long int data_prec_max = 0;
-
 /***********************************************************
  *           SUBROUTINE MP_SET_PREC                        *
  ***********************************************************
@@ -24,7 +22,7 @@ void
 mps_mp_set_prec (mps_status * s, long int prec)
 {
   s->mpwp = prec;
-  mpf_set_default_prec (prec);
+  // mpf_set_default_prec (prec);
   rdpe_set_2dl (s->mp_epsilon, 1.0, -prec + 1);
 }
 
@@ -61,7 +59,9 @@ mps_allocate_data (mps_status * s)
 
   s->mroot = mpc_valloc (s->deg);
   for (i = 0; i < s->deg; i++)
-    mpc_init2 (s->mroot[i], 0);
+    {
+      mpc_init2 (s->mroot[i], 0);
+    }
 
   /* s->fppc = cplx_valloc (s->deg + 1); */
   s->fppc1 = cplx_valloc (s->deg + 1);
@@ -80,7 +80,7 @@ mps_allocate_data (mps_status * s)
 
   s->mfpc2 = mpc_valloc ((s->deg + 1) * s->n_threads);
   for (i = 0; i < (s->deg + 1) * s->n_threads; i++)
-    mpc_init (s->mfpc2[i]);
+    mpc_init2 (s->mfpc2[i], 0);
 
   /* temporary vectors */
   s->spar1 = mps_boolean_valloc (s->deg + 2);
@@ -266,11 +266,11 @@ mps_prepare_data (mps_status * s, long int prec)
   if (s->debug_level & MPS_DEBUG_MEMORY)
     MPS_DEBUG (s, "Increasing working precision to %ld bits", prec);
 
-  if (prec > data_prec_max)
+  if (prec > s->data_prec_max)
     {
-      if (data_prec_max)
-        mps_raise_data_raw (s, data_prec_max);
-      data_prec_max = mps_raise_data (s, prec);
+      if (s->data_prec_max)
+        mps_raise_data_raw (s, s->data_prec_max);
+      s->data_prec_max = mps_raise_data (s, prec);
     }
   else
     {
@@ -292,10 +292,10 @@ void
 mps_restore_data (mps_status * s)
 {
   if (s->debug_level & MPS_DEBUG_MEMORY)
-    MPS_DEBUG (s, "Restore data to %ld bits", data_prec_max);
+    MPS_DEBUG (s, "Restore data to %ld bits", s->data_prec_max);
 
-  if (data_prec_max)
-    mps_raise_data_raw (s, data_prec_max);
+  if (s->data_prec_max)
+    mps_raise_data_raw (s, s->data_prec_max);
 }
 
 /********************************************************

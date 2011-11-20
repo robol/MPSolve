@@ -9,6 +9,15 @@
 #include <mps/secular.h>
 #include <mps/core.h>
 #include <string.h>
+#include <mcheck.h>
+
+void
+abortfn (enum mcheck_status status)
+{
+  printf("Ok, ho beccato un error di memoria\n");
+  abort ();
+}
+
 
 void
 usage (mps_status * s, const char *program)
@@ -53,6 +62,7 @@ usage (mps_status * s, const char *program)
 int
 main (int argc, char **argv)
 {
+  mcheck (abortfn);
   mps_status *s;
 
   /* Create a new status */

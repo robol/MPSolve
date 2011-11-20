@@ -61,7 +61,7 @@ mps_getopts (mps_opt ** opt_ptr, int *argc_ptr, char ***argv_ptr,
 
   if ((*opt_ptr) == NULL)
     {
-      (*opt_ptr) = (mps_opt *) malloc (sizeof (mps_opt));
+      (*opt_ptr) = (mps_opt *) mps_malloc (sizeof (mps_opt));
     }
 
   opt = *opt_ptr;

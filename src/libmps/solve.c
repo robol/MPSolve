@@ -2455,8 +2455,8 @@ mps_fsolve (mps_status * s, mps_boolean * d_after_f)
   for (iter = 0; iter < s->max_pack; iter++)
     {                           /* floop: */
 
-      /* mps_fpolzer(s, &nit, &excep); */
-      mps_thread_fpolzer (s, &nit, &excep);
+       mps_fpolzer(s, &nit, &excep); 
+       /* mps_thread_fpolzer (s, &nit, &excep); */
       it_pack += nit;
 
       if (s->DOLOG)
@@ -2835,8 +2835,8 @@ mps_dsolve (mps_status * s, mps_boolean d_after_f)
   for (iter = 0; iter < s->max_pack; iter++)
     {                           /* dloop : DO iter=1,s->max_pack */
 
-      /* mps_dpolzer(s, &nit, &excep); */
-      mps_thread_dpolzer (s, &nit, &excep);
+       mps_dpolzer(s, &nit, &excep); 
+      /* mps_thread_dpolzer (s, &nit, &excep); */
       it_pack += nit;
 
       MPS_DEBUG (s, "DPE packet completed in %d iterations", nit);
@@ -3020,7 +3020,7 @@ mps_msolve (mps_status * s)
           fprintf (s->logstr, "\n");
           fprintf (s->logstr, "  MSOLVE: call mpolzer\n");
         }
-       mps_mpolzer(s, &nit, &excep); 
+        mps_mpolzer(s, &nit, &excep);  
       /* mps_thread_mpolzer (s, &nit, &excep); */
 
       if (s->DOLOG)
