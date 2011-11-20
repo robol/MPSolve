@@ -105,11 +105,11 @@ mps_dtouchnwt (mps_status * s, int n, int i, int j)
 mps_boolean
 mps_mtouchnwt (mps_status * s, int n, int i, int j)
 {
-  tmpc_t mtmp;
+  mpc_t mtmp;
   cdpe_t ctmp;
   rdpe_t dtmp1, dtmp2;
 
-  tmpc_init2 (mtmp, s->mpwp);
+  mpc_init2 (mtmp, s->mpwp);
 
   rdpe_add (dtmp1, s->drad[i], s->drad[j]);
 
@@ -122,7 +122,7 @@ mps_mtouchnwt (mps_status * s, int n, int i, int j)
   mpc_get_cdpe (ctmp, mtmp);
   cdpe_mod (dtmp2, ctmp);
 
-  tmpc_clear (mtmp);
+  mpc_clear (mtmp);
 
   return rdpe_ge (dtmp1, dtmp2);
 }
@@ -253,16 +253,16 @@ mps_dtouchunit (mps_status * s, int n, int i)
 mps_boolean
 mps_mtouchunit (mps_status * s, int n, int i)
 {
-  tmpf_t mab;
+  mpf_t mab;
   rdpe_t ab, rad;
 
-  tmpf_init2 (mab, s->mpwp);
+  mpf_init2 (mab, s->mpwp);
 
   mpc_mod (mab, s->mroot[i]);
   mpf_sub_eq_ui (mab, 1);
   mpf_get_rdpe (ab, mab);
 
-  tmpf_clear (mab);
+  mpf_clear (mab);
 
   rdpe_mul_d (rad, s->drad[i], (double) n);
 

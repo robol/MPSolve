@@ -362,7 +362,6 @@ mps_secular_ga_miterate (mps_status * s, int maxit, mps_boolean just_regenerated
   int i, j, k;
   int nit = 0;
   int it_threshold;
-  int old_cr;
 
   mpc_t corr, abcorr;
   cdpe_t ctmp;
@@ -409,7 +408,6 @@ mps_secular_ga_miterate (mps_status * s, int maxit, mps_boolean just_regenerated
 
   /* Set the iteration threshold to two times the remaining roots
    * to compute. */
-  old_cr = computed_roots;
   it_threshold = 2 * (s->n - computed_roots);
 
   while (computed_roots < s->n && iterations < maxit)

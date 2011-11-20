@@ -305,8 +305,6 @@ mps_secular_ga_mpsolve (mps_status * s)
   mps_boolean just_regenerated = false;
   rdpe_t r_eps;
   mps_secular_equation *sec = mps_secular_equation_from_status (s);
-  mps_monomial_poly *poly = s->monomial_poly;
-  mps_phase phase = sec->starting_case;
 
   s->n_threads = 1;
 
@@ -357,8 +355,6 @@ mps_secular_ga_mpsolve (mps_status * s)
    * coefficients */
   if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
     {
-      int nit;
-      mps_boolean excep;
       mps_monomial_poly *p = s->monomial_poly;
 
       /* Check data first */
@@ -571,11 +567,11 @@ mps_secular_ga_mpsolve (mps_status * s)
 	}
     }
 
-  if (s->lastphase == mp_phase)
-    mps_restore_data (s);
+  /* if (s->lastphase == mp_phase) */
+  mps_restore_data (s); 
 
-  /* Finally copy the roots ready for output */
-  mps_copy_roots (s);
+  /* /\* Finally copy the roots ready for output *\/ */
+  mps_copy_roots (s); 
 
   /* Debug total time taken but only if debug is enabled */
 #ifndef DISABLE_DEBUG

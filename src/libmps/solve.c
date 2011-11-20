@@ -255,12 +255,12 @@ mps_msrad (mps_status * s, int i, mpc_t sc, rdpe_t sr)
   int j, l;
   rdpe_t rtmp;
   cdpe_t cdtmp;
-  tmpf_t ftmp, sum;
-  tmpc_t ctmp;
+  mpf_t ftmp, sum;
+  mpc_t ctmp;
 
-  tmpc_init2 (ctmp, s->mpwp);
-  tmpf_init2 (ftmp, s->mpwp);
-  tmpf_init2 (sum, s->mpwp);
+  mpc_init2 (ctmp, s->mpwp);
+  mpf_init2 (ftmp, s->mpwp);
+  mpf_init2 (sum, s->mpwp);
 
   mpf_set_ui (sum, 0);
   for (j = 0; j < s->punt[i + 1] - s->punt[i]; j++)
@@ -297,9 +297,9 @@ mps_msrad (mps_status * s, int i, mpc_t sc, rdpe_t sr)
 	}
     }
 
-  tmpf_clear (sum);
-  tmpf_clear (ftmp);
-  tmpc_clear (ctmp);
+  mpf_clear (sum);
+  mpf_clear (ftmp);
+  mpc_clear (ctmp);
 }
 
 /**
@@ -433,9 +433,12 @@ mps_fmodify (mps_status * s, mps_boolean track_new_cluster)
           afri = cplx_mod (s->froot[i]);
 	  
 	  /* Check if the root, even if clustered, is approximated */
-	     rdpe_set_d (rtmp, s->frad[l] / cplx_mod (s->froot[l]));     
-	     if (rdpe_le (rtmp, s->eps_out))     
-	       s->status[l][0] = 'o';     
+	  if (s->algorithm != MPS_ALGORITHM_STANDARD_MPSOLVE)
+	    {
+	      rdpe_set_d (rtmp, s->frad[l] / cplx_mod (s->froot[l]));     
+	      if (rdpe_le (rtmp, s->eps_out))     
+		s->status[l][0] = 'o';     
+	    }
 
           if (s->status[l][0] == 'x' && s->goal[0] == 'c')
             {
@@ -1020,12 +1023,15 @@ mps_dmodify (mps_status * s, mps_boolean track_new_cluster)
                       i1 = i_new + k;
 
 		      /* Check if the root, even if clustered, is approximated */
-		      rdpe_set (tmpr, s->drad[i1]);
-		      cdpe_mod (tmpr2, s->droot[i1]);
-		      rdpe_div_eq (tmpr, tmpr2);
-		      if (rdpe_le (tmpr, s->eps_out)) 
-			s->status[i1][0] = 'o'; 
-
+		      if (s->algorithm != MPS_ALGORITHM_STANDARD_MPSOLVE)
+			{
+			  rdpe_set (tmpr, s->drad[i1]);
+			  cdpe_mod (tmpr2, s->droot[i1]);
+			  rdpe_div_eq (tmpr, tmpr2);
+			  if (rdpe_le (tmpr, s->eps_out)) 
+			    s->status[i1][0] = 'o'; 
+			}
+			  
                       /* scan the entries of each new cluster
                        * set status[l][0]='i' if the cluster has multip=1
                        * and mark with 'c' those which are different from 'i'
@@ -1621,11 +1627,11 @@ mps_mmodify (mps_status * s, mps_boolean track_new_cluster)
   rdpe_t sr, tmpr, tmpr2;
   cdpe_t tmpc;
   mps_boolean tcr, tcr1;
-  tmpf_t tmpf;
-  tmpc_t sc;
+  mpf_t tmpf;
+  mpc_t sc;
 
-  tmpc_init2 (sc, s->mpwp);
-  tmpf_init2 (tmpf, s->mpwp);
+  mpc_init2 (sc, s->mpwp);
+  mpf_init2 (tmpf, s->mpwp);
 
   /* ==1==  Change into 'C' the components of status for old clusters */
   nf = 2 * s->n;                /* Isolation factor */
@@ -1661,11 +1667,14 @@ mps_mmodify (mps_status * s, mps_boolean track_new_cluster)
                       i1 = i_new + k;
 
 		      /* Check if the root, even if clustered, is approximated */
-		      rdpe_set (tmpr, s->drad[i1]);
-		      cdpe_mod (tmpr2, s->droot[i1]);
-		      rdpe_div_eq (tmpr, tmpr2);
-		      if (rdpe_le (tmpr, s->eps_out)) 
-			s->status[i1][0] = 'o'; 
+		      if (s->algorithm != MPS_ALGORITHM_STANDARD_MPSOLVE)
+			{
+			  rdpe_set (tmpr, s->drad[i1]);
+			  cdpe_mod (tmpr2, s->droot[i1]);
+			  rdpe_div_eq (tmpr, tmpr2);
+			  if (rdpe_le (tmpr, s->eps_out)) 
+			    s->status[i1][0] = 'o'; 
+			}
 
                                                 /*****************************************
 						 scan the entries of each new cluster set
@@ -2253,8 +2262,8 @@ mps_mmodify (mps_status * s, mps_boolean track_new_cluster)
         }
     }
 
-  tmpf_clear (tmpf);
-  tmpc_clear (sc);
+  mpf_clear (tmpf);
+  mpc_clear (sc);
 }
 
 /**
@@ -2938,7 +2947,6 @@ mps_msolve (mps_status * s)
   int iter, nit, oldnclust, i, j, it_pack;
   mps_boolean excep;
   int nzc;
-  mps_monomial_poly * p;
 
   /* == 1 == Initialize variables */
   it_pack = 0;
@@ -3012,8 +3020,8 @@ mps_msolve (mps_status * s)
           fprintf (s->logstr, "\n");
           fprintf (s->logstr, "  MSOLVE: call mpolzer\n");
         }
-      /* mps_mpolzer(s, &nit, &excep); */
-      mps_thread_mpolzer (s, &nit, &excep);
+       mps_mpolzer(s, &nit, &excep); 
+      /* mps_thread_mpolzer (s, &nit, &excep); */
 
       if (s->DOLOG)
         fprintf (s->logstr, "  MSOLVE: Packet %d: iterations= %d\n", iter,
@@ -3224,13 +3232,13 @@ void
 mps_mpolzer (mps_status * s, int *it, mps_boolean * excep)
 {
   int nzeros, i, j, iter, l;
-  tmpc_t corr, abcorr;
+  mpc_t corr, abcorr;
   rdpe_t eps, rad1, rtmp;
   cdpe_t ctmp;
   mps_monomial_poly * p = s->monomial_poly;
 
-  tmpc_init2 (abcorr, s->mpwp);
-  tmpc_init2 (corr, s->mpwp);
+  mpc_init2 (abcorr, s->mpwp);
+  mpc_init2 (corr, s->mpwp);
 
   rdpe_mul_d (eps, s->mp_epsilon, (double) 4 * s->n);
 
@@ -3323,6 +3331,6 @@ mps_mpolzer (mps_status * s, int *it, mps_boolean * excep)
   *excep = true;
 
 endfun:                        /* free local MP variables */
-  tmpc_clear (corr);
-  tmpc_clear (abcorr);
+  mpc_clear (corr);
+  mpc_clear (abcorr);
 }

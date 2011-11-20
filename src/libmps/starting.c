@@ -842,8 +842,8 @@ mps_mstart (mps_status * s, int n, int i_clust, rdpe_t clust_rad,
 {
 
   int i, j, jj, iold, l, nzeros;
-  double sigma, ang, th, temp;
-  rdpe_t r, big, small, rtmp1, rtmp2;
+  double sigma, ang, th;
+  rdpe_t big, small, rtmp1, rtmp2;
   cdpe_t ctmp;
   mpc_t mtmp;
   mps_boolean need_recomputing = true;
@@ -870,7 +870,6 @@ mps_mstart (mps_status * s, int n, int i_clust, rdpe_t clust_rad,
     }
 
   nzeros = 0;
-  temp = 0.0;
 
   /* Continue to cycle while clusters are _real clusters_,
    * because until now we have detached roots that were not
@@ -1364,8 +1363,8 @@ mps_mrestart (mps_status * s)
   int i, j, k, l, jj;
   rdpe_t sr, rad, rtmp, rtmp1, rtmp2;
   cdpe_t tmp;
-  tmpf_t rea, srmp;
-  tmpc_t sc, corr, temp;
+  mpf_t rea, srmp;
+  mpc_t sc, corr, temp;
   mpc_t g;
   mps_monomial_poly* p = s->monomial_poly;
 
@@ -1373,11 +1372,11 @@ mps_mrestart (mps_status * s)
   if (s->data_type[0] == 'u')
     return;
 
-  tmpf_init2 (rea, s->mpwp);
-  tmpf_init2 (srmp, s->mpwp);
-  tmpc_init2 (sc, s->mpwp);
-  tmpc_init2 (corr, s->mpwp);
-  tmpc_init2 (temp, s->mpwp);
+  mpf_init2 (rea, s->mpwp);
+  mpf_init2 (srmp, s->mpwp);
+  mpc_init2 (sc, s->mpwp);
+  mpc_init2 (corr, s->mpwp);
+  mpc_init2 (temp, s->mpwp);
   mpc_init2 (g, s->mpwp);
 
   k = 0;
@@ -1593,11 +1592,11 @@ mps_mrestart (mps_status * s)
     }
 
   mpc_clear (g);
-  tmpc_clear (temp);
-  tmpc_clear (corr);
-  tmpc_clear (sc);
-  tmpf_clear (srmp);
-  tmpf_clear (rea);
+  mpc_clear (temp);
+  mpc_clear (corr);
+  mpc_clear (sc);
+  mpf_clear (srmp);
+  mpf_clear (rea);
 }
 
 /**************************************************************
@@ -1617,13 +1616,11 @@ mps_fshift (mps_status * s, int m, int i_clust, double clust_rad,
             cplx_t g, rdpe_t eps)
 {
   int i, j;
-  double prec, ag;
+  double ag;
   cplx_t t;
   mps_monomial_poly *p = s->monomial_poly;
 
   /* Perform divisions */
-
-  prec = DBL_EPSILON;
   ag = cplx_mod (g);
   for (i = 0; i <= s->n; i++)
     cplx_set (s->fppc1[i], p->fpc[i]);
@@ -1659,11 +1656,10 @@ mps_dshift (mps_status * s, int m, int i_clust, rdpe_t clust_rad,
             cdpe_t g, rdpe_t eps)
 {
   int i, j;
-  rdpe_t prec, ag;
+  rdpe_t ag;
   cdpe_t t;
-  mps_monomial_poly *p;
+  mps_monomial_poly * p = s->monomial_poly;
 
-  rdpe_set_d (prec, DBL_EPSILON);
   cdpe_mod (ag, g);
   for (i = 0; i <= s->n; i++)
     cdpe_set (s->dpc1[i], p->dpc[i]);
@@ -1861,17 +1857,17 @@ mps_mnewtis (mps_status * s)
   int i, j, k, l, jj;
   rdpe_t sr, rtmp, rtmp1;
   cdpe_t tmp;
-  tmpf_t rea, srmp;
-  tmpc_t sc, temp;
+  mpf_t rea, srmp;
+  mpc_t sc, temp;
   rdpe_t rtmp2;
 
   /* For user's polynomials skip the restart stage (not yet implemented) */
   if (s->data_type[0] == 'u')
     return;
-  tmpf_init2 (rea, s->mpwp);
-  tmpf_init2 (srmp, s->mpwp);
-  tmpc_init2 (sc, s->mpwp);
-  tmpc_init2 (temp, s->mpwp);
+  mpf_init2 (rea, s->mpwp);
+  mpf_init2 (srmp, s->mpwp);
+  mpc_init2 (sc, s->mpwp);
+  mpc_init2 (temp, s->mpwp);
 
   k = 0;
   for (i = 0; i < s->nclust; i++)
@@ -1986,8 +1982,8 @@ mps_mnewtis (mps_status * s)
       ;
     }
 
-  tmpc_clear (temp);
-  tmpc_clear (sc);
-  tmpf_clear (srmp);
-  tmpf_clear (rea);
+  mpc_clear (temp);
+  mpc_clear (sc);
+  mpf_clear (srmp);
+  mpf_clear (rea);
 }

@@ -38,7 +38,6 @@ extern "C"
 #include <mps/gmptools.h>
 #include <mps/mpc.h>
 #include <mps/link.h>
-#include <mps/mptemp.h>
 #include <mps/debug.h>
 
 /* Interface should be a subset of core, so what is defined

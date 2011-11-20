@@ -71,9 +71,9 @@ mps_maberth (mps_status * s, int j, mpc_t abcorr)
 {
   int i;
   cdpe_t z, temp;
-  tmpc_t diff;
+  mpc_t diff;
 
-  tmpc_init2 (diff, s->mpwp);
+  mpc_init2 (diff, s->mpwp);
 
   cdpe_set (temp, cdpe_zero);
   for (i = 0; i < s->n; i++)
@@ -87,7 +87,7 @@ mps_maberth (mps_status * s, int j, mpc_t abcorr)
     }
   mpc_set_cdpe (abcorr, temp);
 
-  tmpc_clear (diff);
+  mpc_clear (diff);
 }
 
 /**
@@ -146,9 +146,9 @@ mps_maberth_s (mps_status * s, int j, int jc, mpc_t abcorr)
 {
   int i, k;
   cdpe_t z, temp;
-  tmpc_t diff;
+  mpc_t diff;
 
-  tmpc_init2 (diff, s->mpwp);
+  mpc_init2 (diff, s->mpwp);
 
   cdpe_set (temp, cdpe_zero);
   for (i = s->punt[jc]; i < s->punt[jc + 1]; i++)
@@ -163,7 +163,7 @@ mps_maberth_s (mps_status * s, int j, int jc, mpc_t abcorr)
     }
   mpc_set_cdpe (abcorr, temp);
 
-  tmpc_clear (diff);
+  mpc_clear (diff);
 }
 
 void
@@ -172,9 +172,9 @@ mps_maberth_s_wl (mps_status * s, int j, int jc, mpc_t abcorr,
 {
   int i, k;
   cdpe_t z, temp;
-  tmpc_t diff;
+  mpc_t diff;
 
-  tmpc_init2 (diff, s->mpwp);
+  mpc_init2 (diff, s->mpwp);
 
   cdpe_set (temp, cdpe_zero);
   for (i = s->punt[jc]; i < s->punt[jc + 1]; i++)
@@ -194,6 +194,6 @@ mps_maberth_s_wl (mps_status * s, int j, int jc, mpc_t abcorr,
     }
   mpc_set_cdpe (abcorr, temp);
 
-  tmpc_clear (diff);
+  mpc_clear (diff);
 
 }

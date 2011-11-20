@@ -58,8 +58,8 @@ mps_improve (mps_status * s)
 {
   int i, j, k, m;
   long mpnb_in, mpnb_out;
-  tmpc_t mtmp;
-  tmpc_t nwtcorr;
+  mpc_t mtmp;
+  mpc_t nwtcorr;
   cdpe_t ctmp;
   rdpe_t tmp, t, st, sigma, newrad, oldrad, abroot;
   double f, g, cnd;
@@ -90,9 +90,9 @@ mps_improve (mps_status * s)
   if (mpnb_in != 0)
     mps_mp_set_prec (s, mpnb_in);
 
-  /* tmpc_init2(mtmp, mpwp); *//* puo' essere settato a precisione minima */
-  tmpc_init2 (mtmp, mpnb_out * 2);      /* puo' essere settato a precisione minima */
-  tmpc_init2 (nwtcorr, mpnb_out * 2);
+  /* mpc_init2(mtmp, mpwp); *//* puo' essere settato a precisione minima */
+  mpc_init2 (mtmp, mpnb_out * 2);      /* puo' essere settato a precisione minima */
+  mpc_init2 (nwtcorr, mpnb_out * 2);
 
   if (s->input_config->prec != 0 && s->data_type[0] != 'u')
     mps_prepare_data (s, mpnb_in);
@@ -185,8 +185,8 @@ mps_improve (mps_status * s)
           if (s->mpwp >= mpnb_in && mpnb_in != 0)
             s->mpwp = mpnb_in;
 
-          tmpc_clear (nwtcorr);
-          tmpc_init2 (nwtcorr, s->mpwp);
+          mpc_clear (nwtcorr);
+          mpc_init2 (nwtcorr, s->mpwp);
 
           mps_mp_set_prec (s, s->mpwp);
 
@@ -234,8 +234,8 @@ mps_improve (mps_status * s)
       s->rootwp[i] = mpc_get_prec (s->mroot[i]);
     }
 
-  tmpc_clear (nwtcorr);
-  tmpc_clear (mtmp);
+  mpc_clear (nwtcorr);
+  mpc_clear (mtmp);
 
   long improve_time = mps_stop_timer (my_timer);
   if (s->debug_level & MPS_DEBUG_TIMINGS)

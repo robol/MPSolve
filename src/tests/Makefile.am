@@ -1,18 +1,23 @@
 TESTS = $(CHECK_PROGRAMS)
 check_PROGRAMS = $(CHECK_PROGRAMS)
-EXTRA_PROGRAMS = check_dpe check_unisolve check_secsolve
+EXTRA_PROGRAMS = test_mpsolve
 
-check_secsolve_SOURCES = check_secsolve.c check_implementation.c check_implementation.h
-check_secsolve_CFLAGS = $(CHECK_CFLAGS) -I${top_srcdir}/include
-check_secsolve_LDFLAGS = -L${top_builddir}/src/libmps -lmps -lm -lgmp -lcheck
+# check_secsolve_SOURCES = check_secsolve.c check_implementation.c check_implementation.h
+# check_secsolve_CFLAGS = $(CHECK_CFLAGS) -I${top_srcdir}/include
+# check_secsolve_LDFLAGS = -L${top_builddir}/src/libmps -lmps -lm -lgmp -lcheck
 
-check_unisolve_SOURCES = check_unisolve.c check_implementation.c check_implementation.h
-check_unisolve_CFLAGS = $(CHECK_CFLAGS) -I${top_srcdir}/include
-check_unisolve_LDFLAGS = -L${top_builddir}/src/libmps -lmps -lm -lgmp -lcheck
+# check_unisolve_SOURCES = check_unisolve.c check_implementation.c check_implementation.h
+# check_unisolve_CFLAGS = $(CHECK_CFLAGS) -I${top_srcdir}/include
+# check_unisolve_LDFLAGS = -L${top_builddir}/src/libmps -lmps -lm -lgmp -lcheck
 
-check_dpe_SOURCES = check_dpe.c check_implementation.c check_implementation.h
-check_dpe_CFLAGS = $(CHECK_CFLAGS) -I${top_srcdir}/include
-check_dpe_LDFLAGS = -L${top_builddir}/src/libmps -lmps -lm -lgmp -lcheck
+# check_dpe_SOURCES = check_dpe.c check_implementation.c check_implementation.h
+# check_dpe_CFLAGS = $(CHECK_CFLAGS) -I${top_srcdir}/include
+# check_dpe_LDFLAGS = -L${top_builddir}/src/libmps -lmps -lm -lgmp -lcheck
+
+test_mpsolve_SOURCES = test_mpsolve.c
+test_mpsolve_CFLAGS = ${CHECK_CFLAGS} -I${top_srcdir}/include
+test_mpsolve_LDFLAGS = -L${top_builddir}/src/libmps -lmps -lm -lgmp
+
 
 EXTRA_DIST = \
 	secsolve/rand15.pol \

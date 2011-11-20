@@ -30,7 +30,7 @@ extern "C"
 #include <time.h>
 
   /* Timer functions */
-  clock_t *mps_start_timer ();
+  clock_t * mps_start_timer (void);
   unsigned long int mps_stop_timer (clock_t * my_timer);
 
   /* Keep away assert() when compiling without debug */

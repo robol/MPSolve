@@ -27,9 +27,6 @@ main (int argc, char *argv[])
    * effective. */
   setvbuf (stdout, NULL, _IONBF, 0);
 
-  /* Set default values in s */
-  mps_set_default_values (s);
-
   /* set default goal */
   strncpy (s->goal, "iannc", 5);
 

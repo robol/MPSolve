@@ -8,7 +8,6 @@ include_HEADERS = \
         ${top_srcdir}/include/mps/interface.h \
         ${top_srcdir}/include/mps/gmptools.h \
         ${top_srcdir}/include/mps/mpc.h \
-        ${top_srcdir}/include/mps/mptemp.h \
         ${top_srcdir}/include/mps/debug.h \
         ${top_srcdir}/include/mps/mt.h \
         ${top_srcdir}/include/mps/link.h \
@@ -32,7 +31,6 @@ libmps_la_SOURCES = \
 	 main.c \
 	 data.c \
 	 cluster.c \
-	 mptemp.c \
 	 stio.c \
 	 debug.c \
 	 gmptools.c \

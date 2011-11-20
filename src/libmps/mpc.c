@@ -8,7 +8,6 @@
 
 #include <stdlib.h>
 #include <mps/mpc.h>
-#include <mps/mptemp.h>
 #include <mps/gmptools.h>
 
 /***********************************************************
@@ -189,28 +188,28 @@ mpc_neg (mpc_t rc, mpc_t c)
 void
 mpc_smod (mpf_t f, mpc_t c)
 {
-  tmpf_t t;
-  tmpf_init2 (t, mpf_get_prec (f));
+  mpf_t t;
+  mpf_init2 (t, mpf_get_prec (f));
 
   mpf_mul (f, mpc_Re (c), mpc_Re (c));
   mpf_mul (t, mpc_Im (c), mpc_Im (c));
   mpf_add (f, f, t);
 
-  tmpf_clear (t);
+  mpf_clear (t);
 }
 
 void
 mpc_mod (mpf_t f, mpc_t c)
 {
-  tmpf_t t;
-  tmpf_init2 (t, mpf_get_prec (f));
+  mpf_t t;
+  mpf_init2 (t, mpf_get_prec (f));
 
   mpf_mul (f, mpc_Re (c), mpc_Re (c));
   mpf_mul (t, mpc_Im (c), mpc_Im (c));
   mpf_add (f, f, t);
   mpf_sqrt (f, f);
 
-  tmpf_clear (t);
+  mpf_clear (t);
 }
 
 void
@@ -223,22 +222,22 @@ mpc_con (mpc_t rc, mpc_t c)
 void
 mpc_inv (mpc_t rc, mpc_t c)
 {
-  tmpf_t f;
-  tmpf_init2 (f, mpf_get_prec (mpc_Re (rc)));
+  mpf_t f;
+  mpf_init2 (f, mpf_get_prec (mpc_Re (rc)));
 
   mpc_smod (f, c);
   mpc_con (rc, c);
   mpf_div (mpc_Re (rc), mpc_Re (rc), f);
   mpf_div (mpc_Im (rc), mpc_Im (rc), f);
 
-  tmpf_clear (f);
+  mpf_clear (f);
 }
 
 void
 mpc_inv2 (mpc_t rc, mpc_t c)
 {
-  tmpf_t f;
-  tmpf_init2 (f, mpf_get_prec (mpc_Re (rc)));
+  mpf_t f;
+  mpf_init2 (f, mpf_get_prec (mpc_Re (rc)));
 
   mpc_smod (f, c);
   mpf_ui_div (f, 1L, f);
@@ -246,14 +245,14 @@ mpc_inv2 (mpc_t rc, mpc_t c)
   mpf_mul (mpc_Re (rc), mpc_Re (rc), f);
   mpf_mul (mpc_Im (rc), mpc_Im (rc), f);
 
-  tmpf_clear (f);
+  mpf_clear (f);
 }
 
 void
 mpc_sqr (mpc_t rc, mpc_t c)
 {
-  tmpf_t f;
-  tmpf_init2 (f, mpf_get_prec (mpc_Re (rc)));
+  mpf_t f;
+  mpf_init2 (f, mpf_get_prec (mpc_Re (rc)));
 
   mpf_mul (f, mpc_Re (c), mpc_Im (c));
   mpf_mul (mpc_Re (rc), mpc_Re (c), mpc_Re (c));
@@ -262,34 +261,34 @@ mpc_sqr (mpc_t rc, mpc_t c)
   mpf_sub (mpc_Re (rc), mpc_Re (rc), mpc_Im (rc));
   mpf_mul_2exp (mpc_Im (rc), f, 1);
 
-  tmpf_clear (f);
+  mpf_clear (f);
 }
 
 void
 mpc_rot (mpc_t rc, mpc_t c)
 {
-  tmpf_t f;
-  tmpf_init2 (f, mpf_get_prec (mpc_Re (rc)));
+  mpf_t f;
+  mpf_init2 (f, mpf_get_prec (mpc_Re (rc)));
 
   mpf_set (f, mpc_Re (c));
   mpf_set (mpc_Re (rc), mpc_Im (c));
   mpf_set (mpc_Im (rc), f);
   mpf_neg (mpc_Re (rc), mpc_Re (rc));
 
-  tmpf_clear (f);
+  mpf_clear (f);
 }
 
 void
 mpc_flip (mpc_t rc, mpc_t c)
 {
-  tmpf_t f;
-  tmpf_init2 (f, mpf_get_prec (mpc_Re (rc)));
+  mpf_t f;
+  mpf_init2 (f, mpf_get_prec (mpc_Re (rc)));
 
   mpf_set (f, mpc_Re (c));
   mpf_set (mpc_Re (rc), mpc_Im (c));
   mpf_set (mpc_Im (rc), f);
 
-  tmpf_clear (f);
+  mpf_clear (f);
 }
 
 /* binary functions */
@@ -349,13 +348,13 @@ mpc_ui_sub (mpc_t rc, unsigned long int r, unsigned long int i, mpc_t c)
 void
 mpc_mul (mpc_t rc, mpc_t c1, mpc_t c2)
 {
-  tmpf_t s1, s2, s3;
+  mpf_t s1, s2, s3;
   unsigned long int i;
 
   i = mpf_get_prec (mpc_Re (rc));
-  tmpf_init2 (s1, i);
-  tmpf_init2 (s2, i);
-  tmpf_init2 (s3, i);
+  mpf_init2 (s1, i);
+  mpf_init2 (s2, i);
+  mpf_init2 (s3, i);
 
   mpf_set (s1, mpc_Re (c1));
   mpf_sub (s1, s1, mpc_Im (c1));
@@ -368,9 +367,9 @@ mpc_mul (mpc_t rc, mpc_t c1, mpc_t c2)
   mpf_add (mpc_Re (rc), mpc_Re (rc), s3);
   mpf_add (mpc_Im (rc), s2, s3);
 
-  tmpf_clear (s3);
-  tmpf_clear (s2);
-  tmpf_clear (s1);
+  mpf_clear (s3);
+  mpf_clear (s2);
+  mpf_clear (s1);
 }
 
 void
@@ -397,13 +396,13 @@ mpc_mul_2exp (mpc_t rc, mpc_t c, unsigned long int i)
 void
 mpc_div (mpc_t rc, mpc_t c1, mpc_t c2)
 {
-  tmpc_t t;
-  tmpc_init2 (t, mpf_get_prec (mpc_Re (rc)));
+  mpc_t t;
+  mpc_init2 (t, mpf_get_prec (mpc_Re (rc)));
 
   mpc_inv (t, c2);
   mpc_mul (rc, c1, t);
 
-  tmpc_clear (t);
+  mpc_clear (t);
 }
 
 void
@@ -416,13 +415,13 @@ mpc_div_f (mpc_t rc, mpc_t c, mpf_t f)
 void
 mpc_f_div (mpc_t rc, mpf_t f, mpc_t c)
 {
-  tmpc_t t;
-  tmpc_init2 (t, mpf_get_prec (mpc_Re (rc)));
+  mpc_t t;
+  mpc_init2 (t, mpf_get_prec (mpc_Re (rc)));
 
   mpc_inv (t, c);
   mpc_mul_f (rc, t, f);
 
-  tmpc_clear (t);
+  mpc_clear (t);
 }
 
 void
@@ -450,8 +449,8 @@ void
 mpc_pow_si (mpc_t rc, mpc_t c, register signed long int i)
 /* rc = c^i, i integer */
 {
-  tmpc_t t;
-  tmpc_init2 (t, mpf_get_prec (mpc_Re (rc)));
+  mpc_t t;
+  mpc_init2 (t, mpf_get_prec (mpc_Re (rc)));
 
   mpc_set (t, c);
   if (i < 0)
@@ -473,7 +472,7 @@ mpc_pow_si (mpc_t rc, mpc_t c, register signed long int i)
       i >>= 1;                  /* divide i by 2 */
     }
 
-  tmpc_clear (t);
+  mpc_clear (t);
 }
 
 /* op= style functions */

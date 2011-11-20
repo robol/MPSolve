@@ -53,10 +53,7 @@ usage (mps_status * s, const char *program)
 int
 main (int argc, char **argv)
 {
-  mps_secular_equation *sec;
-  mps_monomial_poly *poly;
   mps_status *s;
-  int i;
 
   /* Create a new status */
   s = mps_status_new ();
@@ -125,7 +122,7 @@ main (int argc, char **argv)
           if (!opt->optvalue)
             {
               /* If no specific debug domain has been specified, trace. */
-              s->debug_level != MPS_DEBUG_TRACE;
+              s->debug_level |= MPS_DEBUG_TRACE;
               break;
             }
 
@@ -207,10 +204,6 @@ main (int argc, char **argv)
   /* Parse the input stream and if a polynomial is given as output, 
    * allocate also a secular equation to be used in regeneration */
   mps_parse_stream (s, infile);
-
-  /* Set polynomial and secular equation into the mps_status */
-  sec = s->secular_equation;
-  poly = s->monomial_poly;
 
   /* Close the file if it's not stdin */
   if (argc == 2)

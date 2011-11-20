@@ -74,7 +74,7 @@ mps_cluster_reset (mps_status * s)
 void
 mps_fcluster (mps_status * s, int nf)
 {
-  int incr, i, j, itemp, k, kk;
+  int incr, i, j, itemp;
 
   incr = 0;
   s->nclust = 0;
@@ -203,7 +203,7 @@ mps_debug_cluster_structure (mps_status * s)
 void
 mps_xcluster (mps_status * s, int n, int nf, int *nclust)
 {
-  int incr, i, j, itemp, k, kk;
+  int incr, i, j, itemp;
 
   incr = 0;
   *(nclust) = 0;
@@ -314,7 +314,7 @@ mps_cluster_detach (mps_status * s, int i_clust)
 
   int i, ind, n_aux, j;
   rdpe_t precision, rtmp;
-  tmpf_t ftmp;
+  mpf_t ftmp;
 
   if (s->debug_level & MPS_DEBUG_CLUSTER)
     {
@@ -322,7 +322,7 @@ mps_cluster_detach (mps_status * s, int i_clust)
       mps_debug_cluster_structure (s);
     }
 
-  tmpf_init2 (ftmp, s->mpwp);
+  mpf_init2 (ftmp, s->mpwp);
 
   /* Reset the s->clust_detached vector */
   if (i_clust == MPS_ALL_CLUSTERS)
@@ -414,7 +414,7 @@ mps_cluster_detach (mps_status * s, int i_clust)
         }
     }
 
-  tmpf_clear (ftmp);
+  mpf_clear (ftmp);
 
   if (s->debug_level & MPS_DEBUG_CLUSTER)
     {
@@ -431,7 +431,7 @@ mps_cluster_reassemble (mps_status * s, int i_clust)
 {
   MPS_DEBUG_THIS_CALL;
 
-  int i, l, j, old_nclust, k;
+  int i, l, j;
 
   if (s->debug_level & MPS_DEBUG_CLUSTER)
     {

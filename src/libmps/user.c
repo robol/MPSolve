@@ -142,12 +142,12 @@ mps_mnewton_usr (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
   int i, m;
   rdpe_t ap, ax, eps, temp, apeps, atmp;
   cdpe_t ctmp;
-  tmpc_t p, pp, pt, tmp;
+  mpc_t p, pp, pt, tmp;
 
-  tmpc_init2 (p, s->mpwp);
-  tmpc_init2 (pp, s->mpwp);
-  tmpc_init2 (pt, s->mpwp);
-  tmpc_init2 (tmp, s->mpwp);
+  mpc_init2 (p, s->mpwp);
+  mpc_init2 (pp, s->mpwp);
+  mpc_init2 (pt, s->mpwp);
+  mpc_init2 (tmp, s->mpwp);
 
   m = (int) (log (s->n + 1.0) / LOG2);
   if ((1 << m) <= s->n)
@@ -192,8 +192,8 @@ mps_mnewton_usr (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
   if (rdpe_eq (rad, rdpe_zero))
     rdpe_mul (rad, ax, eps);
 
-  tmpc_clear (tmp);
-  tmpc_clear (pt);
-  tmpc_clear (pp);
-  tmpc_clear (p);
+  mpc_clear (tmp);
+  mpc_clear (pt);
+  mpc_clear (pp);
+  mpc_clear (p);
 }

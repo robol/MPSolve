@@ -267,8 +267,8 @@ mps_setup (mps_status * s)
 {
   int i;
   mps_monomial_poly *p = s->monomial_poly;
-  tmpf_t mptemp;
-  tmpc_t mptempc;
+  mpf_t mptemp;
+  mpc_t mptempc;
 
   if (s->DOLOG)
     {
@@ -337,8 +337,8 @@ mps_setup (mps_status * s)
     return;                     /* nothing to do */
 
   /* init temporary mp variables */
-  tmpf_init2 (mptemp, DBL_MANT_DIG);
-  tmpc_init2 (mptempc, DBL_MANT_DIG);
+  mpf_init2 (mptemp, DBL_MANT_DIG);
+  mpc_init2 (mptempc, DBL_MANT_DIG);
 
   /* main loop */
   s->skip_float = false;
@@ -416,8 +416,8 @@ mps_setup (mps_status * s)
     }                           /* for */
 
   /* free temporary mp variables */
-  tmpf_clear (mptemp);
-  tmpc_clear (mptempc);
+  mpf_clear (mptemp);
+  mpc_clear (mptempc);
 
   /* adjust input data type */
   if (s->data_type[2] == 'f' && s->skip_float)

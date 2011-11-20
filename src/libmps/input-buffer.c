@@ -76,7 +76,7 @@ int
 mps_input_buffer_readline (mps_input_buffer * buf)
 {
   int read_chars = 0;
-  ssize_t length;
+  size_t length;
   int new_pos;
 
   /* Move the old line in the buffer, if it's not NULL */
@@ -121,7 +121,6 @@ mps_input_buffer_next_token (mps_input_buffer * buf)
   char * token = NULL;
   char * ret;
   size_t token_size = 0;
-  char * last_char;
 
   if (!buf->line)
     {

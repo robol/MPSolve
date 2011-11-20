@@ -47,6 +47,8 @@ mps_secular_dump (mps_status * s, mps_secular_equation * sec)
 	  MPS_DEBUG_MPC (s, 20, sec->bmpc[i], "sec->bmpc[%d]", i);
 	}
       break;
+    default:
+      break;
     }
 }
 
@@ -386,7 +388,6 @@ mps_secular_check_data (mps_status * s, char *which_case)
   /* While we can't found a good criterion to check
    * the possibility to start in pure floating point we
    * use the DPE version. */
-  mps_secular_equation *sec = (mps_secular_equation *) s->secular_equation;
   *which_case = (s->input_config->starting_phase == float_phase) ? 'f' : 'd';
 }
 

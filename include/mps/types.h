@@ -310,12 +310,15 @@ extern "C"
     /**
      * @brief Desired output format.
      *
-     * Could be one of
+     * Can be one of:
+     * @code
      *  MPS_OUTPUT_FORMAT_BARE
      *  MPS_OUTPUT_FORMAT_GNUPLOT
+     *  MPS_OUTPUT_FORMAT_GNUPLOT_FULL
      *  MPS_OUTPUT_FORMAT_COMPACT
      *  MPS_OUTPUT_FORMAT_VERBOSE
      *  MPS_OUTPUT_FORMAT_FULL
+     * @endcode
      */
     mps_output_format format;
 

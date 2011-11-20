@@ -202,7 +202,7 @@ mps_monomial_poly_read_from_stream (mps_status * s,
 				    mps_input_buffer * buffer)
 {
   mps_monomial_poly * poly;
-  int i, r;
+  int i;
   mpf_t ftmp;
   char * token;
 
@@ -362,7 +362,7 @@ mps_secular_equation_read_from_stream (mps_status * s,
                                        mps_input_buffer * buffer)
 {
   mps_secular_equation *sec;
-  int i, r;
+  int i;
   mpf_t ftmp;
   char * token;
 
@@ -925,8 +925,6 @@ mps_parse_stream (mps_status * s, FILE * input_stream)
   mps_boolean parsing_options = true;
   mps_input_buffer *buffer;
   mps_input_option input_option;
-  int i;
-  ssize_t length;
   char * line;
   mps_boolean first_pass = true;
 
@@ -1157,21 +1155,21 @@ void
 mps_outfloat (mps_status * s, mpf_t f, rdpe_t rad, long out_digit,
               mps_boolean sign)
 {
-  tmpf_t t;
+  mpf_t t;
   rdpe_t r, ro;
   double d;
   long l, digit, true_digit;
 
   if (s->output_config->format == MPS_OUTPUT_FORMAT_FULL)
     {
-      tmpf_init2 (t, mpf_get_prec (f));
+      mpf_init2 (t, mpf_get_prec (f));
       mpf_set (t, f);
       mpf_out_str (s->outstr, 10, 0, t);
-      tmpf_clear (t);
+      mpf_clear (t);
       return;
     }
 
-  tmpf_init2 (t, s->output_config->prec);
+  mpf_init2 (t, s->output_config->prec);
 
   mpf_get_rdpe (ro, f);
   if (s->output_config->format == MPS_OUTPUT_FORMAT_GNUPLOT ||
@@ -1203,7 +1201,7 @@ mps_outfloat (mps_status * s, mpf_t f, rdpe_t rad, long out_digit,
         }
     }
 
-  tmpf_clear (t);
+  mpf_clear (t);
 }
 
 /*********************************************************
@@ -1227,6 +1225,8 @@ mps_outroot (mps_status * s, int i)
       break;
     case MPS_OUTPUT_FORMAT_VERBOSE:
       fprintf (s->outstr, "Root(%d) = ", num);
+      break;
+    default:
       break;
     }
 
@@ -1256,6 +1256,8 @@ mps_outroot (mps_status * s, int i)
       else
         fprintf (s->outstr, " - I * ");
       break;
+    default:
+      break;
     }
 
   /* print imaginary part */
@@ -1280,6 +1282,8 @@ mps_outroot (mps_status * s, int i)
         }
       else
         fprintf (s->outstr, " 0\n ---\n");
+      break;
+    default:
       break;
     }
   fprintf (s->outstr, "\n");

@@ -275,7 +275,7 @@ mps_parhorner (mps_status * st, int n, mpc_t x, mpc_t p[],
                mps_boolean b[], mpc_t s, int n_thread)
 {
   int m, j, i, i1, i2, q;
-  tmpc_t tmp, y;
+  mpc_t tmp, y;
   mps_boolean bi;
 
   /* Set the pointer for paraller horner to be thread specific
@@ -283,8 +283,8 @@ mps_parhorner (mps_status * st, int n, mpc_t x, mpc_t p[],
   mps_boolean *spar2 = mps_thread_get_spar2 (st, n_thread);
   mpc_t *mfpc2 = mps_thread_get_mfpc2 (st, n_thread);
 
-  tmpc_init2 (tmp, st->mpwp);
-  tmpc_init2 (y, st->mpwp);
+  mpc_init2 (tmp, st->mpwp);
+  mpc_init2 (y, st->mpwp);
 
   for (i = 0; i < n + 1; i++)
     spar2[i] = b[i];
@@ -324,8 +324,8 @@ mps_parhorner (mps_status * st, int n, mpc_t x, mpc_t p[],
     }
   mpc_set (s, mfpc2[0]);
 
-  tmpc_clear (y);
-  tmpc_clear (tmp);
+  mpc_clear (y);
+  mpc_clear (tmp);
 }
 
 /**
@@ -447,15 +447,15 @@ mps_mnewton (mps_status * s, int n, mpc_t z, rdpe_t radius, mpc_t corr,
   int i, n1, n2;
   rdpe_t ap, az, absp, temp, rnew, ep, apeps, absdiff, rtmp;
   cdpe_t temp1;
-  tmpc_t p, p1, diff;
+  mpc_t p, p1, diff;
 
   /* Set the pointer for mnewton to be thread specific
    * so there is not conflict with other threads.      */
   mps_boolean *spar2 = mps_thread_get_spar2 (s, n_thread);
 
-  tmpc_init2 (p, s->mpwp);
-  tmpc_init2 (p1, s->mpwp);
-  tmpc_init2 (diff, s->mpwp);
+  mpc_init2 (p, s->mpwp);
+  mpc_init2 (p1, s->mpwp);
+  mpc_init2 (diff, s->mpwp);
 
   rdpe_mul_d (ep, s->mp_epsilon, (double) (n * 4));
   if (s->data_type[0] == 's')
@@ -573,7 +573,7 @@ mps_mnewton (mps_status * s, int n, mpc_t z, rdpe_t radius, mpc_t corr,
   rdpe_set (radius, rnew); 
 
 exit_sub:
-  tmpc_clear (p1);
-  tmpc_clear (p);
-  tmpc_clear (diff);
+  mpc_clear (p1);
+  mpc_clear (p);
+  mpc_clear (diff);
 }

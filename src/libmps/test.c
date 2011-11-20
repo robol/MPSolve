@@ -17,13 +17,13 @@
 mps_boolean
 mps_inclusion (mps_status * s)
 {
-  int i, j, k, n1, n2, oldnclust;
+  int i, j, k, n1, oldnclust;
   rdpe_t rad, difr;
   cdpe_t difc;
-  tmpc_t tmp;
+  mpc_t tmp;
   rdpe_t ap, az, temp, ep, apeps;
   cdpe_t temp1;
-  tmpc_t p;
+  mpc_t p;
   mps_monomial_poly *poly = s->monomial_poly;
 
 
@@ -52,10 +52,10 @@ mps_inclusion (mps_status * s)
   for (i = 0; i < s->n; i++)
     rdpe_set (s->dap1[i], s->drad[i]);
 
-  tmpc_init2 (p, s->mpwp);
+  mpc_init2 (p, s->mpwp);
   rdpe_mul_d (ep, s->mp_epsilon, (double) (s->n * 4));
 
-  tmpc_init2 (tmp, s->mpwp);
+  mpc_init2 (tmp, s->mpwp);
 
   for (i = 0; i < s->n; i++)
     {
@@ -79,7 +79,6 @@ mps_inclusion (mps_status * s)
         {                       /* case of sparse polynomial */
 
           n1 = s->n + 1;
-          n2 = s->n;
 
           /* compute p(mroot[i]) */
           mps_parhorner (s, n1, s->mroot[i], poly->mfpc, poly->spar, p, 0);
@@ -146,8 +145,8 @@ mps_inclusion (mps_status * s)
   else
     mps_warn (s, "Some roots might be not approximated");
 
-  tmpc_clear (tmp);
-  tmpc_clear (p);
+  mpc_clear (tmp);
+  mpc_clear (p);
 
   return true;
 }

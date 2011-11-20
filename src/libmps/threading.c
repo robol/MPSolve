@@ -144,8 +144,8 @@ mps_thread_fpolzer_worker (void *data_ptr)
   mps_thread_worker_data *data = (mps_thread_worker_data *) data_ptr;
   mps_status *s = data->s;
   mps_monomial_poly *p = s->monomial_poly;
-  int i, iter, j;
-  cplx_t corr, abcorr, froot, z;
+  int i, iter;
+  cplx_t corr, abcorr, froot;
   double rad1, modcorr;
   mps_thread_job job;
 
@@ -250,7 +250,7 @@ mps_thread_fpolzer_worker (void *data_ptr)
 
     }
 
-  return 0;
+  pthread_exit (NULL);
 }
 
 /**
@@ -325,7 +325,7 @@ mps_thread_fpolzer (mps_status * s, int *it, mps_boolean * excep)
 void *
 mps_thread_dpolzer_worker (void *data_ptr)
 {
-  int iter, i, nzeros;
+  int iter, i;
   rdpe_t rad1, rtmp;
   cdpe_t corr, abcorr;
 
@@ -426,7 +426,8 @@ mps_thread_dpolzer_worker (void *data_ptr)
         }
     }
 
-  return 0;
+
+  pthread_exit (NULL);
 }
 
 /**
@@ -509,15 +510,15 @@ mps_thread_mpolzer_worker (void *data_ptr)
   mps_status *s = data->s;
   mps_monomial_poly *p = s->monomial_poly;
   mps_thread_job job;
-  int iter, l, k;
-  tmpc_t corr, abcorr, mroot, diff;
+  int iter, l;
+  mpc_t corr, abcorr, mroot, diff;
   rdpe_t eps, rad1, rtmp;
-  cdpe_t ctmp, abcorr_cdpe;
+  cdpe_t ctmp;
 
-  tmpc_init2 (abcorr, s->mpwp);
-  tmpc_init2 (corr, s->mpwp);
-  tmpc_init2 (mroot, s->mpwp);
-  tmpc_init2 (diff, s->mpwp);
+  mpc_init2 (abcorr, s->mpwp);
+  mpc_init2 (corr, s->mpwp);
+  mpc_init2 (mroot, s->mpwp);
+  mpc_init2 (diff, s->mpwp);
 
   rdpe_mul_d (eps, s->mp_epsilon, (double) 4 * s->n);
 
@@ -651,10 +652,12 @@ mps_thread_mpolzer_worker (void *data_ptr)
     }
 
 endfun:                        /* free local MP variables */
-  tmpc_clear (corr);
-  tmpc_clear (abcorr);
-  tmpc_clear (mroot);
-  tmpc_clear (diff);
+  mpc_clear (corr);
+  mpc_clear (abcorr);
+  mpc_clear (mroot);
+  mpc_clear (diff);
+
+  pthread_exit (NULL);
 
   return 0;
 }
@@ -679,10 +682,10 @@ mps_thread_mpolzer (mps_status * s, int *it, mps_boolean * excep)
       return;
     }
 
-  if (s->n_threads > (s->n - nzeros))
-    n_threads = s->n - nzeros;
-  else
-    n_threads = s->n_threads;
+  /* if (s->n_threads > (s->n - nzeros)) */
+  /*   n_threads = s->n - nzeros; */
+  /* else */
+  /*   n_threads = s->n_threads; */
 
   MPS_DEBUG (s, "Spawning %d threads", n_threads);
 

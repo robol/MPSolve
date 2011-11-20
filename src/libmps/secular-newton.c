@@ -167,14 +167,12 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
                      mps_boolean * again, void * user_data)
 {
   int i;
-  int* k = (int*) user_data;
 
   mps_secular_equation *sec = (mps_secular_equation *) s->secular_equation;
   mps_secular_iteration_data * data = user_data;
 
   cdpe_t pol, fp, sumb, ctmp, ctmp2, old_x;
-  rdpe_t rtmp, rtmp2, apol, g_corr, prod_b, asum;
-  mps_boolean x_is_b = false;
+  rdpe_t rtmp, rtmp2, apol, prod_b, asum;
 
   *again = true;
 
@@ -300,8 +298,7 @@ void
 mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
                      mps_boolean * again, void * user_data)
 {
-  int i, j;
-  mps_boolean x_is_b = false;
+  int i;
   mps_secular_iteration_data *data = (mps_secular_iteration_data*) user_data;
 
   /* Set again to true. If the convergence will be proved
@@ -350,8 +347,8 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
 
       mpc_sub (ctmp2, x, s->mroot[i]);
       mpc_get_cdpe (cdtmp2, ctmp2);
-      if (data && (data->k != i) ||
-	  (!data && (!cdpe_eq_zero (cdtmp2))))
+      if ((data && (data->k != i)) ||
+	  ((!data && (!cdpe_eq_zero (cdtmp2)))))
         {
 	  cdpe_mod (rtmp2, cdtmp2);
           rdpe_div_eq (prod_b, rtmp2);

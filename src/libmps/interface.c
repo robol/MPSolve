@@ -43,8 +43,6 @@ mps_mpsolve (mps_status * s)
 void
 mps_status_select_algorithm (mps_status * s, mps_algorithm algorithm)
 {
-  int i;
-
   /* First set algorithm in the mps_status */
   s->algorithm = algorithm;
 
@@ -85,7 +83,7 @@ mps_status_select_algorithm (mps_status * s, mps_algorithm algorithm)
       s->dnewton_usr = MPS_DNEWTON_PTR (mps_secular_dnewton);
       s->mnewton_usr = MPS_MNEWTON_PTR (mps_secular_mnewton);
 
-      rdpe_set_2dl (s->eps_out, 1.0, -s->output_config->prec * LOG2_10);
+      rdpe_set_2dl (s->eps_out, 1.0, -s->output_config->prec);
 
       /* Check if the secular equation is allocate or if only the
        * polynomial is present. In the last case, allocate an empty
@@ -106,7 +104,7 @@ mps_status *
 mps_status_new ()
 {
   /* Allocate the new mps_status and load default options */
-  mps_status *s = (mps_status *) malloc (sizeof (mps_status));
+  mps_status * s = (mps_status*) malloc (sizeof (mps_status));
 
   /* Set default streams */
   s->instr = stdin;
@@ -152,8 +150,8 @@ mps_status_free (mps_status * s)
    * stderr */
   if (s->instr != stdin && s->instr != NULL)
     fclose (s->instr);
-  if (s->logstr != stderr && s->logstr != stdout && s->logstr != NULL)
-    fclose (s->logstr);  
+   if (s->logstr != stderr && s->logstr != stdout && s->logstr != NULL) 
+     fclose (s->logstr); 
 
   free (s);
 }

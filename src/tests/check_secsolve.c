@@ -79,7 +79,7 @@ test_secsolve_on_pol (test_pol * pol)
   else
     mps_status_select_algorithm (s, MPS_ALGORITHM_SECULAR_GA);
 
-  strncpy (s->goal, "aannc", 5);
+  strncpy (s->goal, "iannc", 5);
   s->output_config->prec = (int) ((pol->out_digits + 1) * LOG2_10) + 1;
   s->input_config->prec = 0;
 
@@ -351,7 +351,7 @@ main (void)
 
   starting_setup ();
 
-  test_polynomials = (test_pol **) malloc (sizeof (test_pol *) * 12);
+  test_polynomials = (test_pol **) malloc (sizeof (test_pol *) * 9);
 
   /* Tests with rand15. pol */
   /* Standard MPSolvea approach */
@@ -378,13 +378,13 @@ main (void)
   test_polynomials[standard++] =
     test_pol_new ("rand120", "secsolve", 15, float_phase, true);
 
-  /* Tests with deg500.pol */
-  test_polynomials[standard++] =
-    test_pol_new ("deg500", "secsolve", 15, float_phase, false);
-  test_polynomials[standard++] =
-    test_pol_new ("deg500", "secsolve", 15, dpe_phase, false);
-  test_polynomials[standard++] =
-    test_pol_new ("deg500", "secsolve", 15, float_phase, true);
+  /* /\* Tests with deg500.pol *\/ */
+  /* test_polynomials[standard++] = */
+  /*   test_pol_new ("deg500", "secsolve", 15, float_phase, false); */
+  /* test_polynomials[standard++] = */
+  /*   test_pol_new ("deg500", "secsolve", 15, dpe_phase, false); */
+  /* test_polynomials[standard++] = */
+  /*   test_pol_new ("deg500", "secsolve", 15, float_phase, true); */
 
   /* Create a new test suite for secsolve and run it */
   Suite *s = secsolve_suite (standard);

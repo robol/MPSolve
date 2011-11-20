@@ -14,10 +14,8 @@ int
 mps_secular_ga_required_regenerations_bits (mps_status * s)
 {
   rdpe_t root_epsilon;
-  rdpe_t pol_eps;
   rdpe_t regeneration_epsilon;
   rdpe_t total_eps;
-  int required_bits;
   int i, j, wp;
 
   /* Workaround to make setting the multiplier easy */
@@ -49,7 +47,7 @@ mps_secular_ga_required_regenerations_bits (mps_status * s)
 
 	for (i = 0; i < s->n; i++)
 	  {
-	    rdpe_t rtmp, rtmp2, apol;
+	    rdpe_t rtmp, rtmp2;
 	    cdpe_t ss, pol, ctmp;
 	    
 	    rdpe_set (regeneration_epsilon, root_epsilon);
@@ -226,6 +224,8 @@ mps_secular_ga_required_regenerations_bits (mps_status * s)
   else if (MPS_INPUT_CONFIG_IS_SECULAR (s->input_config))
     return multiplier * s->mpwp;
   
+
+  return multiplier * s->mpwp;
 }
 
 /**
@@ -276,6 +276,8 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s, int bits, cdpe_t * ol
        * at s->mp_epsilon */
     case mp_phase:
       rdpe_set (root_epsilon, s->mp_epsilon);
+      break;
+    default:
       break;
     }
 
@@ -597,7 +599,7 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
   cdpe_t *old_db, *old_da;
   mpc_t *old_ma, *old_mb;
   mps_secular_equation *sec;
-  int i, j, bits;
+  int i, bits;
   mps_boolean successful_regeneration = true;
 
   sec = (mps_secular_equation *) s->secular_equation;

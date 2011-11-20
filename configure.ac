@@ -15,7 +15,7 @@ LT_INIT
 
 AM_INIT_AUTOMAKE([dist-bzip2])
 
-m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
+# m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
 
 # Checks for programs.
 AC_PROG_CXX
@@ -23,7 +23,8 @@ AC_PROG_CC
 AM_PROG_CC_C_O
 AC_PROG_CC_C99
 
-GENERAL_CFLAGS=" -DNOMPTEMP"
+GENERAL_CFLAGS=" -DNOMPTEMP -D_REENTRANT -Wstrict-prototypes -Wall -Werror"
+GENERAL_LIBS=""
 
 # Determine CFLAGS based on the options that the user has specified.
 # The supported build type are
@@ -44,16 +45,13 @@ AS_IF([test x$enable_debug != xno], [
 MPS_CFLAGS="$GENERAL_CFLAGS"
 UNISOLVE_CFLAGS="$GENERAL_CFLAGS"
 SECSOLVE_CFLAGS="$GENERAL_CFLAGS"
-UNISOLVE_LIBS="-lm -lgmp"
-SECSOLVE_LIBS="-lm -lgmp"
+UNISOLVE_LIBS="$GENERAL_LIBS -lm -lgmp"
+SECSOLVE_LIBS="$GENERAL_LIBS -lm -lgmp"
 
-# Check the presence of the check modules used to perform
-# the checking
-PKG_CHECK_MODULES([CHECKING], [check >= 0.9.4], 
-  [enable_check=yes], [enable_check=no])
-AS_IF([test "x$enable_check" = "xyes"], [
-	CHECK_PROGRAMS="check_dpe check_secsolve check_unisolve"
-])
+CHECK_CFLAGS="$GENERAL_CFLAGS"
+CHECK_LIBS="$GENERAL_LIBS"
+CHECK_PROGRAMS="test_mpsolve"
+
 AC_SUBST(CHECK_PROGRAMS)
 AC_SUBST(CHECK_CFLAGS)
 AC_SUBST(CHECK_LIBS)
