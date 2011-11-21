@@ -79,10 +79,10 @@ extern "C"
     mps_secular_mnewton (mps_status * st, mpc_t x, rdpe_t rad, mpc_t corr,
                          mps_boolean * again, void * user_data);
 
-  /* Routines in secular-regeneration.c */
-  int mps_secular_ga_required_regenerations_bits (mps_status * s);
+  /* Routines in secular-regeneartion.c */
+  mps_boolean * mps_secular_ga_find_changed_roots (mps_status * s, cdpe_t * old_b);
 
-  mps_boolean mps_secular_ga_regenerate_coefficients_mp (mps_status * s, int bits, cdpe_t * old_b);
+  mps_boolean mps_secular_ga_regenerate_coefficients_mp (mps_status * s, cdpe_t * old_b);
 
   mps_boolean mps_secular_ga_regenerate_coefficients (mps_status * s);
 
