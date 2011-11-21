@@ -15,13 +15,17 @@ mps_secular_ga_required_regenerations_bits (mps_status * s)
 {
   rdpe_t root_epsilon;
   rdpe_t regeneration_epsilon;
-  int i, j, wp, maximum_wp = 0;
+  rdpe_t total_eps;
+  int i, j, wp;
 
   /* Workaround to make setting the multiplier easy */
   char * multiplier_env = getenv("MULTIPLIER");
   int multiplier = 1;
   if (multiplier_env)
     sscanf (multiplier_env, "%d", &multiplier);
+
+  rdpe_t required_eps;
+  rdpe_set_2dl (required_eps, 1.0, -s->mpwp);
 
   wp = s->mpwp;
 
@@ -30,161 +34,192 @@ mps_secular_ga_required_regenerations_bits (mps_status * s)
       mps_monomial_poly * p = s->monomial_poly;
       mps_secular_equation * sec = s->secular_equation;
 
-      for (i = 0; i < s->n; i++)
-	{
-	  rdpe_t rtmp, rtmp2;
-	  cdpe_t ss, pol, ctmp;
+      do {
+
+	rdpe_set_2dl (root_epsilon, 1.0, -wp);
+	rdpe_set (total_eps, rdpe_zero);
+
+	if (s->debug_level & MPS_DEBUG_REGENERATION)
+	  {
+	    MPS_DEBUG (s, "Trying to compute regeneration error with wp = %d", wp);
+	    MPS_DEBUG_RDPE (s, root_epsilon, "Epsilon in this wp is set to eps");
+	  }
+
+	for (i = 0; i < s->n; i++)
+	  {
+	    rdpe_t rtmp, rtmp2;
+	    cdpe_t ss, pol, ctmp;
 	    
-	  /* Start from the last root working precision */
-	  wp = s->mpwp;
+	    rdpe_set (regeneration_epsilon, root_epsilon);
 
-	  rdpe_set_2dl (root_epsilon, 1.0, -s->rootwp[i]);
-	  rdpe_set (regeneration_epsilon, root_epsilon);
+	    /* Perform horner with checking of the error */
+	    if (MPS_INPUT_CONFIG_IS_SPARSE (s->input_config))
+	      {
+		int skip = 0;
+		cdpe_set (pol, p->dpc[s->n]);
+		for (j = s->n - 1; j >= 0; j--)
+		  {
+		    if (!p->spar[j])
+		      {
+			int power = 0, t, remaining;
 
-	  /* Perform horner with checking of the error */
-	  if (MPS_INPUT_CONFIG_IS_SPARSE (s->input_config))
-	    {
-	      int skip = 0;
-	      cdpe_set (pol, p->dpc[s->n]);
-	      for (j = s->n - 1; j >= 0; j--)
-		{
-		  if (!p->spar[j])
-		    {
-		      int power = 0, t, remaining;
+			/* Determine how many coefficients we shall skip */
+			skip = j;
+			while (!p->spar[j] && (j >= 0)) { j--; }
+			skip = skip - j + 1;
 
-		      /* Determine how many coefficients we shall skip */
-		      skip = j;
-		      while (!p->spar[j] && (j >= 0)) { j--; }
-		      skip = skip - j + 1;
+			/* Smarter less complex way needed */
+			cdpe_set (ss, cdpe_one);
+			while (power != skip)
+			  {
+			    cdpe_set (ctmp, sec->bdpc[i]);
+			    t = 2;
+			    remaining = skip - power;
+			    while (t < remaining)
+			      {
+				cdpe_mul_eq (ctmp, ctmp);
+				t *= 2;
+			      }
+			    t /= 2;
+			    power += t;
+			    cdpe_mul_eq (ss, ctmp);
+			  }
 
-		      /* Smarter less complex way needed */
-		      cdpe_set (ss, cdpe_one);
-		      while (power != skip)
-			{
-			  cdpe_set (ctmp, sec->bdpc[i]);
-			  t = 2;
-			  remaining = skip - power;
-			  while (t < remaining)
-			    {
-			      cdpe_mul_eq (ctmp, ctmp);
-			      t *= 2;
-			    }
-			  t /= 2;
-			  power += t;
-			  cdpe_mul_eq (ss, ctmp);
-			}
-
-		      cdpe_add_eq (ss, p->dpc[j]);
-		      cdpe_div (ctmp, pol, ss);
-		      cdpe_mod (rtmp, ctmp);
+			cdpe_add_eq (ss, p->dpc[j]);
+			cdpe_div (ctmp, pol, ss);
+			cdpe_mod (rtmp, ctmp);
 			
-		      rdpe_set (rtmp2, root_epsilon);
-		      rdpe_add_eq (rtmp2, regeneration_epsilon);
-		      rdpe_mul_eq (rtmp, rtmp2);
-		      rdpe_add_eq (regeneration_epsilon, rtmp);
+			rdpe_set (rtmp2, root_epsilon);
+			rdpe_add_eq (rtmp2, regeneration_epsilon);
+			rdpe_mul_eq (rtmp, rtmp2);
+			rdpe_add_eq (regeneration_epsilon, rtmp);
 		    
-		      cdpe_div (ctmp, p->dpc[j], ss);
-		      cdpe_mod (rtmp, ctmp);
-		      rdpe_mul_eq (rtmp, regeneration_epsilon);
-		      rdpe_add_eq (regeneration_epsilon, rtmp);
+			cdpe_div (ctmp, p->dpc[j], ss);
+			cdpe_mod (rtmp, ctmp);
+			rdpe_mul_eq (rtmp, regeneration_epsilon);
+			rdpe_add_eq (regeneration_epsilon, rtmp);
 		    
-		      cdpe_set (pol, ss);
-		    }
-		}
-	    }
-	  else
-	    {
-	      mps_boolean mp_needed = false;
-	      cdpe_set (pol, p->dpc[s->n]);
-	      for (j = s->n - 1; j >= 0; j--)
-		{
-		  cdpe_mul (ss, sec->bdpc[i], pol);
-		  cdpe_add_eq (ss, p->dpc[j]);
+			cdpe_set (pol, ss);
+		      }
+		  }
+	      }
+	    else
+	      {
+		mps_boolean mp_needed = false;
+		cdpe_set (pol, p->dpc[s->n]);
+		for (j = s->n - 1; j >= 0; j--)
+		  {
+		    cdpe_mul (ss, sec->bdpc[i], pol);
+		    cdpe_add_eq (ss, p->dpc[j]);
 
-		  if (cdpe_eq_zero (ss))
-		    {
-		      mp_needed = true;
-		      break;
-		    }
+		    if (cdpe_eq_zero (ss))
+		      {
+			mp_needed = true;
+			break;
+		      }
 
-		  cdpe_div (ctmp, pol, ss);
-		  cdpe_mod (rtmp, ctmp);
+		    cdpe_div (ctmp, pol, ss);
+		    cdpe_mod (rtmp, ctmp);
 		    
-		  rdpe_set (rtmp2, root_epsilon);
-		  rdpe_add_eq (rtmp2, regeneration_epsilon);
-		  rdpe_mul_eq (rtmp, rtmp2);
-		  rdpe_add_eq (regeneration_epsilon, rtmp);
+		    rdpe_set (rtmp2, root_epsilon);
+		    rdpe_add_eq (rtmp2, regeneration_epsilon);
+		    rdpe_mul_eq (rtmp, rtmp2);
+		    rdpe_add_eq (regeneration_epsilon, rtmp);
 		    
-		  cdpe_div (ctmp, p->dpc[j], ss);
-		  cdpe_mod (rtmp, ctmp);
-		  rdpe_mul_eq (rtmp, regeneration_epsilon);
-		  rdpe_add_eq (regeneration_epsilon, rtmp);
+		    cdpe_div (ctmp, p->dpc[j], ss);
+		    cdpe_mod (rtmp, ctmp);
+		    rdpe_mul_eq (rtmp, regeneration_epsilon);
+		    rdpe_add_eq (regeneration_epsilon, rtmp);
 		    
-		  cdpe_set (pol, ss);
-		}
+		    cdpe_set (pol, ss);
+		  }
 
-	      mpc_t mpol, mss, mctmp;
+		mpc_t mpol, mss, mctmp;
 
-	      while (mp_needed)
-		{
-		  mpc_init2 (mpol, wp);
-		  mpc_init2 (mss, wp);
-		  mpc_init2 (mctmp, wp);
+		while (mp_needed)
+		  {
+		    mpc_init2 (mpol, wp);
+		    mpc_init2 (mss, wp);
+		    mpc_init2 (mctmp, wp);
 		    
-		  mp_needed = false;
+		    mp_needed = false;
 
-		  mpc_set (mpol, p->mfpc[s->n]);
-		  for (j = s->n - 1; j >= 0; j--)
-		    {
-		      mpc_mul (mss, sec->bmpc[i], mpol);
-		      mpc_add_eq (mss, p->mfpc[j]);
+		    mpc_set (mpol, p->mfpc[s->n]);
+		    for (j = s->n - 1; j >= 0; j--)
+		      {
+			mpc_mul (mss, sec->bmpc[i], mpol);
+			mpc_add_eq (mss, p->mfpc[j]);
 			
-		      if (mpc_eq_zero (mss))
-			{
-			  mp_needed = true;
-			  wp *= 2;
-			  break;
-			}
+			if (mpc_eq_zero (mss))
+			  {
+			    mp_needed = true;
+			    wp *= 2;
+			    break;
+			  }
 
-		      mpc_div (mctmp, mpol, mss);
-		      mpc_get_cdpe (ctmp, mctmp);
-		      cdpe_mod (rtmp, ctmp);
+			mpc_div (mctmp, mpol, mss);
+			mpc_get_cdpe (ctmp, mctmp);
+			cdpe_mod (rtmp, ctmp);
 		    
-		      rdpe_set (rtmp2, root_epsilon);
-		      rdpe_add_eq (rtmp2, regeneration_epsilon);
-		      rdpe_mul_eq (rtmp, rtmp2);
-		      rdpe_add_eq (regeneration_epsilon, rtmp);
+			rdpe_set (rtmp2, root_epsilon);
+			rdpe_add_eq (rtmp2, regeneration_epsilon);
+			rdpe_mul_eq (rtmp, rtmp2);
+			rdpe_add_eq (regeneration_epsilon, rtmp);
 		    
-		      mpc_div (mctmp, p->mfpc[j], mss);
-		      mpc_get_cdpe (ctmp, mctmp);
-		      cdpe_mod (rtmp, ctmp);
+			mpc_div (mctmp, p->mfpc[j], mss);
+			mpc_get_cdpe (ctmp, mctmp);
+			cdpe_mod (rtmp, ctmp);
 
-		      rdpe_mul_eq (rtmp, regeneration_epsilon);
-		      rdpe_add_eq (regeneration_epsilon, rtmp);
+			rdpe_mul_eq (rtmp, regeneration_epsilon);
+			rdpe_add_eq (regeneration_epsilon, rtmp);
 		    
-		      mpc_set (mpol, mss);
-		    }
+			mpc_set (mpol, mss);
+		      }
 
-		  mpc_clear (mpol);
-		  mpc_clear (mss);
-		  mpc_clear (mctmp);
-		}
+		    mpc_clear (mpol);
+		    mpc_clear (mss);
+		    mpc_clear (mctmp);
+		  }
+	      }
 
-	    }
+	    /* cdpe_set (pol, p->dpc[s->n]); */
+	    /* for (j = s->n - 1; j > 0; j--) */
+	    /*   { */
+	    /* 	cdpe_mul_eq (pol, sec->bdpc[i]); */
+	    /* 	cdpe_add_eq (pol, p->dpc[j]); */
+	    /*   } */
+	    /* cdpe_add_eq (pol, p->dpc[0]); */
 
-	  /* That's it, now we have computed error here, so we could give
-	   * an estimate of the expected needed precision. */
-	  s->rootwp[i] = rdpe_Esp (regeneration_epsilon) + s->mpwp + s->rootwp[i] - wp + 1;
-	  
-	  if (s->debug_level & MPS_DEBUG_REGENERATION)
-	    MPS_DEBUG (s, "Precision for regeneration of root %d set to %ld bits", i, s->rootwp[i]);
-	  MPS_DEBUG_RDPE (s, regeneration_epsilon, "regeneration_epsilon");
+	    /* rdpe_set (apol, p->dap[s->n]); */
+	    /* cdpe_mod (rtmp2, sec->bdpc[i]); */
+	    /* for (j = s->n - 1; j > 0; j--) */
+	    /*   { */
+	    /* 	rdpe_mul_eq (apol, rtmp2); */
+	    /* 	rdpe_add_eq (apol, p->dap[j]); */
+	    /*   } */
+	    /* rdpe_add_eq (apol, p->dap[0]); */
 
-	  if (s->rootwp[i] > maximum_wp)
-	    maximum_wp = s->rootwp[i];
-	}
+	    /* cdpe_mod (rtmp, pol); */
+	    /* rdpe_div_eq (apol, rtmp); */
+	    /* rdpe_mul (regeneration_epsilon, apol, root_epsilon); */
+	    
+	    /* Check if the new relative error is bigger than the 
+	     * previous one. */
+	    if (rdpe_gt (regeneration_epsilon, total_eps))
+	      {
+		rdpe_set (total_eps, regeneration_epsilon);
+	      }
+	  }
 
-      return maximum_wp;
+	if (s->debug_level & MPS_DEBUG_REGENERATION)
+	  {
+	    MPS_DEBUG_RDPE (s, regeneration_epsilon, "regeneration_epsilon");
+	    MPS_DEBUG_RDPE (s, required_eps, "required epsilon");
+	  }
+
+      } while (rdpe_gt (regeneration_epsilon, required_eps) && (wp *= 2));
+
+      return 2 * wp;
     }
   else if (MPS_INPUT_CONFIG_IS_SECULAR (s->input_config))
     return multiplier * s->mpwp;
@@ -316,8 +351,6 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s, int bits, cdpe_t * ol
 	{
 	  if (root_changed[i])
 	    {
-	      mpc_set_prec (sec->ampc[i], s->rootwp[i]);
-
 	      /* Applying horner to evaluate the polynomial */
 	      mpc_set (sec->ampc[i], p->mfpc[s->n]); 
 	      for (j = s->n - 1; j >= 0; j--) 
@@ -341,11 +374,11 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s, int bits, cdpe_t * ol
 		  /* If the difference is zero than regeneration cannot succeed, and means
 		   * that we need more precision in the roots */
 		  if (cdpe_eq_zero (diff))
-		    {
-		      MPS_DEBUG (s, "Regeneration of the coefficients failed because sec->bdpc[%d] == sec->bdpc[%d]", i, j);
-		      success = false;
-		      goto monomial_regenerate_exit;
-		    }
+		{
+		  MPS_DEBUG (s, "Regeneration of the coefficients failed because sec->bdpc[%d] == sec->bdpc[%d]", i, j);
+		  success = false;
+		  goto monomial_regenerate_exit;
+		}
 		  cdpe_mul_eq (prod_b, diff);
 		}
 

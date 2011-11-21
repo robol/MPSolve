@@ -153,6 +153,8 @@ mps_status_init (mps_status * s)
   s->output_config->prec = (int) (0.9 * DBL_DIG * LOG2_10);
   MPS_DEBUG (s, "Setting prec_out to %ld digits", s->output_config->prec);
   s->input_config->prec = 0;
+
+  mps_mp_set_prec (s, DBL_DIG * LOG2_10 + 1);
 }
 
 /**
@@ -180,10 +182,10 @@ mps_status_free (mps_status * s)
    * stderr */
   if (s->instr != stdin && s->instr != NULL)
     fclose (s->instr);
-   if (s->logstr != stderr && s->logstr != stdout && s->logstr != NULL) 
-     fclose (s->logstr); 
-
-  free (s);
+  if (s->logstr != stderr && s->logstr != stdout && s->logstr != NULL) 
+    fclose (s->logstr); 
+   
+   free (s);
 }
 
 /**

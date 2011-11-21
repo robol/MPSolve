@@ -25,39 +25,40 @@ AM_CPPFLAGS= \
 	$(NULL)
 
 libmps_la_SOURCES = \
-	 user.c \
-	 getopts.c \
-	 solve.c \
-	 main.c \
-	 data.c \
-	 cluster.c \
-	 stio.c \
-	 debug.c \
-	 gmptools.c \
-	 defaults.c \
-	 sort.c \
-	 tools.c \
-	 starting.c \
-	 convex.c \
-	 mt.c \
-	 aberth.c \
-	 improve.c \
-	 test.c \
-	 newton.c \
-	 mpc.c \
-	 link.c \
-	 touch.c \
-	 interface.c \
-	 threading.c \
-	 secular.c \
-	 secular-newton.c \
-	 secular-starting.c \
-	 secular-ga.c \
-	 secular-regeneration.c \
-	 secular-iteration.c \
-         input-buffer.c \
-	 monomial-poly.c \
-	$(NULL)
+	    aberth.c \
+	    cluster.c \
+	    convex.c \
+	    data.c \
+	    debug.c \
+	    defaults.c \
+	    getopts.c \
+	    gmptools.c \
+	    horner.c \
+	    improve.c \
+	    input-buffer.c \
+	    interface.c \
+	    link.c \
+	    main.c \
+	    monomial-poly.c \
+	    mpc.c \
+	    mt.c \
+	    newton.c \
+	    secular-ga.c \
+	    secular-iteration.c \
+	    secular-newton.c \
+	    secular-regeneration.c \
+	    secular-starting.c \
+	    secular.c \
+	    solve.c \
+	    sort.c \
+	    starting.c \
+	    stio.c \
+	    test.c \
+	    threading.c \
+	    tools.c \
+	    touch.c \
+	    user.c \
+	    $(NULL)
 
 libmps_la_LIBADD = \
 	-lgmp \

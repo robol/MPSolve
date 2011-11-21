@@ -21,9 +21,11 @@
 void
 mps_mp_set_prec (mps_status * s, long int prec)
 {
-  s->mpwp = prec;
-  // mpf_set_default_prec (prec);
-  rdpe_set_2dl (s->mp_epsilon, 1.0, -prec + 1);
+  s->mpwp = (prec / 64 + 1) * 64;
+  rdpe_set_2dl (s->mp_epsilon, 1.0, -s->mpwp);
+
+  if (s->debug_level & MPS_DEBUG_MEMORY)
+    MPS_DEBUG_RDPE (s, s->mp_epsilon, "Increased precision to %ld bits. Machine epsilon set to eps", s->mpwp);
 }
 
 /********************************************************
