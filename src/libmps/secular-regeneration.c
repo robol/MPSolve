@@ -232,8 +232,8 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s, cdpe_t * old_b)
 	      /* Debug computed coefficients */
 	      if (s->debug_level & MPS_DEBUG_REGENERATION)
 		{
-		  MPS_DEBUG_MPC (s, 10, sec->ampc[i], "a_%d", i);
-		  MPS_DEBUG_MPC (s, 10, sec->bmpc[i], "b_%d", i);
+		  MPS_DEBUG_MPC (s, s->rootwp[i], sec->ampc[i], "a_%d", i);
+		  MPS_DEBUG_MPC (s, s->rootwp[i], sec->bmpc[i], "b_%d", i);
 		}
 
 	    } /* Close the case where the coefficient are not approximated or isolated */
@@ -250,9 +250,7 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s, cdpe_t * old_b)
 	       	  cdpe_sub (diff, old_b[j], sec->bdpc[i]); 
 	       	  cdpe_sub (cdtmp, sec->bdpc[j], sec->bdpc[i]); 
 	       	  cdpe_div_eq (diff, cdtmp); 
-	       	  cdpe_mul_eq (prod_b, diff); 
-
-	       	  // MPS_DEBUG_CDPE (s, prod_b, "prod_b"); 
+	       	  cdpe_mul_eq (prod_b, diff);
 	       	}
 
 	       mpc_set_cdpe (mprod_b, prod_b); 
