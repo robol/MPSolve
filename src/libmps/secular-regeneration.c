@@ -314,7 +314,7 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s, int bits, cdpe_t * ol
 
       for (i = 0; i < s->n; ++i)
 	{
-	  if (root_changed[i] || true)
+	  if (root_changed[i])
 	    {
 	      mpc_set_prec (sec->ampc[i], s->rootwp[i]);
 
