@@ -104,7 +104,7 @@ mps_standard_mpsolve (mps_status * s)
       s->lastphase = float_phase;
 
       if (s->DOLOG)
-        mps_dump (s, s->logstr);
+        mps_dump (s);
 
       computed = mps_check_stop (s);
       if (computed && s->goal[0] != 'a')
@@ -129,7 +129,7 @@ mps_standard_mpsolve (mps_status * s)
       mps_dsolve (s, d_after_f);
 
       if (s->DOLOG)
-        mps_dump (s, s->logstr);
+        mps_dump (s);
 
       computed = mps_check_stop (s);
       if (computed && s->goal[0] != 'a')

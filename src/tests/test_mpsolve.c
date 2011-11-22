@@ -83,12 +83,12 @@ test_mpsolve (char * pol_file, char * res_file, mps_algorithm algorithm)
      	    {   
      	      rdpe_set (min_dist, rtmp);   
      	    }   
-	}   
+	}
 
       if (rdpe_le (min_dist, s->drad[i]) || s->over_max)   
-     	{   
-     	  passed = true;   
-     	}   
+	{   
+	  passed = true;   
+	}
     }   
   
   fclose (result_stream);    
@@ -132,13 +132,13 @@ abortfn (enum mcheck_status status)
 int
 main (int argc, char ** argv)
 {
-  mcheck (abortfn);
+   mcheck (abortfn); 
   /* TEST_UNISOLVE ("nroots50");   */
   /* TEST_UNISOLVE ("nroots50"); */
   /* TEST_UNISOLVE ("nroots50");   */
-  TEST_UNISOLVE ("nroots50");     
-  TEST_UNISOLVE ("mand63");      
-  TEST_UNISOLVE ("mand63");        
+  TEST_UNISOLVE ("nroots50");      
+  TEST_UNISOLVE ("mig1_200");
+  TEST_UNISOLVE ("mand63");
   TEST_UNISOLVE ("mand127");
 
   /* TEST_SECSOLVE_SECULAR ("rand120"); */
@@ -147,6 +147,8 @@ main (int argc, char ** argv)
   /* TEST_SECSOLVE_SECULAR ("rand15"); */
   /* TEST_SECSOLVE_SECULAR ("rand120"); */
   /* TEST_SECSOLVE_SECULAR ("rand120"); */
+
+  return 0;
 
   /* Roots of unity   */
   TEST_SECSOLVE_MONOMIAL ("nroots50");    

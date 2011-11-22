@@ -101,6 +101,7 @@ mps_thread_job_queue_next (mps_status * s, mps_thread_job_queue * q)
     }
 
   /* Get the next element of the cluster */
+  MPS_DEBUG (s, "q->i = %d", q->i);
   j.i = (q->i)++;
 
   /* Check if the previous one was the last element in the
@@ -527,9 +528,6 @@ mps_thread_mpolzer_worker (void *data_ptr)
 
   rdpe_mul_d (eps, s->mp_epsilon, (double) 4 * s->n);
 
-  /* initialize the iteration counter */
-  (*data->excep) = false;
-
   /* Continue to iterate while exception condition has not
    * been reached and there more roots to approximate   */
   while ((*data->nzeros) < s->n)
@@ -548,14 +546,17 @@ mps_thread_mpolzer_worker (void *data_ptr)
         }
 
       l = s->clust[job.i];
+
+      /* Lock roots_mutex to assure that we are the only thread
+       * working on this root. Parallel computation on the same
+       * root is not useful, since we would be performing the
+       * same computations.                                  */
+      pthread_mutex_lock (&data->roots_mutex[l]);
+
+      MPS_DEBUG (s, "Iterating on root %d, iter %d", l, job.iter);
+
       if (s->again[l])
         {
-          /* Lock roots_mutex to assure that we are the only thread
-           * working on this root. Parallel computation on the same
-           * root is not useful, since we would be performing the
-           * same computations.                                  */
-          pthread_mutex_lock (&data->roots_mutex[l]);
-
           /* Check if, while we were waiting, excep condition has been reached,
            * or all the zeros has been approximated.                         */
           if (*data->excep || (*data->nzeros) >= s->n)
@@ -631,7 +632,7 @@ mps_thread_mpolzer_worker (void *data_ptr)
               mpc_set (s->mroot[l], mroot);
               pthread_mutex_unlock (&data->aberth_mutex[l]);
 
-              /* Let's with others aberth iterations */
+              /* Go with others aberth iterations */
               pthread_mutex_unlock (data->global_aberth_mutex);
               sched_yield ();
             }
@@ -649,6 +650,11 @@ mps_thread_mpolzer_worker (void *data_ptr)
 
           pthread_mutex_unlock (&data->roots_mutex[l]);
         }
+      else
+	pthread_mutex_unlock (&data->roots_mutex[l]);
+
+      MPS_DEBUG_MPC (s, 15, s->mroot[l], "s->mroot[%d]", l);
+      MPS_DEBUG_RDPE (s, s->drad[l], "s->drad[%d]", l);
 
       if ((*data->nzeros) == s->n)
         {
@@ -663,8 +669,7 @@ endfun:                        /* free local MP variables */
   mpc_clear (diff);
 
   pthread_exit (NULL);
-
-  return 0;
+  return NULL;
 }
 
 /**
@@ -687,10 +692,11 @@ mps_thread_mpolzer (mps_status * s, int *it, mps_boolean * excep)
       return;
     }
 
-   if (s->n_threads > (s->n - nzeros)) 
-     n_threads = s->n - nzeros; 
-   else 
-     n_threads = s->n_threads; 
+  /* Lower the number of threads if there are a lot of approximated roots */
+  if (s->n_threads > (s->n - nzeros))   
+    n_threads = s->n - nzeros;   
+  else   
+    n_threads = s->n_threads; 
 
   MPS_DEBUG (s, "Spawning %d threads", n_threads);
 
@@ -714,7 +720,7 @@ mps_thread_mpolzer (mps_status * s, int *it, mps_boolean * excep)
   mps_thread_job_queue *queue = mps_thread_job_queue_new (s);
 
   data = (mps_thread_worker_data *) mps_malloc (sizeof (mps_thread_worker_data)
-                                            * n_threads);
+						* n_threads);
 
   /* Set data to be passed to every thread and actually spawn the threads. */
   for (i = 0; i < n_threads; i++)

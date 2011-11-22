@@ -62,7 +62,7 @@ usage (mps_status * s, const char *program)
 int
 main (int argc, char **argv)
 {
-  mcheck (abortfn);
+  /* mcheck (abortfn); */
   mps_status *s;
 
   /* Create a new status */

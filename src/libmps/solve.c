@@ -433,9 +433,9 @@ mps_fmodify (mps_status * s, mps_boolean track_new_cluster)
           afri = cplx_mod (s->froot[i]);
 	  
 	  /* Check if the root, even if clustered, is approximated */
-	  if (s->algorithm != MPS_ALGORITHM_STANDARD_MPSOLVE)
+	  if (s->algorithm == MPS_ALGORITHM_SECULAR_GA)
 	    {
-	      rdpe_set_d (rtmp, s->frad[l] / cplx_mod (s->froot[l]));     
+	      rdpe_set_d (rtmp, s->frad[l] / cplx_mod (s->froot[l]));
 	      if (rdpe_le (rtmp, s->eps_out))     
 		s->status[l][0] = 'o';     
 	    }
@@ -1023,7 +1023,7 @@ mps_dmodify (mps_status * s, mps_boolean track_new_cluster)
                       i1 = i_new + k;
 
 		      /* Check if the root, even if clustered, is approximated */
-		      if (s->algorithm != MPS_ALGORITHM_STANDARD_MPSOLVE)
+		      if (s->algorithm == MPS_ALGORITHM_SECULAR_GA)
 			{
 			  rdpe_set (tmpr, s->drad[i1]);
 			  cdpe_mod (tmpr2, s->droot[i1]);
@@ -1647,6 +1647,7 @@ mps_mmodify (mps_status * s, mps_boolean track_new_cluster)
   i_new = 0;
   for (i = 1; i <= s->nclust && i_new < s->n; i++)
     {                           /* loop1: */
+      /* printf ("i_old = %d, i_new = %d, s->oldpunt[i_old + 1] = %d, s->punt[i_new + 1] = %d\n", i_old, i_new, s->oldpunt[i_old + 1], s->punt[i_new + 1]); */
       if (s->oldpunt[i_old + 1] == s->punt[i_new + 1])
         {
           i_old++;
@@ -1667,7 +1668,7 @@ mps_mmodify (mps_status * s, mps_boolean track_new_cluster)
                       i1 = i_new + k;
 
 		      /* Check if the root, even if clustered, is approximated */
-		      if (s->algorithm != MPS_ALGORITHM_STANDARD_MPSOLVE)
+		      if (s->algorithm == MPS_ALGORITHM_SECULAR_GA)
 			{
 			  rdpe_set (tmpr, s->drad[i1]);
 			  cdpe_mod (tmpr2, s->droot[i1]);
@@ -2437,8 +2438,8 @@ mps_fsolve (mps_status * s, mps_boolean * d_after_f)
      }
    *//* till here */
 
-  if (s->DOLOG)
-    mps_dump (s, s->logstr);
+  if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
+    mps_dump (s);
 
   /* Check if there are too large or too small approximations */
   *d_after_f = false;
@@ -2455,8 +2456,8 @@ mps_fsolve (mps_status * s, mps_boolean * d_after_f)
   for (iter = 0; iter < s->max_pack; iter++)
     {                           /* floop: */
 
-       mps_fpolzer(s, &nit, &excep); 
-       /* mps_thread_fpolzer (s, &nit, &excep); */
+      /* mps_fpolzer(s, &nit, &excep);  */
+      mps_thread_fpolzer (s, &nit, &excep); 
       it_pack += nit;
 
       if (s->DOLOG)
@@ -2537,7 +2538,7 @@ mps_fsolve (mps_status * s, mps_boolean * d_after_f)
    * If the max number of iteration has been reached then output FAILURE */
   if (iter == s->max_pack)
     {
-      mps_dump (s, s->logstr);
+      mps_dump (s);
       mps_error (s, 1,
                  "Float: reached the maximum number of packet iterations");
     }
@@ -2612,7 +2613,7 @@ mps_fpolzer (mps_status * s, int *it, mps_boolean * excep)
       if (s->DOLOG)
         {
           fprintf (s->logstr, "FPOLZER: iteration %d\n", iter);
-          mps_dump (s, s->logstr);
+          mps_dump (s);
         }
 
       for (i = 0; i < s->n; i++)
@@ -2825,8 +2826,8 @@ mps_dsolve (mps_status * s, mps_boolean d_after_f)
       if (s->status[i][0] == 'x')
         s->status[i][0] = 'c';
 
-  if (s->DOLOG)
-    mps_dump (s, s->logstr);
+  if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
+    mps_dump (s);
 
   /* == 2 == Perform s->max_pack  packets of Aberth's iterations */
   if (s->DOLOG)
@@ -2835,8 +2836,8 @@ mps_dsolve (mps_status * s, mps_boolean d_after_f)
   for (iter = 0; iter < s->max_pack; iter++)
     {                           /* dloop : DO iter=1,s->max_pack */
 
-       mps_dpolzer(s, &nit, &excep); 
-      /* mps_thread_dpolzer (s, &nit, &excep); */
+       /* mps_dpolzer(s, &nit, &excep);  */
+       mps_thread_dpolzer (s, &nit, &excep); 
       it_pack += nit;
 
       MPS_DEBUG (s, "DPE packet completed in %d iterations", nit);
@@ -2908,7 +2909,7 @@ mps_dsolve (mps_status * s, mps_boolean d_after_f)
     }
   if (iter == s->max_pack)
     {
-      mps_dump (s, s->logstr);
+      mps_dump (s);
       mps_error (s, 1,
                  "DPE: reached the maximum number of packet iterations");
     }
@@ -3020,12 +3021,15 @@ mps_msolve (mps_status * s)
           fprintf (s->logstr, "\n");
           fprintf (s->logstr, "  MSOLVE: call mpolzer\n");
         }
-        mps_mpolzer(s, &nit, &excep);  
-      /* mps_thread_mpolzer (s, &nit, &excep); */
+      mps_mpolzer(s, &nit, &excep); 
+      /* mps_thread_mpolzer (s, &nit, &excep);    */
 
-      if (s->DOLOG)
-        fprintf (s->logstr, "  MSOLVE: Packet %d: iterations= %d\n", iter,
-                 nit);
+      if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
+	mps_dump (s);
+
+	if (s->DOLOG)
+	  fprintf (s->logstr, "  MSOLVE: Packet %d: iterations= %d\n", iter,
+		   nit);
 
       it_pack += nit;
       nzc = 0;

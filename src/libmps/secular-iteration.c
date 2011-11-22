@@ -161,7 +161,7 @@ mps_secular_ga_fiterate (mps_status * s, int maxit, mps_boolean just_regenerated
                        nit);
 
   if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
-      mps_dump (s, s->logstr);
+      mps_dump (s);
 
   if (nit <= it_threshold && just_regenerated)
     {
@@ -253,7 +253,7 @@ mps_secular_ga_diterate (mps_status * s, int maxit, mps_boolean just_regenerated
     MPS_DEBUG (s, "There are %d roots with again set to false", computed_roots);
 
   /* Use this dump only for debugging purpose */
-  /* mps_dump (s, s->logstr); */
+  /* mps_dump (s); */
   while (computed_roots < s->n && iterations < maxit)
     {
       cdpe_t corr, abcorr;
@@ -305,7 +305,7 @@ mps_secular_ga_diterate (mps_status * s, int maxit, mps_boolean just_regenerated
   MPS_DEBUG_WITH_INFO (s, "Performed %d iterations", nit);
   if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
     {
-      mps_dump (s, s->logstr);
+      mps_dump (s);
     }
 
   if (nit <= it_threshold && just_regenerated)

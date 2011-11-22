@@ -267,7 +267,7 @@ mps_intlog2 (int n)
  *  <code>p[i] == 0</code>.
  * @param s RDPE pointer in which the result will be stored
  * @param n_thread The index of the thread that is calling this
- *  routine. This is used to determine a safe memory are
+ *  routine. This is used to determine a safe memory area
  *  for temporary sparsity vectors.
  */
 void
@@ -280,8 +280,8 @@ mps_parhorner (mps_status * st, int n, mpc_t x, mpc_t p[],
 
   /* Set the pointer for paraller horner to be thread specific
    * so there is not conflict with other threads.           */
-  mps_boolean *spar2 = mps_thread_get_spar2 (st, n_thread);
-  mpc_t *mfpc2 = mps_thread_get_mfpc2 (st, n_thread);
+   mps_boolean *spar2 = mps_thread_get_spar2 (st, n_thread); 
+   mpc_t *mfpc2 = mps_thread_get_mfpc2 (st, n_thread); 
 
   mpc_init2 (tmp, st->mpwp);
   mpc_init2 (y, st->mpwp);
@@ -353,8 +353,9 @@ mps_aparhorner (mps_status * st,
 
   /* Set the pointer for paraller horner to be thread specific
    * so there is not conflict with other threads.           */
-  mps_boolean *spar2 = mps_thread_get_spar2 (st, n_thread);
-  rdpe_t *dap2 = mps_thread_get_dap2 (st, n_thread);
+  mps_boolean *spar2 = mps_thread_get_spar2 (st, n_thread); 
+  // rdpe_t *dap2 = mps_thread_get_dap2 (st, n_thread); 
+  rdpe_t * dap2 = rdpe_valloc (st->deg + 1);
 
   for (i = 0; i < n + 1; i++)
     spar2[i] = b[i];
@@ -392,6 +393,8 @@ mps_aparhorner (mps_status * st,
       rdpe_sqr_eq (y);
     }
   rdpe_set (s, dap2[0]);
+
+  free (dap2);
 }
 
 /**
@@ -449,10 +452,6 @@ mps_mnewton (mps_status * s, int n, mpc_t z, rdpe_t radius, mpc_t corr,
   cdpe_t temp1;
   mpc_t p, p1, diff;
 
-  /* Set the pointer for mnewton to be thread specific
-   * so there is not conflict with other threads.      */
-  mps_boolean *spar2 = mps_thread_get_spar2 (s, n_thread);
-
   mpc_init2 (p, s->mpwp);
   mpc_init2 (p1, s->mpwp);
   mpc_init2 (diff, s->mpwp);
@@ -460,6 +459,10 @@ mps_mnewton (mps_status * s, int n, mpc_t z, rdpe_t radius, mpc_t corr,
   rdpe_mul_d (ep, s->mp_epsilon, (double) (n * 4));
   if (s->data_type[0] == 's')
     {                           /* case of sparse polynomial */
+      /* Set the pointer for mnewton to be thread specific
+       * so there is not conflict with other threads.      */
+      mps_boolean *spar2 = mps_thread_get_spar2 (s, n_thread); 
+
       n1 = n + 1;
       n2 = n;
 
@@ -476,7 +479,6 @@ mps_mnewton (mps_status * s, int n, mpc_t z, rdpe_t radius, mpc_t corr,
 
       /* compute p'(z) */
       mps_parhorner (s, n2, z, mfppc, spar2, p1, n_thread);
-
     }
   else
     {                           /*  dense polynomial */
@@ -486,13 +488,13 @@ mps_mnewton (mps_status * s, int n, mpc_t z, rdpe_t radius, mpc_t corr,
       mpc_set (p1, p);
       for (i = n - 1; i > 0; i--)
         {
-          mpc_mul (p, p, z);
-          mpc_add (p, p, mfpc[i]);
-          mpc_mul (p1, p1, z);
-          mpc_add (p1, p1, p);
+          mpc_mul_eq (p, z);
+          mpc_add_eq (p, mfpc[i]);
+          mpc_mul_eq (p1, z);
+          mpc_add_eq (p1, p);
         }
-      mpc_mul (p, p, z);
-      mpc_add (p, p, mfpc[0]);
+      mpc_mul_eq (p, z);
+      mpc_add_eq (p, mfpc[0]);
 
       /* compute bound to the error */
       rdpe_set (ap, dap[n]);
@@ -560,7 +562,7 @@ mps_mnewton (mps_status * s, int n, mpc_t z, rdpe_t radius, mpc_t corr,
     {
       mpc_sub (diff, z, s->mroot[i]);
       mpc_get_cdpe (temp1, diff);
-      if (!cdpe_eq (temp1, cdpe_zero))
+      if (!cdpe_eq_zero (temp1))
         {
           cdpe_mod (absdiff, temp1);
 	  rdpe_sub (rtmp, rdpe_one, s->mp_epsilon);

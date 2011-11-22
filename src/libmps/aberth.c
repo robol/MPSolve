@@ -195,5 +195,4 @@ mps_maberth_s_wl (mps_status * s, int j, int jc, mpc_t abcorr,
   mpc_set_cdpe (abcorr, temp);
 
   mpc_clear (diff);
-
 }

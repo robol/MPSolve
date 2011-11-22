@@ -1402,11 +1402,12 @@ mps_copy_roots (mps_status * s)
  *                     SUBROUTINE DUMP                       *
  *************************************************************/
 void
-mps_dump (mps_status * s, FILE * dmpstr)
+mps_dump (mps_status * s)
 {
   int i;
+  FILE * dmpstr = s->logstr;
 
-  fprintf (dmpstr, "\nDumping...\n");
+  MPS_DEBUG (s, "Dumping the approximations:");
 
   /* output current status */
   fprintf (dmpstr,
@@ -1589,6 +1590,6 @@ mps_error (mps_status * st, int args, ...)
 
   /* Dump approximations, but only if they are present */
   if (st->froot && st->lastphase)
-    mps_dump (st, st->logstr);  /* dump status          */
+    mps_dump (st);  /* dump status          */
   exit (EXIT_FAILURE);          /* exit program         */
 }

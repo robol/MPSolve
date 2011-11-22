@@ -29,7 +29,10 @@ mps_cluster_reset (mps_status * s)
       s->clust[i] = i;
 
   for(i = 0; i <= s->n; i++)
-    s->punt[i] = 0;
+    {
+      s->punt[i] = 0;
+      s->oldpunt[i] = 0;
+    }
 
   /* Reset delimiters */
   s->punt[0] = 0;

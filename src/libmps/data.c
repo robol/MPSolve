@@ -48,12 +48,6 @@ mps_allocate_data (mps_status * s)
   s->order = int_valloc (s->deg);
   s->rootwp = long_valloc (s->deg);
 
-  /* if (!s->fap) */
-  /*   s->fap = double_valloc (s->deg + 1); */
-  
-  /* if (!s->dap) */
-  /*   s->dap = rdpe_valloc (s->deg + 1); */
-
   s->frad = double_valloc (s->deg);
   s->froot = cplx_valloc (s->deg);
   s->drad = rdpe_valloc (s->deg);
@@ -100,7 +94,7 @@ mps_allocate_data (mps_status * s)
   s->fap2 = double_valloc (s->deg + 1);
 
   s->dap1 = rdpe_valloc (s->deg + 1);
-  s->dap2 = rdpe_valloc ((s->deg + 1) * s->n_threads);
+  // s->dap2 = rdpe_valloc ((s->deg + 1) * (s->n_threads));
   s->dpc1 = cdpe_valloc (s->deg + 1);
   s->dpc2 = cdpe_valloc (s->deg + 1);
 
@@ -357,7 +351,7 @@ mps_free_data (mps_status * s)
 
   /* free temporary vectors */
   free (s->spar1);
-  mps_boolean_vfree (s->spar2);
+  free (s->spar2);
   free (s->h);
   free (s->again_old);
 
@@ -371,7 +365,7 @@ mps_free_data (mps_status * s)
   free (s->fap2);
 
   rdpe_vfree (s->dap1);
-  rdpe_vfree (s->dap2);
+  // rdpe_vfree (s->dap2);
   cdpe_vfree (s->dpc1);
   cdpe_vfree (s->dpc2);
 

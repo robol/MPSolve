@@ -497,7 +497,7 @@ mps_secular_switch_phase (mps_status * s, mps_phase phase)
       if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
 	{
 	  MPS_DEBUG (s, "Dumping current approximations before starting MP");
-	  mps_dump (s, s->logstr);
+	  mps_dump (s);
 	}
 
       mps_secular_raise_precision (s, MPS_SECULAR_STARTING_MP_PRECISION);

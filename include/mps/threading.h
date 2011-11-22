@@ -186,19 +186,19 @@ extern "C"
  * @brief Get a pointer to an array of n+2 booleans
  * that is local to the thread.
  */
-#define mps_thread_get_spar2(s, n_thread) (s->spar2 + (s->n + 1) * (n_thread))
+#define mps_thread_get_spar2(s, n_thread) (s->spar2 + (s->deg + 2) * (n_thread))
 
 /**
- * @brief Get a pointer to an array of n+2 multiprecision
+ * @brief Get a pointer to an array of n+1 multiprecision
  * that is local to the thread.
  */
-#define mps_thread_get_mfpc2(s, n_thread) (s->mfpc2 + (s->n + 1) * (n_thread))
+#define mps_thread_get_mfpc2(s, n_thread) (s->mfpc2 + (s->deg + 1) * (n_thread))
 
 /**
  * @brief Get a pointer to an array of n+2 DPE
  * that is local to the thread.
  */
-#define mps_thread_get_dap2(s, n_thread) (s->dap2 + (s->n + 1) * (n_thread))
+#define mps_thread_get_dap2(s, n_thread) (s->dap2 + (s->deg + 2) * (n_thread))
 
 
 #ifdef __cplusplus
