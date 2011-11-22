@@ -80,9 +80,13 @@ extern "C"
                          mps_boolean * again, void * user_data);
 
   /* Routines in secular-regeneartion.c */
-  mps_boolean * mps_secular_ga_find_changed_roots (mps_status * s, cdpe_t * old_b);
+  mps_boolean * mps_secular_ga_find_changed_roots (mps_status * s, cdpe_t * old_b, mpc_t * old_mb);
 
-  mps_boolean mps_secular_ga_regenerate_coefficients_mp (mps_status * s, cdpe_t * old_b);
+  mps_boolean mps_secular_ga_regenerate_coefficients_mp (mps_status * s, cdpe_t * old_b, mpc_t * old_mb);
+
+  mps_boolean mps_secular_ga_regenerate_coefficients_monomial (mps_status * s, cdpe_t * old_b, mps_boolean * root_changed);
+
+  mps_boolean mps_secular_ga_regenerate_coefficients_secular (mps_status * s, cdpe_t * old_b, mps_boolean * root_changed);
 
   mps_boolean mps_secular_ga_regenerate_coefficients (mps_status * s);
 
