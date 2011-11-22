@@ -27,6 +27,66 @@ mps_mhorner (mps_status * s, mps_monomial_poly * p, mpc_t x, mpc_t value)
  * and save it in <code>value</code>. 
  *
  * A upper bound to the relative error of the evaluation will be stored in <code>relative_error</code>.
+ * The error is computed using the formula
+ * \f[
+ *  n \frac{ap(|x|)}{|p(x)|} u
+ * \f]
+ * where \f$ap(x)\f$ is the polynomial with the coefficients equal to the moduli of the coefficients
+ * of \f$p(x)\f$. 
+ *
+ * @param s The <code>mps_status</code> of the computation.
+ * @param p The <code>monomial_poly</code> to evaluate.
+ * @param x The point where the polynomial will be evaluated.
+ * @param value The multiprecision complex variable where the result will be stored.
+ * @param relative_error The <code>RDPE</code> where the relative error will be saved.
+ * @param wp The working precision to use for the computation. If this value is <code>0</code> then <code>s->mpwp</code>
+ * will be used.
+ */
+void
+mps_mhorner_with_error2 (mps_status * s, mps_monomial_poly * p, mpc_t x, mpc_t value, rdpe_t relative_error, long int wp)
+{
+  int i;
+  rdpe_t apol, ax, u;
+  cdpe_t cx;
+
+  if (mpc_get_prec (p->mfpc[0]) < wp)
+    {
+      for(i = 0; i < p->n; i++)
+	mpc_set_prec (p->mfpc[i], wp);
+    }
+
+  /* Set 4 * machine precision in u */
+  rdpe_set_2dl (u, 1.0, 2 - wp);
+  
+  /* Compute the polynomial using horner */
+  mps_mhorner (s, p, x, value);
+
+  /* Compute ap(|x|) using horner */
+  mpc_get_cdpe (cx, x);
+  cdpe_mod (ax, cx);
+
+  rdpe_set (apol, p->dap[p->n]);
+  for (i = s->n - 1; i >= 0; i--)
+    {
+      rdpe_mul_eq (apol, ax);
+      rdpe_add_eq (apol, p->dap[i]);
+    }
+
+  /* Compute ap(|x|) / |p(x)| */
+  mpc_get_cdpe (cx, value);
+  cdpe_mod (ax, cx);
+
+  rdpe_div_eq (apol, ax);
+  rdpe_set (relative_error, apol);
+
+  rdpe_mul_eq (relative_error, u);
+}
+
+/**
+ * @brief Compute the value of the polynomial <code>p</code> in the point <code>x</code>
+ * and save it in <code>value</code>. 
+ *
+ * A upper bound to the relative error of the evaluation will be stored in <code>relative_error</code>.
  *
  * @param s The <code>mps_status</code> of the computation.
  * @param p The <code>monomial_poly</code> to evaluate.

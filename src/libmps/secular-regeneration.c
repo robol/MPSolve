@@ -6,14 +6,25 @@
 #include <math.h>
 #include <string.h>
 
+/**
+ * @brief Update the working precision of a root, i.e. the variable
+ * <code>s->rootwp[i]</code> with the given precision rounded to the 
+ * closer multiple of 64 (since GMP does not handle intermediate precisions).
+ *
+ * @param s The <code>mps_status</code> of the computation.
+ * @param i The index of the root whose precision must be updated.
+ * @param wp The precision to set.
+ */
 long int
 mps_secular_ga_update_root_wp (mps_status * s, int i, long int wp)
 {
    mps_secular_equation * sec = s->secular_equation; 
    mps_monomial_poly * p = s->monomial_poly; 
-   int j; 
+   int j;
 
-  s->rootwp[i] = (wp / 64 + 1) * 64;
+   MPS_DEBUG (s, "Asked to set precision %ld on root %d", wp, i);
+
+   s->rootwp[i] = ((wp - 1) / 64 + 1) * 64;
 
   if (s->debug_level & MPS_DEBUG_MEMORY)
     MPS_DEBUG (s, "Setting wp for root %d to %ld bits", i, s->rootwp[i]);
@@ -204,7 +215,7 @@ mps_secular_ga_regenerate_coefficients_monomial (mps_status * s, cdpe_t * old_b,
 	  rdpe_t relative_error;
 
 	  mps_secular_ga_update_root_wp (s, i, s->rootwp[i]);
-	  mps_mhorner_with_error (s, p, sec->bmpc[i], sec->ampc[i], relative_error, s->rootwp[i]); 
+	  mps_mhorner_with_error2 (s, p, sec->bmpc[i], sec->ampc[i], relative_error, s->rootwp[i]); 
 
 	  if (s->debug_level & MPS_DEBUG_REGENERATION)
 	    MPS_DEBUG_RDPE (s, relative_error, "Relative_error on p(b_%d) evaluation", i);
@@ -213,10 +224,10 @@ mps_secular_ga_regenerate_coefficients_monomial (mps_status * s, cdpe_t * old_b,
 	    {
 	      /* Update the working precision of the selected root with a realistic estimate of the
 	       * required precision to get a result exact to machine precision */
-	      mps_secular_ga_update_root_wp (s, i, s->rootwp[i] + (rdpe_Esp (relative_error) - rdpe_Esp (root_epsilon)));
+	      mps_secular_ga_update_root_wp (s, i, 1 + s->rootwp[i] + (rdpe_Esp (relative_error) - rdpe_Esp (root_epsilon)));
 
 	      /* Try to recompute the polynomial with the augmented precision and see if now relative_error matches */
-	      mps_mhorner_with_error (s, p, sec->bmpc[i], sec->ampc[i], relative_error, s->rootwp[i]);   
+	      mps_mhorner_with_error2 (s, p, sec->bmpc[i], sec->ampc[i], relative_error, s->rootwp[i]);   
 	      if (s->debug_level & MPS_DEBUG_REGENERATION)
 		MPS_DEBUG_RDPE (s, relative_error, "Relative_error on p(b_%d) evaluation", i);
 	    }   

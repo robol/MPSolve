@@ -217,6 +217,7 @@ extern "C"
   /* Functions in horner.c */
   void mps_mhorner (mps_status * s, mps_monomial_poly * p, mpc_t x, mpc_t value);
   void mps_mhorner_with_error (mps_status * s, mps_monomial_poly * p, mpc_t x, mpc_t value, rdpe_t relative_error, long int wp);
+  void mps_mhorner_with_error2 (mps_status * s, mps_monomial_poly * p, mpc_t x, mpc_t value, rdpe_t relative_error, long int wp);
 
 /*
  * End of extern "C" {
