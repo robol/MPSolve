@@ -22,8 +22,6 @@ mps_secular_ga_update_root_wp (mps_status * s, int i, long int wp)
    mps_monomial_poly * p = s->monomial_poly; 
    int j;
 
-   MPS_DEBUG (s, "Asked to set precision %ld on root %d", wp, i);
-
    s->rootwp[i] = ((wp - 1) / 64 + 1) * 64;
 
   if (s->debug_level & MPS_DEBUG_MEMORY)
