@@ -1117,18 +1117,6 @@ extern "C"
     rdpe_t *dap1;
 
     /**
-     * @brief Vector containing the logarithms of the moduli of
-     * the coefficients
-     * of the polynomial as <code>dpe</code> numbers.
-     *
-     * It is used in the computation of the newton polygonal in
-     * <code>mps_fcompute_starting_radii()</code>.
-     *
-     * @see mps_fcompute_starting_radii()
-     */
-    rdpe_t *dap2;
-
-    /**
      * @brief Vector needed for convex hull computation.
      *
      * It is <code>true</code> in position \f$j\f$ if

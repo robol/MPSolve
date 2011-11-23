@@ -94,7 +94,6 @@ mps_allocate_data (mps_status * s)
   s->fap2 = double_valloc (s->deg + 1);
 
   s->dap1 = rdpe_valloc (s->deg + 1);
-  // s->dap2 = rdpe_valloc ((s->deg + 1) * (s->n_threads));
   s->dpc1 = cdpe_valloc (s->deg + 1);
   s->dpc2 = cdpe_valloc (s->deg + 1);
 
@@ -365,7 +364,6 @@ mps_free_data (mps_status * s)
   free (s->fap2);
 
   rdpe_vfree (s->dap1);
-  // rdpe_vfree (s->dap2);
   cdpe_vfree (s->dpc1);
   cdpe_vfree (s->dpc2);
 

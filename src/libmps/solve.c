@@ -1647,8 +1647,9 @@ mps_mmodify (mps_status * s, mps_boolean track_new_cluster)
   i_new = 0;
   for (i = 1; i <= s->nclust && i_new < s->n; i++)
     {                           /* loop1: */
-      /* printf ("i_old = %d, i_new = %d, s->oldpunt[i_old + 1] = %d, s->punt[i_new + 1] = %d\n", i_old, i_new, s->oldpunt[i_old + 1], s->punt[i_new + 1]); */
-      if (s->oldpunt[i_old + 1] == s->punt[i_new + 1])
+
+      if (s->oldpunt[i_old + 1] == 
+	  s->punt[i_new + 1])
         {
           i_old++;
           i_new++;
@@ -2975,6 +2976,10 @@ mps_msolve (mps_status * s)
     fprintf (s->logstr, "  MSOLVE: call checkstop\n");
   if (mps_check_stop (s))
     {
+      for (i = 0; i <= s->n; i++)
+	s->oldpunt[i] = s->punt[i];
+      oldnclust = s->nclust;
+
       mps_mmodify (s, true);
 
       /* reset the status vector */
@@ -3021,8 +3026,8 @@ mps_msolve (mps_status * s)
           fprintf (s->logstr, "\n");
           fprintf (s->logstr, "  MSOLVE: call mpolzer\n");
         }
-      mps_mpolzer(s, &nit, &excep); 
-      /* mps_thread_mpolzer (s, &nit, &excep);    */
+      mps_mpolzer(s, &nit, &excep);  
+      /* mps_thread_mpolzer (s, &nit, &excep);     */
 
       if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
 	mps_dump (s);
@@ -3205,6 +3210,11 @@ mps_msolve (mps_status * s)
 
   if (s->DOLOG)
     fprintf (s->logstr, "  MSOLVE:  call mmodify\n");
+
+  for (i = 0; i <= s->n; i++)
+    s->oldpunt[i] = s->punt[i];
+  oldnclust = s->nclust;
+
   mps_mmodify (s, true);
 
   for (j = 0; j < s->n; j++)

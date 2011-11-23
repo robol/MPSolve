@@ -101,7 +101,6 @@ mps_thread_job_queue_next (mps_status * s, mps_thread_job_queue * q)
     }
 
   /* Get the next element of the cluster */
-  MPS_DEBUG (s, "q->i = %d", q->i);
   j.i = (q->i)++;
 
   /* Check if the previous one was the last element in the
