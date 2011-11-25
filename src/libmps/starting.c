@@ -509,7 +509,7 @@ mps_dcompute_starting_radii (mps_status * s, int n, int i_clust,
                      s->partitioning[i + 1] - s->partitioning[i]);
       for (k = i + 1; k <= j; k++)
         {
-          rdpe_mul_d (tmp, s->dradii[i],
+          rdpe_mul_d (tmp, s->dradii[k],
                       s->partitioning[k + 1] - s->partitioning[k]);
           rdpe_add_eq (s->dradii[i], tmp);
         }
