@@ -18,7 +18,7 @@
 void
 abortfn (enum mcheck_status status)
 {
-  printf("Ok, ho beccato un error di memoria\n");
+  fprintf (stderr, "A memory error has occurred in MPSolve; aborting\n");
   abort ();
 }
 
@@ -28,7 +28,8 @@ abortfn (enum mcheck_status status)
 int
 main (int argc, char *argv[])
 {
-  /* mcheck (abortfn); */
+  mcheck (abortfn); 
+
   mps_status *s = mps_status_new ();
 
   /* Make stdout synchronous so the debugging is more

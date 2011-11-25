@@ -55,9 +55,6 @@
 **              functions for cplx_t                      **
 ***********************************************************/
 
-/* cplx_t variable for built constants */
-static cplx_t temp_cplx;
-
 /* base constants */
 const cplx_t cplx_zero = { {0.0, 0.0} };
 const cplx_t cplx_one = { {1.0, 0.0} };
@@ -79,13 +76,12 @@ cplx_check_fpe (cplx_t c)
   return fp;
 }
 
-cplx_cp
-cplx_d (double r, double i)
+void
+cplx_d (cplx_t temp_cplx, double r, double i)
 /* return (r, i) */
 {
   cplx_Re (temp_cplx) = r;
   cplx_Im (temp_cplx) = i;
-  return (cplx_cp) temp_cplx;
 }
 
 void
@@ -588,9 +584,6 @@ cplx_vinit (cplx_t v[], long size)
   else rdpe_Esp(E) += i; \
 }
 
-/* rdpe_t variable for built constants */
-static rdpe_t temp_rdpe;
-
 /* constants */
 const rdpe_t rdpe_zero = { {0.0, 0L} };
 const rdpe_t rdpe_one = { {0.5, 1L} };
@@ -599,24 +592,22 @@ const rdpe_t RDPE_MIN = { {0.5, LONG_MIN} };
 const rdpe_t rdpe_maxd = { {0.5, DBL_MAX_EXP} };
 const rdpe_t rdpe_mind = { {0.5, DBL_MIN_EXP} };
 
-rdpe_cp
-rdpe_d (double d)
+void
+rdpe_d (rdpe_t temp_rdpe, double d)
 /* return d as a rdpe_t */
 {
   rdpe_Mnt (temp_rdpe) = d;
   rdpe_Esp (temp_rdpe) = 0L;
   rdpe_Norm (temp_rdpe);
-  return (rdpe_cp) temp_rdpe;
 }
 
-rdpe_cp
-rdpe_2dl (double d, long l)
+void
+rdpe_2dl (rdpe_t temp_rdpe, double d, long l)
 /* return d*2^l as a rdpe_t */
 {
   rdpe_Mnt (temp_rdpe) = d;
   rdpe_Esp (temp_rdpe) = l;
-  rdpe_Norm (temp_rdpe);
-  return (rdpe_cp) temp_rdpe;
+  rdpe_Norm (temp_rdpe);;
 }
 
 void
@@ -1615,16 +1606,13 @@ rdpe_vinit (rdpe_t v[], long size)
 
 #define cdpe_Norm(C)  rdpe_Norm(cdpe_Re(C)); rdpe_Norm(cdpe_Im(C));
 
-/* cdpe_t var. for built constants */
-static cdpe_t temp_cdpe;
-
 /* base constants */
 const cdpe_t cdpe_zero = { {{{0.0, 0L}}, {{0.0, 0L}}} };
 const cdpe_t cdpe_one = { {{{0.5, 1L}}, {{0.0, 0L}}} };
 const cdpe_t cdpe_i = { {{{0.0, 0L}}, {{0.5, 1L}}} };
 
-cdpe_cp
-cdpe_d (double r, double i)
+void
+cdpe_d (cdpe_t temp_cdpe, double r, double i)
 /* return (r, i) as a cdpe_t */
 {
   rdpe_Mnt (cdpe_Re (temp_cdpe)) = r;
@@ -1632,11 +1620,10 @@ cdpe_d (double r, double i)
   rdpe_Mnt (cdpe_Im (temp_cdpe)) = i;
   rdpe_Esp (cdpe_Im (temp_cdpe)) = 0L;
   cdpe_Norm (temp_cdpe);
-  return (cdpe_cp) temp_cdpe;
 }
 
-cdpe_cp
-cdpe_x (const cplx_t x)
+void
+cdpe_x (cdpe_t temp_cdpe, const cplx_t x)
 /* return x as a cdpe_t */
 {
   rdpe_Mnt (cdpe_Re (temp_cdpe)) = cplx_Re (x);
@@ -1644,20 +1631,18 @@ cdpe_x (const cplx_t x)
   rdpe_Mnt (cdpe_Im (temp_cdpe)) = cplx_Im (x);
   rdpe_Esp (cdpe_Im (temp_cdpe)) = 0L;
   cdpe_Norm (temp_cdpe);
-  return (cdpe_cp) temp_cdpe;
 }
 
-cdpe_cp
-cdpe_e (const rdpe_t er, const rdpe_t ei)
+void
+cdpe_e (cdpe_t temp_cdpe, const rdpe_t er, const rdpe_t ei)
 /* return (er, ei) */
 {
   rdpe_Move (cdpe_Re (temp_cdpe), er);
   rdpe_Move (cdpe_Im (temp_cdpe), ei);
-  return (cdpe_cp) temp_cdpe;
 }
 
-cdpe_cp
-cdpe_2dl (double dr, long lr, double di, long li)
+void
+cdpe_2dl (cdpe_t temp_cdpe, double dr, long lr, double di, long li)
 /* return (dr*2^lr, di*2^li) as a cdpe_t */
 {
   rdpe_Mnt (cdpe_Re (temp_cdpe)) = dr;
@@ -1665,7 +1650,6 @@ cdpe_2dl (double dr, long lr, double di, long li)
   rdpe_Mnt (cdpe_Im (temp_cdpe)) = di;
   rdpe_Esp (cdpe_Im (temp_cdpe)) = li;
   cdpe_Norm (temp_cdpe);
-  return (cdpe_cp) temp_cdpe;
 }
 
 void

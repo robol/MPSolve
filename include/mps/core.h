@@ -166,7 +166,7 @@ extern "C"
 /* functions in stio.c */
   void mps_readroots (mps_status * s);
   void mps_countroots (mps_status * s);
-  void mps_outroot (mps_status * s, int i);
+  void mps_outroot (mps_status * s, int i, int num);
   void mps_output (mps_status * s);
   void mps_copy_roots (mps_status * s);
   void mps_dump (mps_status * s);

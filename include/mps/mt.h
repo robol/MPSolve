@@ -55,7 +55,7 @@ extern "C"
   extern const cplx_t cplx_i;   /* imag. unit    (0, 1)    */
 
 /* built constants */
-  cplx_cp cplx_d (double r, double i);
+  void cplx_d (cplx_t temp_cplx, double r, double i);
 
 /* initializers */
 #define cplx_init(X) cplx_clear(X)
@@ -165,8 +165,8 @@ extern "C"
   extern const rdpe_t RDPE_MIN; /* min pos. rdpe  number   */
 
 /* built constants */
-  rdpe_cp rdpe_d (double d);
-  rdpe_cp rdpe_2dl (double d, long l);
+  void rdpe_d (rdpe_t temp_rdpe, double d);
+  void rdpe_2dl (rdpe_t temp_rdpe, double d, long l);
 
 /* assignment functions */
 #define rdpe_init(E) rdpe_clear(E)
@@ -291,10 +291,10 @@ extern "C"
   extern const cdpe_t cdpe_i;   /* cdpe I        (0, 1)    */
 
 /* built constants */
-  cdpe_cp cdpe_d (double r, double i);
-  cdpe_cp cdpe_x (const cplx_t x);
-  cdpe_cp cdpe_e (const rdpe_t er, const rdpe_t ei);
-  cdpe_cp cdpe_2dl (double dr, long lr, double di, long li);
+  void cdpe_d (cdpe_t temp_cdpe, double r, double i);
+  void cdpe_x (cdpe_t temp_cdpe, const cplx_t x);
+  void cdpe_e (cdpe_t temp_cdpe, const rdpe_t er, const rdpe_t ei);
+  void cdpe_2dl (cdpe_t temp_cdpe, double dr, long lr, double di, long li);
 
 /* initializers */
 #define cdpe_init(C) cdpe_clear(C)

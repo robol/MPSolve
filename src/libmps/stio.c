@@ -1208,13 +1208,11 @@ mps_outfloat (mps_status * s, mpf_t f, rdpe_t rad, long out_digit,
 *      SUBROUTINE OUTROOT                                *
 *********************************************************/
 void
-mps_outroot (mps_status * s, int i)
+mps_outroot (mps_status * s, int i, int num)
 {
-  static int num = 0;           /* output roots count */
   long out_digit;
 
   out_digit = (long) (LOG10_2 * s->output_config->prec) + 10;
-  num++;
 
   /* print format header */
   switch (s->output_config->format)
@@ -1314,7 +1312,7 @@ mps_outroot (mps_status * s, int i)
 void
 mps_output (mps_status * s)
 {
-  int i, ind;
+  int i, ind, num = 0;
 
   if (s->DOLOG)
     fprintf (s->logstr, "--------------------\n");
@@ -1336,13 +1334,13 @@ mps_output (mps_status * s)
     {
       if (s->goal[1] != 'o')
         for (i = 0; i < s->zero_roots; i++)
-          mps_outroot (s, ISZERO);
+	    mps_outroot (s, ISZERO, num++);
       for (ind = 0; ind < s->n; ind++)
         {
           i = s->order[ind];
           if (s->status[i][2] == 'o')
             continue;
-          mps_outroot (s, i);
+          mps_outroot (s, i, num++);
         }
     }
 
