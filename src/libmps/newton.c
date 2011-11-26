@@ -44,7 +44,8 @@
  */
 void
 mps_fnewton (mps_status * s, int n, cplx_t z, double *radius, cplx_t corr,
-             cplx_t fpc[], double fap[], mps_boolean * cont)
+             cplx_t fpc[], double fap[], mps_boolean * cont, 
+	     mps_boolean skip_radius_computation)
 {
   int i;
   double ap, az, absp, azi, eps;
@@ -125,6 +126,9 @@ mps_fnewton (mps_status * s, int n, cplx_t z, double *radius, cplx_t corr,
 
     }
 
+  if (skip_radius_computation)
+    return;
+
   /* Computation of the radius using Gerschgorin, i.e. the radius
    * of inclusion of the root i is equal to:
    *
@@ -176,7 +180,8 @@ mps_fnewton (mps_status * s, int n, cplx_t z, double *radius, cplx_t corr,
  */
 void
 mps_dnewton (mps_status * s, int n, cdpe_t z, rdpe_t radius, cdpe_t corr,
-             cdpe_t dpc[], rdpe_t dap[], mps_boolean * cont)
+             cdpe_t dpc[], rdpe_t dap[], mps_boolean * cont,
+	     mps_boolean skip_radius_computation)
 {
   int i;
   rdpe_t ap, az, absp, rnew, apeps, rtmp;
@@ -221,6 +226,9 @@ mps_dnewton (mps_status * s, int n, cdpe_t z, rdpe_t radius, cdpe_t corr,
   cdpe_mod (absp, p);
   rdpe_mul_d (apeps, ap, eps);
   *cont = rdpe_gt (absp, apeps);
+
+  if (skip_radius_computation)
+    return;
 
   /* Computation of the radius using Gerschgorin, i.e. the radius
    * of inclusion of the root i is equal to:
@@ -354,7 +362,6 @@ mps_aparhorner (mps_status * st,
   /* Set the pointer for paraller horner to be thread specific
    * so there is not conflict with other threads.           */
   mps_boolean *spar2 = mps_thread_get_spar2 (st, n_thread); 
-  // rdpe_t *dap2 = mps_thread_get_dap2 (st, n_thread); 
   rdpe_t * dap2 = rdpe_valloc (st->deg + 1);
 
   for (i = 0; i < n + 1; i++)
@@ -445,7 +452,8 @@ mps_aparhorner (mps_status * st,
 void
 mps_mnewton (mps_status * s, int n, mpc_t z, rdpe_t radius, mpc_t corr,
              mpc_t mfpc[], mpc_t mfppc[], rdpe_t dap[],
-             mps_boolean spar[], mps_boolean * cont, int n_thread)
+             mps_boolean spar[], mps_boolean * cont, int n_thread,
+	     mps_boolean skip_radius_computation)
 {
   int i, n1, n2;
   rdpe_t ap, az, absp, temp, rnew, ep, apeps, absdiff, rtmp;
@@ -542,10 +550,8 @@ mps_mnewton (mps_status * s, int n, mpc_t z, rdpe_t radius, mpc_t corr,
   rdpe_mul (apeps, ap, ep);
   *cont = rdpe_gt (absp, apeps);
 
-  /* rdpe_add (rnew, absp, apeps); */
-  /* rdpe_div_eq (rnew, temp); */
-
-  /* rdpe_mul_d (radius, rnew, (double) n); */
+  if (skip_radius_computation)
+    goto exit_sub;
 
   /* Computation of the radius using Gerschgorin, i.e. the radius
    * of inclusion of the root i is equal to:

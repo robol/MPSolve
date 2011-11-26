@@ -148,6 +148,106 @@ mps_mhorner_with_error (mps_status * s, mps_monomial_poly * p, mpc_t x, mpc_t va
   mpc_clear (ss);
 }
 
+/**
+ * @brief Evaluate the polynomial p in the point x.
+ *
+ * @param s The <code>mps_status</code> of the computation.
+ * @param p The <code>mps_monomial_poly</code> to evaluate.
+ * @param z The point where the polynomial will be evaluated.
+ * @param value The value computed by the function.
+ */
+void
+mps_dhorner (mps_status * s, mps_monomial_poly * p, cdpe_t x, cdpe_t value)
+{
+  int j;
+
+  cdpe_set (value, p->dpc[p->n]);
+  for (j = p->n - 1; j >= 0; j--)
+    {
+      cdpe_mul_eq (value, x);
+      cdpe_add_eq (value, p->dpc[j]);
+    }
+}
+
+/**
+ * @brief Evaluate the polynomial p in the point x, and give also a bound to the
+ * relative error occured in the computation. 
+ *
+ * @param s The <code>mps_status</code> of the computation.
+ * @param p The <code>mps_monomial_poly</code> to evaluate.
+ * @param z The point where the polynomial will be evaluated.
+ * @param value The value computed by the function.
+ * @param relative_error A bound to the relative error of the computation.
+ */
+void
+mps_dhorner_with_error (mps_status * s, mps_monomial_poly * p, cdpe_t x, cdpe_t value, rdpe_t relative_error)
+{
+  rdpe_t ax;
+  int j;
+
+  mps_dhorner (s, p, x, value);
+  
+  cdpe_mod (ax, x);
+  rdpe_set (relative_error, p->dap[p->n]);
+  for (j = p->n - 1; j >= 0; j--)
+    {
+      rdpe_mul_eq (relative_error, ax);
+      rdpe_add_eq (relative_error, p->dap[j]);
+    }
+
+  cdpe_mod (ax, value);
+  rdpe_div_eq (relative_error, ax);
+}
+
+/**
+ * @brief Evaluate the polynomial p in the point x.
+ *
+ * @param s The <code>mps_status</code> of the computation.
+ * @param p The <code>mps_monomial_poly</code> to evaluate.
+ * @param z The point where the polynomial will be evaluated.
+ * @param value The value computed by the function.
+ */
+void
+mps_fhorner (mps_status * s, mps_monomial_poly * p, cplx_t x, cplx_t value)
+{
+  int j;
+
+  cplx_set (value, p->fpc[p->n]);
+  for (j = p->n - 1; j >= 0; j--)
+    {
+      cplx_mul_eq (value, x);
+      cplx_add_eq (value, p->fpc[j]);
+    }
+}
+
+/**
+ * @brief Evaluate the polynomial p in the point x, and give also a bound to the
+ * relative error occured in the computation. 
+ *
+ * @param s The <code>mps_status</code> of the computation.
+ * @param p The <code>mps_monomial_poly</code> to evaluate.
+ * @param z The point where the polynomial will be evaluated.
+ * @param value The value computed by the function.
+ * @param relative_error A bound to the relative error of the computation.
+ */
+void
+mps_fhorner_with_error (mps_status * s, mps_monomial_poly * p, cplx_t x, cplx_t value, double * relative_error)
+{
+  int j;
+  double ax = cplx_mod (x);
+
+  mps_fhorner (s, p, x, value);
+
+  *relative_error = p->fap[p->n];
+  for (j = p->n - 1; j >= 0; j--)
+    {
+      *relative_error *= ax;
+      *relative_error += p->fap[j];
+    }
+
+  *relative_error = *relative_error / cplx_mod (value);
+}
+
 /* Sparse version of horner... */
 	  /* if (MPS_INPUT_CONFIG_IS_SPARSE (s->input_config)) */
 	  /*   { */

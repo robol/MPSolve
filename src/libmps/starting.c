@@ -1141,7 +1141,7 @@ mps_frestart (mps_status * s)
         {                       /* loop_newt: */
           rad = 0.0;
           mps_fnewton (s, s->n - (s->punt[i + 1] - s->punt[i]) + 1, g,
-                       &rad, corr, p->fppc, s->fap1, &cont);
+                       &rad, corr, p->fppc, s->fap1, &cont, false);
           cplx_sub_eq (g, corr);
           if (!cont)
             break;
@@ -1314,7 +1314,7 @@ mps_drestart (mps_status * s)
         {                       /* loop_newt: */
           rdpe_set (rad, rdpe_zero);
           mps_dnewton (s, s->n - (s->punt[i + 1] - s->punt[i]) + 1, g, rad,
-                       corr, s->dpc2, s->dap1, &cont);
+                       corr, s->dpc2, s->dap1, &cont, false);
           cdpe_sub_eq (g, corr);
           if (!cont)
             break;
@@ -1522,7 +1522,7 @@ mps_mrestart (mps_status * s)
           rdpe_set (rad, rdpe_zero);
           mps_mnewton (s, s->n - (s->punt[i + 1] - s->punt[i]) + 1, g, rad,
                        corr, s->mfpc1, s->mfppc1, s->dap1, s->spar1, &cont,
-                       0);
+                       0, false);
           if (cont)
             {
               mpc_sub_eq (g, corr);

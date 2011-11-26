@@ -104,13 +104,14 @@ extern "C"
 /* functions in newton.c */
   void mps_fnewton (mps_status * st, int n, cplx_t z, double *radius,
                     cplx_t corr, cplx_t fpc[], double fap[],
-                    mps_boolean * cont);
+                    mps_boolean * cont, mps_boolean skip_radius_computation);
   void mps_dnewton (mps_status * st, int n, cdpe_t z, rdpe_t radius,
                     cdpe_t corr, cdpe_t dpc[], rdpe_t dap[],
-                    mps_boolean * cont);
+                    mps_boolean * cont, mps_boolean skip_radius_computation);
   void mps_mnewton (mps_status * st, int n, mpc_t z, rdpe_t radius,
                     mpc_t corr, mpc_t mfpc[], mpc_t mfppc[], rdpe_t dap[],
-                    mps_boolean * spar, mps_boolean * cont, int n_thread);
+                    mps_boolean * spar, mps_boolean * cont, int n_thread, 
+		    mps_boolean skip_radius_computation);
   void mps_parhorner (mps_status * st, int n, mpc_t x, mpc_t p[],
                       mps_boolean b[], mpc_t s, int n_thread);
   void mps_aparhorner (mps_status * st, int n, rdpe_t x, rdpe_t p[],
@@ -215,6 +216,10 @@ extern "C"
   mps_parse_stream (mps_status * s, FILE * input_stream);
 
   /* Functions in horner.c */
+  void mps_fhorner (mps_status * s, mps_monomial_poly * p, cplx_t x, cplx_t value);
+  void mps_fhorner_with_error (mps_status * s, mps_monomial_poly * p, cplx_t x, cplx_t value, double * relative_error);
+  void mps_dhorner (mps_status * s, mps_monomial_poly * p, cdpe_t x, cdpe_t value);
+  void mps_dhorner_with_error (mps_status * s, mps_monomial_poly * p, cdpe_t x, cdpe_t value, rdpe_t relative_error);
   void mps_mhorner (mps_status * s, mps_monomial_poly * p, mpc_t x, mpc_t value);
   void mps_mhorner_with_error (mps_status * s, mps_monomial_poly * p, mpc_t x, mpc_t value, rdpe_t relative_error, long int wp);
   void mps_mhorner_with_error2 (mps_status * s, mps_monomial_poly * p, mpc_t x, mpc_t value, rdpe_t relative_error, long int wp);

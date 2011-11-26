@@ -192,7 +192,7 @@ mps_thread_fpolzer_worker (void *data_ptr)
           if (s->data_type[0] != 'u')
             {
               mps_fnewton (s, s->n, froot, &s->frad[i], corr, p->fpc, p->fap,
-                           &s->again[i]);
+                           &s->again[i], true);
               if (iter == 0 && !s->again[i] && s->frad[i] > rad1 && rad1 != 0)
                 s->frad[i] = rad1;
               /***************************************
@@ -317,6 +317,39 @@ mps_thread_fpolzer (mps_status * s, int *it, mps_boolean * excep)
     {
       pthread_join (threads[i], NULL);
     }
+
+  /* Compute the inclusion radius */
+  if (!MPS_INPUT_CONFIG_IS_USER (s->input_config))
+    {
+      cplx_t pol;
+      double new_rad, relative_error, pol_mod;
+      int j;
+
+      for (i = 0; i < s->n; i++)
+	{
+	  mps_fhorner_with_error (s, s->monomial_poly, s->froot[i], pol, &relative_error);
+	  new_rad = cplx_mod (pol) * (1 + relative_error);
+
+	  for (j = 0; j < s->n; j++)
+	    {
+	      cplx_sub (pol, s->froot[i], s->froot[j]);
+	      pol_mod = cplx_mod (pol);
+	      
+	      /* Check for floating point exceptions in here */
+	      if (pol_mod == 0)
+		{
+		  new_rad = DBL_MAX;
+		  break;
+		}
+	      new_rad /= cplx_mod (pol);
+	    }
+
+	  if (new_rad > s->frad[i])
+	    s->frad[i] = new_rad;
+	}
+    }
+
+
   free (data);
   free (threads);
   free (roots_mutex);
@@ -371,7 +404,7 @@ mps_thread_dpolzer_worker (void *data_ptr)
           if (s->data_type[0] != 'u')
             {
               mps_dnewton (s, s->n, s->droot[i], s->drad[i], corr, p->dpc,
-                           p->dap, &s->again[i]);
+                           p->dap, &s->again[i], true);
               if (iter == 0 && !s->again[i] && rdpe_gt (s->drad[i], rad1)
                   && rdpe_ne (rad1, rdpe_zero))
                 rdpe_set (s->drad[i], rad1);
@@ -498,6 +531,42 @@ mps_thread_dpolzer (mps_status * s, int *it, mps_boolean * excep)
       pthread_join (threads[i], NULL);
     }
 
+  /* Now compute the radius */
+  cdpe_t cdtmp;
+  rdpe_t new_rad, rtmp;
+  int j;
+
+  if (!MPS_INPUT_CONFIG_IS_USER (s->input_config))
+    {
+      for (i = 0; i < s->n; i++)
+	{
+	  mps_dhorner_with_error (s, s->monomial_poly, s->droot[i], cdtmp, rtmp);
+	  cdpe_mod (new_rad, cdtmp);
+	  rdpe_add_eq (rtmp, rdpe_one);
+	  rdpe_mul_eq (new_rad, rtmp);
+
+	  for (j = 0; j < s->n; j++)
+	    {
+	      if (i == j)
+		continue;
+
+	      cdpe_sub (cdtmp, s->droot[i], s->droot[j]);
+	      cdpe_mod (rtmp, cdtmp);
+
+	      if (rdpe_eq_zero (rtmp))
+		{
+		  rdpe_set (new_rad, RDPE_MAX);
+		  break;
+		}
+
+	      rdpe_div_eq (new_rad, rtmp);
+	    }
+
+	  if (rdpe_lt (new_rad, s->drad[i]))
+	      rdpe_set (s->drad[i], new_rad);
+	}
+    }
+
   free (threads);
   free (aberth_mutex);
   free (roots_mutex);
@@ -552,7 +621,7 @@ mps_thread_mpolzer_worker (void *data_ptr)
        * same computations.                                  */
       pthread_mutex_lock (&data->roots_mutex[l]);
 
-      MPS_DEBUG (s, "Iterating on root %d, iter %d", l, job.iter);
+      /* MPS_DEBUG (s, "Iterating on root %d, iter %d", l, job.iter); */
 
       if (s->again[l])
         {
@@ -578,7 +647,7 @@ mps_thread_mpolzer_worker (void *data_ptr)
               rdpe_set (rad1, s->drad[l]);
               mps_mnewton (s, s->n, mroot, s->drad[l], corr, p->mfpc,
                            p->mfppc, p->dap, p->spar, &s->again[l],
-                           data->thread);
+                           data->thread, true);
               if (iter == 0 && !s->again[l] && rdpe_gt (s->drad[l], rad1)
                   && rdpe_ne (rad1, rdpe_zero))
                 rdpe_set (s->drad[l], rad1);
@@ -652,8 +721,8 @@ mps_thread_mpolzer_worker (void *data_ptr)
       else
 	pthread_mutex_unlock (&data->roots_mutex[l]);
 
-      MPS_DEBUG_MPC (s, 15, s->mroot[l], "s->mroot[%d]", l);
-      MPS_DEBUG_RDPE (s, s->drad[l], "s->drad[%d]", l);
+      /* MPS_DEBUG_MPC (s, 15, s->mroot[l], "s->mroot[%d]", l); */
+      /* MPS_DEBUG_RDPE (s, s->drad[l], "s->drad[%d]", l); */
 
       if ((*data->nzeros) == s->n)
         {
@@ -697,7 +766,7 @@ mps_thread_mpolzer (mps_status * s, int *it, mps_boolean * excep)
   else   
     n_threads = s->n_threads; 
 
-  MPS_DEBUG (s, "Spawning %d threads", n_threads);
+  MPS_DEBUG_WITH_INFO (s, "Spawning %d threads", n_threads);
 
   pthread_t *threads = (pthread_t *) mps_malloc (sizeof (pthread_t) * n_threads);
   mps_thread_worker_data *data;
@@ -742,6 +811,45 @@ mps_thread_mpolzer (mps_status * s, int *it, mps_boolean * excep)
   for (i = 0; i < n_threads; i++)
     {
       pthread_join (threads[i], NULL);
+    }
+
+  if (!MPS_INPUT_CONFIG_IS_USER (s->input_config))
+    {
+      /* Now compute the radius */
+      mpc_t diff;
+      cdpe_t cdtmp;
+      rdpe_t new_rad, rtmp;
+      int j;
+
+      mpc_init2 (diff, s->mpwp);
+
+      for (i = 0; i < s->n; i++)
+	{
+	  mps_mhorner_with_error2 (s, s->monomial_poly, s->mroot[i], diff, rtmp, s->mpwp);
+	  mpc_get_cdpe (cdtmp, diff);
+	  cdpe_mod (new_rad, cdtmp);
+	  rdpe_add_eq (rtmp, rdpe_one);
+	  rdpe_mul_eq (new_rad, rtmp);
+
+	  for (j = 0; j < s->n; j++)
+	    {
+	      if (i == j)
+		continue;
+
+	      mpc_sub (diff, s->mroot[i], s->mroot[j]);
+	      mpc_get_cdpe (cdtmp, diff);
+	      cdpe_mod (rtmp, cdtmp);
+
+	      rdpe_div_eq (new_rad, rtmp);
+	    }
+
+	  if (rdpe_lt (new_rad, s->drad[i]))
+	    rdpe_set (s->drad[i], new_rad);
+
+	  MPS_DEBUG_RDPE (s, new_rad, "new_rad_%d", i);
+	}
+
+      mpc_clear (diff);
     }
 
   /* Free data and exit */

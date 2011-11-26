@@ -2626,7 +2626,7 @@ mps_fpolzer (mps_status * s, int *it, mps_boolean * excep)
               if (s->data_type[0] != 'u')
                 {
                   mps_fnewton (s, s->n, s->froot[i], &s->frad[i], corr,
-                               p->fpc, p->fap, &s->again[i]);
+                               p->fpc, p->fap, &s->again[i], false);
                   if (iter == 0 && !s->again[i] && s->frad[i] > rad1 && rad1
                       != 0)
                     s->frad[i] = rad1;
@@ -2717,7 +2717,7 @@ mps_dpolzer (mps_status * s, int *it, mps_boolean * excep)
               if (s->data_type[0] != 'u')
                 {
                   mps_dnewton (s, s->n, s->droot[i], s->drad[i], corr, p->dpc,
-                               p->dap, &s->again[i]);
+                               p->dap, &s->again[i], false);
                   if (iter == 0 && !s->again[i] && rdpe_gt (s->drad[i], rad1)
                       && rdpe_ne (rad1, rdpe_zero))
                     rdpe_set (s->drad[i], rad1);
@@ -3026,8 +3026,8 @@ mps_msolve (mps_status * s)
           fprintf (s->logstr, "\n");
           fprintf (s->logstr, "  MSOLVE: call mpolzer\n");
         }
-       mps_mpolzer(s, &nit, &excep);   
-       /* mps_thread_mpolzer (s, &nit, &excep);      */
+       /* mps_mpolzer(s, &nit, &excep);     */
+       mps_thread_mpolzer (s, &nit, &excep);       
 
       if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
 	mps_dump (s);
@@ -3276,6 +3276,9 @@ mps_mpolzer (mps_status * s, int *it, mps_boolean * excep)
           for (i = 0; i < s->punt[j + 1] - s->punt[j]; i++)
             {                   /* do_indice: */
               l = s->clust[s->punt[j] + i];
+
+	      MPS_DEBUG (s, "Iterating on root %d, iter %d", l, iter);
+
               if (s->again[l])
                 {
                   (*it)++;
@@ -3285,7 +3288,7 @@ mps_mpolzer (mps_status * s, int *it, mps_boolean * excep)
                       rdpe_set (rad1, s->drad[l]);
                       mps_mnewton (s, s->n, s->mroot[l], s->drad[l], corr,
                                    p->mfpc, p->mfppc, p->dap, p->spar,
-                                   &s->again[l], 0);
+                                   &s->again[l], 0, false);
                       if (iter == 0 && !s->again[l] && rdpe_gt (s->drad[l],
                                                                 rad1)
                           && rdpe_ne (rad1, rdpe_zero))
@@ -3335,6 +3338,9 @@ mps_mpolzer (mps_status * s, int *it, mps_boolean * excep)
                       if (nzeros == s->n)
                         goto endfun;
                     }
+
+		  MPS_DEBUG_MPC (s, 15, s->mroot[l], "s->mroot[%d]", l);
+		  MPS_DEBUG_RDPE (s, s->drad[l], "s->drad[%d]", l);
 
                 }
             }

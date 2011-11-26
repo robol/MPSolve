@@ -368,6 +368,10 @@ mps_secular_equation_read_from_stream (mps_status * s,
 
   mpf_init (ftmp);
 
+  /* Set the density of the polynomial as user, since we do not have
+   * the coefficients but only an implicit representation */
+  s->input_config->density = MPS_DENSITY_USER;
+
   /* Read directly the secular equation in DPE, so we don't need
    * to have a fallback case if the coefficients are bigger than
    * what is supported by the standard floating point arithmetic */
