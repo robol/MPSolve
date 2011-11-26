@@ -840,6 +840,12 @@ mps_thread_mpolzer (mps_status * s, int *it, mps_boolean * excep)
 	      mpc_get_cdpe (cdtmp, diff);
 	      cdpe_mod (rtmp, cdtmp);
 
+	      if (rdpe_eq_zero (rtmp))
+		{
+		  rdpe_set (new_rad, RDPE_MAX);
+		  break;
+		}
+
 	      rdpe_div_eq (new_rad, rtmp);
 	    }
 
