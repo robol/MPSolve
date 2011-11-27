@@ -121,7 +121,8 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
   else
     cplx_div (corr, pol, corr);
 
-  double asum_on_apol = asum / (apol - 4 * DBL_EPSILON * asum);
+  // double asum_on_apol = asum / (apol - 4 * DBL_EPSILON * asum);
+  double asum_on_apol = asum / apol;
 
   /* If the approximation falls in the root neighbourhood then we can stop */
   if ((asum_on_apol + 1) * MPS_2SQRT2 * DBL_EPSILON > 1 ||
@@ -172,7 +173,7 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
   mps_secular_iteration_data * data = user_data;
 
   cdpe_t pol, fp, sumb, ctmp, ctmp2, old_x;
-  rdpe_t rtmp, rtmp2, apol, prod_b, asum;
+  rdpe_t rtmp, rtmp2, apol, prod_b, asum, asum_on_apol;
 
   *again = true;
 
@@ -236,32 +237,8 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
   else
     cdpe_div (corr, pol, corr);
 
-  /* Computation of radius with Gerschgorin */
-  rdpe_t new_rad;
+  rdpe_div (asum_on_apol, asum, apol);
 
-  /* Compute the guaranteed radius */
-  rdpe_set (new_rad, apol);
-  rdpe_mul_eq_d (new_rad, s->n);
-  rdpe_mul_eq (new_rad, prod_b);
-
-  rdpe_set (rtmp, asum);
-  rdpe_div_eq (rtmp, apol);
-  rdpe_add_eq (rtmp, rdpe_one);
-  rdpe_add_eq_d (rtmp, 3 * s->n);
-  rdpe_mul_eq_d (rtmp, DBL_EPSILON);
-  rdpe_add_eq (rtmp, rdpe_one);
-  rdpe_mul_eq (new_rad, rtmp);
-
-  /* Correct the old radius with the move that we are doing
-   * and check if the new proposed radius is preferable. */
-  if (data)
-    data->radius_set = true;
-
-  if (rdpe_lt (new_rad, rad) || !data)
-    rdpe_set (rad, new_rad);
-  else 
-    data->radius_set = false;
-  
   /* If newton correction is less than
    * the modules of |x| multiplied for
    * for epsilon stop */
@@ -280,9 +257,7 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
       *again = false;
     }
 
-  rdpe_set (rtmp, asum);
-  rdpe_div_eq (rtmp, apol);
-  rdpe_add_eq (rtmp, rdpe_one);
+  rdpe_add (rtmp, rdpe_one, asum_on_apol);
   rdpe_mul_eq_d (rtmp, DBL_EPSILON);
   if (rdpe_ge (rtmp, rdpe_one))
     {
@@ -292,6 +267,33 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
 	}
       *again = false;
     }
+
+  /* Computation of radius with Gerschgorin */
+  rdpe_t new_rad;
+
+  /* Compute the guaranteed radius */
+  rdpe_set (new_rad, apol);
+  rdpe_mul_eq_d (new_rad, s->n);
+  rdpe_mul_eq (new_rad, prod_b);
+
+  /* rdpe_set (rtmp, asum); */
+  /* rdpe_div_eq (rtmp, apol); */
+
+  rdpe_add (rtmp, rdpe_one, asum_on_apol);
+  rdpe_add_eq_d (rtmp, 3 * s->n);
+  rdpe_mul_eq_d (rtmp, DBL_EPSILON);
+  rdpe_add_eq (rtmp, rdpe_one);
+  rdpe_mul_eq (new_rad, rtmp);
+
+  /* Correct the old radius with the move that we are doing
+   * and check if the new proposed radius is preferable. */
+  if (data)
+    data->radius_set = true;
+
+  if (rdpe_lt (new_rad, rad) || !data)
+    rdpe_set (rad, new_rad);
+  else 
+    data->radius_set = false;
 }
 
 void
