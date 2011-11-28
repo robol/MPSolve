@@ -232,7 +232,7 @@ mps_secular_ga_improve (mps_status * s)
 	  rdpe_set (old_rad, s->drad[i]);
 	  user_data.k = i;
           mps_secular_mnewton (s, s->mroot[i], s->drad[i], nwtcorr,
-                               &s->again[i], &user_data);
+                               &s->again[i], &user_data, false);
 
 	  /* Compute quadratic radius */
 	  mpc_get_cdpe (ctmp, s->mroot[i]); 
@@ -404,24 +404,27 @@ mps_secular_ga_mpsolve (mps_status * s)
 
   /* Select initial approximations using the custom secular
    * routine and based on the phase selected by the user. */
-  switch (s->lastphase)
+  if (!just_regenerated)
     {
-    case  float_phase:
-      mps_secular_fstart (s, s->n, 0, 0.0, 0.0, s->eps_out);
-       break;
+      switch (s->lastphase)
+	{
+	case  float_phase:
+	  mps_secular_fstart (s, s->n, 0, 0.0, 0.0, s->eps_out);
+	  break;
 
-     case dpe_phase:
-       mps_secular_dstart (s, s->n, 0, (__rdpe_struct *) rdpe_zero, 
-                           (__rdpe_struct *) rdpe_zero, s->eps_out); 
-       break; 
+	case dpe_phase:
+	  mps_secular_dstart (s, s->n, 0, (__rdpe_struct *) rdpe_zero, 
+			      (__rdpe_struct *) rdpe_zero, s->eps_out); 
+	  break; 
 
-    case mp_phase:
-       mps_secular_mstart (s, s->n, 0, (__rdpe_struct *) rdpe_zero, 
-                           (__rdpe_struct *) rdpe_zero, s->eps_out); 
-       break;
+	case mp_phase:
+	  mps_secular_mstart (s, s->n, 0, (__rdpe_struct *) rdpe_zero, 
+			      (__rdpe_struct *) rdpe_zero, s->eps_out); 
+	  break;
 
-     default: 
-       break;
+	default: 
+	  break;
+	}
     }
 
   /* Set initial radius */

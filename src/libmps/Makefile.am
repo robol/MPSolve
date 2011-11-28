@@ -39,6 +39,7 @@ libmps_la_SOURCES = \
 	    interface.c \
 	    link.c \
 	    main.c \
+	    modify.c \
 	    monomial-poly.c \
 	    mpc.c \
 	    mt.c \
@@ -64,4 +65,3 @@ libmps_la_LIBADD = \
 	-lgmp \
 	-lm \
 	$(NULL)
-	

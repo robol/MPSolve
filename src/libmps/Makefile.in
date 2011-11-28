@@ -77,11 +77,12 @@ libmps_la_DEPENDENCIES = $(am__DEPENDENCIES_1)
 am__objects_1 =
 am_libmps_la_OBJECTS = aberth.lo cluster.lo convex.lo data.lo debug.lo \
 	defaults.lo getopts.lo gmptools.lo horner.lo improve.lo \
-	input-buffer.lo interface.lo link.lo main.lo monomial-poly.lo \
-	mpc.lo mt.lo newton.lo secular-ga.lo secular-iteration.lo \
-	secular-newton.lo secular-regeneration.lo secular-starting.lo \
-	secular.lo solve.lo sort.lo starting.lo stio.lo test.lo \
-	threading.lo tools.lo touch.lo user.lo $(am__objects_1)
+	input-buffer.lo interface.lo link.lo main.lo modify.lo \
+	monomial-poly.lo mpc.lo mt.lo newton.lo secular-ga.lo \
+	secular-iteration.lo secular-newton.lo secular-regeneration.lo \
+	secular-starting.lo secular.lo solve.lo sort.lo starting.lo \
+	stio.lo test.lo threading.lo tools.lo touch.lo user.lo \
+	$(am__objects_1)
 libmps_la_OBJECTS = $(am_libmps_la_OBJECTS)
 AM_V_lt = $(am__v_lt_$(V))
 am__v_lt_ = $(am__v_lt_$(AM_DEFAULT_VERBOSITY))
@@ -292,6 +293,7 @@ libmps_la_SOURCES = \
 	    interface.c \
 	    link.c \
 	    main.c \
+	    modify.c \
 	    monomial-poly.c \
 	    mpc.c \
 	    mt.c \
@@ -408,6 +410,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/interface.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/link.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/modify.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/monomial-poly.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mpc.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mt.Plo@am__quote@

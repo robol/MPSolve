@@ -84,7 +84,7 @@ mps_secular_ga_fiterate (mps_status * s, int maxit, mps_boolean just_regenerated
 	      data.k = i;
 
               mps_secular_fnewton (s, s->froot[i], &s->frad[i], corr,
-                                   &s->again[i], &data);
+                                   &s->again[i], &data, false);
 
               /* Apply Aberth correction */
               mps_faberth (s, i, abcorr);
@@ -274,7 +274,7 @@ mps_secular_ga_diterate (mps_status * s, int maxit, mps_boolean just_regenerated
 	      data.k = i;
 
               mps_secular_dnewton (s, s->droot[i], s->drad[i], corr,
-                                   &s->again[i], &data);
+                                   &s->again[i], &data, false);
 	      
               /* Apply Aberth correction */
               mps_daberth (s, i, abcorr);
@@ -427,7 +427,7 @@ mps_secular_ga_miterate (mps_status * s, int maxit, mps_boolean just_regenerated
 		  /* Set the correct index */
 		  user_data.k = k;
                   mps_secular_mnewton (s, s->mroot[k], s->drad[k], corr,
-                                       &s->again[k], &user_data);
+                                       &s->again[k], &user_data, false);
 
                   /* Apply Aberth correction */
                   mps_maberth_s (s, k, i, abcorr);

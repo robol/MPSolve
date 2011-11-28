@@ -16,7 +16,8 @@
 
 void
 mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
-                     mps_boolean * again, void * user_data)
+                     mps_boolean * again, void * user_data,
+		     mps_boolean skip_radius_computation)
 {
   int i;
   cplx_t ctmp, ctmp2, pol, fp, sumb;
@@ -79,26 +80,26 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
   /* Compute secular function */
   cplx_sub_eq (pol, cplx_one);
 
-  /* Cfr it with the evaluation of the polynomial */
-  /* mps_monomial_poly * p = s->monomial_poly; */
-  /* cplx_set (ctmp, p->fpc[s->n]); */
-  /* for (i = s->n - 1; i >= 0; i--) */
-  /*   { */
-  /*     cplx_mul_eq (ctmp, x); */
-  /*     cplx_add_eq (ctmp, p->fpc[i]); */
-  /*   } */
-  /* cplx_div_eq (ctmp, p->fpc[s->n]); */
-  /* for (i = 0; i < s->n; i++) */
-  /*   { */
-  /*     cplx_sub (ctmp2, x, sec->bfpc[i]); */
-  /*     cplx_div_eq (ctmp, ctmp2); */
-  /*   } */
-  /* cplx_set (ctmp2, cplx_zero); */
-  /* cplx_Re (ctmp2) = -1.0f; */
-  /* cplx_mul_eq (ctmp, ctmp2); */
+  /* Cfr it with the evaluation of the polynomial  */
+  /* mps_monomial_poly * p = s->monomial_poly;  */
+  /* cplx_set (ctmp, p->fpc[s->n]);  */
+  /* for (i = s->n - 1; i >= 0; i--)  */
+  /*   {  */
+  /*     cplx_mul_eq (ctmp, x);  */
+  /*     cplx_add_eq (ctmp, p->fpc[i]);  */
+  /*   }  */
+  /* cplx_div_eq (ctmp, p->fpc[s->n]);  */
+  /* for (i = 0; i < s->n; i++)  */
+  /*   {  */
+  /*     cplx_sub (ctmp2, x, sec->bfpc[i]);  */
+  /*     cplx_div_eq (ctmp, ctmp2);  */
+  /*   }  */
+  /* cplx_set (ctmp2, cplx_zero);  */
+  /* cplx_Re (ctmp2) = -1.0f;  */
+  /* cplx_mul_eq (ctmp, ctmp2);  */
 
-  /* MPS_DEBUG_CPLX (s, pol, "pol"); */
-  /* MPS_DEBUG_CPLX (s, ctmp, "horner_pol"); */
+  /* MPS_DEBUG_CPLX (s, pol, "pol");  */
+  /* MPS_DEBUG_CPLX (s, ctmp, "horner_pol");  */
 
   /* Compute the module of pol */
   apol = cplx_mod (pol);
@@ -112,6 +113,7 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
       *again = false;
       return;
     }
+
 
   /* Compute newton correction */
   cplx_mul (corr, pol, sumb);
@@ -133,7 +135,6 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
 	  MPS_DEBUG (s, "Setting again to false on root %ld for root neighbourhood", data->k);
 	}
       *again = false;
-      return;
     }
 
   /* If the correction is not useful in the current precision do
@@ -147,9 +148,10 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
       *again = false;
     }
 
-  /* MPS_DEBUG_CPLX (s, pol, "pol"); */
-  /* MPS_DEBUG (s, "apol = %e, asum = %e, prod_b = %e", apol, asum, prod_b); */
-  /* MPS_DEBUG (s, "asum_on_apol: %e", asum_on_apol); */
+  if (!*again || skip_radius_computation)
+    {
+      return;
+    }
 
   /* Computation of radius with Gerschgorin */
   new_rad = ((apol) * s->n * prod_b * (1 + (3 * s->n + (asum_on_apol + 1)) * 4 * DBL_EPSILON)) + (cplx_mod (x) * 4 * DBL_EPSILON);
@@ -165,7 +167,8 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
 
 void
 mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
-                     mps_boolean * again, void * user_data)
+                     mps_boolean * again, void * user_data,
+		     mps_boolean skip_radius_computation)
 {
   int i;
 
@@ -268,6 +271,9 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
       *again = false;
     }
 
+  if (!*again || skip_radius_computation)
+    return;
+
   /* Computation of radius with Gerschgorin */
   rdpe_t new_rad;
 
@@ -298,7 +304,8 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
 
 void
 mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
-                     mps_boolean * again, void * user_data)
+                     mps_boolean * again, void * user_data,
+		     mps_boolean skip_radius_computation)
 {
   int i;
   mps_secular_iteration_data *data = (mps_secular_iteration_data*) user_data;
@@ -430,7 +437,7 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
 
   /* This is asum / apol */
   rdpe_div (asum_on_apol, asum, rtmp2);
-  
+
   rdpe_add (rtmp, asum_on_apol, rdpe_one);
   rdpe_add_eq_d (rtmp, 3 * s->n);
   rdpe_add_eq (rtmp, rdpe_one);
@@ -444,14 +451,14 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
 
   if (rdpe_lt (new_rad, rad))
     {
-      MPS_DEBUG_RDPE (s, asum, "asum");
-      MPS_DEBUG_RDPE (s, apol, "apol");
-      MPS_DEBUG_RDPE (s, new_rad, "Setting rad");
+      /* MPS_DEBUG_RDPE (s, asum, "asum"); */
+      /* MPS_DEBUG_RDPE (s, apol, "apol"); */
+      /* MPS_DEBUG_RDPE (s, new_rad, "Setting rad"); */
       rdpe_set (rad, new_rad);
-      MPS_DEBUG_MPC (s, 40, s->mroot[data->k], "s->mroot[%ld]", data->k);
-      MPS_DEBUG_MPC (s, 40, corr, "corr");
+      /* MPS_DEBUG_MPC (s, 40, s->mroot[data->k], "s->mroot[%ld]", data->k); */
+      /* MPS_DEBUG_MPC (s, 40, corr, "corr"); */
     }
-
+  
   /* Check if newton correction is less than
    * the modules of x for s->output_config->prec, and if
    * that's the case, stop. */
@@ -488,6 +495,9 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
 	   *again = false;
 	 }       
      }
+
+  if (!*again || skip_radius_computation)
+    return;
 
   /* Final cleanup */
    mpc_clear (fp);

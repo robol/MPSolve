@@ -69,15 +69,15 @@ extern "C"
 #define mps_secular_equation_from_status(s) (mps_secular_equation*) (s)->secular_equation
 
   /* Routines in secular-newton.c */
-  void
-    mps_secular_fnewton (mps_status * st, cplx_t x, double *rad, cplx_t corr,
-                         mps_boolean * again, void * user_data);
-  void
-    mps_secular_dnewton (mps_status * st, cdpe_t x, rdpe_t rad, cdpe_t corr,
-                         mps_boolean * again, void * user_data);
-  void
-    mps_secular_mnewton (mps_status * st, mpc_t x, rdpe_t rad, mpc_t corr,
-                         mps_boolean * again, void * user_data);
+  void mps_secular_fnewton (mps_status * st, cplx_t x, double *rad, cplx_t corr,
+			    mps_boolean * again, void * user_data, 
+			    mps_boolean skip_radius_compuation);
+  void mps_secular_dnewton (mps_status * st, cdpe_t x, rdpe_t rad, cdpe_t corr,
+			    mps_boolean * again, void * user_data,
+			    mps_boolean skip_radius_computation);
+  void mps_secular_mnewton (mps_status * st, mpc_t x, rdpe_t rad, mpc_t corr,
+			    mps_boolean * again, void * user_data,
+			    mps_boolean skip_radius_computation);
 
   /* Routines in secular-regeneartion.c */
   mps_boolean * mps_secular_ga_find_changed_roots (mps_status * s, cdpe_t * old_b, mpc_t * old_mb);

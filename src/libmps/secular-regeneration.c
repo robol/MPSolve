@@ -161,7 +161,7 @@ mps_secular_ga_regenerate_coefficients_monomial (mps_status * s, cdpe_t * old_b,
 
   /* The precision of the temporary variables at the start of the computation. We can set
    * this to s->mpwp; */
-  long int coeff_wp = s->mpwp;
+  long int coeff_wp = s->mpwp + log (s->n) * LOG2_10;
 
   /* This variable is true if the regeneration succeeded. */
   mps_boolean success = true;
@@ -215,6 +215,9 @@ mps_secular_ga_regenerate_coefficients_monomial (mps_status * s, cdpe_t * old_b,
 	  mps_secular_ga_update_root_wp (s, i, s->rootwp[i]);
 	  mps_mhorner_with_error2 (s, p, sec->bmpc[i], sec->ampc[i], relative_error, s->rootwp[i]); 
 
+	  if (i == 25)
+	    MPS_DEBUG_MPC (s, 15, sec->ampc[i], "sec->ampc[%d]", i);
+
 	  if (s->debug_level & MPS_DEBUG_REGENERATION)
 	    MPS_DEBUG_RDPE (s, relative_error, "Relative_error on p(b_%d) evaluation", i);
 
@@ -226,6 +229,10 @@ mps_secular_ga_regenerate_coefficients_monomial (mps_status * s, cdpe_t * old_b,
 
 	      /* Try to recompute the polynomial with the augmented precision and see if now relative_error matches */
 	      mps_mhorner_with_error2 (s, p, sec->bmpc[i], sec->ampc[i], relative_error, s->rootwp[i]);   
+
+	      if (i == 25)
+		MPS_DEBUG_MPC (s, 15, sec->ampc[i], "sec->ampc[%d]", i);
+
 	      if (s->debug_level & MPS_DEBUG_REGENERATION)
 		MPS_DEBUG_RDPE (s, relative_error, "Relative_error on p(b_%d) evaluation", i);
 	    }   
@@ -238,6 +245,8 @@ mps_secular_ga_regenerate_coefficients_monomial (mps_status * s, cdpe_t * old_b,
 		continue;
 		  
 	      cdpe_sub (diff, sec->bdpc[i], sec->bdpc[j]);
+	      mpc_sub (mdiff, sec->bmpc[i], sec->bmpc[j]);
+	      mpc_get_cdpe (diff, mdiff);
 		  
 	      /* If the difference is zero than regeneration cannot succeed, and means
 	       * that we need more precision in the roots */
@@ -249,7 +258,7 @@ mps_secular_ga_regenerate_coefficients_monomial (mps_status * s, cdpe_t * old_b,
 		}
 	      cdpe_mul_eq (prod_b, diff);
 	    }
-	      
+
 	  /* Actually divide the result and store it in
 	   * a_i, as requested. */
 	  mpc_set_cdpe (mprod_b, prod_b);
