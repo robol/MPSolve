@@ -123,7 +123,6 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
   else
     cplx_div (corr, pol, corr);
 
-  // double asum_on_apol = asum / (apol - 4 * DBL_EPSILON * asum);
   double asum_on_apol = asum / apol;
 
   /* If the approximation falls in the root neighbourhood then we can stop */
@@ -246,25 +245,26 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
    * the modules of |x| multiplied for
    * for epsilon stop */
   /* Computation of |x| and |corr| */
-  cdpe_mod (rtmp, corr);
-  cdpe_mod (rtmp2, x);
-  rdpe_mul_eq_d (rtmp2, sec->n * DBL_EPSILON);
+  /* cdpe_mod (rtmp, corr); */
+  /* cdpe_mod (rtmp2, x); */
+  /* rdpe_mul_eq_d (rtmp2, 4.0 * DBL_EPSILON); */
   
-  /* If |corr| < |x| * DBL_EPSILON then stop */
-  if (rdpe_lt (rtmp, rtmp2))
-    {
-      if (data)
-	{
-	  MPS_DEBUG (s, "Setting again on root %ld to false because the Newton correction is too small", data->k);
-	}
-      *again = false;
-    }
+  /* /\* If |corr| < |x| * DBL_EPSILON then stop *\/ */
+  /* if (rdpe_lt (rtmp, rtmp2)) */
+  /*   { */
+  /*     if (data && (s->debug_level & MPS_DEBUG_APPROXIMATIONS)) */
+  /* 	{ */
+  /* 	  MPS_DEBUG (s, "Setting again on root %ld to false because the Newton correction is too small", data->k); */
+  /* 	  MPS_DEBUG_CDPE (s, corr, "Newton correction"); */
+  /* 	} */
+  /*     *again = false; */
+  /*   } */
 
   rdpe_add (rtmp, rdpe_one, asum_on_apol);
-  rdpe_mul_eq_d (rtmp, DBL_EPSILON);
+  rdpe_mul_eq_d (rtmp, MPS_2SQRT2 * DBL_EPSILON);
   if (rdpe_ge (rtmp, rdpe_one))
     {
-      if (data)
+      if (data && (s->debug_level & MPS_DEBUG_APPROXIMATIONS))
 	{
 	  MPS_DEBUG (s, "Setting again on root %ld to false because the approximation is in the root neighbourhood", data->k);
 	}

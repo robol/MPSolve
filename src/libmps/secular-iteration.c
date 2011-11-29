@@ -293,8 +293,21 @@ mps_secular_ga_diterate (mps_status * s, int maxit, mps_boolean just_regenerated
               else
                   s->again[i] = true;
 
+	      rdpe_t rtmp;
+	      cdpe_mod (rtmp, s->droot[i]);
+	      rdpe_mul_eq_d (rtmp, 4.0 * DBL_EPSILON);
+	      if (rdpe_lt (modcorr, rtmp))
+		{
+		  s->again[i] = false;
+		  
+		}
+
               if (!s->again[i])
-                computed_roots++;
+		{
+		  if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
+		    MPS_DEBUG (s, "Root %d was set to again = false on iteration %d", i, iterations);
+		  computed_roots++;
+		}
             }
         }
     }

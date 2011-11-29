@@ -360,6 +360,7 @@ mps_secular_ga_mpsolve (mps_status * s)
       /* Check data first */
       char which_case;
       mps_check_data (s, &which_case);
+      // which_case = 'd';
 
       MPS_DEBUG_WITH_INFO (s, "Check data resulted in %c", which_case);
 
