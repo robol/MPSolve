@@ -177,10 +177,10 @@ mps_dhorner (mps_status * s, mps_monomial_poly * p, cdpe_t x, cdpe_t value)
  * @param p The <code>mps_monomial_poly</code> to evaluate.
  * @param z The point where the polynomial will be evaluated.
  * @param value The value computed by the function.
- * @param relative_error A bound to the relative error of the computation.
+ * @param error A bound to the absolute error of the computation.
  */
 void
-mps_dhorner_with_error (mps_status * s, mps_monomial_poly * p, cdpe_t x, cdpe_t value, rdpe_t relative_error)
+mps_dhorner_with_error (mps_status * s, mps_monomial_poly * p, cdpe_t x, cdpe_t value, rdpe_t error)
 {
   rdpe_t ax;
   int j;
@@ -188,15 +188,14 @@ mps_dhorner_with_error (mps_status * s, mps_monomial_poly * p, cdpe_t x, cdpe_t 
   mps_dhorner (s, p, x, value);
   
   cdpe_mod (ax, x);
-  rdpe_set (relative_error, p->dap[p->n]);
+  rdpe_set (error, p->dap[p->n]);
   for (j = p->n - 1; j >= 0; j--)
     {
-      rdpe_mul_eq (relative_error, ax);
-      rdpe_add_eq (relative_error, p->dap[j]);
+      rdpe_mul_eq (error, ax);
+      rdpe_add_eq (error, p->dap[j]);
     }
 
-  cdpe_mod (ax, value);
-  rdpe_div_eq (relative_error, ax);
+  rdpe_mul_eq_d (error, DBL_EPSILON);
 }
 
 /**
@@ -228,24 +227,24 @@ mps_fhorner (mps_status * s, mps_monomial_poly * p, cplx_t x, cplx_t value)
  * @param p The <code>mps_monomial_poly</code> to evaluate.
  * @param z The point where the polynomial will be evaluated.
  * @param value The value computed by the function.
- * @param relative_error A bound to the relative error of the computation.
+ * @param error A bound to the absolute error of the computation.
  */
 void
-mps_fhorner_with_error (mps_status * s, mps_monomial_poly * p, cplx_t x, cplx_t value, double * relative_error)
+mps_fhorner_with_error (mps_status * s, mps_monomial_poly * p, cplx_t x, cplx_t value, double * error)
 {
   int j;
   double ax = cplx_mod (x);
 
   mps_fhorner (s, p, x, value);
 
-  *relative_error = p->fap[p->n];
+  *error = p->fap[p->n];
   for (j = p->n - 1; j >= 0; j--)
     {
-      *relative_error *= ax;
-      *relative_error += p->fap[j];
+      *error *= ax;
+      *error += p->fap[j];
     }
 
-  *relative_error = *relative_error / cplx_mod (value);
+  *error *= DBL_EPSILON;
 }
 
 /* Sparse version of horner... */

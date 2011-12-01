@@ -102,11 +102,11 @@ extern "C"
   void mps_secular_raise_precision (mps_status * s, int wp);
 
   /* Routines in secular-starting.c */
-  void mps_secular_fstart (mps_status * s, int n, int i_clust, double clust_rad,
+  void mps_secular_fstart (mps_status * s, int n, mps_cluster_item * cluster, double clust_rad,
 			   double g, rdpe_t eps);
-  void mps_secular_dstart (mps_status * s, int n, int i_clust, rdpe_t clust_rad,
+  void mps_secular_dstart (mps_status * s, int n, mps_cluster_item * cluster, rdpe_t clust_rad,
 			   rdpe_t g, rdpe_t eps);
-  void mps_secular_mstart (mps_status * s, int n, int i_clust, rdpe_t clust_rad,
+  void mps_secular_mstart (mps_status * s, int n, mps_cluster_item * cluster, rdpe_t clust_rad,
 			   rdpe_t g, rdpe_t eps);
 
   /* Routines in secular-iteration.c */

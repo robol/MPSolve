@@ -141,7 +141,7 @@ mps_secular_ga_fiterate (mps_status * s, int maxit, mps_boolean just_regenerated
 	      /* MPS_DEBUG (s, "modcorr = %e", modcorr); */
 	      /* MPS_DEBUG_CPLX (s, s->froot[i], "s->froot[%d]", i); */
 
-	      if (modcorr < cplx_mod (s->froot[i]) * 4 * DBL_EPSILON)
+	      if (modcorr < cplx_mod (s->froot[i]) * 8.0 * DBL_EPSILON)
 		{
 		  if (s->debug_level & MPS_DEBUG_PACKETS)
 		    {
@@ -151,7 +151,11 @@ mps_secular_ga_fiterate (mps_status * s, int maxit, mps_boolean just_regenerated
 		}
 
               if (!s->again[i])
-                computed_roots++;
+		{
+		  if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
+		    MPS_DEBUG (s, "Root %d again was set to false on iteration %d", i, iterations);
+		  computed_roots++;
+		}
             }
         }
     }
@@ -172,8 +176,14 @@ mps_secular_ga_fiterate (mps_status * s, int maxit, mps_boolean just_regenerated
       s->secular_equation->best_approx = true;
     }
 
-   mps_fcluster (s, 2.0 * s->n); 
-   mps_fmodify (s, false); 
+  
+
+  /* Compute the inclusion radii with Gerschgorin so we can compute
+   * clusterizations for the roots. */
+  if (!MPS_INPUT_CONFIG_IS_USER (s->input_config))
+    mps_monomial_fradii (s);
+  mps_fcluster (s, 2.0 * s->n); 
+  mps_fmodify (s, false); 
 
   /* These lines are used to debug the again vector, but are not useful
    * at the moment being */
@@ -295,9 +305,11 @@ mps_secular_ga_diterate (mps_status * s, int maxit, mps_boolean just_regenerated
 
 	      rdpe_t rtmp;
 	      cdpe_mod (rtmp, s->droot[i]);
-	      rdpe_mul_eq_d (rtmp, 4.0 * DBL_EPSILON);
+	      rdpe_mul_eq_d (rtmp, 8.0 * DBL_EPSILON);
 	      if (rdpe_lt (modcorr, rtmp))
 		{
+		  if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
+		    MPS_DEBUG (s, "Setting again to false on root %d because Aberth correction is less than machine epsilon", i);
 		  s->again[i] = false;
 		  
 		}
@@ -305,7 +317,7 @@ mps_secular_ga_diterate (mps_status * s, int maxit, mps_boolean just_regenerated
               if (!s->again[i])
 		{
 		  if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
-		    MPS_DEBUG (s, "Root %d was set to again = false on iteration %d", i, iterations);
+		    MPS_DEBUG (s, "Root %d again was set to false on iteration %d", i, iterations);
 		  computed_roots++;
 		}
             }
@@ -372,7 +384,7 @@ mps_secular_ga_miterate (mps_status * s, int maxit, mps_boolean just_regenerated
 
   int computed_roots = 0;
   int iterations = 0;
-  int i, j, k;
+  int i, k;
   int nit = 0;
   int it_threshold;
 
@@ -389,6 +401,11 @@ mps_secular_ga_miterate (mps_status * s, int maxit, mps_boolean just_regenerated
   /* The data used to determined if the radius has been
    * set and to intercommunicate with the iterator */
   mps_secular_iteration_data user_data;
+
+  /* Cluster data used in iterations */
+  mps_cluster_item * c_item;
+  mps_cluster * cluster;
+  mps_root * root;
 
   /* Init data with the right precision */
   mpc_init2 (corr, s->mpwp);
@@ -428,11 +445,12 @@ mps_secular_ga_miterate (mps_status * s, int maxit, mps_boolean just_regenerated
       /* Increase iterations counter */
       iterations++;
 
-      for (i = 0; i < s->nclust; i++)
+      for (c_item = s->clusterization->first; c_item != NULL; c_item = c_item->next)
         {
-          for (j = s->punt[i]; j < s->punt[i + 1]; j++)
+	  cluster = c_item->cluster;
+          for (root = cluster->first; root != NULL; root = root->next)
             {
-              k = s->clust[j];
+              k = root->k;
               if (s->again[k])
                 {
                   nit++;
@@ -443,7 +461,7 @@ mps_secular_ga_miterate (mps_status * s, int maxit, mps_boolean just_regenerated
                                        &s->again[k], &user_data, false);
 
                   /* Apply Aberth correction */
-                  mps_maberth_s (s, k, i, abcorr);
+                  mps_maberth_s (s, k, cluster, abcorr);
                   mpc_mul_eq (abcorr, corr);
                   mpc_ui_sub (abcorr, 1, 0, abcorr);
                   mpc_div (abcorr, corr, abcorr);

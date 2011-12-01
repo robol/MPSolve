@@ -16,11 +16,19 @@ extern "C"
    * can be resolved.
    */
 
+  /* FORWARD DECLARATIONS */
+  typedef struct mps_status mps_status;
+  typedef struct mps_secular_equation mps_secular_equation;
+  typedef struct mps_monomial_poly mps_monomial_poly;
+  typedef struct mps_input_buffer mps_input_buffer;
+  typedef struct mps_opt mps_opt;
+  typedef struct mps_input_option mps_input_option;
+
 #include <mps/mt.h>
 #include <mps/mpc.h>
 #include <mps/tools.h>
 #include <mps/gmptools.h>
-
+#include <mps/cluster.h>
 
   /**
    * @brief Struct holding the options passed on the command
@@ -46,11 +54,11 @@ extern "C"
    *
    * @see mps_getopts()
    */
-  typedef struct
+  struct mps_opt
   {
     char optchar;
     char *optvalue;
-  } mps_opt;
+  };
 
   /**
    * @brief Type representing the computation phase
@@ -70,7 +78,7 @@ extern "C"
    * @brief Buffer used to parse input files in MPSolve. It can
    * read a stream line by line.
    */
-  typedef struct
+  struct mps_input_buffer
   {
     /**
      * @brief Stream associated with the
@@ -123,7 +131,7 @@ extern "C"
      */
     char * last_token;
 
-  } mps_input_buffer;
+  };
 
   /**
    * @brief Key for options parsed from the input source file.
@@ -159,7 +167,7 @@ extern "C"
    * For example the option Degree needs a numeric value associated to
    * it. The values are always saved as the string that are read.
    */
-  typedef struct
+  struct mps_input_option
   {
     /**
      * @brief Key associated with the option.
@@ -171,7 +179,7 @@ extern "C"
      * is provided.
      */
     char *value;
-  } mps_input_option;
+  };
 
   /**
    * @brief Definition of various algebraic structure that
@@ -328,8 +336,8 @@ extern "C"
    * @brief Data regarding a polynomial represented in the monomial
    * base.
    */
-  typedef struct {
-
+  struct mps_monomial_poly {
+    
     /**
      * @brief The degree of the polynomial.
      */
@@ -405,7 +413,7 @@ extern "C"
      */
     mpq_t *initial_mqp_i;
         
-  } mps_monomial_poly;
+  };
 
   /**
    * @brief Secular equation data.
@@ -417,7 +425,7 @@ extern "C"
    * and this struct holds the values of the parameters \f$a_i\f$
    * and \f$b_i\f$.
    */
-  typedef struct
+  struct mps_secular_equation
   {
     /**
      * @brief Vector of \f$a_i\f$ as complex floating
@@ -549,7 +557,7 @@ extern "C"
      */
     double * fregeneration_epsilon;    
 
-  } mps_secular_equation;       /* End of typedef struct {... */
+  };       /* End of typedef struct {... */
 
 
 
@@ -579,20 +587,20 @@ extern "C"
   /**
    * @brief Function that computes \f$\frac{p}{p'}\f$ (floating point version)
    */
-  typedef void (*mps_fnewton_ptr) (void * status, cplx_t, double *, cplx_t,
+  typedef void (*mps_fnewton_ptr) (mps_status * status, cplx_t, double *, cplx_t,
                                    mps_boolean *, void * user_data);
 
   /**
    * @brief Function that computes \f$\frac{p}{p'}\f$ (dpe version)
    */
-  typedef void (*mps_dnewton_ptr) (void * status, cdpe_t x, rdpe_t rad,
+  typedef void (*mps_dnewton_ptr) (mps_status * status, cdpe_t x, rdpe_t rad,
                                    cdpe_t corr, mps_boolean * again, 
 				   void * user_data);
 
   /**
    * @brief Function that computes \f$\frac{p}{p'}\f$ (multiprecision version)
    */
-  typedef void (*mps_mnewton_ptr) (void * status, mpc_t x, rdpe_t rad,
+  typedef void (*mps_mnewton_ptr) (mps_status * status, mpc_t x, rdpe_t rad,
                                    mpc_t corr, mps_boolean * again,
 				   void * user_data);
 
@@ -600,27 +608,33 @@ extern "C"
    * @brief Functions that check if float phase is needed or not and set
    * which_case accordingly to <code>'f'</code> or <code>'d'</code>.
    */
-  typedef void (*mps_check_data_ptr) (void *status, char *which_case);
+  typedef void (*mps_check_data_ptr) (mps_status *status, char *which_case);
 
   /**
    * @brief Function to dispose starting approximations in the case of
    * floating point iterations.
    */
-  typedef void (*mps_fstart_ptr) (void *status, int n, int i_clust,
+  typedef void (*mps_fstart_ptr) (mps_status *status, int n, mps_cluster_item * cluster,
                                   double clust_rad, double g, rdpe_t eps);
 
   /**
    * @brief Function to dispose starting approximations in the case of
    * DPE iterations.
    */
-  typedef void (*mps_dstart_ptr) (void *status, int n, int i_clust,
+  typedef void (*mps_dstart_ptr) (mps_status *status, int n, mps_cluster_item * cluster,
                                   rdpe_t clust_rad, rdpe_t g, rdpe_t eps);
+
+  /**
+   * @brief Function that computes radii to perform cluster analysis on the
+   * roots in the floating point iterations.
+   */
+  typedef void (*mps_fradii_ptr) (mps_status * status);
 
   /**
    * @brief Routine that performs the computation loop to solve the polynomial
    * or the secular equation
    */
-  typedef void (*mps_mpsolve_ptr) (void *status);
+  typedef void (*mps_mpsolve_ptr) (mps_status *status);
 
 
   /*
@@ -637,7 +651,7 @@ extern "C"
   /**
    * @brief this struct holds the state of the mps computation
    */
-  typedef struct
+  struct mps_status
   {
 
     mps_boolean resume;         /* to complete                         */
@@ -944,50 +958,52 @@ extern "C"
      */
     double sep;
 
-    /**
-     * @brief Number of active clusters.
-     */
-    int nclust;
+    mps_clusterization * clusterization;
 
-    /**
-     * @brief This <code>int</code> array keep information about
-     * semi-converged roots that were removed by a cluster to
-     * improve convergence speed.
-     *
-     * If <code>s->clust_detached[i]</code>
-     * is not zero, than the <b>unique</b> root in the <code>i</code>-th
-     * cluster has been detached by the cluster whose index is the value
-     * of <code>s->clust_detached</code>.
-     */
-    int *clust_detached;
+    /* /\** */
+    /*  * @brief Number of active clusters. */
+    /*  *\/ */
+    /* int nclust; */
 
-    /**
-     * @brief indices of cluster components
-     *
-     * <code>clust</code> is an integer array containing the indexes
-     * of roots in every cluster.
-     *
-     * The indexes of the <code>j+1</code>th cluster are
-     * <code>clust[punt[j] : punt[j+1]]</code>.
-     *
-     * @see punt
-     */
-    int *clust;
+    /* /\** */
+    /*  * @brief This <code>int</code> array keep information about */
+    /*  * semi-converged roots that were removed by a cluster to */
+    /*  * improve convergence speed. */
+    /*  * */
+    /*  * If <code>s->clust_detached[i]</code> */
+    /*  * is not zero, than the <b>unique</b> root in the <code>i</code>-th */
+    /*  * cluster has been detached by the cluster whose index is the value */
+    /*  * of <code>s->clust_detached</code>. */
+    /*  *\/ */
+    /* int *clust_detached; */
 
-    /**
-     * @brief begginning of each cluster
-     *
-     * <code>punt</code> is a vector of <code>nclust + 1</code> integers;
-     *
-     * For every <code>i</code> <code>punt[i]</code> is the index in
-     * the integer vector <code>clust</code> corresponding to the first
-     * index of a cluster, i.e. the (j+1)-th cluster of roots is composed by
-     * roots indexed on <code>clust[p[j] : p[j+1]]</code>.
-     *
-     * @see nclust
-     * @see clust
-     */
-    int *punt;
+    /* /\** */
+    /*  * @brief indices of cluster components */
+    /*  * */
+    /*  * <code>clust</code> is an integer array containing the indexes */
+    /*  * of roots in every cluster. */
+    /*  * */
+    /*  * The indexes of the <code>j+1</code>th cluster are */
+    /*  * <code>clust[punt[j] : punt[j+1]]</code>. */
+    /*  * */
+    /*  * @see punt */
+    /*  *\/ */
+    /* int *clust; */
+
+    /* /\** */
+    /*  * @brief begginning of each cluster */
+    /*  * */
+    /*  * <code>punt</code> is a vector of <code>nclust + 1</code> integers; */
+    /*  * */
+    /*  * For every <code>i</code> <code>punt[i]</code> is the index in */
+    /*  * the integer vector <code>clust</code> corresponding to the first */
+    /*  * index of a cluster, i.e. the (j+1)-th cluster of roots is composed by */
+    /*  * roots indexed on <code>clust[p[j] : p[j+1]]</code>. */
+    /*  * */
+    /*  * @see nclust */
+    /*  * @see clust */
+    /*  *\/ */
+    /* int *punt; */
 
     /**
      * @brief Array containing working precisions used for each root.
@@ -1174,47 +1190,47 @@ extern "C"
      * @brief Pointer to the function to perform newton in floating
      * point implemented by the user.
      */
-    void (*fnewton_usr) (void *status, cplx_t, double *, cplx_t,
+    void (*fnewton_usr) (mps_status *status, cplx_t, double *, cplx_t,
                          mps_boolean *, void * user_data);
 
     /**
      * @brief Pointer to the function to perform newton in dpe
      * implemented by the user.
      */
-    void (*dnewton_usr) (void *status, cdpe_t x, rdpe_t rad, cdpe_t corr,
+    void (*dnewton_usr) (mps_status *status, cdpe_t x, rdpe_t rad, cdpe_t corr,
                          mps_boolean * again, void * user_data);
 
     /**
      * @brief Pointer to the function to perform newton in multiprecision
      * implemented by the user.
      */
-    void (*mnewton_usr) (void *status, mpc_t x, rdpe_t rad, mpc_t corr,
+    void (*mnewton_usr) (mps_status *status, mpc_t x, rdpe_t rad, mpc_t corr,
                          mps_boolean * again, void * user_data);
 
     /**
      * @brief Check data routine that has the task to determine if a float phase
      * can be performed or dpe are needed now.
      */
-    void (*check_data_usr) (void *status, char *which_case);
+    void (*check_data_usr) (mps_status *status, char *which_case);
 
     /**
      * @brief Routine to dispose starting approximations provided by the user
      */
-    void (*fstart_usr) (void *status, int n, int i_clust, double clust_rad,
+    void (*fstart_usr) (mps_status *status, int n, mps_cluster_item * cluster, double clust_rad,
                         double g, rdpe_t eps);
 
     /**
      * @brief Routine to dispose starting approximations provided
      * by user in the case of DPE computation.
      */
-    void (*dstart_usr) (void *status, int n, int i_clust, rdpe_t clust_rad,
+    void (*dstart_usr) (mps_status *status, int n, mps_cluster_item * cluster, rdpe_t clust_rad,
                         rdpe_t g, rdpe_t eps);
 
     /**
      * @brief Routine that performs the loop needed to coordinate
      * root finding. It has to be called to do the hard work.
      */
-    void (*mpsolve_ptr) (void *status);
+    void (*mpsolve_ptr) (mps_status *status);
 
     /**
      * @brief A pointer to the polynomial that is being solve or
@@ -1243,7 +1259,7 @@ extern "C"
     unsigned long int dpe_iteration_time;
     unsigned long int fp_iteration_time;
 
-  } mps_status;                 /* End of typedef struct { ... */
+  };                 /* End of typedef struct { ... */
 
 
 

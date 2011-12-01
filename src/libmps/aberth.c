@@ -18,6 +18,7 @@
  ***********************************************************/
 
 #include <mps/core.h>
+#include <mps/cluster.h>
 #include <pthread.h>
 
 /**
@@ -96,15 +97,16 @@ mps_maberth (mps_status * s, int j, mpc_t abcorr)
  * cluster.
  */
 void
-mps_faberth_s (mps_status * s, int j, int jc, cplx_t abcorr)
+mps_faberth_s (mps_status * s, int j, mps_cluster * cluster, cplx_t abcorr)
 {
-  int i, k;
+  int k;
   cplx_t z;
+  mps_root * root;
 
   cplx_set (abcorr, cplx_zero);
-  for (i = s->punt[jc]; i < s->punt[jc + 1]; i++)
+  for (root = cluster->first; root != NULL; root = root->next)
     {
-      k = s->clust[i];
+      k = root->k;
       if (k == j)
         continue;
       cplx_sub (z, s->froot[j], s->froot[k]);
@@ -119,15 +121,16 @@ mps_faberth_s (mps_status * s, int j, int jc, cplx_t abcorr)
  * cluster.
  */
 void
-mps_daberth_s (mps_status * s, int j, int jc, cdpe_t abcorr)
+mps_daberth_s (mps_status * s, int j, mps_cluster * cluster, cdpe_t abcorr)
 {
-  int i, k;
+  int k;
+  mps_root * root;
   cdpe_t z;
 
   cdpe_set (abcorr, cdpe_zero);
-  for (i = s->punt[jc]; i < s->punt[jc + 1]; i++)
+  for (root = cluster->first; root != NULL; root = root->next)
     {
-      k = s->clust[i];
+      k = root->k;
       if (k == j)
         continue;
       cdpe_sub (z, s->droot[j], s->droot[k]);
@@ -142,18 +145,19 @@ mps_daberth_s (mps_status * s, int j, int jc, cdpe_t abcorr)
  * cluster.
  */
 void
-mps_maberth_s (mps_status * s, int j, int jc, mpc_t abcorr)
+mps_maberth_s (mps_status * s, int j, mps_cluster * cluster, mpc_t abcorr)
 {
-  int i, k;
+  int k;
+  mps_root * root;
   cdpe_t z, temp;
   mpc_t diff;
 
   mpc_init2 (diff, s->mpwp);
 
   cdpe_set (temp, cdpe_zero);
-  for (i = s->punt[jc]; i < s->punt[jc + 1]; i++)
+  for (root = cluster->first; root != NULL; root = root->next)
     {
-      k = s->clust[i];
+      k = root->k;
       if (k == j)
         continue;
       mpc_sub (diff, s->mroot[j], s->mroot[k]);
@@ -167,19 +171,20 @@ mps_maberth_s (mps_status * s, int j, int jc, mpc_t abcorr)
 }
 
 void
-mps_maberth_s_wl (mps_status * s, int j, int jc, mpc_t abcorr,
+mps_maberth_s_wl (mps_status * s, int j, mps_cluster * cluster, mpc_t abcorr,
                   pthread_mutex_t * aberth_mutexes)
 {
-  int i, k;
+  int k;
+  mps_root * root;
   cdpe_t z, temp;
   mpc_t diff;
 
   mpc_init2 (diff, s->mpwp);
 
   cdpe_set (temp, cdpe_zero);
-  for (i = s->punt[jc]; i < s->punt[jc + 1]; i++)
+  for (root = cluster->first; root != NULL; root = root->next)
     {
-      k = s->clust[i];
+      k = root->k;
       if (k == j)
         continue;
       pthread_mutex_lock (&aberth_mutexes[k]);

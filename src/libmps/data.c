@@ -37,13 +37,15 @@ mps_allocate_data (mps_status * s)
   MPS_DEBUG_THIS_CALL;
   int i;
 
-  s->clust = int_valloc (s->deg);
-  s->punt = int_valloc (s->deg + 1);
-  s->clust_detached = int_valloc (s->deg);
+  /* s->clust = int_valloc (s->deg); */
+  /* s->punt = int_valloc (s->deg + 1); */
+  /* s->clust_detached = int_valloc (s->deg); */
 
   s->again = mps_boolean_valloc (s->deg);
 
   s->status = (char (*)[3]) char_valloc (3 * s->deg);
+
+  mps_cluster_reset (s);
 
   s->order = int_valloc (s->deg);
   s->rootwp = long_valloc (s->deg);
@@ -311,9 +313,7 @@ mps_free_data (mps_status * s)
       MPS_DEBUG (s, "Deallocating data");
     }
 
-  free (s->clust);
-  free (s->punt);
-  free (s->clust_detached);
+  mps_clusterization_free (s, s->clusterization);
   free (s->again);
   free (s->status);
   free (s->rootwp);

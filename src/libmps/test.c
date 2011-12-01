@@ -130,11 +130,11 @@ mps_inclusion (mps_status * s)
         }
     }
 
-  oldnclust = s->nclust;
+  oldnclust = s->clusterization->n;
 
   mps_mcluster (s, 2 * s->n);
 
-  if (s->nclust >= oldnclust)
+  if (s->clusterization->n >= oldnclust)
     {
       /* choose the smallest radius */
       for (i = 0; i < s->n; i++)

@@ -611,7 +611,7 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
       cplx_vfree (old_b);
       cdpe_vfree (old_db);
 
-      mps_secular_fstart (s, s->n, 0, 0, 0, s->eps_out);
+      mps_secular_fstart (s, s->n, NULL, 0, 0, s->eps_out);
 
       break;
 
@@ -668,7 +668,8 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
       cdpe_vfree (old_da);
       cdpe_vfree (old_db);
 
-      mps_secular_dstart (s, s->n, 0, (__rdpe_struct *) rdpe_zero,
+      mps_secular_dstart (s, s->n, NULL, 
+			  (__rdpe_struct *) rdpe_zero,
                           (__rdpe_struct *) rdpe_zero, s->eps_out);
 
       break;
@@ -719,7 +720,8 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
       mpc_vfree (old_ma);
       mpc_vfree (old_mb);
 
-      mps_secular_mstart (s, s->n, 0, (__rdpe_struct *) rdpe_zero,
+      mps_secular_mstart (s, s->n, NULL, 
+			  (__rdpe_struct *) rdpe_zero,
                           (__rdpe_struct *) rdpe_zero, s->eps_out);
       break;
 

@@ -132,6 +132,11 @@ extern "C"
   /* functions in mps_interface.c */
   void * mps_malloc (size_t size);
   void * mps_alloca (size_t size);
+
+  /* Macros to init pointer and/or vectors in a convenient way */
+#define mps_new(type) ((type *) mps_malloc (sizeof (type)))
+#define mps_newv(type, n) ((type *) mps_malloc (sizeof (type) * n))
+
   mps_status * mps_status_new (void);
   void mps_status_init (mps_status * s);
   void mps_status_free (mps_status * s);

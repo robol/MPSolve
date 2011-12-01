@@ -351,6 +351,12 @@ mps_secular_ga_mpsolve (mps_status * s)
   /* Set phase */
   s->lastphase = s->input_config->starting_phase;
 
+  /* Set the number of roots in and out from the target set. Since we do not
+   * support this yet, we can say that all the roots are in the set. */
+  s->count[0] = s->n;
+  s->count[1] = 0;
+  s->count[2] = 0;
+
   /* If the input was polynomial we need to determined the secular
    * coefficients */
   if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
@@ -360,7 +366,6 @@ mps_secular_ga_mpsolve (mps_status * s)
       /* Check data first */
       char which_case;
       mps_check_data (s, &which_case);
-      // which_case = 'd';
 
       MPS_DEBUG_WITH_INFO (s, "Check data resulted in %c", which_case);
 
@@ -370,9 +375,9 @@ mps_secular_ga_mpsolve (mps_status * s)
 	s->lastphase = dpe_phase;
 
       if (s->lastphase == float_phase)
-	  mps_fstart (s, s->n, 0, 0.0, 0.0, s->eps_out, p->fap);
+	  mps_fstart (s, s->n, s->clusterization->first, 0.0, 0.0, s->eps_out, p->fap);
       else
-	mps_dstart (s, s->n, 0, (__rdpe_struct *) rdpe_zero,
+	mps_dstart (s, s->n, s->clusterization->first, (__rdpe_struct *) rdpe_zero,
 		    (__rdpe_struct *) rdpe_zero, s->eps_out,
 		    p->dap);
 
@@ -410,16 +415,16 @@ mps_secular_ga_mpsolve (mps_status * s)
       switch (s->lastphase)
 	{
 	case  float_phase:
-	  mps_secular_fstart (s, s->n, 0, 0.0, 0.0, s->eps_out);
+	  mps_secular_fstart (s, s->n, s->clusterization->first, 0.0, 0.0, s->eps_out);
 	  break;
 
 	case dpe_phase:
-	  mps_secular_dstart (s, s->n, 0, (__rdpe_struct *) rdpe_zero, 
+	  mps_secular_dstart (s, s->n, s->clusterization->first, (__rdpe_struct *) rdpe_zero, 
 			      (__rdpe_struct *) rdpe_zero, s->eps_out); 
 	  break; 
 
 	case mp_phase:
-	  mps_secular_mstart (s, s->n, 0, (__rdpe_struct *) rdpe_zero, 
+	  mps_secular_mstart (s, s->n, s->clusterization->first, (__rdpe_struct *) rdpe_zero, 
 			      (__rdpe_struct *) rdpe_zero, s->eps_out); 
 	  break;
 

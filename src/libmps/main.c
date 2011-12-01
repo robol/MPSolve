@@ -187,7 +187,7 @@ mps_standard_mpsolve (mps_status * s)
 
       /* == 7.2 ==   Call msolve with the current precision */
       if (s->DOLOG)
-        fprintf (s->logstr, "MAIN: now call msolve nclust=%d\n", s->nclust);
+        fprintf (s->logstr, "MAIN: now call msolve nclust=%ld\n", s->clusterization->n);
       mps_msolve (s);
       s->lastphase = mp_phase;
 
@@ -237,7 +237,7 @@ mps_standard_mpsolve (mps_status * s)
 exit_sub:
 
   /* == 9 ==  Check inclusion disks */
-  if (computed && s->nclust < s->n)
+  if (computed && s->clusterization->n < s->n)
     if (!mps_inclusion (s))
       mps_error (s, 1, "Unable to compute inclusion disks");
 
@@ -285,28 +285,13 @@ mps_setup (mps_status * s)
    if (s->data_type[0] == 's') 
      for (i = 0; i <= s->n; i++) 
        { 
-         p->fap[i] = 0.0; 
-         p->fpr[i] = 0.0; 
+         p->fap[i] = 0.0;
+         p->fpr[i] = 0.0;
          rdpe_set (p->dap[i], rdpe_zero); 
          cplx_set (p->fpc[i], cplx_zero); 
          rdpe_set (p->dpr[i], rdpe_zero); 
          cdpe_set (p->dpc[i], cdpe_zero); 
-       }  
-
-  /* setup status and clusters so that there is only one cluster
-   *  containing all the roots */
-  for (i = 0; i < s->n; i++)
-    {
-      /* Set the i-th root as a clustered root */
-      s->status[i][0] = 'c';
-      /* Set the i-th root as 'uncertain', regarding the
-       * inclusion in R or in iR. */
-      s->status[i][1] = 'w';
-      /* Set the i-th root as 'uncertain' (regarding the inclusion
-       * in the search set). */
-      s->status[i][2] = 'u';
-      s->clust[i] = i;
-    }
+       }
 
   /* Indexes of the first (and only) cluster start from
    * 0 and reach n */

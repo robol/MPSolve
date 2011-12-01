@@ -128,7 +128,7 @@ mps_fnewton (mps_status * s, int n, cplx_t z, double *radius, cplx_t corr,
 
   if (skip_radius_computation)
     return;
-
+  
   /* Computation of the radius using Gerschgorin, i.e. the radius
    * of inclusion of the root i is equal to:
    *

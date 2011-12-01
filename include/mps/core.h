@@ -65,10 +65,10 @@ extern "C"
   void mps_faberth (mps_status * s, int j, cplx_t abcorr);
   void mps_daberth (mps_status * s, int j, cdpe_t abcorr);
   void mps_maberth (mps_status * s, int j, mpc_t abcorr);
-  void mps_faberth_s (mps_status * s, int j, int jc, cplx_t abcorr);
-  void mps_daberth_s (mps_status * s, int j, int jc, cdpe_t abcorr);
-  void mps_maberth_s (mps_status * s, int j, int jc, mpc_t abcorr);
-  void mps_maberth_s_wl (mps_status * s, int j, int jc, mpc_t abcorr,
+  void mps_faberth_s (mps_status * s, int j, mps_cluster * cluster, cplx_t abcorr);
+  void mps_daberth_s (mps_status * s, int j, mps_cluster * cluster, cdpe_t abcorr);
+  void mps_maberth_s (mps_status * s, int j, mps_cluster * cluster, mpc_t abcorr);
+  void mps_maberth_s_wl (mps_status * s, int j, mps_cluster * cluster, mpc_t abcorr,
                          pthread_mutex_t * aberth_mutex);
   void mps_mnewtis (mps_status * s);
 
@@ -77,8 +77,8 @@ extern "C"
   void mps_fcluster (mps_status * s, int nf);
   void mps_dcluster (mps_status * s, int nf);
   void mps_mcluster (mps_status * s, int nf);
-  void mps_cluster_detach (mps_status * s, int i_clust);
-  void mps_cluster_reassemble (mps_status * s, int i_clust);
+  /* void mps_cluster_detach (mps_status * s, mps_cluster * cluster); */
+  /* void mps_cluster_reassemble (mps_status * s, mps_cluster * cluster); */
   void mps_debug_cluster_structure (mps_status * s);
 
 /* functions in convex.c */
@@ -117,6 +117,10 @@ extern "C"
   void mps_aparhorner (mps_status * st, int n, rdpe_t x, rdpe_t p[],
                        mps_boolean b[], rdpe_t s, int n_thread);
 
+  /* Functions in monomial-radius.c */
+  void mps_monomial_fradii (mps_status * s);
+  void mps_monomial_dradii (mps_status * s);
+  
 /* Function in getopts.c */
   void mps_parse_opts (mps_status * s, int argc, char *argv[]);
   mps_boolean mps_getopts (mps_opt ** opt, int *argc_ptr, char ***argv_ptr,
@@ -131,9 +135,9 @@ extern "C"
 
 /* functions in solve.c */
   void mps_update (mps_status * s);
-  void mps_fsrad (mps_status * s, int i, cplx_t sc, double *sr);
-  void mps_dsrad (mps_status * s, int i, cdpe_t sc, rdpe_t sr);
-  void mps_msrad (mps_status * s, int i, mpc_t sc, rdpe_t sr);
+  void mps_fsrad (mps_status * s, mps_cluster * cluster, cplx_t sc, double *sr);
+  void mps_dsrad (mps_status * s, mps_cluster * cluster, cdpe_t sc, rdpe_t sr);
+  void mps_msrad (mps_status * s, mps_cluster * cluster, mpc_t sc, rdpe_t sr);
 
   mps_boolean mps_check_stop (mps_status * s);
   void mps_fsolve (mps_status * s, mps_boolean * d_after_f);
@@ -151,21 +155,21 @@ extern "C"
 
 /* functions in starting.c */
   double mps_maximize_distance (mps_status * s, double last_sigma,
-                                int i_cluster, int n);
-  void mps_fstart (mps_status * s, int n, int i_clust, double clust_rad,
+                                mps_cluster_item * cluster, int n);
+  void mps_fstart (mps_status * s, int n, mps_cluster_item * cluster, double clust_rad,
                    double g, rdpe_t eps_out, double fap[]);
-  void mps_dstart (mps_status * s, int n, int i_clust, rdpe_t clust_rad,
+  void mps_dstart (mps_status * s, int n, mps_cluster_item * cluster, rdpe_t clust_rad,
                    rdpe_t g, rdpe_t eps_out, rdpe_t dap[]);
-  void mps_mstart (mps_status * s, int n, int i_clust, rdpe_t clust_rad,
+  void mps_mstart (mps_status * s, int n, mps_cluster_item * cluster, rdpe_t clust_rad,
                    rdpe_t g, rdpe_t dap[], mpc_t gg);
   void mps_frestart (mps_status * s);
   void mps_drestart (mps_status * s);
   void mps_mrestart (mps_status * s);
-  void mps_fshift (mps_status * s, int m, int i_clust, double clust_rad,
+  void mps_fshift (mps_status * s, int m, mps_cluster_item * cluster, double clust_rad,
                    cplx_t g, rdpe_t eps);
-  void mps_dshift (mps_status * s, int m, int i_clust, rdpe_t clust_rad,
+  void mps_dshift (mps_status * s, int m, mps_cluster_item * cluster, rdpe_t clust_rad,
                    cdpe_t g, rdpe_t eps);
-  void mps_mshift (mps_status * s, int m, int i_clust, rdpe_t clust_rad,
+  void mps_mshift (mps_status * s, int m, mps_cluster_item * cluster, rdpe_t clust_rad,
                    mpc_t g);
 
 /* functions in stio.c */
@@ -185,8 +189,8 @@ extern "C"
 /* functions in test.c */
   mps_boolean mps_inclusion (mps_status * s);
 
-/* functions in cluster. */
-  void mps_cluster_detach (mps_status * s, int i_clust);
+/* functions in cluster.c */
+  void mps_cluster_detach (mps_status * s, mps_cluster * cluster);
 
 /* functions in touch.c */
   mps_boolean mps_ftouchnwt (mps_status * s, int n, int i, int j);

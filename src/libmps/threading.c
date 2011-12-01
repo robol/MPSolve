@@ -62,11 +62,11 @@ mps_thread_job_queue_new (mps_status * s)
   pthread_mutex_init (&q->mutex, NULL);
 
   /* Set initial data */
-  q->i = 0;
   q->iter = 0;
   q->n_roots = s->n;
   q->max_iter = s->max_it;
-  q->i_clust = 0;
+  q->cluster_item = s->clusterization->first;
+  q->root = q->cluster_item->cluster->first;
   return q;
 }
 
@@ -90,26 +90,31 @@ mps_thread_job_queue_next (mps_status * s, mps_thread_job_queue * q)
   mps_thread_job j;
   pthread_mutex_lock (&q->mutex);
 
-  j.i = 0;
-  j.i_clust = 0;
-
   if (q->iter == MPS_THREAD_JOB_EXCEP)
     {
       j.iter = MPS_THREAD_JOB_EXCEP;
+      j.i = 0;
       pthread_mutex_unlock (&q->mutex);
       return j;
     }
 
-  /* Get the next element of the cluster */
-  j.i = (q->i)++;
+  /* Assignin the root */
+  j.i = q->root->k;
+  j.cluster_item = q->cluster_item;
+
+  /* Get the next element of the cluster, incrementing the queue */
+  q->root = q->root->next ;
 
   /* Check if the previous one was the last element in the
    * cluster, and if that's the case pass to the next one. */
-  if (j.i == s->n)
+  if (q->root == NULL)
     {
-      j.iter = ++q->iter;
-      q->i = 1;
-      j.i = 0;
+      q->cluster_item = q->cluster_item->next;
+      if (q->cluster_item == NULL)
+	q->cluster_item = s->clusterization->first;
+      q->root = q->cluster_item->cluster->first;
+      
+      j.iter++;
 
       /* Check if maximum number of iteration was reached and
        * if that was the case set j->iter to MPS_THREAD_JOB_EXCEP.  */
@@ -123,18 +128,6 @@ mps_thread_job_queue_next (mps_status * s, mps_thread_job_queue * q)
     }
   else
     j.iter = q->iter;
-
-  /* Find out in which cluster we are, if we get over
-   * the limit of the actual cluster, step one over. */
-  if (s->punt[q->i_clust] == j.i)
-    q->i_clust++;
-
-  /* If this is the first root we are not stepping to
-   * the next cluster, but to the first one */
-  if (j.i == 0)
-    q->i_clust = 0;
-
-  j.i_clust = q->i_clust;
 
   pthread_mutex_unlock (&q->mutex);
   return j;
@@ -318,37 +311,8 @@ mps_thread_fpolzer (mps_status * s, int *it, mps_boolean * excep)
       pthread_join (threads[i], NULL);
     }
 
-  /* Compute the inclusion radius */
-  if (!MPS_INPUT_CONFIG_IS_USER (s->input_config))
-    {
-      cplx_t pol;
-      double new_rad, relative_error, pol_mod;
-      int j;
-
-      for (i = 0; i < s->n; i++)
-	{
-	  mps_fhorner_with_error (s, s->monomial_poly, s->froot[i], pol, &relative_error);
-	  new_rad = cplx_mod (pol) * (1 + relative_error);
-
-	  for (j = 0; j < s->n; j++)
-	    {
-	      cplx_sub (pol, s->froot[i], s->froot[j]);
-	      pol_mod = cplx_mod (pol);
-	      
-	      /* Check for floating point exceptions in here */
-	      if (pol_mod == 0)
-		{
-		  new_rad = DBL_MAX;
-		  break;
-		}
-	      new_rad /= cplx_mod (pol);
-	    }
-
-	  if (new_rad > s->frad[i])
-	    s->frad[i] = new_rad;
-	}
-    }
-
+  if (!MPS_INPUT_CONFIG_IS_SECULAR (s->input_config))
+    mps_monomial_fradii (s);
 
   free (data);
   free (threads);
@@ -613,7 +577,7 @@ mps_thread_mpolzer_worker (void *data_ptr)
 	  goto endfun;
         }
 
-      l = s->clust[job.i];
+      l = job.i;
 
       /* Lock roots_mutex to assure that we are the only thread
        * working on this root. Parallel computation on the same
@@ -681,7 +645,7 @@ mps_thread_mpolzer_worker (void *data_ptr)
 
               /* Compute Aberth correction with locks so we can lock the
                * roots while reading them.                          */
-              mps_maberth_s_wl (s, l, job.i_clust, abcorr,
+              mps_maberth_s_wl (s, l, job.cluster_item->cluster, abcorr,
                                 data->aberth_mutex);
 
               /* Apply aberth correction that has been computed */

@@ -57,7 +57,6 @@ mps_update (mps_status * s)
 
           switch (s->goal[3])
             {
-
             case 'r':          /* real option */
               if (s->status[i][1] == 'w' && (s->status[i][2] != 'u'
                                              || (s->status[i][0] != 'f'
@@ -95,13 +94,11 @@ mps_update (mps_status * s)
                 && s->status[i][0] != 'o' && (s->status[i][0] != 'i'
                                               || s->status[i][2] != 'i'))
               s->again[i] = true;
-          if (s->goal[2] == 'm' && s->status[i][0] == 'c' && s->status[i][2]
-              != 'o')
+          if (s->goal[2] == 'm' && s->status[i][0] == 'c' && s->status[i][2] != 'o')
             s->again[i] = true;
 
           switch (s->goal[3])
             {
-
             case 'r':          /* real option */
               if (s->status[i][1] == 'w' && (s->status[i][0] != 'f'
                                              && s->status[i][0] != 'a'
@@ -181,30 +178,32 @@ mps_update (mps_status * s)
  * @param sr Double that will be set to the super radius of the cluster;
  */
 void
-mps_fsrad (mps_status * s, int i, cplx_t sc, double *sr)
+mps_fsrad (mps_status * s, mps_cluster * cluster, cplx_t sc, double *sr)
 {
   cplx_t ctmp;
   double sum;
-  int j, l;
+  int l;
+
+  mps_root * root;
 
   sum = 0.0;
-  for (j = 0; j < s->punt[i + 1] - s->punt[i]; j++)
+  for (root = cluster->first; root != NULL; root = root->next)
     {
-      l = s->clust[s->punt[i] + j];
+      l = root->k;
       sum += s->frad[l];
     }
   cplx_set (sc, cplx_zero);
-  for (j = 0; j < s->punt[i + 1] - s->punt[i]; j++)
+  for (root = cluster->first; root != NULL; root = root->next)
     {
-      l = s->clust[s->punt[i] + j];
+      l = root->k;
       cplx_mul_d (ctmp, s->froot[l], s->frad[l]);
       cplx_add_eq (sc, ctmp);
     }
   cplx_div_eq_d (sc, sum);
   *sr = 0.0;
-  for (j = 0; j < s->punt[i + 1] - s->punt[i]; j++)
+  for (root = cluster->first; root != NULL; root = root->next)
     {
-      l = s->clust[s->punt[i] + j];
+      l = root->k;
       cplx_sub (ctmp, sc, s->froot[l]);
       *sr = MAX (*sr, s->frad[l] + cplx_mod (ctmp));
     }
@@ -214,30 +213,31 @@ mps_fsrad (mps_status * s, int i, cplx_t sc, double *sr)
  * @brief <code>dpe</code> version of <code>fsrad()</code>
  */
 void
-mps_dsrad (mps_status * s, int i, cdpe_t sc, rdpe_t sr)
+mps_dsrad (mps_status * s, mps_cluster * cluster, cdpe_t sc, rdpe_t sr)
 {
   cdpe_t ctmp;
   rdpe_t sum, rtmp;
-  int j, l;
+  int l;
+  mps_root * root;
 
   rdpe_set (sum, rdpe_zero);
-  for (j = 0; j < s->punt[i + 1] - s->punt[i]; j++)
+  for (root = cluster->first; root != NULL; root = root->next)
     {
-      l = s->clust[s->punt[i] + j];
+      l = root->k;
       rdpe_add_eq (sum, s->drad[l]);
     }
   cdpe_set (sc, cdpe_zero);
-  for (j = 0; j < s->punt[i + 1] - s->punt[i]; j++)
+  for (root = cluster->first; root != NULL; root = root->next)
     {
-      l = s->clust[s->punt[i] + j];
+      l = root->k;
       cdpe_mul_e (ctmp, s->droot[l], s->drad[l]);
       cdpe_add_eq (sc, ctmp);
     }
   cdpe_div_eq_e (sc, sum);
   rdpe_set (sr, rdpe_zero);
-  for (j = 0; j < s->punt[i + 1] - s->punt[i]; j++)
+  for (root = cluster->first; root != NULL; root = root->next)
     {
-      l = s->clust[s->punt[i] + j];
+      l = root->k;
       cdpe_sub (ctmp, sc, s->droot[l]);
       cdpe_mod (rtmp, ctmp);
       rdpe_add_eq (rtmp, s->drad[l]);
@@ -250,30 +250,31 @@ mps_dsrad (mps_status * s, int i, cdpe_t sc, rdpe_t sr)
  * @brief Multiprecision versione of <code>fsrad()</code>
  */
 void
-mps_msrad (mps_status * s, int i, mpc_t sc, rdpe_t sr)
+mps_msrad (mps_status * s, mps_cluster * cluster, mpc_t sc, rdpe_t sr)
 {
-  int j, l;
+  int l;
   rdpe_t rtmp;
   cdpe_t cdtmp;
   mpf_t ftmp, sum;
   mpc_t ctmp;
+  mps_root * root;
 
   mpc_init2 (ctmp, s->mpwp);
   mpf_init2 (ftmp, s->mpwp);
   mpf_init2 (sum, s->mpwp);
 
   mpf_set_ui (sum, 0);
-  for (j = 0; j < s->punt[i + 1] - s->punt[i]; j++)
+  for (root = cluster->first; root != NULL; root = root->next)
     {
-      l = s->clust[s->punt[i] + j];
+      l = root->k;
       mpf_set_rdpe (ftmp, s->drad[l]);
       mpf_add (sum, sum, ftmp);
     }
 
   mpc_set_ui (sc, 0, 0);
-  for (j = 0; j < s->punt[i + 1] - s->punt[i]; j++)
+  for (root = cluster->first; root != NULL; root = root->next)
     {
-      l = s->clust[s->punt[i] + j];
+      l = root->k;
       mpf_set_rdpe (ftmp, s->drad[l]);
       mpc_mul_f (ctmp, s->mroot[l], ftmp);
       mpc_add_eq (sc, ctmp);
@@ -281,9 +282,9 @@ mps_msrad (mps_status * s, int i, mpc_t sc, rdpe_t sr)
 
   mpc_div_eq_f (sc, sum);
   rdpe_set (sr, rdpe_zero);
-  for (j = 0; j < s->punt[i + 1] - s->punt[i]; j++)
+  for (root = cluster->first; root != NULL; root = root->next)
     {
-      l = s->clust[s->punt[i] + j];
+      l = root->k;
       mpc_sub (ctmp, sc, s->mroot[l]);
       mpc_get_cdpe (cdtmp, ctmp);
       cdpe_mod (rtmp, cdtmp);
@@ -369,6 +370,7 @@ mps_check_stop (mps_status * s)
         }
       computed = true;
     }
+
   /* isolate or approximate */
   if (s->goal[0] == 'i' || s->goal[0] == 'a')
     {
@@ -379,8 +381,7 @@ mps_check_stop (mps_status * s)
             return computed;
           if (s->status[i][0] == 'c' && s->status[i][2] != 'o')
             return computed;
-          if (s->goal[2] == 'm' && s->status[i][2] != 'o' && (s->status[i][0]
-                                                              == 'c'))
+          if (s->goal[2] == 'm' && s->status[i][2] != 'o' && (s->status[i][0] == 'c'))
             return computed;
           if (s->goal[3] == 'r' && s->status[i][1] == 'w' && s->status[i][2]
               != 'o' && s->status[i][0] != 'a' && s->status[i][0] != 'o'
@@ -442,7 +443,7 @@ mps_fsolve (mps_status * s, mps_boolean * d_after_f)
 
   /* == 1 ==  Initialize variables */
   it_pack = 0;
-  s->nclust = 0;
+  mps_cluster_reset (s);
   for (i = 0; i < s->n; i++)
     {
       s->again[i] = true;
@@ -457,9 +458,9 @@ mps_fsolve (mps_status * s, mps_boolean * d_after_f)
   /* If there is a custom starting point function use it,
    * otherwise use the default one */
   if (s->fstart_usr)
-    (*s->fstart_usr) (s, s->n, 0, 0.0, 0.0, eps_out);
+    (*s->fstart_usr) (s, s->n, s->clusterization->first, 0.0, 0.0, eps_out);
   else
-    mps_fstart (s, s->n, 0, 0.0, 0.0, eps_out, p->fap);
+    mps_fstart (s, s->n, s->clusterization->first, 0.0, 0.0, eps_out, p->fap);
 
         /***************
 	 this part of code performs shift in the gravity center of the roots
@@ -493,8 +494,8 @@ mps_fsolve (mps_status * s, mps_boolean * d_after_f)
   for (iter = 0; iter < s->max_pack; iter++)
     {                           /* floop: */
 
-      /* mps_fpolzer(s, &nit, &excep);  */
-      mps_thread_fpolzer (s, &nit, &excep); 
+       /* mps_fpolzer(s, &nit, &excep);   */
+      mps_thread_fpolzer (s, &nit, &excep);
       it_pack += nit;
 
       if (s->DOLOG)
@@ -505,15 +506,20 @@ mps_fsolve (mps_status * s, mps_boolean * d_after_f)
        */
       if (excep)
         {
-          for (i = 0; i <= s->n; i++)
-            s->oldpunt[i] = s->punt[i];
-          oldnclust = s->nclust;
+          oldnclust = s->clusterization->n;
 
           if (s->DOLOG)
             fprintf (s->logstr, "   FSOLVE: call fcluster\n");
           /* cluster analysis */
+
+
+
+	  /* Compute the inclusion radii with Gerschgorin so we can compute
+	   * clusterizations for the roots. */
+	  if (!MPS_INPUT_CONFIG_IS_USER (s->input_config))
+	    mps_monomial_fradii (s);
           mps_fcluster (s, 2 * s->n);   /* Isolation factor */
-          if (oldnclust == s->nclust)
+          if (oldnclust == s->clusterization->n)
             {
               if (s->DOLOG)
                 fprintf (s->logstr, "   FSOLVE: cycle\n");
@@ -589,9 +595,12 @@ mps_fsolve (mps_status * s, mps_boolean * d_after_f)
   /* Update */
   if (s->DOLOG)
     fprintf (s->logstr, "   FSOLVE: call fcluster\n");
-  for (i = 0; i <= s->n; i++)
-    s->oldpunt[i] = s->punt[i];
-  oldnclust = s->nclust;
+  oldnclust = s->clusterization->n;
+
+  /* Compute the inclusion radii with Gerschgorin so we can compute
+   * clusterizations for the roots. */
+  if (!MPS_INPUT_CONFIG_IS_USER (s->input_config))
+    mps_monomial_fradii (s);
   mps_fcluster (s, 2 * s->n);   /* Isolation factor */
 
   if (s->DOLOG)
@@ -662,7 +671,7 @@ mps_fpolzer (mps_status * s, int *it, mps_boolean * excep)
               if (s->data_type[0] != 'u')
                 {
                   mps_fnewton (s, s->n, s->froot[i], &s->frad[i], corr,
-                               p->fpc, p->fap, &s->again[i], false);
+                               p->fpc, p->fap, &s->again[i], true);
                   if (iter == 0 && !s->again[i] && s->frad[i] > rad1 && rad1
                       != 0)
                     s->frad[i] = rad1;
@@ -753,7 +762,7 @@ mps_dpolzer (mps_status * s, int *it, mps_boolean * excep)
               if (s->data_type[0] != 'u')
                 {
                   mps_dnewton (s, s->n, s->droot[i], s->drad[i], corr, p->dpc,
-                               p->dap, &s->again[i], false);
+                               p->dap, &s->again[i], true);
                   if (iter == 0 && !s->again[i] && rdpe_gt (s->drad[i], rad1)
                       && rdpe_ne (rad1, rdpe_zero))
                     rdpe_set (s->drad[i], rad1);
@@ -836,7 +845,7 @@ mps_dsolve (mps_status * s, mps_boolean d_after_f)
         s->again[i] = false;
   else
     {
-      s->nclust = 0;
+      mps_cluster_reset (s);
       for (i = 0; i < s->n; i++)
         {
           s->again[i] = true;
@@ -853,9 +862,9 @@ mps_dsolve (mps_status * s, mps_boolean d_after_f)
 
   /* Use a custom routine if it is set, otherwise use the default one */
   if (s->dstart_usr)
-    (*s->dstart_usr) (s, s->n, 0, dummy, dummy, dummy);
+    (*s->dstart_usr) (s, s->n, s->clusterization->first, dummy, dummy, dummy);
   else
-    mps_dstart (s, s->n, 0, dummy, dummy, dummy, p->dap);
+    mps_dstart (s, s->n, s->clusterization->first, dummy, dummy, dummy, p->dap);
 
   /* Now adjust the status vector */
   if (d_after_f)
@@ -884,15 +893,15 @@ mps_dsolve (mps_status * s, mps_boolean d_after_f)
 
       if (excep)
         {
-          for (i = 0; i <= s->n; i++)
-            s->oldpunt[i] = s->punt[i];
-          oldnclust = s->nclust;
+          oldnclust = s->clusterization->n;
 
           /* cluster analysis */
           if (s->DOLOG)
             fprintf (s->logstr, "   DSOLVE: call dcluster\n");
+	  if (!MPS_INPUT_CONFIG_IS_USER (s->input_config))
+	    mps_monomial_dradii (s);
           mps_dcluster (s, 2 * s->n);   /* Isolation factor */
-          if (oldnclust == s->nclust)
+          if (oldnclust == s->clusterization->n)
             {
               if (s->DOLOG)
                 fprintf (s->logstr, "   DSOLVE:  CYCLE\n");
@@ -961,9 +970,9 @@ mps_dsolve (mps_status * s, mps_boolean d_after_f)
   /* Update */
   if (s->DOLOG)
     fprintf (s->logstr, "   DSOLVE: now update: call dcluster\n");
-  for (i = 0; i <= s->n; i++)
-    s->oldpunt[i] = s->punt[i];
-  oldnclust = s->nclust;
+  oldnclust = s->clusterization->n;
+  if (!MPS_INPUT_CONFIG_IS_USER (s->input_config))
+    mps_monomial_dradii (s);
   mps_dcluster (s, 2 * s->n);   /* Isolation factor */
 
   if (s->DOLOG)
@@ -1012,9 +1021,7 @@ mps_msolve (mps_status * s)
     fprintf (s->logstr, "  MSOLVE: call checkstop\n");
   if (mps_check_stop (s))
     {
-      for (i = 0; i <= s->n; i++)
-	s->oldpunt[i] = s->punt[i];
-      oldnclust = s->nclust;
+      oldnclust = s->clusterization->n;
 
       mps_mmodify (s, true);
 
@@ -1062,15 +1069,14 @@ mps_msolve (mps_status * s)
           fprintf (s->logstr, "\n");
           fprintf (s->logstr, "  MSOLVE: call mpolzer\n");
         }
-       /* mps_mpolzer(s, &nit, &excep);     */
-       mps_thread_mpolzer (s, &nit, &excep);       
+      /* mps_mpolzer(s, &nit, &excep); */
+      mps_thread_mpolzer (s, &nit, &excep);
 
       if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
 	mps_dump (s);
 
 	if (s->DOLOG)
-	  fprintf (s->logstr, "  MSOLVE: Packet %d: iterations= %d\n", iter,
-		   nit);
+	  fprintf (s->logstr, "  MSOLVE: Packet %d: iterations= %d\n", iter, nit);
 
       it_pack += nit;
       nzc = 0;
@@ -1107,9 +1113,7 @@ mps_msolve (mps_status * s)
 
       if (excep)
         {
-          for (i = 0; i <= s->n; i++)
-            s->oldpunt[i] = s->punt[i];
-          oldnclust = s->nclust;
+          oldnclust = s->clusterization->n;
 
           /* cluster analysis */
           if (s->DOLOG)
@@ -1122,11 +1126,10 @@ mps_msolve (mps_status * s)
             mps_mnewtis (s);
           if (s->DOLOG)
             fprintf (s->logstr,
-                     "  MSOLVE: newtis_old=%d, newtis=%d, oldncl=%d, s->nclust=%d\n",
-                     s->newtis_old, s->newtis, oldnclust, s->nclust);
+                     "  MSOLVE: newtis_old=%d, newtis=%d, oldncl=%d, s->nclust=%ld\n",
+                     s->newtis_old, s->newtis, oldnclust, s->clusterization->n);
 
-          if (oldnclust == s->nclust && !(s->newtis == 1 && s->newtis_old
-                                          == 0))
+          if (oldnclust == s->clusterization->n && !(s->newtis == 1 && s->newtis_old == 0))
             /*#             if(&& iter != 0) AGO99 */
             {
               /*#D !newtis */
@@ -1247,9 +1250,7 @@ mps_msolve (mps_status * s)
   if (s->DOLOG)
     fprintf (s->logstr, "  MSOLVE:  call mmodify\n");
 
-  for (i = 0; i <= s->n; i++)
-    s->oldpunt[i] = s->punt[i];
-  oldnclust = s->nclust;
+  oldnclust = s->clusterization->n;
 
   mps_mmodify (s, true);
 
@@ -1281,7 +1282,7 @@ mps_msolve (mps_status * s)
 void
 mps_mpolzer (mps_status * s, int *it, mps_boolean * excep)
 {
-  int nzeros, i, j, iter, l;
+  int nzeros, i, iter, l;
   mpc_t corr, abcorr;
   rdpe_t eps, rad1, rtmp;
   cdpe_t ctmp;
@@ -1304,14 +1305,19 @@ mps_mpolzer (mps_status * s, int *it, mps_boolean * excep)
   if (nzeros == s->n)
     goto endfun;
 
+  mps_cluster_item * c_item;
+  mps_cluster * cluster;
+  mps_root * root;
+
   /* Start Aberth's iterations */
   for (iter = 0; iter < s->max_it; iter++)
     {                           /* do_iter: */
-      for (j = 0; j < s->nclust; j++)
+      for (c_item = s->clusterization->first; c_item != NULL; c_item = c_item->next)
         {                       /* do_clust: */
-          for (i = 0; i < s->punt[j + 1] - s->punt[j]; i++)
+	  cluster = c_item->cluster;
+          for (root = cluster->first; root != NULL; root = root->next)
             {                   /* do_indice: */
-              l = s->clust[s->punt[j] + i];
+	      l = root->k;
 
 	      MPS_DEBUG (s, "Iterating on root %d, iter %d", l, iter);
 
@@ -1356,7 +1362,7 @@ mps_mpolzer (mps_status * s, int *it, mps_boolean * excep)
                       s->data_type[0] == 'u' || iter != 0
                       || rdpe_ne (s->drad[l], rad1))
                     {
-                      mps_maberth_s (s, l, j, abcorr);
+                      mps_maberth_s (s, l, cluster, abcorr);
                       mpc_mul_eq (abcorr, corr);
                       mpc_neg_eq (abcorr);
                       mpc_add_eq_ui (abcorr, 1, 0);

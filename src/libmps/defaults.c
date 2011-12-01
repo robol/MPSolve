@@ -46,8 +46,9 @@ mps_set_default_values (mps_status * s)
   if (!s->n_threads)
     s->n_threads = 12;
 
+  s->clusterization = NULL;
 
-  s->mpwp_max = 1000000000;     /* maximum allowed bits for mp         */
+  s->mpwp_max = 100000000;     /* maximum allowed bits for mp         */
   /*   numbers: used in hi-prec. shifts  */
   strncpy (s->goal, "iannc", 5);        /* stores the goal, by default "iannc" */
   s->output_config->prec = 2 * DBL_DIG;    /* digits of required output precision */
@@ -78,8 +79,6 @@ mps_set_default_values (mps_status * s)
   s->frad = NULL;               /* radii of inclusion disks as real    */
   s->drad = NULL;               /* radii of inclusion disks as rdpe_t  */
 
-  s->clust = NULL;              /* indices of components of clusters   */
-  s->punt = NULL;               /* beginning of each cluster           */
   s->rootwp = NULL;             /* working precision used for each root */
   /* s->mfppc = NULL;              /\* multiprecision complex coeffs of p' *\/ */
   /* s->fap = NULL;                /\* moduli of the coefficients as double *\/ */

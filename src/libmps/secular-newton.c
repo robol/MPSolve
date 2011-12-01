@@ -138,7 +138,7 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
 
   /* If the correction is not useful in the current precision do
    * not iterate more */
-  if (*again && (cplx_mod (corr) < cplx_mod (x) * DBL_EPSILON))
+  if (*again && (cplx_mod (corr) < 8.0 * cplx_mod (x) * DBL_EPSILON))
     {
       if (data && s->debug_level & MPS_DEBUG_APPROXIMATIONS)
 	{
