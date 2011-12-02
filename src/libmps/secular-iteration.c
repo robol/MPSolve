@@ -27,6 +27,8 @@ mps_secular_ga_fiterate (mps_status * s, int maxit, mps_boolean just_regenerated
   int it_threshold;
   mps_secular_iteration_data data;
 
+  double * fradii = double_valloc (s->n);
+
 #ifndef DISABLE_DEBUG
   clock_t *my_clock = mps_start_timer ();
 #endif
@@ -180,8 +182,8 @@ mps_secular_ga_fiterate (mps_status * s, int maxit, mps_boolean just_regenerated
 
   /* Compute the inclusion radii with Gerschgorin so we can compute
    * clusterizations for the roots. */
-  mps_fradii (s);
-  mps_fcluster (s, 2.0 * s->n); 
+  mps_fradii (s, fradii);
+  mps_fcluster (s, fradii, 2.0 * s->n); 
   mps_fmodify (s, false); 
 
   /* These lines are used to debug the again vector, but are not useful
@@ -200,6 +202,8 @@ mps_secular_ga_fiterate (mps_status * s, int maxit, mps_boolean just_regenerated
 #ifndef DISABLE_DEBUG
   s->fp_iteration_time += mps_stop_timer (my_clock);
 #endif
+
+  free (fradii);
 
   /* Return the number of approximated roots */
   return computed_roots;

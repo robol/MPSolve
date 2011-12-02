@@ -33,17 +33,18 @@
  *   are newton-isolated.
  */
 mps_boolean
-mps_ftouchnwt (mps_status * s, int n, int i, int j)
+mps_ftouchnwt (mps_status * s, double * frad, int n, int i, int j)
 {
   cplx_t ctmp;
   double t;
 
   t = DBL_MAX / (2 * n);        /*#G added 27/4/98 */
-  if (s->frad[i] >= t || s->frad[j] >= t)
+  if (frad[i] >= t || frad[j] >= t)
     return true;
 
   cplx_sub (ctmp, s->froot[i], s->froot[j]);
-  return n * (s->frad[i] + s->frad[j]) >= cplx_mod (ctmp);
+
+  return n * (frad[i] + frad[j]) >= cplx_mod (ctmp);
 }
 
 /**

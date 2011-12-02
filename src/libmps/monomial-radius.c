@@ -11,7 +11,7 @@
  * @param s The <code>mps_status</code> of the computation.
  */
 void
-mps_monomial_fradii (mps_status * s)
+mps_monomial_fradii (mps_status * s, double * fradii)
 {
   MPS_DEBUG_THIS_CALL;
 
@@ -44,7 +44,7 @@ mps_monomial_fradii (mps_status * s)
 	}
       new_rad /= p->fap[s->n];
       
-      s->frad[i] = new_rad;
+      fradii[i] = new_rad;
     }
 }
 
@@ -57,9 +57,10 @@ mps_monomial_fradii (mps_status * s)
  * the considered component.
  *
  * @param s The <code>mps_status</code> of the computation.
+ * @param dradii The array of DPE where the radii will be stored.
  */
 void
-mps_monomial_dradii (mps_status * s)
+mps_monomial_dradii (mps_status * s, rdpe_t * dradii)
 {
   MPS_DEBUG_THIS_CALL;
 
@@ -98,12 +99,23 @@ mps_monomial_dradii (mps_status * s)
 	}
 
       rdpe_div_eq (new_rad, p->dap[s->n]);
-      rdpe_set (s->drad[i], new_rad);
+      rdpe_set (dradii[i], new_rad);
     }
 }
 
+/**
+ * @brief Compute the radius of inclusions for the roots using Gerschgorin
+ * to perform cluster analysis. 
+ *
+ * A Gerschgorin radius shall be computed for every root and set
+ * in <code>s->frad[i]</code>, where <code>i</code> is the index of
+ * the considered component.
+ *
+ * @param s The <code>mps_status</code> of the computation.
+ * @param dradii The array of DPE where the radii will be stored.
+ */
 void
-mps_monomial_mradii (mps_status * s)
+mps_monomial_mradii (mps_status * s, rdpe_t * dradii)
 {
   MPS_DEBUG_THIS_CALL;
 
@@ -147,7 +159,7 @@ mps_monomial_mradii (mps_status * s)
 	}
 
       rdpe_div_eq (new_rad, p->dap[s->n]);
-      rdpe_set (s->drad[i], new_rad);
+      rdpe_set (dradii[i], new_rad);
     }
 
   mpc_clear (pol);

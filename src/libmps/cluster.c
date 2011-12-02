@@ -342,14 +342,30 @@ mps_cluster_reset (mps_status * s)
  *
  * @param s  The <code>mps_status</code> associated with the current
  *           computaion.
+ * @param frad The vector of radii to use for cluster analysis.
  * @param nf see above for a detailed description.
  */
 void
-mps_fcluster (mps_status * s, int nf)
+mps_fcluster (mps_status * s, double * frad, int nf)
 {
   /* We need to scan every cluster and make it in pieces, if possible */
   mps_clusterization * new_clusterization = mps_clusterization_empty (s);
   mps_cluster_item * item;
+
+  /* Debug clusterization status if debugging was required */
+  if (s->debug_level & MPS_DEBUG_CLUSTER)
+    {
+      int i;
+      MPS_DEBUG (s, "Debugging the radius obtained for the roots before cluster analysis");
+      for (i = 0; i < s->n; i++)
+	{
+	  MPS_DEBUG_CPLX (s, s->froot[i], "Root %d", i);
+	  MPS_DEBUG (s, "radius for root %4d: %e", i, frad[i]);
+	}
+
+      MPS_DEBUG (s, "Debugging cluster structure before cluster analysis");
+      mps_debug_cluster_structure (s);
+    }
 
   for (item = s->clusterization->first; item != NULL; item = item->next)
     {
@@ -371,9 +387,6 @@ mps_fcluster (mps_status * s, int nf)
 
 	  while (base_root != NULL)
 	    { 
-	      /* And insert it in the new cluster */
-	      // base_root = mps_cluster_insert_root (s, new_cluster, base_root->k);
-	      
 	      /* Search for others that touch this one */
 	      iter_root = cluster->first;
 
@@ -381,7 +394,7 @@ mps_fcluster (mps_status * s, int nf)
 		{
 		  /* If the two roots are in the same cluster than keep iter_root away of
 		   * the cluster and put it in new_cluster */
-		  if (iter_root->k != base_root->k && mps_ftouchnwt (s, nf, base_root->k, iter_root->k))
+		  if (iter_root->k != base_root->k && mps_ftouchnwt (s, frad, nf, base_root->k, iter_root->k))
 		    {
 		      mps_root * next_root = iter_root->next;
 		      mps_cluster_insert_root (s, new_cluster, iter_root->k);
@@ -394,7 +407,7 @@ mps_fcluster (mps_status * s, int nf)
 		}
 
 	      /* Step to the next base_root */
-	      base_root = base_root->next;
+	      base_root = base_root->prev;
 	    }
 
 	  /* Insert new cluster in the clusterization */
@@ -409,8 +422,11 @@ mps_fcluster (mps_status * s, int nf)
     }
   s->clusterization = new_clusterization;
 
-  if (s->DOLOG)
-    mps_debug_cluster_structure (s);
+  if (s->debug_level & MPS_DEBUG_CLUSTER)
+    {
+      MPS_DEBUG (s, "Debugging cluster structure after cluster analysis");
+      mps_debug_cluster_structure (s);
+    }
 }
 
 /**
@@ -472,7 +488,7 @@ mps_dcluster (mps_status * s, int nf)
 		}
 
 	      /* Step to the next base_root */
-	      base_root = base_root->next;
+	      base_root = base_root->prev;
 	    }
 
 	  /* Insert new cluster in the clusterization */
@@ -595,7 +611,7 @@ mps_mcluster (mps_status * s, int nf)
 		}
 
 	      /* Step to the next base_root */
-	      base_root = base_root->next;
+	      base_root = base_root->prev;
 	    }
 
 	  /* Insert new cluster in the clusterization */

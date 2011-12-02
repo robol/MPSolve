@@ -563,8 +563,6 @@ mps_secular_set_radii (mps_status * s)
    * done in the mps_secular_*newton routines, now.
    */
 
-  return;
-
   int i;
   mps_secular_equation *sec = (mps_secular_equation *) s->secular_equation;
 
@@ -579,6 +577,7 @@ mps_secular_set_radii (mps_status * s)
         /* Floating point implementation */
 	cplx_t diff;
         double rad;
+	double *frad = double_valloc (s->n);
 
         /* Check if the Gerschgorin's radii are more convenient */
         for (i = 0; i < s->n; i++)
@@ -590,15 +589,12 @@ mps_secular_set_radii (mps_status * s)
 	    /* Add to rad the distance of the root from b_i */
 	    cplx_sub (diff, sec->bfpc[i], s->froot[i]);
 	    rad += cplx_mod (diff) * (1 + DBL_EPSILON);
-	    
-            if (rad < s->frad[i])
-              {
-                s->frad[i] = rad;
-              }
+	    frad[i] = rad;
           }
 
-	mps_fcluster (s, 2.0 * s->n);  
+	mps_fcluster (s, frad, 2.0 * s->n);
 	mps_fmodify (s, false);
+	free (frad);
       }
       break;
     case dpe_phase:
@@ -674,11 +670,7 @@ mps_secular_set_radii (mps_status * s)
              /* if (rdpe_gt (rad, total_rad))  */
              /*   rdpe_set (rad, total_rad);  */
 
-            /* If the radius is convenient set it */
-            if (rdpe_lt (rad, s->drad[i]))
-              {
-                rdpe_set (s->drad[i], rad);
-              }
+	    rdpe_set (s->drad[i], rad);
           }
       }
       
@@ -691,7 +683,7 @@ mps_secular_set_radii (mps_status * s)
        	{ 
        	  mps_dcluster (s, 2.0 * s->n); 
        	  mps_dmodify (s, false); 
-       	} 
+       	}
 
       break;
 

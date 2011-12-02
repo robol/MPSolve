@@ -516,8 +516,8 @@ mps_fsolve (mps_status * s, mps_boolean * d_after_f)
 
 	  /* Compute the inclusion radii with Gerschgorin so we can compute
 	   * clusterizations for the roots. */
-	  mps_fradii (s);
-          mps_fcluster (s, 2 * s->n);   /* Isolation factor */
+	  mps_fradii (s, s->frad);
+          mps_fcluster (s, s->frad, 2 * s->n);   /* Isolation factor */
           if (oldnclust == s->clusterization->n)
             {
               if (s->DOLOG)
@@ -598,8 +598,8 @@ mps_fsolve (mps_status * s, mps_boolean * d_after_f)
 
   /* Compute the inclusion radii with Gerschgorin so we can compute
    * clusterizations for the roots. */
-  mps_fradii (s);
-  mps_fcluster (s, 2 * s->n);   /* Isolation factor */
+  mps_fradii (s, s->frad);
+  mps_fcluster (s, s->frad, 2 * s->n);   /* Isolation factor */
 
   if (s->DOLOG)
     fprintf (s->logstr, "   FSOLVE: call modify\n");
@@ -896,8 +896,8 @@ mps_dsolve (mps_status * s, mps_boolean d_after_f)
           /* cluster analysis */
           if (s->DOLOG)
             fprintf (s->logstr, "   DSOLVE: call dcluster\n");
-	  if (!MPS_INPUT_CONFIG_IS_USER (s->input_config))
-	    mps_monomial_dradii (s);
+
+	  mps_dradii (s, s->drad);
           mps_dcluster (s, 2 * s->n);   /* Isolation factor */
           if (oldnclust == s->clusterization->n)
             {
@@ -969,8 +969,8 @@ mps_dsolve (mps_status * s, mps_boolean d_after_f)
   if (s->DOLOG)
     fprintf (s->logstr, "   DSOLVE: now update: call dcluster\n");
   oldnclust = s->clusterization->n;
-  if (!MPS_INPUT_CONFIG_IS_USER (s->input_config))
-    mps_monomial_dradii (s);
+
+  mps_dradii (s, s->drad);
   mps_dcluster (s, 2 * s->n);   /* Isolation factor */
 
   if (s->DOLOG)
@@ -1117,8 +1117,7 @@ mps_msolve (mps_status * s)
           if (s->DOLOG)
             fprintf (s->logstr, "  MSOLVE: call mcluster\n");
 
-	  if (!MPS_INPUT_CONFIG_IS_USER (s->input_config))
-	    mps_monomial_mradii (s);
+	  mps_mradii (s, s->drad);
           mps_mcluster (s, 2 * s->n);   /* Isolation factor */
 
           s->newtis_old = s->newtis;
@@ -1246,8 +1245,7 @@ mps_msolve (mps_status * s)
     }
 
 
-  if (!MPS_INPUT_CONFIG_IS_USER (s->input_config))
-    mps_monomial_mradii (s);
+  mps_mradii (s, s->drad);
   mps_mcluster (s, 2 * s->n);   /* Isolation factor */
 
   if (s->DOLOG)

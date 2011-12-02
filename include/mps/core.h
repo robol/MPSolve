@@ -74,7 +74,7 @@ extern "C"
 
 /* functions in cluster.c */
   void mps_cluster_reset (mps_status * s);
-  void mps_fcluster (mps_status * s, int nf);
+  void mps_fcluster (mps_status * s, double * frad, int nf);
   void mps_dcluster (mps_status * s, int nf);
   void mps_mcluster (mps_status * s, int nf);
   /* void mps_cluster_detach (mps_status * s, mps_cluster * cluster); */
@@ -118,19 +118,24 @@ extern "C"
                        mps_boolean b[], rdpe_t s, int n_thread);
 
   /* Functions in general-radius.c */
-  void mps_fradii (mps_status * s);
+  void mps_fradii (mps_status * s, double * fradii);
+  void mps_dradii (mps_status * s, rdpe_t * dradii);
+  void mps_mradii (mps_status * s, rdpe_t * dradii);
 
   /* Functions in monomial-radius.c */
-  void mps_monomial_fradii (mps_status * s);
-  void mps_monomial_dradii (mps_status * s);
-  void mps_monomial_mradii (mps_status * s);
+  void mps_monomial_fradii (mps_status * s, double * fradii);
+  void mps_monomial_dradii (mps_status * s, rdpe_t * dradii);
+  void mps_monomial_mradii (mps_status * s, rdpe_t * dradii);
 
   /* Functions in secular-radius.c */
-  void mps_secular_fradii (mps_status * s);
+  void mps_secular_fradii (mps_status * s, double * fradii);
+  void mps_secular_dradii (mps_status * s, rdpe_t * dradii);
+  void mps_secular_mradii (mps_status * s, rdpe_t * dradii);
 
   /* Functions in secular-evaluation.c */
   void mps_secular_feval (mps_status * s, mps_secular_equation * sec, cplx_t x, cplx_t value);
   void mps_secular_deval (mps_status * s, mps_secular_equation * sec, cdpe_t x, cdpe_t value);
+  void mps_secular_meval (mps_status * s, mps_secular_equation * sec, mpc_t x, mpc_t value);
   
   /* Function in getopts.c */
   void mps_parse_opts (mps_status * s, int argc, char *argv[]);
@@ -204,7 +209,7 @@ extern "C"
   void mps_cluster_detach (mps_status * s, mps_cluster * cluster);
 
 /* functions in touch.c */
-  mps_boolean mps_ftouchnwt (mps_status * s, int n, int i, int j);
+  mps_boolean mps_ftouchnwt (mps_status * s, double * frad, int n, int i, int j);
   mps_boolean mps_dtouchnwt (mps_status * s, int n, int i, int j);
   mps_boolean mps_mtouchnwt (mps_status * s, int n, int i, int j);
   mps_boolean mps_ftouchreal (mps_status * s, int n, int i);

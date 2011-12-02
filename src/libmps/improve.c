@@ -72,6 +72,8 @@ mps_improve (mps_status * s)
        MPS_DEBUG (s, "Refining the roots"); 
      } 
 
+   mps_copy_roots (s);
+   // mps_mradii (s, s->drad);
 
   /* == 1 ==
    * compute the number mpnb_in of bits

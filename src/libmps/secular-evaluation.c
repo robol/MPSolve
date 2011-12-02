@@ -32,7 +32,7 @@ mps_secular_feval (mps_status * s, mps_secular_equation * sec, cplx_t x, cplx_t 
  * @param s The <code>mps_status</code> of the computation.
  * @param sec The secular equation to evaluate.
  * @param x The point in which the secular equation must be evaluated.
- * @param value The value of the secular equation in the pointer <code>x</code>.
+ * @param value The value of the secular equation in the point <code>x</code>.
  */
 void
 mps_secular_deval (mps_status * s, mps_secular_equation * sec, cdpe_t x, cdpe_t value)
@@ -50,4 +50,34 @@ mps_secular_deval (mps_status * s, mps_secular_equation * sec, cdpe_t x, cdpe_t 
     }
 
   cdpe_sub_eq (value, cdpe_one);
+}
+
+/**
+ * @brief Evaluate a secular equation <code>sec</code> in the point <code>x</code>.
+ *
+ * @param s The <code>mps_status</code> of the computation.
+ * @param sec The secular equation to evaluate.
+ * @param x The point in which the sceular equation must be evaluated.
+ * @param value The value of the secular equation in the point <code>x</code>.
+ */
+void
+mps_secular_meval (mps_status * s, mps_secular_equation * sec, mpc_t x, mpc_t value)
+{
+  mpc_t ctmp;
+  unsigned int wp = mpc_get_prec (x);
+  int i;
+
+  mpc_init2  (ctmp, wp);
+  mpc_set_ui (value, 0U, 0U);
+
+  for (i = 0; i < s->n; ++i)
+    {
+      mpc_sub (ctmp, x, sec->bmpc[i]);
+      mpc_div (ctmp, sec->ampc[i], ctmp);
+      mpc_add_eq (value, ctmp);
+    }
+  
+  mpc_sub_eq_ui (value, 1U, 0U);
+  
+  mpc_clear (ctmp);
 }
