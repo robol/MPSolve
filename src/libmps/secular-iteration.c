@@ -180,8 +180,7 @@ mps_secular_ga_fiterate (mps_status * s, int maxit, mps_boolean just_regenerated
 
   /* Compute the inclusion radii with Gerschgorin so we can compute
    * clusterizations for the roots. */
-  if (!MPS_INPUT_CONFIG_IS_USER (s->input_config))
-    mps_monomial_fradii (s);
+  mps_fradii (s);
   mps_fcluster (s, 2.0 * s->n); 
   mps_fmodify (s, false); 
 

@@ -311,9 +311,6 @@ mps_thread_fpolzer (mps_status * s, int *it, mps_boolean * excep)
       pthread_join (threads[i], NULL);
     }
 
-  if (!MPS_INPUT_CONFIG_IS_SECULAR (s->input_config))
-    mps_monomial_fradii (s);
-
   free (data);
   free (threads);
   free (roots_mutex);

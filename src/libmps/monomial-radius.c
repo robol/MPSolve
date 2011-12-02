@@ -101,3 +101,57 @@ mps_monomial_dradii (mps_status * s)
       rdpe_set (s->drad[i], new_rad);
     }
 }
+
+void
+mps_monomial_mradii (mps_status * s)
+{
+  MPS_DEBUG_THIS_CALL;
+
+  mpc_t pol, mdiff;
+  cdpe_t cpol, diff;
+  rdpe_t new_rad, relative_error, rtmp;
+  mps_monomial_poly * p = s->monomial_poly;
+  int i, j;
+
+  mpc_init2 (pol, s->mpwp);
+  mpc_init2 (mdiff, s->mpwp);
+
+  for (i = 0; i < s->n; i++)
+    {
+      mps_mhorner_with_error2 (s, s->monomial_poly, s->mroot[i], pol, relative_error, s->mpwp);
+
+      mpc_get_cdpe (cpol, pol);
+      cdpe_mod (new_rad, cpol);
+      rdpe_add_eq (new_rad, relative_error);
+      cdpe_mod (rtmp, s->droot[i]);
+      rdpe_mul_eq_d (rtmp, 4.0 * DBL_EPSILON);
+      rdpe_add_eq (new_rad, rtmp);
+
+      for (j = 0; j < s->n; j++)
+	{
+	  if (i == j)
+	    continue;
+
+	  mpc_sub (mdiff, s->mroot[i], s->mroot[j]);
+	  mpc_get_cdpe (diff, mdiff);
+	      
+	  /* Check for floating point exceptions in here */
+	  if (cdpe_eq_zero (diff))
+	    {
+	      rdpe_set (new_rad, RDPE_MAX);
+	      break;
+	    }
+
+	  cdpe_mod (rtmp, diff);
+	  rdpe_div_eq (new_rad, rtmp);
+	}
+
+      rdpe_div_eq (new_rad, p->dap[s->n]);
+      rdpe_set (s->drad[i], new_rad);
+    }
+
+  mpc_clear (pol);
+  mpc_clear (mdiff);
+}
+
+

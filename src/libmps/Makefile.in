@@ -76,10 +76,11 @@ am__DEPENDENCIES_1 =
 libmps_la_DEPENDENCIES = $(am__DEPENDENCIES_1)
 am__objects_1 =
 am_libmps_la_OBJECTS = aberth.lo cluster.lo convex.lo data.lo debug.lo \
-	defaults.lo getopts.lo gmptools.lo horner.lo improve.lo \
-	input-buffer.lo interface.lo link.lo main.lo modify.lo \
-	monomial-poly.lo monomial-radius.lo mpc.lo mt.lo newton.lo \
-	secular-ga.lo secular-iteration.lo secular-newton.lo \
+	defaults.lo general-radius.lo getopts.lo gmptools.lo horner.lo \
+	improve.lo input-buffer.lo interface.lo link.lo main.lo \
+	modify.lo monomial-poly.lo monomial-radius.lo mpc.lo mt.lo \
+	newton.lo secular-evaluation.lo secular-ga.lo \
+	secular-iteration.lo secular-newton.lo secular-radius.lo \
 	secular-regeneration.lo secular-starting.lo secular.lo \
 	solve.lo sort.lo starting.lo stio.lo test.lo threading.lo \
 	tools.lo touch.lo user.lo $(am__objects_1)
@@ -285,6 +286,7 @@ libmps_la_SOURCES = \
 	    data.c \
 	    debug.c \
 	    defaults.c \
+	    general-radius.c \
 	    getopts.c \
 	    gmptools.c \
 	    horner.c \
@@ -299,9 +301,11 @@ libmps_la_SOURCES = \
 	    mpc.c \
 	    mt.c \
 	    newton.c \
+	    secular-evaluation.c \
 	    secular-ga.c \
 	    secular-iteration.c \
 	    secular-newton.c \
+	    secular-radius.c \
 	    secular-regeneration.c \
 	    secular-starting.c \
 	    secular.c \
@@ -403,6 +407,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/data.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/debug.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/defaults.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/general-radius.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/getopts.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gmptools.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/horner.Plo@am__quote@
@@ -417,9 +422,11 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mpc.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mt.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/newton.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/secular-evaluation.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/secular-ga.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/secular-iteration.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/secular-newton.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/secular-radius.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/secular-regeneration.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/secular-starting.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/secular.Plo@am__quote@

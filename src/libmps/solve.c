@@ -516,8 +516,7 @@ mps_fsolve (mps_status * s, mps_boolean * d_after_f)
 
 	  /* Compute the inclusion radii with Gerschgorin so we can compute
 	   * clusterizations for the roots. */
-	  if (!MPS_INPUT_CONFIG_IS_USER (s->input_config))
-	    mps_monomial_fradii (s);
+	  mps_fradii (s);
           mps_fcluster (s, 2 * s->n);   /* Isolation factor */
           if (oldnclust == s->clusterization->n)
             {
@@ -599,8 +598,7 @@ mps_fsolve (mps_status * s, mps_boolean * d_after_f)
 
   /* Compute the inclusion radii with Gerschgorin so we can compute
    * clusterizations for the roots. */
-  if (!MPS_INPUT_CONFIG_IS_USER (s->input_config))
-    mps_monomial_fradii (s);
+  mps_fradii (s);
   mps_fcluster (s, 2 * s->n);   /* Isolation factor */
 
   if (s->DOLOG)
@@ -1119,6 +1117,8 @@ mps_msolve (mps_status * s)
           if (s->DOLOG)
             fprintf (s->logstr, "  MSOLVE: call mcluster\n");
 
+	  if (!MPS_INPUT_CONFIG_IS_USER (s->input_config))
+	    mps_monomial_mradii (s);
           mps_mcluster (s, 2 * s->n);   /* Isolation factor */
 
           s->newtis_old = s->newtis;
@@ -1245,6 +1245,9 @@ mps_msolve (mps_status * s)
       fprintf (s->logstr, "  MSOLVE: call mcluster\n");
     }
 
+
+  if (!MPS_INPUT_CONFIG_IS_USER (s->input_config))
+    mps_monomial_mradii (s);
   mps_mcluster (s, 2 * s->n);   /* Isolation factor */
 
   if (s->DOLOG)

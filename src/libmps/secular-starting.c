@@ -76,8 +76,7 @@ mps_secular_fstart (mps_status * s, int n, mps_cluster_item * cluster_item, doub
 
   /* Compute the inclusion radii with Gerschgorin so we can compute
    * clusterizations for the roots. */
-  if (!MPS_INPUT_CONFIG_IS_USER (s->input_config))
-    mps_monomial_fradii (s);
+  mps_fradii (s);
   mps_fcluster (s, 2.0 * s->n);
   mps_fmodify (s, false);
 }

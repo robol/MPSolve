@@ -117,11 +117,22 @@ extern "C"
   void mps_aparhorner (mps_status * st, int n, rdpe_t x, rdpe_t p[],
                        mps_boolean b[], rdpe_t s, int n_thread);
 
+  /* Functions in general-radius.c */
+  void mps_fradii (mps_status * s);
+
   /* Functions in monomial-radius.c */
   void mps_monomial_fradii (mps_status * s);
   void mps_monomial_dradii (mps_status * s);
+  void mps_monomial_mradii (mps_status * s);
+
+  /* Functions in secular-radius.c */
+  void mps_secular_fradii (mps_status * s);
+
+  /* Functions in secular-evaluation.c */
+  void mps_secular_feval (mps_status * s, mps_secular_equation * sec, cplx_t x, cplx_t value);
+  void mps_secular_deval (mps_status * s, mps_secular_equation * sec, cdpe_t x, cdpe_t value);
   
-/* Function in getopts.c */
+  /* Function in getopts.c */
   void mps_parse_opts (mps_status * s, int argc, char *argv[]);
   mps_boolean mps_getopts (mps_opt ** opt, int *argc_ptr, char ***argv_ptr,
                            const char *opt_format);

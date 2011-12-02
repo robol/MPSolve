@@ -31,6 +31,7 @@ libmps_la_SOURCES = \
 	    data.c \
 	    debug.c \
 	    defaults.c \
+	    general-radius.c \
 	    getopts.c \
 	    gmptools.c \
 	    horner.c \
@@ -45,9 +46,11 @@ libmps_la_SOURCES = \
 	    mpc.c \
 	    mt.c \
 	    newton.c \
+	    secular-evaluation.c \
 	    secular-ga.c \
 	    secular-iteration.c \
 	    secular-newton.c \
+	    secular-radius.c \
 	    secular-regeneration.c \
 	    secular-starting.c \
 	    secular.c \

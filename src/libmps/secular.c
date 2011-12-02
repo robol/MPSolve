@@ -597,8 +597,8 @@ mps_secular_set_radii (mps_status * s)
               }
           }
 
-	  mps_fcluster (s, 2.0 * s->n);  
-	  mps_fmodify (s, false);
+	mps_fcluster (s, 2.0 * s->n);  
+	mps_fmodify (s, false);
       }
       break;
     case dpe_phase:

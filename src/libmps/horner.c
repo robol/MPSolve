@@ -38,12 +38,12 @@ mps_mhorner (mps_status * s, mps_monomial_poly * p, mpc_t x, mpc_t value)
  * @param p The <code>monomial_poly</code> to evaluate.
  * @param x The point where the polynomial will be evaluated.
  * @param value The multiprecision complex variable where the result will be stored.
- * @param relative_error The <code>RDPE</code> where the relative error will be saved.
+ * @param error The <code>RDPE</code> where the absolute error will be saved.
  * @param wp The working precision to use for the computation. If this value is <code>0</code> then <code>s->mpwp</code>
  * will be used.
  */
 void
-mps_mhorner_with_error2 (mps_status * s, mps_monomial_poly * p, mpc_t x, mpc_t value, rdpe_t relative_error, long int wp)
+mps_mhorner_with_error2 (mps_status * s, mps_monomial_poly * p, mpc_t x, mpc_t value, rdpe_t error, long int wp)
 {
   int i;
   rdpe_t apol, ax, u;
@@ -76,10 +76,8 @@ mps_mhorner_with_error2 (mps_status * s, mps_monomial_poly * p, mpc_t x, mpc_t v
   mpc_get_cdpe (cx, value);
   cdpe_mod (ax, cx);
 
-  rdpe_div_eq (apol, ax);
-  rdpe_set (relative_error, apol);
-
-  rdpe_mul_eq (relative_error, u);
+  rdpe_set (error, apol);
+  rdpe_mul_eq (error, u);
 }
 
 /**
