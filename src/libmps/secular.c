@@ -566,7 +566,6 @@ mps_secular_set_radii (mps_status * s)
   int i;
   mps_secular_equation *sec = (mps_secular_equation *) s->secular_equation;
 
-
   /* Select right computation based on the phase we are in
    * right now   */
   switch (s->lastphase)
@@ -600,56 +599,58 @@ mps_secular_set_radii (mps_status * s)
     case dpe_phase:
     case mp_phase:
       {
-        /* DPE and multiprecision implementation */
-        rdpe_t rad, total_rad, rtmp, rad_eps, rtmp2;
-        cdpe_t ctmp;
-        rdpe_set (total_rad, rdpe_zero);
+	/* DPE and multiprecision implementation */
+	rdpe_t rad, total_rad, rtmp, rad_eps, rtmp2;
+	cdpe_t ctmp;
+	rdpe_t * drad = rdpe_valloc (s->n);
 
-        /* Compute total radius as \sum_i |sec->afpc[i]| */
-        for (i = 0; i < s->n; i++)
-          {
-            if (s->lastphase == mp_phase)
-              {
-                mpc_get_cdpe (ctmp, sec->ampc[i]);
-                cdpe_mod (rtmp, ctmp);
-              }
-            else
-              /* We are in the DPE phase */
-              cdpe_mod (rtmp, sec->adpc[i]);
+	rdpe_set (total_rad, rdpe_zero);
+
+	/* Compute total radius as \sum_i |sec->afpc[i]| */
+	for (i = 0; i < s->n; i++)
+	  {
+	    if (s->lastphase == mp_phase)
+	      {
+		mpc_get_cdpe (ctmp, sec->ampc[i]);
+		cdpe_mod (rtmp, ctmp);
+	      }
+	    else
+	      /* We are in the DPE phase */
+	      cdpe_mod (rtmp, sec->adpc[i]);
 
 	    rdpe_set (rad_eps, sec->dregeneration_epsilon[i]);
 	    rdpe_mul_eq (rad_eps, rtmp);
 	    // rdpe_mul_eq_d (rtmp, 1 + 4 * DBL_EPSILON);
-            rdpe_add_eq (total_rad, rad_eps);
-          }
+	    rdpe_add_eq (total_rad, rad_eps);
+	  }
 
-        /* Compute guaranteed total rad */
-        rdpe_mul_d (rtmp, s->mp_epsilon, s->n);
-        rdpe_add_eq (total_rad, rtmp);
+	/* Compute guaranteed total rad */
+	rdpe_mul_d (rtmp, s->mp_epsilon, s->n);
+	rdpe_add_eq (total_rad, rtmp);
 
-        /* Check if the Gerschgorin's radii are more convenient */
-        for (i = 0; i < s->n; i++)
-          {
+	/* Check if the Gerschgorin's radii are more convenient */
+	for (i = 0; i < s->n; i++)
+	  {
 	    rdpe_set (rad_eps, rdpe_one);
 	    // rdpe_add_eq (rad_eps, sec->dregeneration_epsilon[i]);
 	    rdpe_add_eq_d (rad_eps, s->n * DBL_EPSILON * 4);
 
-            /* TODO: Use the guaranteed computation */
-            if (s->lastphase == mp_phase)
-              {
-                mpc_get_cdpe (ctmp, sec->ampc[i]);
-                cdpe_mod (rad, ctmp);
-                rdpe_mul_eq (rad, rad_eps);
-              }
-            else
-              {
-                /* We are in the DPE phase */
-                cdpe_mod (rad, sec->adpc[i]);
-                rdpe_mul_eq (rad, rad_eps);
-              }
+	    /* TODO: Use the guaranteed computation */
+	    if (s->lastphase == mp_phase)
+	      {
+		mpc_get_cdpe (ctmp, sec->ampc[i]);
+		cdpe_mod (rad, ctmp);
+		rdpe_mul_eq (rad, rad_eps);
+	      }
+	    else
+	      {
+		/* We are in the DPE phase */
+		cdpe_mod (rad, sec->adpc[i]);
+		rdpe_mul_eq (rad, rad_eps);
+	      }
 
-            /* Check which radius is smaller (here guaranteed radius is
-             * computed). */
+	    /* Check which radius is smaller (here guaranteed radius is
+	     * computed). */
 	    if (s->lastphase == mp_phase)
 	      {
 		rdpe_mul_d (rtmp, s->mp_epsilon, 9 * s->n);
@@ -664,27 +665,29 @@ mps_secular_set_radii (mps_status * s)
 		rdpe_mul_eq (rtmp, rtmp2);
 	      }
 
-            rdpe_mul_eq_d (rad, (double) s->n);
-            rdpe_add_eq (rad, rtmp);
+	    rdpe_mul_eq_d (rad, (double) s->n);
+	    rdpe_add_eq (rad, rtmp);
 
-             /* if (rdpe_gt (rad, total_rad))  */
-             /*   rdpe_set (rad, total_rad);  */
+	    /* if (rdpe_gt (rad, total_rad))  */
+	    /*   rdpe_set (rad, total_rad);  */
 
-	    rdpe_set (s->drad[i], rad);
-          }
-      }
+	    rdpe_set (drad[i], rad);
+	  }
+
       
-       if (s->lastphase == mp_phase) 
-       	{ 
-       	  mps_mcluster (s, 2.0 * s->n); 
-       	  mps_mmodify (s, false); 
-       	} 
-       else 
-       	{ 
-       	  mps_dcluster (s, 2.0 * s->n); 
-       	  mps_dmodify (s, false); 
-       	}
-
+	if (s->lastphase == mp_phase) 
+	  { 
+	    mps_mcluster (s, drad, 2.0 * s->n); 
+	    mps_mmodify (s, false); 
+	  } 
+	else 
+	  { 
+	    mps_dcluster (s, drad, 2.0 * s->n); 
+	    mps_dmodify (s, false); 
+	  }
+	
+	rdpe_vfree (drad);
+      }
       break;
 
     default:

@@ -132,7 +132,7 @@ mps_inclusion (mps_status * s)
 
   oldnclust = s->clusterization->n;
 
-  mps_mcluster (s, 2 * s->n);
+  mps_mcluster (s, s->drad, 2 * s->n);
 
   if (s->clusterization->n >= oldnclust)
     {

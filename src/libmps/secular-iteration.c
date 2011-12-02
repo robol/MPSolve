@@ -229,6 +229,7 @@ mps_secular_ga_diterate (mps_status * s, int maxit, mps_boolean just_regenerated
   int it_threshold;
   mps_secular_equation *sec = s->secular_equation;
   mps_secular_iteration_data data;
+  rdpe_t * drad = rdpe_valloc (s->n);
 
 #ifndef DISABLE_DEBUG
   clock_t *my_clock = mps_start_timer ();
@@ -343,7 +344,8 @@ mps_secular_ga_diterate (mps_status * s, int maxit, mps_boolean just_regenerated
       s->secular_equation->best_approx = true;
     }
 
-  mps_dcluster (s, 2.0 * s->n);
+  mps_dradii (s, drad);
+  mps_dcluster (s, drad, 2.0 * s->n);
   mps_dmodify (s, false);
 
   /* These lines are used to debug the again vector, but are not useful
@@ -364,6 +366,7 @@ mps_secular_ga_diterate (mps_status * s, int maxit, mps_boolean just_regenerated
 #endif
 
   rdpe_vfree (old_radii);
+  rdpe_vfree (drad);
 
   /* Return the number of approximated roots */
   return computed_roots;
@@ -394,6 +397,7 @@ mps_secular_ga_miterate (mps_status * s, int maxit, mps_boolean just_regenerated
   mpc_t corr, abcorr;
   cdpe_t ctmp;
   rdpe_t modcorr, rtmp;
+  rdpe_t * drad = rdpe_valloc (s->n);
 
   mps_secular_equation * sec = s->secular_equation;
 
@@ -499,7 +503,8 @@ mps_secular_ga_miterate (mps_status * s, int maxit, mps_boolean just_regenerated
     s->secular_equation->best_approx = true;
 
   /* Perform cluster analysis */
-  mps_mcluster (s, 2.0 * s->n);
+  mps_mradii (s, drad);
+  mps_mcluster (s, drad, 2.0 * s->n);
   mps_mmodify (s, false);
 
   /* These lines are used to debug the again vector, but are not useful
@@ -524,6 +529,8 @@ mps_secular_ga_miterate (mps_status * s, int maxit, mps_boolean just_regenerated
 #ifndef DISABLE_DEBUG
   s->mp_iteration_time += mps_stop_timer (my_clock);
 #endif
+
+  rdpe_vfree (drad);
 
   /* Return the number of approximated roots */
   return computed_roots;

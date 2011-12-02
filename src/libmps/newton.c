@@ -552,17 +552,6 @@ mps_mnewton (mps_status * s, int n, mpc_t z, rdpe_t radius, mpc_t corr,
 
   if (skip_radius_computation)
     goto exit_sub;
-  
-  mpc_get_cdpe (temp1, corr);
-  cdpe_mod (rnew, temp1);
-  rdpe_mul_eq_d (rnew, s->n);
-  rdpe_set (radius, rnew);
-
-  printf ("Set rad to ");
-  rdpe_out_str (stdout, rnew);
-  printf("\n");
-
-  goto exit_sub;
 
   /* Computation of the radius using Gerschgorin, i.e. the radius
    * of inclusion of the root i is equal to:

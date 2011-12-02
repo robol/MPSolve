@@ -147,8 +147,8 @@ mps_secular_dstart (mps_status * s, int n, mps_cluster_item * cluster_item, rdpe
       root = root->next;
     }
 
-  mps_dcluster (s, 2.0 * s->n);
-  mps_dmodify (s, false);
+  /* mps_dcluster (s, 2.0 * s->n); */
+  /* mps_dmodify (s, false); */
 }
 
 void
@@ -226,8 +226,8 @@ mps_secular_mstart (mps_status * s, int n, mps_cluster_item * cluster_item, rdpe
 	}
     }
 
-  mps_mcluster (s, 2.0 * s->n);
-  mps_mmodify (s, false);
+  /* mps_mcluster (s, 2.0 * s->n); */
+  /* mps_mmodify (s, false); */
   
   mpc_clear (epsilon);
 }

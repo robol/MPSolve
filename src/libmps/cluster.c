@@ -439,7 +439,7 @@ mps_fcluster (mps_status * s, double * frad, int nf)
  * @see mps_xcluster
  */
 void
-mps_dcluster (mps_status * s, int nf)
+mps_dcluster (mps_status * s, rdpe_t * drad, int nf)
 {
   /* We need to scan every cluster and make it in pieces, if possible */
   mps_clusterization * new_clusterization = mps_clusterization_empty (s);
@@ -475,7 +475,7 @@ mps_dcluster (mps_status * s, int nf)
 		{
 		  /* If the two roots are in the same cluster than keep iter_root away of
 		   * the cluster and put it in new_cluster */
-		  if (iter_root->k != base_root->k && mps_dtouchnwt (s, nf, base_root->k, iter_root->k))
+		  if (iter_root->k != base_root->k && mps_dtouchnwt (s, drad, nf, base_root->k, iter_root->k))
 		    {
 		      mps_root * next_root = iter_root->next;
 		      mps_cluster_insert_root (s, new_cluster, iter_root->k);
@@ -565,7 +565,7 @@ mps_debug_cluster_structure (mps_status * s)
  * @see mps_xcluster
  */
 void
-mps_mcluster (mps_status * s, int nf)
+mps_mcluster (mps_status * s, rdpe_t * drad, int nf)
 {
   /* We need to scan every cluster and make it in pieces, if possible */
   mps_clusterization * new_clusterization = mps_clusterization_empty (s);
@@ -598,7 +598,7 @@ mps_mcluster (mps_status * s, int nf)
 		{
 		  /* If the two roots are in the same cluster than keep iter_root away of
 		   * the cluster and put it in new_cluster */
-		  if (iter_root->k != base_root->k && mps_mtouchnwt (s, nf, base_root->k, iter_root->k))
+		  if (iter_root->k != base_root->k && mps_mtouchnwt (s, drad, nf, base_root->k, iter_root->k))
 		    {
 		      mps_root * next_root = iter_root->next;
 		      mps_cluster_insert_root (s, new_cluster, iter_root->k);

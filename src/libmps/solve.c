@@ -898,7 +898,7 @@ mps_dsolve (mps_status * s, mps_boolean d_after_f)
             fprintf (s->logstr, "   DSOLVE: call dcluster\n");
 
 	  mps_dradii (s, s->drad);
-          mps_dcluster (s, 2 * s->n);   /* Isolation factor */
+          mps_dcluster (s, s->drad, 2 * s->n);   /* Isolation factor */
           if (oldnclust == s->clusterization->n)
             {
               if (s->DOLOG)
@@ -971,7 +971,7 @@ mps_dsolve (mps_status * s, mps_boolean d_after_f)
   oldnclust = s->clusterization->n;
 
   mps_dradii (s, s->drad);
-  mps_dcluster (s, 2 * s->n);   /* Isolation factor */
+  mps_dcluster (s, s->drad, 2 * s->n);   /* Isolation factor */
 
   if (s->DOLOG)
     fprintf (s->logstr, "   DSOLVE: now call dmodify\n");
@@ -1118,7 +1118,7 @@ mps_msolve (mps_status * s)
             fprintf (s->logstr, "  MSOLVE: call mcluster\n");
 
 	  mps_mradii (s, s->drad);
-          mps_mcluster (s, 2 * s->n);   /* Isolation factor */
+          mps_mcluster (s, s->drad, 2 * s->n);   /* Isolation factor */
 
           s->newtis_old = s->newtis;
           if (s->newtis == 0)
@@ -1244,9 +1244,8 @@ mps_msolve (mps_status * s)
       fprintf (s->logstr, "  MSOLVE: call mcluster\n");
     }
 
-
   mps_mradii (s, s->drad);
-  mps_mcluster (s, 2 * s->n);   /* Isolation factor */
+  mps_mcluster (s, s->drad, 2 * s->n);   /* Isolation factor */
 
   if (s->DOLOG)
     fprintf (s->logstr, "  MSOLVE:  call mmodify\n");

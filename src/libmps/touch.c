@@ -67,16 +67,12 @@ mps_ftouchnwt (mps_status * s, double * frad, int n, int i, int j)
  *   are newton-isolated.
  */
 mps_boolean
-mps_dtouchnwt (mps_status * s, int n, int i, int j)
+mps_dtouchnwt (mps_status * s, rdpe_t * drad, int n, int i, int j)
 {
   cdpe_t ctmp;
   rdpe_t dtmp1, dtmp2;
 
-  rdpe_add (dtmp1, s->drad[i], s->drad[j]);
-
-  /* if (rdpe_Esp (dtmp1) < rdpe_Esp (s->drad[i]) || */
-  /*     rdpe_Esp (dtmp1) < rdpe_Esp (s->drad[j])) */
-  /*     return true; */
+  rdpe_add (dtmp1, drad[i], drad[j]);
       
   rdpe_mul_eq_d (dtmp1, (double) n);
   cdpe_sub (ctmp, s->droot[i], s->droot[j]);
@@ -104,7 +100,7 @@ mps_dtouchnwt (mps_status * s, int n, int i, int j)
  *   are newton-isolated.
  */
 mps_boolean
-mps_mtouchnwt (mps_status * s, int n, int i, int j)
+mps_mtouchnwt (mps_status * s, rdpe_t * drad, int n, int i, int j)
 {
   mpc_t mtmp;
   cdpe_t ctmp;
@@ -112,7 +108,7 @@ mps_mtouchnwt (mps_status * s, int n, int i, int j)
 
   mpc_init2 (mtmp, s->mpwp);
 
-  rdpe_add (dtmp1, s->drad[i], s->drad[j]);
+  rdpe_add (dtmp1, drad[i], drad[j]);
 
   /* if (rdpe_Esp (dtmp1) < rdpe_Esp (s->drad[i]) || */
   /*     rdpe_Esp (dtmp1) < rdpe_Esp (s->drad[j])) */
