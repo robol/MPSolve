@@ -120,7 +120,7 @@ mps_monomial_mradii (mps_status * s, rdpe_t * dradii)
   MPS_DEBUG_THIS_CALL;
 
   mpc_t pol, mdiff;
-  cdpe_t cpol, diff;
+  cdpe_t cpol, diff, cdtmp;
   rdpe_t new_rad, relative_error, rtmp;
   mps_monomial_poly * p = s->monomial_poly;
   int i, j;
@@ -135,7 +135,8 @@ mps_monomial_mradii (mps_status * s, rdpe_t * dradii)
       mpc_get_cdpe (cpol, pol);
       cdpe_mod (new_rad, cpol);
       rdpe_add_eq (new_rad, relative_error);
-      cdpe_mod (rtmp, s->droot[i]);
+      mpc_get_cdpe (cdtmp, s->mroot[i]);
+      cdpe_mod (rtmp, cdtmp);
       rdpe_mul_eq_d (rtmp, 4.0 * DBL_EPSILON);
       rdpe_add_eq (new_rad, rtmp);
 
