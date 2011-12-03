@@ -345,6 +345,13 @@ mps_check_stop (mps_status * s)
   int i;
   mps_boolean computed;
 
+  /* __MPS_DEBUG (s, "Dumping status: "); */
+  /* for (i = 0; i < s->n; i++) */
+  /*   { */
+  /*     fprintf (s->logstr, "%3s ", s->status[i]); */
+  /*   } */
+  /* fprintf (s->logstr, "\n"); */
+
   computed = false;
   /* count */
   if (s->goal[0] == 'c')

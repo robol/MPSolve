@@ -153,7 +153,8 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
     }
 
   /* Computation of radius with Gerschgorin */
-  new_rad = ((apol) * s->n * prod_b * (1 + (3 * s->n + (asum_on_apol + 1)) * 4 * DBL_EPSILON)) + (cplx_mod (x) * 4 * DBL_EPSILON);
+  // new_rad = ((apol) * s->n * prod_b * (1 + (3 * s->n + (asum_on_apol + 1)) * 4 * DBL_EPSILON)) + (cplx_mod (x) * 4 * DBL_EPSILON);
+  new_rad = cplx_mod (corr) * s->n;
 
   /* MPS_DEBUG (s, "rad computed: %e", new_rad); */
   /* MPS_DEBUG_CPLX (s, s->froot[data->k], "s->froot[%d]", data->k); */

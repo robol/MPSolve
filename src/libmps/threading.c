@@ -608,7 +608,7 @@ mps_thread_mpolzer_worker (void *data_ptr)
               rdpe_set (rad1, s->drad[l]);
               mps_mnewton (s, s->n, mroot, s->drad[l], corr, p->mfpc,
                            p->mfppc, p->dap, p->spar, &s->again[l],
-                           data->thread, true);
+                           data->thread, false);
               if (iter == 0 && !s->again[l] && rdpe_gt (s->drad[l], rad1)
                   && rdpe_ne (rad1, rdpe_zero))
                 rdpe_set (s->drad[l], rad1);

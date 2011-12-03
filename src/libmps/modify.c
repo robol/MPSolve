@@ -94,12 +94,12 @@ mps_fmodify (mps_status * s, mps_boolean track_new_cluster)
       while (root != NULL)
 	{
 	  l = root->k;
-	  s->status[l][0] = 'c';
 
 	  /* If track_new_cluster is false then we may directly set here the
 	   * approximation status of the roots. */
 	  if (!track_new_cluster)
-	    {
+	    {	  
+	      s->status[l][0] = 'c';
 	      rdpe_set_d (rtmp, s->frad[l] / cplx_mod (s->froot[l]));
 	      if (rdpe_le (rtmp, s->eps_out))
 		s->status[l][0] = 'o';
@@ -813,12 +813,12 @@ mps_dmodify (mps_status * s, mps_boolean track_new_cluster)
       while (root != NULL)
 	{
 	  l = root->k;
-	  s->status[l][0] = 'c';
 
 	  /* If track_new_cluster is false then we may directly set here the
 	   * approximation status of the roots. */
 	  if (!track_new_cluster)
 	    {
+	      s->status[l][0] = 'c';
 	      rdpe_set (tmpr, s->drad[l]);
 	      cdpe_mod (tmpr2, s->droot[l]);
 	      rdpe_div_eq (tmpr, tmpr2);
@@ -830,7 +830,6 @@ mps_dmodify (mps_status * s, mps_boolean track_new_cluster)
 	}
 
       /* TODO: Implement checking of the zone where the roots are. */
-
       c_item = c_item->next;
     }
 
@@ -1530,12 +1529,12 @@ mps_mmodify (mps_status * s, mps_boolean track_new_cluster)
       while (root != NULL)
 	{
 	  l = root->k;
-	  s->status[l][0] = 'c';
 
 	  /* If track_new_cluster is false then we may directly set here the
 	   * approximation status of the roots. */
 	  if (!track_new_cluster)
 	    {
+	      s->status[l][0] = 'c';
 	      rdpe_set (tmpr, s->drad[l]);
 	      mpc_get_cdpe (cdtmp, s->mroot[l]);
 	      cdpe_mod (tmpr2, cdtmp);

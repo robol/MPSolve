@@ -858,7 +858,7 @@ mps_mstart (mps_status * s, int n, mps_cluster_item * cluster_item,
 	    rdpe_t clust_rad,
             rdpe_t g, rdpe_t dap[], mpc_t gg)
 {
-  mps_cluster *cluster = cluster_item->cluster;
+  mps_cluster *cluster;
   int i, j, jj, iold, l, nzeros;
   double sigma, ang, th;
   rdpe_t big, small, rtmp1, rtmp2;
@@ -866,6 +866,9 @@ mps_mstart (mps_status * s, int n, mps_cluster_item * cluster_item,
   mpc_t mtmp;
   mps_boolean need_recomputing = true;
   mps_root * root;
+
+  if (cluster_item)
+    cluster = cluster_item->cluster;
 
   mpc_init2 (mtmp, s->mpwp);
 
@@ -878,7 +881,7 @@ mps_mstart (mps_status * s, int n, mps_cluster_item * cluster_item,
     {
       /* If this is the first cluster select sigma = 0. In the other
        * case try to maximize starting points distance. */
-      if (cluster_item->prev == NULL)
+      if (!cluster_item || cluster_item->prev == NULL)
         {
           sigma = s->last_sigma = MPS_STARTING_SIGMA;
         }
@@ -1023,6 +1026,7 @@ mps_mstart (mps_status * s, int n, mps_cluster_item * cluster_item,
       rdpe_mul_eq_d (rtmp1, (double) nzeros);
       rdpe_set (rtmp2, g);
       rdpe_mul_eq (rtmp2, s->eps_out);
+      MPS_DEBUG (s, "Relatively small check");
       if (rdpe_le (rtmp1, rtmp2))
 	{
 	  for (root = cluster->first; root != NULL; root = root->next)
@@ -1632,6 +1636,7 @@ mps_mrestart (mps_status * s)
 	  l = root->k;
           mpc_get_cdpe (s->droot[l], s->mroot[l]);
         }
+
       /*#D perform shift only if the new computed sr is smaller than old*0.25 */
       rdpe_mul_d (rtmp, sr, 0.25);
       /*#D AGO99 Factors: 0.1 (MPS2.0), 0.5 (GIUGN98) */
@@ -1783,7 +1788,6 @@ mps_mshift (mps_status * s, int m, mps_cluster_item * cluster_item, rdpe_t clust
    * is performed with increasing levels of working precision
    * until the coefficients of the shifted polynomial have at
    * least one correct bit. */
-
   rdpe_set (mp_ep, s->mp_epsilon);
   mpc_get_cdpe (abd, g);
   cdpe_mod (ag, abd);

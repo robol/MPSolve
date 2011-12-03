@@ -436,7 +436,6 @@ mps_fcluster (mps_status * s, double * frad, int nf)
  * Rebuild the vectors <code>s->clust</code>,
  * <code>s->punt</code>, and the integer <code>s->nclust</code>.
  *
- * @see mps_xcluster
  */
 void
 mps_dcluster (mps_status * s, rdpe_t * drad, int nf)

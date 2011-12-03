@@ -27,9 +27,14 @@ mps_secular_fradii (mps_status * s, double * fradii)
     {
       prod_b = 1.0f;
 
-      if (s->status[i][0] == 'a')
+      /* If we have that the root is isolated we can simply ignore it, performing
+       * a sort of cluster analysis deflation. 
+       * Because of this we can not bother to compute the inclusion radius and
+       * set it to zero. */
+      /* TODO: Check that this is correct. */
+      if (s->status[i][0] == 'a' || s->status[i][0] == 'i')
 	{
-	  fradii[i] = s->frad[i];
+	  fradii[i] = 0;
 	  continue;
 	}
 
@@ -92,11 +97,17 @@ mps_secular_dradii (mps_status * s, rdpe_t * dradii)
     {
       rdpe_set (prod_b, rdpe_one);
 
-      if (s->status[i][0] == 'a')
+      /* If we have that the root is isolated we can simply ignore it, performing
+       * a sort of cluster analysis deflation. 
+       * Because of this we can not bother to compute the inclusion radius and
+       * set it to zero. */
+      /* TODO: Check that this is correct. */
+      if (s->status[i][0] == 'a' || s->status[i][0] == 'i')
 	{
-	  rdpe_set (dradii[i], s->drad[i]);
+	  rdpe_set (dradii[i], rdpe_zero);
 	  continue;
 	}
+
 
       /* Evaluate the secular equation on root i */
       mps_secular_deval (s, sec, s->droot[i], sec_ev);
@@ -115,7 +126,7 @@ mps_secular_dradii (mps_status * s, rdpe_t * dradii)
 	  cdpe_mod (rtmp, diff);
 	  rdpe_div_eq (prod_b, rtmp);
 
-	  if (i == j) 
+	  if (i == j)
 	    continue;
 	  cdpe_sub (diff, s->droot[i], s->droot[j]);
 	  cdpe_mod (rtmp, diff);
@@ -161,9 +172,14 @@ mps_secular_mradii (mps_status * s, rdpe_t * dradii)
     {
       rdpe_set (prod_b, rdpe_one);
 
-      if (s->status[i][0] == 'a')
+      /* If we have that the root is isolated we can simply ignore it, performing
+       * a sort of cluster analysis deflation. 
+       * Because of this we can not bother to compute the inclusion radius and
+       * set it to zero. */
+      /* TODO: Check that this is correct. */
+      if (s->status[i][0] == 'a' || s->status[i][0] == 'i')
 	{
-	  rdpe_set (dradii[i], s->drad[i]);
+	  rdpe_set (dradii[i], rdpe_zero);
 	  continue;
 	}
 
