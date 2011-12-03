@@ -19,7 +19,7 @@ mps_secular_fstart (mps_status * s, int n, mps_cluster_item * cluster_item, doub
   MPS_DEBUG_THIS_CALL;
 
   mps_cluster * cluster = NULL;
-  mps_root * root;
+  mps_root * root = NULL;
   int i, l;
   double th = pi2 / n;
   double sigma;
@@ -87,7 +87,8 @@ mps_secular_dstart (mps_status * s, int n, mps_cluster_item * cluster_item, rdpe
 {
   MPS_DEBUG_THIS_CALL;
 
-  mps_cluster * cluster = cluster_item->cluster;
+  mps_cluster * cluster = NULL;
+  mps_root * root = NULL;
   int i, l;
   double th = pi2 / n;
   double sigma;
@@ -96,6 +97,9 @@ mps_secular_dstart (mps_status * s, int n, mps_cluster_item * cluster_item, rdpe
 
   cdpe_t ceps;
   cdpe_set (ceps, cdpe_zero);
+
+  if (cluster_item)
+    cluster = cluster_item->cluster;
 
   /* Get best sigma possible */
   if (s->random_seed)
@@ -114,10 +118,15 @@ mps_secular_dstart (mps_status * s, int n, mps_cluster_item * cluster_item, rdpe
         }
     }
 
-  mps_root * root = cluster->first;
+  if (cluster_item)
+    root = cluster->first;
   for (i = 0; i < n; i++)
     {
-      l = root->k;
+      if (cluster_item)
+	l = root->k;
+      else
+	l = i;
+
       if (s->status[l][0] != 'a' && s->status[l][0] != 'i' && s->status[l][0] != 'o')
 	{
 	  cdpe_mod (cdpe_Re (ceps), s->secular_equation->bdpc[l]);
@@ -144,7 +153,8 @@ mps_secular_dstart (mps_status * s, int n, mps_cluster_item * cluster_item, rdpe
        * is working */
       /* cdpe_set (s->droot[l +i], sec->bdpc[l + i]); */
 
-      root = root->next;
+      if (cluster_item)
+	root = root->next;
     }
 
   /* mps_dcluster (s, 2.0 * s->n); */
@@ -158,7 +168,7 @@ mps_secular_mstart (mps_status * s, int n, mps_cluster_item * cluster_item, rdpe
   MPS_DEBUG_THIS_CALL;
 
   mps_cluster * cluster = NULL;
-  mps_root * root;
+  mps_root * root = NULL;
   int i, l;
   double th = pi2 / n;
   double sigma;
