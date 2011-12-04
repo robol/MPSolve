@@ -101,6 +101,7 @@ mps_thread_job_queue_next (mps_status * s, mps_thread_job_queue * q)
   /* Assignin the root */
   j.i = q->root->k;
   j.cluster_item = q->cluster_item;
+  j.iter = q->iter;
 
   /* Get the next element of the cluster, incrementing the queue */
   q->root = q->root->next ;
