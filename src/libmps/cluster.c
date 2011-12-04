@@ -356,7 +356,7 @@ mps_fcluster (mps_status * s, double * frad, int nf)
   if (s->debug_level & MPS_DEBUG_CLUSTER)
     {
       int i;
-      MPS_DEBUG (s, "Debugging the radius obtained for the roots before cluster analysis");
+      MPS_DEBUG (s, "Debugging the radius and approximations obtained for the roots before cluster analysis");
       for (i = 0; i < s->n; i++)
 	{
 	  MPS_DEBUG_CPLX (s, s->froot[i], "Root %d", i);
@@ -444,6 +444,22 @@ mps_dcluster (mps_status * s, rdpe_t * drad, int nf)
   mps_clusterization * new_clusterization = mps_clusterization_empty (s);
   mps_cluster_item * item;
 
+  /* Debug clusterization status if debugging was required */
+  if (s->debug_level & MPS_DEBUG_CLUSTER)
+    {
+      int i;
+      MPS_DEBUG (s, "Debugging the radius and approximations obtained for the roots before cluster analysis");
+      for (i = 0; i < s->n; i++)
+	{
+	  MPS_DEBUG_CDPE (s, s->droot[i], "Root %d", i);
+	  MPS_DEBUG_RDPE (s, drad[i], "radius for root %4d", i);
+	}
+
+      MPS_DEBUG (s, "Debugging cluster structure before cluster analysis");
+      mps_debug_cluster_structure (s);
+    }
+
+
   for (item = s->clusterization->first; item != NULL; item = item->next)
     {
       mps_cluster * cluster = item->cluster;
@@ -464,9 +480,6 @@ mps_dcluster (mps_status * s, rdpe_t * drad, int nf)
 
 	  while (base_root != NULL)
 	    { 
-	      /* And insert it in the new cluster */
-	      // base_root = mps_cluster_insert_root (s, new_cluster, base_root->k);
-	      
 	      /* Search for others that touch this one */
 	      iter_root = cluster->first;
 
@@ -550,7 +563,6 @@ mps_debug_cluster_structure (mps_status * s)
 	}
       fprintf (s->logstr, "\n");
     }
- 
 }
 
 /**
@@ -569,6 +581,22 @@ mps_mcluster (mps_status * s, rdpe_t * drad, int nf)
   /* We need to scan every cluster and make it in pieces, if possible */
   mps_clusterization * new_clusterization = mps_clusterization_empty (s);
   mps_cluster_item * item;
+
+  /* Debug clusterization status if debugging was required */
+  if (s->debug_level & MPS_DEBUG_CLUSTER)
+    {
+      int i;
+      MPS_DEBUG (s, "Debugging the radius and approximations obtained for the roots before cluster analysis");
+      for (i = 0; i < s->n; i++)
+	{
+	  MPS_DEBUG_MPC (s, 15, s->mroot[i], "Root %d", i);
+	  MPS_DEBUG_RDPE (s, drad[i], "radius for root %4d", i);
+	}
+
+      MPS_DEBUG (s, "Debugging cluster structure before cluster analysis");
+      mps_debug_cluster_structure (s);
+    }
+
 
   for (item = s->clusterization->first; item != NULL; item = item->next)
     {

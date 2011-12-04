@@ -137,7 +137,7 @@ mps_monomial_mradii (mps_status * s, rdpe_t * dradii)
       rdpe_add_eq (new_rad, relative_error);
       mpc_get_cdpe (cdtmp, s->mroot[i]);
       cdpe_mod (rtmp, cdtmp);
-      rdpe_mul_eq_d (rtmp, 4.0 * DBL_EPSILON);
+      rdpe_mul_eq (rtmp, s->mp_epsilon);
       rdpe_add_eq (new_rad, rtmp);
 
       for (j = 0; j < s->n; j++)

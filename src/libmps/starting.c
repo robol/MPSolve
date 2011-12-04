@@ -276,8 +276,11 @@ mps_fstart (mps_status * s, int n, mps_cluster_item * cluster_item,
   double sigma, th, ang, r = 0;
   rdpe_t tmp;
 
-  mps_cluster * cluster = cluster_item->cluster;
-  mps_root * root;
+  mps_cluster * cluster = NULL;
+  mps_root * root = NULL;
+
+  if (cluster_item)
+    cluster = cluster_item->cluster;
 
   if (s->random_seed)
     sigma = drand ();
@@ -570,8 +573,11 @@ mps_dstart (mps_status * s, int n, mps_cluster_item * cluster_item,
   double sigma, th, ang;
   mps_boolean flag = false;
 
-  mps_cluster * cluster = cluster_item->cluster;
-  mps_root * root;
+  mps_cluster * cluster = NULL;
+  mps_root * root = NULL;
+
+  if (cluster_item)
+    cluster = cluster_item->cluster;
 
   if (s->random_seed)
     sigma = drand ();
@@ -621,12 +627,12 @@ mps_dstart (mps_status * s, int n, mps_cluster_item * cluster_item,
       ang = pi2 / nzeros;
       rdpe_set (r, s->dradii[i]);
 
-      if (rdpe_ne (g, rdpe_zero))
+      if (cluster_item)
 	root = cluster->first;
 
       for (j = s->partitioning[i]; j < s->partitioning[i + 1]; j++)
         {
-          if (rdpe_ne (g, rdpe_zero))
+          if (cluster_item)
             {
               l = root->k;
 	      root = root->next;
@@ -678,7 +684,7 @@ mps_dstart (mps_status * s, int n, mps_cluster_item * cluster_item,
 
       /* If the new radius of the cluster is relatively small, then
        * set the status component equal to 'o' (output) */
-      if (rdpe_ne (g, rdpe_zero))
+      if (cluster_item)
 	{
 	  rdpe_mul (tmp, g, eps);
 	  rdpe_mul_d (tmp1, r, (double) nzeros);
@@ -858,14 +864,14 @@ mps_mstart (mps_status * s, int n, mps_cluster_item * cluster_item,
 	    rdpe_t clust_rad,
             rdpe_t g, rdpe_t dap[], mpc_t gg)
 {
-  mps_cluster *cluster;
+  mps_cluster *cluster = NULL;
   int i, j, jj, iold, l, nzeros;
   double sigma, ang, th;
   rdpe_t big, small, rtmp1, rtmp2;
   cdpe_t ctmp;
   mpc_t mtmp;
   mps_boolean need_recomputing = true;
-  mps_root * root;
+  mps_root * root = NULL;
 
   if (cluster_item)
     cluster = cluster_item->cluster;

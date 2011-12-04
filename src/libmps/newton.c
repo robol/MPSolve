@@ -134,16 +134,18 @@ mps_fnewton (mps_status * s, int n, cplx_t z, double *radius, cplx_t corr,
    *
    *  radius_i = n |p(x)| / (\prod_{j \neq i} |x_i - x_j|) 
    */
-  *radius = cplx_mod (p) * n;
+  /* *radius = cplx_mod (p) * n; */
   
-  cplx_t diff;
-  for (i = 0; i < n; i++)
-    {
-      cplx_sub (diff, z, s->froot[i]);
-      if (!cplx_eq_zero (diff))
-        *radius /= cplx_mod (diff) * (1 - DBL_EPSILON);
-    }
-  *radius /= fap[n] * (1 - DBL_EPSILON);
+  /* cplx_t diff; */
+  /* for (i = 0; i < n; i++) */
+  /*   { */
+  /*     cplx_sub (diff, z, s->froot[i]); */
+  /*     if (!cplx_eq_zero (diff)) */
+  /*       *radius /= cplx_mod (diff) * (1 - DBL_EPSILON); */
+  /*   } */
+  /* *radius /= fap[n] * (1 - DBL_EPSILON); */
+
+  *radius = cplx_mod (corr) * n;
 }
 
 
@@ -184,7 +186,7 @@ mps_dnewton (mps_status * s, int n, cdpe_t z, rdpe_t radius, cdpe_t corr,
 	     mps_boolean skip_radius_computation)
 {
   int i;
-  rdpe_t ap, az, absp, rnew, apeps, rtmp;
+  rdpe_t ap, az, absp, apeps, rtmp;
   cdpe_t p, p1, tmp;
   double eps;
 
@@ -235,20 +237,23 @@ mps_dnewton (mps_status * s, int n, cdpe_t z, rdpe_t radius, cdpe_t corr,
    *
    *  radius_i = n |p(x)| / (\prod_{j \neq i} |x_i - x_j|) 
    */
-  rdpe_mul_d (rnew, absp, n * (1 + DBL_EPSILON));
-  rdpe_div_eq (rnew, dap[n]);
-  for (i = 0; i < n; i++)
-    {
-      cdpe_sub (tmp, z, s->droot[i]);
-      if (!cdpe_eq (tmp, cdpe_zero))
-        {
-          cdpe_mod (rtmp, tmp);
-	  rdpe_mul_eq_d (rtmp, 1 - DBL_EPSILON);
-          rdpe_div_eq (rnew, rtmp);
-        }
-    }
+  /* rdpe_mul_d (rnew, absp, n * (1 + DBL_EPSILON)); */
+  /* rdpe_div_eq (rnew, dap[n]); */
+  /* for (i = 0; i < n; i++) */
+  /*   { */
+  /*     cdpe_sub (tmp, z, s->droot[i]); */
+  /*     if (!cdpe_eq (tmp, cdpe_zero)) */
+  /*       { */
+  /*         cdpe_mod (rtmp, tmp); */
+  /* 	  rdpe_mul_eq_d (rtmp, 1 - DBL_EPSILON); */
+  /*         rdpe_div_eq (rnew, rtmp); */
+  /*       } */
+  /*   } */
 
-  rdpe_set (radius, rnew);
+  /* rdpe_set (radius, rnew); */
+
+  cdpe_mod (rtmp, corr);
+  rdpe_mul_d (radius, rtmp, n);
 }
 
 /****************************************************
@@ -456,7 +461,7 @@ mps_mnewton (mps_status * s, int n, mpc_t z, rdpe_t radius, mpc_t corr,
 	     mps_boolean skip_radius_computation)
 {
   int i, n1, n2;
-  rdpe_t ap, az, absp, temp, rnew, ep, apeps, absdiff, rtmp;
+  rdpe_t ap, az, absp, temp, ep, apeps, rtmp;
   cdpe_t temp1;
   mpc_t p, p1, diff;
 
@@ -558,27 +563,31 @@ mps_mnewton (mps_status * s, int n, mpc_t z, rdpe_t radius, mpc_t corr,
    *
    *  radius_i = n |p(x)| / (\prod_{j \neq i} |x_i - x_j|) 
    */
-  rdpe_mul_d (rnew, absp, n);
-  rdpe_div_eq (rnew, dap[n]);
-  rdpe_add (rtmp, s->mp_epsilon, rdpe_one);
-  rdpe_mul_eq (rnew, rtmp);
+  /* rdpe_mul_d (rnew, absp, n); */
+  /* rdpe_div_eq (rnew, dap[n]); */
+  /* rdpe_add (rtmp, s->mp_epsilon, rdpe_one); */
+  /* rdpe_mul_eq (rnew, rtmp); */
 
-  rdpe_set (temp, rdpe_one);
-  for (i = 0; i < n; i++)
-    {
-      mpc_sub (diff, z, s->mroot[i]);
-      mpc_get_cdpe (temp1, diff);
-      if (!cdpe_eq_zero (temp1))
-        {
-          cdpe_mod (absdiff, temp1);
-	  rdpe_sub (rtmp, rdpe_one, s->mp_epsilon);
-	  rdpe_mul_eq (absdiff, rtmp);
-	  rdpe_mul_eq (temp, absdiff);
-        }
-    }
-  rdpe_div_eq (rnew, temp);
+  /* rdpe_set (temp, rdpe_one); */
+  /* for (i = 0; i < n; i++) */
+  /*   { */
+  /*     mpc_sub (diff, z, s->mroot[i]); */
+  /*     mpc_get_cdpe (temp1, diff); */
+  /*     if (!cdpe_eq_zero (temp1)) */
+  /*       { */
+  /*         cdpe_mod (absdiff, temp1); */
+  /* 	  rdpe_sub (rtmp, rdpe_one, s->mp_epsilon); */
+  /* 	  rdpe_mul_eq (absdiff, rtmp); */
+  /* 	  rdpe_mul_eq (temp, absdiff); */
+  /*       } */
+  /*   } */
+  /* rdpe_div_eq (rnew, temp); */
 
-  rdpe_set (radius, rnew); 
+  /* rdpe_set (radius, rnew);  */
+
+  mpc_get_cdpe (temp1, corr);
+  cdpe_mod (rtmp, temp1);
+  rdpe_mul_d (radius, rtmp, 1.0 * n);
 
 exit_sub:
   mpc_clear (p1);

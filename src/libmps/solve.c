@@ -867,9 +867,9 @@ mps_dsolve (mps_status * s, mps_boolean d_after_f)
 
   /* Use a custom routine if it is set, otherwise use the default one */
   if (s->dstart_usr)
-    (*s->dstart_usr) (s, s->n, s->clusterization->first, dummy, dummy, dummy);
+    (*s->dstart_usr) (s, s->n, NULL, dummy, dummy, dummy);
   else
-    mps_dstart (s, s->n, s->clusterization->first, dummy, dummy, dummy, p->dap);
+    mps_dstart (s, s->n, NULL, dummy, dummy, dummy, p->dap);
 
   /* Now adjust the status vector */
   if (d_after_f)
