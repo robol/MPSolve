@@ -562,7 +562,6 @@ mps_secular_set_radii (mps_status * s)
    * to be used again, or dropeed since the same computation is already
    * done in the mps_secular_*newton routines, now.
    */
-
   int i;
   mps_secular_equation *sec = (mps_secular_equation *) s->secular_equation;
 

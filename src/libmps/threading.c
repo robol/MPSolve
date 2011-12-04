@@ -94,6 +94,7 @@ mps_thread_job_queue_next (mps_status * s, mps_thread_job_queue * q)
     {
       j.iter = MPS_THREAD_JOB_EXCEP;
       j.i = 0;
+      j.cluster_item = NULL;
       pthread_mutex_unlock (&q->mutex);
       return j;
     }
