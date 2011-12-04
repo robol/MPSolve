@@ -375,9 +375,9 @@ mps_secular_ga_mpsolve (mps_status * s)
 	s->lastphase = dpe_phase;
 
       if (s->lastphase == float_phase)
-	  mps_fstart (s, s->n, s->clusterization->first, 0.0, 0.0, s->eps_out, p->fap);
+	  mps_fstart (s, s->n, NULL, 0.0, 0.0, s->eps_out, p->fap);
       else
-	mps_dstart (s, s->n, s->clusterization->first, (__rdpe_struct *) rdpe_zero,
+	mps_dstart (s, s->n, NULL, (__rdpe_struct *) rdpe_zero,
 		    (__rdpe_struct *) rdpe_zero, s->eps_out,
 		    p->dap);
 
@@ -415,16 +415,16 @@ mps_secular_ga_mpsolve (mps_status * s)
       switch (s->lastphase)
 	{
 	case  float_phase:
-	  mps_secular_fstart (s, s->n, s->clusterization->first, 0.0, 0.0, s->eps_out);
+	  mps_secular_fstart (s, s->n, NULL, 0.0, 0.0, s->eps_out);
 	  break;
 
 	case dpe_phase:
-	  mps_secular_dstart (s, s->n, s->clusterization->first, (__rdpe_struct *) rdpe_zero, 
+	  mps_secular_dstart (s, s->n, NULL, (__rdpe_struct *) rdpe_zero, 
 			      (__rdpe_struct *) rdpe_zero, s->eps_out); 
 	  break; 
 
 	case mp_phase:
-	  mps_secular_mstart (s, s->n, s->clusterization->first, (__rdpe_struct *) rdpe_zero, 
+	  mps_secular_mstart (s, s->n, NULL, (__rdpe_struct *) rdpe_zero, 
 			      (__rdpe_struct *) rdpe_zero, s->eps_out); 
 	  break;
 

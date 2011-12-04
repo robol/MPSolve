@@ -465,9 +465,9 @@ mps_fsolve (mps_status * s, mps_boolean * d_after_f)
   /* If there is a custom starting point function use it,
    * otherwise use the default one */
   if (s->fstart_usr)
-    (*s->fstart_usr) (s, s->n, s->clusterization->first, 0.0, 0.0, eps_out);
+    (*s->fstart_usr) (s, s->n, NULL, 0.0, 0.0, eps_out);
   else
-    mps_fstart (s, s->n, s->clusterization->first, 0.0, 0.0, eps_out, p->fap);
+    mps_fstart (s, s->n, NULL, 0.0, 0.0, eps_out, p->fap);
 
         /***************
 	 this part of code performs shift in the gravity center of the roots

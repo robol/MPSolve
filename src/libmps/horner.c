@@ -60,7 +60,7 @@ mps_mhorner_with_error2 (mps_status * s, mps_monomial_poly * p, mpc_t x, mpc_t v
   
   /* Compute the polynomial using horner */
   mps_mhorner (s, p, x, value);
-
+  
   /* Compute ap(|x|) using horner */
   mpc_get_cdpe (cx, x);
   cdpe_mod (ax, cx);
