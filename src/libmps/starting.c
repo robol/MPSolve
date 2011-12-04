@@ -288,7 +288,7 @@ mps_fstart (mps_status * s, int n, mps_cluster_item * cluster_item,
     {
       /* If this is the first cluster select sigma = 0. In the other
        * case try to maximize starting points distance. */
-      if (cluster_item->prev == NULL)
+      if (!cluster || cluster_item->prev == NULL)
         {
           sigma = s->last_sigma = MPS_STARTING_SIGMA;
         }
