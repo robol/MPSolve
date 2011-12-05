@@ -588,21 +588,24 @@ extern "C"
    * @brief Function that computes \f$\frac{p}{p'}\f$ (floating point version)
    */
   typedef void (*mps_fnewton_ptr) (mps_status * status, cplx_t, double *, cplx_t,
-                                   mps_boolean *, void * user_data);
+                                   mps_boolean *, void * user_data,
+				   mps_boolean skip_radius_check);
 
   /**
    * @brief Function that computes \f$\frac{p}{p'}\f$ (dpe version)
    */
   typedef void (*mps_dnewton_ptr) (mps_status * status, cdpe_t x, rdpe_t rad,
                                    cdpe_t corr, mps_boolean * again, 
-				   void * user_data);
+				   void * user_data,
+				   mps_boolean skip_radius_check);
 
   /**
    * @brief Function that computes \f$\frac{p}{p'}\f$ (multiprecision version)
    */
   typedef void (*mps_mnewton_ptr) (mps_status * status, mpc_t x, rdpe_t rad,
                                    mpc_t corr, mps_boolean * again,
-				   void * user_data);
+				   void * user_data,
+				   mps_boolean skip_radius_check);
 
   /**
    * @brief Functions that check if float phase is needed or not and set
@@ -1190,22 +1193,28 @@ extern "C"
      * @brief Pointer to the function to perform newton in floating
      * point implemented by the user.
      */
-    void (*fnewton_usr) (mps_status *status, cplx_t, double *, cplx_t,
-                         mps_boolean *, void * user_data);
+    /* void (*fnewton_usr) (mps_status *status, cplx_t, double *, cplx_t, */
+    /*                      mps_boolean *, void * user_data,  */
+    /* 			 mps_boolean * skip_radius_computation); */
+    mps_fnewton_ptr fnewton_usr;
 
     /**
      * @brief Pointer to the function to perform newton in dpe
      * implemented by the user.
      */
-    void (*dnewton_usr) (mps_status *status, cdpe_t x, rdpe_t rad, cdpe_t corr,
-                         mps_boolean * again, void * user_data);
+    /* void (*dnewton_usr) (mps_status *status, cdpe_t x, rdpe_t rad, cdpe_t corr, */
+    /*                      mps_boolean * again, void * user_data,  */
+    /* 			 mps_boolean * skip_radius_computation); */
+    mps_dnewton_ptr dnewton_usr;
 
     /**
      * @brief Pointer to the function to perform newton in multiprecision
      * implemented by the user.
      */
-    void (*mnewton_usr) (mps_status *status, mpc_t x, rdpe_t rad, mpc_t corr,
-                         mps_boolean * again, void * user_data);
+    /* void (*mnewton_usr) (mps_status *status, mpc_t x, rdpe_t rad, mpc_t corr, */
+    /*                      mps_boolean * again, void * user_data,  */
+    /* 			 mps_boolean * skip_radius_computation); */
+    mps_mnewton_ptr mnewton_usr;
 
     /**
      * @brief Check data routine that has the task to determine if a float phase

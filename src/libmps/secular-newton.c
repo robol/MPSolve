@@ -280,22 +280,31 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
   rdpe_t new_rad;
 
   /* Compute the guaranteed radius */
-  rdpe_set (new_rad, apol);
+  /* rdpe_set (new_rad, apol); */
+  /* rdpe_mul_eq_d (new_rad, s->n); */
+  /* rdpe_mul_eq (new_rad, prod_b); */
+
+  /* /\* rdpe_set (rtmp, asum); *\/ */
+  /* /\* rdpe_div_eq (rtmp, apol); *\/ */
+  /* rdpe_add (rtmp, rdpe_one, asum_on_apol); */
+  /* rdpe_add_eq_d (rtmp, 3 * s->n); */
+  /* rdpe_mul_eq_d (rtmp, DBL_EPSILON); */
+  /* rdpe_add_eq (rtmp, rdpe_one); */
+  /* rdpe_mul_eq (new_rad, rtmp); */
+
+  /* /\* Correct the old radius with the move that we are doing */
+  /*  * and check if the new proposed radius is preferable. *\/ */
+  /* if (data) */
+  /*   data->radius_set = true; */
+
+
+  /* Compute radius as n * newt_corr */
+  cdpe_mod (new_rad, corr);
   rdpe_mul_eq_d (new_rad, s->n);
-  rdpe_mul_eq (new_rad, prod_b);
 
-  /* rdpe_set (rtmp, asum); */
-  /* rdpe_div_eq (rtmp, apol); */
-  rdpe_add (rtmp, rdpe_one, asum_on_apol);
-  rdpe_add_eq_d (rtmp, 3 * s->n);
-  rdpe_mul_eq_d (rtmp, DBL_EPSILON);
-  rdpe_add_eq (rtmp, rdpe_one);
-  rdpe_mul_eq (new_rad, rtmp);
-
-  /* Correct the old radius with the move that we are doing
-   * and check if the new proposed radius is preferable. */
-  if (data)
-    data->radius_set = true;
+  cdpe_mod (rtmp, x);
+  rdpe_mul_eq_d (rtmp, 4.0 * DBL_EPSILON);
+  rdpe_add_eq (new_rad, rtmp);
 
   if (rdpe_lt (new_rad, rad) || !data)
     rdpe_set (rad, new_rad);
@@ -347,7 +356,7 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
       if (mpc_eq_zero (ctmp))
 	{
 	  *again = false;
-	  return;
+	  goto mnewton_exit;
 	}
 
       mpc_get_cdpe (cdtmp2, ctmp);
@@ -433,19 +442,23 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
   if (rdpe_le (rtmp2, rdpe_zero))
     {
       *again = false;
-      return;
+      goto mnewton_exit;
     }
 
   /* This is asum / apol */
   rdpe_div (asum_on_apol, asum, rtmp2);
 
-  rdpe_add (rtmp, asum_on_apol, rdpe_one);
-  rdpe_add_eq_d (rtmp, 3 * s->n);
-  rdpe_add_eq (rtmp, rdpe_one);
-  rdpe_mul_eq (rtmp, s->mp_epsilon);
-  rdpe_mul_eq_d (rtmp, 4);
-  rdpe_add_eq (rtmp, rdpe_one);
-  rdpe_mul_eq (new_rad, rtmp);
+  /* rdpe_add (rtmp, asum_on_apol, rdpe_one); */
+  /* rdpe_add_eq_d (rtmp, 3 * s->n); */
+  /* rdpe_add_eq (rtmp, rdpe_one); */
+  /* rdpe_mul_eq (rtmp, s->mp_epsilon); */
+  /* rdpe_mul_eq_d (rtmp, 4); */
+  /* rdpe_add_eq (rtmp, rdpe_one); */
+  /* rdpe_mul_eq (new_rad, rtmp); */
+
+  mpc_get_cdpe (cdtmp, corr);
+  cdpe_mod (new_rad, cdtmp);
+  rdpe_mul_eq_d (new_rad, s->n);
 
   rdpe_mul (rtmp, ax, s->mp_epsilon);
   rdpe_add_eq (new_rad, rtmp);
@@ -497,13 +510,18 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
 	 }       
      }
 
-  if (!*again || skip_radius_computation)
-    return;
+  if (*again && !skip_radius_computation)
+    {
+      mpc_get_cdpe (cdtmp, corr);
+      cdpe_mod (rad, cdtmp);
+      rdpe_mul_eq_d (rad, s->n);
+    }
 
   /* Final cleanup */
-   mpc_clear (fp);
-   mpc_clear (pol);
-   mpc_clear (sumb);
-   mpc_clear (ctmp);
-   mpc_clear (ctmp2);
+ mnewton_exit:
+  mpc_clear (fp);
+  mpc_clear (pol);
+  mpc_clear (sumb);
+  mpc_clear (ctmp);
+  mpc_clear (ctmp2);
 }

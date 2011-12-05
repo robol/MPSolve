@@ -41,6 +41,7 @@ mps_cluster_with_root (mps_status * s, long int root_index)
 
   cluster->first->k = root_index;
   cluster->first->next = NULL;
+  cluster->first->prev = NULL;
 
   return cluster;
 }
@@ -84,31 +85,16 @@ mps_cluster_insert_root (mps_status * s,
   /* Inserting root in the starting of the cluster */
   root->k = root_index;
   root->next = cluster->first;
+  root->prev = NULL;
 
   cluster->n++;
 
   if (cluster->first)
     cluster->first->prev = root;
 
-  root->prev = NULL;
   cluster->first = root;
 
   return root;
-
-  /* int i = 0; */
-  /* fprintf (stderr, "Debuggin cluster %p", cluster); */
-  /* for (root = cluster->first; root != NULL; root = root->next) */
-  /*   { */
-  /*     fprintf (stderr, "%4ld", root->k); */
-  /*     i++; */
-
-  /*     if (i >= cluster->n + 3) */
-  /* 	{ */
-  /* 	  fprintf (stderr, "Stopping"); */
-  /* 	  break; */
-  /* 	} */
-  /*   } */
-  /* fprintf(stderr, "\n"); */
 }
 
 /**
@@ -374,6 +360,13 @@ mps_fcluster (mps_status * s, double * frad, int nf)
       mps_root * base_root;
       mps_root * iter_root;
 
+      if (cluster->n == 1)
+	{
+	  mps_clusterization_insert_cluster (s, s->clusterization,
+					     mps_cluster_with_root (s, cluster->first->k));
+	  continue;
+	}
+
       while (cluster->n > 0)
 	{
 	  /* Create a new cluster */
@@ -466,6 +459,13 @@ mps_dcluster (mps_status * s, rdpe_t * drad, int nf)
       mps_root * old_base_root;
       mps_root * base_root;
       mps_root * iter_root;
+
+      if (cluster->n == 1)
+	{
+	  mps_clusterization_insert_cluster (s, s->clusterization,
+					     mps_cluster_with_root (s, cluster->first->k));
+	  continue;
+	}
 
       while (cluster->n > 0)
 	{
@@ -605,6 +605,13 @@ mps_mcluster (mps_status * s, rdpe_t * drad, int nf)
       mps_root * base_root;
       mps_root * iter_root;
 
+      if (cluster->n == 1)
+	{
+	  mps_clusterization_insert_cluster (s, s->clusterization,
+					     mps_cluster_with_root (s, cluster->first->k));
+	  continue;
+	}
+
       while (cluster->n > 0)
 	{
 	  /* Create a new cluster */
@@ -687,9 +694,11 @@ mps_clusterization_detach_clusters (mps_status * s, mps_clusterization * c)
           if (rdpe_lt (s->drad[k], precision))
             {
 	      mps_cluster * detached_cluster = mps_cluster_with_root (s, k);
+	      mps_root * next_root = root->next;
               MPS_DEBUG (s, "Separating root %d from the "
                          "rest of the cluster", k);
 	      mps_cluster_remove_root (s, item->cluster, root);
+	      root = next_root;
 
 	      /* Insert the cluster in the clusterization */
 	      mps_cluster_item * new_item = mps_clusterization_insert_cluster (s, 
@@ -698,12 +707,12 @@ mps_clusterization_detach_clusters (mps_status * s, mps_clusterization * c)
 	      /* Set the new item as detached from the old one */
 	      new_item->detached = item;
 	    }
+	  else
+	    root = root->next;
 
 	  /* If we have left only an isolated roots stop checking this cluster */
 	  if (item->cluster->n == 1)
 	    break;
-	  else
-	    root = root->next;
 	}
     }
 }

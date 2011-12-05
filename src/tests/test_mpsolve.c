@@ -132,13 +132,12 @@ abortfn (enum mcheck_status status)
 int
 main (int argc, char ** argv)
 {
-   /* mcheck (abortfn);  */
 
   /* TEST_UNISOLVE ("nroots50");   */
   /* TEST_UNISOLVE ("nroots50"); */
   /* TEST_UNISOLVE ("nroots50");   */
   TEST_UNISOLVE ("nroots50");      
-  // TEST_UNISOLVE ("mig1_200");
+  TEST_UNISOLVE ("mig1_200");
   TEST_UNISOLVE ("mand63");
   TEST_UNISOLVE ("mand127");
 

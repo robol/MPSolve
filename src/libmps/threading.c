@@ -187,7 +187,7 @@ mps_thread_fpolzer_worker (void *data_ptr)
           if (s->data_type[0] != 'u')
             {
               mps_fnewton (s, s->n, froot, &s->frad[i], corr, p->fpc, p->fap,
-                           &s->again[i], true);
+                           &s->again[i], false);
               if (iter == 0 && !s->again[i] && s->frad[i] > rad1 && rad1 != 0)
                 s->frad[i] = rad1;
               /***************************************
@@ -202,7 +202,7 @@ mps_thread_fpolzer_worker (void *data_ptr)
             }
           else if (s->fnewton_usr != NULL)
             {
-              (*s->fnewton_usr) (s, froot, &s->frad[i], corr, &s->again[i], NULL);
+              (*s->fnewton_usr) (s, froot, &s->frad[i], corr, &s->again[i], NULL, false);
             }
           else
             {
@@ -367,7 +367,7 @@ mps_thread_dpolzer_worker (void *data_ptr)
           if (s->data_type[0] != 'u')
             {
               mps_dnewton (s, s->n, s->droot[i], s->drad[i], corr, p->dpc,
-                           p->dap, &s->again[i], true);
+                           p->dap, &s->again[i], false);
               if (iter == 0 && !s->again[i] && rdpe_gt (s->drad[i], rad1)
                   && rdpe_ne (rad1, rdpe_zero))
                 rdpe_set (s->drad[i], rad1);
@@ -375,7 +375,7 @@ mps_thread_dpolzer_worker (void *data_ptr)
           else if (s->dnewton_usr != NULL)
             {
               (*s->dnewton_usr) (s, s->droot[i], s->drad[i], corr,
-                                 &s->again[i], NULL);
+                                 &s->again[i], NULL, false);
             }
           else
             {
@@ -627,7 +627,7 @@ mps_thread_mpolzer_worker (void *data_ptr)
             }
           else /* user's polynomial */ if (s->mnewton_usr != NULL)
             {
-              (*s->mnewton_usr) (s, mroot, s->drad[l], corr, &s->again[l], NULL);
+              (*s->mnewton_usr) (s, mroot, s->drad[l], corr, &s->again[l], NULL, false);
             }
           else
             {
@@ -776,50 +776,50 @@ mps_thread_mpolzer (mps_status * s, int *it, mps_boolean * excep)
       pthread_join (threads[i], NULL);
     }
 
-  if (!MPS_INPUT_CONFIG_IS_USER (s->input_config))
-    {
-      /* Now compute the radius */
-      mpc_t diff;
-      cdpe_t cdtmp;
-      rdpe_t new_rad, rtmp;
-      int j;
+  /* if (!MPS_INPUT_CONFIG_IS_USER (s->input_config)) */
+  /*   { */
+  /*     /\* Now compute the radius *\/ */
+  /*     mpc_t diff; */
+  /*     cdpe_t cdtmp; */
+  /*     rdpe_t new_rad, rtmp; */
+  /*     int j; */
 
-      mpc_init2 (diff, s->mpwp);
+  /*     mpc_init2 (diff, s->mpwp); */
 
-      for (i = 0; i < s->n; i++)
-	{
-	  mps_mhorner_with_error2 (s, s->monomial_poly, s->mroot[i], diff, rtmp, s->mpwp);
-	  mpc_get_cdpe (cdtmp, diff);
-	  cdpe_mod (new_rad, cdtmp);
-	  rdpe_add_eq (rtmp, rdpe_one);
-	  rdpe_mul_eq (new_rad, rtmp);
+  /*     for (i = 0; i < s->n; i++) */
+  /* 	{ */
+  /* 	  mps_mhorner_with_error2 (s, s->monomial_poly, s->mroot[i], diff, rtmp, s->mpwp); */
+  /* 	  mpc_get_cdpe (cdtmp, diff); */
+  /* 	  cdpe_mod (new_rad, cdtmp); */
+  /* 	  rdpe_add_eq (rtmp, rdpe_one); */
+  /* 	  rdpe_mul_eq (new_rad, rtmp); */
 
-	  for (j = 0; j < s->n; j++)
-	    {
-	      if (i == j)
-		continue;
+  /* 	  for (j = 0; j < s->n; j++) */
+  /* 	    { */
+  /* 	      if (i == j) */
+  /* 		continue; */
 
-	      mpc_sub (diff, s->mroot[i], s->mroot[j]);
-	      mpc_get_cdpe (cdtmp, diff);
-	      cdpe_mod (rtmp, cdtmp);
+  /* 	      mpc_sub (diff, s->mroot[i], s->mroot[j]); */
+  /* 	      mpc_get_cdpe (cdtmp, diff); */
+  /* 	      cdpe_mod (rtmp, cdtmp); */
 
-	      if (rdpe_eq_zero (rtmp))
-		{
-		  rdpe_set (new_rad, RDPE_MAX);
-		  break;
-		}
+  /* 	      if (rdpe_eq_zero (rtmp)) */
+  /* 		{ */
+  /* 		  rdpe_set (new_rad, RDPE_MAX); */
+  /* 		  break; */
+  /* 		} */
 
-	      rdpe_div_eq (new_rad, rtmp);
-	    }
+  /* 	      rdpe_div_eq (new_rad, rtmp); */
+  /* 	    } */
 
-	  if (rdpe_lt (new_rad, s->drad[i]))
-	    rdpe_set (s->drad[i], new_rad);
+  /* 	  if (rdpe_lt (new_rad, s->drad[i])) */
+  /* 	    rdpe_set (s->drad[i], new_rad); */
 
-	  MPS_DEBUG_RDPE (s, new_rad, "new_rad_%d", i);
-	}
+  /* 	  MPS_DEBUG_RDPE (s, new_rad, "new_rad_%d", i); */
+  /* 	} */
 
-      mpc_clear (diff);
-    }
+  /*     mpc_clear (diff); */
+  /*   } */
 
   /* Free data and exit */
   free (data);

@@ -34,13 +34,13 @@ mps_secular_ga_update_root_wp (mps_status * s, int i, long int wp)
 
    if (mpc_get_prec (p->mfpc[0]) < s->rootwp[i]) 
      {
-       for (j = 0; j < s->n; ++j) 
+       for (j = 0; j <= s->n; ++j) 
 	 mpc_set_prec (p->mfpc[j], s->rootwp[i]); 
 
        if (MPS_INPUT_CONFIG_IS_INTEGER (s->input_config) 
 	   || MPS_INPUT_CONFIG_IS_RATIONAL (s->input_config))
 	 {
-	   for (i = 0; i < s->n + 1; ++i)
+	   for (i = 0; i <= s->n ; ++i)
 	     {
 	       mpf_set_q (mpc_Re (p->mfpc[i]), p->initial_mqp_r[i]);
 	       mpf_set_q (mpc_Im (p->mfpc[i]), p->initial_mqp_i[i]);
