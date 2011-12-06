@@ -362,8 +362,15 @@ mps_fcluster (mps_status * s, double * frad, int nf)
       /* Keep isolated cluster isolated, moving them in the new clusterization. */
       if (cluster->n == 1)
 	{
+	  int k = cluster->first->k;
+
+	  /* Check if the computed radius is more convenient than the old one.
+	     If that's the case, apply it as inclusion radius */
+	  if (frad[k] < s->frad[k])
+	      s->frad[k] = frad[k];
+
 	  mps_clusterization_insert_cluster (s, new_clusterization,
-					     mps_cluster_with_root (s, cluster->first->k));
+					     mps_cluster_with_root (s, k));
 	  mps_clusterization_remove_cluster (s, s->clusterization, item);
 	  analyzed_roots++;
 	}
@@ -473,8 +480,15 @@ mps_dcluster (mps_status * s, rdpe_t * drad, int nf)
       /* Keep isolated cluster isolated, moving them in the new clusterization. */
       if (cluster->n == 1)
 	{
+	  int k = cluster->first->k;
+
+	  /* Check if the computed radius is more convenient than the old one.
+	     If that's the case, apply it as inclusion radius */
+	  if (rdpe_lt (drad[k], s->drad[k]))
+	    rdpe_set (s->drad[k], drad[k]);
+
 	  mps_clusterization_insert_cluster (s, new_clusterization,
-					     mps_cluster_with_root (s, cluster->first->k));
+					     mps_cluster_with_root (s, k));
 	  mps_clusterization_remove_cluster (s, s->clusterization, item);
 	  analyzed_roots++;
 	}
@@ -631,9 +645,16 @@ mps_mcluster (mps_status * s, rdpe_t * drad, int nf)
 
       /* Keep isolated cluster isolated, moving them in the new clusterization. */
       if (cluster->n == 1)
-	{
+	{	  
+	  int k = cluster->first->k;
+
+	  /* Check if the computed radius is more convenient than the old one.
+	     If that's the case, apply it as inclusion radius */
+	  if (rdpe_lt (drad[k], s->drad[k]))
+	      rdpe_set (s->drad[k], drad[k]);
+
 	  mps_clusterization_insert_cluster (s, new_clusterization,
-					     mps_cluster_with_root (s, cluster->first->k));
+					     mps_cluster_with_root (s, k));
 	  mps_clusterization_remove_cluster (s, s->clusterization, item);
 	  analyzed_roots++;
 	}
