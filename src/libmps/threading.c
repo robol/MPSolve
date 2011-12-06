@@ -721,10 +721,10 @@ mps_thread_mpolzer (mps_status * s, int *it, mps_boolean * excep)
     }
 
   /* Lower the number of threads if there are a lot of approximated roots */
-  if (s->n_threads > (s->n - nzeros))   
-    n_threads = s->n - nzeros;   
-  else   
-    n_threads = s->n_threads; 
+  /* if (s->n_threads > (s->n - nzeros))    */
+  /*   n_threads = s->n - nzeros;    */
+  /* else    */
+  /*   n_threads = s->n_threads;  */
 
   MPS_DEBUG_WITH_INFO (s, "Spawning %d threads", n_threads);
 

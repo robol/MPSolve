@@ -362,7 +362,7 @@ mps_fcluster (mps_status * s, double * frad, int nf)
 
       if (cluster->n == 1)
 	{
-	  mps_clusterization_insert_cluster (s, s->clusterization,
+	  mps_clusterization_insert_cluster (s, new_clusterization,
 					     mps_cluster_with_root (s, cluster->first->k));
 	  continue;
 	}
@@ -452,7 +452,6 @@ mps_dcluster (mps_status * s, rdpe_t * drad, int nf)
       mps_debug_cluster_structure (s);
     }
 
-
   for (item = s->clusterization->first; item != NULL; item = item->next)
     {
       mps_cluster * cluster = item->cluster;
@@ -462,7 +461,7 @@ mps_dcluster (mps_status * s, rdpe_t * drad, int nf)
 
       if (cluster->n == 1)
 	{
-	  mps_clusterization_insert_cluster (s, s->clusterization,
+	  mps_clusterization_insert_cluster (s, new_clusterization,
 					     mps_cluster_with_root (s, cluster->first->k));
 	  continue;
 	}
@@ -515,9 +514,14 @@ mps_dcluster (mps_status * s, rdpe_t * drad, int nf)
     }
   s->clusterization = new_clusterization;
 
-  if (s->DOLOG)
-    mps_debug_cluster_structure (s); 
+  if (s->debug_level & MPS_DEBUG_CLUSTER)
+    {
+      MPS_DEBUG (s, "Debugging cluster structure after cluster analysis");
+      mps_debug_cluster_structure (s);
+    }
 }
+
+
 
 void
 mps_debug_cluster_structure (mps_status * s)
@@ -597,7 +601,6 @@ mps_mcluster (mps_status * s, rdpe_t * drad, int nf)
       mps_debug_cluster_structure (s);
     }
 
-
   for (item = s->clusterization->first; item != NULL; item = item->next)
     {
       mps_cluster * cluster = item->cluster;
@@ -607,7 +610,7 @@ mps_mcluster (mps_status * s, rdpe_t * drad, int nf)
 
       if (cluster->n == 1)
 	{
-	  mps_clusterization_insert_cluster (s, s->clusterization,
+	  mps_clusterization_insert_cluster (s, new_clusterization,
 					     mps_cluster_with_root (s, cluster->first->k));
 	  continue;
 	}
@@ -654,16 +657,15 @@ mps_mcluster (mps_status * s, rdpe_t * drad, int nf)
     }
 
   /* Set the new clusterizaition in the mps_status */
-  if (s->clusterization)
-    {
-      mps_clusterization_free (s, s->clusterization);
-    }
+  mps_clusterization_free (s, s->clusterization);
   s->clusterization = new_clusterization;
 
-  if (s->DOLOG)
-    mps_debug_cluster_structure (s);
+  if (s->debug_level & MPS_DEBUG_CLUSTER)
+    {
+      MPS_DEBUG (s, "Debugging cluster structure after cluster analysis");
+      mps_debug_cluster_structure (s);
+    }
 }
-
 
 void 
 mps_clusterization_detach_clusters (mps_status * s, mps_clusterization * c)
