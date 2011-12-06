@@ -353,66 +353,78 @@ mps_fcluster (mps_status * s, double * frad, int nf)
       mps_debug_cluster_structure (s);
     }
 
+  int analyzed_roots = 0;
+
   for (item = s->clusterization->first; item != NULL; item = item->next)
     {
       mps_cluster * cluster = item->cluster;
-      mps_root * old_base_root;
-      mps_root * base_root;
-      mps_root * iter_root;
 
+      /* Keep isolated cluster isolated, moving them in the new clusterization. */
       if (cluster->n == 1)
 	{
 	  mps_clusterization_insert_cluster (s, new_clusterization,
 					     mps_cluster_with_root (s, cluster->first->k));
-	  continue;
+	  mps_clusterization_remove_cluster (s, s->clusterization, item);
+	  analyzed_roots++;
 	}
+    }
 
-      while (cluster->n > 0)
+  /* Now do cluster analysis with the rest of the clusters. */
+  item = s->clusterization->first;
+  while (analyzed_roots < s->n)
+    {
+      /* Create a new cluster to be inserted in the cluster analysis */
+      mps_root * base_root;
+      mps_cluster * cluster = item->cluster;
+      mps_cluster * new_cluster = mps_cluster_empty (s);
+
+      while (cluster->n == 0)
 	{
-	  /* Create a new cluster */
-	  mps_cluster * new_cluster = mps_cluster_empty (s);
+	  item = item->next;
+	  cluster = item->cluster;
+	}
+	  
+      
+      base_root = mps_cluster_insert_root (s, new_cluster, cluster->first->k);
+      analyzed_roots++;
+      mps_cluster_remove_root (s, cluster, cluster->first);
 
-	  /* Take the first root that is still in the cluster */
-	  old_base_root = cluster->first;
+      /* Check if this root touches others root, and if new roots were added to the 
+       * cluster repeat the checks. */
+      while (base_root)
+	{
+	  mps_cluster_item * c_item;
+	  mps_root * iter_root;
 
-	  base_root = mps_cluster_insert_root (s, new_cluster, old_base_root->k);
-	  mps_cluster_remove_root (s, cluster, old_base_root);
+	  for (c_item = s->clusterization->first; c_item != NULL; c_item = c_item->next)
+	    {
+	      mps_cluster * iter_cluster = c_item->cluster;
 
-	  while (base_root != NULL)
-	    { 
-	      /* Search for others that touch this one */
-	      iter_root = cluster->first;
-
-	      while (iter_root != NULL)
+	      iter_root = iter_cluster->first;
+	      while (iter_root)
 		{
-		  /* If the two roots are in the same cluster than keep iter_root away of
-		   * the cluster and put it in new_cluster */
-		  if (iter_root->k != base_root->k && mps_ftouchnwt (s, frad, nf, base_root->k, iter_root->k))
+		  if (mps_ftouchnwt (s, frad, nf, base_root->k, iter_root->k))
 		    {
 		      mps_root * next_root = iter_root->next;
 		      mps_cluster_insert_root (s, new_cluster, iter_root->k);
-		      mps_cluster_remove_root (s, cluster, iter_root);
-		      
+		      mps_cluster_remove_root (s, iter_cluster, iter_root);
+		      analyzed_roots++;
 		      iter_root = next_root;
 		    }
 		  else
 		    iter_root = iter_root->next;
 		}
-
-	      /* Step to the next base_root */
-	      base_root = base_root->prev;
 	    }
 
-	  /* Insert new cluster in the clusterization */
-	  mps_clusterization_insert_cluster (s, new_clusterization, new_cluster);
+	  base_root = base_root->prev;
 	}
+      
+      /* Now insert the cluster in the new clusterization */
+      mps_clusterization_insert_cluster (s, new_clusterization, new_cluster);
     }
 
   /* Set the new clusterizaition in the mps_status */
-  if (s->clusterization)
-    {
-      mps_clusterization_free (s, s->clusterization);
-    }
+  mps_clusterization_free (s, s->clusterization);
   s->clusterization = new_clusterization;
 
   if (s->debug_level & MPS_DEBUG_CLUSTER)
@@ -452,66 +464,77 @@ mps_dcluster (mps_status * s, rdpe_t * drad, int nf)
       mps_debug_cluster_structure (s);
     }
 
+  int analyzed_roots = 0;
+
   for (item = s->clusterization->first; item != NULL; item = item->next)
     {
       mps_cluster * cluster = item->cluster;
-      mps_root * old_base_root;
-      mps_root * base_root;
-      mps_root * iter_root;
 
+      /* Keep isolated cluster isolated, moving them in the new clusterization. */
       if (cluster->n == 1)
 	{
 	  mps_clusterization_insert_cluster (s, new_clusterization,
 					     mps_cluster_with_root (s, cluster->first->k));
-	  continue;
+	  mps_clusterization_remove_cluster (s, s->clusterization, item);
+	  analyzed_roots++;
 	}
+    }
 
-      while (cluster->n > 0)
+  /* Now do cluster analysis with the rest of the clusters. */
+  item = s->clusterization->first;
+  while (analyzed_roots < s->n)
+    {
+      /* Create a new cluster to be inserted in the cluster analysis */
+      mps_root * base_root;
+      mps_cluster * cluster = item->cluster;
+      mps_cluster * new_cluster = mps_cluster_empty (s);
+
+      while (cluster->n == 0)
 	{
-	  /* Create a new cluster */
-	  mps_cluster * new_cluster = mps_cluster_empty (s);
+	  item = item->next;
+	  cluster = item->cluster;
+	}
+	  
+      base_root = mps_cluster_insert_root (s, new_cluster, cluster->first->k);
+      analyzed_roots++;
+      mps_cluster_remove_root (s, cluster, cluster->first);
 
-	  /* Take the first root that is still in the cluster */
-	  old_base_root = cluster->first;
+      /* Check if this root touches others root, and if new roots were added to the 
+       * cluster repeat the checks. */
+      while (base_root)
+	{
+	  mps_cluster_item * c_item;
+	  mps_root * iter_root;
 
-	  base_root = mps_cluster_insert_root (s, new_cluster, old_base_root->k);
-	  mps_cluster_remove_root (s, cluster, old_base_root);
+	  for (c_item = s->clusterization->first; c_item != NULL; c_item = c_item->next)
+	    {
+	      mps_cluster * iter_cluster = c_item->cluster;
 
-	  while (base_root != NULL)
-	    { 
-	      /* Search for others that touch this one */
-	      iter_root = cluster->first;
-
-	      while (iter_root != NULL)
+	      iter_root = iter_cluster->first;
+	      while (iter_root)
 		{
-		  /* If the two roots are in the same cluster than keep iter_root away of
-		   * the cluster and put it in new_cluster */
-		  if (iter_root->k != base_root->k && mps_dtouchnwt (s, drad, nf, base_root->k, iter_root->k))
+		  if (mps_dtouchnwt (s, drad, nf, base_root->k, iter_root->k))
 		    {
 		      mps_root * next_root = iter_root->next;
 		      mps_cluster_insert_root (s, new_cluster, iter_root->k);
-		      mps_cluster_remove_root (s, cluster, iter_root);
-		      
+		      mps_cluster_remove_root (s, iter_cluster, iter_root);
+		      analyzed_roots++;
 		      iter_root = next_root;
 		    }
 		  else
 		    iter_root = iter_root->next;
 		}
-
-	      /* Step to the next base_root */
-	      base_root = base_root->prev;
 	    }
 
-	  /* Insert new cluster in the clusterization */
-	  mps_clusterization_insert_cluster (s, new_clusterization, new_cluster);
+	  base_root = base_root->prev;
 	}
+      
+      /* Now insert the cluster in the new clusterization */
+      mps_clusterization_insert_cluster (s, new_clusterization, new_cluster);
     }
 
   /* Set the new clusterizaition in the mps_status */
-  if (s->clusterization)
-    {
-      mps_clusterization_free (s, s->clusterization);
-    }
+  mps_clusterization_free (s, s->clusterization);
   s->clusterization = new_clusterization;
 
   if (s->debug_level & MPS_DEBUG_CLUSTER)
@@ -520,7 +543,6 @@ mps_dcluster (mps_status * s, rdpe_t * drad, int nf)
       mps_debug_cluster_structure (s);
     }
 }
-
 
 
 void
@@ -601,59 +623,73 @@ mps_mcluster (mps_status * s, rdpe_t * drad, int nf)
       mps_debug_cluster_structure (s);
     }
 
+  int analyzed_roots = 0;
+
   for (item = s->clusterization->first; item != NULL; item = item->next)
     {
       mps_cluster * cluster = item->cluster;
-      mps_root * old_base_root;
-      mps_root * base_root;
-      mps_root * iter_root;
 
+      /* Keep isolated cluster isolated, moving them in the new clusterization. */
       if (cluster->n == 1)
 	{
 	  mps_clusterization_insert_cluster (s, new_clusterization,
 					     mps_cluster_with_root (s, cluster->first->k));
-	  continue;
+	  mps_clusterization_remove_cluster (s, s->clusterization, item);
+	  analyzed_roots++;
 	}
+    }
 
-      while (cluster->n > 0)
+  /* Now do cluster analysis with the rest of the clusters. */
+  item = s->clusterization->first;
+  while (analyzed_roots < s->n)
+    {
+      /* Create a new cluster to be inserted in the cluster analysis */
+      mps_root * base_root;
+      mps_cluster * cluster = item->cluster;
+      mps_cluster * new_cluster = mps_cluster_empty (s);
+
+      while (cluster->n == 0)
 	{
-	  /* Create a new cluster */
-	  mps_cluster * new_cluster = mps_cluster_empty (s);
+	  item = item->next;
+	  cluster = item->cluster;
+	}
+	  
+      base_root = mps_cluster_insert_root (s, new_cluster, cluster->first->k);
+      analyzed_roots++;
+      mps_cluster_remove_root (s, cluster, cluster->first);
 
-	  /* Take the first root that is still in the cluster */
-	  old_base_root = cluster->first;
+      /* Check if this root touches others root, and if new roots were added to the 
+       * cluster repeat the checks. */
+      while (base_root)
+	{
+	  mps_cluster_item * c_item;
+	  mps_root * iter_root;
 
-	  base_root = mps_cluster_insert_root (s, new_cluster, old_base_root->k);
-	  mps_cluster_remove_root (s, cluster, old_base_root);
+	  for (c_item = s->clusterization->first; c_item != NULL; c_item = c_item->next)
+	    {
+	      mps_cluster * iter_cluster = c_item->cluster;
 
-	  while (base_root != NULL)
-	    { 
-	      /* Search for others that touch this one */
-	      iter_root = cluster->first;
-
-	      while (iter_root != NULL)
+	      iter_root = iter_cluster->first;
+	      while (iter_root)
 		{
-		  /* If the two roots are in the same cluster than keep iter_root away of
-		   * the cluster and put it in new_cluster */
-		  if (iter_root->k != base_root->k && mps_mtouchnwt (s, drad, nf, base_root->k, iter_root->k))
+		  if (mps_mtouchnwt (s, drad, nf, base_root->k, iter_root->k))
 		    {
 		      mps_root * next_root = iter_root->next;
 		      mps_cluster_insert_root (s, new_cluster, iter_root->k);
-		      mps_cluster_remove_root (s, cluster, iter_root);
-		      
+		      mps_cluster_remove_root (s, iter_cluster, iter_root);
+		      analyzed_roots++;
 		      iter_root = next_root;
 		    }
 		  else
 		    iter_root = iter_root->next;
 		}
-
-	      /* Step to the next base_root */
-	      base_root = base_root->prev;
 	    }
 
-	  /* Insert new cluster in the clusterization */
-	  mps_clusterization_insert_cluster (s, new_clusterization, new_cluster);
+	  base_root = base_root->prev;
 	}
+      
+      /* Now insert the cluster in the new clusterization */
+      mps_clusterization_insert_cluster (s, new_clusterization, new_cluster);
     }
 
   /* Set the new clusterizaition in the mps_status */
@@ -666,6 +702,7 @@ mps_mcluster (mps_status * s, rdpe_t * drad, int nf)
       mps_debug_cluster_structure (s);
     }
 }
+
 
 void 
 mps_clusterization_detach_clusters (mps_status * s, mps_clusterization * c)
