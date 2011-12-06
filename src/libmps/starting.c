@@ -996,6 +996,8 @@ mps_mstart (mps_status * s, int n, mps_cluster_item * cluster_item,
   root = cluster->first;
   for (i = 0; i < s->n_radii; i++)
     {
+      mps_root * starting_root = root;
+
       nzeros = s->partitioning[i + 1] - s->partitioning[i];
       ang = pi2 / nzeros;
       iold = s->partitioning[i];
@@ -1003,6 +1005,7 @@ mps_mstart (mps_status * s, int n, mps_cluster_item * cluster_item,
       /* Compute the initial approximations */
       for (j = iold; j < s->partitioning[i + 1]; j++)
         {
+	  MPS_DEBUG (s, "j = %d", j);
           jj = j - iold;
 
           /* Take index relative to the cluster
@@ -1035,11 +1038,13 @@ mps_mstart (mps_status * s, int n, mps_cluster_item * cluster_item,
       MPS_DEBUG (s, "Relatively small check");
       if (rdpe_le (rtmp1, rtmp2))
 	{
-	  for (root = cluster->first; root != NULL; root = root->next)
+	  mps_root * root2 = starting_root;
+	  for (j = s->partitioning[i]; j < s->partitioning[i + 1]; j++)
 	    {
-	      l = root->k;
+	      l = root2->k;
 	      s->status[l][0] = 'o';
 	      rdpe_mul_d (s->drad[l], rtmp1, (double) nzeros);
+	      root2 = root2->next;
 	    }
 	}
       rdpe_set (clust_rad, s->dradii[i]);
@@ -1646,7 +1651,7 @@ mps_mrestart (mps_status * s)
       /*#D perform shift only if the new computed sr is smaller than old*0.25 */
       rdpe_mul_d (rtmp, sr, 0.25);
       /*#D AGO99 Factors: 0.1 (MPS2.0), 0.5 (GIUGN98) */
-      mps_mshift (s, cluster->n, c_item, sr, g);
+      mps_mshift (s, c_item->cluster->n, c_item, sr, g);
       if (rdpe_lt (sr, rtmp))
         {                       /* Perform shift only if the new clust is smaller */
           mpc_get_cdpe (tmp, g);

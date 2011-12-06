@@ -148,8 +148,6 @@ main (int argc, char ** argv)
   /* TEST_SECSOLVE_SECULAR ("rand120"); */
   /* TEST_SECSOLVE_SECULAR ("rand120"); */
 
-  return 0;
-
   /* Roots of unity   */
   TEST_SECSOLVE_MONOMIAL ("nroots50");    
 
