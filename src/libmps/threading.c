@@ -90,46 +90,43 @@ mps_thread_job_queue_next (mps_status * s, mps_thread_job_queue * q)
   mps_thread_job j;
   pthread_mutex_lock (&q->mutex);
 
+  j.i = 0;
+  j.cluster_item = NULL;
+
   if (q->iter == MPS_THREAD_JOB_EXCEP)
     {
       j.iter = MPS_THREAD_JOB_EXCEP;
-      j.i = 0;
-      j.cluster_item = NULL;
-      pthread_mutex_unlock (&q->mutex);
-      return j;
-    }
-
-  /* Assignin the root */
-  j.i = q->root->k;
-  j.cluster_item = q->cluster_item;
-  j.iter = q->iter;
-
-  /* Get the next element of the cluster, incrementing the queue */
-  q->root = q->root->next ;
-
-  /* Check if the previous one was the last element in the
-   * cluster, and if that's the case pass to the next one. */
-  if (q->root == NULL)
-    {
-      q->cluster_item = q->cluster_item->next;
-      if (q->cluster_item == NULL)
-	q->cluster_item = s->clusterization->first;
-      q->root = q->cluster_item->cluster->first;
-      
-      j.iter++;
-
-      /* Check if maximum number of iteration was reached and
-       * if that was the case set j->iter to MPS_THREAD_JOB_EXCEP.  */
-      if (j.iter == q->max_iter)
-        {
-          j.iter = MPS_THREAD_JOB_EXCEP;
-          q->iter = MPS_THREAD_JOB_EXCEP;
-          pthread_mutex_unlock (&q->mutex);
-          return j;
-        }
     }
   else
-    j.iter = q->iter;
+    {
+      /* Assigning the root */
+      j.i = q->root->k;
+      j.cluster_item = q->cluster_item;
+      j.iter = q->iter;
+
+      /* Get the next element of the cluster, incrementing the queue */
+      q->root = q->root->next ;
+
+      /* Check if the previous one was the last element in the
+       * cluster, and if that's the case pass to the next one. */
+      if (q->root == NULL)
+	{
+	  q->cluster_item = q->cluster_item->next;
+	  if (q->cluster_item == NULL)
+	    q->cluster_item = s->clusterization->first;
+	  q->root = q->cluster_item->cluster->first;
+      
+	  q->iter++;
+
+	  /* Check if maximum number of iteration was reached and
+	   * if that was the case set j->iter to MPS_THREAD_JOB_EXCEP.  */
+	  if (j.iter == q->max_iter)
+	    {
+	      j.iter = MPS_THREAD_JOB_EXCEP;
+	      q->iter = MPS_THREAD_JOB_EXCEP;
+	    }
+	}
+    }
 
   pthread_mutex_unlock (&q->mutex);
   return j;
