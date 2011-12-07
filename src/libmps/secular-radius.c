@@ -159,7 +159,7 @@ mps_secular_mradii (mps_status * s, rdpe_t * dradii)
   mps_secular_equation * sec = s->secular_equation;
   mpc_t mdiff, msec_ev;
   cdpe_t sec_ev, diff;
-  rdpe_t prod_b, rtmp;
+  rdpe_t prod_b, rtmp, error;
   int i, j;
 
   mpc_init2 (mdiff, s->mpwp);
@@ -188,9 +188,10 @@ mps_secular_mradii (mps_status * s, rdpe_t * dradii)
 	}
 
       /* Evaluate the secular equation on root i */
-      mps_secular_meval (s, sec, s->mroot[i], msec_ev);
+      mps_secular_meval_with_error (s, sec, s->mroot[i], msec_ev, error);
       mpc_get_cdpe (sec_ev, msec_ev);
       cdpe_mod (dradii[i], sec_ev);
+      rdpe_add_eq (dradii[i], error);
 
       if (isnan (dradii[i]->m))
 	{

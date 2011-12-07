@@ -37,7 +37,7 @@ test_secsolve_on_pol (test_pol * pol)
   int i, j, prec = pol->out_digits * LOG2_10 + 10;
   int ch;
 
-  fprintf (stderr, "Checking %-30s [\033[34;1mchecking\033[0m]", pol->pol_file);
+  fprintf (stderr, "Checking \033[1m%-30s\033[0m [\033[34;1mchecking\033[0m]", pol->pol_file + 11);
 
   /* Debug starting of this test */
   /*
@@ -143,9 +143,9 @@ test_secsolve_on_pol (test_pol * pol)
   fclose (check_stream);
 
   if (passed)
-    fprintf (stderr, "\rChecking %-30s [\033[32;1m  done  \033[0m]\n", pol->pol_file);
+    fprintf (stderr, "\rChecking \033[1m%-30s\033[0m [\033[32;1m  done  \033[0m]\n", pol->pol_file + 11);
   else
-    fprintf (stderr, "\rChecking %-30s [\033[31;1m failed \033[0m]\n", pol->pol_file);
+    fprintf (stderr, "\rChecking \033[1m%-30s\033[0m [\033[31;1m failed \033[0m]\n", pol->pol_file + 11);
 
   if (getenv ("MPS_VERBOSE_TEST"))
     fail_unless (passed == true,

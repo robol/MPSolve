@@ -43,16 +43,16 @@ test_mpsolve (char * pol_file, char * res_file, mps_algorithm algorithm)
   
   if (!result_stream) 
     {
-      fprintf (stderr, "Checking %-30s \033[31;1mno results file found!\033[0m\n", pol_file); 
+      fprintf (stderr, "Checking \033[1m%-30s\033[0m \033[31;1mno results file found!\033[0m\n", pol_file + 9); 
       return 0;
     }
   if (!s->instr)
     {
-      fprintf (stderr, "Checking %-30s \033[31;1mno polinomial file found!\033[0m\n", pol_file); 
+      fprintf (stderr, "Checking \033[1m%-30s\033[0m \033[31;1mno polinomial file found!\033[0m\n", pol_file + 9); 
       return 0;
     }
   
-  fprintf (stderr, "Checking %-30s [\033[34;1mchecking\033[0m]", pol_file);
+  fprintf (stderr, "Checking \033[1m%-30s\033[0m [\033[34;1mchecking\033[0m]", pol_file + 9);
 
   mps_parse_stream (s, s->instr);
 
@@ -125,9 +125,9 @@ test_mpsolve (char * pol_file, char * res_file, mps_algorithm algorithm)
   mps_status_free (s);
 
   if (passed)
-    fprintf (stderr, "\rChecking %-30s [\033[32;1m  done  \033[0m]\n", pol_file);
+    fprintf (stderr, "\rChecking \033[1m%-30s\033[0m [\033[32;1m  done  \033[0m]\n", pol_file + 9);
   else
-    fprintf (stderr, "\rChecking %-30s [\033[31;1m failed \033[0m]\n", pol_file);
+    fprintf (stderr, "\rChecking \033[1m%-30s\033[0m [\033[31;1m failed \033[0m]\n", pol_file + 9);
 
   return passed;
 }

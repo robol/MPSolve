@@ -151,3 +151,47 @@ mps_secular_meval (mps_status * s, mps_secular_equation * sec, mpc_t x, mpc_t va
   
   mpc_clear (ctmp);
 }
+
+/**
+ * @brief Evaluate a secular equation <code>sec</code> in the point <code>x</code>.
+ *
+ * @param s The <code>mps_status</code> of the computation.
+ * @param sec The secular equation to evaluate.
+ * @param x The point in which the sceular equation must be evaluated.
+ * @param value The value of the secular equation in the point <code>x</code>.
+ * @param error A bound to the absolute value of the error introduced in the computation.
+ */
+void
+mps_secular_meval_with_error (mps_status * s, mps_secular_equation * sec, mpc_t x, mpc_t value, rdpe_t error)
+{
+  mpc_t ctmp;
+  cdpe_t cdtmp;
+  rdpe_t rtmp;
+  unsigned int wp = mpc_get_prec (x);
+  int i;
+
+  mpc_init2  (ctmp, wp);
+  mpc_set_ui (value, 0U, 0U);
+
+  rdpe_set (error, rdpe_zero);
+
+  for (i = 0; i < s->n; ++i)
+    {
+      mpc_sub (ctmp, x, sec->bmpc[i]);
+      mpc_div (ctmp, sec->ampc[i], ctmp);
+      mpc_add_eq (value, ctmp);
+
+      mpc_get_cdpe (cdtmp, ctmp);
+      cdpe_mod (rtmp, cdtmp);
+      rdpe_add_eq (error, rtmp);
+    }
+  
+  mpc_sub_eq_ui (value, 1U, 0U);
+  rdpe_add_eq (error, rdpe_one);
+
+  rdpe_mul_eq (error, s->mp_epsilon);
+  rdpe_mul_eq_d (error, 4.0f);
+  
+  mpc_clear (ctmp);
+}
+
