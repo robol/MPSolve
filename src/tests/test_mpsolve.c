@@ -182,7 +182,6 @@ main (int argc, char ** argv)
   TEST_UNISOLVE ("lar1");
   TEST_UNISOLVE ("spiral20");
   TEST_UNISOLVE ("wilk20");
-  TEST_UNISOLVE ("mand255");
   TEST_UNISOLVE ("test");
   TEST_UNISOLVE ("lar1_200");
   TEST_UNISOLVE ("kam1_3");
