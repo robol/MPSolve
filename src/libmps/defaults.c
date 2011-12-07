@@ -139,4 +139,6 @@ mps_set_default_values (mps_status * s)
 
   char * t = "";
   mps_parse_opts (s, 1, &t);
+
+  s->over_max = false;
 }

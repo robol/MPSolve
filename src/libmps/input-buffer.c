@@ -54,7 +54,7 @@ mps_input_buffer_free (mps_input_buffer * buffer)
 void
 mps_input_buffer_set_history_size (mps_input_buffer * buffer, size_t size)
 {
-  // TODO: Implement this
+  /* TODO: Implement this */
 }
 
 /**

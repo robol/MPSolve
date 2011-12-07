@@ -225,7 +225,6 @@ mps_fhorner (mps_status * s, mps_monomial_poly * p, cplx_t x, cplx_t value)
  * @param p The <code>mps_monomial_poly</code> to evaluate.
  * @param z The point where the polynomial will be evaluated.
  * @param value The value computed by the function.
- * @param error A bound to the absolute error of the computation.
  */
 void
 mps_fhorner_with_error (mps_status * s, mps_monomial_poly * p, cplx_t x, cplx_t value, double * error)

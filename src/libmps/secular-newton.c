@@ -5,8 +5,9 @@
  *      Author: leonardo
  */
 
+#include <mps/types.h>
 #include <mps/secular.h>
-#include <mps/interface.h>
+#include <mps/core.h>
 #include <mps/link.h>
 #include <mps/debug.h>
 #include <limits.h>
@@ -21,14 +22,13 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
 {
   int i;
   cplx_t ctmp, ctmp2, pol, fp, sumb;
-  double apol, prod_b = 1.0, new_rad;
-  double asum = 0.0f;
+  double apol, prod_b = 1.0, new_rad = 0.0f;
+  double asum = 0.0f, asum_on_apol;
   mps_secular_iteration_data * data = user_data;
+  mps_secular_equation *sec = (mps_secular_equation *) s->secular_equation;
 
   /* First set again to true */
   *again = true;
-
-  mps_secular_equation *sec = (mps_secular_equation *) s->secular_equation;
 
   cplx_set (pol, cplx_zero);
   cplx_set (fp, cplx_zero);
@@ -80,27 +80,6 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
   /* Compute secular function */
   cplx_sub_eq (pol, cplx_one);
 
-  /* Cfr it with the evaluation of the polynomial  */
-  /* mps_monomial_poly * p = s->monomial_poly;  */
-  /* cplx_set (ctmp, p->fpc[s->n]);  */
-  /* for (i = s->n - 1; i >= 0; i--)  */
-  /*   {  */
-  /*     cplx_mul_eq (ctmp, x);  */
-  /*     cplx_add_eq (ctmp, p->fpc[i]);  */
-  /*   }  */
-  /* cplx_div_eq (ctmp, p->fpc[s->n]);  */
-  /* for (i = 0; i < s->n; i++)  */
-  /*   {  */
-  /*     cplx_sub (ctmp2, x, sec->bfpc[i]);  */
-  /*     cplx_div_eq (ctmp, ctmp2);  */
-  /*   }  */
-  /* cplx_set (ctmp2, cplx_zero);  */
-  /* cplx_Re (ctmp2) = -1.0f;  */
-  /* cplx_mul_eq (ctmp, ctmp2);  */
-
-  /* MPS_DEBUG_CPLX (s, pol, "pol");  */
-  /* MPS_DEBUG_CPLX (s, ctmp, "horner_pol");  */
-
   /* Compute the module of pol */
   apol = cplx_mod (pol);
 
@@ -123,7 +102,7 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
   else
     cplx_div (corr, pol, corr);
 
-  double asum_on_apol = asum / apol;
+  asum_on_apol = asum / apol;
 
   /* If the approximation falls in the root neighbourhood then we can stop */
   if ((asum_on_apol + 1) * MPS_2SQRT2 * DBL_EPSILON > 1 ||
@@ -205,19 +184,15 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
           g_corr = cplx_mod (ssp) / sigma;
 	  new_rad = g_corr * s->n;
         }
+
+      /* Computation of radius with Gerschgorin */
+      new_rad += cplx_mod (x) * DBL_EPSILON;
+
+      /* Correct the old radius with the move that we are doing
+       * and check if the new proposed radius is preferable. */
+      if (new_rad < *rad || (*rad == 0) || (!data))
+	*rad = new_rad;
     }
-
-
-  /* Computation of radius with Gerschgorin */
-  new_rad += cplx_mod (x) * DBL_EPSILON;
-
-  /* MPS_DEBUG (s, "rad computed: %e", new_rad); */
-  /* MPS_DEBUG_CPLX (s, s->froot[data->k], "s->froot[%d]", data->k); */
-
-  /* Correct the old radius with the move that we are doing
-   * and check if the new proposed radius is preferable. */
-  if (new_rad < *rad || (*rad == 0) || (!data)) 
-     *rad = new_rad;
 }
 
 void

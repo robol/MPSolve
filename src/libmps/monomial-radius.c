@@ -23,7 +23,16 @@ mps_monomial_fradii (mps_status * s, double * fradii)
   for (i = 0; i < s->n; i++)
     {
       cplx_t diff;
+      
+      /* Compute the value of the polynomial in this point */
       mps_fhorner_with_error (s, s->monomial_poly, s->froot[i], pol, &relative_error);
+
+      /* If we got a floating point exception, we need to switch to DPE on this component */
+      if (cplx_check_fpe (pol))
+	{
+	  s->status[i][0] = 'f';
+	  continue;
+	}
       new_rad = cplx_mod (pol) + relative_error + cplx_mod (s->froot[i]) * 4.0 * DBL_EPSILON;
 
       for (j = 0; j < s->n; j++)

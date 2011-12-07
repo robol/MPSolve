@@ -21,7 +21,6 @@
 #include <mps/interface.h>
 #include <fenv.h>
 
-
 /**
  * @brief Main routine of the program that implements the algorithm
  * in the standard polynomial version.
@@ -43,10 +42,10 @@ mps_standard_mpsolve (mps_status * s)
 {
   int i, nzc;
   char which_case;
-  mps_boolean d_after_f, computed, over_max;
+  mps_boolean d_after_f, computed;
   clock_t *my_timer = mps_start_timer ();
 
-  // feenableexcept (FE_INVALID|FE_DIVBYZERO|FE_OVERFLOW);
+  /* feenableexcept (FE_INVALID|FE_DIVBYZERO|FE_OVERFLOW); */
 
   mps_allocate_data (s);
 
@@ -59,7 +58,7 @@ mps_standard_mpsolve (mps_status * s)
 
   s->lastphase = no_phase;
   computed = false;
-  over_max = false;
+  s->over_max = false;
 
   /* == 2 ==  Resume from pre-computed roots */
   if (s->resume)                /* to complete */
@@ -175,7 +174,7 @@ mps_standard_mpsolve (mps_status * s)
       if (s->mpwp > s->mpwp_max)
         {
           s->mpwp = s->mpwp_max;
-          over_max = true;
+          s->over_max = true;
         }
 
       if (s->DOLOG)
@@ -218,16 +217,16 @@ mps_standard_mpsolve (mps_status * s)
   /* == 8 ==  Check for termination */
   if (!computed)
     {
-      if (over_max)
+      if (s->over_max)
 	{
 	  s->over_max = true;
-	  // mps_error (s, 1, "Reached the maximum working precision");
+	  /* mps_error (s, 1, "Reached the maximum working precision"); */
 	  MPS_DEBUG (s, "Reached the maximum working precision");
 	  goto exit_sub;
 	}
       else
 	{
-	  // mps_warn (s, "Reached the input precision");
+	  /* mps_warn (s, "Reached the input precision"); */
 	  MPS_DEBUG (s, "Reached the input precision");
 	  goto exit_sub;
 	}
@@ -242,7 +241,7 @@ exit_sub:
       mps_error (s, 1, "Unable to compute inclusion disks");
 
   /* == 10 ==  Refine roots */
-  if (computed && !over_max && s->goal[0] == 'a')
+  if (computed && !s->over_max && s->goal[0] == 'a')
     {
       s->lastphase = mp_phase;
       mps_improve (s);

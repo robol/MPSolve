@@ -269,25 +269,10 @@ mps_clusterization_free (mps_status * s, mps_clusterization * c)
 void
 mps_cluster_reset (mps_status * s)
 {
-  /* int i; */
-  /* for (i = 0; i < s->n; i++) */
-  /*     s->clust[i] = i; */
-
-  /* for(i = 0; i <= s->n; i++) */
-  /*   { */
-  /*     s->punt[i] = 0; */
-  /*     s->oldpunt[i] = 0; */
-  /*   } */
-
-  /* /\* Reset delimiters *\/ */
-  /* s->punt[0] = 0; */
-  /* s->punt[1] = s->n; */
-  /* s->oldpunt[0] = 0; */
-  /* s->oldpunt[1] = s->n; */
-  /* s->nclust = 1; */
-
-  /* /\* Reset cluster status of the roots *\/ */
+  /* Reset cluster status of the roots */ 
   int i;
+  mps_cluster * cluster;
+
   for (i = 0; i < s->n; i++) 
     { 
       s->status[i][0] = 'c'; 
@@ -300,7 +285,7 @@ mps_cluster_reset (mps_status * s)
   s->clusterization = mps_clusterization_empty (s);
 
   /* Fill in the roots */
-  mps_cluster * cluster = mps_cluster_empty (s);
+  cluster = mps_cluster_empty (s);
   for (i = 0; i < s->n; i++)
     mps_cluster_insert_root (s, cluster, i);
 
@@ -337,6 +322,7 @@ mps_fcluster (mps_status * s, double * frad, int nf)
   /* We need to scan every cluster and make it in pieces, if possible */
   mps_clusterization * new_clusterization = mps_clusterization_empty (s);
   mps_cluster_item * item;
+  int analyzed_roots = 0;
 
   /* Debug clusterization status if debugging was required */
   if (s->debug_level & MPS_DEBUG_CLUSTER)
@@ -353,11 +339,11 @@ mps_fcluster (mps_status * s, double * frad, int nf)
       mps_debug_cluster_structure (s);
     }
 
-  int analyzed_roots = 0;
-
-  for (item = s->clusterization->first; item != NULL; item = item->next)
+  item = s->clusterization->first;
+  while (item)
     {
       mps_cluster * cluster = item->cluster;
+      mps_cluster_item * next_item = item->next;
 
       /* Keep isolated cluster isolated, moving them in the new clusterization. */
       if (cluster->n == 1)
@@ -377,6 +363,8 @@ mps_fcluster (mps_status * s, double * frad, int nf)
 	  mps_clusterization_remove_cluster (s, s->clusterization, item);
 	  analyzed_roots++;
 	}
+
+      item = next_item;
     }
 
   /* Now do cluster analysis with the rest of the clusters. */
@@ -476,9 +464,11 @@ mps_dcluster (mps_status * s, rdpe_t * drad, int nf)
 
   int analyzed_roots = 0;
 
-  for (item = s->clusterization->first; item != NULL; item = item->next)
+  item = s->clusterization->first;
+  while (item)
     {
       mps_cluster * cluster = item->cluster;
+      mps_cluster_item * next_item = item->next;
 
       /* Keep isolated cluster isolated, moving them in the new clusterization. */
       if (cluster->n == 1)
@@ -500,6 +490,8 @@ mps_dcluster (mps_status * s, rdpe_t * drad, int nf)
 	  mps_clusterization_remove_cluster (s, s->clusterization, item);
 	  analyzed_roots++;
 	}
+
+      item = next_item;
     }
 
   /* Now do cluster analysis with the rest of the clusters. */
@@ -647,13 +639,15 @@ mps_mcluster (mps_status * s, rdpe_t * drad, int nf)
 
   int analyzed_roots = 0;
 
-  for (item = s->clusterization->first; item != NULL; item = item->next)
+  item = s->clusterization->first;
+  while (item != NULL)
     {
       mps_cluster * cluster = item->cluster;
+      mps_cluster_item * next_item = item->next;
 
       /* Keep isolated cluster isolated, moving them in the new clusterization. */
       if (cluster->n == 1)
-	{	  
+	{
 	  int k = cluster->first->k;
 	  cdpe_t c;
 	  rdpe_t new_rad;
@@ -674,6 +668,8 @@ mps_mcluster (mps_status * s, rdpe_t * drad, int nf)
 	  mps_clusterization_remove_cluster (s, s->clusterization, item);
 	  analyzed_roots++;
 	}
+
+      item = next_item;
     }
 
   /* Now do cluster analysis with the rest of the clusters. */

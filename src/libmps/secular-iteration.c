@@ -18,15 +18,12 @@
 int
 mps_secular_ga_fiterate (mps_status * s, int maxit, mps_boolean just_regenerated)
 {
-  MPS_DEBUG_THIS_CALL;
-
   int computed_roots = 0;
   int iterations = 0;
   int i;
   int nit = 0;
   int it_threshold;
   mps_secular_iteration_data data;
-
   double * fradii = double_valloc (s->n);
 
 #ifndef DISABLE_DEBUG
@@ -34,6 +31,8 @@ mps_secular_ga_fiterate (mps_status * s, int maxit, mps_boolean just_regenerated
 #endif
 
   mps_secular_equation *sec = s->secular_equation;
+
+  MPS_DEBUG_THIS_CALL;
 
   sec->best_approx = false;
 
@@ -220,8 +219,6 @@ mps_secular_ga_fiterate (mps_status * s, int maxit, mps_boolean just_regenerated
 int
 mps_secular_ga_diterate (mps_status * s, int maxit, mps_boolean just_regenerated)
 {
-  MPS_DEBUG_THIS_CALL;
-
   int computed_roots = 0;
   int iterations = 0;
   int i;
@@ -230,14 +227,16 @@ mps_secular_ga_diterate (mps_status * s, int maxit, mps_boolean just_regenerated
   mps_secular_equation *sec = s->secular_equation;
   mps_secular_iteration_data data;
   rdpe_t * drad = rdpe_valloc (s->n);
+  rdpe_t * old_radii = rdpe_valloc (s->n);
 
 #ifndef DISABLE_DEBUG
   clock_t *my_clock = mps_start_timer ();
 #endif
 
+  MPS_DEBUG_THIS_CALL;
+
   sec->best_approx = false;
 
-  rdpe_t * old_radii = rdpe_valloc (s->n);
   memcpy (old_radii, s->drad, s->n * sizeof (__rdpe_struct));
 
   /* Iterate with newton until we have good approximations
@@ -280,6 +279,8 @@ mps_secular_ga_diterate (mps_status * s, int maxit, mps_boolean just_regenerated
         {
           if (s->again[i])
             {
+	      rdpe_t rtmp;
+
 	      if (cdpe_eq (s->droot[i], sec->bdpc[i]))
 		continue;
               nit++;
@@ -307,7 +308,6 @@ mps_secular_ga_diterate (mps_status * s, int maxit, mps_boolean just_regenerated
               else
                   s->again[i] = true;
 
-	      rdpe_t rtmp;
 	      cdpe_mod (rtmp, s->droot[i]);
 	      rdpe_mul_eq_d (rtmp, 8.0 * DBL_EPSILON);
 	      if (rdpe_lt (modcorr, rtmp))
@@ -383,11 +383,6 @@ mps_secular_ga_diterate (mps_status * s, int maxit, mps_boolean just_regenerated
 int
 mps_secular_ga_miterate (mps_status * s, int maxit, mps_boolean just_regenerated)
 {
-  MPS_DEBUG_THIS_CALL;
-
-  MPS_DEBUG_WITH_INFO (s, "Precision is at %ld bits", s->mpwp);
-  MPS_DEBUG_RDPE (s, s->mp_epsilon, "Machine epsilon is s->mp_epsilon");
-
   int computed_roots = 0;
   int iterations = 0;
   int i, k;
@@ -413,6 +408,11 @@ mps_secular_ga_miterate (mps_status * s, int maxit, mps_boolean just_regenerated
   mps_cluster_item * c_item;
   mps_cluster * cluster;
   mps_root * root;
+
+  MPS_DEBUG_WITH_INFO (s, "Precision is at %ld bits", s->mpwp);
+  MPS_DEBUG_RDPE (s, s->mp_epsilon, "Machine epsilon is s->mp_epsilon");
+
+  MPS_DEBUG_THIS_CALL;
 
   /* Init data with the right precision */
   mpc_init2 (corr, s->mpwp);
@@ -440,7 +440,7 @@ mps_secular_ga_miterate (mps_status * s, int maxit, mps_boolean just_regenerated
 
   if (s->debug_level & MPS_DEBUG_APPROXIMATIONS) 
     {
-      MPS_DEBUG_WITH_INFO (s, "%d roots are already approximated on the start of miterate", computed_roots)
+      MPS_DEBUG_WITH_INFO (s, "%d roots are already approximated on the start of miterate", computed_roots);
     }
 
   /* Set the iteration threshold to two times the remaining roots
