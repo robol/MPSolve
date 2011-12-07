@@ -12,6 +12,18 @@
 #define TEST_SECSOLVE_SECULAR(pol_name) (test_mpsolve ("secsolve/" pol_name ".pol", "../results/secsolve/" pol_name ".res", MPS_ALGORITHM_SECULAR_MPSOLVE))
 #define TEST_SECSOLVE_MONOMIAL(pol_name) (test_mpsolve ("unisolve/" pol_name ".pol", "../results/unisolve/" pol_name ".res", MPS_ALGORITHM_SECULAR_GA))
 
+void
+test_header (const char * header, const char * description)
+{
+  fprintf (stderr, "\n *** \033[1mTEST:\033[0m \033[34;1m%s\033[0m *** \n", header);
+  if (description)
+    {
+      fprintf (stderr, " %s\n\n", description);
+    }
+  else
+    fprintf (stderr, "\n");
+}
+
 int 
 test_mpsolve (char * pol_file, char * res_file, mps_algorithm algorithm)
 {
@@ -49,18 +61,19 @@ test_mpsolve (char * pol_file, char * res_file, mps_algorithm algorithm)
 
   /* Solve it */
   mps_status_select_algorithm (s, algorithm);
-  mps_mpsolve (s); 
+  mps_mpsolve (s);
   
   mpc_init2 (root, s->data_prec_max);
   mpc_init2 (ctmp, s->data_prec_max);
     
   /* Test if roots are equal to the roots provided in the check */   
-  passed = true;   
+  passed = true;
+
   for (i = 0; i < s->n; i++)   
     {   
       rdpe_t rtmp;   
       cdpe_t cdtmp;   
-      rdpe_t min_dist;   
+      rdpe_t min_dist;
       
       while (isspace (ch = getc (result_stream)));   
       ungetc (ch, result_stream);   
@@ -79,17 +92,30 @@ test_mpsolve (char * pol_file, char * res_file, mps_algorithm algorithm)
      	  mpc_get_cdpe (cdtmp, ctmp);   
      	  cdpe_mod (rtmp, cdtmp);   
 	  
-     	  if (rdpe_le (rtmp, min_dist))   
-     	    {   
-     	      rdpe_set (min_dist, rtmp);   
-     	    }   
+     	  if (rdpe_le (rtmp, min_dist))
+	    rdpe_set (min_dist, rtmp);
 	}
 
-      if (rdpe_le (min_dist, s->drad[i]) || s->over_max)   
-	{   
-	  passed = true;   
+      /* printf ("min_dist_%d = ", i); */
+      /* rdpe_out_str (stdout, min_dist); */
+      /* printf ("\nrad_%d", i); */
+      /* rdpe_out_str (stdout, s->drad[i]); */
+      /* printf ("\n"); */
+      
+      if (rdpe_le (min_dist, s->drad[i]) || s->over_max)
+	passed = true;
+      else
+	{
+	  if (getenv ("MPS_VERBOSE_DEBUG"))
+	    {
+	      printf("Failing on root %d, with min_dist = ", i);
+	      rdpe_out_str (stdout, min_dist);
+	      printf("\ndrad_%d", i);
+	      rdpe_out_str (stdout, s->drad[i]);
+	      printf("\n");
+	    }
 	}
-    }   
+    }
   
   fclose (result_stream);    
   
@@ -132,34 +158,67 @@ abortfn (enum mcheck_status status)
 int
 main (int argc, char ** argv)
 {
+  test_header ("Unisolve - Classic approach", 
+	       "Testing polynomial solving with MPSolve classic approach");
 
-  /* TEST_UNISOLVE ("nroots50");   */
-  /* TEST_UNISOLVE ("nroots50"); */
-  /* TEST_UNISOLVE ("nroots50");   */
-  TEST_UNISOLVE ("nroots50");      
-  TEST_UNISOLVE ("mig1_200");
+  /* Some unisolve tests */
   TEST_UNISOLVE ("mand63");
+  TEST_UNISOLVE ("kam2_1");
+  TEST_UNISOLVE ("kir1_10");
+  TEST_UNISOLVE ("nroots50");
+  TEST_UNISOLVE ("wilk40");
+  TEST_UNISOLVE ("lar3");
+  TEST_UNISOLVE ("trv_m");
+  TEST_UNISOLVE ("lar2");
+  TEST_UNISOLVE ("toep1_128");
+  TEST_UNISOLVE ("mult1");
+  TEST_UNISOLVE ("exp50");
   TEST_UNISOLVE ("mand127");
+  TEST_UNISOLVE ("kam3_2");
+  TEST_UNISOLVE ("kam3_3");
+  TEST_UNISOLVE ("umand31");
+  TEST_UNISOLVE ("kam1_2");
+  TEST_UNISOLVE ("kam4");
+  TEST_UNISOLVE ("lar1");
+  TEST_UNISOLVE ("spiral20");
+  TEST_UNISOLVE ("wilk20");
+  TEST_UNISOLVE ("mand255");
+  TEST_UNISOLVE ("test");
+  TEST_UNISOLVE ("lar1_200");
+  TEST_UNISOLVE ("kam1_3");
+  TEST_UNISOLVE ("kam3_1");
+  TEST_UNISOLVE ("kam2_2");
+  TEST_UNISOLVE ("exp100");
+  TEST_UNISOLVE ("kam1_1");
+  TEST_UNISOLVE ("kam2_3");
+  TEST_UNISOLVE ("mig1_100");
+  TEST_UNISOLVE ("wilk80");
+  TEST_UNISOLVE ("mig1_200");
+  TEST_UNISOLVE ("lsr_24");
 
-  /* TEST_SECSOLVE_SECULAR ("rand120"); */
-  /* TEST_SECSOLVE_SECULAR ("rand120"); */
-  /* TEST_SECSOLVE_SECULAR ("rand120"); */
-  /* TEST_SECSOLVE_SECULAR ("rand15"); */
-  /* TEST_SECSOLVE_SECULAR ("rand120"); */
-  /* TEST_SECSOLVE_SECULAR ("rand120"); */
+  test_header ("Secsolve - Solving secular equation", 
+	       "Solving secular equation using MPSolve user-polynomial feature");
+
+  /* Normal secular tests */
+  TEST_SECSOLVE_SECULAR ("rand120");
+  TEST_SECSOLVE_SECULAR ("rand15");
+
+  test_header ("Secsolve - Solving polynomials", 
+	       "Solving polynomials by representing them as secular equations");
 
   /* Roots of unity   */
-  TEST_SECSOLVE_MONOMIAL ("nroots50");    
+  TEST_SECSOLVE_MONOMIAL ("nroots50");
 
   /* Mandelbrot polynomials   */
-  TEST_SECSOLVE_MONOMIAL ("mand63");    
-  TEST_SECSOLVE_MONOMIAL ("mand127");  
+  TEST_SECSOLVE_MONOMIAL ("mand63");
+  TEST_SECSOLVE_MONOMIAL ("mand127");
 
-  /* Mignotte polynomials */  
-  TEST_SECSOLVE_MONOMIAL ("mig1_100");  
-  TEST_SECSOLVE_MONOMIAL ("mig1_200");  
+  /* Mignotte polynomials */
+  TEST_SECSOLVE_MONOMIAL ("mig1_100");
+  TEST_SECSOLVE_MONOMIAL ("mig1_200");
 
   /* Wilkinson polynomials */  
-  TEST_SECSOLVE_MONOMIAL ("wilk20");  
-  TEST_SECSOLVE_MONOMIAL ("wilk40");  
+  TEST_SECSOLVE_MONOMIAL ("wilk20");
+  TEST_SECSOLVE_MONOMIAL ("wilk40");
+  TEST_SECSOLVE_MONOMIAL ("wilk80");
 }

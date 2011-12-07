@@ -13,7 +13,6 @@ typedef struct mps_cluster_item mps_cluster_item;
 typedef struct mps_clusterization mps_clusterization;
 
 #include <mps/types.h>
-#include <mps/core.h>
 
 /**
  * @brief This struct represent a root inside of a <code>mps_cluster</code>.
