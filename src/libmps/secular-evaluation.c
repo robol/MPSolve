@@ -87,6 +87,42 @@ mps_secular_deval (mps_status * s, mps_secular_equation * sec, cdpe_t x, cdpe_t 
 }
 
 /**
+ * @brief Evaluate a secular equation <code>sec</code> in the point <code>x</code>
+ *
+ * @param s The <code>mps_status</code> of the computation.
+ * @param sec The secular equation to evaluate.
+ * @param x The point in which the secular equation must be evaluated.
+ * @param value The value of the secular equation in the point <code>x</code>.
+ * @param error A bound to the module of the relative error occurred in the computation.
+ */
+void
+mps_secular_deval_with_error (mps_status * s, mps_secular_equation * sec, 
+			      cdpe_t x, cdpe_t value, rdpe_t error)
+{
+  cdpe_t ctmp;
+  rdpe_t rtmp;
+  int i;
+
+  cdpe_set (value, cdpe_zero);
+  rdpe_set (error, rdpe_zero);
+
+  for (i = 0; i < s->n; i++)
+    {
+      cdpe_sub (ctmp, x, sec->bdpc[i]);
+      cdpe_div (ctmp, sec->adpc[i], ctmp);
+      cdpe_mod (rtmp, ctmp);
+      cdpe_add_eq (value, ctmp);
+      rdpe_add_eq (error, rtmp);
+    }
+
+  cdpe_sub_eq (value, cdpe_one);
+  rdpe_add_eq (error, rdpe_one);
+
+  rdpe_mul_eq_d (error, 4.0f * DBL_EPSILON);
+}
+
+
+/**
  * @brief Evaluate a secular equation <code>sec</code> in the point <code>x</code>.
  *
  * @param s The <code>mps_status</code> of the computation.

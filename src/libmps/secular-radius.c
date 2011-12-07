@@ -90,7 +90,7 @@ mps_secular_dradii (mps_status * s, rdpe_t * dradii)
 
   mps_secular_equation * sec = s->secular_equation;
   cdpe_t sec_ev, diff;
-  rdpe_t prod_b, rtmp;
+  rdpe_t prod_b, rtmp, error;
   int i, j;
 
   for (i = 0; i < s->n; ++i)
@@ -98,10 +98,7 @@ mps_secular_dradii (mps_status * s, rdpe_t * dradii)
       rdpe_set (prod_b, rdpe_one);
 
       /* If we have that the root is isolated we can simply ignore it, performing
-       * a sort of cluster analysis deflation. 
-       * Because of this we can not bother to compute the inclusion radius and
-       * set it to zero. */
-      /* TODO: Check that this is correct. */
+       * a sort of cluster analysis deflation. */
       if (s->status[i][0] == 'a' || s->status[i][0] == 'i')
 	{
 	  rdpe_set (dradii[i], RDPE_MAX);
@@ -109,8 +106,9 @@ mps_secular_dradii (mps_status * s, rdpe_t * dradii)
 	}
 
       /* Evaluate the secular equation on root i */
-      mps_secular_deval (s, sec, s->droot[i], sec_ev);
+      mps_secular_deval_with_error (s, sec, s->droot[i], sec_ev, error);
       cdpe_mod (dradii[i], sec_ev);
+      rdpe_add_eq (dradii[i], error);
 
       if (isnan (dradii[i]->m))
 	{

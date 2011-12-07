@@ -134,6 +134,7 @@ extern "C"
   void mps_secular_feval (mps_status * s, mps_secular_equation * sec, cplx_t x, cplx_t value);
   void mps_secular_feval_with_error (mps_status * s, mps_secular_equation * sec, cplx_t x, cplx_t value, double * error);
   void mps_secular_deval (mps_status * s, mps_secular_equation * sec, cdpe_t x, cdpe_t value);
+  void mps_secular_deval_with_error (mps_status * s, mps_secular_equation * sec, cdpe_t x, cdpe_t value, rdpe_t error);
   void mps_secular_meval (mps_status * s, mps_secular_equation * sec, mpc_t x, mpc_t value);
   
   /* Function in getopts.c */
