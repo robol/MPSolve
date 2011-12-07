@@ -23,7 +23,7 @@ AC_PROG_CC
 AM_PROG_CC_C_O
 AC_PROG_CC_C99
 
-GENERAL_CFLAGS=" -DNOMPTEMP -D_REENTRANT -Wstrict-prototypes -Wall -Werror"
+GENERAL_CFLAGS="-DNOMPTEMP -D_REENTRANT -Wstrict-prototypes -Wall -Werror $CFLAGS"
 GENERAL_LIBS=""
 
 # Determine CFLAGS based on the options that the user has specified.
@@ -153,6 +153,7 @@ MPSolve configuration:
 
         Source location:	${srcdir}
         C compiler:		${CC}
+	CFLAGS:			${MPS_CFLAGS}
         Debug enabled:		$enable_debug
         Check enabled:		$enable_check"
 

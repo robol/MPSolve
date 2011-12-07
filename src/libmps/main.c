@@ -19,7 +19,11 @@
 #include <float.h>
 #include <mps/core.h>
 #include <mps/interface.h>
+
+#ifdef MPS_CATCH_FPE
 #include <fenv.h>
+int feenableexcept(int excepts);
+#endif
 
 /**
  * @brief Main routine of the program that implements the algorithm
@@ -45,7 +49,9 @@ mps_standard_mpsolve (mps_status * s)
   mps_boolean d_after_f, computed;
   clock_t *my_timer = mps_start_timer ();
 
-  /* feenableexcept (FE_INVALID|FE_DIVBYZERO|FE_OVERFLOW); */
+#ifdef MPS_CATCH_FPE
+  feenableexcept (FE_INVALID|FE_DIVBYZERO|FE_OVERFLOW); 
+#endif
 
   mps_allocate_data (s);
 
