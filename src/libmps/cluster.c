@@ -351,12 +351,12 @@ mps_fcluster (mps_status * s, double * frad, int nf)
 	  int k = cluster->first->k;
 	  double new_rad;
 
-	  new_rad = cplx_mod (s->froot[k]) * 4.0f * DBL_EPSILON + frad[k];
+	  new_rad = cplx_mod (s->froot[k]) * 4.0f * DBL_EPSILON + frad[k]; 
 
-	  /* Check if the computed radius is more convenient than the old one.
-	     If that's the case, apply it as inclusion radius */
-	  if (new_rad < s->frad[k])
-	      s->frad[k] = new_rad;
+	  /* Check if the computed radius is more convenient than the old one. 
+	     If that's the case, apply it as inclusion radius */ 
+	  if (new_rad < s->frad[k]) 
+	    s->frad[k] = new_rad; 
 
 	  mps_clusterization_insert_cluster (s, new_clusterization,
 					     mps_cluster_with_root (s, k));

@@ -20,7 +20,7 @@ mps_secular_fradii (mps_status * s, double * fradii)
 
   mps_secular_equation * sec = s->secular_equation;
   cplx_t sec_ev, diff;
-  double prod_b;
+  double prod_b, error;
   int i, j;
 
   for (i = 0; i < s->n; ++i)
@@ -34,13 +34,13 @@ mps_secular_fradii (mps_status * s, double * fradii)
       /* TODO: Check that this is correct. */
       if (s->status[i][0] == 'a' || s->status[i][0] == 'i')
 	{
-	  fradii[i] = 0;
+	  fradii[i] = DBL_MAX;
 	  continue;
 	}
 
       /* Evaluate the secular equation on root i */
-      mps_secular_feval (s, sec, s->froot[i], sec_ev);
-      fradii[i] = cplx_mod (sec_ev);
+      mps_secular_feval_with_error (s, sec, s->froot[i], sec_ev, &error);
+      fradii[i] = cplx_mod (sec_ev) + error;
 
       if (isnan (fradii[i]))
 	{
@@ -104,10 +104,9 @@ mps_secular_dradii (mps_status * s, rdpe_t * dradii)
       /* TODO: Check that this is correct. */
       if (s->status[i][0] == 'a' || s->status[i][0] == 'i')
 	{
-	  rdpe_set (dradii[i], rdpe_zero);
+	  rdpe_set (dradii[i], RDPE_MAX);
 	  continue;
 	}
-
 
       /* Evaluate the secular equation on root i */
       mps_secular_deval (s, sec, s->droot[i], sec_ev);
@@ -179,7 +178,7 @@ mps_secular_mradii (mps_status * s, rdpe_t * dradii)
       /* TODO: Check that this is correct. */
       if (s->status[i][0] == 'a' || s->status[i][0] == 'i')
 	{
-	  rdpe_set (dradii[i], rdpe_zero);
+	  rdpe_set (dradii[i], RDPE_MAX);
 	  continue;
 	}
 
