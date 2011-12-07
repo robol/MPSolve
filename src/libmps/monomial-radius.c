@@ -30,7 +30,8 @@ mps_monomial_fradii (mps_status * s, double * fradii)
       /* If we got a floating point exception, we need to switch to DPE on this component */
       if (cplx_check_fpe (pol))
 	{
-	  s->status[i][0] = 'f';
+	  s->status[i][0] = 'x';
+	  fradii[i] = DBL_MAX;
 	  continue;
 	}
       new_rad = cplx_mod (pol) + relative_error + cplx_mod (s->froot[i]) * 4.0 * DBL_EPSILON;
