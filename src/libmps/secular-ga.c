@@ -342,7 +342,8 @@ mps_secular_ga_mpsolve (mps_status * s)
   for (i = 0; i < s->n; i++)
     {
       s->frad[i] = DBL_MAX;
-      rdpe_set (s->drad[i], RDPE_MAX);
+      // rdpe_set (s->drad[i], RDPE_MAX);
+      rdpe_set_d (s->drad[i], DBL_MAX);
     }
   
   /* Set initial cluster structure as no cluster structure. */
