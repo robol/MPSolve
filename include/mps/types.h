@@ -92,6 +92,12 @@ extern "C"
      * <code>mps_input_buffer_readline()</code>
      */
     char *line;
+
+    /**
+     * @brief Number of the last read line, the one that
+     * is stored in line field.
+     */
+    long int line_number;
     
     /**
      * @brief Lines that have been read before this. 

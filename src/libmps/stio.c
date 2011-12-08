@@ -36,14 +36,15 @@ mps_skip_comments (FILE * input_stream)
 }
 
 void
-mps_raise_parsing_error (mps_status * s, const char * token, 
+mps_raise_parsing_error (mps_status * s, mps_input_buffer * buffer, 
+			 const char * token, 
 			 const char * message)
 {
   if (!token)
     mps_error (s, 1, message);
 
-  char * output = (char *) mps_malloc (sizeof (char) * (strlen (token) + strlen ("Parsing error near the token: ") + 1));
-  sprintf (output, "Parsing error near the token: %s", token);
+  char * output = (char *) mps_malloc (sizeof (char) * (strlen (token) + 256));
+  sprintf (output, "Parsing error on line %ld near the token: %s", buffer->line_number, token);
 
   mps_error (s, 2, output, message);
   free (output);
@@ -225,14 +226,14 @@ mps_monomial_poly_read_from_stream (mps_status * s,
 	    {
 	      token = mps_input_buffer_next_token (buffer);
 	      if (!token || (mpf_set_str (mpc_Re (poly->mfpc[i]), token, 10) != 0))
-		mps_raise_parsing_error (s, token, "Error parsing coefficients of the polynomial");
+		mps_raise_parsing_error (s, buffer, token, "Error parsing coefficients of the polynomial");
 	      free (token);
 
 	      if (MPS_INPUT_CONFIG_IS_COMPLEX (s->input_config))
 		{
 		  token = mps_input_buffer_next_token (buffer);
 		  if (!token || (mpf_set_str (mpc_Im (poly->mfpc[i]), token, 10) != 0))
-		    mps_raise_parsing_error (s, token, "Error parsing coefficients of the polynomial");
+		    mps_raise_parsing_error (s, buffer, token, "Error parsing coefficients of the polynomial");
 		  free (token);
 		}
 	      else
@@ -246,7 +247,7 @@ mps_monomial_poly_read_from_stream (mps_status * s,
 	    {
 	      token = mps_input_buffer_next_token (buffer);
 	      if (!token || (mpq_set_str (poly->initial_mqp_r[i], token, 10) != 0))
-		mps_raise_parsing_error (s, token, "Error parsing coefficients of the polynomial");
+		mps_raise_parsing_error (s, buffer, token, "Error parsing coefficients of the polynomial");
 	      mpq_canonicalize (poly->initial_mqp_r[i]);
 	      free (token);
       
@@ -254,7 +255,7 @@ mps_monomial_poly_read_from_stream (mps_status * s,
 		{
 		  token = mps_input_buffer_next_token (buffer);
 		  if (!token || (mpq_set_str (poly->initial_mqp_i[i], token, 10) != 0))
-		    mps_raise_parsing_error (s, token, "Error parsing coefficients of the polynomial");
+		    mps_raise_parsing_error (s, buffer, token, "Error parsing coefficients of the polynomial");
 		  mpq_canonicalize (poly->initial_mqp_i[i]);
 		  free (token);
 		}
@@ -278,10 +279,10 @@ mps_monomial_poly_read_from_stream (mps_status * s,
 	{
 	  /* Read the index from the buffer */
 	  if (!sscanf (token, "%d", &i))
-	    mps_raise_parsing_error (s, token, "Error while parsing the degree of a monomial");
+	    mps_raise_parsing_error (s, buffer, token, "Error while parsing the degree of a monomial");
 
 	  if (poly->spar[i])
-	    mps_raise_parsing_error (s, token, "A monomial of the same degree has been inserted twice");
+	    mps_raise_parsing_error (s, buffer, token, "A monomial of the same degree has been inserted twice");
 	  else
 	    poly->spar[i] = true;
 	  free (token);
@@ -290,14 +291,14 @@ mps_monomial_poly_read_from_stream (mps_status * s,
 	    {
 	      token = mps_input_buffer_next_token (buffer);
 	      if (!token || (mpf_set_str (mpc_Re (poly->mfpc[i]), token, 10) != 0))
-		mps_raise_parsing_error (s, token, "Error parsing coefficients of the polynomial");
+		mps_raise_parsing_error (s, buffer, token, "Error parsing coefficients of the polynomial");
 	      free (token);
 	  
 	      if (MPS_INPUT_CONFIG_IS_COMPLEX (s->input_config))
 		{
 		  token = mps_input_buffer_next_token (buffer);
 		  if (!token || (mpf_set_str (mpc_Im (poly->mfpc[i]), token, 10) != 0))
-		    mps_raise_parsing_error (s, token, "Error parsing coefficients of the polynomial");
+		    mps_raise_parsing_error (s, buffer, token, "Error parsing coefficients of the polynomial");
 		  free (token);
 		}
 	      else
@@ -309,7 +310,7 @@ mps_monomial_poly_read_from_stream (mps_status * s,
 
 	      token = mps_input_buffer_next_token (buffer);
 	      if (!token || (mpq_set_str (poly->initial_mqp_r[i], token, 10) != 0))
-		mps_raise_parsing_error (s, token, "Error parsing coefficients of the polynomial");
+		mps_raise_parsing_error (s, buffer, token, "Error parsing coefficients of the polynomial");
 	      mpq_canonicalize (poly->initial_mqp_r[i]);
 	      free (token);
       
@@ -317,7 +318,7 @@ mps_monomial_poly_read_from_stream (mps_status * s,
 		{
 		  token = mps_input_buffer_next_token (buffer);
 		  if (!token || (mpq_set_str (poly->initial_mqp_i[i], token, 10) != 0))
-		    mps_raise_parsing_error (s, token, "Error parsing coefficients of the polynomial");
+		    mps_raise_parsing_error (s, buffer, token, "Error parsing coefficients of the polynomial");
 		  mpq_canonicalize (poly->initial_mqp_i[i]);
 		  free (token);
 		}
@@ -388,7 +389,7 @@ mps_secular_equation_read_from_stream (mps_status * s,
               MPS_DEBUG (s,
                          "Error reading coefficient a[%d] of the secular equation (real part)",
                          i);
-              mps_raise_parsing_error (s, token, 
+              mps_raise_parsing_error (s, buffer, token, 
                          "Error reading some coefficients of the secular equation.\n"
                          "Please check your input file.");
             }
@@ -403,7 +404,7 @@ mps_secular_equation_read_from_stream (mps_status * s,
                   MPS_DEBUG (s,
                              "Error reading coefficient a[%d] of the secular equation (imaginary part)",
                              i);
-                  mps_raise_parsing_error (s, token,
+                  mps_raise_parsing_error (s, buffer, token,
                              "Error reading some coefficients of the secular equation.\n"
                              "Please check your input file.");
                 }
@@ -420,7 +421,7 @@ mps_secular_equation_read_from_stream (mps_status * s,
               MPS_DEBUG (s,
                          "Error reading coefficient b[%d] of the secular equation (real part)",
                          i);
-              mps_raise_parsing_error (s, token,
+              mps_raise_parsing_error (s, buffer, token,
                          "Error reading some coefficients of the secular equation.\n"
                          "Please check your input file.");
             }
@@ -435,7 +436,7 @@ mps_secular_equation_read_from_stream (mps_status * s,
                   MPS_DEBUG (s,
                              "Error reading coefficient b[%d] of the secular equation (imaginary part)",
                              i);
-                  mps_raise_parsing_error (s, token,
+                  mps_raise_parsing_error (s, buffer, token,
                              "Error reading some coefficients of the secular equation.\n"
                              "Please check your input file.");
                 }
@@ -462,7 +463,7 @@ mps_secular_equation_read_from_stream (mps_status * s,
           if (!token || (mpq_set_str (sec->initial_ampqrc[i], token, 10) != 0))
 	    {
 	      MPS_DEBUG (s, "Error reading the coefficients a[%d] of the secular equation (real part)", i);
-	      mps_raise_parsing_error (s, token, 
+	      mps_raise_parsing_error (s, buffer, token, 
 				       "Error reading some coefficients of the secular equation.\nPlease check your input file");
 	    }
           mpq_canonicalize (sec->initial_ampqrc[i]);
@@ -475,7 +476,7 @@ mps_secular_equation_read_from_stream (mps_status * s,
               if (!token || (mpq_set_str (sec->initial_ampqic[i], token, 10) != 0))
 		{	      
 		  MPS_DEBUG (s, "Error reading the coefficients a[%d] of the secular equation (imaginary part)", i);
-		  mps_raise_parsing_error (s, token, 
+		  mps_raise_parsing_error (s, buffer, token, 
 					   "Error reading some coefficients of the secular equation.\nPlease check your input file");
 		}
               mpq_canonicalize (sec->initial_ampqic[i]);
@@ -489,7 +490,7 @@ mps_secular_equation_read_from_stream (mps_status * s,
           if (!token || (mpq_set_str (sec->initial_bmpqrc[i], token, 10) != 0))
 	    {	      
 	      MPS_DEBUG (s, "Error reading the coefficients b[%d] of the secular equation (real part)", i);
-	      mps_raise_parsing_error (s, token, 
+	      mps_raise_parsing_error (s, buffer, token, 
 				       "Error reading some coefficients of the secular equation.\nPlease check your input file");
 	    }	    
           mpq_canonicalize (sec->initial_bmpqrc[i]);
@@ -502,7 +503,7 @@ mps_secular_equation_read_from_stream (mps_status * s,
               if (!token || (mpq_set_str (sec->initial_bmpqic[i], token, 10) != 0))
 		{	      
 		  MPS_DEBUG (s, "Error reading the coefficients b[%d] of the secular equation (imaginary part)", i);
-		  mps_raise_parsing_error (s, token, 
+		  mps_raise_parsing_error (s, buffer, token, 
 					   "Error reading some coefficients of the secular equation.\nPlease check your input file");
 		}	    
               mpq_canonicalize (sec->initial_bmpqic[i]);
@@ -675,14 +676,14 @@ mps_parse_stream_old (mps_status * s, mps_input_buffer * buffer)
 	    {
 	      token = mps_input_buffer_next_token (buffer);
 	      if (!token || (mpf_set_str (mpc_Re (poly->mfpc[i]), token, 10) != 0))
-		mps_raise_parsing_error (s, token, "Error parsing coefficients of the polynomial");
+		mps_raise_parsing_error (s, buffer, token, "Error parsing coefficients of the polynomial");
 	      free (token);
 
 	      if (MPS_INPUT_CONFIG_IS_COMPLEX (s->input_config))
 		{
 		  token = mps_input_buffer_next_token (buffer);
 		  if (!token || (mpf_set_str (mpc_Im (poly->mfpc[i]), token, 10) != 0))
-		    mps_raise_parsing_error (s, token, "Error parsing coefficients of the polynomial");
+		    mps_raise_parsing_error (s, buffer, token, "Error parsing coefficients of the polynomial");
 		  free (token);
 		}
 	      else
@@ -695,7 +696,7 @@ mps_parse_stream_old (mps_status * s, mps_input_buffer * buffer)
 	    {
 	      token = mps_input_buffer_next_token (buffer);
 	      if (!token || (mpq_set_str (poly->initial_mqp_r[i], token, 10) != 0))
-		mps_raise_parsing_error (s, token, "Error parsing coefficients of the polynomial");
+		mps_raise_parsing_error (s, buffer, token, "Error parsing coefficients of the polynomial");
 	      mpq_canonicalize (poly->initial_mqp_r[i]);
 	      free (token);
       
@@ -703,7 +704,7 @@ mps_parse_stream_old (mps_status * s, mps_input_buffer * buffer)
 		{
 		  token = mps_input_buffer_next_token (buffer);
 		  if (!token || (mpq_set_str (poly->initial_mqp_i[i], token, 10) != 0))
-		    mps_raise_parsing_error (s, token, "Error parsing coefficients of the polynomial");
+		    mps_raise_parsing_error (s, buffer, token, "Error parsing coefficients of the polynomial");
 		  mpq_canonicalize (poly->initial_mqp_i[i]);
 		  free (token);
 		}
@@ -726,14 +727,14 @@ mps_parse_stream_old (mps_status * s, mps_input_buffer * buffer)
 	      /* Numerator of the real part of the coefficient */
 	      token = mps_input_buffer_next_token (buffer);
 	      if (!token || (mpq_set_str (qtmp, token, 10)) != 0)
-		mps_raise_parsing_error (s, token, "Error parsing the numerator of a coefficient");
+		mps_raise_parsing_error (s, buffer, token, "Error parsing the numerator of a coefficient");
 	      mpq_set (poly->initial_mqp_r[i], qtmp);
 	      free (token);
 
 	      /* Denominator of the real part of the coefficient */
 	      token = mps_input_buffer_next_token (buffer);
 	      if (!token || (mpq_set_str (qtmp, token, 10)) != 0)
-		mps_raise_parsing_error (s, token, "Error parsing the denominator of a coefficient");
+		mps_raise_parsing_error (s, buffer, token, "Error parsing the denominator of a coefficient");
 	      free (token);
 
 	      mpq_div (poly->initial_mqp_r[i], poly->initial_mqp_r[i], qtmp);
@@ -744,14 +745,14 @@ mps_parse_stream_old (mps_status * s, mps_input_buffer * buffer)
 		  /* Numerator of the real part of the coefficient */
 		  token = mps_input_buffer_next_token (buffer);
 		  if (!token || (mpq_set_str (qtmp, token, 10)) != 0)
-		    mps_raise_parsing_error (s, token, "Error parsing the numerator of a coefficient");
+		    mps_raise_parsing_error (s, buffer, token, "Error parsing the numerator of a coefficient");
 		  mpq_set (poly->initial_mqp_i[i], qtmp);
 		  free (token);
 
 		  /* Denominator of the real part of the coefficient */
 		  token = mps_input_buffer_next_token (buffer);
 		  if (!token || (mpq_set_str (qtmp, token, 10)) != 0)
-		    mps_raise_parsing_error (s, token, "Error parsing the denominator of a coefficient");
+		    mps_raise_parsing_error (s, buffer, token, "Error parsing the denominator of a coefficient");
 		  free (token);
 
 		  mpq_div (poly->initial_mqp_i[i], poly->initial_mqp_i[i], qtmp);
@@ -779,10 +780,10 @@ mps_parse_stream_old (mps_status * s, mps_input_buffer * buffer)
 	{
 	  /* Read the index from the buffer */
 	  if (!sscanf (token, "%d", &i))
-	    mps_raise_parsing_error (s, token, "Error while parsing the degree of a monomial");
+	    mps_raise_parsing_error (s, buffer, token, "Error while parsing the degree of a monomial");
 
 	  if (poly->spar[i])
-	    mps_raise_parsing_error (s, token, "A monomial of the same degree has been inserted twice");
+	    mps_raise_parsing_error (s, buffer, token, "A monomial of the same degree has been inserted twice");
 	  else
 	    poly->spar[i] = true;
 	  free (token);
@@ -791,14 +792,14 @@ mps_parse_stream_old (mps_status * s, mps_input_buffer * buffer)
 	    {
 	      token = mps_input_buffer_next_token (buffer);
 	      if (!token || (mpf_set_str (mpc_Re (poly->mfpc[i]), token, 10) != 0))
-		mps_raise_parsing_error (s, token, "Error parsing coefficients of the polynomial");
+		mps_raise_parsing_error (s, buffer, token, "Error parsing coefficients of the polynomial");
 	      free (token);
 	  
 	      if (MPS_INPUT_CONFIG_IS_COMPLEX (s->input_config))
 		{
 		  token = mps_input_buffer_next_token (buffer);
 		  if (!token || (mpf_set_str (mpc_Im (poly->mfpc[i]), token, 10) != 0))
-		    mps_raise_parsing_error (s, token, "Error parsing coefficients of the polynomial");
+		    mps_raise_parsing_error (s, buffer, token, "Error parsing coefficients of the polynomial");
 		  free (token);
 		}
 	      else
@@ -808,7 +809,7 @@ mps_parse_stream_old (mps_status * s, mps_input_buffer * buffer)
 	    {
 	      token = mps_input_buffer_next_token (buffer);
 	      if (!token || (mpq_set_str (poly->initial_mqp_r[i], token, 10) != 0))
-		mps_raise_parsing_error (s, token, "Error parsing coefficients of the polynomial");
+		mps_raise_parsing_error (s, buffer, token, "Error parsing coefficients of the polynomial");
 	      mpq_canonicalize (poly->initial_mqp_r[i]);
 	      free (token);
       
@@ -816,7 +817,7 @@ mps_parse_stream_old (mps_status * s, mps_input_buffer * buffer)
 		{
 		  token = mps_input_buffer_next_token (buffer);
 		  if (!token || (mpq_set_str (poly->initial_mqp_i[i], token, 10) != 0))
-		    mps_raise_parsing_error (s, token, "Error parsing coefficients of the polynomial");
+		    mps_raise_parsing_error (s, buffer, token, "Error parsing coefficients of the polynomial");
 		  mpq_canonicalize (poly->initial_mqp_i[i]);
 		  free (token);
 		}
@@ -832,14 +833,14 @@ mps_parse_stream_old (mps_status * s, mps_input_buffer * buffer)
 	      /* Numerator of the real part of the coefficient */
 	      token = mps_input_buffer_next_token (buffer);
 	      if (!token || (mpq_set_str (qtmp, token, 10)) != 0)
-		mps_raise_parsing_error (s, token, "Error parsing the numerator of a coefficient");
+		mps_raise_parsing_error (s, buffer, token, "Error parsing the numerator of a coefficient");
 	      mpq_set (poly->initial_mqp_r[i], qtmp);
 	      free (token);
 
 	      /* Denominator of the real part of the coefficient */
 	      token = mps_input_buffer_next_token (buffer);
 	      if (!token || (mpq_set_str (qtmp, token, 10)) != 0)
-		mps_raise_parsing_error (s, token, "Error parsing the denominator of a coefficient");
+		mps_raise_parsing_error (s, buffer, token, "Error parsing the denominator of a coefficient");
 	      free (token);
 
 	      mpq_div (poly->initial_mqp_r[i], poly->initial_mqp_r[i], qtmp);
@@ -850,14 +851,14 @@ mps_parse_stream_old (mps_status * s, mps_input_buffer * buffer)
 		  /* Numerator of the real part of the coefficient */
 		  token = mps_input_buffer_next_token (buffer);
 		  if (!token || (mpq_set_str (qtmp, token, 10)) != 0)
-		    mps_raise_parsing_error (s, token, "Error parsing the numerator of a coefficient");
+		    mps_raise_parsing_error (s, buffer, token, "Error parsing the numerator of a coefficient");
 		  mpq_set (poly->initial_mqp_i[i], qtmp);
 		  free (token);
 
 		  /* Denominator of the real part of the coefficient */
 		  token = mps_input_buffer_next_token (buffer);
 		  if (!token || (mpq_set_str (qtmp, token, 10)) != 0)
-		    mps_raise_parsing_error (s, token, "Error parsing the denominator of a coefficient");
+		    mps_raise_parsing_error (s, buffer, token, "Error parsing the denominator of a coefficient");
 		  free (token);
 
 		  mpq_div (poly->initial_mqp_i[i], poly->initial_mqp_i[i], qtmp);

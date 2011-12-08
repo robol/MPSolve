@@ -17,6 +17,7 @@ mps_input_buffer_new (FILE * stream)
   /* Set initial values */
   buf->stream = stream;
   buf->line = NULL;
+  buf->line_number = 0L;
 
   /* Set history size */
   buf->history_size = MPS_INPUT_BUFFER_HISTORY_DEFAULT_SIZE;
@@ -99,9 +100,11 @@ mps_input_buffer_readline (mps_input_buffer * buf)
   /* Read a new line. On the first step buf->line is NULL
    * so a new space is allocated in there, that will be
    * reused on the subsequent calls. */
-
   read_chars = getline (&buf->line, &length, buf->stream);
   buf->last_token = buf->line;
+
+  if (buf->line)
+    buf->line_number++;
   
   return read_chars;
 }
