@@ -345,13 +345,6 @@ mps_check_stop (mps_status * s)
   int i;
   mps_boolean computed;
 
-  /* __MPS_DEBUG (s, "Dumping status: "); */
-  /* for (i = 0; i < s->n; i++) */
-  /*   { */
-  /*     fprintf (s->logstr, "%3s ", s->status[i]); */
-  /*   } */
-  /* fprintf (s->logstr, "\n"); */
-
   computed = false;
   /* count */
   if (s->goal[0] == 'c')
@@ -447,6 +440,7 @@ mps_fsolve (mps_status * s, mps_boolean * d_after_f)
   int it_pack, iter, nit, oldnclust, i, j;
   rdpe_t eps_out;
   mps_monomial_poly *p = s->monomial_poly;
+  double * frad = double_valloc (s->n);
 
   /* == 1 ==  Initialize variables */
   it_pack = 0;
@@ -523,8 +517,8 @@ mps_fsolve (mps_status * s, mps_boolean * d_after_f)
 
 	  /* Compute the inclusion radii with Gerschgorin so we can compute
 	   * clusterizations for the roots. */
-	  mps_fradii (s, s->frad);
-          mps_fcluster (s, s->frad, 2 * s->n);   /* Isolation factor */
+	  mps_fradii (s, frad);
+          mps_fcluster (s, frad, 2 * s->n);   /* Isolation factor */
           if (oldnclust == s->clusterization->n)
             {
               if (s->DOLOG)
@@ -576,7 +570,7 @@ mps_fsolve (mps_status * s, mps_boolean * d_after_f)
                 fprintf (s->logstr, "   FSOLVE: call checkstop\n");
               /* Check the stop condition */
               if (mps_check_stop (s))
-                return;
+		goto fsolve_final_cleanup;
             }
         }
       else
@@ -605,8 +599,8 @@ mps_fsolve (mps_status * s, mps_boolean * d_after_f)
 
   /* Compute the inclusion radii with Gerschgorin so we can compute
    * clusterizations for the roots. */
-  mps_fradii (s, s->frad);
-  mps_fcluster (s, s->frad, 2 * s->n);   /* Isolation factor */
+  mps_fradii (s, frad);
+  mps_fcluster (s, frad, 2 * s->n);   /* Isolation factor */
 
   if (s->DOLOG)
     fprintf (s->logstr, "   FSOLVE: call modify\n");
@@ -616,6 +610,9 @@ mps_fsolve (mps_status * s, mps_boolean * d_after_f)
   for (j = 0; j < s->n; j++)
     if (s->status[j][0] == 'C')
       s->status[j][0] = 'c';
+
+ fsolve_final_cleanup:
+  double_vfree (frad);
 }
 
 /**
@@ -830,6 +827,7 @@ mps_dsolve (mps_status * s, mps_boolean d_after_f)
   mps_boolean excep;
   rdpe_t dummy;
   mps_monomial_poly * p = s->monomial_poly;
+  rdpe_t * drad = rdpe_valloc (s->n);
 
   if (s->DOLOG)
     {
@@ -904,8 +902,8 @@ mps_dsolve (mps_status * s, mps_boolean d_after_f)
           if (s->DOLOG)
             fprintf (s->logstr, "   DSOLVE: call dcluster\n");
 
-	  mps_dradii (s, s->drad);
-          mps_dcluster (s, s->drad, 2 * s->n);   /* Isolation factor */
+	  mps_dradii (s, drad);
+          mps_dcluster (s, drad, 2 * s->n);   /* Isolation factor */
           if (oldnclust == s->clusterization->n)
             {
               if (s->DOLOG)
@@ -952,7 +950,7 @@ mps_dsolve (mps_status * s, mps_boolean d_after_f)
               if (s->DOLOG)
                 fprintf (s->logstr, "   DSOLVE: call checkstop\n");
               if (mps_check_stop (s))
-                return;
+		goto dsolve_final_cleanup;
             }
         }
       else
@@ -977,8 +975,8 @@ mps_dsolve (mps_status * s, mps_boolean d_after_f)
     fprintf (s->logstr, "   DSOLVE: now update: call dcluster\n");
   oldnclust = s->clusterization->n;
 
-  mps_dradii (s, s->drad);
-  mps_dcluster (s, s->drad, 2 * s->n);   /* Isolation factor */
+  mps_dradii (s, drad);
+  mps_dcluster (s, drad, 2 * s->n);   /* Isolation factor */
 
   if (s->DOLOG)
     fprintf (s->logstr, "   DSOLVE: now call dmodify\n");
@@ -988,6 +986,9 @@ mps_dsolve (mps_status * s, mps_boolean d_after_f)
   for (j = 0; j < s->n; j++)
     if (s->status[j][0] == 'C')
       s->status[j][0] = 'c';
+
+ dsolve_final_cleanup:
+  rdpe_vfree (drad);
 }
 
 /**
@@ -999,6 +1000,7 @@ mps_msolve (mps_status * s)
   int iter, nit, oldnclust, i, j, it_pack;
   mps_boolean excep;
   int nzc;
+  rdpe_t * drad = rdpe_valloc (s->n);
 
   /* == 1 == Initialize variables */
   it_pack = 0;
@@ -1035,7 +1037,7 @@ mps_msolve (mps_status * s)
         if (s->status[j][0] == 'C')
           s->status[j][0] = 'c';
 
-      return;
+      goto msolve_final_cleanup;
     }
   nzc = 0;
   if (s->goal[1] == 'a' && s->goal[2] == 'n' && s->goal[3] == 'n')
@@ -1056,7 +1058,8 @@ mps_msolve (mps_status * s)
       for (j = 0; j < s->n; j++)
         if (s->status[j][0] == 'C')
           s->status[j][0] = 'c';
-      return;
+
+      goto msolve_final_cleanup;
     }
 
   /* Perform s->max_pack  packets of Aberth's iterations */
@@ -1109,7 +1112,8 @@ mps_msolve (mps_status * s)
                 fprintf (s->logstr, "%3.3s", s->status[j]);
               fprintf (s->logstr, "\n");
             }
-          return;
+
+	  goto msolve_final_cleanup;
         }
 
       if (s->DOLOG)
@@ -1124,8 +1128,8 @@ mps_msolve (mps_status * s)
           if (s->DOLOG)
             fprintf (s->logstr, "  MSOLVE: call mcluster\n");
 
-	  mps_mradii (s, s->drad);
-          mps_mcluster (s, s->drad, 2 * s->n);   /* Isolation factor */
+	  mps_mradii (s, drad);
+          mps_mcluster (s, drad, 2 * s->n);   /* Isolation factor */
 
           s->newtis_old = s->newtis;
           if (s->newtis == 0)
@@ -1210,7 +1214,7 @@ mps_msolve (mps_status * s)
                     if (s->status[j][0] == 'C')
                       s->status[j][0] = 'c';
 
-                  return;
+		  goto msolve_final_cleanup;
                 }
 
               nzc = 0;
@@ -1232,7 +1236,7 @@ mps_msolve (mps_status * s)
                     if (s->status[j][0] == 'C')
                       s->status[j][0] = 'c';
 
-                  return;
+		  goto msolve_final_cleanup;
                 }
             }
         }
@@ -1251,8 +1255,8 @@ mps_msolve (mps_status * s)
       fprintf (s->logstr, "  MSOLVE: call mcluster\n");
     }
 
-  mps_mradii (s, s->drad);
-  mps_mcluster (s, s->drad, 2 * s->n);   /* Isolation factor */
+  mps_mradii (s, drad);
+  mps_mcluster (s, drad, 2 * s->n);   /* Isolation factor */
 
   if (s->DOLOG)
     fprintf (s->logstr, "  MSOLVE:  call mmodify\n");
@@ -1281,6 +1285,9 @@ mps_msolve (mps_status * s)
         fprintf (s->logstr, "%d", s->again[j]);
       fprintf (s->logstr, "\n");
     }
+
+ msolve_final_cleanup:
+  rdpe_vfree (drad);
 }
 
 /**

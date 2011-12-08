@@ -196,7 +196,7 @@ mps_improve (mps_status * s)
           if (MPS_INPUT_CONFIG_IS_SECULAR (s->input_config))
 	      mps_secular_raise_coefficient_precision (s, s->mpwp);
 
-          if (s->data_type[0] != 'u')
+          if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
             {
               mps_mnewton (s, s->n, s->mroot[i], s->drad[i],
                            nwtcorr, p->mfpc, p->mfppc, p->dap, p->spar,
@@ -222,8 +222,10 @@ mps_improve (mps_status * s)
 
           if (rdpe_eq (s->drad[i], rdpe_zero))
             rdpe_set (s->drad[i], newrad);
-          if (rdpe_lt (newrad, s->drad[i]))
-            rdpe_set (s->drad[i], newrad);
+
+	  /* Disabled because causes problems */
+	  /* if (rdpe_lt (newrad, s->drad[i]))  */
+          /*    rdpe_set (s->drad[i], newrad);  */
 
           if (rdpe_lt (s->drad[i], tmp) || s->mpwp == mpnb_in)
             break;              /* loop1 */
