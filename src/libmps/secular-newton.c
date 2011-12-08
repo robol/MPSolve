@@ -117,7 +117,7 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
 
   /* If the correction is not useful in the current precision do
    * not iterate more */
-  if (*again && (cplx_mod (corr) < 8.0 * cplx_mod (x) * DBL_EPSILON))
+  if (*again && (cplx_mod (corr) < s->n * cplx_mod (x) * DBL_EPSILON))
     {
       if (data && s->debug_level & MPS_DEBUG_APPROXIMATIONS)
 	{
@@ -276,9 +276,9 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
    * the modules of |x| multiplied for
    * for epsilon stop */
   /* Computation of |x| and |corr| */
-  /* cdpe_mod (rtmp, corr); */
-  /* cdpe_mod (rtmp2, x); */
-  /* rdpe_mul_eq_d (rtmp2, 4.0 * DBL_EPSILON); */
+  cdpe_mod (rtmp, corr); 
+  cdpe_mod (rtmp2, x); 
+  rdpe_mul_eq_d (rtmp2, s->n * DBL_EPSILON); 
   
   /* If |corr| < |x| * DBL_EPSILON then stop */ 
   if (rdpe_lt (rtmp, rtmp2)) 
@@ -565,6 +565,7 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
 
        mpc_get_cdpe (cdtmp, corr);
        cdpe_mod (rtmp2, cdtmp);
+       rdpe_mul_eq_d (rtmp, s->n);
        
        if (rdpe_lt (rtmp2, rtmp))
 	 {
