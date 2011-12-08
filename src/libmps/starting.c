@@ -1559,8 +1559,7 @@ mps_mrestart (mps_status * s)
           goto loop1;
         }
 
-      /* TODO: Reenable this */
-      /* MPS_DEBUG_MCLUSTER_ROOTS (s, i); */
+      mps_debug_cluster_structure (s);
 
       /* Compute the coefficients of the derivative of p(x) having order
        * equal to the multiplicity of the cluster -1. */

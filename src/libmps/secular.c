@@ -580,7 +580,6 @@ mps_secular_set_radii (mps_status * s)
         /* Check if the Gerschgorin's radii are more convenient */
         for (i = 0; i < s->n; i++)
           {
-            /* TODO: Use the guaranteed computation */
             rad = s->n * cplx_mod (sec->afpc[i]) * (1 + s->n * DBL_EPSILON)
 	      + cplx_mod (s->froot[i]) * DBL_EPSILON * 4;
 	    
@@ -634,7 +633,6 @@ mps_secular_set_radii (mps_status * s)
 	    // rdpe_add_eq (rad_eps, sec->dregeneration_epsilon[i]);
 	    rdpe_add_eq_d (rad_eps, s->n * DBL_EPSILON * 4);
 
-	    /* TODO: Use the guaranteed computation */
 	    if (s->lastphase == mp_phase)
 	      {
 		mpc_get_cdpe (ctmp, sec->ampc[i]);

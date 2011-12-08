@@ -202,13 +202,13 @@ main (int argc, char ** argv)
   TEST_SECSOLVE_SECULAR ("rand120");
   TEST_SECSOLVE_SECULAR ("rand15");
 
-  test_header ("Secsolve - Solving polynomials", 
+  test_header ("Secsolve - Solving polynomials",
 	       "Solving polynomials by representing them as secular equations");
 
-  /* Roots of unity   */
+  /* Roots of unity */
   TEST_SECSOLVE_MONOMIAL ("nroots50");
 
-  /* Mandelbrot polynomials   */
+  /* Mandelbrot polynomials */
   TEST_SECSOLVE_MONOMIAL ("mand63");
   TEST_SECSOLVE_MONOMIAL ("mand127");
 
@@ -216,7 +216,7 @@ main (int argc, char ** argv)
   TEST_SECSOLVE_MONOMIAL ("mig1_100");
   TEST_SECSOLVE_MONOMIAL ("mig1_200");
 
-  /* Wilkinson polynomials */  
+  /* Wilkinson polynomials */
   TEST_SECSOLVE_MONOMIAL ("wilk20");
   TEST_SECSOLVE_MONOMIAL ("wilk40");
   TEST_SECSOLVE_MONOMIAL ("wilk80");

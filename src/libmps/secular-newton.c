@@ -308,25 +308,6 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
   /* Computation of radius with Gerschgorin */
   rdpe_t new_rad;
 
-  /* Compute the guaranteed radius */
-  /* rdpe_set (new_rad, apol); */
-  /* rdpe_mul_eq_d (new_rad, s->n); */
-  /* rdpe_mul_eq (new_rad, prod_b); */
-
-  /* /\* rdpe_set (rtmp, asum); *\/ */
-  /* /\* rdpe_div_eq (rtmp, apol); *\/ */
-  /* rdpe_add (rtmp, rdpe_one, asum_on_apol); */
-  /* rdpe_add_eq_d (rtmp, 3 * s->n); */
-  /* rdpe_mul_eq_d (rtmp, DBL_EPSILON); */
-  /* rdpe_add_eq (rtmp, rdpe_one); */
-  /* rdpe_mul_eq (new_rad, rtmp); */
-
-  /* /\* Correct the old radius with the move that we are doing */
-  /*  * and check if the new proposed radius is preferable. *\/ */
-  /* if (data) */
-  /*   data->radius_set = true; */
-
-
   /* Compute radius as n * newt_corr */
   cdpe_mod (new_rad, corr);
   rdpe_mul_eq_d (new_rad, s->n);
