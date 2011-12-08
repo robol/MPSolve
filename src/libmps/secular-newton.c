@@ -280,16 +280,16 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
   /* cdpe_mod (rtmp2, x); */
   /* rdpe_mul_eq_d (rtmp2, 4.0 * DBL_EPSILON); */
   
-  /* /\* If |corr| < |x| * DBL_EPSILON then stop *\/ */
-  /* if (rdpe_lt (rtmp, rtmp2)) */
-  /*   { */
-  /*     if (data && (s->debug_level & MPS_DEBUG_APPROXIMATIONS)) */
-  /* 	{ */
-  /* 	  MPS_DEBUG (s, "Setting again on root %ld to false because the Newton correction is too small", data->k); */
-  /* 	  MPS_DEBUG_CDPE (s, corr, "Newton correction"); */
-  /* 	} */
-  /*     *again = false; */
-  /*   } */
+  /* If |corr| < |x| * DBL_EPSILON then stop */ 
+  if (rdpe_lt (rtmp, rtmp2)) 
+    { 
+      if (data && (s->debug_level & MPS_DEBUG_APPROXIMATIONS)) 
+   	{ 
+   	  MPS_DEBUG (s, "Setting again on root %ld to false because the Newton correction is too small", data->k); 
+   	  MPS_DEBUG_CDPE (s, corr, "Newton correction"); 
+   	} 
+      *again = false; 
+    }
 
   rdpe_add (rtmp, rdpe_one, asum_on_apol);
   rdpe_mul_eq_d (rtmp, MPS_2SQRT2 * DBL_EPSILON);
@@ -407,11 +407,9 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
       mpc_sub_eq (fp, ctmp2);
     }
 
-   /* If x != b_i for every b_i finalize the computation */
+  /* If x != b_i for every b_i finalize the computation */
   /* Subtract one from pol */
-  MPS_DEBUG_MPC (s, 10, pol, "pol");
   mpc_sub_eq_ui (pol, 1, 0);
-  MPS_DEBUG_MPC (s, 10, pol, "pol");
       
   /* Compute correction */
   mpc_mul (ctmp2, sumb, pol);
@@ -436,8 +434,6 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
   mpc_get_cdpe (x_cdpe, x);
   cdpe_mod (ax, x_cdpe);
 
-  /* new_rad = (apol * s->n * prod_b * (1 + (3 * s->n + (asum_on_apol + 1)) * 4 * DBL_EPSILON)) + (cplx_mod (x) * 4 * DBL_EPSILON); */
-
   /* Compute the guaranteed radius */
   rdpe_mul (rtmp, asum, s->mp_epsilon);
   rdpe_add (new_rad, apol, rtmp);
@@ -457,18 +453,6 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
 
   /* This is asum / apol */
   rdpe_div (asum_on_apol, asum, rtmp2);
-
-  /* rdpe_add (rtmp, asum_on_apol, rdpe_one); */
-  /* rdpe_add_eq_d (rtmp, 3 * s->n); */
-  /* rdpe_add_eq (rtmp, rdpe_one); */
-  /* rdpe_mul_eq (rtmp, s->mp_epsilon); */
-  /* rdpe_mul_eq_d (rtmp, 4); */
-  /* rdpe_add_eq (rtmp, rdpe_one); */
-  /* rdpe_mul_eq (new_rad, rtmp); */
-
-  mpc_get_cdpe (cdtmp, corr);
-  cdpe_mod (new_rad, cdtmp);
-  rdpe_mul_eq_d (new_rad, s->n);
 
   /* We compute the following values in order to give a guaranteed
    * Newton inclusion circle:
@@ -568,12 +552,7 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
 
   if (rdpe_lt (new_rad, rad))
     {
-      /* MPS_DEBUG_RDPE (s, asum, "asum"); */
-      /* MPS_DEBUG_RDPE (s, apol, "apol"); */
-      /* MPS_DEBUG_RDPE (s, new_rad, "Setting rad"); */
       rdpe_set (rad, new_rad);
-      /* MPS_DEBUG_MPC (s, 40, s->mroot[data->k], "s->mroot[%ld]", data->k); */
-      /* MPS_DEBUG_MPC (s, 40, corr, "corr"); */
     }
   
   /* Check if newton correction is less than
