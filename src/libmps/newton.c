@@ -238,6 +238,9 @@ mps_dnewton (mps_status * s, int n, cdpe_t z, rdpe_t radius, cdpe_t corr,
       if (rdpe_lt (rnew, radius))
 	rdpe_set (radius, rnew);
     }
+
+  rdpe_mul_d (rtmp, az, 4 * DBL_EPSILON);
+  rdpe_add_eq (radius, rtmp);
 }
 
 /****************************************************
