@@ -548,8 +548,8 @@ mps_dcluster (mps_status * s, rdpe_t * drad, int nf)
 
 	  /* Check if the computed radius is more convenient than the old one.
 	     If that's the case, apply it as inclusion radius */
-	  if (rdpe_lt (new_rad, s->drad[k])) 
-	    rdpe_set (s->drad[k], new_rad); 
+	  if (rdpe_lt (new_rad, s->drad[k]))  
+	    rdpe_set (s->drad[k], new_rad);  
 	}
     }
 

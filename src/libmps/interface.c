@@ -277,20 +277,25 @@ mps_status_set_input_poly (mps_status * s, mps_monomial_poly * p, mps_structure 
   /* Set the right flag for the input */
   s->input_config->representation = MPS_REPRESENTATION_MONOMIAL;
 
-  /* Check if the input polynomial is sparse or not. We can simply check if
-   * the again vector is all of true values */
-  s->input_config->density = MPS_DENSITY_DENSE;
-  for (i = 0; i <= p->n; ++i)
-    {
-      if (!p->spar[i])
-	{
-	  s->input_config->density = MPS_DENSITY_SPARSE;
-	  break;
-	}
-    }
-
   /* Set the mps_structure passed as input */
   s->input_config->structure = structure;
+
+  /* Set the density or sparsity of the polynomial, if it's not
+   * a user polynomial */
+  if (!MPS_INPUT_CONFIG_IS_USER (s->input_config))
+    {
+      /* Check if the input polynomial is sparse or not. We can simply check if
+       * the again vector is all of true values */
+      s->input_config->density = MPS_DENSITY_DENSE;
+      for (i = 0; i <= p->n; ++i)
+	{
+	  if (!p->spar[i])
+	    {
+	      s->input_config->density = MPS_DENSITY_SPARSE;
+	      break;
+	    }
+	}
+    }
 }
 
 /**

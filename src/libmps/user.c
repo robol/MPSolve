@@ -128,6 +128,8 @@ mps_dnewton_usr (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
   rdpe_div_eq (rad, temp);
   if (rdpe_eq (rad, rdpe_zero))
     rdpe_mul (rad, ax, eps);
+
+  MPS_DEBUG_RDPE (s, rad, "rad");
 }
 
 /******************************************************

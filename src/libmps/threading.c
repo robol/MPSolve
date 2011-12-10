@@ -491,42 +491,6 @@ mps_thread_dpolzer (mps_status * s, int *it, mps_boolean * excep)
       pthread_join (threads[i], NULL);
     }
 
-  /* Now compute the radius */
-  cdpe_t cdtmp;
-  rdpe_t new_rad, rtmp;
-  int j;
-
-  if (!MPS_INPUT_CONFIG_IS_USER (s->input_config))
-    {
-      for (i = 0; i < s->n; i++)
-	{
-	  mps_dhorner_with_error (s, s->monomial_poly, s->droot[i], cdtmp, rtmp);
-	  cdpe_mod (new_rad, cdtmp);
-	  rdpe_add_eq (rtmp, rdpe_one);
-	  rdpe_mul_eq (new_rad, rtmp);
-
-	  for (j = 0; j < s->n; j++)
-	    {
-	      if (i == j)
-		continue;
-
-	      cdpe_sub (cdtmp, s->droot[i], s->droot[j]);
-	      cdpe_mod (rtmp, cdtmp);
-
-	      if (rdpe_eq_zero (rtmp))
-		{
-		  rdpe_set (new_rad, RDPE_MAX);
-		  break;
-		}
-
-	      rdpe_div_eq (new_rad, rtmp);
-	    }
-
-	  if (rdpe_lt (new_rad, s->drad[i]))
-	      rdpe_set (s->drad[i], new_rad);
-	}
-    }
-
   free (threads);
   free (aberth_mutex);
   free (roots_mutex);

@@ -10,10 +10,17 @@
 void
 mps_fradii (mps_status * s, double * fradii)
 {
+  int i;
   switch (s->algorithm)
     {
     case MPS_ALGORITHM_STANDARD_MPSOLVE:
-      mps_monomial_fradii (s, fradii);
+      if (!MPS_INPUT_CONFIG_IS_USER (s->input_config))
+	mps_monomial_fradii (s, fradii);
+      else
+	{
+	  for (i = 0; i < s->n; i++)
+	    fradii[i] = s->frad[i];
+	}
       break;
     case MPS_ALGORITHM_SECULAR_MPSOLVE:
     case MPS_ALGORITHM_SECULAR_GA:
@@ -34,10 +41,18 @@ mps_fradii (mps_status * s, double * fradii)
 void
 mps_dradii (mps_status * s, rdpe_t * dradii)
 {
+  int i;
   switch (s->algorithm)
     {
     case MPS_ALGORITHM_STANDARD_MPSOLVE:
-      mps_monomial_dradii (s, dradii);
+      MPS_DEBUG (s, "s->input_config->density = %d", s->input_config->density);
+      if (MPS_INPUT_CONFIG_IS_USER (s->input_config))
+	{
+	  for (i = 0; i < s->n; i++)
+	    rdpe_set (dradii[i], s->drad[i]);
+	}
+      else
+	mps_monomial_dradii (s, dradii);
       break;
     case MPS_ALGORITHM_SECULAR_MPSOLVE:
     case MPS_ALGORITHM_SECULAR_GA:

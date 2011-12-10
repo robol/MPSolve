@@ -852,7 +852,7 @@ mps_dsolve (mps_status * s, mps_boolean d_after_f)
       for (i = 0; i < s->n; i++)
         {
           s->again[i] = true;
-          rdpe_set (s->drad[i], RDPE_MAX);
+          rdpe_set_d (s->drad[i], DBL_MAX);
           cdpe_set (s->droot[i], cdpe_zero);
         }
     }
