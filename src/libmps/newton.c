@@ -520,7 +520,8 @@ mps_mnewton (mps_status * s, int n, mpc_t z, rdpe_t radius, mpc_t corr,
       cdpe_mod (temp, temp1);
       if (rdpe_eq_zero (temp))
 	{
-	  fprintf (s->logstr, "%s", "NULL DERIVATIVE\n");
+	  if (s->DOLOG)
+	    fprintf (s->logstr, "%s", "NULL DERIVATIVE\n");
 	  goto exit_sub;
 	}
       rdpe_div (radius, apeps, temp);
