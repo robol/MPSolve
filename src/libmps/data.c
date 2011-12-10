@@ -1,23 +1,31 @@
-/***********************************************************
-**       Multiprecision Polynomial Solver (MPSolve)       **
-**                 Version 2.2, May 2001                  **
-**                                                        **
-**                      Written by                        **
-**       Dario Andrea Bini and Giuseppe Fiorentino        **
-**       (bini@dm.unipi.it)  (fiorent@dm.unipi.it)        **
-**                                                        **
-** (C) 2001, Dipartimento di Matematica, FRISCO LTR 21024 **
-***********************************************************/
+/************************************************************
+ **                                                        **
+ **             __  __ ___  ___      _                     **
+ **            |  \/  | _ \/ __| ___| |_ _____             **
+ **            | |\/| |  _/\__ \/ _ \ \ V / -_)            **
+ **            |_|  |_|_|  |___/\___/_|\_/\___|            **
+ **                                                        **
+ **       Multiprecision Polynomial Solver (MPSolve)       **
+ **                 Version 2.9, April 2011                **
+ **                                                        **
+ **                      Written by                        **
+ **                                                        **
+ **     Dario Andrea Bini       <bini@dm.unipi.it>         **
+ **     Giuseppe Fiorentino     <fiorent@dm.unipi.it>      **
+ **     Leonardo Robol          <robol@mail.dm.unipi.it>   **
+ **                                                        **
+ **           (C) 2011, Dipartimento di Matematica         **
+ ***********************************************************/
 
 #include <mps/core.h>
 #include <mps/secular.h>
 #include <mps/debug.h>
 
-/***********************************************************
- *           SUBROUTINE MP_SET_PREC                        *
- ***********************************************************
-  Globally set the current precision of mp variables
- **********************************************************/
+/**
+ * @brief Globally set the current precision of mp variables
+ *
+ * @param s The <code>mps_status</code> of the computation.
+ */
 void
 mps_mp_set_prec (mps_status * s, long int prec)
 {
@@ -28,9 +36,13 @@ mps_mp_set_prec (mps_status * s, long int prec)
     MPS_DEBUG_RDPE (s, s->mp_epsilon, "Increased precision to %ld bits. Machine epsilon set to eps", s->mpwp);
 }
 
-/********************************************************
- *      SUBROUTINE ALLOCATE_DATA                        *
- *******************************************************/
+/**
+ * @brief Allocate all the data needed by MPSolve. Must be called after setting
+ * the degree of the polynomial (or, more generally, the number of root of the
+ * equation) in <code>s->deg</code>.
+ *
+ * @param s The <code>mps_status</code> of the computation.
+ */
 void
 mps_allocate_data (mps_status * s)
 {
@@ -109,11 +121,14 @@ mps_allocate_data (mps_status * s)
     s->rootwp[i] = DBL_DIG * LOG2_10;
 }
 
-/***********************************************************
- *           SUBROUTINE RAISE_DATA                         *
- ***********************************************************
- raise precision performing a real computation of the data
- **********************************************************/
+/**
+ * @brief Raise precision performing a real computation of the data.
+ *
+ * @param s The <code>mps_status</code> of the computation.
+ * @param prec The desired precision.
+ * @return The precision set (that may be different from the one requested
+ * since GMP works only with precision divisible by 64bits.
+ */
 long int
 mps_raise_data (mps_status * s, long int prec)
 {
@@ -215,11 +230,13 @@ mps_raise_data (mps_status * s, long int prec)
   return mpc_get_prec (s->mroot[0]);
 }
 
-/***********************************************************
- *           SUBROUTINE RAISE_DATA_RAW                     *
- ***********************************************************
- modify the raw precision of mp variables
- ***********************************************************/
+/**
+ * @brief The same of <code>mps_raise_data()</code> but using
+ * raw routines of GMP, that will not change allocations. 
+ *
+ * @param s The <code>mps_status</code> of the computation.
+ * @param prec The desired precision.
+ */
 void
 mps_raise_data_raw (mps_status * s, long int prec)
 {
@@ -253,13 +270,13 @@ mps_raise_data_raw (mps_status * s, long int prec)
       mpc_set_prec_raw (s->mfpc2[k], prec);
 }
 
-/***********************************************************
- *           SUBROUTINE PREPARE_DATA                       *
- ***********************************************************
- Compute the mp_complex values of the coefficients of p(x)
- with the  current precision of mpwds words, given the
- rational or integer coefficients.
- ***********************************************************/
+/**
+ * @brief Compute the mp_complex values of the coefficients of p(x)
+ * with the  current precision of mpwds words, given the
+ * rational or integer coefficients.
+ *
+ * @param s The <code>mps_status</code> of the computation.
+ */
 void
 mps_prepare_data (mps_status * s, long int prec)
 {
@@ -285,11 +302,11 @@ mps_prepare_data (mps_status * s, long int prec)
     }
 }
 
-/***********************************************************
- *           SUBROUTINE RESTORE_DATA                       *
- ***********************************************************
- Resets the data to the highest used precision
- ***********************************************************/
+/**
+ * @brief Resets the data to the highest used precision
+ *
+ * @param s The <code>mps_status</code> of the computation.
+ */
 void
 mps_restore_data (mps_status * s)
 {
@@ -300,9 +317,11 @@ mps_restore_data (mps_status * s)
     mps_raise_data_raw (s, s->data_prec_max);
 }
 
-/********************************************************
- *      SUBROUTINE FREE_DATA                            *
- *******************************************************/
+/**
+ * @brief Free all the data allocated with <code>mps_allocate_data()</code>
+ *
+ * @param s The <code>mps_status</code> of the computation.
+ */
 void
 mps_free_data (mps_status * s)
 {

@@ -1,13 +1,21 @@
-/***********************************************************
-**       Multiprecision Polynomial Solver (MPSolve)       **
-**                 Version 2.2, May 2001                  **
-**                                                        **
-**                      Written by                        **
-**       Dario Andrea Bini and Giuseppe Fiorentino        **
-**       (bini@dm.unipi.it)  (fiorent@dm.unipi.it)        **
-**                                                        **
-** (C) 2001, Dipartimento di Matematica, FRISCO LTR 21024 **
-***********************************************************/
+/************************************************************
+ **                                                        **
+ **             __  __ ___  ___      _                     **
+ **            |  \/  | _ \/ __| ___| |_ _____             **
+ **            | |\/| |  _/\__ \/ _ \ \ V / -_)            **
+ **            |_|  |_|_|  |___/\___/_|\_/\___|            **
+ **                                                        **
+ **       Multiprecision Polynomial Solver (MPSolve)       **
+ **                 Version 2.9, April 2011                **
+ **                                                        **
+ **                      Written by                        **
+ **                                                        **
+ **     Dario Andrea Bini       <bini@dm.unipi.it>         **
+ **     Giuseppe Fiorentino     <fiorent@dm.unipi.it>      **
+ **     Leonardo Robol          <robol@mail.dm.unipi.it>   **
+ **                                                        **
+ **           (C) 2011, Dipartimento di Matematica         **
+ ***********************************************************/
 
 #include <string.h>
 #include <assert.h>
@@ -410,6 +418,10 @@ mps_fcluster (mps_status * s, double * frad, int nf)
       /* Now insert the cluster in the new clusterization */
       mps_clusterization_insert_cluster (s, new_clusterization, new_cluster);
 
+      /* Check if the new cluster is isolated and, in that case, set the gerschgorin
+       * radius as inclusion radius if it's more conveniente than the old one.
+       * In general the Gerschgorin radius cannot be used as inclusion radius, because
+       * it may touch another radius and so it may be empty. */
       if (new_cluster->n == 1)
 	{
 	  int k = new_cluster->first->k;
@@ -537,6 +549,10 @@ mps_dcluster (mps_status * s, rdpe_t * drad, int nf)
       /* Now insert the cluster in the new clusterization */
       mps_clusterization_insert_cluster (s, new_clusterization, new_cluster);
 
+      /* Check if the new cluster is isolated and, in that case, set the gerschgorin
+       * radius as inclusion radius if it's more conveniente than the old one.
+       * In general the Gerschgorin radius cannot be used as inclusion radius, because
+       * it may touch another radius and so it may be empty. */
       if (new_cluster->n == 1)
 	{
 	  int k = new_cluster->first->k;
@@ -545,6 +561,7 @@ mps_dcluster (mps_status * s, rdpe_t * drad, int nf)
 	  cdpe_mod (new_rad, s->droot[k]);
 	  rdpe_mul_eq_d (new_rad, 4 * DBL_EPSILON);
 	  rdpe_add_eq (new_rad, drad[k]);
+
 
 	  /* Check if the computed radius is more convenient than the old one.
 	     If that's the case, apply it as inclusion radius */
@@ -715,6 +732,10 @@ mps_mcluster (mps_status * s, rdpe_t * drad, int nf)
       /* Now insert the cluster in the new clusterization */
       mps_clusterization_insert_cluster (s, new_clusterization, new_cluster);
 
+      /* Check if the new cluster is isolated and, in that case, set the gerschgorin
+       * radius as inclusion radius if it's more conveniente than the old one.
+       * In general the Gerschgorin radius cannot be used as inclusion radius, because
+       * it may touch another radius and so it may be empty. */
       if (new_cluster->n == 1)
 	{
 	  int k = new_cluster->first->k;

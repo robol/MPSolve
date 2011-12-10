@@ -14,7 +14,7 @@
  **     Giuseppe Fiorentino     <fiorent@dm.unipi.it>      **
  **     Leonardo Robol          <robol@mail.dm.unipi.it>   **
  **                                                        **
- ** (C) 2011, Dipartimento di Matematica, FRISCO LTR 21024 **
+ **           (C) 2011, Dipartimento di Matematica         **
  ***********************************************************/
 
 #include <mps/core.h>
