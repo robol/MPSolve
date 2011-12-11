@@ -91,6 +91,7 @@ test_secsolve_on_pol (test_pol * pol)
     {
       rdpe_t rtmp, min_dist;
       cdpe_t cdtmp;
+      int found_root = 0;
       
       rdpe_set (min_dist, RDPE_MAX);
 
@@ -101,7 +102,6 @@ test_secsolve_on_pol (test_pol * pol)
       ungetc (ch, check_stream);
       mpc_inp_str (root, check_stream, 10);
 
-      passed = false;
       for (j = 0; j < s->n; j++)
         {
           mpc_sub (ctmp, root, s->mroot[j]);
@@ -110,26 +110,31 @@ test_secsolve_on_pol (test_pol * pol)
 	  cdpe_mod (rtmp, cdtmp);
 
 	  if (rdpe_le (rtmp, min_dist))
+	    {
 	      rdpe_set (min_dist, rtmp);
+	      found_root = j;
+	    }
         }
 
-      if (rdpe_le (min_dist, s->drad[i]))
-	passed = true;
-      else if (getenv ("MPS_VERBOSE_TEST"))
+      if (!rdpe_le (min_dist, s->drad[found_root]) && !s->over_max)
 	{
-	   printf("Setting passed to false with root %d\n", i); 
-	   printf ("s->mroot[%d] = ", i);  
-	   mpc_out_str (stdout, 10, 20, s->mroot[i]);  
-	   printf("\n");  
-
-	   printf("s->drad[%d] = ", i); 
-	   rdpe_out_str (stdout, s->drad[i]);  
-	   printf("%e", s->frad[i]); 
-	   printf("\n");  
-	  
-	   printf("min_dist[%d] = ", i);  
-	   rdpe_out_str (stdout, min_dist);  
-	   printf("\n");  
+	passed = false;
+	if (getenv ("MPS_VERBOSE_TEST") && (strstr (pol->pol_file, getenv ("MPS_VERBOSE_TEST"))))
+	  {
+	    printf("Setting passed to false with root %d\n", found_root); 
+	    printf ("s->mroot[%d] = ", found_root);  
+	    mpc_out_str (stdout, 10, 20, s->mroot[found_root]);  
+	    printf("\n");  
+	    
+	    printf("s->drad[%d] = ", found_root); 
+	    rdpe_out_str (stdout, s->drad[found_root]);  
+	    printf("%e", s->frad[found_root]); 
+	    printf("\n");  
+	    
+	    printf("min_dist[%d] = ", found_root);  
+	    rdpe_out_str (stdout, min_dist);  
+	    printf("\n");  
+	  }
 	}
       
     }

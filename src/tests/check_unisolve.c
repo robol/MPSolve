@@ -74,12 +74,11 @@ test_unisolve_on_pol (test_pol * pol)
       rdpe_t rtmp;
       cdpe_t cdtmp;
       rdpe_t min_dist;
+      int found_root = 0;
 
       while (isspace (ch = getc (check_stream)));
       ungetc (ch, check_stream);
       mpc_inp_str (root, check_stream, 10);
-
-      passed = false;
 
       mpc_sub (ctmp, root, s->mroot[0]);
       mpc_get_cdpe (cdtmp, ctmp);
@@ -95,26 +94,27 @@ test_unisolve_on_pol (test_pol * pol)
 	  if (rdpe_le (rtmp, min_dist))
 	    {
 	      rdpe_set (min_dist, rtmp);
+	      found_root = j;
 	    }
         }
 
-      if (rdpe_le (min_dist, s->drad[i]) || s->over_max)
+      if (!rdpe_le (min_dist, s->drad[found_root]) && !s->over_max)
 	{
-	  passed = true;
-	}
-      else if (getenv ("MPS_VERBOSE_TEST"))
-	{
-	   printf("Setting passed to false with root %d\n", i); 
-	   printf ("s->mroot[%d] = ", i);  
-	   mpc_out_str (stdout, 10, 20, s->mroot[i]);  
-	   printf("\n");  
-
-	   printf("s->drad[%d] = ", i); 
-	   rdpe_out_str (stdout, s->drad[i]); printf ("\n");
-	  
-	   printf("min_dist[%d] = ", i);  
-	   rdpe_out_str (stdout, min_dist);  
-	   printf("\n");  
+	  passed = false;
+	  if (getenv ("MPS_VERBOSE_TEST"))
+	    {
+	      printf("Setting passed to false with root %d\n", found_root); 
+	      printf ("s->mroot[%d] = ", found_root);  
+	      mpc_out_str (stdout, 10, 20, s->mroot[found_root]);  
+	      printf("\n");  
+	      
+	      printf("s->drad[%d] = ", found_root); 
+	      rdpe_out_str (stdout, s->drad[found_root]); printf ("\n");
+	      
+	      printf("min_dist[%d] = ", found_root);  
+	      rdpe_out_str (stdout, min_dist);  
+	      printf("\n");  
+	    }
 	}
 
     }

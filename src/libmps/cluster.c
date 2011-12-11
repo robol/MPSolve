@@ -431,8 +431,8 @@ mps_fcluster (mps_status * s, double * frad, int nf)
 
 	  /* Check if the computed radius is more convenient than the old one. 
 	     If that's the case, apply it as inclusion radius */ 
-	  if (new_rad < s->frad[k]) 
-	    s->frad[k] = new_rad; 
+	  if (new_rad < s->frad[k])  
+	    s->frad[k] = new_rad;  
 	}
     }
 

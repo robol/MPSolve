@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <mcheck.h>
+#include <string.h>
 
 #define MPS_TEST_UNISOLVE           0
 #define MPS_TEST_SECSOLVE_SECULAR   1
@@ -64,7 +65,7 @@ test_mpsolve (char * pol_file, char * res_file, mps_algorithm algorithm)
   mps_mpsolve (s);
   
   mpc_init2 (root, s->data_prec_max);
-  mpc_init2 (ctmp, s->data_prec_max);
+  mpc_init2 (ctmp, s->data_prec_max); 
     
   /* Test if roots are equal to the roots provided in the check */   
   passed = true;
@@ -74,26 +75,36 @@ test_mpsolve (char * pol_file, char * res_file, mps_algorithm algorithm)
       rdpe_t rtmp;   
       cdpe_t cdtmp;   
       rdpe_t min_dist;
+      int found_root = 0;
       
       while (isspace (ch = getc (result_stream)));   
       ungetc (ch, result_stream);   
       mpc_inp_str (root, result_stream, 10);   
       
-      passed = false;   
-      
       mpc_sub (ctmp, root, s->mroot[0]);   
       mpc_get_cdpe (cdtmp, ctmp);   
       cdpe_mod (rtmp, cdtmp);   
       rdpe_set (min_dist, rtmp);   
+
+      if (getenv ("MPS_VERBOSE_TEST") && (strstr (pol_file, getenv ("MPS_VERBOSE_TEST"))))
+	{
+	  printf ("Read root_%d = ", i);
+	  mpc_out_str_2 (stdout, 10, s->data_prec_max, s->data_prec_max,
+			 root);
+	  printf ("\n");
+	}
       
       for (j = 1; j < s->n; j++)   
    	{   
-   	  mpc_sub (ctmp, root, s->mroot[j]);   
+   	  mpc_sub (ctmp, root, s->mroot[j]);
      	  mpc_get_cdpe (cdtmp, ctmp);   
      	  cdpe_mod (rtmp, cdtmp);   
 	  
      	  if (rdpe_le (rtmp, min_dist))
-	    rdpe_set (min_dist, rtmp);
+	    {
+	      rdpe_set (min_dist, rtmp);
+	      found_root = j;
+	    }
 	}
 
       /* printf ("min_dist_%d = ", i); */
@@ -102,16 +113,19 @@ test_mpsolve (char * pol_file, char * res_file, mps_algorithm algorithm)
       /* rdpe_out_str (stdout, s->drad[i]); */
       /* printf ("\n"); */
       
-      if (rdpe_le (min_dist, s->drad[i]) || s->over_max)
-	passed = true;
-      else
+      if (!rdpe_le (min_dist, s->drad[found_root]) && !s->over_max)
 	{
-	  if (getenv ("MPS_VERBOSE_DEBUG"))
+	  passed = false;
+	  
+	  if (getenv ("MPS_VERBOSE_TEST") && (strstr (pol_file, getenv ("MPS_VERBOSE_TEST"))))
 	    {
-	      printf("Failing on root %d, with min_dist = ", i);
+	      printf("Failing on root %d, with min_dist = ", found_root);
 	      rdpe_out_str (stdout, min_dist);
-	      printf("\ndrad_%d", i);
-	      rdpe_out_str (stdout, s->drad[i]);
+	      printf("\ndrad_%d", found_root);
+	      rdpe_out_str (stdout, s->drad[found_root]);
+	      printf("\n");
+	      printf("Approximation_%d = ", found_root);
+	      mpc_out_str_2 (stdout, 10, -rdpe_Esp (s->drad[found_root]), -rdpe_Esp (s->drad[found_root]), s->mroot[found_root]);
 	      printf("\n");
 	    }
 	}
