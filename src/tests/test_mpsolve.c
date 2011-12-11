@@ -30,7 +30,7 @@ test_mpsolve (char * pol_file, char * res_file, mps_algorithm algorithm)
 {
   mpc_t root, ctmp;
   mps_boolean passed = true;
-  int i, j;
+  int i, j, zero_roots = 0;
   char ch;
 
   /* Check the roots */
@@ -80,6 +80,16 @@ test_mpsolve (char * pol_file, char * res_file, mps_algorithm algorithm)
       while (isspace (ch = getc (result_stream)));   
       ungetc (ch, result_stream);   
       mpc_inp_str (root, result_stream, 10);   
+
+      if (mpc_eq_zero (root))
+	{
+	  zero_roots++;
+
+	  /* We need to read it another time. This seems a bug in
+	   * mpc_inp_str, but I don't get why is necessary. */
+	  mpc_inp_str (root, result_stream, 10);
+	  continue;
+	}
       
       mpc_sub (ctmp, root, s->mroot[0]);   
       mpc_get_cdpe (cdtmp, ctmp);   
@@ -130,6 +140,9 @@ test_mpsolve (char * pol_file, char * res_file, mps_algorithm algorithm)
 	    }
 	}
     }
+
+  if (zero_roots != s->zero_roots)
+    passed = false;
   
   fclose (result_stream);    
   

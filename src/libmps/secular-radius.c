@@ -61,6 +61,7 @@ mps_secular_fradii (mps_status * s, double * fradii)
       MPS_DEBUG (s, "prod_b at %d = %e", i, prod_b);
 
       fradii[i] /= prod_b;
+      fradii[i] += cplx_mod (s->froot[i]) * 4.0f * DBL_EPSILON;
 
       if (s->status[i][0] == 'i' && (fradii[i] < s->frad[i]))
 	s->frad[i] = fradii[i];
@@ -129,6 +130,10 @@ mps_secular_dradii (mps_status * s, rdpe_t * dradii)
 	}
 
       rdpe_div_eq (dradii[i], prod_b);
+
+      cdpe_mod (rtmp, s->droot[i]);
+      rdpe_mul_eq_d (rtmp, 4.0 * DBL_EPSILON);
+      rdpe_add_eq (dradii[i], rtmp);
 
       if (s->status[i][0] == 'i' && (rdpe_lt (dradii[i], s->drad[i])))
 	rdpe_set (s->drad[i], dradii[i]);
@@ -211,6 +216,12 @@ mps_secular_mradii (mps_status * s, rdpe_t * dradii)
 	}
 
       rdpe_div_eq (dradii[i], prod_b);
+
+      mpc_get_cdpe (diff, s->mroot[i]);
+      cdpe_mod (rtmp, diff);
+      rdpe_mul_eq_d (rtmp, 4.0);
+      rdpe_mul_eq (rtmp, s->mp_epsilon);
+      rdpe_add_eq (dradii[i], rtmp);
       
       if (s->status[i][0] == 'i' && (rdpe_lt (dradii[i], s->drad[i])))
 	rdpe_set (s->drad[i], dradii[i]);

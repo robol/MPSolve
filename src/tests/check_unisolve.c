@@ -29,6 +29,7 @@ test_unisolve_on_pol (test_pol * pol)
   mps_boolean passed = true;
   mpc_t root, ctmp;
   int i, j, prec = pol->out_digits * LOG2_10;
+  int zero_roots = 0;
   int ch;
 
   fprintf (stderr, "Checking \033[1m%-30s\033[0m [\033[34;1mchecking\033[0m]", pol->pol_file + 11);
@@ -69,7 +70,7 @@ test_unisolve_on_pol (test_pol * pol)
 
   /* Test if roots are equal to the roots provided in the check */
   passed = true;
-  for (i = 0; i < s->n; i++)
+  for (i = 0; i < s->deg; i++)
     {
       rdpe_t rtmp;
       cdpe_t cdtmp;
@@ -79,6 +80,16 @@ test_unisolve_on_pol (test_pol * pol)
       while (isspace (ch = getc (check_stream)));
       ungetc (ch, check_stream);
       mpc_inp_str (root, check_stream, 10);
+
+      if (mpc_eq_zero (root))
+	{
+	  zero_roots++;
+
+	  /* We need to read it another time. This seems a bug in
+	   * mpc_inp_str, but I don't get why is necessary. */
+	  mpc_inp_str (root, check_stream, 10);
+	  continue;
+	}
 
       mpc_sub (ctmp, root, s->mroot[0]);
       mpc_get_cdpe (cdtmp, ctmp);
@@ -121,6 +132,11 @@ test_unisolve_on_pol (test_pol * pol)
 
   mpc_clear (root);
   mpc_clear (ctmp);
+
+  if (zero_roots != s->zero_roots)
+    {
+      passed = false;
+    }
 
   fclose (input_stream);
   fclose (check_stream);
