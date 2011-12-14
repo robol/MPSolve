@@ -232,8 +232,8 @@ mps_improve (mps_status * s)
             rdpe_set (s->drad[i], newrad);
 
 	  /* Disabled because causes problems */
-	  /* if (rdpe_lt (newrad, s->drad[i]))  */
-          /*    rdpe_set (s->drad[i], newrad);  */
+	  if (rdpe_lt (newrad, s->drad[i]))  
+	    rdpe_set (s->drad[i], newrad);  
 
           if (rdpe_lt (s->drad[i], tmp) || s->mpwp == mpnb_in)
             break;              /* loop1 */

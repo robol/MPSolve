@@ -33,6 +33,7 @@ mps_fradii (mps_status * s, double * fradii)
   switch (s->algorithm)
     {
     case MPS_ALGORITHM_STANDARD_MPSOLVE:
+    case MPS_ALGORITHM_SECULAR_GA:
       if (!MPS_INPUT_CONFIG_IS_USER (s->input_config))
 	mps_monomial_fradii (s, fradii);
       else
@@ -42,7 +43,6 @@ mps_fradii (mps_status * s, double * fradii)
 	}
       break;
     case MPS_ALGORITHM_SECULAR_MPSOLVE:
-    case MPS_ALGORITHM_SECULAR_GA:
       mps_secular_fradii (s, fradii);
       break;
     default:
@@ -64,6 +64,7 @@ mps_dradii (mps_status * s, rdpe_t * dradii)
   switch (s->algorithm)
     {
     case MPS_ALGORITHM_STANDARD_MPSOLVE:
+    case MPS_ALGORITHM_SECULAR_GA:
       MPS_DEBUG (s, "s->input_config->density = %d", s->input_config->density);
       if (MPS_INPUT_CONFIG_IS_USER (s->input_config))
 	{
@@ -74,7 +75,6 @@ mps_dradii (mps_status * s, rdpe_t * dradii)
 	mps_monomial_dradii (s, dradii);
       break;
     case MPS_ALGORITHM_SECULAR_MPSOLVE:
-    case MPS_ALGORITHM_SECULAR_GA:
       mps_secular_dradii (s, dradii);
       break;
     default:

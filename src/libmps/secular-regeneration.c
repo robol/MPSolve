@@ -24,6 +24,9 @@ mps_secular_ga_update_root_wp (mps_status * s, int i, long int wp)
 
    s->rootwp[i] = ((wp - 1) / 64 + 1) * 64;
 
+   if (s->data_prec_max < s->rootwp[i])
+     s->data_prec_max = s->rootwp[i];
+
   if (s->debug_level & MPS_DEBUG_MEMORY)
     MPS_DEBUG (s, "Setting wp for root %d to %ld bits", i, s->rootwp[i]);
   
@@ -319,7 +322,7 @@ mps_secular_ga_regenerate_coefficients_monomial (mps_status * s, cdpe_t * old_b,
  * @param root_changed A vector of booleans that is <codefalse</code> on the components that
  * did not changed from the last regeneration. 
  */
-mps_boolean
+mps_boolean 
 mps_secular_ga_regenerate_coefficients_secular (mps_status * s, cdpe_t * old_b, mps_boolean * root_changed)
 {
   MPS_DEBUG_THIS_CALL;
@@ -335,8 +338,29 @@ mps_secular_ga_regenerate_coefficients_secular (mps_status * s, cdpe_t * old_b, 
 
   cdpe_t cdtmp, cdtmp2;
   rdpe_t sec_eps, rtmp, rtmp2, eps_tmp;
+  rdpe_t root_epsilon;
 
   mps_boolean success = true;
+
+  /* Create an old secular_equation that will be used to evaluate the old secular
+  * equation in the new nodes.*/
+  mps_secular_equation  * old_sec = mps_new (mps_secular_equation);
+  rdpe_t error;
+
+  /* Determine the epsilon of the roots, that is a bound to the precision that
+   * we desire con a_i coefficients of the secular equation. */
+  switch (s->lastphase)
+    {
+    case float_phase:
+    case dpe_phase:
+      rdpe_set_d (root_epsilon, DBL_EPSILON);
+      break;
+    case mp_phase:
+      rdpe_set (root_epsilon, s->mp_epsilon);
+      break;
+    default:
+      mps_error (s, 1, "Phase not supported found in mps_secular_ga_regenerate_coefficients_secular");
+    }
 
   /* Init multiprecision variables */
   mpc_init2 (prod_b, s->mpwp);
@@ -359,7 +383,6 @@ mps_secular_ga_regenerate_coefficients_secular (mps_status * s, cdpe_t * old_b, 
 	  mpf_set_q (mpc_Im (sec->initial_bmpc[i]), sec->initial_bmpqic[i]);
 	}
     }
-
 
   /* Compute the new a_i */
   for (i = 0; i < s->n; i++)
@@ -449,9 +472,62 @@ mps_secular_ga_regenerate_coefficients_secular (mps_status * s, cdpe_t * old_b, 
       rdpe_add_eq (sec->dregeneration_epsilon[i], sec_eps);
     }
 
+  /* Fill its multiprecision fields */
+  old_sec->ampc = sec->initial_ampc;
+  old_sec->bmpc = sec->initial_bmpc;
+  old_sec->n = sec->n;
+
+  for (i = 0; i < s->n; i++)
+    {
+      rdpe_t rtmp;
+      cdpe_t cdtmp, cprod_b;
+      int j;
+
+      /* Compute the new a_i as S(b_i) * \prod (x - old_b_i) / \prod (x - b_i) */
+      mps_secular_meval_with_error (s, old_sec, sec->bmpc[i], sec->ampc[i], error);
+
+      mpc_get_cdpe (cdtmp, s->mroot[i]);
+      cdpe_mod (rtmp, cdtmp);
+      rdpe_div_eq (error, rtmp);
+
+      while (rdpe_gt (error, root_epsilon))
+	{
+	  mps_secular_ga_update_root_wp (s, i, 1 + s->rootwp[i] + (rdpe_Esp (error) - rdpe_Esp (root_epsilon)));
+
+	  mps_secular_meval_with_error (s, old_sec, sec->bmpc[i], sec->ampc[i], error);
+	  mpc_get_cdpe (cdtmp, s->mroot[i]);
+	  cdpe_mod (rtmp, cdtmp);
+	  rdpe_div_eq (error, rtmp);
+
+	  if (s->debug_level & MPS_DEBUG_REGENERATION)
+	    MPS_DEBUG_RDPE (s, error, "Relative_error on p(b_%d) evaluation", i);
+	}
+
+      /* Now that we have evaluated correctly the secular equation we can
+       * compute prod_b to finalize the computation */
+      cdpe_set (cprod_b, cdpe_one);
+      for (j = 0; i < s->n; j++)
+	{
+	  mpc_sub (ctmp, sec->bmpc[i], old_sec->bmpc[j]);
+	  mpc_get_cdpe (cdtmp, ctmp);
+	  cdpe_mul_eq (cprod_b, cdtmp);
+
+	  if (i != j)
+	    {
+	      mpc_sub (ctmp, sec->bmpc[i], sec->bmpc[j]);
+	      mpc_get_cdpe (cdtmp, ctmp);
+	      cdpe_div_eq (cprod_b, cdtmp);
+	    }
+	}
+      
+      mpc_set_cdpe (prod_b, cprod_b);      
+      mpc_mul_eq (sec->ampc[i], prod_b);
+    }
+
  regenerate_m_exit:
   
   /* Free data */
+  free (old_sec);
   mpc_clear (prod_b);
   mpc_clear (sec_ev);
   mpc_clear (ctmp);

@@ -593,13 +593,6 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
 	 }       
      }
 
-  if (*again && !skip_radius_computation)
-    {
-      mpc_get_cdpe (cdtmp, corr);
-      cdpe_mod (rad, cdtmp);
-      rdpe_mul_eq_d (rad, s->n);
-    }
-
   /* Final cleanup */
  mnewton_exit:
   mpc_clear (fp);

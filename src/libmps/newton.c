@@ -63,7 +63,6 @@ mps_fnewton (mps_status * s, int n, cplx_t z, double *radius, cplx_t corr,
   az = cplx_mod (z);
 
   /* distinguish the cases |z|<=1, |z|>1 */
-
   if (az <= 1)
     {
       /*  case |z|<=1 */

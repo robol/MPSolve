@@ -70,7 +70,7 @@ test_mpsolve (char * pol_file, char * res_file, mps_algorithm algorithm)
   /* Test if roots are equal to the roots provided in the check */   
   passed = true;
 
-  for (i = 0; i < s->n; i++)   
+  for (i = 0; i < s->deg; i++)   
     {   
       rdpe_t rtmp;   
       cdpe_t cdtmp;   

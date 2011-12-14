@@ -25,7 +25,7 @@ mps_secular_fradii (mps_status * s, double * fradii)
 
   for (i = 0; i < s->n; ++i)
     {
-      prod_b = 1.0f;
+      prod_b = 1.0;
 
       /* If we have that the root is isolated we can simply ignore it, performing
        * a sort of cluster analysis deflation. */
@@ -48,20 +48,24 @@ mps_secular_fradii (mps_status * s, double * fradii)
       /* Compute the product of (x - b_i) and p(x) = S(x) * prod(x_b_i) */
       for (j = 0; j < s->n; j++)
 	{
+	  double adiff;
 	  cplx_sub (diff, s->froot[i], sec->bfpc[j]);
-	  prod_b /= cplx_mod (diff);
+	  adiff = cplx_mod (diff);
+
+	  prod_b *= adiff;
+
 	  if (i == j) 
 	    continue;
-	  cplx_sub (diff, s->froot[i], s->froot[j]); 
-	  prod_b *= cplx_mod (diff);
 
+	  cplx_sub (diff, s->froot[i], s->froot[j]);
+	  prod_b /= cplx_mod (diff);
 	}
 
-      MPS_DEBUG_CPLX (s, sec_ev, "sec_ev at %d", i);
-      MPS_DEBUG (s, "prod_b at %d = %e", i, prod_b);
+      /* MPS_DEBUG_CPLX (s, sec_ev, "sec_ev at %d", i); */
+      /* MPS_DEBUG (s, "prod_b at %d = %e", i, prod_b); */
 
-      fradii[i] /= prod_b;
-      fradii[i] += cplx_mod (s->froot[i]) * 4.0f * DBL_EPSILON;
+      fradii[i] *= prod_b * s->n;
+      fradii[i] += cplx_mod (s->froot[i]) * 4.0 * DBL_EPSILON;
 
       if (s->status[i][0] == 'i' && (fradii[i] < s->frad[i]))
 	s->frad[i] = fradii[i];
@@ -119,20 +123,22 @@ mps_secular_dradii (mps_status * s, rdpe_t * dradii)
 	{
 	  cdpe_sub (diff, s->droot[i], sec->bdpc[j]);
 	  cdpe_mod (rtmp, diff);
-	  rdpe_div_eq (prod_b, rtmp);
+	  rdpe_mul_eq (prod_b, rtmp);
 
 	  if (i == j)
 	    continue;
+
 	  cdpe_sub (diff, s->droot[i], s->droot[j]);
 	  cdpe_mod (rtmp, diff);
-	  rdpe_mul_eq (prod_b, rtmp);
+	  rdpe_div_eq (prod_b, rtmp);
 
 	}
 
-      rdpe_div_eq (dradii[i], prod_b);
+      rdpe_mul_eq (dradii[i], prod_b);
+      rdpe_mul_eq_d (dradii[i], s->n);
 
       cdpe_mod (rtmp, s->droot[i]);
-      rdpe_mul_eq_d (rtmp, 4.0 * DBL_EPSILON);
+      rdpe_mul_eq_d (rtmp, s->n * 4.0 * DBL_EPSILON);
       rdpe_add_eq (dradii[i], rtmp);
 
       if (s->status[i][0] == 'i' && (rdpe_lt (dradii[i], s->drad[i])))
@@ -187,10 +193,13 @@ mps_secular_mradii (mps_status * s, rdpe_t * dradii)
 	}
 
       /* Evaluate the secular equation on root i */
+      mpc_set_si (mdiff, -3, 1);
+      mps_secular_meval_with_error (s, sec, mdiff, msec_ev, error);
       mps_secular_meval_with_error (s, sec, s->mroot[i], msec_ev, error);
       mpc_get_cdpe (sec_ev, msec_ev);
       cdpe_mod (dradii[i], sec_ev);
       rdpe_add_eq (dradii[i], error);
+      rdpe_mul_eq_d (dradii[i], s->n);
 
       if (isnan (dradii[i]->m))
 	{
@@ -204,22 +213,22 @@ mps_secular_mradii (mps_status * s, rdpe_t * dradii)
 	  mpc_sub (mdiff, s->mroot[i], sec->bmpc[j]);
 	  mpc_get_cdpe (diff, mdiff);
 	  cdpe_mod (rtmp, diff);
-	  rdpe_div_eq (prod_b, rtmp);
+	  rdpe_mul_eq (prod_b, rtmp);
 
-	  if (i == j) 
+	  if (i == j)
 	    continue;
 
 	  mpc_sub (mdiff, s->mroot[i], s->mroot[j]);
 	  mpc_get_cdpe (diff, mdiff);
 	  cdpe_mod (rtmp, diff);
-	  rdpe_mul_eq (prod_b, rtmp);
+	  rdpe_div_eq (prod_b, rtmp);
 	}
 
-      rdpe_div_eq (dradii[i], prod_b);
+      rdpe_mul_eq (dradii[i], prod_b);
 
       mpc_get_cdpe (diff, s->mroot[i]);
       cdpe_mod (rtmp, diff);
-      rdpe_mul_eq_d (rtmp, 4.0);
+      rdpe_mul_eq_d (rtmp, 4.0 * s->n);
       rdpe_mul_eq (rtmp, s->mp_epsilon);
       rdpe_add_eq (dradii[i], rtmp);
       
