@@ -11,16 +11,14 @@
 
 #include <string.h>
 #include <stdio.h>
-#include <mps/core.h>
-#include <mps/interface.h>
-#include <mcheck.h>
+#include <mps/mps.h>
 
-void
-abortfn (enum mcheck_status status)
-{
-  fprintf (stderr, "A memory error has occurred in MPSolve; aborting\n");
-  abort ();
-}
+/* void */
+/* abortfn (enum mcheck_status status) */
+/* { */
+/*   fprintf (stderr, "A memory error has occurred in MPSolve; aborting\n"); */
+/*   abort (); */
+/* } */
 
 /***********************************************************
  *                 MAIN                                    *

@@ -1,6 +1,6 @@
 #include <check.h>
 #include <check_implementation.h>
-#include <mps/core.h>
+#include <mps/mps.h>
 #include <limits.h>
 
 /**

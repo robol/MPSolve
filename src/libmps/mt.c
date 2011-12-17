@@ -14,7 +14,7 @@
 #include <float.h>
 #include <limits.h>
 #include <mps/mt.h>
-#include <mps/core.h>
+#include <mps/mps.h>
 
 /***********************************************************
 **              machine dependent constants               **

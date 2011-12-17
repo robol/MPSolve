@@ -12,8 +12,91 @@ extern "C"
 {
 #endif
 
-  #include <mps/core.h>
+  #include <mps/mps.h>
   #include <gmp.h>
+
+  /**
+   * @brief Data regarding a polynomial represented in the monomial
+   * base.
+   */
+  struct mps_monomial_poly {
+    
+    /**
+     * @brief The degree of the polynomial.
+     */
+    int n;
+
+    /**
+     * @brief This array contains the structure of the sparse
+     * polynomial.
+     *
+     * <code>spar[i]</code> is <code>true</code> if and only if
+     * the i-th coefficients of the polynomial is a non-zero
+     * coefficients
+     */
+    mps_boolean *spar;
+
+    /**
+     * @brief Standard real coefficients.
+     */
+    double *fpr;
+
+    /**
+     * @brief Standard complex coefficients.
+     */
+    cplx_t *fpc;
+
+    /**
+     * @brief Array containing standard complex coefficients
+     */
+    cplx_t *fppc;
+
+    /**
+     * @brief Dpe real coefficients.
+     */
+    rdpe_t *dpr;
+
+    /**
+     * @brief Dpe complex coefficients.
+     */
+    cdpe_t *dpc;
+
+    /**
+     * @brief Multiprecision real coefficients.
+     */
+    mpf_t *mfpr;
+
+    /**
+     * @brief Multiprecision complex coefficients.
+     */
+    mpc_t *mfpc;
+
+    /**
+     * @brief Multiprecision complex coefficients of \f$p'(x)\f$.
+     */
+    mpc_t *mfppc;
+
+    /**
+     * @brief Array containing moduli of the coefficients as double numbers.
+     */
+    double *fap;
+
+    /**
+     * @brief Array containing moduli of the coefficients as dpe numbers.
+     */
+    rdpe_t *dap;
+
+    /**
+     * @brief Real part of rational input coefficients.
+     */
+    mpq_t *initial_mqp_r;
+
+    /**
+     * @brief Imaginary part of rational input coefficients.
+     */
+    mpq_t *initial_mqp_i;
+        
+  };
 
   /* These routines are thought for polynomial handling, i.e. allocating and 
    * setting coefficients of the polynomials, and setting the precision of the

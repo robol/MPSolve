@@ -6,13 +6,7 @@
 #ifndef __MPS_CLUSTER
 #define __MPS_CLUSTER
 
-/* FORWARD DECLARATIONS */
-typedef struct mps_root mps_root;
-typedef struct mps_cluster mps_cluster;
-typedef struct mps_cluster_item mps_cluster_item;
-typedef struct mps_clusterization mps_clusterization;
-
-#include <mps/types.h>
+#include <mps/mps.h>
 
 /**
  * @brief This struct represent a root inside of a <code>mps_cluster</code>.

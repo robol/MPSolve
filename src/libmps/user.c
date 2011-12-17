@@ -29,7 +29,7 @@ obtained by means of a rounding error analysis of (1).
 
 #include <float.h>
 #include <math.h>
-#include <mps/core.h>
+#include <mps/mps.h>
 
 /******************************************************
 *              SUBROUTINE FNEWTON_USR                 *   

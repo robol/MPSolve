@@ -30,7 +30,7 @@
  * \f[ \mathcal{V} = \{ (i, a_i) \ | \ i \in \{ 1, \dots, n \} \ \text{and} \ h_i \ \text{is true} \ \} \f]
  */
 
-#include <mps/core.h>
+#include <mps/mps.h>
 
 const double TOLER = 0.4;       /* slope tolerace */
 

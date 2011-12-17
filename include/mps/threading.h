@@ -18,13 +18,8 @@ extern "C"
 #ifndef MPS_THREADING_H_
 #define MPS_THREADING_H_
 
-  /* FORWARD DECLARATIONS */
-  typedef struct  mps_thread_job mps_thread_job;
-  typedef struct  mps_thread_job_queue mps_thread_job_queue;
-  typedef struct  mps_thread_worker_data mps_thread_worker_data;
-
 #include <pthread.h>
-#include <mps/core.h>
+#include <mps/mps.h>
 
 #define MPS_THREAD_JOB_EXCEP -1
 

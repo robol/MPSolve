@@ -17,9 +17,7 @@
  **           (C) 2011, Dipartimento di Matematica         **
  ***********************************************************/
 
-#include <mps/core.h>
-#include <mps/secular.h>
-#include <mps/debug.h>
+#include <mps/mps.h>
 #include <math.h>
 
 

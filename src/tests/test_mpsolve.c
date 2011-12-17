@@ -1,4 +1,4 @@
-#include <mps/core.h>
+#include <mps/mps.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>

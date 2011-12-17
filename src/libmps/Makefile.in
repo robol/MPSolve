@@ -263,14 +263,16 @@ include_HEADERS = \
         ${top_srcdir}/include/mps/interface.h \
         ${top_srcdir}/include/mps/gmptools.h \
         ${top_srcdir}/include/mps/mpc.h \
+	${top_srcdir}/include/mps/cluster.h \
         ${top_srcdir}/include/mps/debug.h \
         ${top_srcdir}/include/mps/mt.h \
         ${top_srcdir}/include/mps/link.h \
-        ${top_srcdir}/include/mps/core.h \
+        ${top_srcdir}/include/mps/mps.h \
         ${top_srcdir}/include/mps/rursolve.h \
         ${top_srcdir}/include/mps/secular.h \
         ${top_srcdir}/include/mps/threading.h \
-	${top_srcdir}/include/mps/types.h \
+	${top_srcdir}/include/mps/status.h \
+	${top_srcdir}/include/mps/options.h \
 	$(NULL)
 
 AM_CPPFLAGS = \

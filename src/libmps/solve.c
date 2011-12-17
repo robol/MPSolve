@@ -10,10 +10,8 @@
  ***********************************************************/
 
 #include <math.h>
-#include <mps/gmptools.h>
+#include <mps/mps.h>
 #include <float.h>
-#include <mps/core.h>
-#include <mps/threading.h>
 
 /**
  * @brief Set <code>again[i]</code> to <code>true</code> or to <code>false</code> 

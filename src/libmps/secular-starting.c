@@ -5,9 +5,7 @@
  *      Author: leonardo
  */
 
-#include <mps/debug.h>
-#include <mps/secular.h>
-#include <mps/core.h>
+#include <mps/mps.h>
 #include <math.h>
 
 #define pi2 6.283184

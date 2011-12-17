@@ -1,4 +1,4 @@
-#include <mps/core.h>
+#include <mps/mps.h>
 
 /**
  * @brief Compute the radius of inclusions for the roots using Gerschgorin

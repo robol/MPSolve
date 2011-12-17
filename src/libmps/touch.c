@@ -11,7 +11,7 @@
 
 #include <float.h>
 #include <math.h>
-#include <mps/core.h>
+#include <mps/mps.h>
 
 /**
  * @brief Check if the i-th and the j-th discs are newton-isolated.

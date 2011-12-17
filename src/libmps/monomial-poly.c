@@ -1,4 +1,4 @@
-#include <mps/core.h>
+#include <mps/mps.h>
 
 /**
  * @brief Return a newly allocated mps_monomial_poly of the given degree.

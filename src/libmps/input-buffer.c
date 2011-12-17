@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <mps/core.h>
+#include <mps/mps.h>
 #include <string.h>
 #include <ctype.h>
 

@@ -17,7 +17,7 @@
  **           (C) 2011, Dipartimento di Matematica         **
  ***********************************************************/
 
-#include <mps/core.h>
+#include <mps/mps.h>
 #include <stdarg.h>
 #include <time.h>
 

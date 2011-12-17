@@ -6,7 +6,7 @@
  */
 
 
-#include <mps/core.h>
+#include <mps/mps.h>
 #include <mps/link.h>
 #include <gmp.h>
 #include <stdlib.h>

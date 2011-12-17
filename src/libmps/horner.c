@@ -17,7 +17,7 @@
  **           (C) 2011, Dipartimento di Matematica         **
  ***********************************************************/
 
-#include <mps/core.h>
+#include <mps/mps.h>
 
 /**
  * @brief Compute the value of the polynomial <code>p</code> in the point <code>x</code>

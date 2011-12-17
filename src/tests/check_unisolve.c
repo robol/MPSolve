@@ -3,10 +3,8 @@
  */
 
 #include <check.h>
-#include <mps/core.h>
+#include <mps/mps.h>
 #include <gmp.h>
-#include <mps/mpc.h>
-#include <mps/gmptools.h>
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>

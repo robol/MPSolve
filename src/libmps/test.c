@@ -9,7 +9,7 @@
 ** (C) 2001, Dipartimento di Matematica, FRISCO LTR 21024 **
 ***********************************************************/
 
-#include <mps/core.h>
+#include <mps/mps.h>
 
 /********************************************************
 *      SUBROUTINE INCLUSION                             *

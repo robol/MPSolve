@@ -18,9 +18,7 @@
  ***********************************************************/
 
 #include <float.h>
-#include <mps/gmptools.h>
-#include <mps/core.h>
-#include <mps/threading.h>
+#include <mps/mps.h>
 #include <time.h>
 #include <math.h>
 

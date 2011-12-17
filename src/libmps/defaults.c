@@ -19,8 +19,7 @@
 
 #include <stdio.h>
 #include <float.h>
-#include <mps/core.h>
-#include <mps/threading.h>
+#include <mps/mps.h>
 #include <string.h>
 
 void

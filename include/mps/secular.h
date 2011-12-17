@@ -18,9 +18,7 @@ extern "C"
 {
 #endif
 
-#include <mps/mt.h>
-#include <mps/interface.h>
-#include <mps/mpc.h>
+#include <mps/mps.h>
 #include <float.h>
 
   /* CONSTANTS */
@@ -40,13 +38,157 @@ extern "C"
 #define MPS_SECULAR_EQUIVALENT_FP_PRECISION (MPS_SECULAR_STARTING_MP_PRECISION / 2)
 
   /**
+   * @brief Secular equation data.
+   *
+   * A secular equation is an equation in the form
+   * \f[
+   *   \sum_{i = 1}^{n} \frac{a_i}{z - b_i} = 1
+   * \f]
+   * and this struct holds the values of the parameters \f$a_i\f$
+   * and \f$b_i\f$.
+   */
+  struct mps_secular_equation
+  {
+    /**
+     * @brief Vector of \f$a_i\f$ as complex floating
+     * point numbers.
+     */
+    cplx_t *afpc;
+
+    /**
+     * @brief Same as <code>afpc</code>, but the <code>dpe</code>
+     * version.
+     */
+    cdpe_t *adpc;
+
+    /**
+     * @brief Vector with the values of \f$b_i\f$ as complex
+     * floating point numbers.
+     */
+    cplx_t *bfpc;
+
+    /**
+     * @brief Same as <code>bfpc</code>, but the <code>dpe</code>
+     * version.
+     */
+    cdpe_t *bdpc;
+
+    /**
+     * @brief Same as <code>afpc</code>, but the multiprecision
+     * version.
+     */
+    mpc_t *ampc;
+
+    /**
+     * @brief Same as <code>bfpc</code>, but the multiprecision
+     * version.
+     */
+    mpc_t *bmpc;
+
+    /**
+     * @brief Moduli of the floating point a_i
+     * coefficients of the secular equation.
+     */
+    double *aafpc;
+
+    /**
+     * @brief Moduli of the floating point b_i 
+     * coefficients of the secular equation.
+     */
+    double *abfpc;
+
+    /**
+     * @brief DPE Moduli of the CDPE of Multiprecision a_i 
+     * coefficients of the secular equation.
+     */
+    rdpe_t *aadpc;
+    
+    /**
+     * @brief DPE Moduli of the CDPE of Multiprecision b_i 
+     * coefficients of the secular equation.
+     */
+    rdpe_t *abdpc;
+
+    /**
+     * @brief Initial multiprecision coefficients saved for latter
+     * regeneration in <code>mps_secular_ga_regenerate_coefficients()</code>.
+     */
+    mpc_t *initial_ampc;
+
+    /**
+     * @brief Initial multiprecision coefficients saved for latter
+     * regeneration in <code>mps_secular_ga_regenerate_coefficients()</code>.
+     */
+    mpc_t *initial_bmpc;
+
+    /**
+     * @brief Initial rational coefficients, if rational input is selected.
+     * This value is the real part of the \f$a_i\f$ coefficients.
+     */
+    mpq_t *initial_ampqrc;
+
+    /**
+     * @brief Initial rational coefficients, if rational input is selected.
+     * This value is the real part of the \f$b_i\f$ coefficients.
+     */    
+    mpq_t *initial_bmpqrc;
+
+    /**
+     * @brief Initial rational coefficients, if rational input is selected.
+     * This value is the imaginary part of the \f$a_i\f$ coefficients.
+     */
+    mpq_t *initial_ampqic;
+
+    /**
+     * @brief Initial rational coefficients, if rational input is selected.
+     * This value is the imaginary part of the \f$b_i\f$ coefficients.
+     */
+    mpq_t *initial_bmpqic;
+
+    /**
+     * @brief Size of the vectors of the coefficients of the
+     * secular equation.
+     */
+    unsigned long int n;
+
+    /**
+     * @brief Selected starting case, can be 'd' for DPE
+     * or 'f' for floating point
+     */
+    mps_phase starting_case;
+
+    /**
+     * @brief Set to true if the approximation are the best that
+     * can be obtained with the current precision
+     */
+    mps_boolean best_approx;
+
+    /**
+     * @brief This vector contains the errors present in the coefficients
+     * of the computed regeneration of the secular equation.
+     *
+     * This is the version use in DPE and MPC computation.
+     */
+    rdpe_t * dregeneration_epsilon;
+
+    /**
+     * @brief This vector contains the errors present in the coefficients
+     * of the computed regeneration of the secular equation.
+     *
+     * This is the version use in floating point computation.
+     */
+    double * fregeneration_epsilon;    
+
+  };       /* End of struct mps_secular_equation {... */
+
+  /**
    * @brief This is a struct that represent an iteration on a root. It contains
    * information that could be useful for mps_secular_*iterate() routine to determine
    * some error bound and provide a method for the routine to communicate if
    * it was able to set the radius or not (by setting the <code>radius_set</code> 
    * in the right way).
    */
-  typedef struct {
+  struct mps_secular_iteration_data {
     /**
      * @brief The index of the roots on which the iterations
      * is being carried out.
@@ -61,7 +203,7 @@ extern "C"
      */
     mps_boolean radius_set;
 
-  } mps_secular_iteration_data;
+  };
     
 
 

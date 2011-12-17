@@ -1,4 +1,4 @@
-#include <mps/core.h>
+#include <mps/mps.h>
 #include <math.h>
 
 /**

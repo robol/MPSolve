@@ -21,7 +21,7 @@
 #include <errno.h>
 #include <stdlib.h>
 #include <float.h>
-#include <mps/core.h>
+#include <mps/mps.h>
 
 /* local definition */
 void mps_print_help (mps_status * s);

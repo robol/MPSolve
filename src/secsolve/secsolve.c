@@ -5,9 +5,7 @@
  *      Author: leonardo
  */
 
-#include <mps/interface.h>
-#include <mps/secular.h>
-#include <mps/core.h>
+#include <mps/mps.h>
 #include <string.h>
 #include <mcheck.h>
 

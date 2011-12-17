@@ -1,8 +1,4 @@
-#include <mps/debug.h>
-#include <mps/core.h>
-#include <mps/link.h>
-#include <mps/secular.h>
-#include <mps/debug.h>
+#include <mps/mps.h>
 #include <math.h>
 #include <string.h>
 

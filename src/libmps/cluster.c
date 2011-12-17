@@ -18,9 +18,10 @@
  ***********************************************************/
 
 #include <string.h>
+#include <float.h>
 #include <assert.h>
 #include <mps/gmptools.h>
-#include <mps/core.h>
+#include <mps/mps.h>
 #include <mps/cluster.h>
 
 /**

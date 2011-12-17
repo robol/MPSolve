@@ -25,8 +25,7 @@
 
 #include <math.h>
 #include <float.h>
-#include <mps/core.h>
-#include <mps/interface.h>
+#include <mps/mps.h>
 
 #ifdef MPS_CATCH_FPE
 #include <fenv.h>

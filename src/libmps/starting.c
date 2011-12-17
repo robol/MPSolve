@@ -13,10 +13,7 @@
 #include <float.h>
 #include <limits.h>
 #include <assert.h>
-#include <mps/gmptools.h>
-#include <mps/core.h>
-#include <mps/debug.h>
-
+#include <mps/mps.h>
 
 #define MPS_STARTING_SIGMA (0.66 * (PI / s->n))
 #define pi2 6.283184

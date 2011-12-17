@@ -16,9 +16,6 @@
  * this file is needed to access all the MPSolve routines by
  * MPSolve internals.
  *
- * If you need an interface for using mps as a library try to
- * include the header file <code>mps/interface.h</code>.
- *
  * @brief Header file for libmps
  */
 
@@ -26,19 +23,77 @@
 #define MPS_CORE_H_
 
 #ifdef __cplusplus
-extern "C"
+extern  "C"
 {
 #endif
 
+  /* Forward declarations of the type used in the headers, so they can be
+   * resolved indepently by the header inclusion order. */
 
-/* local include files */
-#include <mps/types.h>
+  /**
+   * @brief Type representing the computation phase
+   * of the algorithm we are in
+   * now. It can assume the values:
+   * - <code>no_phase</code>;
+   * - <code>float_phase</code>;
+   * - <code>dpe_phase</code>;
+   * - <code>mp_phase</code>;
+   */
+  typedef enum
+    {
+      no_phase, float_phase, dpe_phase, mp_phase
+    } mps_phase;
+
+  /* status.h */
+  typedef struct mps_status mps_status;
+
+  /* cluster.h */
+  typedef struct mps_root mps_root;
+  typedef struct mps_cluster mps_cluster;
+  typedef struct mps_cluster_item mps_cluster_item;
+  typedef struct mps_clusterization mps_clusterization;
+
+  /* secular.h */
+  typedef struct mps_secular_equation mps_secular_equation;
+  typedef struct mps_secular_iteration_data mps_secular_iteration_data;
+
+  /* monomial-poly.h */
+  typedef struct mps_monomial_poly mps_monomial_poly;
+
+  /* input-buffer.h */
+  typedef struct mps_input_buffer mps_input_buffer;
+
+  /* options.h */
+  typedef struct mps_opt mps_opt;
+  typedef struct mps_input_option mps_input_option;
+  typedef enum mps_algorithm mps_algorithm;
+  typedef enum mps_option_key mps_option_key;
+  typedef enum mps_structure mps_structure;
+  typedef enum mps_representation mps_representation;
+  typedef enum mps_density mps_density;
+  typedef enum mps_output_format mps_output_format;
+  typedef struct mps_input_configuration mps_input_configuration;
+  typedef struct mps_output_configuration mps_output_configuration;
+
+  /* threading.h */
+  typedef struct mps_thread_job mps_thread_job;
+  typedef struct mps_thread_job_queue mps_thread_job_queue;
+  typedef struct mps_thread_worker_data mps_thread_worker_data;
+  
+
+/* Local include files that should not be included directly */
+#include <mps/options.h>
+#include <mps/cluster.h>
 #include <mps/tools.h>
 #include <mps/mt.h>
 #include <mps/gmptools.h>
 #include <mps/mpc.h>
 #include <mps/link.h>
 #include <mps/debug.h>
+#include <mps/input-buffer.h>
+#include <mps/status.h>
+#include <mps/monomial-poly.h>
+#include <mps/secular.h>
 
 /* Interface should be a subset of core, so what is defined
  * there should be included here. */
@@ -51,15 +106,6 @@ extern "C"
 
 
 /* FUNCTIONS */
-
-/* Functions in input-buffer.c */
-#define MPS_INPUT_BUFFER_HISTORY_DEFAULT_SIZE 2
-  mps_input_buffer *mps_input_buffer_new (FILE * stream);
-  int mps_input_buffer_readline (mps_input_buffer * buf);
-  void mps_input_buffer_free (mps_input_buffer * buf);
-  void mps_input_buffer_set_history_size (mps_input_buffer * buf, size_t size);
-  mps_boolean mps_input_buffer_eof (mps_input_buffer * buf);
-  char * mps_input_buffer_next_token (mps_input_buffer * buf);
 
   /* functions in aberth.c */
   void mps_faberth (mps_status * s, int j, cplx_t abcorr);

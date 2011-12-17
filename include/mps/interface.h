@@ -22,12 +22,7 @@ extern "C"
 #include <stdio.h>
 #include <pthread.h>
 #include <gmp.h>
-#include <mps/types.h>
-#include <mps/mt.h>
-#include <mps/mpc.h>
-#include <mps/tools.h>
-#include <mps/monomial-poly.h>
-#include <mps/secular.h>
+#include <mps/mps.h>
 
   /**
    * @file

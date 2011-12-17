@@ -1,4 +1,4 @@
-#include <mps/core.h>
+#include <mps/mps.h>
 
 /**
  * @brief Evaluate a secular equation <code>sec</code> in the point <code>x</code>

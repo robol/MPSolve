@@ -5,11 +5,7 @@
  *      Author: leonardo
  */
 
-#include <mps/core.h>
-#include <mps/secular.h>
-#include <mps/debug.h>
-#include <mps/mt.h>
-#include <mps/mpc.h>
+#include <mps/mps.h>
 
 /**
  * @brief Utility routine that dumps the DPE coefficients of the secular equation
