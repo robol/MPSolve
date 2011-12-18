@@ -34,7 +34,8 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 EXTRA_PROGRAMS = test_mpsolve$(EXEEXT) check_secsolve$(EXEEXT) \
-	check_unisolve$(EXEEXT) check_dpe$(EXEEXT)
+	check_unisolve$(EXEEXT) check_dpe$(EXEEXT) \
+	check_multithread$(EXEEXT)
 subdir = src/tests
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -58,6 +59,14 @@ am__v_lt_0 = --silent
 check_dpe_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(check_dpe_CFLAGS) \
 	$(CFLAGS) $(check_dpe_LDFLAGS) $(LDFLAGS) -o $@
+am_check_multithread_OBJECTS =  \
+	check_multithread-check_multithread.$(OBJEXT)
+check_multithread_OBJECTS = $(am_check_multithread_OBJECTS)
+check_multithread_LDADD = $(LDADD)
+check_multithread_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(check_multithread_CFLAGS) $(CFLAGS) \
+	$(check_multithread_LDFLAGS) $(LDFLAGS) -o $@
 am_check_secsolve_OBJECTS = check_secsolve-check_secsolve.$(OBJEXT) \
 	check_secsolve-check_implementation.$(OBJEXT)
 check_secsolve_OBJECTS = $(am_check_secsolve_OBJECTS)
@@ -106,10 +115,12 @@ am__v_CCLD_0 = @echo "  CCLD  " $@;
 AM_V_GEN = $(am__v_GEN_$(V))
 am__v_GEN_ = $(am__v_GEN_$(AM_DEFAULT_VERBOSITY))
 am__v_GEN_0 = @echo "  GEN   " $@;
-SOURCES = $(check_dpe_SOURCES) $(check_secsolve_SOURCES) \
-	$(check_unisolve_SOURCES) $(test_mpsolve_SOURCES)
-DIST_SOURCES = $(check_dpe_SOURCES) $(check_secsolve_SOURCES) \
-	$(check_unisolve_SOURCES) $(test_mpsolve_SOURCES)
+SOURCES = $(check_dpe_SOURCES) $(check_multithread_SOURCES) \
+	$(check_secsolve_SOURCES) $(check_unisolve_SOURCES) \
+	$(test_mpsolve_SOURCES)
+DIST_SOURCES = $(check_dpe_SOURCES) $(check_multithread_SOURCES) \
+	$(check_secsolve_SOURCES) $(check_unisolve_SOURCES) \
+	$(test_mpsolve_SOURCES)
 ETAGS = etags
 CTAGS = ctags
 am__tty_colors = \
@@ -261,6 +272,9 @@ check_dpe_LDFLAGS = -L${top_builddir}/src/libmps -lmps -lm -lgmp -lcheck
 test_mpsolve_SOURCES = test_mpsolve.c
 test_mpsolve_CFLAGS = ${CHECK_CFLAGS} -I${top_srcdir}/include
 test_mpsolve_LDFLAGS = -L${top_builddir}/src/libmps -lmps -lm -lgmp
+check_multithread_SOURCES = check_multithread.c
+check_multithread_CFLAGS = ${CHECK_CFLAGS} -I${top_srcdir}/include
+check_multithread_LDFLAGS = -L${top_builddir}/src/libmps -lmps -lm -lgmp
 EXTRA_DIST = \
 	secsolve/rand15.pol \
 	secsolve/test1000.pol \
@@ -513,6 +527,9 @@ clean-checkPROGRAMS:
 check_dpe$(EXEEXT): $(check_dpe_OBJECTS) $(check_dpe_DEPENDENCIES) 
 	@rm -f check_dpe$(EXEEXT)
 	$(AM_V_CCLD)$(check_dpe_LINK) $(check_dpe_OBJECTS) $(check_dpe_LDADD) $(LIBS)
+check_multithread$(EXEEXT): $(check_multithread_OBJECTS) $(check_multithread_DEPENDENCIES) 
+	@rm -f check_multithread$(EXEEXT)
+	$(AM_V_CCLD)$(check_multithread_LINK) $(check_multithread_OBJECTS) $(check_multithread_LDADD) $(LIBS)
 check_secsolve$(EXEEXT): $(check_secsolve_OBJECTS) $(check_secsolve_DEPENDENCIES) 
 	@rm -f check_secsolve$(EXEEXT)
 	$(AM_V_CCLD)$(check_secsolve_LINK) $(check_secsolve_OBJECTS) $(check_secsolve_LDADD) $(LIBS)
@@ -531,6 +548,7 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/check_dpe-check_dpe.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/check_dpe-check_implementation.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/check_multithread-check_multithread.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/check_secsolve-check_implementation.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/check_secsolve-check_secsolve.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/check_unisolve-check_implementation.Po@am__quote@
@@ -592,6 +610,22 @@ check_dpe-check_implementation.obj: check_implementation.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='check_implementation.c' object='check_dpe-check_implementation.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(check_dpe_CFLAGS) $(CFLAGS) -c -o check_dpe-check_implementation.obj `if test -f 'check_implementation.c'; then $(CYGPATH_W) 'check_implementation.c'; else $(CYGPATH_W) '$(srcdir)/check_implementation.c'; fi`
+
+check_multithread-check_multithread.o: check_multithread.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(check_multithread_CFLAGS) $(CFLAGS) -MT check_multithread-check_multithread.o -MD -MP -MF $(DEPDIR)/check_multithread-check_multithread.Tpo -c -o check_multithread-check_multithread.o `test -f 'check_multithread.c' || echo '$(srcdir)/'`check_multithread.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/check_multithread-check_multithread.Tpo $(DEPDIR)/check_multithread-check_multithread.Po
+@am__fastdepCC_FALSE@	$(AM_V_CC) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='check_multithread.c' object='check_multithread-check_multithread.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(check_multithread_CFLAGS) $(CFLAGS) -c -o check_multithread-check_multithread.o `test -f 'check_multithread.c' || echo '$(srcdir)/'`check_multithread.c
+
+check_multithread-check_multithread.obj: check_multithread.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(check_multithread_CFLAGS) $(CFLAGS) -MT check_multithread-check_multithread.obj -MD -MP -MF $(DEPDIR)/check_multithread-check_multithread.Tpo -c -o check_multithread-check_multithread.obj `if test -f 'check_multithread.c'; then $(CYGPATH_W) 'check_multithread.c'; else $(CYGPATH_W) '$(srcdir)/check_multithread.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/check_multithread-check_multithread.Tpo $(DEPDIR)/check_multithread-check_multithread.Po
+@am__fastdepCC_FALSE@	$(AM_V_CC) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='check_multithread.c' object='check_multithread-check_multithread.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(check_multithread_CFLAGS) $(CFLAGS) -c -o check_multithread-check_multithread.obj `if test -f 'check_multithread.c'; then $(CYGPATH_W) 'check_multithread.c'; else $(CYGPATH_W) '$(srcdir)/check_multithread.c'; fi`
 
 check_secsolve-check_secsolve.o: check_secsolve.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(check_secsolve_CFLAGS) $(CFLAGS) -MT check_secsolve-check_secsolve.o -MD -MP -MF $(DEPDIR)/check_secsolve-check_secsolve.Tpo -c -o check_secsolve-check_secsolve.o `test -f 'check_secsolve.c' || echo '$(srcdir)/'`check_secsolve.c

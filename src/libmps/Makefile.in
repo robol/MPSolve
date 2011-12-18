@@ -78,12 +78,13 @@ am__objects_1 =
 am_libmps_la_OBJECTS = aberth.lo cluster.lo convex.lo data.lo debug.lo \
 	defaults.lo general-radius.lo getopts.lo gmptools.lo horner.lo \
 	improve.lo input-buffer.lo interface.lo link.lo main.lo \
-	modify.lo monomial-poly.lo monomial-radius.lo mpc.lo mt.lo \
-	newton.lo secular-evaluation.lo secular-ga.lo \
-	secular-iteration.lo secular-newton.lo secular-radius.lo \
-	secular-regeneration.lo secular-starting.lo secular.lo \
-	solve.lo sort.lo starting.lo stio.lo test.lo threading.lo \
-	tools.lo touch.lo user.lo $(am__objects_1)
+	modify.lo monomial-poly.lo monomial-radius.lo \
+	monomial-threading.lo mpc.lo mt.lo newton.lo \
+	secular-evaluation.lo secular-ga.lo secular-iteration.lo \
+	secular-newton.lo secular-radius.lo secular-regeneration.lo \
+	secular-starting.lo secular.lo solve.lo sort.lo starting.lo \
+	stio.lo test.lo threading.lo tools.lo touch.lo user.lo \
+	$(am__objects_1)
 libmps_la_OBJECTS = $(am_libmps_la_OBJECTS)
 AM_V_lt = $(am__v_lt_$(V))
 am__v_lt_ = $(am__v_lt_$(AM_DEFAULT_VERBOSITY))
@@ -300,6 +301,7 @@ libmps_la_SOURCES = \
 	    modify.c \
 	    monomial-poly.c \
 	    monomial-radius.c \
+	    monomial-threading.c \
 	    mpc.c \
 	    mt.c \
 	    newton.c \
@@ -419,6 +421,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/modify.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/monomial-poly.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/monomial-radius.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/monomial-threading.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mpc.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mt.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/newton.Plo@am__quote@

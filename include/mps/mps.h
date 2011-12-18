@@ -79,6 +79,8 @@ extern  "C"
   typedef struct mps_thread_job mps_thread_job;
   typedef struct mps_thread_job_queue mps_thread_job_queue;
   typedef struct mps_thread_worker_data mps_thread_worker_data;
+  typedef struct mps_thread mps_thread;
+  typedef struct mps_thread_pool mps_thread_pool;
   
 
 /* Local include files that should not be included directly */

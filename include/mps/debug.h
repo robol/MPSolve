@@ -210,7 +210,7 @@ extern "C"
    */
 #ifndef DISABLE_DEBUG
 #if __STDC_VERSION__ < 199901L
-#include <mps/core.h>
+#include <mps/mps.h>
 #ifdef MPS_DEBUG
 #undef MPS_DEBUG
 #endif

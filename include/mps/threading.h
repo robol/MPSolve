@@ -19,9 +19,15 @@ extern "C"
 #define MPS_THREADING_H_
 
 #include <pthread.h>
+#include <semaphore.h>
 #include <mps/mps.h>
 
 #define MPS_THREAD_JOB_EXCEP -1
+
+  /**
+   * @brief A generic routine that can be performed by a <code>mps_thread</code>.
+   */
+  typedef void * (*mps_thread_work) (void *);
 
   /**
    * @brief A new job for <code>mps_thread_fsolve()</code>,
@@ -166,13 +172,137 @@ extern "C"
     pthread_mutex_t *roots_mutex;
 
     /**
-     * @brief Pointo the <code>mps_thread_job_queue</code> that the thread
+     * @brief Pointer to the <code>mps_thread_job_queue</code> that the thread
      * may query for other work.
      */
     mps_thread_job_queue *queue;
   };
 
+  /**
+   * @brief A thread that is part of a thread pool.
+   */
+  struct mps_thread {
+
+    /**
+     * @brief Pool of which this thread is part.
+     */
+    mps_thread_pool * pool;
+
+    /**
+     * @brief The pthread_t assigned to the worked.
+     */
+    pthread_t * thread;
+
+    /**
+     * @brief The next thread in the pool, or NULL if this
+     * is the last thread contained in it.
+     */
+    mps_thread * next;
+
+    /**
+     * @brief The data assigned to this thread, that sets 
+     * the worker that he has to do.
+     */
+    mps_thread_worker_data * data;
+
+    /**
+     * @brief True if the thread is busy.
+     */
+    mps_boolean busy;
+
+    /**
+     * @brief Busy mutex of the thread. This is locked when the thread
+     * is doing something, se we can emulate a join on it by
+     * try to lock and unlock this mutex.
+     */
+    pthread_mutex_t busy_mutex;
+
+    /**
+     * @brief Condition that allow the thread to run. Before the thread
+     * finish the busy state (unlocking the busy mutex) or when it is
+     * created, it waits for the start condition to be true before
+     * doing anything.
+     */
+    pthread_cond_t start_condition;
+
+    /**
+     * @brief A boolean value that is true if the thread must continue to
+     * poll, or false if it is required to exit. Since the thread
+     * may be waiting for work a call to pthread_cond_signal on
+     * start condition may be required to make it exit after setting
+     * this variable.
+     */
+    mps_boolean alive;
+
+    /**
+     * @brief The routine that must be called when the thread starts. 
+     */
+    mps_thread_work work;
+
+    /**
+     * @brief The argument to be passed to the thread.
+     */
+    void * args;
+  };
+
+  /**
+   * @brief A thread pool that contains a set of <code>mps_thread</code>
+   * and allow to manage them as a set of worker. 
+   */
+  struct mps_thread_pool {
+    
+    /**
+     * @brief The numer of thread in the thread pool.
+     */
+    unsigned int n;
+
+    /**
+     * @brief A pointer to the first thread in the thread pool.
+     */
+    mps_thread * first;
+
+    /**
+     * @brief A semaphore counting the numer of free threads.
+     */
+    sem_t free_count;
+
+    /** 
+     * @brief Mutex associated with the semaphore changed condition. 
+     */ 
+    pthread_mutex_t free_count_changed_mutex; 
+    
+    /** 
+     * @brief Condition that is signaled when the semaphore changes 
+     * its value. 
+     */ 
+    pthread_cond_t free_count_changed_cond; 
+  };
+
   /* EXPORTED ROUTINES */
+
+  void * mps_thread_mainloop (void * thread_ptr);
+
+  void mps_thread_start_mainloop (mps_status * s, mps_thread * thread);
+
+  mps_thread * mps_thread_new (mps_status * s, mps_thread_pool * pool);
+
+  void mps_thread_free (mps_status * s, mps_thread * thread);
+
+  void mps_thread_pool_assign (mps_status * s, mps_thread_pool * pool, mps_thread_work work, void * args);
+
+  void mps_thread_pool_insert_new_thread (mps_status * s, mps_thread_pool * pool);
+
+  void mps_thread_pool_wait (mps_status * s, mps_thread_pool * pool);
+
+  mps_thread_pool * mps_thread_pool_new (mps_status * s);
+
+  void mps_thread_pool_free (mps_status * s, mps_thread_pool * pool);
+
+  mps_thread_job_queue * mps_thread_job_queue_new (mps_status * s);
+
+  void mps_thread_job_queue_free (mps_thread_job_queue * q);
+
+  mps_thread_job mps_thread_job_queue_next (mps_status * s, mps_thread_job_queue * q);
 
   void mps_thread_fpolzer (mps_status * s, int *nit, mps_boolean * excep);
 

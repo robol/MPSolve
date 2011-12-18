@@ -50,7 +50,7 @@ SECSOLVE_LIBS="$GENERAL_LIBS -lm -lgmp"
 
 CHECK_CFLAGS="$GENERAL_CFLAGS"
 CHECK_LIBS="$GENERAL_LIBS"
-CHECK_PROGRAMS="test_mpsolve check_dpe check_secsolve check_unisolve"
+CHECK_PROGRAMS="test_mpsolve check_dpe check_secsolve check_unisolve check_multithread"
 
 AC_SUBST(CHECK_PROGRAMS)
 AC_SUBST(CHECK_CFLAGS)

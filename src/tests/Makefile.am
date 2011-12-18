@@ -1,6 +1,6 @@
 TESTS = $(CHECK_PROGRAMS)
 check_PROGRAMS = $(CHECK_PROGRAMS)
-EXTRA_PROGRAMS = test_mpsolve check_secsolve check_unisolve check_dpe
+EXTRA_PROGRAMS = test_mpsolve check_secsolve check_unisolve check_dpe check_multithread
 
  check_secsolve_SOURCES = check_secsolve.c check_implementation.c check_implementation.h
  check_secsolve_CFLAGS = $(CHECK_CFLAGS) -I${top_srcdir}/include
@@ -14,10 +14,13 @@ EXTRA_PROGRAMS = test_mpsolve check_secsolve check_unisolve check_dpe
  check_dpe_CFLAGS = $(CHECK_CFLAGS) -I${top_srcdir}/include
  check_dpe_LDFLAGS = -L${top_builddir}/src/libmps -lmps -lm -lgmp -lcheck
 
-test_mpsolve_SOURCES = test_mpsolve.c
-test_mpsolve_CFLAGS = ${CHECK_CFLAGS} -I${top_srcdir}/include
-test_mpsolve_LDFLAGS = -L${top_builddir}/src/libmps -lmps -lm -lgmp
+ test_mpsolve_SOURCES = test_mpsolve.c
+ test_mpsolve_CFLAGS = ${CHECK_CFLAGS} -I${top_srcdir}/include
+ test_mpsolve_LDFLAGS = -L${top_builddir}/src/libmps -lmps -lm -lgmp
 
+ check_multithread_SOURCES = check_multithread.c
+ check_multithread_CFLAGS = ${CHECK_CFLAGS} -I${top_srcdir}/include
+ check_multithread_LDFLAGS = -L${top_builddir}/src/libmps -lmps -lm -lgmp
 
 EXTRA_DIST = \
 	secsolve/rand15.pol \

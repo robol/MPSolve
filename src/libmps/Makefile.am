@@ -45,6 +45,7 @@ libmps_la_SOURCES = \
 	    modify.c \
 	    monomial-poly.c \
 	    monomial-radius.c \
+	    monomial-threading.c \
 	    mpc.c \
 	    mt.c \
 	    newton.c \
