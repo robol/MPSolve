@@ -5,7 +5,7 @@
  *      Author: leonardo
  */
 
-#include <mps/interface.h>
+#include <mps/mps.h>
 
 /**
  * @brief Caller for mps_solve routine.
