@@ -115,7 +115,7 @@ mps_thread_fpolzer_worker (void *data_ptr)
 
     }
 
-  pthread_exit (NULL);
+  return NULL;
 }
 
 /**
@@ -126,7 +126,7 @@ void
 mps_thread_fpolzer (mps_status * s, int *it, mps_boolean * excep)
 {
   int i, nzeros = 0, n_threads = s->n_threads;
-  pthread_t *threads = (pthread_t *) mps_malloc (sizeof (pthread_t) * n_threads);
+
   mps_thread_worker_data *data;
   pthread_mutex_t *aberth_mutex =
     (pthread_mutex_t *) mps_malloc (sizeof (pthread_mutex_t) * s->n);
@@ -151,7 +151,6 @@ mps_thread_fpolzer (mps_status * s, int *it, mps_boolean * excep)
       nzeros++;
   if (nzeros == s->n)
     {
-      free (threads);
       return;
     }
 
@@ -169,17 +168,14 @@ mps_thread_fpolzer (mps_status * s, int *it, mps_boolean * excep)
       data[i].aberth_mutex = aberth_mutex;
       data[i].roots_mutex = roots_mutex;
       data[i].queue = queue;
-      pthread_create (&threads[i], NULL, &mps_thread_fpolzer_worker,
-                      data + i);
+      /* pthread_create (&threads[i], NULL, &mps_thread_fpolzer_worker, */
+                      /* data + i); */
+      mps_thread_pool_assign (s, s->pool, mps_thread_fpolzer_worker, data + i);
     }
 
-  for (i = 0; i < n_threads; i++)
-    {
-      pthread_join (threads[i], NULL);
-    }
+  mps_thread_pool_wait (s, s->pool);
 
   free (data);
-  free (threads);
   free (roots_mutex);
   free (aberth_mutex);
   mps_thread_job_queue_free (queue);
@@ -292,8 +288,7 @@ mps_thread_dpolzer_worker (void *data_ptr)
         }
     }
 
-
-  pthread_exit (NULL);
+  return NULL;
 }
 
 /**
@@ -303,7 +298,6 @@ void
 mps_thread_dpolzer (mps_status * s, int *it, mps_boolean * excep)
 {
   mps_thread_worker_data *data;
-  pthread_t *threads;
   pthread_mutex_t *aberth_mutex, *roots_mutex;
   int i, nzeros = 0;
 
@@ -317,9 +311,6 @@ mps_thread_dpolzer (mps_status * s, int *it, mps_boolean * excep)
       nzeros++;
   if (nzeros == s->n)
     return;
-
-  /* Allocate threads */
-  threads = (pthread_t *) mps_malloc (sizeof (pthread_t) * s->n_threads);
 
   /* Prepare queue */
   mps_thread_job_queue *queue = mps_thread_job_queue_new (s);
@@ -349,17 +340,12 @@ mps_thread_dpolzer (mps_status * s, int *it, mps_boolean * excep)
       data[i].roots_mutex = roots_mutex;
       data[i].s = s;
       data[i].thread = i;
-      pthread_create (&threads[i], NULL, &mps_thread_dpolzer_worker,
-                      &data[i]);
+      mps_thread_pool_assign (s, s->pool, mps_thread_dpolzer_worker, data + i);
     }
 
   /* Wait for the thread to complete */
-  for (i = 0; i < s->n_threads; i++)
-    {
-      pthread_join (threads[i], NULL);
-    }
+  mps_thread_pool_wait (s, s->pool);
 
-  free (threads);
   free (aberth_mutex);
   free (roots_mutex);
   free (data);
@@ -528,7 +514,6 @@ endfun:                        /* free local MP variables */
   mpc_clear (mroot);
   mpc_clear (diff);
 
-  pthread_exit (NULL);
   return NULL;
 }
 
@@ -558,9 +543,8 @@ mps_thread_mpolzer (mps_status * s, int *it, mps_boolean * excep)
   else    
     n_threads = s->n_threads;  
 
-  MPS_DEBUG_WITH_INFO (s, "Spawning %d threads", n_threads);
+  MPS_DEBUG_WITH_INFO (s, "Spawning %d worker", n_threads);
 
-  pthread_t *threads = (pthread_t *) mps_malloc (sizeof (pthread_t) * n_threads);
   mps_thread_worker_data *data;
 
   /* Allocate and the init mutexes needed by the routine */
@@ -595,64 +579,14 @@ mps_thread_mpolzer (mps_status * s, int *it, mps_boolean * excep)
       data[i].global_aberth_mutex = &global_aberth_mutex;
       data[i].queue = queue;
       data[i].roots_mutex = roots_mutex;
-      pthread_create (&threads[i], NULL, &mps_thread_mpolzer_worker,
-                      data + i);
+      mps_thread_pool_assign (s, s->pool, mps_thread_mpolzer_worker, data + i);
     }
 
   /* Wait for the threads to complete */
-  for (i = 0; i < n_threads; i++)
-    {
-      pthread_join (threads[i], NULL);
-    }
-
-  /* if (!MPS_INPUT_CONFIG_IS_USER (s->input_config)) */
-  /*   { */
-  /*     /\* Now compute the radius *\/ */
-  /*     mpc_t diff; */
-  /*     cdpe_t cdtmp; */
-  /*     rdpe_t new_rad, rtmp; */
-  /*     int j; */
-
-  /*     mpc_init2 (diff, s->mpwp); */
-
-  /*     for (i = 0; i < s->n; i++) */
-  /* 	{ */
-  /* 	  mps_mhorner_with_error2 (s, s->monomial_poly, s->mroot[i], diff, rtmp, s->mpwp); */
-  /* 	  mpc_get_cdpe (cdtmp, diff); */
-  /* 	  cdpe_mod (new_rad, cdtmp); */
-  /* 	  rdpe_add_eq (rtmp, rdpe_one); */
-  /* 	  rdpe_mul_eq (new_rad, rtmp); */
-
-  /* 	  for (j = 0; j < s->n; j++) */
-  /* 	    { */
-  /* 	      if (i == j) */
-  /* 		continue; */
-
-  /* 	      mpc_sub (diff, s->mroot[i], s->mroot[j]); */
-  /* 	      mpc_get_cdpe (cdtmp, diff); */
-  /* 	      cdpe_mod (rtmp, cdtmp); */
-
-  /* 	      if (rdpe_eq_zero (rtmp)) */
-  /* 		{ */
-  /* 		  rdpe_set (new_rad, RDPE_MAX); */
-  /* 		  break; */
-  /* 		} */
-
-  /* 	      rdpe_div_eq (new_rad, rtmp); */
-  /* 	    } */
-
-  /* 	  if (rdpe_lt (new_rad, s->drad[i])) */
-  /* 	    rdpe_set (s->drad[i], new_rad); */
-
-  /* 	  MPS_DEBUG_RDPE (s, new_rad, "new_rad_%d", i); */
-  /* 	} */
-
-  /*     mpc_clear (diff); */
-  /*   } */
+  mps_thread_pool_wait (s, s->pool);
 
   /* Free data and exit */
   free (data);
-  free (threads);
   for (i = 0; i < s->n; i++)
     {
       pthread_mutex_destroy (&roots_mutex[i]);

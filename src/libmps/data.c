@@ -118,6 +118,9 @@ mps_allocate_data (mps_status * s)
    * the degree of the polynomial */
   for (i = 0; i < s->n; i++) 
     s->rootwp[i] = DBL_DIG * LOG2_10;
+
+  /* Allocate the thread_pool used in computations. */
+  s->pool = mps_thread_pool_new (s);
 }
 
 /**
@@ -388,4 +391,6 @@ mps_free_data (mps_status * s)
   free (s->partitioning);
   free (s->fradii);
   rdpe_vfree (s->dradii);
+
+  mps_thread_pool_free (s, s->pool);
 }

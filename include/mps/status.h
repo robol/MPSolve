@@ -690,6 +690,11 @@ extern "C"
      */
     int n_threads;
 
+    /**
+     * @brief The thread pool used for the concurrent part of MPSolve.
+     */
+    mps_thread_pool * pool;
+
     /* DEBUG SECTIONS */
 
     unsigned long int regeneration_time;
