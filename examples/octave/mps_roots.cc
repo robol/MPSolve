@@ -1,5 +1,5 @@
 #include <octave/oct.h>
-#include <mps/interface.h>
+#include <mps/mps.h>
 #include <octave/error.h>
 
 DEFUN_DLD(mps_roots, args, nargout,

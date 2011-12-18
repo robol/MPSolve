@@ -11,7 +11,7 @@
  */
 
 
-#include <mps/interface.h>
+#include <mps/mps.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <gmp.h>
