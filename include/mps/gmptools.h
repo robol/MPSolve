@@ -22,7 +22,6 @@ extern "C"
 
 /* needed header files */
 #include <stdio.h>
-
 #include <gmp.h>
 
 

@@ -1,6 +1,9 @@
 #include <octave/oct.h>
-#include <mps/mps.h>
+#include <gmp.h>
 #include <octave/error.h>
+
+#include <mps/mps.h>
+
 
 DEFUN_DLD(mps_roots, args, nargout,
 "-*- texinfo -*- \n\

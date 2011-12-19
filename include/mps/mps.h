@@ -23,26 +23,50 @@
 #define MPS_CORE_H_
 
 #ifdef __cplusplus
-extern  "C"
-{
-#endif
+
 
   /* Forward declarations of the type used in the headers, so they can be
    * resolved indepently by the header inclusion order. */
 
-  /**
-   * @brief Type representing the computation phase
-   * of the algorithm we are in
-   * now. It can assume the values:
-   * - <code>no_phase</code>;
-   * - <code>float_phase</code>;
-   * - <code>dpe_phase</code>;
-   * - <code>mp_phase</code>;
-   */
-  typedef enum
-    {
-      no_phase, float_phase, dpe_phase, mp_phase
-    } mps_phase;
+  /* status.h */
+  struct mps_status;
+
+  /* cluster.h */
+  struct mps_root;
+  struct mps_cluster;
+  struct mps_cluster_item;
+  struct mps_clusterization;
+
+  /* secular.h */
+  struct mps_secular_equation;
+  struct mps_secular_iteration_data;
+
+  /* monomial-poly.h */
+  struct mps_monomial_poly;
+
+  /* input-buffer.h */
+  struct mps_input_buffer;
+
+  /* options.h */
+  struct mps_opt;
+  struct mps_input_option;
+
+  struct mps_input_configuration;
+  struct mps_output_configuration;
+
+  /* threading.h */
+  struct mps_thread_job;
+  struct mps_thread_job_queue;
+  struct mps_thread_worker_data;
+  struct mps_thread;
+  struct mps_thread_pool;
+
+extern  "C"
+{
+#else
+
+  /* Forward declarations of the type used in the headers, so they can be
+   * resolved indepently by the header inclusion order. */
 
   /* status.h */
   typedef struct mps_status mps_status;
@@ -66,12 +90,15 @@ extern  "C"
   /* options.h */
   typedef struct mps_opt mps_opt;
   typedef struct mps_input_option mps_input_option;
+
   typedef enum mps_algorithm mps_algorithm;
   typedef enum mps_option_key mps_option_key;
   typedef enum mps_structure mps_structure;
   typedef enum mps_representation mps_representation;
   typedef enum mps_density mps_density;
   typedef enum mps_output_format mps_output_format;
+  typedef enum mps_phase mps_phase;
+
   typedef struct mps_input_configuration mps_input_configuration;
   typedef struct mps_output_configuration mps_output_configuration;
 
@@ -81,7 +108,123 @@ extern  "C"
   typedef struct mps_thread_worker_data mps_thread_worker_data;
   typedef struct mps_thread mps_thread;
   typedef struct mps_thread_pool mps_thread_pool;
-  
+
+#endif
+
+  /**
+   * @brief Type representing the computation phase
+   * of the algorithm we are in
+   * now. It can assume the values:
+   * - <code>no_phase</code>;
+   * - <code>float_phase</code>;
+   * - <code>dpe_phase</code>;
+   * - <code>mp_phase</code>;
+   */
+  enum mps_phase
+    {
+      no_phase, float_phase, dpe_phase, mp_phase
+    };
+
+  /**
+   * @brief Algorithm used to find the solution of the polynomial,
+   * or of the secular equation.
+   */
+  enum  mps_algorithm
+    {
+      /**
+       * @brief Standard MPsolve approach
+       */
+      MPS_ALGORITHM_STANDARD_MPSOLVE,
+
+      /**
+       * @brief Standard MPSolve approach applied to
+       * secular equations.
+       */
+      MPS_ALGORITHM_SECULAR_MPSOLVE,
+
+      /**
+       * @brief Gemignani's approach applied to secular equations.
+       */
+      MPS_ALGORITHM_SECULAR_GA
+    };
+
+  /**
+   * @brief Key for options parsed from the input source file.
+   * Key that don't need values could exists (these are boolean flags,
+   * actually).
+   */
+  enum mps_option_key
+    {
+      /* Flag for UNDEFINED Options */
+      MPS_FLAG_UNDEFINED,
+
+      /* Key without values associated */
+      MPS_FLAG_INTEGER,
+      MPS_FLAG_REAL,
+      MPS_FLAG_COMPLEX,
+      MPS_FLAG_RATIONAL,
+      MPS_FLAG_FP,
+
+      MPS_FLAG_SECULAR,
+      MPS_FLAG_MONOMIAL,
+
+      MPS_FLAG_DENSE,
+      MPS_FLAG_SPARSE,
+
+      /* Key with a value */
+      MPS_KEY_DEGREE
+    };
+
+  /**
+   * @brief Definition of various algebraic structure that
+   * MPSolve can use as input.
+   *
+   * Precisely, integer, rational and floating point, either real or
+   * complex, can be treated in input.
+   */
+  enum mps_structure
+    {
+      MPS_STRUCTURE_REAL_INTEGER,
+      MPS_STRUCTURE_REAL_RATIONAL,
+      MPS_STRUCTURE_REAL_FP,
+      MPS_STRUCTURE_COMPLEX_INTEGER,
+      MPS_STRUCTURE_COMPLEX_RATIONAL,
+      MPS_STRUCTURE_COMPLEX_FP
+    };
+
+  /**
+   * @brief Density of the polynomial, or 
+   * MPS_DENSITY_USER if density doesn't make sense
+   * since user routines are provided to compute
+   * the newton fraction.
+   */
+  enum mps_density {
+    MPS_DENSITY_DENSE,
+    MPS_DENSITY_SPARSE,
+    MPS_DENSITY_USER,
+  };
+
+  /**
+   * @brief Desired output format for the roots.
+   */
+  enum mps_output_format {
+    MPS_OUTPUT_FORMAT_COMPACT,
+    MPS_OUTPUT_FORMAT_GNUPLOT,
+    MPS_OUTPUT_FORMAT_GNUPLOT_FULL,
+    MPS_OUTPUT_FORMAT_BARE,
+    MPS_OUTPUT_FORMAT_FULL,
+    MPS_OUTPUT_FORMAT_VERBOSE
+  };
+
+  /**
+   * @brief Representation chosen for the polynomial
+   */
+  enum mps_representation
+    {
+      MPS_REPRESENTATION_SECULAR,
+      MPS_REPRESENTATION_MONOMIAL,
+    };
+
 
 /* Local include files that should not be included directly */
 #include <mps/options.h>
