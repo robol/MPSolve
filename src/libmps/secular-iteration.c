@@ -2,7 +2,6 @@
 #include <math.h>
 #include <string.h>
 
-
 /**
  * @brief Routine that performs a block of iteration
  * in floating point on the secular equation.
