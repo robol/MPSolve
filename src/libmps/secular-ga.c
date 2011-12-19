@@ -244,9 +244,9 @@ mps_secular_ga_improve (mps_status * s)
 	  cdpe_mod (abroot, ctmp);
 	  
 	  correct_digits *= 2;
-	  rdpe_set_dl (s->drad[i], 1.0, -correct_digits + 1);
-	  rdpe_add_eq (s->drad[i], s->mp_epsilon);
-	  rdpe_mul_eq (s->drad[i], abroot);
+	  /* rdpe_set_dl (s->drad[i], 1.0, -correct_digits + 1); */
+	  /* rdpe_add_eq (s->drad[i], s->mp_epsilon); */
+	  /* rdpe_mul_eq (s->drad[i], abroot); */
 
           /* Debug iterations */
           if (s->debug_level & MPS_DEBUG_IMPROVEMENT)
