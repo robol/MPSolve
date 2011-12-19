@@ -189,8 +189,8 @@ mps_secular_meval_with_error (mps_status * s, mps_secular_equation * sec, mpc_t 
   mpc_sub_eq_ui (value, 1U, 0U);
   rdpe_add_eq (error, rdpe_one);
 
-  rdpe_mul_eq (error, s->mp_epsilon);
-  rdpe_mul_eq_d (error, 4.0f);
+  rdpe_set_2dl (rtmp, 1.0, 1 - (long int) wp);
+  rdpe_mul_eq (error, rtmp);
   
   mpc_clear (ctmp);
 }

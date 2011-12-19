@@ -31,20 +31,23 @@ mps_secular_ga_update_root_wp (mps_status * s, int i, long int wp)
    if (mpc_get_prec (sec->ampc[i]) < s->rootwp[i]) 
      mpc_set_prec (sec->ampc[i], s->rootwp[i]); 
 
-   if (mpc_get_prec (p->mfpc[0]) < s->rootwp[i]) 
+   if (p != NULL)
      {
-       for (j = 0; j <= s->n; ++j) 
-	 mpc_set_prec (p->mfpc[j], s->rootwp[i]); 
-
-       if (MPS_INPUT_CONFIG_IS_INTEGER (s->input_config) 
-	   || MPS_INPUT_CONFIG_IS_RATIONAL (s->input_config))
+       if (mpc_get_prec (p->mfpc[0]) < s->rootwp[i]) 
 	 {
-	   for (i = 0; i <= s->n ; ++i)
+	   for (j = 0; j <= s->n; ++j) 
+	     mpc_set_prec (p->mfpc[j], s->rootwp[i]); 
+
+	   if (MPS_INPUT_CONFIG_IS_INTEGER (s->input_config) 
+	       || MPS_INPUT_CONFIG_IS_RATIONAL (s->input_config))
 	     {
-	       mpf_set_q (mpc_Re (p->mfpc[i]), p->initial_mqp_r[i]);
-	       mpf_set_q (mpc_Im (p->mfpc[i]), p->initial_mqp_i[i]);
+	       for (i = 0; i <= s->n ; ++i)
+		 {
+		   mpf_set_q (mpc_Re (p->mfpc[i]), p->initial_mqp_r[i]);
+		   mpf_set_q (mpc_Im (p->mfpc[i]), p->initial_mqp_i[i]);
+		 }
 	     }
-	 }
+	 }     
      }
   
   return s->rootwp[i];
@@ -213,7 +216,7 @@ mps_secular_ga_regenerate_coefficients_monomial (mps_status * s, cdpe_t * old_b,
 	  cdpe_t cpol;	  
 
 	  mps_secular_ga_update_root_wp (s, i, s->rootwp[i]);
-	  mps_mhorner_with_error2 (s, p, sec->bmpc[i], sec->ampc[i], relative_error, s->rootwp[i]); 
+	  mps_mhorner_with_error2 (s, p, sec->bmpc[i], sec->ampc[i], relative_error, s->rootwp[i]);
 
 	  mpc_get_cdpe (cpol, sec->ampc[i]);
 	  cdpe_mod (rtmp, cpol);
@@ -491,7 +494,8 @@ mps_secular_ga_regenerate_coefficients_secular (mps_status * s, cdpe_t * old_b, 
 	  mps_secular_ga_update_root_wp (s, i, 1 + s->rootwp[i] + (rdpe_Esp (error) - rdpe_Esp (root_epsilon)));
 
 	  mps_secular_meval_with_error (s, old_sec, sec->bmpc[i], sec->ampc[i], error);
-	  mpc_get_cdpe (cdtmp, s->mroot[i]);
+
+	  mpc_get_cdpe (cdtmp, sec->bmpc[i]);
 	  cdpe_mod (rtmp, cdtmp);
 	  rdpe_div_eq (error, rtmp);
 
@@ -502,7 +506,7 @@ mps_secular_ga_regenerate_coefficients_secular (mps_status * s, cdpe_t * old_b, 
       /* Now that we have evaluated correctly the secular equation we can
        * compute prod_b to finalize the computation */
       cdpe_set (cprod_b, cdpe_one);
-      for (j = 0; i < s->n; j++)
+      for (j = 0; j < s->n; j++)
 	{
 	  mpc_sub (ctmp, sec->bmpc[i], old_sec->bmpc[j]);
 	  mpc_get_cdpe (cdtmp, ctmp);

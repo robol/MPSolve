@@ -95,7 +95,7 @@ mps_improve (mps_status * s)
   if (mpnb_in != 0)
     mps_mp_set_prec (s, mpnb_in);
 
-  /* mpc_init2(mtmp, mpwp); *//* puo' essere settato a precisione minima */
+  /* mpc_init2(mtmp, mpwp);  *//* puo' essere settato a precisione minima */
   mpc_init2 (mtmp, mpnb_out * 2);      /* puo' essere settato a precisione minima */
   mpc_init2 (nwtcorr, mpnb_out * 2);
 
@@ -166,7 +166,7 @@ mps_improve (mps_status * s)
       if (s->algorithm == MPS_ALGORITHM_STANDARD_MPSOLVE) 
 	cnd = s->rootwp[i] + rdpe_log (tmp) / LOG2 + 1;
       else 
-	cnd = s->mpwp + rdpe_log (tmp) / LOG2 + 1; 
+	cnd = s->mpwp + rdpe_log (tmp) / LOG2 + 1;
       
 
       /* then evaluate the number of bits g,f */
@@ -226,7 +226,7 @@ mps_improve (mps_status * s)
           /* correct radius, since the computed one is referred to the previous
            * approximation. Due to the quadratic convergence the new approximation
            * the radius is bounded by 2^(-g-f+1) */
-          rdpe_set_2dl (newrad, 1.0, (long) (-g - f + 1));
+          rdpe_set_2dl (newrad, 4.0, (long) (-g - f + 1));
           rdpe_set (tmp, abroot);
           rdpe_mul_eq (newrad, tmp);
           rdpe_mul_eq (tmp, s->eps_out);
@@ -235,9 +235,9 @@ mps_improve (mps_status * s)
             rdpe_set (s->drad[i], newrad);
 
 	  /* Disabled because causes problems */
-	  /* if (rdpe_lt (newrad, s->drad[i]))   */
-	  /*   rdpe_set (s->drad[i], newrad);   */
-
+	  if (rdpe_lt (newrad, s->drad[i]))   
+	    rdpe_set (s->drad[i], newrad);   
+	   
           if (rdpe_lt (s->drad[i], tmp) || s->mpwp == mpnb_in)
             break;              /* loop1 */
         }

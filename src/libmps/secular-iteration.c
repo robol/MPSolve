@@ -2,6 +2,77 @@
 #include <math.h>
 #include <string.h>
 
+/* Routine called to perform the floating point newton iterations. */
+void *
+__mps_secular_ga_fiterate_worker (void* data_ptr)
+{
+  mps_thread_worker_data *data = (mps_thread_worker_data *) data_ptr;
+  mps_status *s = data->s;
+  /* mps_secular_equation *sec = s->secular_equation; */
+  int i;
+  cplx_t corr, abcorr, froot;
+  double modcorr;
+  mps_thread_job job;
+
+  mps_secular_iteration_data it_data;
+
+  while ((*data->nzeros < s->n))
+    {
+      job = mps_thread_job_queue_next (s, data->queue);
+      i = job.i;
+
+      if (job.iter == MPS_THREAD_JOB_EXCEP)
+        {
+          return NULL;
+        }
+
+      if (s->again[i])
+	{
+          /* Lock this roots to make sure that we are the only one working on it */
+          pthread_mutex_lock (&data->roots_mutex[i]);
+	  cplx_set (froot, s->froot[i]);
+
+	  (*data->it)++;
+
+	  it_data.k = i;
+	  mps_secular_fnewton (s, froot, &s->frad[i], corr,
+			       &s->again[i], &it_data, false);
+
+	  /* Apply Aberth correction */
+	  mps_faberth (s, i, abcorr);
+	  cplx_mul_eq (abcorr, corr);
+	  cplx_sub (abcorr, cplx_one, abcorr);
+	  cplx_div (abcorr, corr, abcorr);
+	  cplx_sub_eq (froot, abcorr);
+
+	  /* Correct the radius */
+	  modcorr = cplx_mod (abcorr);
+	  s->frad[i] += modcorr;
+
+	  if (modcorr < cplx_mod (froot) * 8.0 * DBL_EPSILON)
+	    {
+	      if (s->debug_level & MPS_DEBUG_PACKETS)
+		{
+		  MPS_DEBUG (s, "Setting again to false on root %d because aberth correction is less than precision", i);
+		}
+	      s->again[i] = false;
+	    }
+
+	  if (!s->again[i])
+	    {
+	      if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
+		MPS_DEBUG (s, "Root %d again was set to false on iteration %d", i, *data->it);
+	      (*data->nzeros)++;
+	    }
+
+	  cplx_set (s->froot[i], froot);
+	  pthread_mutex_unlock (&data->roots_mutex[i]);
+	}
+    }
+
+  return NULL;
+}
+
 /**
  * @brief Routine that performs a block of iteration
  * in floating point on the secular equation.
@@ -14,11 +85,9 @@ int
 mps_secular_ga_fiterate (mps_status * s, int maxit, mps_boolean just_regenerated)
 {
   int computed_roots = 0;
-  int iterations = 0;
   int i;
   int nit = 0;
   int it_threshold;
-  mps_secular_iteration_data data;
   double * fradii = double_valloc (s->n);
 
 #ifndef DISABLE_DEBUG
@@ -26,6 +95,20 @@ mps_secular_ga_fiterate (mps_status * s, int maxit, mps_boolean just_regenerated
 #endif
 
   mps_secular_equation *sec = s->secular_equation;
+
+  mps_thread_worker_data *data;
+  pthread_mutex_t *aberth_mutex =
+    (pthread_mutex_t *) mps_malloc (sizeof (pthread_mutex_t) * s->n);
+  pthread_mutex_t *roots_mutex =
+    (pthread_mutex_t *) mps_malloc (sizeof (pthread_mutex_t) * s->n);
+
+  for (i = 0; i < s->n; i++)
+    {
+      pthread_mutex_init (roots_mutex + i, NULL);
+      pthread_mutex_init (aberth_mutex + i, NULL);
+    }
+
+  data = mps_newv (mps_thread_worker_data, s->n_threads);
 
   MPS_DEBUG_THIS_CALL;
 
@@ -58,103 +141,24 @@ mps_secular_ga_fiterate (mps_status * s, int maxit, mps_boolean just_regenerated
       MPS_DEBUG (s, "There are %d roots with again set to false", computed_roots);
     }
 
-  while (computed_roots < s->n && iterations < maxit)
+  mps_thread_job_queue *queue = mps_thread_job_queue_new (s);
+  queue->max_iter = it_threshold;
+
+  for (i = 0; i < s->n_threads; i++)
     {
-      cplx_t corr, abcorr;
-      double modcorr;
+      data[i].it = &nit;
+      data[i].nzeros = &computed_roots;
+      data[i].s = s;
+      data[i].thread = i;
+      data[i].n_threads = s->n_threads;
+      data[i].aberth_mutex = aberth_mutex;
+      data[i].roots_mutex = roots_mutex;
+      data[i].queue = queue;
 
-      /* Increase iterations counter */
-      iterations++;
-
-      for (i = 0; i < s->n; i++)
-        {
-          if (s->again[i])
-            {
-	       /* MPS_DEBUG (s, "Iterating on root %d", i);  */
-	      /* if (cplx_eq (s->froot[i], sec->bfpc[i])) */
-	      /* 	continue; */
-
-              nit++;
-	      
-	      /* Prepare the data to be passed for secular-newton */
-	      data.k = i;
-
-              mps_secular_fnewton (s, s->froot[i], &s->frad[i], corr,
-                                   &s->again[i], &data, false);
-
-              /* Apply Aberth correction */
-              mps_faberth (s, i, abcorr);
-              cplx_mul_eq (abcorr, corr);
-              cplx_sub (abcorr, cplx_one, abcorr);
-              cplx_div (abcorr, corr, abcorr);
-              cplx_sub_eq (s->froot[i], abcorr);
-
-              /* Check if we need to switch to DPE */
-/*               if (isnan (cplx_Re (s->froot[i])) */
-/*                   || isinf (cplx_Re (s->froot[i])) */
-/*                   || isnan (cplx_Im (s->froot[i])) */
-/*                   || isinf (cplx_Im (s->froot[i])) || isnan (s->frad[i]) */
-/*                   || isinf (s->frad[i]) */
-/* 		  || s->status[i][0] == 'x') */
-/*                 { */
-/* 		  if (s->status[i][0] != 'x') */
-/* 		    { */
-/* 		      MPS_DEBUG_WITH_INFO (s, */
-/* 					   "Switching to DPE phase because NAN or INF was introduced in computation"); */
-/* 		    } */
-/* 		  else */
-/* 		    { */
-/* 		      s->status[i][0] = 'c'; */
-/* 		      MPS_DEBUG_WITH_INFO (s, "Switching to DPE phase because there is an approximation not representable in double"); */
-/* 		    } */
-/*                   cplx_set (s->froot[i], old_root); */
-/*                   s->frad[i] = old_rad; */
-/*                   s->lastphase = dpe_phase; */
-
-/*                   /\* Copy roots, radius and coefficients *\/ */
-/*                   for (i = 0; i < s->n; i++) */
-/*                     { */
-/*                       cdpe_set_x (s->droot[i], s->froot[i]); */
-/*                       rdpe_set_d (s->drad[i], s->frad[i]); */
-
-/* 		      cdpe_set_x (sec->adpc[i], sec->afpc[i]); */
-/* 		      cdpe_set_x (sec->bdpc[i], sec->bfpc[i]); */
-
-/* 		      MPS_DEBUG_CDPE (s, sec->adpc[i], "sec->adpc[%d]", i); */
-/* 		      MPS_DEBUG_CDPE (s, sec->bdpc[i], "sec->bdpc[%d]", i); */
-/*                     } */
-
-/* #ifndef DISABLE_DEBUG */
-/*                   s->fp_iteration_time += mps_stop_timer (my_clock); */
-/* #endif */
-/*                   return -1; */
-/*                 } */
-
-              /* Correct the radius */
-              modcorr = cplx_mod (abcorr);
-              s->frad[i] += modcorr;
-
-	      /* MPS_DEBUG (s, "modcorr = %e", modcorr); */
-	      /* MPS_DEBUG_CPLX (s, s->froot[i], "s->froot[%d]", i); */
-
-	      if (modcorr < cplx_mod (s->froot[i]) * 8.0 * DBL_EPSILON)
-		{
-		  if (s->debug_level & MPS_DEBUG_PACKETS)
-		    {
-		      MPS_DEBUG (s, "Setting again to false on root %d because aberth correction is less than precision", i);
-		    }
-		  s->again[i] = false;
-		}
-
-              if (!s->again[i])
-		{
-		  if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
-		    MPS_DEBUG (s, "Root %d again was set to false on iteration %d", i, iterations);
-		  computed_roots++;
-		}
-            }
-        }
+      mps_thread_pool_assign (s, s->pool, __mps_secular_ga_fiterate_worker, data + i);
     }
+
+  mps_thread_pool_wait (s, s->pool);
 
   /* Check if the roots are improvable in floating point */
   MPS_DEBUG_WITH_INFO (s, "Performed %d iterations with floating point arithmetic",
@@ -171,8 +175,6 @@ mps_secular_ga_fiterate (mps_status * s, int maxit, mps_boolean just_regenerated
 	}
       s->secular_equation->best_approx = true;
     }
-
-  
 
   /* Compute the inclusion radii with Gerschgorin so we can compute
    * clusterizations for the roots. */
