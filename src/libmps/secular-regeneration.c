@@ -240,31 +240,33 @@ mps_secular_ga_regenerate_coefficients_monomial (mps_status * s, cdpe_t * old_b,
 
 	      if (s->debug_level & MPS_DEBUG_REGENERATION)
 		MPS_DEBUG_RDPE (s, relative_error, "Relative_error on p(b_%d) evaluation", i);
-	    }   
+	    }
+
+	  if (mpc_get_prec (mdiff) < s->rootwp[i])
+	      mpc_set_prec (mdiff, s->rootwp[i]);
 
 	  /* Compute the difference of the b_i */
-	  cdpe_set (prod_b, cdpe_one);
+	  mpc_set_ui (mprod_b, 1U, 0U);
 	  for (j = 0; j < s->n; ++j)
 	    {
 	      if (i == j)
 		continue;
 		  
-	      cdpe_sub (diff, sec->bdpc[i], sec->bdpc[j]);
+	      mpc_sub (mdiff, sec->bmpc[i], sec->bmpc[j]);
 		  
 	      /* If the difference is zero than regeneration cannot succeed, and means
 	       * that we need more precision in the roots */
-	      if (cdpe_eq_zero (diff))
+	      if (mpc_eq_zero (mdiff))
 		{
 		  MPS_DEBUG (s, "Regeneration of the coefficients failed because sec->bdpc[%d] == sec->bdpc[%d]", i, j);
 		  success = false;
 		  goto monomial_regenerate_exit;
 		}
-	      cdpe_mul_eq (prod_b, diff);
+	      mpc_mul_eq (mprod_b, mdiff);
 	    }
 
 	  /* Actually divide the result and store it in
 	   * a_i, as requested. */
-	  mpc_set_cdpe (mprod_b, prod_b);
 	  mpc_div_eq (sec->ampc[i], mprod_b);
 	  mpc_mul_eq (sec->ampc[i], lc);
 	  
@@ -570,6 +572,11 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s, cdpe_t * old_b, mpc_t
    * polynomial only in that approximations. */
   mps_boolean * root_changed = mps_secular_ga_find_changed_roots (s, old_b, old_mb);
 
+  /* // TODO: Remove this */
+  /* int i; */
+  /* for (i = 0; i < s->n; i++) */
+  /*   root_changed[i] = true; */
+
   if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
     {
       /* Regenerate the coefficients of the secular equation starting from the monomial input */
@@ -782,7 +789,7 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
       mps_secular_ga_update_coefficients (s);
 
       /* Regeneration */
-      if (mps_secular_ga_regenerate_coefficients_mp (s, old_db, old_mb))
+      if (mps_secular_ga_regenerate_coefficients_mp (s, old_db, NULL))
         {
 	  mps_secular_ga_update_coefficients (s);
           /* Finally set radius according to new computed a_i coefficients,
@@ -807,9 +814,9 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
       rdpe_vfree (old_db);
 
       /* if (MPS_INPUT_CONFIG_IS_SECULAR (s->input_config)) */
-	mps_secular_mstart (s, s->n, NULL, 
-			    (__rdpe_struct *) rdpe_zero,
-			    (__rdpe_struct *) rdpe_zero, s->eps_out);
+      mps_secular_mstart (s, s->n, NULL,
+			  (__rdpe_struct *) rdpe_zero, 
+			  (__rdpe_struct *) rdpe_zero, s->eps_out);
       /* else */
       /* 	mps_mrestart (s); */
 

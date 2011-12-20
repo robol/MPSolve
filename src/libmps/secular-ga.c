@@ -302,7 +302,7 @@ mps_secular_ga_mpsolve (mps_status * s)
   rdpe_t r_eps;
   mps_secular_equation *sec = mps_secular_equation_from_status (s);
 
-  /* s->n_threads = 1; */
+  s->n_threads = 1;
 
   mps_allocate_data (s);
   rdpe_set_d (r_eps, DBL_EPSILON);
@@ -506,7 +506,7 @@ mps_secular_ga_mpsolve (mps_status * s)
 	   if (s->lastphase != mp_phase)
 	     {
 	       mps_secular_switch_phase (s, mp_phase);
-	       mps_secular_ga_regenerate_coefficients (s);
+	       // mps_secular_ga_regenerate_coefficients (s);
 	     }
           else
             {
@@ -545,7 +545,6 @@ mps_secular_ga_mpsolve (mps_status * s)
 	       if (s->lastphase != mp_phase)
 		 {
 		   mps_secular_switch_phase (s, mp_phase);
-		   mps_secular_ga_regenerate_coefficients (s);
 		 }
 	       else
 		 {

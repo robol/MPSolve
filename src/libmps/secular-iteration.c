@@ -267,7 +267,6 @@ mps_secular_ga_diterate (mps_status * s, int maxit, mps_boolean just_regenerated
     MPS_DEBUG (s, "There are %d roots with again set to false", computed_roots);
 
   /* Use this dump only for debugging purpose */
-  /* mps_dump (s); */
   while (computed_roots < s->n && iterations < maxit)
     {
       cdpe_t corr, abcorr;

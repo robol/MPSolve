@@ -239,8 +239,6 @@ mps_secular_mstart (mps_status * s, int n, mps_cluster_item * cluster_item, rdpe
 
   /* mps_mcluster (s, 2.0 * s->n); */
   /* mps_mmodify (s, false); */
-
-  mps_dump (s);
   
   mpc_clear (epsilon);
 }
