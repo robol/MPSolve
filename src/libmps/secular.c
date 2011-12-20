@@ -551,17 +551,11 @@ void
 mps_secular_set_radii (mps_status * s)
 {
   MPS_DEBUG_THIS_CALL;
-  
-  /*
-   * This call is disabled because it computed the radius of inclusion
-   * as if the froot are the b_i, that is not always true. Should be revised
-   * to be used again, or dropeed since the same computation is already
-   * done in the mps_secular_*newton routines, now.
-   */
-  int i;
-  mps_secular_equation *sec = (mps_secular_equation *) s->secular_equation;
 
   return;
+  
+  int i;
+  mps_secular_equation *sec = (mps_secular_equation *) s->secular_equation;
 
   /* Select right computation based on the phase we are in
    * right now   */

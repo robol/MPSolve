@@ -492,10 +492,6 @@ mps_secular_ga_miterate (mps_status * s, int maxit, mps_boolean just_regenerated
 
 		  rdpe_add_eq (s->drad[k], rtmp);
 
-
-  if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
-    mps_dump (s);
-
                   if (!s->again[k])
                     computed_roots++;
                 }

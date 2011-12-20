@@ -82,18 +82,18 @@ mps_secular_ga_find_changed_roots (mps_status * s, cdpe_t * old_b, mpc_t * old_m
 
   /* Distinguish the case where we are in multiprecision phase */
   if (old_mb == NULL)
-    rdpe_set_d (root_epsilon, 4 * DBL_EPSILON);
+    rdpe_set_d (root_epsilon, DBL_EPSILON);
   else
     {
       rdpe_set (root_epsilon, s->mp_epsilon);
-      rdpe_mul_eq_d (root_epsilon, 4.0f);
 
       mpc_init2 (mdiff, s->mpwp);
     }
   
   for (i = 0; i < s->n; i++)
     {
-      if ((s->status[i][0] != 'a' && s->status[i][0] != 'o' && s->status[i][0] != 'i'))
+      if ((s->status[i][0] != 'a' && s->status[i][0] != 'o' && s->status[i][0] != 'i') ||
+	  s->mpwp == 128)
 	{
 	  root_changed[i] = true;
 	  continue;
@@ -243,7 +243,11 @@ mps_secular_ga_regenerate_coefficients_monomial (mps_status * s, cdpe_t * old_b,
 	    }
 
 	  if (mpc_get_prec (mdiff) < s->rootwp[i])
+	    {
 	      mpc_set_prec (mdiff, s->rootwp[i]);
+	      mpc_set_prec (mprod_b, s->rootwp[i]);
+	      mpc_set_prec (lc, s->rootwp[i]);
+	    }
 
 	  /* Compute the difference of the b_i */
 	  mpc_set_ui (mprod_b, 1U, 0U);
@@ -572,11 +576,11 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s, cdpe_t * old_b, mpc_t
    * polynomial only in that approximations. */
   mps_boolean * root_changed = mps_secular_ga_find_changed_roots (s, old_b, old_mb);
 
-  /* // TODO: Remove this */
-  /* int i; */
-  /* for (i = 0; i < s->n; i++) */
-  /*   root_changed[i] = true; */
-
+  // TODO: Remove this
+  /* int i;   */
+  /* for (i = 0; i < s->n; i++)   */
+  /*   root_changed[i] = true;   */
+  
   if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
     {
       /* Regenerate the coefficients of the secular equation starting from the monomial input */

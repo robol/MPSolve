@@ -432,8 +432,8 @@ mps_fcluster (mps_status * s, double * frad, int nf)
 
 	  /* Check if the computed radius is more convenient than the old one. 
 	     If that's the case, apply it as inclusion radius */ 
-	  if (new_rad < s->frad[k])  
-	    s->frad[k] = new_rad;  
+	  if (new_rad < s->frad[k])   
+	    s->frad[k] = new_rad;   
 	}
     }
 
@@ -751,9 +751,9 @@ mps_mcluster (mps_status * s, rdpe_t * drad, int nf)
 	  rdpe_mul_eq_d (new_rad, 4.0f);
 	  rdpe_add_eq (new_rad, drad[k]);
 
-	  if (rdpe_lt (new_rad, s->drad[k]))
-	    rdpe_set (s->drad[k], new_rad);
-	}
+	  if (rdpe_lt (new_rad, s->drad[k])) 
+	    rdpe_set (s->drad[k], new_rad); 
+      	}
     }
 
   /* Set the new clusterizaition in the mps_status */
