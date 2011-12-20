@@ -303,9 +303,10 @@ mps_secular_ga_mpsolve (mps_status * s)
   mps_secular_equation *sec = mps_secular_equation_from_status (s);
 
   /* s->n_threads = 1; */
-
   mps_allocate_data (s);
   rdpe_set_d (r_eps, DBL_EPSILON);
+
+  s->just_raised_precision = true;
 
 #ifndef DISABLE_DEBUG
   /* Reset all time counters */
@@ -529,6 +530,8 @@ mps_secular_ga_mpsolve (mps_status * s)
        * continue to iterate, unless the best approximation possible in
        * this precision has been reached. In that case increase the precision
        * of the computation. */
+       s->just_raised_precision = false;
+
        if (roots_computed == s->n)
 	 {
 	   if (s->debug_level & MPS_DEBUG_REGENERATION)

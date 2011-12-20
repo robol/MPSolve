@@ -93,7 +93,7 @@ mps_secular_ga_find_changed_roots (mps_status * s, cdpe_t * old_b, mpc_t * old_m
   for (i = 0; i < s->n; i++)
     {
       if ((s->status[i][0] != 'a' && s->status[i][0] != 'o' && s->status[i][0] != 'i') ||
-	  s->mpwp == 128)
+	  s->just_raised_precision)
 	{
 	  root_changed[i] = true;
 	  continue;
@@ -577,9 +577,9 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s, cdpe_t * old_b, mpc_t
   mps_boolean * root_changed = mps_secular_ga_find_changed_roots (s, old_b, old_mb);
 
   // TODO: Remove this
-  /* int i;   */
-  /* for (i = 0; i < s->n; i++)   */
-  /*   root_changed[i] = true;   */
+  /* int i;    */
+  /* for (i = 0; i < s->n; i++)    */
+  /*   root_changed[i] = true;    */
   
   if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
     {
@@ -793,7 +793,7 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
       mps_secular_ga_update_coefficients (s);
 
       /* Regeneration */
-      if (mps_secular_ga_regenerate_coefficients_mp (s, old_db, NULL))
+      if (mps_secular_ga_regenerate_coefficients_mp (s, old_db, old_mb))
         {
 	  mps_secular_ga_update_coefficients (s);
           /* Finally set radius according to new computed a_i coefficients,

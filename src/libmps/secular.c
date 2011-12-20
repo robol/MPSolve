@@ -466,6 +466,8 @@ mps_secular_raise_precision (mps_status * s, int wp)
   mps_secular_raise_coefficient_precision (s, wp);
   mps_secular_raise_root_precision (s, wp);
   s->mpwp = wp;
+
+  s->just_raised_precision = true;
 }
 
 /**
@@ -483,6 +485,8 @@ void
 mps_secular_switch_phase (mps_status * s, mps_phase phase)
 {
   MPS_DEBUG_THIS_CALL;
+
+  s->just_raised_precision = true;
 
   int i = 0;
   mps_secular_equation *sec = (mps_secular_equation *) s->secular_equation;

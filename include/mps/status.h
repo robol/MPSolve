@@ -191,6 +191,12 @@ extern "C"
     long int data_prec_max;
 
     /**
+     * @brief True if this is the first iteration after the precision has been 
+     * raised.
+     */
+    mps_boolean just_raised_precision;
+
+    /**
      * @brief stores the goal of the computation
      *
      * <code>goal</code> is an array of 5 chars with this meaning:
