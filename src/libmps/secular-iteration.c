@@ -200,6 +200,10 @@ mps_secular_ga_fiterate (mps_status * s, int maxit, mps_boolean just_regenerated
 #endif
 
   free (fradii);
+  mps_thread_job_queue_free (queue);
+  free (data);
+  free (roots_mutex);
+  free (aberth_mutex);
 
   /* Return the number of approximated roots */
   return computed_roots;
@@ -464,21 +468,34 @@ mps_secular_ga_miterate (mps_status * s, int maxit, mps_boolean just_regenerated
                   mps_secular_mnewton (s, s->mroot[k], s->drad[k], corr,
                                        &s->again[k], &user_data, false);
 
-                  /* Apply Aberth correction */
-                  mps_maberth_s (s, k, cluster, abcorr);
-                  mpc_mul_eq (abcorr, corr);
-                  mpc_ui_sub (abcorr, 1, 0, abcorr);
-                  mpc_div (abcorr, corr, abcorr);
-                  mpc_sub_eq (s->mroot[k], abcorr);
+		  /* Apply Aberth correction */
+		  mps_maberth_s (s, k, cluster, abcorr);
+		  mpc_mul_eq (abcorr, corr);
+		  mpc_ui_sub (abcorr, 1U, 0U, abcorr);
 
-                  /* Correct the radius */
-                  mpc_get_cdpe (ctmp, abcorr);
-                  cdpe_mod (modcorr, ctmp);
-                  rdpe_add_eq (s->drad[k], modcorr);
+		  if (!mpc_eq_zero (abcorr))
+		    {
+		      mpc_div (abcorr, corr, abcorr);
+		      mpc_sub_eq (s->mroot[k], abcorr);
 
-                  mpc_get_cdpe (ctmp, s->mroot[k]);
-                  cdpe_mod (rtmp, ctmp);
-                  rdpe_div_eq (modcorr, rtmp);
+		      /* Correct the radius */
+		      mpc_get_cdpe (ctmp, abcorr);
+		      cdpe_mod (modcorr, ctmp);
+		      rdpe_add_eq (s->drad[k], modcorr);
+		    }
+		  else
+		    s->again[k] = true;
+
+		  mpc_get_cdpe (ctmp, s->mroot[k]);
+		  cdpe_mod (rtmp, ctmp);
+		  rdpe_mul_eq_d (rtmp, 8.0);
+		  rdpe_mul_eq (rtmp, s->mp_epsilon);
+
+		  rdpe_add_eq (s->drad[k], rtmp);
+
+
+  if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
+    mps_dump (s);
 
                   if (!s->again[k])
                     computed_roots++;
@@ -495,6 +512,9 @@ mps_secular_ga_miterate (mps_status * s, int maxit, mps_boolean just_regenerated
     {
       MPS_DEBUG (s, "Performed %d iterations", nit);
     }
+
+  if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
+    mps_dump (s);
 
   if (nit <= it_threshold && just_regenerated)
     s->secular_equation->best_approx = true;

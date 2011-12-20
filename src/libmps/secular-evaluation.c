@@ -51,7 +51,7 @@ mps_secular_feval_with_error (mps_status * s, mps_secular_equation * sec, cplx_t
       cplx_sub (ctmp, x, sec->bfpc[i]);
       cplx_div (ctmp, sec->afpc[i], ctmp);
       cplx_add_eq (value, ctmp);
-      *error += cplx_mod (ctmp);
+      *error += cplx_mod (ctmp) * (i + 2);
     }
 
   cplx_sub_eq (value, cplx_one);
@@ -112,6 +112,7 @@ mps_secular_deval_with_error (mps_status * s, mps_secular_equation * sec,
       cdpe_div (ctmp, sec->adpc[i], ctmp);
       cdpe_mod (rtmp, ctmp);
       cdpe_add_eq (value, ctmp);
+      rdpe_mul_eq_d (error, i + 2);
       rdpe_add_eq (error, rtmp);
     }
 
@@ -183,13 +184,14 @@ mps_secular_meval_with_error (mps_status * s, mps_secular_equation * sec, mpc_t 
 
       mpc_get_cdpe (cdtmp, ctmp);
       cdpe_mod (rtmp, cdtmp);
+      rdpe_mul_eq_d (rtmp, i + 2);
       rdpe_add_eq (error, rtmp);
     }
   
   mpc_sub_eq_ui (value, 1U, 0U);
   rdpe_add_eq (error, rdpe_one);
 
-  rdpe_set_2dl (rtmp, 1.0, 1 - (long int) wp);
+  rdpe_set_2dl (rtmp, 4.0, 1 - (long int) wp);
   rdpe_mul_eq (error, rtmp);
   
   mpc_clear (ctmp);

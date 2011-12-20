@@ -210,22 +210,25 @@ mps_secular_mstart (mps_status * s, int n, mps_cluster_item * cluster_item, rdpe
       else
 	l = i;
 
-      /* Compute the right epsilon */
-      mpc_get_cdpe (ctmp, s->mroot[l]);
-      cdpe_mod (r_eps, ctmp);
-      rdpe_mul_eq (r_eps, s->mp_epsilon);
-      rdpe_mul_eq_d (r_eps, 4.0);
-      mpf_set_rdpe (mpc_Re (epsilon), r_eps);
+      if (s->status[l][0] != 'a' && s->status[l][0] != 'i' && s->status[l][0] != 'o')
+	{
+	  /* Compute the right epsilon */
+	  mpc_get_cdpe (ctmp, s->secular_equation->bmpc[l]);
+	  cdpe_mod (r_eps, ctmp);
+	  rdpe_mul_eq (r_eps, s->mp_epsilon);
+	  rdpe_mul_eq_d (r_eps, 4.0);
+	  mpf_set_rdpe (mpc_Re (epsilon), r_eps);
+	  
+	  mpc_set_d (s->mroot[l], cos (i * th + sigma), sin (i * th + sigma));
+	  mpc_mul_eq (s->mroot[l], epsilon);
+	  
+	  mpc_get_cdpe (ctmp, s->mroot[l]);
+	  cdpe_mod (rtmp, ctmp);
+	  rdpe_add_eq (s->drad[l], rtmp);
 
-      mpc_set_d (s->mroot[l], cos (i * th + sigma), sin (i * th + sigma));
-      mpc_mul_eq (s->mroot[l], epsilon);
-
-      mpc_get_cdpe (ctmp, s->mroot[l]);
-      cdpe_mod (rtmp, ctmp);
-      rdpe_add_eq (s->drad[l], rtmp);
-
-      mpc_add_eq (s->mroot[l], sec->bmpc[l]);
-
+	  mpc_add_eq (s->mroot[l], sec->bmpc[l]);
+	}
+	  
       if (cluster_item)
 	{
 	  root = root->next;
@@ -236,6 +239,8 @@ mps_secular_mstart (mps_status * s, int n, mps_cluster_item * cluster_item, rdpe
 
   /* mps_mcluster (s, 2.0 * s->n); */
   /* mps_mmodify (s, false); */
+
+  mps_dump (s);
   
   mpc_clear (epsilon);
 }

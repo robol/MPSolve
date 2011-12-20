@@ -41,10 +41,10 @@ mps_secular_ga_update_root_wp (mps_status * s, int i, long int wp)
 	   if (MPS_INPUT_CONFIG_IS_INTEGER (s->input_config) 
 	       || MPS_INPUT_CONFIG_IS_RATIONAL (s->input_config))
 	     {
-	       for (i = 0; i <= s->n ; ++i)
+	       for (j = 0; j <= s->n ; ++j)
 		 {
-		   mpf_set_q (mpc_Re (p->mfpc[i]), p->initial_mqp_r[i]);
-		   mpf_set_q (mpc_Im (p->mfpc[i]), p->initial_mqp_i[i]);
+		   mpf_set_q (mpc_Re (p->mfpc[j]), p->initial_mqp_r[j]);
+		   mpf_set_q (mpc_Im (p->mfpc[j]), p->initial_mqp_i[j]);
 		 }
 	     }
 	 }     
@@ -804,10 +804,15 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
       mpc_vclear (old_mb, s->n);
       mpc_vfree (old_ma);
       mpc_vfree (old_mb);
+      rdpe_vfree (old_db);
 
-      mps_secular_mstart (s, s->n, NULL, 
-			  (__rdpe_struct *) rdpe_zero,
-                          (__rdpe_struct *) rdpe_zero, s->eps_out);
+      /* if (MPS_INPUT_CONFIG_IS_SECULAR (s->input_config)) */
+	mps_secular_mstart (s, s->n, NULL, 
+			    (__rdpe_struct *) rdpe_zero,
+			    (__rdpe_struct *) rdpe_zero, s->eps_out);
+      /* else */
+      /* 	mps_mrestart (s); */
+
       break;
 
     default:

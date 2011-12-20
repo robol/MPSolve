@@ -500,7 +500,6 @@ mps_secular_ga_mpsolve (mps_status * s)
 	* and we have just regenerated the coefficients, we should increase precision. */
        if (sec->best_approx)
 	 {
-	 raise_precision:
 	   skip_check_stop = false;
 
 	   /* Going to multiprecision if we're not there yet */
@@ -539,7 +538,27 @@ mps_secular_ga_mpsolve (mps_status * s)
 	   else
 	     {
 	       MPS_DEBUG (s, "Raising precision");
-	       goto raise_precision;
+
+	       skip_check_stop = false;
+
+	       /* Going to multiprecision if we're not there yet */
+	       if (s->lastphase != mp_phase)
+		 {
+		   mps_secular_switch_phase (s, mp_phase);
+		   mps_secular_ga_regenerate_coefficients (s);
+		 }
+	       else
+		 {
+		   /* Raising precision otherwise */
+		   mps_secular_raise_precision (s, 2 * s->mpwp);
+		   mps_secular_ga_regenerate_coefficients (s);
+		 }
+
+	       just_regenerated = true;
+	       sec->best_approx = false;
+
+	       /* Set the packet counter to zero, we are restarting */
+	       packet = 0;
 	     }
 	 }
        else
@@ -575,8 +594,8 @@ mps_secular_ga_mpsolve (mps_status * s)
   /* if (s->lastphase == mp_phase) */
   mps_restore_data (s); 
 
-  /* /\* Finally copy the roots ready for output *\/ */
-  mps_copy_roots (s); 
+  /* Finally copy the roots ready for output */
+  mps_copy_roots (s);
 
   /* Debug total time taken but only if debug is enabled */
 #ifndef DISABLE_DEBUG
