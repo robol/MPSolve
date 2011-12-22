@@ -555,8 +555,6 @@ void
 mps_secular_set_radii (mps_status * s)
 {
   MPS_DEBUG_THIS_CALL;
-
-  return;
   
   int i;
   mps_secular_equation *sec = (mps_secular_equation *) s->secular_equation;
