@@ -26,10 +26,11 @@ __mps_secular_ga_fiterate_worker (void* data_ptr)
           return NULL;
         }
 
+      pthread_mutex_lock (&data->roots_mutex[i]);
+
       if (s->again[i])
 	{
           /* Lock this roots to make sure that we are the only one working on it */
-          pthread_mutex_lock (&data->roots_mutex[i]);
 	  cplx_set (froot, s->froot[i]);
 
 	  (*data->it)++;
@@ -49,25 +50,17 @@ __mps_secular_ga_fiterate_worker (void* data_ptr)
 	  modcorr = cplx_mod (abcorr);
 	  s->frad[i] += modcorr;
 
-	  if (modcorr < cplx_mod (froot) * 8.0 * DBL_EPSILON)
-	    {
-	      if (s->debug_level & MPS_DEBUG_PACKETS)
-		{
-		  MPS_DEBUG (s, "Setting again to false on root %d because aberth correction is less than precision", i);
-		}
-	      s->again[i] = false;
-	    }
-
 	  if (!s->again[i])
 	    {
 	      if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
-		MPS_DEBUG (s, "Root %d again was set to false on iteration %d", i, *data->it);
+		MPS_DEBUG (s, "Root %d again was set to false on iteration %d by thread %d", i, *data->it, data->thread);
 	      (*data->nzeros)++;
 	    }
 
 	  cplx_set (s->froot[i], froot);
-	  pthread_mutex_unlock (&data->roots_mutex[i]);
 	}
+
+      pthread_mutex_unlock (&data->roots_mutex[i]);
     }
 
   return NULL;
@@ -139,6 +132,7 @@ mps_secular_ga_fiterate (mps_status * s, int maxit, mps_boolean just_regenerated
   if (s->debug_level & MPS_DEBUG_PACKETS)
     {
       MPS_DEBUG (s, "There are %d roots with again set to false", computed_roots);
+      MPS_DEBUG (s, "Iteration theshold set to %d iterations", it_threshold);
     }
 
   mps_thread_job_queue *queue = mps_thread_job_queue_new (s);
