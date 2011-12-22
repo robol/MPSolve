@@ -495,10 +495,9 @@ mps_thread_mpolzer_worker (void *data_ptr)
                 }
             }
 
-          pthread_mutex_unlock (&data->roots_mutex[l]);
         }
-      else
-	pthread_mutex_unlock (&data->roots_mutex[l]);
+      
+      pthread_mutex_unlock (&data->roots_mutex[l]);
 
       /* MPS_DEBUG_MPC (s, 15, s->mroot[l], "s->mroot[%d]", l); */
       /* MPS_DEBUG_RDPE (s, s->drad[l], "s->drad[%d]", l); */
