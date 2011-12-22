@@ -28,10 +28,11 @@ mps_thread_fpolzer_worker (void *data_ptr)
           return 0;
         }
 
+      /* Lock this roots to make sure that we are the only one working on it */
+      pthread_mutex_lock (&data->roots_mutex[i]);
+
       if (s->again[i])
         {
-          /* Lock this roots to make sure that we are the only one working on it */
-          pthread_mutex_lock (&data->roots_mutex[i]);
 
           /* Check if, while we were waiting, excep condition has been reached */
           if (*data->excep || !s->again[i] || (*data->nzeros > s->n))
@@ -109,9 +110,9 @@ mps_thread_fpolzer_worker (void *data_ptr)
                   return 0;
                 }
             }
-
-          pthread_mutex_unlock (&data->roots_mutex[i]);
         }
+
+      pthread_mutex_unlock (&data->roots_mutex[i]);
 
     }
 
@@ -210,11 +211,11 @@ mps_thread_dpolzer_worker (void *data_ptr)
           return 0;
         }
 
+      /* Make sure that we are the only one iterating on this root */
+      pthread_mutex_lock (&data->roots_mutex[i]);
+
       if (s->again[i])
         {
-          /* Make sure that we are the only one iterating on this root */
-          pthread_mutex_lock (&data->roots_mutex[i]);
-
           /* Check if, while we were waiting, excep condition has been reached */
           if (*data->excep || !s->again[i] || (*data->nzeros > s->n))
             {
@@ -284,8 +285,8 @@ mps_thread_dpolzer_worker (void *data_ptr)
                   return 0;
                 }
             }
-          pthread_mutex_unlock (&data->roots_mutex[i]);
         }
+      pthread_mutex_unlock (&data->roots_mutex[i]);
     }
 
   return NULL;
