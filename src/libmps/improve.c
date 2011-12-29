@@ -73,6 +73,9 @@ mps_improve (mps_status * s)
   mps_monomial_poly *p = s->monomial_poly;
   clock_t *my_timer = mps_start_timer ();
 
+  /* Set lastphase to mp */
+  s->lastphase = mp_phase;
+
    if (s->debug_level & MPS_DEBUG_IMPROVEMENT) 
      { 
        MPS_DEBUG (s, "Refining the roots"); 
@@ -163,11 +166,10 @@ mps_improve (mps_status * s)
       cdpe_mod (abroot, ctmp);
       rdpe_div (tmp, tmp, abroot);
 
-      if (s->algorithm == MPS_ALGORITHM_STANDARD_MPSOLVE) 
+       if (s->algorithm == MPS_ALGORITHM_STANDARD_MPSOLVE)  
 	cnd = s->rootwp[i] + rdpe_log (tmp) / LOG2 + 1;
-      else 
-	cnd = s->mpwp + rdpe_log (tmp) / LOG2 + 1;
-      
+       else  
+       	cnd = s->mpwp + rdpe_log (tmp) / LOG2 + 1;       
 
       /* then evaluate the number of bits g,f */
       rdpe_div (t, s->drad[i], t);
@@ -183,6 +185,8 @@ mps_improve (mps_status * s)
       /* evaluate the upper bound m to the number of iterations
        * needed to reach the desired precision */
       m = (int) (log ((mpnb_out - f) / g) / LOG2) + 1;
+
+      MPS_DEBUG (s, "A maximum of %d iterations will be performed to improve root %d", m, i);
 
       /*  == 4 ==      Start Newton */
       rdpe_set (oldrad, s->drad[i]);
@@ -237,6 +241,9 @@ mps_improve (mps_status * s)
 	  /* Disabled because causes problems */
 	  /* if (rdpe_lt (newrad, s->drad[i]))    */
 	  /*   rdpe_set (s->drad[i], newrad);    */
+
+	  if (s->debug_level & MPS_DEBUG_IMPROVEMENT)
+	    MPS_DEBUG_RDPE (s, s->drad[i], "Radius of root %d at iteration %d", i, j);
 	   
           if (rdpe_lt (s->drad[i], tmp) || s->mpwp == mpnb_in)
             break;              /* loop1 */

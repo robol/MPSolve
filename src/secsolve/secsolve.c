@@ -67,6 +67,7 @@ main (int argc, char **argv)
   s->input_config->prec = 0;
 
   strncpy (s->goal, "aannc", 5);
+  s->output_config->goal = MPS_OUTPUT_GOAL_APPROXIMATE;
 
   /* Gemignani's approach */
   mps_boolean ga = false;
@@ -120,7 +121,7 @@ main (int argc, char **argv)
           s->output_config->prec = (atoi (opt->optvalue) + 1) * LOG2_10 + 1;
           break;
         case 'i':
-          s->goal[0] = 'i';
+	  s->output_config->goal = MPS_OUTPUT_GOAL_ISOLATE;
           break;
         case 'd':
           s->DOLOG = true;

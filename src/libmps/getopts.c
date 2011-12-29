@@ -271,13 +271,13 @@ mps_parse_opts (mps_status * s, int argc, char *argv[])
             switch (argv[i][2])
               {
               case 'a':
-                s->goal[0] = 'a';
+		s->output_config->goal = MPS_OUTPUT_GOAL_APPROXIMATE;
                 break;
               case 'c':
-                s->goal[0] = 'c';
+		s->output_config->goal = MPS_OUTPUT_GOAL_COUNT;
                 break;
               case 'i':
-                s->goal[0] = 'i';
+		s->output_config->goal = MPS_OUTPUT_GOAL_ISOLATE;
                 break;
               default:
                 mps_error (s, 3, "Bad goal switch: ", argv[i] + 2,
@@ -512,7 +512,7 @@ mps_parse_opts (mps_status * s, int argc, char *argv[])
 finalcheck:
 
   /* If the goal is approximate or count then remove the multiplicity option */
-  if (s->goal[0] != 'i')
+  if (s->output_config->goal != MPS_OUTPUT_GOAL_ISOLATE)
     s->goal[2] = 'n';
 
   /* check I/O streams */

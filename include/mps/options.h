@@ -146,6 +146,12 @@ extern "C" {
     long int prec;
 
     /**
+     * @brief Condition to be reached to return the computed
+     * approximations.
+     */
+    mps_output_goal goal;
+
+    /**
      * @brief Desired output format.
      *
      * Can be one of:

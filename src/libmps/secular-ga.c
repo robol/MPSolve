@@ -571,8 +571,10 @@ mps_secular_ga_mpsolve (mps_status * s)
     }
   while (skip_check_stop || !mps_secular_ga_check_stop (s));
 
+  mps_copy_roots (s);
+
   /* Finally improve the roots if approximation is required */
-  if (s->goal[0] == 'a')
+  if (s->output_config->goal == MPS_OUTPUT_GOAL_APPROXIMATE)
     {
       if (MPS_INPUT_CONFIG_IS_SECULAR (s->input_config))
 	{
@@ -600,7 +602,7 @@ mps_secular_ga_mpsolve (mps_status * s)
   mps_restore_data (s); 
 
   /* Finally copy the roots ready for output */
-  mps_copy_roots (s);
+  /* mps_copy_roots (s); */
 
   /* Debug total time taken but only if debug is enabled */
 #ifndef DISABLE_DEBUG

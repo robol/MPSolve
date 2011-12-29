@@ -1331,7 +1331,7 @@ mps_output (mps_status * s)
       fprintf (s->outstr, "plot '-' title 'Computed roots'\n");
     }
 
-  if (s->goal[0] == 'c')
+  if (s->output_config->goal == MPS_OUTPUT_GOAL_COUNT)
     mps_outcount (s);
   else
     {
@@ -1363,6 +1363,8 @@ void
 mps_copy_roots (mps_status * s)
 {
   int i;
+
+  MPS_DEBUG_THIS_CALL;
 
   switch (s->lastphase)
     {

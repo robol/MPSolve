@@ -97,6 +97,7 @@ extern  "C"
   typedef enum mps_representation mps_representation;
   typedef enum mps_density mps_density;
   typedef enum mps_output_format mps_output_format;
+  typedef enum mps_output_goal mps_output_goal;
   typedef enum mps_phase mps_phase;
 
   typedef struct mps_input_configuration mps_input_configuration;
@@ -217,12 +218,21 @@ extern  "C"
   };
 
   /**
+   * @brief Goal to reach before returning the result.
+   */
+  enum mps_output_goal {
+    MPS_OUTPUT_GOAL_ISOLATE,
+    MPS_OUTPUT_GOAL_APPROXIMATE,
+    MPS_OUTPUT_GOAL_COUNT
+  };
+
+  /**
    * @brief Representation chosen for the polynomial
    */
   enum mps_representation
     {
       MPS_REPRESENTATION_SECULAR,
-      MPS_REPRESENTATION_MONOMIAL,
+      MPS_REPRESENTATION_MONOMIAL
     };
 
 

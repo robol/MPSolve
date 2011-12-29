@@ -39,10 +39,10 @@ mps_update (mps_status * s)
 
   for (i = 0; i < s->n; i++)
     s->again[i] = false;
-  switch (s->goal[0])
+  switch (s->output_config->goal)
     {
 
-    case 'c':                  /*  count */
+    case MPS_OUTPUT_GOAL_COUNT:                  /*  count */
       for (i = 0; i < s->n; i++)
         {
           if (s->status[i][2] == 'u')
@@ -55,7 +55,7 @@ mps_update (mps_status * s)
 
           switch (s->goal[3])
             {
-            case 'r':          /* real option */
+           case 'r':          /* real option */
               if (s->status[i][1] == 'w' && (s->status[i][2] != 'u'
                                              || (s->status[i][0] != 'f'
                                                  && s->status[i][0] != 'a'
@@ -83,7 +83,7 @@ mps_update (mps_status * s)
 
       break;
 
-    case 'i':                  /* isolate */
+    case MPS_OUTPUT_GOAL_ISOLATE:                  /* isolate */
       for (i = 0; i < s->n; i++)
         {
           if (s->status[i][2] == 'u' || (s->status[i][0] == 'c'
@@ -122,7 +122,7 @@ mps_update (mps_status * s)
 
       break;
 
-    case 'a':                  /* approximate (the same as isolate) */
+    case MPS_OUTPUT_GOAL_APPROXIMATE:                  /* approximate (the same as isolate) */
       for (i = 0; i < s->n; i++)
         {
           if (s->status[i][2] == 'u' || (s->status[i][0] == 'c'
@@ -345,7 +345,7 @@ mps_check_stop (mps_status * s)
 
   computed = false;
   /* count */
-  if (s->goal[0] == 'c')
+  if (s->output_config->goal == MPS_OUTPUT_GOAL_COUNT)
     {
       for (i = 0; i < s->n; i++)
         {
@@ -370,7 +370,8 @@ mps_check_stop (mps_status * s)
     }
 
   /* isolate or approximate */
-  if (s->goal[0] == 'i' || s->goal[0] == 'a')
+  if (s->output_config->goal == MPS_OUTPUT_GOAL_ISOLATE ||
+      s->output_config->goal == MPS_OUTPUT_GOAL_APPROXIMATE)
     {
       for (i = 0; i < s->n; i++)
         {

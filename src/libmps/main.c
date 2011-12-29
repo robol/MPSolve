@@ -119,7 +119,7 @@ mps_standard_mpsolve (mps_status * s)
         mps_dump (s);
 
       computed = mps_check_stop (s);
-      if (computed && s->goal[0] != 'a')
+      if (computed && s->output_config->goal != MPS_OUTPUT_GOAL_APPROXIMATE)
         goto exit_sub;
       /* stop for COUNT and ISOLATE goals */
     }
@@ -144,7 +144,7 @@ mps_standard_mpsolve (mps_status * s)
         mps_dump (s);
 
       computed = mps_check_stop (s);
-      if (computed && s->goal[0] != 'a')
+      if (computed && s->output_config->goal != MPS_OUTPUT_GOAL_APPROXIMATE)
         goto exit_sub;
     }
 
@@ -170,7 +170,7 @@ mps_standard_mpsolve (mps_status * s)
           rdpe_set_d (s->drad[i], s->frad[i]);
         }
     }
-  if (computed && s->goal[0] == 'a')
+  if (computed && s->output_config->goal == MPS_OUTPUT_GOAL_APPROXIMATE)
     goto exit_sub;
 
   /* == 7 ==  Start MPsolve loop */
@@ -254,7 +254,7 @@ exit_sub:
       mps_error (s, 1, "Unable to compute inclusion disks");
 
   /* == 10 ==  Refine roots */
-  if (computed && !s->over_max && s->goal[0] == 'a')
+  if (computed && !s->over_max && s->output_config->goal == MPS_OUTPUT_GOAL_APPROXIMATE)
     {
       s->lastphase = mp_phase;
       mps_improve (s);
