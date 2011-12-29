@@ -509,16 +509,18 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
         /* MPS_DEBUG (s, "Setting newton correction");
            MPS_DEBUG_RDPE (s, sigma, "sigma"); */
         rdpe_set (new_rad, g_corr);
+
+	rdpe_mul (rtmp, ax, s->mp_epsilon);
+	rdpe_add_eq (new_rad, rtmp);
+	
+	if (rdpe_lt (new_rad, rad))
+	  {
+	    if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
+	      MPS_DEBUG_RDPE (s, new_rad, "Setting radius for root %ld to rad_%ld", data->k, data->k);
+	    rdpe_set (rad, new_rad);
+	  }
       }
   }
-
-  rdpe_mul (rtmp, ax, s->mp_epsilon);
-  rdpe_add_eq (new_rad, rtmp);
-
-  if (rdpe_lt (new_rad, rad))
-    {
-      rdpe_set (rad, new_rad);
-    }
   
   /* Check if newton correction is less than
    * the modules of x for s->output_config->prec, and if

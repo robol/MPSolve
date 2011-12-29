@@ -746,7 +746,6 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
             }
 
 	  mps_secular_ga_update_coefficients (s);
-	  MPS_DEBUG (s ,"Ahi ahi ahi");
 	  break;
 	}
       else
