@@ -555,6 +555,8 @@ void
 mps_secular_set_radii (mps_status * s)
 {
   MPS_DEBUG_THIS_CALL;
+
+  return;
   
   int i;
   mps_secular_equation *sec = (mps_secular_equation *) s->secular_equation;
@@ -601,18 +603,24 @@ mps_secular_set_radii (mps_status * s)
 	/* Compute total radius as \sum_i |sec->afpc[i]| */
 	for (i = 0; i < s->n; i++)
 	  {
+	    rdpe_set_d (rad_eps, 4 * s->n);
+
 	    if (s->lastphase == mp_phase)
 	      {
 		mpc_get_cdpe (ctmp, sec->ampc[i]);
 		cdpe_mod (rtmp, ctmp);
+		rdpe_mul_eq (rad_eps, s->mp_epsilon);
 	      }
 	    else
-	      /* We are in the DPE phase */
-	      cdpe_mod (rtmp, sec->adpc[i]);
+	      {
+		/* We are in the DPE phase */
+		cdpe_mod (rtmp, sec->adpc[i]);
+		rdpe_mul_eq_d (rad_eps, DBL_EPSILON);
+	      }
 
-	    rdpe_set (rad_eps, sec->dregeneration_epsilon[i]);
+	    rdpe_add_eq (rad_eps, rdpe_one);
+
 	    rdpe_mul_eq (rad_eps, rtmp);
-	    // rdpe_mul_eq_d (rtmp, 1 + 4 * DBL_EPSILON);
 	    rdpe_add_eq (total_rad, rad_eps);
 	  }
 
