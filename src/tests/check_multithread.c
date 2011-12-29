@@ -1,6 +1,7 @@
 #include <mps/mps.h>    
 #include <stdlib.h>
 #include <pthread.h>
+#include <check.h>
 
 #define N_THREADS 128
 
@@ -8,7 +9,6 @@ void *
 work (int * i)
 {
   printf (" %2d", *i);
-  /* while (1); */
   return NULL;
 }
 
@@ -25,7 +25,7 @@ int main (int argc, char ** argv)
 
   printf (" => Created a thread pool with %d threads\n", pool->n);
 
-  printf (" => Asking the threads to print an integer...\n");
+  printf (" => Asking the threads to print an integer (from 0 to %d)...\n", N_THREADS - 1);
   
   for (j = 0; j < N_THREADS; j++)
     mps_thread_pool_assign (s, pool, (mps_thread_work) work, i + j);

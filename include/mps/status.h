@@ -12,6 +12,7 @@ extern "C"
    * most of its fields.
    */
 #include <mps/mps.h>
+#include <pthread.h>
 
   /**
    * @brief Function that computes \f$\frac{p}{p'}\f$ (floating point version)
@@ -189,6 +190,12 @@ extern "C"
      * @brief Maximum precision reached during the computation.
      */
     long int data_prec_max;
+
+    /**
+     * @brief Precision operation give best results when done one
+     * thread at a time :)
+     */
+    pthread_mutex_t precision_mutex;
 
     /**
      * @brief True if this is the first iteration after the precision has been 

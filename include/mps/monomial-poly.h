@@ -14,6 +14,7 @@ extern "C"
 
   #include <mps/mps.h>
   #include <gmp.h>
+  #include <pthread.h>
 
   /**
    * @brief Data regarding a polynomial represented in the monomial
@@ -70,6 +71,12 @@ extern "C"
      * @brief Multiprecision complex coefficients.
      */
     mpc_t *mfpc;
+    
+    /**
+     * @brief Array of mutexes that need to be locked when reading at the
+     * i-th compoenent of the poly. 
+     */
+    pthread_mutex_t * mfpc_mutex;
 
     /**
      * @brief Multiprecision complex coefficients of \f$p'(x)\f$.
@@ -95,6 +102,12 @@ extern "C"
      * @brief Imaginary part of rational input coefficients.
      */
     mpq_t *initial_mqp_i;
+
+    /**
+     * @brief This mutex must be locked while regenerating the coefficients
+     * of the polynomial.
+     */
+    pthread_mutex_t regenerating;
         
   };
 

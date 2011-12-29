@@ -207,10 +207,10 @@ mps_secular_equation_new_raw (mps_status * s, unsigned long int n)
   sec->bmpc = mpc_valloc (n);
   sec->initial_ampc = mpc_valloc (n);
   sec->initial_bmpc = mpc_valloc (n);
-  sec->initial_ampqrc = mpq_valloc (n + 1);
-  sec->initial_bmpqrc = mpq_valloc (n + 1);
-  sec->initial_ampqic = mpq_valloc (n + 1);
-  sec->initial_bmpqic = mpq_valloc (n + 1);
+  sec->initial_ampqrc = mpq_valloc (n);
+  sec->initial_bmpqrc = mpq_valloc (n);
+  sec->initial_ampqic = mpq_valloc (n);
+  sec->initial_bmpqic = mpq_valloc (n);
 
   /* Allocate space for the moduli of the coefficients */
   sec->aadpc = rdpe_valloc (n);
@@ -223,10 +223,10 @@ mps_secular_equation_new_raw (mps_status * s, unsigned long int n)
   mpc_vinit2 (sec->bmpc, n, s->mpwp);
   mpc_vinit2 (sec->initial_ampc, n, s->mpwp);
   mpc_vinit2 (sec->initial_bmpc, n, s->mpwp);
-  mpq_vinit (sec->initial_ampqrc, n + 1);
-  mpq_vinit (sec->initial_bmpqrc, n + 1);
-  mpq_vinit (sec->initial_ampqic, n + 1);
-  mpq_vinit (sec->initial_bmpqic, n + 1);
+  mpq_vinit (sec->initial_ampqrc, n);
+  mpq_vinit (sec->initial_bmpqrc, n);
+  mpq_vinit (sec->initial_ampqic, n);
+  mpq_vinit (sec->initial_bmpqic, n);
 
   /* Epsilon arrays */
   sec->dregeneration_epsilon = rdpe_valloc (n);
@@ -240,6 +240,16 @@ mps_secular_equation_new_raw (mps_status * s, unsigned long int n)
     }
 
   sec->n = n;
+
+  /* Set up the mutexes for thread safety */
+  sec->ampc_mutex = mps_newv (pthread_mutex_t, sec->n);
+  sec->bmpc_mutex = mps_newv (pthread_mutex_t, sec->n);
+
+  for (i = 0; i < n; i++)
+    {
+      pthread_mutex_init (&sec->ampc_mutex[i], NULL);
+      pthread_mutex_init (&sec->bmpc_mutex[i], NULL);
+    }
   
   return sec;
 }
@@ -319,10 +329,10 @@ mps_secular_equation_free (mps_secular_equation * s)
   /* And old coefficients */
   mpc_vclear (s->initial_ampc, s->n);
   mpc_vclear (s->initial_bmpc, s->n);
-  mpq_vclear (s->initial_ampqrc, s->n + 1);
-  mpq_vclear (s->initial_bmpqrc, s->n + 1);
-  mpq_vclear (s->initial_ampqic, s->n + 1);
-  mpq_vclear (s->initial_bmpqic, s->n + 1);
+  mpq_vclear (s->initial_ampqrc, s->n);
+  mpq_vclear (s->initial_bmpqrc, s->n);
+  mpq_vclear (s->initial_ampqic, s->n);
+  mpq_vclear (s->initial_bmpqic, s->n);
   mpc_vfree (s->initial_ampc);
   mpc_vfree (s->initial_bmpc);
   mpq_vfree (s->initial_ampqrc);
@@ -333,6 +343,10 @@ mps_secular_equation_free (mps_secular_equation * s)
   /* Epsilon arrays */
   rdpe_vfree (s->dregeneration_epsilon);
   free (s->fregeneration_epsilon);
+
+  /* Mutexes */
+  free (s->ampc_mutex);
+  free (s->bmpc_mutex);
 
   /* ...and then release it */
   free (s);

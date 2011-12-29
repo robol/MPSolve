@@ -33,11 +33,18 @@ void
 mps_mhorner (mps_status * s, mps_monomial_poly * p, mpc_t x, mpc_t value)
 {
   int j;
-  mpc_set (value, p->mfpc[p->n]);
+
+  mps_with_lock (p->mfpc_mutex[s->n],
+		 mpc_set (value, p->mfpc[p->n]);
+		 );
+
   for (j = s->n - 1; j >= 0; j--)
     {
       mpc_mul_eq (value, x);
+
+      pthread_mutex_lock (&p->mfpc_mutex[j]);
       mpc_add_eq (value, p->mfpc[j]);
+      pthread_mutex_unlock (&p->mfpc_mutex[j]);
     }
 }
 
@@ -68,11 +75,14 @@ mps_mhorner_with_error2 (mps_status * s, mps_monomial_poly * p, mpc_t x, mpc_t v
   rdpe_t apol, ax, u;
   cdpe_t cx;
 
+  pthread_mutex_lock (&p->mfpc_mutex[0]);
   if (mpc_get_prec (p->mfpc[0]) < wp)
     {
-      for(i = 0; i < p->n; i++)
-	mpc_set_prec (p->mfpc[i], wp);
+      pthread_mutex_unlock (&p->mfpc_mutex[0]);
+      mps_monomial_poly_raise_precision (s, p, wp);
     }
+  else
+    pthread_mutex_unlock (&p->mfpc_mutex[0]);
 
   /* Set 4 * machine precision in u */
   rdpe_set_2dl (u, 1.0, 2 - wp);

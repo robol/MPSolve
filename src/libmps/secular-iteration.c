@@ -1,3 +1,22 @@
+/************************************************************
+ **                                                        **
+ **             __  __ ___  ___      _                     **
+ **            |  \/  | _ \/ __| ___| |_ _____             **
+ **            | |\/| |  _/\__ \/ _ \ \ V / -_)            **
+ **            |_|  |_|_|  |___/\___/_|\_/\___|            **
+ **                                                        **
+ **       Multiprecision Polynomial Solver (MPSolve)       **
+ **                 Version 2.9, April 2011                **
+ **                                                        **
+ **                      Written by                        **
+ **                                                        **
+ **     Dario Andrea Bini       <bini@dm.unipi.it>         **
+ **     Giuseppe Fiorentino     <fiorent@dm.unipi.it>      **
+ **     Leonardo Robol          <robol@mail.dm.unipi.it>   **
+ **                                                        **
+ **           (C) 2011, Dipartimento di Matematica         **
+ ***********************************************************/
+
 #include <mps/mps.h>
 #include <math.h>
 #include <string.h>
@@ -149,7 +168,8 @@ mps_secular_ga_fiterate (mps_status * s, int maxit, mps_boolean just_regenerated
       data[i].roots_mutex = roots_mutex;
       data[i].queue = queue;
 
-      mps_thread_pool_assign (s, s->pool, __mps_secular_ga_fiterate_worker, data + i);
+      /* mps_thread_pool_assign (s, s->pool, __mps_secular_ga_fiterate_worker, data + i); */
+      __mps_secular_ga_fiterate_worker (data + i);
     }
 
   mps_thread_pool_wait (s, s->pool);

@@ -121,6 +121,9 @@ mps_allocate_data (mps_status * s)
 
   /* Allocate the thread_pool used in computations. */
   s->pool = mps_thread_pool_new (s);
+
+  /* Init the mutex that need it */
+  pthread_mutex_init (&s->precision_mutex, NULL);
 }
 
 /**
