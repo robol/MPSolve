@@ -133,9 +133,9 @@ extern "C" {
 
 
   /* Properties of the root */
-#define MPS_PROPERTY_NONE      (0x00     )
-#define MPS_PROPERTY_REAL      (0x01     )
-#define MPS_PROPERTY_IMAGINARY (0x01 << 1)
+#define MPS_OUTPUT_PROPERTY_NONE      (0x00     )
+#define MPS_OUTPUT_PROPERTY_REAL      (0x01     )
+#define MPS_OUTPUT_PROPERTY_IMAGINARY (0x01 << 1)
 
   /**
    * @brief Configuration for the output.
@@ -168,8 +168,8 @@ extern "C" {
      * of the roots must be determined by MPSolve. 
      *
      * Possible values are:
-     * -# MPS_PROPERTY_REAL
-     * -# MPS_PROPERTY_IMAGINARY
+     * -# MPS_OUTPUT_PROPERTY_REAL
+     * -# MPS_OUTPUT_PROPERTY_IMAGINARY
      */
     char root_properties;
 

@@ -138,7 +138,7 @@ mps_set_default_values (mps_status * s)
   s->output_config->prec = 0.8 * DBL_DIG * LOG2_10;
   s->output_config->goal = MPS_OUTPUT_GOAL_ISOLATE;
   s->output_config->multiplicity = false;
-  s->output_config->root_properties = MPS_PROPERTY_NONE;
+  s->output_config->root_properties = MPS_OUTPUT_PROPERTY_NONE;
 
   s->data_prec_max = 0;
 

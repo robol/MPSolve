@@ -55,7 +55,7 @@ mps_update (mps_status * s)
 
           switch (s->output_config->root_properties)
             {
-           case MPS_PROPERTY_REAL:          /* real option */
+           case MPS_OUTPUT_PROPERTY_REAL:          /* real option */
               if (s->status[i][1] == 'w' && (s->status[i][2] != 'u'
                                              || (s->status[i][0] != 'f'
                                                  && s->status[i][0] != 'a'
@@ -63,7 +63,7 @@ mps_update (mps_status * s)
                 s->again[i] = true;
               break;
 
-            case MPS_PROPERTY_IMAGINARY:          /* imaginary option */
+            case MPS_OUTPUT_PROPERTY_IMAGINARY:          /* imaginary option */
               if (s->status[i][1] == 'w' && (s->status[i][2] != 'u'
                                              || (s->status[i][0] != 'f'
                                                  && s->status[i][0] != 'a'
@@ -71,7 +71,7 @@ mps_update (mps_status * s)
                 s->again[i] = true;
               break;
 
-            case MPS_PROPERTY_REAL | MPS_PROPERTY_IMAGINARY:          /* both imaginary and real options */
+            case MPS_OUTPUT_PROPERTY_REAL | MPS_OUTPUT_PROPERTY_IMAGINARY:          /* both imaginary and real options */
               if (s->status[i][1] == 'w' && (s->status[i][2] != 'u'
                                              || (s->status[i][0] != 'f'
                                                  && s->status[i][0] != 'a'
@@ -97,21 +97,21 @@ mps_update (mps_status * s)
 
           switch (s->output_config->root_properties)
             {
-            case MPS_PROPERTY_REAL:          /* real option */
+            case MPS_OUTPUT_PROPERTY_REAL:          /* real option */
               if (s->status[i][1] == 'w' && (s->status[i][0] != 'f'
                                              && s->status[i][0] != 'a'
                                              && s->status[i][0] != 'o'))
                 s->again[i] = true;
               break;
 
-            case MPS_PROPERTY_IMAGINARY:          /* imaginary option */
+            case MPS_OUTPUT_PROPERTY_IMAGINARY:          /* imaginary option */
               if (s->status[i][1] == 'w' && (s->status[i][0] != 'f'
                                              && s->status[i][0] != 'a'
                                              && s->status[i][0] != 'o'))
                 s->again[i] = true;     /* DARIO RIVEDERE */
               break;
 
-            case MPS_PROPERTY_REAL | MPS_PROPERTY_IMAGINARY:          /* both imaginary and real options */
+            case MPS_OUTPUT_PROPERTY_REAL | MPS_OUTPUT_PROPERTY_IMAGINARY:          /* both imaginary and real options */
               if (s->status[i][1] == 'w' && (s->status[i][0] != 'f'
                                              && s->status[i][0] != 'a'
                                              && s->status[i][0] != 'o'))
@@ -138,21 +138,21 @@ mps_update (mps_status * s)
           switch (s->output_config->root_properties)
             {
 
-            case MPS_PROPERTY_REAL:          /* real option */
+            case MPS_OUTPUT_PROPERTY_REAL:          /* real option */
               if (s->status[i][1] == 'w' && (s->status[i][0] != 'f'
                                              && s->status[i][0] != 'a'
                                              && s->status[i][0] != 'o'))
                 s->again[i] = true;
               break;
 
-            case MPS_PROPERTY_IMAGINARY:          /* imaginary option */
+            case MPS_OUTPUT_PROPERTY_IMAGINARY:          /* imaginary option */
               if (s->status[i][1] == 'w' && (s->status[i][0] != 'f'
                                              && s->status[i][0] != 'a'
                                              && s->status[i][0] != 'o'))
                 s->again[i] = true;
               break;
 
-            case MPS_PROPERTY_REAL | MPS_PROPERTY_IMAGINARY:          /* both imaginary and real options */
+            case MPS_OUTPUT_PROPERTY_REAL | MPS_OUTPUT_PROPERTY_IMAGINARY:          /* both imaginary and real options */
               if (s->status[i][1] == 'w' && (s->status[i][0] != 'f'
                                              && s->status[i][0] != 'a'
                                              && s->status[i][0] != 'o'))
@@ -355,16 +355,16 @@ mps_check_stop (mps_status * s)
           if (s->output_config->multiplicity && s->status[i][0] == 'c' && s->status[i][2]
               != 'o')
             return computed;
-          if (s->output_config->root_properties == MPS_PROPERTY_REAL
+          if (s->output_config->root_properties == MPS_OUTPUT_PROPERTY_REAL
 	      && s->status[i][1] == 'w' && s->status[i][2] != 'o' && s->status[i][0] != 'a' && 
 	      s->status[i][0] != 'o' && s->status[i][0] != 'm')      /* NEW */
             return computed;
-          if (s->output_config->root_properties == MPS_PROPERTY_IMAGINARY && 
+          if (s->output_config->root_properties == MPS_OUTPUT_PROPERTY_IMAGINARY && 
 	      s->status[i][1] == 'w' && s->status[i][2]
               != 'o' && s->status[i][0] != 'a' && s->status[i][0] != 'o'
               && s->status[i][0] != 'm')
             return computed;
-          if (s->output_config->root_properties == (MPS_PROPERTY_IMAGINARY | MPS_PROPERTY_REAL) &&
+          if (s->output_config->root_properties == (MPS_OUTPUT_PROPERTY_IMAGINARY | MPS_OUTPUT_PROPERTY_REAL) &&
 	      s->status[i][2] != 'o' && s->status[i][1]
               == 'w' && s->status[i][0] != 'a' && s->status[i][0] != 'o'
               && s->status[i][0] != 'm')
@@ -386,17 +386,17 @@ mps_check_stop (mps_status * s)
             return computed;
           if (s->output_config->multiplicity && s->status[i][2] != 'o' && (s->status[i][0] == 'c'))
             return computed;
-          if (s->output_config->root_properties == MPS_PROPERTY_REAL && 
+          if (s->output_config->root_properties == MPS_OUTPUT_PROPERTY_REAL && 
 	      s->status[i][1] == 'w' && s->status[i][2]
               != 'o' && s->status[i][0] != 'a' && s->status[i][0] != 'o'
               && s->status[i][0] != 'm')
             return computed;
-          if (s->output_config->root_properties == MPS_PROPERTY_IMAGINARY && 
+          if (s->output_config->root_properties == MPS_OUTPUT_PROPERTY_IMAGINARY && 
 	      s->status[i][1] == 'w' && s->status[i][2]
               != 'o' && s->status[i][0] != 'm' && s->status[i][0] != 'a'
               && s->status[i][0] != 'o' && s->status[i][0] != 'm')
             return computed;
-          if (s->output_config->root_properties == (MPS_PROPERTY_REAL | MPS_PROPERTY_IMAGINARY) &&
+          if (s->output_config->root_properties == (MPS_OUTPUT_PROPERTY_REAL | MPS_OUTPUT_PROPERTY_IMAGINARY) &&
 	      s->status[i][2] != 'o' && s->status[i][0]
               != 'm' && s->status[i][1] == 'w' && s->status[i][0] != 'a'
               && s->status[i][0] != 'o')

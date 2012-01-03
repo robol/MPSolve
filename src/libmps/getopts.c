@@ -352,17 +352,17 @@ mps_parse_opts (mps_status * s, int argc, char *argv[])
             switch (argv[i][2])
               {
               case 'n':
-                s->output_config->root_properties = MPS_PROPERTY_NONE;
+                s->output_config->root_properties = MPS_OUTPUT_PROPERTY_NONE;
                 break;
               case 'r':
-                s->output_config->root_properties = MPS_PROPERTY_REAL;
+                s->output_config->root_properties = MPS_OUTPUT_PROPERTY_REAL;
                 break;
               case 'i':
-                s->output_config->root_properties = MPS_PROPERTY_IMAGINARY;
+                s->output_config->root_properties = MPS_OUTPUT_PROPERTY_IMAGINARY;
                 break;
               case 'b':
-                s->output_config->root_properties = MPS_PROPERTY_REAL | 
-		  MPS_PROPERTY_IMAGINARY;
+                s->output_config->root_properties = MPS_OUTPUT_PROPERTY_REAL | 
+		  MPS_OUTPUT_PROPERTY_IMAGINARY;
                 break;
               default:
                 mps_error (s, 3, "Bad detection switch: ", argv[i] + 2,
