@@ -284,7 +284,7 @@ mps_setup (mps_status * s)
 
   if (s->DOLOG)
     {
-      fprintf (s->logstr, "Goal      = %5s\n", s->goal);
+      /* fprintf (s->logstr, "Goal      = %5s\n", s->goal); */
       fprintf (s->logstr, "Data type = %3s\n", s->data_type);
       fprintf (s->logstr, "Degree    = %d\n", s->n);
       fprintf (s->logstr, "Input prec.  = %ld digits\n", (long) (s->input_config->prec
@@ -542,7 +542,9 @@ mps_check_data (mps_status * s, char *which_case)
       }
 
   /* Real/Imaginary detection */
-  if (s->output_config->root_properties || s->goal[1] == 'R' || s->goal[1] == 'I')
+  if (s->output_config->root_properties || 
+      s->output_config->search_set == MPS_SEARCH_SET_REAL || 
+      s->output_config->search_set == MPS_SEARCH_SET_IMAG)
     switch (s->data_type[2])
       {
       case 'i':

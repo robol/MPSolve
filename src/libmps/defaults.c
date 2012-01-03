@@ -57,7 +57,6 @@ mps_set_default_values (mps_status * s)
 
   s->mpwp_max = 100000000;     /* maximum allowed bits for mp         */
   /*   numbers: used in hi-prec. shifts  */
-  strncpy (s->goal, "iannc", 5);        /* stores the goal, by default "iannc" */
   s->output_config->prec = 2 * DBL_DIG;    /* digits of required output precision */
 
   /* polynomial data - shared variables */
@@ -135,10 +134,11 @@ mps_set_default_values (mps_status * s)
 
   /* Output */
   s->output_config->format = MPS_OUTPUT_FORMAT_COMPACT;
-  s->output_config->prec = 0.8 * DBL_DIG * LOG2_10;
+  s->output_config->prec = 0.8 * DBL_DIG;
   s->output_config->goal = MPS_OUTPUT_GOAL_ISOLATE;
   s->output_config->multiplicity = false;
   s->output_config->root_properties = MPS_OUTPUT_PROPERTY_NONE;
+  s->output_config->search_set = MPS_SEARCH_SET_COMPLEX_PLANE;
 
   s->data_prec_max = 0;
 

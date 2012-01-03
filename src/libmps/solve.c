@@ -1046,7 +1046,8 @@ mps_msolve (mps_status * s)
       goto msolve_final_cleanup;
     }
   nzc = 0;
-  if (s->goal[1] == 'a' && !s->output_config->multiplicity && 
+  if (s->output_config->search_set == MPS_SEARCH_SET_COMPLEX_PLANE && 
+      !s->output_config->multiplicity && 
       !s->output_config->root_properties)
     for (i = 0; i < s->n; i++)
       if (s->status[i][0] == 'i' || s->status[i][0] == 'a'
@@ -1095,7 +1096,8 @@ mps_msolve (mps_status * s)
 
       it_pack += nit;
       nzc = 0;
-      if (s->goal[1] == 'a' && !s->output_config->multiplicity && 
+      if (s->output_config->search_set == MPS_SEARCH_SET_COMPLEX_PLANE && 
+	  !s->output_config->multiplicity &&
 	  !s->output_config->root_properties)  /* DARIO APRILE 98 */
         for (i = 0; i < s->n; i++)
           if (s->status[i][0] == 'i' || s->status[i][0] == 'a'
@@ -1226,7 +1228,8 @@ mps_msolve (mps_status * s)
                 }
 
               nzc = 0;
-              if (s->goal[1] == 'a' && s->output_config->multiplicity && 
+              if (s->output_config->search_set == MPS_SEARCH_SET_COMPLEX_PLANE && 
+		  s->output_config->multiplicity &&
 		  !s->output_config->root_properties)
                 for (i = 0; i < s->n; i++)
                   if (s->status[i][0] == 'i' || s->status[i][0] == 'a'

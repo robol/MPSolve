@@ -113,6 +113,7 @@ extern  "C"
   typedef enum mps_density mps_density;
   typedef enum mps_output_format mps_output_format;
   typedef enum mps_output_goal mps_output_goal;
+  typedef enum mps_search_set mps_search_set;
   typedef enum mps_phase mps_phase;
 
   typedef struct mps_input_configuration mps_input_configuration;
@@ -239,6 +240,63 @@ extern  "C"
     MPS_OUTPUT_GOAL_ISOLATE,
     MPS_OUTPUT_GOAL_APPROXIMATE,
     MPS_OUTPUT_GOAL_COUNT
+  };
+
+  /** 
+   * @brief Set in which the roots are searched.
+   */
+  enum mps_search_set {
+    /**
+     * @brief The whole complex plane.
+     */
+    MPS_SEARCH_SET_COMPLEX_PLANE,
+
+    /**
+     * @brief Complex numbers with a positive real part.
+     */
+    MPS_SEARCH_SET_POSITIVE_REAL_PART,
+
+    /**
+     * @brief Complex numbers with a negative real part.
+     */
+    MPS_SEARCH_SET_NEGATIVE_REAL_PART,
+
+    /**
+     * @brief Complex numbers with a positive imaginary part.
+     */
+    MPS_SEARCH_SET_POSITIVE_IMAG_PART,
+
+    /**
+     * @brief Complex numbers with a negative real part.
+     */
+    MPS_SEARCH_SET_NEGATIVE_IMAG_PART,
+
+    /**
+     * @brief Complex numbers in the unitary disc
+     * \f$S = \{ z \: | \: \lvert z \rvert \leq 1 \}$
+     */
+    MPS_SEARCH_SET_UNITARY_DISC,
+
+    /**
+     * @brief Complex number out of the unitary disc
+     * \d$S = \{ z \: | \: \lvert z \rvert \leq 1 \}$
+     */
+    MPS_SEARCH_SET_UNITARY_DISC_COMPL,
+
+    /**
+     * @brief Only real roots.
+     */
+    MPS_SEARCH_SET_REAL,
+
+    /**
+     * @brief Only pure imaginary roots.
+     */
+    MPS_SEARCH_SET_IMAG,
+
+    /**
+     * @brief Custom set specified by the user.
+     */
+    MPS_SEARCH_SET_CUSTOM
   };
 
   /**

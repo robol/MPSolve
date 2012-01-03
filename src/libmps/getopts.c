@@ -292,34 +292,34 @@ mps_parse_opts (mps_status * s, int argc, char *argv[])
             switch (argv[i][2])
               {
               case 'a':
-                s->goal[1] = 'a';
+                s->output_config->search_set = MPS_SEARCH_SET_COMPLEX_PLANE;
                 break;
               case 'r':
-                s->goal[1] = 'r';
+                s->output_config->search_set = MPS_SEARCH_SET_POSITIVE_REAL_PART;
                 break;
               case 'l':
-                s->goal[1] = 'l';
+		s->output_config->search_set = MPS_SEARCH_SET_NEGATIVE_REAL_PART;
                 break;
               case 'u':
-                s->goal[1] = 'u';
+                s->output_config->search_set = MPS_SEARCH_SET_POSITIVE_IMAG_PART;
                 break;
               case 'd':
-                s->goal[1] = 'd';
+                s->output_config->search_set = MPS_SEARCH_SET_NEGATIVE_IMAG_PART;
                 break;
               case 'i':
-                s->goal[1] = 'i';
+                s->output_config->search_set = MPS_SEARCH_SET_UNITARY_DISC;
                 break;
               case 'o':
-                s->goal[1] = 'o';
+                s->output_config->search_set = MPS_SEARCH_SET_UNITARY_DISC_COMPL;
                 break;
               case 'R':
-                s->goal[1] = 'R';
+		s->output_config->search_set = MPS_SEARCH_SET_REAL;
                 break;
               case 'I':
-                s->goal[1] = 'I';
+		s->output_config->search_set = MPS_SEARCH_SET_IMAG;
                 break;
               case 'U':
-                s->goal[1] = 'U';
+		s->output_config->search_set = MPS_SEARCH_SET_CUSTOM;
                 break;
               default:
                 mps_error (s, 3, "Bad search set switch: ", argv[i] + 2,
@@ -403,26 +403,21 @@ mps_parse_opts (mps_status * s, int argc, char *argv[])
             switch (argv[i][2])
               {
               case 'b':
-                s->goal[4] = 'b';
 		s->output_config->format = MPS_OUTPUT_FORMAT_BARE;
                 break;
               case 'g':
-                s->goal[4] = 'g';
 		s->output_config->format = MPS_OUTPUT_FORMAT_GNUPLOT;
 
 		if (argv[i][3] == 'f')
 		  s->output_config->format = MPS_OUTPUT_FORMAT_GNUPLOT_FULL;
                 break;
               case 'c':
-                s->goal[4] = 'c';
 		s->output_config->format = MPS_OUTPUT_FORMAT_COMPACT;
                 break;
               case 'v':
-                s->goal[4] = 'v';
 		s->output_config->format = MPS_OUTPUT_FORMAT_VERBOSE;
                 break;
               case 'f':
-                s->goal[4] = 'f';
 		s->output_config->format = MPS_OUTPUT_FORMAT_FULL;
                 break;
               default:

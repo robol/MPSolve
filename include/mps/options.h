@@ -164,6 +164,11 @@ extern "C" {
     mps_boolean multiplicity;
 
     /**
+     * @brief The set in which the roots must be searched. 
+     */
+    mps_search_set search_set;
+
+    /**
      * @brief These flags are used to determined which properties
      * of the roots must be determined by MPSolve. 
      *

@@ -1126,7 +1126,7 @@ mps_countroots (mps_status * s)
         break;
       }
 
-  if (s->goal[1] == 'o')
+  if (s->output_config->search_set == MPS_SEARCH_SET_UNITARY_DISC_COMPL)
     s->count[1] += s->zero_roots;
   else
     s->count[0] += s->zero_roots;
@@ -1335,7 +1335,7 @@ mps_output (mps_status * s)
     mps_outcount (s);
   else
     {
-      if (s->goal[1] != 'o')
+      if (s->output_config->search_set != MPS_SEARCH_SET_UNITARY_DISC_COMPL)
         for (i = 0; i < s->zero_roots; i++)
 	    mps_outroot (s, ISZERO, num++);
       for (ind = 0; ind < s->n; ind++)
