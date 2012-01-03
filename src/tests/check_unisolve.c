@@ -55,7 +55,7 @@ test_unisolve_on_pol (test_pol * pol)
     }
 
   mps_set_default_values (s);
-  strncpy (s->goal, "aannc", 5);
+  s->output_config->goal = MPS_OUTPUT_GOAL_APPROXIMATE;
 
   mps_parse_stream (s, input_stream);
 

@@ -22,6 +22,21 @@
 #ifndef MPS_CORE_H_
 #define MPS_CORE_H_
 
+/* Boolean type used in MPSolve */
+
+#ifndef __USE_BOOL_AS_BOOLEAN
+  typedef enum
+  { false = 0, true = 1 } mps_boolean;
+#else
+  /* Small workaround to make matlab module work; there is,
+   * int matlab headers, already a false keyword defined, so
+   * reusing it here make compilation fail. */
+  typedef bool mps_boolean;
+#endif                          /* mps_boolean */
+
+#define mps_boolean_to_string(x) ((x) == true) ? "true" : "false"
+
+
 #ifdef __cplusplus
 
 

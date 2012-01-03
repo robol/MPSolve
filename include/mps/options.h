@@ -131,6 +131,12 @@ extern "C" {
     mps_phase starting_phase;
   };
 
+
+  /* Properties of the root */
+#define MPS_PROPERTY_NONE      (0x00     )
+#define MPS_PROPERTY_REAL      (0x01     )
+#define MPS_PROPERTY_IMAGINARY (0x01 << 1)
+
   /**
    * @brief Configuration for the output.
    *
@@ -150,6 +156,22 @@ extern "C" {
      * approximations.
      */
     mps_output_goal goal;
+
+    /**
+     * @brief True if the mulitplicity check is enabled in
+     * MPSolve.
+     */
+    mps_boolean multiplicity;
+
+    /**
+     * @brief These flags are used to determined which properties
+     * of the roots must be determined by MPSolve. 
+     *
+     * Possible values are:
+     * -# MPS_PROPERTY_REAL
+     * -# MPS_PROPERTY_IMAGINARY
+     */
+    char root_properties;
 
     /**
      * @brief Desired output format.

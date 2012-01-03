@@ -559,6 +559,8 @@ mps_secular_set_radii (mps_status * s)
   int i;
   mps_secular_equation *sec = (mps_secular_equation *) s->secular_equation;
 
+  return;
+
   /* Select right computation based on the phase we are in
    * right now   */
   switch (s->lastphase)

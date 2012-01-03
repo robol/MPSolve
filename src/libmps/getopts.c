@@ -334,10 +334,10 @@ mps_parse_opts (mps_status * s, int argc, char *argv[])
             switch (argv[i][2])
               {
               case '+':
-                s->goal[2] = 'm';
+                s->output_config->multiplicity = true;
                 break;
               case '-':
-                s->goal[2] = 'n';
+		s->output_config->multiplicity = false;
                 break;
               default:
                 mps_error (s, 3, "Bad multiplicity switch: ", argv[i] + 2,
@@ -352,16 +352,17 @@ mps_parse_opts (mps_status * s, int argc, char *argv[])
             switch (argv[i][2])
               {
               case 'n':
-                s->goal[3] = 'n';
+                s->output_config->root_properties = MPS_PROPERTY_NONE;
                 break;
               case 'r':
-                s->goal[3] = 'r';
+                s->output_config->root_properties = MPS_PROPERTY_REAL;
                 break;
               case 'i':
-                s->goal[3] = 'i';
+                s->output_config->root_properties = MPS_PROPERTY_IMAGINARY;
                 break;
               case 'b':
-                s->goal[3] = 'b';
+                s->output_config->root_properties = MPS_PROPERTY_REAL | 
+		  MPS_PROPERTY_IMAGINARY;
                 break;
               default:
                 mps_error (s, 3, "Bad detection switch: ", argv[i] + 2,
@@ -513,7 +514,7 @@ finalcheck:
 
   /* If the goal is approximate or count then remove the multiplicity option */
   if (s->output_config->goal != MPS_OUTPUT_GOAL_ISOLATE)
-    s->goal[2] = 'n';
+    s->output_config->multiplicity = false;
 
   /* check I/O streams */
   if (s->instr == NULL)

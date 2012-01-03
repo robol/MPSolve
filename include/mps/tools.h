@@ -15,6 +15,8 @@
  * and define the <code>mps_boolean</code> type.
  */
 
+#include <mps/mps.h>
+
 #ifndef MPS_TOOLS_H_
 #define MPS_TOOLS_H_
 
@@ -33,19 +35,6 @@ extern "C"
 /* macros */
 #define MAX(A, B)  ( (A) > (B) ? (A) : (B) )
 #define MIN(A, B)  ( (A) < (B) ? (A) : (B) )
-
-/* types */
-#ifndef __USE_BOOL_AS_BOOLEAN
-  typedef enum
-  { false = 0, true = 1 } mps_boolean;
-#else
-  /* Small workaround to make matlab module work; there is,
-   * int matlab headers, already a false keyword defined, so
-   * reusing it here make compilation fail. */
-  typedef bool mps_boolean;
-#endif                          /* mps_boolean */
-
-#define mps_boolean_to_string(x) ((x) == true) ? "true" : "false"
 
 /* functions */
   void randomize (unsigned int seed);
