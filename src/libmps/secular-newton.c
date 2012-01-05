@@ -81,7 +81,7 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
 
   if (apol < 0)
     {
-      if (data)
+      if (data && (s->debug_level & MPS_DEBUG_APPROXIMATIONS))
 	{
 	  MPS_DEBUG (s, "Setting again to false on root %ld for root neighbourhood", data->k);
 	}
@@ -551,8 +551,7 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
        rdpe_mul_eq (rtmp, s->mp_epsilon);
        if (rdpe_ge (rtmp, rdpe_one))
 	 {
-	   MPS_DEBUG_RDPE (s, rtmp, "Relative error on secular equation");
-	   if (data)
+	   if (data && (s->debug_level & MPS_DEBUG_APPROXIMATIONS))
 	     {
 	       MPS_DEBUG (s, "Setting again on root %ld to false because the approximation is in the root neighbourhood", data->k);
 	     }

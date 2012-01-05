@@ -201,8 +201,8 @@ mps_secular_mradii (mps_status * s, rdpe_t * dradii)
       rdpe_add_eq (dradii[i], error);
       rdpe_mul_eq_d (dradii[i], s->n);
 
-      MPS_DEBUG_MPC (s, 25, msec_ev, "msec_ev");
-      MPS_DEBUG_RDPE (s, dradii[i], "S(x)");
+      /* MPS_DEBUG_MPC (s, 25, msec_ev, "msec_ev"); */
+      /* MPS_DEBUG_RDPE (s, dradii[i], "S(x)"); */
 
       if (isnan (dradii[i]->m))
 	{
@@ -238,7 +238,7 @@ mps_secular_mradii (mps_status * s, rdpe_t * dradii)
       if (s->status[i][0] == 'i' && (rdpe_lt (dradii[i], s->drad[i])))
 	rdpe_set (s->drad[i], dradii[i]);
 
-      MPS_DEBUG_RDPE (s, dradii[i], "dradii[%d]", i);
+      /* MPS_DEBUG_RDPE (s, dradii[i], "dradii[%d]", i); */
     }
 
   mpc_clear (mdiff);

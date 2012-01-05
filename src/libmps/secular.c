@@ -581,8 +581,6 @@ mps_secular_set_radii (mps_status * s)
       rdpe_set (drad[i], rad); 
     }
 
-  MPS_DEBUG (s, "Doing cluster analysis with Gerschgorin radii");
-
   switch (s->lastphase)
     {
     case float_phase:
