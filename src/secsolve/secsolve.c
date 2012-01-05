@@ -59,10 +59,13 @@ usage (mps_status * s, const char *program)
 	   "               g: Gnuplot-ready output\n"
 	   "               gf: Gnuplot-full mode, can be piped to gnuplot -persist. For example:\n"
 	   "                   %s -g -Ogf myfile.pol | gnuplot \n"
+	   " -G goal     Select the goal to reach. Possible values are:\n"
+	   "              a: Approximate the roots\n"
+	   "              i: Isolate the roots\n"
+	   "              c: Count the roots in the search set\n"
            " -g          Use Gemignani's approach\n"
            " -t type     Type can be 'f' for floating point\n"
            "             or 'd' for DPE\n"
-           " -i          Isolate the roots only, do not perform approximation\n"
            " -o digits   Exact digits of the roots given as output.\n",
            program, program);
 
@@ -78,8 +81,6 @@ main (int argc, char **argv)
   s = mps_status_new ();
   s->input_config->prec = 0;
 
-  strncpy (s->goal, "aannc", 5);
-
   /* Gemignani's approach */
   mps_boolean ga = false;
 
@@ -90,7 +91,7 @@ main (int argc, char **argv)
   mps_phase phase = float_phase;
 
   opt = NULL;
-  while ((mps_getopts (&opt, &argc, &argv, "gid::t:o:O:")))
+  while ((mps_getopts (&opt, &argc, &argv, "gG:d::t:o:O:")))
     {
       switch (opt->optchar)
         {
@@ -131,8 +132,22 @@ main (int argc, char **argv)
         case 'o':
           s->output_config->prec = (atoi (opt->optvalue) + 1) * LOG2_10 + 1;
           break;
-        case 'i':
-          s->goal[0] = 'i';
+        case 'G':
+	  switch (*opt->optvalue)
+	    {
+	    case 'a':
+	      s->output_config->goal = MPS_OUTPUT_GOAL_APPROXIMATE;
+	      break;
+	    case 'i':
+	      s->output_config->goal = MPS_OUTPUT_GOAL_ISOLATE;
+	      break;
+	    case 'c':
+	      s->output_config->goal = MPS_OUTPUT_GOAL_COUNT;
+	      break;
+	    default:
+	      mps_error (s, 1, "The selected goal does not exists");
+	      break;
+	    }
           break;
         case 'd':
           s->DOLOG = true;

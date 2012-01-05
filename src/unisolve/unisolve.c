@@ -32,9 +32,6 @@ main (int argc, char *argv[])
    * effective. */
   setvbuf (stdout, NULL, _IONBF, 0);
 
-  /* set default goal */
-  strncpy (s->goal, "iannc", 5);
-
   /* parse command line options */
   mps_parse_opts (s, argc, argv);
 

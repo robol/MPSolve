@@ -131,6 +131,12 @@ extern "C" {
     mps_phase starting_phase;
   };
 
+
+  /* Properties of the root */
+#define MPS_OUTPUT_PROPERTY_NONE      (0x00     )
+#define MPS_OUTPUT_PROPERTY_REAL      (0x01     )
+#define MPS_OUTPUT_PROPERTY_IMAGINARY (0x01 << 1)
+
   /**
    * @brief Configuration for the output.
    *
@@ -144,6 +150,33 @@ extern "C" {
      * @brief Digits of required output precision
      */
     long int prec;
+
+    /**
+     * @brief Condition to be reached to return the computed
+     * approximations.
+     */
+    mps_output_goal goal;
+
+    /**
+     * @brief True if the mulitplicity check is enabled in
+     * MPSolve.
+     */
+    mps_boolean multiplicity;
+
+    /**
+     * @brief The set in which the roots must be searched. 
+     */
+    mps_search_set search_set;
+
+    /**
+     * @brief These flags are used to determined which properties
+     * of the roots must be determined by MPSolve. 
+     *
+     * Possible values are:
+     * -# MPS_OUTPUT_PROPERTY_REAL
+     * -# MPS_OUTPUT_PROPERTY_IMAGINARY
+     */
+    char root_properties;
 
     /**
      * @brief Desired output format.

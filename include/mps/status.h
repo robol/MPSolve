@@ -204,41 +204,6 @@ extern "C"
     mps_boolean just_raised_precision;
 
     /**
-     * @brief stores the goal of the computation
-     *
-     * <code>goal</code> is an array of 5 chars with this meaning:
-     * - <code>goal[0]</code> can assume the following values:
-     *   - <code>a</code> that means \b approximate;
-     *   - <code>c</code> that means \b count the roots;
-     *   - <code>i</code> that means \b isolate the roots;
-     * - <code>goal[1]</code>represents the search set for
-     *   the roots. It can be:
-     *   - <code>a</code> that means \f$ \mathbb{C} \f$;
-     *   - <code>r</code> that means \f$ \{ z \in \mathbb{C} \ | \ \mathrm{Re}{z} > 0 \} \f$;
-     *   - <code>l</code> that means \f$ \{ z \in \mathbb{C} \ | \ \mathrm{Re}{z} < 0 \} \f$;
-     *   - <code>u</code> that means \f$ \{ z \in \mathbb{C} \ | \ \mathrm{Im}{z} > 0 \} \f$;
-     *   - <code>d</code> that means \f$ \{ z \in \mathbb{C} \ | \ \mathrm{Im}{z} < 0 \} \f$;
-     *   - <code>i</code> that means \f$ \{ z \in \mathbb{C} \ | \ \lVert z \rVert \leq 1 \} \f$;
-     *   - <code>i</code> that means \f$ \{ z \in \mathbb{C} \ | \ \lVert z \rVert \geq 1 \} \f$;
-     * - <code>goal[2]</code> controls if multiplicity check is enabled or not. Its value can be:
-     *   - <code>m</code> if it is enabled;
-     *   - <code>n</code> if that's not the case;
-     * - <code>goal[3]</code> sets what properties of the roots have to be detected
-     *   during the computation:
-     *   - <code>n</code> means no one, and this is the default;
-     *   - <code>r</code> means detect if a root is real;
-     *   - <code>i</code> means detect if a root is imaginary;
-     *   - <code>b</code> means both the above;
-     * - <code>goal[4]</code> determines output format for the results:
-     *   - <code>b</code> means \b bare and it's the default value;
-     *   - <code>g</code> means \b gnuplot format;
-     *   - <code>c</code> means \b compact;
-     *   - <code>v</code> means \b verbose;
-     *   - <code>f</code> means \b full;
-     */
-    char goal[5];
-
-    /**
      * @brief mps_boolean value that determine if we should
      * use a random seed for starting points
      */

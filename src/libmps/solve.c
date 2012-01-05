@@ -39,23 +39,23 @@ mps_update (mps_status * s)
 
   for (i = 0; i < s->n; i++)
     s->again[i] = false;
-  switch (s->goal[0])
+  switch (s->output_config->goal)
     {
 
-    case 'c':                  /*  count */
+    case MPS_OUTPUT_GOAL_COUNT:                  /*  count */
       for (i = 0; i < s->n; i++)
         {
           if (s->status[i][2] == 'u')
             if (s->status[i][0] != 'f' && s->status[i][0] != 'a'
                 && s->status[i][0] != 'o')
               s->again[i] = true;
-          if (s->goal[2] == 'm' && s->status[i][0] == 'c' && s->status[i][0]
+          if (s->output_config->multiplicity && s->status[i][0] == 'c' && s->status[i][0]
               != 'o')
             s->again[i] = true;
 
-          switch (s->goal[3])
+          switch (s->output_config->root_properties)
             {
-            case 'r':          /* real option */
+           case MPS_OUTPUT_PROPERTY_REAL:          /* real option */
               if (s->status[i][1] == 'w' && (s->status[i][2] != 'u'
                                              || (s->status[i][0] != 'f'
                                                  && s->status[i][0] != 'a'
@@ -63,7 +63,7 @@ mps_update (mps_status * s)
                 s->again[i] = true;
               break;
 
-            case 'i':          /* imaginary option */
+            case MPS_OUTPUT_PROPERTY_IMAGINARY:          /* imaginary option */
               if (s->status[i][1] == 'w' && (s->status[i][2] != 'u'
                                              || (s->status[i][0] != 'f'
                                                  && s->status[i][0] != 'a'
@@ -71,7 +71,7 @@ mps_update (mps_status * s)
                 s->again[i] = true;
               break;
 
-            case 'b':          /* both imaginary and real options */
+            case MPS_OUTPUT_PROPERTY_REAL | MPS_OUTPUT_PROPERTY_IMAGINARY:          /* both imaginary and real options */
               if (s->status[i][1] == 'w' && (s->status[i][2] != 'u'
                                              || (s->status[i][0] != 'f'
                                                  && s->status[i][0] != 'a'
@@ -83,7 +83,7 @@ mps_update (mps_status * s)
 
       break;
 
-    case 'i':                  /* isolate */
+    case MPS_OUTPUT_GOAL_ISOLATE:                  /* isolate */
       for (i = 0; i < s->n; i++)
         {
           if (s->status[i][2] == 'u' || (s->status[i][0] == 'c'
@@ -92,26 +92,26 @@ mps_update (mps_status * s)
                 && s->status[i][0] != 'o' && (s->status[i][0] != 'i'
                                               || s->status[i][2] != 'i'))
               s->again[i] = true;
-          if (s->goal[2] == 'm' && s->status[i][0] == 'c' && s->status[i][2] != 'o')
+          if (s->output_config->multiplicity && s->status[i][0] == 'c' && s->status[i][2] != 'o')
             s->again[i] = true;
 
-          switch (s->goal[3])
+          switch (s->output_config->root_properties)
             {
-            case 'r':          /* real option */
+            case MPS_OUTPUT_PROPERTY_REAL:          /* real option */
               if (s->status[i][1] == 'w' && (s->status[i][0] != 'f'
                                              && s->status[i][0] != 'a'
                                              && s->status[i][0] != 'o'))
                 s->again[i] = true;
               break;
 
-            case 'i':          /* imaginary option */
+            case MPS_OUTPUT_PROPERTY_IMAGINARY:          /* imaginary option */
               if (s->status[i][1] == 'w' && (s->status[i][0] != 'f'
                                              && s->status[i][0] != 'a'
                                              && s->status[i][0] != 'o'))
                 s->again[i] = true;     /* DARIO RIVEDERE */
               break;
 
-            case 'b':          /* both imaginary and real options */
+            case MPS_OUTPUT_PROPERTY_REAL | MPS_OUTPUT_PROPERTY_IMAGINARY:          /* both imaginary and real options */
               if (s->status[i][1] == 'w' && (s->status[i][0] != 'f'
                                              && s->status[i][0] != 'a'
                                              && s->status[i][0] != 'o'))
@@ -122,7 +122,7 @@ mps_update (mps_status * s)
 
       break;
 
-    case 'a':                  /* approximate (the same as isolate) */
+    case MPS_OUTPUT_GOAL_APPROXIMATE:                  /* approximate (the same as isolate) */
       for (i = 0; i < s->n; i++)
         {
           if (s->status[i][2] == 'u' || (s->status[i][0] == 'c'
@@ -131,28 +131,28 @@ mps_update (mps_status * s)
                 && s->status[i][0] != 'o')
               s->again[i] = true;
 
-          if (s->goal[2] == 'm' && s->status[i][0] == 'c' && s->status[i][2]
+          if (s->output_config->multiplicity && s->status[i][0] == 'c' && s->status[i][2]
               != 'o')
             s->again[i] = true;
 
-          switch (s->goal[3])
+          switch (s->output_config->root_properties)
             {
 
-            case 'r':          /* real option */
+            case MPS_OUTPUT_PROPERTY_REAL:          /* real option */
               if (s->status[i][1] == 'w' && (s->status[i][0] != 'f'
                                              && s->status[i][0] != 'a'
                                              && s->status[i][0] != 'o'))
                 s->again[i] = true;
               break;
 
-            case 'i':          /* imaginary option */
+            case MPS_OUTPUT_PROPERTY_IMAGINARY:          /* imaginary option */
               if (s->status[i][1] == 'w' && (s->status[i][0] != 'f'
                                              && s->status[i][0] != 'a'
                                              && s->status[i][0] != 'o'))
                 s->again[i] = true;
               break;
 
-            case 'b':          /* both imaginary and real options */
+            case MPS_OUTPUT_PROPERTY_REAL | MPS_OUTPUT_PROPERTY_IMAGINARY:          /* both imaginary and real options */
               if (s->status[i][1] == 'w' && (s->status[i][0] != 'f'
                                              && s->status[i][0] != 'a'
                                              && s->status[i][0] != 'o'))
@@ -345,23 +345,27 @@ mps_check_stop (mps_status * s)
 
   computed = false;
   /* count */
-  if (s->goal[0] == 'c')
+  if (s->output_config->goal == MPS_OUTPUT_GOAL_COUNT)
     {
       for (i = 0; i < s->n; i++)
         {
           if (s->status[i][2] == 'u' && s->status[i][0] != 'f'
               && s->status[i][0] != 'o' && s->status[i][0] != 'a')
             return computed;
-          if (s->goal[2] == 'm' && s->status[i][0] == 'c' && s->status[i][2]
+          if (s->output_config->multiplicity && s->status[i][0] == 'c' && s->status[i][2]
               != 'o')
             return computed;
-          if (s->goal[3] == 'r' && s->status[i][1] == 'w' && s->status[i][2] != 'o' && s->status[i][0] != 'a' && s->status[i][0] != 'o' && s->status[i][0] != 'm')      /* NEW */
+          if (s->output_config->root_properties == MPS_OUTPUT_PROPERTY_REAL
+	      && s->status[i][1] == 'w' && s->status[i][2] != 'o' && s->status[i][0] != 'a' && 
+	      s->status[i][0] != 'o' && s->status[i][0] != 'm')      /* NEW */
             return computed;
-          if (s->goal[3] == 'i' && s->status[i][1] == 'w' && s->status[i][2]
+          if (s->output_config->root_properties == MPS_OUTPUT_PROPERTY_IMAGINARY && 
+	      s->status[i][1] == 'w' && s->status[i][2]
               != 'o' && s->status[i][0] != 'a' && s->status[i][0] != 'o'
               && s->status[i][0] != 'm')
             return computed;
-          if (s->goal[3] == 'b' && s->status[i][2] != 'o' && s->status[i][1]
+          if (s->output_config->root_properties == (MPS_OUTPUT_PROPERTY_IMAGINARY | MPS_OUTPUT_PROPERTY_REAL) &&
+	      s->status[i][2] != 'o' && s->status[i][1]
               == 'w' && s->status[i][0] != 'a' && s->status[i][0] != 'o'
               && s->status[i][0] != 'm')
             return computed;
@@ -370,7 +374,8 @@ mps_check_stop (mps_status * s)
     }
 
   /* isolate or approximate */
-  if (s->goal[0] == 'i' || s->goal[0] == 'a')
+  if (s->output_config->goal == MPS_OUTPUT_GOAL_ISOLATE ||
+      s->output_config->goal == MPS_OUTPUT_GOAL_APPROXIMATE)
     {
       for (i = 0; i < s->n; i++)
         {
@@ -379,17 +384,20 @@ mps_check_stop (mps_status * s)
             return computed;
           if (s->status[i][0] == 'c' && s->status[i][2] != 'o')
             return computed;
-          if (s->goal[2] == 'm' && s->status[i][2] != 'o' && (s->status[i][0] == 'c'))
+          if (s->output_config->multiplicity && s->status[i][2] != 'o' && (s->status[i][0] == 'c'))
             return computed;
-          if (s->goal[3] == 'r' && s->status[i][1] == 'w' && s->status[i][2]
+          if (s->output_config->root_properties == MPS_OUTPUT_PROPERTY_REAL && 
+	      s->status[i][1] == 'w' && s->status[i][2]
               != 'o' && s->status[i][0] != 'a' && s->status[i][0] != 'o'
               && s->status[i][0] != 'm')
             return computed;
-          if (s->goal[3] == 'i' && s->status[i][1] == 'w' && s->status[i][2]
+          if (s->output_config->root_properties == MPS_OUTPUT_PROPERTY_IMAGINARY && 
+	      s->status[i][1] == 'w' && s->status[i][2]
               != 'o' && s->status[i][0] != 'm' && s->status[i][0] != 'a'
               && s->status[i][0] != 'o' && s->status[i][0] != 'm')
             return computed;
-          if (s->goal[3] == 'b' && s->status[i][2] != 'o' && s->status[i][0]
+          if (s->output_config->root_properties == (MPS_OUTPUT_PROPERTY_REAL | MPS_OUTPUT_PROPERTY_IMAGINARY) &&
+	      s->status[i][2] != 'o' && s->status[i][0]
               != 'm' && s->status[i][1] == 'w' && s->status[i][0] != 'a'
               && s->status[i][0] != 'o')
             return computed;
@@ -1038,7 +1046,9 @@ mps_msolve (mps_status * s)
       goto msolve_final_cleanup;
     }
   nzc = 0;
-  if (s->goal[1] == 'a' && s->goal[2] == 'n' && s->goal[3] == 'n')
+  if (s->output_config->search_set == MPS_SEARCH_SET_COMPLEX_PLANE && 
+      !s->output_config->multiplicity && 
+      !s->output_config->root_properties)
     for (i = 0; i < s->n; i++)
       if (s->status[i][0] == 'i' || s->status[i][0] == 'a'
           || s->status[i][0] == 'o')
@@ -1086,7 +1096,9 @@ mps_msolve (mps_status * s)
 
       it_pack += nit;
       nzc = 0;
-      if (s->goal[1] == 'a' && s->goal[2] == 'n' && s->goal[3] == 'n')  /* DARIO APRILE 98 */
+      if (s->output_config->search_set == MPS_SEARCH_SET_COMPLEX_PLANE && 
+	  !s->output_config->multiplicity &&
+	  !s->output_config->root_properties)  /* DARIO APRILE 98 */
         for (i = 0; i < s->n; i++)
           if (s->status[i][0] == 'i' || s->status[i][0] == 'a'
               || s->status[i][0] == 'o')
@@ -1216,7 +1228,9 @@ mps_msolve (mps_status * s)
                 }
 
               nzc = 0;
-              if (s->goal[1] == 'a' && s->goal[2] == 'n' && s->goal[3] == 'n')
+              if (s->output_config->search_set == MPS_SEARCH_SET_COMPLEX_PLANE && 
+		  s->output_config->multiplicity &&
+		  !s->output_config->root_properties)
                 for (i = 0; i < s->n; i++)
                   if (s->status[i][0] == 'i' || s->status[i][0] == 'a'
                       || s->status[i][0] == 'o')

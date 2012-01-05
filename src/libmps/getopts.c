@@ -271,13 +271,13 @@ mps_parse_opts (mps_status * s, int argc, char *argv[])
             switch (argv[i][2])
               {
               case 'a':
-                s->goal[0] = 'a';
+		s->output_config->goal = MPS_OUTPUT_GOAL_APPROXIMATE;
                 break;
               case 'c':
-                s->goal[0] = 'c';
+		s->output_config->goal = MPS_OUTPUT_GOAL_COUNT;
                 break;
               case 'i':
-                s->goal[0] = 'i';
+		s->output_config->goal = MPS_OUTPUT_GOAL_ISOLATE;
                 break;
               default:
                 mps_error (s, 3, "Bad goal switch: ", argv[i] + 2,
@@ -292,34 +292,34 @@ mps_parse_opts (mps_status * s, int argc, char *argv[])
             switch (argv[i][2])
               {
               case 'a':
-                s->goal[1] = 'a';
+                s->output_config->search_set = MPS_SEARCH_SET_COMPLEX_PLANE;
                 break;
               case 'r':
-                s->goal[1] = 'r';
+                s->output_config->search_set = MPS_SEARCH_SET_POSITIVE_REAL_PART;
                 break;
               case 'l':
-                s->goal[1] = 'l';
+		s->output_config->search_set = MPS_SEARCH_SET_NEGATIVE_REAL_PART;
                 break;
               case 'u':
-                s->goal[1] = 'u';
+                s->output_config->search_set = MPS_SEARCH_SET_POSITIVE_IMAG_PART;
                 break;
               case 'd':
-                s->goal[1] = 'd';
+                s->output_config->search_set = MPS_SEARCH_SET_NEGATIVE_IMAG_PART;
                 break;
               case 'i':
-                s->goal[1] = 'i';
+                s->output_config->search_set = MPS_SEARCH_SET_UNITARY_DISC;
                 break;
               case 'o':
-                s->goal[1] = 'o';
+                s->output_config->search_set = MPS_SEARCH_SET_UNITARY_DISC_COMPL;
                 break;
               case 'R':
-                s->goal[1] = 'R';
+		s->output_config->search_set = MPS_SEARCH_SET_REAL;
                 break;
               case 'I':
-                s->goal[1] = 'I';
+		s->output_config->search_set = MPS_SEARCH_SET_IMAG;
                 break;
               case 'U':
-                s->goal[1] = 'U';
+		s->output_config->search_set = MPS_SEARCH_SET_CUSTOM;
                 break;
               default:
                 mps_error (s, 3, "Bad search set switch: ", argv[i] + 2,
@@ -334,10 +334,10 @@ mps_parse_opts (mps_status * s, int argc, char *argv[])
             switch (argv[i][2])
               {
               case '+':
-                s->goal[2] = 'm';
+                s->output_config->multiplicity = true;
                 break;
               case '-':
-                s->goal[2] = 'n';
+		s->output_config->multiplicity = false;
                 break;
               default:
                 mps_error (s, 3, "Bad multiplicity switch: ", argv[i] + 2,
@@ -352,16 +352,17 @@ mps_parse_opts (mps_status * s, int argc, char *argv[])
             switch (argv[i][2])
               {
               case 'n':
-                s->goal[3] = 'n';
+                s->output_config->root_properties = MPS_OUTPUT_PROPERTY_NONE;
                 break;
               case 'r':
-                s->goal[3] = 'r';
+                s->output_config->root_properties = MPS_OUTPUT_PROPERTY_REAL;
                 break;
               case 'i':
-                s->goal[3] = 'i';
+                s->output_config->root_properties = MPS_OUTPUT_PROPERTY_IMAGINARY;
                 break;
               case 'b':
-                s->goal[3] = 'b';
+                s->output_config->root_properties = MPS_OUTPUT_PROPERTY_REAL | 
+		  MPS_OUTPUT_PROPERTY_IMAGINARY;
                 break;
               default:
                 mps_error (s, 3, "Bad detection switch: ", argv[i] + 2,
@@ -402,26 +403,21 @@ mps_parse_opts (mps_status * s, int argc, char *argv[])
             switch (argv[i][2])
               {
               case 'b':
-                s->goal[4] = 'b';
 		s->output_config->format = MPS_OUTPUT_FORMAT_BARE;
                 break;
               case 'g':
-                s->goal[4] = 'g';
 		s->output_config->format = MPS_OUTPUT_FORMAT_GNUPLOT;
 
 		if (argv[i][3] == 'f')
 		  s->output_config->format = MPS_OUTPUT_FORMAT_GNUPLOT_FULL;
                 break;
               case 'c':
-                s->goal[4] = 'c';
 		s->output_config->format = MPS_OUTPUT_FORMAT_COMPACT;
                 break;
               case 'v':
-                s->goal[4] = 'v';
 		s->output_config->format = MPS_OUTPUT_FORMAT_VERBOSE;
                 break;
               case 'f':
-                s->goal[4] = 'f';
 		s->output_config->format = MPS_OUTPUT_FORMAT_FULL;
                 break;
               default:
@@ -512,8 +508,8 @@ mps_parse_opts (mps_status * s, int argc, char *argv[])
 finalcheck:
 
   /* If the goal is approximate or count then remove the multiplicity option */
-  if (s->goal[0] != 'i')
-    s->goal[2] = 'n';
+  if (s->output_config->goal != MPS_OUTPUT_GOAL_ISOLATE)
+    s->output_config->multiplicity = false;
 
   /* check I/O streams */
   if (s->instr == NULL)

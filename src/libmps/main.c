@@ -119,7 +119,7 @@ mps_standard_mpsolve (mps_status * s)
         mps_dump (s);
 
       computed = mps_check_stop (s);
-      if (computed && s->goal[0] != 'a')
+      if (computed && s->output_config->goal != MPS_OUTPUT_GOAL_APPROXIMATE)
         goto exit_sub;
       /* stop for COUNT and ISOLATE goals */
     }
@@ -144,7 +144,7 @@ mps_standard_mpsolve (mps_status * s)
         mps_dump (s);
 
       computed = mps_check_stop (s);
-      if (computed && s->goal[0] != 'a')
+      if (computed && s->output_config->goal != MPS_OUTPUT_GOAL_APPROXIMATE)
         goto exit_sub;
     }
 
@@ -170,7 +170,7 @@ mps_standard_mpsolve (mps_status * s)
           rdpe_set_d (s->drad[i], s->frad[i]);
         }
     }
-  if (computed && s->goal[0] == 'a')
+  if (computed && s->output_config->goal == MPS_OUTPUT_GOAL_APPROXIMATE)
     goto exit_sub;
 
   /* == 7 ==  Start MPsolve loop */
@@ -254,7 +254,7 @@ exit_sub:
       mps_error (s, 1, "Unable to compute inclusion disks");
 
   /* == 10 ==  Refine roots */
-  if (computed && !s->over_max && s->goal[0] == 'a')
+  if (computed && !s->over_max && s->output_config->goal == MPS_OUTPUT_GOAL_APPROXIMATE)
     {
       s->lastphase = mp_phase;
       mps_improve (s);
@@ -284,7 +284,7 @@ mps_setup (mps_status * s)
 
   if (s->DOLOG)
     {
-      fprintf (s->logstr, "Goal      = %5s\n", s->goal);
+      /* fprintf (s->logstr, "Goal      = %5s\n", s->goal); */
       fprintf (s->logstr, "Data type = %3s\n", s->data_type);
       fprintf (s->logstr, "Degree    = %d\n", s->n);
       fprintf (s->logstr, "Input prec.  = %ld digits\n", (long) (s->input_config->prec
@@ -465,10 +465,10 @@ mps_check_data (mps_status * s, char *which_case)
   /* case of user-defined polynomial */
   if (s->data_type[0] == 'u')
     {
-      if (s->goal[2] == 'm')
+      if (s->output_config->multiplicity)
         mps_error (s, 1,
                    "Multiplicity detection not yet implemented for user polynomial");
-      if (s->goal[3] != 'n')
+      if (s->output_config->root_properties)
         mps_error (s, 1,
                    "Real/imaginary detection not yet implemented for user polynomial");
       *which_case = 'd';
@@ -524,7 +524,7 @@ mps_check_data (mps_status * s, char *which_case)
   s->lmax_coeff = rdpe_log (max_coeff);
 
   /*  Multiplicity and sep */
-  if (s->goal[2] == 'm')
+  if (s->output_config->multiplicity)
     switch (s->data_type[2])
       {
       case 'i':
@@ -542,7 +542,9 @@ mps_check_data (mps_status * s, char *which_case)
       }
 
   /* Real/Imaginary detection */
-  if (s->goal[3] != 'n' || s->goal[1] == 'R' || s->goal[1] == 'I')
+  if (s->output_config->root_properties || 
+      s->output_config->search_set == MPS_SEARCH_SET_REAL || 
+      s->output_config->search_set == MPS_SEARCH_SET_IMAG)
     switch (s->data_type[2])
       {
       case 'i':

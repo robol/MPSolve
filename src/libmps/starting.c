@@ -1121,7 +1121,7 @@ mps_frestart (mps_status * s)
 	  l = root->k;
           if (!s->again[l])
             goto loop1;
-          if (s->goal[0] == 'c')
+          if (s->output_config->goal == MPS_OUTPUT_GOAL_COUNT)
             {
               if (s->status[l][0] == 'c' && s->status[l][2] == 'u')
                 {
@@ -1304,7 +1304,7 @@ mps_drestart (mps_status * s)
 	  l = root->k;
           if (!s->again[l])
             goto loop1;
-          if (s->goal[0] == 'c')
+          if (s->output_config->goal == MPS_OUTPUT_GOAL_COUNT)
             {
               if (s->status[l][0] == 'c' && s->status[l][2] == 'u')
                 {
@@ -1479,7 +1479,7 @@ mps_mrestart (mps_status * s)
 	  l = root->k;
           if (!s->again[l])
             goto loop1;
-          if (s->goal[0] == 'c')
+          if (s->output_config->goal == MPS_OUTPUT_GOAL_COUNT)
             {
               if (s->status[l][0] == 'c' && s->status[l][2] == 'u')
                 {
@@ -1989,7 +1989,7 @@ mps_mnewtis (mps_status * s)
 	  l = root->k;
           if (!s->again[l])
             goto loop1;
-          if (s->goal[0] == 'c')
+          if (s->output_config->goal == MPS_OUTPUT_GOAL_COUNT)
             {
               if (s->status[l][0] == 'c' && s->status[l][2] == 'u')
                 {

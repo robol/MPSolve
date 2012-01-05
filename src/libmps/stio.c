@@ -1126,7 +1126,7 @@ mps_countroots (mps_status * s)
         break;
       }
 
-  if (s->goal[1] == 'o')
+  if (s->output_config->search_set == MPS_SEARCH_SET_UNITARY_DISC_COMPL)
     s->count[1] += s->zero_roots;
   else
     s->count[0] += s->zero_roots;
@@ -1268,6 +1268,15 @@ mps_outroot (mps_status * s, int i, int num)
     mps_outfloat (s, mpc_Im (s->mroot[i]), s->drad[i], out_digit,
                   s->output_config->format != MPS_OUTPUT_FORMAT_VERBOSE);
 
+  /* If the output format is GNUPLOT_FORMAT_FULL, print out also the radius */
+  if (s->output_config->format == MPS_OUTPUT_FORMAT_GNUPLOT_FULL)
+    {
+      fprintf (s->outstr, "\t");
+      rdpe_out_str_u (s->outstr, s->drad[i]);
+      fprintf (s->outstr, "\t");
+      rdpe_out_str_u (s->outstr, s->drad[i]);
+    }
+
   /* print format ending */
   switch (s->output_config->format)
     {
@@ -1328,14 +1337,14 @@ mps_output (mps_status * s)
       fprintf (s->outstr, "# MPSolve output for GNUPLOT\n");
       fprintf (s->outstr, "# Make user that this output is piped into gnuplot using a command like\n");
       fprintf (s->outstr, "# ./***solve -Ogf | gnuplot \n");
-      fprintf (s->outstr, "plot '-' title 'Computed roots'\n");
+      fprintf (s->outstr, "plot '-' title 'Computed roots' with xyerrorbars\n");
     }
 
-  if (s->goal[0] == 'c')
+  if (s->output_config->goal == MPS_OUTPUT_GOAL_COUNT)
     mps_outcount (s);
   else
     {
-      if (s->goal[1] != 'o')
+      if (s->output_config->search_set != MPS_SEARCH_SET_UNITARY_DISC_COMPL)
         for (i = 0; i < s->zero_roots; i++)
 	    mps_outroot (s, ISZERO, num++);
       for (ind = 0; ind < s->n; ind++)
@@ -1363,6 +1372,8 @@ void
 mps_copy_roots (mps_status * s)
 {
   int i;
+
+  MPS_DEBUG_THIS_CALL;
 
   switch (s->lastphase)
     {

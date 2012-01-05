@@ -74,7 +74,7 @@ test_secsolve_on_pol (test_pol * pol)
   else
     mps_status_select_algorithm (s, MPS_ALGORITHM_SECULAR_GA);
 
-  strncpy (s->goal, "iannc", 5);
+  s->output_config->goal = MPS_OUTPUT_GOAL_ISOLATE;
   s->output_config->prec = (int) ((pol->out_digits + 2) * LOG2_10) + 1;
   s->input_config->prec = 0;
 
