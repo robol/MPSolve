@@ -559,137 +559,55 @@ mps_secular_set_radii (mps_status * s)
   int i;
   mps_secular_equation *sec = (mps_secular_equation *) s->secular_equation;
 
-  return;
+  /* DPE and multiprecision implementation */
+  rdpe_t rad, rtmp, rad_eps;
+  cdpe_t ctmp;
+  rdpe_t * drad = rdpe_valloc (s->n);
 
-  /* Select right computation based on the phase we are in
-   * right now   */
+  /* Check if the Gerschgorin's radii are more convenient */
+  for (i = 0; i < s->n; i++)
+    {
+      rdpe_set (rad_eps, rdpe_one);
+      rdpe_add_eq_d (rad_eps, s->n * DBL_EPSILON * 4);
+      
+      mpc_get_cdpe (ctmp, sec->ampc[i]);
+      cdpe_mod (rad, ctmp);
+      
+      rdpe_mul_eq (rad, rad_eps);
+      
+      rdpe_mul_eq_d (rad, (double) s->n);
+      rdpe_add_eq (rad, rtmp);
+      
+      rdpe_set (drad[i], rad); 
+    }
+
+  MPS_DEBUG (s, "Doing cluster analysis with Gerschgorin radii");
+
   switch (s->lastphase)
     {
-
     case float_phase:
       {
-        /* Floating point implementation */
-	cplx_t diff;
-        double rad;
-	double *frad = double_valloc (s->n);
+	for (i = 0; i < s->n; i++)
+	  rdpe_set_d (s->drad[i], s->frad[i]);
 
-        /* Check if the Gerschgorin's radii are more convenient */
-        for (i = 0; i < s->n; i++)
-          {
-            rad = 12 * s->n * cplx_mod (sec->afpc[i]) * (1 + s->n * DBL_EPSILON)
-	      + cplx_mod (s->froot[i]) * DBL_EPSILON * 4;
-	    
-	    /* Add to rad the distance of the root from b_i */
-	    cplx_sub (diff, sec->bfpc[i], s->froot[i]);
-	    rad += cplx_mod (diff) * (1 + DBL_EPSILON);
-	    frad[i] = rad;
-          }
+	mps_mcluster (s, drad, 2.0 * s->n);
+	mps_mmodify (s, false);
 
-	mps_fcluster (s, frad, 2.0 * s->n); 
-	mps_fmodify (s, false); 
-	free (frad); 
+	for (i = 0; i < s->n; i++)
+	  s->frad[i] = rdpe_get_d (s->drad[i]);
       }
       break;
+
     case dpe_phase:
     case mp_phase:
-      {
-	/* DPE and multiprecision implementation */
-	rdpe_t rad, total_rad, rtmp, rad_eps, rtmp2;
-	cdpe_t ctmp;
-	rdpe_t * drad = rdpe_valloc (s->n);
-
-	rdpe_set (total_rad, rdpe_zero);
-
-	/* Compute total radius as \sum_i |sec->afpc[i]| */
-	for (i = 0; i < s->n; i++)
-	  {
-	    rdpe_set_d (rad_eps, 4 * s->n);
-
-	    if (s->lastphase == mp_phase)
-	      {
-		mpc_get_cdpe (ctmp, sec->ampc[i]);
-		cdpe_mod (rtmp, ctmp);
-		rdpe_mul_eq (rad_eps, s->mp_epsilon);
-	      }
-	    else
-	      {
-		/* We are in the DPE phase */
-		cdpe_mod (rtmp, sec->adpc[i]);
-		rdpe_mul_eq_d (rad_eps, DBL_EPSILON);
-	      }
-
-	    rdpe_add_eq (rad_eps, rdpe_one);
-
-	    rdpe_mul_eq (rad_eps, rtmp);
-	    rdpe_add_eq (total_rad, rad_eps);
-	  }
-
-	/* Compute guaranteed total rad */
-	rdpe_mul_d (rtmp, s->mp_epsilon, s->n);
-	rdpe_add_eq (total_rad, rtmp);
-
-	/* Check if the Gerschgorin's radii are more convenient */
-	for (i = 0; i < s->n; i++)
-	  {
-	    rdpe_set (rad_eps, rdpe_one);
-	    // rdpe_add_eq (rad_eps, sec->dregeneration_epsilon[i]);
-	    rdpe_add_eq_d (rad_eps, s->n * DBL_EPSILON * 4);
-
-	    if (s->lastphase == mp_phase)
-	      {
-		mpc_get_cdpe (ctmp, sec->ampc[i]);
-		cdpe_mod (rad, ctmp);
-		rdpe_mul_eq (rad, rad_eps);
-	      }
-	    else
-	      {
-		/* We are in the DPE phase */
-		cdpe_mod (rad, sec->adpc[i]);
-		rdpe_mul_eq (rad, rad_eps);
-	      }
-
-	    /* Check which radius is smaller (here guaranteed radius is
-	     * computed). */
-	    if (s->lastphase == mp_phase)
-	      {
-		rdpe_mul_d (rtmp, s->mp_epsilon, 9 * s->n);
-		mpc_get_cdpe (ctmp, s->mroot[i]);
-		cdpe_mod (rtmp2, ctmp);
-		rdpe_mul_eq (rtmp, rtmp2);
-	      }
-	    else
-	      {
-		rdpe_set_d (rtmp, DBL_EPSILON * 9 * s->n);
-		cdpe_mod (rtmp2, s->droot[i]);
-		rdpe_mul_eq (rtmp, rtmp2);
-	      }
-
-	    rdpe_mul_eq_d (rad, (double) s->n);
-	    rdpe_add_eq (rad, rtmp);
-
-	    /* if (rdpe_gt (rad, total_rad))  */
-	    /*   rdpe_set (rad, total_rad);  */
-
-	    rdpe_set (drad[i], rad);
-	  }
-
-      
-	if (s->lastphase == mp_phase) 
-	  { 
-	    mps_mcluster (s, drad, 2.0 * s->n); 
-	    mps_mmodify (s, false); 
-	  } 
-	else 
-	  { 
-	    mps_dcluster (s, drad, 2.0 * s->n); 
-	    mps_dmodify (s, false); 
-	  }
-	
-	rdpe_vfree (drad);
-      }
+      mps_mcluster (s, drad, 2.0 * s->n);  
+      mps_dmodify (s, false);  
       break;
 
     default:
       break;
     }
+      
+  rdpe_vfree (drad);
+  
 }
