@@ -30,7 +30,7 @@ mps_monomial_fradii (mps_status * s, double * fradii)
       /* If we got a floating point exception, we need to switch to DPE on this component */
       if (cplx_check_fpe (pol))
 	{
-	  s->status[i][0] = 'x';
+	  s->root_status[i] = MPS_ROOT_STATUS_NOT_FLOAT;
 	  fradii[i] = DBL_MAX;
 	  continue;
 	}

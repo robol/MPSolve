@@ -130,8 +130,7 @@ mps_secular_ga_fiterate (mps_status * s, int maxit, mps_boolean just_regenerated
   for (i = 0; i < s->n; i++)
     {
       /* Set again to false if the root is already approximated */
-      if (s->status[i][0] == 'a' || s->status[i][0] == 'i'
-	  || s->status[i][0] == 'o')
+      if (MPS_ROOT_STATUS_IS_COMPUTED (s, i))
 	{
 	  if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
 	    {
@@ -259,8 +258,7 @@ mps_secular_ga_diterate (mps_status * s, int maxit, mps_boolean just_regenerated
   for (i = 0; i < s->n; i++)
     {
       /* Set again to false if the root is already approximated */
-      if (s->status[i][0] == 'a' || s->status[i][0] == 'i'
-	  || s->status[i][0] == 'o')
+      if (MPS_ROOT_STATUS_IS_COMPUTED (s, i))
 	{
 	  MPS_DEBUG_WITH_INFO (s, "Setting again[%d] to false since the root is ready for output (or isolated)", i);
 	  s->again[i] = false;
@@ -439,8 +437,7 @@ mps_secular_ga_miterate (mps_status * s, int maxit, mps_boolean just_regenerated
   for (i = 0; i < s->n; i++)
     {
       /* Set again to false if the root is already approximated */
-      if (s->status[i][0] == 'a' || s->status[i][0] == 'i'
-	  || s->status[i][0] == 'o')
+      if (MPS_ROOT_STATUS_IS_COMPUTED (s, i))
 	{
 	  MPS_DEBUG_WITH_INFO (s, "Setting again[%d] to false since the root is ready for output (or isolated)", i);
 	  s->again[i] = false;
@@ -543,10 +540,11 @@ mps_secular_ga_miterate (mps_status * s, int maxit, mps_boolean just_regenerated
 	  fprintf (s->logstr, "%d ", s->again[i]);
 	}
       fprintf (s->logstr, "\n");
-      __MPS_DEBUG (s, "Status = ");
+      MPS_DEBUG (s, "Status = ");
       for (i = 0; i < s->n; i++)
 	{
-	  fprintf (s->logstr, "%c ", s->status[i][0]);
+	  fprintf (s->logstr, " %4d: %s ", i,
+		   MPS_ROOT_STATUS_TO_STRING (s->root_status[i]));
 	}
       fprintf (s->logstr, "\n");
     }

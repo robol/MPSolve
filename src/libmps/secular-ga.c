@@ -64,12 +64,9 @@ mps_secular_ga_check_stop (mps_status * s)
         {
           /* Float case */
         case float_phase:
-          if (s->status[i][0] != 'i' && s->status[i][0] != 'a'
-              && s->status[i][0] != 'o')
+          if (!MPS_ROOT_STATUS_IS_COMPUTED (s, i))
             {
-              MPS_DEBUG_WITH_INFO (s,
-                                   "Root %d is not isolated, nor approximated, so we can't stop now.",
-                                   i);
+              MPS_DEBUG_WITH_INFO (s, "Root %d is not isolated, nor approximated, so we can't stop now.", i);
               return false;
             }
           break;
@@ -77,24 +74,17 @@ mps_secular_ga_check_stop (mps_status * s)
           /* Multiprecision and DPE case are the same, since the radii
            * are always RDPE. */
         case mp_phase:
-          if (s->status[i][0] != 'i' && s->status[i][0] != 'a'
-              && s->status[i][0] != 'o')
+          if (!MPS_ROOT_STATUS_IS_COMPUTED (s, i))
             {
-              MPS_DEBUG_WITH_INFO (s,
-                                   "Root %d is not isolated, nor approximated, so we can't stop now.",
-                                   i);
-	      MPS_DEBUG_WITH_INFO (s,
-				   "Status of root %d: %c", i, s->status[i][0]);
+              MPS_DEBUG_WITH_INFO (s, "Root %d is not isolated, nor approximated, so we can't stop now.", i);
+	      MPS_DEBUG_WITH_INFO (s, "Status of root %d: %s", i, MPS_ROOT_STATUS_TO_STRING (s->root_status[i]));
               return false;
             }
           break;
         case dpe_phase:
-          if (s->status[i][0] != 'i' && s->status[i][0] != 'a'
-              && s->status[i][0] != 'o')
+          if (!MPS_ROOT_STATUS_IS_COMPUTED (s, i))
             {
-              MPS_DEBUG_WITH_INFO (s,
-                                   "Root %d is not isolated, nor approximated, so we can't stop now.",
-                                   i);
+              MPS_DEBUG_WITH_INFO (s, "Root %d is not isolated, nor approximated, so we can't stop now.", i);
               return false;
             }
           break;
@@ -262,7 +252,7 @@ mps_secular_ga_improve (mps_status * s)
 
           if (rdpe_le (rtmp, s->eps_out))
             {
-              s->status[i][0] = 'a';
+              s->root_status[i] = MPS_ROOT_STATUS_APPROXIMATED;
               break;
             }
           else
@@ -278,7 +268,7 @@ mps_secular_ga_improve (mps_status * s)
       /* Since we have passed the bound of the maximum allowed iterations
        * and quadratic convergence was guaranteed, the root is now 
        * approximated. */
-      s->status[i][0] = 'a';
+      s->root_status[i] = MPS_ROOT_STATUS_APPROXIMATED;
     }
   mpc_clear (nwtcorr);
 

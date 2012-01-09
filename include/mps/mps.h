@@ -22,8 +22,10 @@
 #ifndef MPS_CORE_H_
 #define MPS_CORE_H_
 
-/* Boolean type used in MPSolve */
+/* String type used for some hacks */
+typedef const char * mps_string;
 
+/* Boolean type used in MPSolve */
 #ifndef __USE_BOOL_AS_BOOLEAN
   typedef enum
   { false = 0, true = 1 } mps_boolean;
@@ -35,7 +37,6 @@
 #endif                          /* mps_boolean */
 
 #define mps_boolean_to_string(x) ((x) == true) ? "true" : "false"
-
 
 #ifdef __cplusplus
 
@@ -106,6 +107,10 @@ extern  "C"
   typedef struct mps_opt mps_opt;
   typedef struct mps_input_option mps_input_option;
 
+  typedef enum mps_root_status mps_root_status;
+  typedef enum mps_root_inclusion mps_root_inclusion;
+  typedef enum mps_root_attrs mps_root_attrs;
+
   typedef enum mps_algorithm mps_algorithm;
   typedef enum mps_option_key mps_option_key;
   typedef enum mps_structure mps_structure;
@@ -141,6 +146,87 @@ extern  "C"
     {
       no_phase, float_phase, dpe_phase, mp_phase
     };
+  static const mps_string mps_phase_string [] = {
+    "No phase", "Float phase", "DPE phase", "MP phase"
+  };
+#define MPS_PHASE_TO_STRING(phase) (mps_phase_string[phase])
+
+  /**
+   * @brief Status of approximation of the root.
+   */
+  enum mps_root_status {
+    MPS_ROOT_STATUS_NEW_CLUSTERED,
+    MPS_ROOT_STATUS_CLUSTERED,
+    MPS_ROOT_STATUS_ISOLATED,
+    MPS_ROOT_STATUS_APPROXIMATED,
+    MPS_ROOT_STATUS_APPROXIMATED_IN_CLUSTER,
+    MPS_ROOT_STATUS_NOT_FLOAT,
+    MPS_ROOT_STATUS_NOT_DPE,
+    MPS_ROOT_STATUS_MULTIPLE
+  };
+
+  /* Macros to check root status */
+  static const mps_boolean mps_table_of_approximated_roots [] = { false, false, false, true, true, false, false, false };
+  static const mps_boolean mps_table_of_computed_roots [] = { false, false, true, true, true, false, false, false };
+  static const mps_boolean mps_table_of_improvable_roots [] = { false, false, true, true, false, false, false, false };
+#define MPS_ROOT_STATUS_IS_APPROXIMATED(s, i) (mps_table_of_approximated_roots[s->root_status[i]]) 
+#define MPS_ROOT_STATUS_IS_COMPUTED(s, i)     (mps_table_of_computed_roots[s->root_status[i]]) 
+#define MPS_ROOT_STATUS_IS_IMPROVABLE(s, i)   (mps_table_of_improvable_roots[s->root_status[i]]) 
+
+  /* Cast of root_status to string */
+  static const mps_string mps_root_status_string[] = {
+    "Clustered (pinned)",
+    "Clustered",
+    "Isolated",
+    "Approximated",
+    "Approximated in a cluster",
+    "Not representable as floating point",
+    "Not representable as DPE",
+    "Multiple root"
+  };
+#define MPS_ROOT_STATUS_TO_STRING(status) (mps_root_status_string[status])
+
+  /**
+   * @brief Attributes that can be attached to a root and
+   * are mostly aimed to detect reality or not. 
+   */
+  enum mps_root_attrs {
+    MPS_ROOT_ATTRS_NONE,
+    MPS_ROOT_ATTRS_REAL,
+    MPS_ROOT_ATTRS_NOT_REAL,
+    MPS_ROOT_ATTRS_IMAG,
+    MPS_ROOT_ATTRS_NOT_IMAG,
+    MPS_ROOT_ATTRS_NOT_REAL_AND_IMAG
+  };
+
+  /* Cast of root_attrs to string */
+  static const mps_string mps_root_attrs_string [] = {
+    "None",
+    "Real",
+    "Not real",
+    "Imaginary",
+    "Not imaginary",
+    "Not Real nor imaginary"
+  };
+#define MPS_ROOT_ATTRS_TO_STRING(attrs) (mps_root_attrs_string[attrs])
+
+  /**
+   * @brief Status of inclusion of the root in the target
+   * set. 
+   */
+  enum mps_root_inclusion {
+    MPS_ROOT_INCLUSION_UNKNOWN,
+    MPS_ROOT_INCLUSION_IN,
+    MPS_ROOT_INCLUSION_OUT
+  };
+
+  /* Cast of mps_root_inclusion to string */
+  static const mps_string mps_root_inclusion_string [] = {
+    "Unknown",
+    "In",
+    "Out",
+  };
+#define MPS_ROOT_INCLUSION_TO_STRING(inclusion) (mps_root_inclusion_string[inclusion])
 
   /**
    * @brief Algorithm used to find the solution of the polynomial,
@@ -443,6 +529,8 @@ extern  "C"
   void mps_dmodify (mps_status * s, mps_boolean track_new_cluster);
   void mps_mmodify (mps_status * s, mps_boolean track_new_cluster);
 
+  /* Functions in inclusion.c */
+  void mps_fupdate_inclusions (mps_status * s, int nf);
 
   /* functions in starting.c */
   double mps_maximize_distance (mps_status * s, double last_sigma,
@@ -469,6 +557,7 @@ extern  "C"
   void mps_outroot (mps_status * s, int i, int num);
   void mps_output (mps_status * s);
   void mps_copy_roots (mps_status * s);
+  void mps_dump_status (mps_status * s, FILE * outstr);
   void mps_dump (mps_status * s);
   void mps_dump_cluster_structure (mps_status * s, FILE * outstr);
   mps_boolean mps_is_a_tty (FILE * stream);
@@ -532,4 +621,4 @@ extern  "C"
 }
 #endif
 
-#endif                          /* ndef MPS_CORE_H */
+#endif                          /* ndef MPSCORE_H */

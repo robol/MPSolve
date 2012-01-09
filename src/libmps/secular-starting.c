@@ -50,7 +50,7 @@ mps_secular_fstart (mps_status * s, int n, mps_cluster_item * cluster_item, doub
       else
 	l = i;
 
-      if (s->status[l][0] != 'a' && s->status[l][0] != 'i' && s->status[l][0] != 'o')
+      if (!MPS_ROOT_STATUS_IS_COMPUTED (s, i))
 	{
 	  cplx_set_d (s->froot[l], cos (i * th + sigma),
 		      sin (i * th + sigma));
@@ -125,7 +125,7 @@ mps_secular_dstart (mps_status * s, int n, mps_cluster_item * cluster_item, rdpe
       else
 	l = i;
 
-      if (s->status[l][0] != 'a' && s->status[l][0] != 'i' && s->status[l][0] != 'o')
+      if (!MPS_ROOT_STATUS_IS_COMPUTED (s, i))
 	{
 	  cdpe_mod (cdpe_Re (ceps), s->secular_equation->bdpc[l]);
 	  rdpe_mul_eq_d (cdpe_Re (ceps), 4 * DBL_EPSILON);
@@ -210,7 +210,7 @@ mps_secular_mstart (mps_status * s, int n, mps_cluster_item * cluster_item, rdpe
       else
 	l = i;
 
-      if (s->status[l][0] != 'a' && s->status[l][0] != 'i' && s->status[l][0] != 'o')
+      if (!MPS_ROOT_STATUS_IS_COMPUTED (s, l))
 	{
 	  /* Compute the right epsilon */
 	  mpc_get_cdpe (ctmp, s->secular_equation->bmpc[l]);

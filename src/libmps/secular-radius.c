@@ -29,7 +29,7 @@ mps_secular_fradii (mps_status * s, double * fradii)
 
       /* If we have that the root is isolated we can simply ignore it, performing
        * a sort of cluster analysis deflation. */
-      if (s->status[i][0] == 'a' || s->status[i][0] == 'i')
+      if (MPS_ROOT_STATUS_IS_COMPUTED (s, i))
 	{
 	  fradii[i] = DBL_MAX;
 	  continue;
@@ -67,7 +67,8 @@ mps_secular_fradii (mps_status * s, double * fradii)
       fradii[i] *= prod_b * s->n;
       fradii[i] += cplx_mod (s->froot[i]) * 4.0 * DBL_EPSILON;
 
-      if (s->status[i][0] == 'i' && (fradii[i] < s->frad[i]))
+      if (s->root_status[i] == MPS_ROOT_STATUS_ISOLATED && 
+	  (fradii[i] < s->frad[i]))
 	s->frad[i] = fradii[i];
     }
 }
@@ -101,7 +102,7 @@ mps_secular_dradii (mps_status * s, rdpe_t * dradii)
 
       /* If we have that the root is isolated we can simply ignore it, performing
        * a sort of cluster analysis deflation. */
-      if (s->status[i][0] == 'a' || s->status[i][0] == 'i')
+      if (MPS_ROOT_STATUS_IS_COMPUTED (s, i))
 	{
 	  rdpe_set (dradii[i], RDPE_MAX);
 	  continue;
@@ -141,7 +142,8 @@ mps_secular_dradii (mps_status * s, rdpe_t * dradii)
       rdpe_mul_eq_d (rtmp, s->n * 4.0 * DBL_EPSILON);
       rdpe_add_eq (dradii[i], rtmp);
 
-      if (s->status[i][0] == 'i' && (rdpe_lt (dradii[i], s->drad[i])))
+      if (s->root_status[i] == MPS_ROOT_STATUS_ISOLATED && 
+	  (rdpe_lt (dradii[i], s->drad[i])))
 	rdpe_set (s->drad[i], dradii[i]);
     }
 }
@@ -179,7 +181,7 @@ mps_secular_mradii (mps_status * s, rdpe_t * dradii)
 
       /* If we have that the root is isolated we can simply ignore it, performing
        * a sort of cluster analysis deflation. */
-      if (s->status[i][0] == 'a' || s->status[i][0] == 'i')
+      if (MPS_ROOT_STATUS_IS_COMPUTED (s, i))
 	{
 	  rdpe_set (dradii[i], RDPE_MAX);
 	  continue;
@@ -235,7 +237,8 @@ mps_secular_mradii (mps_status * s, rdpe_t * dradii)
       rdpe_mul_eq (rtmp, s->mp_epsilon);
       rdpe_add_eq (dradii[i], rtmp);
       
-      if (s->status[i][0] == 'i' && (rdpe_lt (dradii[i], s->drad[i])))
+      if (s->root_status[i] == MPS_ROOT_STATUS_ISOLATED && 
+	  (rdpe_lt (dradii[i], s->drad[i])))
 	rdpe_set (s->drad[i], dradii[i]);
 
       MPS_DEBUG_RDPE (s, dradii[i], "dradii[%d]", i);

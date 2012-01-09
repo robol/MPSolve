@@ -83,7 +83,7 @@ mps_secular_ga_find_changed_roots (mps_status * s, cdpe_t * old_b, mpc_t * old_m
   
   for (i = 0; i < s->n; i++)
     {
-      if ((s->status[i][0] != 'a' && s->status[i][0] != 'o' && s->status[i][0] != 'i') ||
+      if (!MPS_ROOT_STATUS_IS_COMPUTED (s, i) ||
 	  s->just_raised_precision)
 	{
 	  root_changed[i] = true;

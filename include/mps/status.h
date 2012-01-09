@@ -296,7 +296,11 @@ extern "C"
      *   - <code>o</code>: root out of \f$ \mathcal{S} \f$;
      *   - <code>u</code>: root uncertain;
      */
-    char (*status)[3];          /* status of each approximation        */
+    /* char (*status)[3];          /\* status of each approximation        *\/ */
+
+    mps_root_status    * root_status;
+    mps_root_attrs     * root_attrs;
+    mps_root_inclusion * root_inclusion;
 
     /**
      * @brief Output index order
