@@ -95,7 +95,7 @@ mps_fmodify (mps_status * s, mps_boolean track_new_cluster)
 	  if (s->root_status[l] != MPS_ROOT_STATUS_APPROXIMATED)
 	    {
 	      s->root_status[root->k] = MPS_ROOT_STATUS_ISOLATED;
-	      s->root_inclusion[root->k] = MPS_ROOT_INCLUSION_IN;
+	      /* s->root_inclusion[root->k] = MPS_ROOT_INCLUSION_IN; */
 
 	      /* Check if we need to mark this root as approximated */
 	      if (s->frad[l] < cplx_mod (s->froot[l]) * eps_out)
@@ -131,6 +131,7 @@ mps_fmodify (mps_status * s, mps_boolean track_new_cluster)
       c_item = c_item->next;
     }
 
+  mps_fupdate_inclusions (s);
 }
 
 /* void */
@@ -851,6 +852,7 @@ mps_dmodify (mps_status * s, mps_boolean track_new_cluster)
       c_item = c_item->next;
     }
 
+  mps_dupdate_inclusions (s);
 }
 
 
@@ -1501,9 +1503,6 @@ mps_mmodify (mps_status * s, mps_boolean track_new_cluster)
   rdpe_t tmpr, tmpr2;
   cdpe_t cdtmp;
 
-  /* Set isolation factor */
-  /* nf = 2 * s->n; */
-
   /* If tracking of new cluster is enabled we need to mark old clusters
    * with 'C' to distinguish them from the new ones. */
   if (track_new_cluster)
@@ -1568,6 +1567,7 @@ mps_mmodify (mps_status * s, mps_boolean track_new_cluster)
       c_item = c_item->next;
     }
 
+  mps_mupdate_inclusions (s);
 }
 
 

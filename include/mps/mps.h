@@ -530,8 +530,10 @@ extern  "C"
   void mps_mmodify (mps_status * s, mps_boolean track_new_cluster);
 
   /* Functions in inclusion.c */
-  void mps_fupdate_inclusions (mps_status * s, int nf);
-
+  void mps_fupdate_inclusions (mps_status * s);
+  void mps_dupdate_inclusions (mps_status * s);
+  void mps_mupdate_inclusions (mps_status * s);
+  
   /* functions in starting.c */
   double mps_maximize_distance (mps_status * s, double last_sigma,
                                 mps_cluster_item * cluster, int n);

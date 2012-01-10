@@ -1288,8 +1288,10 @@ mps_outroot (mps_status * s, int i, int num)
       if (i != ISZERO)
         {
           rdpe_outln_str (s->outstr, s->drad[i]);
-          fprintf (s->outstr, "Status: %s\n", 
-		   MPS_ROOT_STATUS_TO_STRING (s->root_status[i]));
+          fprintf (s->outstr, "Status: %s, %s, %s\n", 
+		   MPS_ROOT_STATUS_TO_STRING (s->root_status[i]),
+		   MPS_ROOT_ATTRS_TO_STRING (s->root_attrs[i]),
+		   MPS_ROOT_INCLUSION_TO_STRING (s->root_inclusion[i]));
         }
       else
         fprintf (s->outstr, " 0\n ---\n");
@@ -1306,15 +1308,19 @@ mps_outroot (mps_status * s, int i, int num)
         fprintf (s->logstr, "zero root %-4d = 0", num);
       else
         {
-          fprintf (s->logstr, "root %-4d = ", i);
+          fprintf (s->logstr, "Root %-4d = ", i);
           mpc_out_str_2 (s->logstr, 10, 0, 0, s->mroot[i]);
           fprintf (s->logstr, "\n");
-          fprintf (s->logstr, "  radius = ");
+          fprintf (s->logstr, "  Radius = ");
           rdpe_outln_str (s->logstr, s->drad[i]);
-          fprintf (s->logstr, "  prec = %ld\n",
+          fprintf (s->logstr, "  Prec = %ld\n",
                    (long) (mpc_get_prec (s->mroot[i]) / LOG2_10));
-          fprintf (s->logstr, "  status = %s\n", 
+          fprintf (s->logstr, "  Approximation = %s\n", 
 		   MPS_ROOT_STATUS_TO_STRING (s->root_status[i]));
+	  fprintf (s->logstr, "  Attributes = %s\n",
+		   MPS_ROOT_ATTRS_TO_STRING (s->root_attrs[i]));
+	  fprintf (s->logstr, "  Inclusion = %s\n",
+		   MPS_ROOT_INCLUSION_TO_STRING (s->root_inclusion[i]));
           fprintf (s->logstr, "--------------------\n");
         }
     }
@@ -1473,7 +1479,7 @@ mps_dump (mps_status * s)
         }
     }
 
-  fprintf (dmpstr, "\n\n");
+  MPS_DEBUG (s, " ");
   mps_dump_status (s, dmpstr);
 }
 
