@@ -119,7 +119,8 @@ mps_improve (mps_status * s)
     {
       if (s->debug_level & MPS_DEBUG_IMPROVEMENT)
         MPS_DEBUG (s, "Starting to refine root %d", i);
-      if (s->status[i][0] != 'i' || s->status[i][2] == 'o')
+      if (s->root_status[i] != MPS_ROOT_STATUS_ISOLATED || 
+	  s->root_status[i] == MPS_ROOT_STATUS_APPROXIMATED_IN_CLUSTER)
         {
 	  if (s->debug_level & MPS_DEBUG_IMPROVEMENT)
 	    MPS_DEBUG (s, "Not approximating root %d since it is already approximated", i);

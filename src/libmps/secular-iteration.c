@@ -1,3 +1,22 @@
+/************************************************************
+ **                                                        **
+ **             __  __ ___  ___      _                     **
+ **            |  \/  | _ \/ __| ___| |_ _____             **
+ **            | |\/| |  _/\__ \/ _ \ \ V / -_)            **
+ **            |_|  |_|_|  |___/\___/_|\_/\___|            **
+ **                                                        **
+ **       Multiprecision Polynomial Solver (MPSolve)       **
+ **                 Version 2.9, April 2011                **
+ **                                                        **
+ **                      Written by                        **
+ **                                                        **
+ **     Dario Andrea Bini       <bini@dm.unipi.it>         **
+ **     Giuseppe Fiorentino     <fiorent@dm.unipi.it>      **
+ **     Leonardo Robol          <robol@mail.dm.unipi.it>   **
+ **                                                        **
+ **           (C) 2011, Dipartimento di Matematica         **
+ ***********************************************************/
+
 #include <mps/mps.h>
 #include <math.h>
 #include <string.h>
@@ -111,8 +130,7 @@ mps_secular_ga_fiterate (mps_status * s, int maxit, mps_boolean just_regenerated
   for (i = 0; i < s->n; i++)
     {
       /* Set again to false if the root is already approximated */
-      if (s->status[i][0] == 'a' || s->status[i][0] == 'i'
-	  || s->status[i][0] == 'o')
+      if (MPS_ROOT_STATUS_IS_COMPUTED (s, i))
 	{
 	  if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
 	    {
@@ -149,7 +167,8 @@ mps_secular_ga_fiterate (mps_status * s, int maxit, mps_boolean just_regenerated
       data[i].roots_mutex = roots_mutex;
       data[i].queue = queue;
 
-      mps_thread_pool_assign (s, s->pool, __mps_secular_ga_fiterate_worker, data + i);
+      /* mps_thread_pool_assign (s, s->pool, __mps_secular_ga_fiterate_worker, data + i); */
+      __mps_secular_ga_fiterate_worker (data + i);
     }
 
   mps_thread_pool_wait (s, s->pool);
@@ -239,8 +258,7 @@ mps_secular_ga_diterate (mps_status * s, int maxit, mps_boolean just_regenerated
   for (i = 0; i < s->n; i++)
     {
       /* Set again to false if the root is already approximated */
-      if (s->status[i][0] == 'a' || s->status[i][0] == 'i'
-	  || s->status[i][0] == 'o')
+      if (MPS_ROOT_STATUS_IS_COMPUTED (s, i))
 	{
 	  MPS_DEBUG_WITH_INFO (s, "Setting again[%d] to false since the root is ready for output (or isolated)", i);
 	  s->again[i] = false;
@@ -419,8 +437,7 @@ mps_secular_ga_miterate (mps_status * s, int maxit, mps_boolean just_regenerated
   for (i = 0; i < s->n; i++)
     {
       /* Set again to false if the root is already approximated */
-      if (s->status[i][0] == 'a' || s->status[i][0] == 'i'
-	  || s->status[i][0] == 'o')
+      if (MPS_ROOT_STATUS_IS_COMPUTED (s, i))
 	{
 	  MPS_DEBUG_WITH_INFO (s, "Setting again[%d] to false since the root is ready for output (or isolated)", i);
 	  s->again[i] = false;
@@ -523,10 +540,11 @@ mps_secular_ga_miterate (mps_status * s, int maxit, mps_boolean just_regenerated
 	  fprintf (s->logstr, "%d ", s->again[i]);
 	}
       fprintf (s->logstr, "\n");
-      __MPS_DEBUG (s, "Status = ");
+      MPS_DEBUG (s, "Status = ");
       for (i = 0; i < s->n; i++)
 	{
-	  fprintf (s->logstr, "%c ", s->status[i][0]);
+	  fprintf (s->logstr, " %4d: %s ", i,
+		   MPS_ROOT_STATUS_TO_STRING (s->root_status[i]));
 	}
       fprintf (s->logstr, "\n");
     }

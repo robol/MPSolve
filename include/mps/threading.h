@@ -24,6 +24,12 @@ extern "C"
 
 #define MPS_THREAD_JOB_EXCEP -1
 
+#define mps_with_lock(pmutex, code) { \
+  pthread_mutex_lock (&pmutex); \
+  code \
+  pthread_mutex_unlock (&pmutex); \
+}
+
   /**
    * @brief A generic routine that can be performed by a <code>mps_thread</code>.
    */

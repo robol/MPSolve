@@ -228,7 +228,7 @@ mps_thread_pool_assign (mps_status * s, mps_thread_pool * pool,
 	}
     }
 
-  /* printf ("Non ho trovato il thread libero\n"); */
+  /* printf ("Non ho trovato il thread libero\n");  */
 }
 
 /**

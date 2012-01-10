@@ -80,10 +80,22 @@ extern "C"
     mpc_t *ampc;
 
     /**
+     * @brief Mutexes thatn need to be locked to ensure consistent
+     * access to ampc[j] variable.
+     */
+    pthread_mutex_t * ampc_mutex;
+
+    /**
      * @brief Same as <code>bfpc</code>, but the multiprecision
      * version.
      */
     mpc_t *bmpc;
+
+    /**
+     * @brief Mutexes that need to be locked to ensure consistent
+     * access to bmpc[j] variable.
+     */
+    pthread_mutex_t * bmpc_mutex;
 
     /**
      * @brief Moduli of the floating point a_i

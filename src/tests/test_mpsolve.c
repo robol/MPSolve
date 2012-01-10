@@ -58,6 +58,8 @@ test_mpsolve (char * pol_file, char * res_file, mps_algorithm algorithm)
   mps_parse_stream (s, s->instr);
 
   s->output_config->goal = MPS_OUTPUT_GOAL_APPROXIMATE;
+  /* s->DOLOG = true; */
+  /* s->debug_level = MPS_DEBUG_TRACE; */
   /* s->output_config->prec = 16;  */
 
   /* Solve it */

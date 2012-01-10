@@ -38,6 +38,7 @@ libmps_la_SOURCES = \
 	    gmptools.c \
 	    horner.c \
 	    improve.c \
+	    inclusion.c \
 	    input-buffer.c \
 	    interface.c \
 	    link.c \

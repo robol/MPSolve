@@ -284,9 +284,9 @@ mps_cluster_reset (mps_status * s)
 
   for (i = 0; i < s->n; i++) 
     { 
-      s->status[i][0] = 'c'; 
-      s->status[i][1] = 'w'; 
-      s->status[i][2] = 'u'; 
+      s->root_status[i] = MPS_ROOT_STATUS_CLUSTERED;
+      s->root_attrs[i] = MPS_ROOT_ATTRS_NONE;
+      s->root_inclusion[i] = MPS_ROOT_INCLUSION_UNKNOWN;
     }
 
   if (s->clusterization != NULL)

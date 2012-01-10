@@ -77,8 +77,8 @@ libmps_la_DEPENDENCIES = $(am__DEPENDENCIES_1)
 am__objects_1 =
 am_libmps_la_OBJECTS = aberth.lo cluster.lo convex.lo data.lo debug.lo \
 	defaults.lo general-radius.lo getopts.lo gmptools.lo horner.lo \
-	improve.lo input-buffer.lo interface.lo link.lo main.lo \
-	modify.lo monomial-poly.lo monomial-radius.lo \
+	improve.lo inclusion.lo input-buffer.lo interface.lo link.lo \
+	main.lo modify.lo monomial-poly.lo monomial-radius.lo \
 	monomial-threading.lo mpc.lo mt.lo newton.lo \
 	secular-evaluation.lo secular-ga.lo secular-iteration.lo \
 	secular-newton.lo secular-radius.lo secular-regeneration.lo \
@@ -294,6 +294,7 @@ libmps_la_SOURCES = \
 	    gmptools.c \
 	    horner.c \
 	    improve.c \
+	    inclusion.c \
 	    input-buffer.c \
 	    interface.c \
 	    link.c \
@@ -414,6 +415,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gmptools.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/horner.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/improve.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/inclusion.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/input-buffer.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/interface.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/link.Plo@am__quote@

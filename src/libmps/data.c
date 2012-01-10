@@ -54,7 +54,11 @@ mps_allocate_data (mps_status * s)
 
   s->again = mps_boolean_valloc (s->deg);
 
-  s->status = (char (*)[3]) char_valloc (3 * s->deg);
+  /* s->status = (char (*)[3]) char_valloc (3 * s->deg); */
+  
+  s->root_status = mps_newv (mps_root_status, s->deg);
+  s->root_attrs  = mps_newv (mps_root_attrs,  s->deg);
+  s->root_inclusion = mps_newv (mps_root_inclusion, s->deg);
 
   mps_cluster_reset (s);
 
@@ -121,6 +125,9 @@ mps_allocate_data (mps_status * s)
 
   /* Allocate the thread_pool used in computations. */
   s->pool = mps_thread_pool_new (s);
+
+  /* Init the mutex that need it */
+  pthread_mutex_init (&s->precision_mutex, NULL);
 }
 
 /**
@@ -336,7 +343,9 @@ mps_free_data (mps_status * s)
 
   mps_clusterization_free (s, s->clusterization);
   free (s->again);
-  free (s->status);
+  free (s->root_status);
+  free (s->root_attrs);
+  free (s->root_inclusion);
   free (s->rootwp);
   free (s->order);
 
@@ -365,7 +374,6 @@ mps_free_data (mps_status * s)
   for (i = 0; i < (s->deg + 1) * s->n_threads; i++)
       mpc_clear (s->mfpc2[i]);
 
-  /* free (s->mfppc); */
   free (s->mfppc1);
   free (s->mfpc2);
 

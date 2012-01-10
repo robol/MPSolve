@@ -1,9 +1,21 @@
-/*
- * secular.c
- *
- *  Created on: 11/apr/2011
- *      Author: leonardo
- */
+/************************************************************
+ **                                                        **
+ **             __  __ ___  ___      _                     **
+ **            |  \/  | _ \/ __| ___| |_ _____             **
+ **            | |\/| |  _/\__ \/ _ \ \ V / -_)            **
+ **            |_|  |_|_|  |___/\___/_|\_/\___|            **
+ **                                                        **
+ **       Multiprecision Polynomial Solver (MPSolve)       **
+ **                 Version 2.9, April 2011                **
+ **                                                        **
+ **                      Written by                        **
+ **                                                        **
+ **     Dario Andrea Bini       <bini@dm.unipi.it>         **
+ **     Giuseppe Fiorentino     <fiorent@dm.unipi.it>      **
+ **     Leonardo Robol          <robol@mail.dm.unipi.it>   **
+ **                                                        **
+ **           (C) 2011, Dipartimento di Matematica         **
+ ***********************************************************/
 
 #include <mps/mps.h>
 #include <string.h>

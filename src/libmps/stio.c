@@ -1113,12 +1113,12 @@ mps_countroots (mps_status * s)
   s->count[0] = s->count[1] = s->count[2] = 0;
 
   for (k = 0; k < s->n; k++)
-    switch (s->status[k][2])
+    switch (s->root_inclusion[k])
       {
-      case 'i':
+      case MPS_ROOT_INCLUSION_IN:
         s->count[0]++;
         break;
-      case 'o':
+      case MPS_ROOT_INCLUSION_OUT:
         s->count[1]++;
         break;
       default:
@@ -1232,7 +1232,7 @@ mps_outroot (mps_status * s, int i, int num)
     }
 
   /* print real part */
-  if (i == ISZERO || s->status[i][1] == 'I')
+  if (i == ISZERO || s->root_attrs[i] == MPS_ROOT_ATTRS_IMAG)
     fprintf (s->outstr, "0");
   else
     mps_outfloat (s, mpc_Re (s->mroot[i]), s->drad[i], out_digit, true);
@@ -1262,7 +1262,7 @@ mps_outroot (mps_status * s, int i, int num)
     }
 
   /* print imaginary part */
-  if (i == ISZERO || s->status[i][1] == 'R')
+  if (i == ISZERO || s->root_attrs[i] == MPS_ROOT_ATTRS_REAL)
     fprintf (s->outstr, "0");
   else
     mps_outfloat (s, mpc_Im (s->mroot[i]), s->drad[i], out_digit,
@@ -1288,7 +1288,10 @@ mps_outroot (mps_status * s, int i, int num)
       if (i != ISZERO)
         {
           rdpe_outln_str (s->outstr, s->drad[i]);
-          fprintf (s->outstr, "%4.3s\n", s->status[i]);
+          fprintf (s->outstr, "Status: %s, %s, %s\n", 
+		   MPS_ROOT_STATUS_TO_STRING (s->root_status[i]),
+		   MPS_ROOT_ATTRS_TO_STRING (s->root_attrs[i]),
+		   MPS_ROOT_INCLUSION_TO_STRING (s->root_inclusion[i]));
         }
       else
         fprintf (s->outstr, " 0\n ---\n");
@@ -1305,14 +1308,19 @@ mps_outroot (mps_status * s, int i, int num)
         fprintf (s->logstr, "zero root %-4d = 0", num);
       else
         {
-          fprintf (s->logstr, "root %-4d = ", i);
+          fprintf (s->logstr, "Root %-4d = ", i);
           mpc_out_str_2 (s->logstr, 10, 0, 0, s->mroot[i]);
           fprintf (s->logstr, "\n");
-          fprintf (s->logstr, "  radius = ");
+          fprintf (s->logstr, "  Radius = ");
           rdpe_outln_str (s->logstr, s->drad[i]);
-          fprintf (s->logstr, "  prec = %ld\n",
+          fprintf (s->logstr, "  Prec = %ld\n",
                    (long) (mpc_get_prec (s->mroot[i]) / LOG2_10));
-          fprintf (s->logstr, "  status = %4.3s\n", s->status[i]);
+          fprintf (s->logstr, "  Approximation = %s\n", 
+		   MPS_ROOT_STATUS_TO_STRING (s->root_status[i]));
+	  fprintf (s->logstr, "  Attributes = %s\n",
+		   MPS_ROOT_ATTRS_TO_STRING (s->root_attrs[i]));
+	  fprintf (s->logstr, "  Inclusion = %s\n",
+		   MPS_ROOT_INCLUSION_TO_STRING (s->root_inclusion[i]));
           fprintf (s->logstr, "--------------------\n");
         }
     }
@@ -1350,7 +1358,7 @@ mps_output (mps_status * s)
       for (ind = 0; ind < s->n; ind++)
         {
           i = s->order[ind];
-          if (s->status[i][2] == 'o')
+          if (s->root_inclusion[i] == MPS_ROOT_INCLUSION_OUT)
             continue;
           mps_outroot (s, i, num++);
         }
@@ -1422,76 +1430,57 @@ mps_dump (mps_status * s)
   MPS_DEBUG (s, "Dumping the approximations:");
 
   /* output current status */
-  fprintf (dmpstr,
-           "Phase=%d, In=%d, Out=%d, Uncertain=%d, Zero=%d, Clusters=%ld\n",
-           s->lastphase, s->count[0], s->count[1], s->count[2], s->zero_roots,
-           s->clusterization->n);
+  /* fprintf (dmpstr, */
+  /*          "Phase=%d, In=%d, Out=%d, Uncertain=%d, Zero=%d, Clusters=%ld\n", */
+  /*          s->lastphase, s->count[0], s->count[1], s->count[2], s->zero_roots, */
+  /*          s->clusterization->n); */
+
+  MPS_DEBUG (s, "Phase = %s, In = %d, Out = %d, Uncertain = %d, Zero = %d, Cluster = %ld",
+	     MPS_PHASE_TO_STRING (s->lastphase), s->count[0], s->count[1], s->count[2],
+	     s->zero_roots, s->clusterization->n);
 
   /* output current approximations */
-  fprintf (dmpstr, "\nCurrent approximations:\n");
+  /* fprintf (dmpstr, "\nCurrent approximations:\n"); */
+  MPS_DEBUG (s, "Current approximations:");
   for (i = 0; i < s->n; i++)
     {
-      fprintf (dmpstr, "%d:\t", i);
-
       switch (s->lastphase)
         {
         case no_phase:
         case float_phase:
-          cplx_outln_str (dmpstr, s->froot[i]);
+	  MPS_DEBUG_CPLX (s, s->froot[i], "Approximation  %4d", i);
           break;
 
         case dpe_phase:
-          cdpe_outln_str (dmpstr, s->droot[i]);
+	  MPS_DEBUG_CDPE (s, s->droot[i], "Approximation  %4d", i);
           break;
 
         case mp_phase:
-          mpc_outln_str (dmpstr, 10, 0, s->mroot[i]);
+	  MPS_DEBUG_MPC (s, 10, s->mroot[i], "Approximation  %4d", i);
           break;
         }
     }
 
   /* output radii */
-  fprintf (dmpstr, "\nCurrent radii:\n");
+  MPS_DEBUG (s, "Current radii:");
   for (i = 0; i < s->n; i++)
     {
-      fprintf (dmpstr, "%d:\t", i);
-
       switch (s->lastphase)
         {
         case no_phase:
         case float_phase:
-          fprintf (dmpstr, "%e\n", s->frad[i]);
+	  MPS_DEBUG (s, "Radius of root %4d = %e", i, s->frad[i]);
           break;
 
         case dpe_phase:
         case mp_phase:
-          rdpe_outln_str (dmpstr, s->drad[i]);
+	  MPS_DEBUG_RDPE (s, s->drad[i], "Radius of root %4d", i);
           break;
         }
     }
 
-  /* output position */
-  fprintf (dmpstr, "\nPos:\t");
-  for (i = 0; i < s->n; i++)
-    fprintf (dmpstr, "%4d", i);
-
-  /* output status information */
-  fprintf (dmpstr, "\nStatus:\t");
-  for (i = 0; i < s->n; i++)
-    fprintf (dmpstr, "%4.3s", s->status[i]);
-
-  /* TODO: Fix cluster information here */
-
-  /* /\* output cluster information *\/ */
-  /* fprintf (dmpstr, "\nClust:\t"); */
-  /* for (i = 0; i < s->n; i++) */
-  /*   fprintf (dmpstr, "%4d", s->clust[i]); */
-
-  /* fprintf (dmpstr, "\nPunt:\t"); */
-  /* for (i = 0; i < s->nclust; i++) */
-  /*   fprintf (dmpstr, "%4d", s->punt[i]); */
-
-  fprintf (dmpstr, "\n\n");
+  MPS_DEBUG (s, " ");
+  mps_dump_status (s, dmpstr);
 }
 
 /**
@@ -1544,11 +1533,13 @@ void
 mps_dump_status (mps_status * s, FILE * outstr)
 {
   int i;
+  MPS_DEBUG (s, "              Approximation              Attributes       Inclusion");
   for (i = 0; i < s->n; i++)
     {
-      fprintf (outstr, "s->status[%d] = ", i);
-      fprintf (outstr, "'%c' '%c' '%c'\n", s->status[i][0],
-               s->status[i][1], s->status[i][2]);
+      MPS_DEBUG (s, "Status  %4d: %-25s  %-15s  %-15s", i,
+		 MPS_ROOT_STATUS_TO_STRING (s->root_status[i]),
+		 MPS_ROOT_ATTRS_TO_STRING  (s->root_attrs[i]), 
+		 MPS_ROOT_INCLUSION_TO_STRING (s->root_inclusion[i]));
     }
 }
 
