@@ -54,19 +54,9 @@ main (int argc, char **argv)
   mps_monomial_poly_set_coefficient_q (s, p, 0, m_one, zero);
   mps_monomial_poly_set_coefficient_q (s, p, n, one, zero);
 
-  /* Set sparsity vector */
-  memset (p->spar, 0, sizeof (mps_boolean) * (n + 1));
-  p->spar[0] = true;
-  p->spar[n] = true;
-  s->deg = s->n = p->n;
-
   /* Set the input polynomial */
   mps_status_set_input_poly (s, p, MPS_STRUCTURE_REAL_INTEGER);
 
-  /* FIXME: The data type should be determined with the new API, 
-   * not in this old way. */
-  s->data_type = "sci";
-  
   /* Allocate space to hold the results. We check only floating point results
    * in here */
   cplx_t *results = cplx_valloc (n);

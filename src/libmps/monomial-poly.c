@@ -1,4 +1,5 @@
 #include <mps/mps.h>
+#include <string.h>
 
 /**
  * @brief Return a newly allocated mps_monomial_poly of the given degree.
@@ -47,6 +48,8 @@ mps_monomial_poly_new (mps_status * s, long int degree)
   mp->mfpc_mutex = mps_newv (pthread_mutex_t, degree + 1);
   for (i = 0; i <= degree; i++)
     pthread_mutex_init (&mp->mfpc_mutex[i], NULL);
+
+  memset (mp->spar, 0, sizeof (mps_boolean) * (degree + 1));
 
   return mp;
 }
@@ -166,4 +169,9 @@ mps_monomial_poly_set_coefficient_q (mps_status * s, mps_monomial_poly * mp, lon
 
   mpc_get_cdpe (mp->dpc[i], mp->mfpc[i]);
   mpc_get_cplx (mp->fpc[i], mp->mfpc[i]);
+
+  if ((mpq_sgn (real_part) == 0) && (mpq_sgn (imag_part) == 0))
+    mp->spar[i] = false;
+  else 
+    mp->spar[i] = true;
 }
