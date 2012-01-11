@@ -316,10 +316,11 @@ mps_status_set_poly_d (mps_status * s, cplx_t * coeff, long unsigned int n)
   /* Fill polynomial coefficients */
   for (i = 0; i <= n; i++)
     {
-      mpc_set_cplx (p->mfpc[i], coeff[i]);
-      cplx_set (p->fpc[i], coeff[i]);
-      cdpe_set_x (p->dpc[i], coeff[i]);
+      mps_monomial_poly_set_coefficient_d (s, p, i, cplx_Re (coeff[i]),
+					   cplx_Im (coeff[i]));
     }
+
+  mps_status_set_input_poly (s, p, MPS_STRUCTURE_COMPLEX_FP);
   
   return 0;
 }

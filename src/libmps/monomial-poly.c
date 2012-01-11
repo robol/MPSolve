@@ -175,3 +175,23 @@ mps_monomial_poly_set_coefficient_q (mps_status * s, mps_monomial_poly * mp, lon
   else 
     mp->spar[i] = true;
 }
+
+/**
+ * @brief Set the coefficient in position i of the polynomial.
+ *
+ * @param s The <code>mps_status</code> associated to this computation.
+ * @param mp The <code>monomial_poly</code> in which the coefficients will be set.
+ * @param i The index of the coefficient to set.
+ * @param real_part The real part of the coefficient.
+ * @param imag_part The imaginary part of the coefficient.
+ */
+void
+mps_monomial_poly_set_coefficient_d (mps_status * s, mps_monomial_poly * mp, long int i,
+				     double real_part, double imag_part)
+{
+  /* Set the coefficients */
+  mpc_set_d (mp->mfpc[i], real_part, imag_part);
+
+  /* Update spar */
+  mp->spar[i] = !((real_part == 0) && (imag_part == 0));
+}

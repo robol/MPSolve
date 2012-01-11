@@ -123,6 +123,10 @@ extern "C"
 
   void mps_monomial_poly_set_coefficient_q (mps_status * s, mps_monomial_poly * mp, long int i, 
 					    mpq_t real_part, mpq_t imag_part);
+  void
+  mps_monomial_poly_set_coefficient_d (mps_status * s, mps_monomial_poly * mp, long int i,
+				       double real_part, double imag_part);
+
 
 
 #ifdef	__cplusplus
