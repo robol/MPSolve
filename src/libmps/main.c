@@ -62,6 +62,8 @@ mps_standard_mpsolve (mps_status * s)
 
   mps_allocate_data (s);
 
+  printf ("Hey\n");
+
   if (s->DOLOG)
     s->debug_level |= MPS_DEBUG_TRACE;
 

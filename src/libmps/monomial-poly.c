@@ -50,6 +50,10 @@ mps_monomial_poly_new (mps_status * s, long int degree)
     pthread_mutex_init (&mp->mfpc_mutex[i], NULL);
 
   memset (mp->spar, 0, sizeof (mps_boolean) * (degree + 1));
+  memset (mp->fap, 0, sizeof (double) * (degree + 1));
+  
+  for (i = 0; i <= degree; i++)
+    rdpe_set (mp->dap[i], rdpe_zero);
 
   return mp;
 }
@@ -174,10 +178,29 @@ mps_monomial_poly_set_coefficient_q (mps_status * s, mps_monomial_poly * mp, lon
     mp->spar[i] = false;
   else 
     mp->spar[i] = true;
+
+  if (mp->spar[i])
+    {
+      mpc_get_cplx (mp->fpc[i], mp->mfpc[i]);
+      mpc_get_cdpe (mp->dpc[i], mp->mfpc[i]);
+
+      /* Compute modules of coefficients */
+      cdpe_mod (mp->dap[i], mp->dpc[i]);
+      mp->fap[i] = rdpe_get_d (mp->dap[i]);
+    }
+  else
+    {
+      cplx_set (mp->fpc[i], cplx_zero);
+      cdpe_set (mp->dpc[i], cdpe_zero);
+	  
+      rdpe_set (mp->dap[i], rdpe_zero);
+      mp->fap[i] = 0.0f;
+    }
+
 }
 
 /**
- * @brief Set the coefficient in position i of the polynomial.
+ * @brief Set the coefficient in position i of the mpnomial.
  *
  * @param s The <code>mps_status</code> associated to this computation.
  * @param mp The <code>monomial_poly</code> in which the coefficients will be set.
@@ -191,6 +214,24 @@ mps_monomial_poly_set_coefficient_d (mps_status * s, mps_monomial_poly * mp, lon
 {
   /* Set the coefficients */
   mpc_set_d (mp->mfpc[i], real_part, imag_part);
+
+  if (mp->spar[i])
+    {
+      mpc_get_cplx (mp->fpc[i], mp->mfpc[i]);
+      mpc_get_cdpe (mp->dpc[i], mp->mfpc[i]);
+
+      /* Compute modules of coefficients */
+      cdpe_mod (mp->dap[i], mp->dpc[i]);
+      mp->fap[i] = rdpe_get_d (mp->dap[i]);
+    }
+  else
+    {
+      cplx_set (mp->fpc[i], cplx_zero);
+      cdpe_set (mp->dpc[i], cdpe_zero);
+	  
+      rdpe_set (mp->dap[i], rdpe_zero);
+      mp->fap[i] = 0.0f;
+    }
 
   /* Update spar */
   mp->spar[i] = !((real_part == 0) && (imag_part == 0));

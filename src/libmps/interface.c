@@ -148,6 +148,7 @@ mps_status_init (mps_status * s)
   s->output_config = (mps_output_configuration *) mps_malloc (sizeof (mps_output_configuration));
 
   mps_set_default_values (s);
+
   /* Set standard precision */
   s->output_config->prec = (int) (0.9 * DBL_DIG * LOG2_10);
   MPS_DEBUG (s, "Setting prec_out to %ld digits", s->output_config->prec);
@@ -400,6 +401,15 @@ mps_status_get_roots_d (mps_status * s, cplx_t * roots, double *radius)
 int
 mps_status_get_roots_m (mps_status * s, mpc_t * roots, rdpe_t * radius)
 {
-  /* TODO: Implement mps_get_roots_m() */
+  int i;
+
+  mps_copy_roots (s);
+
+  for (i = 0; i < s->n; i++)
+    {
+      mpc_set (roots[i], s->mroot[i]);
+      rdpe_set (radius[i], s->drad[i]);
+    }
+
   return 0;
 }

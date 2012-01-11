@@ -19,10 +19,12 @@ mps_secular_ga_update_root_wp (mps_status * s, int i, long int wp)
   mps_secular_equation * sec = s->secular_equation;  
   mps_monomial_poly * p = s->monomial_poly;  
 
-   s->rootwp[i] = ((wp - 1) / 64 + 1) * 64;
-
-   if (s->data_prec_max < s->rootwp[i])   
-     s->data_prec_max = s->rootwp[i];   
+  s->rootwp[i] = ((wp - 1) / 64 + 1) * 64;
+  
+  if (s->data_prec_max < s->rootwp[i])
+    {  
+      s->data_prec_max = s->rootwp[i];
+    }
 
     if (s->debug_level & MPS_DEBUG_MEMORY)  
       MPS_DEBUG (s, "Setting wp for root %d to %ld bits", i, s->rootwp[i]);  
@@ -207,7 +209,7 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
       rdpe_t relative_error, rtmp;
       cdpe_t cpol;	  
 
-      mps_secular_ga_update_root_wp (s, i, s->rootwp[i]); 
+      mps_secular_ga_update_root_wp (s, i, s->rootwp[i]);
 
       pthread_mutex_lock (&sec->bmpc_mutex[i]);
       mps_mhorner_with_error2 (s, p, sec->bmpc[i], sec->ampc[i], relative_error, s->rootwp[i]);

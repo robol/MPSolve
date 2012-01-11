@@ -139,7 +139,7 @@ mps_set_default_values (mps_status * s)
   s->output_config->root_properties = MPS_OUTPUT_PROPERTY_NONE;
   s->output_config->search_set = MPS_SEARCH_SET_COMPLEX_PLANE;
 
-  s->data_prec_max = 0;
+  s->data_prec_max = 53;
 
   /* Default algorithm */
   mps_status_select_algorithm (s, MPS_ALGORITHM_STANDARD_MPSOLVE);
