@@ -820,8 +820,6 @@ mps_dmodify (mps_status * s, mps_boolean track_new_cluster)
 	  if (s->root_status[l] != MPS_ROOT_STATUS_APPROXIMATED)
 	    s->root_status[root->k] = MPS_ROOT_STATUS_ISOLATED;
 
-	  s->root_inclusion[root->k] = MPS_ROOT_INCLUSION_IN;
-
 	  /* Grab the next cluster and continue scanning */
 	  c_item = c_item->next;
 	  continue;
@@ -1533,8 +1531,6 @@ mps_mmodify (mps_status * s, mps_boolean track_new_cluster)
 	   * case set it at least as isolated. */
 	  if (s->root_status[l] != MPS_ROOT_STATUS_APPROXIMATED)
 	    s->root_status[root->k] = MPS_ROOT_STATUS_ISOLATED;
-
-	  s->root_inclusion[root->k] = MPS_ROOT_INCLUSION_IN;
 
 	  /* Grab the next cluster and continue scanning */
 	  c_item = c_item->next;

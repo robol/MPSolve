@@ -26,7 +26,7 @@
 typedef const char * mps_string;
 
 /* Boolean type used in MPSolve */
-#ifndef __USE_BOOL_AS_BOOLEAN
+#ifndef __cplusplus
   typedef enum
   { false = 0, true = 1 } mps_boolean;
 #else
@@ -290,9 +290,11 @@ extern  "C"
       MPS_STRUCTURE_REAL_INTEGER,
       MPS_STRUCTURE_REAL_RATIONAL,
       MPS_STRUCTURE_REAL_FP,
+      MPS_STRUCTURE_REAL_BIGFLOAT,
       MPS_STRUCTURE_COMPLEX_INTEGER,
       MPS_STRUCTURE_COMPLEX_RATIONAL,
-      MPS_STRUCTURE_COMPLEX_FP
+      MPS_STRUCTURE_COMPLEX_FP,
+      MPS_STRUCTURE_COMPLEX_BIGFLOAT
     };
 
   /**
@@ -613,14 +615,5 @@ extern  "C"
   void mps_mhorner (mps_status * s, mps_monomial_poly * p, mpc_t x, mpc_t value);
   void mps_mhorner_with_error (mps_status * s, mps_monomial_poly * p, mpc_t x, mpc_t value, rdpe_t relative_error, long int wp);
   void mps_mhorner_with_error2 (mps_status * s, mps_monomial_poly * p, mpc_t x, mpc_t value, rdpe_t relative_error, long int wp);
-
-/*
- * End of extern "C" {
- *   ...
- * }
- */
-#ifdef __cplusplus
-}
-#endif
 
 #endif                          /* ndef MPSCORE_H */

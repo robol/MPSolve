@@ -128,6 +128,8 @@ mps_allocate_data (mps_status * s)
 
   /* Init the mutex that need it */
   pthread_mutex_init (&s->precision_mutex, NULL);
+
+  s->initialized = true;
 }
 
 /**
@@ -148,49 +150,35 @@ mps_raise_data (mps_status * s, long int prec)
   for (k = 0; k < s->n; k++)
     mpc_set_prec (s->mroot[k], prec);
 
-  if (s->data_type[0] != 'u')
+  if (!MPS_INPUT_CONFIG_IS_USER (s->input_config))
     {
       /* raise the precision of  mfpc */
       for (k = 0; k < s->n + 1; k++)
-        if (s->data_type[0] != 's' || p->spar[k])
+        if (!MPS_INPUT_CONFIG_IS_SPARSE (s->input_config) || p->spar[k])
           mpc_set_prec (p->mfpc[k], prec);
 
       for (i = 0; i <= s->n; i++)
-        if (s->data_type[0] != 's' || p->spar[i])
+        if (!MPS_INPUT_CONFIG_IS_SPARSE (s->input_config) || p->spar[i])
           {
-            switch (s->data_type[1])
-              {
-              case 'r':        /* real */
-                /* the real case should be adjusted later on */
-                switch (s->data_type[2])
-                  {
-                  case 'i':    /* integer */
-                  case 'q':    /* rational */
-                    mpf_set_q (mpc_Re (p->mfpc[i]), p->initial_mqp_r[i]);
+	    if (MPS_INPUT_CONFIG_IS_REAL (s->input_config))
+	      {
+		if (MPS_INPUT_CONFIG_IS_RATIONAL (s->input_config) ||
+		    MPS_INPUT_CONFIG_IS_INTEGER (s->input_config))
+		  {
+		    mpf_set_q (mpc_Re (p->mfpc[i]), p->initial_mqp_r[i]);
                     mpf_set_ui (mpc_Im (p->mfpc[i]), 0);
                     /* GMP 2.0.2 bug begin */
                     if (mpf_sgn (mpc_Re (p->mfpc[i])) !=
                         mpq_sgn (p->initial_mqp_r[i]))
                       mpf_neg (mpc_Re (p->mfpc[i]), mpc_Re (p->mfpc[i]));
                     /* GMP bug end */
-                    break;
-                  case 'b':    /* big float */
-                    break;      /* nothing to do */
-                  case 'f':    /* float */
-                    /* real case
-                       mpc_set_d(mfpc[i], fpr[i], 0.0);
-                     */
-                    break;
-                  default:
-                    mps_error (s, 1, "Mistake in goal");
-                    break;
-                  }
-                break;
-              case 'c':        /* complex */
-                switch (s->data_type[2])
-                  {
-                  case 'i':    /* integer */
-                  case 'q':    /* rational */
+		  }
+	      }
+	    else if (MPS_INPUT_CONFIG_IS_COMPLEX (s->input_config))
+	      {
+		if (MPS_INPUT_CONFIG_IS_INTEGER (s->input_config) ||
+		    MPS_INPUT_CONFIG_IS_RATIONAL (s->input_config))
+		  {
                     mpc_set_q (p->mfpc[i], p->initial_mqp_r[i], p->initial_mqp_i[i]);
                     /* GMP 2.0.2 bug begin */
                     if (mpf_sgn (mpc_Re (p->mfpc[i])) !=
@@ -200,24 +188,13 @@ mps_raise_data (mps_status * s, long int prec)
                         mpq_sgn (p->initial_mqp_i[i]))
                       mpf_neg (mpc_Im (p->mfpc[i]), mpc_Im (p->mfpc[i]));
                     /* GMP bug end */
-                    break;
-                  case 'b':    /* big float */
-                    break;      /* nothing to do */
-                  case 'f':    /* float */
-                    /* real case
-                       mpc_set_cplx(mfpc[i], fpc[i]);
-                     */
-                    break;
-                  default:
-                    mps_error (s, 1, "Mistake in goal");
-                    break;
-                  }
+		  }
               }
           }
     }
 
   /* Raise the precision of p' */
-  if (s->data_type[0] == 's')
+  if (MPS_INPUT_CONFIG_IS_SPARSE (s->input_config))
     for (k = 0; k < s->n; k++)
       if (p->spar[k + 1])
         {
@@ -232,7 +209,7 @@ mps_raise_data (mps_status * s, long int prec)
       mpc_set_prec (s->mfppc1[k], prec);
     }
 
-  if (s->data_type[0] == 's')
+  if (MPS_INPUT_CONFIG_IS_SPARSE (s->input_config))
     for (k = 0; k < (s->n + 1) * s->n_threads; k++)
       mpc_set_prec (s->mfpc2[k], prec);
 
@@ -257,12 +234,12 @@ mps_raise_data_raw (mps_status * s, long int prec)
     mpc_set_prec_raw (s->mroot[k], prec);
 
   /* raise the precision of  mfpc */
-  if (s->data_type[0] != 'u')
+  if (!MPS_INPUT_CONFIG_IS_USER (s->input_config))
     for (k = 0; k < s->n + 1; k++)
       mpc_set_prec_raw (p->mfpc[k], prec);
 
   /* Raise the precision of sparse vectors */
-  if (s->data_type[0] == 's')
+  if (MPS_INPUT_CONFIG_IS_SPARSE (s->input_config))
     for (k = 0; k < s->n; k++)
       if (p->spar[k + 1])
         mpc_set_prec_raw (p->mfppc[k], prec);
@@ -274,7 +251,7 @@ mps_raise_data_raw (mps_status * s, long int prec)
       mpc_set_prec_raw (s->mfppc1[k], prec);
     }
 
-  if (s->data_type[0] == 's')
+  if (MPS_INPUT_CONFIG_IS_SPARSE (s->input_config))
     for (k = 0; k < (s->n + 1) * s->n_threads; k++)
       mpc_set_prec_raw (s->mfpc2[k], prec);
 }

@@ -308,7 +308,7 @@ mps_fstart (mps_status * s, int n, mps_cluster_item * cluster_item,
 
   /* In the case of user-defined polynomial choose as starting
    * approximations equally spaced points in the unit circle.  */
-  if (s->data_type[0] == 'u')
+  if (MPS_INPUT_CONFIG_IS_USER (s->input_config))
     {
       if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
 	MPS_DEBUG (s, "User polynomial is provided, so not using Newton polygon");
@@ -602,7 +602,7 @@ mps_dstart (mps_status * s, int n, mps_cluster_item * cluster_item,
 
   /* In the case of user-defined polynomial choose as starting
    * approximations equispaced points in the unit circle. */
-  if (s->data_type[0] == 'u')
+  if (MPS_INPUT_CONFIG_IS_USER (s->input_config))
     {
       ang = pi2 / n;
       for (i = 0; i < n; i++)
@@ -1102,7 +1102,7 @@ mps_frestart (mps_status * s)
   mps_root * root;
 
   /* For user's polynomials skip the restart stage (not yet implemented) */
-  if (s->data_type[0] == 'u')
+  if (MPS_INPUT_CONFIG_IS_USER (s->input_config))
     return;
 
   /* scan the existing clusters and  select the ones where shift in
@@ -1291,7 +1291,7 @@ mps_drestart (mps_status * s)
   mps_root * root;
 
   /*  For user's polynomials skip the restart stage (not yet implemented) */
-  if (s->data_type[0] == 'u')
+  if (MPS_INPUT_CONFIG_IS_USER (s->input_config))
     return;
 
   for (c_item = s->clusterization->first; c_item != NULL; c_item = c_item->next)
@@ -1452,7 +1452,7 @@ mps_mrestart (mps_status * s)
   mps_root * root;
 
   /* For user's polynomials skip the restart stage (not yet implemented) */
-  if (s->data_type[0] == 'u')
+  if (MPS_INPUT_CONFIG_IS_USER (s->input_config))
     return;
 
   mpf_init2 (rea, s->mpwp);
@@ -1591,7 +1591,7 @@ mps_mrestart (mps_status * s)
         }
 
       /* create the vectors needed if the polynomial is sparse */
-      if (s->data_type[0] == 's')
+      if (MPS_INPUT_CONFIG_IS_SPARSE (s->input_config))
         {
           for (j = 0; j < s->n - cluster->n + 2; j++)
             {
@@ -1973,7 +1973,7 @@ mps_mnewtis (mps_status * s)
   mps_root * root;
 
   /* For user's polynomials skip the restart stage (not yet implemented) */
-  if (s->data_type[0] == 'u')
+  if (MPS_INPUT_CONFIG_IS_USER (s->input_config))
     return;
   mpf_init2 (rea, s->mpwp);
   mpf_init2 (srmp, s->mpwp);

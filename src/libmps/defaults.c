@@ -62,7 +62,6 @@ mps_set_default_values (mps_status * s)
   /* polynomial data - shared variables */
   s->input_config->prec = -1;              /* number of digits of input precision */
   /*   override input file if != -1      */
-  s->data_type = NULL;          /* stores the input data type          */
   /* s->spar = NULL;               /\* sparsity structure of polynomial    *\/ */
   /* s->fpr = NULL;                /\* standard real coefficients          *\/ */
   /* s->fpc = NULL;                /\* standard complex coefficients       *\/ */

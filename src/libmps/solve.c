@@ -507,7 +507,7 @@ mps_fsolve (mps_status * s, mps_boolean * d_after_f)
 
               /* If the polynomial is not given in terms of its coeff. then
                * skip the restart stage */
-              if (s->data_type[0] != 'u')
+              if (!MPS_INPUT_CONFIG_IS_USER (s->input_config))
                 {
                   /* choose new starting approximations only for new clusters */
                   if (s->DOLOG)
@@ -636,7 +636,7 @@ mps_fpolzer (mps_status * s, int *it, mps_boolean * excep)
             {
               (*it)++;
               rad1 = s->frad[i];
-              if (s->data_type[0] != 'u')
+              if (!MPS_INPUT_CONFIG_IS_USER (s->input_config))
                 {
                   mps_fnewton (s, s->n, s->froot[i], &s->frad[i], corr,
                                p->fpc, p->fap, &s->again[i], true);
@@ -666,7 +666,7 @@ mps_fpolzer (mps_status * s, int *it, mps_boolean * excep)
 
               if (s->again[i] ||
                   /* the correction is performed only if iter!=1 or rad(i)!=rad1 */
-                  s->data_type[0] == 'u' || iter != 0 || s->frad[i] != rad1)
+                  MPS_INPUT_CONFIG_IS_USER (s->input_config) || iter != 0 || s->frad[i] != rad1)
                 {
                   mps_faberth (s, i, abcorr);
                   cplx_mul_eq (abcorr, corr);
@@ -727,7 +727,7 @@ mps_dpolzer (mps_status * s, int *it, mps_boolean * excep)
             {
               (*it)++;
               rdpe_set (rad1, s->drad[i]);
-              if (s->data_type[0] != 'u')
+              if (!MPS_INPUT_CONFIG_IS_USER (s->input_config))
                 {
                   mps_dnewton (s, s->n, s->droot[i], s->drad[i], corr, p->dpc,
                                p->dap, &s->again[i], false);
@@ -757,7 +757,7 @@ mps_dpolzer (mps_status * s, int *it, mps_boolean * excep)
 
               if (s->again[i] ||
                   /* the correction is performed only if iter!=1 or rad(i)!=rad1 */
-                  s->data_type[0] == 'u' || iter != 0
+                  MPS_INPUT_CONFIG_IS_USER (s->input_config) || iter != 0
                   || rdpe_ne (s->drad[i], rad1))
                 {
                   mps_daberth (s, i, abcorr);
@@ -889,7 +889,7 @@ mps_dsolve (mps_status * s, mps_boolean d_after_f)
 
               /* If the polynomial is not given in terms of its
                * coeff. then skip the restart stage */
-              if (s->data_type[0] != 'u')
+              if (!MPS_INPUT_CONFIG_IS_USER (s->input_config))
                 {
                   /* choose new starting approximations only for new clusters */
                   if (s->DOLOG)
@@ -973,7 +973,7 @@ mps_msolve (mps_status * s)
 
   if (s->DOLOG)
     fprintf (s->logstr, "  MSOLVE: call restart\n");
-  if (s->data_type[0] != 'u')
+  if (!MPS_INPUT_CONFIG_IS_USER (s->input_config))
     mps_mrestart (s);
   if (s->DOLOG)
     fprintf (s->logstr, "  MSOLVE: call update1\n");
@@ -1134,7 +1134,7 @@ mps_msolve (mps_status * s)
                 }
               /* If the polynomial is not given in terms of its coeff. then
                * skip the restart stage */
-              if (s->data_type[0] != 'u')
+              if (!MPS_INPUT_CONFIG_IS_USER (s->input_config))
                 {
                   /* choose new starting approximations only for new clusters */
                   if (s->DOLOG)
@@ -1306,7 +1306,7 @@ mps_mpolzer (mps_status * s, int *it, mps_boolean * excep)
               if (s->again[l])
                 {
                   (*it)++;
-                  if (s->data_type[0] != 'u')
+                  if (!MPS_INPUT_CONFIG_IS_USER (s->input_config))
                     {
                       /* sparse/dense polynomial */
                       rdpe_set (rad1, s->drad[l]);
@@ -1341,7 +1341,7 @@ mps_mpolzer (mps_status * s, int *it, mps_boolean * excep)
 
                   if (s->again[l] ||
                       /* the correction is performed only if iter!=1 or rad[l]!=rad1 */
-                      s->data_type[0] == 'u' || iter != 0
+                      MPS_INPUT_CONFIG_IS_USER (s->input_config) || iter != 0
                       || rdpe_ne (s->drad[l], rad1))
                     {
                       mps_maberth_s (s, l, cluster, abcorr);

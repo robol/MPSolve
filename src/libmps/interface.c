@@ -80,7 +80,6 @@ mps_status_select_algorithm (mps_status * s, mps_algorithm algorithm)
       break;
 
     case MPS_ALGORITHM_SECULAR_MPSOLVE:
-      s->data_type = strdup ("uri");
 
       /* Set custom routines for newton quotient computation */
       s->fnewton_usr = MPS_FNEWTON_PTR (mps_secular_fnewton);
@@ -149,13 +148,14 @@ mps_status_init (mps_status * s)
   s->output_config = (mps_output_configuration *) mps_malloc (sizeof (mps_output_configuration));
 
   mps_set_default_values (s);
-
   /* Set standard precision */
   s->output_config->prec = (int) (0.9 * DBL_DIG * LOG2_10);
   MPS_DEBUG (s, "Setting prec_out to %ld digits", s->output_config->prec);
   s->input_config->prec = 0;
 
   mps_mp_set_prec (s, DBL_DIG * LOG2_10 + 1);
+
+  s->initialized = false;
 }
 
 /**
@@ -166,7 +166,8 @@ mps_status_init (mps_status * s)
 void
 mps_status_free (mps_status * s)
 {
-  mps_free_data (s);
+  if (s->initialized)
+    mps_free_data (s);
 
   free (s->input_config);
   free (s->output_config);
@@ -176,8 +177,6 @@ mps_status_free (mps_status * s)
     mps_monomial_poly_free (s, s->monomial_poly);
   if (s->secular_equation)
     mps_secular_equation_free (s->secular_equation);
-
-  free (s->data_type);
 
   /* Close input and output streams if they're not stdin, stdout and
    * stderr */
@@ -230,9 +229,6 @@ mps_status_set_poly_u (mps_status * s, int n, mps_fnewton_ptr fnewton,
 
   /* Set degree and allocate data */
   mps_status_set_degree (s, n);
-
-  /* TODO: Apart from u, what should be set here? */
-  s->data_type = strdup ("uri");
 
   /* Set functions */
   s->fnewton_usr = fnewton;
@@ -317,9 +313,6 @@ mps_status_set_poly_d (mps_status * s, cplx_t * coeff, long unsigned int n)
   /* Allocate space for a polynomial of degree n */
   mps_monomial_poly * p = mps_monomial_poly_new (s, n);
 
-  /* Set type to a dense, real, floating point polynomial */
-  s->data_type = strdup ("dcf");
-
   /* Fill polynomial coefficients */
   for (i = 0; i <= n; i++)
     {
@@ -349,9 +342,6 @@ mps_status_set_poly_i (mps_status * s, int *coeff, long unsigned int n)
 
   /* Allocate data in mps_status to hold the polynomial of degree n */
   mps_monomial_poly * p = mps_monomial_poly_new (s, n);
-
-  /* Dense, real, integer coefficients */
-  s->data_type = strdup ("drq");
 
   /* Fill polynomial */
   for (i = 0; i <= n; i++)

@@ -90,6 +90,8 @@ extern "C"
     mps_boolean resume;         /* to complete                         */
     mps_boolean chkrad;         /* check radii after completion        */
 
+    mps_boolean initialized;
+
     /**
      * @brief Byte containing the flags of debug enabled.
      */
@@ -223,27 +225,8 @@ extern "C"
      */
     int deg;
 
-    /**
-     * @brief stores the input data type
-     *
-     * The value of <code>data_type[0]</code> can be:
-     * - <code>'s'</code> if the input is a sparse polynomial;
-     * - <code>'u'</code> if the input is a user polynomial;
-     * - <code>'d'</code> if the input is a dense polybomial;
-     *
-     * while the value of <code>data_type[1]</code> can be:
-     * - <code>'r'</code> if the coefficients are real;
-     * - <code>'c'</code> if the coefficents are complex;
-     *
-     * and finally <code>data_type[2]</code> can assume the following values:
-     * - <code>'i'</code> means integer coefficients;
-     * - <code>'q'</code> means rationa cofficients;
-     * - <code>'b'</code> means bigfloat coefficents;
-     * - <code>'f'</code> means floating point coefficients;
-     */
-    char * data_type;
-
     /* Solution related variables */
+
     /**
      * @brief Last computing phase.
      */
@@ -265,41 +248,24 @@ extern "C"
     /**
      * @brief Number of zero roots.
      */
-    int zero_roots;             /* number of roots = 0                 */
+    int zero_roots;
 
     /**
-     * @brief Status of each approximation
-     *
-     * <code>status</code> is an array of char arrays
-     * composed of three elements. For every <code>i</code>:
-     * - <code>status[i][0]</code> can assume the values:
-     *   - <code>m</code>: multiple root;
-     *   - <code>i</code>: isolated root;
-     *   - <code>a</code>: approximated single root (relative error
-     *     is less then \f$ 10^{-d_{out}} \f$);
-     *   - <code>o</code>: approximated cluster of roots (relative
-     *     error is less than \f$ 10^{-d_{out}} \f$);
-     *   - <code>c</code>: cluster of roots not yet approximated (relative
-     *     error is greater than \f$ 10^{-d_{out}} \f$);
-     *   - <code>f</code>: radius has reached the extreme values representable as <code>rdpe_t</code>;
-     *   - <code>x</code>: this root cannot be represented as a <code>double</code>, i.e. it
-     *     is <code>< DBL_MIN</code> or <code>> DBL_MAX</code>;
-     * - <code>status[i][1]</code> can assume the values:
-     *   - <code>R</code>: real root;
-     *   - <code>r</code>: non real root;
-     *   - <code>I</code>: imaginary root;
-     *   - <code>i</code>: non imaginary root;
-     *   - <code>w</code>: uncertain real/imaginary root;
-     *   - <code>z</code>: non real and non imaginary root;
-     * - <code>status[i][2]</code> can assume the values:
-     *   - <code>i</code>: root in \f$ \mathcal{S} \f$;
-     *   - <code>o</code>: root out of \f$ \mathcal{S} \f$;
-     *   - <code>u</code>: root uncertain;
+     * @brief Status of approximation of a root. 
      */
-    /* char (*status)[3];          /\* status of each approximation        *\/ */
-
     mps_root_status    * root_status;
+
+    /**
+     * @brief Array containing attributes that have been set on
+     * the roots.
+     */
     mps_root_attrs     * root_attrs;
+
+    /**
+     * @brief Array containing the inclusion status of the root
+     * in the target set specified in the field
+     * <code>input_config->search_set</code>.
+     */
     mps_root_inclusion * root_inclusion;
 
     /**
@@ -372,52 +338,16 @@ extern "C"
      */
     double sep;
 
+    /**
+     * @brief Clusterization object that represent the clusterization
+     * detected on the roots.
+     *
+     * This value is updated with the <code>mps_*cluster</code>
+     * routines.
+     *
+     * @see mps_fcluster(), mps_dcluster(), mps_mcluster()
+     */
     mps_clusterization * clusterization;
-
-    /* /\** */
-    /*  * @brief Number of active clusters. */
-    /*  *\/ */
-    /* int nclust; */
-
-    /* /\** */
-    /*  * @brief This <code>int</code> array keep information about */
-    /*  * semi-converged roots that were removed by a cluster to */
-    /*  * improve convergence speed. */
-    /*  * */
-    /*  * If <code>s->clust_detached[i]</code> */
-    /*  * is not zero, than the <b>unique</b> root in the <code>i</code>-th */
-    /*  * cluster has been detached by the cluster whose index is the value */
-    /*  * of <code>s->clust_detached</code>. */
-    /*  *\/ */
-    /* int *clust_detached; */
-
-    /* /\** */
-    /*  * @brief indices of cluster components */
-    /*  * */
-    /*  * <code>clust</code> is an integer array containing the indexes */
-    /*  * of roots in every cluster. */
-    /*  * */
-    /*  * The indexes of the <code>j+1</code>th cluster are */
-    /*  * <code>clust[punt[j] : punt[j+1]]</code>. */
-    /*  * */
-    /*  * @see punt */
-    /*  *\/ */
-    /* int *clust; */
-
-    /* /\** */
-    /*  * @brief begginning of each cluster */
-    /*  * */
-    /*  * <code>punt</code> is a vector of <code>nclust + 1</code> integers; */
-    /*  * */
-    /*  * For every <code>i</code> <code>punt[i]</code> is the index in */
-    /*  * the integer vector <code>clust</code> corresponding to the first */
-    /*  * index of a cluster, i.e. the (j+1)-th cluster of roots is composed by */
-    /*  * roots indexed on <code>clust[p[j] : p[j+1]]</code>. */
-    /*  * */
-    /*  * @see nclust */
-    /*  * @see clust */
-    /*  *\/ */
-    /* int *punt; */
 
     /**
      * @brief Array containing working precisions used for each root.
@@ -429,11 +359,6 @@ extern "C"
      * the i-th root needs more iterations.
      */
     mps_boolean *again;
-
-    /* /\** */
-    /*  * @brief Array containing standard complex coefficients */
-    /*  *\/ */
-    /* cplx_t *fppc; */
 
     /**
      * @brief Standard complex coefficients of the polynomial.

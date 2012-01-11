@@ -314,11 +314,6 @@ mps_secular_ga_mpsolve (mps_status * s)
    * to allow initializitation to be performed. */
   s->deg = s->n = sec->n;
 
-  if (MPS_INPUT_CONFIG_IS_SECULAR (s->input_config))
-    s->data_type = strdup ("uri");
-  else if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
-    s->data_type = strdup ("dri");
-
   /* Manually set FILE* pointer for streams.
    * More refined options will be added later. */
   s->outstr = s->rtstr = stdout;

@@ -59,13 +59,13 @@ extern "C" {
     char *value;
   };
 
-
   /* STRUCTURES truth tables */
-  const static short int mps_rational_structures[] = { 0, 1, 0, 0, 1, 0 };
-  const static short int mps_integer_structures[] = { 1, 0, 0, 1, 0, 0 };
-  const static short int mps_fp_structures[] = { 0, 0, 1, 0, 0, 1 };
-  const static short int mps_real_structures[] = { 1, 1, 1, 0, 0, 0 };
-  const static short int mps_complex_structures[] = { 0, 0, 0, 1, 1, 1 };
+  const static short int mps_rational_structures[] = { 0, 1, 0, 0, 0, 1, 0, 0 };
+  const static short int mps_integer_structures[] = { 1, 0, 0, 0, 1, 0, 0, 0};
+  const static short int mps_fp_structures[] = { 0, 0, 1, 0, 0, 0, 1, 0 };
+  const static short int mps_real_structures[] = { 1, 1, 1, 1, 0, 0, 0, 0  };
+  const static short int mps_complex_structures[] = { 0, 0, 0, 0, 1, 1, 1, 1 };
+  const static short int mps_bigfloat_structures[] = { 0, 0, 0, 1, 0, 0, 0, 1 };
 
   /* STRUCTURE related macros */
 #define MPS_INPUT_CONFIG_IS_RATIONAL(x) (mps_rational_structures[(x)->structure])

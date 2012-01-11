@@ -88,7 +88,7 @@ mps_standard_mpsolve (mps_status * s)
   d_after_f = false;
 
   /* Check if a dpe phase is needed and deflate polynomial */
-  if (s->data_type[0] != 'u')
+  if (!MPS_INPUT_CONFIG_IS_USER (s->input_config))
     {
       mps_check_data (s, &which_case);
     }
@@ -286,7 +286,7 @@ mps_setup (mps_status * s)
   if (s->DOLOG)
     {
       /* fprintf (s->logstr, "Goal      = %5s\n", s->goal); */
-      fprintf (s->logstr, "Data type = %3s\n", s->data_type);
+      /* fprintf (s->logstr, "Data type = %3s\n", s->data_type); */
       fprintf (s->logstr, "Degree    = %d\n", s->n);
       fprintf (s->logstr, "Input prec.  = %ld digits\n", (long) (s->input_config->prec
                                                                  * LOG10_2));
@@ -295,7 +295,7 @@ mps_setup (mps_status * s)
     }
 
   /* setup temporary vectors */
-   if (s->data_type[0] == 's') 
+   if (MPS_INPUT_CONFIG_IS_SPARSE (s->input_config)) 
      for (i = 0; i <= s->n; i++) 
        { 
          p->fap[i] = 0.0;
@@ -331,7 +331,7 @@ mps_setup (mps_status * s)
   s->count[0] = s->count[1] = s->count[2] = 0;
 
   /* compute DPE approximations */
-  if (s->data_type[0] == 'u')
+  if (MPS_INPUT_CONFIG_IS_USER (s->input_config))
     return;                     /* nothing to do */
 
   /* init temporary mp variables */
@@ -343,31 +343,25 @@ mps_setup (mps_status * s)
   for (i = 0; i <= s->n; i++)
     {
 
-      if (s->data_type[0] == 's' && !p->spar[i])
+      if (MPS_INPUT_CONFIG_IS_SPARSE (s->input_config) && !p->spar[i])
         continue;
 
-      switch (s->data_type[1])
-        {                       /* switch 1 */
-
-        case 'r':              /* Real */
-          switch (s->data_type[2])
-            {                   /* switch 2 */
-
-            case 'i':          /* Real - Integer Coefs */
-            case 'q':          /* Real - Rational Coefs */
+      if (MPS_INPUT_CONFIG_IS_REAL (s->input_config))
+	{
+	  if (MPS_INPUT_CONFIG_IS_RATIONAL (s->input_config) ||
+	      MPS_INPUT_CONFIG_IS_INTEGER (s->input_config))
+	    {
               mpf_set_q (mptemp, p->initial_mqp_r[i]);
               mpf_get_rdpe (p->dpr[i], mptemp);
               /*#G GMP 2.0.2 bug begin */
               if (rdpe_sgn (p->dpr[i]) != mpq_sgn (p->initial_mqp_r[i]))
                 rdpe_neg_eq (p->dpr[i]);
               /*#G GMP bug end */
-              break;
+	    }
 
-            case 'f':          /* Real - Big/Float Coefs */
+	  if (MPS_INPUT_CONFIG_IS_FP (s->input_config))
               mpf_get_rdpe (p->dpr[i], p->mfpr[i]);
-              break;
-            }                   /* switch 2 */
-
+	  
           cdpe_set_e (p->dpc[i], p->dpr[i], rdpe_zero);
 
           /* compute dap[i] and check for float phase */
@@ -377,16 +371,13 @@ mps_setup (mps_status * s)
               || rdpe_lt (p->dap[i], rdpe_mind))
             s->skip_float = true;
 
-          break;                /* switch 1 */
-
-        case 'c':              /* Complex */
-
-          switch (s->data_type[2])
-            {                   /* switch 3 */
-
-            case 'i':          /* Complex - Integer Coefs */
-            case 'q':          /* Complex - Rational Coefs */
-              mpc_set_q (mptempc, p->initial_mqp_r[i], p->initial_mqp_i[i]);
+	}
+      else if (MPS_INPUT_CONFIG_IS_COMPLEX (s->input_config))
+	{
+	  if (MPS_INPUT_CONFIG_IS_RATIONAL (s->input_config) ||
+	      MPS_INPUT_CONFIG_IS_INTEGER (s->input_config))
+	    {
+	      mpc_set_q (mptempc, p->initial_mqp_r[i], p->initial_mqp_i[i]);
               mpc_get_cdpe (p->dpc[i], mptempc);
               /*#G GMP 2.0.2 bug begin */
               if (rdpe_sgn (cdpe_Re (p->dpc[i])) != mpq_sgn (p->initial_mqp_r[i]))
@@ -394,40 +385,35 @@ mps_setup (mps_status * s)
               if (rdpe_sgn (cdpe_Im (p->dpc[i])) != mpq_sgn (p->initial_mqp_i[i]))
                 rdpe_neg_eq (cdpe_Im (p->dpc[i]));
               /*#G GMP bug end */
-              break;
-
-            case 'f':          /* Complex - Big/Float Coefs */
+	    }
+	  else if (MPS_INPUT_CONFIG_IS_FP (s->input_config))
               mpc_get_cdpe (p->dpc[i], p->mfpc[i]);
-              break;
-
-            }                   /* switch 3 */
-
+	  
           /* compute dap[i] */
           cdpe_mod (p->dap[i], p->dpc[i]);
           if (rdpe_gt (p->dap[i], rdpe_maxd)
               || rdpe_lt (p->dap[i], rdpe_mind))
             s->skip_float = true;
-
-          break;
-
-        }                       /* switch 1 */
-    }                           /* for */
+	  
+        }
+    }
 
   /* free temporary mp variables */
   mpf_clear (mptemp);
   mpc_clear (mptempc);
 
   /* adjust input data type */
-  if (s->data_type[2] == 'f' && s->skip_float)
-    s->data_type[2] = 'b';
+  if (MPS_INPUT_CONFIG_IS_FP (s->input_config) && s->skip_float)
+    s->input_config->structure = MPS_INPUT_CONFIG_IS_REAL (s->input_config) ? 
+      MPS_STRUCTURE_REAL_BIGFLOAT : MPS_STRUCTURE_COMPLEX_BIGFLOAT;
 
   /* prepare floating point vectors */
   if (!s->skip_float)
     for (i = 0; i <= p->n; i++)
       {
-        if (s->data_type[0] == 's' || !p->spar[i])
+        if (MPS_INPUT_CONFIG_IS_SPARSE (s->input_config) || !p->spar[i])
           continue;
-        if (s->data_type[1] == 'r')
+        if (MPS_INPUT_CONFIG_IS_REAL (s->input_config))
           {
             p->fpr[i] = rdpe_get_d (p->dpr[i]);
             p->fap[i] = fabs (p->fpr[i]);
@@ -464,7 +450,7 @@ mps_check_data (mps_status * s, char *which_case)
   int i;
 
   /* case of user-defined polynomial */
-  if (s->data_type[0] == 'u')
+  if (MPS_INPUT_CONFIG_IS_USER (s->input_config))
     {
       if (s->output_config->multiplicity)
         mps_error (s, 1,
@@ -526,43 +512,47 @@ mps_check_data (mps_status * s, char *which_case)
 
   /*  Multiplicity and sep */
   if (s->output_config->multiplicity)
-    switch (s->data_type[2])
+    {
+    if (MPS_INPUT_CONFIG_IS_INTEGER (s->input_config))
       {
-      case 'i':
         mps_compute_sep (s);
-        break;
-      case 'q':
+      }
+    else if (MPS_INPUT_CONFIG_IS_RATIONAL (s->input_config))
+      {
         mps_warn (s, "The multiplicity option has not been yet implemented");
         s->sep = 0.0;
-        break;
-      default:
+      }
+    else 
+      {
         mps_warn (s, "The input polynomial has neither integer nor rational");
         mps_warn (s, " coefficients: unable to compute multiplicities");
         s->sep = 0.0;
-        break;
       }
+    }
 
   /* Real/Imaginary detection */
   if (s->output_config->root_properties || 
       s->output_config->search_set == MPS_SEARCH_SET_REAL || 
       s->output_config->search_set == MPS_SEARCH_SET_IMAG)
-    switch (s->data_type[2])
-      {
-      case 'i':
-        mps_compute_sep (s);
-        break;
-      case 'q':
-        mps_warn (s,
-                  "The  real/imaginary option has not been yet implemented");
-        s->sep = 0.0;
-        break;
-      default:
-        mps_warn (s, "The input polynomial has neither integer nor rational");
-        mps_warn (s,
-                  " coefficients: unable to perform real/imaginary options");
-        s->sep = 0.0;
-        break;
-      }
+    {
+      if (MPS_INPUT_CONFIG_IS_INTEGER (s->input_config))
+	{
+	  mps_compute_sep (s);
+	}
+      else if (MPS_INPUT_CONFIG_IS_RATIONAL (s->input_config))
+	{
+	  mps_warn (s,
+		    "The  real/imaginary option has not been yet implemented");
+	  s->sep = 0.0;
+	}
+      else
+	{
+	  mps_warn (s, "The input polynomial has neither integer nor rational");
+	  mps_warn (s,
+		    " coefficients: unable to perform real/imaginary options");
+	  s->sep = 0.0;
+	}
+    }
 
   /* Select cases (dpe or floating point)
    * First normalize the polynomial (only the float version) */
@@ -583,7 +573,7 @@ mps_check_data (mps_status * s, char *which_case)
         {
           rdpe_mul (tmp, p->dap[i], min_coeff);
           p->fap[i] = rdpe_get_d (tmp);
-          if (s->data_type[1] == 'c')
+          if (MPS_INPUT_CONFIG_IS_COMPLEX (s->input_config))
             {
               cdpe_mul_e (ctmp, p->dpc[i], min_coeff);
               cdpe_get_x (p->fpc[i], ctmp);

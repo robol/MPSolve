@@ -18,11 +18,15 @@
 #ifdef __cplusplus
 extern "C"
 {
+#undef __cplusplus
+#include <gmp.h>
+#define __cplusplus
+#else
+#include <gmp.h>
 #endif
 
 /* needed header files */
 #include <stdio.h>
-#include <gmp.h>
 
 
 /**********************************************

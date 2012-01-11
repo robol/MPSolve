@@ -1,7 +1,5 @@
 mps_roots.o:
-	$(MKOCTFILE) -I${top_srcdir}/include -DNOMPTEMP -DDISABLE_DEBUG \
-	-D__UNDEF_CPLUSPLUS -D__USE_BOOL_AS_BOOLEAN \
-	-c -o mps_roots.o ${srcdir}/mps_roots.cc
+	$(MKOCTFILE) -I${top_srcdir}/include -c -o mps_roots.o ${srcdir}/mps_roots.cc
 
 noinst_PROGRAMS = $(OCTAVE_MODULES_PROGRAMS)
 

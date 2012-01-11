@@ -451,7 +451,7 @@ mps_mnewton (mps_status * s, int n, mpc_t z, rdpe_t radius, mpc_t corr,
   mpc_init2 (p1, s->mpwp);
 
   rdpe_mul_d (ep, s->mp_epsilon, (double) (n * 4));
-  if (s->data_type[0] == 's')
+  if (MPS_INPUT_CONFIG_IS_SPARSE (s->input_config))
     {				/* case of sparse polynomial */
       n1 = n + 1;
       n2 = n;

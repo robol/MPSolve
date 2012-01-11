@@ -50,7 +50,7 @@ mps_thread_fpolzer_worker (void *data_ptr)
           cplx_set (froot, s->froot[i]);
           pthread_mutex_unlock (&data->aberth_mutex[i]);
 
-          if (s->data_type[0] != 'u')
+          if (!MPS_INPUT_CONFIG_IS_USER (s->input_config))
             {
               mps_fnewton (s, s->n, froot, &s->frad[i], corr, p->fpc, p->fap,
                            &s->again[i], false);
@@ -77,7 +77,7 @@ mps_thread_fpolzer_worker (void *data_ptr)
 
           if (s->again[i] ||
               /* the correction is performed only if iter!=1 or rad(i)!=rad1 */
-              s->data_type[0] == 'u' || iter != 0 || s->frad[i] != rad1)
+              MPS_INPUT_CONFIG_IS_USER (s->input_config) || iter != 0 || s->frad[i] != rad1)
             {
               mps_faberth (s, i, abcorr);
 
@@ -226,7 +226,7 @@ mps_thread_dpolzer_worker (void *data_ptr)
           (*data->it)++;
           rdpe_set (rad1, s->drad[i]);
 
-          if (s->data_type[0] != 'u')
+          if (!MPS_INPUT_CONFIG_IS_USER (s->input_config))
             {
               mps_dnewton (s, s->n, s->droot[i], s->drad[i], corr, p->dpc,
                            p->dap, &s->again[i], false);
@@ -256,7 +256,7 @@ mps_thread_dpolzer_worker (void *data_ptr)
 
           if (s->again[i] ||
               /* the correction is performed only if iter!=1 or rad(i)!=rad1 */
-              s->data_type[0] == 'u' || iter != 0
+              MPS_INPUT_CONFIG_IS_USER (s->input_config) || iter != 0
               || rdpe_ne (s->drad[i], rad1))
             {
               mps_daberth (s, i, abcorr);
@@ -420,7 +420,7 @@ mps_thread_mpolzer_worker (void *data_ptr)
           mpc_set (mroot, s->mroot[l]);
           pthread_mutex_unlock (&data->aberth_mutex[l]);
 
-          if (s->data_type[0] != 'u')
+          if (!MPS_INPUT_CONFIG_IS_USER (s->input_config))
             {
               /* sparse/dense polynomial */
               rdpe_set (rad1, s->drad[l]);
@@ -452,7 +452,7 @@ mps_thread_mpolzer_worker (void *data_ptr)
 
           if (s->again[l] ||
               /* the correction is performed only if iter!=1 or rad[l]!=rad1 */
-              s->data_type[0] == 'u' || iter != 0
+              MPS_INPUT_CONFIG_IS_USER (s->input_config) || iter != 0
               || rdpe_ne (s->drad[l], rad1))
             {
               /* Global lock to aberth step to reach a real Gauss-Seidel iteration */

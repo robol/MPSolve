@@ -102,7 +102,7 @@ mps_improve (mps_status * s)
   mpc_init2 (mtmp, mpnb_out * 2);      /* puo' essere settato a precisione minima */
   mpc_init2 (nwtcorr, mpnb_out * 2);
 
-  if (s->input_config->prec != 0 && s->data_type[0] != 'u')
+  if (s->input_config->prec != 0 && !MPS_INPUT_CONFIG_IS_USER (s->input_config))
     mps_prepare_data (s, mpnb_in);
   else
     {
@@ -133,7 +133,7 @@ mps_improve (mps_status * s)
        * otherwise set t=5*n*rad[i] since the root is Newton-isolated.
        * This allows us to remove an O(n^2) complexity  */
 
-      if (s->data_type[0] == 's')
+      if (MPS_INPUT_CONFIG_IS_SPARSE (s->input_config))
         rdpe_mul_d (t, s->drad[i], 5.0 * s->n);
       else
         {

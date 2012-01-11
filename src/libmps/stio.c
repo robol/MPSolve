@@ -640,10 +640,6 @@ mps_parse_stream_old (mps_status * s, mps_input_buffer * buffer)
       break;
     }
 
-  /* For backward temporary compatibility with the old MPSolve routines
-   * that have not been migrated to the new API yet, we set data_type */
-  s->data_type = strdup (data_type);
-
   /* Read precision and degree */
   token = mps_input_buffer_next_token (buffer);
   if (!token || !sscanf (token, "%ld", &s->input_config->prec))
@@ -887,7 +883,7 @@ mps_parse_stream_old (mps_status * s, mps_input_buffer * buffer)
 	  cdpe_mod (poly->dap[i], poly->dpc[i]);
 	  poly->fap[i] = rdpe_get_d (poly->dap[i]);
 
-	  if (s->data_type[2] == 'f')
+	  if (MPS_INPUT_CONFIG_IS_FP (s->input_config))
 	    mpf_set (poly->mfpr[i], mpc_Re (poly->mfpc[i]));
 
 	  if (s->debug_level & MPS_DEBUG_IO)
@@ -903,7 +899,7 @@ mps_parse_stream_old (mps_status * s, mps_input_buffer * buffer)
 	  rdpe_set (poly->dap[i], rdpe_zero);
 	  poly->fap[i] = 0.0f;
 
-	  if (s->data_type[2] == 'f')
+	  if (MPS_INPUT_CONFIG_IS_FP (s->input_config))
 	    mpf_set (poly->mfpr[i], mpc_Re (poly->mfpc[i]));
 	}
 

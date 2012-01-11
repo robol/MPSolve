@@ -107,7 +107,7 @@ mps_monomial_poly_raise_precision (mps_status * s, mps_monomial_poly * mp, long 
   pthread_mutex_lock (&mp->regenerating);
 
   /* raise the precision of  mfpc */
-  if (s->data_type[0] != 'u')
+  if (!MPS_INPUT_CONFIG_IS_USER (s->input_config))
     for (k = 0; k < mp->n + 1; k++)
       {
 	pthread_mutex_lock (&mp->mfpc_mutex[k]); 
@@ -116,7 +116,7 @@ mps_monomial_poly_raise_precision (mps_status * s, mps_monomial_poly * mp, long 
       }
 
   /* Raise the precision of p' */
-  if (s->data_type[0] == 's')
+  if (MPS_INPUT_CONFIG_IS_SPARSE (s->input_config))
     for (k = 0; k < s->n; k++)
       if (mp->spar[k + 1])
         {
