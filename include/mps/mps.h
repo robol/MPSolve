@@ -22,11 +22,19 @@
 #ifndef MPS_CORE_H_
 #define MPS_CORE_H_
 
+#ifdef __cplusplus
+#define __MPS_NOT_DEFINE_BOOL
+#endif
+
+#ifdef __MPS_MATLAB_MODE
+#define __MPS_NOT_DEFINE_BOOL
+#endif
+
 /* String type used for some hacks */
 typedef const char * mps_string;
 
 /* Boolean type used in MPSolve */
-#ifndef __cplusplus
+#ifndef __MPS_NOT_DEFINE_BOOL
   typedef enum
   { false = 0, true = 1 } mps_boolean;
 #else
