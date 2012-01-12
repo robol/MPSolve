@@ -51,11 +51,14 @@ main (int argc, char **argv)
   s = mps_status_new ();
   p = mps_monomial_poly_new (s, n);
 
-  mps_monomial_poly_set_coefficient_q (s, p, 0, m_one, zero);
-  mps_monomial_poly_set_coefficient_q (s, p, n, one, zero);
+  mps_monomial_poly_set_coefficient_q (s, p, 0, m_one, zero); 
+  mps_monomial_poly_set_coefficient_q (s, p, n, one, zero); 
+
+  /* mps_monomial_poly_set_coefficient_d (s, p, 0, 1, 0); */
+  /* mps_monomial_poly_set_coefficient_d (s, p, n, -1, 0); */
 
   /* Set the input polynomial */
-  mps_status_set_input_poly (s, p, MPS_STRUCTURE_REAL_INTEGER);
+  mps_status_set_input_poly (s, p);
 
   /* Allocate space to hold the results. We check only floating point results
    * in here */

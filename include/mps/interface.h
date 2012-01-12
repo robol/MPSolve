@@ -137,7 +137,7 @@ extern "C"
   void mps_status_free (mps_status * s);
   int mps_status_set_poly_d (mps_status * s, cplx_t * coeff,
 			     long unsigned int n);
-  void mps_status_set_input_poly (mps_status * s, mps_monomial_poly * p, mps_structure structure);
+  void mps_status_set_input_poly (mps_status * s, mps_monomial_poly * p);
   int mps_status_set_poly_i (mps_status * s, int *coeff, long unsigned int n);
   int mps_status_get_roots_d (mps_status * s, cplx_t * roots, double *radius);
   int mps_status_set_poly_u (mps_status * s, int n, mps_fnewton_ptr fnewton,
@@ -148,6 +148,7 @@ extern "C"
   void mps_status_set_degree (mps_status * s, int n);
   int mps_status_get_roots_d (mps_status * s, cplx_t * roots, double *radius);
   int mps_status_get_roots_m (mps_status * s, mpc_t * roots, rdpe_t * radius);
+  int mps_status_get_degree (mps_status * s);
 
 #ifdef	__cplusplus
 }

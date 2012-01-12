@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <assert.h>
 
 /**
  * @brief Call the real polynomial (or secular equation, or whatever) solver
@@ -29,6 +30,13 @@ mps_mpsolve (mps_status * s)
 {
   (*s->mpsolve_ptr) (s);
   mps_copy_roots (s);
+}
+
+
+int 
+mps_status_get_degree (mps_status * s)
+{
+  return s->n;
 }
 
 /**
@@ -265,7 +273,7 @@ mps_status_set_degree (mps_status * s, int n)
  * What is set here will determine the fields of the poly that will be looked for data.
  */
 void
-mps_status_set_input_poly (mps_status * s, mps_monomial_poly * p, mps_structure structure)
+mps_status_set_input_poly (mps_status * s, mps_monomial_poly * p)
 {
   int i;
   s->monomial_poly = p;
@@ -275,7 +283,7 @@ mps_status_set_input_poly (mps_status * s, mps_monomial_poly * p, mps_structure 
   s->input_config->representation = MPS_REPRESENTATION_MONOMIAL;
 
   /* Set the mps_structure passed as input */
-  s->input_config->structure = structure;
+  s->input_config->structure = p->structure;
 
   /* Set the density or sparsity of the polynomial, if it's not
    * a user polynomial */
@@ -321,7 +329,7 @@ mps_status_set_poly_d (mps_status * s, cplx_t * coeff, long unsigned int n)
 					   cplx_Im (coeff[i]));
     }
 
-  mps_status_set_input_poly (s, p, MPS_STRUCTURE_COMPLEX_FP);
+  mps_status_set_input_poly (s, p);
   
   return 0;
 }
@@ -407,6 +415,7 @@ mps_status_get_roots_m (mps_status * s, mpc_t * roots, rdpe_t * radius)
 
   for (i = 0; i < s->n; i++)
     {
+      mpc_set_prec (roots[i], mpc_get_prec (s->mroot[i]));
       mpc_set (roots[i], s->mroot[i]);
       rdpe_set (radius[i], s->drad[i]);
     }

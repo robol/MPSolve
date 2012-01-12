@@ -1,5 +1,6 @@
 #include <mps/mps.h>
 #include <string.h>
+#include <assert.h>
 
 /**
  * @brief Return a newly allocated mps_monomial_poly of the given degree.
@@ -54,6 +55,8 @@ mps_monomial_poly_new (mps_status * s, long int degree)
   
   for (i = 0; i <= degree; i++)
     rdpe_set (mp->dap[i], rdpe_zero);
+
+  mp->structure = MPS_STRUCTURE_UNKNOWN;
 
   return mp;
 }
@@ -163,6 +166,18 @@ void
 mps_monomial_poly_set_coefficient_q (mps_status * s, mps_monomial_poly * mp, long int i, 
 				     mpq_t real_part, mpq_t imag_part)
 {
+  /* Updating data_type information */
+  if (mp->structure == MPS_STRUCTURE_UNKNOWN)
+    mp->structure = (mpq_sgn (imag_part) != 0) ? 
+      MPS_STRUCTURE_COMPLEX_RATIONAL : MPS_STRUCTURE_REAL_RATIONAL;
+
+  if (mp->structure == MPS_STRUCTURE_REAL_RATIONAL &&
+      mpq_sgn (imag_part) != 0)
+    mp->structure = MPS_STRUCTURE_COMPLEX_RATIONAL;
+
+  assert (mp->structure == MPS_STRUCTURE_COMPLEX_RATIONAL ||
+	  mp->structure == MPS_STRUCTURE_REAL_RATIONAL);
+
   /* Set the coefficients first */
   mpq_set (mp->initial_mqp_r[i], real_part);
   mpq_set (mp->initial_mqp_i[i], imag_part);
@@ -196,7 +211,6 @@ mps_monomial_poly_set_coefficient_q (mps_status * s, mps_monomial_poly * mp, lon
       rdpe_set (mp->dap[i], rdpe_zero);
       mp->fap[i] = 0.0f;
     }
-
 }
 
 /**
@@ -212,8 +226,23 @@ void
 mps_monomial_poly_set_coefficient_d (mps_status * s, mps_monomial_poly * mp, long int i,
 				     double real_part, double imag_part)
 {
+  /* Updating data structure information */
+  if (mp->structure == MPS_STRUCTURE_UNKNOWN)
+    mp->structure = (imag_part == 0) ?
+      MPS_STRUCTURE_REAL_FP : MPS_STRUCTURE_COMPLEX_FP;
+
+  if (imag_part != 0 && mp->structure == MPS_STRUCTURE_REAL_FP)
+    mp->structure = MPS_STRUCTURE_COMPLEX_FP;
+
+  assert (mp->structure == MPS_STRUCTURE_REAL_FP ||
+	  mp->structure == MPS_STRUCTURE_COMPLEX_FP);
+
   /* Set the coefficients */
+  mpf_set_d (mp->mfpr[i], real_part);
   mpc_set_d (mp->mfpc[i], real_part, imag_part);
+
+  /* Update spar */
+  mp->spar[i] = !((real_part == 0) && (imag_part == 0));
 
   if (mp->spar[i])
     {
@@ -232,7 +261,4 @@ mps_monomial_poly_set_coefficient_d (mps_status * s, mps_monomial_poly * mp, lon
       rdpe_set (mp->dap[i], rdpe_zero);
       mp->fap[i] = 0.0f;
     }
-
-  /* Update spar */
-  mp->spar[i] = !((real_part == 0) && (imag_part == 0));
 }

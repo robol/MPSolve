@@ -28,6 +28,13 @@ extern "C"
     int n;
 
     /**
+     * @brief Structure of the polynomial. This structure could be implicitly
+     * set the first time that a coefficient is set with the appropriate routine,
+     * and cannot be modified after that.
+     */
+    mps_structure structure;
+
+    /**
      * @brief This array contains the structure of the sparse
      * polynomial.
      *
