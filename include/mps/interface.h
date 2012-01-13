@@ -109,8 +109,54 @@ extern "C"
    * @section Interface Using the libmps interface
    *
    * The library provides some useful routine to interact with the polynomial solver. Most of
-   * them are designed to handle polynomial definition and are implemented in mps_interface.c
+   * them are designed to handle polynomial definition and are implemented in <code>interface.c</code>
    *
+   * This is a typical example of how you'll be using MPSolve.
+   *
+   * @code
+   * // Select the degree
+   * int n = 4;
+   *
+   * // Allocate a new mps_status that hold the status of a computation.
+   * // Its field should never be accessed directly but only via appropriate
+   * //functions.
+   * mps_status * status = mps_status_new ();
+   * 
+   * // Create a polynomial that will be solved
+   * mps_monomial_poly * poly = mps_monomial_poly_new (status, n);
+   *
+   * // Set the coefficients. We will solve x^n - 1 in here
+   * mps_monomial_poly_set_coefficients_int (status, poly, 0, -1, 0);
+   * mps_monomial_poly_set_coefficients_int (status, poly, n,  1, 0);
+   *
+   * // Select some common output options, i.e. 512 bits of precision
+   * // (more or less 200 digits guaranteed) and approximation goal.
+   * mps_status_set_output_precision (status, 512);
+   * mps_status_set_output_goal (status, MPS_OUTPUT_GOAL_APPROXIMATE);
+   *
+   * // Solve the polynomial
+   * mps_status_set_input_poly (status, poly);
+   * mps_mpsolve (status);
+   * 
+   * // Get the roots in a <code>cplx_t</code> vector. Please note that
+   * // this make completely useless to have asked 512 bits of output
+   * // precision, and you should use mps_status_get_roots_m() to get
+   * // multiprecision approximation of the roots.
+   * cplx_t * results = cplx_valloc (n);
+   * mps_status_get_roots_d (status, results, NULL);
+   *
+   * // Free the data used. This will free the monomial_poly if you have
+   * // not done it by yourself.
+   * mps_status_free (status);
+   * cplx_vfree (results);
+   * @endcode
+   *
+   * As pointed out in the comments, this piece of code is not that smart, since it asks
+   * for a lot of digits in output, but then discard all this good by copying the roots
+   * in floating point <code>cplx_t</code> types. 
+   *
+   * Please see the documentation of mps_status_get_roots_m() for a better way to get
+   * the results. It was not used in example in order to keep it short and clear. 
    */
 
   /*
@@ -149,6 +195,8 @@ extern "C"
   int mps_status_get_roots_d (mps_status * s, cplx_t * roots, double *radius);
   int mps_status_get_roots_m (mps_status * s, mpc_t * roots, rdpe_t * radius);
   int mps_status_get_degree (mps_status * s);
+  void mps_status_set_output_prec (mps_status * s, long int prec);
+  void mps_status_set_goal (mps_status * s, mps_output_goal goal);
 
 #ifdef	__cplusplus
 }

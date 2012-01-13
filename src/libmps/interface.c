@@ -422,3 +422,39 @@ mps_status_get_roots_m (mps_status * s, mpc_t * roots, rdpe_t * radius)
 
   return 0;
 }
+
+
+/**
+ * @brief Set the output precision for the roots. 
+ * 
+ * This has differente meaning based on the output goal. 
+ * If the goal is <code>MPS_OUTPUT_GOAL_ISOLATE</code>, this
+ * is the maximum precision used to try to isolate the roots, 
+ * but roots won't be approximated at this precision if they
+ * are isolated with less precision.
+ *
+ * If the goal is <code>MPS_OUTPUT_GOAL_APPROXIMATE</code>, 
+ * this is the minimum precision required for the roots in
+ * output.
+ *
+ * @param s The <code>mps_status</code> of the computation.
+ * @param prec The desired output precision.
+ */
+void 
+mps_status_set_output_prec (mps_status * s, long int prec)
+{
+  s->output_config->prec = prec;
+}
+
+
+/**
+ * @brief Set the output goal for the computation.
+ *
+ * @param s The <code>mps_status</code> of the computation.
+ * @param goal The goal that will be reached before stopping.
+ */
+void 
+mps_status_set_goal (mps_status * s, mps_output_goal goal)
+{
+  s->output_config->goal = goal;
+}

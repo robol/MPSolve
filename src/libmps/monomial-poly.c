@@ -262,3 +262,55 @@ mps_monomial_poly_set_coefficient_d (mps_status * s, mps_monomial_poly * mp, lon
       mp->fap[i] = 0.0f;
     }
 }
+
+void 
+mps_monomial_poly_set_coefficient_int (mps_status * s, mps_monomial_poly * mp, long int i,
+				       long int real_part, long int imag_part)
+{
+  /* Updating data_type information */
+  if (mp->structure == MPS_STRUCTURE_UNKNOWN)
+    mp->structure = (imag_part) != 0 ? 
+      MPS_STRUCTURE_COMPLEX_INTEGER : MPS_STRUCTURE_REAL_INTEGER;
+
+  if (mp->structure == MPS_STRUCTURE_REAL_INTEGER &&
+      imag_part != 0)
+    mp->structure = MPS_STRUCTURE_COMPLEX_INTEGER;
+
+  assert (mp->structure == MPS_STRUCTURE_COMPLEX_INTEGER ||
+	  mp->structure == MPS_STRUCTURE_REAL_INTEGER);
+
+  
+  /* Set the coefficients first */
+  mpq_set_si (mp->initial_mqp_r[i], real_part, 1);
+  mpq_set_si (mp->initial_mqp_i[i], imag_part, 1);
+
+  /* Then update the other coefficients */
+  mpf_set_q (mpc_Re (mp->mfpc[i]), mp->initial_mqp_r[i]);
+  mpf_set_q (mpc_Im (mp->mfpc[i]), mp->initial_mqp_i[i]);
+
+  mpc_get_cdpe (mp->dpc[i], mp->mfpc[i]);
+  mpc_get_cplx (mp->fpc[i], mp->mfpc[i]);
+
+  if ((real_part == 0) && (imag_part == 0))
+    mp->spar[i] = false;
+  else 
+    mp->spar[i] = true;
+
+  if (mp->spar[i])
+    {
+      mpc_get_cplx (mp->fpc[i], mp->mfpc[i]);
+      mpc_get_cdpe (mp->dpc[i], mp->mfpc[i]);
+
+      /* Compute modules of coefficients */
+      cdpe_mod (mp->dap[i], mp->dpc[i]);
+      mp->fap[i] = rdpe_get_d (mp->dap[i]);
+    }
+  else
+    {
+      cplx_set (mp->fpc[i], cplx_zero);
+      cdpe_set (mp->dpc[i], cdpe_zero);
+	  
+      rdpe_set (mp->dap[i], rdpe_zero);
+      mp->fap[i] = 0.0f;
+    }
+}
