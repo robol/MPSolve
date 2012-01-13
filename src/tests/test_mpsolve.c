@@ -4,14 +4,15 @@
 #include <ctype.h>
 #include <mcheck.h>
 #include <string.h>
+#include "check_implementation.h"
 
 #define MPS_TEST_UNISOLVE           0
 #define MPS_TEST_SECSOLVE_SECULAR   1
 #define MPS_TEST_SECSOLVE_GA        2
 
-#define TEST_UNISOLVE(pol_name) (test_mpsolve ("unisolve/" pol_name ".pol", "../results/unisolve/" pol_name ".res", MPS_ALGORITHM_STANDARD_MPSOLVE))
-#define TEST_SECSOLVE_SECULAR(pol_name) (test_mpsolve ("secsolve/" pol_name ".pol", "../results/secsolve/" pol_name ".res", MPS_ALGORITHM_SECULAR_MPSOLVE))
-#define TEST_SECSOLVE_MONOMIAL(pol_name) (test_mpsolve ("unisolve/" pol_name ".pol", "../results/unisolve/" pol_name ".res", MPS_ALGORITHM_SECULAR_GA))
+#define TEST_UNISOLVE(pol_name) (test_mpsolve (get_pol_file (pol_name, "unisolve"), get_res_file (pol_name, "unisolve"), MPS_ALGORITHM_STANDARD_MPSOLVE))
+#define TEST_SECSOLVE_SECULAR(pol_name) (test_mpsolve (get_pol_file (pol_name, "secsolve"), get_res_file (pol_name, "secsolve"), MPS_ALGORITHM_SECULAR_MPSOLVE))
+#define TEST_SECSOLVE_MONOMIAL(pol_name) (test_mpsolve (get_pol_file (pol_name, "unisolve"), get_res_file (pol_name, "unisolve"), MPS_ALGORITHM_SECULAR_GA))
 
 void
 test_header (const char * header, const char * description)

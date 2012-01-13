@@ -124,7 +124,6 @@ test_unisolve_on_pol (test_pol * pol)
 	      printf("\n");  
 	    }
 	}
-
     }
 
   mpc_clear (root);

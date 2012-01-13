@@ -6,8 +6,10 @@ includedir=${prefix}/include/mps
 include_HEADERS = \
         ${top_srcdir}/include/mps/tools.h \
         ${top_srcdir}/include/mps/interface.h \
+	${top_srcdir}/include/mps/input-buffer.h \
         ${top_srcdir}/include/mps/gmptools.h \
         ${top_srcdir}/include/mps/mpc.h \
+	${top_srcdir}/include/mps/monomial-poly.h \
 	${top_srcdir}/include/mps/cluster.h \
         ${top_srcdir}/include/mps/debug.h \
         ${top_srcdir}/include/mps/mt.h \

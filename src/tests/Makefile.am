@@ -14,7 +14,7 @@ EXTRA_PROGRAMS = test_mpsolve check_secsolve check_unisolve check_dpe check_mult
  check_dpe_CFLAGS = $(CHECK_CFLAGS) -I${top_srcdir}/include
  check_dpe_LDFLAGS = -L${top_builddir}/src/libmps -lmps -lm -lgmp -lcheck
 
- test_mpsolve_SOURCES = test_mpsolve.c
+ test_mpsolve_SOURCES = test_mpsolve.c check_implementation.h check_implementation.c
  test_mpsolve_CFLAGS = ${CHECK_CFLAGS} -I${top_srcdir}/include
  test_mpsolve_LDFLAGS = -L${top_builddir}/src/libmps -lmps -lm -lgmp
 
@@ -50,6 +50,8 @@ EXTRA_DIST = \
 	unisolve/mand31.pol \
 	unisolve/kam4.pol \
 	unisolve/wilk20.pol \
+	unisolve/wilk40.pol \
+	unisolve/wilk80.pol \
 	unisolve/kam1_1.pol \
 	unisolve/chebyshev80.pol \
 	unisolve/kam3_3.pol \
@@ -201,6 +203,7 @@ EXTRA_DIST = \
 	../results/unisolve/kir1_10.res \
 	../results/unisolve/nroots50.res \
 	../results/unisolve/wilk40.res \
+	../results/unisolve/wilk80.res \
 	../results/unisolve/lar3.res \
 	../results/unisolve/trv_m.res \
 	../results/unisolve/lar2.res \

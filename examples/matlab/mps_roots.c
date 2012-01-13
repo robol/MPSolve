@@ -1,9 +1,10 @@
 #include "mex.h"
 #include <mps/mps.h>
 #include <stdlib.h>
+#include <string.h>
 
 
-void
+void 
 mexFunction (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
 {
 
@@ -14,9 +15,9 @@ mexFunction (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
   cplx_t *coefficients, *results;
 
   /* Get dimension of input data, but first check consistency */
-  if (nrhs != 1)
+  if (nrhs < 1 || nrhs > 2)
     {
-      mexErrMsgTxt ("The first parameter must be a vector.");
+      mexErrMsgTxt ("This function takes two parameters, a vector and an optional switch.");
     }
 
   if (nlhs > 1)
@@ -62,6 +63,31 @@ mexFunction (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
 
   /* Solve the equation */
   mps_status_set_poly_d (s, coefficients, n - 1);
+
+  /* Check if the second parameter was passed */
+  if (nrhs == 2)
+    {
+      if (!mxIsChar(prhs[1]))
+	mexErrMsgTxt("The second parameter must be of type string");
+      char alg[255];
+      mxGetString(prhs[1], alg, 254);
+      if (strlen(alg) > 1)
+	mexErrMsgTxt("The second parameter must be a single character");
+
+      switch (alg[0])
+	{
+	case 's':
+	  mps_status_select_algorithm (s, MPS_ALGORITHM_SECULAR_GA);
+	  break;
+	case 'u':
+	  mps_status_select_algorithm (s, MPS_ALGORITHM_STANDARD_MPSOLVE);
+	  break;
+	default:
+	  mexErrMsgTxt("The selected algorithm is not supported, use 's' or 'u'");
+	  break;
+	}
+    }
+
   mps_mpsolve (s);
 
   /* Get results back */

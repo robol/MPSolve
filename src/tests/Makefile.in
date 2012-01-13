@@ -83,7 +83,8 @@ check_unisolve_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(check_unisolve_CFLAGS) $(CFLAGS) $(check_unisolve_LDFLAGS) \
 	$(LDFLAGS) -o $@
-am_test_mpsolve_OBJECTS = test_mpsolve-test_mpsolve.$(OBJEXT)
+am_test_mpsolve_OBJECTS = test_mpsolve-test_mpsolve.$(OBJEXT) \
+	test_mpsolve-check_implementation.$(OBJEXT)
 test_mpsolve_OBJECTS = $(am_test_mpsolve_OBJECTS)
 test_mpsolve_LDADD = $(LDADD)
 test_mpsolve_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
@@ -269,7 +270,7 @@ check_unisolve_LDFLAGS = -L${top_builddir}/src/libmps -lmps -lm -lgmp -lcheck
 check_dpe_SOURCES = check_dpe.c check_implementation.c check_implementation.h
 check_dpe_CFLAGS = $(CHECK_CFLAGS) -I${top_srcdir}/include
 check_dpe_LDFLAGS = -L${top_builddir}/src/libmps -lmps -lm -lgmp -lcheck
-test_mpsolve_SOURCES = test_mpsolve.c
+test_mpsolve_SOURCES = test_mpsolve.c check_implementation.h check_implementation.c
 test_mpsolve_CFLAGS = ${CHECK_CFLAGS} -I${top_srcdir}/include
 test_mpsolve_LDFLAGS = -L${top_builddir}/src/libmps -lmps -lm -lgmp
 check_multithread_SOURCES = check_multithread.c
@@ -303,6 +304,8 @@ EXTRA_DIST = \
 	unisolve/mand31.pol \
 	unisolve/kam4.pol \
 	unisolve/wilk20.pol \
+	unisolve/wilk40.pol \
+	unisolve/wilk80.pol \
 	unisolve/kam1_1.pol \
 	unisolve/chebyshev80.pol \
 	unisolve/kam3_3.pol \
@@ -454,6 +457,7 @@ EXTRA_DIST = \
 	../results/unisolve/kir1_10.res \
 	../results/unisolve/nroots50.res \
 	../results/unisolve/wilk40.res \
+	../results/unisolve/wilk80.res \
 	../results/unisolve/lar3.res \
 	../results/unisolve/trv_m.res \
 	../results/unisolve/lar2.res \
@@ -553,6 +557,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/check_secsolve-check_secsolve.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/check_unisolve-check_implementation.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/check_unisolve-check_unisolve.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_mpsolve-check_implementation.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_mpsolve-test_mpsolve.Po@am__quote@
 
 .c.o:
@@ -706,6 +711,22 @@ test_mpsolve-test_mpsolve.obj: test_mpsolve.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='test_mpsolve.c' object='test_mpsolve-test_mpsolve.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_mpsolve_CFLAGS) $(CFLAGS) -c -o test_mpsolve-test_mpsolve.obj `if test -f 'test_mpsolve.c'; then $(CYGPATH_W) 'test_mpsolve.c'; else $(CYGPATH_W) '$(srcdir)/test_mpsolve.c'; fi`
+
+test_mpsolve-check_implementation.o: check_implementation.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_mpsolve_CFLAGS) $(CFLAGS) -MT test_mpsolve-check_implementation.o -MD -MP -MF $(DEPDIR)/test_mpsolve-check_implementation.Tpo -c -o test_mpsolve-check_implementation.o `test -f 'check_implementation.c' || echo '$(srcdir)/'`check_implementation.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_mpsolve-check_implementation.Tpo $(DEPDIR)/test_mpsolve-check_implementation.Po
+@am__fastdepCC_FALSE@	$(AM_V_CC) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='check_implementation.c' object='test_mpsolve-check_implementation.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_mpsolve_CFLAGS) $(CFLAGS) -c -o test_mpsolve-check_implementation.o `test -f 'check_implementation.c' || echo '$(srcdir)/'`check_implementation.c
+
+test_mpsolve-check_implementation.obj: check_implementation.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_mpsolve_CFLAGS) $(CFLAGS) -MT test_mpsolve-check_implementation.obj -MD -MP -MF $(DEPDIR)/test_mpsolve-check_implementation.Tpo -c -o test_mpsolve-check_implementation.obj `if test -f 'check_implementation.c'; then $(CYGPATH_W) 'check_implementation.c'; else $(CYGPATH_W) '$(srcdir)/check_implementation.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_mpsolve-check_implementation.Tpo $(DEPDIR)/test_mpsolve-check_implementation.Po
+@am__fastdepCC_FALSE@	$(AM_V_CC) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='check_implementation.c' object='test_mpsolve-check_implementation.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_mpsolve_CFLAGS) $(CFLAGS) -c -o test_mpsolve-check_implementation.obj `if test -f 'check_implementation.c'; then $(CYGPATH_W) 'check_implementation.c'; else $(CYGPATH_W) '$(srcdir)/check_implementation.c'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo

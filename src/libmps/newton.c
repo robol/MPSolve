@@ -473,7 +473,6 @@ mps_mnewton (mps_status * s, int n, mpc_t z, rdpe_t radius, mpc_t corr,
     }
   else
     {				/*  dense polynomial */
-
       /* commpute p(z) and p'(z) */
       mpc_set (p, mfpc[n]);
       mpc_set (p1, p);
