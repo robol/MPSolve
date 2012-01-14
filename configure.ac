@@ -48,6 +48,8 @@ SECSOLVE_CFLAGS="$GENERAL_CFLAGS"
 UNISOLVE_LIBS="$GENERAL_LIBS -lm -lgmp"
 SECSOLVE_LIBS="$GENERAL_LIBS -lm -lgmp"
 
+# Check for check B-)
+PKG_CHECK_MODULES([CHECK], [check >= 0.9.4], [have_check=yes], [have_check=no])
 CHECK_CFLAGS="$GENERAL_CFLAGS"
 CHECK_LIBS="$GENERAL_LIBS"
 CHECK_PROGRAMS="test_mpsolve check_dpe check_secsolve check_unisolve check_multithread"
@@ -155,7 +157,7 @@ MPSolve configuration:
         C compiler:		${CC}
 	CFLAGS:			${MPS_CFLAGS}
         Debug enabled:		$enable_debug
-        Check enabled:		$enable_check"
+        Check enabled:		$have_check"
 
 # Check Octave module
 if [test x$enable_octave = xyes]; then
