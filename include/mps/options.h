@@ -77,8 +77,8 @@ extern "C" {
   const static short int mps_secular_representations[]  = { 1, 0 };
   const static short int mps_monomial_representations[] = { 0, 1 };
 
-#define MPS_INPUT_CONFIG_IS_SECULAR(x)  (mps_secular_representations[(x->representation)])
-#define MPS_INPUT_CONFIG_IS_MONOMIAL(x) (mps_monomial_representations[(x->representation)])
+#define MPS_INPUT_CONFIG_IS_SECULAR(x)  (mps_secular_representations[(x)->representation])
+#define MPS_INPUT_CONFIG_IS_MONOMIAL(x) (mps_monomial_representations[(x)->representation])
 
 
   const static short int mps_user_representations[]   = { 0, 0, 1 };

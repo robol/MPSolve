@@ -29,7 +29,6 @@ void
 mps_mpsolve (mps_status * s)
 {
   (*s->mpsolve_ptr) (s);
-  mps_copy_roots (s);
 }
 
 
@@ -123,7 +122,7 @@ mps_status_select_algorithm (mps_status * s, mps_algorithm algorithm)
        * polynomial is present. In the last case, allocate an empty
        * secular equation to hold the data during the computation. */
       if (!s->secular_equation)
-	s->secular_equation = mps_secular_equation_new_raw (s, s->monomial_poly->n);
+    	s->secular_equation = mps_secular_equation_new_raw (s, s->monomial_poly->n);
 
       break;
     }

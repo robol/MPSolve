@@ -485,6 +485,7 @@ extern  "C"
                       mps_boolean b[], mpc_t s, int n_thread);
   void mps_aparhorner (mps_status * st, int n, rdpe_t x, rdpe_t p[],
                        mps_boolean b[], rdpe_t s, int n_thread);
+  int mps_intlog2 (int n);
 
   /* Functions in general-radius.c */
   void mps_fradii (mps_status * s, double * fradii);

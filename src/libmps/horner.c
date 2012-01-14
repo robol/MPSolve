@@ -19,6 +19,9 @@
 
 #include <mps/mps.h>
 
+void
+mps_mhorner_sparse (mps_status * s, mps_monomial_poly * p, mpc_t x, mpc_t value);
+
 /**
  * @brief Compute the value of the polynomial <code>p</code> in the point <code>x</code>
  * and save it in <code>value</code>. If you need a bound to the relative error, try
@@ -34,18 +37,25 @@ mps_mhorner (mps_status * s, mps_monomial_poly * p, mpc_t x, mpc_t value)
 {
   int j;
 
-  mps_with_lock (p->mfpc_mutex[s->n],
-		 mpc_set (value, p->mfpc[p->n]);
-		 );
-
-  for (j = s->n - 1; j >= 0; j--)
+  if (MPS_INPUT_CONFIG_IS_SPARSE (s->input_config))
     {
-      mpc_mul_eq (value, x);
-
-      pthread_mutex_lock (&p->mfpc_mutex[j]);
-      mpc_add_eq (value, p->mfpc[j]);
-      pthread_mutex_unlock (&p->mfpc_mutex[j]);
+      mps_mhorner_sparse (s, p, x, value);
     }
+  else  
+    { 
+      mps_with_lock (p->mfpc_mutex[s->n],
+		     mpc_set (value, p->mfpc[p->n]);
+		     );
+
+      for (j = s->n - 1; j >= 0; j--)
+	{
+	  mpc_mul_eq (value, x);
+	  
+	  pthread_mutex_lock (&p->mfpc_mutex[j]);
+	  mpc_add_eq (value, p->mfpc[j]);
+	  pthread_mutex_unlock (&p->mfpc_mutex[j]);
+	}
+     } 
 }
 
 /**
@@ -176,6 +186,96 @@ mps_mhorner_with_error (mps_status * s, mps_monomial_poly * p, mpc_t x, mpc_t va
 }
 
 /**
+ * @brief Compute \f$p(z)\f$ by means of the Horner rule.
+ *
+ * @param st The pointer to the mps_status struct.
+ * @param n The degree of the polynomial.
+ * @param x The point in which the polynomial should be evaluated.
+ * @param p Vector of the coefficients of the polynomial.
+ * @param b Sparsity vector. If <code>b[i] == 0</code> then
+ *  <code>p[i] == 0</code>.
+ * @param s RDPE pointer in which the result will be stored
+ * @param n_thread The index of the thread that is calling this
+ *  routine. This is used to determine a safe memory are
+ *  for temporary sparsity vectors.
+ */
+void
+mps_mhorner_sparse (mps_status * s, mps_monomial_poly * p, mpc_t x,
+		    mpc_t value)
+{
+  int m, j, i, i1, i2, q;
+  mpc_t tmp, y;
+  mps_boolean bi;
+
+  /* Degree of the polynomial and sparsity vector */
+  mps_boolean * b = p->spar;
+  int n = p->n + 1;
+
+  mps_boolean *spar2 = mps_boolean_valloc (s->n + 2);
+  mpc_t *mfpc2 = mps_newv (mpc_t, s->n + 1);
+
+  long int wp;
+
+  pthread_mutex_lock (&p->mfpc_mutex[0]);
+  wp = mpc_get_prec (p->mfpc[0]);
+  mpc_vinit2 (mfpc2, s->n + 1, wp);
+  pthread_mutex_unlock (&p->mfpc_mutex[0]);
+
+  mpc_init2 (tmp, wp);
+  mpc_init2 (y, wp);
+
+  for (i = 0; i < n + 1; i++)
+    spar2[i] = b[i];
+
+  for (i = 0; i < n; i++)
+    if (b[i])
+      {
+	pthread_mutex_lock (&p->mfpc_mutex[i]);
+	mpc_set (mfpc2[i], p->mfpc[i]);
+	pthread_mutex_unlock (&p->mfpc_mutex[i]);
+      }
+
+  q = mps_intlog2 (n + 1);
+  m = n;
+  mpc_set (y, x);
+  for (j = 0; j < q; j++)
+    {
+      spar2[m] = false;
+      m = (m + 1) >> 1;
+      for (i = 0; i < m; i++)
+	{
+	  i2 = (i << 1) + 1;
+	  i1 = i2 - 1;
+	  bi = spar2[i1] || spar2[i2];
+	  if (bi)
+	    {
+	      if (spar2[i1])
+		if (spar2[i2])
+		  {
+		    mpc_mul (tmp, y, mfpc2[i2]);
+		    mpc_add (mfpc2[i], mfpc2[i1], tmp);
+		  }
+		else
+		  mpc_set (mfpc2[i], mfpc2[i1]);
+	      else
+		mpc_mul (mfpc2[i], y, mfpc2[i2]);
+	    }
+	  spar2[i] = bi;
+	}
+      spar2[m] = false;
+      mpc_sqr_eq (y);
+    }
+  mpc_set (value, mfpc2[0]);
+
+  mpc_clear (y);
+  mpc_clear (tmp);
+
+  mpc_vclear (mfpc2, s->n + 1);
+  free (spar2);
+  free (mfpc2);
+}
+
+/**
  * @brief Evaluate the polynomial p in the point x.
  *
  * @param s The <code>mps_status</code> of the computation.
@@ -195,6 +295,8 @@ mps_dhorner (mps_status * s, mps_monomial_poly * p, cdpe_t x, cdpe_t value)
       cdpe_add_eq (value, p->dpc[j]);
     }
 }
+
+
 
 /**
  * @brief Evaluate the polynomial p in the point x, and give also a bound to the

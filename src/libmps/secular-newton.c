@@ -515,7 +515,7 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
 	
 	if (rdpe_lt (new_rad, rad))
 	  {
-	    if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
+	    if (data && s->debug_level & MPS_DEBUG_APPROXIMATIONS)
 	      MPS_DEBUG_RDPE (s, new_rad, "Setting radius for root %ld to rad_%ld", data->k, data->k);
 	    rdpe_set (rad, new_rad);
 	  }
