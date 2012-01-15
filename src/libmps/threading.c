@@ -180,6 +180,8 @@ mps_thread_mainloop (void * thread_ptr)
   pthread_cond_signal (&thread->pool->free_count_changed_cond);
   pthread_mutex_unlock (&thread->pool->free_count_changed_mutex);
   pthread_exit (NULL);
+
+  return NULL;
 }
 
 /**

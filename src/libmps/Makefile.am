@@ -25,7 +25,6 @@ include_HEADERS = \
 AM_CPPFLAGS= \
         -I${top_srcdir}/include \
 	$(MPS_CFLAGS) \
-	-pthread \
 	$(NULL)
 
 libmps_la_SOURCES = \
@@ -72,6 +71,5 @@ libmps_la_SOURCES = \
 	    $(NULL)
 
 libmps_la_LIBADD = \
-	-lgmp \
-	-lm \
+	$(MPS_LDFLAGS) \
 	$(NULL)

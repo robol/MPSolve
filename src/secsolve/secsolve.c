@@ -19,15 +19,6 @@
 
 #include <mps/mps.h>
 #include <string.h>
-#include <mcheck.h>
-
-void
-abortfn (enum mcheck_status status)
-{
-  fprintf (stderr, "A memory error has occurred in MPSolve; aborting\n");
-  abort ();
-}
-
 
 void
 usage (mps_status * s, const char *program)

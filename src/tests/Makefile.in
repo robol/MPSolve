@@ -39,10 +39,11 @@ EXTRA_PROGRAMS = test_mpsolve$(EXEEXT) check_secsolve$(EXEEXT) \
 subdir = src/tests
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-am__aclocal_m4_deps = $(top_srcdir)/m4/libtool.m4 \
-	$(top_srcdir)/m4/ltoptions.m4 $(top_srcdir)/m4/ltsugar.m4 \
-	$(top_srcdir)/m4/ltversion.m4 $(top_srcdir)/m4/lt~obsolete.m4 \
-	$(top_srcdir)/m4/pkg.m4 $(top_srcdir)/configure.ac
+am__aclocal_m4_deps = $(top_srcdir)/m4/ax_pthread.m4 \
+	$(top_srcdir)/m4/libtool.m4 $(top_srcdir)/m4/ltoptions.m4 \
+	$(top_srcdir)/m4/ltsugar.m4 $(top_srcdir)/m4/ltversion.m4 \
+	$(top_srcdir)/m4/lt~obsolete.m4 $(top_srcdir)/m4/pkg.m4 \
+	$(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
@@ -53,41 +54,36 @@ am_check_dpe_OBJECTS = check_dpe-check_dpe.$(OBJEXT) \
 	check_dpe-check_implementation.$(OBJEXT)
 check_dpe_OBJECTS = $(am_check_dpe_OBJECTS)
 check_dpe_LDADD = $(LDADD)
-AM_V_lt = $(am__v_lt_$(V))
-am__v_lt_ = $(am__v_lt_$(AM_DEFAULT_VERBOSITY))
-am__v_lt_0 = --silent
-check_dpe_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
+check_dpe_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(check_dpe_CFLAGS) \
 	$(CFLAGS) $(check_dpe_LDFLAGS) $(LDFLAGS) -o $@
 am_check_multithread_OBJECTS =  \
 	check_multithread-check_multithread.$(OBJEXT)
 check_multithread_OBJECTS = $(am_check_multithread_OBJECTS)
 check_multithread_LDADD = $(LDADD)
-check_multithread_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
-	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+check_multithread_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(check_multithread_CFLAGS) $(CFLAGS) \
 	$(check_multithread_LDFLAGS) $(LDFLAGS) -o $@
 am_check_secsolve_OBJECTS = check_secsolve-check_secsolve.$(OBJEXT) \
 	check_secsolve-check_implementation.$(OBJEXT)
 check_secsolve_OBJECTS = $(am_check_secsolve_OBJECTS)
 check_secsolve_LDADD = $(LDADD)
-check_secsolve_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
-	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
-	$(check_secsolve_CFLAGS) $(CFLAGS) $(check_secsolve_LDFLAGS) \
-	$(LDFLAGS) -o $@
+check_secsolve_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(check_secsolve_CFLAGS) \
+	$(CFLAGS) $(check_secsolve_LDFLAGS) $(LDFLAGS) -o $@
 am_check_unisolve_OBJECTS = check_unisolve-check_unisolve.$(OBJEXT) \
 	check_unisolve-check_implementation.$(OBJEXT)
 check_unisolve_OBJECTS = $(am_check_unisolve_OBJECTS)
 check_unisolve_LDADD = $(LDADD)
-check_unisolve_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
-	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
-	$(check_unisolve_CFLAGS) $(CFLAGS) $(check_unisolve_LDFLAGS) \
-	$(LDFLAGS) -o $@
+check_unisolve_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(check_unisolve_CFLAGS) \
+	$(CFLAGS) $(check_unisolve_LDFLAGS) $(LDFLAGS) -o $@
 am_test_mpsolve_OBJECTS = test_mpsolve-test_mpsolve.$(OBJEXT) \
 	test_mpsolve-check_implementation.$(OBJEXT)
 test_mpsolve_OBJECTS = $(am_test_mpsolve_OBJECTS)
 test_mpsolve_LDADD = $(LDADD)
-test_mpsolve_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
+test_mpsolve_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(test_mpsolve_CFLAGS) \
 	$(CFLAGS) $(test_mpsolve_LDFLAGS) $(LDFLAGS) -o $@
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
@@ -96,26 +92,13 @@ am__depfiles_maybe = depfiles
 am__mv = mv -f
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
-LTCOMPILE = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) \
-	$(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) \
-	$(AM_CFLAGS) $(CFLAGS)
-AM_V_CC = $(am__v_CC_$(V))
-am__v_CC_ = $(am__v_CC_$(AM_DEFAULT_VERBOSITY))
-am__v_CC_0 = @echo "  CC    " $@;
-AM_V_at = $(am__v_at_$(V))
-am__v_at_ = $(am__v_at_$(AM_DEFAULT_VERBOSITY))
-am__v_at_0 = @
+LTCOMPILE = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
+	--mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
+	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)
-LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
-	$(AM_LDFLAGS) $(LDFLAGS) -o $@
-AM_V_CCLD = $(am__v_CCLD_$(V))
-am__v_CCLD_ = $(am__v_CCLD_$(AM_DEFAULT_VERBOSITY))
-am__v_CCLD_0 = @echo "  CCLD  " $@;
-AM_V_GEN = $(am__v_GEN_$(V))
-am__v_GEN_ = $(am__v_GEN_$(AM_DEFAULT_VERBOSITY))
-am__v_GEN_0 = @echo "  GEN   " $@;
+LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
+	--mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
+	$(LDFLAGS) -o $@
 SOURCES = $(check_dpe_SOURCES) $(check_multithread_SOURCES) \
 	$(check_secsolve_SOURCES) $(check_unisolve_SOURCES) \
 	$(test_mpsolve_SOURCES)
@@ -129,8 +112,8 @@ red=; grn=; lgn=; blu=; std=
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 ACLOCAL = @ACLOCAL@
 AMTAR = @AMTAR@
-AM_DEFAULT_VERBOSITY = @AM_DEFAULT_VERBOSITY@
 AR = @AR@
+AS = @AS@
 AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
@@ -181,6 +164,7 @@ MEX = @MEX@
 MKDIR_P = @MKDIR_P@
 MKOCTFILE = @MKOCTFILE@
 MPS_CFLAGS = @MPS_CFLAGS@
+MPS_LDFLAGS = @MPS_LDFLAGS@
 NM = @NM@
 NMEDIT = @NMEDIT@
 OBJDUMP = @OBJDUMP@
@@ -199,6 +183,9 @@ PATH_SEPARATOR = @PATH_SEPARATOR@
 PKG_CONFIG = @PKG_CONFIG@
 PKG_CONFIG_LIBDIR = @PKG_CONFIG_LIBDIR@
 PKG_CONFIG_PATH = @PKG_CONFIG_PATH@
+PTHREAD_CC = @PTHREAD_CC@
+PTHREAD_CFLAGS = @PTHREAD_CFLAGS@
+PTHREAD_LIBS = @PTHREAD_LIBS@
 RANLIB = @RANLIB@
 SECSOLVE_CFLAGS = @SECSOLVE_CFLAGS@
 SECSOLVE_LIBS = @SECSOLVE_LIBS@
@@ -222,6 +209,7 @@ am__leading_dot = @am__leading_dot@
 am__quote = @am__quote@
 am__tar = @am__tar@
 am__untar = @am__untar@
+ax_pthread_config = @ax_pthread_config@
 bindir = @bindir@
 build = @build@
 build_alias = @build_alias@
@@ -533,19 +521,19 @@ clean-checkPROGRAMS:
 	rm -f $$list
 check_dpe$(EXEEXT): $(check_dpe_OBJECTS) $(check_dpe_DEPENDENCIES) 
 	@rm -f check_dpe$(EXEEXT)
-	$(AM_V_CCLD)$(check_dpe_LINK) $(check_dpe_OBJECTS) $(check_dpe_LDADD) $(LIBS)
+	$(check_dpe_LINK) $(check_dpe_OBJECTS) $(check_dpe_LDADD) $(LIBS)
 check_multithread$(EXEEXT): $(check_multithread_OBJECTS) $(check_multithread_DEPENDENCIES) 
 	@rm -f check_multithread$(EXEEXT)
-	$(AM_V_CCLD)$(check_multithread_LINK) $(check_multithread_OBJECTS) $(check_multithread_LDADD) $(LIBS)
+	$(check_multithread_LINK) $(check_multithread_OBJECTS) $(check_multithread_LDADD) $(LIBS)
 check_secsolve$(EXEEXT): $(check_secsolve_OBJECTS) $(check_secsolve_DEPENDENCIES) 
 	@rm -f check_secsolve$(EXEEXT)
-	$(AM_V_CCLD)$(check_secsolve_LINK) $(check_secsolve_OBJECTS) $(check_secsolve_LDADD) $(LIBS)
+	$(check_secsolve_LINK) $(check_secsolve_OBJECTS) $(check_secsolve_LDADD) $(LIBS)
 check_unisolve$(EXEEXT): $(check_unisolve_OBJECTS) $(check_unisolve_DEPENDENCIES) 
 	@rm -f check_unisolve$(EXEEXT)
-	$(AM_V_CCLD)$(check_unisolve_LINK) $(check_unisolve_OBJECTS) $(check_unisolve_LDADD) $(LIBS)
+	$(check_unisolve_LINK) $(check_unisolve_OBJECTS) $(check_unisolve_LDADD) $(LIBS)
 test_mpsolve$(EXEEXT): $(test_mpsolve_OBJECTS) $(test_mpsolve_DEPENDENCIES) 
 	@rm -f test_mpsolve$(EXEEXT)
-	$(AM_V_CCLD)$(test_mpsolve_LINK) $(test_mpsolve_OBJECTS) $(test_mpsolve_LDADD) $(LIBS)
+	$(test_mpsolve_LINK) $(test_mpsolve_OBJECTS) $(test_mpsolve_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -564,169 +552,148 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_mpsolve-test_mpsolve.Po@am__quote@
 
 .c.o:
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
-@am__fastdepCC_FALSE@	$(AM_V_CC) @AM_BACKSLASH@
+@am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(COMPILE) -c $<
 
 .c.obj:
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ `$(CYGPATH_W) '$<'`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
-@am__fastdepCC_FALSE@	$(AM_V_CC) @AM_BACKSLASH@
+@am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ `$(CYGPATH_W) '$<'`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(COMPILE) -c `$(CYGPATH_W) '$<'`
 
 .c.lo:
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LTCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Plo
-@am__fastdepCC_FALSE@	$(AM_V_CC) @AM_BACKSLASH@
+@am__fastdepCC_TRUE@	$(LTCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Plo
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LTCOMPILE) -c -o $@ $<
 
 check_dpe-check_dpe.o: check_dpe.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(check_dpe_CFLAGS) $(CFLAGS) -MT check_dpe-check_dpe.o -MD -MP -MF $(DEPDIR)/check_dpe-check_dpe.Tpo -c -o check_dpe-check_dpe.o `test -f 'check_dpe.c' || echo '$(srcdir)/'`check_dpe.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/check_dpe-check_dpe.Tpo $(DEPDIR)/check_dpe-check_dpe.Po
-@am__fastdepCC_FALSE@	$(AM_V_CC) @AM_BACKSLASH@
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(check_dpe_CFLAGS) $(CFLAGS) -MT check_dpe-check_dpe.o -MD -MP -MF $(DEPDIR)/check_dpe-check_dpe.Tpo -c -o check_dpe-check_dpe.o `test -f 'check_dpe.c' || echo '$(srcdir)/'`check_dpe.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/check_dpe-check_dpe.Tpo $(DEPDIR)/check_dpe-check_dpe.Po
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='check_dpe.c' object='check_dpe-check_dpe.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(check_dpe_CFLAGS) $(CFLAGS) -c -o check_dpe-check_dpe.o `test -f 'check_dpe.c' || echo '$(srcdir)/'`check_dpe.c
 
 check_dpe-check_dpe.obj: check_dpe.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(check_dpe_CFLAGS) $(CFLAGS) -MT check_dpe-check_dpe.obj -MD -MP -MF $(DEPDIR)/check_dpe-check_dpe.Tpo -c -o check_dpe-check_dpe.obj `if test -f 'check_dpe.c'; then $(CYGPATH_W) 'check_dpe.c'; else $(CYGPATH_W) '$(srcdir)/check_dpe.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/check_dpe-check_dpe.Tpo $(DEPDIR)/check_dpe-check_dpe.Po
-@am__fastdepCC_FALSE@	$(AM_V_CC) @AM_BACKSLASH@
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(check_dpe_CFLAGS) $(CFLAGS) -MT check_dpe-check_dpe.obj -MD -MP -MF $(DEPDIR)/check_dpe-check_dpe.Tpo -c -o check_dpe-check_dpe.obj `if test -f 'check_dpe.c'; then $(CYGPATH_W) 'check_dpe.c'; else $(CYGPATH_W) '$(srcdir)/check_dpe.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/check_dpe-check_dpe.Tpo $(DEPDIR)/check_dpe-check_dpe.Po
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='check_dpe.c' object='check_dpe-check_dpe.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(check_dpe_CFLAGS) $(CFLAGS) -c -o check_dpe-check_dpe.obj `if test -f 'check_dpe.c'; then $(CYGPATH_W) 'check_dpe.c'; else $(CYGPATH_W) '$(srcdir)/check_dpe.c'; fi`
 
 check_dpe-check_implementation.o: check_implementation.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(check_dpe_CFLAGS) $(CFLAGS) -MT check_dpe-check_implementation.o -MD -MP -MF $(DEPDIR)/check_dpe-check_implementation.Tpo -c -o check_dpe-check_implementation.o `test -f 'check_implementation.c' || echo '$(srcdir)/'`check_implementation.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/check_dpe-check_implementation.Tpo $(DEPDIR)/check_dpe-check_implementation.Po
-@am__fastdepCC_FALSE@	$(AM_V_CC) @AM_BACKSLASH@
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(check_dpe_CFLAGS) $(CFLAGS) -MT check_dpe-check_implementation.o -MD -MP -MF $(DEPDIR)/check_dpe-check_implementation.Tpo -c -o check_dpe-check_implementation.o `test -f 'check_implementation.c' || echo '$(srcdir)/'`check_implementation.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/check_dpe-check_implementation.Tpo $(DEPDIR)/check_dpe-check_implementation.Po
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='check_implementation.c' object='check_dpe-check_implementation.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(check_dpe_CFLAGS) $(CFLAGS) -c -o check_dpe-check_implementation.o `test -f 'check_implementation.c' || echo '$(srcdir)/'`check_implementation.c
 
 check_dpe-check_implementation.obj: check_implementation.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(check_dpe_CFLAGS) $(CFLAGS) -MT check_dpe-check_implementation.obj -MD -MP -MF $(DEPDIR)/check_dpe-check_implementation.Tpo -c -o check_dpe-check_implementation.obj `if test -f 'check_implementation.c'; then $(CYGPATH_W) 'check_implementation.c'; else $(CYGPATH_W) '$(srcdir)/check_implementation.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/check_dpe-check_implementation.Tpo $(DEPDIR)/check_dpe-check_implementation.Po
-@am__fastdepCC_FALSE@	$(AM_V_CC) @AM_BACKSLASH@
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(check_dpe_CFLAGS) $(CFLAGS) -MT check_dpe-check_implementation.obj -MD -MP -MF $(DEPDIR)/check_dpe-check_implementation.Tpo -c -o check_dpe-check_implementation.obj `if test -f 'check_implementation.c'; then $(CYGPATH_W) 'check_implementation.c'; else $(CYGPATH_W) '$(srcdir)/check_implementation.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/check_dpe-check_implementation.Tpo $(DEPDIR)/check_dpe-check_implementation.Po
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='check_implementation.c' object='check_dpe-check_implementation.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(check_dpe_CFLAGS) $(CFLAGS) -c -o check_dpe-check_implementation.obj `if test -f 'check_implementation.c'; then $(CYGPATH_W) 'check_implementation.c'; else $(CYGPATH_W) '$(srcdir)/check_implementation.c'; fi`
 
 check_multithread-check_multithread.o: check_multithread.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(check_multithread_CFLAGS) $(CFLAGS) -MT check_multithread-check_multithread.o -MD -MP -MF $(DEPDIR)/check_multithread-check_multithread.Tpo -c -o check_multithread-check_multithread.o `test -f 'check_multithread.c' || echo '$(srcdir)/'`check_multithread.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/check_multithread-check_multithread.Tpo $(DEPDIR)/check_multithread-check_multithread.Po
-@am__fastdepCC_FALSE@	$(AM_V_CC) @AM_BACKSLASH@
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(check_multithread_CFLAGS) $(CFLAGS) -MT check_multithread-check_multithread.o -MD -MP -MF $(DEPDIR)/check_multithread-check_multithread.Tpo -c -o check_multithread-check_multithread.o `test -f 'check_multithread.c' || echo '$(srcdir)/'`check_multithread.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/check_multithread-check_multithread.Tpo $(DEPDIR)/check_multithread-check_multithread.Po
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='check_multithread.c' object='check_multithread-check_multithread.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(check_multithread_CFLAGS) $(CFLAGS) -c -o check_multithread-check_multithread.o `test -f 'check_multithread.c' || echo '$(srcdir)/'`check_multithread.c
 
 check_multithread-check_multithread.obj: check_multithread.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(check_multithread_CFLAGS) $(CFLAGS) -MT check_multithread-check_multithread.obj -MD -MP -MF $(DEPDIR)/check_multithread-check_multithread.Tpo -c -o check_multithread-check_multithread.obj `if test -f 'check_multithread.c'; then $(CYGPATH_W) 'check_multithread.c'; else $(CYGPATH_W) '$(srcdir)/check_multithread.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/check_multithread-check_multithread.Tpo $(DEPDIR)/check_multithread-check_multithread.Po
-@am__fastdepCC_FALSE@	$(AM_V_CC) @AM_BACKSLASH@
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(check_multithread_CFLAGS) $(CFLAGS) -MT check_multithread-check_multithread.obj -MD -MP -MF $(DEPDIR)/check_multithread-check_multithread.Tpo -c -o check_multithread-check_multithread.obj `if test -f 'check_multithread.c'; then $(CYGPATH_W) 'check_multithread.c'; else $(CYGPATH_W) '$(srcdir)/check_multithread.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/check_multithread-check_multithread.Tpo $(DEPDIR)/check_multithread-check_multithread.Po
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='check_multithread.c' object='check_multithread-check_multithread.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(check_multithread_CFLAGS) $(CFLAGS) -c -o check_multithread-check_multithread.obj `if test -f 'check_multithread.c'; then $(CYGPATH_W) 'check_multithread.c'; else $(CYGPATH_W) '$(srcdir)/check_multithread.c'; fi`
 
 check_secsolve-check_secsolve.o: check_secsolve.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(check_secsolve_CFLAGS) $(CFLAGS) -MT check_secsolve-check_secsolve.o -MD -MP -MF $(DEPDIR)/check_secsolve-check_secsolve.Tpo -c -o check_secsolve-check_secsolve.o `test -f 'check_secsolve.c' || echo '$(srcdir)/'`check_secsolve.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/check_secsolve-check_secsolve.Tpo $(DEPDIR)/check_secsolve-check_secsolve.Po
-@am__fastdepCC_FALSE@	$(AM_V_CC) @AM_BACKSLASH@
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(check_secsolve_CFLAGS) $(CFLAGS) -MT check_secsolve-check_secsolve.o -MD -MP -MF $(DEPDIR)/check_secsolve-check_secsolve.Tpo -c -o check_secsolve-check_secsolve.o `test -f 'check_secsolve.c' || echo '$(srcdir)/'`check_secsolve.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/check_secsolve-check_secsolve.Tpo $(DEPDIR)/check_secsolve-check_secsolve.Po
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='check_secsolve.c' object='check_secsolve-check_secsolve.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(check_secsolve_CFLAGS) $(CFLAGS) -c -o check_secsolve-check_secsolve.o `test -f 'check_secsolve.c' || echo '$(srcdir)/'`check_secsolve.c
 
 check_secsolve-check_secsolve.obj: check_secsolve.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(check_secsolve_CFLAGS) $(CFLAGS) -MT check_secsolve-check_secsolve.obj -MD -MP -MF $(DEPDIR)/check_secsolve-check_secsolve.Tpo -c -o check_secsolve-check_secsolve.obj `if test -f 'check_secsolve.c'; then $(CYGPATH_W) 'check_secsolve.c'; else $(CYGPATH_W) '$(srcdir)/check_secsolve.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/check_secsolve-check_secsolve.Tpo $(DEPDIR)/check_secsolve-check_secsolve.Po
-@am__fastdepCC_FALSE@	$(AM_V_CC) @AM_BACKSLASH@
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(check_secsolve_CFLAGS) $(CFLAGS) -MT check_secsolve-check_secsolve.obj -MD -MP -MF $(DEPDIR)/check_secsolve-check_secsolve.Tpo -c -o check_secsolve-check_secsolve.obj `if test -f 'check_secsolve.c'; then $(CYGPATH_W) 'check_secsolve.c'; else $(CYGPATH_W) '$(srcdir)/check_secsolve.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/check_secsolve-check_secsolve.Tpo $(DEPDIR)/check_secsolve-check_secsolve.Po
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='check_secsolve.c' object='check_secsolve-check_secsolve.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(check_secsolve_CFLAGS) $(CFLAGS) -c -o check_secsolve-check_secsolve.obj `if test -f 'check_secsolve.c'; then $(CYGPATH_W) 'check_secsolve.c'; else $(CYGPATH_W) '$(srcdir)/check_secsolve.c'; fi`
 
 check_secsolve-check_implementation.o: check_implementation.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(check_secsolve_CFLAGS) $(CFLAGS) -MT check_secsolve-check_implementation.o -MD -MP -MF $(DEPDIR)/check_secsolve-check_implementation.Tpo -c -o check_secsolve-check_implementation.o `test -f 'check_implementation.c' || echo '$(srcdir)/'`check_implementation.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/check_secsolve-check_implementation.Tpo $(DEPDIR)/check_secsolve-check_implementation.Po
-@am__fastdepCC_FALSE@	$(AM_V_CC) @AM_BACKSLASH@
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(check_secsolve_CFLAGS) $(CFLAGS) -MT check_secsolve-check_implementation.o -MD -MP -MF $(DEPDIR)/check_secsolve-check_implementation.Tpo -c -o check_secsolve-check_implementation.o `test -f 'check_implementation.c' || echo '$(srcdir)/'`check_implementation.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/check_secsolve-check_implementation.Tpo $(DEPDIR)/check_secsolve-check_implementation.Po
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='check_implementation.c' object='check_secsolve-check_implementation.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(check_secsolve_CFLAGS) $(CFLAGS) -c -o check_secsolve-check_implementation.o `test -f 'check_implementation.c' || echo '$(srcdir)/'`check_implementation.c
 
 check_secsolve-check_implementation.obj: check_implementation.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(check_secsolve_CFLAGS) $(CFLAGS) -MT check_secsolve-check_implementation.obj -MD -MP -MF $(DEPDIR)/check_secsolve-check_implementation.Tpo -c -o check_secsolve-check_implementation.obj `if test -f 'check_implementation.c'; then $(CYGPATH_W) 'check_implementation.c'; else $(CYGPATH_W) '$(srcdir)/check_implementation.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/check_secsolve-check_implementation.Tpo $(DEPDIR)/check_secsolve-check_implementation.Po
-@am__fastdepCC_FALSE@	$(AM_V_CC) @AM_BACKSLASH@
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(check_secsolve_CFLAGS) $(CFLAGS) -MT check_secsolve-check_implementation.obj -MD -MP -MF $(DEPDIR)/check_secsolve-check_implementation.Tpo -c -o check_secsolve-check_implementation.obj `if test -f 'check_implementation.c'; then $(CYGPATH_W) 'check_implementation.c'; else $(CYGPATH_W) '$(srcdir)/check_implementation.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/check_secsolve-check_implementation.Tpo $(DEPDIR)/check_secsolve-check_implementation.Po
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='check_implementation.c' object='check_secsolve-check_implementation.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(check_secsolve_CFLAGS) $(CFLAGS) -c -o check_secsolve-check_implementation.obj `if test -f 'check_implementation.c'; then $(CYGPATH_W) 'check_implementation.c'; else $(CYGPATH_W) '$(srcdir)/check_implementation.c'; fi`
 
 check_unisolve-check_unisolve.o: check_unisolve.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(check_unisolve_CFLAGS) $(CFLAGS) -MT check_unisolve-check_unisolve.o -MD -MP -MF $(DEPDIR)/check_unisolve-check_unisolve.Tpo -c -o check_unisolve-check_unisolve.o `test -f 'check_unisolve.c' || echo '$(srcdir)/'`check_unisolve.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/check_unisolve-check_unisolve.Tpo $(DEPDIR)/check_unisolve-check_unisolve.Po
-@am__fastdepCC_FALSE@	$(AM_V_CC) @AM_BACKSLASH@
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(check_unisolve_CFLAGS) $(CFLAGS) -MT check_unisolve-check_unisolve.o -MD -MP -MF $(DEPDIR)/check_unisolve-check_unisolve.Tpo -c -o check_unisolve-check_unisolve.o `test -f 'check_unisolve.c' || echo '$(srcdir)/'`check_unisolve.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/check_unisolve-check_unisolve.Tpo $(DEPDIR)/check_unisolve-check_unisolve.Po
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='check_unisolve.c' object='check_unisolve-check_unisolve.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(check_unisolve_CFLAGS) $(CFLAGS) -c -o check_unisolve-check_unisolve.o `test -f 'check_unisolve.c' || echo '$(srcdir)/'`check_unisolve.c
 
 check_unisolve-check_unisolve.obj: check_unisolve.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(check_unisolve_CFLAGS) $(CFLAGS) -MT check_unisolve-check_unisolve.obj -MD -MP -MF $(DEPDIR)/check_unisolve-check_unisolve.Tpo -c -o check_unisolve-check_unisolve.obj `if test -f 'check_unisolve.c'; then $(CYGPATH_W) 'check_unisolve.c'; else $(CYGPATH_W) '$(srcdir)/check_unisolve.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/check_unisolve-check_unisolve.Tpo $(DEPDIR)/check_unisolve-check_unisolve.Po
-@am__fastdepCC_FALSE@	$(AM_V_CC) @AM_BACKSLASH@
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(check_unisolve_CFLAGS) $(CFLAGS) -MT check_unisolve-check_unisolve.obj -MD -MP -MF $(DEPDIR)/check_unisolve-check_unisolve.Tpo -c -o check_unisolve-check_unisolve.obj `if test -f 'check_unisolve.c'; then $(CYGPATH_W) 'check_unisolve.c'; else $(CYGPATH_W) '$(srcdir)/check_unisolve.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/check_unisolve-check_unisolve.Tpo $(DEPDIR)/check_unisolve-check_unisolve.Po
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='check_unisolve.c' object='check_unisolve-check_unisolve.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(check_unisolve_CFLAGS) $(CFLAGS) -c -o check_unisolve-check_unisolve.obj `if test -f 'check_unisolve.c'; then $(CYGPATH_W) 'check_unisolve.c'; else $(CYGPATH_W) '$(srcdir)/check_unisolve.c'; fi`
 
 check_unisolve-check_implementation.o: check_implementation.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(check_unisolve_CFLAGS) $(CFLAGS) -MT check_unisolve-check_implementation.o -MD -MP -MF $(DEPDIR)/check_unisolve-check_implementation.Tpo -c -o check_unisolve-check_implementation.o `test -f 'check_implementation.c' || echo '$(srcdir)/'`check_implementation.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/check_unisolve-check_implementation.Tpo $(DEPDIR)/check_unisolve-check_implementation.Po
-@am__fastdepCC_FALSE@	$(AM_V_CC) @AM_BACKSLASH@
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(check_unisolve_CFLAGS) $(CFLAGS) -MT check_unisolve-check_implementation.o -MD -MP -MF $(DEPDIR)/check_unisolve-check_implementation.Tpo -c -o check_unisolve-check_implementation.o `test -f 'check_implementation.c' || echo '$(srcdir)/'`check_implementation.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/check_unisolve-check_implementation.Tpo $(DEPDIR)/check_unisolve-check_implementation.Po
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='check_implementation.c' object='check_unisolve-check_implementation.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(check_unisolve_CFLAGS) $(CFLAGS) -c -o check_unisolve-check_implementation.o `test -f 'check_implementation.c' || echo '$(srcdir)/'`check_implementation.c
 
 check_unisolve-check_implementation.obj: check_implementation.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(check_unisolve_CFLAGS) $(CFLAGS) -MT check_unisolve-check_implementation.obj -MD -MP -MF $(DEPDIR)/check_unisolve-check_implementation.Tpo -c -o check_unisolve-check_implementation.obj `if test -f 'check_implementation.c'; then $(CYGPATH_W) 'check_implementation.c'; else $(CYGPATH_W) '$(srcdir)/check_implementation.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/check_unisolve-check_implementation.Tpo $(DEPDIR)/check_unisolve-check_implementation.Po
-@am__fastdepCC_FALSE@	$(AM_V_CC) @AM_BACKSLASH@
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(check_unisolve_CFLAGS) $(CFLAGS) -MT check_unisolve-check_implementation.obj -MD -MP -MF $(DEPDIR)/check_unisolve-check_implementation.Tpo -c -o check_unisolve-check_implementation.obj `if test -f 'check_implementation.c'; then $(CYGPATH_W) 'check_implementation.c'; else $(CYGPATH_W) '$(srcdir)/check_implementation.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/check_unisolve-check_implementation.Tpo $(DEPDIR)/check_unisolve-check_implementation.Po
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='check_implementation.c' object='check_unisolve-check_implementation.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(check_unisolve_CFLAGS) $(CFLAGS) -c -o check_unisolve-check_implementation.obj `if test -f 'check_implementation.c'; then $(CYGPATH_W) 'check_implementation.c'; else $(CYGPATH_W) '$(srcdir)/check_implementation.c'; fi`
 
 test_mpsolve-test_mpsolve.o: test_mpsolve.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_mpsolve_CFLAGS) $(CFLAGS) -MT test_mpsolve-test_mpsolve.o -MD -MP -MF $(DEPDIR)/test_mpsolve-test_mpsolve.Tpo -c -o test_mpsolve-test_mpsolve.o `test -f 'test_mpsolve.c' || echo '$(srcdir)/'`test_mpsolve.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_mpsolve-test_mpsolve.Tpo $(DEPDIR)/test_mpsolve-test_mpsolve.Po
-@am__fastdepCC_FALSE@	$(AM_V_CC) @AM_BACKSLASH@
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_mpsolve_CFLAGS) $(CFLAGS) -MT test_mpsolve-test_mpsolve.o -MD -MP -MF $(DEPDIR)/test_mpsolve-test_mpsolve.Tpo -c -o test_mpsolve-test_mpsolve.o `test -f 'test_mpsolve.c' || echo '$(srcdir)/'`test_mpsolve.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/test_mpsolve-test_mpsolve.Tpo $(DEPDIR)/test_mpsolve-test_mpsolve.Po
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='test_mpsolve.c' object='test_mpsolve-test_mpsolve.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_mpsolve_CFLAGS) $(CFLAGS) -c -o test_mpsolve-test_mpsolve.o `test -f 'test_mpsolve.c' || echo '$(srcdir)/'`test_mpsolve.c
 
 test_mpsolve-test_mpsolve.obj: test_mpsolve.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_mpsolve_CFLAGS) $(CFLAGS) -MT test_mpsolve-test_mpsolve.obj -MD -MP -MF $(DEPDIR)/test_mpsolve-test_mpsolve.Tpo -c -o test_mpsolve-test_mpsolve.obj `if test -f 'test_mpsolve.c'; then $(CYGPATH_W) 'test_mpsolve.c'; else $(CYGPATH_W) '$(srcdir)/test_mpsolve.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_mpsolve-test_mpsolve.Tpo $(DEPDIR)/test_mpsolve-test_mpsolve.Po
-@am__fastdepCC_FALSE@	$(AM_V_CC) @AM_BACKSLASH@
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_mpsolve_CFLAGS) $(CFLAGS) -MT test_mpsolve-test_mpsolve.obj -MD -MP -MF $(DEPDIR)/test_mpsolve-test_mpsolve.Tpo -c -o test_mpsolve-test_mpsolve.obj `if test -f 'test_mpsolve.c'; then $(CYGPATH_W) 'test_mpsolve.c'; else $(CYGPATH_W) '$(srcdir)/test_mpsolve.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/test_mpsolve-test_mpsolve.Tpo $(DEPDIR)/test_mpsolve-test_mpsolve.Po
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='test_mpsolve.c' object='test_mpsolve-test_mpsolve.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_mpsolve_CFLAGS) $(CFLAGS) -c -o test_mpsolve-test_mpsolve.obj `if test -f 'test_mpsolve.c'; then $(CYGPATH_W) 'test_mpsolve.c'; else $(CYGPATH_W) '$(srcdir)/test_mpsolve.c'; fi`
 
 test_mpsolve-check_implementation.o: check_implementation.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_mpsolve_CFLAGS) $(CFLAGS) -MT test_mpsolve-check_implementation.o -MD -MP -MF $(DEPDIR)/test_mpsolve-check_implementation.Tpo -c -o test_mpsolve-check_implementation.o `test -f 'check_implementation.c' || echo '$(srcdir)/'`check_implementation.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_mpsolve-check_implementation.Tpo $(DEPDIR)/test_mpsolve-check_implementation.Po
-@am__fastdepCC_FALSE@	$(AM_V_CC) @AM_BACKSLASH@
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_mpsolve_CFLAGS) $(CFLAGS) -MT test_mpsolve-check_implementation.o -MD -MP -MF $(DEPDIR)/test_mpsolve-check_implementation.Tpo -c -o test_mpsolve-check_implementation.o `test -f 'check_implementation.c' || echo '$(srcdir)/'`check_implementation.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/test_mpsolve-check_implementation.Tpo $(DEPDIR)/test_mpsolve-check_implementation.Po
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='check_implementation.c' object='test_mpsolve-check_implementation.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_mpsolve_CFLAGS) $(CFLAGS) -c -o test_mpsolve-check_implementation.o `test -f 'check_implementation.c' || echo '$(srcdir)/'`check_implementation.c
 
 test_mpsolve-check_implementation.obj: check_implementation.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_mpsolve_CFLAGS) $(CFLAGS) -MT test_mpsolve-check_implementation.obj -MD -MP -MF $(DEPDIR)/test_mpsolve-check_implementation.Tpo -c -o test_mpsolve-check_implementation.obj `if test -f 'check_implementation.c'; then $(CYGPATH_W) 'check_implementation.c'; else $(CYGPATH_W) '$(srcdir)/check_implementation.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_mpsolve-check_implementation.Tpo $(DEPDIR)/test_mpsolve-check_implementation.Po
-@am__fastdepCC_FALSE@	$(AM_V_CC) @AM_BACKSLASH@
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_mpsolve_CFLAGS) $(CFLAGS) -MT test_mpsolve-check_implementation.obj -MD -MP -MF $(DEPDIR)/test_mpsolve-check_implementation.Tpo -c -o test_mpsolve-check_implementation.obj `if test -f 'check_implementation.c'; then $(CYGPATH_W) 'check_implementation.c'; else $(CYGPATH_W) '$(srcdir)/check_implementation.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/test_mpsolve-check_implementation.Tpo $(DEPDIR)/test_mpsolve-check_implementation.Po
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='check_implementation.c' object='test_mpsolve-check_implementation.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_mpsolve_CFLAGS) $(CFLAGS) -c -o test_mpsolve-check_implementation.obj `if test -f 'check_implementation.c'; then $(CYGPATH_W) 'check_implementation.c'; else $(CYGPATH_W) '$(srcdir)/check_implementation.c'; fi`

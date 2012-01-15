@@ -6,6 +6,8 @@ AC_INIT([MPSolve], [3.0], [robol@poisson.phc.unipi.it])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS([config.h])
 
+AC_LIBTOOL_WIN32_DLL
+
 # Just for now, won't be in final release, probabily,
 # but it's just too useful for debugging. 
 # AC_DISABLE_SHARED
@@ -15,7 +17,7 @@ LT_INIT
 
 AM_INIT_AUTOMAKE([dist-bzip2])
 
-m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
+# m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
 
 # Checks for programs.
 AC_PROG_CXX
@@ -23,30 +25,68 @@ AC_PROG_CC
 AM_PROG_CC_C_O
 AC_PROG_CC_C99
 
-GENERAL_CFLAGS="-DNOMPTEMP -D_REENTRANT -Wstrict-prototypes -Wall -Werror $CFLAGS"
-GENERAL_LIBS=""
+AC_MSG_CHECKING([for Win32 platform])
+case "$host" in
+  *-*-mingw*|*-*-cygwin*)
+    platform_win32=yes
+    ;;
+  *)
+    platform_win32=no
+    ;;
+esac
+AC_MSG_RESULT([$platform_win32])
+
+# That's make detecting Windows real easy...
+if test x$platform_win32 = xyes; then
+  CFLAGS="$CFLAGS -D__WINDOWS"
+fi
+
+# Add GMP_CFLAGS and GMP_LIBS to CFLAGS and LDFLAGS in case they are set.
+CFLAGS="$GMP_CFLAGS $CFLAGS"
+LDFLAGS="$GMP_LIBS $LDFLAGS"
+
+GENERAL_CFLAGS="-D_REENTRANT -Wstrict-prototypes -Wall -Werror $CFLAGS"
+# GENERAL_LIBS=""
+# AS_IF([test x$platform_win32 != "yes"], [
+#  GENERAL_LIBS="$GENERAL_LIBS -no-undefined -Wl,--export-all-symbols
+#])
 
 # Determine CFLAGS based on the options that the user has specified.
 # The supported build type are
 #
 # --without-debug Do not code debug prints (that is not the default)
 # 
-
 AC_ARG_ENABLE([debug],
 	AS_HELP_STRING([--disable-debug], [Disable debug prints in the code]),
 	[enable_debug=$enableval have_debug=$enableval],
 	[enable_debug=yes have_debug=yes])
 AC_MSG_RESULT([$enable_debug])
 
+# Select CFLAGS based on debug enabled or not
 AS_IF([test x$enable_debug != xno], [
 	GENERAL_CFLAGS="$GENERAL_CFLAGS -DNICE_DEBUG"
 ])
 
-MPS_CFLAGS="$GENERAL_CFLAGS"
-UNISOLVE_CFLAGS="$GENERAL_CFLAGS"
-SECSOLVE_CFLAGS="$GENERAL_CFLAGS"
-UNISOLVE_LIBS="$GENERAL_LIBS -lm -lgmp"
-SECSOLVE_LIBS="$GENERAL_LIBS -lm -lgmp"
+
+# Checks for libraries.
+AC_CHECK_LIB([gmp], [__gmpz_init2])
+AC_CHECK_HEADERS([gmp.h], [mpsolve_found_gmp_headers=yes; break;])
+
+AC_CHECK_LIB([m], [pow])
+
+AX_PTHREAD([], [
+  AC_MSG_ERROR([Pthread library not found. Please set PTHREAD_CFLAGS and PTHREAD_LIBS correctly for your setup])
+])
+
+AC_SUBST(PTHREAD_CFLAGS)
+AC_SUBST(PTHREAD_LIBS)
+GENERAL_CFLAGS="$GENERAL_CFLAGS $PTHREAD_CFLAGS"
+GENERAL_LIBS="$PTHREAD_LIBS $GENERAL_LIBS"
+CC="$PTHREAD_CC"
+
+# Errors if libraries are not found, in this case GMP and Pthreads.
+AS_IF([test "x$mpsolve_found_gmp_headers" != "xyes"],
+      [AC_MSG_ERROR([Unable to find gmp headers, pleas install libgmp-dev])])
 
 # Check for check B-)
 PKG_CHECK_MODULES([CHECK], [check >= 0.9.4], [have_check=yes], [have_check=no])
@@ -98,31 +138,11 @@ if [test -z "$DOXYGEN"]; then
 fi
 AM_CONDITIONAL([HAVE_DOXYGEN], [test -n "$DOXYGEN"])
 
-AC_SUBST(MPS_CFLAGS)
-AC_SUBST(UNISOLVE_CFLAGS)
-AC_SUBST(SECSOLVE_CFLAGS)
-AC_SUBST(UNISOLVE_LIBS)
-AC_SUBST(SECSOLVE_LIBS)
-
-# Checks for libraries.
-AC_CHECK_LIB([gmp], [mpc_set])
-AC_CHECK_HEADERS([gmp.h], [mpsolve_found_gmp_headers=yes; break;])
-
-AC_CHECK_LIB([m], [pow])
-
-AC_CHECK_LIB([pthread], [pthread_create])
-AC_CHECK_HEADERS([pthread.h], [mpsolve_found_pthread_headers=yes; break;])
-
-# Errors if libraries are not found, in this case GMP and Pthreads.
-AS_IF([test "x$mpsolve_found_gmp_headers" != "xyes"], 
-	[AC_MSG_ERROR([Unable to find gmp headers, pleas install libgmp-dev])])
-
-AS_IF([test "x$mpsolve_found_pthread_headers" != "xyes"],
-	[AC_MSG_ERROR([Unable to find pthreads headers, please install libpthreads-dev])])
-
+# AS_IF([test "x$mpsolve_found_pthread_headers" != "xyes"],
+#	[AC_MSG_ERROR([Unable to find pthreads headers, please install libpthreads-dev])])
 
 # Checks for header files.
-AC_CHECK_HEADERS([float.h limits.h stdlib.h string.h unistd.h])
+AC_CHECK_HEADERS([stdlib.h string.h unistd.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STDBOOL
@@ -133,6 +153,25 @@ AC_FUNC_ERROR_AT_LINE
 AC_FUNC_MALLOC
 AC_FUNC_REALLOC
 AC_CHECK_FUNCS([memset modf pow sqrt strchr])
+
+MPS_CFLAGS="$GENERAL_CFLAGS"
+MPS_LDFLAGS="$GENERAL_LIBS"
+UNISOLVE_CFLAGS="$GENERAL_CFLAGS"
+SECSOLVE_CFLAGS="$GENERAL_CFLAGS"
+UNISOLVE_LIBS="$GENERAL_LIBS"
+SECSOLVE_LIBS="$GENERAL_LIBS"
+
+if test "$platform_win32" = yes; then
+  MPS_LDFLAGS="$MPS_LDFLAGS -no-undefined -Wl,--export-all-symbols -Wl,--output-def,.libs/libmps-3.dll.def"
+fi
+
+AC_SUBST(MPS_LDFLAGS)
+AC_SUBST(MPS_CFLAGS)
+AC_SUBST(UNISOLVE_CFLAGS)
+AC_SUBST(SECSOLVE_CFLAGS)
+AC_SUBST(UNISOLVE_LIBS)
+AC_SUBST(SECSOLVE_LIBS)
+
 
 AC_CONFIG_FILES([Makefile
                  examples/Makefile
@@ -156,6 +195,7 @@ MPSolve configuration:
         Source location:	${srcdir}
         C compiler:		${CC}
 	CFLAGS:			${MPS_CFLAGS}
+        LDFLAGS:                ${MPS_LDFLAGS}
         Debug enabled:		$enable_debug
         Check enabled:		$have_check"
 
