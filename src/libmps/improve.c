@@ -196,9 +196,18 @@ mps_improve (mps_status * s)
           if (s->debug_level & MPS_DEBUG_IMPROVEMENT)
             MPS_DEBUG (s, "Iteration %d of the improvement of root %d", j, i);
           g *= 2;
-          s->mpwp = (long) (f + g + cnd);
-          if (s->mpwp >= mpnb_in && mpnb_in != 0)
-            s->mpwp = mpnb_in;
+
+	  /* Round it to 64 integers */
+          s->mpwp = (long) (f + g + cnd) + 63;
+	  s->mpwp = ((s->mpwp - 1) / 64 + 1) * 64;
+
+          if (s->mpwp > mpnb_in && mpnb_in != 0)
+	    {
+	      /* Lower the precision so it won't go over mpnb_in
+	       * that would clearly get us to an error, for over estimating
+	       * the precision of the input coefficients. */
+	      s->mpwp = mpnb_in - 63;
+	    }
 
           mpc_clear (nwtcorr);
           mpc_init2 (nwtcorr, s->mpwp);

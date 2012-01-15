@@ -646,6 +646,8 @@ CXXCPP
 ac_ct_CXX
 CXXFLAGS
 CXX
+AM_BACKSLASH
+AM_DEFAULT_VERBOSITY
 am__fastdepCC_FALSE
 am__fastdepCC_TRUE
 CCDEPMODE
@@ -765,6 +767,7 @@ with_gnu_ld
 with_sysroot
 enable_libtool_lock
 enable_dependency_tracking
+enable_silent_rules
 enable_debug
 '
       ac_precious_vars='build_alias
@@ -1412,6 +1415,8 @@ Optional Features:
   --disable-libtool-lock  avoid locking (might break parallel builds)
   --disable-dependency-tracking  speeds up one-time build
   --enable-dependency-tracking   do not reject slow dependency extractors
+  --enable-silent-rules          less verbose build output (undo: `make V=1')
+  --disable-silent-rules         verbose build output (undo: `make V=0')
   --disable-debug         Disable debug prints in the code
 
 Optional Packages:
@@ -11740,7 +11745,20 @@ fi
 
 
 
-# m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
+if test x$MPS_VERBOSE_COMPILATION != xyes; then
+  # Check whether --enable-silent-rules was given.
+if test "${enable_silent_rules+set}" = set; then :
+  enableval=$enable_silent_rules;
+fi
+
+case $enable_silent_rules in
+yes) AM_DEFAULT_VERBOSITY=0;;
+no)  AM_DEFAULT_VERBOSITY=1;;
+*)   AM_DEFAULT_VERBOSITY=0;;
+esac
+AM_BACKSLASH='\'
+
+fi
 
 # Checks for programs.
 ac_ext=cpp
@@ -16207,9 +16225,6 @@ if test x$platform_win32 = xyes; then
 fi
 
 # Add GMP_CFLAGS and GMP_LIBS to CFLAGS and LDFLAGS in case they are set.
-if test x$GMP_LIBS = x; then
-  GMP_LIBS=""
-fi
 CFLAGS="$GMP_CFLAGS $CFLAGS"
 LDFLAGS="$GMP_LIBS $LDFLAGS"
 
@@ -17439,11 +17454,11 @@ done
 
 
 MPS_CFLAGS="$GENERAL_CFLAGS"
-MPS_LDFLAGS="$GENERAL_LIBS -lm"
+MPS_LDFLAGS="$GENERAL_LIBS"
 UNISOLVE_CFLAGS="$GENERAL_CFLAGS"
 SECSOLVE_CFLAGS="$GENERAL_CFLAGS"
-UNISOLVE_LIBS="$GENERAL_LIBS -lm"
-SECSOLVE_LIBS="$GENERAL_LIBS -lm"
+UNISOLVE_LIBS="$GENERAL_LIBS"
+SECSOLVE_LIBS="$GENERAL_LIBS"
 
 if test "$platform_win32" = yes; then
   MPS_LDFLAGS="$MPS_LDFLAGS -no-undefined -Wl,--export-all-symbols -Wl,--output-def,.libs/libmps-3.dll.def"
