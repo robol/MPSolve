@@ -74,6 +74,20 @@ extern "C"
     }						\
   }
 
+#define MPS_DEBUG_MPC2(s, radius, c, name...) {		\
+  __MPS_DEBUG_EQ(s, name);				\
+  if (s->DOLOG) {					\
+  int t = -rdpe_log10 (radius) - 1;			\
+  cdpe_t ctmp;						\
+  rdpe_t mm;						\
+  mpc_get_cdpe (ctmp, c);				\
+  cdpe_mod (mm, ctmp);					\
+  t += rdpe_log (mm);					\
+  mpc_outln_str (s->logstr, 10, t, c);			\
+  }							\
+}
+  
+
   /**
    * @brief Debug the value of a rdpe variable.
    */

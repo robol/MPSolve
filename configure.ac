@@ -17,9 +17,7 @@ LT_INIT
 
 AM_INIT_AUTOMAKE([dist-bzip2])
 
-if test x$MPS_VERBOSE_COMPILATION != xyes; then
-  m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
-fi
+m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
 
 # Checks for programs.
 AC_PROG_CXX

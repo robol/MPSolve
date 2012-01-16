@@ -11745,8 +11745,7 @@ fi
 
 
 
-if test x$MPS_VERBOSE_COMPILATION != xyes; then
-  # Check whether --enable-silent-rules was given.
+# Check whether --enable-silent-rules was given.
 if test "${enable_silent_rules+set}" = set; then :
   enableval=$enable_silent_rules;
 fi
@@ -11758,7 +11757,6 @@ no)  AM_DEFAULT_VERBOSITY=1;;
 esac
 AM_BACKSLASH='\'
 
-fi
 
 # Checks for programs.
 ac_ext=cpp

@@ -1454,7 +1454,7 @@ mps_dump (mps_status * s)
           break;
 
         case mp_phase:
-	  MPS_DEBUG_MPC (s, 10, s->mroot[i], "Approximation  %4d", i);
+	  MPS_DEBUG_MPC2 (s, s->drad[i], s->mroot[i], "Approximation  %4d", i);
           break;
         }
     }

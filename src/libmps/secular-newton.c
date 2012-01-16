@@ -418,6 +418,43 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
 
   /* This is asum / apol */
   rdpe_div (asum_on_apol, asum, apol);
+  
+  /* Check if newton correction is less than
+   * the modules of x for s->output_config->prec, and if
+   * that's the case, stop. */
+  if (*again)
+     {
+       /* Check if the newton correction is small enough */
+       rdpe_mul (rtmp, ax, s->mp_epsilon);
+
+       mpc_get_cdpe (cdtmp, corr);
+       cdpe_mod (rtmp2, cdtmp);
+       rdpe_mul_eq_d (rtmp, s->n);
+       
+       if (rdpe_lt (rtmp2, rtmp))
+	 {
+	   if (data) 
+	     {
+	       MPS_DEBUG (s, "Stopping the iterations on root %ld because newton correction is smaller than machine precision",
+			  data->k);
+	     }
+	   *again = false;
+	 }
+
+       /* Or if the secular equation is badly conditioned here */
+       rdpe_set (rtmp, asum);
+       rdpe_div_eq (rtmp, apol);
+       rdpe_add_eq (rtmp, rdpe_one);
+       rdpe_mul_eq (rtmp, s->mp_epsilon);
+       if (rdpe_ge (rtmp, rdpe_one))
+	 {
+	   if (data && (s->debug_level & MPS_DEBUG_APPROXIMATIONS))
+	     {
+	       MPS_DEBUG (s, "Setting again on root %ld to false because the approximation is in the root neighbourhood", data->k);
+	     }
+	   *again = false;
+	 }       
+     }
 
   /* We compute the following values in order to give a guaranteed
    * Newton inclusion circle:
@@ -443,7 +480,8 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
    *  That is, finally, the guaranteed newton correction.
    */
   /* if (s->mpsolve_ptr == MPS_MPSOLVE_PTR (mps_standard_mpsolve)) */
-  {
+  if (*again) 
+    {
     rdpe_t theta, ssp, gamma, sigma;
     rdpe_t fp_mod, pol_mod, sumb_mod, g_corr;
     cdpe_t cdpe_tmp, pol_cdpe, fp_cdpe, ssp_cdpe, cdpe_tmp2;
@@ -521,43 +559,6 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
 	  }
       }
   }
-  
-  /* Check if newton correction is less than
-   * the modules of x for s->output_config->prec, and if
-   * that's the case, stop. */
-  if (*again)
-     {
-       /* Check if the newton correction is small enough */
-       rdpe_mul (rtmp, ax, s->mp_epsilon);
-
-       mpc_get_cdpe (cdtmp, corr);
-       cdpe_mod (rtmp2, cdtmp);
-       rdpe_mul_eq_d (rtmp, s->n);
-       
-       if (rdpe_lt (rtmp2, rtmp))
-	 {
-	   if (data) 
-	     {
-	       MPS_DEBUG (s, "Stopping the iterations on root %ld because newton correction is smaller than machine precision",
-			  data->k);
-	     }
-	   *again = false;
-	 }
-
-       /* Or if the secular equation is badly conditioned here */
-       rdpe_set (rtmp, asum);
-       rdpe_div_eq (rtmp, apol);
-       rdpe_add_eq (rtmp, rdpe_one);
-       rdpe_mul_eq (rtmp, s->mp_epsilon);
-       if (rdpe_ge (rtmp, rdpe_one))
-	 {
-	   if (data && (s->debug_level & MPS_DEBUG_APPROXIMATIONS))
-	     {
-	       MPS_DEBUG (s, "Setting again on root %ld to false because the approximation is in the root neighbourhood", data->k);
-	     }
-	   *again = false;
-	 }       
-     }
 
   /* Final cleanup */
  mnewton_exit:
