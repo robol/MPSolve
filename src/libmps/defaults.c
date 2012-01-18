@@ -130,6 +130,7 @@ mps_set_default_values (mps_status * s)
   s->input_config->representation = MPS_REPRESENTATION_MONOMIAL;
   s->input_config->structure = MPS_STRUCTURE_COMPLEX_FP;
   s->input_config->density = MPS_DENSITY_DENSE;
+  s->input_config->prec = 0;
 
   /* Output */
   s->output_config->format = MPS_OUTPUT_FORMAT_COMPACT;
@@ -146,8 +147,8 @@ mps_set_default_values (mps_status * s)
 
   s->mpwp = DBL_DIG * LOG2_10;
 
-  char * t = "";
-  mps_parse_opts (s, 1, &t);
+  /* char * t = ""; */
+  /* mps_parse_opts (s, 1, &t); */
 
   s->over_max = false;
 }

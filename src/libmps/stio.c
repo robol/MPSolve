@@ -1068,6 +1068,9 @@ mps_parse_stream (mps_status * s, FILE * input_stream)
       mps_monomial_poly_read_from_stream (s, buffer);
     }
 
+  /* Set precision to infinite, for now */
+  s->input_config->prec = 0;
+
   mps_input_buffer_free (buffer);
 }
 
@@ -1454,7 +1457,7 @@ mps_dump (mps_status * s)
           break;
 
         case mp_phase:
-	  MPS_DEBUG_MPC2 (s, s->drad[i], s->mroot[i], "Approximation  %4d", i);
+	  MPS_DEBUG_MPC (s, s->mpwp, s->mroot[i], "Approximation  %4d", i);
           break;
         }
     }

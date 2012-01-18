@@ -14,6 +14,11 @@
 #include <string.h>
 #include <assert.h>
 
+#ifdef MPS_CATCH_FPE
+#include <fenv.h>
+int feenableexcept(int excepts);
+#endif
+
 /**
  * @brief Call the real polynomial (or secular equation, or whatever) solver
  * and do the computation.
@@ -28,6 +33,10 @@
 void
 mps_mpsolve (mps_status * s)
 {
+#ifdef MPS_CATCH_FPE
+  feenableexcept (FE_INVALID|FE_DIVBYZERO|FE_OVERFLOW); 
+#endif
+
   (*s->mpsolve_ptr) (s);
 }
 

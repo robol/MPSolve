@@ -27,11 +27,6 @@
 #include <float.h>
 #include <mps/mps.h>
 
-#ifdef MPS_CATCH_FPE
-#include <fenv.h>
-int feenableexcept(int excepts);
-#endif
-
 /**
  * @brief Main routine of the program that implements the algorithm
  * in the standard polynomial version.
@@ -55,10 +50,6 @@ mps_standard_mpsolve (mps_status * s)
   char which_case;
   mps_boolean d_after_f, computed;
   clock_t *my_timer = mps_start_timer ();
-
-#ifdef MPS_CATCH_FPE
-  feenableexcept (FE_INVALID|FE_DIVBYZERO|FE_OVERFLOW); 
-#endif
 
   mps_allocate_data (s);
 
@@ -150,9 +141,8 @@ mps_standard_mpsolve (mps_status * s)
 
   /* == 6 ==   Allocate MP variables mfpc, mroot, drad, mfppc, mfppc1
    * (the real input case is not implemented yet ) */
-  if (s->DOLOG)
-    fprintf (s->logstr, "MP phase ...\n");
-
+  MPS_DEBUG (s, "Starting MP phase");
+  
   /* ==== 6.1 initialize mp variables */
   mps_mp_set_prec (s, 2 * DBL_MANT_DIG);
 
@@ -171,14 +161,19 @@ mps_standard_mpsolve (mps_status * s)
         }
     }
   if (computed && s->output_config->goal == MPS_OUTPUT_GOAL_APPROXIMATE)
-    goto exit_sub;
+    {
+      MPS_DEBUG (s, "Exiting since the approximation are computed and the goal is MPS_OUTPUT_GOAL_APPROXIMATE");
+      goto exit_sub;
+    }
+
+  MPS_DEBUG (s, "s->mpwp = %ld, s->mpwp_max = %ld", s->mpwp, s->mpwp_max);
+  MPS_DEBUG (s, "s->input_config->prec = %ld", s->input_config->prec);
 
   /* == 7 ==  Start MPsolve loop */
   s->mpwp = DBL_MANT_DIG;
   while (!computed && s->mpwp < s->mpwp_max && (s->input_config->prec == 0 || s->mpwp
                                                 < s->input_config->prec))
     {
-
       s->mpwp *= 2;
 
       if (s->input_config->prec != 0 && s->mpwp > s->input_config->prec)

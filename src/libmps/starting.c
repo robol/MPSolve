@@ -1010,7 +1010,6 @@ mps_mstart (mps_status * s, int n, mps_cluster_item * cluster_item,
       /* Compute the initial approximations */
       for (j = iold; j < s->partitioning[i + 1]; j++)
         {
-	  MPS_DEBUG (s, "j = %d", j);
           jj = j - iold;
 
           /* Take index relative to the cluster

@@ -362,6 +362,8 @@ mps_check_stop (mps_status * s)
 	      return computed;
 	    }
         }
+
+      MPS_DEBUG (s, "All roots are computed, stopping Aberth");
       computed = true;
     }
 

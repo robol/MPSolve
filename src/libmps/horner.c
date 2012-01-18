@@ -216,6 +216,8 @@ mps_mhorner_sparse (mps_status * s, mps_monomial_poly * p, mpc_t x,
 
   long int wp;
 
+  MPS_DEBUG_THIS_CALL;
+
   pthread_mutex_lock (&p->mfpc_mutex[0]);
   wp = mpc_get_prec (p->mfpc[0]);
   mpc_vinit2 (mfpc2, s->n + 1, wp);
