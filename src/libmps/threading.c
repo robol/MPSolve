@@ -22,6 +22,8 @@ mps_thread_get_core_number (mps_status * s)
   char buf;
   int cores = 0;
 
+  return 1;
+
   /* If the metafile /proc/cpuinfo is not available
    * return 0                                    */
   if (!cpuinfo)
