@@ -71,7 +71,7 @@ test_mpsolve (char * pol_file, char * res_file, mps_algorithm algorithm)
 
   rdpe_t * drad = rdpe_valloc (mps_status_get_degree (s));
   mpc_t * mroot = mpc_valloc (mps_status_get_degree (s));
-  mpc_vinit2 (mroot, mps_status_get_degree (s), 0);
+  mpc_vinit2 (mroot, mps_status_get_degree (s), 53);
 
   mps_status_get_roots_m (s, mroot, drad);
 
@@ -152,7 +152,11 @@ test_mpsolve (char * pol_file, char * res_file, mps_algorithm algorithm)
   fclose (result_stream);    
   
   mpc_clear (ctmp);   
-  mpc_clear (root);   
+  mpc_clear (root);
+  mpc_vclear (mroot, mps_status_get_degree (s));
+  
+  free (mroot);
+  free (drad);
 
   mps_status_free (s);
 

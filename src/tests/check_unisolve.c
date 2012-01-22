@@ -26,7 +26,7 @@ test_unisolve_on_pol (test_pol * pol)
   FILE *check_stream;
   mps_boolean passed = true;
   mpc_t root, ctmp;
-  int i, j, prec = s->data_prec_max.value * 2;
+  int i, j, prec = pol->out_digits;
   int zero_roots = 0;
   int ch;
 
@@ -54,21 +54,34 @@ test_unisolve_on_pol (test_pol * pol)
       fail ("Cannot open input files");
     }
 
-  s->output_config->goal = MPS_OUTPUT_GOAL_ISOLATE;
+  /* mps_status_set_output_goal (s, MPS_OUTPUT_GOAL_ISOLATE); */
+  /* s->output_config->goal = MPS_OUTPUT_GOAL_ISOLATE; */
 
   mps_parse_stream (s, input_stream);
-  s->output_config->prec = prec;
+
+  mps_status_set_output_prec (s, prec);
+  /* s->output_config->prec = prec; */
 
   mps_mpsolve (s);
 
+  mpc_t * mroot = mpc_valloc (mps_status_get_degree (s));
+  rdpe_t * drad = rdpe_valloc (mps_status_get_degree (s));
+  mpc_vinit2 (mroot, mps_status_get_degree (s), 0);
+
+  mps_status_get_roots_m (s, mroot, drad);
+
   /* Test if roots are equal to the roots provided in the check */
   passed = true;
-  for (i = 0; i < s->deg; i++)
+  for (i = 0; i < mps_status_get_degree (s); i++)
     {
       rdpe_t rtmp;
       cdpe_t cdtmp;
       rdpe_t min_dist;
       int found_root = 0;
+
+      mpc_get_cdpe (cdtmp, mroot[i]);
+      cdpe_mod (rtmp, cdtmp);
+      mpc_set_prec (root, rdpe_Esp (rtmp) - rdpe_Esp (drad[i]) + 25);
 
       while (isspace (ch = getc (check_stream)));
       ungetc (ch, check_stream);
@@ -84,14 +97,14 @@ test_unisolve_on_pol (test_pol * pol)
 	  continue;
 	}
 
-      mpc_sub (ctmp, root, s->mroot[0]);
+      mpc_sub (ctmp, root, mroot[0]);
       mpc_get_cdpe (cdtmp, ctmp);
       cdpe_mod (rtmp, cdtmp);
       rdpe_set (min_dist, rtmp);
 
-      for (j = 1; j < s->n; j++)
+      for (j = 1; j < mps_status_get_degree (s); j++)
         {
-          mpc_sub (ctmp, root, s->mroot[j]);
+          mpc_sub (ctmp, root, mroot[j]);
 	  mpc_get_cdpe (cdtmp, ctmp);
 	  cdpe_mod (rtmp, cdtmp);
 
@@ -102,18 +115,18 @@ test_unisolve_on_pol (test_pol * pol)
 	    }
         }
 
-      if (!rdpe_le (min_dist, s->drad[found_root]) && !s->over_max)
+      if (!rdpe_le (min_dist, drad[found_root]) && !mps_status_get_over_max (s))
 	{
 	  passed = false;
 	  if (getenv ("MPS_VERBOSE_TEST"))
 	    {
 	      printf("Setting passed to false with root %d\n", found_root); 
 	      printf ("s->mroot[%d] = ", found_root);  
-	      mpc_out_str (stdout, 10, prec, s->mroot[found_root]);  
+	      mpc_out_str (stdout, 10, prec, mroot[found_root]);  
 	      printf("\n");  
 	      
 	      printf("s->drad[%d] = ", found_root); 
-	      rdpe_out_str (stdout, s->drad[found_root]); printf ("\n");
+	      rdpe_out_str (stdout, drad[found_root]); printf ("\n");
 	      
 	      printf("min_dist[%d] = ", found_root);  
 	      rdpe_out_str (stdout, min_dist);  
@@ -124,8 +137,10 @@ test_unisolve_on_pol (test_pol * pol)
 
   mpc_clear (root);
   mpc_clear (ctmp);
+  mpc_vclear (mroot, mps_status_get_degree (s));
+  free (mroot);
 
-  if (zero_roots != s->zero_roots)
+  if (zero_roots != mps_status_get_zero_roots (s))
     {
       passed = false;
     }

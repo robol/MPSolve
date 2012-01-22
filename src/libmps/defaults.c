@@ -49,8 +49,7 @@ mps_set_default_values (mps_status * s)
 
   /* Set number of threads to 1.5 * number_of_cores, if this is
    * computable. Set it to 12 otherwise.                     */
-  if (!s->n_threads)
-    s->n_threads = (int) 1.5 * mps_thread_get_core_number (s);
+  s->n_threads = (int) 1.5 * mps_thread_get_core_number (s);
   if (!s->n_threads)
     s->n_threads = 12;
 

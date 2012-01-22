@@ -56,52 +56,53 @@ test_secsolve_on_pol (test_pol * pol)
   fail_if (!(input_stream && check_stream),
            "Cannot open one or more input files");
 
-  /* Set secular equation and start in floating point */
-  s->input_config->structure = MPS_STRUCTURE_COMPLEX_FP;
-  s->input_config->representation = MPS_REPRESENTATION_SECULAR;
-  s->input_config->density = MPS_DENSITY_DENSE;
-
   mps_parse_stream (s, input_stream);
 
-  s->input_config->starting_phase = pol->phase;
-  s->DOLOG = pol->DOLOG;
+  mps_status_set_starting_phase (s, pol->phase);
   if (pol->DOLOG)
-    s->debug_level |= MPS_DEBUG_TRACE;
+    mps_status_set_debug_level (s, MPS_DEBUG_TRACE);
   
-
   if (!pol->ga)
     mps_status_select_algorithm (s, MPS_ALGORITHM_SECULAR_MPSOLVE);
   else
     mps_status_select_algorithm (s, MPS_ALGORITHM_SECULAR_GA);
 
-  s->output_config->goal = MPS_OUTPUT_GOAL_ISOLATE;
-  s->output_config->prec = (int) ((pol->out_digits + 2) * LOG2_10) + 1;
-  s->input_config->prec = 0;
-
-  s->logstr = stderr;
-  s->n_threads = 1;
+  mps_status_set_output_goal (s, MPS_OUTPUT_GOAL_ISOLATE);
+  mps_status_set_output_prec (s, (int) ((pol->out_digits + 2) * LOG2_10) + 1);
+  mps_status_set_input_prec  (s, 0);
 
   mps_mpsolve (s);  
 
+  int n = mps_status_get_degree (s);
+  mpc_t * mroot = mpc_valloc (n);
+  mpc_vinit2 (mroot, n, 0);
+  rdpe_t * drad = rdpe_valloc (n);
+
+  mps_status_get_roots_m (s, mroot, drad);
+
   /* Test if roots are equal to the roots provided in the check */
-  for (i = 0; i < s->n; i++)
+  for (i = 0; i < n; i++)
     {
       rdpe_t rtmp, min_dist;
       cdpe_t cdtmp;
       int found_root = 0;
+
+      mpc_get_cdpe (cdtmp, mroot[i]);
+      cdpe_mod (rtmp, cdtmp);
+      mpc_set_prec (root, rdpe_Esp (rtmp) - rdpe_Esp (drad[i]) + 25);
       
       rdpe_set (min_dist, RDPE_MAX);
 
-      mpc_clear (root);
-      mpc_init2 (root, mpc_get_prec (s->mroot[i]));
+      /* mpc_clear (root); */
+      /* mpc_init2 (root, mpc_get_prec (mroot[i])); */
 
       while (isspace (ch = getc (check_stream)));
       ungetc (ch, check_stream);
       mpc_inp_str (root, check_stream, 10);
 
-      for (j = 0; j < s->n; j++)
+      for (j = 0; j < n; j++)
         {
-          mpc_sub (ctmp, root, s->mroot[j]);
+          mpc_sub (ctmp, root, mroot[j]);
 
 	  mpc_get_cdpe (cdtmp, ctmp);
 	  cdpe_mod (rtmp, cdtmp);
@@ -113,19 +114,19 @@ test_secsolve_on_pol (test_pol * pol)
 	    }
         }
 
-      if (!rdpe_le (min_dist, s->drad[found_root]) && !s->over_max)
+      if (!rdpe_le (min_dist, drad[found_root]) && !mps_status_get_over_max (s))
 	{
 	passed = false;
 	if (getenv ("MPS_VERBOSE_TEST") && (strstr (pol->pol_file, getenv ("MPS_VERBOSE_TEST"))))
 	  {
 	    printf("Setting passed to false with root %d\n", found_root); 
 	    printf ("s->mroot[%d] = ", found_root);  
-	    mpc_out_str (stdout, 10, 20, s->mroot[found_root]);  
+	    mpc_out_str (stdout, 10, 20, mroot[found_root]);  
 	    printf("\n");  
 	    
 	    printf("s->drad[%d] = ", found_root); 
-	    rdpe_out_str (stdout, s->drad[found_root]);  
-	    printf("%e", s->frad[found_root]); 
+	    rdpe_out_str (stdout, drad[found_root]);  
+	    /* printf("%e", s->frad[found_root]);  */
 	    printf("\n");  
 	    
 	    printf("min_dist[%d] = ", found_root);  

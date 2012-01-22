@@ -292,7 +292,15 @@ mps_secular_ga_mpsolve (mps_status * s)
   rdpe_t r_eps;
   mps_secular_equation *sec = mps_secular_equation_from_status (s);
 
-  s->n_threads = 1;
+  /* Check if the secular equation is allocate or if only the
+   * polynomial is present. In the last case, allocate an empty
+   * secular equation to hold the data during the computation. */
+  if (!s->secular_equation)
+    {
+      s->secular_equation = mps_secular_equation_new_raw (s, s->monomial_poly->n);
+      sec = mps_secular_equation_from_status (s);
+    }
+
   mps_allocate_data (s);
   rdpe_set_d (r_eps, DBL_EPSILON);
 
