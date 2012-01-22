@@ -160,7 +160,7 @@ test_secsolve_on_pol (test_pol * pol)
 		 (pol->phase == float_phase) ? "float_phase" : "dpe_phase");
   else
     fail_unless (passed == true,
-		 "Computed results are not exact to the required ");    
+		 "Computed results are not exact to the required precision");    
 
   return passed;
 }

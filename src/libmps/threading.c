@@ -22,8 +22,6 @@ mps_thread_get_core_number (mps_status * s)
   char buf;
   int cores = 0;
 
-  return 1;
-
   /* If the metafile /proc/cpuinfo is not available
    * return 0                                    */
   if (!cpuinfo)
@@ -152,10 +150,9 @@ mps_thread_mainloop (void * thread_ptr)
       sem_getvalue (&thread->pool->free_count, &free_count);
       thread->busy = false;
 
-      /* printf("(thread %p) Now semaphore value is %d\n", thread, free_count); */
+      /* printf("(thread %p) Now semaphore value is %d\n", thread, free_count);  */
 
-      if (free_count == thread->pool->n)
-	pthread_cond_signal (&thread->pool->free_count_changed_cond);
+      pthread_cond_signal (&thread->pool->free_count_changed_cond);
 
       pthread_mutex_unlock (&thread->pool->free_count_changed_mutex);
 
@@ -195,6 +192,31 @@ mps_thread_start_mainloop (mps_status * s, mps_thread * thread)
   pthread_create (thread->thread, NULL, &mps_thread_mainloop, thread);
 }
 
+/**
+ * @brief Limit the maximum number of threads that can be used in the thread pool.
+ */
+void mps_thread_pool_set_concurrency_limit (mps_status * s, mps_thread_pool * pool, 
+					    unsigned int concurrency_limit)
+{
+  int i;
+  long int l_cl;
+
+  /* We need to keep some threads occupied with nothing to do */  
+  if (pool->concurrency_limit == 0 && concurrency_limit == 0)
+    return;
+
+  /* Update concurrency magic values */
+  pool->concurrency_limit = (pool->concurrency_limit == 0) ? pool->n : pool->concurrency_limit;
+  l_cl = (concurrency_limit == 0) ? pool->n : concurrency_limit;
+
+  for (i = 0; i < pool->concurrency_limit - l_cl; i++)
+    sem_wait (&pool->free_count);
+
+  for (i = 0; i < l_cl - pool->concurrency_limit; i++)
+    sem_post (&pool->free_count);
+
+  pool->concurrency_limit = concurrency_limit;
+}
 
 void
 mps_thread_pool_assign (mps_status * s, mps_thread_pool * pool, 
@@ -242,19 +264,20 @@ void
 mps_thread_pool_wait (mps_status * s, mps_thread_pool * pool)
 {
   int value;
+  
+  long int threads_to_wait = (pool->concurrency_limit == 0) ? pool->n : pool->concurrency_limit;
 
   do
     {
       pthread_mutex_lock (&pool->free_count_changed_mutex);
       sem_getvalue (&pool->free_count, &value);
-      /* printf("free: %d\n", value); fflush(stdout); */
 
-      if (value != pool->n)
+      if (value != threads_to_wait)
 	pthread_cond_wait (&pool->free_count_changed_cond, &pool->free_count_changed_mutex);
 
       pthread_mutex_unlock (&pool->free_count_changed_mutex);
 
-    } while (value != pool->n);
+    } while (value != threads_to_wait);
 
 }
 
@@ -340,6 +363,8 @@ mps_thread_pool_new (mps_status * s)
   
   for (i = 0; i < threads; i++) 
     mps_thread_pool_insert_new_thread (s, pool); 
+
+  pool->concurrency_limit = 0;
 
   mps_thread_pool_wait (s, pool);
 

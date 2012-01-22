@@ -123,11 +123,11 @@ mps_allocate_data (mps_status * s)
   for (i = 0; i < s->n; i++) 
     s->rootwp[i] = DBL_DIG * LOG2_10;
 
-  /* Allocate the thread_pool used in computations. */
-  s->pool = mps_thread_pool_new (s);
-
   /* Init the mutex that need it */
   pthread_mutex_init (&s->precision_mutex, NULL);
+
+  /* Other mt variables in status */
+  MPS_INIT_LOCK (s->data_prec_max);
 
   s->initialized = true;
 }
@@ -271,11 +271,12 @@ mps_prepare_data (mps_status * s, long int prec)
   if (s->debug_level & MPS_DEBUG_MEMORY)
     MPS_DEBUG (s, "Increasing working precision to %ld bits", prec);
 
-  if (prec > s->data_prec_max)
+  MPS_LOCK (s->data_prec_max);
+  if (prec > s->data_prec_max.value)
     {
-      if (s->data_prec_max)
-        mps_raise_data_raw (s, s->data_prec_max);
-      s->data_prec_max = mps_raise_data (s, prec);
+      if (s->data_prec_max.value)
+        mps_raise_data_raw (s, s->data_prec_max.value);
+      s->data_prec_max.value = mps_raise_data (s, prec);
     }
   else
     {
@@ -286,6 +287,7 @@ mps_prepare_data (mps_status * s, long int prec)
       else
         mps_secular_raise_precision (s, prec);
     }
+  MPS_UNLOCK (s->data_prec_max);
 }
 
 /**
@@ -296,11 +298,17 @@ mps_prepare_data (mps_status * s, long int prec)
 void
 mps_restore_data (mps_status * s)
 {
+  MPS_LOCK (s->data_prec_max);
   if (s->debug_level & MPS_DEBUG_MEMORY)
-    MPS_DEBUG (s, "Restore data to %ld bits", s->data_prec_max);
+    MPS_DEBUG (s, "Restore data to %ld bits", s->data_prec_max.value);
 
-  if (s->data_prec_max)
-    mps_raise_data_raw (s, s->data_prec_max);
+  if (s->data_prec_max.value)
+    {
+      MPS_UNLOCK (s->data_prec_max);
+      mps_raise_data_raw (s, s->data_prec_max.value);
+    }
+  else
+    MPS_UNLOCK (s->data_prec_max);
 }
 
 /**

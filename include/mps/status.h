@@ -191,7 +191,7 @@ extern "C"
     /**
      * @brief Maximum precision reached during the computation.
      */
-    long int data_prec_max;
+    mps_long_int_mt data_prec_max;
 
     /**
      * @brief Precision operation give best results when done one

@@ -56,6 +56,7 @@ usage (mps_status * s, const char *program)
 	   "              c: Count the roots in the search set\n"
            " -g          Use Gemignani's approach\n"
            " -t type     Type can be 'f' for floating point\n"
+	   " -j n        Number of threads to spawn as workers\n"
            "             or 'd' for DPE\n"
            " -o digits   Exact digits of the roots given as output.\n",
            program, program);
@@ -82,7 +83,7 @@ main (int argc, char **argv)
   mps_phase phase = float_phase;
 
   opt = NULL;
-  while ((mps_getopts (&opt, &argc, &argv, "gG:d::t:o:O:")))
+  while ((mps_getopts (&opt, &argc, &argv, "gG:d::t:o:O:j:")))
     {
       switch (opt->optchar)
         {
@@ -201,6 +202,10 @@ main (int argc, char **argv)
               usage (s, argv[0]);
             }
           break;
+
+	case 'j':
+	  mps_thread_pool_set_concurrency_limit (s, s->pool, atoi (opt->optvalue));
+	  break;
         default:
           usage (s, argv[0]);
           break;

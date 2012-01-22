@@ -26,7 +26,7 @@ test_unisolve_on_pol (test_pol * pol)
   FILE *check_stream;
   mps_boolean passed = true;
   mpc_t root, ctmp;
-  int i, j, prec = pol->out_digits * LOG2_10;
+  int i, j, prec = s->data_prec_max * 2;
   int zero_roots = 0;
   int ch;
 
@@ -54,13 +54,9 @@ test_unisolve_on_pol (test_pol * pol)
       fail ("Cannot open input files");
     }
 
-  s->output_config->goal = MPS_OUTPUT_GOAL_APPROXIMATE;
+  s->output_config->goal = MPS_OUTPUT_GOAL_ISOLATE;
 
   mps_parse_stream (s, input_stream);
-
-  /* Set the logstr to stderr, so the program won't segfault if there is the
-   * need to write something to the console */
-  s->logstr = stderr;
   s->output_config->prec = prec;
 
   mps_mpsolve (s);
@@ -113,7 +109,7 @@ test_unisolve_on_pol (test_pol * pol)
 	    {
 	      printf("Setting passed to false with root %d\n", found_root); 
 	      printf ("s->mroot[%d] = ", found_root);  
-	      mpc_out_str (stdout, 10, 20, s->mroot[found_root]);  
+	      mpc_out_str (stdout, 10, prec, s->mroot[found_root]);  
 	      printf("\n");  
 	      
 	      printf("s->drad[%d] = ", found_root); 
@@ -153,7 +149,7 @@ test_unisolve_on_pol (test_pol * pol)
 		 pol->out_digits);
   else
     fail_unless (passed == true,
-		 "Computed results are not exact to the required ");
+		 "Computed results are not exact to the required precision");
   
 
   return passed;

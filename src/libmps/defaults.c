@@ -49,7 +49,8 @@ mps_set_default_values (mps_status * s)
 
   /* Set number of threads to 1.5 * number_of_cores, if this is
    * computable. Set it to 12 otherwise.                     */
-  s->n_threads = (int) 1.5 * mps_thread_get_core_number (s);
+  if (!s->n_threads)
+    s->n_threads = (int) 1.5 * mps_thread_get_core_number (s);
   if (!s->n_threads)
     s->n_threads = 12;
 
@@ -140,15 +141,15 @@ mps_set_default_values (mps_status * s)
   s->output_config->root_properties = MPS_OUTPUT_PROPERTY_NONE;
   s->output_config->search_set = MPS_SEARCH_SET_COMPLEX_PLANE;
 
-  s->data_prec_max = 53;
+  s->data_prec_max.value = 53;
 
   /* Default algorithm */
   mps_status_select_algorithm (s, MPS_ALGORITHM_STANDARD_MPSOLVE);
 
   s->mpwp = DBL_DIG * LOG2_10;
 
-  /* char * t = ""; */
-  /* mps_parse_opts (s, 1, &t); */
+  /* Allocate the thread_pool used in computations. */
+  s->pool = mps_thread_pool_new (s);
 
   s->over_max = false;
 }
