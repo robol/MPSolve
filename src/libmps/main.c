@@ -305,11 +305,6 @@ mps_setup (mps_status * s)
    * 0 and reach n */
   mps_cluster_reset (s);
 
-  /* Check if the numer of thread is greater of the number of roots,
-     and in that case decrease it */
-  if (s->n_threads > s->n)
-    s->n_threads = s->n;
-
   /* set input and output epsilon */
   rdpe_set_2dl (s->eps_in, 1.0, 1 - s->input_config->prec);
   rdpe_set_2dl (s->eps_out, 1.0, 1 - s->output_config->prec);

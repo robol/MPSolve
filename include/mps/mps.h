@@ -46,6 +46,9 @@ typedef const char * mps_string;
 
 #define mps_boolean_to_string(x) ((x) == true) ? "true" : "false"
 
+/* Debug level */
+typedef int mps_debug_level;
+
 #include <mps/mt-types.h>
 
 #ifdef __cplusplus

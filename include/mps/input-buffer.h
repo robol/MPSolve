@@ -6,6 +6,7 @@ extern "C"
 {
 #endif
 
+#ifdef _MPS_PRIVATE
   /**
    * @brief Default size of the buffer of old lines in the input
    * buffer instances.
@@ -74,8 +75,9 @@ extern "C"
      * modified, even if you think that you know what you're doing.
      */
     char * last_token;
-
   };
+
+#endif /* #ifdef _MPS_PRIVATE */
 
   /* Function prototypes */
   mps_input_buffer *mps_input_buffer_new (FILE * stream);

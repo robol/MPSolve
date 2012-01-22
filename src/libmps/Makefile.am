@@ -62,6 +62,7 @@ libmps_la_SOURCES = \
 	    solve.c \
 	    sort.c \
 	    starting.c \
+	    status.c \
 	    stio.c \
 	    test.c \
 	    threading.c \

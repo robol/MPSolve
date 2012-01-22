@@ -201,6 +201,9 @@ void mps_thread_pool_set_concurrency_limit (mps_status * s, mps_thread_pool * po
   int i;
   long int l_cl;
 
+  if (!pool)
+    pool = s->pool;
+
   /* We need to keep some threads occupied with nothing to do */  
   if (pool->concurrency_limit == 0 && concurrency_limit == 0)
     return;
@@ -222,6 +225,9 @@ void
 mps_thread_pool_assign (mps_status * s, mps_thread_pool * pool, 
 			mps_thread_work work, void * args)
 {
+  if (!pool)
+    pool = s->pool;
+
   /* Assign work to the first free thread in the pool */
   mps_thread * thread = pool->first;
 
@@ -265,6 +271,9 @@ mps_thread_pool_wait (mps_status * s, mps_thread_pool * pool)
 {
   int value;
   
+  if (!pool)
+    pool = s->pool;
+  
   long int threads_to_wait = (pool->concurrency_limit == 0) ? pool->n : pool->concurrency_limit;
 
   do
@@ -287,6 +296,8 @@ mps_thread_pool_wait (mps_status * s, mps_thread_pool * pool)
 mps_thread * 
 mps_thread_new (mps_status * s, mps_thread_pool * pool)
 {  
+  if (!pool)
+    pool = s->pool;
   mps_thread * thread = mps_new (mps_thread);
 
   /* Set the initial values in the thread */
@@ -335,6 +346,9 @@ mps_thread_free (mps_status * s, mps_thread * thread)
 void
 mps_thread_pool_insert_new_thread (mps_status * s, mps_thread_pool * pool)
 {
+  if (!pool)
+    pool = s->pool;
+
   mps_thread * thread = mps_thread_new (s, pool);
   
   thread->next = pool->first; 
@@ -378,6 +392,9 @@ mps_thread_pool_new (mps_status * s)
 void 
 mps_thread_pool_free (mps_status * s, mps_thread_pool * pool)
 {
+  if (!pool)
+    pool = s->pool;
+
   mps_thread * thread = pool->first;
   mps_thread * next_thread;
 

@@ -8,6 +8,7 @@
 
 #include <mps/mps.h>
 
+#ifdef _MPS_PRIVATE
 /**
  * @brief This struct represent a root inside of a <code>mps_cluster</code>.
  */
@@ -86,6 +87,7 @@ struct mps_clusterization {
    */
   mps_cluster_item * first;
 };
+#endif /* #ifdef _MPS_PRIVATE */
 
 /*********************************************************************************
  *                                   FUNCTIONS                                   *

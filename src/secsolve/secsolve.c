@@ -23,12 +23,7 @@
 void
 usage (mps_status * s, const char *program)
 {
-  /* If there is not an output stream do not print
-   * the help */
-  if (!s->outstr)
-    return;
-
-  fprintf (s->outstr,
+  fprintf (stderr,
            "Usage: %s [-dg] [-t type] [-n degree] [-o digits] [infile]\n"
            "\n"
            "Options:\n"
@@ -71,7 +66,7 @@ main (int argc, char **argv)
 
   /* Create a new status */
   s = mps_status_new ();
-  s->input_config->prec = 0;
+  mps_status_set_input_prec (s, 0);
 
   /* Gemignani's approach */
   mps_boolean ga = false;
@@ -95,21 +90,21 @@ main (int argc, char **argv)
 	  switch (*opt->optvalue)
 	    {
 	    case 'f':
-	      s->output_config->format = MPS_OUTPUT_FORMAT_FULL;
+	      mps_status_set_output_format (s, MPS_OUTPUT_FORMAT_FULL);
 	      break;
 	    case 'b':
-	      s->output_config->format = MPS_OUTPUT_FORMAT_BARE;
+	      mps_status_set_output_format (s, MPS_OUTPUT_FORMAT_BARE);
 	      break;
 	    case 'g':
-	      s->output_config->format = MPS_OUTPUT_FORMAT_GNUPLOT;
+	      mps_status_set_output_format (s, MPS_OUTPUT_FORMAT_GNUPLOT);
 	      if (*(opt->optvalue + 1) == 'f')
-		s->output_config->format = MPS_OUTPUT_FORMAT_GNUPLOT_FULL;
+		mps_status_set_output_format (s, MPS_OUTPUT_FORMAT_GNUPLOT_FULL);
 	      break;
 	    case 'v':
-	      s->output_config->format = MPS_OUTPUT_FORMAT_VERBOSE;
+	      mps_status_set_output_format (s, MPS_OUTPUT_FORMAT_VERBOSE);
 	      break;
 	    case 'c':
-	      s->output_config->format = MPS_OUTPUT_FORMAT_COMPACT;
+	      mps_status_set_output_format (s, MPS_OUTPUT_FORMAT_COMPACT);
 	      break;
 	    default:
 	      mps_error (s, 1, "The selected output format is not supported");
@@ -122,19 +117,19 @@ main (int argc, char **argv)
           ga = true;
           break;
         case 'o':
-          s->output_config->prec = (atoi (opt->optvalue) + 1) * LOG2_10 + 1;
+          mps_status_set_output_prec (s, (atoi (opt->optvalue) + 1) * LOG2_10 + 1);
           break;
         case 'G':
 	  switch (*opt->optvalue)
 	    {
 	    case 'a':
-	      s->output_config->goal = MPS_OUTPUT_GOAL_APPROXIMATE;
+	      mps_status_set_output_goal (s, MPS_OUTPUT_GOAL_APPROXIMATE);
 	      break;
 	    case 'i':
-	      s->output_config->goal = MPS_OUTPUT_GOAL_ISOLATE;
+	      mps_status_set_output_goal (s, MPS_OUTPUT_GOAL_ISOLATE);
 	      break;
 	    case 'c':
-	      s->output_config->goal = MPS_OUTPUT_GOAL_COUNT;
+	      mps_status_set_output_goal (s, MPS_OUTPUT_GOAL_COUNT);
 	      break;
 	    default:
 	      mps_error (s, 1, "The selected goal does not exists");
@@ -142,13 +137,10 @@ main (int argc, char **argv)
 	    }
           break;
         case 'd':
-          s->DOLOG = true;
-          s->logstr = stderr;
-
           if (!opt->optvalue)
             {
               /* If no specific debug domain has been specified, trace. */
-              s->debug_level |= MPS_DEBUG_TRACE;
+	      mps_status_set_debug_level (s, MPS_DEBUG_TRACE);
               break;
             }
 
@@ -159,28 +151,28 @@ main (int argc, char **argv)
               switch (*opt->optvalue++)
                 {
                 case 't':
-                  s->debug_level |= MPS_DEBUG_TRACE;
+                  mps_status_add_debug_domain (s, MPS_DEBUG_TRACE);
                   break;
                 case 'a':
-                  s->debug_level |= MPS_DEBUG_APPROXIMATIONS;
+		  mps_status_add_debug_domain (s, MPS_DEBUG_APPROXIMATIONS);
                   break;
                 case 'c':
-                  s->debug_level |= MPS_DEBUG_CLUSTER;
+		  mps_status_add_debug_domain (s, MPS_DEBUG_CLUSTER);
                   break;
                 case 'i':
-                  s->debug_level |= MPS_DEBUG_IMPROVEMENT;
+		  mps_status_add_debug_domain (s, MPS_DEBUG_IMPROVEMENT);
                   break;
                 case 'w':
-                  s->debug_level |= MPS_DEBUG_TIMINGS;
+		  mps_status_add_debug_domain (s, MPS_DEBUG_TIMINGS);
                   break;
                 case 'o':
-                  s->debug_level |= MPS_DEBUG_IO;
+		  mps_status_add_debug_domain (s, MPS_DEBUG_IO);
                   break;
                 case 'm':
-                  s->debug_level |= MPS_DEBUG_MEMORY;
+		  mps_status_add_debug_domain (s, MPS_DEBUG_MEMORY);
                   break;
                 case 'f':
-                  s->debug_level |= MPS_DEBUG_FUNCTION_CALLS;
+		  mps_status_add_debug_domain (s, MPS_DEBUG_FUNCTION_CALLS);
                   break;
                 default:
 		  sprintf (output, "Unrecognized debug option: %c", *(opt->optvalue - 1));
@@ -204,7 +196,7 @@ main (int argc, char **argv)
           break;
 
 	case 'j':
-	  mps_thread_pool_set_concurrency_limit (s, s->pool, atoi (opt->optvalue));
+	  mps_thread_pool_set_concurrency_limit (s, NULL, atoi (opt->optvalue));
 	  break;
         default:
           usage (s, argv[0]);
@@ -227,10 +219,6 @@ main (int argc, char **argv)
       return -1;
     }
 
-  /* Create new secular equation */
-  s->input_config->structure  = MPS_STRUCTURE_COMPLEX_FP;
-  s->input_config->representation = MPS_REPRESENTATION_SECULAR;
-
   /* Parse the input stream and if a polynomial is given as output, 
    * allocate also a secular equation to be used in regeneration */
   mps_parse_stream (s, infile);
@@ -238,14 +226,6 @@ main (int argc, char **argv)
   /* Close the file if it's not stdin */
   if (argc == 2)
     fclose (infile);
-
-  /* Select ga if we are in the case of monomial input, since is the only algorithm
-   * that we can use. */
-  if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config) && !ga)
-    {
-      ga = true;
-      MPS_DEBUG_WITH_INFO (s, "Selecting algorithm MPS_ALGORITHM_SECULAR_GA since MPS_ALGORITHM_SECULAR_MPSOLVE is not available for monomial input");
-    }
 
   /* If we choose gemignani's approach follow it, otherwise
    * use standard mpsolve approach applied implicitly to the
@@ -262,7 +242,7 @@ main (int argc, char **argv)
     }
 
   /* Select the starting phase according to user input */
-  s->input_config->starting_phase = phase;
+  mps_status_set_starting_phase (s, phase);
 
   /* Solve the polynomial */
   mps_mpsolve (s);

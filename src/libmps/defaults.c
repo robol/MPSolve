@@ -143,10 +143,11 @@ mps_set_default_values (mps_status * s)
 
   s->data_prec_max.value = 53;
 
-  /* Default algorithm */
-  mps_status_select_algorithm (s, MPS_ALGORITHM_STANDARD_MPSOLVE);
-
   s->mpwp = DBL_DIG * LOG2_10;
+
+  /* Setup for the default algorithm */
+  s->mpsolve_ptr = MPS_MPSOLVE_PTR (mps_standard_mpsolve);
+  s->algorithm = MPS_ALGORITHM_STANDARD_MPSOLVE;
 
   /* Allocate the thread_pool used in computations. */
   s->pool = mps_thread_pool_new (s);

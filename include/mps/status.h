@@ -81,6 +81,7 @@ extern "C"
 #define MPS_DSTART_PTR(x) (mps_dstart_ptr) &(x)
 #define MPS_MPSOLVE_PTR(x) (mps_mpsolve_ptr) &(x)
 
+#ifdef _MPS_PRIVATE
   /**
    * @brief this struct holds the state of the mps computation
    */
@@ -93,9 +94,9 @@ extern "C"
     mps_boolean initialized;
 
     /**
-     * @brief Byte containing the flags of debug enabled.
+     * @brief Bytes containing the flags of debug enabled.
      */
-    unsigned int debug_level;
+    mps_debug_level debug_level;
 
     /**
      * @brief True if the computation has reached the maximum allowed precision.
@@ -611,7 +612,50 @@ extern "C"
 
   };                 /* End of typedef struct { ... */
 
+#endif /* #ifdef _MPS_PRIVATE */
 
+  /* Allocator, deallocator, constructors.. */
+  mps_status * mps_status_new (void);
+  void mps_status_init (mps_status * s);
+  void mps_status_free (mps_status * s);
+
+  /* Accessor functions (setters) */
+  int mps_status_set_poly_d (mps_status * s, cplx_t * coeff,
+			     long unsigned int n);
+  void mps_status_set_input_poly (mps_status * s, mps_monomial_poly * p);
+  int mps_status_set_poly_i (mps_status * s, int *coeff, long unsigned int n);
+  int mps_status_set_poly_u (mps_status * s, int n, mps_fnewton_ptr fnewton,
+			     mps_dnewton_ptr dnewton,
+			     mps_mnewton_ptr mnewton);
+  void mps_status_select_algorithm (mps_status * s, mps_algorithm algorithm);
+  void mps_status_set_degree (mps_status * s, int n);
+
+#ifdef _MPS_PRIVATE
+  void mps_status_allocate_poly_inplace (mps_status * s, int n);
+#endif
+
+  /* Accessor functions */
+  long int mps_status_get_data_prec_max (mps_status * s);
+  int mps_status_get_degree (mps_status * s);
+  int mps_status_get_roots_d (mps_status * s, cplx_t * roots, double *radius);
+  int mps_status_get_roots_m (mps_status * s, mpc_t * roots, rdpe_t * radius);
+  int mps_status_get_zero_roots (mps_status * s);
+  mps_boolean mps_status_get_over_max (mps_status * s);
+
+  /* I/O options and flags */
+  void mps_status_set_input_prec (mps_status * s, long int prec);
+  void mps_status_set_output_prec (mps_status * s, long int prec);
+  void mps_status_set_output_format (mps_status * s, mps_output_format format);
+  void mps_status_set_output_goal (mps_status * s, mps_output_goal goal);
+  void mps_status_set_starting_phase (mps_status * s, mps_phase phase);
+
+  /* Debugging */
+  void mps_status_set_debug_level (mps_status * s, mps_debug_level level);
+  void mps_status_add_debug_domain (mps_status * s, mps_debug_level level);
+  
+  /* Get input and output config pointers */
+  mps_input_configuration * mps_status_get_input_config (mps_status * s);
+  mps_output_configuration * mps_status_get_output_config (mps_status * s);
 
 
 

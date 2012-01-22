@@ -21,6 +21,8 @@ extern "C"
 #include <mps/mps.h>
 #include <float.h>
 
+#ifdef _MPS_PRIVATE
+
   /* CONSTANTS */
 
   /**
@@ -216,7 +218,8 @@ extern "C"
     mps_boolean radius_set;
 
   };
-    
+
+#endif /* #ifdef _MPS_PRIVATE */    
 
 
   /* MACROS */

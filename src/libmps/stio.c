@@ -929,6 +929,9 @@ mps_parse_stream (mps_status * s, FILE * input_stream)
   char * line;
   mps_boolean first_pass = true;
 
+  if (!input_stream)
+    input_stream = s->instr;
+
   /* Create a buffered line reader for the input stream
    * that has been assigned to us */
   buffer = mps_input_buffer_new (input_stream);

@@ -312,7 +312,7 @@ extern "C"
    * about virtually every step in the program, it enables
    * every debug level.
    */
-#define MPS_DEBUG_TRACE    (0xFFFF)
+#define MPS_DEBUG_TRACE    (0xFF)
 
 #define MPS_DEBUG_IF(s, debug_level, debug_instruction)	if (debug_level & s->debug_level) { \
     debug_instruction;							\

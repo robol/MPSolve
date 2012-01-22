@@ -84,8 +84,8 @@ am_libmps_la_OBJECTS = aberth.lo cluster.lo convex.lo data.lo debug.lo \
 	secular-evaluation.lo secular-ga.lo secular-iteration.lo \
 	secular-newton.lo secular-radius.lo secular-regeneration.lo \
 	secular-starting.lo secular.lo solve.lo sort.lo starting.lo \
-	stio.lo test.lo threading.lo tools.lo touch.lo user.lo \
-	$(am__objects_1)
+	status.lo stio.lo test.lo threading.lo tools.lo touch.lo \
+	user.lo $(am__objects_1)
 libmps_la_OBJECTS = $(am_libmps_la_OBJECTS)
 AM_V_lt = $(am__v_lt_$(V))
 am__v_lt_ = $(am__v_lt_$(AM_DEFAULT_VERBOSITY))
@@ -328,6 +328,7 @@ libmps_la_SOURCES = \
 	    solve.c \
 	    sort.c \
 	    starting.c \
+	    status.c \
 	    stio.c \
 	    test.c \
 	    threading.c \
@@ -448,6 +449,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/solve.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sort.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/starting.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/status.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/stio.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/threading.Plo@am__quote@

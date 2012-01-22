@@ -36,44 +36,46 @@ test_mpsolve (char * pol_file, char * res_file, mps_algorithm algorithm)
 
   /* Check the roots */
   FILE* result_stream = fopen (res_file, "r"); 
+  FILE* input_stream  = fopen (pol_file, "r");
+
+  if (!result_stream) 
+    {
+      fprintf (stderr, "Checking \033[1m%-30s\033[0m \033[31;1mno results file found!\033[0m\n", pol_file + 9); 
+      return EXIT_FAILURE;
+    }
+  if (!input_stream)
+    {
+      fprintf (stderr, "Checking \033[1m%-30s\033[0m \033[31;1mno polinomial file found!\033[0m\n", pol_file + 9); 
+      return EXIT_FAILURE;
+    }
 
   /* Create a new empty mps_status */
   mps_status * s = mps_status_new ();
 
   /* Load the polynomial that has been given to us */
-  s->instr = fopen (pol_file, "r");
-  
-  if (!result_stream) 
-    {
-      fprintf (stderr, "Checking \033[1m%-30s\033[0m \033[31;1mno results file found!\033[0m\n", pol_file + 9); 
-      return 0;
-    }
-  if (!s->instr)
-    {
-      fprintf (stderr, "Checking \033[1m%-30s\033[0m \033[31;1mno polinomial file found!\033[0m\n", pol_file + 9); 
-      return 0;
-    }
+  mps_parse_stream (s, input_stream);
   
   fprintf (stderr, "Checking \033[1m%-30s\033[0m [\033[34;1mchecking\033[0m]", pol_file + 9);
 
-  mps_parse_stream (s, s->instr);
-
-  s->output_config->goal = MPS_OUTPUT_GOAL_APPROXIMATE;
-  /* s->DOLOG = true; */
-  /* s->debug_level = MPS_DEBUG_TRACE; */
-  /* s->output_config->prec = 16;  */
+  mps_status_set_output_goal (s, MPS_OUTPUT_GOAL_APPROXIMATE);
 
   /* Solve it */
   mps_status_select_algorithm (s, algorithm);
   mps_mpsolve (s);
   
-  mpc_init2 (root, s->data_prec_max);
-  mpc_init2 (ctmp, s->data_prec_max); 
+  mpc_init2 (root, mps_status_get_data_prec_max (s));
+  mpc_init2 (ctmp, mps_status_get_data_prec_max (s));
     
   /* Test if roots are equal to the roots provided in the check */   
   passed = true;
 
-  for (i = 0; i < s->deg; i++)   
+  rdpe_t * drad = rdpe_valloc (mps_status_get_degree (s));
+  mpc_t * mroot = mpc_valloc (mps_status_get_degree (s));
+  mpc_vinit2 (mroot, mps_status_get_degree (s), 0);
+
+  mps_status_get_roots_m (s, mroot, drad);
+
+  for (i = 0; i < mps_status_get_degree (s); i++)   
     {   
       rdpe_t rtmp;   
       cdpe_t cdtmp;   
@@ -94,7 +96,7 @@ test_mpsolve (char * pol_file, char * res_file, mps_algorithm algorithm)
 	  continue;
 	}
       
-      mpc_sub (ctmp, root, s->mroot[0]);   
+      mpc_sub (ctmp, root, mroot[0]);   
       mpc_get_cdpe (cdtmp, ctmp);   
       cdpe_mod (rtmp, cdtmp);   
       rdpe_set (min_dist, rtmp);   
@@ -102,14 +104,14 @@ test_mpsolve (char * pol_file, char * res_file, mps_algorithm algorithm)
       if (getenv ("MPS_VERBOSE_TEST") && (strstr (pol_file, getenv ("MPS_VERBOSE_TEST"))))
 	{
 	  printf ("Read root_%d = ", i);
-	  mpc_out_str_2 (stdout, 10, s->data_prec_max, s->data_prec_max,
+	  mpc_out_str_2 (stdout, 10, mps_status_get_data_prec_max (s), mps_status_get_data_prec_max (s),
 			 root);
 	  printf ("\n");
 	}
       
-      for (j = 1; j < s->n; j++)   
+      for (j = 1; j < mps_status_get_degree (s); j++)   
    	{   
-   	  mpc_sub (ctmp, root, s->mroot[j]);
+   	  mpc_sub (ctmp, root, mroot[j]);
      	  mpc_get_cdpe (cdtmp, ctmp);   
      	  cdpe_mod (rtmp, cdtmp);   
 	  
@@ -126,7 +128,7 @@ test_mpsolve (char * pol_file, char * res_file, mps_algorithm algorithm)
       /* rdpe_out_str (stdout, s->drad[i]); */
       /* printf ("\n"); */
       
-      if (!rdpe_le (min_dist, s->drad[found_root]) && !s->over_max)
+      if (!rdpe_le (min_dist, drad[found_root]) && !mps_status_get_over_max (s))
 	{
 	  passed = false;
 	  
@@ -135,16 +137,16 @@ test_mpsolve (char * pol_file, char * res_file, mps_algorithm algorithm)
 	      printf("Failing on root %d, with min_dist = ", found_root);
 	      rdpe_out_str (stdout, min_dist);
 	      printf("\ndrad_%d", found_root);
-	      rdpe_out_str (stdout, s->drad[found_root]);
+	      rdpe_out_str (stdout, drad[found_root]);
 	      printf("\n");
 	      printf("Approximation_%d = ", found_root);
-	      mpc_out_str_2 (stdout, 10, -rdpe_Esp (s->drad[found_root]), -rdpe_Esp (s->drad[found_root]), s->mroot[found_root]);
+	      mpc_out_str_2 (stdout, 10, -rdpe_Esp (drad[found_root]), -rdpe_Esp (drad[found_root]), mroot[found_root]);
 	      printf("\n");
 	    }
 	}
     }
 
-  if (zero_roots != s->zero_roots)
+  if (zero_roots != mps_status_get_zero_roots (s))
     passed = false;
   
   fclose (result_stream);    

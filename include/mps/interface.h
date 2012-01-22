@@ -178,26 +178,6 @@ extern "C"
 #define mps_new(type) ((type *) mps_malloc (sizeof (type)))
 #define mps_newv(type, n) ((type *) mps_malloc (sizeof (type) * (n)))
 
-  mps_status * mps_status_new (void);
-  void mps_status_init (mps_status * s);
-  void mps_status_free (mps_status * s);
-  int mps_status_set_poly_d (mps_status * s, cplx_t * coeff,
-			     long unsigned int n);
-  void mps_status_set_input_poly (mps_status * s, mps_monomial_poly * p);
-  int mps_status_set_poly_i (mps_status * s, int *coeff, long unsigned int n);
-  int mps_status_get_roots_d (mps_status * s, cplx_t * roots, double *radius);
-  int mps_status_set_poly_u (mps_status * s, int n, mps_fnewton_ptr fnewton,
-			     mps_dnewton_ptr dnewton,
-			     mps_mnewton_ptr mnewton);
-  void mps_status_allocate_poly_inplace (mps_status * s, int n);
-  void mps_status_select_algorithm (mps_status * s, mps_algorithm algorithm);
-  void mps_status_set_degree (mps_status * s, int n);
-  int mps_status_get_roots_d (mps_status * s, cplx_t * roots, double *radius);
-  int mps_status_get_roots_m (mps_status * s, mpc_t * roots, rdpe_t * radius);
-  int mps_status_get_degree (mps_status * s);
-  void mps_status_set_output_prec (mps_status * s, long int prec);
-  void mps_status_set_goal (mps_status * s, mps_output_goal goal);
-
 #ifdef	__cplusplus
 }
 #endif

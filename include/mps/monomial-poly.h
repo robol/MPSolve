@@ -16,6 +16,7 @@ extern "C"
   #include <gmp.h>
   #include <pthread.h>
 
+#ifdef _MPS_PRIVATE
   /**
    * @brief Data regarding a polynomial represented in the monomial
    * base.
@@ -117,6 +118,7 @@ extern "C"
     pthread_mutex_t regenerating;
         
   };
+#endif /* #ifdef _MPS_PRIVATE */
 
   /* These routines are thought for polynomial handling, i.e. allocating and 
    * setting coefficients of the polynomials, and setting the precision of the

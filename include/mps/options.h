@@ -89,7 +89,7 @@ extern "C" {
 #define MPS_INPUT_CONFIG_IS_SPARSE(x)   (mps_sparse_representations[(x->density)])
 #define MPS_INPUT_CONFIG_IS_DENSE(x)    (mps_dense_representations[(x->density)])
 
-
+#ifdef _MPS_PRIVATE
   /**
    * @brief Configuration for an input stream; this struct
    * contains the information on how the input stream should
@@ -130,6 +130,7 @@ extern "C" {
      */
     mps_phase starting_phase;
   };
+#endif /* #ifdef _MPS_PRIVATE */
 
 
   /* Properties of the root */
@@ -137,6 +138,7 @@ extern "C" {
 #define MPS_OUTPUT_PROPERTY_REAL      (0x01     )
 #define MPS_OUTPUT_PROPERTY_IMAGINARY (0x01 << 1)
 
+#ifdef _MPS_PRIVATE
   /**
    * @brief Configuration for the output.
    *
@@ -194,6 +196,7 @@ extern "C" {
     mps_output_format format;
 
   };
+#endif /* ifdef _MPS_PRIVATE */
 
 
 #ifdef __cplusplus

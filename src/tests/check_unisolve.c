@@ -26,7 +26,7 @@ test_unisolve_on_pol (test_pol * pol)
   FILE *check_stream;
   mps_boolean passed = true;
   mpc_t root, ctmp;
-  int i, j, prec = s->data_prec_max * 2;
+  int i, j, prec = s->data_prec_max.value * 2;
   int zero_roots = 0;
   int ch;
 

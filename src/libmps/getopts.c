@@ -474,8 +474,9 @@ mps_parse_opts (mps_status * s, int argc, char *argv[])
                          "You should provide a number of threads to be spawned.");
             else
               {
-                s->n_threads = atoi (argv[i] + 2);
-                if (s->n_threads < 1 || errno)
+		int n_threads = atoi (argv[i] + 2);
+		mps_thread_pool_set_concurrency_limit (s, s->pool, n_threads);
+                if (n_threads < 1 || errno)
                   mps_error (s, 1,
                              "The number of threads must be a positive integer");
               }

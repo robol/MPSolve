@@ -36,7 +36,7 @@ main (int argc, char *argv[])
   mps_parse_opts (s, argc, argv);
 
   /* Read polynomial */
-  mps_parse_stream (s, s->instr);
+  mps_parse_stream (s, NULL);
 
   /* approximate roots */
   mps_mpsolve (s);
