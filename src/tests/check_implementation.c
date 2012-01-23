@@ -25,9 +25,19 @@ starting_setup (void)
 char *
 get_pol_file (const char *pol_name, const char *type_name)
 {
-  const char *srcdir_path = getenv ("srcdir");
-  size_t path_length =
-    strlen (pol_name) + strlen (srcdir_path) + strlen (type_name) + 7;
+  char *srcdir_path = getenv ("srcdir");
+  size_t path_length;
+
+  if (!srcdir_path)
+    {
+      fprintf (stderr, "Please set the srcdir environment variable or run the test via make check\n"
+	       "Trying to set srcdir as \".\" and hoping it is working.");
+      srcdir_path = ".";
+      path_length = 1 + strlen (pol_name) + strlen (type_name) + 7;
+    }
+  else 
+    path_length = strlen (pol_name) + strlen (srcdir_path) + strlen (type_name) + 7;
+
   char *final_path = (char *) malloc (sizeof (char) * path_length);
 
   /* Construct the path */
@@ -49,9 +59,19 @@ get_pol_file (const char *pol_name, const char *type_name)
 char *
 get_res_file (const char *pol_name, const char *type_name)
 {
-  const char *srcdir_path = getenv ("srcdir");
-  size_t path_length =
-    strlen (pol_name) + strlen (srcdir_path) + strlen (type_name) + 19;
+  char *srcdir_path = getenv ("srcdir");
+  size_t path_length;
+
+  if (!srcdir_path)
+    {
+      fprintf (stderr, "Please set the srcdir environment variable or run the test via make check\n"
+	       "Trying to set srcdir as \".\" and hoping it is working.\n");
+      srcdir_path = ".";
+      path_length = 1 + strlen (pol_name) + strlen (type_name) + 19;
+    }
+  else 
+    path_length = strlen (pol_name) + strlen (srcdir_path) + strlen (type_name) + 19;
+
   char *final_path = (char *) malloc (sizeof (char) * path_length);
 
   /* Construct the path */
