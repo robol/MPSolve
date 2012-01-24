@@ -164,7 +164,7 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
       sigma = cplx_mod (ctmp) - gamma;
       
       new_rad = s->n * (cplx_mod (pol) / cplx_mod (fp) * (1 + asum * DBL_EPSILON)) / sigma;
-      
+
       if (*again && new_rad < *rad && !(sigma < 0 || gamma < 0 || new_rad < 0))
 	*rad = new_rad;
     }
@@ -519,16 +519,14 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
         /* MPS_DEBUG (s, "Setting newton correction");
            MPS_DEBUG_RDPE (s, sigma, "sigma"); */
         rdpe_set (new_rad, g_corr);
+
+	rdpe_mul (rtmp, ax, s->mp_epsilon);
+	rdpe_add_eq (new_rad, rtmp);
+	
+	if (rdpe_lt (new_rad, rad))
+	  rdpe_set (rad, new_rad);
       }
   }
-
-  rdpe_mul (rtmp, ax, s->mp_epsilon);
-  rdpe_add_eq (new_rad, rtmp);
-
-  if (rdpe_lt (new_rad, rad))
-    {
-      rdpe_set (rad, new_rad);
-    }
   
   /* Check if newton correction is less than
    * the modules of x for s->output_config->prec, and if

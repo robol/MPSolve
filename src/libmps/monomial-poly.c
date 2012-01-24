@@ -116,6 +116,12 @@ mps_monomial_poly_raise_precision (mps_status * s, mps_monomial_poly * mp, long 
 
   pthread_mutex_lock (&mp->regenerating);
 
+  if (prec <= mpc_get_prec (mp->mfpc[s->n]))
+    {
+      pthread_mutex_unlock (&mp->regenerating);
+      return;
+    }
+
   /* raise the precision of  mfpc */
   if (!MPS_INPUT_CONFIG_IS_USER (s->input_config))
     for (k = 0; k < mp->n + 1; k++)
