@@ -216,6 +216,7 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
 
       if (s->debug_level & MPS_DEBUG_REGENERATION)
 	{
+	  MPS_DEBUG_MPC  (s, mpc_get_prec (sec->ampc[i]), sec->ampc[i], "p(b_%d)", i);
 	  MPS_DEBUG_RDPE (s, relative_error, "Absolute error on p(b_%d) evaluation", i);
 	}
 
@@ -243,6 +244,7 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
 	  
 	  if (s->debug_level & MPS_DEBUG_REGENERATION)
 	    {
+	      MPS_DEBUG_MPC  (s, mpc_get_prec (sec->ampc[i]), sec->ampc[i], "p(b_%d)", i);
 	      MPS_DEBUG_RDPE (s, relative_error, "Absolute error on p(b_%d) evaluation", i);
 	    }
 

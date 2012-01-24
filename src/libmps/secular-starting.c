@@ -52,6 +52,9 @@ mps_secular_fstart (mps_status * s, int n, mps_cluster_item * cluster_item, doub
 
       if (!MPS_ROOT_STATUS_IS_COMPUTED (s, i))
 	{
+	  if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
+	    MPS_DEBUG_CPLX (s, s->froot[l], "s->froot[%d] (before start)", l);
+
 	  cplx_set_d (s->froot[l], cos (i * th + sigma),
 		      sin (i * th + sigma));
 	  cplx_mul_eq_d (s->froot[l],

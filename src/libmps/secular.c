@@ -570,6 +570,8 @@ mps_secular_set_radii (mps_status * s)
 {
   MPS_DEBUG_THIS_CALL;
 
+  return;
+
   int i;
   mps_secular_equation *sec = (mps_secular_equation *) s->secular_equation;
 
@@ -578,10 +580,16 @@ mps_secular_set_radii (mps_status * s)
   cdpe_t ctmp;
   rdpe_t * drad = rdpe_valloc (s->n);
 
+  mpc_t mtmp;
+  mpc_init2 (mtmp, mps_status_get_data_prec_max (s));
+
   /* Check if the Gerschgorin's radii are more convenient */
   for (i = 0; i < s->n; i++)
     {
-      rdpe_set (rad_eps, s->mp_epsilon);
+      if (s->lastphase == mp_phase)
+	rdpe_set (rad_eps, s->mp_epsilon);
+      else 
+	rdpe_set_d (rad_eps, DBL_EPSILON);
 
       rdpe_mul_eq_d (rad_eps, s->n * 4);
       rdpe_add_eq (rad_eps, rdpe_one);
@@ -594,33 +602,33 @@ mps_secular_set_radii (mps_status * s)
       rdpe_mul_eq_d (rad, (double) s->n);
       /* rdpe_add_eq (rad, rtmp); */
       
-      rdpe_set (drad[i], rad); 
+      rdpe_set (drad[i], rad);
     }
 
   switch (s->lastphase)
     {
     case float_phase:
-      {
-	for (i = 0; i < s->n; i++)
-	  {
-	    rdpe_set_d (s->drad[i], s->frad[i]);
-	    mpc_set_d (s->mroot[i], cplx_Re (s->froot[i]), 
-		       cplx_Im (s->froot[i]));
-	  }
+       { 
+	 for (i = 0; i < s->n; i++) 
+	   { 
+	     rdpe_set_d (s->drad[i], s->frad[i]); 
+	     mpc_set_d (s->mroot[i], cplx_Re (s->froot[i]),  
+			cplx_Im (s->froot[i])); 
+	   } 
+	 
+	 mps_mcluster (s, drad, 2.0 * s->n);  
+	 mps_fmodify (s, false);  
 
-	mps_mcluster (s, drad, 2.0 * s->n);
-	mps_mmodify (s, false);
-
-	for (i = 0; i < s->n; i++)
-	  s->frad[i] = rdpe_get_d (s->drad[i]);
-      }
-      break;
+	 for (i = 0; i < s->n; i++)
+	   s->frad[i] = rdpe_get_d (s->drad[i]); 
+       }
+       break;
 
     case dpe_phase:
       mps_mcluster (s, drad, 2.0 * s->n);
       mps_dmodify (s, false);
       break;
-
+      
     case mp_phase:
       mps_mcluster (s, drad, 2.0 * s->n);
       mps_mmodify (s, false);

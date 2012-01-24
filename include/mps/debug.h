@@ -255,64 +255,64 @@ extern "C"
    * @brief This is the flag that enables debugging of general
    * information about the flow of the program.
    */
-#define MPS_DEBUG_INFO     (0x01 << 0)
+#define MPS_DEBUG_INFO     (0x0001 << 0)
 
   /**
    * @brief This is the flag used to debug cluster-related
    * informations.
    */
-#define MPS_DEBUG_CLUSTER  (0x01 << 1)
+#define MPS_DEBUG_CLUSTER  (0x0001 << 1)
 
   /**
    * @brief This is the flag used to debug informations on
    * approximations during the execution of MPSolve.
    */
-#define MPS_DEBUG_APPROXIMATIONS (0x01 << 2)
+#define MPS_DEBUG_APPROXIMATIONS (0x0001 << 2)
 
   /**
    * @brief Flag used to show debug about final approximation
    * of the roots using newton iterations.
    */
-#define MPS_DEBUG_IMPROVEMENT (0x01 << 3)
+#define MPS_DEBUG_IMPROVEMENT (0x0001 << 3)
 
   /**
    * @brief Flag used to obtain information about timings in 
    * the algorithm.
    */
-#define MPS_DEBUG_TIMINGS (0x01 << 4)
+#define MPS_DEBUG_TIMINGS (0x0001 << 4)
 
   /**
    * @brief Debug function calls
    */
-#define MPS_DEBUG_FUNCTION_CALLS (0x01 << 5)
+#define MPS_DEBUG_FUNCTION_CALLS (0x0001 << 5)
 
   /**
    * @brief Debug I/O informations
    */
-#define MPS_DEBUG_IO (0x01 << 6)
+#define MPS_DEBUG_IO (0x0001 << 6)
 
   /**
    * @brief Debug memory management
    */
-#define MPS_DEBUG_MEMORY (0x01 << 7)
+#define MPS_DEBUG_MEMORY (0x0001 << 7)
 
   /**
    * @brief Debug checks for the convergence
    * of the various iterations packets.
    */
-#define MPS_DEBUG_PACKETS (0x01 << 8)
+#define MPS_DEBUG_PACKETS (0x0001 << 8)
 
   /**
    * @brief Debug the regenration of the coefficients-
    */
-#define MPS_DEBUG_REGENERATION (0x01 << 9)
+#define MPS_DEBUG_REGENERATION (0x0001 << 9)
 
   /**
    * @brief This is the flag used to debug informations
    * about virtually every step in the program, it enables
    * every debug level.
    */
-#define MPS_DEBUG_TRACE    (0xFF)
+#define MPS_DEBUG_TRACE    (0xFFFF)
 
 #define MPS_DEBUG_IF(s, debug_level, debug_instruction)	if (debug_level & s->debug_level) { \
     debug_instruction;							\
