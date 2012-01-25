@@ -284,8 +284,80 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
   rdpe_t new_rad;
 
   /* Compute radius as n * newt_corr */
-  cdpe_mod (new_rad, corr);
-  rdpe_mul_eq_d (new_rad, s->n);
+  {
+    rdpe_t theta, ssp, gamma, sigma, ax;
+    rdpe_t fp_mod, pol_mod, sumb_mod, g_corr;
+    cdpe_t cdpe_tmp, ssp_cdpe, cdpe_tmp2;
+
+    cdpe_mod (ax, x);
+
+    /* Get the modulus of fp and pol */
+    cdpe_mod (fp_mod, fp);
+    cdpe_mod (pol_mod, pol);
+
+    /* Compute theta */
+    rdpe_mul_d (theta, rdpe_one, DBL_EPSILON * s->n + 2 + 2 * sqrt (2));
+    rdpe_mul_eq (theta, fp_mod);
+
+    /* Compute ssp */
+    cdpe_set (cdpe_tmp, fp);
+    cdpe_set (cdpe_tmp2, cdpe_zero);
+    rdpe_set (cdpe_Re (cdpe_tmp2), theta);
+    cdpe_sub_eq (cdpe_tmp, cdpe_tmp2);
+    cdpe_div (ssp_cdpe, pol, cdpe_tmp);
+    cdpe_mod (ssp, ssp_cdpe);
+
+    /* Compute gamma */
+    {
+      rdpe_t tmp;
+      cdpe_t pol_div_fp;
+
+      /* Compute pol/fp */
+      cdpe_div (pol_div_fp, pol, fp);
+      cdpe_sub_eq (pol_div_fp, ssp_cdpe);
+      rdpe_mul_d (gamma, rdpe_one, DBL_EPSILON * s->n + 2 + sqrt (2));
+      rdpe_mul_eq (gamma, ssp);
+      cdpe_mod (tmp, pol_div_fp);
+      rdpe_add_eq (gamma, tmp);
+      rdpe_mul_eq (gamma, pol_mod);
+    }
+
+    /* Compute sigma */
+    cdpe_set (cdpe_tmp, sumb);
+    cdpe_mod (sumb_mod, cdpe_tmp);
+    rdpe_mul (sigma, sumb_mod, ssp);
+    rdpe_sub_eq (sigma, gamma);
+    rdpe_add_eq (sigma, rdpe_one);
+
+    /* Compute g_corr */
+    rdpe_div (g_corr, ssp, sigma);
+
+    /* Compute non-guaranteed newton correction */
+    cdpe_set (cdpe_tmp, corr);
+    cdpe_mod (rtmp, cdpe_tmp);
+    rdpe_mul_eq_d (rtmp, s->n);
+
+    /* Radius is s->n * g_corr */
+    rdpe_mul_eq_d (g_corr, s->n);
+    if (rdpe_eq_zero (g_corr))
+      {
+        rdpe_set_2dl (g_corr, 1.0, LONG_MIN);
+      }
+
+    /* Set the radius, if convenient. */
+    if (rdpe_gt (sigma, rdpe_zero))
+      {
+        /* MPS_DEBUG (s, "Setting newton correction");
+           MPS_DEBUG_RDPE (s, sigma, "sigma"); */
+        rdpe_set (new_rad, g_corr);
+
+	rdpe_mul_d (rtmp, ax, DBL_EPSILON);
+	rdpe_add_eq (new_rad, rtmp);
+	
+	if (rdpe_lt (new_rad, rad))
+	  rdpe_set (rad, new_rad);
+      }
+  }
 
   cdpe_mod (rtmp, x);
   rdpe_mul_eq_d (rtmp, 4.0 * DBL_EPSILON);
