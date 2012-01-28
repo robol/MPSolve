@@ -14,6 +14,8 @@
 #define TEST_SECSOLVE_SECULAR(pol_name) (test_mpsolve (get_pol_file (pol_name, "secsolve"), get_res_file (pol_name, "secsolve"), MPS_ALGORITHM_SECULAR_MPSOLVE))
 #define TEST_SECSOLVE_MONOMIAL(pol_name) (test_mpsolve (get_pol_file (pol_name, "unisolve"), get_res_file (pol_name, "unisolve"), MPS_ALGORITHM_SECULAR_GA))
 
+static mps_boolean debug = false;
+
 void
 test_header (const char * header, const char * description)
 {
@@ -51,6 +53,9 @@ test_mpsolve (char * pol_file, char * res_file, mps_algorithm algorithm)
 
   /* Create a new empty mps_status */
   mps_status * s = mps_status_new ();
+
+  if (debug)
+    mps_status_set_debug_level (s, MPS_DEBUG_TRACE);
 
   /* Load the polynomial that has been given to us */
   mps_parse_stream (s, input_stream);
@@ -158,6 +163,12 @@ test_mpsolve (char * pol_file, char * res_file, mps_algorithm algorithm)
   free (mroot);
   free (drad);
 
+  if (getenv ("MPS_VERBOSE_TEST"))
+    {
+      mps_status_set_output_format (s, MPS_OUTPUT_FORMAT_GNUPLOT_FULL);
+      mps_output (s);
+    }
+
   mps_status_free (s);
 
   if (passed)
@@ -264,9 +275,43 @@ main (int argc, char ** argv)
   if (argc == 1)
     standard_tests ();
 
+  /* If that's not the case, parse options */
+  mps_algorithm alg = MPS_ALGORITHM_STANDARD_MPSOLVE;
+  mps_opt * opt = NULL;
+  while (mps_getopts (&opt, &argc, &argv, "a::d"))
+    {
+      switch (opt->optchar)
+	{
+	case 'a':
+	  if (opt->optvalue)
+	    {
+	      if (*opt->optvalue == 'g')
+		{
+		  /* fprintf (stderr, "SECSOLVE -g mode\n"); */
+		  alg = MPS_ALGORITHM_SECULAR_GA;
+		}
+	      if (*opt->optvalue == 's')
+		{
+		  /* fprintf (stderr, "SECSOLVE mode\n"); */
+		  alg = MPS_ALGORITHM_SECULAR_MPSOLVE;
+		}
+	      if (*opt->optvalue == 'u')
+		{
+		  /* fprintf (stderr, "UNISOLVE mode\n"); */
+		  alg = MPS_ALGORITHM_STANDARD_MPSOLVE;
+		}
+	    }
+	  break;
+	case 'd':
+	  debug = true;
+	default:
+	  break;
+	}
+    }
+
   if (argc == 3)
     {
-      test_mpsolve (argv[1], argv[2], MPS_ALGORITHM_SECULAR_GA);
+      test_mpsolve (argv[1], argv[2], alg);
     }
 
   return EXIT_SUCCESS;

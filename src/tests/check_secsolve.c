@@ -23,132 +23,152 @@ test_pol **test_polynomials;
 int
 test_secsolve_on_pol (test_pol * pol)
 {
-  mps_status *s = mps_status_new ();
-  FILE *input_stream;
-  FILE *check_stream;
-  mps_boolean passed = true;
   mpc_t root, ctmp;
+  mps_boolean passed = true;
+  int i, j, zero_roots = 0;
+  char ch;
+  rdpe_t eps;
 
-  /* Output digit to test, default values. Script should normally
-   * alter this with options on the command line. */
-  int i, j, prec = pol->out_digits * LOG2_10 + 10;
-  int ch;
+  /* Check the roots */
+  FILE* result_stream = fopen (pol->res_file, "r"); 
+  FILE* input_stream  = fopen (pol->pol_file, "r");
 
-  fprintf (stderr, "Checking \033[1m%-30s\033[0m [\033[34;1mchecking\033[0m]", pol->pol_file + 11);
+  rdpe_set_2dl (eps, 1.0, - pol->out_digits);
 
-  /* Debug starting of this test */
-  /*
-     if (pol->ga)
-     printf("Starting test on polynomial file %s, with %d output digits required, using GA approach and %s arithmetic.\n",
-     pol->pol_file, pol->out_digits, (pol->phase == dpe_phase) ? "DPE" : "floating point");
-     else
-     printf("Starting test on polynomial file %s, with %d output digits required, using MPSolve approach and %s arithmetic.\n",
-     pol->pol_file, pol->out_digits, (pol->phase == dpe_phase) ? "DPE" : "floating point");
-   */
+  if (!result_stream) 
+    {
+      fprintf (stderr, "Checking \033[1m%-30s\033[0m \033[31;1mno results file found!\033[0m\n", pol->pol_file + 9); 
+      return EXIT_FAILURE;
+    }
+  if (!input_stream)
+    {
+      fprintf (stderr, "Checking \033[1m%-30s\033[0m \033[31;1mno polinomial file found!\033[0m\n", pol->pol_file + 9); 
+      return EXIT_FAILURE;
+    }
 
-  mpc_init2 (root, prec);
-  mpc_init2 (ctmp, prec);
+  /* Create a new empty mps_status */
+  mps_status * s = mps_status_new ();
 
-  /* Open streams */
-  input_stream = fopen (pol->pol_file, "r");
-  check_stream = fopen (pol->res_file, "r");
-
-  fail_if (!(input_stream && check_stream),
-           "Cannot open one or more input files");
-
-  mps_parse_stream (s, input_stream);
-
-  mps_status_set_starting_phase (s, pol->phase);
-  if (pol->DOLOG)
+  if (getenv ("MPS_VERBOSE_TEST") && strstr (pol->pol_file, getenv ("MPS_VERBOSE_TEST")))
     mps_status_set_debug_level (s, MPS_DEBUG_TRACE);
+
+  /* Load the polynomial that has been given to us */
+  mps_parse_stream (s, input_stream);
   
-  if (!pol->ga)
-    mps_status_select_algorithm (s, MPS_ALGORITHM_SECULAR_MPSOLVE);
-  else
-    mps_status_select_algorithm (s, MPS_ALGORITHM_SECULAR_GA);
+  fprintf (stderr, "Checking \033[1m%-30s\033[0m [\033[34;1mchecking\033[0m]", pol->pol_file + 9);
 
-  mps_status_set_output_goal (s, MPS_OUTPUT_GOAL_ISOLATE);
-  mps_status_set_output_prec (s, (int) ((pol->out_digits + 2) * LOG2_10) + 1);
-  mps_status_set_input_prec  (s, 0);
+  mps_status_set_output_goal (s, MPS_OUTPUT_GOAL_APPROXIMATE);
 
-  mps_mpsolve (s);  
+  /* Solve it */
+  mps_status_select_algorithm (s, (pol->ga) ? MPS_ALGORITHM_SECULAR_GA : MPS_ALGORITHM_SECULAR_MPSOLVE);
+  mps_mpsolve (s);
+  
+  mpc_init2 (root, mps_status_get_data_prec_max (s));
+  mpc_init2 (ctmp, mps_status_get_data_prec_max (s));
+    
+  /* Test if roots are equal to the roots provided in the check */   
+  passed = true;
 
-  int n = mps_status_get_degree (s);
-  mpc_t * mroot = mpc_valloc (n);
-  mpc_vinit2 (mroot, n, 0);
-  rdpe_t * drad = rdpe_valloc (n);
+  rdpe_t * drad = rdpe_valloc (mps_status_get_degree (s));
+  mpc_t * mroot = mpc_valloc (mps_status_get_degree (s));
+  mpc_vinit2 (mroot, mps_status_get_degree (s), 53);
 
   mps_status_get_roots_m (s, mroot, drad);
 
-  /* Test if roots are equal to the roots provided in the check */
-  for (i = 0; i < n; i++)
-    {
-      rdpe_t rtmp, min_dist;
-      cdpe_t cdtmp;
+  for (i = 0; i < mps_status_get_degree (s); i++)   
+    {   
+      rdpe_t rtmp;   
+      cdpe_t cdtmp;   
+      rdpe_t min_dist;
       int found_root = 0;
-
-      mpc_get_cdpe (cdtmp, mroot[i]);
-      cdpe_mod (rtmp, cdtmp);
-      mpc_set_prec (root, rdpe_Esp (rtmp) - rdpe_Esp (drad[i]) + 25);
+      rdpe_t exp_drad;
       
-      rdpe_set (min_dist, RDPE_MAX);
+      while (isspace (ch = getc (result_stream)));   
+      ungetc (ch, result_stream);   
+      mpc_inp_str (root, result_stream, 10);   
 
-      /* mpc_clear (root); */
-      /* mpc_init2 (root, mpc_get_prec (mroot[i])); */
+      if (mpc_eq_zero (root))
+	{
+	  zero_roots++;
 
-      while (isspace (ch = getc (check_stream)));
-      ungetc (ch, check_stream);
-      mpc_inp_str (root, check_stream, 10);
+	  /* We need to read it another time. This seems a bug in
+	   * mpc_inp_str, but I don't get why is necessary. */
+	  mpc_inp_str (root, result_stream, 10);
+	  continue;
+	}
+      
+      mpc_sub (ctmp, root, mroot[0]);   
+      mpc_get_cdpe (cdtmp, ctmp);   
+      cdpe_mod (rtmp, cdtmp);   
+      rdpe_set (min_dist, rtmp);   
 
-      for (j = 0; j < n; j++)
-        {
-          mpc_sub (ctmp, root, mroot[j]);
-
-	  mpc_get_cdpe (cdtmp, ctmp);
-	  cdpe_mod (rtmp, cdtmp);
-
-	  if (rdpe_le (rtmp, min_dist))
+      if (getenv ("MPS_VERBOSE_TEST") && (strstr (pol->pol_file, getenv ("MPS_VERBOSE_TEST"))))
+	{
+	  printf ("Read root_%d = ", i);
+	  mpc_out_str_2 (stdout, 10, mps_status_get_data_prec_max (s), mps_status_get_data_prec_max (s),
+			 root);
+	  printf ("\n");
+	}
+      
+      for (j = 1; j < mps_status_get_degree (s); j++)   
+   	{   
+   	  mpc_sub (ctmp, root, mroot[j]);
+     	  mpc_get_cdpe (cdtmp, ctmp);   
+     	  cdpe_mod (rtmp, cdtmp);   
+	  
+     	  if (rdpe_le (rtmp, min_dist))
 	    {
 	      rdpe_set (min_dist, rtmp);
 	      found_root = j;
 	    }
-        }
-
-      if (!rdpe_le (min_dist, drad[found_root]) && !mps_status_get_over_max (s))
-	{
-	passed = false;
-	if (getenv ("MPS_VERBOSE_TEST") && (strstr (pol->pol_file, getenv ("MPS_VERBOSE_TEST"))))
-	  {
-	    printf("Setting passed to false with root %d\n", found_root); 
-	    printf ("s->mroot[%d] = ", found_root);  
-	    mpc_out_str (stdout, 10, mpc_get_prec (mroot[found_root]), mroot[found_root]);
-	    printf("\n");  
-	    
-	    printf("s->drad[%d] = ", found_root); 
-	    rdpe_out_str (stdout, drad[found_root]);  
-	    /* printf("%e", s->frad[found_root]);  */
-	    printf("\n");  
-	    
-	    printf("min_dist[%d] = ", found_root);  
-	    rdpe_out_str (stdout, min_dist);  
-	    printf("\n");  
-	  }
 	}
+
+      mpc_get_cdpe (cdtmp, mroot[found_root]);
+      cdpe_mod (rtmp, cdtmp);
+      rdpe_mul_eq (rtmp, eps);
       
+      if ((!rdpe_le (min_dist, drad[found_root]) && !rdpe_gt (drad[found_root], exp_drad)) && !mps_status_get_over_max (s))
+	{
+	  passed = false;
+	  
+	  if (getenv ("MPS_VERBOSE_TEST") && (strstr (pol->pol_file, getenv ("MPS_VERBOSE_TEST"))))
+	    {
+	      printf("Failing on root %d, with min_dist = ", found_root);
+	      rdpe_out_str (stdout, min_dist);
+	      printf("\ndrad_%d", found_root);
+	      rdpe_out_str (stdout, drad[found_root]);
+	      printf("\n");
+	      printf("Approximation_%d = ", found_root);
+	      mpc_out_str_2 (stdout, 10, -rdpe_Esp (drad[found_root]), -rdpe_Esp (drad[found_root]), mroot[found_root]);
+	      printf("\n");
+	    }
+	}
     }
 
+  if (zero_roots != mps_status_get_zero_roots (s))
+    passed = false;
+
+  if (getenv ("MPS_VERBOSE_TEST"))
+    {
+      mps_status_set_output_format (s, MPS_OUTPUT_FORMAT_GNUPLOT_FULL);
+      mps_output (s);
+    }
+  
+  fclose (result_stream);    
+  
+  mpc_clear (ctmp);   
   mpc_clear (root);
-  mpc_clear (ctmp);
+  mpc_vclear (mroot, mps_status_get_degree (s));
+  
+  free (mroot);
+  free (drad);
 
   mps_status_free (s);
 
-  fclose (input_stream);
-  fclose (check_stream);
-
   if (passed)
-    fprintf (stderr, "\rChecking \033[1m%-30s\033[0m [\033[32;1m  done  \033[0m]\n", pol->pol_file + 11);
+    fprintf (stderr, "\rChecking \033[1m%-30s\033[0m [\033[32;1m  done  \033[0m]\n", pol->pol_file + 9);
   else
-    fprintf (stderr, "\rChecking \033[1m%-30s\033[0m [\033[31;1m failed \033[0m]\n", pol->pol_file + 11);
+    fprintf (stderr, "\rChecking \033[1m%-30s\033[0m [\033[31;1m failed \033[0m]\n", pol->pol_file + 9);
 
   if (getenv ("MPS_VERBOSE_TEST"))
     fail_unless (passed == true,

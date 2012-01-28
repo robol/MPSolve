@@ -31,7 +31,7 @@ mps_status_select_algorithm (mps_status * s, mps_algorithm algorithm)
 {
   /* Select ga if we are in the case of monomial input, since is the only algorithm
    * that we can use. */
-  if (MPS_INPUT_CONFIG_IS_MONOMIAL (mps_status_get_input_config (s)))
+  if (MPS_INPUT_CONFIG_IS_MONOMIAL (mps_status_get_input_config (s)) && algorithm == MPS_ALGORITHM_SECULAR_MPSOLVE)
     {
       algorithm = MPS_ALGORITHM_SECULAR_GA;
       MPS_DEBUG_WITH_INFO (s, "Selecting algorithm MPS_ALGORITHM_SECULAR_GA since MPS_ALGORITHM_SECULAR_MPSOLVE is not available for monomial input");

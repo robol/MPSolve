@@ -21,71 +21,69 @@ test_pol **test_polynomials;
 int
 test_unisolve_on_pol (test_pol * pol)
 {
-  mps_status *s = mps_status_new ();
-  FILE *input_stream;
-  FILE *check_stream;
-  mps_boolean passed = true;
   mpc_t root, ctmp;
-  int i, j, prec = pol->out_digits;
-  int zero_roots = 0;
-  int ch;
+  mps_boolean passed = true;
+  int i, j, zero_roots = 0;
+  char ch;
+  rdpe_t eps;
 
-  fprintf (stderr, "Checking \033[1m%-30s\033[0m [\033[34;1mchecking\033[0m]", pol->pol_file + 11);
+  /* Check the roots */
+  FILE* result_stream = fopen (pol->res_file, "r"); 
+  FILE* input_stream  = fopen (pol->pol_file, "r");
 
-  /* Debug starting of this test */
-  /*
-     if (pol->ga)
-     printf("Starting test on polynomial file %s, with %d output digits required, using GA approach and %s arithmetic.\n",
-     pol->pol_file, pol->out_digits, (pol->phase == dpe_phase) ? "DPE" : "floating point");
-     else
-     printf("Starting test on polynomial file %s, with %d output digits required, using MPSolve approach and %s arithmetic.\n",
-     pol->pol_file, pol->out_digits, (pol->phase == dpe_phase) ? "DPE" : "floating point");
-   */
+  rdpe_set_2dl (eps, 1.0, - pol->out_digits);
 
-  mpc_init2 (root, 2 * prec);
-  mpc_init2 (ctmp, 2 * prec);
-
-  /* Open streams */
-  input_stream = fopen (pol->pol_file, "r");
-  check_stream = fopen (pol->res_file, "r");
-
-  if (!(input_stream && check_stream))
+  if (!result_stream) 
     {
-      fail ("Cannot open input files");
+      fprintf (stderr, "Checking \033[1m%-30s\033[0m \033[31;1mno results file found!\033[0m\n", pol->pol_file + 9); 
+      return EXIT_FAILURE;
+    }
+  if (!input_stream)
+    {
+      fprintf (stderr, "Checking \033[1m%-30s\033[0m \033[31;1mno polinomial file found!\033[0m\n", pol->pol_file + 9); 
+      return EXIT_FAILURE;
     }
 
-  /* mps_status_set_output_goal (s, MPS_OUTPUT_GOAL_ISOLATE); */
-  /* s->output_config->goal = MPS_OUTPUT_GOAL_ISOLATE; */
+  /* Create a new empty mps_status */
+  mps_status * s = mps_status_new ();
 
+  if (getenv ("MPS_VERBOSE_TEST") && strstr (pol->pol_file, getenv ("MPS_VERBOSE_TEST")))
+    mps_status_set_debug_level (s, MPS_DEBUG_TRACE);
+
+  /* Load the polynomial that has been given to us */
   mps_parse_stream (s, input_stream);
+  
+  fprintf (stderr, "Checking \033[1m%-30s\033[0m [\033[34;1mchecking\033[0m]", pol->pol_file + 9);
 
-  mps_status_set_output_prec (s, prec);
-  /* s->output_config->prec = prec; */
+  mps_status_set_output_goal (s, MPS_OUTPUT_GOAL_APPROXIMATE);
 
+  /* Solve it */
+  mps_status_select_algorithm (s, MPS_ALGORITHM_STANDARD_MPSOLVE);
   mps_mpsolve (s);
+  
+  mpc_init2 (root, mps_status_get_data_prec_max (s));
+  mpc_init2 (ctmp, mps_status_get_data_prec_max (s));
+    
+  /* Test if roots are equal to the roots provided in the check */   
+  passed = true;
 
-  mpc_t * mroot = mpc_valloc (mps_status_get_degree (s));
   rdpe_t * drad = rdpe_valloc (mps_status_get_degree (s));
-  mpc_vinit2 (mroot, mps_status_get_degree (s), 0);
+  mpc_t * mroot = mpc_valloc (mps_status_get_degree (s));
+  mpc_vinit2 (mroot, mps_status_get_degree (s), 53);
 
   mps_status_get_roots_m (s, mroot, drad);
 
-  /* Test if roots are equal to the roots provided in the check */
-  passed = true;
-  for (i = 0; i < mps_status_get_degree (s); i++)
-    {
-      rdpe_t rtmp;
-      cdpe_t cdtmp;
+  for (i = 0; i < mps_status_get_degree (s); i++)   
+    {   
+      rdpe_t rtmp;   
+      cdpe_t cdtmp;   
       rdpe_t min_dist;
       int found_root = 0;
-
-      mpc_get_cdpe (cdtmp, mroot[i]);
-      cdpe_mod (rtmp, cdtmp);
-      mpc_set_prec (root, rdpe_Esp (rtmp) - rdpe_Esp (drad[i]) + 25);
-
-      while (isspace (ch = getc (check_stream)));
-      ungetc (ch, check_stream);
-      mpc_inp_str (root, check_stream, 10);
+      rdpe_t exp_drad;
+      
+      while (isspace (ch = getc (result_stream)));   
+      ungetc (ch, result_stream);   
+      mpc_inp_str (root, result_stream, 10);   
 
       if (mpc_eq_zero (root))
 	{
@@ -93,79 +91,89 @@ test_unisolve_on_pol (test_pol * pol)
 
 	  /* We need to read it another time. This seems a bug in
 	   * mpc_inp_str, but I don't get why is necessary. */
-	  mpc_inp_str (root, check_stream, 10);
+	  mpc_inp_str (root, result_stream, 10);
 	  continue;
 	}
+      
+      mpc_sub (ctmp, root, mroot[0]);   
+      mpc_get_cdpe (cdtmp, ctmp);   
+      cdpe_mod (rtmp, cdtmp);   
+      rdpe_set (min_dist, rtmp);   
 
-      mpc_sub (ctmp, root, mroot[0]);
-      mpc_get_cdpe (cdtmp, ctmp);
-      cdpe_mod (rtmp, cdtmp);
-      rdpe_set (min_dist, rtmp);
-
-      for (j = 1; j < mps_status_get_degree (s); j++)
-        {
-          mpc_sub (ctmp, root, mroot[j]);
-	  mpc_get_cdpe (cdtmp, ctmp);
-	  cdpe_mod (rtmp, cdtmp);
-
-	  if (rdpe_le (rtmp, min_dist))
+      if (getenv ("MPS_VERBOSE_TEST") && (strstr (pol->pol_file, getenv ("MPS_VERBOSE_TEST"))))
+	{
+	  printf ("Read root_%d = ", i);
+	  mpc_out_str_2 (stdout, 10, mps_status_get_data_prec_max (s), mps_status_get_data_prec_max (s),
+			 root);
+	  printf ("\n");
+	}
+      
+      for (j = 1; j < mps_status_get_degree (s); j++)   
+   	{   
+   	  mpc_sub (ctmp, root, mroot[j]);
+     	  mpc_get_cdpe (cdtmp, ctmp);   
+     	  cdpe_mod (rtmp, cdtmp);   
+	  
+     	  if (rdpe_le (rtmp, min_dist))
 	    {
 	      rdpe_set (min_dist, rtmp);
 	      found_root = j;
 	    }
-        }
+	}
+      
+      mpc_get_cdpe (cdtmp, mroot[found_root]);
+      cdpe_mod (rtmp, cdtmp);
+      rdpe_mul_eq (rtmp, eps);
 
-      if (!rdpe_le (min_dist, drad[found_root]) && !mps_status_get_over_max (s))
+      if ((!rdpe_le (min_dist, drad[found_root]) && !rdpe_gt (drad[found_root], exp_drad)) && !mps_status_get_over_max (s))
 	{
 	  passed = false;
-	  if (getenv ("MPS_VERBOSE_TEST"))
+	  
+	  if (getenv ("MPS_VERBOSE_TEST") && (strstr (pol->pol_file, getenv ("MPS_VERBOSE_TEST"))))
 	    {
-	      printf("Setting passed to false with root %d\n", found_root); 
-	      printf ("s->mroot[%d] = ", found_root);  
-	      mpc_out_str (stdout, 10, prec, mroot[found_root]);  
-	      printf("\n");  
-	      
-	      printf("s->drad[%d] = ", found_root); 
-	      rdpe_out_str (stdout, drad[found_root]); printf ("\n");
-	      
-	      printf("min_dist[%d] = ", found_root);  
-	      rdpe_out_str (stdout, min_dist);  
-	      printf("\n");  
+	      printf("Failing on root %d, with min_dist = ", found_root);
+	      rdpe_out_str (stdout, min_dist);
+	      printf("\ndrad_%d", found_root);
+	      rdpe_out_str (stdout, drad[found_root]);
+	      printf("\n");
+	      printf("Approximation_%d = ", found_root);
+	      mpc_out_str_2 (stdout, 10, -rdpe_Esp (drad[found_root]), -rdpe_Esp (drad[found_root]), mroot[found_root]);
+	      printf("\n");
 	    }
 	}
     }
 
-  mpc_clear (root);
-  mpc_clear (ctmp);
-  mpc_vclear (mroot, mps_status_get_degree (s));
-  free (mroot);
-
   if (zero_roots != mps_status_get_zero_roots (s))
-    {
-      passed = false;
-    }
-
-  fclose (input_stream);
-  fclose (check_stream);
+    passed = false;
+  
+  fclose (result_stream);    
+  
+  mpc_clear (ctmp);   
+  mpc_clear (root);
+  mpc_vclear (mroot, mps_status_get_degree (s));
+  
+  free (mroot);
+  free (drad);
 
   mps_status_free (s);
 
   if (passed)
-    fprintf (stderr, "\rChecking \033[1m%-30s\033[0m [\033[32;1m  done  \033[0m]\n", pol->pol_file + 11);
+    fprintf (stderr, "\rChecking \033[1m%-30s\033[0m [\033[32;1m  done  \033[0m]\n", pol->pol_file + 9);
   else
-    fprintf (stderr, "\rChecking \033[1m%-30s\033[0m [\033[31;1m failed \033[0m]\n", pol->pol_file + 11);
-  
+    fprintf (stderr, "\rChecking \033[1m%-30s\033[0m [\033[31;1m failed \033[0m]\n", pol->pol_file + 9);
+
   if (getenv ("MPS_VERBOSE_TEST"))
     fail_unless (passed == true,
 		 "Computed results are not exact to the required "
 		 "precision.\n" "\n" " Dumping test configuration: \n"
-		 "   => Polynomial file: %s;\n"
-		 "   => Required digits: %d\n", pol->pol_file,
-		 pol->out_digits);
+		 "   => Polynomial file: %s;\n" "   => Required digits: %d\n"
+		 "   => Gemignani's approach: %s;\n"
+		 "   => Starting phase: %s;\n", pol->pol_file, pol->out_digits,
+		 mps_boolean_to_string (pol->ga),
+		 (pol->phase == float_phase) ? "float_phase" : "dpe_phase");
   else
     fail_unless (passed == true,
-		 "Computed results are not exact to the required precision");
-  
+		 "Computed results are not exact to the required precision");    
 
   return passed;
 }
