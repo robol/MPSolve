@@ -357,15 +357,20 @@ mps_secular_ga_mpsolve (mps_status * s)
 	cplx_set (sec->bfpc[i], cplx_zero);
 
       /* Check data first */
-      char which_case;
-      mps_check_data (s, &which_case);
+      if (s->input_config->starting_phase == no_phase)
+	{
+	  char which_case;
+	  mps_check_data (s, &which_case);
 
-      MPS_DEBUG_WITH_INFO (s, "Check data resulted in %c", which_case);
+	  MPS_DEBUG_WITH_INFO (s, "Check data resulted in %c", which_case);
 
-      if (which_case == 'f')
-	s->lastphase = float_phase;
+	  if (which_case == 'f')
+	    s->lastphase = float_phase;
+	  else
+	    s->lastphase = dpe_phase;
+	}
       else
-	s->lastphase = dpe_phase;
+	s->lastphase = s->input_config->starting_phase;
 
       if (s->lastphase == float_phase)
 	  mps_fstart (s, s->n, NULL, 0.0, 0.0, s->eps_out, p->fap);

@@ -121,7 +121,7 @@ test_secsolve_on_pol (test_pol * pol)
 	  {
 	    printf("Setting passed to false with root %d\n", found_root); 
 	    printf ("s->mroot[%d] = ", found_root);  
-	    mpc_out_str (stdout, 10, 20, mroot[found_root]);  
+	    mpc_out_str (stdout, 10, mpc_get_prec (mroot[found_root]), mroot[found_root]);
 	    printf("\n");  
 	    
 	    printf("s->drad[%d] = ", found_root); 
@@ -260,10 +260,74 @@ START_TEST (test_secsolve_nroots)
 }
 END_TEST
 
-START_TEST (test_secsolve_kam)
+START_TEST (test_secsolve_kam1_1)
 {
   /* Testing the kam polynomials */
   test_pol *pol = test_pol_new ("kam1_1", "unisolve", 11, float_phase, true);
+  test_secsolve_on_pol (pol);
+  test_pol_free (pol);
+}
+END_TEST
+
+START_TEST (test_secsolve_kam1_2)
+{
+  test_pol *pol = test_pol_new ("kam1_2", "unisolve", 11, float_phase, true);
+  test_secsolve_on_pol (pol);
+  test_pol_free (pol);
+}
+END_TEST
+
+START_TEST (test_secsolve_kam1_3)
+{
+  test_pol *pol = test_pol_new ("kam1_3", "unisolve", 11, float_phase, true);
+  test_secsolve_on_pol (pol);
+  test_pol_free (pol);
+}
+END_TEST
+
+START_TEST (test_secsolve_kam2_1)
+{
+  test_pol *pol = test_pol_new ("kam2_1", "unisolve", 11, float_phase, true);
+  test_secsolve_on_pol (pol);
+  test_pol_free (pol);
+}
+END_TEST
+
+START_TEST (test_secsolve_kam2_2)
+{
+  test_pol *pol = test_pol_new ("kam2_2", "unisolve", 11, float_phase, true);
+  test_secsolve_on_pol (pol);
+  test_pol_free (pol);
+}
+END_TEST
+
+START_TEST (test_secsolve_kam2_3)
+{
+  test_pol *pol = test_pol_new ("kam2_3", "unisolve", 11, float_phase, true);
+  test_secsolve_on_pol (pol);
+  test_pol_free (pol);
+}
+END_TEST
+
+START_TEST (test_secsolve_kam3_1)
+{
+  test_pol *pol = test_pol_new ("kam3_1", "unisolve", 11, float_phase, true);
+  test_secsolve_on_pol (pol);
+  test_pol_free (pol);
+}
+END_TEST
+
+START_TEST (test_secsolve_kam3_2)
+{
+  test_pol *pol = test_pol_new ("kam3_2", "unisolve", 11, float_phase, true);
+  test_secsolve_on_pol (pol);
+  test_pol_free (pol);
+}
+END_TEST
+
+START_TEST (test_secsolve_kam3_3)
+{
+  test_pol *pol = test_pol_new ("kam3_3", "unisolve", 11, float_phase, true);
   test_secsolve_on_pol (pol);
   test_pol_free (pol);
 }
@@ -344,8 +408,16 @@ END_TEST
   tcase_add_test (tc_monomial, test_secsolve_nroots);
 
   /* Kam polynomials */
-  tcase_add_test (tc_monomial, test_secsolve_kam);
-
+  tcase_add_test (tc_monomial, test_secsolve_kam1_1);
+  tcase_add_test (tc_monomial, test_secsolve_kam1_2);
+  tcase_add_test (tc_monomial, test_secsolve_kam1_3);
+  tcase_add_test (tc_monomial, test_secsolve_kam2_1);
+  tcase_add_test (tc_monomial, test_secsolve_kam2_2);
+  tcase_add_test (tc_monomial, test_secsolve_kam2_3);
+  tcase_add_test (tc_monomial, test_secsolve_kam3_1);
+  tcase_add_test (tc_monomial, test_secsolve_kam3_2);
+  tcase_add_test (tc_monomial, test_secsolve_kam3_3);
+		  
   /* Exponentials */
   tcase_add_test (tc_monomial, test_secsolve_exp);
 

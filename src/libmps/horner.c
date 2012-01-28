@@ -116,6 +116,8 @@ mps_mhorner_with_error2 (mps_status * s, mps_monomial_poly * p, mpc_t x, mpc_t v
   cdpe_mod (ax, cx);
 
   rdpe_set (error, apol);
+  rdpe_add_eq (error, ax);
+
   rdpe_mul_eq (error, u);
 }
 

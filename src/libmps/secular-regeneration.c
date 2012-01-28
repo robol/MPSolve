@@ -202,7 +202,6 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
    *   a_i = -p(b_i) / \prod_{i \neq j} (b_i - b_j)
    *
    */
-
   if (root_changed[i])
     {
       rdpe_t relative_error, rtmp;
@@ -246,22 +245,24 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
 	    {
 	      MPS_DEBUG_MPC  (s, mpc_get_prec (sec->ampc[i]), sec->ampc[i], "p(b_%d)", i);
 	      MPS_DEBUG_RDPE (s, relative_error, "Absolute error on p(b_%d) evaluation", i);
+	      MPS_DEBUG_MPC (s, mpc_get_prec (sec->ampc[i]), sec->ampc[i], "p(b_%d)", i);
 	    }
 
 	  mpc_get_cdpe (cpol, sec->bmpc[i]);
 	  cdpe_mod (rtmp, cpol);
 	  rdpe_mul_eq (rtmp, root_epsilon);
-	  if (rdpe_lt (relative_error, rtmp))
-	    break;
-      
-	  mpc_get_cdpe (cpol, sec->ampc[i]);
-	  cdpe_mod (rtmp, cpol);
-	  rdpe_div_eq (relative_error, rtmp);
-	  
-	  if (s->debug_level & MPS_DEBUG_REGENERATION)
-	    {
-	      MPS_DEBUG_RDPE (s, relative_error, "Relative_error on p(b_%d) evaluation", i);
-	    }
+
+	  /* if (!rdpe_lt (relative_error, rtmp)) */
+	  /*   { */
+	      mpc_get_cdpe (cpol, sec->ampc[i]);
+	      cdpe_mod (rtmp, cpol);
+	      rdpe_div_eq (relative_error, rtmp);
+	      
+	      if (s->debug_level & MPS_DEBUG_REGENERATION)
+		{
+		  MPS_DEBUG_RDPE (s, relative_error, "Relative_error on p(b_%d) evaluation", i);
+		}
+	    /* } */
 	}
 
       if (mpc_get_prec (mdiff) < s->rootwp[i])

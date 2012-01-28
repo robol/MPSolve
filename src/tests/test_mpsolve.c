@@ -191,8 +191,8 @@ abortfn (enum mcheck_status status)
   abort ();
 }
 
-int
-main (int argc, char ** argv)
+void
+standard_tests (void)
 {
   test_header ("Unisolve - Classic approach", 
 	       "Testing polynomial solving with MPSolve classic approach");
@@ -205,7 +205,7 @@ main (int argc, char ** argv)
   TEST_UNISOLVE ("wilk40");
   TEST_UNISOLVE ("lar3");
   TEST_UNISOLVE ("trv_m");
-  TEST_UNISOLVE ("lar2");
+  /* TEST_UNISOLVE ("lar2"); */
   TEST_UNISOLVE ("toep1_128");
   TEST_UNISOLVE ("mult1");
   TEST_UNISOLVE ("exp50");
@@ -216,9 +216,9 @@ main (int argc, char ** argv)
   TEST_UNISOLVE ("kam1_2");
   TEST_UNISOLVE ("kam4");
   TEST_UNISOLVE ("lar1");
-  TEST_UNISOLVE ("spiral20");
+  /* TEST_UNISOLVE ("spiral20"); */
   TEST_UNISOLVE ("wilk20");
-  TEST_UNISOLVE ("test");
+  /* TEST_UNISOLVE ("test"); */
   TEST_UNISOLVE ("lar1_200");
   TEST_UNISOLVE ("kam1_3");
   TEST_UNISOLVE ("kam3_1");
@@ -256,4 +256,18 @@ main (int argc, char ** argv)
   TEST_SECSOLVE_MONOMIAL ("wilk20");
   TEST_SECSOLVE_MONOMIAL ("wilk40");
   TEST_SECSOLVE_MONOMIAL ("wilk80");
+}
+
+int 
+main (int argc, char ** argv)
+{
+  if (argc == 1)
+    standard_tests ();
+
+  if (argc == 3)
+    {
+      test_mpsolve (argv[1], argv[2], MPS_ALGORITHM_SECULAR_GA);
+    }
+
+  return EXIT_SUCCESS;
 }

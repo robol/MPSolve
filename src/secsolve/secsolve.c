@@ -75,7 +75,7 @@ main (int argc, char **argv)
 
   /* Parse options */
   mps_opt *opt;
-  mps_phase phase = float_phase;
+  mps_phase phase = no_phase;
 
   opt = NULL;
   while ((mps_getopts (&opt, &argc, &argv, "gG:d::t:o:O:j:")))

@@ -580,10 +580,6 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
 
     /* Radius is s->n * g_corr */
     rdpe_mul_eq_d (g_corr, s->n);
-    if (rdpe_eq_zero (g_corr))
-      {
-        rdpe_set_2dl (g_corr, 1.0, LONG_MIN);
-      }
 
     /* Set the radius, if convenient. */
     if (rdpe_gt (sigma, rdpe_zero))
@@ -598,6 +594,8 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
 	if (rdpe_lt (new_rad, rad))
 	  rdpe_set (rad, new_rad);
       }
+    else 
+      MPS_DEBUG (s, "Sigma < 0 for root %ld", data->k);
   }
   
   /* Check if newton correction is less than

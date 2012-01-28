@@ -477,6 +477,7 @@ void
 mps_secular_raise_precision (mps_status * s, int wp)
 {
   MPS_DEBUG_THIS_CALL;
+
   mps_secular_raise_coefficient_precision (s, wp);
   mps_secular_raise_root_precision (s, wp);
   s->mpwp = wp;
