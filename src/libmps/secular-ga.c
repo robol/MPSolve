@@ -508,7 +508,7 @@ mps_secular_ga_mpsolve (mps_status * s)
 	   if (s->lastphase != mp_phase)
 	     {
 	       mps_secular_switch_phase (s, mp_phase);
-	       // mps_secular_ga_regenerate_coefficients (s);
+	       mps_secular_ga_regenerate_coefficients (s);
 	     }
           else
             {

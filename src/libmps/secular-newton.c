@@ -385,7 +385,7 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
   mps_secular_equation *sec = (mps_secular_equation *) s->secular_equation;
 
   /* Declare temporary variables */
-  mpc_t sumb, pol, fp, ctmp, ctmp2;
+  mpc_t sumb, pol, fp, ctmp, ctmp2, mprod_b;
   cdpe_t cdtmp, cdtmp2;
   rdpe_t rtmp, rtmp2, apol, asum, prod_b, asum_on_apol;
 
@@ -395,12 +395,14 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
   mpc_init2 (fp, s->mpwp);
   mpc_init2 (ctmp, s->mpwp);
   mpc_init2 (ctmp2, s->mpwp);
+  mpc_init2 (mprod_b, s->mpwp);
 
   /* Set some starting values */
   mpc_set_d (sumb, 0, 0);
   mpc_set_d (pol, 0, 0);
   mpc_set_d (fp, 0, 0);
-  rdpe_set (prod_b, rdpe_one);
+  /* rdpe_set (prod_b, rdpe_one); */
+  mpc_set_ui (mprod_b, 1U, 0U);
 
   rdpe_set (asum, rdpe_zero);
   rdpe_set (apol, rdpe_zero);
@@ -416,10 +418,7 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
 	  goto mnewton_exit;
 	}
 
-      mpc_get_cdpe (cdtmp2, ctmp);
-
-      cdpe_mod (rtmp2, cdtmp2);
-      rdpe_mul_eq (prod_b, rtmp2);
+      mpc_mul_eq (mprod_b, ctmp);
 
       mpc_sub (ctmp2, x, s->mroot[i]);
       mpc_get_cdpe (cdtmp2, ctmp2);
@@ -453,6 +452,9 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
       /* Add it to fp */
       mpc_sub_eq (fp, ctmp2);
     }
+
+  mpc_get_cdpe (cdtmp, mprod_b);
+  cdpe_mod (prod_b, cdtmp);
 
   /* If x != b_i for every b_i finalize the computation */
   /* Subtract one from pol */
@@ -643,4 +645,5 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
   mpc_clear (sumb);
   mpc_clear (ctmp);
   mpc_clear (ctmp2);
+  mpc_clear (mprod_b);
 }

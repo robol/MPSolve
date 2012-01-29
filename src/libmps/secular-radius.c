@@ -167,13 +167,14 @@ mps_secular_mradii (mps_status * s, rdpe_t * dradii)
   MPS_DEBUG_THIS_CALL;
 
   mps_secular_equation * sec = s->secular_equation;
-  mpc_t mdiff, msec_ev;
+  mpc_t mdiff, msec_ev, mprod_b;
   cdpe_t sec_ev, diff;
   rdpe_t prod_b, rtmp, error;
   int i, j;
 
   mpc_init2 (mdiff, s->mpwp);
   mpc_init2 (msec_ev, s->mpwp);
+  mpc_init2 (mprod_b, s->mpwp);
 
   for (i = 0; i < s->n; ++i)
     {
@@ -213,6 +214,7 @@ mps_secular_mradii (mps_status * s, rdpe_t * dradii)
 	}
 
       /* Compute the product of (x - b_i) and p(x) = S(x) * prod(x_b_i) */
+      mpc_set_ui (mprod_b, 1U, 0U);
       for (j = 0; j < s->n; j++)
 	{
 	  mpc_sub (mdiff, s->mroot[i], sec->bmpc[j]);
@@ -224,10 +226,14 @@ mps_secular_mradii (mps_status * s, rdpe_t * dradii)
 	    continue;
 
 	  mpc_sub (mdiff, s->mroot[i], s->mroot[j]);
-	  mpc_get_cdpe (diff, mdiff);
-	  cdpe_mod (rtmp, diff);
-	  rdpe_div_eq (prod_b, rtmp);
+	  mpc_div_eq (mprod_b, mdiff);
+	  /* mpc_get_cdpe (diff, mdiff); */
+	  /* cdpe_mod (rtmp, diff); */
+	  /* rdpe_div_eq (prod_b, rtmp); */
 	}
+
+      mpc_get_cdpe (diff, mprod_b);
+      cdpe_mod (prod_b, diff);
 
       rdpe_mul_eq (dradii[i], prod_b);
 
@@ -246,4 +252,5 @@ mps_secular_mradii (mps_status * s, rdpe_t * dradii)
 
   mpc_clear (mdiff);
   mpc_clear (msec_ev);
+  mpc_clear (mprod_b);
 }
