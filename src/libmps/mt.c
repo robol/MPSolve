@@ -1598,6 +1598,51 @@ rdpe_vinit (rdpe_t v[], long size)
     rdpe_Move (v[i], rdpe_zero);
 }
 
+void 
+gdpe_add (gdpe_t res, gdpe_t g1, gdpe_t g2)
+{
+  rdpe_add (gdpe_Val (res), gdpe_Val (g1), gdpe_Val (g2));
+  rdpe_add (gdpe_Eps (res), gdpe_Eps (g1), gdpe_Eps (g2));
+  gdpe_update_rel_from_abs (res);
+}
+
+void 
+gdpe_sub (gdpe_t res, gdpe_t g1, gdpe_t g2)
+{
+  rdpe_sub (gdpe_Val (res), gdpe_Val (g1), gdpe_Val (g2));
+  rdpe_add (gdpe_Eps (res), gdpe_Eps (g1), gdpe_Eps (g2));
+  gdpe_update_rel_from_abs (res);
+}
+
+void 
+gdpe_mul (gdpe_t res, gdpe_t g1, gdpe_t g2)
+{
+  rdpe_mul (gdpe_Val (res), gdpe_Val (g1), gdpe_Val (g2));
+  if (gdpe_eq_zero (g1) || gdpe_eq_zero (g2))
+    {
+      rdpe_set (gdpe_Eps (res), rdpe_zero);
+      return;
+    }
+
+  rdpe_add (gdpe_Rel (res), gdpe_Rel (g1), gdpe_Rel (g2));
+  gdpe_update_abs_from_rel (res);
+}
+
+void 
+gdpe_div (gdpe_t res, gdpe_t g1, gdpe_t g2)
+{
+  rdpe_div (gdpe_Val (res), gdpe_Val (g1), gdpe_Val (g2));
+  if (gdpe_eq_zero (g1))
+    {
+      rdpe_set (gdpe_Eps (res), rdpe_zero);
+      return;
+    }
+
+  rdpe_add (gdpe_Rel (res), gdpe_Rel (g1), gdpe_Rel (g2));
+  gdpe_update_abs_from_rel (res);
+}
+
+
 /***********************************************************
 **              functions for cdpe_t                      **
 ***********************************************************/

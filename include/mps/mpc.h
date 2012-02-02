@@ -15,6 +15,8 @@
 #ifndef __MPC_H__
 #define __MPC_H__
 
+#include <mps/mt.h>
+
 #ifdef __cplusplus
 extern "C"
 {
@@ -80,6 +82,7 @@ extern "C"
 /* unary functions */
   void mpc_neg (mpc_t rc, mpc_t c);
   void mpc_smod (mpf_t f, mpc_t c);
+  void mpc_rmod (rdpe_t r, mpc_t c);
   void mpc_mod (mpf_t f, mpc_t c);
   void mpc_con (mpc_t rc, mpc_t c);
   void mpc_inv (mpc_t rc, mpc_t c);

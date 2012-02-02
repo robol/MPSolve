@@ -280,7 +280,7 @@ mps_secular_ga_improve (mps_status * s)
  *
  * @param s The mps_status of the computation.
  */
-void
+void 
 mps_secular_ga_mpsolve (mps_status * s)
 {
   int roots_computed = 0;
@@ -500,7 +500,7 @@ mps_secular_ga_mpsolve (mps_status * s)
 
        /* If the iterations has ended in less than 2 * not_computed_roots iterations
 	* and we have just regenerated the coefficients, we should increase precision. */
-       if (sec->best_approx)
+       if (sec->best_approx || (packet > 5))
 	 {
 	   skip_check_stop = false;
 

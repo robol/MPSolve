@@ -9,6 +9,8 @@
 #include <stdlib.h>
 #include <mps/mpc.h>
 #include <mps/gmptools.h>
+#include <mps/mt.h>
+#include <mps/tools.h>
 
 /***********************************************************
 **              functions for mpc_t                       **
@@ -198,6 +200,14 @@ mpc_smod (mpf_t f, mpc_t c)
   mpf_add (f, f, t);
 
   mpf_clear (t);
+}
+
+void
+mpc_rmod (rdpe_t r, mpc_t c)
+{
+  cdpe_t cdtmp;
+  mpc_get_cdpe (cdtmp, c);
+  cdpe_mod (r, cdtmp);
 }
 
 void

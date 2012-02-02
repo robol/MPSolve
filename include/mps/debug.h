@@ -74,6 +74,18 @@ extern "C"
     }						\
   }
 
+  /**
+   * @brief Debug the value of a real multiprecision
+   * variable.
+   */
+#define MPS_DEBUG_MPF(s, digits, c, name...) {	\
+    __MPS_DEBUG_EQ(s, name);			\
+    if (s->DOLOG) {				\
+      mpf_out_str(s->logstr, 10, digits, c);	\
+      fprintf (s->logstr, "\n");		\
+    }						\
+  }
+
 #define MPS_DEBUG_MPC2(s, radius, c, name...) {		\
   __MPS_DEBUG_EQ(s, name);				\
   if (s->DOLOG) {					\

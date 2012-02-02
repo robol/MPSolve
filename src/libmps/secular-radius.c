@@ -168,9 +168,15 @@ mps_secular_mradii (mps_status * s, rdpe_t * dradii)
 
   mps_secular_equation * sec = s->secular_equation;
   mpc_t mdiff, msec_ev, mprod_b;
-  cdpe_t sec_ev, diff;
-  rdpe_t prod_b, rtmp, error;
+  cdpe_t diff;
+  rdpe_t rtmp, error;
   int i, j;
+
+  mpf_t prod_b, ftmp, merror;
+
+  mpf_init2 (prod_b, s->mpwp);
+  mpf_init2 (ftmp, s->mpwp);
+  mpf_init2 (merror, s->mpwp);
 
   mpc_init2 (mdiff, s->mpwp);
   mpc_init2 (msec_ev, s->mpwp);
@@ -178,7 +184,7 @@ mps_secular_mradii (mps_status * s, rdpe_t * dradii)
 
   for (i = 0; i < s->n; ++i)
     {
-      rdpe_set (prod_b, rdpe_one);
+      mpf_set_ui (prod_b, 1U);
 
       /* If we have that the root is isolated we can simply ignore it, performing
        * a sort of cluster analysis deflation. */
@@ -196,12 +202,12 @@ mps_secular_mradii (mps_status * s, rdpe_t * dradii)
 	}
 
       /* Evaluate the secular equation on root i */
-      mpc_set_si (mdiff, -3, 1);
-      mps_secular_meval_with_error (s, sec, mdiff, msec_ev, error);
       mps_secular_meval_with_error (s, sec, s->mroot[i], msec_ev, error);
-      mpc_get_cdpe (sec_ev, msec_ev);
-      cdpe_mod (dradii[i], sec_ev);
-      rdpe_add_eq (dradii[i], error);
+      mpf_set_rdpe (merror, error);
+      
+      mpc_mod (ftmp, msec_ev);
+      mpf_add_eq (ftmp, merror);
+      mpf_get_rdpe (dradii[i], ftmp);
       rdpe_mul_eq_d (dradii[i], s->n);
 
       /* MPS_DEBUG_MPC (s, 25, msec_ev, "msec_ev"); */
@@ -218,24 +224,20 @@ mps_secular_mradii (mps_status * s, rdpe_t * dradii)
       for (j = 0; j < s->n; j++)
 	{
 	  mpc_sub (mdiff, s->mroot[i], sec->bmpc[j]);
-	  mpc_get_cdpe (diff, mdiff);
-	  cdpe_mod (rtmp, diff);
-	  rdpe_mul_eq (prod_b, rtmp);
+	  mpc_div_eq (mprod_b, mdiff);
 
 	  if (i == j)
 	    continue;
 
 	  mpc_sub (mdiff, s->mroot[i], s->mroot[j]);
 	  mpc_div_eq (mprod_b, mdiff);
-	  /* mpc_get_cdpe (diff, mdiff); */
-	  /* cdpe_mod (rtmp, diff); */
-	  /* rdpe_div_eq (prod_b, rtmp); */
 	}
 
       mpc_get_cdpe (diff, mprod_b);
-      cdpe_mod (prod_b, diff);
+      mpc_mod (prod_b, mprod_b);
 
-      rdpe_mul_eq (dradii[i], prod_b);
+      mpf_get_rdpe (rtmp, prod_b);
+      rdpe_mul_eq (dradii[i], rtmp);
 
       mpc_get_cdpe (diff, s->mroot[i]);
       cdpe_mod (rtmp, diff);
@@ -249,6 +251,10 @@ mps_secular_mradii (mps_status * s, rdpe_t * dradii)
 
       /* MPS_DEBUG_RDPE (s, dradii[i], "dradii[%d]", i); */
     }
+
+  mpf_clear (ftmp);
+  mpf_clear (merror);
+  mpf_clear (prod_b);
 
   mpc_clear (mdiff);
   mpc_clear (msec_ev);

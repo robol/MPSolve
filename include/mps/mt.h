@@ -265,6 +265,40 @@ extern "C"
 #define rdpe_vfree(V)        free(V)
 
 /***********************************************************
+**              gdpe_t functions                          ** 
+***********************************************************/
+typedef struct 
+{
+  rdpe_t r;
+  rdpe_t eps;
+  rdpe_t rel_eps;
+} __gdpe_struct;
+
+  typedef __gdpe_struct gdpe_t[1];
+
+#define gdpe_Eps(g) ((g)->eps)
+#define gdpe_Rel(g) ((g)->rel_eps)
+#define gdpe_Val(g) ((g)->r)
+#define gdpe_update_rel_from_abs(g) (rdpe_div (gdpe_Rel (g), gdpe_Eps (g), gdpe_Val (g)))
+#define gdpe_update_abs_from_rel(g) (rdpe_mul (gdpe_Eps (g), gdpe_Rel (g), gdpe_Val (g)))
+
+  /* Tests */
+#define gdpe_eq_zero(g) (rdpe_eq_zero (gdpe_Val (g)))
+
+#define gdpe_add_eq (g, g2) (gdpe_add ((g), (g), (g2)))
+#define gdpe_sub_eq (g, g2) (gdpe_sub ((g), (g), (g2)))
+#define gdpe_mul_eq (g, g2) (gdpe_mul ((g), (g), (g2)))
+#define gdpe_div_eq (g, g2) (gdpe_div ((g), (g), (g2)))
+
+  /* Binary functions */
+  void gdpe_add (gdpe_t res, gdpe_t g1, gdpe_t g2);
+  void gdpe_sub (gdpe_t res, gdpe_t g1, gdpe_t g2);
+  void gdpe_mul (gdpe_t res, gdpe_t g1, gdpe_t g2);
+  void gdpe_div (gdpe_t res, gdpe_t g1, gdpe_t g2);
+
+
+
+/***********************************************************
 **              cdpe_t functions                          ** 
 ***********************************************************/
 

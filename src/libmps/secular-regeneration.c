@@ -76,7 +76,6 @@ mps_secular_ga_find_changed_roots (mps_status * s, cdpe_t * old_b, mpc_t * old_m
   else
     {
       rdpe_set (root_epsilon, s->mp_epsilon);
-
       mpc_init2 (mdiff, s->mpwp);
     }
   
@@ -314,8 +313,8 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
       /* Debug computed coefficients */
       if (s->debug_level & MPS_DEBUG_REGENERATION)
 	    {
-	      MPS_DEBUG_MPC (s, s->rootwp[i], sec->ampc[i], "a_%d", i);
-	      MPS_DEBUG_MPC (s, s->rootwp[i], sec->bmpc[i], "b_%d", i);
+	      MPS_DEBUG_MPC (s, s->mpwp, sec->ampc[i], "a_%d", i);
+	      MPS_DEBUG_MPC (s, s->mpwp, sec->bmpc[i], "b_%d", i);
 	    }
       
     } /* Close the case where the coefficient are not approximated or isolated */
@@ -384,10 +383,9 @@ mps_secular_ga_regenerate_coefficients_monomial (mps_status * s, cdpe_t * old_b,
       data[i].root_changed = root_changed;
       data[i].s = s;
       data[i].success = &success;
-      mps_thread_pool_assign (s, s->pool, __mps_secular_ga_regenerate_coefficients_monomial_worker, 
-       			      data + i);   
+      mps_thread_pool_assign (s, s->pool, __mps_secular_ga_regenerate_coefficients_monomial_worker,  
+			      data + i);    
       /* __mps_secular_ga_regenerate_coefficients_monomial_worker (data + i); */
-      
     }
 
   mps_thread_pool_wait (s, s->pool);
@@ -889,8 +887,8 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
 	  MPS_DEBUG (s, "Dumping regenerated coefficients");
 	  for (i = 0; i < s->n; i++)
 	    {
-	      MPS_DEBUG_MPC(s, 15, sec->ampc[i], "sec->ampc[%d]", i);
-	      MPS_DEBUG_MPC(s, 15, sec->bmpc[i], "sec->bmpc[%d]", i);
+	      MPS_DEBUG_MPC(s, s->mpwp, sec->ampc[i], "sec->ampc[%d]", i);
+	      MPS_DEBUG_MPC(s, s->mpwp, sec->bmpc[i], "sec->bmpc[%d]", i);
 	    }
 	}
        
@@ -900,12 +898,9 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
       mpc_vfree (old_mb);
       rdpe_vfree (old_db);
 
-      /* if (MPS_INPUT_CONFIG_IS_SECULAR (s->input_config)) */
       mps_secular_mstart (s, s->n, NULL,
 			  (__rdpe_struct *) rdpe_zero, 
 			  (__rdpe_struct *) rdpe_zero, s->eps_out);
-      /* else */
-      /* 	mps_mrestart (s); */
 
       break;
 
@@ -923,7 +918,7 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
     {
       for (i = 0; i < s->n; i++)
 	  s->again[i] = true;
-      mps_secular_set_radii (s);
+      /* mps_secular_set_radii (s); */
     }
   else
     {

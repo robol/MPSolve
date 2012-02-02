@@ -744,7 +744,10 @@ mps_mcluster (mps_status * s, rdpe_t * drad, int nf)
       for (j = i + 1; j < s->n && newton_isolation; j++)
 	{
 	  if (mps_mtouchnwt (s, s->drad, nf, i, j))
-	    newton_isolation = false;
+	    {
+	      MPS_DEBUG (s, "Failing newton isolation on root %d and %d", i, j);
+	      newton_isolation = false;
+	    }
 	}
     }
 

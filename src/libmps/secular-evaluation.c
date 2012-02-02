@@ -166,15 +166,18 @@ void
 mps_secular_meval_with_error (mps_status * s, mps_secular_equation * sec, mpc_t x, mpc_t value, rdpe_t error)
 {
   mpc_t ctmp;
-  cdpe_t cdtmp;
-  rdpe_t rtmp;
   unsigned int wp = mpc_get_prec (x);
   int i;
+  mpf_t ftmp;
+  mpf_t merror;
 
-  mpc_init2  (ctmp, wp);
+  mpf_init2 (ftmp, wp);
+  mpf_init2 (merror, wp);
+
+  mpc_init2 (ctmp, wp);
   mpc_set_ui (value, 0U, 0U);
 
-  rdpe_set (error, rdpe_zero);
+  mpf_set_ui (merror, 0U);
 
   for (i = 0; i < s->n; ++i)
     {
@@ -182,18 +185,26 @@ mps_secular_meval_with_error (mps_status * s, mps_secular_equation * sec, mpc_t 
       mpc_div (ctmp, sec->ampc[i], ctmp);
       mpc_add_eq (value, ctmp);
 
-      mpc_get_cdpe (cdtmp, ctmp);
-      cdpe_mod (rtmp, cdtmp);
-      rdpe_mul_eq_d (rtmp, i + 2);
-      rdpe_add_eq (error, rtmp);
+      mpc_mod (ftmp, ctmp);
+      mpf_mul_eq_ui (ftmp, i + 2);
+      mpf_add_eq (merror, ftmp);
     }
   
   mpc_sub_eq_ui (value, 1U, 0U);
-  rdpe_add_eq (error, rdpe_one);
+  mpf_add_eq_ui (merror, 1U);
 
-  rdpe_set_2dl (rtmp, 4.0, 1 - (long int) wp);
-  rdpe_mul_eq (error, rtmp);
-  
+  mpf_set_2dl (ftmp, 1.0, 1 - wp);
+  mpf_mul_eq (merror, ftmp);
+
+  mpf_get_rdpe (error, merror);
+
+  /* MPS_DEBUG_MPC (s, wp, value, "Evaluation of secular equation"); */
+  /* MPS_DEBUG_MPF (s, wp, merror, "Error on the secular equation"); */
+
+  /* mps_mhorner_with_error2 (s, s->monomial_poly, x, value, error, wp); */
+
+  mpf_clear (merror);
+  mpf_clear (ftmp);
   mpc_clear (ctmp);
 }
 

@@ -94,6 +94,9 @@ mps_mhorner_with_error2 (mps_status * s, mps_monomial_poly * p, mpc_t x, mpc_t v
   else
     pthread_mutex_unlock (&p->mfpc_mutex[0]);
 
+  if (mpc_get_prec (x) < wp)
+    mpc_set_prec (x, wp);
+
   /* Set 4 * machine precision in u */
   rdpe_set_2dl (u, 1.0, 2 - wp);
   
