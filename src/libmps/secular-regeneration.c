@@ -16,6 +16,7 @@ mps_secular_ga_update_root_wp (mps_status * s, int i, long int wp)
 {
   mps_secular_equation * sec = s->secular_equation;  
   mps_monomial_poly * p = s->monomial_poly;  
+  int j;
 
   s->rootwp[i] = ((wp - 1) / 64 + 1) * 64;
   
@@ -27,10 +28,13 @@ mps_secular_ga_update_root_wp (mps_status * s, int i, long int wp)
   if (s->debug_level & MPS_DEBUG_MEMORY)  
     MPS_DEBUG (s, "Setting wp for root %d to %ld bits", i, s->rootwp[i]);  
 
-  pthread_mutex_lock (&sec->bmpc_mutex[i]);
-  if (mpc_get_prec (sec->bmpc[i]) < s->rootwp[i])  
-    mpc_set_prec (sec->bmpc[i], s->rootwp[i]);  
-  pthread_mutex_unlock (&sec->bmpc_mutex[i]);
+  for (j = 0; j < s->n; j++)
+    {
+      pthread_mutex_lock (&sec->bmpc_mutex[j]);
+      if (mpc_get_prec (sec->bmpc[j]) < s->rootwp[i])  
+	mpc_set_prec (sec->bmpc[j], s->rootwp[i]);  
+      pthread_mutex_unlock (&sec->bmpc_mutex[j]);
+    }
   
   pthread_mutex_lock (&sec->ampc_mutex[i]);
   if (mpc_get_prec (sec->ampc[i]) < s->rootwp[i])  
@@ -124,6 +128,7 @@ mps_secular_ga_find_changed_roots (mps_status * s, cdpe_t * old_b, mpc_t * old_m
 struct __mps_secular_ga_regenerate_coefficients_monomial_data {
   mps_status * s;
   cdpe_t * old_b;
+  mpc_t * old_mb;
   mps_boolean * root_changed;
   rdpe_t * root_epsilon;
   mps_boolean * success;
@@ -137,6 +142,7 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
 
   mps_status * s = data->s;
   cdpe_t * old_b = data->old_b;
+  mpc_t * old_mb = data->old_mb;
   mps_boolean * root_changed = data->root_changed;
   
   /* Pointers to the secular equation and the monomial_poly */
@@ -201,7 +207,7 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
    *   a_i = -p(b_i) / \prod_{i \neq j} (b_i - b_j)
    *
    */
-  if (root_changed[i])
+  if (root_changed[i] || true)
     {
       rdpe_t relative_error, rtmp;
       cdpe_t cpol;
@@ -264,11 +270,20 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
 	    /* } */
 	}
 
+      /* mps_secular_ga_update_root_wp (s, i, 10000 * s->mpwp); */
+      /* pthread_mutex_lock (&sec->bmpc_mutex[i]); */
+      /* mps_mhorner_with_error2 (s, p, sec->bmpc[i], sec->ampc[i], relative_error, s->rootwp[i]); */
+      /* pthread_mutex_unlock (&sec->bmpc_mutex[i]); */
+
       if (mpc_get_prec (mdiff) < s->rootwp[i])
 	{
 	  mpc_set_prec (mdiff, s->rootwp[i]);
 	  mpc_set_prec (mprod_b, s->rootwp[i]);
 	  mpc_set_prec (lc, s->rootwp[i]);
+	  mpc_set_si (lc, -1, 0);
+	  mps_with_lock (p->mfpc_mutex[s->n],
+			 mpc_div_eq (lc, p->mfpc[s->n]);
+			 );
 	  mpc_set_prec (my_b, s->rootwp[i]);
 	}
 
@@ -287,14 +302,10 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
 	      /* Lock i-th and -j-th mutex to gain control of the the
 	       * b_i of the secular equation. */
 	      pthread_mutex_lock (&sec->bmpc_mutex[j]); 
-	      if (mpc_get_prec (sec->bmpc[j]) < mpc_get_prec (my_b))
-		mpc_set_prec (sec->bmpc[j], mpc_get_prec (my_b));
-
 	      mpc_sub (mdiff, my_b, sec->bmpc[j]);
-	      
 	      pthread_mutex_unlock (&sec->bmpc_mutex[j]); 
 	      
-	      /* If the difference is zero than regeneration cannot succeed, and means
+	      /* If the difference is zero then regeneration cannot succeed, and means
 	       * that we need more precision in the roots */
 	      if (mpc_eq_zero (mdiff))
 		{
@@ -322,19 +333,45 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
 	{
 	  /* We should not recompute the polynomial here since the approximation
 	   * hasn't changed. */
-	  cdpe_set (prod_b, cdpe_one); 
-	  for (j = 1; j < s->n; j++) 
-	    { 
-	      if (i == j || !root_changed[i])
-		continue; 
+	  if (old_mb == NULL)
+	    {
+	      /* mpc_set_ui (mprod_b, 1U, 0U);  */
+	      /* cdpe_set (prod_b, cdpe_one);  */
+	      for (j = 0; j < s->n; j++) 
+		{ 
+		  if (i == j || !root_changed[i])
+		    continue; 
 	      
-	      cdpe_sub (diff, old_b[j], sec->bdpc[i]); 
-	      cdpe_sub (cdtmp, sec->bdpc[j], sec->bdpc[i]); 
-	      cdpe_div_eq (diff, cdtmp); 
-	      cdpe_mul_eq (prod_b, diff);
+		  cdpe_sub (diff, old_b[j], sec->bdpc[i]); 
+		  cdpe_sub (cdtmp, sec->bdpc[j], sec->bdpc[i]); 
+		  cdpe_div_eq (diff, cdtmp); 
+		  cdpe_mul_eq (prod_b, diff);
+		}
+	      
+	      mpc_set_cdpe (mprod_b, prod_b); 
 	    }
-	  
-	  mpc_set_cdpe (mprod_b, prod_b); 
+	  else 
+	    {
+	      for (j = 0; j < s->n; j++)
+		{
+		  mpc_set_prec (old_mb[j],  10 * s->mpwp);
+		  mpc_set_prec (sec->bmpc[j], 10 * s->mpwp);
+		}
+	      mpc_set_prec (mdiff, 10 * s->mpwp);
+	      mpc_set_prec (mprod_b, 10 * s->mpwp);
+
+	      mpc_set_ui (mprod_b, 1U, 0U);
+	      for (j = 0; j < s->n; j++)
+		{
+		  if (i == j || !root_changed[i])
+		    continue;
+
+		  mpc_sub (mdiff, old_mb[j], sec->bmpc[j]);
+		  mpc_sub (lc, sec->bmpc[j], sec->bmpc[i]);
+		  mpc_div_eq (mdiff, lc);
+		  mpc_mul_eq (mprod_b, mdiff);
+		}
+	    }
 	  mpc_div_eq (sec->ampc[i], mprod_b);
 	}
 
@@ -366,7 +403,7 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
  * did not changed from the last regeneration. 
  */
 mps_boolean
-mps_secular_ga_regenerate_coefficients_monomial (mps_status * s, cdpe_t * old_b, mps_boolean * root_changed)
+mps_secular_ga_regenerate_coefficients_monomial (mps_status * s, cdpe_t * old_b, mpc_t * old_mb, mps_boolean * root_changed)
 {
   MPS_DEBUG_THIS_CALL;
 
@@ -380,6 +417,7 @@ mps_secular_ga_regenerate_coefficients_monomial (mps_status * s, cdpe_t * old_b,
     {
       data[i].i = i;
       data[i].old_b = old_b;
+      data[i].old_mb = old_mb;
       data[i].root_changed = root_changed;
       data[i].s = s;
       data[i].success = &success;
@@ -666,7 +704,7 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s, cdpe_t * old_b, mpc_t
   if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
     {
       /* Regenerate the coefficients of the secular equation starting from the monomial input */
-      success = mps_secular_ga_regenerate_coefficients_monomial (s, old_b, root_changed);
+      success = mps_secular_ga_regenerate_coefficients_monomial (s, old_b, old_mb, root_changed);
     }
   else if (MPS_INPUT_CONFIG_IS_SECULAR (s->input_config))
     {
@@ -887,8 +925,8 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
 	  MPS_DEBUG (s, "Dumping regenerated coefficients");
 	  for (i = 0; i < s->n; i++)
 	    {
-	      MPS_DEBUG_MPC(s, s->mpwp, sec->ampc[i], "sec->ampc[%d]", i);
-	      MPS_DEBUG_MPC(s, s->mpwp, sec->bmpc[i], "sec->bmpc[%d]", i);
+	      MPS_DEBUG_MPC(s, s->mpwp, sec->ampc[i], "ampc[%d]", i);
+	      MPS_DEBUG_MPC(s, s->mpwp, sec->bmpc[i], "bmpc[%d]", i);
 	    }
 	}
        
