@@ -500,7 +500,7 @@ mps_secular_ga_mpsolve (mps_status * s)
 
        /* If the iterations has ended in less than 2 * not_computed_roots iterations
 	* and we have just regenerated the coefficients, we should increase precision. */
-       if (sec->best_approx || (packet > 5))
+       if (sec->best_approx)
 	 {
 	   skip_check_stop = false;
 
