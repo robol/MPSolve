@@ -503,6 +503,7 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
   /* Check if the newton correction is small with respect to the
    * current precision. */
   rdpe_mul (rtmp, ax, s->mp_epsilon);
+  rdpe_mul_eq_d (rtmp, s->n);
   if (rdpe_lt (acorr, rtmp))
     {
       *again = false;
@@ -573,7 +574,6 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
        * usable results, so let's quit. */
       if (rdpe_lt (g_den, rdpe_zero))
 	{
-	  /* *again = false; */
 	  MPS_DEBUG (s, "Cannot give a guaranteed correction");
 	  goto mnewton_cleanup;
 	}

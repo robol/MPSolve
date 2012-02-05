@@ -352,14 +352,6 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
 	    }
 	  else 
 	    {
-	      for (j = 0; j < s->n; j++)
-		{
-		  mpc_set_prec (old_mb[j],  10 * s->mpwp);
-		  mpc_set_prec (sec->bmpc[j], 10 * s->mpwp);
-		}
-	      mpc_set_prec (mdiff, 10 * s->mpwp);
-	      mpc_set_prec (mprod_b, 10 * s->mpwp);
-
 	      mpc_set_ui (mprod_b, 1U, 0U);
 	      for (j = 0; j < s->n; j++)
 		{
