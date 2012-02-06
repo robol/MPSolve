@@ -311,7 +311,7 @@ main (int argc, char ** argv)
 
   if (argc == 3)
     {
-      test_mpsolve (argv[1], argv[2], alg);
+      return (test_mpsolve (argv[1], argv[2], alg) != true);
     }
 
   return EXIT_SUCCESS;
