@@ -405,6 +405,12 @@ mps_secular_ga_mpsolve (mps_status * s)
 	  just_regenerated = true;
 	}
     }
+  else
+    {
+      s->lastphase = float_phase;
+      for (i = 0; i < s->n; i++)
+	s->rootwp[i] = 53;
+    }
 
   /* Select initial approximations using the custom secular
    * routine and based on the phase selected by the user. */
