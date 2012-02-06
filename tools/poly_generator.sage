@@ -23,7 +23,7 @@ class PolynomialGenerator():
 
     def add_complex_root (self, complex_root, mult = 1):
         self._pol *= (self._x - complex_root)**mult
-        self._comment += "! #) %s\n" % str(complex_root)
+        self._comment += "!# (%s)\n" % str (N(complex_root, digits = 200)).replace ("+", ", ").replace ("-", ", - ").replace("*I", "")
 
     def add_complex_conjugate_roots (self, complex_root, mult = 1):
         self._pol *= (self._x - complex_root)**mult
