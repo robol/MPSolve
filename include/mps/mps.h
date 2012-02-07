@@ -442,7 +442,9 @@ extern  "C"
   void mps_daberth (mps_status * s, int j, cdpe_t abcorr);
   void mps_maberth (mps_status * s, int j, mpc_t abcorr);
   void mps_faberth_s (mps_status * s, int j, mps_cluster * cluster, cplx_t abcorr);
+  void mps_faberth_wl (mps_status * s, int j, cplx_t abcorr, pthread_mutex_t * aberth_mutexes);
   void mps_daberth_s (mps_status * s, int j, mps_cluster * cluster, cdpe_t abcorr);
+  void mps_daberth_wl (mps_status * s, int j, cdpe_t abcorr, pthread_mutex_t * aberth_mutexes);
   void mps_maberth_s (mps_status * s, int j, mps_cluster * cluster, mpc_t abcorr);
   void mps_maberth_s_wl (mps_status * s, int j, mps_cluster * cluster, mpc_t abcorr,
                          pthread_mutex_t * aberth_mutex);

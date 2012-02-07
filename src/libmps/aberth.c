@@ -41,6 +41,32 @@ mps_faberth (mps_status * s, int j, cplx_t abcorr)
     }
 }
 
+void
+mps_faberth_wl (mps_status * s, int j, cplx_t abcorr, pthread_mutex_t * aberth_mutexes)
+{
+  int i;
+  cplx_t z, froot;
+
+  pthread_mutex_lock (&aberth_mutexes[j]);
+  cplx_set (froot, s->froot[j]);
+  pthread_mutex_unlock (&aberth_mutexes[j]);
+
+  cplx_set (abcorr, cplx_zero);
+  for (i = 0; i < s->n; i++)
+    {
+      if (i == j)
+        continue;
+
+      pthread_mutex_lock (&aberth_mutexes[i]);
+      cplx_sub (z, froot, s->froot[i]);
+      pthread_mutex_unlock (&aberth_mutexes[i]);
+
+      cplx_inv_eq (z);
+      cplx_add_eq (abcorr, z);
+    }
+}
+
+
 /**
  * @brief Compute Aberth correction for j-th root, without
  * selective correction.
@@ -167,6 +193,31 @@ mps_maberth_s (mps_status * s, int j, mps_cluster * cluster, mpc_t abcorr)
   mpc_set_cdpe (abcorr, temp);
 
   mpc_clear (diff);
+}
+
+void
+mps_daberth_wl (mps_status * s, int j, cdpe_t abcorr, pthread_mutex_t * aberth_mutexes)
+{
+  int i;
+  cdpe_t z, droot;
+
+  pthread_mutex_lock (&aberth_mutexes[j]);
+  cdpe_set (droot, s->droot[j]);
+  pthread_mutex_unlock (&aberth_mutexes[j]);
+
+  cdpe_set (abcorr, cdpe_zero);
+  for (i = 0; i < s->n; i++)
+    {
+      if (i == j)
+        continue;
+
+      pthread_mutex_lock (&aberth_mutexes[i]);
+      cdpe_sub (z, droot, s->droot[i]);
+      pthread_mutex_unlock (&aberth_mutexes[i]);
+
+      cdpe_inv_eq (z);
+      cdpe_add_eq (abcorr, z);
+    }
 }
 
 void
