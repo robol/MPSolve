@@ -638,5 +638,7 @@ mps_secular_set_radii (mps_status * s)
     }
       
   rdpe_vfree (drad);
+
+  mpc_clear (mtmp);
   
 }

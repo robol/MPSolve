@@ -18,7 +18,7 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
 {
   int i;
   cplx_t ctmp, ctmp2, pol, fp, sumb;
-  double apol, prod_b = 1.0, new_rad = 0.0f;
+  double apol, prod_b = 1.0, new_rad = 0.0;
   double asum = 0.0f, asum_on_apol;
   mps_secular_iteration_data * data = user_data;
   mps_secular_equation *sec = (mps_secular_equation *) s->secular_equation;
