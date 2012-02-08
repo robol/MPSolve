@@ -433,7 +433,8 @@ __mps_secular_ga_miterate_worker (void* data_ptr)
   mps_status *s = data->s;
   /* mps_secular_equation *sec = s->secular_equation; */
   int i;
-  mpc_t corr, abcorr, mroot;
+  mpc_t corr, abcorr;
+  mpc_t mroot; 
   rdpe_t modcorr;
   mps_thread_job job;
 
@@ -442,7 +443,7 @@ __mps_secular_ga_miterate_worker (void* data_ptr)
 
   mpc_init2 (corr, s->mpwp);
   mpc_init2 (abcorr, s->mpwp);
-  mpc_init2 (mroot, s->mpwp);
+  mpc_init2 (mroot, s->mpwp); 
 
   while ((*data->nzeros < s->n))
     {
@@ -462,11 +463,21 @@ __mps_secular_ga_miterate_worker (void* data_ptr)
       if (s->again[i])
 	{
           /* Lock this roots to make sure that we are the only one working on it */
-	  pthread_mutex_lock (&data->aberth_mutex[i]);
-	  mpc_set (mroot, s->mroot[i]);
-	  pthread_mutex_unlock (&data->aberth_mutex[i]);
+	  pthread_mutex_lock (&data->aberth_mutex[i]); 
+	  mpc_set (mroot, s->mroot[i]); 
+	  pthread_mutex_unlock (&data->aberth_mutex[i]); 
 
+          /* Check if, while we were waiting, excep condition has been reached,
+           * or all the zeros has been approximated.                         */
+          if ((*data->nzeros) >= s->n)
+            {
+              pthread_mutex_unlock (&data->roots_mutex[i]);
+              goto cleanup;
+            }
+
+	  /* pthread_mutex_lock (data->gs_mutex); */
 	  (*data->it)++;
+	  /* pthread_mutex_unlock (data->gs_mutex); */
 
 	  it_data.k = i;
 	  mps_secular_mnewton (s, mroot, s->drad[i], corr,
@@ -479,17 +490,19 @@ __mps_secular_ga_miterate_worker (void* data_ptr)
 	  
 	  if (!mpc_eq_zero (abcorr)) 
 	    {
-	      MPS_DEBUG_MPC (s, s->mpwp, corr, "Correcting the root %d with corr", i);
 	      mpc_div (abcorr, corr, abcorr); 
+
+	      pthread_mutex_lock (&data->aberth_mutex[i]);
 	      mpc_sub_eq (mroot, abcorr); 
+	      pthread_mutex_unlock (&data->aberth_mutex[i]);
 	    } 
 	  else
 	    s->again[i] = true;
 
-	  pthread_mutex_lock (&data->aberth_mutex[i]);
-	  mpc_set (s->mroot[i], mroot);
-	  pthread_mutex_unlock (&data->aberth_mutex[i]);
-
+	  pthread_mutex_lock (&data->aberth_mutex[i]); 
+	  mpc_set (s->mroot[i], mroot); 
+	  pthread_mutex_unlock (&data->aberth_mutex[i]); 
+	   
 	  /* Correct the radius */
 	  mpc_rmod (modcorr, abcorr);
 	  rdpe_add_eq (s->drad[i], modcorr);
@@ -498,16 +511,16 @@ __mps_secular_ga_miterate_worker (void* data_ptr)
 	    {
 	      if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
 		MPS_DEBUG (s, "Root %d again was set to false on iteration %d by thread %d", i, *data->it, data->thread);
+
 	      (*data->nzeros)++;
 	    }
 	}
 
-      /* printf ("Thread %d releasing root %d\n", data->thread, i); */
       pthread_mutex_unlock (&data->roots_mutex[i]);
     }
 
  cleanup:
-  mpc_clear (mroot);
+  mpc_clear (mroot); 
   mpc_clear (abcorr);
   mpc_clear (corr);
 
@@ -641,7 +654,7 @@ mps_secular_ga_miterate (mps_status * s, int maxit, mps_boolean just_regenerated
 
   /* Clock the routine */
 #ifndef DISABLE_DEBUG
-  s->dpe_iteration_time += mps_stop_timer (my_clock);
+  s->mp_iteration_time += mps_stop_timer (my_clock);
 #endif
 
   mps_thread_job_queue_free (queue);

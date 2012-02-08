@@ -204,6 +204,9 @@ void mps_thread_pool_set_concurrency_limit (mps_status * s, mps_thread_pool * po
   if (!pool)
     pool = s->pool;
 
+  if (pool->n < concurrency_limit)
+    concurrency_limit = pool->n;
+
   /* We need to keep some threads occupied with nothing to do */  
   if (pool->concurrency_limit == 0 && concurrency_limit == 0)
     return;

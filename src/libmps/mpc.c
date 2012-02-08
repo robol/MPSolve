@@ -51,8 +51,8 @@ mpc_set_prec (mpc_t c, unsigned long int prec)
     }
   else
     {
-      mpf_set_prec_raw (mpc_Re (c), prec);
-      mpf_set_prec_raw (mpc_Im (c), prec);
+      mpf_set_prec (mpc_Re (c), prec);
+      mpf_set_prec (mpc_Im (c), prec);
     }
 }
 

@@ -376,6 +376,7 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
 {
   int i;
   mpc_t ctmp, ctmp2, pol, fp, sumb;
+  mpc_t ampc, bmpc;
   cdpe_t cdtmp;
   rdpe_t apol, new_rad, rtmp, ax, afp, rtmp2;
   rdpe_t asum_on_apol, acorr;
@@ -386,7 +387,8 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
   mps_secular_equation * sec = s->secular_equation;
   mps_secular_iteration_data * data = user_data;
 
-  printf ("x_%ld = ", data->k); mpc_outln_str (stdout, 10, 15, x); printf ("\n"); fflush(stdout);
+
+  /* printf ("x_%ld = ", data->k); mpc_outln_str (stdout, 10, 15, x); printf ("\n"); fflush(stdout); */
 
   mpc_get_cdpe (cdtmp, x);
   cdpe_mod (ax, cdtmp);
@@ -398,6 +400,8 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
   mpc_init2 (pol, s->mpwp);
   mpc_init2 (fp, s->mpwp);
   mpc_init2 (sumb, s->mpwp);
+  mpc_init2 (ampc, s->mpwp);
+  mpc_init2 (bmpc, s->mpwp);
 
   rdpe_set (asum, rdpe_zero);
   rdpe_set (asum2, rdpe_zero);
@@ -405,8 +409,14 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
 
   for (i = 0; i < s->n; i++)
     {
+      /* Don't know why this is necessary, but GMP seems to 
+       * make strange things if I don't keep a local copy
+       * of these variables. */
+      mpc_set (ampc, sec->ampc[i]);
+      mpc_set (bmpc, sec->bmpc[i]);
+
       /* Compute z - b_i */
-      mpc_sub (ctmp, x, sec->bmpc[i]);
+      mpc_sub (ctmp, x, bmpc);
       mpc_rmod (diff, ctmp);
 
       /* Check if we are in the case where x == b_i. If that's
@@ -425,7 +435,7 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
 
       /* Sum the module of (1 / (x - b_i)) to asumb. Will be used later
        * for radius computation */
-      mpc_rmod (rtmp, sec->bmpc[i]);
+      mpc_rmod (rtmp, bmpc);
       rdpe_add_eq (rtmp, ax);
       rdpe_div_eq (rtmp, diff);
       rdpe_add_eq_d (rtmp, (i + 2) + 8);
@@ -433,14 +443,14 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
       rdpe_add_eq (asumb, rtmp);
 
       /* Compute a_i / (x - b_i) */
-      mpc_mul (ctmp2, ctmp, sec->ampc[i]);
+      mpc_mul (ctmp2, ctmp, ampc);
 
       /* Add it to the evaluation of the secular equation, 
        * that we call pol */
       mpc_add_eq (pol, ctmp2);
 
       /* Get its module and add it to asum */
-      mpc_rmod (rtmp, sec->bmpc[i]);
+      mpc_rmod (rtmp, bmpc);
       rdpe_add_eq (rtmp, ax);
       rdpe_div_eq (rtmp, diff);
       rdpe_add_eq_d (rtmp, (i + 2) + 8);
@@ -454,7 +464,7 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
 
       /* Add its module at asum2, that will be used later
        * for radius computation */
-      mpc_rmod (rtmp, sec->bmpc[i]);
+      mpc_rmod (rtmp, bmpc);
       rdpe_add_eq (rtmp, ax);
       rdpe_div_eq (rtmp, diff);
       rdpe_add_eq_d (rtmp, (i  + 2) + 8);
@@ -576,7 +586,7 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
       if (rdpe_lt (g_den, rdpe_zero))
 	{
 	  MPS_DEBUG (s, "Cannot give a guaranteed correction");
-	  printf ("No guaranteed Nwt corr for root %ld\n", data->k);
+	  /* printf ("No guaranteed Nwt corr for root %ld\n", data->k); */
 	  goto mnewton_cleanup;
 	}
 
@@ -595,13 +605,17 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
 
       if (rdpe_lt (new_rad, rad))
 	rdpe_set (rad, new_rad);
+
     }
   
  mnewton_cleanup:
 
   /* printf ("x_%ld = ", data->k); mpc_outln_str (stdout, 10, 15, x); printf ("\n"); fflush(stdout); */
-  printf ("Correction for root %ld = ", data->k); mpc_outln_str (stdout, 10, 15, corr); printf ("\n"); fflush(stdout);
-  printf ("Radius for root %ld", data->k); rdpe_outln (new_rad); printf ("\n");
+  /* printf ("Correction for root %ld = ", data->k); mpc_outln_str (stdout, 10, 15, corr); printf ("\n"); fflush(stdout); */
+  /* printf ("Radius for root %ld", data->k); rdpe_outln (new_rad); printf ("\n"); */
+
+  mpc_clear (ampc);
+  mpc_clear (bmpc);
 
   mpc_clear (pol);
   mpc_clear (fp);

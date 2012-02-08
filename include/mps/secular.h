@@ -216,7 +216,6 @@ extern "C"
      * that was there before was better.
      */
     mps_boolean radius_set;
-
   };
 
 #endif /* #ifdef _MPS_PRIVATE */    
