@@ -17,8 +17,85 @@
  **           (C) 2011, Dipartimento di Matematica         **
  ***********************************************************/
 
+#define _MPS_PRIVATE
 #include <mps/mps.h>
 #include <string.h>
+
+mps_status * s = NULL;
+
+#ifndef __WINDOWS
+#include <signal.h>
+
+
+void
+status (int signal)
+{
+  int i;
+  FILE * logstr = stderr;
+
+  fprintf (logstr, "\n\nDumping the approximations:\n");
+
+  fprintf (logstr, 
+	   "  Phase = %s, In = %d, Out = %d, Uncertain = %d, Zero = %d, Cluster = %ld\n",
+	   MPS_PHASE_TO_STRING (s->lastphase), s->count[0], s->count[1], s->count[2],
+	   s->zero_roots, s->clusterization->n);
+
+  fprintf (logstr, "Current approximations:");
+  for (i = 0; i < s->n; i++)
+    {
+      switch (s->lastphase)
+        {
+        case no_phase:
+        case float_phase:
+	  fprintf (logstr, "  Approximation  %4d = ", i);
+	  cplx_outln_str (logstr, s->froot[i]);
+          break;
+
+        case dpe_phase:
+	  fprintf (logstr, "  Approximation  %4d = ", i);
+	  cdpe_outln_str (logstr, s->droot[i]);
+          break;
+
+        case mp_phase:
+	  fprintf (logstr, "  Approximation  %4d = ", i);
+	  mpc_outln_str (logstr, 10, s->mpwp, s->mroot[i]);
+          break;
+        }
+    }
+
+  /* output radii */
+  fprintf (logstr, "Current radii: \n");
+  for (i = 0; i < s->n; i++)
+    {
+      switch (s->lastphase)
+        {
+        case no_phase:
+        case float_phase:
+	  fprintf (logstr, "  Radius of root %4d = %e\n", i, s->frad[i]);
+          break;
+
+        case dpe_phase:
+        case mp_phase:
+	  fprintf (logstr, "  Radius of root %4d", i);
+	  rdpe_outln_str (logstr, s->drad[i]);
+          break;
+        }
+    }
+
+  fprintf (logstr, "\n\n");
+  fprintf (logstr, "Dumping status:\n\n");
+  fprintf (logstr, "                Approximation              Attributes       Inclusion\n");
+  for (i = 0; i < s->n; i++)
+    {
+      fprintf (logstr, "  Status  %4d: %-25s  %-15s  %-15s\n", i,
+	       MPS_ROOT_STATUS_TO_STRING (s->root_status[i]),
+	       MPS_ROOT_ATTRS_TO_STRING  (s->root_attrs[i]), 
+	       MPS_ROOT_INCLUSION_TO_STRING (s->root_inclusion[i]));
+    }
+}
+
+#undef _MPS_PRIVATE
+#endif
 
 void
 usage (mps_status * s, const char *program)
@@ -62,10 +139,14 @@ usage (mps_status * s, const char *program)
 int
 main (int argc, char **argv)
 {
-  mps_status *s;
-
   /* Create a new status */
   s = mps_status_new ();
+
+  /* Associate the SIGUSR1 signal to the mps_dump () function */
+#ifndef __WINDOWS
+  signal (SIGUSR1, status);
+#endif
+
   mps_status_set_input_prec (s, 0);
 
   /* Gemignani's approach */

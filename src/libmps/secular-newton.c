@@ -255,7 +255,7 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
   cdpe_mod (rtmp2, x); 
   rdpe_mul_eq_d (rtmp2, s->n * DBL_EPSILON); 
   
-  /* If |corr| < |x| * DBL_EPSILON then stop */ 
+  /* If |corr| < |x| * DBL_EPSILON then stop */
   if (rdpe_lt (rtmp, rtmp2)) 
     { 
       if (data && (s->debug_level & MPS_DEBUG_APPROXIMATIONS)) 
