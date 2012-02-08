@@ -384,9 +384,10 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
   rdpe_t asum_eps, asum2_eps, asumb_eps;
 
   mps_secular_equation * sec = s->secular_equation;
-  /* mps_secular_iteration_data * data = user_data; */
+  mps_secular_iteration_data * data = user_data;
 
-  /* Compute the module of x */
+  printf ("x_%ld = ", data->k); mpc_outln_str (stdout, 10, 15, x); printf ("\n"); fflush(stdout);
+
   mpc_get_cdpe (cdtmp, x);
   cdpe_mod (ax, cdtmp);
 
@@ -575,6 +576,7 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
       if (rdpe_lt (g_den, rdpe_zero))
 	{
 	  MPS_DEBUG (s, "Cannot give a guaranteed correction");
+	  printf ("No guaranteed Nwt corr for root %ld\n", data->k);
 	  goto mnewton_cleanup;
 	}
 
@@ -582,11 +584,25 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
       rdpe_div (new_rad, g_pol, g_den);
       rdpe_mul_eq_d (new_rad, s->n);
 
+      MPS_DEBUG_MPC (s, s->mpwp, x, "Approximation %ld", data->k);
+      MPS_DEBUG_MPC (s, s->mpwp, pol, "Pol for root %ld", data->k);
+      MPS_DEBUG_MPC (s, s->mpwp, fp, "fp for root %ld", data->k);
+      MPS_DEBUG_RDPE (s, new_rad, "Computed rad for root %ld", data->k);
+
+      MPS_DEBUG_RDPE (s, g_pol, "g_pol for root %ld", data->k);
+      MPS_DEBUG_RDPE (s, g_den ,"g_den for root %ld", data->k);
+      MPS_DEBUG_RDPE (s, new_rad, "rad for root %ld", data->k);
+
       if (rdpe_lt (new_rad, rad))
 	rdpe_set (rad, new_rad);
     }
   
  mnewton_cleanup:
+
+  /* printf ("x_%ld = ", data->k); mpc_outln_str (stdout, 10, 15, x); printf ("\n"); fflush(stdout); */
+  printf ("Correction for root %ld = ", data->k); mpc_outln_str (stdout, 10, 15, corr); printf ("\n"); fflush(stdout);
+  printf ("Radius for root %ld", data->k); rdpe_outln (new_rad); printf ("\n");
+
   mpc_clear (pol);
   mpc_clear (fp);
   mpc_clear (sumb);

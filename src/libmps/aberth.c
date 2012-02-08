@@ -227,9 +227,14 @@ mps_maberth_s_wl (mps_status * s, int j, mps_cluster * cluster, mpc_t abcorr,
   int k;
   mps_root * root;
   cdpe_t z, temp;
-  mpc_t diff;
-
+  mpc_t diff, mroot;
+  
+  mpc_init2 (mroot, s->mpwp);
   mpc_init2 (diff, s->mpwp);
+
+  pthread_mutex_lock (&aberth_mutexes[j]);
+  mpc_set (mroot, s->mroot[j]);
+  pthread_mutex_unlock (&aberth_mutexes[j]);
 
   cdpe_set (temp, cdpe_zero);
   for (root = cluster->first; root != NULL; root = root->next)
@@ -237,17 +242,20 @@ mps_maberth_s_wl (mps_status * s, int j, mps_cluster * cluster, mpc_t abcorr,
       k = root->k;
       if (k == j)
         continue;
+
       pthread_mutex_lock (&aberth_mutexes[k]);
-      mpc_sub (diff, s->mroot[j], s->mroot[k]);
+      mpc_sub (diff, mroot, s->mroot[k]);
       pthread_mutex_unlock (&aberth_mutexes[k]);
       mpc_get_cdpe (z, diff);
 
       if (cdpe_eq_zero(z))
 	continue;
+
       cdpe_inv_eq (z);
       cdpe_add_eq (temp, z);
     }
   mpc_set_cdpe (abcorr, temp);
 
+  mpc_clear (mroot);
   mpc_clear (diff);
 }

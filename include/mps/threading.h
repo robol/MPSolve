@@ -177,6 +177,8 @@ extern "C"
      */
     pthread_mutex_t *roots_mutex;
 
+    pthread_mutex_t *gs_mutex;
+
     /**
      * @brief Pointer to the <code>mps_thread_job_queue</code> that the thread
      * may query for other work.
