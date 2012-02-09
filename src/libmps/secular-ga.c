@@ -291,6 +291,7 @@ mps_secular_ga_mpsolve (mps_status * s)
   mps_boolean just_regenerated = false;
   rdpe_t r_eps;
   mps_secular_equation *sec = mps_secular_equation_from_status (s);
+  double patient_factor = 1.0;
 
   /* Check if the secular equation is allocate or if only the
    * polynomial is present. In the last case, allocate an empty
@@ -528,6 +529,7 @@ mps_secular_ga_mpsolve (mps_status * s)
 
 	   /* Set the packet counter to zero, we are restarting */
 	   packet = 0;
+	   patient_factor = 1.0;
         }
 
       /* If we can't stop recompute coefficients in higher precision and
@@ -536,7 +538,7 @@ mps_secular_ga_mpsolve (mps_status * s)
        * of the computation. */
        s->just_raised_precision = false;
 
-       if (roots_computed == s->n)
+       if (roots_computed >= s->n * patient_factor)
 	 {
 	   if (s->debug_level & MPS_DEBUG_REGENERATION)
 	     MPS_DEBUG (s, "Regenerating coefficients because %d roots were approximated", s->n);
@@ -571,7 +573,15 @@ mps_secular_ga_mpsolve (mps_status * s)
 	     }
 	 }
        else
-	 just_regenerated = false;
+	 {
+	   just_regenerated = false;
+
+	   /* Lower the bound to regenerate the coefficients, but do not go below half of the 
+	    * roots. Seems reasonable that this will work. */
+	   if (packet % 4 == 0) 
+	     patient_factor = MAX (0.5, patient_factor * 0.95);
+	   
+	 }
     }
   while (skip_check_stop || !mps_secular_ga_check_stop (s));
 
