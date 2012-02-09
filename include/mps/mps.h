@@ -125,6 +125,7 @@ extern  "C"
   typedef enum mps_root_attrs mps_root_attrs;
 
   typedef enum mps_algorithm mps_algorithm;
+  typedef enum mps_operation mps_operation;
   typedef enum mps_option_key mps_option_key;
   typedef enum mps_structure mps_structure;
   typedef enum mps_representation mps_representation;
@@ -163,6 +164,30 @@ extern  "C"
     "No phase", "Float phase", "DPE phase", "MP phase"
   };
 #define MPS_PHASE_TO_STRING(phase) (mps_phase_string[phase])
+
+  /**
+   * @brief Used to label different operation inside the various
+   * algorithms.
+   */
+  enum mps_operation {
+    MPS_OPERATION_CLUSTER_ANALYSIS,
+    MPS_OPERATION_ABERTH_FP_ITERATIONS,
+    MPS_OPERATION_ABERTH_DPE_ITERATIONS,
+    MPS_OPERATION_ABERTH_MP_ITERATIONS,
+    MPS_OPERATION_REGENERATION,
+    MPS_OPERATION_STARTING_POINTS_FP,
+    MPS_OPERATION_STARTING_POINTS_DPE,
+    MPS_OPERATION_STARTING_POINTS_MP,
+    MPS_OPERATION_SHIFT,
+    MPS_OPERATION_REFINEMENT
+  };
+  static const mps_string mps_operation_string [] = {
+    "Cluster Analysis", "Aberth floating point iterations", "Aberth DPE iterations",
+    "Aberth multiprecision iterations", "Regeneration", "Starting point computation in floating point",
+    "Starting point computatino in DPE", "Starting point computation in multiprecision",
+    "Shift of the polynomial", "Refinement of the approximation"
+  };
+#define MPS_OPERATION_TO_STRING(operation) (mps_operation_string[operation])
 
   /**
    * @brief Status of approximation of the root.

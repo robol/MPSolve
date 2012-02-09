@@ -723,6 +723,8 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
 {
   MPS_DEBUG_THIS_CALL;
 
+  s->operation = MPS_OPERATION_REGENERATION;
+
   cplx_t *old_b, *old_a;
   cdpe_t *old_db, *old_da;
   mpc_t *old_ma, *old_mb;

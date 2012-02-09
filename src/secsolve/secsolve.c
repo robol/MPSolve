@@ -33,7 +33,8 @@ status (int signal)
   int i;
   FILE * logstr = stderr;
 
-  fprintf (logstr, "\n\nDumping the approximations:\n");
+  fprintf (stderr, "\nOperation running now: %s\n\n", MPS_OPERATION_TO_STRING (s->operation));
+  fprintf (logstr, "Dumping the approximations:\n");
 
   fprintf (logstr, 
 	   "  Phase = %s, In = %d, Out = %d, Uncertain = %d, Zero = %d, Cluster = %ld\n",

@@ -91,6 +91,8 @@ extern "C"
     mps_boolean resume;         /* to complete                         */
     mps_boolean chkrad;         /* check radii after completion        */
 
+    mps_operation operation;
+
     mps_boolean initialized;
 
     /**

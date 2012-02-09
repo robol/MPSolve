@@ -107,6 +107,8 @@ mps_secular_ga_fiterate (mps_status * s, int maxit, mps_boolean just_regenerated
 
   mps_secular_equation *sec = s->secular_equation;
 
+  s->operation = MPS_OPERATION_ABERTH_FP_ITERATIONS;
+
   mps_thread_worker_data *data;
   pthread_mutex_t *aberth_mutex =
     (pthread_mutex_t *) mps_malloc (sizeof (pthread_mutex_t) * s->n);
@@ -301,6 +303,8 @@ mps_secular_ga_diterate (mps_status * s, int maxit, mps_boolean just_regenerated
   int nit = 0;
   int it_threshold;
   rdpe_t * dradii = rdpe_valloc (s->n);
+
+  s->operation = MPS_OPERATION_ABERTH_DPE_ITERATIONS;
 
 #ifndef DISABLE_DEBUG
   clock_t *my_clock = mps_start_timer ();
@@ -541,6 +545,8 @@ mps_secular_ga_miterate (mps_status * s, int maxit, mps_boolean just_regenerated
   int nit = 0;
   int it_threshold;
   rdpe_t * dradii = rdpe_valloc (s->n);
+
+  s->operation = MPS_OPERATION_ABERTH_MP_ITERATIONS;
 
 #ifndef DISABLE_DEBUG
   clock_t *my_clock = mps_start_timer ();

@@ -73,6 +73,8 @@ mps_improve (mps_status * s)
   mps_monomial_poly *p = s->monomial_poly;
   clock_t *my_timer = mps_start_timer ();
 
+  s->operation = MPS_OPERATION_REFINEMENT;
+
   /* Set lastphase to mp */
   s->lastphase = mp_phase;
 

@@ -57,6 +57,8 @@
 void
 mps_fmodify (mps_status * s, mps_boolean track_new_cluster)
 {
+  s->operation = MPS_OPERATION_CLUSTER_ANALYSIS;
+
   int l, i;
   rdpe_t rtmp;
   double eps_out = rdpe_get_d (s->eps_out);
@@ -783,6 +785,8 @@ mps_fmodify (mps_status * s, mps_boolean track_new_cluster)
 void
 mps_dmodify (mps_status * s, mps_boolean track_new_cluster)
 {
+  s->operation = MPS_OPERATION_CLUSTER_ANALYSIS;
+
   int l, i;
   rdpe_t tmpr, tmpr2;
 
@@ -1497,6 +1501,8 @@ mps_dmodify (mps_status * s, mps_boolean track_new_cluster)
 void
 mps_mmodify (mps_status * s, mps_boolean track_new_cluster)
 {
+  s->operation = MPS_OPERATION_CLUSTER_ANALYSIS;
+
   int l, i;
   rdpe_t tmpr, tmpr2;
   cdpe_t cdtmp;

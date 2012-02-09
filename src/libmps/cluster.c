@@ -328,6 +328,8 @@ mps_cluster_reset (mps_status * s)
 void
 mps_fcluster (mps_status * s, double * frad, int nf)
 {
+  s->operation = MPS_OPERATION_CLUSTER_ANALYSIS;
+
   /* We need to scan every cluster and make it in pieces, if possible */
   mps_clusterization * new_clusterization = mps_clusterization_empty (s);
   mps_cluster_item * item;
@@ -494,6 +496,8 @@ mps_fcluster (mps_status * s, double * frad, int nf)
 void
 mps_dcluster (mps_status * s, rdpe_t * drad, int nf)
 {
+  s->operation = MPS_OPERATION_CLUSTER_ANALYSIS;
+
   /* We need to scan every cluster and make it in pieces, if possible */
   mps_clusterization * new_clusterization = mps_clusterization_empty (s);
   mps_cluster_item * item;
@@ -709,6 +713,8 @@ mps_debug_cluster_structure (mps_status * s)
 void
 mps_mcluster (mps_status * s, rdpe_t * drad, int nf)
 {
+  s->operation = MPS_OPERATION_CLUSTER_ANALYSIS;
+
   /* We need to scan every cluster and make it in pieces, if possible */
   mps_clusterization * new_clusterization = mps_clusterization_empty (s);
   mps_cluster_item * item;

@@ -284,6 +284,8 @@ mps_fstart (mps_status * s, int n, mps_cluster_item * cluster_item,
   mps_cluster * cluster = NULL;
   mps_root * root = NULL;
 
+  s->operation = MPS_OPERATION_STARTING_POINTS_FP;
+
   if (cluster_item)
     cluster = cluster_item->cluster;
 
@@ -580,6 +582,8 @@ mps_dstart (mps_status * s, int n, mps_cluster_item * cluster_item,
 
   mps_cluster * cluster = NULL;
   mps_root * root = NULL;
+
+  s->operation = MPS_OPERATION_STARTING_POINTS_DPE;
 
   if (cluster_item)
     cluster = cluster_item->cluster;
@@ -878,6 +882,8 @@ mps_mstart (mps_status * s, int n, mps_cluster_item * cluster_item,
   mps_boolean need_recomputing = true;
   mps_root * root = NULL;
 
+  s->operation = MPS_OPERATION_STARTING_POINTS_MP;
+
   if (cluster_item)
     cluster = cluster_item->cluster;
 
@@ -1095,6 +1101,8 @@ mps_frestart (mps_status * s)
   mps_boolean tst, cont;
   mps_monomial_poly *p = s->monomial_poly;
 
+  s->operation = MPS_OPERATION_SHIFT;
+
   /* Variables for cluster analysis */
   mps_cluster * cluster;
   mps_cluster_item * c_item;
@@ -1289,6 +1297,8 @@ mps_drestart (mps_status * s)
   mps_cluster * cluster;
   mps_root * root;
 
+  s->operation = MPS_OPERATION_SHIFT;
+
   /*  For user's polynomials skip the restart stage (not yet implemented) */
   if (MPS_INPUT_CONFIG_IS_USER (s->input_config))
     return;
@@ -1449,6 +1459,8 @@ mps_mrestart (mps_status * s)
   mps_cluster_item * c_item;
   mps_cluster * cluster;
   mps_root * root;
+
+  s->operation = MPS_OPERATION_SHIFT;
 
   /* For user's polynomials skip the restart stage (not yet implemented) */
   if (MPS_INPUT_CONFIG_IS_USER (s->input_config))
