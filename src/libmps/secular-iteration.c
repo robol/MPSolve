@@ -75,7 +75,6 @@ __mps_secular_ga_fiterate_worker (void* data_ptr)
 		MPS_DEBUG (s, "Root %d again was set to false on iteration %d by thread %d", i, *data->it, data->thread);
 	      (*data->nzeros)++;
 	    }
-
 	  cplx_set (s->froot[i], froot);
 	}
 

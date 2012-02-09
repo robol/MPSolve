@@ -536,7 +536,7 @@ mps_secular_ga_mpsolve (mps_status * s)
        * of the computation. */
        s->just_raised_precision = false;
 
-       if (roots_computed == s->n)
+       if (roots_computed >= s->n - 2)
 	 {
 	   if (s->debug_level & MPS_DEBUG_REGENERATION)
 	     MPS_DEBUG (s, "Regenerating coefficients because %d roots were approximated", s->n);

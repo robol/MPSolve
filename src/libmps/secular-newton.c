@@ -163,7 +163,7 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
 
       sigma = cplx_mod (ctmp) - gamma;
       
-      new_rad = s->n * (cplx_mod (pol) / cplx_mod (fp) * (1 + asum * DBL_EPSILON)) / sigma;
+      new_rad = s->n * (cplx_mod (pol) / cplx_mod (fp) * (1 + asum * DBL_EPSILON) * MPS_2SQRT2) / sigma;
 
       if (*again && new_rad < *rad && !(sigma < 0 || gamma < 0 || new_rad < 0))
 	*rad = new_rad;
