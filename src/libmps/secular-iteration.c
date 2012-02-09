@@ -153,7 +153,6 @@ mps_secular_ga_fiterate (mps_status * s, int maxit, mps_boolean just_regenerated
     }
 
   mps_thread_job_queue *queue = mps_thread_job_queue_new (s);
-  queue->max_iter = it_threshold;
 
   for (i = 0; i < s->n_threads; i++)
     {
@@ -355,7 +354,6 @@ mps_secular_ga_diterate (mps_status * s, int maxit, mps_boolean just_regenerated
     }
 
   mps_thread_job_queue *queue = mps_thread_job_queue_new (s);
-  queue->max_iter = it_threshold;
 
   for (i = 0; i < s->n_threads; i++)
     {
@@ -598,7 +596,6 @@ mps_secular_ga_miterate (mps_status * s, int maxit, mps_boolean just_regenerated
     }
 
   mps_thread_job_queue *queue = mps_thread_job_queue_new (s);
-  queue->max_iter = it_threshold;
 
   for (i = 0; i < s->n_threads; i++)
     {
