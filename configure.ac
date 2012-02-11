@@ -180,6 +180,7 @@ AC_CONFIG_FILES([Makefile
                  src/Makefile
                  src/unisolve/Makefile
                  src/secsolve/Makefile
+		 src/mpsolve/Makefile
                  src/libmps/Makefile
                  src/tests/Makefile
 		 doc/Makefile

@@ -458,18 +458,18 @@ mps_fcluster (mps_status * s, double * frad, int nf)
 	   * radius as inclusion radius if it's more conveniente than the old one.
 	   * In general the Gerschgorin radius cannot be used as inclusion radius, because
 	   * it may touch another radius and so it may be empty. */
-	  if (new_cluster->n == 1)
-	    {
-	       int k = new_cluster->first->k; 
-	       double new_rad; 
+	  /* if (new_cluster->n == 1) */
+	  /*   { */
+	  /*      int k = new_cluster->first->k;  */
+	  /*      double new_rad;  */
 
-	       new_rad = cplx_mod (s->froot[k]) * 4.0f * DBL_EPSILON + frad[k];  
+	  /*      new_rad = cplx_mod (s->froot[k]) * 4.0f * DBL_EPSILON + frad[k];   */
 
-	       /* Check if the computed radius is more convenient than the old one.  */
-	       /* 	 If that's the case, apply it as inclusion radius   */
-	       if (new_rad < s->frad[k])    
-	       	s->frad[k] = new_rad;    
-	    }
+	  /*      /\* Check if the computed radius is more convenient than the old one.  *\/ */
+	  /*      /\* 	 If that's the case, apply it as inclusion radius   *\/ */
+	  /*      if (new_rad < s->frad[k])     */
+	  /*      	s->frad[k] = new_rad;     */
+	  /*   } */
 	}
 
     }
@@ -624,21 +624,21 @@ mps_dcluster (mps_status * s, rdpe_t * drad, int nf)
 	   * radius as inclusion radius if it's more conveniente than the old one.
 	   * In general the Gerschgorin radius cannot be used as inclusion radius, because
 	   * it may touch another radius and so it may be empty. */
-	  if (new_cluster->n == 1)
-	    {
-	      int k = new_cluster->first->k;
-	      rdpe_t new_rad;
+	  /* if (new_cluster->n == 1) */
+	  /*   { */
+	  /*     int k = new_cluster->first->k; */
+	  /*     rdpe_t new_rad; */
 	  
-	      cdpe_mod (new_rad, s->droot[k]);
-	      rdpe_mul_eq_d (new_rad, 4 * DBL_EPSILON);
-	      rdpe_add_eq (new_rad, drad[k]);
+	  /*     cdpe_mod (new_rad, s->droot[k]); */
+	  /*     rdpe_mul_eq_d (new_rad, 4 * DBL_EPSILON); */
+	  /*     rdpe_add_eq (new_rad, drad[k]); */
 
 
-	      /* Check if the computed radius is more convenient than the old one.
-		 If that's the case, apply it as inclusion radius */
-	      if (rdpe_lt (new_rad, s->drad[k]))  
-		rdpe_set (s->drad[k], new_rad);  
-	    }
+	  /*     /\* Check if the computed radius is more convenient than the old one. */
+	  /* 	 If that's the case, apply it as inclusion radius *\/ */
+	  /*     if (rdpe_lt (new_rad, s->drad[k]))   */
+	  /* 	rdpe_set (s->drad[k], new_rad);   */
+	  /*   } */
 	}
     }
 
@@ -731,7 +731,7 @@ mps_mcluster (mps_status * s, rdpe_t * drad, int nf)
       MPS_DEBUG (s, "Debugging the radius and approximations obtained for the roots before cluster analysis");
       for (i = 0; i < s->n; i++)
 	{
-	  MPS_DEBUG_MPC (s, 15, s->mroot[i], "Root %d", i);
+	  MPS_DEBUG_MPC (s, mpc_get_prec (s->mroot[i]), s->mroot[i], "Root %d", i);
 	  MPS_DEBUG_RDPE (s, drad[i], "radius for root %4d", i);
 	}
 
@@ -844,23 +844,23 @@ mps_mcluster (mps_status * s, rdpe_t * drad, int nf)
 	   * radius as inclusion radius if it's more conveniente than the old one.
 	   * In general the Gerschgorin radius cannot be used as inclusion radius, because
 	   * it may touch another radius and so it may be empty. */
-	  if (new_cluster->n == 1)
-	    {
-	      int k = new_cluster->first->k;
-	      cdpe_t c;
-	      rdpe_t new_rad;
+	  /* if (new_cluster->n == 1) */
+	  /*   { */
+	  /*     int k = new_cluster->first->k; */
+	  /*     cdpe_t c; */
+	  /*     rdpe_t new_rad; */
 
-	      /* Check if the computed radius is more convenient than the old one.
-		 If that's the case, apply it as inclusion radius */
-	      mpc_get_cdpe (c, s->mroot[k]);
-	      cdpe_mod (new_rad, c);
-	      rdpe_mul_eq (new_rad, s->mp_epsilon);
-	      rdpe_mul_eq_d (new_rad, 4.0f);
-	      rdpe_add_eq (new_rad, drad[k]);
-
-	      if (rdpe_lt (new_rad, s->drad[k]))  
-	       	rdpe_set (s->drad[k], new_rad);  
-	    }
+	  /*     /\* Check if the computed radius is more convenient than the old one. */
+	  /* 	 If that's the case, apply it as inclusion radius *\/ */
+	  /*     mpc_get_cdpe (c, s->mroot[k]); */
+	  /*     cdpe_mod (new_rad, c); */
+	  /*     rdpe_mul_eq (new_rad, s->mp_epsilon); */
+	  /*     rdpe_mul_eq_d (new_rad, 4.0f); */
+	  /*     rdpe_add_eq (new_rad, drad[k]); */
+	      
+	  /*     if (rdpe_lt (new_rad, s->drad[k]))    */
+	  /* 	rdpe_set (s->drad[k], new_rad);    */
+	  /*   } */
 	}
     }
 

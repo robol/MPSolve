@@ -126,6 +126,7 @@ test_secsolve_on_pol (test_pol * pol)
       mpc_get_cdpe (cdtmp, mroot[found_root]);
       cdpe_mod (rtmp, cdtmp);
       rdpe_mul_eq (rtmp, eps);
+      rdpe_set (exp_drad, rtmp);
       
       if ((!rdpe_le (min_dist, drad[found_root]) && !rdpe_gt (drad[found_root], exp_drad)) && !mps_status_get_over_max (s))
 	{
@@ -148,7 +149,7 @@ test_secsolve_on_pol (test_pol * pol)
   if (zero_roots != mps_status_get_zero_roots (s))
     passed = false;
 
-  if (getenv ("MPS_VERBOSE_TEST"))
+  if (getenv ("MPS_VERBOSE_TEST") && strstr (pol->pol_file, getenv ("MPS_VERBOSE_TEST")))
     {
       mps_status_set_output_format (s, MPS_OUTPUT_FORMAT_GNUPLOT_FULL);
       mps_output (s);
@@ -395,6 +396,14 @@ START_TEST (test_secsolve_mignotte)
 }
 END_TEST
 
+START_TEST (test_secsolve_mult)
+{
+  test_pol * pol = test_pol_new ("mult1", "unisolve", 15, float_phase, true);
+  test_secsolve_on_pol (pol);
+  test_pol_free (pol);
+}
+END_TEST
+
 /**
  * @brief Create the secsolve test suite
  */
@@ -449,6 +458,9 @@ END_TEST
 
   /* Wilkinson polynomials */
   tcase_add_test (tc_monomial, test_secsolve_wilkinson_monomial);
+
+  /* Mult* polynomials */
+  tcase_add_test (tc_monomial, test_secsolve_mult);
 
   /* Add test case to the suite */
   suite_add_tcase (s, tc_secular);

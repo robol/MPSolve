@@ -1057,6 +1057,9 @@ mps_parse_stream (mps_status * s, FILE * input_stream)
 
   if (MPS_INPUT_CONFIG_IS_SECULAR (s->input_config))
     {
+      if (s->algorithm == MPS_ALGORITHM_STANDARD_MPSOLVE)
+	mps_status_select_algorithm (s, MPS_ALGORITHM_SECULAR_MPSOLVE);
+
       if (s->debug_level & MPS_DEBUG_IO)
         {
           MPS_DEBUG (s, "Parsing secular equation from stream");

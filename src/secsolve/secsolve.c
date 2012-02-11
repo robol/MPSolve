@@ -93,6 +93,8 @@ status (int signal)
 	       MPS_ROOT_ATTRS_TO_STRING  (s->root_attrs[i]), 
 	       MPS_ROOT_INCLUSION_TO_STRING (s->root_inclusion[i]));
     }
+
+  fprintf (stderr, "\n\nOperation running now: %s\n", MPS_OPERATION_TO_STRING (s->operation));
 }
 
 #undef _MPS_PRIVATE

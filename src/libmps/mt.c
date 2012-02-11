@@ -1733,7 +1733,7 @@ void
 cdpe_set_d (cdpe_t c, double dr, double di)
 /* c = dr + I di */
 {
-  cdpe_Move (c, cdpe_zero);
+  cdpe_set (c, cdpe_zero);
   rdpe_Mnt (cdpe_Re (c)) = dr;
   rdpe_Mnt (cdpe_Im (c)) = di;
   cdpe_Norm (c);

@@ -35,6 +35,7 @@ test_mpsolve (char * pol_file, char * res_file, mps_algorithm algorithm)
   mps_boolean passed = true;
   int i, j, zero_roots = 0;
   char ch;
+  rdpe_t eps;
 
   /* Check the roots */
   FILE* result_stream = fopen (res_file, "r"); 
@@ -63,6 +64,8 @@ test_mpsolve (char * pol_file, char * res_file, mps_algorithm algorithm)
   fprintf (stderr, "Checking \033[1m%-30s\033[0m [\033[34;1mchecking\033[0m]", pol_file + 9);
 
   mps_status_set_output_goal (s, MPS_OUTPUT_GOAL_APPROXIMATE);
+  mps_status_set_output_prec (s, 15);
+  rdpe_set_dl (eps, 1.0, -15);
 
   /* Solve it */
   mps_status_select_algorithm (s, algorithm);
@@ -86,6 +89,7 @@ test_mpsolve (char * pol_file, char * res_file, mps_algorithm algorithm)
       cdpe_t cdtmp;   
       rdpe_t min_dist;
       int found_root = 0;
+      rdpe_t exp_drad;
       
       while (isspace (ch = getc (result_stream)));   
       ungetc (ch, result_stream);   
@@ -132,8 +136,14 @@ test_mpsolve (char * pol_file, char * res_file, mps_algorithm algorithm)
       /* printf ("\nrad_%d", i); */
       /* rdpe_out_str (stdout, s->drad[i]); */
       /* printf ("\n"); */
+
+
+      mpc_get_cdpe (cdtmp, mroot[found_root]);
+      cdpe_mod (rtmp, cdtmp);
+      rdpe_mul_eq (rtmp, eps);
+      rdpe_set (exp_drad, rtmp);
       
-      if (!rdpe_le (min_dist, drad[found_root]) && !mps_status_get_over_max (s))
+      if ((!rdpe_le (min_dist, drad[found_root]) && !rdpe_gt (drad[found_root], exp_drad)) && !mps_status_get_over_max (s))
 	{
 	  passed = false;
 	  
@@ -163,7 +173,7 @@ test_mpsolve (char * pol_file, char * res_file, mps_algorithm algorithm)
   free (mroot);
   free (drad);
 
-  if (getenv ("MPS_VERBOSE_TEST"))
+  if (getenv ("MPS_VERBOSE_TEST") && (strstr (pol_file, getenv ("MPS_VERBOSE_TEST"))))
     {
       mps_status_set_output_format (s, MPS_OUTPUT_FORMAT_GNUPLOT_FULL);
       mps_output (s);
@@ -216,7 +226,7 @@ standard_tests (void)
   TEST_UNISOLVE ("wilk40");
   TEST_UNISOLVE ("lar3");
   TEST_UNISOLVE ("trv_m");
-  /* TEST_UNISOLVE ("lar2"); */
+  TEST_UNISOLVE ("lar2"); 
   TEST_UNISOLVE ("toep1_128");
   TEST_UNISOLVE ("mult1");
   TEST_UNISOLVE ("exp50");
@@ -227,9 +237,9 @@ standard_tests (void)
   TEST_UNISOLVE ("kam1_2");
   TEST_UNISOLVE ("kam4");
   TEST_UNISOLVE ("lar1");
-  /* TEST_UNISOLVE ("spiral20"); */
+  TEST_UNISOLVE ("spiral20"); 
   TEST_UNISOLVE ("wilk20");
-  /* TEST_UNISOLVE ("test"); */
+  TEST_UNISOLVE ("test"); 
   TEST_UNISOLVE ("lar1_200");
   TEST_UNISOLVE ("kam1_3");
   TEST_UNISOLVE ("kam3_1");
@@ -267,6 +277,9 @@ standard_tests (void)
   TEST_SECSOLVE_MONOMIAL ("wilk20");
   TEST_SECSOLVE_MONOMIAL ("wilk40");
   TEST_SECSOLVE_MONOMIAL ("wilk80");
+
+  TEST_SECSOLVE_MONOMIAL ("spiral20");
+  TEST_SECSOLVE_MONOMIAL ("mult1");
 }
 
 int 
