@@ -215,6 +215,7 @@ main (void)
 
   for (i = 0; i < 2; i++)
     {
+      test_polynomials[n++] = test_pol_new_simple ("spiral20", digits[i]);
       test_polynomials[n++] = test_pol_new_simple ("exp100", digits[i]);
       test_polynomials[n++] = test_pol_new_simple ("exp50", digits[i]);
       test_polynomials[n++] = test_pol_new_simple ("kam1_1", digits[i]);
@@ -240,7 +241,6 @@ main (void)
       test_polynomials[n++] = test_pol_new_simple ("mig1_100", digits[i]);
       test_polynomials[n++] = test_pol_new_simple ("mig1_200", digits[i]);
       test_polynomials[n++] = test_pol_new_simple ("nroots50", digits[i]);
-      test_polynomials[n++] = test_pol_new_simple ("spiral20", digits[i]);
       test_polynomials[n++] = test_pol_new_simple ("test", digits[i]);
       test_polynomials[n++] = test_pol_new_simple ("trv_m", digits[i]);
       test_polynomials[n++] = test_pol_new_simple ("umand31", digits[i]);

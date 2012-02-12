@@ -57,7 +57,6 @@ mps_set_default_values (mps_status * s)
 
   s->mpwp_max = 100000000;     /* maximum allowed bits for mp         */
   /*   numbers: used in hi-prec. shifts  */
-  s->output_config->prec = 2 * DBL_DIG;    /* digits of required output precision */
 
   /* polynomial data - shared variables */
   s->input_config->prec = -1;              /* number of digits of input precision */

@@ -169,10 +169,7 @@ mps_improve (mps_status * s)
       cdpe_mod (abroot, ctmp);
       rdpe_div (tmp, tmp, abroot);
 
-       if (s->algorithm == MPS_ALGORITHM_STANDARD_MPSOLVE)  
-	cnd = s->rootwp[i] + rdpe_log (tmp) / LOG2 + 1;
-       else  
-       	cnd = s->mpwp + rdpe_log (tmp) / LOG2 + 1;       
+      cnd = s->rootwp[i] + rdpe_log (tmp) / LOG2 + 1;
 
       /* then evaluate the number of bits g,f */
       rdpe_div (t, s->drad[i], t);
