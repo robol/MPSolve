@@ -55,7 +55,7 @@ test_unisolve_on_pol (test_pol * pol)
   
   fprintf (stderr, "Checking \033[1m%-30s\033[0m [\033[34;1mchecking\033[0m]", pol->pol_file + 9);
 
-  mps_status_set_output_goal (s, MPS_OUTPUT_GOAL_APPROXIMATE);
+  mps_status_set_output_goal (s, MPS_OUTPUT_GOAL_ISOLATE);
 
   /* Solve it */
   mps_status_select_algorithm (s, MPS_ALGORITHM_STANDARD_MPSOLVE);
