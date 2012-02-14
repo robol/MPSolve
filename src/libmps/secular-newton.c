@@ -412,8 +412,12 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
       /* Don't know why this is necessary, but GMP seems to 
        * make strange things if I don't keep a local copy
        * of these variables. */
+      pthread_mutex_lock (&sec->ampc_mutex[i]);
       mpc_set (ampc, sec->ampc[i]);
+      pthread_mutex_unlock (&sec->ampc_mutex[i]);
+      pthread_mutex_lock (&sec->bmpc_mutex[i]);
       mpc_set (bmpc, sec->bmpc[i]);
+      pthread_mutex_unlock (&sec->bmpc_mutex[i]);
 
       /* Compute z - b_i */
       mpc_sub (ctmp, x, bmpc);
