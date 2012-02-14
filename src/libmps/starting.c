@@ -1460,11 +1460,28 @@ mps_mrestart (mps_status * s)
   mps_cluster * cluster;
   mps_root * root;
 
+  int old_wp = s->mpwp;
+
+  MPS_DEBUG_THIS_CALL;
+
   s->operation = MPS_OPERATION_SHIFT;
 
   /* For user's polynomials skip the restart stage (not yet implemented) */
   if (MPS_INPUT_CONFIG_IS_USER (s->input_config))
     return;
+
+  if (s->algorithm == MPS_ALGORITHM_SECULAR_GA)
+    {
+      for (j = 0; j < s->n; j++)
+	{
+	  if (s->rootwp[j] > s->mpwp)
+	    s->mpwp = s->rootwp[j];
+	}
+      mps_monomial_poly_raise_precision (s, s->monomial_poly, s->mpwp);
+      mps_secular_raise_root_precision (s, s->mpwp);
+
+      mps_raise_data (s, s->mpwp);
+    }
 
   mpf_init2 (rea, s->mpwp);
   mpf_init2 (srmp, s->mpwp);
@@ -1615,6 +1632,11 @@ mps_mrestart (mps_status * s)
             mpc_mul_ui (s->mfppc1[j], s->mfpc1[j + 1], j + 1);
         }
 
+      for (j = 0; j < s->n - cluster->n + 2; j++)
+	{
+	  MPS_DEBUG_MPC (s, s->mpwp, s->mfppc1[j], "s->mfppc1[%d]", j);
+	}
+
       /* Apply at most max_newt_it steps of Newton's iterations
        * to the above derivative starting from the super center
        * of the cluster. */
@@ -1673,10 +1695,14 @@ mps_mrestart (mps_status * s)
         }
 
       /*#D perform shift only if the new computed sr is smaller than old*0.25 */
-      rdpe_mul_d (rtmp, sr, 0.25);
+      if (s->algorithm == MPS_ALGORITHM_SECULAR_GA)
+	rdpe_set (rtmp, sr);
+      else
+	rdpe_mul_d (rtmp, sr, 0.25);
+
       /*#D AGO99 Factors: 0.1 (MPS2.0), 0.5 (GIUGN98) */
       mps_mshift (s, c_item->cluster->n, c_item, sr, g);
-      if (rdpe_lt (sr, rtmp))
+      if (rdpe_le (sr, rtmp))
         {                       /* Perform shift only if the new clust is smaller */
           mpc_get_cdpe (tmp, g);
           cdpe_mod (rtmp, tmp);
@@ -1697,7 +1723,6 @@ mps_mrestart (mps_status * s)
         }
       else
         {
-
 	  if (s->debug_level & MPS_DEBUG_CLUSTER)
 	    MPS_DEBUG (s, "DO NOT PERFORM RESTART, "
 		       "new radius of the cluster is larger");
@@ -1707,6 +1732,16 @@ mps_mrestart (mps_status * s)
         }
     loop1:
       ;
+    }
+
+  if (s->algorithm == MPS_ALGORITHM_SECULAR_GA)
+    {
+      s->mpwp = old_wp;
+
+      mps_monomial_poly_raise_precision (s, s->monomial_poly, s->mpwp);
+      mps_secular_raise_root_precision (s, s->mpwp);
+
+      mps_raise_data (s, s->mpwp);
     }
 
   mpc_clear (g);
@@ -1957,10 +1992,12 @@ mps_raisetemp_raw (mps_status * s, unsigned long int digits)
 {
   int i;
 
+  /* TODO: Fix this to make real raw mpc_set_prec, by fixing 
+   * broken code that do not restore the right precision */
   for (i = 0; i <= s->n; i++)
     {
-      mpc_set_prec_raw (s->mfpc1[i], digits);
-      mpc_set_prec_raw (s->mfppc1[i], digits);
+      mpc_set_prec (s->mfpc1[i], digits);
+      mpc_set_prec (s->mfppc1[i], digits);
     }
 }
 

@@ -235,7 +235,7 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
       cdpe_mod (rtmp, cpol);
       rdpe_mul_eq (rtmp, root_epsilon);
 
-      while (rdpe_gt (relative_error, root_epsilon) && !rdpe_lt (relative_error, rtmp))
+      while (rdpe_gt (relative_error, root_epsilon) && !rdpe_lt (relative_error, rtmp) && (s->rootwp[i] < s->n * s->mpwp))
 	{
 	  /* Update the working precision of the selected root with a realistic estimate of the
 	   * required precision to get a result exact to machine precision */
@@ -884,6 +884,17 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
       break;
 
     case mp_phase:
+
+      /* If we are in the case of MP that means we are probably dealing with
+       * multiple roots or clusters, since a good floating point representation
+       * hasn't been found.
+       *
+       * We may try to solve this issue faster by repositioning the starting
+       * point; this strategy is available only if we know the coefficients
+       * of the polynomial in the monomial base.
+       */
+      /* if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config)) */
+      /* 	mps_mrestart (s); */
 
       /* Allocate old_a and old_b */
       old_ma = mpc_valloc (s->n);

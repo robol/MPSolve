@@ -451,12 +451,17 @@ __mps_secular_ga_miterate_worker (void* data_ptr)
       job = mps_thread_job_queue_next (s, data->queue);
       i = job.i;
 
-      if (job.iter == MPS_THREAD_JOB_EXCEP)
-        {
-	  goto cleanup;
-        }
+      if (job.iter == MPS_THREAD_JOB_EXCEP || *data->nzeros >= s->n)
+	goto cleanup;
 
       pthread_mutex_lock (&data->roots_mutex[i]);
+
+      if (job.iter == MPS_THREAD_JOB_EXCEP || *data->nzeros >= s->n)
+	{
+	  pthread_mutex_unlock (&data->roots_mutex[i]);
+	  goto cleanup;
+	}
+
       /* printf ("Thread %d iterating on root %d\n", data->thread, i); */
 
       cluster = job.cluster_item->cluster;
@@ -481,6 +486,7 @@ __mps_secular_ga_miterate_worker (void* data_ptr)
 	  /* pthread_mutex_unlock (data->gs_mutex); */
 
 	  it_data.k = i;
+	  it_data.gs_mutex = data->gs_mutex;
 	  mps_secular_mnewton (s, mroot, s->drad[i], corr,
 			       &s->again[i], &it_data, false);
 
@@ -521,7 +527,7 @@ __mps_secular_ga_miterate_worker (void* data_ptr)
     }
 
  cleanup:
-  mpc_clear (mroot); 
+  mpc_clear (mroot);
   mpc_clear (abcorr);
   mpc_clear (corr);
 

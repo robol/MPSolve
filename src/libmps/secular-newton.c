@@ -385,8 +385,7 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
   rdpe_t asum_eps, asum2_eps, asumb_eps;
 
   mps_secular_equation * sec = s->secular_equation;
-  /* mps_secular_iteration_data * data = user_data; */
-
+  /* mps_secular_iteration_data * data = user_data;  */
 
   /* printf ("x_%ld = ", data->k); mpc_outln_str (stdout, 10, 15, x); printf ("\n"); fflush(stdout); */
 
@@ -412,7 +411,7 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
       /* Don't know why this is necessary, but GMP seems to 
        * make strange things if I don't keep a local copy
        * of these variables. */
-      pthread_mutex_lock (&sec->ampc_mutex[i]);
+      pthread_mutex_lock (&sec->ampc_mutex[i]); 
       mpc_set (ampc, sec->ampc[i]);
       pthread_mutex_unlock (&sec->ampc_mutex[i]);
       pthread_mutex_lock (&sec->bmpc_mutex[i]);

@@ -216,6 +216,8 @@ extern "C"
      * that was there before was better.
      */
     mps_boolean radius_set;
+
+    pthread_mutex_t * gs_mutex;
   };
 
 #endif /* #ifdef _MPS_PRIVATE */    
@@ -256,6 +258,8 @@ extern "C"
   void mps_secular_raise_coefficient_precision (mps_status * s, int wp);
 
   void mps_secular_raise_precision (mps_status * s, int wp);
+
+  void mps_secular_raise_root_precision (mps_status * s, int wp);
 
   /* Routines in secular-starting.c */
   void mps_secular_fstart (mps_status * s, int n, mps_cluster_item * cluster, double clust_rad,

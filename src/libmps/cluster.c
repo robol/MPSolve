@@ -883,6 +883,9 @@ mps_clusterization_detach_clusters (mps_status * s, mps_clusterization * c)
   cdpe_t droot;
   rdpe_t rtmp, precision;
   int k;
+
+  if (s->algorithm == MPS_ALGORITHM_SECULAR_GA)
+    return;
   
   for (item = c->first; item != NULL; item = item->next)
     {

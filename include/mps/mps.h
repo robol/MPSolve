@@ -491,6 +491,7 @@ extern  "C"
   void mps_prepare_data (mps_status * s, long int prec);
   void mps_restore_data (mps_status * s);
   void mps_free_data (mps_status * s);
+  long int mps_raise_data (mps_status * s, long int prec);
   void mps_raise_data_raw (mps_status * s, long int prec);
 
   /* functions in improve.c */
