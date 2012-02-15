@@ -1560,11 +1560,11 @@ mps_warn (mps_status * st, char *s)
     {
       if (s[strlen (s)] == '\n')
         {
-          fprintf (st->logstr, "%s", s);
+          fprintf (stderr, "%s", s);
         }
       else
         {
-          fprintf (st->logstr, "%s\n", s);
+          fprintf (stderr, "%s\n", s);
         }
     }
 }

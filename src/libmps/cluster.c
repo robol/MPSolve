@@ -355,16 +355,19 @@ mps_fcluster (mps_status * s, double * frad, int nf)
       mps_debug_cluster_structure (s);
     }
 
-  /* Do a first check of clusterization using the newton
-   * radii. These are not valid to perform cluster analysis in
-   * general, but can be used if they provide *COMPLETE* Newton
-   * isolation. */  
-  for (i = 0; i < s->n && newton_isolation; i++)
+  /*
+   * Mark newton isolated roots as newton isolated.
+   */
+  for (i = 0; i < s->n; i++)
     {
-      for (j = i + 1; j < s->n && newton_isolation; j++)
+      for (j = 0; j < s->n; j++)
 	{
-	  if (mps_ftouchnwt (s, s->frad, nf, i, j))
-	    newton_isolation = false;
+	  if ((i != j) && mps_ftouchnwt (s, s->frad, nf, i, j))
+	    {
+	      newton_isolation = false;
+	      break;
+	    }
+	  /* s->root_status[i] = MPS_ROOT_STATUS_NEWTON_ISOLATED; */
 	}
     }
 
@@ -528,12 +531,16 @@ mps_dcluster (mps_status * s, rdpe_t * drad, int nf)
    * radii. These are not valid to perform cluster analysis in
    * general, but can be used if they provide *COMPLETE* Newton
    * isolation. */  
-  for (i = 0; i < s->n && newton_isolation; i++)
+  for (i = 0; i < s->n; i++)
     {
-      for (j = i + 1; j < s->n && newton_isolation; j++)
+      for (j = 0; j < s->n; j++)
 	{
-	  if (mps_dtouchnwt (s, s->drad, nf, i, j))
-	    newton_isolation = false;
+	  if ((i != j) && mps_dtouchnwt (s, s->drad, nf, i, j))
+	    {
+	      newton_isolation = false;
+	      break;
+	    }
+	  /* s->root_status[i] = MPS_ROOT_STATUS_NEWTON_ISOLATED; */
 	}
     }
 
@@ -745,15 +752,19 @@ mps_mcluster (mps_status * s, rdpe_t * drad, int nf)
    * radii. These are not valid to perform cluster analysis in
    * general, but can be used if they provide *COMPLETE* Newton
    * isolation. */  
-  for (i = 0; i < s->n && newton_isolation; i++)
+  for (i = 0; i < s->n; i++)
     {
-      for (j = i + 1; j < s->n && newton_isolation; j++)
+      for (j = 0; j < s->n; j++)
 	{
-	  if (mps_mtouchnwt (s, s->drad, nf, i, j))
+	  if ((i != j) && mps_mtouchnwt (s, s->drad, nf, i, j))
 	    {
-	      MPS_DEBUG (s, "Failing newton isolation on root %d and %d", i, j);
+	      if (s->debug_level & MPS_DEBUG_CLUSTER)
+		MPS_DEBUG (s, "Failing newton isolation on root %d and %d", i, j);
+
 	      newton_isolation = false;
+	      break;
 	    }
+	  /* s->root_status[i] = MPS_ROOT_STATUS_NEWTON_ISOLATED; */
 	}
     }
 

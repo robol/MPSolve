@@ -650,6 +650,7 @@ extern "C"
   void mps_status_set_output_format (mps_status * s, mps_output_format format);
   void mps_status_set_output_goal (mps_status * s, mps_output_goal goal);
   void mps_status_set_starting_phase (mps_status * s, mps_phase phase);
+  void mps_status_set_log_stream (mps_status * s, FILE * logstr);
 
   /* Debugging */
   void mps_status_set_debug_level (mps_status * s, mps_debug_level level);

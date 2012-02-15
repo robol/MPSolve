@@ -108,9 +108,11 @@ void
 usage (mps_status * s, const char *program)
 {
   fprintf (stdout,
-           "%s [-dv] [-S set] [-D detection] [-O format] [-G goal] [-t type] [-a alg] [-j threads] [-i digits] [-o digits] [infile]\n"
+           "%s [-l filename] [-dv] [-S set] [-D detection] [-O format] [-G goal] [-t type] [-a alg] [-j threads] [-i digits] [-o digits] [infile]\n"
            "\n"
            "Options:\n"
+	   " -l filename Set filename as the output for the log, instead of the tty. Use this option with\n"
+	   "             -d[domains] to activate the desired debug domains. \n"
            " -d[domains] Activate debug on selected domains, that can be one of:\n"
            "               t: Trace\n"
            "               a: Approximation\n"
@@ -120,6 +122,7 @@ usage (mps_status * s, const char *program)
            "               o: Input/Output\n"
            "               m: Memory management\n"
            "               f: Function calls\n"
+	   "               p: Debug stop condition and development of iteration packets\n"
            "               Example: -dfi for function calls and improvement\n"
 	   " -S set      If specified, restrict the search set for the roots to set. \n"
 	   "             set can be one of:\n"
@@ -154,7 +157,8 @@ usage (mps_status * s, const char *program)
            "             or 'd' for DPE\n"
            " -o digits   Exact digits of the roots given as output.\n"
 	   " -i digits   Digits of precision of the input coefficients\n"
-	   " -v          Print the version and exit\n",
+	   " -v          Print the version and exit\n"
+	   "\n",
            program, program);
 
   exit (EXIT_FAILURE);
@@ -180,10 +184,18 @@ main (int argc, char **argv)
   mps_phase phase = no_phase;
 
   opt = NULL;
-  while ((mps_getopts (&opt, &argc, &argv, "a:G:D:d::t:o:O:j:S:O:i:v")))
+  while ((mps_getopts (&opt, &argc, &argv, "a:G:D:d::t:o:O:j:S:O:i:vl:")))
     {
       switch (opt->optchar)
         {
+	case 'l':
+	  {
+	    FILE* logstr = fopen (opt->optvalue, "w");
+	    if (!logstr)
+	      mps_error (s, 1, "Cannot open selected log file.");
+	    mps_status_set_log_stream (s, logstr);
+	  }
+	  break;
 	case 'v':
 #ifdef HAVE_CONFIG_H
 	  printf ("MPSolve " VERSION "\n");
@@ -380,6 +392,8 @@ main (int argc, char **argv)
 	      mps_status_set_debug_level (s, MPS_DEBUG_TRACE);
               break;
             }
+	  
+	  mps_status_add_debug_domain (s, MPS_DEBUG_INFO);
 
           /* If debugging was enabled, parse debug_level */
           while (*opt->optvalue)
@@ -411,6 +425,9 @@ main (int argc, char **argv)
                 case 'f':
 		  mps_status_add_debug_domain (s, MPS_DEBUG_FUNCTION_CALLS);
                   break;
+		case 'p':
+		  mps_status_add_debug_domain (s, MPS_DEBUG_PACKETS);
+		  break;
                 default:
 		  sprintf (output, "Unrecognized debug option: %c", *(opt->optvalue - 1));
                   mps_error (s, 1, output);

@@ -130,6 +130,8 @@ mps_set_default_values (mps_status * s)
   s->input_config->structure = MPS_STRUCTURE_COMPLEX_FP;
   s->input_config->density = MPS_DENSITY_DENSE;
   s->input_config->prec = 0;
+  s->input_config->starting_phase = no_phase;
+
 
   /* Output */
   s->output_config->format = MPS_OUTPUT_FORMAT_COMPACT;

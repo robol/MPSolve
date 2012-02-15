@@ -362,7 +362,7 @@ mps_secular_ga_mpsolve (mps_status * s)
 	  char which_case;
 	  mps_check_data (s, &which_case);
 
-	  MPS_DEBUG_WITH_INFO (s, "Check data resulted in %c", which_case);
+	  MPS_DEBUG_WITH_INFO (s, "Check data suggest starting phase should be %s", (which_case == 'f') ? "floating point" : "DPE phase");
 
 	  if (which_case == 'f')
 	    s->lastphase = float_phase;
@@ -372,6 +372,7 @@ mps_secular_ga_mpsolve (mps_status * s)
       else
 	s->lastphase = s->input_config->starting_phase;
 
+      MPS_DEBUG_WITH_INFO (s, "Computing starting points");
       if (s->lastphase == float_phase)
 	  mps_fstart (s, s->n, NULL, 0.0, 0.0, s->eps_out, p->fap);
       else
@@ -393,13 +394,13 @@ mps_secular_ga_mpsolve (mps_status * s)
 			  p->dap);
 	      if (!mps_secular_ga_regenerate_coefficients (s))
 		{
-		  MPS_DEBUG (s, "Initial generation of the secular equation coefficients did not succeed");
+		  MPS_DEBUG_WITH_INFO (s, "Initial generation of the secular equation coefficients did not succeed");
 		  return;
 		}
 	    }
 	  else
 	    {
-	      MPS_DEBUG (s, "Initial generation of the secular equation coefficients did not succeed");
+	      MPS_DEBUG_WITH_INFO (s, "Initial generation of the secular equation coefficients did not succeed");
 	      return;
 	    }
 	  just_regenerated = true;
@@ -407,6 +408,7 @@ mps_secular_ga_mpsolve (mps_status * s)
     }
   else
     {
+      MPS_DEBUG_WITH_INFO (s, "Generated initial coefficients for the secular equation");
       s->lastphase = float_phase;
       for (i = 0; i < s->n; i++)
 	s->rootwp[i] = 53;
@@ -416,6 +418,7 @@ mps_secular_ga_mpsolve (mps_status * s)
    * routine and based on the phase selected by the user. */
   if (!just_regenerated)
     {
+      MPS_DEBUG_WITH_INFO (s, "Computing starting points");
       switch (s->lastphase)
 	{
 	case  float_phase:

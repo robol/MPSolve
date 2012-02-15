@@ -495,6 +495,19 @@ mps_status_get_output_config (mps_status * s)
   return s->output_config;
 }
 
+
+/**
+ * @brief Set logstr as the default output for logging.
+ *
+ * @param s The <code>mps_status</code> of the current computation.
+ * @param logstr The desired stream to be used for logging. 
+ */
+void
+mps_status_set_log_stream (mps_status * s, FILE * logstr)
+{
+  s->logstr = logstr;
+}
+
 /**
  * @brief Set the phase from which the computation should start.
  *
