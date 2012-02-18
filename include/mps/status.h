@@ -87,7 +87,6 @@ extern "C"
    */
   struct mps_status
   {
-
     mps_boolean resume;         /* to complete                         */
     mps_boolean chkrad;         /* check radii after completion        */
 

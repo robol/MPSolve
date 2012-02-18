@@ -591,7 +591,8 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
        * usable results, so let's quit. */
       if (rdpe_lt (g_den, rdpe_zero))
 	{
-	  MPS_DEBUG (s, "Cannot give a guaranteed correction");
+	  if (s->debug_level & MPS_DEBUG_PACKETS)
+	    MPS_DEBUG (s, "Cannot give a guaranteed correction");
 	  /* printf ("No guaranteed Nwt corr for root %ld\n", data->k); */
 	  goto mnewton_cleanup;
 	}

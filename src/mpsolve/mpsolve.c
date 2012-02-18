@@ -196,12 +196,15 @@ main (int argc, char **argv)
 	    mps_status_set_log_stream (s, logstr);
 	  }
 	  break;
+
 	case 'v':
+
 #ifdef HAVE_CONFIG_H
 	  printf ("MPSolve " VERSION "\n");
 #else
 	  printf ("MPSolve 3.0\n");
 #endif
+
 	  mps_status_free (s);
 	  exit (EXIT_SUCCESS);
 
@@ -363,7 +366,7 @@ main (int argc, char **argv)
 	    }
           break;
         case 'o':
-          mps_status_set_output_prec (s, (atoi (opt->optvalue) + 1));
+          mps_status_set_output_prec (s, (atoi (opt->optvalue)) * LOG2_10 + 1);
           break;
 	case 'i':
 	  mps_status_set_input_prec (s, (atoi (opt->optvalue)));
