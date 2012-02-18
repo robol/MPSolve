@@ -389,14 +389,10 @@ main (int argc, char **argv)
 	    }
           break;
         case 'd':
-          if (!opt->optvalue)
-            {
-              /* If no specific debug domain has been specified, trace. */
-	      mps_status_set_debug_level (s, MPS_DEBUG_TRACE);
-              break;
-            }
-	  
 	  mps_status_add_debug_domain (s, MPS_DEBUG_INFO);
+	  
+	  if (!opt->optvalue)
+	    break;
 
           /* If debugging was enabled, parse debug_level */
           while (*opt->optvalue)

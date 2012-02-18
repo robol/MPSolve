@@ -275,7 +275,7 @@ mps_prepare_data (mps_status * s, long int prec)
   if (prec > s->data_prec_max.value)
     {
       if (s->data_prec_max.value)
-        mps_raise_data_raw (s, s->data_prec_max.value);
+        mps_raise_data (s, s->data_prec_max.value);
       s->data_prec_max.value = mps_raise_data (s, prec);
     }
   else

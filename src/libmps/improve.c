@@ -111,7 +111,7 @@ mps_improve (mps_status * s)
       mps_mp_set_prec (s, mpnb_out * 2);
       mps_prepare_data (s, mpnb_out * 2);
       if (MPS_INPUT_CONFIG_IS_SECULAR (s->input_config))
-	mps_secular_raise_coefficient_precision (s, mpnb_out * 2);
+	mps_secular_raise_precision (s, mpnb_out * 2);
     }
 
 
@@ -196,9 +196,16 @@ mps_improve (mps_status * s)
             MPS_DEBUG (s, "Iteration %d of the improvement of root %d", j, i);
           g *= 2;
 
+	  /* { */
+	  /*   rdpe_t rtmp; */
+	  /*   mpc_rmod (rtmp, s->mroot[i]); */
+	  /*   int correct_digits = (-rdpe_log (s->drad[i]) - rdpe_log (rtmp)) / LOG2_10; */
+	  /*   MPS_DEBUG_RDPE (s, s->drad[i], "s->drad[%d]", i); */
+	  /*   MPS_DEBUG_MPC (s, correct_digits, s->mroot[i], "mroot_%d", i); */
+	  /* } */
+
 	  /* Round it to 64 integers */
           s->mpwp = (long) (f + g + cnd) + 63;
-	  s->mpwp = ((s->mpwp - 1) / 64 + 1) * 64;
 
           if (s->mpwp > mpnb_in && mpnb_in != 0)
 	    {
@@ -206,19 +213,20 @@ mps_improve (mps_status * s)
 	       * that would clearly get us to an error, for over estimating
 	       * the precision of the input coefficients. */
 	      s->mpwp = mpnb_in - 63;
+	      break;
 	    }
+
+          mps_mp_set_prec (s, s->mpwp);
 
           mpc_clear (nwtcorr);
           mpc_init2 (nwtcorr, s->mpwp);
-
-          mps_mp_set_prec (s, s->mpwp);
 
 	  /* If using the standard MPSolve algorithm then use the old
 	   * mps_prepare_data routine, otherwise use the one that
 	   * raises the precision of the coefficients */
 	  mps_prepare_data (s, s->mpwp);
           if (MPS_INPUT_CONFIG_IS_SECULAR (s->input_config))
-	      mps_secular_raise_coefficient_precision (s, s->mpwp);
+	    mps_secular_raise_coefficient_precision (s, s->mpwp);
 
           if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
             {
@@ -248,15 +256,24 @@ mps_improve (mps_status * s)
             rdpe_set (s->drad[i], newrad);
 
 	  /* Disabled because causes problems */
-	  if (rdpe_lt (newrad, s->drad[i]) && (s->algorithm == MPS_ALGORITHM_STANDARD_MPSOLVE)) 
-	    rdpe_set (s->drad[i], newrad);     
-
+	  if (rdpe_lt (newrad, s->drad[i]))  
+	    rdpe_set (s->drad[i], newrad);      
+	   
 	  if (s->debug_level & MPS_DEBUG_IMPROVEMENT)
 	    MPS_DEBUG_RDPE (s, s->drad[i], "Radius of root %d at iteration %d", i, j);
 	   
-          if (rdpe_lt (s->drad[i], tmp) || s->mpwp == mpnb_in)
+          if (rdpe_lt (s->drad[i], tmp) || s->mpwp >= mpnb_in)
             break;              /* loop1 */
         }
+
+      /* { */
+      /* 	rdpe_t rtmp; */
+      /* 	mpc_rmod (rtmp, s->mroot[i]); */
+      /* 	int correct_digits = -rdpe_log (s->drad[i]) - rdpe_log (rtmp); */
+      /* 	MPS_DEBUG_RDPE (s, s->drad[i], "s->drad[%d]", i); */
+      /* 	MPS_DEBUG_MPC (s, correct_digits, s->mroot[i], "mroot_%d", i); */
+      /* } */
+
 
       /* update the record working precision for root i */
       s->rootwp[i] = mpc_get_prec (s->mroot[i]);
