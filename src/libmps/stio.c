@@ -270,7 +270,7 @@ mps_monomial_poly_read_from_stream (mps_status * s,
     {
       /* Set all the spar to false, since we have still not read
        * any coefficient */
-      for (i = 0; i < s->n; ++i)
+      for (i = 0; i <= s->n; ++i)
 	poly->spar[i] = false;
 
       

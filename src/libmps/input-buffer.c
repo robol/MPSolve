@@ -213,8 +213,18 @@ mps_input_buffer_readline (mps_input_buffer * buf)
   read_chars = getline (&buf->line, &length, buf->stream);
   buf->last_token = buf->line;
 
-  if (buf->line)
-    buf->line_number++;
+  if (buf->line) 
+    {
+      buf->line_number++;
+      char * comment = strstr (buf->line, "!");
+      if (comment)
+	{
+	  *comment = '\0';
+	  buf->line = realloc (buf->line, comment - buf->line + 1);
+	}
+      
+    }
+
   
   return read_chars;
 }

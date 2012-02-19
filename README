@@ -59,8 +59,8 @@
  Integer;
  Sparse;
 
- 5  1
- 0  -1
+ 5  1  ! Highest degree coefficient
+ 0  -1 ! Coefficient of degree 0
 
  ! EOF
 
