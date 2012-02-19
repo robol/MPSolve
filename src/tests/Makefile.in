@@ -284,7 +284,7 @@ test_mpsolve_SOURCES = test_mpsolve.c check_implementation.h check_implementatio
 test_mpsolve_CFLAGS = ${CHECK_CFLAGS} -I${top_srcdir}/include
 test_mpsolve_LDFLAGS = -L${top_builddir}/src/libmps -lmps -lm -lgmp
 check_multithread_SOURCES = check_multithread.c
-check_multithread_CFLAGS = ${CHECK_CFLAGS} -I${top_srcdir}/include
+check_multithread_CFLAGS = ${CHECK_CFLAGS} -I${top_srcdir}/include -D_MPS_PRIVATE
 check_multithread_LDFLAGS = -L${top_builddir}/src/libmps -lmps -lm -lgmp
 EXTRA_DIST = \
 	secsolve/rand15.pol \

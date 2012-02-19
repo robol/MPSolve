@@ -19,7 +19,7 @@ EXTRA_PROGRAMS = test_mpsolve check_secsolve check_unisolve check_dpe check_mult
  test_mpsolve_LDFLAGS = -L${top_builddir}/src/libmps -lmps -lm -lgmp
 
  check_multithread_SOURCES = check_multithread.c
- check_multithread_CFLAGS = ${CHECK_CFLAGS} -I${top_srcdir}/include
+ check_multithread_CFLAGS = ${CHECK_CFLAGS} -I${top_srcdir}/include -D_MPS_PRIVATE
  check_multithread_LDFLAGS = -L${top_builddir}/src/libmps -lmps -lm -lgmp
 
 EXTRA_DIST = \
