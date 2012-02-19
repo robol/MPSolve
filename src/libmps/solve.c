@@ -123,7 +123,7 @@ mps_update (mps_status * s)
  * i.e. the radius of the inclusion disc for the whole cluster
  *
  * @param s The <code>mps_status</code> associated with the current computation.
- * @param i Index of the cluster;
+ * @param cluster cluster of which the super center and radius should be computed.
  * @param sc Center of the cluster;
  * @param sr Double that will be set to the super radius of the cluster;
  */

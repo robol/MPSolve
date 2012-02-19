@@ -55,7 +55,7 @@ mps_fradii (mps_status * s, double * fradii)
  * polynomial representation.
  *
  * @param s The <code>mps_status</code> of the computation.
- * @param s The array of DPE where the radii will be stored.
+ * @param dradii The array of DPE where the radii will be stored.
  */
 void
 mps_dradii (mps_status * s, rdpe_t * dradii)

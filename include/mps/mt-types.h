@@ -1,6 +1,12 @@
 #include <pthread.h>
 #include <mps/mps.h>
 
+/**
+ * @file
+ * @brief Implementation of some thread-safe types that can be easily used
+ * with the macro MPS_LOCK() and MPS_UNLOCK().
+ */
+
 #ifndef __MPS_MT_TYPES
 
 #define MPS_LOCK(x) (pthread_mutex_lock (&(x).mutex));

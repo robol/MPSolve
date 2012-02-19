@@ -24,6 +24,7 @@
  * @brief Globally set the current precision of mp variables
  *
  * @param s The <code>mps_status</code> of the computation.
+ * @param prec The precision that is desired for the next MP computations. 
  */
 void
 mps_mp_set_prec (mps_status * s, long int prec)
@@ -262,6 +263,8 @@ mps_raise_data_raw (mps_status * s, long int prec)
  * rational or integer coefficients.
  *
  * @param s The <code>mps_status</code> of the computation.
+ * @param prec The precision that should be set and to which the data should
+ * be adjusted.
  */
 void
 mps_prepare_data (mps_status * s, long int prec)

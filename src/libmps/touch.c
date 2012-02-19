@@ -29,6 +29,7 @@
  * @param n See above.
  * @param i the first root.
  * @param j the second root.
+ * @param frad The inclusion radii precomputed by some other routines. 
  * @return false if the disc <code>i</code> and <code>j</code>
  *   are newton-isolated.
  */
@@ -60,6 +61,8 @@ mps_ftouchnwt (mps_status * s, double * frad, int n, int i, int j)
  * then it correspond to newton isolation.
  *
  * @param s mps_status struct.
+ * @param drad The inclusion radii that should be used to perform
+ * cluster analysis. 
  * @param n See above.
  * @param i the first root.
  * @param j the second root.
@@ -93,6 +96,8 @@ mps_dtouchnwt (mps_status * s, rdpe_t * drad, int n, int i, int j)
  * then it correspond to newton isolation.
  *
  * @param s mps_status struct.
+ * @param drad The inclusion radii that should be used to perform
+ * cluster analysis.
  * @param n See above.
  * @param i the first root.
  * @param j the second root.

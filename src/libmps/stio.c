@@ -273,15 +273,16 @@ mps_monomial_poly_read_from_stream (mps_status * s,
       for (i = 0; i < s->n; ++i)
 	poly->spar[i] = false;
 
+      
       while ((token = mps_input_buffer_next_token (buffer)))
 	{
 	  /* Read the index from the buffer */
 	  if (!sscanf (token, "%d", &i))
 	    mps_raise_parsing_error (s, buffer, token, "Error while parsing the degree of a monomial");
 
-	  if (poly->spar[i])
-	    mps_raise_parsing_error (s, buffer, token, "A monomial of the same degree has been inserted twice");
-	  else
+	  if (poly->spar[i]) 
+	    mps_raise_parsing_error (s, buffer, token, "A monomial of the same degree has been inserted twice"); 
+	  else 
 	    poly->spar[i] = true;
 	  free (token);
 

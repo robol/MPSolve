@@ -391,6 +391,7 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
  * with \f$\tilde b_i\f$ the old ones and with \f$u\f$ the machine precision:
  * \f[|b_i - \tilde b_i| < u\f]
  * so there is no need to recompute the value of \f$p(b_i)\f$.
+ * @param old_mb The MP version of <code>old_b</code>, or NULL if we are not in MP. 
  * @param root_changed A vector of booleans that is <codefalse</code> on the components that
  * did not changed from the last regeneration. 
  */

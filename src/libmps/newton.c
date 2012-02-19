@@ -47,6 +47,8 @@
  *  of the polynomial.
  * @param cont mps_boolean value that will be set to true if another
  *  iteration is needed, to false otherwise.
+ * @param skip_radius_computation true if the inclusion radius should not
+ * be computed.
  */
 void
 mps_fnewton (mps_status * s, int n, cplx_t z, double *radius, cplx_t corr,
@@ -163,12 +165,14 @@ mps_fnewton (mps_status * s, int n, cplx_t z, double *radius, cplx_t corr,
  *  computed inclusion radius.
  * @param corr Value that will be set to the newton correction,
  *  once computed.
- * @param fpc Array with the DPE coefficients of the
+ * @param dpc Array with the DPE coefficients of the
  *  polynomial.
- * @param fap Array with the DPE moduli of the coefficient
+ * @param dap Array with the DPE moduli of the coefficient
  *  of the polynomial.
  * @param cont mps_boolean value that will be set to true if another
  *  iteration is needed, to false otherwise.
+ * @param skip_radius_computation true if the radius should not be computed.
+ *
  *
  * @see mps_fnewton()
  */

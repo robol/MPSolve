@@ -222,9 +222,6 @@ mps_status_set_degree (mps_status * s, int n)
  *
  * @param s The mps_status to set the monomial_poly into.
  * @param p The mps_monomial_poly to solve.
- * @param structure The algebraic structure of the polynomial. This can
- * be, for example, <code>MPS_STRUCTURE_REAL_INTEGER</code> or similar values. 
- * What is set here will determine the fields of the poly that will be looked for data.
  */
 void
 mps_status_set_input_poly (mps_status * s, mps_monomial_poly * p)
@@ -485,7 +482,7 @@ mps_status_get_input_config (mps_status * s)
 
 /**
  * @brief Get a pointer to the output config stored in the
- * fiven mps_status.
+ * given mps_status.
  *
  * @param s The <code>mps_status</code> of the current computation.
  */

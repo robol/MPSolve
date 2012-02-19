@@ -1,6 +1,11 @@
 #ifndef MPS_INPUT_BUFFER_H_
 #define MPS_INPUT_BUFFER_H_
 
+/**
+ * @file
+ * @brief Implementation of a buffer for parsing input file for MPSolve.
+ */
+
 #ifdef __cplusplus
 extern "C"
 {

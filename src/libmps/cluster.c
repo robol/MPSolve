@@ -26,6 +26,7 @@
 
 /**
  * @brief Get an empty mps_cluster, with no roots.
+ * @param s The <code>mps_status</code> of the current computation.
  */
 mps_cluster *
 mps_cluster_empty (mps_status * s)
@@ -39,6 +40,7 @@ mps_cluster_empty (mps_status * s)
 /**
  * @brief Create a cluster containing only the selected root.
  *
+ * @param s The <code>mps_status</code> of the current computation.
  * @param root_index The root that must be in the cluster.
  */
 mps_cluster * 
@@ -59,6 +61,7 @@ mps_cluster_with_root (mps_status * s, long int root_index)
  * @brief Free a previously allocated cluster with all the roots in
  * it. 
  *
+ * @param s The <code>mps_status</code> of the current computation.
  * @param cluster The cluster to free.
  */
 void 
@@ -81,6 +84,7 @@ mps_cluster_free (mps_status * s, mps_cluster * cluster)
 /**
  * @brief Insert a root in a cluster.
  *
+ * @param s The <code>mps_status</code> of the current computation.
  * @param cluster The cluster in which the root must be inserted.
  * @param root_index The index of the root to insert.
  */
@@ -109,6 +113,7 @@ mps_cluster_insert_root (mps_status * s,
 /**
  * @brief Remove a root from a cluster.
  *
+ * @param s The <code>mps_status</code> of the current computation.
  * @param cluster The cluster from which the root must be removed.
  * @param root The root to remove.
  *
@@ -141,6 +146,7 @@ mps_cluster_remove_root (mps_status * s, mps_cluster * cluster, mps_root * root)
  * @brief Join two cluster in one big cluster containing the roots of
  * both. Please note that the cluster must not overlap. 
  * 
+ * @param s The <code>mps_status</code> of the current computation.
  * @param cluster_a The first cluster
  * @param cluster_b The second cluster
  * @return A new cluster containing the roots of both.
@@ -178,6 +184,8 @@ mps_cluster_join (mps_status * s, mps_cluster * cluster_a, mps_cluster * cluster
 
 /**
  * @brief Create a new empty clusterization.
+ *
+ * @param s The <code>mps_status</code> of the current computation.
  */
 mps_clusterization *
 mps_clusterization_empty (mps_status * s)
@@ -190,6 +198,9 @@ mps_clusterization_empty (mps_status * s)
 
 /**
  * @brief Insert a new cluster into a root clusterization.
+ * @param s The <code>mps_status</code> of the current computation.
+ * @param c The clusterization in which the cluster should be inserted.
+ * @param cluster The cluster that should be inserted.
  */
 mps_cluster_item *
 mps_clusterization_insert_cluster (mps_status * s, mps_clusterization * c, mps_cluster * cluster)
@@ -219,6 +230,9 @@ mps_clusterization_insert_cluster (mps_status * s, mps_clusterization * c, mps_c
 
 /**
  * @brief Pop out a cluster from a clusterization.
+ * @param s The <code>mps_status</code> of the current computation.
+ * @param c The clusterization from which the cluster_item should be popped.
+ * @param cluster_item The cluster item to remove.
  */
 void
 mps_clusterization_pop_cluster (mps_status * s, mps_clusterization * c, mps_cluster_item * cluster_item)
@@ -239,6 +253,9 @@ mps_clusterization_pop_cluster (mps_status * s, mps_clusterization * c, mps_clus
 
 /**
  * @brief Remove a cluster item from a clusterization, freeing it.
+ * @param s The <code>mps_status</code> of the current computation.
+ * @param c The clusterization from where the cluster_item should be removed.
+ * @param cluster_item The cluster item to remove.
  */
 void 
 mps_clusterization_remove_cluster (mps_status * s, mps_clusterization * c, mps_cluster_item * cluster_item)
@@ -250,6 +267,8 @@ mps_clusterization_remove_cluster (mps_status * s, mps_clusterization * c, mps_c
 
 /**
  * @brief Free a clusterization and all the cluster in it.
+ * @param s The <code>mps_status</code> of the current computation.
+ * @param c The clusterization to free.
  */
 void
 mps_clusterization_free (mps_status * s, mps_clusterization * c)

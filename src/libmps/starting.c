@@ -62,7 +62,9 @@ mps_gcd (int a, int b)
  *
  * @param s the mps_status struct pointer.
  * @param last_sigma the last value of sigma.
- * @param i_cluster the index of the cluster we are analyzing.
+ * @param cluster_item The element of the <code>mps_clusterization</code> of which
+ * we are computing the starting points, or NULL if we are computing the starting
+ * points for all the approximations. 
  * @param n the number of roots in the cluster.
  * @return the shift advised for the starting approximation in the annulus.
  */
@@ -93,7 +95,9 @@ mps_maximize_distance (mps_status * s, double last_sigma,
  *
  * @param s mps_status* stuct pointer.
  * @param n number of roots in the cluster.
- * @param i_clust Index of the cluster to analyze.
+ * @param cluster_item The element of the <code>mps_clusterization</code> of which
+ * we are computing the starting points, or NULL if we are computing the starting
+ * points for all the approximations.
  * @param clust_rad radius of the cluster.
  * @param g new gravity center where the polynomial has been shifted.
  * @param eps out epsilon.
@@ -254,7 +258,7 @@ mps_fcompute_starting_radii (mps_status * s, int n, mps_cluster_item * cluster_i
  * means of the Rouche'-based criterion of Bini (Numer. Algo. 1996).
  * The program can compute all the approximations
  * (if \f$n\f$ is the degree of \f$p(x)\f$) or it may compute the
- * approximations of the cluster of index <code>i_clust</code>
+ * approximations of the cluster in the <code>cluster_item</code>.
  * The status vector is changed into <code>'o'</code> for the components
  * that belong to a cluster with relative radius less than <code>eps</code>.
  * The status vector is changed into <code>'x'</code> for the components that
@@ -262,7 +266,9 @@ mps_fcompute_starting_radii (mps_status * s, int n, mps_cluster_item * cluster_i
  *
  * @param s The <code>mps_status</code> associated with the current computation.
  * @param n number of roots in the cluster.
- * @param i_clust index of cluster to analyze.
+ * @param cluster_item The element of the <code>mps_clusterization</code> of which
+ * we are computing the starting points, or NULL if we are computing the starting
+ * points for all the approximations. 
  * @param clust_rad radius of cluster.
  * @param g gravity center of the cluster.
  * @param eps a double that represent the maximum value
@@ -386,7 +392,9 @@ mps_fstart (mps_status * s, int n, mps_cluster_item * cluster_item,
  *
  * @param s mps_status* stuct pointer.
  * @param n number of roots in the cluster.
- * @param i_clust Index of the cluster to analyze.
+ * @param cluster_item The element of the <code>mps_clusterization</code> of which
+ * we are computing the starting points, or NULL if we are computing the starting
+ * points for all the approximations.
  * @param clust_rad radius of the cluster.
  * @param g new gravity center where the polynomial has been shifted.
  * @param eps out epsilon.
@@ -557,7 +565,7 @@ mps_dcompute_starting_radii (mps_status * s, int n,
  *
  * The program can compute all the approximations
  * (if \f$n\f$ is the degree of \f$p(x)\f$) or it may compute the
- * approximations of the cluster of index \f$i_clust\f$
+ * approximations of the cluster of the <code>cluster_item</code>.
  * The status vector is changed into <code>'o'</code> for the components
  * that belong to a cluster with relative radius less than <code>eps</code>.
  * The status vector is changed into <code>'f'</code> for the components
@@ -565,7 +573,8 @@ mps_dcompute_starting_radii (mps_status * s, int n,
  *
  * @param s mps_status struct pointer.
  * @param n number of root in the cluster to consider
- * @param i_clust index of the cluster to consider.
+ * @param cluster_item The item of the mps_clusterization containing the cluster
+ * that we are analyzing. 
  * @param clust_rad radius of the cluster.
  * @param g new center in which the the polynomial will be shifted.
  * @param eps maximum radius considered small enough to be negligible.
@@ -718,7 +727,9 @@ mps_dstart (mps_status * s, int n, mps_cluster_item * cluster_item,
  *
  * @param s mps_status* stuct pointer.
  * @param n number of roots in the cluster.
- * @param i_clust Index of the cluster to analyze.
+ * @param cluster_item The element of the <code>mps_clusterization</code> of which
+ * we are computing the starting points, or NULL if we are computing the starting
+ * points for all the approximations.
  * @param clust_rad radius of the cluster.
  * @param g new gravity center where the polynomial has been shifted.
  * @param dap[] Array with the moduli of the coefficients.
@@ -955,44 +966,6 @@ mps_mstart (mps_status * s, int n, mps_cluster_item * cluster_item,
                 {
                   MPS_DEBUG (s, "Recompacting cluster with root %d", i);
                   need_recomputing = true;
-
-                  /* /\* We need this to be true to make the reassembling of */
-                  /*  * the cluster work as expected *\/ */
-                  /* assert (i_clust < i); */
-
-                  /* l = s->clust[s->punt[i]]; */
-                  /* for (j = s->punt[i_clust + 1]; j < s->punt[i]; j++) */
-                  /*   { */
-                  /*     s->clust[j + 1] = s->clust[j]; */
-                  /*   } */
-                  /* s->clust[s->punt[i_clust + 1]] = l; */
-                  /* for (j = i_clust + 1; j <= i; j++) */
-                  /*   { */
-                  /*     s->punt[j]++; */
-                  /*   } */
-
-                  /* assert (s->punt[i] == s->punt[i + 1]); */
-
-                  /* for (j = i + 1; j < s->nclust; j++) */
-                  /*   { */
-                  /*     s->punt[j - 1] = s->punt[j]; */
-                  /*     s->clust_detached[j - 1] = s->clust_detached[j]; */
-                  /*   } */
-                  /* s->punt[s->nclust - 1] = s->punt[s->nclust]; */
-
-                  /* s->nclust--; */
-                  /* MPS_DEBUG (s, "Cluster %d and %d reassenble, nclust = %d", */
-                  /*            i_clust, i, s->nclust); */
-                  /* for (j = 0; j < s->nclust; j++) */
-                  /*   { */
-                  /*     if (s->clust_detached[j] > i_clust) */
-                  /*       { */
-                  /*         s->clust_detached[j]--; */
-                  /*       } */
-                  /*   } */
-
-                  /* s->clust_detached[i] = -1; */
-
 		  mps_clusterization_remove_cluster (s, s->clusterization, c_item);
 		  mps_cluster_insert_root (s, cluster, i);
                 }

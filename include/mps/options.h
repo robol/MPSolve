@@ -1,6 +1,11 @@
 #ifndef MPS_OPTIONS_H_
 #define MPS_OPTIONS_H_
 
+/**
+ * @file
+ * @brief Implementation of option parsing for MPSolve.
+ */
+
 #ifdef __cplusplus
 extern "C" {
 #endif

@@ -35,6 +35,7 @@ extern "C"
    */
   typedef void * (*mps_thread_work) (void *);
 
+#ifdef _MPS_PRIVATE
   /**
    * @brief A new job for <code>mps_thread_fsolve()</code>,
    * <code>mps_thread_dsolve()</code> or <code>mps_thread_msolve()</code>.
@@ -296,6 +297,7 @@ extern "C"
      */ 
     pthread_cond_t free_count_changed_cond; 
   };
+#endif /* #ifdef _MPS_PRIVATE */
 
   /* EXPORTED ROUTINES */
 

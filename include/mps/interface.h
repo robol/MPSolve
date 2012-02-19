@@ -157,6 +157,40 @@ extern "C"
    *
    * Please see the documentation of mps_status_get_roots_m() for a better way to get
    * the results. It was not used in example in order to keep it short and clear. 
+   *
+   * @subsection inclusion How to include libmps
+   *
+   * In general libmps will be usable by including the header file <code>mps/mps.h</code>.
+   * Please note that almost all structures defined in MPSolve will be available only as
+   * incomplete declarations, so they should be used with pointers, and manipulated with available
+   * functions.
+   *
+   * Remember to include always <code>mps/mps.h</code> and not the other headers in the
+   * directory. This is not supported and not guaranteed to work.
+   *
+   * For example you can instantiate a pointer to a new <code>mps_status</code> with
+   * the function <code>mps_status_new()</code>, add the input to it, solve the polynoial
+   * with <code>mps_mpsolve()</code> and then free its resources with <code>mps_status_free()</code>.
+   *
+   * The data structures that will be mostly used are:
+   * -# <code>mps_status</code>: This structure holds the state of the computation and must
+   * be instanciated for every polynomial solving operation. After allocating a pointer to
+   * an <code>mps_status</code> you should, generally,:
+   *   -# Set the input data and output requirements (i.e. the input polynomial, the desired
+   *   output digits and goal, ...)
+   *   -# Ask libmps to solve the polynomial by calling <code>mps_mpsolve()</code>
+   *   -# Retrieve the computed data with the appropriate accessors functions
+   * <code>mps_status_get_roots_d()</code> or <code>mps_status_get_roots_m()</code>.
+   * All the functions usable on an <code>mps_status</code> pointer are available in
+   * status.h.
+   *
+   * -# <code>mps_monomial_poly</code>: A polynomial given by its coefficients. Can be allocated
+   * with <code>mps_monomial_poly_new()</code> and manipulated with the functions in 
+   * monomial-poly.h. Once it is the desired polynomial to solve you can call
+   * <code>mps_status_set_input_poly()</code> to set it as the active polynomial to solve.
+   *
+   * -# <code>mps_secular_equation</code>: The same as the monomial poly, but for secular equations.
+   * See secular.h for some functions to allocate, free and manipulate them.
    */
 
   /*

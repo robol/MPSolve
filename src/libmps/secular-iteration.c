@@ -90,6 +90,10 @@ __mps_secular_ga_fiterate_worker (void* data_ptr)
  *
  * @param s the pointer to the mps_status struct.
  * @param maxit Maximum number of iteration to perform.
+ * @param just_regenerated true if this is the first iteration after a coefficient
+ * regeneration. If just_regenerated is true and the iteration packet is completed
+ * in less than 2 * (n - computed_roots) iterations that best_approx is set to true
+ * in s->secular_equation so a raise in the precision will be triggered.
  * @return The number of approximated roots after the iteration.
  */
 int
@@ -294,6 +298,10 @@ __mps_secular_ga_diterate_worker (void* data_ptr)
  * @param s the pointer to the mps_status struct.
  * @param maxit Maximum number of iteration to perform.
  * @return The number of approximated roots after the iteration.
+ * @param just_regenerated true if this is the first iteration after a coefficient
+ * regeneration. If just_regenerated is true and the iteration packet is completed
+ * in less than 2 * (n - computed_roots) iterations that best_approx is set to true
+ * in s->secular_equation so a raise in the precision will be triggered.
  */
 int
 mps_secular_ga_diterate (mps_status * s, int maxit, mps_boolean just_regenerated)
@@ -540,7 +548,11 @@ __mps_secular_ga_miterate_worker (void* data_ptr)
  * CDPE
  *
  * @param s the pointer to the mps_status struct.
- * @param maxit Maximum number of iteration to perform.
+ * @param maxit Maximum number of iteration to perform. 
+ * @param just_regenerated true if this is the first iteration after a coefficient
+ * regeneration. If just_regenerated is true and the iteration packet is completed
+ * in less than 2 * (n - computed_roots) iterations that best_approx is set to true
+ * in s->secular_equation so a raise in the precision will be triggered.
  * @return The number of approximated roots after the iteration.
  */
 int

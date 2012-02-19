@@ -9,6 +9,7 @@
  * the considered component.
  *
  * @param s The <code>mps_status</code> of the computation.
+ * @param fradii The array where the computed radii will be stored.
  */
 void
 mps_monomial_fradii (mps_status * s, double * fradii)
