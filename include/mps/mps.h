@@ -436,6 +436,8 @@ extern  "C"
       MPS_REPRESENTATION_MONOMIAL
     };
 
+  typedef mps_thread_pool mps_async_handle;
+
 
 /* Local include files that should not be included directly */
 #include <mps/options.h>

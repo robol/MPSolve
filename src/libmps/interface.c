@@ -37,7 +37,34 @@ mps_mpsolve (mps_status * s)
   feenableexcept (FE_INVALID|FE_DIVBYZERO|FE_OVERFLOW); 
 #endif
 
-  (*s->mpsolve_ptr) (s);
+  mps_mpsolve_wait (s, mps_mpsolve_async (s));
+  /* (*s->mpsolve_ptr) (s); */
+}
+
+void*
+mps_caller (mps_status * s)
+{
+  s->mpsolve_ptr (s);
+  return NULL;
+}
+
+mps_async_handle *
+mps_mpsolve_async (mps_status * s)
+{
+  #ifdef MPS_CATCH_FPE
+  feenableexcept (FE_INVALID|FE_DIVBYZERO|FE_OVERFLOW); 
+#endif
+
+  mps_thread_pool * private_pool = mps_thread_pool_new (s, 1);
+  mps_thread_pool_assign (s, private_pool, (mps_thread_work) mps_caller, s);
+  
+  return (mps_async_handle*) private_pool;
+}
+
+void
+mps_mpsolve_wait (mps_status * s, mps_async_handle * handle)
+{
+  mps_thread_pool_wait (s, (mps_thread_pool*) handle);
 }
 
 /**

@@ -318,7 +318,7 @@ extern "C"
 
   void mps_thread_pool_wait (mps_status * s, mps_thread_pool * pool);
 
-  mps_thread_pool * mps_thread_pool_new (mps_status * s);
+  mps_thread_pool * mps_thread_pool_new (mps_status * s, int n_threads);
 
   void mps_thread_pool_free (mps_status * s, mps_thread_pool * pool);
 

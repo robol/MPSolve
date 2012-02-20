@@ -149,7 +149,7 @@ mps_set_default_values (mps_status * s)
   s->algorithm = MPS_ALGORITHM_STANDARD_MPSOLVE;
 
   /* Allocate the thread_pool used in computations. */
-  s->pool = mps_thread_pool_new (s);
+  s->pool = mps_thread_pool_new (s, 0);
 
   s->over_max = false;
 }

@@ -90,8 +90,17 @@ extern "C"
     mps_boolean resume;         /* to complete                         */
     mps_boolean chkrad;         /* check radii after completion        */
 
+    /**
+     * @brief The operation running now. Can be used to debug what's happening
+     * event if mpsolve was launched without debug enabled.
+     */
     mps_operation operation;
 
+    /**
+     * @brief This value is true if the data for the computation has been allocated
+     * by calling mps_allocate_data(). It is used by mps_free_data() to know what has
+     * to be freed.
+     */
     mps_boolean initialized;
 
     /**

@@ -207,7 +207,7 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
    *   a_i = -p(b_i) / \prod_{i \neq j} (b_i - b_j)
    *
    */
-  if (root_changed[i] || true)
+  if (root_changed[i])
     {
       rdpe_t relative_error, rtmp;
       cdpe_t cpol;
@@ -352,6 +352,21 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
 	    }
 	  else 
 	    {
+	      if (mpc_get_prec (mprod_b) < s->rootwp[i])
+		{
+		  mpc_set_prec (mprod_b, s->rootwp[i]);
+		  mpc_set_prec (mdiff, s->rootwp[i]);
+		  mpc_set_prec (lc, s->rootwp[i]);
+
+		  for (j = 0; j < s->n; j++)
+		    {
+		      pthread_mutex_lock (&sec->bmpc_mutex[j]);
+		      if (mpc_get_prec (sec->bmpc[j]) < s->rootwp[i])
+			mpc_set_prec (sec->bmpc[j], s->rootwp[j]);
+		      pthread_mutex_unlock (&sec->bmpc_mutex[j]);
+		    }
+		}
+
 	      mpc_set_ui (mprod_b, 1U, 0U);
 	      for (j = 0; j < s->n; j++)
 		{

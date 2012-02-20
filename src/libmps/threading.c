@@ -364,11 +364,14 @@ mps_thread_pool_insert_new_thread (mps_status * s, mps_thread_pool * pool)
  * with a number of threads suitable for this system.
  */
 mps_thread_pool *
-mps_thread_pool_new (mps_status * s)
+mps_thread_pool_new (mps_status * s, int n_threads)
 {
   mps_thread_pool * pool = mps_new (mps_thread_pool);
   int threads = mps_thread_get_core_number (s); 
-  int i; 
+  int i;
+
+  if (n_threads != 0)
+    threads = n_threads;
 
   pool->n = 0;
   pool->first = NULL;

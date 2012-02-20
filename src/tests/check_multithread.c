@@ -15,7 +15,7 @@ work (int * i)
 int main (int argc, char ** argv)
 {
   mps_status * s = mps_status_new ();
-  mps_thread_pool * pool = mps_thread_pool_new (s);
+  mps_thread_pool * pool = mps_thread_pool_new (s, 0);
   int i[N_THREADS];
   int j;
 
