@@ -454,6 +454,17 @@ __mps_secular_ga_miterate_worker (void* data_ptr)
   mpc_init2 (abcorr, s->mpwp);
   mpc_init2 (mroot, s->mpwp); 
 
+  /* Get a copy of the MP coefficients that is local to this thread */
+  it_data.local_ampc = mpc_valloc (s->n);
+  it_data.local_bmpc = mpc_valloc (s->n);
+  mpc_vinit2 (it_data.local_ampc, s->n, s->mpwp);
+  mpc_vinit2 (it_data.local_bmpc, s->n, s->mpwp);
+  for (i = 0; i < s->n; i++)
+    {
+      mpc_set (it_data.local_ampc[i], s->secular_equation->ampc[i]);
+      mpc_set (it_data.local_bmpc[i], s->secular_equation->bmpc[i]);
+    }
+
   while ((*data->nzeros < s->n))
     {
       job = mps_thread_job_queue_next (s, data->queue);
@@ -538,6 +549,11 @@ __mps_secular_ga_miterate_worker (void* data_ptr)
   mpc_clear (mroot);
   mpc_clear (abcorr);
   mpc_clear (corr);
+
+  mpc_vclear (it_data.local_bmpc, s->n);
+  mpc_vclear (it_data.local_ampc, s->n);
+  mpc_vfree (it_data.local_ampc);
+  mpc_vfree (it_data.local_bmpc);
 
   return NULL;
 }

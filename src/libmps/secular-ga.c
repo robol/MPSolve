@@ -166,7 +166,6 @@ mps_secular_ga_improve (mps_status * s)
   mpc_t nwtcorr;
   cdpe_t ctmp;
   rdpe_t rtmp, old_rad, abroot;
-  mps_secular_iteration_data user_data;
 
   mpc_init2 (nwtcorr, s->mpwp);
 
@@ -216,9 +215,8 @@ mps_secular_ga_improve (mps_status * s)
       for (j = 0; j < iterations; j++)
         { 
 	  rdpe_set (old_rad, s->drad[i]);
-	  user_data.k = i;
           mps_secular_mnewton (s, s->mroot[i], s->drad[i], nwtcorr,
-                               &s->again[i], &user_data, false);
+                               &s->again[i], NULL, false);
 
 	  /* Compute quadratic radius */
 	  mpc_get_cdpe (ctmp, s->mroot[i]); 

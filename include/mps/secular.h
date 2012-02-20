@@ -217,7 +217,23 @@ extern "C"
      */
     mps_boolean radius_set;
 
+    /**
+     * @brief Global mutex used to synchronization, but mainly
+     * while testing new MP implementations.
+     */
     pthread_mutex_t * gs_mutex;
+    
+    /**
+     * @brief Thread local copy of the \f$a_i\f$ coefficients of the secular
+     * equation.
+     */
+    mpc_t * local_ampc;
+
+    /**
+     * @brief Thread local copy of the \f$b_i\f$ coefficients of the secular
+     * equation.
+     */
+    mpc_t * local_bmpc;
   };
 
 #endif /* #ifdef _MPS_PRIVATE */    

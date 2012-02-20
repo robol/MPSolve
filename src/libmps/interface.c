@@ -37,8 +37,7 @@ mps_mpsolve (mps_status * s)
   feenableexcept (FE_INVALID|FE_DIVBYZERO|FE_OVERFLOW); 
 #endif
 
-  mps_mpsolve_wait (s, mps_mpsolve_async (s));
-  /* (*s->mpsolve_ptr) (s); */
+  (*s->mpsolve_ptr) (s);
 }
 
 void*
@@ -65,6 +64,7 @@ void
 mps_mpsolve_wait (mps_status * s, mps_async_handle * handle)
 {
   mps_thread_pool_wait (s, (mps_thread_pool*) handle);
+  mps_thread_pool_free (s, (mps_thread_pool*) handle);
 }
 
 /**
