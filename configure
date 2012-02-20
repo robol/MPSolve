@@ -615,10 +615,8 @@ ac_includes_default="\
 ac_subst_vars='am__EXEEXT_FALSE
 am__EXEEXT_TRUE
 LTLIBOBJS
-SECSOLVE_LIBS
-UNISOLVE_LIBS
-SECSOLVE_CFLAGS
-UNISOLVE_CFLAGS
+MPSOLVE_LIBS
+MPSOLVE_CFLAGS
 MPS_CFLAGS
 MPS_LDFLAGS
 LIBOBJS
@@ -17486,10 +17484,8 @@ done
 
 MPS_CFLAGS="$GENERAL_CFLAGS -D_MPS_PRIVATE"
 MPS_LDFLAGS="$GENERAL_LIBS"
-UNISOLVE_CFLAGS="$GENERAL_CFLAGS"
-SECSOLVE_CFLAGS="$GENERAL_CFLAGS"
-UNISOLVE_LIBS="$GENERAL_LIBS"
-SECSOLVE_LIBS="$GENERAL_LIBS"
+MPSOLVE_CFLAGS="$GENERAL_CFLAGS"
+MPSOLVE_LIBS="$GENERAL_LIBS"
 
 if test "$platform_win32" = yes; then
   MPS_LDFLAGS="$MPS_LDFLAGS -no-undefined -Wl,--export-all-symbols -Wl,--output-def,.libs/libmps-3.dll.def"
@@ -17500,11 +17496,7 @@ fi
 
 
 
-
-
-
-ac_config_files="$ac_config_files Makefile examples/Makefile examples/octave/Makefile examples/matlab/Makefile src/Makefile src/unisolve/Makefile src/secsolve/Makefile src/mpsolve/Makefile src/libmps/Makefile src/tests/Makefile doc/Makefile doc/Doxyfile"
-
+ac_config_files="$ac_config_files Makefile examples/Makefile examples/octave/Makefile examples/matlab/Makefile src/Makefile src/mpsolve/Makefile src/libmps/Makefile src/tests/Makefile doc/Makefile doc/Doxyfile"
 
 
 cat >confcache <<\_ACEOF
@@ -18631,8 +18623,6 @@ do
     "examples/octave/Makefile") CONFIG_FILES="$CONFIG_FILES examples/octave/Makefile" ;;
     "examples/matlab/Makefile") CONFIG_FILES="$CONFIG_FILES examples/matlab/Makefile" ;;
     "src/Makefile") CONFIG_FILES="$CONFIG_FILES src/Makefile" ;;
-    "src/unisolve/Makefile") CONFIG_FILES="$CONFIG_FILES src/unisolve/Makefile" ;;
-    "src/secsolve/Makefile") CONFIG_FILES="$CONFIG_FILES src/secsolve/Makefile" ;;
     "src/mpsolve/Makefile") CONFIG_FILES="$CONFIG_FILES src/mpsolve/Makefile" ;;
     "src/libmps/Makefile") CONFIG_FILES="$CONFIG_FILES src/libmps/Makefile" ;;
     "src/tests/Makefile") CONFIG_FILES="$CONFIG_FILES src/tests/Makefile" ;;

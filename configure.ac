@@ -156,10 +156,8 @@ AC_CHECK_FUNCS([memset modf pow sqrt strchr])
 
 MPS_CFLAGS="$GENERAL_CFLAGS -D_MPS_PRIVATE"
 MPS_LDFLAGS="$GENERAL_LIBS"
-UNISOLVE_CFLAGS="$GENERAL_CFLAGS"
-SECSOLVE_CFLAGS="$GENERAL_CFLAGS"
-UNISOLVE_LIBS="$GENERAL_LIBS"
-SECSOLVE_LIBS="$GENERAL_LIBS"
+MPSOLVE_CFLAGS="$GENERAL_CFLAGS"
+MPSOLVE_LIBS="$GENERAL_LIBS"
 
 if test "$platform_win32" = yes; then
   MPS_LDFLAGS="$MPS_LDFLAGS -no-undefined -Wl,--export-all-symbols -Wl,--output-def,.libs/libmps-3.dll.def"
@@ -167,25 +165,19 @@ fi
 
 AC_SUBST(MPS_LDFLAGS)
 AC_SUBST(MPS_CFLAGS)
-AC_SUBST(UNISOLVE_CFLAGS)
-AC_SUBST(SECSOLVE_CFLAGS)
-AC_SUBST(UNISOLVE_LIBS)
-AC_SUBST(SECSOLVE_LIBS)
-
+AC_SUBST(MPSOLVE_CFLAGS)
+AC_SUBST(MPSOLVE_LIBS)
 
 AC_CONFIG_FILES([Makefile
                  examples/Makefile
 		 examples/octave/Makefile
                  examples/matlab/Makefile
                  src/Makefile
-                 src/unisolve/Makefile
-                 src/secsolve/Makefile
 		 src/mpsolve/Makefile
                  src/libmps/Makefile
                  src/tests/Makefile
 		 doc/Makefile
 		 doc/Doxyfile])
-
 
 AC_OUTPUT
 

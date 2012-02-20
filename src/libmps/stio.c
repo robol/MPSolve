@@ -171,10 +171,6 @@ mps_parse_option_line (mps_status * s, char *line, size_t length)
   equal_position = strchr (option, '=');
   if (equal_position == NULL)
     {
-      if (s->debug_level & MPS_DEBUG_IO)
-        {
-          MPS_DEBUG (s, "Parsed input_option.flag = %d", input_option.flag);
-        }
       return input_option;
     }
   else
@@ -190,6 +186,8 @@ mps_parse_option_line (mps_status * s, char *line, size_t length)
 
   if (mps_is_option (s, option, "degree"))
     input_option.flag = MPS_KEY_DEGREE;
+  else if (mps_is_option (s, option, "precision"))
+    input_option.flag = MPS_KEY_PRECISION;
 
   /* Free the copy of the option */
   free (option);
@@ -213,7 +211,7 @@ mps_monomial_poly_read_from_stream (mps_status * s,
 
   /* We still do not support sparse input */
   for (i = 0; i <= s->n; ++i)
-      poly->spar[i] = true;
+    poly->spar[i] = true;
 
   /* Dense parsing */
   if (MPS_INPUT_CONFIG_IS_DENSE (s->input_config))
@@ -272,7 +270,6 @@ mps_monomial_poly_read_from_stream (mps_status * s,
        * any coefficient */
       for (i = 0; i <= s->n; ++i)
 	poly->spar[i] = false;
-
       
       while ((token = mps_input_buffer_next_token (buffer)))
 	{
@@ -973,11 +970,6 @@ mps_parse_stream (mps_status * s, FILE * input_stream)
           input_option =
             mps_parse_option_line (s, line, strlen (line));
 
-          if (s->debug_level & MPS_DEBUG_IO)
-            {
-              MPS_DEBUG (s, "Parsed option %d", input_option.flag);
-            }
-
           /* Parsing of the degree */
           if (input_option.flag == MPS_KEY_DEGREE)
             {
@@ -985,6 +977,14 @@ mps_parse_stream (mps_status * s, FILE * input_stream)
               if (s->n <= 0)
                 mps_error (s, 1, "Degree must be a positive integer");
             }
+
+	  /* Parsing precision of input coefficients */
+	  if (input_option.flag == MPS_KEY_PRECISION)
+	    {
+	      mps_status_set_input_prec (s, atoi (input_option.value) * LOG2_10);
+	      if (s->input_config->prec <= 0)
+		mps_error (s, 1, "Precision must be a positive integer");
+	    }
 
           /* Parsing of representations */
           else if (input_option.flag == MPS_FLAG_SECULAR)
@@ -1074,9 +1074,6 @@ mps_parse_stream (mps_status * s, FILE * input_stream)
 
       mps_monomial_poly_read_from_stream (s, buffer);
     }
-
-  /* Set precision to infinite, for now */
-  s->input_config->prec = 0;
 
   mps_input_buffer_free (buffer);
 }
@@ -1525,7 +1522,7 @@ mps_dump_cluster_structure (mps_status * s, FILE * outstr)
               fprintf (outstr, "\n       ");
             }
 
-          printf (" %4ld", root->k);
+          fprintf (outstr, " %4ld", root->k);
 	  j++;
         }
 

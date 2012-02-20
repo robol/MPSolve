@@ -350,7 +350,7 @@ mps_setup (mps_status * s)
 	    }
 
 	  if (MPS_INPUT_CONFIG_IS_FP (s->input_config))
-              mpf_get_rdpe (p->dpr[i], p->mfpr[i]);
+	    mpf_get_rdpe (p->dpr[i], mpc_Re (p->mfpc[i]));
 	  
           cdpe_set_e (p->dpc[i], p->dpr[i], rdpe_zero);
 

@@ -313,7 +313,8 @@ extern  "C"
       MPS_FLAG_SPARSE,
 
       /* Key with a value */
-      MPS_KEY_DEGREE
+      MPS_KEY_DEGREE,
+      MPS_KEY_PRECISION
     };
 
   /**

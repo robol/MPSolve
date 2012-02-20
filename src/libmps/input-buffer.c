@@ -213,7 +213,7 @@ mps_input_buffer_readline (mps_input_buffer * buf)
   read_chars = getline (&buf->line, &length, buf->stream);
   buf->last_token = buf->line;
 
-  if (buf->line) 
+  if (buf->line && read_chars > 0) 
     {
       buf->line_number++;
       char * comment = strstr (buf->line, "!");
@@ -224,7 +224,6 @@ mps_input_buffer_readline (mps_input_buffer * buf)
 	}
       
     }
-
   
   return read_chars;
 }

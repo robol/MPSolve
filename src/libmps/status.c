@@ -226,6 +226,8 @@ mps_status_set_degree (mps_status * s, int n)
 void
 mps_status_set_input_poly (mps_status * s, mps_monomial_poly * p)
 {
+  MPS_DEBUG_THIS_CALL;
+
   int i;
   s->monomial_poly = p;
   mps_status_set_degree (s, p->n);
