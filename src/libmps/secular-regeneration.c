@@ -336,7 +336,7 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
 	  if (old_mb == NULL)
 	    {
 	      /* mpc_set_ui (mprod_b, 1U, 0U);  */
-	      /* cdpe_set (prod_b, cdpe_one);  */
+	      cdpe_set (prod_b, cdpe_one);  
 	      for (j = 0; j < s->n; j++) 
 		{ 
 		  if (i == j || !root_changed[i])
@@ -666,6 +666,8 @@ mps_secular_ga_regenerate_coefficients_secular (mps_status * s, cdpe_t * old_b, 
   mpc_clear (sec_ev);
   mpc_clear (ctmp);
   mpc_clear (btmp);
+  
+  mps_boolean_vfree (root_changed);
 
   return success;
 }

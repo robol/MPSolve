@@ -121,6 +121,7 @@ mps_set_default_values (mps_status * s)
 
   s->random_seed = 0;
   s->newtis = 0;
+  s->last_sigma = 0.1;
 
   s->secular_equation = NULL;
   s->monomial_poly = NULL;
