@@ -151,5 +151,9 @@ mps_set_default_values (mps_status * s)
   /* Allocate the thread_pool used in computations. */
   s->pool = mps_thread_pool_new (s, 0);
 
+  /* Callbacks for async version */
+  s->callback = NULL;
+  s->user_data = NULL;
+
   s->over_max = false;
 }

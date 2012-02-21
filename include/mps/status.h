@@ -69,6 +69,11 @@ extern "C"
    */
   typedef void (*mps_mpsolve_ptr) (mps_status *status);
 
+  /**
+   * @brief Pointer to the callback for the async version of mpsolve
+   */
+  typedef void* (*mps_callback) (mps_status * status, void * user_data);
+
 
   /*
    * Macros for casting user functions
@@ -89,6 +94,17 @@ extern "C"
   {
     mps_boolean resume;         /* to complete                         */
     mps_boolean chkrad;         /* check radii after completion        */
+
+    /**
+     * @brief Callback called when the async version of mps_mpsolve(), i.e.
+     * terminate the computation.
+     */
+    mps_callback callback;
+
+    /**
+     * @brief Pointer to user_data passed to the callback.
+     */
+    void * user_data;
 
     /**
      * @brief The operation running now. Can be used to debug what's happening

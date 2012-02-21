@@ -128,12 +128,12 @@ mps_secular_dstart (mps_status * s, int n, mps_cluster_item * cluster_item, rdpe
       else
 	l = i;
 
-      if (!MPS_ROOT_STATUS_IS_COMPUTED (s, i))
+      if (!MPS_ROOT_STATUS_IS_COMPUTED (s, l))
 	{
 	  cdpe_mod (cdpe_Re (ceps), s->secular_equation->bdpc[l]);
 	  rdpe_mul_eq_d (cdpe_Re (ceps), 4 * DBL_EPSILON);
-	  cdpe_set_d (s->droot[l], cos (i * th + sigma),
-		      sin (i * th + sigma));
+	  cdpe_set_d (s->droot[l], cos (l * th + sigma),
+		      sin (l * th + sigma));
 	  cdpe_mul_eq (s->droot[l], ceps);
 
 	  if (!rdpe_eq (s->drad[l], RDPE_MAX))

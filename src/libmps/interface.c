@@ -44,15 +44,24 @@ void*
 mps_caller (mps_status * s)
 {
   s->mpsolve_ptr (s);
-  return NULL;
+
+  /* Call user defined callback if available */
+  if (s->callback == NULL)
+    return NULL;
+  else
+    return (*s->callback) (s, s->user_data);
 }
 
-mps_async_handle *
-mps_mpsolve_async (mps_status * s)
+mps_async_handle * 
+mps_mpsolve_async (mps_status * s, mps_callback callback, void * user_data)
 {
-  #ifdef MPS_CATCH_FPE
+#ifdef MPS_CATCH_FPE
   feenableexcept (FE_INVALID|FE_DIVBYZERO|FE_OVERFLOW); 
 #endif
+
+  /* Set up callbacks */
+  s->callback = callback;
+  s->user_data = user_data;
 
   mps_thread_pool * private_pool = mps_thread_pool_new (s, 1);
   mps_thread_pool_assign (s, private_pool, (mps_thread_work) mps_caller, s);

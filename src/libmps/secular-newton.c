@@ -354,19 +354,14 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
 	rdpe_mul_d (rtmp, ax, DBL_EPSILON);
 	rdpe_add_eq (new_rad, rtmp);
 	
+	cdpe_mod (rtmp, x);
+	rdpe_mul_eq_d (rtmp, 4.0 * DBL_EPSILON);
+	rdpe_add_eq (new_rad, rtmp);
+
 	if (rdpe_lt (new_rad, rad))
 	  rdpe_set (rad, new_rad);
       }
   }
-
-  cdpe_mod (rtmp, x);
-  rdpe_mul_eq_d (rtmp, 4.0 * DBL_EPSILON);
-  rdpe_add_eq (new_rad, rtmp);
-
-  if (rdpe_lt (new_rad, rad) || !data)
-    rdpe_set (rad, new_rad);
-  else 
-    data->radius_set = false;
 }
 
 void

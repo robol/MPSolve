@@ -191,6 +191,15 @@ extern "C"
    *
    * -# <code>mps_secular_equation</code>: The same as the monomial poly, but for secular equations.
    * See secular.h for some functions to allocate, free and manipulate them.
+   *
+   * @subsection async Calling MPSolve asynchronously
+   * 
+   * Desktop application using MPSolve to solve polynomials may want to call a 
+   * non-blocking version of mps_mpsolve(). This is provided inside the package
+   * as mps_mpsolve_async(). 
+   *
+   * This routine will return a <code>mps_handle</code> pointer that can be used to wait
+   * for the result by calling mps_mpsolve_wait() on it.
    */
 
   /*
@@ -208,7 +217,7 @@ extern "C"
   void * mps_malloc (size_t size);
   void * mps_alloca (size_t size);
 
-  mps_async_handle * mps_mpsolve_async (mps_status * s);
+  mps_async_handle * mps_mpsolve_async (mps_status * s, mps_callback callback, void * user_data);
   void mps_mpsolve_wait (mps_status * s, mps_async_handle * handle);
 
   /* Macros to init pointer and/or vectors in a convenient way */
