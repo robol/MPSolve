@@ -19,7 +19,8 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
   int i;
   cplx_t ctmp, ctmp2, pol, fp, sumb;
   double apol, prod_b = 1.0, new_rad = 0.0;
-  double asum = 0.0f, asum_on_apol;
+  double asum = 0.0, asum_on_apol;
+  double asum2 = 0.0, asumb = 0.0;
   mps_secular_iteration_data * data = user_data;
   mps_secular_equation *sec = (mps_secular_equation *) s->secular_equation;
 
@@ -53,6 +54,7 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
 
       /* Compute (z-b_i)^{-1} */
       cplx_inv_eq (ctmp);
+      asumb += cplx_mod (ctmp) * (i + 10);
 
       /* Compute sum of (z-b_i)^{-1} */
       cplx_add_eq (sumb, ctmp);
@@ -61,13 +63,14 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
       cplx_mul (ctmp2, sec->afpc[i], ctmp);
       
       /* Compute the sum of module of (a_i/(z-b_i)) * (i + 2) */
-      asum += cplx_mod (ctmp2) * (i + 2);
+      asum += cplx_mod (ctmp2) * (i + 10);
 
       /* Add a_i / (z - b_i) to pol */
       cplx_add_eq (pol, ctmp2);
 
       /* Compute a_i / (z - b_i)^2a */
       cplx_mul_eq (ctmp2, ctmp);
+      asum2 += cplx_mod (ctmp2) * (i + 10);
 
       /* Add it to fp */
       cplx_sub_eq (fp, ctmp2);
@@ -75,20 +78,10 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
 
   /* Compute secular function */
   cplx_sub_eq (pol, cplx_one);
+  asum += 1.0;
 
   /* Compute the module of pol */
   apol = cplx_mod (pol);
-
-  if (apol < 0)
-    {
-      if (data && (s->debug_level & MPS_DEBUG_PACKETS))
-	{
-	  MPS_DEBUG (s, "Setting again to false on root %ld for root neighbourhood", data->k);
-	}
-      *again = false;
-      return;
-    }
-
 
   /* Compute newton correction */
   cplx_mul (corr, pol, sumb);
@@ -105,9 +98,7 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
       (asum_on_apol < 0))
     {
       if (data && s->debug_level & MPS_DEBUG_PACKETS)
-	{
-	  MPS_DEBUG (s, "Setting again to false on root %ld for root neighbourhood", data->k);
-	}
+	MPS_DEBUG (s, "Setting again to false on root %ld for root neighbourhood", data->k);
       *again = false;
     }
 
@@ -116,56 +107,21 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
   if (*again && (cplx_mod (corr) < s->n * cplx_mod (x) * DBL_EPSILON))
     {
       if (data && s->debug_level & MPS_DEBUG_PACKETS)
-	{
-	  MPS_DEBUG (s, "Setting again to false on root %ld for small Newton correction", data->k);
-	}
+	MPS_DEBUG (s, "Setting again to false on root %ld for small Newton correction", data->k);
       *again = false;
     }
 
-  if (!*again || skip_radius_computation)
-    {
-      return;
-    }
-
   /* We compute the following values in order to give a guaranteed
-   * Newton inclusion circle:
-   *
-   * 1) theta = |fp| * (n + 8 + 3*sqrt(2)) * u
-   *  This is used so fp - theta is less than the real
-   *  value of sum_i a_i / (x - b_i)^2
-   *
-   * 2) ssp = pol / (fp - theta);
-   *  This is the guaranteed S/S' that we can compute
-   *  and that will be used to compute
-   *
-   * 3) gamma = ssp*sec*(n + 2 + sqrt(2))*u +
-   *     sec * (pol/fp - ssp) =
-   *     = sec * (ssp * (n+2+sqrt(2))*u + (pol/fp - ssp))
-   *  This is used in the next step to give a minoration
-   *  sigma of 1 + S/s' * (\sum_i a_i / (x-b_i))
-   *
-   * 4) sigma = |1 + ssp*sumb| - gamma
-   *  Guaranteed 1 + S/s' * (\sum_i a_i / (x-b_i))
-   *
-   * 5) g_corr = ssp / sigma
-   *  That is, finally, the guaranteed newton correction.
-   */
-  if (!skip_radius_computation)
-    {
-      double theta = cplx_mod (fp) * DBL_EPSILON * (s->n + 2 + 2 * MPS_2SQRT2);
-      double ssp = (cplx_mod (pol) * (1 + asum * DBL_EPSILON)) / (cplx_mod (fp) - theta);
-      double gamma = ssp * asum * DBL_EPSILON * (s->n + 1 + 2 * MPS_2SQRT2) + asum * (ssp - cplx_mod (pol) / cplx_mod (fp));
-      double sigma;
+   * Newton inclusion circle. */
+  if (*again && !skip_radius_computation)
+    { 
+      double g_pol = apol * (1 + DBL_EPSILON * asum * MPS_2SQRT2);
+      double g_fp = cplx_mod (fp) * (1 - DBL_EPSILON * asum2 * MPS_2SQRT2);
+      double g_sumb = cplx_mod (sumb) * (1 + DBL_EPSILON * asumb * MPS_2SQRT2);
 
-      cplx_div (ctmp, pol, fp);
-      cplx_mul_eq (ctmp, sumb);
-      cplx_add_eq (ctmp, cplx_one);
+      new_rad = g_pol / (g_fp - g_pol * g_sumb) * s->n;
 
-      sigma = cplx_mod (ctmp) - gamma;
-      
-      new_rad = s->n * (cplx_mod (pol) / cplx_mod (fp) * (1 + asum * DBL_EPSILON) * MPS_2SQRT2) / sigma;
-
-      if (*again && new_rad < *rad && !(sigma < 0 || gamma < 0 || new_rad < 0))
+      if (*again && new_rad < *rad && !(g_fp < 0 || new_rad < 0))
 	*rad = new_rad;
     }
 }
@@ -603,10 +559,6 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
     }
   
  mnewton_cleanup:
-
-  /* printf ("x_%ld = ", data->k); mpc_outln_str (stdout, 10, 15, x); printf ("\n"); fflush(stdout); */
-  /* printf ("Correction for root %ld = ", data->k); mpc_outln_str (stdout, 10, 15, corr); printf ("\n"); fflush(stdout); */
-  /* printf ("Radius for root %ld", data->k); rdpe_outln (new_rad); printf ("\n"); */
 
   mpc_clear (pol);
   mpc_clear (fp);

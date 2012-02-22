@@ -211,6 +211,9 @@ mps_secular_ga_fiterate (mps_status * s, int maxit, mps_boolean just_regenerated
       fprintf (s->logstr, "\n");
     }
 
+  if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
+    mps_dump (s);
+
   /* Count time taken  */
 #ifndef DISABLE_DEBUG
   s->fp_iteration_time += mps_stop_timer (my_clock);

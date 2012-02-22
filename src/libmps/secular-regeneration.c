@@ -98,6 +98,7 @@ mps_secular_ga_find_changed_roots (mps_status * s, cdpe_t * old_b, mpc_t * old_m
 	{
 	  mpc_sub (mdiff, old_mb[i], sec->bmpc[i]);
 	  mpc_get_cdpe (diff, mdiff);
+	  mpc_get_cdpe (sec->bdpc[i], sec->bmpc[i]);
 	}
       else
 	cdpe_sub (diff, old_b[i], sec->bdpc[i]);
@@ -752,6 +753,8 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
 
   sec = (mps_secular_equation *) s->secular_equation;
 
+  MPS_DEBUG_WITH_INFO (s, "Regenerating coefficients");
+
   /* Copy the old regeneration epsilon that may come handy
    * in the case the regeneration does not work */
   rdpe_t *old_dregeneration_epsilon = rdpe_valloc (s->n);
@@ -888,8 +891,14 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
           mps_secular_set_radii (s);
         }
       
-      MPS_DEBUG_CDPE (s, sec->bdpc[0], "sec->bdpc[%d]", 0);
-      MPS_DEBUG_CDPE (s, sec->adpc[0], "sec->adpc[%d]", 0);
+      if (s->debug_level & MPS_DEBUG_REGENERATION)
+	{
+	  for (i = 0; i < s->n; i++)
+	    {
+	      MPS_DEBUG_CDPE (s, sec->bdpc[i], "sec->bdpc[%d]", i);
+	      MPS_DEBUG_CDPE (s, sec->adpc[i], "sec->adpc[%d]", i);
+	    }
+	}
 
       /* Free data */
       cdpe_vfree (old_da);
