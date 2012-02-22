@@ -18,7 +18,7 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
 {
   int i;
   cplx_t ctmp, ctmp2, pol, fp, sumb;
-  double apol, prod_b = 1.0, new_rad = 0.0;
+  double apol, new_rad = 0.0;
   double asum = 0.0, asum_on_apol;
   double asum2 = 0.0, asumb = 0.0;
   mps_secular_iteration_data * data = user_data;
@@ -43,14 +43,6 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
 	  *again = false;
           return;
 	}
-
-      /* Computation of prod [ (z - b_i) / (z - z_j) ] */
-      prod_b *= cplx_mod (ctmp);
-      cplx_sub (ctmp2, x, s->froot[i]);
-      if (!cplx_eq_zero (ctmp2))
-        {
-	  prod_b /= cplx_mod (ctmp2);
-        }
 
       /* Compute (z-b_i)^{-1} */
       cplx_inv_eq (ctmp);
@@ -137,7 +129,8 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
   mps_secular_iteration_data * data = user_data;
 
   cdpe_t pol, fp, sumb, ctmp, ctmp2, old_x;
-  rdpe_t rtmp, rtmp2, apol, prod_b, asum, asum_on_apol;
+  rdpe_t rtmp, rtmp2, apol, asum, asum_on_apol;
+  rdpe_t asumb, asum2;
 
   *again = true;
 
@@ -147,7 +140,8 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
   cdpe_set (sumb, cdpe_zero);
   rdpe_set (apol, rdpe_zero);
   rdpe_set (asum, rdpe_zero);
-  rdpe_set (prod_b, rdpe_one);
+  rdpe_set (asum2, rdpe_zero);
+  rdpe_set (asumb, rdpe_zero);
 
   for (i = 0; i < sec->n; i++)
     {
@@ -156,13 +150,8 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
 
       /* Compute prod [ (z - b_i) / (z - z_j) ] */
       cdpe_mod (rtmp, ctmp);
-      rdpe_mul_eq (prod_b, rtmp);
-      cdpe_sub (ctmp2, x, s->droot[i]);
-      cdpe_mod (rtmp2, ctmp2);
-      if (!rdpe_eq_zero (rtmp2))
-        {
-	  rdpe_div_eq (prod_b, rtmp2);
-        }
+      rdpe_mul_eq_d (rtmp, (i + 10));
+      rdpe_add_eq (asumb, rtmp);
 
       /* Alternative computation if x is one of the b_i */
       if (cdpe_eq_zero (ctmp))
@@ -181,11 +170,14 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
       cdpe_mul (ctmp2, sec->adpc[i], ctmp);
       cdpe_add_eq (pol, ctmp2);
       cdpe_mod (rtmp, ctmp2);
-      rdpe_mul_eq_d (rtmp, i + 2);
+      rdpe_mul_eq_d (rtmp, i + 10);
       rdpe_add_eq (asum, rtmp);
 
       /* Compute a / (z - b_i)^2 and add it to the first derivative */
       cdpe_mul_eq (ctmp2, ctmp);
+      cdpe_mod (rtmp, ctmp2);
+      rdpe_mul_eq_d (rtmp, (i + 10));
+      rdpe_add_eq (asum2, rtmp);
       cdpe_sub_eq (fp, ctmp2);
     }
 
@@ -233,91 +225,36 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
       *again = false;
     }
 
-  if (!*again || skip_radius_computation)
-    return;
+  /* We compute the following values in order to give a guaranteed
+   * Newton inclusion circle. */
+  if (*again && !skip_radius_computation)
+    { 
+      rdpe_t new_rad;
+      rdpe_t g_pol, g_fp, g_sumb;
+      rdpe_t rtmp;
+      
+      rdpe_mul_d (g_pol, asum, DBL_EPSILON * MPS_2SQRT2);
+      rdpe_add_eq_d (g_pol, 1.0);
+      rdpe_mul_eq (g_pol, apol);
 
-  /* Computation of radius with Gerschgorin */
-  rdpe_t new_rad;
+      rdpe_mul_d (g_fp, asum2, -DBL_EPSILON * MPS_2SQRT2);
+      rdpe_add_eq_d (g_fp, 1.0);
+      cdpe_mod (rtmp, fp);
+      rdpe_mul_eq (g_fp, rtmp);
 
-  /* Compute radius as n * newt_corr */
-  {
-    rdpe_t theta, ssp, gamma, sigma, ax;
-    rdpe_t fp_mod, pol_mod, sumb_mod, g_corr;
-    cdpe_t cdpe_tmp, ssp_cdpe, cdpe_tmp2;
+      rdpe_mul_d (g_sumb, asumb, DBL_EPSILON * MPS_2SQRT2);
+      rdpe_add_eq_d (g_sumb, 1.0);
+      cdpe_mod (rtmp, sumb);
+      rdpe_mul_eq (g_sumb, rtmp);
 
-    cdpe_mod (ax, x);
-
-    /* Get the modulus of fp and pol */
-    cdpe_mod (fp_mod, fp);
-    cdpe_mod (pol_mod, pol);
-
-    /* Compute theta */
-    rdpe_mul_d (theta, rdpe_one, DBL_EPSILON * s->n + 2 + 2 * sqrt (2));
-    rdpe_mul_eq (theta, fp_mod);
-
-    /* Compute ssp */
-    cdpe_set (cdpe_tmp, fp);
-    cdpe_set (cdpe_tmp2, cdpe_zero);
-    rdpe_set (cdpe_Re (cdpe_tmp2), theta);
-    cdpe_sub_eq (cdpe_tmp, cdpe_tmp2);
-    cdpe_div (ssp_cdpe, pol, cdpe_tmp);
-    cdpe_mod (ssp, ssp_cdpe);
-
-    /* Compute gamma */
-    {
-      rdpe_t tmp;
-      cdpe_t pol_div_fp;
-
-      /* Compute pol/fp */
-      cdpe_div (pol_div_fp, pol, fp);
-      cdpe_sub_eq (pol_div_fp, ssp_cdpe);
-      rdpe_mul_d (gamma, rdpe_one, DBL_EPSILON * s->n + 2 + sqrt (2));
-      rdpe_mul_eq (gamma, ssp);
-      cdpe_mod (tmp, pol_div_fp);
-      rdpe_add_eq (gamma, tmp);
-      rdpe_mul_eq (gamma, pol_mod);
+      rdpe_mul (new_rad, g_pol, g_sumb);
+      rdpe_sub (new_rad, g_fp, new_rad);
+      rdpe_div (new_rad, g_pol, new_rad);
+      rdpe_mul_eq_d (new_rad, s->n);
+      
+      if (*again && rdpe_lt (new_rad, rad) && !(rdpe_lt (g_fp, rdpe_zero) || rdpe_lt (new_rad, rdpe_zero)))
+	rdpe_set (rad, new_rad);
     }
-
-    /* Compute sigma */
-    cdpe_set (cdpe_tmp, sumb);
-    cdpe_mod (sumb_mod, cdpe_tmp);
-    rdpe_mul (sigma, sumb_mod, ssp);
-    rdpe_sub_eq (sigma, gamma);
-    rdpe_add_eq (sigma, rdpe_one);
-
-    /* Compute g_corr */
-    rdpe_div (g_corr, ssp, sigma);
-
-    /* Compute non-guaranteed newton correction */
-    cdpe_set (cdpe_tmp, corr);
-    cdpe_mod (rtmp, cdpe_tmp);
-    rdpe_mul_eq_d (rtmp, s->n);
-
-    /* Radius is s->n * g_corr */
-    rdpe_mul_eq_d (g_corr, s->n);
-    if (rdpe_eq_zero (g_corr))
-      {
-        rdpe_set_2dl (g_corr, 1.0, LONG_MIN);
-      }
-
-    /* Set the radius, if convenient. */
-    if (rdpe_gt (sigma, rdpe_zero))
-      {
-        /* MPS_DEBUG (s, "Setting newton correction");
-           MPS_DEBUG_RDPE (s, sigma, "sigma"); */
-        rdpe_set (new_rad, g_corr);
-
-	rdpe_mul_d (rtmp, ax, DBL_EPSILON);
-	rdpe_add_eq (new_rad, rtmp);
-	
-	cdpe_mod (rtmp, x);
-	rdpe_mul_eq_d (rtmp, 4.0 * DBL_EPSILON);
-	rdpe_add_eq (new_rad, rtmp);
-
-	if (rdpe_lt (new_rad, rad))
-	  rdpe_set (rad, new_rad);
-      }
-  }
 }
 
 void
