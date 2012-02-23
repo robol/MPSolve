@@ -215,6 +215,7 @@ extern "C"
 
   /* functions in mps_interface.c */
   void * mps_malloc (size_t size);
+  void * mps_realloc (void * pointer, size_t size);
   void * mps_alloca (size_t size);
 
   mps_async_handle * mps_mpsolve_async (mps_status * s, mps_callback callback, void * user_data);

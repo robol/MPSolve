@@ -92,8 +92,30 @@ extern "C"
    */
   struct mps_status
   {
-    mps_boolean resume;         /* to complete                         */
-    mps_boolean chkrad;         /* check radii after completion        */
+    /**
+     * @brief true if an error has occurred during the computation.
+     */
+    mps_boolean error_state;
+
+    /**
+     * @brief The text describing the last error occurred.
+     */
+    char * last_error;
+
+    /**
+     * @brief true if we are trying to resume previously interrupted.
+     *
+     * Not yet implemented.
+     */
+    mps_boolean resume;
+
+    /**
+     * @brief True if check of radius should be performed at the end
+     * of the algorithm.
+     *
+     * Only works for algorithm MPS_ALGORITHM_SECULAR_GA.
+     */
+    mps_boolean chkrad;
 
     /**
      * @brief Callback called when the async version of mps_mpsolve(), i.e.
@@ -684,6 +706,9 @@ extern "C"
   mps_input_configuration * mps_status_get_input_config (mps_status * s);
   mps_output_configuration * mps_status_get_output_config (mps_status * s);
 
+  /* Error handling */
+  mps_boolean mps_status_has_errors (mps_status * s);
+  char * mps_status_error_msg (mps_status * s);
 
 
 #ifdef __cplusplus

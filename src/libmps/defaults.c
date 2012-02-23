@@ -156,5 +156,9 @@ mps_set_default_values (mps_status * s)
   s->callback = NULL;
   s->user_data = NULL;
 
+  /* Error handling */
+  s->error_state = false;
+  s->last_error = NULL;
+
   s->over_max = false;
 }

@@ -39,7 +39,10 @@ mps_raise_parsing_error (mps_status * s, mps_input_buffer * buffer,
 			 const char * message)
 {
   if (!token)
-    mps_error (s, 1, message);
+    {
+      mps_error (s, 1, message);
+      return;
+    }
 
   char * output = (char *) mps_malloc (sizeof (char) * (strlen (token) + 256));
   sprintf (output, "Parsing error on line %ld near the token: %s", buffer->line_number, token);
@@ -581,7 +584,10 @@ mps_parse_stream_old (mps_status * s, mps_input_buffer * buffer)
    * that should be the case. */
   token = mps_input_buffer_next_token (buffer);
   if (!token || !sscanf (token, "%3s", data_type))
-    mps_error (s, 1, "Error parsing the input file");
+    {
+      mps_error (s, 1, "Error parsing the input file");
+      return;
+    }
   free (token);
 
   /* Parse data type converting it to the new format */
@@ -1587,25 +1593,44 @@ mps_is_a_tty (FILE * stream)
  *                     SUBROUTINE VAERROR                    *
  *************************************************************/
 void
-mps_error (mps_status * st, int args, ...)
+mps_error (mps_status * s, int args, ...)
 {
   va_list ap;
-  char *s;
+  char *token;
 
-  if (mps_is_a_tty (st->logstr))
-    mps_warn (st, "\033[31;1m!\033[0m MPSolve encountered an error:");  /* output error message */
-  else
-    mps_warn (st, "! MPSolve encountered an error:");
   va_start (ap, args);
   while (args--)
     {
-      s = va_arg (ap, char *);
-      mps_warn (st, s);         /* output error message */
+      token = va_arg (ap, char *);
+
+      if (s->last_error == NULL)
+	{
+	  s->last_error = strdup (token);
+	}
+      else
+	{
+	  s->last_error = mps_realloc (s->last_error, strlen (s->last_error) + strlen (token) + 2);
+	  s->last_error = strcat (s->last_error, "\n");
+	  s->last_error = strcat (s->last_error, token);
+	}
     }
   va_end (ap);
 
+  s->error_state = true;
+
   /* Dump approximations, but only if they are present */
-  if (st->froot && st->lastphase)
-    mps_dump (st);  /* dump status          */
-  exit (EXIT_FAILURE);          /* exit program         */
+  if (s->froot && s->lastphase)
+    mps_dump (s);  /* dump status          */
+  /* exit (EXIT_FAILURE);          /\* exit program         *\/ */
+}
+
+void
+mps_print_errors (mps_status * s)
+{
+  if (mps_is_a_tty (s->logstr))
+    mps_warn (s, "\033[31;1m!\033[0m MPSolve encountered an error:");  /* output error message */
+  else
+    mps_warn (s, "! MPSolve encountered an error:");
+
+  mps_warn (s, s->last_error);
 }

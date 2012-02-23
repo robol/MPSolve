@@ -46,7 +46,7 @@ mps_fradii (mps_status * s, double * fradii)
       mps_secular_fradii (s, fradii);
       break;
     default:
-      mps_error (s, 1, "Unsupported algorithm selected, aborting.");
+      break;
     }
 }
 
@@ -78,7 +78,7 @@ mps_dradii (mps_status * s, rdpe_t * dradii)
       mps_secular_dradii (s, dradii);
       break;
     default:
-      mps_error (s, 1, "Unsupported algorithm selected, aborting.");
+      break;
     }
 }
 
@@ -102,6 +102,6 @@ mps_mradii (mps_status * s, rdpe_t * dradii)
       mps_secular_mradii (s, dradii);
       break;
     default:
-      mps_error (s, 1, "Unsupported algorithm selected, aborting.");
+      break;
     }
 }

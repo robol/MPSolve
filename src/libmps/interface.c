@@ -37,13 +37,17 @@ mps_mpsolve (mps_status * s)
   feenableexcept (FE_INVALID|FE_DIVBYZERO|FE_OVERFLOW); 
 #endif
 
+  if (mps_status_has_errors (s))
+    return;
+
   (*s->mpsolve_ptr) (s);
 }
 
 void*
 mps_caller (mps_status * s)
 {
-  s->mpsolve_ptr (s);
+  if (!mps_status_has_errors (s))
+    s->mpsolve_ptr (s);
 
   /* Call user defined callback if available */
   if (s->callback == NULL)
@@ -84,6 +88,21 @@ mps_malloc (size_t size)
 {
   /* fprintf (stderr, "Allocating %lu bytes of memory\n", size); */
   register void *value = malloc (size);
+  if (value == 0)
+    {
+      fprintf (stderr, "virtual memory exhausted");
+      exit (1);
+    }
+  return value;
+}
+
+/**
+ * @brief Reallocator for memory used in MPSolve.
+ */
+void *
+mps_realloc (void * pointer, size_t size)
+{
+  register void *value = realloc (pointer, size);
   if (value == 0)
     {
       fprintf (stderr, "virtual memory exhausted");

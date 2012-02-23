@@ -21,6 +21,7 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
   double apol, new_rad = 0.0;
   double asum = 0.0, asum_on_apol;
   double asum2 = 0.0, asumb = 0.0;
+  double amplification_coeff;
   mps_secular_iteration_data * data = user_data;
   mps_secular_equation *sec = (mps_secular_equation *) s->secular_equation;
 
@@ -33,6 +34,8 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
 
   for (i = 0; i < sec->n; i++)
     {
+      amplification_coeff = i + 10;
+
       /* Compute z - b_i */
       cplx_sub (ctmp, x, sec->bfpc[i]);
 
@@ -46,7 +49,7 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
 
       /* Compute (z-b_i)^{-1} */
       cplx_inv_eq (ctmp);
-      asumb += cplx_mod (ctmp) * (i + 10);
+      asumb += cplx_mod (ctmp) * amplification_coeff;
 
       /* Compute sum of (z-b_i)^{-1} */
       cplx_add_eq (sumb, ctmp);
@@ -55,14 +58,14 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
       cplx_mul (ctmp2, sec->afpc[i], ctmp);
       
       /* Compute the sum of module of (a_i/(z-b_i)) * (i + 2) */
-      asum += cplx_mod (ctmp2) * (i + 10);
+      asum += cplx_mod (ctmp2) * amplification_coeff;
 
       /* Add a_i / (z - b_i) to pol */
       cplx_add_eq (pol, ctmp2);
 
       /* Compute a_i / (z - b_i)^2a */
       cplx_mul_eq (ctmp2, ctmp);
-      asum2 += cplx_mod (ctmp2) * (i + 10);
+      asum2 += cplx_mod (ctmp2) * amplification_coeff;
 
       /* Add it to fp */
       cplx_sub_eq (fp, ctmp2);
@@ -252,7 +255,7 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
       rdpe_div (new_rad, g_pol, new_rad);
       rdpe_mul_eq_d (new_rad, s->n);
       
-      if (*again && rdpe_lt (new_rad, rad) && !(rdpe_lt (g_fp, rdpe_zero) || rdpe_lt (new_rad, rdpe_zero)))
+      if (*again && rdpe_lt (new_rad, rad) && !(rdpe_le (g_fp, rdpe_zero) || rdpe_le (new_rad, rdpe_zero)))
 	rdpe_set (rad, new_rad);
     }
 }

@@ -457,6 +457,12 @@ main (int argc, char **argv)
         }
     }
 
+  if (mps_status_has_errors (s))
+    {
+      mps_print_errors (s);
+      return EXIT_FAILURE;
+    }
+
   if (argc > 2)
     usage (s, argv[0]);
 
@@ -469,7 +475,8 @@ main (int argc, char **argv)
   if (!infile)
     {
       mps_error (s, 1, "Cannot open input file for read, aborting.");
-      return -1;
+      mps_print_errors (s);
+      return EXIT_FAILURE;
     }
 
   /* Parse the input stream and if a polynomial is given as output, 
@@ -485,6 +492,13 @@ main (int argc, char **argv)
 
   /* Solve the polynomial */
   mps_mpsolve (s);
+
+  /* Check for errors */
+  if (mps_status_has_errors (s))
+    {
+      mps_print_errors (s);
+      return EXIT_FAILURE;
+    }
 
   /* Output the roots */
   mps_output (s);

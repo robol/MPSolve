@@ -65,8 +65,11 @@ mps_standard_mpsolve (mps_status * s)
   s->over_max = false;
 
   /* == 2 ==  Resume from pre-computed roots */
-  if (s->resume)                /* to complete */
-    mps_error (s, 1, "Resume not supported yet");
+  if (s->resume) 
+    {
+      mps_error (s, 1, "Resume not supported yet");
+      return;
+    }
 
   /* == 3 ==  Check data and get starting phase */
   if (s->skip_float)
@@ -93,6 +96,10 @@ mps_standard_mpsolve (mps_status * s)
         /* Otherwise fallback on the standard check_data routine */
         mps_check_data (s, &which_case);
     }
+
+  /* Check for errors in check data */
+  if (mps_status_has_errors (s))
+    return;
 
   if (s->DOLOG)
     fprintf (s->logstr, "Which_case = %c, skip_float= %d\n", which_case,
@@ -247,7 +254,10 @@ exit_sub:
   /* == 9 ==  Check inclusion disks */
   if (computed && s->clusterization->n < s->n)
     if (!mps_inclusion (s))
-      mps_error (s, 1, "Unable to compute inclusion disks");
+      {
+	mps_error (s, 1, "Unable to compute inclusion disks");
+	return;
+      }
 
   /* == 10 ==  Refine roots */
   if (computed && !s->over_max && s->output_config->goal == MPS_OUTPUT_GOAL_APPROXIMATE)

@@ -1,4 +1,5 @@
 #include <mps/mps.h>
+#include <string.h>
 
 long int
 mps_status_get_data_prec_max (mps_status * s)
@@ -544,4 +545,31 @@ mps_boolean
 mps_status_get_over_max (mps_status * s)
 {
   return s->over_max;
+}
+
+/**
+ * @brief Return true if mpsolve has encountered an error
+ * in the computation.
+ *
+ * @param s The <code>mps_status</code> of the current computation.
+ */
+mps_boolean mps_status_has_errors (mps_status * s)
+{
+  return s->error_state;
+}
+
+/**
+ * @brief Return a copy of the string describing the error msg, or
+ * NULL if no error has been encountered. 
+ *
+ * This char array should be freed by the user.
+ *
+ * @param s The <code>mps_status</code> of the current computation.
+ */
+char * mps_status_error_msg (mps_status * s)
+{
+  if (s->last_error)
+    return strdup (s->last_error);
+  else
+    return NULL;
 }

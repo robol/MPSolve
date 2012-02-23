@@ -613,6 +613,7 @@ extern  "C"
   mps_boolean mps_is_a_tty (FILE * stream);
   void mps_warn (mps_status * st, char *s);
   void mps_error (mps_status * st, int args, ...);
+  void mps_print_errors (mps_status * s);
 
 
 
