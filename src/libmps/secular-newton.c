@@ -279,6 +279,8 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
   rdpe_t asum, asum2, asumb, diff;
   rdpe_t asum_eps, asum2_eps, asumb_eps;
 
+  rdpe_t local_error, local_error2;
+
   mpc_t * ampc;
   mpc_t * bmpc;
 
@@ -329,18 +331,27 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
 
       /* Invert x - b_i */
       mpc_inv_eq (ctmp);
+
+      mpc_rmod (local_error, bmpc[i]);
+      rdpe_add_eq (local_error, ax);
+      mpc_rmod (rtmp, ctmp);
+      rdpe_inv (local_error2, rtmp);
+      rdpe_mul_eq (rtmp, rtmp);
+      rdpe_div_eq (local_error, rtmp);
+      rdpe_add_eq (asumb, local_error);
+      rdpe_mul_eq (local_error2, local_error);
       
       /* Computation of the sum of x - b_i */
       mpc_add_eq (sumb, ctmp);
 
       /* Sum the module of (1 / (x - b_i)) to asumb. Will be used later
        * for radius computation */
-      mpc_rmod (rtmp, bmpc[i]);
-      rdpe_add_eq (rtmp, ax);
-      rdpe_div_eq (rtmp, diff);
-      rdpe_add_eq_d (rtmp, (i + 2) + 8);
-      rdpe_div_eq (rtmp, diff);
-      rdpe_add_eq (asumb, rtmp);
+      /* mpc_rmod (rtmp, bmpc[i]); */
+      /* rdpe_add_eq (rtmp, ax); */
+      /* rdpe_div_eq (rtmp, diff); */
+      /* rdpe_add_eq_d (rtmp, (i + 2) + 8); */
+      /* rdpe_div_eq (rtmp, diff); */
+      /* rdpe_add_eq (asumb, rtmp); */
 
       /* Compute a_i / (x - b_i) */
       mpc_mul (ctmp2, ctmp, ampc[i]);
@@ -349,14 +360,20 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
        * that we call pol */
       mpc_add_eq (pol, ctmp2);
 
-      /* Get its module and add it to asum */
-      mpc_rmod (rtmp, bmpc[i]);
-      rdpe_add_eq (rtmp, ax);
-      rdpe_div_eq (rtmp, diff);
-      rdpe_add_eq_d (rtmp, (i + 2) + 8);
-      mpc_rmod (rtmp2, ctmp2);
+      mpc_rmod (rtmp, ctmp2);
+      rdpe_add_eq (rtmp, local_error);
+      mpc_rmod (rtmp2, ampc[i]);
       rdpe_mul_eq (rtmp, rtmp2);
       rdpe_add_eq (asum, rtmp);
+
+      /* Get its module and add it to asum */
+      /* mpc_rmod (rtmp, bmpc[i]); */
+      /* rdpe_add_eq (rtmp, ax); */
+      /* rdpe_div_eq (rtmp, diff); */
+      /* rdpe_add_eq_d (rtmp, (i + 2) + 8); */
+      /* mpc_rmod (rtmp2, ctmp2); */
+      /* rdpe_mul_eq (rtmp, rtmp2); */
+      /* rdpe_add_eq (asum, rtmp); */
 
       /* Computing the derivative S'(x) */
       mpc_mul_eq (ctmp, ctmp2);
@@ -364,11 +381,16 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
 
       /* Add its module at asum2, that will be used later
        * for radius computation */
-      mpc_rmod (rtmp, bmpc[i]);
-      rdpe_add_eq (rtmp, ax);
-      rdpe_div_eq (rtmp, diff);
-      rdpe_add_eq_d (rtmp, (i  + 2) + 8);
-      mpc_rmod (rtmp2, ctmp);
+      /* mpc_rmod (rtmp, bmpc[i]); */
+      /* rdpe_add_eq (rtmp, ax); */
+      /* rdpe_div_eq (rtmp, diff); */
+      /* rdpe_add_eq_d (rtmp, (i  + 2) + 8); */
+      /* mpc_rmod (rtmp2, ctmp); */
+      /* rdpe_mul_eq (rtmp, rtmp2); */
+      /* rdpe_add_eq (asum2, rtmp); */
+
+      mpc_rmod (rtmp, ctmp);
+      rdpe_add_eq (rtmp, local_error2);
       rdpe_mul_eq (rtmp, rtmp2);
       rdpe_add_eq (asum2, rtmp);
     }

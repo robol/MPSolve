@@ -182,6 +182,13 @@ mps_improve (mps_status * s)
       rdpe_div (tmp, s->drad[i], tmp);
       f = -rdpe_log (tmp) / LOG2;
 
+      /* Use a non-optmized upper bound in the case of secular equations */
+      if (s->algorithm == MPS_ALGORITHM_SECULAR_GA)
+	{
+	  g = s->rootwp[i];
+	  f = 0;
+	}
+
       /* evaluate the upper bound m to the number of iterations
        * needed to reach the desired precision */
       m = (int) (log ((mpnb_out - f) / g) / LOG2) + 1;
@@ -256,13 +263,16 @@ mps_improve (mps_status * s)
             rdpe_set (s->drad[i], newrad);
 
 	  /* Disabled because causes problems */
-	  if (rdpe_lt (newrad, s->drad[i]))
-	    rdpe_set (s->drad[i], newrad);
+	  /* if (rdpe_lt (newrad, s->drad[i])) */
+	  /*   rdpe_set (s->drad[i], newrad); */
 	   
 	  if (s->debug_level & MPS_DEBUG_IMPROVEMENT)
 	    MPS_DEBUG_RDPE (s, s->drad[i], "Radius of root %d at iteration %d", i, j);
 	   
-          if (rdpe_lt (s->drad[i], tmp) || (mpnb_in != 0 && s->mpwp >= mpnb_in))
+	  /* Check if the radius that we have obtained until now is good, and if
+	   * we have passed the maximum allowed precision. */
+          if (rdpe_lt (s->drad[i], tmp) || 
+	      (mpnb_in != 0 && s->mpwp >= mpnb_in))
 	    {
 	      if (s->debug_level & MPS_DEBUG_IMPROVEMENT)
 		{
