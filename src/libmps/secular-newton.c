@@ -19,9 +19,9 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
   int i;
   cplx_t ctmp, ctmp2, pol, fp, sumb;
   double apol, new_rad = 0.0;
-  double asum = 0.0, asum_on_apol;
+  double asum = 0.0, asum_on_apol, ax = cplx_mod (x);
   double asum2 = 0.0, asumb = 0.0;
-  double amplification_coeff;
+  double local_error, local_error2;
   mps_secular_iteration_data * data = user_data;
   mps_secular_equation *sec = (mps_secular_equation *) s->secular_equation;
 
@@ -34,8 +34,6 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
 
   for (i = 0; i < sec->n; i++)
     {
-      amplification_coeff = i + 10;
-
       /* Compute z - b_i */
       cplx_sub (ctmp, x, sec->bfpc[i]);
 
@@ -49,7 +47,11 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
 
       /* Compute (z-b_i)^{-1} */
       cplx_inv_eq (ctmp);
-      asumb += cplx_mod (ctmp) * amplification_coeff;
+
+      /* Local error computation */
+      local_error = (ax + cplx_mod (sec->bfpc[i])) / (pow (cplx_mod (ctmp), 2));
+      local_error2 = local_error * cplx_mod (ctmp);
+      asumb += local_error;
 
       /* Compute sum of (z-b_i)^{-1} */
       cplx_add_eq (sumb, ctmp);
@@ -58,14 +60,14 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
       cplx_mul (ctmp2, sec->afpc[i], ctmp);
       
       /* Compute the sum of module of (a_i/(z-b_i)) * (i + 2) */
-      asum += cplx_mod (ctmp2) * amplification_coeff;
+      asum += (local_error + cplx_mod (ctmp2)) * cplx_mod (sec->afpc[i]);
 
       /* Add a_i / (z - b_i) to pol */
       cplx_add_eq (pol, ctmp2);
 
       /* Compute a_i / (z - b_i)^2a */
       cplx_mul_eq (ctmp2, ctmp);
-      asum2 += cplx_mod (ctmp2) * amplification_coeff;
+      asum2 += (local_error2 + cplx_mod (ctmp2)) * cplx_mod (sec->afpc[i]);
 
       /* Add it to fp */
       cplx_sub_eq (fp, ctmp2);
@@ -110,14 +112,17 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
    * Newton inclusion circle. */
   if (*again && !skip_radius_computation)
     { 
-      double g_pol = apol * (1 + DBL_EPSILON * asum * MPS_2SQRT2);
-      double g_fp = cplx_mod (fp) * (1 - DBL_EPSILON * asum2 * MPS_2SQRT2);
-      double g_sumb = cplx_mod (sumb) * (1 + DBL_EPSILON * asumb * MPS_2SQRT2);
+      double g_pol = apol + (DBL_EPSILON * asum * MPS_2SQRT2);
+      double g_fp = cplx_mod (fp) - (DBL_EPSILON * asum2 * MPS_2SQRT2);
+      double g_sumb = cplx_mod (sumb) + (DBL_EPSILON * asumb * MPS_2SQRT2);
 
       new_rad = g_pol / (g_fp - g_pol * g_sumb) * s->n;
 
       if (*again && new_rad < *rad && !(g_fp < 0 || new_rad < 0))
-	*rad = new_rad;
+	{
+	  MPS_DEBUG (s, "Cannot set radius");
+	  *rad = new_rad;
+	}
     }
 }
 
