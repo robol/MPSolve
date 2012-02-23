@@ -74,6 +74,12 @@ mps_secular_ga_find_changed_roots (mps_status * s, cdpe_t * old_b, mpc_t * old_m
 
   mpc_t mdiff;
 
+  /* Hack to disable selective regeneration since it has proved to
+   * be unstable in practice. */
+  for (i = 0; i < s->n; i++)
+    root_changed[i] = true;
+  return root_changed;
+
   /* Distinguish the case where we are in multiprecision phase */
   if (old_mb == NULL)
     rdpe_set_d (root_epsilon, DBL_EPSILON);
