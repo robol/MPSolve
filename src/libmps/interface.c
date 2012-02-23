@@ -91,7 +91,7 @@ mps_malloc (size_t size)
   if (value == 0)
     {
       fprintf (stderr, "virtual memory exhausted");
-      exit (1);
+      abort ();
     }
   return value;
 }
@@ -106,7 +106,7 @@ mps_realloc (void * pointer, size_t size)
   if (value == 0)
     {
       fprintf (stderr, "virtual memory exhausted");
-      exit (1);
+      abort ();
     }
   return value;
 }
