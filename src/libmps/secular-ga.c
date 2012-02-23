@@ -363,7 +363,7 @@ mps_secular_ga_mpsolve (mps_status * s)
 	  if (mps_status_has_errors (s))
 	    return;
 
-	  MPS_DEBUG_WITH_INFO (s, "Check data suggest starting phase should be %s", (which_case == 'f') ? "floating point" : "DPE phase");
+	  MPS_DEBUG_WITH_INFO (s, "Check data suggests starting phase should be %s", (which_case == 'f') ? "floating point" : "DPE phase");
 
 	  if (which_case == 'f')
 	    s->lastphase = float_phase;

@@ -52,6 +52,7 @@ __mps_secular_ga_fiterate_worker (void* data_ptr)
           /* Lock this roots to make sure that we are the only one working on it */
 	  cplx_set (froot, s->froot[i]);
 
+	  /* Increment the number of performed iterations */
 	  (*data->it)++;
 
 	  it_data.k = i;
