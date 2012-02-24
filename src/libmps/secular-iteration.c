@@ -196,9 +196,9 @@ mps_secular_ga_fiterate (mps_status * s, int maxit, mps_boolean just_regenerated
 
   /* Compute the inclusion radii with Gerschgorin so we can compute
    * clusterizations for the roots. */
-  mps_fradii (s, fradii);
-  mps_fcluster (s, fradii, 2.0 * s->n); 
-  mps_fmodify (s, false); 
+  /* mps_fradii (s, fradii); */
+  /* mps_fcluster (s, fradii, 2.0 * s->n);  */
+  /* mps_fmodify (s, false);  */
 
   /* These lines are used to debug the again vector, but are not useful
    * at the moment being */
@@ -405,9 +405,9 @@ mps_secular_ga_diterate (mps_status * s, int maxit, mps_boolean just_regenerated
 
   /* Compute the inclusion radii with Gerschgorin so we can compute
    * clusterizations for the roots. */
-  mps_dradii (s, dradii);
-  mps_dcluster (s, dradii, 2.0 * s->n); 
-  mps_dmodify (s, false); 
+  /* mps_dradii (s, dradii); */
+  /* mps_dcluster (s, dradii, 2.0 * s->n);  */
+  /* mps_dmodify (s, false);  */
 
   /* These lines are used to debug the again vector, but are not useful
    * at the moment being */
@@ -676,9 +676,9 @@ mps_secular_ga_miterate (mps_status * s, int maxit, mps_boolean just_regenerated
 
   /* Compute the inclusion radii with Gerschgorin so we can compute
    * clusterizations for the roots. */
-  mps_mradii (s, dradii);
-  mps_mcluster (s, dradii, 2.0 * s->n); 
-  mps_mmodify (s, false); 
+  /* mps_mradii (s, dradii); */
+  /* mps_mcluster (s, dradii, 2.0 * s->n);  */
+  /* mps_mmodify (s, false);  */
 
   /* These lines are used to debug the again vector, but are not useful
    * at the moment being */
