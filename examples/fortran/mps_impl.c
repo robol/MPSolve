@@ -27,10 +27,9 @@ mps_roots_impl_ (cplx_t * coeff, cplx_t * roots, int *n)
     mps_monomial_poly_set_coefficient_d (s, p, i, cplx_Re (coeff[i]), cplx_Im (coeff[i]));
   mps_status_set_input_poly (s, p);
 
-  /* mps_status_select_algorithm (s, MPS_ALGORITHM_SECULAR_GA); */
-
   /* Set the output precision to DBL_EPSILON and the default goal
-   * to approximate. */
+   * to approximate. Try to find all the possible digits representable 
+   * in floating point. */
   mps_status_set_output_prec (s, 53);
   mps_status_set_output_goal (s, MPS_OUTPUT_GOAL_APPROXIMATE);
 

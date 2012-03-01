@@ -218,8 +218,7 @@ extern "C"
   void * mps_realloc (void * pointer, size_t size);
   void * mps_alloca (size_t size);
 
-  mps_async_handle * mps_mpsolve_async (mps_status * s, mps_callback callback, void * user_data);
-  void mps_mpsolve_wait (mps_status * s, mps_async_handle * handle);
+  void mps_mpsolve_async (mps_status * s, mps_callback callback, void * user_data);
 
   /* Macros to init pointer and/or vectors in a convenient way */
 #define mps_new(type) ((type *) mps_malloc (sizeof (type)))

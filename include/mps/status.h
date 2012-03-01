@@ -103,6 +103,15 @@ extern "C"
     char * last_error;
 
     /**
+     * @brief This value is non NULL if mpsolve is launched via mps_mpsolve_async()
+     * and in that case holds a pointer to the thread pool used to manage
+     * asynchronous callbacks. 
+     *
+     * It will be automatically freed by mps_free_data().
+     */
+    mps_thread_pool * self_thread_pool;
+
+    /**
      * @brief true if we are trying to resume previously interrupted.
      *
      * Not yet implemented.

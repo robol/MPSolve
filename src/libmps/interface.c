@@ -56,7 +56,7 @@ mps_caller (mps_status * s)
     return (*s->callback) (s, s->user_data);
 }
 
-mps_async_handle * 
+void
 mps_mpsolve_async (mps_status * s, mps_callback callback, void * user_data)
 {
 #ifdef MPS_CATCH_FPE
@@ -68,16 +68,8 @@ mps_mpsolve_async (mps_status * s, mps_callback callback, void * user_data)
   s->user_data = user_data;
 
   mps_thread_pool * private_pool = mps_thread_pool_new (s, 1);
+  s->self_thread_pool = private_pool;
   mps_thread_pool_assign (s, private_pool, (mps_thread_work) mps_caller, s);
-  
-  return (mps_async_handle*) private_pool;
-}
-
-void
-mps_mpsolve_wait (mps_status * s, mps_async_handle * handle)
-{
-  mps_thread_pool_wait (s, (mps_thread_pool*) handle);
-  mps_thread_pool_free (s, (mps_thread_pool*) handle);
 }
 
 /**
