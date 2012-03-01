@@ -62,13 +62,20 @@ on_drawing_area_draw (GtkWidget * widget,
     }
 }
 
+gboolean 
+update_drawing_area (void * user_data)
+{
+  gtk_widget_queue_draw (drawing_area);
+  return false;
+}
+
 void
 on_polynomial_solved (mps_status * s, GtkButton * button)
 {
   points = cplx_valloc (mps_status_get_degree (s));
   mps_status_get_roots_d (s, points, NULL);
   degree = mps_status_get_degree (s);
-  gtk_widget_queue_draw (drawing_area);
+  g_idle_add (update_drawing_area, NULL);
   gtk_widget_set_sensitive (GTK_WIDGET (button), true);
   mps_free_data (s);
 }
