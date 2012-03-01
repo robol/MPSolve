@@ -104,7 +104,6 @@ mps_secular_ga_fiterate (mps_status * s, int maxit, mps_boolean just_regenerated
   int i;
   int nit = 0;
   int it_threshold;
-  double * fradii = double_valloc (s->n);
 
 #ifndef DISABLE_DEBUG
   clock_t *my_clock = mps_start_timer ();
@@ -220,7 +219,6 @@ mps_secular_ga_fiterate (mps_status * s, int maxit, mps_boolean just_regenerated
   s->fp_iteration_time += mps_stop_timer (my_clock);
 #endif
 
-  free (fradii);
   mps_thread_job_queue_free (queue);
   free (data);
   free (roots_mutex);
@@ -314,7 +312,6 @@ mps_secular_ga_diterate (mps_status * s, int maxit, mps_boolean just_regenerated
   int i;
   int nit = 0;
   int it_threshold;
-  rdpe_t * dradii = rdpe_valloc (s->n);
 
   s->operation = MPS_OPERATION_ABERTH_DPE_ITERATIONS;
 
@@ -425,8 +422,6 @@ mps_secular_ga_diterate (mps_status * s, int maxit, mps_boolean just_regenerated
 #ifndef DISABLE_DEBUG
   s->dpe_iteration_time += mps_stop_timer (my_clock);
 #endif
-
-  rdpe_vfree (dradii);
 
   mps_thread_job_queue_free (queue);
   free (aberth_mutex);
@@ -582,7 +577,6 @@ mps_secular_ga_miterate (mps_status * s, int maxit, mps_boolean just_regenerated
   int i;
   int nit = 0;
   int it_threshold;
-  rdpe_t * dradii = rdpe_valloc (s->n);
 
   s->operation = MPS_OPERATION_ABERTH_MP_ITERATIONS;
 
@@ -702,8 +696,6 @@ mps_secular_ga_miterate (mps_status * s, int maxit, mps_boolean just_regenerated
   free (roots_mutex);
 
   free (data);
-
-  rdpe_vfree (dradii);
 
   /* Return the number of approximated roots */
   return computed_roots;

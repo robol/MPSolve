@@ -10,9 +10,29 @@
 #define MPS_TEST_SECSOLVE_SECULAR   1
 #define MPS_TEST_SECSOLVE_GA        2
 
-#define TEST_UNISOLVE(pol_name) (test_mpsolve (get_pol_file (pol_name, "unisolve"), get_res_file (pol_name, "unisolve"), MPS_ALGORITHM_STANDARD_MPSOLVE))
-#define TEST_SECSOLVE_SECULAR(pol_name) (test_mpsolve (get_pol_file (pol_name, "secsolve"), get_res_file (pol_name, "secsolve"), MPS_ALGORITHM_SECULAR_MPSOLVE))
-#define TEST_SECSOLVE_MONOMIAL(pol_name) (test_mpsolve (get_pol_file (pol_name, "unisolve"), get_res_file (pol_name, "unisolve"), MPS_ALGORITHM_SECULAR_GA))
+#define TEST_UNISOLVE(pol_name) {\
+  char * pol_file = get_pol_file (pol_name, "unisolve"); \
+  char * res_file = get_res_file (pol_name, "unisolve"); \
+  test_mpsolve (pol_file, res_file, MPS_ALGORITHM_STANDARD_MPSOLVE);	\
+  free (pol_file); \
+  free (res_file); \
+  }
+
+#define TEST_SECSOLVE_SECULAR(pol_name) {\
+  char * pol_file = get_pol_file (pol_name, "secsolve"); \
+  char * res_file = get_res_file (pol_name, "secsolve"); \
+  test_mpsolve (pol_file, res_file, MPS_ALGORITHM_SECULAR_MPSOLVE);	\
+  free (pol_file); \
+  free (res_file); \
+  }
+
+#define TEST_SECSOLVE_MONOMIAL(pol_name) {\
+  char * pol_file = get_pol_file (pol_name, "unisolve"); \
+  char * res_file = get_res_file (pol_name, "unisolve"); \
+  test_mpsolve (pol_file, res_file, MPS_ALGORITHM_SECULAR_GA);	\
+  free (pol_file); \
+  free (res_file); \
+  }
 
 static mps_boolean debug = false;
 
