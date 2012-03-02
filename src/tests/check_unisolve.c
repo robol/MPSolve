@@ -211,11 +211,10 @@ main (void)
 
   starting_setup ();
 
-  test_polynomials = (test_pol **) malloc (sizeof (test_pol *) * 2 * 32);
+  test_polynomials = (test_pol **) malloc (sizeof (test_pol *) * 2 * 30);
 
   for (i = 0; i < 2; i++)
     {
-      test_polynomials[n++] = test_pol_new_simple ("spiral20", digits[i]);
       test_polynomials[n++] = test_pol_new_simple ("exp100", digits[i]);
       test_polynomials[n++] = test_pol_new_simple ("exp50", digits[i]);
       test_polynomials[n++] = test_pol_new_simple ("kam1_1", digits[i]);
@@ -227,7 +226,6 @@ main (void)
       test_polynomials[n++] = test_pol_new_simple ("kam3_1", digits[i]);
       test_polynomials[n++] = test_pol_new_simple ("kam3_2", digits[i]);
       test_polynomials[n++] = test_pol_new_simple ("kam3_3", digits[i]);
-      test_polynomials[n++] = test_pol_new_simple ("kam4", digits[i]);
       test_polynomials[n++] = test_pol_new_simple ("kir1_10", digits[i]);
       test_polynomials[n++] = test_pol_new_simple ("lar1_200", digits[i]);
       test_polynomials[n++] = test_pol_new_simple ("lar1", digits[i]);

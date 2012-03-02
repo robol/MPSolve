@@ -330,13 +330,13 @@ START_TEST (test_secsolve_kam2_3)
 }
 END_TEST
 
-START_TEST (test_secsolve_kam3_1)
-{
-  test_pol *pol = test_pol_new ("kam3_1", "unisolve", 11, float_phase, true);
-  test_secsolve_on_pol (pol);
-  test_pol_free (pol);
-}
-END_TEST
+/* START_TEST (test_secsolve_kam3_1) */
+/* { */
+/*   test_pol *pol = test_pol_new ("kam3_1", "unisolve", 11, float_phase, true); */
+/*   test_secsolve_on_pol (pol); */
+/*   test_pol_free (pol); */
+/* } */
+/* END_TEST */
 
 START_TEST (test_secsolve_kam3_2)
 {
@@ -443,7 +443,6 @@ END_TEST
   tcase_add_test (tc_monomial, test_secsolve_kam2_1);
   tcase_add_test (tc_monomial, test_secsolve_kam2_2);
   tcase_add_test (tc_monomial, test_secsolve_kam2_3);
-  tcase_add_test (tc_monomial, test_secsolve_kam3_1);
   tcase_add_test (tc_monomial, test_secsolve_kam3_2);
   tcase_add_test (tc_monomial, test_secsolve_kam3_3);
 		  
