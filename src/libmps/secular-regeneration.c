@@ -31,8 +31,8 @@ mps_secular_ga_update_root_wp (mps_status * s, int i, long int wp)
   for (j = 0; j < s->n; j++)
     {
       pthread_mutex_lock (&sec->bmpc_mutex[j]);
-      if (mpc_get_prec (sec->bmpc[j]) < s->rootwp[i])  
-	mpc_set_prec (sec->bmpc[j], s->rootwp[i]);  
+      if (mpc_get_prec (sec->bmpc[j]) < s->rootwp[i])
+	mpc_set_prec (sec->bmpc[j], s->rootwp[i]);
       pthread_mutex_unlock (&sec->bmpc_mutex[j]);
     }
   
@@ -214,7 +214,7 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
    *   a_i = -p(b_i) / \prod_{i \neq j} (b_i - b_j)
    *
    */
-  if (root_changed[i])
+  if (root_changed[i] || true)
     {
       rdpe_t relative_error, rtmp;
       cdpe_t cpol;
@@ -238,11 +238,11 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
       if (s->debug_level & MPS_DEBUG_REGENERATION)
 	MPS_DEBUG_RDPE (s, relative_error, "Relative_error on p(b_%d) evaluation", i);
 
-      mpc_get_cdpe (cpol, sec->bmpc[i]);
-      cdpe_mod (rtmp, cpol);
-      rdpe_mul_eq (rtmp, root_epsilon);
+      /* mpc_get_cdpe (cpol, sec->bmpc[i]);  */
+      /* cdpe_mod (rtmp, cpol);  */
+      /* rdpe_mul_eq (rtmp, root_epsilon);  */
 
-      while (rdpe_gt (relative_error, root_epsilon) && !rdpe_lt (relative_error, rtmp) && (s->rootwp[i] < s->n * s->mpwp))
+      while (rdpe_gt (relative_error, root_epsilon) && (s->rootwp[i] < s->n * s->mpwp))
 	{
 	  /* Update the working precision of the selected root with a realistic estimate of the
 	   * required precision to get a result exact to machine precision */
@@ -260,27 +260,15 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
 	      MPS_DEBUG_MPC (s, mpc_get_prec (sec->ampc[i]), sec->ampc[i], "p(b_%d)", i);
 	    }
 
-	  mpc_get_cdpe (cpol, sec->bmpc[i]);
+	  mpc_get_cdpe (cpol, sec->ampc[i]);
 	  cdpe_mod (rtmp, cpol);
-	  rdpe_mul_eq (rtmp, root_epsilon);
-
-	  /* if (!rdpe_lt (relative_error, rtmp)) */
-	  /*   { */
-	      mpc_get_cdpe (cpol, sec->ampc[i]);
-	      cdpe_mod (rtmp, cpol);
-	      rdpe_div_eq (relative_error, rtmp);
+	  rdpe_div_eq (relative_error, rtmp);
 	      
-	      if (s->debug_level & MPS_DEBUG_REGENERATION)
-		{
-		  MPS_DEBUG_RDPE (s, relative_error, "Relative_error on p(b_%d) evaluation", i);
-		}
-	    /* } */
+	  if (s->debug_level & MPS_DEBUG_REGENERATION)
+	    {
+	      MPS_DEBUG_RDPE (s, relative_error, "Relative_error on p(b_%d) evaluation", i);
+	    }
 	}
-
-      /* mps_secular_ga_update_root_wp (s, i, 10000 * s->mpwp); */
-      /* pthread_mutex_lock (&sec->bmpc_mutex[i]); */
-      /* mps_mhorner_with_error2 (s, p, sec->bmpc[i], sec->ampc[i], relative_error, s->rootwp[i]); */
-      /* pthread_mutex_unlock (&sec->bmpc_mutex[i]); */
 
       if (mpc_get_prec (mdiff) < s->rootwp[i])
 	{
@@ -436,9 +424,9 @@ mps_secular_ga_regenerate_coefficients_monomial (mps_status * s, cdpe_t * old_b,
       data[i].root_changed = root_changed;
       data[i].s = s;
       data[i].success = &success;
-      mps_thread_pool_assign (s, s->pool, __mps_secular_ga_regenerate_coefficients_monomial_worker,  
-			      data + i);    
-      /* __mps_secular_ga_regenerate_coefficients_monomial_worker (data + i); */
+      mps_thread_pool_assign (s, s->pool, __mps_secular_ga_regenerate_coefficients_monomial_worker,   
+       			      data + i);     
+      /* __mps_secular_ga_regenerate_coefficients_monomial_worker (data + i);  */
     }
 
   mps_thread_pool_wait (s, s->pool);

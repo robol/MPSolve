@@ -234,6 +234,30 @@ extern "C"
      * equation.
      */
     mpc_t * local_bmpc;
+
+    /**
+     * @brief Thread local copy of the floating point coefficients of the secular
+     * equation.
+     */
+    cplx_t * local_afpc;
+
+    /**
+     * @brief Thread local copy of the floating point coefficients of the secular
+     * equation.
+     */
+    cplx_t * local_bfpc;
+
+    /**
+     * @brief Thread local copy of the CDPE coefficients of the secular
+     * equation.
+     */
+    cdpe_t * local_adpc;
+
+    /**
+     * @brief Thread local copy of the CDPE coefficients of the secular
+     * equation.
+     */
+    cdpe_t * local_bdpc;
   };
 
 #endif /* #ifdef _MPS_PRIVATE */    

@@ -187,11 +187,15 @@ mps_improve (mps_status * s)
 	{
 	  g = s->rootwp[i];
 	  f = 0;
-	}
 
-      /* evaluate the upper bound m to the number of iterations
-       * needed to reach the desired precision */
-      m = (int) (log ((mpnb_out - f) / g) / LOG2) + 1;
+	  m = s->mpwp_max;
+	}
+      else
+	{
+	  /* evaluate the upper bound m to the number of iterations
+	   * needed to reach the desired precision */
+	  m = (int) (log ((mpnb_out - f) / g) / LOG2) + 1;
+	}
 
       MPS_DEBUG (s, "A maximum of %d iterations will be performed to improve root %d", m, i);
 
@@ -263,8 +267,8 @@ mps_improve (mps_status * s)
             rdpe_set (s->drad[i], newrad);
 
 	  /* Disabled because causes problems */
-	  /* if (rdpe_lt (newrad, s->drad[i])) */
-	  /*   rdpe_set (s->drad[i], newrad); */
+	  /* if (rdpe_lt (newrad, s->drad[i]))  */
+	  /*   rdpe_set (s->drad[i], newrad);  */
 	   
 	  if (s->debug_level & MPS_DEBUG_IMPROVEMENT)
 	    MPS_DEBUG_RDPE (s, s->drad[i], "Radius of root %d at iteration %d", i, j);
@@ -276,7 +280,7 @@ mps_improve (mps_status * s)
 	    {
 	      if (s->debug_level & MPS_DEBUG_IMPROVEMENT)
 		{
-		  if (s->mpwp >= mpnb_in)
+		  if (s->mpwp >= mpnb_in && mpnb_in != 0)
 		    {
 		      MPS_DEBUG (s, "Stopping newton iterations on root %d because we have reached input precision", i);
 		    }

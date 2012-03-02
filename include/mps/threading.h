@@ -123,13 +123,13 @@ extern "C"
      * @brief Pointer to the integer that holds the number of zeros
      *  computed until now.
      */
-    int *nzeros;
+    volatile int *nzeros;
 
     /**
      * @brief Pointer to the integer that holds the number of iterations
      *  performed until now.
      */
-    int *it;
+    volatile int *it;
 
     /**
      * @brief  The pointer to the <code>mps_status</code> struct.
@@ -153,7 +153,7 @@ extern "C"
      *  If this state is reached all threads returns because no more
      *  iteration are needed / useful.
      */
-    mps_boolean *excep;
+    volatile mps_boolean *excep;
 
     /**
      * @brief Array of <code>n</code> mutexes where <code>n = s->n</code>, i.e.

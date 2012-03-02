@@ -903,6 +903,11 @@ mps_mcluster (mps_status * s, rdpe_t * drad, int nf)
       MPS_DEBUG (s, "Debugging cluster structure after cluster analysis");
       mps_debug_cluster_structure (s);
     }
+
+  if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
+    {
+      mps_dump (s);
+    }
 }
 
 

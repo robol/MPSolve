@@ -51,11 +51,16 @@ on_drawing_area_draw (GtkWidget * widget,
       double x, y;
       cairo_set_source_rgb (cr, 0.9, 0.1, 0.1);
 #define PADDING (24)
+
+      /* Check if we can draw in here. */
+      if (width < 2 * PADDING || height < 2 * PADDING)
+	return;
+
       for (i = 0; i < degree; i++)
 	{
 	  x = cplx_Re (points[i]) * (0.5 * width - PADDING) + width / 2;
 	  y = -cplx_Im (points[i]) * (0.5 * height - PADDING) + height / 2;
-	  cairo_arc (cr, x, y, 2, 0, 6.29);
+	  cairo_arc (cr, x, y, 1.3, 0, 6.29);
 	  cairo_fill (cr);
 	}
 #undef PADDING
@@ -75,7 +80,10 @@ on_polynomial_solved (mps_status * s, GtkButton * button)
   points = cplx_valloc (mps_status_get_degree (s));
   mps_status_get_roots_d (s, points, NULL);
   degree = mps_status_get_degree (s);
+
+  /* Call the update function from the right thread! */
   g_idle_add (update_drawing_area, NULL);
+
   gtk_widget_set_sensitive (GTK_WIDGET (button), true);
   mps_free_data (s);
 }
@@ -87,8 +95,14 @@ on_solve_button_clicked (GtkButton * button, GtkSpinButton * spin_button)
   mps_status * s = mps_status_new ();
   mps_monomial_poly * p = mps_monomial_poly_new (s, degree);
 
-  cplx_vfree (points);
-  points = NULL;
+  /* Please note that here a mutex will be required to avoid
+   * freeing data while it's used to render the view. But it
+   * is not added in this example to avoid complications. */
+  if (points)
+    {
+      cplx_vfree (points);
+      points = NULL;
+    }
 
   gtk_widget_set_sensitive (GTK_WIDGET (button), false);
 
@@ -126,7 +140,7 @@ main (int argc, char *argv[])
 
   GtkWidget * main_box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 6);
   gtk_box_pack_start (GTK_BOX (main_box), GTK_WIDGET (degree_box), false, true, 6);
-  gtk_box_pack_start (GTK_BOX (main_box), GTK_WIDGET (drawing_area), true, true, 6);
+  gtk_box_pack_start (GTK_BOX (main_box), GTK_WIDGET (drawing_area), true, true, 0);
 
   gtk_container_add (GTK_CONTAINER (window), GTK_WIDGET (main_box));
   gtk_widget_show_all (GTK_WIDGET (window));

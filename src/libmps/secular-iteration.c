@@ -27,36 +27,52 @@ __mps_secular_ga_fiterate_worker (void* data_ptr)
 {
   mps_thread_worker_data *data = (mps_thread_worker_data *) data_ptr;
   mps_status *s = data->s;
-  /* mps_secular_equation *sec = s->secular_equation; */
+  mps_secular_equation *sec = s->secular_equation;
   int i;
-  cplx_t corr, abcorr, froot;
+  cplx_t corr, abcorr;
   double modcorr;
   mps_thread_job job;
 
   mps_secular_iteration_data it_data;
+
+  it_data.local_afpc = cplx_valloc (s->n);
+  it_data.local_bfpc = cplx_valloc (s->n);
+  for (i = 0; i < s->n; i++)
+    {
+      cplx_set (it_data.local_afpc[i], sec->afpc[i]);
+      cplx_set (it_data.local_bfpc[i], sec->bfpc[i]);
+    }
 
   while ((*data->nzeros < s->n))
     {
       job = mps_thread_job_queue_next (s, data->queue);
       i = job.i;
 
-      if (job.iter == MPS_THREAD_JOB_EXCEP)
-        {
-          return NULL;
-        }
+      if (job.iter == MPS_THREAD_JOB_EXCEP || *data->nzeros >= s->n)
+	goto cleanup;
 
       pthread_mutex_lock (&data->roots_mutex[i]);
 
+      if (job.iter == MPS_THREAD_JOB_EXCEP || *data->nzeros >= s->n)
+	{
+	  pthread_mutex_unlock (&data->roots_mutex[i]);
+	  goto cleanup;
+	}
+
       if (s->again[i])
 	{
-          /* Lock this roots to make sure that we are the only one working on it */
-	  cplx_set (froot, s->froot[i]);
-
 	  /* Increment the number of performed iterations */
+#if defined(__GCC__)
+	  __sync_add_and_fetch (data->it, 1);
+#else
+	  pthread_mutex_lock (data->gs_mutex);
 	  (*data->it)++;
+	  pthread_mutex_unlock (data->gs_mutex);
+#endif
 
 	  it_data.k = i;
-	  mps_secular_fnewton (s, froot, &s->frad[i], corr,
+	  it_data.gs_mutex = data->gs_mutex;
+	  mps_secular_fnewton (s, s->froot[i], &s->frad[i], corr,
 			       &s->again[i], &it_data, false);
 
 	  /* Apply Aberth correction */
@@ -64,7 +80,10 @@ __mps_secular_ga_fiterate_worker (void* data_ptr)
 	  cplx_mul_eq (abcorr, corr);
 	  cplx_sub (abcorr, cplx_one, abcorr);
 	  cplx_div (abcorr, corr, abcorr);
-	  cplx_sub_eq (froot, abcorr);
+
+	  pthread_mutex_lock (&data->aberth_mutex[i]);
+	  cplx_sub_eq (s->froot[i], abcorr);
+	  pthread_mutex_unlock (&data->aberth_mutex[i]);
 
 	  /* Correct the radius */
 	  modcorr = cplx_mod (abcorr);
@@ -74,13 +93,24 @@ __mps_secular_ga_fiterate_worker (void* data_ptr)
 	    {
 	      if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
 		MPS_DEBUG (s, "Root %d again was set to false on iteration %d by thread %d", i, *data->it, data->thread);
+
+#if defined( __GCC__)
+	      __sync_add_and_fetch (data->nzeros, 1);
+#else
+	      pthread_mutex_lock (data->gs_mutex);
 	      (*data->nzeros)++;
+	      pthread_mutex_unlock (data->gs_mutex);
+#endif
 	    }
-	  cplx_set (s->froot[i], froot);
 	}
 
       pthread_mutex_unlock (&data->roots_mutex[i]);
     }
+
+ cleanup:
+
+  cplx_vfree (it_data.local_afpc);
+  cplx_vfree (it_data.local_bfpc);
 
   return NULL;
 }
@@ -118,6 +148,8 @@ mps_secular_ga_fiterate (mps_status * s, int maxit, mps_boolean just_regenerated
     (pthread_mutex_t *) mps_malloc (sizeof (pthread_mutex_t) * s->n);
   pthread_mutex_t *roots_mutex =
     (pthread_mutex_t *) mps_malloc (sizeof (pthread_mutex_t) * s->n);
+
+  pthread_mutex_t gs_mutex = PTHREAD_MUTEX_INITIALIZER;
 
   for (i = 0; i < s->n; i++)
     {
@@ -170,6 +202,7 @@ mps_secular_ga_fiterate (mps_status * s, int maxit, mps_boolean just_regenerated
       data[i].aberth_mutex = aberth_mutex;
       data[i].roots_mutex = roots_mutex;
       data[i].queue = queue;
+      data[i].gs_mutex = &gs_mutex;
 
        mps_thread_pool_assign (s, s->pool, __mps_secular_ga_fiterate_worker, data + i); 
       /* __mps_secular_ga_fiterate_worker (data + i); */

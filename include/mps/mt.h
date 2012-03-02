@@ -43,11 +43,11 @@ extern "C"
 
 /* macros for fields access */
 
-#define cplx_Val(X)       (*X)
-#define cplx_Re(X)        (X -> r)
-#define cplx_Im(X)        (X -> i)
-#define cplx_Addr(X)      ((__cplx_struct *) X)
-#define cplx_Move(X1, X2) (*X1 = *X2)
+#define cplx_Val(X)       (*(X))
+#define cplx_Re(X)        ((X)->r)
+#define cplx_Im(X)        ((X)->i)
+#define cplx_Addr(X)      ((__cplx_struct *) (X))
+#define cplx_Move(X1, X2) (*(X1) = *(X2))
 
 /* base constants */
   extern const cplx_t cplx_zero;        /* complex zero  (0, 0)    */
