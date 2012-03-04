@@ -182,20 +182,9 @@ mps_improve (mps_status * s)
       rdpe_div (tmp, s->drad[i], tmp);
       f = -rdpe_log (tmp) / LOG2;
 
-      /* Use a non-optmized upper bound in the case of secular equations */
-      if (s->algorithm == MPS_ALGORITHM_SECULAR_GA)
-	{
-	  g = s->rootwp[i];
-	  f = 0;
-
-	  m = s->mpwp_max;
-	}
-      else
-	{
-	  /* evaluate the upper bound m to the number of iterations
-	   * needed to reach the desired precision */
-	  m = (int) (log ((mpnb_out - f) / g) / LOG2) + 1;
-	}
+      /* evaluate the upper bound m to the number of iterations
+       * needed to reach the desired precision */
+      m = (int) (log ((mpnb_out - f) / g) / LOG2) + 1;
 
       MPS_DEBUG (s, "A maximum of %d iterations will be performed to improve root %d", m, i);
 
@@ -216,7 +205,7 @@ mps_improve (mps_status * s)
 	  /* } */
 
 	  /* Round it to 64 integers */
-          s->mpwp = (long) (f + g + cnd) + 63;
+	  s->mpwp = (long) (f + g + cnd);
 
           if (s->mpwp > mpnb_in && mpnb_in != 0)
 	    {
@@ -236,6 +225,7 @@ mps_improve (mps_status * s)
 	   * mps_prepare_data routine, otherwise use the one that
 	   * raises the precision of the coefficients */
 	  mps_prepare_data (s, s->mpwp);
+
           if (MPS_INPUT_CONFIG_IS_SECULAR (s->input_config))
 	    mps_secular_raise_coefficient_precision (s, s->mpwp);
 
@@ -263,12 +253,16 @@ mps_improve (mps_status * s)
           rdpe_mul_eq (newrad, tmp);
           rdpe_mul_eq (tmp, s->eps_out);
 
-          if (rdpe_eq (s->drad[i], rdpe_zero))
-            rdpe_set (s->drad[i], newrad);
+          /* if (rdpe_eq (s->drad[i], rdpe_zero)) */
+          /*   rdpe_set (s->drad[i], newrad); */
 
 	  /* Disabled because causes problems */
-	  /* if (rdpe_lt (newrad, s->drad[i]))   */
-	  /*   rdpe_set (s->drad[i], newrad);   */
+	  if (rdpe_lt (newrad, s->drad[i]))   
+	    rdpe_set (s->drad[i], newrad);   
+	   
+	  mpc_rmod (tmp, s->mroot[i]);
+	  rdpe_mul_eq (tmp, s->mp_epsilon);
+	  rdpe_add_eq (s->drad[i], tmp);
 	   
 	  if (s->debug_level & MPS_DEBUG_IMPROVEMENT)
 	    MPS_DEBUG_RDPE (s, s->drad[i], "Radius of root %d at iteration %d", i, j);
@@ -302,8 +296,8 @@ mps_improve (mps_status * s)
       /* } */
 
 
-      /* update the record working precision for root i */
-      s->rootwp[i] = mpc_get_prec (s->mroot[i]);
+      /* /\* update the record working precision for root i *\/ */
+      /* s->rootwp[i] = mpc_get_prec (s->mroot[i]); */
     }
 
   mpc_clear (nwtcorr);

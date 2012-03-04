@@ -547,9 +547,7 @@ mps_mnewton (mps_status * s, int n, mpc_t z, rdpe_t radius, mpc_t corr,
     rdpe_mul_d (radius, rnew, (double) n);
   else
     {
-      rdpe_mul_eq_d (rnew, (double) (n + 1));
-      if (rdpe_lt (rnew, radius))
-	rdpe_set (radius, rnew);
+      rdpe_mul_d (radius, rnew, (double) (n + 1));
     }
 
 exit_sub:
