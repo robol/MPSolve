@@ -274,18 +274,21 @@ mps_prepare_data (mps_status * s, long int prec)
   if (s->debug_level & MPS_DEBUG_MEMORY)
     MPS_DEBUG (s, "Increasing working precision to %ld bits", prec);
 
-
   MPS_LOCK (s->data_prec_max);
 
   if (prec > s->data_prec_max.value)
     {
 	s->data_prec_max.value = mps_raise_data (s, prec);
     }
-
-  if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
-    mps_raise_data_raw (s, prec);
-  else
-    mps_secular_raise_precision (s, prec);
+  else 
+    {
+      if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
+	{
+	  mps_monomial_poly_raise_precision (s, s->monomial_poly, prec);
+	}
+      else
+	mps_secular_raise_precision (s, prec);
+    }
 
   MPS_UNLOCK (s->data_prec_max);
 }
