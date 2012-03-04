@@ -253,17 +253,18 @@ mps_improve (mps_status * s)
           rdpe_mul_eq (newrad, tmp);
           rdpe_mul_eq (tmp, s->eps_out);
 
-          /* if (rdpe_eq (s->drad[i], rdpe_zero)) */
-          /*   rdpe_set (s->drad[i], newrad); */
+	  if (rdpe_eq (s->drad[i], rdpe_zero)) 
+	    rdpe_set (s->drad[i], newrad); 
 
 	  /* Disabled because causes problems */
-	  if (rdpe_lt (newrad, s->drad[i]))   
-	    rdpe_set (s->drad[i], newrad);   
+	  /* if (rdpe_lt (newrad, s->drad[i]))    */
+	  /*   rdpe_set (s->drad[i], newrad);    */
 	   
 	  mpc_rmod (tmp, s->mroot[i]);
 	  rdpe_mul_eq (tmp, s->mp_epsilon);
+	  rdpe_mul_eq_d (tmp, 4.0);
 	  rdpe_add_eq (s->drad[i], tmp);
-	   
+	  
 	  if (s->debug_level & MPS_DEBUG_IMPROVEMENT)
 	    MPS_DEBUG_RDPE (s, s->drad[i], "Radius of root %d at iteration %d", i, j);
 	   
@@ -286,18 +287,6 @@ mps_improve (mps_status * s)
 	      break;
 	    }
         }
-
-      /* { */
-      /* 	rdpe_t rtmp; */
-      /* 	mpc_rmod (rtmp, s->mroot[i]); */
-      /* 	int correct_digits = -rdpe_log (s->drad[i]) - rdpe_log (rtmp); */
-      /* 	MPS_DEBUG_RDPE (s, s->drad[i], "s->drad[%d]", i); */
-      /* 	MPS_DEBUG_MPC (s, correct_digits, s->mroot[i], "mroot_%d", i); */
-      /* } */
-
-
-      /* /\* update the record working precision for root i *\/ */
-      /* s->rootwp[i] = mpc_get_prec (s->mroot[i]); */
     }
 
   mpc_clear (nwtcorr);

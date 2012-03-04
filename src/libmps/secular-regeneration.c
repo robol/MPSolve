@@ -214,7 +214,7 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
    *   a_i = -p(b_i) / \prod_{i \neq j} (b_i - b_j)
    *
    */
-  if (root_changed[i] || true)
+  if (root_changed[i])
     {
       rdpe_t relative_error, rtmp;
       cdpe_t cpol;

@@ -266,7 +266,7 @@ mps_raise_data_raw (mps_status * s, long int prec)
  * @param prec The precision that should be set and to which the data should
  * be adjusted.
  */
-void
+void 
 mps_prepare_data (mps_status * s, long int prec)
 {
   MPS_DEBUG_THIS_CALL;
@@ -277,26 +277,16 @@ mps_prepare_data (mps_status * s, long int prec)
 
   MPS_LOCK (s->data_prec_max);
 
-  if (s->algorithm == MPS_ALGORITHM_SECULAR_GA)
-    {
-      int new_prec = mps_raise_data (s, prec);
-      if (prec > s->data_prec_max.value)
-	s->data_prec_max.value = new_prec;
-    }
-  else if (prec > s->data_prec_max.value)
+  if (prec > s->data_prec_max.value)
     {
 	s->data_prec_max.value = mps_raise_data (s, prec);
     }
+
+  if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
+    mps_raise_data_raw (s, prec);
   else
-    {
-      /* Check if the algorithm is Standard MPSolve or the secular
-       * equation version */
-      /* if (s->mpsolve_ptr == MPS_MPSOLVE_PTR (mps_standard_mpsolve)) */
-      if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
-        mps_raise_data_raw (s, prec);
-      else
-        mps_secular_raise_precision (s, prec);
-    }
+    mps_secular_raise_precision (s, prec);
+
   MPS_UNLOCK (s->data_prec_max);
 }
 

@@ -611,7 +611,7 @@ mps_secular_ga_mpsolve (mps_status * s)
     }
 
   /* if (s->lastphase == mp_phase) */
-  mps_restore_data (s); 
+  mps_restore_data (s);  
 
   /* Finally copy the roots ready for output */
   /* mps_copy_roots (s); */
