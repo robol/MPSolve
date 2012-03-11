@@ -405,7 +405,7 @@ void
 mps_fsolve (mps_status * s, mps_boolean * d_after_f)
 {
   mps_boolean excep;
-  int it_pack, iter, nit, oldnclust, i, j;
+  int it_pack, iter, nit, oldnclust, i, j, required_zeros = s->n;
   rdpe_t eps_out;
   mps_monomial_poly *p = s->monomial_poly;
   double * frad = double_valloc (s->n);
@@ -464,7 +464,7 @@ mps_fsolve (mps_status * s, mps_boolean * d_after_f)
     {                           /* floop: */
 
        /* mps_fpolzer(s, &nit, &excep);   */
-      mps_thread_fpolzer (s, &nit, &excep);
+      mps_thread_fpolzer (s, &nit, &excep, required_zeros--);
       it_pack += nit;
 
       if (s->DOLOG)
@@ -481,12 +481,13 @@ mps_fsolve (mps_status * s, mps_boolean * d_after_f)
             fprintf (s->logstr, "   FSOLVE: call fcluster\n");
           /* cluster analysis */
 
-
-
 	  /* Compute the inclusion radii with Gerschgorin so we can compute
 	   * clusterizations for the roots. */
 	  mps_fradii (s, frad);
           mps_fcluster (s, frad, 2 * s->n);   /* Isolation factor */
+
+	  MPS_DEBUG (s, "oldncluster = %d, ncluster = %ld", oldnclust, s->clusterization->n);
+
           if (oldnclust == s->clusterization->n)
             {
               if (s->DOLOG)
@@ -791,7 +792,7 @@ mps_dpolzer (mps_status * s, int *it, mps_boolean * excep)
 void
 mps_dsolve (mps_status * s, mps_boolean d_after_f)
 {
-  int it_pack, iter, nit, oldnclust, i, j;
+  int it_pack, iter, nit, oldnclust, i, j, required_zeros = s->n;
   mps_boolean excep;
   rdpe_t dummy;
   mps_monomial_poly * p = s->monomial_poly;
@@ -854,7 +855,7 @@ mps_dsolve (mps_status * s, mps_boolean d_after_f)
     {                           /* dloop : DO iter=1,s->max_pack */
 
        /* mps_dpolzer(s, &nit, &excep);  */
-       mps_thread_dpolzer (s, &nit, &excep); 
+      mps_thread_dpolzer (s, &nit, &excep, required_zeros--);
       it_pack += nit;
 
       MPS_DEBUG (s, "DPE packet completed in %d iterations", nit);
@@ -965,7 +966,7 @@ mps_dsolve (mps_status * s, mps_boolean d_after_f)
 void 
 mps_msolve (mps_status * s)
 {
-  int iter, nit, oldnclust, i, j, it_pack;
+  int iter, nit, oldnclust, i, j, it_pack, required_zeros = s->n;
   mps_boolean excep;
   int nzc;
   rdpe_t * drad = rdpe_valloc (s->n);
@@ -1047,7 +1048,7 @@ mps_msolve (mps_status * s)
           fprintf (s->logstr, "  MSOLVE: call mpolzer\n");
         }
       /* mps_mpolzer(s, &nit, &excep); */
-      mps_thread_mpolzer (s, &nit, &excep);
+      mps_thread_mpolzer (s, &nit, &excep, required_zeros--);
 
       if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
 	mps_dump (s);

@@ -14,8 +14,7 @@ mps_thread_fpolzer_worker (void *data_ptr)
   double rad1, modcorr;
   mps_thread_job job;
 
-
-  while (!(*data->excep) && (*data->nzeros) < s->n)
+  while (!(*data->excep) && (*data->nzeros) < data->required_zeros)
     {
       job = mps_thread_job_queue_next (s, data->queue);
       i = job.i;
@@ -33,9 +32,8 @@ mps_thread_fpolzer_worker (void *data_ptr)
 
       if (s->again[i])
         {
-
           /* Check if, while we were waiting, excep condition has been reached */
-          if (*data->excep || !s->again[i] || (*data->nzeros > s->n))
+          if (*data->excep || !s->again[i] || (*data->nzeros > data->required_zeros))
             {
               pthread_mutex_unlock (&data->roots_mutex[i]);
               return 0;
@@ -104,7 +102,7 @@ mps_thread_fpolzer_worker (void *data_ptr)
           if (!s->again[i])
             {
               (*data->nzeros)++;
-              if (*data->nzeros == s->n)
+              if (*data->nzeros >= data->required_zeros)
                 {
                   pthread_mutex_unlock (&data->roots_mutex[i]);
                   return 0;
@@ -124,7 +122,7 @@ mps_thread_fpolzer_worker (void *data_ptr)
  * This version adds multithread support.
  */
 void
-mps_thread_fpolzer (mps_status * s, int *it, mps_boolean * excep)
+mps_thread_fpolzer (mps_status * s, int *it, mps_boolean * excep, int required_zeros)
 {
   int i, nzeros = 0, n_threads = s->n_threads;
 
@@ -157,7 +155,6 @@ mps_thread_fpolzer (mps_status * s, int *it, mps_boolean * excep)
 
   data = (mps_thread_worker_data *) mps_malloc (sizeof (mps_thread_worker_data)
 						* n_threads);
-
   for (i = 0; i < n_threads; i++)
     {
       data[i].it = it;
@@ -169,6 +166,7 @@ mps_thread_fpolzer (mps_status * s, int *it, mps_boolean * excep)
       data[i].aberth_mutex = aberth_mutex;
       data[i].roots_mutex = roots_mutex;
       data[i].queue = queue;
+      data[i].required_zeros = required_zeros;
       /* pthread_create (&threads[i], NULL, &mps_thread_fpolzer_worker, */
                       /* data + i); */
       mps_thread_pool_assign (s, s->pool, mps_thread_fpolzer_worker, data + i);
@@ -198,7 +196,7 @@ mps_thread_dpolzer_worker (void *data_ptr)
   mps_monomial_poly *p = s->monomial_poly;
   mps_thread_job job;
 
-  while (!(*data->excep) && (*data->nzeros < s->n))
+  while (!(*data->excep) && (*data->nzeros < data->required_zeros))
     {
       job = mps_thread_job_queue_next (s, data->queue);
       i = job.i;
@@ -217,7 +215,7 @@ mps_thread_dpolzer_worker (void *data_ptr)
       if (s->again[i])
         {
           /* Check if, while we were waiting, excep condition has been reached */
-          if (*data->excep || !s->again[i] || (*data->nzeros > s->n))
+          if (*data->excep || !s->again[i] || (*data->nzeros > data->required_zeros))
             {
               pthread_mutex_unlock (&data->roots_mutex[i]);
               return 0;
@@ -279,7 +277,7 @@ mps_thread_dpolzer_worker (void *data_ptr)
           if (!s->again[i])
             {
               (*data->nzeros)++;
-              if ((*data->nzeros) == s->n)
+              if ((*data->nzeros) >= data->required_zeros)
                 {
                   pthread_mutex_unlock (&data->roots_mutex[i]);
                   return 0;
@@ -296,7 +294,7 @@ mps_thread_dpolzer_worker (void *data_ptr)
  * @brief Multithread version of mps_dpolzer ().
  */
 void
-mps_thread_dpolzer (mps_status * s, int *it, mps_boolean * excep)
+mps_thread_dpolzer (mps_status * s, int *it, mps_boolean * excep, int required_zeros)
 {
   mps_thread_worker_data *data;
   pthread_mutex_t *aberth_mutex, *roots_mutex;
@@ -341,6 +339,7 @@ mps_thread_dpolzer (mps_status * s, int *it, mps_boolean * excep)
       data[i].roots_mutex = roots_mutex;
       data[i].s = s;
       data[i].thread = i;
+      data[i].required_zeros = required_zeros;
       mps_thread_pool_assign (s, s->pool, mps_thread_dpolzer_worker, data + i);
     }
 
@@ -377,7 +376,7 @@ mps_thread_mpolzer_worker (void *data_ptr)
 
   /* Continue to iterate while exception condition has not
    * been reached and there more roots to approximate   */
-  while ((*data->nzeros) < s->n)
+  while ((*data->nzeros) < data->required_zeros)
     {
       /* Get next job for this thread */
       job = mps_thread_job_queue_next (s, data->queue);
@@ -406,7 +405,7 @@ mps_thread_mpolzer_worker (void *data_ptr)
         {
           /* Check if, while we were waiting, excep condition has been reached,
            * or all the zeros has been approximated.                         */
-          if (*data->excep || (*data->nzeros) >= s->n)
+          if (*data->excep || (*data->nzeros) >= data->required_zeros)
             {
               pthread_mutex_unlock (&data->roots_mutex[l]);
               goto endfun;
@@ -488,7 +487,7 @@ mps_thread_mpolzer_worker (void *data_ptr)
           if (!s->again[l])
             {
               (*data->nzeros)++;
-              if ((*data->nzeros) == s->n)
+              if ((*data->nzeros) >= data->required_zeros)
                 {
                   pthread_mutex_unlock (&data->roots_mutex[l]);
                   goto endfun;
@@ -521,7 +520,7 @@ endfun:                        /* free local MP variables */
  * @brief Drop-in threaded replacement for the stock mpolzer.
  */
 void
-mps_thread_mpolzer (mps_status * s, int *it, mps_boolean * excep)
+mps_thread_mpolzer (mps_status * s, int *it, mps_boolean * excep, int required_zeros)
 {
   int i, nzeros = 0, n_threads = s->n_threads;
 
@@ -579,6 +578,7 @@ mps_thread_mpolzer (mps_status * s, int *it, mps_boolean * excep)
       data[i].global_aberth_mutex = &global_aberth_mutex;
       data[i].queue = queue;
       data[i].roots_mutex = roots_mutex;
+      data[i].required_zeros = required_zeros;
       mps_thread_pool_assign (s, s->pool, mps_thread_mpolzer_worker, data + i);
     }
 

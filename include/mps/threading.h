@@ -126,6 +126,12 @@ extern "C"
     volatile int *nzeros;
 
     /**
+     * @brief The number of well approximated roots required to stop iteration
+     * packet. 
+     */
+    int required_zeros;
+
+    /**
      * @brief Pointer to the integer that holds the number of iterations
      *  performed until now.
      */
@@ -328,11 +334,11 @@ extern "C"
 
   mps_thread_job mps_thread_job_queue_next (mps_status * s, mps_thread_job_queue * q);
 
-  void mps_thread_fpolzer (mps_status * s, int *nit, mps_boolean * excep);
+  void mps_thread_fpolzer (mps_status * s, int *nit, mps_boolean * excep, int required_zeros);
 
-  void mps_thread_mpolzer (mps_status * s, int *nit, mps_boolean * excep);
+  void mps_thread_mpolzer (mps_status * s, int *nit, mps_boolean * excep, int required_zeros);
 
-  void mps_thread_dpolzer (mps_status * s, int *nit, mps_boolean * excep);
+  void mps_thread_dpolzer (mps_status * s, int *nit, mps_boolean * excep, int required_zeros);
 
   int mps_thread_get_core_number (mps_status * s);
 
