@@ -111,11 +111,17 @@ mps_thread_job_queue_next (mps_status * s, mps_thread_job_queue * q)
       if (q->root == NULL)
 	{
 	  q->cluster_item = q->cluster_item->next;
+
+	  /* If we got to the end of the clusterization restart from
+	   * the first cluster and dump the iteration counter. */
 	  if (q->cluster_item == NULL)
-	    q->cluster_item = s->clusterization->first;
+	    {
+	      q->cluster_item = s->clusterization->first;
+	      q->iter++;
+	    }
+
 	  q->root = q->cluster_item->cluster->first;
       
-	  q->iter++;
 
 	  /* Check if maximum number of iteration was reached and
 	   * if that was the case set j->iter to MPS_THREAD_JOB_EXCEP.  */
