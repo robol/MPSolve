@@ -296,7 +296,7 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
 	      
 	      /* Lock i-th and -j-th mutex to gain control of the the
 	       * b_i of the secular equation. */
-	      pthread_mutex_lock (&sec->bmpc_mutex[j]); 
+	      pthread_mutex_lock (&sec->bmpc_mutex[j]);
 	      mpc_sub (mdiff, my_b, sec->bmpc[j]);
 	      pthread_mutex_unlock (&sec->bmpc_mutex[j]); 
 	      
@@ -318,10 +318,10 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
       
       /* Debug computed coefficients */
       if (s->debug_level & MPS_DEBUG_REGENERATION)
-	    {
-	      MPS_DEBUG_MPC (s, s->mpwp, sec->ampc[i], "a_%d", i);
-	      MPS_DEBUG_MPC (s, s->mpwp, sec->bmpc[i], "b_%d", i);
-	    }
+	{
+	  MPS_DEBUG_MPC (s, s->mpwp, sec->ampc[i], "a_%d", i);
+	  MPS_DEBUG_MPC (s, s->mpwp, sec->bmpc[i], "b_%d", i);
+	}
       
     } /* Close the case where the coefficient are not approximated or isolated */
       else

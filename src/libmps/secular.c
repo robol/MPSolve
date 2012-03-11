@@ -599,7 +599,6 @@ mps_secular_set_radii (mps_status * s)
       rdpe_mul_eq (rad, rad_eps);
       
       rdpe_mul_eq_d (rad, (double) s->n);
-      /* rdpe_add_eq (rad, rtmp); */
       
       rdpe_set (drad[i], rad);
     }
@@ -611,8 +610,8 @@ mps_secular_set_radii (mps_status * s)
 	 for (i = 0; i < s->n; i++) 
 	   { 
 	     rdpe_set_d (s->drad[i], s->frad[i]); 
-	     mpc_set_d (s->mroot[i], cplx_Re (s->froot[i]),  
-			cplx_Im (s->froot[i])); 
+	     mpc_set_d  (s->mroot[i], cplx_Re (s->froot[i]),  
+			 cplx_Im (s->froot[i])); 
 	   } 
 	 
 	 mps_mcluster (s, drad, 2.0 * s->n);  
