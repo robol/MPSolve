@@ -148,6 +148,9 @@ AC_CHECK_HEADERS([stdlib.h string.h unistd.h])
 AC_HEADER_STDBOOL
 AC_TYPE_SIZE_T
 
+# Check for getline() function
+AC_CHECK_FUNCS(getline)
+
 # Checks for library functions.
 AC_FUNC_ERROR_AT_LINE
 AC_FUNC_MALLOC

@@ -17299,6 +17299,19 @@ _ACEOF
 fi
 
 
+# Check for getline() function
+for ac_func in getline
+do :
+  ac_fn_c_check_func "$LINENO" "getline" "ac_cv_func_getline"
+if test "x$ac_cv_func_getline" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_GETLINE 1
+_ACEOF
+
+fi
+done
+
+
 # Checks for library functions.
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for error_at_line" >&5
 $as_echo_n "checking for error_at_line... " >&6; }

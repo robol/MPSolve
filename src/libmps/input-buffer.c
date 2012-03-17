@@ -3,7 +3,10 @@
 #include <string.h>
 #include <ctype.h>
 
-#ifdef __WINDOWS
+#ifndef HAVE_GETLINE
+
+#include <stdlib.h>
+#include <errno.h>
 
 #ifndef SIZE_MAX
 # define SIZE_MAX ((size_t) -1)
