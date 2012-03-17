@@ -290,6 +290,12 @@ mps_secular_ga_mpsolve (mps_status * s)
   rdpe_t r_eps;
   mps_secular_equation *sec = mps_secular_equation_from_status (s);
 
+  if (s->output_config->search_set != MPS_SEARCH_SET_COMPLEX_PLANE)
+    {
+      mps_error (s, 1, "The restricted search set is not supported using the algorithm MPS_ALGORITHM_SECULAR_GA.");
+      return;
+    }
+
   /* Check if the secular equation is allocate or if only the
    * polynomial is present. In the last case, allocate an empty
    * secular equation to hold the data during the computation. */
