@@ -701,11 +701,6 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s, cdpe_t * old_b, mpc_t
    * polynomial only in that approximations. */
   mps_boolean * root_changed = mps_secular_ga_find_changed_roots (s, old_b, old_mb);
 
-  // TODO: Remove this
-  /* int i;    */
-  /* for (i = 0; i < s->n; i++)    */
-  /*   root_changed[i] = true;    */
-  
   if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
     {
       /* Regenerate the coefficients of the secular equation starting from the monomial input */
