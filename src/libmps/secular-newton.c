@@ -18,7 +18,7 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
 {
   int i;
   cplx_t ctmp, ctmp2, pol, fp, sumb;
-  double apol, prod_b = 1.0, new_rad = 0.0f;
+  double apol, new_rad = 0.0f;
   double asum = 0.0f, asum_on_apol;
   mps_secular_iteration_data * data = user_data;
   mps_secular_equation *sec = (mps_secular_equation *) s->secular_equation;
@@ -42,14 +42,6 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
 	  *again = false;
           return;
 	}
-
-      /* Computation of prod [ (z - b_i) / (z - z_j) ] */
-      prod_b *= cplx_mod (ctmp);
-      cplx_sub (ctmp2, x, s->froot[i]);
-      if (!cplx_eq_zero (ctmp2))
-        {
-	  prod_b /= cplx_mod (ctmp2);
-        }
 
       /* Compute (z-b_i)^{-1} */
       cplx_inv_eq (ctmp);
@@ -181,7 +173,7 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
   mps_secular_iteration_data * data = user_data;
 
   cdpe_t pol, fp, sumb, ctmp, ctmp2, old_x;
-  rdpe_t rtmp, rtmp2, apol, prod_b, asum, asum_on_apol;
+  rdpe_t rtmp, rtmp2, apol, asum, asum_on_apol;
 
   *again = true;
 
@@ -191,7 +183,6 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
   cdpe_set (sumb, cdpe_zero);
   rdpe_set (apol, rdpe_zero);
   rdpe_set (asum, rdpe_zero);
-  rdpe_set (prod_b, rdpe_one);
 
   for (i = 0; i < sec->n; i++)
     {
@@ -200,13 +191,6 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
 
       /* Compute prod [ (z - b_i) / (z - z_j) ] */
       cdpe_mod (rtmp, ctmp);
-      rdpe_mul_eq (prod_b, rtmp);
-      cdpe_sub (ctmp2, x, s->droot[i]);
-      cdpe_mod (rtmp2, ctmp2);
-      if (!rdpe_eq_zero (rtmp2))
-        {
-	  rdpe_div_eq (prod_b, rtmp2);
-        }
 
       /* Alternative computation if x is one of the b_i */
       if (cdpe_eq_zero (ctmp))
@@ -387,7 +371,7 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
   /* Declare temporary variables */
   mpc_t sumb, pol, fp, ctmp, ctmp2;
   cdpe_t cdtmp, cdtmp2;
-  rdpe_t rtmp, rtmp2, apol, asum, prod_b, asum_on_apol;
+  rdpe_t rtmp, rtmp2, apol, asum, asum_on_apol;
 
   /* Set working precision */
   mpc_init2 (sumb, s->mpwp);
@@ -400,7 +384,6 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
   mpc_set_d (sumb, 0, 0);
   mpc_set_d (pol, 0, 0);
   mpc_set_d (fp, 0, 0);
-  rdpe_set (prod_b, rdpe_one);
 
   rdpe_set (asum, rdpe_zero);
   rdpe_set (apol, rdpe_zero);
@@ -419,16 +402,6 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
       mpc_get_cdpe (cdtmp2, ctmp);
 
       cdpe_mod (rtmp2, cdtmp2);
-      rdpe_mul_eq (prod_b, rtmp2);
-
-      mpc_sub (ctmp2, x, s->mroot[i]);
-      mpc_get_cdpe (cdtmp2, ctmp2);
-      if ((data && (data->k != i)) ||
-	  ((!data && (!cdpe_eq_zero (cdtmp2)))))
-        {
-	  cdpe_mod (rtmp2, cdtmp2);
-          rdpe_div_eq (prod_b, rtmp2);
-        }
 
       /* Compute (z-b_i)^{-1} */
       mpc_inv_eq (ctmp);
@@ -480,12 +453,6 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
 
   mpc_get_cdpe (x_cdpe, x);
   cdpe_mod (ax, x_cdpe);
-
-  /* Compute the guaranteed radius */
-  rdpe_mul (rtmp, asum, s->mp_epsilon);
-  rdpe_add (new_rad, apol, rtmp);
-  rdpe_mul_eq_d (new_rad, s->n);
-  rdpe_mul_eq (new_rad, prod_b);
 
   /* MPS_DEBUG_RDPE (s, prod_b, "prod_b"); */
   /* MPS_DEBUG_RDPE (s, new_rad, "apol * n * prod_b"); */
