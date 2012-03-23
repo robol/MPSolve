@@ -210,9 +210,9 @@ mps_secular_mradii (mps_status * s, rdpe_t * dradii)
       mpf_get_rdpe (dradii[i], ftmp);
       rdpe_mul_eq_d (dradii[i], s->n);
 
-      /* MPS_DEBUG_MPC (s, 25, msec_ev, "msec_ev"); */
-      /* MPS_DEBUG_RDPE (s, dradii[i], "S(x)"); */
-
+      MPS_DEBUG_MPC (s, 25, msec_ev, "msec_ev"); 
+      MPS_DEBUG_RDPE (s, dradii[i], "S(x)");
+       
       if (isnan (dradii[i]->m))
 	{
 	  rdpe_set (dradii[i], RDPE_MAX);

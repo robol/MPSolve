@@ -166,25 +166,34 @@ void
 mps_secular_meval_with_error (mps_status * s, mps_secular_equation * sec, mpc_t x, mpc_t value, rdpe_t error)
 {
   mpc_t ctmp;
-  cdpe_t cdtmp;
-  rdpe_t rtmp;
+  rdpe_t rtmp, rtmp2, ax;
   unsigned int wp = mpc_get_prec (x);
   int i;
 
   mpc_init2  (ctmp, wp);
   mpc_set_ui (value, 0U, 0U);
+  mpc_set_prec (value, wp);
+
+  /* Get |x| */
+  mpc_rmod (ax, x);
 
   rdpe_set (error, rdpe_zero);
 
-  for (i = 0; i < s->n; ++i)
+  for (i = 0; i < s->n; i++)
     {
       mpc_sub (ctmp, x, sec->bmpc[i]);
       mpc_div (ctmp, sec->ampc[i], ctmp);
       mpc_add_eq (value, ctmp);
 
-      mpc_get_cdpe (cdtmp, ctmp);
-      cdpe_mod (rtmp, cdtmp);
+      mpc_rmod (rtmp, sec->bmpc[i]);
+      rdpe_add_eq (rtmp, ax);
+      mpc_rmod (rtmp2, value);
+      rdpe_div_eq (rtmp, rtmp2);
       rdpe_mul_eq_d (rtmp, i + 2);
+
+      /* mpc_get_cdpe (cdtmp, ctmp); */
+      /* cdpe_mod (rtmp, cdtmp); */
+      /* rdpe_mul_eq_d (rtmp, i + 2); */
       rdpe_add_eq (error, rtmp);
     }
   
