@@ -174,6 +174,12 @@ mps_secular_mradii (mps_status * s, rdpe_t * dradii)
 
   mpf_t prod_b, ftmp, merror;
 
+  if (s->lastphase != mp_phase)
+    {
+      for (i = 0; i < s->n; i++) 
+	mpc_set_cdpe (s->mroot[i], s->droot[i]);
+    }
+
   mpf_init2 (prod_b, s->mpwp);
   mpf_init2 (ftmp, s->mpwp);
   mpf_init2 (merror, s->mpwp);
@@ -224,7 +230,7 @@ mps_secular_mradii (mps_status * s, rdpe_t * dradii)
       for (j = 0; j < s->n; j++)
 	{
 	  mpc_sub (mdiff, s->mroot[i], sec->bmpc[j]);
-	  mpc_div_eq (mprod_b, mdiff);
+	  mpc_mul_eq (mprod_b, mdiff);
 
 	  if (i == j)
 	    continue;
@@ -249,7 +255,7 @@ mps_secular_mradii (mps_status * s, rdpe_t * dradii)
 	  (rdpe_lt (dradii[i], s->drad[i])))
 	rdpe_set (s->drad[i], dradii[i]);
 
-      /* MPS_DEBUG_RDPE (s, dradii[i], "dradii[%d]", i); */
+      MPS_DEBUG_RDPE (s, dradii[i], "dradii[%d]", i); 
     }
 
   mpf_clear (ftmp);
