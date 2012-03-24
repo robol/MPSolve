@@ -286,7 +286,7 @@ mps_prepare_data (mps_status * s, long int prec)
 	{
 	  mps_monomial_poly_raise_precision (s, s->monomial_poly, prec);
 	}
-      else
+      else if (MPS_INPUT_CONFIG_IS_SECULAR (s->input_config))
 	mps_secular_raise_precision (s, prec);
     }
 

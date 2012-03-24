@@ -434,6 +434,17 @@ mps_secular_raise_coefficient_precision (mps_status * s, int wp)
   if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
     mps_monomial_poly_raise_precision (s, s->monomial_poly, wp);
 
+  if (MPS_INPUT_CONFIG_IS_SECULAR (s->input_config))
+    {
+      for (i = 0; i < s->n; i++)
+	{
+	  mpf_set_q (mpc_Re (sec->ampc[i]), sec->initial_ampqrc[i]);
+	  mpf_set_q (mpc_Im (sec->ampc[i]), sec->initial_ampqic[i]);
+	  mpf_set_q (mpc_Re (sec->bmpc[i]), sec->initial_bmpqrc[i]);
+	  mpf_set_q (mpc_Im (sec->bmpc[i]), sec->initial_bmpqic[i]);
+	}
+    }
+
   rdpe_set_2dl (s->mp_epsilon, 1.0, -wp);
   MPS_DEBUG_WITH_INFO (s, "Precision of the coefficients is now at %d bits", wp);
   if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
