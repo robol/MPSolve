@@ -245,7 +245,7 @@ mps_improve (mps_status * s)
           else if (s->mnewton_usr != NULL)
             {
               (*s->mnewton_usr) (s, s->mroot[i], s->drad[i], nwtcorr, &again, 
-				 (s->mnewton_usr == mps_secular_mnewton) ? &it_data : NULL, 
+				 MPS_INPUT_CONFIG_IS_SECULAR (s->input_config) ? &it_data : NULL, 
 				 false);
             }
           else
