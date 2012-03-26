@@ -425,16 +425,10 @@ mps_secular_raise_coefficient_precision (mps_status * s, int wp)
       mpc_set_prec (sec->bmpc[i], wp);
     }
 
-  for (i = 0; i < s->n; i++)
-    {
-      mpc_set_prec (sec->initial_ampc[i], wp);
-      mpc_set_prec (sec->initial_bmpc[i], wp);
-    }
-  
   if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
     mps_monomial_poly_raise_precision (s, s->monomial_poly, wp);
 
-  if (MPS_INPUT_CONFIG_IS_SECULAR (s->input_config))
+  if (MPS_INPUT_CONFIG_IS_SECULAR (s->input_config) && (!MPS_INPUT_CONFIG_IS_FP (s->input_config)))
     {
       for (i = 0; i < s->n; i++)
 	{

@@ -454,215 +454,124 @@ mps_boolean
 mps_secular_ga_regenerate_coefficients_secular (mps_status * s, cdpe_t * old_b, mps_boolean * root_changed)
 {
   MPS_DEBUG_THIS_CALL;
-  
-  /* The secular equation to update */
-  mps_secular_equation * sec = s->secular_equation;
 
-  /* Multiprecision local variables */
-  mpc_t prod_b, sec_ev;
-  mpc_t ctmp, btmp;
-
-  int i, j;
-
-  cdpe_t cdtmp, cdtmp2;
-  rdpe_t sec_eps, rtmp, rtmp2, eps_tmp;
-  rdpe_t root_epsilon;
-
+  /* True if the regeneration succeeds */
   mps_boolean success = true;
+  
+  /* The secular equation to update, and the secular equation of the
+   * given input. */
+  mps_secular_equation * sec = s->secular_equation;
+  mps_secular_equation * starting_sec = mps_secular_equation_new_raw (s, s->n);
 
-  /* Create an old secular_equation that will be used to evaluate the old secular
-  * equation in the new nodes.*/
-  mps_secular_equation  * old_sec = mps_new (mps_secular_equation);
-  rdpe_t error;
+  rdpe_t error, bmpc_mod, root_epsilon;
+  int i, j;
+  mpc_t diff, prod_b;
 
-  /* Determine the epsilon of the roots, that is a bound to the precision that
-   * we desire con a_i coefficients of the secular equation. */
   switch (s->lastphase)
     {
+      /* If we are in floating point then the roots are known to
+       * DBL_EPSILON precision */
     case float_phase:
     case dpe_phase:
       rdpe_set_d (root_epsilon, DBL_EPSILON);
       break;
+      /* But if we are in multiprecision we can check the epsilon by looking
+       * at s->mp_epsilon */
     case mp_phase:
       rdpe_set (root_epsilon, s->mp_epsilon);
       break;
     default:
-      mps_error (s, 1, "Phase not supported found in mps_secular_ga_regenerate_coefficients_secular");
+      break;
     }
 
-  /* Init multiprecision variables */
+  rdpe_mul_eq (root_epsilon, root_epsilon);
+
+  mpc_init2 (diff, s->mpwp);
   mpc_init2 (prod_b, s->mpwp);
-  mpc_init2 (sec_ev, s->mpwp);
-  mpc_init2 (ctmp, s->mpwp);
-  mpc_init2 (btmp, s->mpwp);
-
-  /* If the input was rational generate multiprecision floating
-   * point coefficient from the ones that the user originally
-   * provided */
-  if (MPS_INPUT_CONFIG_IS_RATIONAL (s->input_config) ||
-      MPS_INPUT_CONFIG_IS_INTEGER (s->input_config))
-    {
-      MPS_DEBUG_WITH_INFO (s, "Regenerating coefficients from the multiprecision input");
-      for (i = 0; i < s->n; i++)
-	{
-	  mpf_set_q (mpc_Re (sec->initial_ampc[i]), sec->initial_ampqrc[i]);
-	  mpf_set_q (mpc_Im (sec->initial_ampc[i]), sec->initial_ampqic[i]);
-	  mpf_set_q (mpc_Re (sec->initial_bmpc[i]), sec->initial_bmpqrc[i]);
-	  mpf_set_q (mpc_Im (sec->initial_bmpc[i]), sec->initial_bmpqic[i]);
-	}
-    }
-
-  /* Compute the new a_i */
-  for (i = 0; i < s->n; i++)
-    {
-      mpc_set_ui (prod_b, 1, 0);
-      mpc_set_ui (sec_ev, 0, 0);
-
-      /* Set the regeneration of epsilon of this root to zero and keep
-       * the module of b[i] in here since will be used later */
-      rdpe_set (sec->dregeneration_epsilon[i], rdpe_zero);
-      rdpe_set (sec_eps, rdpe_zero);
-      mpc_get_cdpe (cdtmp, sec->bmpc[i]);
-      cdpe_mod (eps_tmp, cdtmp);
-
-      for (j = 0; j < sec->n; j++)
-	{
-	  /* Compute 1 / (b_i - old_b_j) */
-	  mpc_sub (btmp, sec->bmpc[i], sec->initial_bmpc[j]);
-
-	  /* Compute the local relative error that is introduce here, as 
-	   * eps = (|b_i| + |old_b_j|) * mp_eps / (b_i - old_b_j) + mp_eps*/
-	  mpc_get_cdpe (cdtmp, sec->initial_bmpc[j]);
-	  cdpe_mod (rtmp, cdtmp);
-	  rdpe_add_eq (rtmp, eps_tmp);
-	  mpc_get_cdpe (cdtmp2, btmp);
-	  cdpe_mod (rtmp2, cdtmp2);
-	  rdpe_div_eq (rtmp, rtmp2);
-	  rdpe_mul_eq (sec->dregeneration_epsilon[i], rtmp);
-
-	  /* If b - old_b is zero, abort the computation */
-	  if (mpc_eq_zero (btmp))
-	    {
-	      success = false;
-	      MPS_DEBUG_WITH_INFO (s,
-				   "Cannot regenerate coefficients, reusing old ones and setting best_approx to true.");
-	      s->secular_equation->best_approx = true;
-	      goto regenerate_m_exit;
-	    }
-
-	  mpc_inv (ctmp, btmp);
-
-	  /* Add a_j / (b_i - old_b_j) to sec_ev */
-	  mpc_mul_eq (ctmp, sec->initial_ampc[j]);
-	  mpc_add_eq (sec_ev, ctmp);
-
-	  /* Save the module of a_j / (b_i - old_b_j) to compute the
-	   * relative error in the secular equation evalutation later */
-	  mpc_get_cdpe (cdtmp, ctmp);
-	  cdpe_mod (rtmp, cdtmp);
-	  rdpe_add_eq (sec_eps, rtmp);
-
-	  /* Multiply prod_b for
-	   * b_i - b_j if i \neq j and prod_old_b
-	   * for b_i - old_b_i.  */
-	  mpc_mul_eq (prod_b, btmp);
-	  if (i != j)
-	    {
-	      mpc_sub (ctmp, sec->bmpc[i], sec->bmpc[j]);
-	      mpc_div_eq (prod_b, ctmp);
-
-	      /* Compute the error in here */
-	      mpc_get_cdpe (cdtmp, sec->bmpc[j]);
-	      cdpe_mod (rtmp, cdtmp);
-	      rdpe_add_eq (rtmp, eps_tmp);
-	      mpc_get_cdpe (cdtmp2, ctmp);
-	      cdpe_mod (rtmp2, cdtmp2);
-	      rdpe_div_eq (rtmp, rtmp2);
-	      rdpe_add_eq (sec->dregeneration_epsilon[i], rtmp);
-	    }
-	}
-
-      /* Compute the new a_i as sec_ev * prod_old_b / prod_b */
-      mpc_sub_eq_ui (sec_ev, 1, 0);
-      mpc_mul (sec->ampc[i], sec_ev, prod_b);
-
-      /* Compute the error obtained */
-      rdpe_add_eq (sec_eps, rdpe_one);
-      rdpe_mul_eq (sec->dregeneration_epsilon[i], s->mp_epsilon);
-      rdpe_mul_eq (sec_eps, s->mp_epsilon);
-
-      /* Relative error */
-      mpc_get_cdpe (cdtmp, sec_ev);
-      cdpe_mod (rtmp, cdtmp);
-      rdpe_div_eq (sec_eps, rtmp);
-
-      /* Sum the two for the moltiplication */
-      rdpe_add_eq (sec->dregeneration_epsilon[i], sec_eps);
-    }
-
-  /* Fill its multiprecision fields */
-  old_sec->ampc = sec->initial_ampc;
-  old_sec->bmpc = sec->initial_bmpc;
-  old_sec->n = sec->n;
 
   for (i = 0; i < s->n; i++)
     {
-      rdpe_t rtmp;
-      cdpe_t cdtmp, cprod_b;
-      int j;
+      switch (s->lastphase)
+	{
+	case mp_phase:
+	  mpc_set (sec->bmpc[i], s->mroot[i]);
+	  break;
+	case float_phase:
+	  mpc_set_cplx (sec->bmpc[i], s->froot[i]);
+	  break;
+	case dpe_phase:
+	  mpc_set_cdpe (sec->bmpc[i], s->droot[i]);
+	  break;
+	default:
+	  break;
+	}
+    }
 
-      /* Compute the new a_i as S(b_i) * \prod (x - old_b_i) / \prod (x - b_i) */
-      mps_secular_meval_with_error (s, old_sec, sec->bmpc[i], sec->ampc[i], error);
+  /*
+   * Since we will be updating the precision of the coefficients of the fake
+   * original secular equation pretty often, we define a local macro to make
+   * things easier to write. 
+   */
+#define mps_raise_secular_equation_precision(sec_eq, wp) {		\
+    int i;								\
+    for (i = 0; i < s->n; i++) {					\
+      mpc_set_prec (sec_eq->ampc[i], wp);				\
+      mpc_set_prec (sec_eq->bmpc[i], wp);				\
+      mpf_set_q (mpc_Re (sec_eq->ampc[i]), s->secular_equation->initial_ampqrc[i]); \
+      mpf_set_q (mpc_Im (sec_eq->ampc[i]), s->secular_equation->initial_ampqic[i]); \
+      mpf_set_q (mpc_Re (sec_eq->bmpc[i]), s->secular_equation->initial_bmpqrc[i]); \
+      mpf_set_q (mpc_Im (sec_eq->bmpc[i]), s->secular_equation->initial_bmpqic[i]); \
+      mpc_set_prec (diff, wp);						\
+      mpc_set_prec (prod_b, wp);					\
+    }									\
+}
 
-      mpc_get_cdpe (cdtmp, s->mroot[i]);
-      cdpe_mod (rtmp, cdtmp);
-      rdpe_div_eq (error, rtmp);
+  for (i = 0; i < s->n; i++)
+    {
+      /* Set up the precision of the secular equation to a reasonable value, that will be
+       * the last precision used on this root. */
+      mps_raise_secular_equation_precision (starting_sec, s->rootwp[i]);
+
+      /* Try to evaluate the secular equation in the new nodes for the secular equation
+       * and verify if the relative error is small enough. */
+      mps_secular_meval_with_error (s, starting_sec, sec->bmpc[i], sec->ampc[i], error);
+      mpc_rmod (bmpc_mod, sec->bmpc[i]);
+      rdpe_div_eq (error, bmpc_mod);
 
       while (rdpe_gt (error, root_epsilon))
 	{
+	  /* Update the working precision for this root. */
 	  mps_secular_ga_update_root_wp (s, i, 1 + s->rootwp[i] + (rdpe_Esp (error) - rdpe_Esp (root_epsilon)));
+	  mps_raise_secular_equation_precision (starting_sec, s->rootwp[i]);
 
-	  mps_secular_meval_with_error (s, old_sec, sec->bmpc[i], sec->ampc[i], error);
-
-	  mpc_get_cdpe (cdtmp, sec->bmpc[i]);
-	  cdpe_mod (rtmp, cdtmp);
-	  rdpe_div_eq (error, rtmp);
-
-	  if (s->debug_level & MPS_DEBUG_REGENERATION)
-	    MPS_DEBUG_RDPE (s, error, "Relative_error on p(b_%d) evaluation", i);
+	  /* Re-evaluate the secular equation hoping to get a better results. */
+	  mps_secular_meval_with_error (s, starting_sec, sec->bmpc[i], sec->ampc[i], error);
+	  rdpe_div_eq (error, bmpc_mod);
 	}
 
-      /* Now that we have evaluated correctly the secular equation we can
-       * compute prod_b to finalize the computation */
-      cdpe_set (cprod_b, cdpe_one);
+      /* Compute the product of (b[i] - old_b[j]) / (b[i] - b[j]) to get the new a[i] */
+      mpc_set_ui (prod_b, 1U, 0U);
       for (j = 0; j < s->n; j++)
 	{
-	  mpc_sub (ctmp, sec->bmpc[i], old_sec->bmpc[j]);
-	  mpc_get_cdpe (cdtmp, ctmp);
-	  cdpe_mul_eq (cprod_b, cdtmp);
-
+	  mpc_sub (diff, sec->bmpc[i], starting_sec->bmpc[j]);
+	  mpc_mul_eq (prod_b, diff);
+	  
 	  if (i != j)
 	    {
-	      mpc_sub (ctmp, sec->bmpc[i], sec->bmpc[j]);
-	      mpc_get_cdpe (cdtmp, ctmp);
-	      cdpe_div_eq (cprod_b, cdtmp);
+	      mpc_sub (diff, sec->bmpc[i], sec->bmpc[j]);
+	      mpc_div_eq (prod_b, diff);
 	    }
 	}
-      
-      mpc_set_cdpe (prod_b, cprod_b);      
+
       mpc_mul_eq (sec->ampc[i], prod_b);
     }
 
- regenerate_m_exit:
+/* Undefine the macro used to play with the precision of the fake original
+ * secular equation. */
+#undef mps_raise_secular_equation_precision
   
-  /* Free data */
-  free (old_sec);
-  mpc_clear (prod_b);
-  mpc_clear (sec_ev);
-  mpc_clear (ctmp);
-  mpc_clear (btmp);
+  mps_secular_equation_free (starting_sec);
   
-  mps_boolean_vfree (root_changed);
 
   return success;
 }
