@@ -120,7 +120,8 @@ mps_fmodify (mps_status * s, mps_boolean track_new_cluster)
 	  if (!track_new_cluster)
 	    {	  
 	      s->root_status[l] = MPS_ROOT_STATUS_CLUSTERED;
-	      rdpe_set_d (rtmp, s->frad[l] / cplx_mod (s->froot[l]));
+	      rdpe_set_d (rtmp, s->frad[l]);
+	      rdpe_div_eq_d (rtmp, cplx_mod (s->froot[l]));
 	      if (rdpe_le (rtmp, s->eps_out))
 		s->root_status[l] = MPS_ROOT_STATUS_APPROXIMATED_IN_CLUSTER;
 	    }

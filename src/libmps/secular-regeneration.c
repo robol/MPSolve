@@ -560,7 +560,7 @@ mps_secular_ga_regenerate_coefficients_secular (mps_status * s, cdpe_t * old_b, 
 
       /* Set up the precision of the secular equation to a reasonable value, that will be
        * the last precision used on this root. */
-      mps_raise_secular_equation_precision (starting_sec, MAX (s->rootwp[i] + ampl, 2 * s->mpwp));
+      mps_raise_secular_equation_precision (starting_sec, s->mpwp);
 
       /* Try to evaluate the secular equation in the new nodes for the secular equation
        * and verify if the relative error is small enough. */
