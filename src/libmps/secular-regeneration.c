@@ -536,26 +536,6 @@ mps_secular_ga_regenerate_coefficients_secular (mps_status * s, cdpe_t * old_b, 
 
   for (i = 0; i < s->n; i++)
     {
-      int ampl = 0;
-      /* rdpe_t min_diff; */
-      /* rdpe_set (min_diff, RDPE_MAX); */
-      /* rdpe_set (max_mod, rdpe_zero); */
-      /* for (j = 0; j < s->n; j++) */
-      /* 	{ */
-      /* 	  mpc_sub (diff, sec->bmpc[j], starting_sec->bmpc[j]); */
-      /* 	  mpc_rmod (rtmp, diff); */
-      /* 	  if (rdpe_lt (rtmp, min_diff)) */
-      /* 	    rdpe_set (min_diff, rtmp); */
-
-      /* 	  mpc_sub (diff, sec->bmpc[i], sec->bmpc[j]); */
-      /* 	  mpc_rmod (rtmp, diff); */
-
-      /* 	  if (rdpe_lt (rtmp, min_diff)) */
-      /* 	    rdpe_set (min_diff, rtmp); */
-      /* 	} */
-
-      /* ampl = s->n * (rdpe_Esp (max_mod) - rdpe_Esp (min_diff) + 1); */
-
       /* Set up the precision of the secular equation to a reasonable value, that will be
        * the last precision used on this root. */
       mps_raise_secular_equation_precision (starting_sec, s->mpwp);
@@ -569,7 +549,7 @@ mps_secular_ga_regenerate_coefficients_secular (mps_status * s, cdpe_t * old_b, 
       while (rdpe_gt (error, root_epsilon))
 	{
 	  /* Update the working precision for this root. */
-	  mps_secular_ga_update_root_wp (s, i, 1 + s->rootwp[i] + (rdpe_Esp (error) - rdpe_Esp (root_epsilon)) + ampl);
+	  mps_secular_ga_update_root_wp (s, i, 1 + s->rootwp[i] + (rdpe_Esp (error) - rdpe_Esp (root_epsilon)));
 	  mps_raise_secular_equation_precision (starting_sec, s->rootwp[i]);
 
 	  /* Re-evaluate the secular equation hoping to get a better results. */
