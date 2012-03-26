@@ -424,11 +424,11 @@ mps_fcluster (mps_status * s, double * frad, int nf)
    * newton isolation is not guaranteed by means of the newton radii. */
   if (!newton_isolation)
     {
-      if (MPS_INPUT_CONFIG_IS_USER (s->input_config)) 
-	{ 
-	  mps_clusterization_free (s, new_clusterization); 
-	  return;
-	}
+      /* if (MPS_INPUT_CONFIG_IS_USER (s->input_config))  */
+      /* 	{  */
+      /* 	  mps_clusterization_free (s, new_clusterization);  */
+      /* 	  return; */
+      /* 	} */
 
       item = s->clusterization->first;
       while (analyzed_roots < s->n)
@@ -582,11 +582,11 @@ mps_dcluster (mps_status * s, rdpe_t * drad, int nf)
     }
   else /* If newton isolation has not been reached check with Gerschgorin */
     {
-      if (MPS_INPUT_CONFIG_IS_USER (s->input_config)) 
-	{ 
-	  mps_clusterization_free (s, new_clusterization); 
-	  return; 
-	}
+      /* if (MPS_INPUT_CONFIG_IS_USER (s->input_config))  */
+      /* 	{  */
+      /* 	  mps_clusterization_free (s, new_clusterization);  */
+      /* 	  return;  */
+      /* 	} */
 
       item = s->clusterization->first;
       while (item)
@@ -812,11 +812,11 @@ mps_mcluster (mps_status * s, rdpe_t * drad, int nf)
     }
   else /* If newton isolation is not reached with Newton use Gerschgorin */
     {
-      if (MPS_INPUT_CONFIG_IS_USER (s->input_config)) 
-	{ 
-	  mps_clusterization_free (s, new_clusterization); 
-	  return; 
-	}
+      /* if (MPS_INPUT_CONFIG_IS_USER (s->input_config))  */
+      /* 	{  */
+      /* 	  mps_clusterization_free (s, new_clusterization);  */
+      /* 	  return;  */
+      /* 	} */
       
       item = s->clusterization->first;
       while (item != NULL)
