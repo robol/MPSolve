@@ -529,10 +529,8 @@ mps_secular_ga_regenerate_coefficients_secular (mps_status * s, cdpe_t * old_b, 
       mpf_set_q (mpc_Im (sec_eq->bmpc[i]), s->secular_equation->initial_bmpqic[i]); \
       mpc_set_prec (diff, wp);						\
       mpc_set_prec (prod_b, wp);					\
-      if (mpc_get_prec (sec->ampc[i]) < wp) {				\
-	mpc_set_prec (sec->ampc[i], wp);				\
-	mpc_set_prec (sec->bmpc[i], wp);				\
-      }									\
+      mpc_set_prec (sec->ampc[i], wp);					\
+      mpc_set_prec (sec->bmpc[i], wp);					\
     }									\
 }
 
