@@ -390,18 +390,6 @@ mps_fcluster (mps_status * s, double * frad, int nf)
 	}
     }
 
-  if (newton_isolation)
-    {
-      if (s->debug_level & MPS_DEBUG_CLUSTER)
-	MPS_DEBUG (s, "Reached isolation using Newton radii, so skipping every other check with Gerschgorin");
-
-      for (i = 0; i < s->n; i++)
-	{
-	  mps_clusterization_insert_cluster (s, new_clusterization, 
-					     mps_cluster_with_root (s, i));
-	}
-    }
-
   item = s->clusterization->first;
   while (item)
     {
@@ -496,10 +484,25 @@ mps_fcluster (mps_status * s, double * frad, int nf)
 	         /* Check if the computed radius is more convenient than the old one.  */  
 	         /* 	 If that's the case, apply it as inclusion radius   */  
 	         if (new_rad < s->frad[k])      
-	         	s->frad[k] = new_rad;      
+		   s->frad[k] = new_rad;      
 	      }  
 	}
 
+    }
+
+  if (newton_isolation)
+    {
+      mps_clusterization_free (s, new_clusterization);
+      new_clusterization = mps_clusterization_empty (s);
+
+      if (s->debug_level & MPS_DEBUG_CLUSTER)
+	MPS_DEBUG (s, "Reached isolation using Newton radii, so skipping every other check with Gerschgorin");
+
+      for (i = 0; i < s->n; i++)
+	{
+	  mps_clusterization_insert_cluster (s, new_clusterization, 
+					     mps_cluster_with_root (s, i));	  
+	}
     }
 
   /* Set the new clusterizaition in the mps_status */
@@ -569,18 +572,7 @@ mps_dcluster (mps_status * s, rdpe_t * drad, int nf)
 	}
     }
 
-  if (newton_isolation)
-    {
-      if (s->debug_level & MPS_DEBUG_CLUSTER)
-	MPS_DEBUG (s, "Reached isolation using Newton radii, so skipping every other check with Gerschgorin");
-
-      for (i = 0; i < s->n; i++)
-	{
-	  mps_clusterization_insert_cluster (s, new_clusterization, 
-					     mps_cluster_with_root (s, i));
-	}
-    }
-  else /* If newton isolation has not been reached check with Gerschgorin */
+  /* If newton isolation has not been reached check with Gerschgorin */
     {
       /* if (MPS_INPUT_CONFIG_IS_USER (s->input_config))  */
       /* 	{  */
@@ -677,6 +669,22 @@ mps_dcluster (mps_status * s, rdpe_t * drad, int nf)
 	        if (rdpe_lt (new_rad, s->drad[k]))    
 	    	rdpe_set (s->drad[k], new_rad);    
 	      }  
+	}
+    }
+
+
+  if (newton_isolation)
+    {
+      mps_clusterization_free (s, new_clusterization);
+      new_clusterization = mps_clusterization_empty (s);
+
+      if (s->debug_level & MPS_DEBUG_CLUSTER)
+	MPS_DEBUG (s, "Reached isolation using Newton radii, so skipping every other check with Gerschgorin");
+
+      for (i = 0; i < s->n; i++)
+	{
+	  mps_clusterization_insert_cluster (s, new_clusterization, 
+					     mps_cluster_with_root (s, i));
 	}
     }
 
@@ -799,18 +807,7 @@ mps_mcluster (mps_status * s, rdpe_t * drad, int nf)
 	}
     }
 
-  if (newton_isolation)
-    {
-      if (s->debug_level & MPS_DEBUG_CLUSTER)
-	MPS_DEBUG (s, "Reached isolation using Newton radii, so skipping every other check with Gerschgorin");
-
-      for (i = 0; i < s->n; i++)
-	{
-	  mps_clusterization_insert_cluster (s, new_clusterization, 
-					     mps_cluster_with_root (s, i));
-	}
-    }
-  else /* If newton isolation is not reached with Newton use Gerschgorin */
+  /* If newton isolation is not reached with Newton use Gerschgorin */
     {
       /* if (MPS_INPUT_CONFIG_IS_USER (s->input_config))  */
       /* 	{  */
@@ -912,9 +909,25 @@ mps_mcluster (mps_status * s, rdpe_t * drad, int nf)
 	}
     }
 
+  if (newton_isolation)
+    {
+      mps_clusterization_free (s, new_clusterization);
+      new_clusterization = mps_clusterization_empty (s);
+
+      if (s->debug_level & MPS_DEBUG_CLUSTER)
+	MPS_DEBUG (s, "Reached isolation using Newton radii, so skipping every other check with Gerschgorin");
+
+      for (i = 0; i < s->n; i++)
+	{
+	  mps_clusterization_insert_cluster (s, new_clusterization, 
+					     mps_cluster_with_root (s, i));
+	}
+    }
+
   /* Set the new clusterizaition in the mps_status */
   mps_clusterization_free (s, s->clusterization);
   s->clusterization = new_clusterization;
+
 
   if (s->debug_level & MPS_DEBUG_CLUSTER)
     {

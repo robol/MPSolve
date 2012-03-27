@@ -525,8 +525,8 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
       if (rdpe_lt (new_rad, rad))
 	rdpe_set (rad, new_rad);
 
-      MPS_DEBUG_MPC (s, 15, x, "x");
-      MPS_DEBUG_RDPE (s, new_rad, "Computed newton radius for root");
+      /* MPS_DEBUG_MPC (s, 15, x, "x"); */
+      /* MPS_DEBUG_RDPE (s, new_rad, "Computed newton radius for root"); */
 
     }
   
