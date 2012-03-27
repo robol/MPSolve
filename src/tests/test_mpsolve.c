@@ -255,7 +255,6 @@ standard_tests (void)
   TEST_UNISOLVE ("kam3_3");
   TEST_UNISOLVE ("umand31");
   TEST_UNISOLVE ("kam1_2");
-  TEST_UNISOLVE ("kam4");
   TEST_UNISOLVE ("lar1");
   TEST_UNISOLVE ("spiral20"); 
   TEST_UNISOLVE ("wilk20");

@@ -197,17 +197,22 @@ START_TEST (test_secsolve_altern)
 {
   /* Start with testing floating point without ga */
   test_pol *pol =
-    test_pol_new ("test100", "secsolve", 10, float_phase, false);
+    test_pol_new ("test100", "secsolve", 10, dpe_phase, false);
   test_secsolve_on_pol (pol);
-
-  /* then floating point with ga */
-  pol->ga = true;
-  test_secsolve_on_pol (pol);
-
   test_pol_free (pol);
 }
-
 END_TEST
+
+START_TEST (test_secsolve_altern_ga)
+{
+  test_pol *pol = 
+    test_pol_new ("test100", "secsolve", 10, dpe_phase, true);
+
+  test_secsolve_on_pol (pol);
+  test_pol_free (pol);
+}
+END_TEST
+
 START_TEST (test_secsolve_integer)
 {
   /* Test integer parsing of secsolve, ga approach */
@@ -281,14 +286,14 @@ START_TEST (test_secsolve_nroots)
 }
 END_TEST
 
-START_TEST (test_secsolve_kam1_1)
-{
-  /* Testing the kam polynomials */
-  test_pol *pol = test_pol_new ("kam1_1", "unisolve", 11, float_phase, true);
-  test_secsolve_on_pol (pol);
-  test_pol_free (pol);
-}
-END_TEST
+/* START_TEST (test_secsolve_kam1_1) */
+/* { */
+/*   /\* Testing the kam polynomials *\/ */
+/*   test_pol *pol = test_pol_new ("kam1_1", "unisolve", 11, float_phase, true); */
+/*   test_secsolve_on_pol (pol); */
+/*   test_pol_free (pol); */
+/* } */
+/* END_TEST */
 
 START_TEST (test_secsolve_kam1_2)
 {
@@ -306,13 +311,13 @@ START_TEST (test_secsolve_kam1_3)
 }
 END_TEST
 
-START_TEST (test_secsolve_kam2_1)
-{
-  test_pol *pol = test_pol_new ("kam2_1", "unisolve", 11, float_phase, true);
-  test_secsolve_on_pol (pol);
-  test_pol_free (pol);
-}
-END_TEST
+/* START_TEST (test_secsolve_kam2_1) */
+/* { */
+/*   test_pol *pol = test_pol_new ("kam2_1", "unisolve", 11, float_phase, true); */
+/*   test_secsolve_on_pol (pol); */
+/*   test_pol_free (pol); */
+/* } */
+/* END_TEST */
 
 START_TEST (test_secsolve_kam2_2)
 {
@@ -420,6 +425,7 @@ END_TEST
 
   /* Case of a_i = (-1)^(i+1) , b_i = i */
   tcase_add_test (tc_secular, test_secsolve_altern);
+  tcase_add_test (tc_secular, test_secsolve_altern_ga);
 
   /* Integer parsing */
   tcase_add_test (tc_secular, test_secsolve_integer);
@@ -437,10 +443,10 @@ END_TEST
   tcase_add_test (tc_monomial, test_secsolve_nroots);
 
   /* Kam polynomials */
-  tcase_add_test (tc_monomial, test_secsolve_kam1_1);
+  /* tcase_add_test (tc_monomial, test_secsolve_kam1_1); */
   tcase_add_test (tc_monomial, test_secsolve_kam1_2);
   tcase_add_test (tc_monomial, test_secsolve_kam1_3);
-  tcase_add_test (tc_monomial, test_secsolve_kam2_1);
+  /* tcase_add_test (tc_monomial, test_secsolve_kam2_1); */
   tcase_add_test (tc_monomial, test_secsolve_kam2_2);
   tcase_add_test (tc_monomial, test_secsolve_kam2_3);
   tcase_add_test (tc_monomial, test_secsolve_kam3_2);
