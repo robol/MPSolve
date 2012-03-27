@@ -523,10 +523,16 @@ mps_secular_ga_regenerate_coefficients_secular (mps_status * s, cdpe_t * old_b, 
     for (i = 0; i < s->n; i++) {					\
       mpc_set_prec (sec_eq->ampc[i], wp);				\
       mpc_set_prec (sec_eq->bmpc[i], wp);				\
-      mpf_set_q (mpc_Re (sec_eq->ampc[i]), s->secular_equation->initial_ampqrc[i]); \
-      mpf_set_q (mpc_Im (sec_eq->ampc[i]), s->secular_equation->initial_ampqic[i]); \
-      mpf_set_q (mpc_Re (sec_eq->bmpc[i]), s->secular_equation->initial_bmpqrc[i]); \
-      mpf_set_q (mpc_Im (sec_eq->bmpc[i]), s->secular_equation->initial_bmpqic[i]); \
+      if (MPS_INPUT_CONFIG_IS_FP (s->input_config)) {			\
+	mpc_set (sec_eq->ampc[i], s->secular_equation->initial_ampc[i]); \
+	mpc_set (sec_eq->bmpc[i], s->secular_equation->initial_bmpc[i]); \
+      }									\
+      else {								\
+	mpf_set_q (mpc_Re (sec_eq->ampc[i]), s->secular_equation->initial_ampqrc[i]); \
+	mpf_set_q (mpc_Im (sec_eq->ampc[i]), s->secular_equation->initial_ampqic[i]); \
+	mpf_set_q (mpc_Re (sec_eq->bmpc[i]), s->secular_equation->initial_bmpqrc[i]); \
+	mpf_set_q (mpc_Im (sec_eq->bmpc[i]), s->secular_equation->initial_bmpqic[i]); \
+      }									\
       mpc_set_prec (diff, wp);						\
       mpc_set_prec (prod_b, wp);					\
       mpc_set_prec (sec->ampc[i], wp);					\
