@@ -412,7 +412,7 @@ mps_secular_ga_diterate (mps_status * s, int maxit, mps_boolean just_regenerated
       data[i].roots_mutex = roots_mutex;
       data[i].queue = queue;
 
-       mps_thread_pool_assign (s, s->pool, __mps_secular_ga_diterate_worker, data + i); 
+      mps_thread_pool_assign (s, s->pool, __mps_secular_ga_diterate_worker, data + i); 
     }
 
   mps_thread_pool_wait (s, s->pool);

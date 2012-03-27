@@ -579,6 +579,11 @@ mps_secular_ga_regenerate_coefficients_secular (mps_status * s, cdpe_t * old_b, 
 #undef mps_raise_secular_equation_precision
   
   mps_secular_equation_free (starting_sec);
+
+  mpc_clear (diff);
+  mpc_clear (prod_b);
+
+  free (root_changed);
   
 
   return success;

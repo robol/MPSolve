@@ -598,33 +598,16 @@ mps_secular_ga_mpsolve (mps_status * s)
   /* Finally improve the roots if approximation is required */
   if (s->output_config->goal == MPS_OUTPUT_GOAL_APPROXIMATE)
     {
-      if (MPS_INPUT_CONFIG_IS_SECULAR (s->input_config))
+      clock_t *my_timer = mps_start_timer ();
+      mps_improve (s);
+      unsigned int improve_time = mps_stop_timer (my_timer);
+      if (s->debug_level & MPS_DEBUG_TIMINGS)
 	{
-	  clock_t *my_timer = mps_start_timer ();
-	  mps_secular_ga_improve (s);
-	  unsigned int improve_time = mps_stop_timer (my_timer);
-	  if (s->debug_level & MPS_DEBUG_TIMINGS)
-	    {
-	      MPS_DEBUG (s, "mps_secular_ga_improve took %u ms", improve_time);
-	    }
-	}
-      else if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
-	{
-	  clock_t *my_timer = mps_start_timer ();
-	  mps_improve (s);
-	  unsigned int improve_time = mps_stop_timer (my_timer);
-	  if (s->debug_level & MPS_DEBUG_TIMINGS)
-	    {
-	      MPS_DEBUG (s, "mps_improve took %u ms", improve_time);
-	    }
+	  MPS_DEBUG (s, "mps_improve took %u ms", improve_time);
 	}
     }
 
-  /* if (s->lastphase == mp_phase) */
   mps_restore_data (s);  
-
-  /* Finally copy the roots ready for output */
-  /* mps_copy_roots (s); */
 
   /* Debug total time taken but only if debug is enabled */
 #ifndef DISABLE_DEBUG
