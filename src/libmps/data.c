@@ -287,7 +287,7 @@ mps_prepare_data (mps_status * s, long int prec)
 	  mps_monomial_poly_raise_precision (s, s->monomial_poly, prec);
 	}
       else if (MPS_INPUT_CONFIG_IS_SECULAR (s->input_config))
-	mps_secular_raise_precision (s, prec);
+	mps_secular_raise_coefficient_precision (s, prec);
     }
 
   MPS_UNLOCK (s->data_prec_max);
