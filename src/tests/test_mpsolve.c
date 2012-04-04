@@ -184,6 +184,7 @@ test_mpsolve (char * pol_file, char * res_file, mps_algorithm algorithm)
   if (zero_roots != mps_status_get_zero_roots (s))
     passed = false;
   
+  fclose (input_stream);
   fclose (result_stream);    
   
   mpc_clear (ctmp);   
