@@ -750,14 +750,16 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
 		  MPS_DEBUG_CPLX (s, sec->afpc[i], "sec->afpc[%d]", i);	      
 		  MPS_DEBUG_CPLX (s, sec->bfpc[i], "sec->bfpc[%d]", i);
 		}
-            }
 
-          mps_secular_set_radii (s);
+	      mpc_set_cplx (s->mroot[i], s->froot[i]);
+            }
         }
 
       cplx_vfree (old_a);
       cplx_vfree (old_b);
       cdpe_vfree (old_db);
+
+      mps_secular_set_radii (s);
 
       mps_secular_fstart (s, s->n, NULL, 0, 0, s->eps_out);
 
@@ -804,7 +806,7 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
         {
 	  mps_secular_ga_update_coefficients (s);
           for (i = 0; i < s->n; i++)
-	      rdpe_add_eq_d (sec->dregeneration_epsilon[i], DBL_EPSILON);
+	    mpc_set_cdpe (s->mroot[i], s->droot[i]);
           mps_secular_set_radii (s);
         }
       
@@ -903,9 +905,8 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
 
   if (successful_regeneration)
     {
-      for (i = 0; i < s->n; i++)
-	  s->again[i] = true;
-      /* mps_secular_set_radii (s); */
+      for (i = 0; i < s->n; i++) 
+	s->again[i] = true;
     }
   else
     {

@@ -291,7 +291,6 @@ mps_secular_ga_mpsolve (mps_status * s)
   int i;
   mps_boolean skip_check_stop = false;
   mps_boolean just_regenerated = false;
-  rdpe_t r_eps;
   mps_secular_equation *sec = mps_secular_equation_from_status (s);
 
   if (s->output_config->search_set != MPS_SEARCH_SET_COMPLEX_PLANE)
@@ -310,7 +309,6 @@ mps_secular_ga_mpsolve (mps_status * s)
     }
 
   mps_allocate_data (s);
-  rdpe_set_d (r_eps, DBL_EPSILON);
 
   s->just_raised_precision = true;
 
@@ -340,7 +338,8 @@ mps_secular_ga_mpsolve (mps_status * s)
   for (i = 0; i < s->n; i++)
     {
       s->frad[i] = DBL_MAX;
-      rdpe_set_d (s->drad[i], DBL_MAX);
+      rdpe_set (s->drad[i], RDPE_MAX); 
+      /* rdpe_set_d (s->drad[i], DBL_MAX) */
     }
   
   /* Set initial cluster structure as no cluster structure. */

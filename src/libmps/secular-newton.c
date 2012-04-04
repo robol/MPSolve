@@ -127,7 +127,7 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
       /* MPS_DEBUG (s, "g_fp_%ld = %e", data->k, g_fp); */
       /* MPS_DEBUG (s, "g_sumb_%ld = %e", data->k, g_sumb); */
 
-      new_rad = g_pol / (g_fp - g_pol * g_sumb) * sec->n;
+      new_rad = g_pol / (g_fp - g_pol * g_sumb) * sec->n + ax * 4.0 * DBL_EPSILON;
 
       /* MPS_DEBUG (s, "new_rad_%ld = %e", data->k, new_rad); */
       /* pthread_mutex_unlock (data->gs_mutex); */
@@ -149,7 +149,7 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
 
   cdpe_t pol, fp, sumb, ctmp, ctmp2, old_x;
   rdpe_t rtmp, rtmp2, apol, asum, asum_on_apol;
-  rdpe_t asumb, asum2;
+  rdpe_t asumb, asum2, ax;
 
   *again = true;
 
@@ -161,6 +161,8 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
   rdpe_set (asum, rdpe_zero);
   rdpe_set (asum2, rdpe_zero);
   rdpe_set (asumb, rdpe_zero);
+
+  cdpe_mod (ax, x);
 
   for (i = 0; i < sec->n; i++)
     {
@@ -270,9 +272,18 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
       rdpe_sub (new_rad, g_fp, new_rad);
       rdpe_div (new_rad, g_pol, new_rad);
       rdpe_mul_eq_d (new_rad, s->n);
+
+      MPS_DEBUG_RDPE (s, g_pol, "g_pol");
+      MPS_DEBUG_RDPE (s, g_fp, "g_fp");
+      MPS_DEBUG_RDPE (s, g_sumb,  "g_sumb");
+
+      rdpe_mul_d (rtmp, ax, DBL_EPSILON * 4.0);
+      rdpe_add_eq (new_rad, rtmp);
       
       if (*again && rdpe_lt (new_rad, rad) && !(rdpe_le (g_fp, rdpe_zero) || rdpe_le (new_rad, rdpe_zero)))
 	rdpe_set (rad, new_rad);
+
+      MPS_DEBUG_RDPE (s, new_rad, "Computed rad for roots %ld", data->k);
     }
 }
 
