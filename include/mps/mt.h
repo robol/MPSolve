@@ -163,6 +163,7 @@ extern "C"
   extern const rdpe_t rdpe_mind;        /* min pos. double as rdpe */
   extern const rdpe_t RDPE_MAX; /* max rdpe number         */
   extern const rdpe_t RDPE_MIN; /* min pos. rdpe  number   */
+  extern const rdpe_t RDPE_BIG;
 
 /* built constants */
   void rdpe_d (rdpe_t temp_rdpe, double d);

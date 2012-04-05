@@ -591,6 +591,7 @@ const rdpe_t RDPE_MAX = { {0.5, LONG_MAX} };
 const rdpe_t RDPE_MIN = { {0.5, LONG_MIN} };
 const rdpe_t rdpe_maxd = { {0.5, DBL_MAX_EXP} };
 const rdpe_t rdpe_mind = { {0.5, DBL_MIN_EXP} };
+const rdpe_t RDPE_BIG = { {0.5, LONG_MAX >> 10 } };
 
 void
 rdpe_d (rdpe_t temp_rdpe, double d)
