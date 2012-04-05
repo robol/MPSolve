@@ -148,15 +148,14 @@ extern "C"
   typedef __rdpe_struct rdpe_t[1];
   typedef const __rdpe_struct *rdpe_cp;
 
-/* macros for fields access */
-
+  /* macros for fields access */
 #define rdpe_Val(E)       (*E)
 #define rdpe_Mnt(E)       (E -> m)
 #define rdpe_Esp(E)       (E -> e)
 #define rdpe_Addr(E)      ((__rdpe_struct *) E)
 #define rdpe_Move(E1, E2) (*E1 = *E2)
 
-/* base constants */
+  /* base constants */
   extern const rdpe_t rdpe_zero;        /* zero as rdpe num.       */
   extern const rdpe_t rdpe_one; /* one as rdpe num.        */
   extern const rdpe_t rdpe_maxd;        /* max double as rdpe      */
@@ -165,11 +164,11 @@ extern "C"
   extern const rdpe_t RDPE_MIN; /* min pos. rdpe  number   */
   extern const rdpe_t RDPE_BIG;
 
-/* built constants */
+  /* built constants */
   void rdpe_d (rdpe_t temp_rdpe, double d);
   void rdpe_2dl (rdpe_t temp_rdpe, double d, long l);
 
-/* assignment functions */
+  /* assignment functions */
 #define rdpe_init(E) rdpe_clear(E)
   void rdpe_clear (rdpe_t e);
   void rdpe_set (rdpe_t re, const rdpe_t e);
@@ -178,7 +177,7 @@ extern "C"
   void rdpe_set_2dl (rdpe_t e, double d, long int l);
   int rdpe_set_str (rdpe_t e, const char *s);
 
-/* conversion */
+  /* conversion */
   double rdpe_get_d (const rdpe_t e);
   void rdpe_get_dl (double *d, long int *l, const rdpe_t e);
   void rdpe_get_2dl (double *d, long int *l, const rdpe_t e);

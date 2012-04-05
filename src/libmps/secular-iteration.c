@@ -72,8 +72,10 @@ __mps_secular_ga_fiterate_worker (void* data_ptr)
 
 	  it_data.k = i;
 	  it_data.gs_mutex = data->gs_mutex;
+	  MPS_DEBUG_CPLX (s, s->froot[i], "s->froot[%d]", i);
 	  mps_secular_fnewton (s, s->froot[i], &s->frad[i], corr,
 			       &s->again[i], &it_data, false);
+	  MPS_DEBUG_CPLX (s, corr, "corr");
 
 	  /* Apply Aberth correction */
 	  mps_faberth_wl (s, i, abcorr, data->aberth_mutex);
@@ -83,6 +85,9 @@ __mps_secular_ga_fiterate_worker (void* data_ptr)
 
 	  pthread_mutex_lock (&data->aberth_mutex[i]);
 	  cplx_sub_eq (s->froot[i], abcorr);
+	  if (isnan (cplx_Re (s->froot[i]))) {
+	    abort();
+	  }
 	  pthread_mutex_unlock (&data->aberth_mutex[i]);
 
 	  /* Correct the radius */

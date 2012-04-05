@@ -50,6 +50,12 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
 
       /* Compute (z-b_i)^{-1} */
       cplx_inv_eq (ctmp);
+      if (isinf (cplx_Re (ctmp)) || 
+	  isinf (cplx_Re (ctmp)))
+	{
+	  *again = false;
+	  return;
+	}
 
       /* Local error computation */
       local_error = (ax + cplx_mod (bfpc[i])) / (pow (cplx_mod (ctmp), 2));
@@ -79,6 +85,9 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
   /* Compute secular function */
   cplx_sub_eq (pol, cplx_one);
   asum += 1.0;
+
+  if (isnan (cplx_Re (pol)))
+    abort();
 
   /* Compute the module of pol */
   apol = cplx_mod (pol);
