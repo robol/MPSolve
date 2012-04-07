@@ -282,6 +282,9 @@ mps_improve (mps_status * s)
           if (rdpe_lt (s->drad[i], tmp) || 
 	      (mpnb_in != 0 && s->mpwp >= mpnb_in))
 	    {
+	      if (s->mpwp >= mpnb_in && mpnb_in != 0)
+		s->over_max = true;
+
 	      if (s->debug_level & MPS_DEBUG_IMPROVEMENT)
 		{
 		  if (s->mpwp >= mpnb_in && mpnb_in != 0)

@@ -1366,6 +1366,16 @@ mps_output (mps_status * s)
   if (s->DOLOG)
     fprintf (s->logstr, "--------------------\n");
 
+  if (s->output_config->format != MPS_OUTPUT_FORMAT_GNUPLOT && 
+      s->output_config->format != MPS_OUTPUT_FORMAT_GNUPLOT_FULL)
+    {
+      if (s->over_max)
+	{
+	  mps_warn (s, "Warning: Input precision has been reached during computation, "
+		    "so not all the required digits may have been computed.");
+	}
+    }
+
   /* Start with plotting instructions in the case of 
    * MPS_OUTPUT_GNUPLOT_FULL, so the output can be
    * piped directly to gnuplot */
