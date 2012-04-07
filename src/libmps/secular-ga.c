@@ -82,6 +82,7 @@ mps_secular_ga_check_stop (mps_status * s)
             }
           break;
         case dpe_phase:
+	  MPS_DEBUG (s, "Status of root %d: %s", i, MPS_ROOT_STATUS_TO_STRING (s->root_status[i]));
           if (!MPS_ROOT_STATUS_IS_COMPUTED (s, i))
             {
               MPS_DEBUG_WITH_INFO (s, "Root %d is not isolated, nor approximated, so we can't stop now.", i);

@@ -72,10 +72,14 @@ __mps_secular_ga_fiterate_worker (void* data_ptr)
 
 	  it_data.k = i;
 	  it_data.gs_mutex = data->gs_mutex;
-	  MPS_DEBUG_CPLX (s, s->froot[i], "s->froot[%d]", i);
+	  // MPS_DEBUG_CPLX (s, s->froot[i], "s->froot[%d]", i);
 	  mps_secular_fnewton (s, s->froot[i], &s->frad[i], corr,
 			       &s->again[i], &it_data, false);
-	  MPS_DEBUG_CPLX (s, corr, "corr");
+
+	  if (s->root_status[i] == MPS_ROOT_STATUS_NOT_FLOAT)
+	    {
+	      *data->excep = true;
+	    }
 
 	  /* Apply Aberth correction */
 	  mps_faberth_wl (s, i, abcorr, data->aberth_mutex);
@@ -139,6 +143,8 @@ mps_secular_ga_fiterate (mps_status * s, int maxit, mps_boolean just_regenerated
   int i;
   int nit = 0;
   int it_threshold;
+
+  mps_boolean excep = false;
 
 #ifndef DISABLE_DEBUG
   clock_t *my_clock = mps_start_timer ();
@@ -208,6 +214,7 @@ mps_secular_ga_fiterate (mps_status * s, int maxit, mps_boolean just_regenerated
       data[i].roots_mutex = roots_mutex;
       data[i].queue = queue;
       data[i].gs_mutex = &gs_mutex;
+      data[i].excep = &excep;
 
        mps_thread_pool_assign (s, s->pool, __mps_secular_ga_fiterate_worker, data + i); 
       /* __mps_secular_ga_fiterate_worker (data + i); */
@@ -229,6 +236,18 @@ mps_secular_ga_fiterate (mps_status * s, int maxit, mps_boolean just_regenerated
 	  MPS_DEBUG (s, "Setting approximation as best_approx");
 	}
       s->secular_equation->best_approx = true;
+    }
+
+  if (excep)
+    {
+      MPS_DEBUG_WITH_INFO (s, "Passing to DPE arithmetic since there are roots not representable in standard floating point");
+      for (i = 0; i < s->n; i++)
+	{
+	  cdpe_set_x (s->droot[i], s->froot[i]);
+	  rdpe_set_d (s->drad[i], s->frad[i]);
+	  s->root_status[i] = MPS_ROOT_STATUS_CLUSTERED;
+	}
+      s->lastphase = dpe_phase;
     }
 
   /* Compute the inclusion radii with Gerschgorin so we can compute

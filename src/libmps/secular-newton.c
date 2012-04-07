@@ -54,6 +54,7 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
 	  isinf (cplx_Re (ctmp)))
 	{
 	  *again = false;
+	  s->root_status[data->k] = MPS_ROOT_STATUS_NOT_FLOAT;
 	  return;
 	}
 
