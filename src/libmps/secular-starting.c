@@ -73,13 +73,6 @@ mps_secular_fstart (mps_status * s, int n, mps_cluster_item * cluster_item, doub
 	    return;
 	}
     }
-
-
-  /* Compute the inclusion radii with Gerschgorin so we can compute
-   * clusterizations for the roots. */
-  /* mps_fradii (s); */
-  /* mps_fcluster (s, 2.0 * s->n); */
-  /* mps_fmodify (s, false); */
 }
 
 void
@@ -157,9 +150,6 @@ mps_secular_dstart (mps_status * s, int n, mps_cluster_item * cluster_item, rdpe
       if (cluster_item)
 	root = root->next;
     }
-
-  /* mps_dcluster (s, 2.0 * s->n); */
-  /* mps_dmodify (s, false); */
 }
 
 void
@@ -240,8 +230,5 @@ mps_secular_mstart (mps_status * s, int n, mps_cluster_item * cluster_item, rdpe
 	}
     }
 
-  /* mps_mcluster (s, 2.0 * s->n); */
-  /* mps_mmodify (s, false); */
-  
   mpc_clear (epsilon);
 }
