@@ -270,7 +270,7 @@ mps_improve (mps_status * s)
 	  /*   rdpe_set (s->drad[i], newrad);    */
 	   
 	  mpc_rmod (tmp, s->mroot[i]);
-	  rdpe_mul_eq (tmp, s->mp_epsilon);
+	  rdpe_mul_eq (tmp, s->eps_out);
 	  rdpe_mul_eq_d (tmp, 4.0);
 	  rdpe_add_eq (s->drad[i], tmp);
 	  
