@@ -289,6 +289,10 @@ EXTRA_DIST = \
 	secsolve/test1000.pol \
 	secsolve/test100.pol \
 	secsolve/rand120.pol \
+	secsolve/integer.pol \
+	secsolve/wilk20.pol \
+	secsolve/wilk40.pol \
+	secsolve/wilk80.pol \
 	unisolve/lsr_24.pol \
 	unisolve/toep1_128.pol \
 	unisolve/kir1_20_mod.pol \
@@ -460,6 +464,11 @@ EXTRA_DIST = \
 	../results/secsolve/rand15.res \
 	../results/secsolve/test100.res \
 	../results/secsolve/rand120.res \
+	../results/secsolve/integer.res \
+	../results/secsolve/simple.res \
+	../results/secsolve/wilk20.res \
+	../results/secsolve/wilk40.res \
+	../results/secsolve/wilk80.res \
 	../results/unisolve/mand63.res \
 	../results/unisolve/kam2_1.res \
 	../results/unisolve/kir1_10.res \
