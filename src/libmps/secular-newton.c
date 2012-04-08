@@ -87,9 +87,6 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
   cplx_sub_eq (pol, cplx_one);
   asum += 1.0;
 
-  if (isnan (cplx_Re (pol)))
-    abort();
-
   /* Compute the module of pol */
   apol = cplx_mod (pol);
 
