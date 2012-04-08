@@ -89,9 +89,6 @@ __mps_secular_ga_fiterate_worker (void* data_ptr)
 
 	  pthread_mutex_lock (&data->aberth_mutex[i]);
 	  cplx_sub_eq (s->froot[i], abcorr);
-	  if (isnan (cplx_Re (s->froot[i]))) {
-	    abort();
-	  }
 	  pthread_mutex_unlock (&data->aberth_mutex[i]);
 
 	  /* Correct the radius */
