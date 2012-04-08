@@ -43,7 +43,7 @@ __mps_secular_ga_fiterate_worker (void* data_ptr)
       cplx_set (it_data.local_bfpc[i], sec->bfpc[i]);
     }
 
-  while ((*data->nzeros < s->n))
+  while ((*data->nzeros < s->n) && !*data->excep)
     {
       job = mps_thread_job_queue_next (s, data->queue);
       i = job.i;
@@ -73,12 +73,14 @@ __mps_secular_ga_fiterate_worker (void* data_ptr)
 	  it_data.k = i;
 	  it_data.gs_mutex = data->gs_mutex;
 	  // MPS_DEBUG_CPLX (s, s->froot[i], "s->froot[%d]", i);
+	  cdpe_set_x (s->droot[i], s->froot[i]);
 	  mps_secular_fnewton (s, s->froot[i], &s->frad[i], corr,
 			       &s->again[i], &it_data, false);
 
 	  if (s->root_status[i] == MPS_ROOT_STATUS_NOT_FLOAT)
 	    {
 	      *data->excep = true;
+	      break;
 	    }
 
 	  /* Apply Aberth correction */
@@ -86,6 +88,13 @@ __mps_secular_ga_fiterate_worker (void* data_ptr)
 	  cplx_mul_eq (abcorr, corr);
 	  cplx_sub (abcorr, cplx_one, abcorr);
 	  cplx_div (abcorr, corr, abcorr);
+
+	  if (isnan (cplx_Re (s->froot[i])) || isnan (cplx_Im (s->froot[i])))
+	    {
+	      *data->excep = true;
+	      cdpe_get_x (s->froot[i], s->droot[i]);
+	      break;
+	    }
 
 	  pthread_mutex_lock (&data->aberth_mutex[i]);
 	  cplx_sub_eq (s->froot[i], abcorr);
