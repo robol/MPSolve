@@ -831,17 +831,6 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
 
     case mp_phase:
 
-      /* If we are in the case of MP that means we are probably dealing with
-       * multiple roots or clusters, since a good floating point representation
-       * hasn't been found.
-       *
-       * We may try to solve this issue faster by repositioning the starting
-       * point; this strategy is available only if we know the coefficients
-       * of the polynomial in the monomial base.
-       */
-      /* if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config)) */
-      /* 	mps_mrestart (s); */
-
       /* Allocate old_a and old_b */
       old_ma = mpc_valloc (s->n);
       old_mb = mpc_valloc (s->n);

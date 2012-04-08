@@ -478,7 +478,6 @@ mps_dcompute_starting_radii (mps_status * s, int n,
         /* if the radius is representable as double, compute it    */
         if ((temp < xbig) && (temp > xsmall))
           rdpe_set_d (r, temp);
-	MPS_DEBUG_RDPE (s, r, "r");
         rdpe_exp_eq (r);
 
         /* if the radius is greater than the radius of the cluster
@@ -1018,7 +1017,7 @@ mps_mstart (mps_status * s, int n, mps_cluster_item * cluster_item,
       rdpe_mul_eq_d (rtmp1, (double) nzeros);
       rdpe_set (rtmp2, g);
       rdpe_mul_eq (rtmp2, s->eps_out);
-      MPS_DEBUG (s, "Relatively small check");
+      MPS_DEBUG (s, "Performing relatively small check");
       if (rdpe_le (rtmp1, rtmp2))
 	{
 	  mps_root * root2 = starting_root;
@@ -1579,11 +1578,14 @@ mps_mrestart (mps_status * s)
       /* Compute the coefficients of the derivative of p(x) having order
        * equal to the multiplicity of the cluster -1. */
       for (j = 0; j <= s->n; j++)
-        mpc_set (s->mfpc1[j], p->mfpc[j]);
+	{
+	  mpc_set (s->mfpc1[j], p->mfpc[j]);
+	}
       for (j = 1; j < cluster->n; j++)
         {
           for (k = 0; k <= s->n - j; k++)
             mpc_mul_ui (s->mfpc1[k], s->mfpc1[k + 1], k + 1);
+	  /* MPS_DEBUG_MPC (s, 15, s->mfpc1[j], "p->mfpc[%d]", j); */
         }
       for (j = 0; j < s->n - cluster->n + 2; j++)
         {
@@ -1602,13 +1604,10 @@ mps_mrestart (mps_status * s)
                 s->spar1[j] = false;
             }
           for (j = 0; j < s->n - cluster->n + 1; j++)
-            mpc_mul_ui (s->mfppc1[j], s->mfpc1[j + 1], j + 1);
+	    {
+	      mpc_mul_ui (s->mfppc1[j], s->mfpc1[j + 1], j + 1);
+	    }
         }
-
-      for (j = 0; j < s->n - cluster->n + 2; j++)
-	{
-	  MPS_DEBUG_MPC (s, s->mpwp, s->mfppc1[j], "s->mfppc1[%d]", j);
-	}
 
       /* Apply at most max_newt_it steps of Newton's iterations
        * to the above derivative starting from the super center
@@ -1823,6 +1822,7 @@ mps_mshift (mps_status * s, int m, mps_cluster_item * cluster_item, rdpe_t clust
   cdpe_t abd;
   mpc_t t;
   mps_monomial_poly *p = s->monomial_poly;
+  mps_cluster * cluster = cluster_item->cluster;
 
   mpc_init2 (t, s->mpwp);
 
@@ -1843,8 +1843,8 @@ mps_mshift (mps_status * s, int m, mps_cluster_item * cluster_item, rdpe_t clust
 
   /* store the current working precision mpnw into mpnw_tmp */
   mpwp_temp = s->mpwp;
-  mpwp_max = s->mpwp;
-
+  mpwp_max = s->mpwp * cluster->n;
+  
   do
     {                           /* loop */
       mpc_set (t, s->mfpc1[p->n]);
@@ -1873,12 +1873,12 @@ mps_mshift (mps_status * s, int m, mps_cluster_item * cluster_item, rdpe_t clust
         {
           mpwp_temp += s->mpwp;
 
-          if (mpwp_temp > mpwp_max || mpwp_temp > s->output_config->prec * m * 2)
-            {
-              MPS_DEBUG (s,
-                         "Reached the maximum allowed precision in mshift");
-              break;
-            }
+	  if (s->algorithm == MPS_ALGORITHM_STANDARD_MPSOLVE && mpwp_temp > s->output_config->prec * m * 2) 
+             { 
+               MPS_DEBUG (s, "Reached the maximum allowed precision in mshift"); 
+	       break; 
+             } 
+
           rdpe_set_2dl (mp_ep, 1.0, 1 - mpwp_temp);
           mps_raisetemp (s, mpwp_temp);
           mpc_set_prec (t, (unsigned long int) mpwp_temp);
