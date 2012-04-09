@@ -34,6 +34,7 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
   cplx_set (pol, cplx_zero);
   cplx_set (fp, cplx_zero);
   cplx_set (sumb, cplx_zero);
+  cplx_set (corr, cplx_zero);
 
   for (i = 0; i < sec->n; i++)
     {
