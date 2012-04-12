@@ -290,6 +290,7 @@ EXTRA_DIST = \
 	secsolve/test100.pol \
 	secsolve/rand120.pol \
 	secsolve/integer.pol \
+	secsolve/simple.pol \
 	secsolve/wilk20.pol \
 	secsolve/wilk40.pol \
 	secsolve/wilk80.pol \

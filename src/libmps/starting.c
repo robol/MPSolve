@@ -1667,9 +1667,9 @@ mps_mrestart (mps_status * s)
         }
 
       /*#D perform shift only if the new computed sr is smaller than old*0.25 */
-      if (s->algorithm == MPS_ALGORITHM_SECULAR_GA)
-	rdpe_set (rtmp, sr);
-      else
+      /* if (s->algorithm == MPS_ALGORITHM_SECULAR_GA) */
+      /* 	rdpe_set (rtmp, sr); */
+      /* else */
 	rdpe_mul_d (rtmp, sr, 0.25);
 
       /*#D AGO99 Factors: 0.1 (MPS2.0), 0.5 (GIUGN98) */
@@ -1691,7 +1691,11 @@ mps_mrestart (mps_status * s)
                           2.0 * cluster->n);
               if (rdpe_lt (s->drad[l], rtmp))
                 rdpe_set (s->drad[l], rtmp);
+
+	      if (s->debug_level & MPS_DEBUG_CLUSTER)
+		MPS_DEBUG_MPC (s, s->mpwp, s->mroot[l], "Repositioned root %4d: ", l);
             }
+
         }
       else
         {
