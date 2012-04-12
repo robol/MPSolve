@@ -1826,7 +1826,7 @@ mps_mshift (mps_status * s, int m, mps_cluster_item * cluster_item, rdpe_t clust
   cdpe_t abd;
   mpc_t t;
   mps_monomial_poly *p = s->monomial_poly;
-  mps_cluster * cluster = cluster_item->cluster;
+  /* mps_cluster * cluster = cluster_item->cluster;   */
 
   mpc_init2 (t, s->mpwp);
 
@@ -1847,7 +1847,7 @@ mps_mshift (mps_status * s, int m, mps_cluster_item * cluster_item, rdpe_t clust
 
   /* store the current working precision mpnw into mpnw_tmp */
   mpwp_temp = s->mpwp;
-  mpwp_max = s->mpwp * cluster->n;
+  mpwp_max = s->mpwp;
   
   do
     {                           /* loop */
@@ -1877,7 +1877,8 @@ mps_mshift (mps_status * s, int m, mps_cluster_item * cluster_item, rdpe_t clust
         {
           mpwp_temp += s->mpwp;
 
-	  if (s->algorithm == MPS_ALGORITHM_STANDARD_MPSOLVE && mpwp_temp > s->output_config->prec * m * 2) 
+	  if (s->algorithm == MPS_ALGORITHM_STANDARD_MPSOLVE && 
+	      (mpwp_temp > mpwp_max || mpwp_temp > s->output_config->prec * m * 2)) 
              { 
                MPS_DEBUG (s, "Reached the maximum allowed precision in mshift"); 
 	       break; 
