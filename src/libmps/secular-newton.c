@@ -11,6 +11,42 @@
 
 #define MPS_2SQRT2 2.82842712474619009760
 
+/**
+ * @brief Fallback routine for the case where x == b_k.
+ */
+void
+mps_secular_fnewton_fallback (mps_status * s, int k, double * rad, cplx_t corr,
+			     mps_boolean * again, void * user_data,
+			     mps_boolean skip_radius_computation)
+{
+  int i;
+
+  mps_secular_iteration_data * data = user_data;
+
+  cplx_t * afpc = data->local_afpc;
+  cplx_t * bfpc = data->local_bfpc;
+
+  cplx_t diff;
+  cplx_t ctmp;
+  cplx_t den;
+
+  cplx_set (corr, afpc[k]);
+  cplx_set_d (den, -1.0, 0.0);
+
+  for (i = 0; i < s->n; i++)
+    {
+      if (i != k)
+	{
+	  cplx_sub (diff, bfpc[k], bfpc[i]);
+	  cplx_add (ctmp, afpc[k], afpc[i]);
+	  cplx_div_eq (ctmp, diff);
+	  cplx_add_eq (den, ctmp);
+	}
+    }
+
+  *again = cplx_mod (corr) > cplx_mod (bfpc[k]) * s->n * DBL_EPSILON;
+}
+
 void
 mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
                      mps_boolean * again, void * user_data,
@@ -45,7 +81,7 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
        * without doing any further iteration */
       if (cplx_eq_zero (ctmp))
 	{
-	  *again = false;
+	  mps_secular_fnewton_fallback (s, i, rad, corr, again, user_data, skip_radius_computation); 
           return;
 	}
 
@@ -146,6 +182,40 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
 }
 
 void
+mps_secular_dnewton_fallback (mps_status * s, int k, rdpe_t rad, cdpe_t corr,
+			      mps_boolean * again, void * user_data,
+			      mps_boolean skip_radius_computation)
+{
+  int i;
+
+  mps_secular_equation * sec = s->secular_equation;
+
+  cdpe_t diff, ctmp;
+  rdpe_t ax, rtmp;
+
+  cdpe_mod (ax, sec->bdpc[k]);
+
+  cdpe_set_d (corr, -1.0, 0.0);
+
+  for (i = 0; i < sec->n; i++)
+    {
+      if (i != k)
+	{
+	  cdpe_sub (diff, sec->bdpc[k], sec->bdpc[i]);
+	  cdpe_add (ctmp, sec->adpc[k], sec->adpc[i]);
+	  cdpe_div_eq (ctmp, diff);
+	  cdpe_add_eq (corr, ctmp);
+	}
+    }
+
+  cdpe_mod (rtmp, corr);
+  rdpe_div_eq (rtmp, ax);
+  rdpe_div_eq_d (rtmp, 4.0 * DBL_EPSILON);
+
+  *again = rdpe_ge (rtmp, rdpe_one);
+}
+
+void
 mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
                      mps_boolean * again, void * user_data,
 		     mps_boolean skip_radius_computation)
@@ -185,7 +255,8 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
       /* Alternative computation if x is one of the b_i */
       if (cdpe_eq_zero (ctmp))
 	{
-	  *again = false;
+	  mps_secular_dnewton_fallback (s, i, rad, corr, again, user_data,
+					skip_radius_computation);
 	  return;
 	}
 
@@ -296,6 +367,43 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
 }
 
 void
+mps_secular_mnewton_fallback (mps_status * s, int k, rdpe_t rad, mpc_t corr,
+			      mps_boolean * again, void * user_data,
+			      mps_boolean skip_radius_computation)
+{
+  int i;
+
+  mps_secular_equation * sec = s->secular_equation;
+
+  mpc_t diff, ctmp;
+  rdpe_t ax, rtmp;
+
+  mpc_init2 (diff, s->mpwp);
+  mpc_init2 (ctmp, s->mpwp);
+
+  mpc_rmod (ax, sec->bmpc[k]);
+  mpc_set_si (corr, -1, 0);
+
+  for (i = 0; i < sec->n; i++)
+    {
+      if (i != k)
+	{
+	  mpc_sub (diff, sec->bmpc[k], sec->bmpc[i]);
+	  mpc_add (ctmp, sec->ampc[k], sec->ampc[i]);
+	  mpc_div_eq (ctmp, diff);
+	  mpc_add_eq (corr, ctmp);
+	}
+    }
+
+  mpc_rmod (rtmp, corr);
+  rdpe_div_eq (rtmp, ax);
+  rdpe_div_eq (rtmp, s->mp_epsilon);
+  rdpe_div_eq_d (rtmp, 4.0);
+
+  *again = rdpe_ge (rtmp, rdpe_one);  
+}
+
+void
 mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
 		     mps_boolean * again, void * user_data,
 		     mps_boolean skip_radius_computation)
@@ -347,7 +455,8 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
        * the case return without doing anything more */
       if (mpc_eq_zero (ctmp))
 	{
-	  *again = false;
+	  mps_secular_mnewton_fallback (s, i, rad, corr, again, user_data, 
+					skip_radius_computation);
 	  goto mnewton_cleanup;
 	}
 
