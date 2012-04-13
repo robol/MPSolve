@@ -293,6 +293,8 @@ extern "C"
 
   void mps_secular_check_data (mps_status * s, char *which_case);
 
+  void mps_secular_restart (mps_status * s);
+
   void mps_secular_switch_phase (mps_status * s, mps_phase phase);
 
   void mps_secular_raise_coefficient_precision (mps_status * s, int wp);

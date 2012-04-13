@@ -465,12 +465,6 @@ mps_secular_ga_mpsolve (mps_status * s)
       skip_check_stop = false;
       s->secular_equation->best_approx = false;
 
-      if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config)) 
-       	{ 
-	  MPS_DEBUG (s, "Performing restart phase");
-       	  mps_mrestart (s); 
-       	} 
-
       /* Perform an iteration of floating point Aberth method */
       switch (s->lastphase)
         {
@@ -529,6 +523,12 @@ mps_secular_ga_mpsolve (mps_status * s)
        if (sec->best_approx)
 	 {
 	   skip_check_stop = false;
+
+	   if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config)) 
+	     { 
+	       MPS_DEBUG (s, "Performing restart phase");
+	       mps_secular_restart (s);
+	     }
 
 	   /* Going to multiprecision if we're not there yet */
 	   if (s->lastphase != mp_phase)

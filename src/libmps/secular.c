@@ -48,6 +48,34 @@ mps_secular_dump (mps_status * s, mps_secular_equation * sec)
     }
 }
 
+void
+mps_secular_restart (mps_status * s)
+{
+  int i;
+
+  switch (s->lastphase)
+    {
+    case float_phase:
+      for (i = 0; i < s->n; i++)
+	mpc_set_cplx (s->mroot[i], s->froot[i]);
+      break;
+    case dpe_phase:
+      for (i = 0; i < s->n; i++)
+	mpc_set_cdpe (s->mroot[i], s->droot[i]);
+      break;
+    default:
+      break;
+    }
+
+  mps_mrestart (s);
+
+  for (i = 0; i < s->n; i++)
+    {
+      mpc_get_cplx (s->froot[i], s->mroot[i]);
+      mpc_get_cdpe (s->droot[i], s->mroot[i]);
+    }
+}
+
 /**
  * @brief Deflate a secular equation lowering the degree of the
  * polynomial that represent it, if that is possible.
