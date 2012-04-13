@@ -352,17 +352,11 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
       rdpe_div (new_rad, g_pol, new_rad);
       rdpe_mul_eq_d (new_rad, s->n);
 
-      MPS_DEBUG_RDPE (s, g_pol, "g_pol");
-      MPS_DEBUG_RDPE (s, g_fp, "g_fp");
-      MPS_DEBUG_RDPE (s, g_sumb,  "g_sumb");
-
       rdpe_mul_d (rtmp, ax, DBL_EPSILON * 4.0);
       rdpe_add_eq (new_rad, rtmp);
       
       if (*again && rdpe_lt (new_rad, rad) && !(rdpe_le (g_fp, rdpe_zero) || rdpe_le (new_rad, rdpe_zero)))
 	rdpe_set (rad, new_rad);
-
-      MPS_DEBUG_RDPE (s, new_rad, "Computed rad for roots %ld", data->k);
     }
 }
 
