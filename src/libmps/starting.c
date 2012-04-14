@@ -1440,7 +1440,10 @@ mps_mrestart (mps_status * s)
 
   /* For user's polynomials skip the restart stage (not yet implemented) */
   if (MPS_INPUT_CONFIG_IS_USER (s->input_config))
-    return;
+    {
+      MPS_DEBUG_WITH_INFO (s, "Skipping restart on user polynomial");
+      return;
+    }
 
   if (s->algorithm == MPS_ALGORITHM_SECULAR_GA)
     {
@@ -1483,7 +1486,7 @@ mps_mrestart (mps_status * s)
       for (root = cluster->first; root != NULL; root = root->next)
         {                       /* looptst: */
 	  l = root->k;
-          if (!s->again[l])
+          if (!s->again[l] && s->algorithm == MPS_ALGORITHM_STANDARD_MPSOLVE)
             goto loop1;
           if (s->output_config->goal == MPS_OUTPUT_GOAL_COUNT)
             {
@@ -1504,6 +1507,7 @@ mps_mrestart (mps_status * s)
             }
         }                       /* for */
 
+
       if (tst)
         goto loop1;
 
@@ -1511,8 +1515,8 @@ mps_mrestart (mps_status * s)
       mps_msrad (s, cluster, sc, sr);
 
       /* MPS_DEBUG (s, "Clust = %d", i); */
-      /* MPS_DEBUG_MPC (s, 10, sc, "Super center"); */
-      /* MPS_DEBUG_RDPE (s, sr, "Super radius"); */
+      MPS_DEBUG_MPC (s, 10, sc, "Super center"); 
+      MPS_DEBUG_RDPE (s, sr, "Super radius"); 
 
       /* Check the relative width of the cluster
        * If it is greater than 1 do not shift

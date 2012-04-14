@@ -51,6 +51,8 @@ mps_secular_dump (mps_status * s, mps_secular_equation * sec)
 void
 mps_secular_restart (mps_status * s)
 {
+  MPS_DEBUG_THIS_CALL;
+
   int i;
 
   switch (s->lastphase)
