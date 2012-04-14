@@ -161,6 +161,8 @@ mps_set_default_values (mps_status * s)
   s->last_error = NULL;
 
   s->over_max = false;
+
+  s->bmpc = NULL;
   
   s->self_thread_pool = NULL;
 }

@@ -329,6 +329,12 @@ mps_free_data (mps_status * s)
       MPS_DEBUG (s, "Deallocating data");
     }
 
+  if (s->bmpc)
+    {
+      mpc_vclear (s->bmpc, s->n * s->pool->n);
+      free (s->bmpc);
+    }
+
   mps_clusterization_free (s, s->clusterization);
   free (s->again);
   free (s->root_status);

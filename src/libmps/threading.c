@@ -418,6 +418,24 @@ mps_thread_pool_free (mps_status * s, mps_thread_pool * pool)
       mps_thread_free (s, thread);
       thread = next_thread;
     }
-  
+
   free (pool);
+}
+
+int mps_thread_get_id (mps_status * s, mps_thread_pool * pool)
+{
+  pthread_t self = pthread_self ();
+  int i = 0;
+
+  mps_thread * thread = pool->first;
+  while (thread)
+    {
+      if (*thread->thread == self)
+	{
+	  return i;
+	}
+      i++;
+      thread = thread->next;
+    }
+  return -1;
 }

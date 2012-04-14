@@ -660,6 +660,11 @@ extern "C"
      */
     mps_thread_pool * pool;
 
+    /**
+     * @brief TBD
+     */
+    mpc_t * bmpc;
+
     /* DEBUG SECTIONS */
 
     unsigned long int regeneration_time;

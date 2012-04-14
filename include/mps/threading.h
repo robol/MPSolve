@@ -184,6 +184,10 @@ extern "C"
      */
     pthread_mutex_t *roots_mutex;
 
+    /**
+     * @brief Global state mute used to synchronize some (hopefully not so many)
+     * global operation.
+     */
     pthread_mutex_t *gs_mutex;
 
     /**
@@ -341,6 +345,8 @@ extern "C"
   void mps_thread_dpolzer (mps_status * s, int *nit, mps_boolean * excep, int required_zeros);
 
   int mps_thread_get_core_number (mps_status * s);
+
+  int mps_thread_get_id (mps_status * s, mps_thread_pool * pool);
 
   /* MACROS */
 
