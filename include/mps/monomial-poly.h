@@ -116,6 +116,11 @@ extern "C"
      * of the polynomial.
      */
     pthread_mutex_t regenerating;
+
+    /**
+     * @brief Precision of the polynomial coefficients.
+     */
+    long int prec;
         
   };
 #endif /* #ifdef _MPS_PRIVATE */

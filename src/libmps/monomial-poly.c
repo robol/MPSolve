@@ -57,6 +57,7 @@ mps_monomial_poly_new (mps_status * s, long int degree)
     rdpe_set (mp->dap[i], rdpe_zero);
 
   mp->structure = MPS_STRUCTURE_UNKNOWN;
+  mp->prec = s->mpwp;
 
   return mp;
 }
@@ -152,6 +153,7 @@ mps_monomial_poly_raise_precision (mps_status * s, mps_monomial_poly * mp, long 
 	}
     }
 
+  mp->prec = prec;
   pthread_mutex_unlock (&mp->regenerating);
 }
 

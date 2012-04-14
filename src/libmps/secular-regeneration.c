@@ -431,9 +431,13 @@ mps_secular_ga_regenerate_coefficients_monomial (mps_status * s, cdpe_t * old_b,
   struct __mps_secular_ga_regenerate_coefficients_monomial_data * data = 
     mps_newv (struct __mps_secular_ga_regenerate_coefficients_monomial_data, s->n);
 
-
   if (!s->bmpc)
-    s->bmpc = mps_newv (mpc_t, s->n * s->pool->n);
+    {
+      if (s->debug_level & MPS_DEBUG_MEMORY)
+	MPS_DEBUG (s, "Allocating space for thread-local bmpc coefficients");
+      s->bmpc = mps_newv (mpc_t, s->n * s->pool->n);
+      mpc_vinit2 (s->bmpc, s->n * s->pool->n, s->mpwp);
+    }
 
   for (i = 0; i < s->pool->n; i++)
     {

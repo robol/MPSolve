@@ -46,7 +46,6 @@ CFLAGS="$GMP_CFLAGS $CFLAGS"
 LDFLAGS="$GMP_LIBS $LDFLAGS"
 
 GENERAL_CFLAGS="-D_REENTRANT -Wstrict-prototypes -Wall -Werror $CFLAGS"
-# GENERAL_LIBS=""
 # AS_IF([test x$platform_win32 != "yes"], [
 #  GENERAL_LIBS="$GENERAL_LIBS -no-undefined -Wl,--export-all-symbols
 #])
@@ -72,6 +71,8 @@ AS_IF([test x$enable_debug != xno], [
 AC_CHECK_LIB([gmp], [__gmpz_init2])
 AC_CHECK_HEADERS([gmp.h], [mpsolve_found_gmp_headers=yes; break;])
 
+AC_CHECK_LIB([tcmalloc_minimal], [malloc])
+
 AC_CHECK_LIB([m], [pow])
 
 AX_PTHREAD([], [
@@ -81,7 +82,7 @@ AX_PTHREAD([], [
 AC_SUBST(PTHREAD_CFLAGS)
 AC_SUBST(PTHREAD_LIBS)
 GENERAL_CFLAGS="$GENERAL_CFLAGS $PTHREAD_CFLAGS"
-GENERAL_LIBS="$PTHREAD_LIBS $GENERAL_LIBS"
+GENERAL_LIBS="$PTHREAD_LIBS $GENERAL_LIBS $LDFLAGS"
 CC="$PTHREAD_CC"
 
 # Errors if libraries are not found, in this case GMP and Pthreads.
