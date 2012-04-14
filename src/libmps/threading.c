@@ -430,7 +430,7 @@ int mps_thread_get_id (mps_status * s, mps_thread_pool * pool)
   mps_thread * thread = pool->first;
   while (thread)
     {
-      if (*thread->thread == self)
+      if (pthread_equal (*thread->thread, self))
 	{
 	  return i;
 	}
