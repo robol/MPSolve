@@ -375,7 +375,7 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
 	      mpc_set_ui (mprod_b, 1U, 0U);
 	      for (j = 0; j < s->n; j++)
 		{
-		  if (i == j || !root_changed[i])
+		  if (i == j || !root_changed[j])
 		    continue;
 
 		  mpc_sub (mdiff, old_mb[j], bmpc[j]);
@@ -577,11 +577,12 @@ mps_secular_ga_regenerate_coefficients_secular (mps_status * s, cdpe_t * old_b, 
     {
       /* Set up the precision of the secular equation to a reasonable value, that will be
        * the last precision used on this root. */
-      mps_raise_secular_equation_precision (starting_sec, s->mpwp);
+      mps_raise_secular_equation_precision (starting_sec, s->rootwp[i]);
 
       /* Try to evaluate the secular equation in the new nodes for the secular equation
        * and verify if the relative error is small enough. */
       mps_secular_meval_with_error (s, starting_sec, sec->bmpc[i], sec->ampc[i], error);
+
       mpc_rmod (ampc_mod, sec->ampc[i]);
       rdpe_div_eq (error, ampc_mod);
 

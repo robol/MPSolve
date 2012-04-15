@@ -542,7 +542,7 @@ extern  "C"
   void mps_secular_deval (mps_status * s, mps_secular_equation * sec, cdpe_t x, cdpe_t value);
   void mps_secular_deval_with_error (mps_status * s, mps_secular_equation * sec, cdpe_t x, cdpe_t value, rdpe_t error);
   void mps_secular_meval (mps_status * s, mps_secular_equation * sec, mpc_t x, mpc_t value);
-  void mps_secular_meval_with_error (mps_status * s, mps_secular_equation * sec, mpc_t x, mpc_t value, rdpe_t error);
+  mps_boolean mps_secular_meval_with_error (mps_status * s, mps_secular_equation * sec, mpc_t x, mpc_t value, rdpe_t error);
   
   /* Function in getopts.c */
   void mps_parse_opts (mps_status * s, int argc, char *argv[]);
