@@ -524,16 +524,17 @@ mps_secular_ga_mpsolve (mps_status * s)
 	 {
 	   skip_check_stop = false;
 
-	   if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config)) 
-	     { 
-	       MPS_DEBUG (s, "Performing restart phase");
-	       mps_secular_restart (s);
-	     }
-
 	   /* Going to multiprecision if we're not there yet */
 	   if (s->lastphase != mp_phase)
 	     {
 	       mps_secular_switch_phase (s, mp_phase);
+
+	       if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config)) 
+		 { 
+		   MPS_DEBUG (s, "Performing restart phase");
+		   mps_secular_restart (s);
+		 }
+
 	       mps_secular_ga_regenerate_coefficients (s);
 	     }
           else

@@ -85,12 +85,6 @@ mps_secular_ga_find_changed_roots (mps_status * s, cdpe_t * old_b, mpc_t * old_m
 
   mpc_t mdiff;
 
-  /* Hack to disable selective regeneration since it has proved to
-   * be unstable in practice. */
-  for (i = 0; i < s->n; i++)
-    root_changed[i] = true;
-  return root_changed;
-
   /* Distinguish the case where we are in multiprecision phase */
   if (old_mb == NULL)
     rdpe_set_d (root_epsilon, DBL_EPSILON);
@@ -120,6 +114,7 @@ mps_secular_ga_find_changed_roots (mps_status * s, cdpe_t * old_b, mpc_t * old_m
       else
 	cdpe_sub (diff, old_b[i], sec->bdpc[i]);
 
+
       cdpe_mod (rtmp, diff);
       cdpe_mod (rtmp2, sec->bdpc[i]);
       rdpe_div_eq (rtmp, rtmp2);
@@ -135,6 +130,8 @@ mps_secular_ga_find_changed_roots (mps_status * s, cdpe_t * old_b, mpc_t * old_m
 	{
 	  root_changed[i] = true;
 	}
+
+      root_changed[i] = cdpe_eq_zero (diff);
     }
 
   if (old_mb)
@@ -368,10 +365,10 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
 
 		  for (j = 0; j < s->n; j++)
 		    {
-		      /* pthread_mutex_lock (&sec->bmpc_mutex[j]); */
 		      if (mpc_get_prec (bmpc[j]) < s->rootwp[i])
 			mpc_set_prec (bmpc[j], s->rootwp[j]);
-		      /* pthread_mutex_unlock (&sec->bmpc_mutex[j]); */
+		      if (mpc_get_prec (old_mb[j]) < s->rootwp[i])
+			mpc_set_prec (old_mb[j], s->rootwp[i]);
 		    }
 		}
 
@@ -387,7 +384,7 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
 		  mpc_mul_eq (mprod_b, mdiff);
 		}
 	    }
-	  mpc_div_eq (sec->ampc[i], mprod_b);
+	  mpc_mul_eq (sec->ampc[i], mprod_b);
 	}
 
  monomial_regenerate_exit:
