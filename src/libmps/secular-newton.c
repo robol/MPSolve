@@ -395,6 +395,9 @@ mps_secular_mnewton_fallback (mps_status * s, int k, rdpe_t rad, mpc_t corr,
   rdpe_div_eq_d (rtmp, 4.0);
 
   *again = rdpe_ge (rtmp, rdpe_one);  
+
+  mpc_clear (ctmp);
+  mpc_clear (diff);
 }
 
 void
