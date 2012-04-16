@@ -344,7 +344,7 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
 	      cdpe_set (prod_b, cdpe_one);  
 	      for (j = 0; j < s->n; j++) 
 		{ 
-		  if (i == j || !root_changed[i])
+		  if (i == j || !root_changed[j])
 		    continue; 
 	      
 		  cdpe_sub (diff, old_b[j], sec->bdpc[i]); 
