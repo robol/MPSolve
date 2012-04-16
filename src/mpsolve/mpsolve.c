@@ -142,8 +142,10 @@ usage (mps_status * s, const char *program)
 	   "               c: Compact output\n"
 	   "               v: Verbose output\n"
 	   "               g: Gnuplot-ready output\n"
-	   "               gf: Gnuplot-full mode, can be piped to gnuplot. For example:\n"
-	   "                   %s -as -Ogf myfile.pol | gnuplot \n"
+	   "               gf: Gnuplot-full mode, can be piped to gnuplot and display error bars. \n"
+	   "                   For example:\n"
+	   "                     %s -as -Ogf myfile.pol | gnuplot \n"
+	   "               gp: The same as gf but only with points (suitable for high degree polynomials)\n"
 	   " -G goal     Select the goal to reach. Possible values are:\n"
 	   "              a: Approximate the roots\n"
 	   "              i: Isolate the roots\n"
@@ -224,7 +226,15 @@ main (int argc, char **argv)
 	    case 'g':
 	      mps_status_set_output_format (s, MPS_OUTPUT_FORMAT_GNUPLOT);
 	      if (*(opt->optvalue + 1) == 'f')
-		mps_status_set_output_format (s, MPS_OUTPUT_FORMAT_GNUPLOT_FULL);
+		{
+		  mps_status_set_output_format (s, MPS_OUTPUT_FORMAT_GNUPLOT_FULL);
+		  s->gnuplot_format = "xyerrorbars";
+		}
+	      else if (*(opt->optvalue + 1) == 'p')
+		{
+		  mps_status_set_output_format (s, MPS_OUTPUT_FORMAT_GNUPLOT_FULL);
+		  s->gnuplot_format = "points";
+		}
 	      break;
 	    case 'v':
 	      mps_status_set_output_format (s, MPS_OUTPUT_FORMAT_VERBOSE);

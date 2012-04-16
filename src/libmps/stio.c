@@ -1383,8 +1383,9 @@ mps_output (mps_status * s)
     {
       fprintf (s->outstr, "# MPSolve output for GNUPLOT\n");
       fprintf (s->outstr, "# Make user that this output is piped into gnuplot using a command like\n");
-      fprintf (s->outstr, "# ./***solve -Ogf | gnuplot \n");
-      fprintf (s->outstr, "plot '-' title 'Computed roots' with xyerrorbars\n");
+      fprintf (s->outstr, "# mpsolve -Ogf | gnuplot \n");
+      fprintf (s->outstr, "set pointsize 0.3\n");
+      fprintf (s->outstr, "plot '-' title 'Computed roots' with %s\n", s->gnuplot_format);
     }
 
   if (s->output_config->goal == MPS_OUTPUT_GOAL_COUNT)

@@ -163,6 +163,7 @@ mps_set_default_values (mps_status * s)
   s->over_max = false;
 
   s->bmpc = NULL;
+  s->gnuplot_format = NULL;
   
   s->self_thread_pool = NULL;
 }

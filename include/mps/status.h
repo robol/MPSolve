@@ -665,6 +665,11 @@ extern "C"
      */
     mpc_t * bmpc;
 
+    /**
+     * @brief Char to be intersted after the with statement in the output piped to gnuplot.
+     */
+    const char * gnuplot_format;
+
     /* DEBUG SECTIONS */
 
     unsigned long int regeneration_time;
