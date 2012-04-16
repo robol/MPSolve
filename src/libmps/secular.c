@@ -610,24 +610,24 @@ mps_secular_set_radii (mps_status * s)
   mps_secular_equation *sec = (mps_secular_equation *) s->secular_equation;
 
   /* DPE and multiprecision implementation */
-  rdpe_t rad, rad_eps;
+  rdpe_t rad, rad_eps, rtmp;
   cdpe_t ctmp;
   rdpe_t * drad = rdpe_valloc (s->n);
 
   mpc_t mtmp;
   mpc_init2 (mtmp, mps_status_get_data_prec_max (s));
 
+  if (s->lastphase == mp_phase)
+    rdpe_set (rad_eps, s->mp_epsilon);
+  else 
+    rdpe_set_d (rad_eps, DBL_EPSILON);
+
+  rdpe_mul_eq_d (rad_eps, s->n * 4);
+  rdpe_add_eq (rad_eps, rdpe_one);
+
   /* Check if the Gerschgorin's radii are more convenient */
   for (i = 0; i < s->n; i++)
-    {
-      if (s->lastphase == mp_phase)
-	rdpe_set (rad_eps, s->mp_epsilon);
-      else 
-	rdpe_set_d (rad_eps, DBL_EPSILON);
-
-      rdpe_mul_eq_d (rad_eps, s->n * 4);
-      rdpe_add_eq (rad_eps, rdpe_one);
-      
+    {      
       mpc_get_cdpe (ctmp, sec->ampc[i]);
       cdpe_mod (rad, ctmp);
       
@@ -636,6 +636,11 @@ mps_secular_set_radii (mps_status * s)
       rdpe_mul_eq_d (rad, (double) s->n);
       
       rdpe_set (drad[i], rad);
+
+      mpc_rmod (rtmp, s->mroot[i]);
+      rdpe_mul_eq (rtmp, s->mp_epsilon);
+      rdpe_mul_eq_d (rtmp, 4.0);
+      rdpe_add_eq (drad[i], rtmp);
     }
 
   switch (s->lastphase)
