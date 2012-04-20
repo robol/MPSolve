@@ -183,6 +183,10 @@ mps_improve (mps_status * s)
       rdpe_mul_eq_d (t, (double) s->n - 1);
       rdpe_sub (st, rdpe_one, t);
       rdpe_div (sigma, t, st);
+
+      /* Workaround added by me to solve nan problems. Leo. */
+      rdpe_add_eq (sigma, s->mp_epsilon); 
+
       g = -rdpe_log (sigma) / LOG2;
       rdpe_set (tmp, abroot);
       rdpe_mul_eq (tmp, sigma);
