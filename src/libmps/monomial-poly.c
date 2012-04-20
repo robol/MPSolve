@@ -273,7 +273,7 @@ mps_monomial_poly_set_coefficient_d (mps_status * s, mps_monomial_poly * mp, lon
 
 void 
 mps_monomial_poly_set_coefficient_int (mps_status * s, mps_monomial_poly * mp, long int i,
-				       long int real_part, long int imag_part)
+				       long long real_part, long long imag_part)
 {
   /* Updating data_type information */
   if (mp->structure == MPS_STRUCTURE_UNKNOWN)

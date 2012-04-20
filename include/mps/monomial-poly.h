@@ -141,7 +141,7 @@ extern "C"
 					    double real_part, double imag_part);
 
   void mps_monomial_poly_set_coefficient_int (mps_status * s, mps_monomial_poly * mp, long int i,
-					      long int real_part, long int imag_part);
+					      long long real_part, long long imag_part);
 
 
 
