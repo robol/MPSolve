@@ -28,6 +28,8 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
   cplx_t * afpc = data->local_afpc;
   cplx_t * bfpc = data->local_bfpc;
 
+  double actmp, actmp2, abfpc, aafpc;
+
   /* First set again to true */
   *again = true;
 
@@ -59,9 +61,13 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
 	  return;
 	}
 
+      aafpc = cplx_mod (afpc[i]);
+      abfpc = cplx_mod (bfpc[i]);
+      actmp = cplx_mod (ctmp);
+
       /* Local error computation */
-      local_error = (ax + cplx_mod (bfpc[i])) / (pow (cplx_mod (ctmp), 2));
-      local_error2 = local_error * cplx_mod (ctmp);
+      local_error = (ax + abfpc) / (actmp * actmp);
+      local_error2 = local_error * actmp;
       asumb += local_error;
 
       /* Compute sum of (z-b_i)^{-1} */
@@ -69,16 +75,18 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
 
       /* Compute a_i / (z - b_i) */
       cplx_mul (ctmp2, afpc[i], ctmp);
+
+      actmp2 = cplx_mod (ctmp2);
       
       /* Compute the sum of module of (a_i/(z-b_i)) * (i + 2) */
-      asum += (local_error + cplx_mod (ctmp2)) * cplx_mod (afpc[i]);
+      asum += (local_error + actmp2) * aafpc;
 
       /* Add a_i / (z - b_i) to pol */
       cplx_add_eq (pol, ctmp2);
 
       /* Compute a_i / (z - b_i)^2a */
       cplx_mul_eq (ctmp2, ctmp);
-      asum2 += (local_error2 + cplx_mod (ctmp2)) * cplx_mod (afpc[i]);
+      asum2 += (local_error2 + actmp2) * aafpc;
 
       /* Add it to fp */
       cplx_sub_eq (fp, ctmp2);
