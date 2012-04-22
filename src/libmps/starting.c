@@ -1025,7 +1025,7 @@ mps_mstart (mps_status * s, int n, mps_cluster_item * cluster_item,
 	    {
 	      l = root2->k;
 	      s->root_status[l] = MPS_ROOT_STATUS_APPROXIMATED_IN_CLUSTER;
-	      rdpe_mul_d (s->drad[l], rtmp1, (double) nzeros);
+	      rdpe_mul_d (s->drad[l], rtmp1, (double) nzeros); 
 	      root2 = root2->next;
 	    }
 	}
@@ -1432,7 +1432,7 @@ mps_mrestart (mps_status * s)
   mps_cluster * cluster;
   mps_root * root;
 
-  int old_wp = s->mpwp;
+  /* int old_wp = s->mpwp; */
 
   MPS_DEBUG_THIS_CALL;
 
@@ -1443,19 +1443,6 @@ mps_mrestart (mps_status * s)
     {
       MPS_DEBUG_WITH_INFO (s, "Skipping restart on user polynomial");
       return;
-    }
-
-  if (s->algorithm == MPS_ALGORITHM_SECULAR_GA)
-    {
-      for (j = 0; j < s->n; j++)
-	{
-	  if (s->rootwp[j] > s->mpwp)
-	    s->mpwp = s->rootwp[j];
-	}
-      mps_monomial_poly_raise_precision (s, s->monomial_poly, s->mpwp);
-      mps_secular_raise_root_precision (s, s->mpwp);
-
-      mps_raise_data (s, s->mpwp);
     }
 
   mpf_init2 (rea, s->mpwp);
@@ -1486,7 +1473,7 @@ mps_mrestart (mps_status * s)
       for (root = cluster->first; root != NULL; root = root->next)
         {                       /* looptst: */
 	  l = root->k;
-          if (!s->again[l] && s->algorithm == MPS_ALGORITHM_STANDARD_MPSOLVE)
+          if (!s->again[l])
             goto loop1;
           if (s->output_config->goal == MPS_OUTPUT_GOAL_COUNT)
             {
@@ -1691,13 +1678,16 @@ mps_mrestart (mps_status * s)
               mpc_set_cdpe (s->mroot[l], s->droot[l]);
               mpc_add_eq (s->mroot[l], g);
               cdpe_mod (rtmp1, s->droot[l]);
-              rdpe_mul_d (s->drad[l], rtmp1,
-                          2.0 * cluster->n);
-              if (rdpe_lt (s->drad[l], rtmp))
-                rdpe_set (s->drad[l], rtmp);
+	      rdpe_mul_d (s->drad[l], rtmp1, 
+			  2.0 * cluster->n); 
+	      if (rdpe_lt (s->drad[l], rtmp)) 
+		rdpe_set (s->drad[l], rtmp);
 
 	      if (s->debug_level & MPS_DEBUG_CLUSTER)
-		MPS_DEBUG_MPC (s, s->mpwp, s->mroot[l], "Repositioned root %4d: ", l);
+		{
+		  MPS_DEBUG_MPC (s, s->mpwp, s->mroot[l], "Repositioned root %4d", l);
+		  MPS_DEBUG_RDPE (s, s->drad[l], "Radius for root %4d", l);
+		}
             }
 
         }
@@ -1712,16 +1702,6 @@ mps_mrestart (mps_status * s)
         }
     loop1:
       ;
-    }
-
-  if (s->algorithm == MPS_ALGORITHM_SECULAR_GA)
-    {
-      s->mpwp = old_wp;
-
-      mps_monomial_poly_raise_precision (s, s->monomial_poly, s->mpwp);
-      mps_secular_raise_root_precision (s, s->mpwp);
-
-      mps_raise_data (s, s->mpwp);
     }
 
   mpc_clear (g);
