@@ -214,6 +214,7 @@ mps_clusterization_insert_cluster (mps_status * s, mps_clusterization * c, mps_c
 
   /* Store the pointer to the cluster */
   item->cluster = cluster;
+  printf ("Inserting cluster %p\n", cluster);
 
   /* The first cluster is the one we're inserting */
   c->first = item;
@@ -977,6 +978,7 @@ mps_clusterization_detach_clusters (mps_status * s, mps_clusterization * c)
 	      mps_root * next_root = root->next;
               MPS_DEBUG (s, "Separating root %d from the "
                          "rest of the cluster", k);
+	      printf ("Detaching cluster %p\n", item->cluster);
 	      mps_cluster_remove_root (s, item->cluster, root);
 	      root = next_root;
 
@@ -1011,6 +1013,7 @@ mps_clusterization_reassemble_clusters (mps_status * s, mps_clusterization * c)
       if (cluster->detached)
 	{
 	  mps_clusterization_remove_cluster (s, s->clusterization, cluster);
+	  printf ("cluster->cluster = %p\n", cluster->cluster->first);
 	  mps_cluster_insert_root (s, cluster->detached->cluster, cluster->cluster->first->k);
 	}
 
