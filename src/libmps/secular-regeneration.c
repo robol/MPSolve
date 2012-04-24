@@ -710,9 +710,6 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
    * in the case the regeneration does not work */
   rdpe_t *old_dregeneration_epsilon = rdpe_valloc (s->n);
 
-  for (i = 0; i < s->n; i++)
-    rdpe_set (old_dregeneration_epsilon[i], sec->dregeneration_epsilon[i]);
-
   /* Start timer and add execution time to the total counter */
 #ifndef DISABLE_DEBUG
   clock_t *my_clock = mps_start_timer ();
@@ -758,8 +755,6 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
 	  mps_secular_ga_update_coefficients (s);
           for (i = 0; i < s->n; i++)
             {
-	      sec->fregeneration_epsilon[i] = rdpe_get_d (sec->dregeneration_epsilon[i]) + DBL_EPSILON;
-
 	      /* We may risk that NaN or inf have been introduced because of huge
 	       * coefficients computed, so let's check it and in the case of failure 
 	       * switch to DPE. */
@@ -930,11 +925,6 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
     {
       for (i = 0; i < s->n; i++) 
 	s->again[i] = true;
-    }
-  else
-    {
-      for (i = 0; i < s->n; i++)
-	rdpe_set (sec->dregeneration_epsilon[i], old_dregeneration_epsilon[i]);
     }
 
   rdpe_vfree (old_dregeneration_epsilon);

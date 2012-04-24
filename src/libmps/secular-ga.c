@@ -122,24 +122,22 @@ mps_secular_ga_load_initial_coefficients (mps_status * s)
 	{
 	  if (MPS_INPUT_CONFIG_IS_FP (s->input_config))
 	    {
-	      mpc_set (s->secular_equation->ampc[i],
-		       s->secular_equation->initial_ampc[i]);
-	      mpc_set (s->secular_equation->bmpc[i],
-		       s->secular_equation->initial_bmpc[i]);
+	      mpc_set (sec->ampc[i],
+		       sec->initial_ampc[i]);
+	      mpc_set (sec->bmpc[i],
+		       sec->initial_bmpc[i]);
 	    }
 	  else
 	    {
-	      mpc_set_q (s->secular_equation->ampc[i],
-			 s->secular_equation->initial_ampqrc[i],
-			 s->secular_equation->initial_ampqic[i]);
+	      mpc_set_q (sec->ampc[i],
+			 sec->initial_ampqrc[i],
+			 sec->initial_ampqic[i]);
 
-	      mpc_set_q (s->secular_equation->bmpc[i],
-			 s->secular_equation->initial_bmpqrc[i],
-			 s->secular_equation->initial_bmpqic[i]);
+	      mpc_set_q (sec->bmpc[i],
+			 sec->initial_bmpqrc[i],
+			 sec->initial_bmpqic[i]);
 	    }
 	}
-      rdpe_set (sec->dregeneration_epsilon[i],
-		s->mp_epsilon);
     }
 }
 
@@ -173,8 +171,8 @@ mps_secular_ga_improve (mps_status * s)
   int starting_precision = s->mpwp;
 
   mps_secular_iteration_data it_data;
-  it_data.local_ampc = s->secular_equation->ampc;
-  it_data.local_bmpc = s->secular_equation->bmpc;
+  it_data.local_ampc = sec->ampc;
+  it_data.local_bmpc = sec->bmpc;
 
   for (i = 0; i < s->n; i++)
     {
@@ -214,8 +212,6 @@ mps_secular_ga_improve (mps_status * s)
               MPS_DEBUG (s, "Not improving root %d, since it is already approximated", i);
 	    }
         }
-
-      rdpe_set_d (sec->dregeneration_epsilon[i], 4 * DBL_EPSILON);
 
       for (j = 0; j < iterations; j++)
         { 

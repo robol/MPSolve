@@ -177,22 +177,6 @@ extern "C"
      */
     mps_boolean best_approx;
 
-    /**
-     * @brief This vector contains the errors present in the coefficients
-     * of the computed regeneration of the secular equation.
-     *
-     * This is the version use in DPE and MPC computation.
-     */
-    rdpe_t * dregeneration_epsilon;
-
-    /**
-     * @brief This vector contains the errors present in the coefficients
-     * of the computed regeneration of the secular equation.
-     *
-     * This is the version use in floating point computation.
-     */
-    double * fregeneration_epsilon;    
-
   };       /* End of struct mps_secular_equation {... */
 
   /**

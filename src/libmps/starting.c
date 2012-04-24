@@ -795,10 +795,13 @@ mps_mcompute_starting_radii (mps_status * s, int n, mps_cluster_item * cluster_i
               rdpe_set_d (s->dradii[s->n_radii], temp);
               rdpe_exp_eq (s->dradii[s->n_radii]);
             }
+
           /* if the radius is greater than the radius of the cluster
            * set the radius equal to the radius of the cluster */
           if (rdpe_gt (s->dradii[s->n_radii], clust_rad))
             rdpe_set (s->dradii[s->n_radii], clust_rad);
+
+	  MPS_DEBUG_RDPE (s, s->dradii[s->n_radii], "s->dradii[%d]", s->n_radii);
 
           /* Close partitioning and start a new one */
           s->partitioning[++s->n_radii] = i;
@@ -1015,8 +1018,6 @@ mps_mstart (mps_status * s, int n, mps_cluster_item * cluster_item,
        * and set the corresponding radius */
       rdpe_set (rtmp1, s->dradii[i]);
       rdpe_mul_eq_d (rtmp1, (double) nzeros);
-      if (rdpe_lt (rtmp1, clust_rad) && s->algorithm == MPS_ALGORITHM_SECULAR_GA)
-	rdpe_set (rtmp1, clust_rad);
       rdpe_set (rtmp2, g);
       rdpe_mul_eq (rtmp2, s->eps_out);
       MPS_DEBUG (s, "Performing relatively small check");
