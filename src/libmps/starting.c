@@ -1473,7 +1473,7 @@ mps_mrestart (mps_status * s)
       for (root = cluster->first; root != NULL; root = root->next)
         {                       /* looptst: */
 	  l = root->k;
-          if (!s->again[l])
+          if (!s->again[l] && s->algorithm == MPS_ALGORITHM_STANDARD_MPSOLVE)
             goto loop1;
           if (s->output_config->goal == MPS_OUTPUT_GOAL_COUNT)
             {
