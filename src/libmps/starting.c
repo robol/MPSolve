@@ -1015,7 +1015,7 @@ mps_mstart (mps_status * s, int n, mps_cluster_item * cluster_item,
        * and set the corresponding radius */
       rdpe_set (rtmp1, s->dradii[i]);
       rdpe_mul_eq_d (rtmp1, (double) nzeros);
-      if (rdpe_lt (rtmp1, clust_rad))
+      if (rdpe_lt (rtmp1, clust_rad) && s->algorithm == MPS_ALGORITHM_SECULAR_GA)
 	rdpe_set (rtmp1, clust_rad);
       rdpe_set (rtmp2, g);
       rdpe_mul_eq (rtmp2, s->eps_out);
