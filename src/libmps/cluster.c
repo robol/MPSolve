@@ -975,8 +975,6 @@ mps_clusterization_detach_clusters (mps_status * s, mps_clusterization * c)
             {
 	      mps_cluster * detached_cluster = mps_cluster_with_root (s, k);
 	      mps_root * next_root = root->next;
-              MPS_DEBUG (s, "Separating root %d from the "
-                         "rest of the cluster", k);
 	      mps_cluster_remove_root (s, item->cluster, root);
 	      root = next_root;
 
