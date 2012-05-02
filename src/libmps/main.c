@@ -149,6 +149,8 @@ mps_standard_mpsolve (mps_status * s)
   /* == 6 ==   Allocate MP variables mfpc, mroot, drad, mfppc, mfppc1
    * (the real input case is not implemented yet ) */
   MPS_DEBUG (s, "Starting MP phase");
+
+  s->lastphase = mp_phase;
   
   /* ==== 6.1 initialize mp variables */
   mps_mp_set_prec (s, 2 * DBL_MANT_DIG);
