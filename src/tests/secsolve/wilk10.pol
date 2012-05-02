@@ -1,0 +1,18 @@
+! Polinomio di Wilkinson, grado 10
+! nella forma secolare
+
+Secular;
+Real;
+Integer;
+Degree=10;
+
+-110 -1
+5940 -2
+-102960 -3
+840840 -4
+-3783780 -5
+ 10090080 -6
+ -16336320 -7
+ 15752880 -8
+-8314020 -9
+ 1847560 -10
