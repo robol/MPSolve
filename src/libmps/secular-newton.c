@@ -129,7 +129,7 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
 
   /* We compute the following values in order to give a guaranteed
    * Newton inclusion circle. */
-  if (*again && !skip_radius_computation)
+  if (!skip_radius_computation)
     { 
       double g_pol = apol + (DBL_EPSILON * asum * MPS_2SQRT2);
       double g_fp = cplx_mod (fp) - (DBL_EPSILON * asum2 * MPS_2SQRT2);
@@ -148,7 +148,7 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
       /* MPS_DEBUG (s, "new_rad_%ld = %e", data->k, new_rad); */
       /* pthread_mutex_unlock (data->gs_mutex); */
 
-      if (*again && new_rad < *rad && !(g_fp < 0 || new_rad < 0))
+      if (new_rad < *rad && !(g_fp < 0 || new_rad < 0))
 	*rad = new_rad;
     }
 }
@@ -292,7 +292,7 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
       rdpe_mul_d (rtmp, ax, DBL_EPSILON * 4.0);
       rdpe_add_eq (new_rad, rtmp);
       
-      if (*again && rdpe_lt (new_rad, rad) && !(rdpe_le (g_fp, rdpe_zero) || rdpe_le (new_rad, rdpe_zero)))
+      if (rdpe_lt (new_rad, rad) && !(rdpe_le (g_fp, rdpe_zero) || rdpe_le (new_rad, rdpe_zero)))
 	rdpe_set (rad, new_rad);
     }
 }

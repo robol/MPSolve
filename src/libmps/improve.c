@@ -269,9 +269,8 @@ mps_improve (mps_status * s)
 	  if (rdpe_eq (s->drad[i], rdpe_zero)) 
 	    rdpe_set (s->drad[i], newrad); 
 
-	  /* Disabled because causes problems */
-	  /* if (rdpe_lt (newrad, s->drad[i]))    */
-	  /*   rdpe_set (s->drad[i], newrad);    */
+	  if (rdpe_lt (newrad, s->drad[i]))    
+	    rdpe_set (s->drad[i], newrad);    
 	   
 	  mpc_rmod (tmp, s->mroot[i]);
 	  rdpe_mul_eq (tmp, s->eps_out);
