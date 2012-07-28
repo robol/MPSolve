@@ -123,6 +123,7 @@ usage (mps_status * s, const char *program)
            "               m: Memory management\n"
            "               f: Function calls\n"
 	   "               p: Debug stop condition and development of iteration packets\n"
+	   "               r: Regeneration\n"
            "               Example: -dfi for function calls and improvement\n"
 	   " -S set      If specified, restrict the search set for the roots to set. \n"
 	   "             set can be one of:\n"
@@ -436,6 +437,9 @@ main (int argc, char **argv)
                   break;
 		case 'p':
 		  mps_status_add_debug_domain (s, MPS_DEBUG_PACKETS);
+		  break;
+		case 'r':
+		  mps_status_add_debug_domain (s, MPS_DEBUG_REGENERATION);
 		  break;
                 default:
 		  sprintf (output, "Unrecognized debug option: %c", *(opt->optvalue - 1));

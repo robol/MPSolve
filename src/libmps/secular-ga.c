@@ -534,8 +534,11 @@ mps_secular_ga_mpsolve (mps_status * s)
 	       MPS_DEBUG (s, "Performing restart phase");
 	       mps_secular_restart (s);
 	     }
-
-	   mps_secular_ga_regenerate_coefficients (s);
+	   
+	   if (!mps_secular_ga_regenerate_coefficients (s)) 
+	     {
+	       MPS_DEBUG (s, "Regeneration failed");
+	     }
 
 	   just_regenerated = true;
 	   sec->best_approx = false;
@@ -552,10 +555,9 @@ mps_secular_ga_mpsolve (mps_status * s)
 
        /* Check if all the roots are approximated or, if we have done more than 4 packets
 	* of iterations without finding all of them, if at least we are near to the result. */
-       if ((roots_computed == s->n && !just_regenerated))
+       if ((roots_computed == s->n) && (!just_regenerated))
 	 {
-	   if (s->debug_level & MPS_DEBUG_REGENERATION)
-	     MPS_DEBUG (s, "Regenerating coefficients because %d roots were approximated", s->n);
+	   MPS_DEBUG_WITH_INFO (s, "Regenerating coefficients because %d roots were approximated", roots_computed);
 	   if (mps_secular_ga_regenerate_coefficients (s))
 	     {
 	       just_regenerated = true;
@@ -563,7 +565,7 @@ mps_secular_ga_mpsolve (mps_status * s)
 	     }
 	   else
 	     {
-	       MPS_DEBUG (s, "Raising precision");
+	       MPS_DEBUG (s, "Raising precision because regeneration failed");
 
 	       skip_check_stop = false;
 

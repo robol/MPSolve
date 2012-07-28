@@ -237,10 +237,7 @@ mps_secular_ga_fiterate (mps_status * s, int maxit, mps_boolean just_regenerated
 
   if (nit <= it_threshold && just_regenerated)
     {
-      if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
-	{
-	  MPS_DEBUG (s, "Setting approximation as best_approx");
-	}
+      MPS_DEBUG_WITH_INFO (s, "Asking for regeneration since we stopped after a few iterations");
       s->secular_equation->best_approx = true;
     }
 
@@ -456,10 +453,7 @@ mps_secular_ga_diterate (mps_status * s, int maxit, mps_boolean just_regenerated
 
   if (nit <= it_threshold && just_regenerated)
     {
-      if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
-	{
-	  MPS_DEBUG (s, "Setting approximation as best_approx");
-	}
+      MPS_DEBUG_WITH_INFO (s, "Asking for regeneration since we stopped after a few iterations");
       s->secular_equation->best_approx = true;
     }
 
@@ -724,10 +718,7 @@ mps_secular_ga_miterate (mps_status * s, int maxit, mps_boolean just_regenerated
 
   if (nit <= it_threshold && just_regenerated)
     {
-      if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
-	{
-	  MPS_DEBUG (s, "Setting approximation as best_approx");
-	}
+      MPS_DEBUG_WITH_INFO (s, "Asking for regeneration since we stopped after a few iterations");
       s->secular_equation->best_approx = true;
     }
 
