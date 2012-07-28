@@ -9,6 +9,8 @@
 ** (C) 2001, Dipartimento di Matematica, FRISCO LTR 21024 **
 ***********************************************************/
 
+#define _GNU_SOURCE
+
 #include <stdarg.h>
 #include <string.h>
 #include <mps/mps.h>

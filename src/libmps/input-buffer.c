@@ -273,7 +273,7 @@ mps_input_buffer_next_token (mps_input_buffer * buf)
 	    (*buf->last_token != '\0') );
 
   /* Check if we have parsed something or if we need to read another line */
-  if ((token == NULL))
+  if (token == NULL)
     {
       if (mps_input_buffer_readline (buf) == -1)
 	return NULL;

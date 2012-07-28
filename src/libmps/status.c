@@ -1,3 +1,5 @@
+#define _GNU_SOURCE
+
 #include <mps/mps.h>
 #include <string.h>
 
