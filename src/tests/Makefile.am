@@ -1,4 +1,4 @@
-TESTS = $(CHECK_PROGRAMS)
+TESTS = check_unisolve check_secsolve check_multithread check_dpe # $(CHECK_PROGRAMS)
 check_PROGRAMS = $(CHECK_PROGRAMS)
 EXTRA_PROGRAMS = test_mpsolve check_secsolve check_unisolve check_dpe check_multithread
 

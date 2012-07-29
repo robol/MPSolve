@@ -33,6 +33,8 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
+TESTS = check_unisolve$(EXEEXT) check_secsolve$(EXEEXT) \
+	check_multithread$(EXEEXT) check_dpe$(EXEEXT)
 EXTRA_PROGRAMS = test_mpsolve$(EXEEXT) check_secsolve$(EXEEXT) \
 	check_unisolve$(EXEEXT) check_dpe$(EXEEXT) \
 	check_multithread$(EXEEXT)
@@ -267,7 +269,6 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-TESTS = $(CHECK_PROGRAMS)
 check_PROGRAMS = $(CHECK_PROGRAMS)
 check_secsolve_SOURCES = check_secsolve.c check_implementation.c check_implementation.h
 check_secsolve_CFLAGS = $(CHECK_CFLAGS) -I${top_srcdir}/include
