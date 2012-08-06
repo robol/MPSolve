@@ -950,8 +950,8 @@ mps_clusterization_detach_clusters (mps_status * s, mps_clusterization * c)
   rdpe_t rtmp, precision;
   int k;
 
-  if (s->algorithm == MPS_ALGORITHM_SECULAR_GA)
-    return;
+  /* if (s->algorithm == MPS_ALGORITHM_SECULAR_GA) */
+  /*   return; */
   
   for (item = c->first; item != NULL; item = item->next)
     {
@@ -969,10 +969,14 @@ mps_clusterization_detach_clusters (mps_status * s, mps_clusterization * c)
 	  mpc_get_cdpe (droot, s->mroot[k]);
 	  cdpe_mod (rtmp, droot);
 
-          rdpe_set_dl (precision, 1, (long int) ((1 - 0.5 * s->mpwp) * LOG10_2
-                                                 + rdpe_log10 (rtmp)));
+          rdpe_set_2dl (precision, 1, (long int) (- 0.5 * s->mpwp + rdpe_Esp (rtmp)));
           if (rdpe_lt (s->drad[k], precision))
             {
+	      if (s->debug_level & MPS_DEBUG_CLUSTER)
+		{
+		  MPS_DEBUG (s, "Temporary removing root %d from its cluster since it is quasi approximated", k);
+		}
+
 	      mps_cluster * detached_cluster = mps_cluster_with_root (s, k);
 	      mps_root * next_root = root->next;
 	      mps_cluster_remove_root (s, item->cluster, root);
@@ -1008,8 +1012,8 @@ mps_clusterization_reassemble_clusters (mps_status * s, mps_clusterization * c)
     {
       if (cluster->detached)
 	{
-	  mps_clusterization_remove_cluster (s, s->clusterization, cluster);
 	  mps_cluster_insert_root (s, cluster->detached->cluster, cluster->cluster->first->k);
+	  mps_clusterization_remove_cluster (s, s->clusterization, cluster);
 	}
 
       cluster = cluster->next;
