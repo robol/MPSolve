@@ -110,7 +110,7 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
   asum_on_apol = asum / apol;
 
   /* If the approximation falls in the root neighbourhood then we can stop */
-  if ((asum_on_apol + 1) * MPS_2SQRT2 * DBL_EPSILON > 1 ||
+  if ((asum_on_apol + 1) * sec->n * MPS_2SQRT2 * DBL_EPSILON > 1 ||
       (asum_on_apol < 0))
     {
       if (data && s->debug_level & MPS_DEBUG_PACKETS)
@@ -238,7 +238,7 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
   /* Computation of |x| and |corr| */
   cdpe_mod (rtmp, corr); 
   cdpe_mod (rtmp2, x); 
-  rdpe_mul_eq_d (rtmp2, s->n * DBL_EPSILON); 
+  rdpe_mul_eq_d (rtmp2, sec->n * DBL_EPSILON); 
   
   /* If |corr| < |x| * DBL_EPSILON then stop */
   if (rdpe_lt (rtmp, rtmp2)) 
@@ -252,7 +252,7 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
     }
 
   rdpe_add (rtmp, rdpe_one, asum_on_apol);
-  rdpe_mul_eq_d (rtmp, MPS_2SQRT2 * DBL_EPSILON);
+  rdpe_mul_eq_d (rtmp, MPS_2SQRT2 * DBL_EPSILON * sec->n);
   if (rdpe_ge (rtmp, rdpe_one))
     {
       if (data && (s->debug_level & MPS_DEBUG_PACKETS))
@@ -287,7 +287,7 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
       rdpe_mul (new_rad, g_pol, g_sumb);
       rdpe_sub (new_rad, g_fp, new_rad);
       rdpe_div (new_rad, g_pol, new_rad);
-      rdpe_mul_eq_d (new_rad, s->n);
+      rdpe_mul_eq_d (new_rad, sec->n);
 
       rdpe_mul_d (rtmp, ax, DBL_EPSILON * 4.0);
       rdpe_add_eq (new_rad, rtmp);
@@ -316,7 +316,7 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
   mpc_t * ampc;
   mpc_t * bmpc;
 
-  /* mps_secular_equation * sec = s->secular_equation; */
+  mps_secular_equation * sec = s->secular_equation;
   mps_secular_iteration_data * data = user_data;
 
   ampc = data->local_ampc;
@@ -339,7 +339,7 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
   rdpe_set (asum2, rdpe_zero);
   rdpe_set (asumb, rdpe_zero);
 
-  for (i = 0; i < s->n; i++)
+  for (i = 0; i < sec->n; i++)
     {
       /* Compute z - b_i */
       mpc_sub (ctmp, x, bmpc[i]);
@@ -451,18 +451,19 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
   /* Check if more iteration on this root are needed or not */
   rdpe_add (rtmp, rdpe_one, asum_on_apol);
   rdpe_mul_eq (rtmp, s->mp_epsilon);
+  rdpe_mul_eq_d (rtmp, MPS_2SQRT2 * sec->n);
   if (rdpe_gt (rtmp, rdpe_one))
     {
       *again = false;
       if (s->debug_level & MPS_DEBUG_PACKETS)
-	MPS_DEBUG (s, "Stopping Aberth iterations due to root neighourhood");
+	MPS_DEBUG (s, "Stopping Aberth iterations due to root neighborhood");
       goto mnewton_cleanup;
     }
 
   /* Check if the newton correction is small with respect to the
    * current precision. */
   rdpe_mul (rtmp, ax, s->mp_epsilon);
-  rdpe_mul_eq_d (rtmp, s->n);
+  rdpe_mul_eq_d (rtmp, sec->n);
   if (rdpe_lt (acorr, rtmp))
     {
       *again = false;
@@ -541,7 +542,7 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
 
       /* In the other case compute the radius */
       rdpe_div (new_rad, g_pol, g_den);
-      rdpe_mul_eq_d (new_rad, s->n);
+      rdpe_mul_eq_d (new_rad, sec->n);
 
       if (rdpe_lt (new_rad, rad))
 	rdpe_set (rad, new_rad);
