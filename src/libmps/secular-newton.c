@@ -10,6 +10,7 @@
 #include <math.h>
 
 #define MPS_2SQRT2 2.82842712474619009760
+#define KAPPA (sec->n + 7 * 1.4151135)
 
 void
 mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
@@ -51,6 +52,7 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
 	  *again = true;
 	  int k;
 	  double acorr;
+	  double sigma = 0;
 
 	  for (k = 0; k < sec->n; k++)
 	    {
@@ -60,11 +62,16 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
 		  cplx_add (ctmp2, afpc[i], afpc[k]);
 		  cplx_div_eq (ctmp2, ctmp);
 		  cplx_add_eq (corr, ctmp2);
+
+		  sigma += cplx_mod (ctmp2);
 		}
 	    }
 
 	  if (!cplx_eq_zero (corr))
 	    {
+	      if (cplx_mod (corr) < sigma * KAPPA * DBL_EPSILON)
+		*again = false;
+
 	      cplx_div (corr, afpc[i], corr);
 	      
 	      acorr = cplx_mod (corr);
@@ -224,8 +231,10 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
 	  *again = true;
 	  int k;
 	  rdpe_t acorr;
+	  rdpe_t sigma;
 
 	  cdpe_set (corr, cdpe_zero);
+	  rdpe_set (sigma, rdpe_zero);
 
 	  for (k = 0; k < sec->n; k++)
 	    {
@@ -235,8 +244,16 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
 		  cdpe_add (ctmp2, sec->adpc[i], sec->adpc[k]);
 		  cdpe_div_eq (ctmp2, ctmp);
 		  cdpe_add_eq (corr, ctmp2);
+
+		  cdpe_mod (rtmp, ctmp2);
+		  rdpe_add_eq (sigma, rtmp);
 		}
 	    }
+
+	  cdpe_mod (rtmp, corr);
+	  rdpe_mul_eq_d (sigma, KAPPA * DBL_EPSILON);
+	  if (rdpe_lt (rtmp, sigma))
+	    *again = false;
 
 	  cdpe_div (corr, sec->adpc[i], corr);
 	  cdpe_mod (acorr, corr); 
@@ -403,7 +420,46 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
        * the case return without doing anything more */
       if (mpc_eq_zero (ctmp))
 	{
-	  *again = false;
+	  *again = true;
+	  int k;
+	  rdpe_t acorr;
+	  rdpe_t sigma;
+
+	  mpc_set_ui (corr, 0U, 0U);
+	  rdpe_set (sigma, rdpe_zero);
+
+	  for (k = 0; k < sec->n; k++)
+	    {
+	      if (i != k)
+		{
+		  mpc_sub (ctmp, sec->bmpc[i], sec->bmpc[k]);
+		  mpc_add (ctmp2, sec->ampc[i], sec->ampc[k]);
+		  mpc_div_eq (ctmp2, ctmp);
+		  mpc_add_eq (corr, ctmp2);
+
+		  mpc_rmod (rtmp, ctmp2);
+		  rdpe_add_eq (sigma, rtmp);
+		}
+	    }
+
+	  mpc_rmod (rtmp, corr);
+	  rdpe_mul_eq_d (sigma, KAPPA);
+	  rdpe_mul_eq (sigma, s->mp_epsilon);
+	  if (rdpe_lt (rtmp, sigma))
+	    *again = false;
+
+	  mpc_div (corr, sec->ampc[i], corr);
+	  mpc_rmod (acorr, corr);
+ 
+	  rdpe_mul_d (rtmp, acorr, sec->n * (1 + sec->n)); 
+	  rdpe_mul_eq (rtmp, s->mp_epsilon);
+	  if (rdpe_lt (rtmp, s->drad[i])) 
+	    rdpe_set (s->drad[i], rtmp); 
+
+	  rdpe_mul (rtmp, ax, s->mp_epsilon);
+	  if (rdpe_lt (acorr, rtmp))
+	    *again = false;
+
 	  goto mnewton_cleanup;
 	}
 
