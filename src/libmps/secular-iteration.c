@@ -243,7 +243,7 @@ mps_secular_ga_fiterate (mps_status * s, int maxit, mps_boolean just_regenerated
 
   if (excep)
     {
-      MPS_DEBUG_WITH_INFO (s, "Passing to DPE arithmetic since there are roots not representable in standard floating point");
+      MPS_DEBUG_WITH_INFO (s, "Switching to DPE arithmetic since there are roots not representable in standard floating point");
       for (i = 0; i < s->n; i++)
 	{
 	  cdpe_set_x (s->droot[i], s->froot[i]);

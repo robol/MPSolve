@@ -89,7 +89,7 @@ mps_secular_ga_find_changed_roots (mps_status * s, cdpe_t * old_b, mpc_t * old_m
   
   for (i = 0; i < s->n; i++)
     {
-      if (s->just_raised_precision)
+      if (s->just_raised_precision && MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
 	{
 	  root_changed[i] = true;
 	  continue;

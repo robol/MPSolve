@@ -50,6 +50,7 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
 	{
 	  *again = true;
 	  int k;
+	  double acorr;
 
 	  for (k = 0; k < sec->n; k++)
 	    {
@@ -63,6 +64,10 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
 	    }
 
 	  cplx_div (corr, afpc[i], corr);
+	  
+	  acorr = cplx_mod (corr);
+	  if (acorr < ax * 4 * DBL_EPSILON)
+	    *again = false;
 
           return;
 	}
@@ -213,6 +218,7 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
 	{
 	  *again = true;
 	  int k;
+	  rdpe_t acorr;
 
 	  cdpe_set (corr, cdpe_zero);
 
@@ -228,10 +234,14 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
 	    }
 
 	  cdpe_div (corr, sec->adpc[i], corr);
-	  /* cdpe_mod (rtmp, corr); */
-	  /* rdpe_mul_eq_d (rtmp, sec->n * (1 + sec->n * DBL_EPSILON)); */
-	  /* if (rdpe_lt (rtmp, s->drad[i])) */
-	  /*   rdpe_set (s->drad[i], rtmp); */
+	  cdpe_mod (acorr, corr); 
+	  rdpe_mul_d (rtmp, acorr, sec->n * (1 + sec->n * DBL_EPSILON)); 
+	  if (rdpe_lt (rtmp, s->drad[i])) 
+	    rdpe_set (s->drad[i], rtmp); 
+
+	  rdpe_mul_d (rtmp, ax, DBL_EPSILON * 4);
+	  if (rdpe_lt (acorr, rtmp))
+	    *again = false;
 
           return;
 	}
