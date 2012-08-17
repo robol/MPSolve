@@ -85,6 +85,14 @@ __mps_secular_ga_fiterate_worker (void* data_ptr)
 
 	  /* Apply Aberth correction */
 	  mps_faberth_wl (s, i, abcorr, data->aberth_mutex);
+
+	  if (isnan (cplx_Re (abcorr)) || isnan (cplx_Im (abcorr))) 
+	    {
+	      s->again[i] = false;
+	      pthread_mutex_unlock (&data->roots_mutex[i]);
+	      continue;
+	    }
+
 	  cplx_mul_eq (abcorr, corr);
 	  cplx_sub (abcorr, cplx_one, abcorr);
 	  cplx_div (abcorr, corr, abcorr);
@@ -222,8 +230,8 @@ mps_secular_ga_fiterate (mps_status * s, int maxit, mps_boolean just_regenerated
       data[i].gs_mutex = &gs_mutex;
       data[i].excep = &excep;
 
-       mps_thread_pool_assign (s, s->pool, __mps_secular_ga_fiterate_worker, data + i); 
-      /* __mps_secular_ga_fiterate_worker (data + i); */
+      mps_thread_pool_assign (s, s->pool, 
+			      __mps_secular_ga_fiterate_worker, data + i); 
     }
 
   mps_thread_pool_wait (s, s->pool);

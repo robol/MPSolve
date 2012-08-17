@@ -107,6 +107,7 @@ mps_secular_ga_find_changed_roots (mps_status * s, cdpe_t * old_b, mpc_t * old_m
 	cdpe_sub (diff, old_b[i], sec->bdpc[i]);
 
       root_changed[i] = ! cdpe_eq_zero (diff);
+      MPS_DEBUG_CDPE (s, diff, "diff_%d", i);
       if ((s->debug_level & MPS_DEBUG_REGENERATION) && !root_changed[i])
 	MPS_DEBUG (s, "b_%d hasn't changed, so p(b_%d) will not be recomputed", i, i);	
     }
@@ -545,7 +546,40 @@ mps_secular_ga_regenerate_coefficients_secular (mps_status * s, cdpe_t * old_b, 
 
 	/* Try to evaluate the secular equation in the new nodes for the secular equation
 	 * and verify if the relative error is small enough. */
-	mps_secular_meval_with_error (s, starting_sec, sec->bmpc[i], sec->ampc[i], error);
+	if (!mps_secular_meval_with_error (s, starting_sec, sec->bmpc[i], sec->ampc[i], error))
+	  {
+	    /* Find the guilty coefficient that is equal to our b_i and swap it */
+	    for (j = i + 1; j < sec->n; j++)
+	      {
+		mpc_sub (diff, sec->bmpc[i], starting_sec->bmpc[j]);
+		MPS_DEBUG_MPC (s, s->mpwp, diff, "diff");
+		if (mpc_eq_zero (diff))
+		  {
+		    rdpe_t temp_drad;
+		    double temp_frad;
+		    mpc_set (diff, sec->bmpc[j]);
+		    mpc_set (starting_sec->bmpc[j], sec->bmpc[i]);
+		    mpc_set (sec->bmpc[i], diff);
+		    mpc_set (diff, sec->ampc[j]);
+		    mpc_set (sec->ampc[j], sec->ampc[i]);
+		    mpc_set (sec->ampc[i], diff);
+		    rdpe_set (temp_drad, s->drad[i]);
+		    rdpe_set (s->drad[i], s->drad[j]);
+ 		    rdpe_set (s->drad[j], temp_drad);
+		    temp_frad = s->frad[i];
+		    s->frad[i] = s->frad[j];
+		    s->frad[j] = temp_frad;
+
+		    root_changed[i] = false;
+
+		    mpc_sub (diff, sec->bmpc[j], starting_sec->bmpc[j]);
+		    if (mpc_eq_zero (diff))
+		      root_changed[j] = false;		    
+
+		    goto secular_regeneration_partial;
+		  }
+	      }
+	  }
 	
 	mpc_rmod (ampc_mod, sec->ampc[i]);
 	rdpe_div_eq (error, ampc_mod);
@@ -578,6 +612,7 @@ mps_secular_ga_regenerate_coefficients_secular (mps_status * s, cdpe_t * old_b, 
 	mpc_mul_eq (sec->ampc[i], prod_b);
       }
       else {
+      secular_regeneration_partial:
 	/* Handle the case where b_i = new b_i, so we can't evaluate the secular equation
 	 * in the pole. */
 	mpc_set (sec->ampc[i], starting_sec->ampc[i]);

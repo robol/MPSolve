@@ -149,7 +149,6 @@ mps_thread_mainloop (void * thread_ptr)
        * will unlock the mutex and wait for the thread to be signaled. */
       /* printf ("(thread %p) Finished...\n", thread); fflush(stdout); */
 
-      pthread_mutex_lock (&thread->pool->free_count_changed_mutex);
       pthread_mutex_lock (&thread->busy_mutex);
 
       sem_post (&thread->pool->free_count);
@@ -158,8 +157,8 @@ mps_thread_mainloop (void * thread_ptr)
 
       /* printf("(thread %p) Now semaphore value is %d\n", thread, free_count);  */
 
+      pthread_mutex_lock (&thread->pool->free_count_changed_mutex);
       pthread_cond_signal (&thread->pool->free_count_changed_cond);
-
       pthread_mutex_unlock (&thread->pool->free_count_changed_mutex);
 
       pthread_cond_wait  (&thread->start_condition, &thread->busy_mutex);

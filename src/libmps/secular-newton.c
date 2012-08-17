@@ -63,13 +63,18 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
 		}
 	    }
 
-	  cplx_div (corr, afpc[i], corr);
-	  
-	  acorr = cplx_mod (corr);
-	  if (acorr < ax * 4 * DBL_EPSILON)
+	  if (!cplx_eq_zero (corr))
+	    {
+	      cplx_div (corr, afpc[i], corr);
+	      
+	      acorr = cplx_mod (corr);
+	      if (acorr < ax * 4 * DBL_EPSILON)
+		*again = false;
+	    }
+	  else
 	    *again = false;
 
-          return;
+	  return;
 	}
 
       /* Compute (z-b_i)^{-1} */
