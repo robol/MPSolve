@@ -43,11 +43,27 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
       /* Compute z - b_i */
       cplx_sub (ctmp, x, bfpc[i]);
 
-      /* Check if we are in the case where z == b_i and return,
-       * without doing any further iteration */
+      /* Check if we are in the case where z == b_i and 
+       * if that's the case perform the fallback computation
+       * for the Newton correction */
       if (cplx_eq_zero (ctmp))
 	{
-	  *again = false;
+	  *again = true;
+	  int k;
+
+	  for (k = 0; k < sec->n; k++)
+	    {
+	      if (i != k)
+		{
+		  cplx_sub (ctmp, bfpc[i], bfpc[k]);
+		  cplx_add (ctmp2, afpc[i], afpc[k]);
+		  cplx_div_eq (ctmp2, ctmp);
+		  cplx_add_eq (corr, ctmp2);
+		}
+	    }
+
+	  cplx_div (corr, afpc[i], corr);
+
           return;
 	}
 
@@ -190,11 +206,34 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
       rdpe_mul_eq_d (rtmp, (i + 10));
       rdpe_add_eq (asumb, rtmp);
 
-      /* Alternative computation if x is one of the b_i */
+      /* Check if we are in the case where z == b_i and 
+       * if that's the case perform the fallback computation
+       * for the Newton correction */
       if (cdpe_eq_zero (ctmp))
 	{
-	  *again = false;
-	  return;
+	  *again = true;
+	  int k;
+
+	  cdpe_set (corr, cdpe_zero);
+
+	  for (k = 0; k < sec->n; k++)
+	    {
+	      if (i != k)
+		{
+		  cdpe_sub (ctmp, sec->bdpc[i], sec->bdpc[k]);
+		  cdpe_add (ctmp2, sec->adpc[i], sec->adpc[k]);
+		  cdpe_div_eq (ctmp2, ctmp);
+		  cdpe_add_eq (corr, ctmp2);
+		}
+	    }
+
+	  cdpe_div (corr, sec->adpc[i], corr);
+	  /* cdpe_mod (rtmp, corr); */
+	  /* rdpe_mul_eq_d (rtmp, sec->n * (1 + sec->n * DBL_EPSILON)); */
+	  /* if (rdpe_lt (rtmp, s->drad[i])) */
+	  /*   rdpe_set (s->drad[i], rtmp); */
+
+          return;
 	}
 
       /* Invert it, i.e. compute 1 / (z - b_i) */
