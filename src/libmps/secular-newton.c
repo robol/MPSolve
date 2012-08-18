@@ -81,6 +81,8 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
 	  else
 	    *again = false;
 
+	  /* *rad = acorr * sec->n * (1 + DBL_EPSILON * KAPPA * sigma); */
+
 	  return;
 	}
 
@@ -264,6 +266,10 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
 	  rdpe_mul_d (rtmp, ax, DBL_EPSILON * 4);
 	  if (rdpe_lt (acorr, rtmp))
 	    *again = false;
+
+	  /* rdpe_mul_d (rtmp, sigma, KAPPA * DBL_EPSILON); */
+	  /* rdpe_add_eq (rtmp, rdpe_one); */
+	  /* rdpe_mul (rad, rtmp, acorr); */
 
           return;
 	}
@@ -459,6 +465,11 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
 	  rdpe_mul (rtmp, ax, s->mp_epsilon);
 	  if (rdpe_lt (acorr, rtmp))
 	    *again = false;
+
+	  /* rdpe_mul (rtmp, sigma, s->mp_epsilon); */
+	  /* rdpe_mul_eq_d (rtmp, KAPPA); */
+	  /* rdpe_add_eq (rtmp, rdpe_one); */
+	  /* rdpe_mul (rad, rtmp, acorr); */
 
 	  goto mnewton_cleanup;
 	}

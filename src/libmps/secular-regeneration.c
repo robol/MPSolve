@@ -309,9 +309,7 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
     } /* Close the case where the coefficient are not approximated or isolated */
       else
 	{
-	  // mpc_set (sec->ampc[i], starting_sec->ampc[i]);
 	  mpc_set_ui (mprod_b, 1U, 0U);
-	  /* mps_mhorner (s, p, bmpc[i], sec->ampc[i]); */
 	  for (j = 0; j < sec->n; j++) {
 	    if (i != j && root_changed[j]) {
 	      mpc_sub (mdiff, bmpc[i], old_mb[j]); 
@@ -322,8 +320,6 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
 	  }
 	  
 	  mpc_mul_eq (sec->ampc[i], mprod_b);
-	  /* mpc_set_si (mdiff, -1, 0); */
-	  /* mpc_mul_eq (sec->ampc[i], mdiff);	   */
 	}
 
  monomial_regenerate_exit:
