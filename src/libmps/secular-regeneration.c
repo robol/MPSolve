@@ -709,6 +709,9 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
   clock_t *my_clock = mps_start_timer ();
 #endif
 
+  old_mb = mpc_valloc (s->n);
+  mpc_vinit2 (old_mb, s->n, s->data_prec_max.value);
+
   switch (s->lastphase)
     {
       /* If we are in the float phase regenerate coefficients
@@ -721,8 +724,6 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
       old_a = cplx_valloc (s->n);
       old_b = cplx_valloc (s->n);
       old_db = cdpe_valloc (s->n);
-      old_mb = mpc_valloc (s->n);
-      mpc_vinit2 (old_mb, s->n, s->data_prec_max.value);
 
       /* Copy the old coefficients, and set the new
        * b_i with the current roots approximations. */
@@ -786,9 +787,6 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
 
       mps_secular_set_radii (s);
 
-      mpc_vclear (old_mb, s->n);
-      mpc_vfree (old_mb);
-
       mps_secular_fstart (s, s->n, NULL, 0, 0, s->eps_out);
 
       break;
@@ -822,7 +820,7 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
             {
               cdpe_set (sec->adpc[i], old_da[i]);
               cdpe_set (sec->bdpc[i], old_db[i]);
-	      
+	      mpc_set_cdpe (old_mb[i], old_db[i]);
 	      mpc_set_cdpe (sec->ampc[i], old_da[i]);
 	      mpc_set_cdpe (sec->bmpc[i], old_db[i]);
             }
@@ -861,11 +859,9 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
 
       /* Allocate old_a and old_b */
       old_ma = mpc_valloc (s->n);
-      old_mb = mpc_valloc (s->n);
       old_db = cdpe_valloc (s->n);
 
-      mpc_vinit2 (old_ma, s->n, 2 * s->mpwp);
-      mpc_vinit2 (old_mb, s->n, 2 * s->mpwp);
+      mpc_vinit2 (old_ma, s->n, s->mpwp);
 
       /* Copy the old coefficients, and set the new
        * b_i with the current roots approximations. */
@@ -899,9 +895,7 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
 	}
        
       mpc_vclear (old_ma, s->n);
-      mpc_vclear (old_mb, s->n);
       mpc_vfree (old_ma);
-      mpc_vfree (old_mb);
       rdpe_vfree (old_db);
 
       mps_secular_mstart (s, s->n, NULL,
@@ -914,6 +908,9 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
       break;
 
     }                           /* End of switch (s->lastphase) */
+
+  mpc_vclear (old_mb, s->n);
+  mpc_vfree (old_mb);
 
   /* Sum execution time to the total counter */
 #ifndef DISABLE_DEBUG
