@@ -148,16 +148,14 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
   /* Floating point temporary variables */
   rdpe_t root_epsilon;
 
+  int i = data->i, j;
+
   /* The precision of the temporary variables at the start of the computation. We can set
    * this to s->mpwp; */
-  MPS_LOCK (s->data_prec_max);
-  long int coeff_wp = s->data_prec_max.value;
-  MPS_UNLOCK (s->data_prec_max);
+  long int coeff_wp = s->rootwp[i];
 
   /* This variable is true if the regeneration succeeded. */
   mps_boolean success = true;
-
-  int i = data->i, j;
 
   /* mps_secular_raise_coefficient_precision (s, coeff_wp); */
 
@@ -313,18 +311,19 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
 	{
 	  // mpc_set (sec->ampc[i], starting_sec->ampc[i]);
 	  mpc_set_ui (mprod_b, 1U, 0U);
+	  /* mps_mhorner (s, p, bmpc[i], sec->ampc[i]); */
 	  for (j = 0; j < sec->n; j++) {
 	    if (i != j && root_changed[j]) {
-	      mpc_sub (mdiff, sec->bmpc[i], old_mb[j]);
-	      mpc_mul_eq (mprod_b, mdiff);
-	      mpc_sub (mdiff, sec->bmpc[i], sec->bmpc[j]);
+	      mpc_sub (mdiff, bmpc[i], old_mb[j]); 
+	      mpc_mul_eq (mprod_b, mdiff); 
+	      mpc_sub (mdiff, bmpc[i], bmpc[j]);
 	      mpc_div_eq (mprod_b, mdiff);
 	    }
 	  }
 	  
 	  mpc_mul_eq (sec->ampc[i], mprod_b);
-	  mpc_set_si (mdiff, -1, 0);
-	  mpc_mul_eq (sec->ampc[i], mdiff);
+	  /* mpc_set_si (mdiff, -1, 0); */
+	  /* mpc_mul_eq (sec->ampc[i], mdiff);	   */
 	}
 
  monomial_regenerate_exit:
@@ -397,7 +396,7 @@ mps_secular_ga_regenerate_coefficients_monomial (mps_status * s, cdpe_t * old_b,
       data[i].success = &success;
       data[i].bmpc = s->bmpc;
       mps_thread_pool_assign (s, s->pool, __mps_secular_ga_regenerate_coefficients_monomial_worker,   
-       			      data + i);     
+       			      data + i);
       /* __mps_secular_ga_regenerate_coefficients_monomial_worker (data + i);  */
     }
 
@@ -604,8 +603,6 @@ mps_secular_ga_regenerate_coefficients_secular (mps_status * s, cdpe_t * old_b, 
 	}
 
 	mpc_mul_eq (sec->ampc[i], prod_b);
-	mpc_set_si (diff, -1, 0);
-	mpc_mul_eq (sec->ampc[i], diff);
       }
     }
 
