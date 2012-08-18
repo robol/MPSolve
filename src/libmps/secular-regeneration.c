@@ -311,41 +311,20 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
     } /* Close the case where the coefficient are not approximated or isolated */
       else
 	{
-	  /* We should not recompute the polynomial here since the approximation
-	   * hasn't changed. */
-	  if (mpc_get_prec (mprod_b) < s->rootwp[i])
-	    {
-	      mpc_set_prec (mprod_b, s->rootwp[i]);
-	      mpc_set_prec (mdiff, s->rootwp[i]);
-	      mpc_set_prec (lc, s->rootwp[i]);
-
-	      for (j = 0; j < s->n; j++)
-		{
-		  if (mpc_get_prec (bmpc[j]) < s->rootwp[i])
-		    mpc_set_prec (bmpc[j], s->rootwp[j]);
-		  if (mpc_get_prec (old_mb[j]) < s->rootwp[i])
-		    mpc_set_prec (old_mb[j], s->rootwp[i]);
-		}
-	    }
-	  
+	  // mpc_set (sec->ampc[i], starting_sec->ampc[i]);
 	  mpc_set_ui (mprod_b, 1U, 0U);
-	  for (j = 0; j < s->n; j++)
-	    {
-	      if (i == j || !root_changed[j])
-		continue;
-	      
-	      mpc_sub (mdiff, bmpc[i], bmpc[j]);
-	      mpc_sub (lc, bmpc[i], old_mb[j]);
-	      mpc_div_eq (mdiff, lc);
+	  for (j = 0; j < sec->n; j++) {
+	    if (i != j && root_changed[j]) {
+	      mpc_sub (mdiff, sec->bmpc[i], old_mb[j]);
 	      mpc_mul_eq (mprod_b, mdiff);
+	      mpc_sub (mdiff, sec->bmpc[i], sec->bmpc[j]);
+	      mpc_div_eq (mprod_b, mdiff);
 	    }
-	
+	  }
+	  
 	  mpc_mul_eq (sec->ampc[i], mprod_b);
-	  mpc_set_si (lc, -1, 0);
-	  mpc_mul_eq (sec->ampc[i], lc);
-
-	  MPS_DEBUG_MPC (s, s->rootwp[i], sec->bmpc[i], "b_%d", i);
-	  MPS_DEBUG_MPC (s, s->rootwp[i], sec->ampc[i], "a_%d", i);
+	  mpc_set_si (mdiff, -1, 0);
+	  mpc_mul_eq (sec->ampc[i], mdiff);
 	}
 
  monomial_regenerate_exit:
@@ -551,7 +530,6 @@ mps_secular_ga_regenerate_coefficients_secular (mps_status * s, cdpe_t * old_b, 
 	    for (j = i + 1; j < sec->n; j++)
 	      {
 		mpc_sub (diff, sec->bmpc[i], starting_sec->bmpc[j]);
-		MPS_DEBUG_MPC (s, s->mpwp, diff, "diff");
 		if (mpc_eq_zero (diff))
 		  {
 		    rdpe_t temp_drad;
@@ -616,11 +594,11 @@ mps_secular_ga_regenerate_coefficients_secular (mps_status * s, cdpe_t * old_b, 
 	 * in the pole. */
 	mpc_set (sec->ampc[i], starting_sec->ampc[i]);
 	mpc_set_ui (prod_b, 1U, 0U);
-	for (j = 1; j < sec->n; j++) {
+	for (j = 0; j < sec->n; j++) {
 	  if (root_changed[j]) {
-	    mpc_sub (diff, starting_sec->bmpc[i], sec->bmpc[j]);
-	    mpc_mul_eq (prod_b, diff);
 	    mpc_sub (diff, sec->bmpc[i], starting_sec->bmpc[j]);
+	    mpc_mul_eq (prod_b, diff);
+	    mpc_sub (diff, sec->bmpc[i], sec->bmpc[j]);
 	    mpc_div_eq (prod_b, diff);
 	  }
 	}
@@ -677,17 +655,9 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s, cdpe_t * old_b, mpc_t
    * polynomial only in that approximations. */
   mps_boolean * root_changed = mps_secular_ga_find_changed_roots (s, old_b, old_mb);
 
-  int i;
-  for (i = 0; i < s->n; i++)
-    if (!root_changed[i])
-      MPS_DEBUG (s, "Root %d has not changed", i);
-
   if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
     {
       /* Regenerate the coefficients of the secular equation starting from the monomial input */
-      success = mps_secular_ga_regenerate_coefficients_monomial (s, old_b, old_mb, root_changed);
-
-      for (i = 0; i < s->n; i++) { root_changed[i] = true; }
       success = mps_secular_ga_regenerate_coefficients_monomial (s, old_b, old_mb, root_changed);
     }
   else if (MPS_INPUT_CONFIG_IS_SECULAR (s->input_config))
@@ -752,7 +722,7 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
       old_b = cplx_valloc (s->n);
       old_db = cdpe_valloc (s->n);
       old_mb = mpc_valloc (s->n);
-      mpc_vinit2 (old_mb, s->n, s->mpwp);
+      mpc_vinit2 (old_mb, s->n, s->data_prec_max.value);
 
       /* Copy the old coefficients, and set the new
        * b_i with the current roots approximations. */
