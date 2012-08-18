@@ -52,7 +52,7 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
 	  *again = true;
 	  int k;
 	  double acorr;
-	  double sigma = 0;
+	  /* double sigma = 0; */
 
 	  for (k = 0; k < sec->n; k++)
 	    {
@@ -62,16 +62,11 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
 		  cplx_add (ctmp2, afpc[i], afpc[k]);
 		  cplx_div_eq (ctmp2, ctmp);
 		  cplx_add_eq (corr, ctmp2);
-
-		  sigma += cplx_mod (ctmp2);
 		}
 	    }
 
 	  if (!cplx_eq_zero (corr))
 	    {
-	      if (cplx_mod (corr) < sigma * KAPPA * DBL_EPSILON)
-		*again = false;
-
 	      cplx_div (corr, afpc[i], corr);
 	      
 	      acorr = cplx_mod (corr);
@@ -80,8 +75,6 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
 	    }
 	  else
 	    *again = false;
-
-	  /* *rad = acorr * sec->n * (1 + DBL_EPSILON * KAPPA * sigma); */
 
 	  return;
 	}

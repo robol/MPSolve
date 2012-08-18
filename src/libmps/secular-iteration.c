@@ -207,7 +207,7 @@ mps_secular_ga_fiterate (mps_status * s, int maxit, mps_boolean just_regenerated
 
   /* Set the iterations threshold to 2 iterations
    * for every non approximated root. */
-  it_threshold = 2 * (s->n - computed_roots);
+  it_threshold = (s->n - computed_roots);
 
   if (s->debug_level & MPS_DEBUG_PACKETS)
     {
@@ -426,7 +426,7 @@ mps_secular_ga_diterate (mps_status * s, int maxit, mps_boolean just_regenerated
 
   /* Set the iterations threshold to 2 iterations
    * for every non approximated root. */
-  it_threshold = 2 * (s->n - computed_roots);
+  it_threshold = (s->n - computed_roots);
 
   if (s->debug_level & MPS_DEBUG_PACKETS)
     {
@@ -690,7 +690,7 @@ mps_secular_ga_miterate (mps_status * s, int maxit, mps_boolean just_regenerated
 
   /* Set the iterations threshold to 2 iterations
    * for every non approximated root. */
-  it_threshold = 2 * (s->n - computed_roots);
+  it_threshold = (s->n - computed_roots);
 
   if (s->debug_level & MPS_DEBUG_PACKETS)
     {

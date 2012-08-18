@@ -318,7 +318,7 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
 	{
 	  mpc_set_ui (mprod_b, 1U, 0U);
 	  for (j = 0; j < sec->n; j++) {
-	    if (i != j && root_changed[j]) {
+	    if (root_changed[j] && i != j) {
 	      mpc_sub (mdiff, bmpc[i], old_mb[j]); 
 	      mpc_mul_eq (mprod_b, mdiff); 
 	      mpc_sub (mdiff, bmpc[i], bmpc[j]);
