@@ -118,7 +118,8 @@ mps_secular_ga_find_changed_roots (mps_status * s, cdpe_t * old_b, mpc_t * old_m
   if (old_mb)
     mpc_clear (mdiff);
 
-  MPS_DEBUG (s, "%d of %d approximations are different from last regeneration", changed_roots, s->n);
+  if (changed_roots != 0)
+    MPS_DEBUG (s, "%d of %d approximations are different from last regeneration", changed_roots, s->n);
 
   return root_changed;
 }
