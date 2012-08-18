@@ -79,6 +79,7 @@ mps_secular_ga_find_changed_roots (mps_status * s, cdpe_t * old_b, mpc_t * old_m
 
   cdpe_t diff;
   int i;
+  int changed_roots = 0;
 
   mps_secular_equation * sec = s->secular_equation;
   mps_boolean * root_changed = mps_boolean_valloc (s->n);
@@ -109,10 +110,15 @@ mps_secular_ga_find_changed_roots (mps_status * s, cdpe_t * old_b, mpc_t * old_m
       root_changed[i] = ! cdpe_eq_zero (diff);
       if ((s->debug_level & MPS_DEBUG_REGENERATION) && !root_changed[i])
 	MPS_DEBUG (s, "b_%d hasn't changed, so p(b_%d) will not be recomputed", i, i);	
+
+      if (root_changed[i])
+	changed_roots++;
     }
 
   if (old_mb)
     mpc_clear (mdiff);
+
+  MPS_DEBUG (s, "%d of %d approximations are different from last regeneration", changed_roots, s->n);
 
   return root_changed;
 }
