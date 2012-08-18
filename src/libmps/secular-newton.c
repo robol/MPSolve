@@ -52,7 +52,7 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
 	  *again = true;
 	  int k;
 	  double acorr;
-	  /* double sigma = 0; */
+	  double sigma = 0;
 
 	  for (k = 0; k < sec->n; k++)
 	    {
@@ -62,16 +62,23 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
 		  cplx_add (ctmp2, afpc[i], afpc[k]);
 		  cplx_div_eq (ctmp2, ctmp);
 		  cplx_add_eq (corr, ctmp2);
+
+		  sigma += cplx_mod (ctmp2);
 		}
 	    }
 
 	  if (!cplx_eq_zero (corr))
 	    {
+	      if (cplx_mod (corr) < sigma * DBL_EPSILON * KAPPA)
+		*again = false;
+
 	      cplx_div (corr, afpc[i], corr);
 	      
 	      acorr = cplx_mod (corr);
-	      if (acorr < ax * 4 * DBL_EPSILON)
-		*again = false;
+	      if (acorr < ax * DBL_EPSILON * sec->n)
+		{
+		  *again = false;
+		}
 	    }
 	  else
 	    *again = false;
@@ -171,7 +178,7 @@ mps_secular_fnewton (mps_status * s, cplx_t x, double *rad, cplx_t corr,
       /* MPS_DEBUG (s, "g_fp_%ld = %e", data->k, g_fp); */
       /* MPS_DEBUG (s, "g_sumb_%ld = %e", data->k, g_sumb); */
 
-      new_rad = g_pol / (g_fp - g_pol * g_sumb) * sec->n + ax * 4.0 * DBL_EPSILON;
+      new_rad = g_pol / (g_fp - g_pol * g_sumb) * sec->n + ax * DBL_EPSILON;
 
       /* MPS_DEBUG (s, "new_rad_%ld = %e", data->k, new_rad); */
       /* pthread_mutex_unlock (data->gs_mutex); */
@@ -256,7 +263,7 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
 	  if (rdpe_lt (rtmp, s->drad[i])) 
 	    rdpe_set (s->drad[i], rtmp); 
 
-	  rdpe_mul_d (rtmp, ax, DBL_EPSILON * 4);
+	  rdpe_mul_d (rtmp, ax, DBL_EPSILON);
 	  if (rdpe_lt (acorr, rtmp))
 	    *again = false;
 
@@ -359,7 +366,7 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
       rdpe_div (new_rad, g_pol, new_rad);
       rdpe_mul_eq_d (new_rad, sec->n);
 
-      rdpe_mul_d (rtmp, ax, DBL_EPSILON * 4.0);
+      rdpe_mul_d (rtmp, ax, DBL_EPSILON);
       rdpe_add_eq (new_rad, rtmp);
       
       if (rdpe_lt (new_rad, rad) && !(rdpe_le (g_fp, rdpe_zero) || rdpe_le (new_rad, rdpe_zero)))

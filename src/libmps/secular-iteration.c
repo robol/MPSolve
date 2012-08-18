@@ -207,7 +207,7 @@ mps_secular_ga_fiterate (mps_status * s, int maxit, mps_boolean just_regenerated
 
   /* Set the iterations threshold to 2 iterations
    * for every non approximated root. */
-  it_threshold = (s->n - computed_roots);
+  it_threshold = 2 * (s->n - computed_roots);
 
   if (s->debug_level & MPS_DEBUG_PACKETS)
     {
@@ -260,12 +260,6 @@ mps_secular_ga_fiterate (mps_status * s, int maxit, mps_boolean just_regenerated
 	}
       s->lastphase = dpe_phase;
     }
-
-  /* Compute the inclusion radii with Gerschgorin so we can compute
-   * clusterizations for the roots. */
-  /* mps_fradii (s, fradii); */
-  /* mps_fcluster (s, fradii, 2.0 * s->n);  */
-  /* mps_fmodify (s, false);  */
 
   /* These lines are used to debug the again vector, but are not useful
    * at the moment being */
@@ -426,7 +420,7 @@ mps_secular_ga_diterate (mps_status * s, int maxit, mps_boolean just_regenerated
 
   /* Set the iterations threshold to 2 iterations
    * for every non approximated root. */
-  it_threshold = (s->n - computed_roots);
+  it_threshold = 2 * (s->n - computed_roots);
 
   if (s->debug_level & MPS_DEBUG_PACKETS)
     {
@@ -690,7 +684,7 @@ mps_secular_ga_miterate (mps_status * s, int maxit, mps_boolean just_regenerated
 
   /* Set the iterations threshold to 2 iterations
    * for every non approximated root. */
-  it_threshold = (s->n - computed_roots);
+  it_threshold = 2 * (s->n - computed_roots);
 
   if (s->debug_level & MPS_DEBUG_PACKETS)
     {
