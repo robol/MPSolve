@@ -82,16 +82,16 @@ LTLIBRARIES = $(lib_LTLIBRARIES)
 am__DEPENDENCIES_1 =
 libmps_la_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 am__objects_1 =
-am_libmps_la_OBJECTS = aberth.lo cluster.lo convex.lo data.lo debug.lo \
-	defaults.lo general-radius.lo getopts.lo gmptools.lo horner.lo \
-	improve.lo inclusion.lo input-buffer.lo interface.lo link.lo \
-	main.lo modify.lo monomial-poly.lo monomial-radius.lo \
-	monomial-threading.lo mpc.lo mt.lo newton.lo \
-	secular-evaluation.lo secular-ga.lo secular-iteration.lo \
-	secular-newton.lo secular-radius.lo secular-regeneration.lo \
-	secular-starting.lo secular.lo solve.lo sort.lo starting.lo \
-	status.lo stio.lo test.lo threading.lo tools.lo touch.lo \
-	user.lo $(am__objects_1)
+am_libmps_la_OBJECTS = aberth.lo approximation.lo cluster.lo convex.lo \
+	data.lo debug.lo defaults.lo general-radius.lo getopts.lo \
+	gmptools.lo horner.lo improve.lo inclusion.lo input-buffer.lo \
+	interface.lo link.lo main.lo modify.lo monomial-poly.lo \
+	monomial-radius.lo monomial-threading.lo mpc.lo mt.lo \
+	newton.lo secular-evaluation.lo secular-ga.lo \
+	secular-iteration.lo secular-newton.lo secular-radius.lo \
+	secular-regeneration.lo secular-starting.lo secular.lo \
+	solve.lo sort.lo starting.lo status.lo stio.lo test.lo \
+	threading.lo tools.lo touch.lo user.lo $(am__objects_1)
 libmps_la_OBJECTS = $(am_libmps_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -274,6 +274,7 @@ NULL =
 lib_LTLIBRARIES = libmps.la
 libmps_la_LDFLAGS = -version-info 3:0:0
 include_HEADERS = \
+        ${top_srcdir}/include/mps/approximation.h \
         ${top_srcdir}/include/mps/tools.h \
         ${top_srcdir}/include/mps/interface.h \
 	${top_srcdir}/include/mps/input-buffer.h \
@@ -300,6 +301,7 @@ AM_CPPFLAGS = \
 
 libmps_la_SOURCES = \
 	    aberth.c \
+            approximation.c \
 	    cluster.c \
 	    convex.c \
 	    data.c \
@@ -421,6 +423,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/aberth.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/approximation.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cluster.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/convex.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/data.Plo@am__quote@

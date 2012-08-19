@@ -76,6 +76,9 @@ typedef int mps_debug_level;
   /* input-buffer.h */
   struct mps_input_buffer;
 
+  /* approximation.h */
+  struct mps_approximation;
+
   /* options.h */
   struct mps_opt;
   struct mps_input_option;
@@ -115,6 +118,9 @@ extern  "C"
 
   /* input-buffer.h */
   typedef struct mps_input_buffer mps_input_buffer;
+
+  /* approximation.h */
+  typedef struct mps_approximation mps_approximation;
 
   /* options.h */
   typedef struct mps_opt mps_opt;
@@ -450,6 +456,7 @@ extern  "C"
 #include <mps/status.h>
 #include <mps/monomial-poly.h>
 #include <mps/secular.h>
+#include <mps/approximation.h>
 
 /* Interface should be a subset of core, so what is defined
  * there should be included here. */
@@ -475,6 +482,10 @@ extern  "C"
   void mps_maberth_s_wl (mps_status * s, int j, mps_cluster * cluster, mpc_t abcorr,
                          pthread_mutex_t * aberth_mutex);
   void mps_mnewtis (mps_status * s);
+
+  /* functions in approximation.c */
+  mps_approximation * mps_approximation_new (mps_status * s);
+  void mps_approximation_free (mps_status * s, mps_approximation * appr);
 
   /* functions in cluster.c */
   void mps_cluster_reset (mps_status * s);

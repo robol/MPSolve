@@ -52,13 +52,13 @@ mps_inclusion (mps_status * s)
       for (i = 0; i < s->n; i++)
         {
           fprintf (s->logstr, "r(%d)=", i);
-          rdpe_outln_str (s->logstr, s->drad[i]);
+          rdpe_outln_str (s->logstr, s->root[i]->drad);
         }
     }
 
   /* save old radii */
   for (i = 0; i < s->n; i++)
-    rdpe_set (s->dap1[i], s->drad[i]);
+    rdpe_set (s->dap1[i], s->root[i]->drad);
 
   mpc_init2 (p, s->mpwp);
   rdpe_mul_d (ep, s->mp_epsilon, (double) (s->n * 4));
@@ -74,7 +74,7 @@ mps_inclusion (mps_status * s)
         {
           if (i == j)
             continue;
-          mpc_sub (tmp, s->mroot[j], s->mroot[i]);
+          mpc_sub (tmp, s->root[j]->mvalue, s->root[i]->mvalue);
           mpc_get_cdpe (difc, tmp);
           cdpe_smod (difr, difc);
           rdpe_mul_eq (rad, difr);
@@ -89,8 +89,8 @@ mps_inclusion (mps_status * s)
           n1 = s->n + 1;
 
           /* compute p(mroot[i]) */
-          mps_parhorner (s, n1, s->mroot[i], poly->mfpc, poly->spar, p, 0);
-          mpc_get_cdpe (temp1, s->mroot[i]);
+          mps_parhorner (s, n1, s->root[i]->mvalue, poly->mfpc, poly->spar, p, 0);
+          mpc_get_cdpe (temp1, s->root[i]->mvalue);
           cdpe_mod (az, temp1);
 
           /* compute bound to the error */
@@ -104,15 +104,15 @@ mps_inclusion (mps_status * s)
           mpc_set (p, poly->mfpc[s->n]);
           for (k = s->n - 1; k > 0; k--)
             {
-              mpc_mul (p, p, s->mroot[i]);
+              mpc_mul (p, p, s->root[i]->mvalue);
               mpc_add (p, p, poly->mfpc[k]);
             }
-          mpc_mul (p, p, s->mroot[i]);
+          mpc_mul (p, p, s->root[i]->mvalue);
           mpc_add (p, p, poly->mfpc[0]);
 
           /* compute bound to the error */
           rdpe_set (ap, poly->dap[s->n]);
-          mpc_get_cdpe (temp1, s->mroot[i]);
+          mpc_get_cdpe (temp1, s->root[i]->mvalue);
           cdpe_mod (az, temp1);
           for (k = s->n - 1; k >= 0; k--)
             {
@@ -129,25 +129,30 @@ mps_inclusion (mps_status * s)
       rdpe_mul_eq_d (apeps, (double) s->n);
 
       /* compute ratio */
-      rdpe_div (s->drad[i], apeps, rad);
+      rdpe_div (s->root[i]->drad, apeps, rad);
 
       if (s->DOLOG)
         {
           fprintf (s->logstr, "New r(%d)=", i);
-          rdpe_outln_str (s->logstr, s->drad[i]);
+          rdpe_outln_str (s->logstr, s->root[i]->drad);
         }
     }
 
   oldnclust = s->clusterization->n;
 
-  mps_mcluster (s, s->drad, 2 * s->n);
+  rdpe_t * newton_radii = rdpe_valloc (s->n);
+  for (i = 0; i < s->n; i++)
+    rdpe_set (newton_radii[i], s->root[i]->drad);
+
+  mps_mcluster (s, newton_radii, 2 * s->n);
+  free (newton_radii);
 
   if (s->clusterization->n >= oldnclust)
     {
       /* choose the smallest radius */
       for (i = 0; i < s->n; i++)
-        if (rdpe_lt (s->dap1[i], s->drad[i]))
-          rdpe_set (s->drad[i], s->dap1[i]);
+        if (rdpe_lt (s->dap1[i], s->root[i]->drad))
+          rdpe_set (s->root[i]->drad, s->dap1[i]);
       /* update(); */
     }
   else

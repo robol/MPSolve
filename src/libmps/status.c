@@ -334,26 +334,26 @@ mps_status_get_roots_d (mps_status * s, cplx_t * roots, double *radius)
         {
           if (s->lastphase == float_phase || s->lastphase == dpe_phase)
             {
-              radius[i] = s->frad[i];
+              radius[i] = s->root[i]->frad;
             }
           else
             {
-              radius[i] = rdpe_get_d (s->drad[i]);
+              radius[i] = rdpe_get_d (s->root[i]->drad);
             }
 
         }
 
       if (s->lastphase == mp_phase)
         {
-          mpc_get_cplx (roots[i], s->mroot[i]);
+          mpc_get_cplx (roots[i], s->root[i]->mvalue);
         }
       else if (s->lastphase == float_phase)
         {
-          cplx_set (roots[i], s->froot[i]);
+          cplx_set (roots[i], s->root[i]->fvalue);
         }
       else if (s->lastphase == dpe_phase)
         {
-          cdpe_get_x (roots[i], s->droot[i]);
+          cdpe_get_x (roots[i], s->root[i]->dvalue);
         }
     }
   return 0;
@@ -371,9 +371,9 @@ mps_status_get_roots_m (mps_status * s, mpc_t * roots, rdpe_t * radius)
 
   for (i = 0; i < s->n; i++)
     {
-      mpc_set_prec (roots[i], mpc_get_prec (s->mroot[i]));
-      mpc_set (roots[i], s->mroot[i]);
-      rdpe_set (radius[i], s->drad[i]);
+      mpc_set_prec (roots[i], mpc_get_prec (s->root[i]->mvalue));
+      mpc_set (roots[i], s->root[i]->mvalue);
+      rdpe_set (radius[i], s->root[i]->drad);
     }
 
   return 0;

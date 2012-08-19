@@ -46,7 +46,7 @@ mps_fsort (mps_status * s)
 
   for (i = 0; i < s->n; i++)
     {
-      cplx_Re (real_parts[i]) = cplx_Re (s->froot[i]);
+      cplx_Re (real_parts[i]) = cplx_Re (s->root[i]->fvalue);
       cplx_Im (real_parts[i]) = i;
     }
 
@@ -78,7 +78,7 @@ mps_dsort (mps_status * s)
 
   for (i = 0; i < s->n; i++)
     {
-      rdpe_set (cdpe_Re (real_parts[i]), cdpe_Re (s->droot[i]));
+      rdpe_set (cdpe_Re (real_parts[i]), cdpe_Re (s->root[i]->dvalue));
       rdpe_set_d (cdpe_Im (real_parts[i]), i);
     }
 
@@ -111,7 +111,7 @@ mps_msort (mps_status * s)
 
   for (i = 0; i < s->n; i++)
     {
-      mpf_set (mpc_Re (real_parts[i]), mpc_Re (s->mroot[i]));
+      mpf_set (mpc_Re (real_parts[i]), mpc_Re (s->root[i]->mvalue));
       mpf_set_ui (mpc_Im (real_parts[i]), i);
     }
 

@@ -5,7 +5,7 @@
  * to perform cluster analysis. 
  *
  * A Gerschgorin radius shall be computed for every root and set
- * in <code>s->frad[i]</code>, where <code>i</code> is the index of
+ * in <code>s->root[i]->frad</code>, where <code>i</code> is the index of
  * the considered component.
  *
  * @param s The <code>mps_status</code> of the computation.
@@ -26,7 +26,7 @@ mps_monomial_fradii (mps_status * s, double * fradii)
       cplx_t diff;
       
       /* Compute the value of the polynomial in this point */
-      mps_fhorner_with_error (s, s->monomial_poly, s->froot[i], pol, &relative_error);
+      mps_fhorner_with_error (s, s->monomial_poly, s->root[i]->fvalue, pol, &relative_error);
 
       /* If we got a floating point exception, we need to switch to DPE on this component */
       if (cplx_check_fpe (pol))
@@ -35,14 +35,14 @@ mps_monomial_fradii (mps_status * s, double * fradii)
 	  fradii[i] = DBL_MAX;
 	  continue;
 	}
-      new_rad = cplx_mod (pol) + relative_error + cplx_mod (s->froot[i]) * 4.0 * DBL_EPSILON;
+      new_rad = cplx_mod (pol) + relative_error + cplx_mod (s->root[i]->fvalue) * 4.0 * DBL_EPSILON;
 
       for (j = 0; j < s->n; j++)
 	{
 	  if (i == j)
 	    continue;
 
-	  cplx_sub (diff, s->froot[i], s->froot[j]);
+	  cplx_sub (diff, s->root[i]->fvalue, s->root[j]->fvalue);
 	      
 	  /* Check for floating point exceptions in here */
 	  if (cplx_eq_zero (diff))
@@ -64,7 +64,7 @@ mps_monomial_fradii (mps_status * s, double * fradii)
  * to perform cluster analysis. 
  *
  * A Gerschgorin radius shall be computed for every root and set
- * in <code>s->frad[i]</code>, where <code>i</code> is the index of
+ * in <code>s->root[i]->frad</code>, where <code>i</code> is the index of
  * the considered component.
  *
  * @param s The <code>mps_status</code> of the computation.
@@ -83,11 +83,11 @@ mps_monomial_dradii (mps_status * s, rdpe_t * dradii)
   for (i = 0; i < s->n; i++)
     {
       cdpe_t diff;
-      mps_dhorner_with_error (s, s->monomial_poly, s->droot[i], pol, relative_error);
+      mps_dhorner_with_error (s, s->monomial_poly, s->root[i]->dvalue, pol, relative_error);
 
       cdpe_mod (new_rad, pol);
       rdpe_add_eq (new_rad, relative_error);
-      cdpe_mod (rtmp, s->droot[i]);
+      cdpe_mod (rtmp, s->root[i]->dvalue);
       rdpe_mul_eq_d (rtmp, 4.0 * DBL_EPSILON);
       rdpe_add_eq (new_rad, rtmp);
 
@@ -96,7 +96,7 @@ mps_monomial_dradii (mps_status * s, rdpe_t * dradii)
 	  if (i == j)
 	    continue;
 
-	  cdpe_sub (diff, s->droot[i], s->droot[j]);
+	  cdpe_sub (diff, s->root[i]->dvalue, s->root[j]->dvalue);
 	      
 	  /* Check for floating point exceptions in here */
 	  if (cdpe_eq_zero (diff))
@@ -119,7 +119,7 @@ mps_monomial_dradii (mps_status * s, rdpe_t * dradii)
  * to perform cluster analysis. 
  *
  * A Gerschgorin radius shall be computed for every root and set
- * in <code>s->frad[i]</code>, where <code>i</code> is the index of
+ * in <code>s->root[i]->frad</code>, where <code>i</code> is the index of
  * the considered component.
  *
  * @param s The <code>mps_status</code> of the computation.
@@ -141,12 +141,12 @@ mps_monomial_mradii (mps_status * s, rdpe_t * dradii)
 
   for (i = 0; i < s->n; i++)
     {
-      mps_mhorner_with_error2 (s, s->monomial_poly, s->mroot[i], pol, relative_error, s->mpwp);
+      mps_mhorner_with_error2 (s, s->monomial_poly, s->root[i]->mvalue, pol, relative_error, s->mpwp);
 
       mpc_get_cdpe (cpol, pol);
       cdpe_mod (new_rad, cpol);
       rdpe_add_eq (new_rad, relative_error);
-      mpc_get_cdpe (cdtmp, s->mroot[i]);
+      mpc_get_cdpe (cdtmp, s->root[i]->mvalue);
       cdpe_mod (rtmp, cdtmp);
       rdpe_mul_eq (rtmp, s->mp_epsilon);
       rdpe_add_eq (new_rad, rtmp);
@@ -156,7 +156,7 @@ mps_monomial_mradii (mps_status * s, rdpe_t * dradii)
 	  if (i == j)
 	    continue;
 
-	  mpc_sub (mdiff, s->mroot[i], s->mroot[j]);
+	  mpc_sub (mdiff, s->root[i]->mvalue, s->root[j]->mvalue);
 	  mpc_get_cdpe (diff, mdiff);
 	      
 	  /* Check for floating point exceptions in here */

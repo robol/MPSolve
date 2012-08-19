@@ -366,7 +366,7 @@ mps_fcluster (mps_status * s, double * frad, int nf)
       MPS_DEBUG (s, "Debugging the radius and approximations obtained for the roots before cluster analysis");
       for (i = 0; i < s->n; i++)
 	{
-	  MPS_DEBUG_CPLX (s, s->froot[i], "Root %d", i);
+	  MPS_DEBUG_CPLX (s, s->root[i]->fvalue, "Root %d", i);
 	  MPS_DEBUG (s, "radius for root %4d: %e", i, frad[i]);
 	}
 
@@ -377,11 +377,15 @@ mps_fcluster (mps_status * s, double * frad, int nf)
   /*
    * Mark newton isolated roots as newton isolated.
    */
+  double * newton_radii = mps_newv (double, s->n);
+  for (i = 0; i < s->n; i++)
+    newton_radii[i] = s->root[i]->frad;
+  
   for (i = 0; i < s->n; i++)
     {
       for (j = 0; j < s->n; j++)
 	{
-	  if ((i != j) && mps_ftouchnwt (s, s->frad, nf, i, j))
+	  if ((i != j) && mps_ftouchnwt (s, newton_radii, nf, i, j))
 	    {
 	      newton_isolation = false;
 	      break;
@@ -389,6 +393,8 @@ mps_fcluster (mps_status * s, double * frad, int nf)
 	  /* s->root_status[i] = MPS_ROOT_STATUS_NEWTON_ISOLATED; */
 	}
     }
+
+  free (newton_radii);
 
   item = s->clusterization->first;
   while (item)
@@ -479,12 +485,12 @@ mps_fcluster (mps_status * s, double * frad, int nf)
 	         int k = new_cluster->first->k;   
 	         double new_rad;   
 
-	         new_rad = cplx_mod (s->froot[k]) * 4.0f * DBL_EPSILON + frad[k];    
+	         new_rad = cplx_mod (s->root[k]->fvalue) * 4.0f * DBL_EPSILON + frad[k];    
 
 	         /* Check if the computed radius is more convenient than the old one.  */  
 	         /* 	 If that's the case, apply it as inclusion radius   */  
-	         if (new_rad < s->frad[k])      
-		   s->frad[k] = new_rad;      
+	         if (new_rad < s->root[k]->frad)      
+		   s->root[k]->frad = new_rad;      
 	      }  
 	}
 
@@ -545,7 +551,7 @@ mps_dcluster (mps_status * s, rdpe_t * drad, int nf)
       MPS_DEBUG (s, "Debugging the radius and approximations obtained for the roots before cluster analysis");
       for (i = 0; i < s->n; i++)
 	{
-	  MPS_DEBUG_CDPE (s, s->droot[i], "Root %d", i);
+	  MPS_DEBUG_CDPE (s, s->root[i]->dvalue, "Root %d", i);
 	  MPS_DEBUG_RDPE (s, drad[i], "radius for root %4d", i);
 	}
 
@@ -559,18 +565,23 @@ mps_dcluster (mps_status * s, rdpe_t * drad, int nf)
    * radii. These are not valid to perform cluster analysis in
    * general, but can be used if they provide *COMPLETE* Newton
    * isolation. */  
+  rdpe_t * newton_radii = rdpe_valloc (s->n);
+  for (i = 0; i < s->n; i++)
+    rdpe_set (newton_radii[i], s->root[i]->drad);
+  
   for (i = 0; i < s->n; i++)
     {
       for (j = 0; j < s->n; j++)
 	{
-	  if ((i != j) && mps_dtouchnwt (s, s->drad, nf, i, j))
+	  if ((i != j) && mps_dtouchnwt (s, newton_radii, nf, i, j))
 	    {
 	      newton_isolation = false;
 	      break;
 	    }
-	  /* s->root_status[i] = MPS_ROOT_STATUS_NEWTON_ISOLATED; */
 	}
     }
+
+  rdpe_vfree (newton_radii);
 
   /* If newton isolation has not been reached check with Gerschgorin */
     {
@@ -659,15 +670,15 @@ mps_dcluster (mps_status * s, rdpe_t * drad, int nf)
 	        int k = new_cluster->first->k;  
 	        rdpe_t new_rad;  
 	  
-	        cdpe_mod (new_rad, s->droot[k]);  
+	        cdpe_mod (new_rad, s->root[k]->dvalue);  
 	        rdpe_mul_eq_d (new_rad, 4 * DBL_EPSILON);  
 	        rdpe_add_eq (new_rad, drad[k]);  
 
 
 	        /* Check if the computed radius is more convenient than the old one.  
 	    	 If that's the case, apply it as inclusion radius */  
-	        if (rdpe_lt (new_rad, s->drad[k]))    
-	    	rdpe_set (s->drad[k], new_rad);    
+	        if (rdpe_lt (new_rad, s->root[k]->drad))    
+	    	rdpe_set (s->root[k]->drad, new_rad);    
 	      }  
 	}
     }
@@ -777,7 +788,7 @@ mps_mcluster (mps_status * s, rdpe_t * drad, int nf)
       MPS_DEBUG (s, "Debugging the radius and approximations obtained for the roots before cluster analysis");
       for (i = 0; i < s->n; i++)
 	{
-	  MPS_DEBUG_MPC (s, mpc_get_prec (s->mroot[i]), s->mroot[i], "Root %d", i);
+	  MPS_DEBUG_MPC (s, mpc_get_prec (s->root[i]->mvalue), s->root[i]->mvalue, "Root %d", i);
 	  MPS_DEBUG_RDPE (s, drad[i], "radius for root %4d", i);
 	}
 
@@ -791,11 +802,15 @@ mps_mcluster (mps_status * s, rdpe_t * drad, int nf)
    * radii. These are not valid to perform cluster analysis in
    * general, but can be used if they provide *COMPLETE* Newton
    * isolation. */  
+  rdpe_t * newton_radii = rdpe_valloc (s->n);
+  for (i = 0; i < s->n; i++)
+    rdpe_set (newton_radii[i], s->root[i]->drad);
+
   for (i = 0; i < s->n; i++)
     {
       for (j = 0; j < s->n; j++)
 	{
-	  if ((i != j) && mps_mtouchnwt (s, s->drad, nf, i, j))
+	  if ((i != j) && mps_mtouchnwt (s, newton_radii, nf, i, j))
 	    {
 	      if (s->debug_level & MPS_DEBUG_CLUSTER)
 		MPS_DEBUG (s, "Failing newton isolation on root %d and %d", i, j);
@@ -806,6 +821,8 @@ mps_mcluster (mps_status * s, rdpe_t * drad, int nf)
 	  /* s->root_status[i] = MPS_ROOT_STATUS_NEWTON_ISOLATED; */
 	}
     }
+
+  rdpe_vfree (newton_radii);
 
   /* If newton isolation is not reached with Newton use Gerschgorin */
     {
@@ -897,14 +914,14 @@ mps_mcluster (mps_status * s, rdpe_t * drad, int nf)
 	      
 	      /* Check if the computed radius is more convenient than the old one.  
 	    	 If that's the case, apply it as inclusion radius */  
-	      mpc_get_cdpe (c, s->mroot[k]);  
+	      mpc_get_cdpe (c, s->root[k]->mvalue);  
 	      cdpe_mod (new_rad, c);  
 	      rdpe_mul_eq (new_rad, s->mp_epsilon);  
 	      rdpe_mul_eq_d (new_rad, 4.0f);  
 	      rdpe_add_eq (new_rad, drad[k]);  
 	      
-	      if (rdpe_lt (new_rad, s->drad[k]))     
-		rdpe_set (s->drad[k], new_rad);     
+	      if (rdpe_lt (new_rad, s->root[k]->drad))     
+		rdpe_set (s->root[k]->drad, new_rad);     
 	    } 
 	}
     }
@@ -966,11 +983,11 @@ mps_clusterization_detach_clusters (mps_status * s, mps_clusterization * c)
       while (root != NULL)
 	{
 	  k = root->k;
-	  mpc_get_cdpe (droot, s->mroot[k]);
+	  mpc_get_cdpe (droot, s->root[k]->mvalue);
 	  cdpe_mod (rtmp, droot);
 
           rdpe_set_2dl (precision, 1, (long int) (- 0.5 * s->mpwp + rdpe_Esp (rtmp)));
-          if (rdpe_lt (s->drad[k], precision))
+          if (rdpe_lt (s->root[k]->drad, precision))
             {
 	      if (s->debug_level & MPS_DEBUG_CLUSTER)
 		{

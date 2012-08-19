@@ -59,7 +59,7 @@ __mps_secular_ga_fiterate_worker (void* data_ptr)
 	  goto cleanup;
 	}
 
-      if (s->again[i])
+      if (s->root[i]->again)
 	{
 	  /* Increment the number of performed iterations */
 #if defined(__GCC__)
@@ -72,10 +72,10 @@ __mps_secular_ga_fiterate_worker (void* data_ptr)
 
 	  it_data.k = i;
 	  it_data.gs_mutex = data->gs_mutex;
-	  // MPS_DEBUG_CPLX (s, s->froot[i], "s->froot[%d]", i);
-	  cdpe_set_x (s->droot[i], s->froot[i]);
-	  mps_secular_fnewton (s, s->froot[i], &s->frad[i], corr,
-			       &s->again[i], &it_data, false);
+	  // MPS_DEBUG_CPLX (s, s->root[i]->fvalue, "s->froot[%d]", i);
+	  cdpe_set_x (s->root[i]->dvalue, s->root[i]->fvalue);
+	  mps_secular_fnewton (s, s->root[i]->fvalue, &s->root[i]->frad, corr,
+			       &s->root[i]->again, &it_data, false);
 
 	  if (s->root_status[i] == MPS_ROOT_STATUS_NOT_FLOAT)
 	    {
@@ -88,7 +88,7 @@ __mps_secular_ga_fiterate_worker (void* data_ptr)
 
 	  if (isnan (cplx_Re (abcorr)) || isnan (cplx_Im (abcorr))) 
 	    {
-	      s->again[i] = false;
+	      s->root[i]->again = false;
 	      pthread_mutex_unlock (&data->roots_mutex[i]);
 	      continue;
 	    }
@@ -97,22 +97,22 @@ __mps_secular_ga_fiterate_worker (void* data_ptr)
 	  cplx_sub (abcorr, cplx_one, abcorr);
 	  cplx_div (abcorr, corr, abcorr);
 
-	  if (isnan (cplx_Re (s->froot[i])) || isnan (cplx_Im (s->froot[i])))
+	  if (isnan (cplx_Re (s->root[i]->fvalue)) || isnan (cplx_Im (s->root[i]->fvalue)))
 	    {
 	      *data->excep = true;
-	      cdpe_get_x (s->froot[i], s->droot[i]);
+	      cdpe_get_x (s->root[i]->fvalue, s->root[i]->dvalue);
 	      break;
 	    }
 
 	  pthread_mutex_lock (&data->aberth_mutex[i]);
-	  cplx_sub_eq (s->froot[i], abcorr);
+	  cplx_sub_eq (s->root[i]->fvalue, abcorr);
 	  pthread_mutex_unlock (&data->aberth_mutex[i]);
 
 	  /* Correct the radius */
 	  modcorr = cplx_mod (abcorr);
-	  s->frad[i] += modcorr;
+	  s->root[i]->frad += modcorr;
 
-	  if (!s->again[i])
+	  if (!s->root[i]->again)
 	    {
 	      if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
 		MPS_DEBUG (s, "Root %d again was set to false on iteration %d by thread %d", i, *data->it, data->thread);
@@ -198,10 +198,10 @@ mps_secular_ga_fiterate (mps_status * s, int maxit, mps_boolean just_regenerated
 	    {
 	      MPS_DEBUG_WITH_INFO (s, "Setting again[%d] to false since the root is ready for output (or isolated)", i);
 	    }
-	  s->again[i] = false;
+	  s->root[i]->again = false;
 	}
 
-      if (!s->again[i])
+      if (!s->root[i]->again)
         computed_roots++;
     }
 
@@ -254,8 +254,8 @@ mps_secular_ga_fiterate (mps_status * s, int maxit, mps_boolean just_regenerated
       MPS_DEBUG_WITH_INFO (s, "Switching to DPE arithmetic since there are roots not representable in standard floating point");
       for (i = 0; i < s->n; i++)
 	{
-	  cdpe_set_x (s->droot[i], s->froot[i]);
-	  rdpe_set_d (s->drad[i], s->frad[i]);
+	  cdpe_set_x (s->root[i]->dvalue, s->root[i]->fvalue);
+	  rdpe_set_d (s->root[i]->drad, s->root[i]->frad);
 	  s->root_status[i] = MPS_ROOT_STATUS_CLUSTERED;
 	}
       s->lastphase = dpe_phase;
@@ -274,7 +274,7 @@ mps_secular_ga_fiterate (mps_status * s, int maxit, mps_boolean just_regenerated
       __MPS_DEBUG (s, "Again vector = ");
       for(i = 0; i < s->n; i++)
 	{
-	  fprintf (s->logstr, "%d ", s->again[i]);
+	  fprintf (s->logstr, "%d ", s->root[i]->again);
 	}
       fprintf (s->logstr, "\n");
     }
@@ -322,16 +322,16 @@ __mps_secular_ga_diterate_worker (void* data_ptr)
 
       pthread_mutex_lock (&data->roots_mutex[i]);
 
-      if (s->again[i])
+      if (s->root[i]->again)
 	{
           /* Lock this roots to make sure that we are the only one working on it */
-	  cdpe_set (droot, s->droot[i]);
+	  cdpe_set (droot, s->root[i]->dvalue);
 
 	  (*data->it)++;
 
 	  it_data.k = i;
-	  mps_secular_dnewton (s, droot, s->drad[i], corr,
-			       &s->again[i], &it_data, false);
+	  mps_secular_dnewton (s, droot, s->root[i]->drad, corr,
+			       &s->root[i]->again, &it_data, false);
 
 	  /* Apply Aberth correction */
 	  mps_daberth_wl (s, i, abcorr, data->aberth_mutex);
@@ -342,16 +342,16 @@ __mps_secular_ga_diterate_worker (void* data_ptr)
 
 	  /* Correct the radius */
 	  cdpe_mod (modcorr, abcorr);
-	  rdpe_add_eq (s->drad[i], modcorr);
+	  rdpe_add_eq (s->root[i]->drad, modcorr);
 
-	  if (!s->again[i])
+	  if (!s->root[i]->again)
 	    {
 	      if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
 		MPS_DEBUG (s, "Root %d again was set to false on iteration %d by thread %d", i, *data->it, data->thread);
 	      (*data->nzeros)++;
 	    }
 
-	  cdpe_set (s->droot[i], droot);
+	  cdpe_set (s->root[i]->dvalue, droot);
 	}
 
       pthread_mutex_unlock (&data->roots_mutex[i]);
@@ -417,10 +417,10 @@ mps_secular_ga_diterate (mps_status * s, int maxit, mps_boolean just_regenerated
 	    {
 	      MPS_DEBUG_WITH_INFO (s, "Setting again[%d] to false since the root is ready for output (or isolated)", i);
 	    }
-	  s->again[i] = false;
+	  s->root[i]->again = false;
 	}
 
-      if (!s->again[i])
+      if (!s->root[i]->again)
         computed_roots++;
     }
 
@@ -478,7 +478,7 @@ mps_secular_ga_diterate (mps_status * s, int maxit, mps_boolean just_regenerated
       __MPS_DEBUG (s, "Again vector = ");
       for(i = 0; i < s->n; i++)
 	{
-	  fprintf (s->logstr, "%d ", s->again[i]);
+	  fprintf (s->logstr, "%d ", s->root[i]->again);
 	}
       fprintf (s->logstr, "\n");
     }
@@ -549,11 +549,11 @@ __mps_secular_ga_miterate_worker (void* data_ptr)
 
       cluster = job.cluster_item->cluster;
 
-      if (s->again[i])
+      if (s->root[i]->again)
 	{
           /* Lock this roots to make sure that we are the only one working on it */
 	  pthread_mutex_lock (&data->aberth_mutex[i]); 
-	  mpc_set (mroot, s->mroot[i]); 
+	  mpc_set (mroot, s->root[i]->mvalue); 
 	  pthread_mutex_unlock (&data->aberth_mutex[i]); 
 
           /* Check if, while we were waiting, excep condition has been reached,
@@ -570,8 +570,8 @@ __mps_secular_ga_miterate_worker (void* data_ptr)
 
 	  it_data.k = i;
 	  it_data.gs_mutex = data->gs_mutex;
-	  mps_secular_mnewton (s, mroot, s->drad[i], corr,
-			       &s->again[i], &it_data, false);
+	  mps_secular_mnewton (s, mroot, s->root[i]->drad, corr,
+			       &s->root[i]->again, &it_data, false);
 
 	  /* Apply Aberth correction */
 	  mps_maberth_s_wl (s, i, cluster, abcorr, data->aberth_mutex);
@@ -587,17 +587,17 @@ __mps_secular_ga_miterate_worker (void* data_ptr)
 	      pthread_mutex_unlock (&data->aberth_mutex[i]);
 	    } 
 	  else
-	    s->again[i] = true;
+	    s->root[i]->again = true;
 
 	  pthread_mutex_lock (&data->aberth_mutex[i]); 
-	  mpc_set (s->mroot[i], mroot); 
+	  mpc_set (s->root[i]->mvalue, mroot); 
 	  pthread_mutex_unlock (&data->aberth_mutex[i]); 
 	   
 	  /* Correct the radius */
 	  mpc_rmod (modcorr, abcorr);
-	  rdpe_add_eq (s->drad[i], modcorr);
+	  rdpe_add_eq (s->root[i]->drad, modcorr);
 
-	  if (!s->again[i])
+	  if (!s->root[i]->again)
 	    {
 	      if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
 		MPS_DEBUG (s, "Root %d again was set to false on iteration %d by thread %d", i, *data->it, data->thread);
@@ -681,10 +681,10 @@ mps_secular_ga_miterate (mps_status * s, int maxit, mps_boolean just_regenerated
 	    {
 	      MPS_DEBUG_WITH_INFO (s, "Setting again[%d] to false since the root is ready for output (or isolated)", i);
 	    }
-	  s->again[i] = false;
+	  s->root[i]->again = false;
 	}
 
-      if (!s->again[i])
+      if (!s->root[i]->again)
         computed_roots++;
     }
 
@@ -743,7 +743,7 @@ mps_secular_ga_miterate (mps_status * s, int maxit, mps_boolean just_regenerated
       __MPS_DEBUG (s, "Again vector = ");
       for(i = 0; i < s->n; i++)
 	{
-	  fprintf (s->logstr, "%d ", s->again[i]);
+	  fprintf (s->logstr, "%d ", s->root[i]->again);
 	}
       fprintf (s->logstr, "\n");
     }

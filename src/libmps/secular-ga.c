@@ -183,14 +183,14 @@ mps_secular_ga_improve (mps_status * s)
       if (s->mpwp != starting_precision)
         {
           mps_secular_raise_coefficient_precision (s, starting_precision);
-          mpc_set_prec (s->mroot[i], starting_precision);
+          mpc_set_prec (s->root[i]->mvalue, starting_precision);
           mpc_set_prec (nwtcorr, starting_precision);
           s->mpwp = starting_precision;
         }
 
-      mpc_get_cdpe (ctmp, s->mroot[i]);
+      mpc_get_cdpe (ctmp, s->root[i]->mvalue);
       cdpe_mod (rtmp, ctmp);
-      rdpe_div_eq (rtmp, s->drad[i]);
+      rdpe_div_eq (rtmp, s->root[i]->drad);
 
       /* Find correct digits and maximum number of iterations */
       int correct_digits = rdpe_log10 (rtmp) - 1;
@@ -215,39 +215,39 @@ mps_secular_ga_improve (mps_status * s)
 
       for (j = 0; j < iterations; j++)
         { 
-	  rdpe_set (old_rad, s->drad[i]);
-          mps_secular_mnewton (s, s->mroot[i], s->drad[i], nwtcorr,
-                               &s->again[i], &it_data, false);
+	  rdpe_set (old_rad, s->root[i]->drad);
+          mps_secular_mnewton (s, s->root[i]->mvalue, s->root[i]->drad, nwtcorr,
+                               &s->root[i]->again, &it_data, false);
 
 	  /* Compute quadratic radius */
-	  mpc_get_cdpe (ctmp, s->mroot[i]); 
+	  mpc_get_cdpe (ctmp, s->root[i]->mvalue); 
 	  cdpe_mod (rtmp, ctmp); 
 	  rdpe_div_eq (old_rad, rtmp); 
 	  rdpe_mul_eq (old_rad, old_rad); 
 	  rdpe_mul_eq (old_rad, rtmp);
 
 	  /* Apply newton correction */
-	  mpc_sub_eq (s->mroot[i], nwtcorr);
+	  mpc_sub_eq (s->root[i]->mvalue, nwtcorr);
 
-	  mpc_get_cdpe (ctmp, s->mroot[i]);
+	  mpc_get_cdpe (ctmp, s->root[i]->mvalue);
 	  cdpe_mod (abroot, ctmp);
 	  
 	  correct_digits *= 2;
-	  /* rdpe_set_dl (s->drad[i], 1.0, -correct_digits + 1); */
-	  /* rdpe_add_eq (s->drad[i], s->mp_epsilon); */
-	  /* rdpe_mul_eq (s->drad[i], abroot); */
+	  /* rdpe_set_dl (s->root[i]->drad, 1.0, -correct_digits + 1); */
+	  /* rdpe_add_eq (s->root[i]->drad, s->mp_epsilon); */
+	  /* rdpe_mul_eq (s->root[i]->drad, abroot); */
 
           /* Debug iterations */
           if (s->debug_level & MPS_DEBUG_IMPROVEMENT)
             {
-              MPS_DEBUG_MPC (s, 10, s->mroot[i], "s->mroot[%d]", i);
-              MPS_DEBUG_RDPE (s, s->drad[i], "s->drad[%d]", i);
+              MPS_DEBUG_MPC (s, 10, s->root[i]->mvalue, "s->mroot[%d]", i);
+              MPS_DEBUG_RDPE (s, s->root[i]->drad, "s->drad[%d]", i);
             }
 
           /* Check if the approximation is already good. */
-          mpc_get_cdpe (ctmp, s->mroot[i]);
+          mpc_get_cdpe (ctmp, s->root[i]->mvalue);
           cdpe_mod (rtmp, ctmp);
-          rdpe_div (rtmp, s->drad[i], rtmp);
+          rdpe_div (rtmp, s->root[i]->drad, rtmp);
 
           if (rdpe_le (rtmp, s->eps_out))
             {
@@ -259,7 +259,7 @@ mps_secular_ga_improve (mps_status * s)
               s->mpwp *= 2;
               mps_secular_raise_coefficient_precision (s, s->mpwp);
               mpc_set_prec (nwtcorr, s->mpwp);
-              mpc_set_prec (s->mroot[i], s->mpwp);
+              mpc_set_prec (s->root[i]->mvalue, s->mpwp);
 	      mps_secular_ga_load_initial_coefficients (s);
             }
         }
@@ -334,9 +334,9 @@ mps_secular_ga_mpsolve (mps_status * s)
    * we may be starting directly from the DPE phase */
   for (i = 0; i < s->n; i++)
     {
-      s->frad[i] = DBL_MAX;
-      rdpe_set (s->drad[i], RDPE_BIG); 
-      /* rdpe_set_d (s->drad[i], DBL_MAX) */
+      s->root[i]->frad = DBL_MAX;
+      rdpe_set (s->root[i]->drad, RDPE_BIG); 
+      /* rdpe_set_d (s->root[i]->drad, DBL_MAX) */
     }
   
   /* Set initial cluster structure as no cluster structure. */
@@ -418,7 +418,7 @@ mps_secular_ga_mpsolve (mps_status * s)
       MPS_DEBUG_WITH_INFO (s, "Generated initial coefficients for the secular equation");
       s->lastphase = float_phase;
       for (i = 0; i < s->n; i++)
-	s->rootwp[i] = 53;
+	s->root[i]->wp = 53;
     }
 
   /* Select initial approximations using the custom secular
@@ -452,7 +452,7 @@ mps_secular_ga_mpsolve (mps_status * s)
 
   for (i = 0; i < s->n; i++)
     {
-      s->again[i] = true;
+      s->root[i]->again = true;
     }
 
   /* Cycle until approximated */

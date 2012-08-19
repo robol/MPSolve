@@ -4,6 +4,7 @@ lib_LTLIBRARIES = libmps.la
 libmps_la_LDFLAGS = -version-info 3:0:0
 includedir=${prefix}/include/mps
 include_HEADERS = \
+        ${top_srcdir}/include/mps/approximation.h \
         ${top_srcdir}/include/mps/tools.h \
         ${top_srcdir}/include/mps/interface.h \
 	${top_srcdir}/include/mps/input-buffer.h \
@@ -30,6 +31,7 @@ AM_CPPFLAGS= \
 
 libmps_la_SOURCES = \
 	    aberth.c \
+            approximation.c \
 	    cluster.c \
 	    convex.c \
 	    data.c \

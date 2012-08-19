@@ -53,7 +53,9 @@ mps_allocate_data (mps_status * s)
   /* s->punt = int_valloc (s->deg + 1); */
   /* s->clust_detached = int_valloc (s->deg); */
 
-  s->again = mps_boolean_valloc (s->deg);
+  s->root = mps_newv (mps_approximation*, s->n);
+  for (i = 0; i < s->n; i++)
+    s->root[i] = mps_approximation_new (s);
 
   /* s->status = (char (*)[3]) char_valloc (3 * s->deg); */
   
@@ -64,18 +66,6 @@ mps_allocate_data (mps_status * s)
   mps_cluster_reset (s);
 
   s->order = int_valloc (s->deg);
-  s->rootwp = long_valloc (s->deg);
-
-  s->frad = double_valloc (s->deg);
-  s->froot = cplx_valloc (s->deg);
-  s->drad = rdpe_valloc (s->deg);
-  s->droot = cdpe_valloc (s->deg);
-
-  s->mroot = mpc_valloc (s->deg);
-  for (i = 0; i < s->deg; i++)
-    {
-      mpc_init2 (s->mroot[i], 0);
-    }
 
   /* s->fppc = cplx_valloc (s->deg + 1); */
   s->fppc1 = cplx_valloc (s->deg + 1);
@@ -122,7 +112,7 @@ mps_allocate_data (mps_status * s)
   /* Setting some default here, that were not settable because we didn't know
    * the degree of the polynomial */
   for (i = 0; i < s->n; i++) 
-    s->rootwp[i] = DBL_DIG * LOG2_10;
+    s->root[i]->wp = DBL_DIG * LOG2_10;
 
   /* Init the mutex that need it */
   pthread_mutex_init (&s->precision_mutex, NULL);
@@ -149,7 +139,7 @@ mps_raise_data (mps_status * s, long int prec)
 
   /* raise the precision of  mroot */
   for (k = 0; k < s->n; k++)
-    mpc_set_prec (s->mroot[k], prec);
+    mpc_set_prec (s->root[k]->mvalue, prec);
 
   if (!MPS_INPUT_CONFIG_IS_USER (s->input_config))
     {
@@ -214,7 +204,7 @@ mps_raise_data (mps_status * s, long int prec)
     for (k = 0; k < (s->n + 1) * s->n_threads; k++)
       mpc_set_prec (s->mfpc2[k], prec);
 
-  return mpc_get_prec (s->mroot[0]);
+  return mpc_get_prec (s->root[0]->mvalue);
 }
 
 /**
@@ -232,7 +222,7 @@ mps_raise_data_raw (mps_status * s, long int prec)
 
   /* raise the precision of  mroot */
   for (k = 0; k < s->n; k++)
-    mpc_set_prec_raw (s->mroot[k], prec);
+    mpc_set_prec_raw (s->root[k]->mvalue, prec);
 
   /* raise the precision of  mfpc */
   if (!MPS_INPUT_CONFIG_IS_USER (s->input_config))
@@ -336,24 +326,16 @@ mps_free_data (mps_status * s)
     }
 
   mps_clusterization_free (s, s->clusterization);
-  free (s->again);
   free (s->root_status);
   free (s->root_attrs);
   free (s->root_inclusion);
-  free (s->rootwp);
   free (s->order);
 
   /* free (s->fap); */
   /* rdpe_vfree (s->dap); */
 
-  free (s->frad);
-  rdpe_vfree (s->drad);
-
-  cplx_vfree (s->froot);
-  cdpe_vfree (s->droot);
-  for (i = 0; i < s->deg; i++)
-    mpc_clear (s->mroot[i]);
-  free (s->mroot);
+  for (i = 0; i < s->n; i++)
+    mps_approximation_free (s, s->root[i]);
 
   for (i = 0; i <= s->deg; i++)
     mpc_clear (s->mfpc1[i]);

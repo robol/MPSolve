@@ -36,37 +36,37 @@ mps_fupdate_inclusions (mps_status * s)
 	    
 	      case MPS_SEARCH_SET_UNITARY_DISC:
 		if (!mps_ftouchunit (s, nf, i))
-		  s->root_inclusion[i] = (cplx_mod (s->froot[i]) < 1) ? MPS_ROOT_INCLUSION_IN : 
+		  s->root_inclusion[i] = (cplx_mod (s->root[i]->fvalue) < 1) ? MPS_ROOT_INCLUSION_IN : 
 		    MPS_ROOT_INCLUSION_OUT;
 		break;
 	    
 	      case MPS_SEARCH_SET_UNITARY_DISC_COMPL:
 		if (!mps_ftouchunit (s, nf, i))
-		  s->root_inclusion[i] = (cplx_mod (s->froot[i]) > 1) ? 
+		  s->root_inclusion[i] = (cplx_mod (s->root[i]->fvalue) > 1) ? 
 		    MPS_ROOT_INCLUSION_IN : MPS_ROOT_INCLUSION_OUT;
 		break;
 
 	      case MPS_SEARCH_SET_NEGATIVE_REAL_PART:
 		if (!mps_ftouchimag (s, nf, i))
-		  s->root_inclusion[i] = (cplx_Re (s->froot[i]) < 0) ? 
+		  s->root_inclusion[i] = (cplx_Re (s->root[i]->fvalue) < 0) ? 
 		    MPS_ROOT_INCLUSION_IN : MPS_ROOT_INCLUSION_OUT;
 		break;
 
 	      case MPS_SEARCH_SET_POSITIVE_REAL_PART:
 		if (!mps_ftouchimag (s, nf, i))
-		  s->root_inclusion[i] = (cplx_Re (s->froot[i]) > 0) ? 
+		  s->root_inclusion[i] = (cplx_Re (s->root[i]->fvalue) > 0) ? 
 		    MPS_ROOT_INCLUSION_IN : MPS_ROOT_INCLUSION_OUT;
 		break;
 
 	      case MPS_SEARCH_SET_NEGATIVE_IMAG_PART:
 		if (!mps_ftouchreal (s, nf, i))
-		  s->root_inclusion[i] = (cplx_Im (s->froot[i]) < 0) ? 
+		  s->root_inclusion[i] = (cplx_Im (s->root[i]->fvalue) < 0) ? 
 		    MPS_ROOT_INCLUSION_IN : MPS_ROOT_INCLUSION_OUT;
 		break;
 
 	      case MPS_SEARCH_SET_POSITIVE_IMAG_PART:
 		if (!mps_ftouchreal (s, nf, i))
-		  s->root_inclusion[i] = (cplx_Im (s->froot[i]) > 0) ?
+		  s->root_inclusion[i] = (cplx_Im (s->root[i]->fvalue) > 0) ?
 		    MPS_ROOT_INCLUSION_IN : MPS_ROOT_INCLUSION_OUT;
 		break;
 
@@ -78,7 +78,7 @@ mps_fupdate_inclusions (mps_status * s)
 		    if (mps_ftouchreal (s, 1, i))
 		      {
 			if (MPS_INPUT_CONFIG_IS_REAL (s->input_config) ||
-			    (log (s->frad[i]) < s->sep - s->n * s->lmax_coeff))
+			    (log (s->root[i]->frad) < s->sep - s->n * s->lmax_coeff))
 			  {
 			    s->root_inclusion[i] = MPS_ROOT_INCLUSION_IN;
 			    s->root_attrs[i] = MPS_ROOT_ATTRS_REAL;
@@ -100,7 +100,7 @@ mps_fupdate_inclusions (mps_status * s)
 		  {
 		    if (mps_ftouchimag (s, 1, i))
 		      {
-			if (log (s->frad[i]) < s->sep - s->n * s->lmax_coeff)
+			if (log (s->root[i]->frad) < s->sep - s->n * s->lmax_coeff)
 			  {
 			    s->root_inclusion[i] = MPS_ROOT_INCLUSION_IN;
 			    s->root_attrs[i] = MPS_ROOT_ATTRS_IMAG;
@@ -177,7 +177,7 @@ mps_dupdate_inclusions (mps_status * s)
 	      case MPS_SEARCH_SET_UNITARY_DISC:
 		if (!mps_dtouchunit (s, nf, i))
 		  {
-		    cdpe_mod (mod, s->droot[i]);
+		    cdpe_mod (mod, s->root[i]->dvalue);
 		    s->root_inclusion[i] = (rdpe_le (mod, rdpe_one)) ? 
 		      MPS_ROOT_INCLUSION_IN : MPS_ROOT_INCLUSION_OUT;
 		  }
@@ -186,7 +186,7 @@ mps_dupdate_inclusions (mps_status * s)
 	      case MPS_SEARCH_SET_UNITARY_DISC_COMPL:
 		if (!mps_dtouchunit (s, nf, i))
 		  {
-		    cdpe_mod (mod, s->droot[i]);
+		    cdpe_mod (mod, s->root[i]->dvalue);
 		    s->root_inclusion[i] = (rdpe_ge (mod, rdpe_one)) ?
 		      MPS_ROOT_INCLUSION_IN : MPS_ROOT_INCLUSION_OUT;
 		  }
@@ -195,7 +195,7 @@ mps_dupdate_inclusions (mps_status * s)
 	      case MPS_SEARCH_SET_NEGATIVE_REAL_PART:
 		if (!mps_dtouchimag (s, nf, i))
 		  {
-		    rdpe_set (mod, cdpe_Re (s->droot[i]));
+		    rdpe_set (mod, cdpe_Re (s->root[i]->dvalue));
 		    s->root_inclusion[i] = (rdpe_le (mod, rdpe_zero)) ?
 		      MPS_ROOT_INCLUSION_IN : MPS_ROOT_INCLUSION_OUT;
 		  }
@@ -204,7 +204,7 @@ mps_dupdate_inclusions (mps_status * s)
 	      case MPS_SEARCH_SET_POSITIVE_REAL_PART:
 		if (!mps_dtouchimag (s, nf, i))
 		  {
-		    rdpe_set (mod, cdpe_Re (s->droot[i]));
+		    rdpe_set (mod, cdpe_Re (s->root[i]->dvalue));
 		    s->root_inclusion[i] = (rdpe_ge (mod, rdpe_zero)) ?
 		      MPS_ROOT_INCLUSION_IN : MPS_ROOT_INCLUSION_OUT;
 		  }
@@ -213,7 +213,7 @@ mps_dupdate_inclusions (mps_status * s)
 	      case MPS_SEARCH_SET_NEGATIVE_IMAG_PART:
 		if (!mps_dtouchreal (s, nf, i))
 		  {
-		    rdpe_set (mod, cdpe_Im (s->droot[i]));
+		    rdpe_set (mod, cdpe_Im (s->root[i]->dvalue));
 		    s->root_inclusion[i] = (rdpe_le (mod, rdpe_zero)) ?
 		      MPS_ROOT_INCLUSION_IN : MPS_ROOT_INCLUSION_OUT;
 		  }
@@ -221,7 +221,7 @@ mps_dupdate_inclusions (mps_status * s)
 
 	      case MPS_SEARCH_SET_POSITIVE_IMAG_PART:
 		{
-		  rdpe_set (mod, cdpe_Im (s->droot[i]));
+		  rdpe_set (mod, cdpe_Im (s->root[i]->dvalue));
 		  if (!mps_dtouchreal (s, nf, i))
 		    s->root_inclusion[i] = (rdpe_ge (mod, rdpe_zero)) ?
 		      MPS_ROOT_INCLUSION_IN : MPS_ROOT_INCLUSION_OUT;
@@ -236,7 +236,7 @@ mps_dupdate_inclusions (mps_status * s)
 		    if (mps_dtouchreal (s, 1, i))
 		      {
 			if (MPS_INPUT_CONFIG_IS_REAL (s->input_config) ||
-			    (rdpe_log (s->drad[i]) < s->sep - s->n * s->lmax_coeff))
+			    (rdpe_log (s->root[i]->drad) < s->sep - s->n * s->lmax_coeff))
 			  {
 			    s->root_inclusion[i] = MPS_ROOT_INCLUSION_IN;
 			    s->root_attrs[i] = MPS_ROOT_ATTRS_REAL;
@@ -258,7 +258,7 @@ mps_dupdate_inclusions (mps_status * s)
 		  {
 		    if (mps_dtouchimag (s, 1, i))
 		      {
-			if (rdpe_log (s->drad[i]) < s->sep - s->n * s->lmax_coeff)
+			if (rdpe_log (s->root[i]->drad) < s->sep - s->n * s->lmax_coeff)
 			  {
 			    s->root_inclusion[i] = MPS_ROOT_INCLUSION_IN;
 			    s->root_attrs[i] = MPS_ROOT_ATTRS_IMAG;
@@ -324,8 +324,8 @@ mps_mupdate_inclusions (mps_status * s)
 	{
 	  i = root->k;
 
-	  /* Get a CDPE representation of s->mroot[i] */
-	  mpc_get_cdpe (cmod, s->mroot[i]);
+	  /* Get a CDPE representation of s->root[i]->mvalue */
+	  mpc_get_cdpe (cmod, s->root[i]->mvalue);
 	  
 	  /* First check if the root has already recongnized as part of
 	   * a set (or out of it) and if that's true skip to the next one. */
@@ -398,7 +398,7 @@ mps_mupdate_inclusions (mps_status * s)
 		    if (mps_mtouchreal (s, 1, i))
 		      {
 			if (MPS_INPUT_CONFIG_IS_REAL (s->input_config) ||
-			    (rdpe_log (s->drad[i]) < s->sep - s->n * s->lmax_coeff))
+			    (rdpe_log (s->root[i]->drad) < s->sep - s->n * s->lmax_coeff))
 			  {
 			    s->root_inclusion[i] = MPS_ROOT_INCLUSION_IN;
 			    s->root_attrs[i] = MPS_ROOT_ATTRS_REAL;
@@ -420,7 +420,7 @@ mps_mupdate_inclusions (mps_status * s)
 		  {
 		    if (mps_mtouchimag (s, 1, i))
 		      {
-			if (rdpe_log (s->drad[i]) < s->sep - s->n * s->lmax_coeff)
+			if (rdpe_log (s->root[i]->drad) < s->sep - s->n * s->lmax_coeff)
 			  {
 			    s->root_inclusion[i] = MPS_ROOT_INCLUSION_IN;
 			    s->root_attrs[i] = MPS_ROOT_ATTRS_IMAG;

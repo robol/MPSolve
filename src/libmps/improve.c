@@ -143,25 +143,25 @@ mps_improve (mps_status * s)
        * This allows us to remove an O(n^2) complexity  */
 
       if (MPS_INPUT_CONFIG_IS_SPARSE (s->input_config))
-        rdpe_mul_d (t, s->drad[i], 5.0 * s->n);
+        rdpe_mul_d (t, s->root[i]->drad, 5.0 * s->n);
       else
         {
           k = i + 1;
           if (i == s->n - 1)
             k = 0;
-          mpc_sub (mtmp, s->mroot[k], s->mroot[i]);
+          mpc_sub (mtmp, s->root[k]->mvalue, s->root[i]->mvalue);
           mpc_get_cdpe (ctmp, mtmp);
           cdpe_mod (t, ctmp);
-          rdpe_sub_eq (t, s->drad[k]);
-          rdpe_sub_eq (t, s->drad[i]);
+          rdpe_sub_eq (t, s->root[k]->drad);
+          rdpe_sub_eq (t, s->root[i]->drad);
           for (j = 0; j < s->n; j++)
             if (j != i)
               {
-                mpc_sub (mtmp, s->mroot[j], s->mroot[i]);
+                mpc_sub (mtmp, s->root[j]->mvalue, s->root[i]->mvalue);
                 mpc_get_cdpe (ctmp, mtmp);
                 cdpe_mod (tmp, ctmp);
-                rdpe_sub_eq (tmp, s->drad[i]);
-                rdpe_sub_eq (tmp, s->drad[j]);
+                rdpe_sub_eq (tmp, s->root[i]->drad);
+                rdpe_sub_eq (tmp, s->root[j]->drad);
                 if (rdpe_gt (t, tmp))
                   rdpe_set (t, tmp);
               }
@@ -171,15 +171,15 @@ mps_improve (mps_status * s)
        * compute an  estimate of the condition number in terms of bits
        * as log_2(rad/(4*n*epsilon*|x|))       */
 
-      rdpe_mul_d (tmp, s->drad[i], 4.0 * s->n);
-      mpc_get_cdpe (ctmp, s->mroot[i]);
+      rdpe_mul_d (tmp, s->root[i]->drad, 4.0 * s->n);
+      mpc_get_cdpe (ctmp, s->root[i]->mvalue);
       cdpe_mod (abroot, ctmp);
       rdpe_div (tmp, tmp, abroot);
 
-      cnd = s->rootwp[i] + rdpe_log (tmp) / LOG2 + 1;
+      cnd = s->root[i]->wp + rdpe_log (tmp) / LOG2 + 1;
 
       /* then evaluate the number of bits g,f */
-      rdpe_div (t, s->drad[i], t);
+      rdpe_div (t, s->root[i]->drad, t);
       rdpe_mul_eq_d (t, (double) s->n - 1);
       rdpe_sub (st, rdpe_one, t);
       rdpe_div (sigma, t, st);
@@ -190,7 +190,7 @@ mps_improve (mps_status * s)
       g = -rdpe_log (sigma) / LOG2;
       rdpe_set (tmp, abroot);
       rdpe_mul_eq (tmp, sigma);
-      rdpe_div (tmp, s->drad[i], tmp);
+      rdpe_div (tmp, s->root[i]->drad, tmp);
       f = -rdpe_log (tmp) / LOG2;
 
       /* evaluate the upper bound m to the number of iterations
@@ -200,7 +200,7 @@ mps_improve (mps_status * s)
       MPS_DEBUG (s, "A maximum of %d iterations will be performed to improve root %d", m, i);
 
       /*  == 4 ==      Start Newton */
-      rdpe_set (oldrad, s->drad[i]);
+      rdpe_set (oldrad, s->root[i]->drad);
       for (j = 1; j <= m; j++)
         {
           if (s->debug_level & MPS_DEBUG_IMPROVEMENT)
@@ -209,10 +209,10 @@ mps_improve (mps_status * s)
 
 	  /* { */
 	  /*   rdpe_t rtmp; */
-	  /*   mpc_rmod (rtmp, s->mroot[i]); */
-	  /*   int correct_digits = (-rdpe_log (s->drad[i]) - rdpe_log (rtmp)) / LOG2_10; */
-	  /*   MPS_DEBUG_RDPE (s, s->drad[i], "s->drad[%d]", i); */
-	  /*   MPS_DEBUG_MPC (s, correct_digits, s->mroot[i], "mroot_%d", i); */
+	  /*   mpc_rmod (rtmp, s->root[i]->mvalue); */
+	  /*   int correct_digits = (-rdpe_log (s->root[i]->drad) - rdpe_log (rtmp)) / LOG2_10; */
+	  /*   MPS_DEBUG_RDPE (s, s->root[i]->drad, "s->drad[%d]", i); */
+	  /*   MPS_DEBUG_MPC (s, correct_digits, s->root[i]->mvalue, "mroot_%d", i); */
 	  /* } */
 
 	  /* Round it to 64 integers */
@@ -242,21 +242,21 @@ mps_improve (mps_status * s)
 
           if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
             {
-              mps_mnewton (s, s->n, s->mroot[i], s->drad[i],
+              mps_mnewton (s, s->n, s->root[i]->mvalue, s->root[i]->drad,
                            nwtcorr, p->mfpc, p->mfppc, p->dap, p->spar,
                            &again, 0, false);
             }
           else if (s->mnewton_usr != NULL)
             {
-              (*s->mnewton_usr) (s, s->mroot[i], s->drad[i], nwtcorr, &again, 
+              (*s->mnewton_usr) (s, s->root[i]->mvalue, s->root[i]->drad, nwtcorr, &again, 
 				 MPS_INPUT_CONFIG_IS_SECULAR (s->input_config) ? &it_data : NULL, 
 				 false);
             }
           else
             {
-              mps_mnewton_usr (s, s->mroot[i], s->drad[i], nwtcorr, &again);
+              mps_mnewton_usr (s, s->root[i]->mvalue, s->root[i]->drad, nwtcorr, &again);
             }
-          mpc_sub_eq (s->mroot[i], nwtcorr);
+          mpc_sub_eq (s->root[i]->mvalue, nwtcorr);
 
           /* correct radius, since the computed one is referred to the previous
            * approximation. Due to the quadratic convergence the new approximation
@@ -266,23 +266,23 @@ mps_improve (mps_status * s)
           rdpe_mul_eq (newrad, tmp);
           rdpe_mul_eq (tmp, s->eps_out);
 
-	  if (rdpe_eq (s->drad[i], rdpe_zero)) 
-	    rdpe_set (s->drad[i], newrad); 
+	  if (rdpe_eq (s->root[i]->drad, rdpe_zero)) 
+	    rdpe_set (s->root[i]->drad, newrad); 
 
-	  if (rdpe_lt (newrad, s->drad[i]))    
-	    rdpe_set (s->drad[i], newrad);    
+	  if (rdpe_lt (newrad, s->root[i]->drad))    
+	    rdpe_set (s->root[i]->drad, newrad);    
 	   
-	  mpc_rmod (tmp, s->mroot[i]);
+	  mpc_rmod (tmp, s->root[i]->mvalue);
 	  rdpe_mul_eq (tmp, s->eps_out);
 	  rdpe_mul_eq_d (tmp, 4.0);
-	  rdpe_add_eq (s->drad[i], tmp);
+	  rdpe_add_eq (s->root[i]->drad, tmp);
 	  
 	  if (s->debug_level & MPS_DEBUG_IMPROVEMENT)
-	    MPS_DEBUG_RDPE (s, s->drad[i], "Radius of root %d at iteration %d", i, j);
+	    MPS_DEBUG_RDPE (s, s->root[i]->drad, "Radius of root %d at iteration %d", i, j);
 	   
 	  /* Check if the radius that we have obtained until now is good, and if
 	   * we have passed the maximum allowed precision. */
-          if (rdpe_lt (s->drad[i], tmp) || 
+          if (rdpe_lt (s->root[i]->drad, tmp) || 
 	      (mpnb_in != 0 && s->mpwp >= mpnb_in))
 	    {
 	      if (s->mpwp >= mpnb_in && mpnb_in != 0)

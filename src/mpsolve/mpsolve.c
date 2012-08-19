@@ -53,17 +53,17 @@ status (int signal)
         case no_phase:
         case float_phase:
 	  fprintf (logstr, "  Approximation  %4d = ", i);
-	  cplx_outln_str (logstr, s->froot[i]);
+	  cplx_outln_str (logstr, s->root[i]->fvalue);
           break;
 
         case dpe_phase:
 	  fprintf (logstr, "  Approximation  %4d = ", i);
-	  cdpe_outln_str (logstr, s->droot[i]);
+	  cdpe_outln_str (logstr, s->root[i]->dvalue);
           break;
 
         case mp_phase:
 	  fprintf (logstr, "  Approximation  %4d = ", i);
-	  mpc_outln_str (logstr, 10, s->mpwp, s->mroot[i]);
+	  mpc_outln_str (logstr, 10, s->mpwp, s->root[i]->mvalue);
           break;
         }
     }
@@ -76,13 +76,13 @@ status (int signal)
         {
         case no_phase:
         case float_phase:
-	  fprintf (logstr, "  Radius of root %4d = %e\n", i, s->frad[i]);
+	  fprintf (logstr, "  Radius of root %4d = %e\n", i, s->root[i]->frad);
           break;
 
         case dpe_phase:
         case mp_phase:
 	  fprintf (logstr, "  Radius of root %4d", i);
-	  rdpe_outln_str (logstr, s->drad[i]);
+	  rdpe_outln_str (logstr, s->root[i]->drad);
           break;
         }
     }

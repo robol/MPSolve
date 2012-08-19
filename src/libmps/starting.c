@@ -323,7 +323,7 @@ mps_fstart (mps_status * s, int n, mps_cluster_item * cluster_item,
       ang = pi2 / n;
       for (i = 0; i < n; i++)
         {
-          cplx_set_d (s->froot[i], cos (ang * i + sigma),
+          cplx_set_d (s->root[i]->fvalue, cos (ang * i + sigma),
                       sin (ang * i + sigma));
         }
       return;
@@ -356,14 +356,14 @@ mps_fstart (mps_status * s, int n, mps_cluster_item * cluster_item,
           if ((r == DBL_MIN) || (r == DBL_MAX))
             /* if ((r == small) || (r == big)) DARIO Giugno 23 */
             s->root_status[l] = MPS_ROOT_STATUS_NOT_FLOAT;
-          cplx_set_d (s->froot[l],
+          cplx_set_d (s->root[l]->fvalue,
                       r * cos (ang * jj + th * s->partitioning[i + 1] +
                                sigma),
                       r * sin (ang * jj + th * s->partitioning[i + 1] +
                                sigma));
 	  if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
 	    {
-	      MPS_DEBUG_CPLX (s, s->froot[l], "s->froot[%d]", l);
+	      MPS_DEBUG_CPLX (s, s->root[l]->fvalue, "s->froot[%d]", l);
 	    }
         }
 
@@ -379,7 +379,7 @@ mps_fstart (mps_status * s, int n, mps_cluster_item * cluster_item,
 		{
 		  l = root->k;
 		  s->root_status[l] = MPS_ROOT_STATUS_APPROXIMATED_IN_CLUSTER;
-		  s->frad[l] = r * nzeros;
+		  s->root[l]->frad = r * nzeros;
 		}
 	    }
         }
@@ -619,7 +619,7 @@ mps_dstart (mps_status * s, int n, mps_cluster_item * cluster_item,
       ang = pi2 / n;
       for (i = 0; i < n; i++)
         {
-          cdpe_set_d (s->droot[i], cos (ang * i + sigma),
+          cdpe_set_d (s->root[i]->dvalue, cos (ang * i + sigma),
                       sin (ang * i + sigma));
         }
       return;
@@ -666,12 +666,12 @@ mps_dstart (mps_status * s, int n, mps_cluster_item * cluster_item,
             {
               if (s->root_status[l] == MPS_ROOT_STATUS_NOT_FLOAT)
                 {
-                  cdpe_set_d (s->droot[l],
+                  cdpe_set_d (s->root[l]->dvalue,
                               cos (ang * jj + th * s->partitioning[i + 1] +
                                    sigma),
                               sin (ang * jj + th * s->partitioning[i + 1] +
                                    sigma));
-                  cdpe_mul_eq_e (s->droot[l], r);
+                  cdpe_mul_eq_e (s->root[l]->dvalue, r);
                   s->root_status[l] = MPS_ROOT_STATUS_CLUSTERED;
                   /*#G 27/4/98 if (rdpe_eq(r, big) || rdpe_eq(r, small)) */
                   if (rdpe_eq (r, RDPE_MIN) || rdpe_eq (r, RDPE_MAX))
@@ -681,12 +681,12 @@ mps_dstart (mps_status * s, int n, mps_cluster_item * cluster_item,
           else
             {
               /* else compute all the initial approximations */
-              cdpe_set_d (s->droot[l],
+              cdpe_set_d (s->root[l]->dvalue,
                           cos (ang * jj + th * s->partitioning[i + 1] +
                                sigma),
                           sin (ang * jj + th * s->partitioning[i + 1] +
                                sigma));
-              cdpe_mul_eq_e (s->droot[l], r);
+              cdpe_mul_eq_e (s->root[l]->dvalue, r);
               /*#G 27/4/98 if (rdpe_eq(r, big) || rdpe_eq(r, small)) */
               if (rdpe_eq (r, RDPE_MIN) || rdpe_eq (r, RDPE_MAX))
                 s->root_status[l] = MPS_ROOT_STATUS_NOT_DPE;
@@ -694,7 +694,7 @@ mps_dstart (mps_status * s, int n, mps_cluster_item * cluster_item,
 
 	  if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
 	    {
-	      MPS_DEBUG_CDPE (s, s->droot[l], "s->droot[%d]", l);
+	      MPS_DEBUG_CDPE (s, s->root[l]->dvalue, "s->droot[%d]", l);
 	    }
 
 	}
@@ -711,7 +711,7 @@ mps_dstart (mps_status * s, int n, mps_cluster_item * cluster_item,
 		{
 		  l = root->k;
 		  s->root_status[l] = MPS_ROOT_STATUS_APPROXIMATED_IN_CLUSTER;
-		  rdpe_set (s->drad[l], tmp1);
+		  rdpe_set (s->root[l]->drad, tmp1);
 		}
 	    }
 	}
@@ -954,13 +954,13 @@ mps_mstart (mps_status * s, int n, mps_cluster_item * cluster_item,
 	      i = root->k;
 
              /* Check if the root touches the cluster */
-              mpc_sub (mtmp, s->mroot[i], gg);
+              mpc_sub (mtmp, s->root[i]->mvalue, gg);
               mpc_get_cdpe (ctmp, mtmp);
               cdpe_mod (rtmp2, ctmp);
 
               /* i is the cluster detached from i_clust, so the unique
 	       * root in it is the first. */
-              rdpe_sub_eq (rtmp2, s->drad[i]);
+              rdpe_sub_eq (rtmp2, s->root[i]->drad);
               rdpe_sub_eq (rtmp2, rtmp1);
 
               /* If they are too near we need to recompact them */
@@ -1002,7 +1002,7 @@ mps_mstart (mps_status * s, int n, mps_cluster_item * cluster_item,
                       cos (ang * jj + th * s->partitioning[i + 1] + sigma),
                       sin (ang * jj + th * s->partitioning[i + 1] + sigma));
           cdpe_mul_eq_e (ctmp, s->dradii[i]);
-          cdpe_set (s->droot[l], ctmp);
+          cdpe_set (s->root[l]->dvalue, ctmp);
 
           if (rdpe_eq (s->dradii[i], big) || rdpe_eq (s->dradii[i], small))
             {
@@ -1030,7 +1030,7 @@ mps_mstart (mps_status * s, int n, mps_cluster_item * cluster_item,
 	    {
 	      l = root2->k;
 	      s->root_status[l] = MPS_ROOT_STATUS_APPROXIMATED_IN_CLUSTER;
-	      rdpe_mul_d (s->drad[l], rtmp1, (double) nzeros); 
+	      rdpe_mul_d (s->root[l]->drad, rtmp1, (double) nzeros); 
 	      root2 = root2->next;
 	    }
 	}
@@ -1103,7 +1103,7 @@ mps_frestart (mps_status * s)
       for (root = cluster->first; root != NULL; root = root->next)
         {                       /* looptst : */
 	  l = root->k;
-          if (!s->again[l])
+          if (!s->root[l]->again)
             goto loop1;
           if (s->output_config->goal == MPS_OUTPUT_GOAL_COUNT)
             {
@@ -1153,9 +1153,9 @@ mps_frestart (mps_status * s)
 	    for (root = cluster2->first; root != NULL; root = root->next)
               {
 		m = root->k;
-                cplx_sub (ctmp, sc, s->froot[m]);
+                cplx_sub (ctmp, sc, s->root[m]->fvalue);
                 rtmp = cplx_mod (ctmp);
-                rtmp1 = (sr + s->frad[m]) * 5 * s->n;
+                rtmp1 = (sr + s->root[m]->frad) * 5 * s->n;
                 if (rtmp < rtmp1)
                   {
 		    for (root = cluster->first; root != NULL; root = root->next)
@@ -1222,10 +1222,10 @@ mps_frestart (mps_status * s)
         {
 	  l = root->k;
           /* Choose as new incl. radius 2*multiplicity*(radius of the circle) */
-          s->frad[l] = 2 * cluster->n * cplx_mod (s->froot[l]);
-          cplx_add_eq (s->froot[l], g);
-          if (s->frad[l] < rtmp)        /* DARIO* aggiunto 1/5/97 */
-            s->frad[l] = rtmp;
+          s->root[l]->frad = 2 * cluster->n * cplx_mod (s->root[l]->fvalue);
+          cplx_add_eq (s->root[l]->fvalue, g);
+          if (s->root[l]->frad < rtmp)        /* DARIO* aggiunto 1/5/97 */
+            s->root[l]->frad = rtmp;
         }
     loop1:
       ;
@@ -1291,7 +1291,7 @@ mps_drestart (mps_status * s)
       for (root = cluster->first; root != NULL; root = root->next)
         {                       /* looptst: */
 	  l = root->k;
-          if (!s->again[l])
+          if (!s->root[l]->again)
             goto loop1;
           if (s->output_config->goal == MPS_OUTPUT_GOAL_COUNT)
             {
@@ -1343,9 +1343,9 @@ mps_drestart (mps_status * s)
 	      cluster2 = c_item2->cluster;
 	      for (root = cluster2->first; root != NULL; root = root->next)
               {
-                cdpe_sub (ctmp, sc, s->droot[root->k]);
+                cdpe_sub (ctmp, sc, s->root[root->k]->dvalue);
                 cdpe_mod (rtmp, ctmp);
-                rdpe_add (rtmp1, sr, s->drad[root->k]);
+                rdpe_add (rtmp1, sr, s->root[root->k]->drad);
                 rdpe_mul_eq_d (rtmp1, 2.0 * s->n);
                 if (rdpe_lt (rtmp, rtmp1))
                   {
@@ -1405,12 +1405,12 @@ mps_drestart (mps_status * s)
 	  l = root->k;
 
           /* Choose as new incl. radius 2*multiplicity*(radius of the circle) */
-          cdpe_mod (s->drad[l], s->droot[l]);
-          rdpe_mul_eq_d (s->drad[l],
+          cdpe_mod (s->root[l]->drad, s->root[l]->dvalue);
+          rdpe_mul_eq_d (s->root[l]->drad,
                          (double) (2 * cluster->n));
-          cdpe_add_eq (s->droot[l], g);
-          if (rdpe_lt (s->drad[l], rtmp))
-            rdpe_set (s->drad[l], rtmp);
+          cdpe_add_eq (s->root[l]->dvalue, g);
+          if (rdpe_lt (s->root[l]->drad, rtmp))
+            rdpe_set (s->root[l]->drad, rtmp);
         }
     loop1:
       ;
@@ -1478,7 +1478,7 @@ mps_mrestart (mps_status * s)
       for (root = cluster->first; root != NULL; root = root->next)
         {                       /* looptst: */
 	  l = root->k;
-          if (!s->again[l] && s->algorithm == MPS_ALGORITHM_STANDARD_MPSOLVE)
+          if (!s->root[l]->again && s->algorithm == MPS_ALGORITHM_STANDARD_MPSOLVE)
             goto loop1;
           if (s->output_config->goal == MPS_OUTPUT_GOAL_COUNT)
             {
@@ -1548,10 +1548,10 @@ mps_mrestart (mps_status * s)
 	      cluster2 = c_item2->cluster;
 	      for (root = cluster2->first; root != NULL; root = root->next)
 		{
-		  mpc_sub (temp, sc, s->mroot[root->k]);
+		  mpc_sub (temp, sc, s->root[root->k]->mvalue);
 		  mpc_get_cdpe (tmp, temp);
 		  cdpe_mod (rtmp, tmp);
-		  rdpe_sub_eq (rtmp, s->drad[root->k]);
+		  rdpe_sub_eq (rtmp, s->root[root->k]->drad);
 		  rdpe_sub_eq (rtmp, sr);
 		  rdpe_inv_eq (rtmp);
 		  rdpe_add_eq (rtmp2, rtmp);
@@ -1659,7 +1659,7 @@ mps_mrestart (mps_status * s)
       for (root = cluster->first; root != NULL; root = root->next)
         {
 	  l = root->k;
-          mpc_get_cdpe (s->droot[l], s->mroot[l]);
+          mpc_get_cdpe (s->root[l]->dvalue, s->root[l]->mvalue);
         }
 
       /*#D perform shift only if the new computed sr is smaller than old*0.25 */
@@ -1680,18 +1680,18 @@ mps_mrestart (mps_status * s)
 	  for (root = cluster->first; root != NULL; root = root->next)
             {
 	      l = root->k;
-              mpc_set_cdpe (s->mroot[l], s->droot[l]);
-              mpc_add_eq (s->mroot[l], g);
-              cdpe_mod (rtmp1, s->droot[l]);
-	      rdpe_mul_d (s->drad[l], rtmp1, 
+              mpc_set_cdpe (s->root[l]->mvalue, s->root[l]->dvalue);
+              mpc_add_eq (s->root[l]->mvalue, g);
+              cdpe_mod (rtmp1, s->root[l]->dvalue);
+	      rdpe_mul_d (s->root[l]->drad, rtmp1, 
 			  2.0 * cluster->n); 
-	      if (rdpe_lt (s->drad[l], rtmp)) 
-		rdpe_set (s->drad[l], rtmp);
+	      if (rdpe_lt (s->root[l]->drad, rtmp)) 
+		rdpe_set (s->root[l]->drad, rtmp);
 
 	      if (s->debug_level & MPS_DEBUG_CLUSTER)
 		{
-		  MPS_DEBUG_MPC (s, s->mpwp, s->mroot[l], "Repositioned root %4d", l);
-		  MPS_DEBUG_RDPE (s, s->drad[l], "Radius for root %4d", l);
+		  MPS_DEBUG_MPC (s, s->mpwp, s->root[l]->mvalue, "Repositioned root %4d", l);
+		  MPS_DEBUG_RDPE (s, s->root[l]->drad, "Radius for root %4d", l);
 		}
             }
 
@@ -2011,7 +2011,7 @@ mps_mnewtis (mps_status * s)
       for (root = cluster->first; root != NULL; root = root->next)
         {                       /* looptst: */
 	  l = root->k;
-          if (!s->again[l])
+          if (!s->root[l]->again)
             goto loop1;
           if (s->output_config->goal == MPS_OUTPUT_GOAL_COUNT)
             {
@@ -2039,15 +2039,15 @@ mps_mnewtis (mps_status * s)
       for (root = cluster->first; root != NULL; root = root->next)
         {
 	  l = root->k;
-          mpf_set_rdpe (rea, s->drad[l]);
+          mpf_set_rdpe (rea, s->root[l]->drad);
           mpf_add (srmp, srmp, rea);
         }
       mpc_set_ui (sc, 0, 0);
       for (root = cluster->first; root != NULL; root = root->next)
         {
 	  l = root->k;
-          mpf_set_rdpe (rea, s->drad[l]);
-          mpc_mul_f (temp, s->mroot[l], rea);
+          mpf_set_rdpe (rea, s->root[l]->drad);
+          mpc_mul_f (temp, s->root[l]->mvalue, rea);
           mpc_add_eq (sc, temp);
         }
       mpc_div_eq_f (sc, srmp);
@@ -2055,10 +2055,10 @@ mps_mnewtis (mps_status * s)
       for (root = cluster->first; root != NULL; root = root->next)
         {
 	  l = root->k;
-          mpc_sub (temp, sc, s->mroot[l]);
+          mpc_sub (temp, sc, s->root[l]->mvalue);
           mpc_get_cdpe (tmp, temp);
           cdpe_mod (rtmp, tmp);
-          rdpe_add_eq (rtmp, s->drad[l]);
+          rdpe_add_eq (rtmp, s->root[l]->drad);
           if (rdpe_lt (sr, rtmp))
             rdpe_set (sr, rtmp);
         }
@@ -2092,10 +2092,10 @@ mps_mnewtis (mps_status * s)
 	      cluster2 = c_item2->cluster;
 	      for (root = cluster2->first; root != NULL; root = root->next)
 		{
-		  mpc_sub (temp, sc, s->mroot[root->k]);
+		  mpc_sub (temp, sc, s->root[root->k]->mvalue);
 		  mpc_get_cdpe (tmp, temp);
 		  cdpe_mod (rtmp, tmp);
-		  rdpe_sub_eq (rtmp, s->drad[root->k]);
+		  rdpe_sub_eq (rtmp, s->root[root->k]->drad);
 		  rdpe_sub_eq (rtmp, sr);
 		  rdpe_inv_eq (rtmp);
 		  rdpe_add_eq (rtmp2, rtmp);

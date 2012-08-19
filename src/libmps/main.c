@@ -132,8 +132,8 @@ mps_standard_mpsolve (mps_status * s)
       if (d_after_f)
         for (i = 0; i < s->n; i++)
           {
-            rdpe_set_d (s->drad[i], s->frad[i]);
-            cdpe_set_x (s->droot[i], s->froot[i]);
+            rdpe_set_d (s->root[i]->drad, s->root[i]->frad);
+            cdpe_set_x (s->root[i]->dvalue, s->root[i]->fvalue);
           }
       s->lastphase = dpe_phase;
       mps_dsolve (s, d_after_f);
@@ -162,11 +162,11 @@ mps_standard_mpsolve (mps_status * s)
   for (i = 0; i < s->n; i++)
     {
       if (which_case == 'd' || d_after_f)
-        mpc_set_cdpe (s->mroot[i], s->droot[i]);
+        mpc_set_cdpe (s->root[i]->mvalue, s->root[i]->dvalue);
       else
         {
-          mpc_set_cplx (s->mroot[i], s->froot[i]);
-          rdpe_set_d (s->drad[i], s->frad[i]);
+          mpc_set_cplx (s->root[i]->mvalue, s->root[i]->fvalue);
+          rdpe_set_d (s->root[i]->drad, s->root[i]->frad);
         }
     }
   if (computed && s->output_config->goal == MPS_OUTPUT_GOAL_APPROXIMATE)
@@ -323,7 +323,7 @@ mps_setup (mps_status * s)
 
   /* precision of each root */
   for (i = 0; i < s->n; i++)
-    s->rootwp[i] = 53;
+    s->root[i]->wp = 53;
 
   /* output order info */
   for (i = 0; i < s->n; i++)

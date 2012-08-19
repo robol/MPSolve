@@ -253,8 +253,8 @@ mps_secular_dnewton (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
 	  cdpe_div (corr, sec->adpc[i], corr);
 	  cdpe_mod (acorr, corr); 
 	  rdpe_mul_d (rtmp, acorr, sec->n * (1 + sec->n * DBL_EPSILON)); 
-	  if (rdpe_lt (rtmp, s->drad[i])) 
-	    rdpe_set (s->drad[i], rtmp); 
+	  if (rdpe_lt (rtmp, s->root[i]->drad)) 
+	    rdpe_set (s->root[i]->drad, rtmp); 
 
 	  rdpe_mul_d (rtmp, ax, DBL_EPSILON * 4);
 	  if (rdpe_lt (acorr, rtmp))
@@ -452,8 +452,8 @@ mps_secular_mnewton (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
  
 	  rdpe_mul_d (rtmp, acorr, sec->n * (1 + sec->n)); 
 	  rdpe_mul_eq (rtmp, s->mp_epsilon);
-	  if (rdpe_lt (rtmp, s->drad[i])) 
-	    rdpe_set (s->drad[i], rtmp); 
+	  if (rdpe_lt (rtmp, s->root[i]->drad)) 
+	    rdpe_set (s->root[i]->drad, rtmp); 
 
 	  rdpe_mul (rtmp, ax, s->mp_epsilon);
 	  if (rdpe_lt (acorr, rtmp))

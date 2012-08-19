@@ -332,33 +332,10 @@ extern "C"
     int *order;
 
     /**
-     * @brief Root approximations as floating points complex
-     * numbers.
+     * @brief Vector of points to the 
+     * current root approximations. 
      */
-    cplx_t *froot;
-
-    /**
-     * @brief Root approximations as complex dpe numbers.
-     */
-    cdpe_t *droot;
-
-    /**
-     * @brief Root approsimations as complex multiprecision
-     * numbers.
-     */
-    mpc_t *mroot;
-
-    /**
-     * @brief Radii of inclusion disks as real numbers.
-     */
-    double *frad;
-
-    /**
-     * @brief Radii of inclusion disks as dpe numbers.
-     */
-    rdpe_t *drad;
-
-    /* lifetime global variables */
+    mps_approximation ** root;
 
     /**
      * @brief <code>true</code> if the float phase should be skipped,
@@ -406,17 +383,6 @@ extern "C"
      * @see mps_fcluster(), mps_dcluster(), mps_mcluster()
      */
     mps_clusterization * clusterization;
-
-    /**
-     * @brief Array containing working precisions used for each root.
-     */
-    long int *rootwp;
-
-    /**
-     * @brief Array that whose i-th component is set to <code>true</code> if
-     * the i-th root needs more iterations.
-     */
-    mps_boolean *again;
 
     /**
      * @brief Standard complex coefficients of the polynomial.

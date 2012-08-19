@@ -77,18 +77,6 @@ mps_set_default_values (mps_status * s)
   /* soution related variables */
   s->lastphase = no_phase;      /* store last computed phase           */
   s->order = NULL;              /* output index order: ord[0],..,ord[n] */
-  s->froot = NULL;              /* root approxs. as standard complex   */
-  s->droot = NULL;              /* root approx. as complex dpe         */
-  s->mroot = NULL;              /* root approximations as complex mp   */
-  s->frad = NULL;               /* radii of inclusion disks as real    */
-  s->drad = NULL;               /* radii of inclusion disks as rdpe_t  */
-
-  s->rootwp = NULL;             /* working precision used for each root */
-  /* s->mfppc = NULL;              /\* multiprecision complex coeffs of p' *\/ */
-  /* s->fap = NULL;                /\* moduli of the coefficients as double *\/ */
-  /* s->dap = NULL;                /\* moduli of the coefficients as dpe   *\/ */
-  s->again = NULL;              /* flag vector: true where more        */
-  /* s->fppc = NULL;               /\* standard complex coefficients       *\/ */
   s->fppc1 = NULL;              /* standard complex coefficients       */
   s->dpc1 = NULL;               /* dpe complex coefficients            */
   s->dpc2 = NULL;               /* dpe complex coefficients            */

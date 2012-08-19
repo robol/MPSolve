@@ -38,7 +38,7 @@ mps_fradii (mps_status * s, double * fradii)
     mps_monomial_fradii (s, fradii);
   else {
 	  for (i = 0; i < s->n; i++)
-	    fradii[i] = s->frad[i];
+	    fradii[i] = s->root[i]->frad;
   }
 }
 
@@ -61,7 +61,7 @@ mps_dradii (mps_status * s, rdpe_t * dradii)
     mps_monomial_dradii (s, dradii);
   else {
     for (i = 0; i < s->n; i++)
-      rdpe_set (dradii[i], s->drad[i]);
+      rdpe_set (dradii[i], s->root[i]->drad);
   }
 }
 
@@ -84,6 +84,6 @@ mps_mradii (mps_status * s, rdpe_t * dradii)
     mps_monomial_mradii (s, dradii);
   else {
     for (i = 0; i < s->n; i++)
-      rdpe_set (dradii[i], s->drad[i]);
+      rdpe_set (dradii[i], s->root[i]->drad);
   }
 }

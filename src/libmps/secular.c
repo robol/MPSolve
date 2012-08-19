@@ -59,11 +59,11 @@ mps_secular_restart (mps_status * s)
     {
     case float_phase:
       for (i = 0; i < s->n; i++)
-	mpc_set_cplx (s->mroot[i], s->froot[i]);
+	mpc_set_cplx (s->root[i]->mvalue, s->root[i]->fvalue);
       break;
     case dpe_phase:
       for (i = 0; i < s->n; i++)
-	mpc_set_cdpe (s->mroot[i], s->droot[i]);
+	mpc_set_cdpe (s->root[i]->mvalue, s->root[i]->dvalue);
       break;
     default:
       break;
@@ -73,8 +73,8 @@ mps_secular_restart (mps_status * s)
 
   for (i = 0; i < s->n; i++)
     {
-      mpc_get_cplx (s->froot[i], s->mroot[i]);
-      mpc_get_cdpe (s->droot[i], s->mroot[i]);
+      mpc_get_cplx (s->root[i]->fvalue, s->root[i]->mvalue);
+      mpc_get_cdpe (s->root[i]->dvalue, s->root[i]->mvalue);
     }
 }
 
@@ -478,7 +478,7 @@ mps_secular_raise_root_precision (mps_status * s, int wp)
 
   for (i = 0; i < s->n; i++)
     {
-      mpc_set_prec (s->mroot[i], wp);
+      mpc_set_prec (s->root[i]->mvalue, wp);
     }
 }
 
@@ -543,10 +543,10 @@ mps_secular_switch_phase (mps_status * s, mps_phase phase)
            * secular equation coefficients */
           for (i = 0; i < s->n; i++)
             {
-              mpc_set_cplx (s->mroot[i], s->froot[i]);
+              mpc_set_cplx (s->root[i]->mvalue, s->root[i]->fvalue);
               mpc_set_cplx (sec->ampc[i], sec->afpc[i]);
               mpc_set_cplx (sec->bmpc[i], sec->bfpc[i]);
-              rdpe_set_d (s->drad[i], s->frad[i]);
+              rdpe_set_d (s->root[i]->drad, s->root[i]->frad);
             }
           break;
 
@@ -555,7 +555,7 @@ mps_secular_switch_phase (mps_status * s, mps_phase phase)
            * roots into the multiprecision values    */
           for (i = 0; i < s->n; i++)
             {
-              mpc_set_cdpe (s->mroot[i], s->droot[i]);
+              mpc_set_cdpe (s->root[i]->mvalue, s->root[i]->dvalue);
               mpc_set_cdpe (sec->ampc[i], sec->adpc[i]);
               mpc_set_cdpe (sec->bmpc[i], sec->bdpc[i]);
             }
@@ -622,7 +622,7 @@ mps_secular_set_radii (mps_status * s)
       
       rdpe_set (drad[i], rad);
 
-      mpc_rmod (rtmp, s->mroot[i]);
+      mpc_rmod (rtmp, s->root[i]->mvalue);
       rdpe_mul_eq (rtmp, s->mp_epsilon);
       rdpe_mul_eq_d (rtmp, 4.0);
       rdpe_add_eq (drad[i], rtmp);
@@ -634,16 +634,16 @@ mps_secular_set_radii (mps_status * s)
        { 
 	 for (i = 0; i < s->n; i++) 
 	   { 
-	     rdpe_set_d (s->drad[i], s->frad[i]); 
-	     mpc_set_d  (s->mroot[i], cplx_Re (s->froot[i]),  
-			 cplx_Im (s->froot[i])); 
+	     rdpe_set_d (s->root[i]->drad, s->root[i]->frad); 
+	     mpc_set_d  (s->root[i]->mvalue, cplx_Re (s->root[i]->fvalue),  
+			 cplx_Im (s->root[i]->fvalue)); 
 	   } 
 	 
 	 mps_mcluster (s, drad, 2.0 * s->n);  
 	 mps_fmodify (s, false);  
 
 	 for (i = 0; i < s->n; i++)
-	   s->frad[i] = rdpe_get_d (s->drad[i]); 
+	   s->root[i]->frad = rdpe_get_d (s->root[i]->drad); 
        }
        break;
 

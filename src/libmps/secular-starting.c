@@ -40,11 +40,11 @@ mps_secular_fstart (mps_status * s, int n, mps_cluster_item * cluster_item, doub
       if (!MPS_ROOT_STATUS_IS_COMPUTED (s, i))
 	{
 	  if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
-	    MPS_DEBUG_CPLX (s, s->froot[l], "s->froot[%d] (before start)", l);
+	    MPS_DEBUG_CPLX (s, s->root[l]->fvalue, "s->froot[%d] (before start)", l);
 
-	  cplx_set (s->froot[l], sec->bfpc[l]);
+	  cplx_set (s->root[l]->fvalue, sec->bfpc[l]);
 	  if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
-	    MPS_DEBUG_CPLX (s, s->froot[l], "s->froot[%d]", l);
+	    MPS_DEBUG_CPLX (s, s->root[l]->fvalue, "s->froot[%d]", l);
 	}
 
       if (cluster_item)
@@ -82,11 +82,11 @@ mps_secular_dstart (mps_status * s, int n, mps_cluster_item * cluster_item, rdpe
 
       if (!MPS_ROOT_STATUS_IS_COMPUTED (s, l))
 	{
-	  cdpe_set (s->droot[l], sec->bdpc[l]);
+	  cdpe_set (s->root[l]->dvalue, sec->bdpc[l]);
 	  
 	  if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
 	    {
-	      MPS_DEBUG_CDPE (s, s->droot[l], "s->droot[%d]", l);
+	      MPS_DEBUG_CDPE (s, s->root[l]->dvalue, "s->droot[%d]", l);
 	    }
 	}
 
@@ -118,7 +118,7 @@ mps_secular_mstart (mps_status * s, int n, mps_cluster_item * cluster_item, rdpe
   rdpe_t rtmp;
   rdpe_set (r_eps, rdpe_zero);
 
-  mpc_init2 (epsilon, mpc_get_prec (s->mroot[0]));
+  mpc_init2 (epsilon, mpc_get_prec (s->root[0]->mvalue));
   mpc_set_ui (epsilon, 0, 0);
 
   /* Get best sigma possible */
@@ -159,14 +159,14 @@ mps_secular_mstart (mps_status * s, int n, mps_cluster_item * cluster_item, rdpe
 	  rdpe_mul_eq_d (r_eps, 4.0);
 	  mpf_set_rdpe (mpc_Re (epsilon), r_eps);
 	  
-	  mpc_set_d (s->mroot[l], cos (i * th + sigma), sin (i * th + sigma));
-	  mpc_mul_eq (s->mroot[l], epsilon);
+	  mpc_set_d (s->root[l]->mvalue, cos (i * th + sigma), sin (i * th + sigma));
+	  mpc_mul_eq (s->root[l]->mvalue, epsilon);
 	  
-	  mpc_get_cdpe (ctmp, s->mroot[l]);
+	  mpc_get_cdpe (ctmp, s->root[l]->mvalue);
 	  cdpe_mod (rtmp, ctmp);
-	  rdpe_add_eq (s->drad[l], rtmp);
+	  rdpe_add_eq (s->root[l]->drad, rtmp);
 
-	  mpc_add_eq (s->mroot[l], sec->bmpc[l]);
+	  mpc_add_eq (s->root[l]->mvalue, sec->bmpc[l]);
 	}
 	  
       if (cluster_item)
