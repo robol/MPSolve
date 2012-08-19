@@ -150,8 +150,6 @@ mps_secular_fnewton (mps_status * s, mps_approximation * root, cplx_t corr,
 
   /* If the correction is not useful in the current precision do
    * not iterate more */
-  MPS_DEBUG (s, "Acorr = %e", cplx_mod (corr));
-  MPS_DEBUG (s, "ax § EPS = %e", 4 * ax * DBL_EPSILON);
   if ((cplx_mod (corr) < 4 * ax * DBL_EPSILON))
     {
       if (data && s->debug_level & MPS_DEBUG_PACKETS)
