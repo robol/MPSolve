@@ -148,6 +148,7 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
   /* Pointers to the secular equation and the monomial_poly */
   mps_secular_equation * sec = s->secular_equation;
   mps_monomial_poly * p = s->monomial_poly;
+  int i = data->i, j;
 
   /* Multiprecision variables */
   mpc_t mprod_b, ctmp, mdiff, lc, my_b;
@@ -700,6 +701,10 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
 
   MPS_DEBUG_WITH_INFO (s, "Regenerating coefficients");
 
+  old_mb = mpc_valloc (s->n);
+  for (i = 0; i < s->n; i++)
+    mpc_init2 (old_mb[i], s->root[i]->wp);
+
   /* Copy the old regeneration epsilon that may come handy
    * in the case the regeneration does not work */
   rdpe_t *old_dregeneration_epsilon = rdpe_valloc (s->n);
@@ -895,6 +900,7 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
 	}
        
       mpc_vclear (old_ma, s->n);
+
       mpc_vfree (old_ma);
       rdpe_vfree (old_db);
 
@@ -923,6 +929,8 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
 	s->root[i]->again = true;
     }
 
+  mpc_vclear (old_mb, s->n);
+  mpc_vfree (old_mb);
   rdpe_vfree (old_dregeneration_epsilon);
 
   return successful_regeneration;

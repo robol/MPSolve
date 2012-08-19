@@ -986,7 +986,8 @@ mps_clusterization_detach_clusters (mps_status * s, mps_clusterization * c)
 	  mpc_get_cdpe (droot, s->root[k]->mvalue);
 	  cdpe_mod (rtmp, droot);
 
-          rdpe_set_2dl (precision, 1, (long int) (- 0.5 * s->mpwp + rdpe_Esp (rtmp)));
+          rdpe_set_dl (precision, 1, (long int) ((1 - 0.5 * s->mpwp) * LOG10_2
+                                                 + rdpe_log10 (rtmp)));
           if (rdpe_lt (s->root[k]->drad, precision))
             {
 	      if (s->debug_level & MPS_DEBUG_CLUSTER)

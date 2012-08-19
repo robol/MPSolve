@@ -14,6 +14,7 @@ extern "C" {
     double frad;
     rdpe_t drad;
 
+    mps_boolean approximated;
     mps_boolean again;
     long int wp;
 

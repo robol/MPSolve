@@ -55,7 +55,6 @@ mps_secular_fnewton (mps_status * s, mps_approximation * root, cplx_t corr,
 	  root->again = true;
 	  int k;
 	  double acorr;
-	  /* double sigma = 0; */
 
 	  for (k = 0; k < sec->n; k++)
 	    {
@@ -151,10 +150,13 @@ mps_secular_fnewton (mps_status * s, mps_approximation * root, cplx_t corr,
 
   /* If the correction is not useful in the current precision do
    * not iterate more */
-  if (root->again && (cplx_mod (corr) < sec->n * ax * DBL_EPSILON))
+  MPS_DEBUG (s, "Acorr = %e", cplx_mod (corr));
+  MPS_DEBUG (s, "ax § EPS = %e", 4 * ax * DBL_EPSILON);
+  if ((cplx_mod (corr) < 4 * ax * DBL_EPSILON))
     {
       if (data && s->debug_level & MPS_DEBUG_PACKETS)
 	MPS_DEBUG (s, "Setting again to false on root %ld for small Newton correction", data->k);
+      root->approximated = true;
       root->again = false;
     }
 
@@ -321,6 +323,7 @@ mps_secular_dnewton (mps_status * s, mps_approximation * root, cdpe_t corr,
    	  MPS_DEBUG (s, "Setting again on root %ld to false because the Newton correction is too small", data->k); 
    	  MPS_DEBUG_CDPE (s, corr, "Newton correction"); 
    	} 
+      root->approximated = true;
       root->again = false; 
     }
 
@@ -583,6 +586,7 @@ mps_secular_mnewton (mps_status * s, mps_approximation * root, mpc_t corr,
   rdpe_mul_eq_d (rtmp, sec->n);
   if (rdpe_lt (acorr, rtmp))
     {
+      root->approximated = true;
       root->again = false;
       if (s->debug_level & MPS_DEBUG_PACKETS)
 	MPS_DEBUG (s, "Stopping Aberth iterations due to small Newton correction");

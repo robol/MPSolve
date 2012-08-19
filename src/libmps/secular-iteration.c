@@ -69,10 +69,6 @@ __mps_secular_ga_fiterate_worker (void* data_ptr)
 	  (*data->it)++;
 	  pthread_mutex_unlock (data->gs_mutex);
 #endif
-
-	  it_data.k = i;
-	  it_data.gs_mutex = data->gs_mutex;
-	  // MPS_DEBUG_CPLX (s, s->root[i]->fvalue, "s->froot[%d]", i);
 	  cdpe_set_x (s->root[i]->dvalue, s->root[i]->fvalue);
 	  mps_secular_fnewton (s, s->root[i], corr,
 			       &it_data, false);
@@ -156,7 +152,6 @@ mps_secular_ga_fiterate (mps_status * s, int maxit, mps_boolean just_regenerated
   int computed_roots = 0;
   int i;
   int nit = 0;
-  int it_threshold;
 
   mps_boolean excep = false;
 
@@ -199,20 +194,11 @@ mps_secular_ga_fiterate (mps_status * s, int maxit, mps_boolean just_regenerated
 	      MPS_DEBUG_WITH_INFO (s, "Setting again[%d] to false since the root is ready for output (or isolated)", i);
 	    }
 	  s->root[i]->again = false;
+	  s->root[i]->approximated = true;
 	}
 
       if (!s->root[i]->again)
         computed_roots++;
-    }
-
-  /* Set the iterations threshold to 2 iterations
-   * for every non approximated root. */
-  it_threshold = (s->n - computed_roots);
-
-  if (s->debug_level & MPS_DEBUG_PACKETS)
-    {
-      MPS_DEBUG (s, "There are %d roots with again set to false", computed_roots);
-      MPS_DEBUG (s, "Iteration theshold set to %d iterations", it_threshold);
     }
 
   mps_thread_job_queue *queue = mps_thread_job_queue_new (s);
@@ -243,11 +229,14 @@ mps_secular_ga_fiterate (mps_status * s, int maxit, mps_boolean just_regenerated
   if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
       mps_dump (s);
 
-  if (nit <= it_threshold && just_regenerated)
-    {
-      MPS_DEBUG_WITH_INFO (s, "Asking for regeneration since we stopped after a few iterations");
-      s->secular_equation->best_approx = true;
-    }
+  /* Check if we need to get higher precision for the roots */
+  s->secular_equation->best_approx = true;
+  for (i = 0; i < s->n; i++)
+    if (!s->root[i]->approximated)
+      {
+	s->secular_equation->best_approx = false;
+	break;
+      }
 
   if (excep)
     {
@@ -379,7 +368,6 @@ mps_secular_ga_diterate (mps_status * s, int maxit, mps_boolean just_regenerated
   int computed_roots = 0;
   int i;
   int nit = 0;
-  int it_threshold;
 
   s->operation = MPS_OPERATION_ABERTH_DPE_ITERATIONS;
 
@@ -418,20 +406,11 @@ mps_secular_ga_diterate (mps_status * s, int maxit, mps_boolean just_regenerated
 	      MPS_DEBUG_WITH_INFO (s, "Setting again[%d] to false since the root is ready for output (or isolated)", i);
 	    }
 	  s->root[i]->again = false;
+	  s->root[i]->approximated = true;
 	}
 
       if (!s->root[i]->again)
         computed_roots++;
-    }
-
-  /* Set the iterations threshold to 2 iterations
-   * for every non approximated root. */
-  it_threshold = (s->n - computed_roots);
-
-  if (s->debug_level & MPS_DEBUG_PACKETS)
-    {
-      MPS_DEBUG (s, "There are %d roots with again set to false", computed_roots);
-      MPS_DEBUG (s, "Iteration theshold set to %d iterations", it_threshold);
     }
 
   mps_thread_job_queue *queue = mps_thread_job_queue_new (s);
@@ -459,11 +438,15 @@ mps_secular_ga_diterate (mps_status * s, int maxit, mps_boolean just_regenerated
   if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
       mps_dump (s);
 
-  if (nit <= it_threshold && just_regenerated)
-    {
-      MPS_DEBUG_WITH_INFO (s, "Asking for regeneration since we stopped after a few iterations");
-      s->secular_equation->best_approx = true;
-    }
+  /* Check if we need to get higher precision for the roots */
+  s->secular_equation->best_approx = true;
+  for (i = 0; i < s->n; i++)
+    if (!s->root[i]->approximated)
+      {
+	s->secular_equation->best_approx = false;
+	break;
+      }
+
 
   /* Compute the inclusion radii with Gerschgorin so we can compute
    * clusterizations for the roots. */
@@ -641,7 +624,6 @@ mps_secular_ga_miterate (mps_status * s, int maxit, mps_boolean just_regenerated
   int computed_roots = 0;
   int i;
   int nit = 0;
-  int it_threshold;
 
   s->operation = MPS_OPERATION_ABERTH_MP_ITERATIONS;
 
@@ -682,20 +664,11 @@ mps_secular_ga_miterate (mps_status * s, int maxit, mps_boolean just_regenerated
 	      MPS_DEBUG_WITH_INFO (s, "Setting again[%d] to false since the root is ready for output (or isolated)", i);
 	    }
 	  s->root[i]->again = false;
+	  s->root[i]->approximated = true;
 	}
 
       if (!s->root[i]->again)
         computed_roots++;
-    }
-
-  /* Set the iterations threshold to 2 iterations
-   * for every non approximated root. */
-  it_threshold = (s->n - computed_roots);
-
-  if (s->debug_level & MPS_DEBUG_PACKETS)
-    {
-      MPS_DEBUG (s, "There are %d roots with again set to false", computed_roots);
-      MPS_DEBUG (s, "Iteration theshold set to %d iterations", it_threshold);
     }
 
   mps_thread_job_queue *queue = mps_thread_job_queue_new (s);
@@ -724,11 +697,16 @@ mps_secular_ga_miterate (mps_status * s, int maxit, mps_boolean just_regenerated
   if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
       mps_dump (s);
 
-  if (nit <= it_threshold && just_regenerated)
-    {
-      MPS_DEBUG_WITH_INFO (s, "Asking for regeneration since we stopped after a few iterations");
-      s->secular_equation->best_approx = true;
-    }
+  /* Check if we need to get higher precision for the roots */
+  s->secular_equation->best_approx = true;
+  for (i = 0; i < s->n; i++)
+    if (!s->root[i]->approximated && !MPS_ROOT_STATUS_IS_COMPUTED (s,i))
+      {
+	MPS_DEBUG (s, "Failing on root %d", i);
+	s->secular_equation->best_approx = false;
+	break;
+      }
+
 
   /* Compute the inclusion radii with Gerschgorin so we can compute
    * clusterizations for the roots. */
