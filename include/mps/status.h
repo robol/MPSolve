@@ -17,8 +17,8 @@ extern "C"
   /**
    * @brief Function that computes \f$\frac{p}{p'}\f$ (floating point version)
    */
-  typedef void (*mps_fnewton_ptr) (mps_status * status, cplx_t, double *, cplx_t,
-                                   mps_boolean *, void * user_data,
+  typedef void (*mps_fnewton_ptr) (mps_status * status, mps_approximation *, cplx_t,
+                                   void * user_data,
 				   mps_boolean skip_radius_check);
 
   /**
@@ -553,9 +553,6 @@ extern "C"
      * @brief Pointer to the function to perform newton in floating
      * point implemented by the user.
      */
-    /* void (*fnewton_usr) (mps_status *status, cplx_t, double *, cplx_t, */
-    /*                      mps_boolean *, void * user_data,  */
-    /* 			 mps_boolean * skip_radius_computation); */
     mps_fnewton_ptr fnewton_usr;
 
     /**

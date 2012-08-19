@@ -50,8 +50,8 @@ mps_thread_fpolzer_worker (void *data_ptr)
 
           if (!MPS_INPUT_CONFIG_IS_USER (s->input_config))
             {
-              mps_fnewton (s, s->n, froot, &s->root[i]->frad, corr, p->fpc, p->fap,
-                           &s->root[i]->again, false);
+              mps_fnewton (s, s->n, s->root[i], corr, p->fpc, p->fap,
+                           false);
               if (iter == 0 && !s->root[i]->again && s->root[i]->frad > rad1 && rad1 != 0)
                 s->root[i]->frad = rad1;
               /***************************************
@@ -66,11 +66,11 @@ mps_thread_fpolzer_worker (void *data_ptr)
             }
           else if (s->fnewton_usr != NULL)
             {
-              (*s->fnewton_usr) (s, froot, &s->root[i]->frad, corr, &s->root[i]->again, NULL, false);
+              (*s->fnewton_usr) (s, s->root[i], corr, NULL, false);
             }
           else
             {
-              mps_fnewton_usr (s, froot, &s->root[i]->frad, corr, &s->root[i]->again);
+              mps_fnewton_usr (s, s->root[i], corr);
             }
 
           if (s->root[i]->again ||

@@ -51,13 +51,19 @@
  * be computed.
  */
 void
-mps_fnewton (mps_status * s, int n, cplx_t z, double *radius, cplx_t corr,
-	     cplx_t fpc[], double fap[], mps_boolean * cont, 
+mps_fnewton (mps_status * s, int n, mps_approximation * root, 
+	     cplx_t corr,
+	     cplx_t fpc[], double fap[],  
 	     mps_boolean skip_radius_computation)
 {
   int i;
   double ap, az, absp, azi, eps;
   cplx_t p, p1, zi, den, ppsp, tmp;
+
+  cplx_t z;
+  cplx_set (z, root->fvalue);
+  double * radius = &root->frad;
+  mps_boolean * cont = &root->again;
 
   eps = 4 * n * DBL_EPSILON;
   az = cplx_mod (z);

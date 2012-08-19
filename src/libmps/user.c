@@ -41,12 +41,16 @@ obtained by means of a rounding error analysis of (1).
 * means of the relation: p=1+x*p**2, starting with p=1*
 ******************************************************/
 void
-mps_fnewton_usr (mps_status * s, cplx_t x, double *rad, cplx_t corr,
-                 mps_boolean * again)
+mps_fnewton_usr (mps_status * s, mps_approximation * root, cplx_t corr)
 {
   cplx_t p, pp, pt, tmp;
   double ap, ax, eps;
   int i, m;
+
+  cplx_t x;
+  cplx_set (x, root->fvalue);
+  double * rad = &root->frad;
+  mps_boolean * again = &root->again;
 
   m = (int) (log (s->n + 1.0) / LOG2);
   if ((1 << m) <= s->n)

@@ -516,9 +516,9 @@ extern  "C"
   void mps_standard_mpsolve (mps_status * s);
 
   /* functions in newton.c */
-  void mps_fnewton (mps_status * st, int n, cplx_t z, double *radius,
+  void mps_fnewton (mps_status * st, int n, mps_approximation * root,
                     cplx_t corr, cplx_t fpc[], double fap[],
-                    mps_boolean * cont, mps_boolean skip_radius_computation);
+                    mps_boolean skip_radius_computation);
   void mps_dnewton (mps_status * st, int n, cdpe_t z, rdpe_t radius,
                     cdpe_t corr, cdpe_t dpc[], rdpe_t dap[],
                     mps_boolean * cont, mps_boolean skip_radius_computation);
@@ -647,8 +647,7 @@ extern  "C"
   mps_boolean mps_mtouchunit (mps_status * s, int n, int i);
 
   /* functions in user.c */
-  void mps_fnewton_usr (mps_status * st, cplx_t x, double *rad, cplx_t corr,
-                        mps_boolean * again);
+  void mps_fnewton_usr (mps_status * st, mps_approximation * root, cplx_t corr);
   void mps_dnewton_usr (mps_status * st, cdpe_t x, rdpe_t rad, cdpe_t corr,
                         mps_boolean * again);
   void mps_mnewton_usr (mps_status * st, mpc_t x, rdpe_t rad, mpc_t corr,

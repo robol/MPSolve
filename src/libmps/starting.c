@@ -1073,9 +1073,9 @@ void
 mps_frestart (mps_status * s)
 {
   int k, j, l;
-  double sr, sum, rad, rtmp, rtmp1;
-  cplx_t sc, g, corr, ctmp;
-  mps_boolean tst, cont;
+  double sr, sum, rtmp, rtmp1;
+  cplx_t sc, corr, ctmp;
+  mps_boolean tst;
   mps_monomial_poly *p = s->monomial_poly;
 
   s->operation = MPS_OPERATION_SHIFT;
@@ -1186,22 +1186,28 @@ mps_frestart (mps_status * s)
        * to the above derivative starting from the super center
        * of the cluster. */
 
-      cplx_set (g, sc);
+      mps_approximation * g = mps_approximation_new (s);
+      cplx_set (g->fvalue, sc);
+
+      // cplx_set (g, sc);
       for (j = 0; j < s->max_newt_it; j++)
-        {                       /* loop_newt: */
-          rad = 0.0;
+        {
           mps_fnewton (s, p->n - cluster->n + 1, g,
-                       &rad, corr, p->fppc, s->fap1, &cont, false);
-          cplx_sub_eq (g, corr);
-          if (!cont)
-            break;
+                       corr, p->fppc, s->fap1, false);
+          cplx_sub_eq (g->fvalue, corr);
+          if (!g->again)
+	    {
+	      mps_approximation_free (s, g);
+	      break;
+	    }
         }
+
       if (j == s->max_newt_it)
         {
           MPS_DEBUG (s, "Exceeded maximum Newton iterations in frestart");
           return;
         }
-      cplx_sub (ctmp, sc, g);
+      cplx_sub (ctmp, sc, g->fvalue);
       if (cplx_mod (ctmp) > sr)
         {
           MPS_DEBUG (s, "The gravity center falls outside the cluster");
@@ -1212,21 +1218,23 @@ mps_frestart (mps_status * s)
        * First check if shift may cause overflow, in this case skip
        * the shift stage */
 
-      if (s->n * log (cplx_mod (g)) + log (sum) > log (DBL_MAX))
+      if (s->n * log (cplx_mod (g->fvalue)) + log (sum) > log (DBL_MAX))
         goto loop1;
       MPS_DEBUG_CALL (s, "mps_fshift");
-      mps_fshift (s, cluster->n, c_item, sr, g, s->eps_out);
-      rtmp = cplx_mod (g);
+      mps_fshift (s, cluster->n, c_item, sr, g->fvalue, s->eps_out);
+      rtmp = cplx_mod (g->fvalue);
       rtmp *= DBL_EPSILON * 2;
       for (root = cluster->first; root != NULL; root = root->next)
         {
 	  l = root->k;
           /* Choose as new incl. radius 2*multiplicity*(radius of the circle) */
           s->root[l]->frad = 2 * cluster->n * cplx_mod (s->root[l]->fvalue);
-          cplx_add_eq (s->root[l]->fvalue, g);
+          cplx_add_eq (s->root[l]->fvalue, g->fvalue);
           if (s->root[l]->frad < rtmp)        /* DARIO* aggiunto 1/5/97 */
             s->root[l]->frad = rtmp;
         }
+
+      mps_approximation_free (s, g);
     loop1:
       ;
     }
