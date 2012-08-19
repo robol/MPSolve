@@ -74,8 +74,8 @@ __mps_secular_ga_fiterate_worker (void* data_ptr)
 	  it_data.gs_mutex = data->gs_mutex;
 	  // MPS_DEBUG_CPLX (s, s->root[i]->fvalue, "s->froot[%d]", i);
 	  cdpe_set_x (s->root[i]->dvalue, s->root[i]->fvalue);
-	  mps_secular_fnewton (s, s->root[i]->fvalue, &s->root[i]->frad, corr,
-			       &s->root[i]->again, &it_data, false);
+	  mps_secular_fnewton (s, s->root[i], corr,
+			       &it_data, false);
 
 	  if (s->root_status[i] == MPS_ROOT_STATUS_NOT_FLOAT)
 	    {
@@ -330,8 +330,8 @@ __mps_secular_ga_diterate_worker (void* data_ptr)
 	  (*data->it)++;
 
 	  it_data.k = i;
-	  mps_secular_dnewton (s, droot, s->root[i]->drad, corr,
-			       &s->root[i]->again, &it_data, false);
+	  mps_secular_dnewton (s, s->root[i], corr,
+			       &it_data, false);
 
 	  /* Apply Aberth correction */
 	  mps_daberth_wl (s, i, abcorr, data->aberth_mutex);
@@ -570,8 +570,8 @@ __mps_secular_ga_miterate_worker (void* data_ptr)
 
 	  it_data.k = i;
 	  it_data.gs_mutex = data->gs_mutex;
-	  mps_secular_mnewton (s, mroot, s->root[i]->drad, corr,
-			       &s->root[i]->again, &it_data, false);
+	  mps_secular_mnewton (s, s->root[i], corr,
+			       &it_data, false);
 
 	  /* Apply Aberth correction */
 	  mps_maberth_s_wl (s, i, cluster, abcorr, data->aberth_mutex);

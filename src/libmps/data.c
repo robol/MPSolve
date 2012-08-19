@@ -336,6 +336,7 @@ mps_free_data (mps_status * s)
 
   for (i = 0; i < s->n; i++)
     mps_approximation_free (s, s->root[i]);
+  free (s->root);
 
   for (i = 0; i <= s->deg; i++)
     mpc_clear (s->mfpc1[i]);

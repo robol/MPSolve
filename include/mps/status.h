@@ -24,16 +24,16 @@ extern "C"
   /**
    * @brief Function that computes \f$\frac{p}{p'}\f$ (dpe version)
    */
-  typedef void (*mps_dnewton_ptr) (mps_status * status, cdpe_t x, rdpe_t rad,
-                                   cdpe_t corr, mps_boolean * again, 
+  typedef void (*mps_dnewton_ptr) (mps_status * status, mps_approximation * root,
+                                   cdpe_t corr,
 				   void * user_data,
 				   mps_boolean skip_radius_check);
 
   /**
    * @brief Function that computes \f$\frac{p}{p'}\f$ (multiprecision version)
    */
-  typedef void (*mps_mnewton_ptr) (mps_status * status, mpc_t x, rdpe_t rad,
-                                   mpc_t corr, mps_boolean * again,
+  typedef void (*mps_mnewton_ptr) (mps_status * status, mps_approximation * root,
+                                   mpc_t corr,
 				   void * user_data,
 				   mps_boolean skip_radius_check);
 

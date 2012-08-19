@@ -1077,6 +1077,7 @@ mps_frestart (mps_status * s)
   cplx_t sc, corr, ctmp;
   mps_boolean tst;
   mps_monomial_poly *p = s->monomial_poly;
+  mps_approximation * g = NULL;
 
   s->operation = MPS_OPERATION_SHIFT;
 
@@ -1186,7 +1187,7 @@ mps_frestart (mps_status * s)
        * to the above derivative starting from the super center
        * of the cluster. */
 
-      mps_approximation * g = mps_approximation_new (s);
+      g = mps_approximation_new (s);
       cplx_set (g->fvalue, sc);
 
       // cplx_set (g, sc);
@@ -1197,7 +1198,6 @@ mps_frestart (mps_status * s)
           cplx_sub_eq (g->fvalue, corr);
           if (!g->again)
 	    {
-	      mps_approximation_free (s, g);
 	      break;
 	    }
         }
@@ -1234,8 +1234,9 @@ mps_frestart (mps_status * s)
             s->root[l]->frad = rtmp;
         }
 
-      mps_approximation_free (s, g);
     loop1:
+      if (g)
+	mps_approximation_free (s, g);
       ;
     }
 }
@@ -1272,15 +1273,16 @@ void
 mps_drestart (mps_status * s)
 {
   int k, j, l;
-  rdpe_t sr, rad, rtmp, rtmp1;
-  cdpe_t sc, g, corr, ctmp;
-  mps_boolean tst, cont;
+  rdpe_t sr, rtmp, rtmp1;
+  cdpe_t sc, corr, ctmp;
+  mps_boolean tst;
   mps_monomial_poly *p = s->monomial_poly;
 
   /* Cluster related variables */
   mps_cluster_item * c_item;
   mps_cluster * cluster;
   mps_root * root;
+  mps_approximation * g = NULL;
 
   s->operation = MPS_OPERATION_SHIFT;
 
@@ -1380,23 +1382,25 @@ mps_drestart (mps_status * s)
       /* Apply at most max_newt_it steps of Newton's iterations
        * to the above derivative starting from the super center
        * of the cluster. */
-
-      cdpe_set (g, sc);
+      g = mps_approximation_new (s);
+      cdpe_set (g->dvalue, sc);
       for (j = 0; j < s->max_newt_it; j++)
         {                       /* loop_newt: */
-          rdpe_set (rad, rdpe_zero);
-          mps_dnewton (s, s->n - cluster->n + 1, g, rad,
-                       corr, s->dpc2, s->dap1, &cont, false);
-          cdpe_sub_eq (g, corr);
-          if (!cont)
-            break;
+          mps_dnewton (s, s->n - cluster->n + 1, g,
+                       corr, s->dpc2, s->dap1, false);
+          cdpe_sub_eq (g->dvalue, corr);
+          if (!g->again)
+	    {
+	      mps_approximation_free (s, g);
+	      break;
+	    }
         }
       if (j == s->max_newt_it)
         {
           MPS_DEBUG (s, "Exceeded maximum Newton iterations in frestart");
           return;
         }
-      cdpe_sub (ctmp, sc, g);
+      cdpe_sub (ctmp, sc, g->dvalue);
       cdpe_mod (rtmp, ctmp);
       if (rdpe_gt (rtmp, sr))
         {
@@ -1405,8 +1409,8 @@ mps_drestart (mps_status * s)
         }
       /* Shift the variable and compute new approximations */
       MPS_DEBUG_CALL (s, "mps_dshift");
-      mps_dshift (s, cluster->n, c_item, sr, g, s->eps_out);
-      cdpe_mod (rtmp, g);
+      mps_dshift (s, cluster->n, c_item, sr, g->dvalue, s->eps_out);
+      cdpe_mod (rtmp, g->dvalue);
       rdpe_mul_eq_d (rtmp, DBL_EPSILON * 2);
       for (root = cluster->first; root != NULL; root = root->next)
         {
@@ -1416,11 +1420,14 @@ mps_drestart (mps_status * s)
           cdpe_mod (s->root[l]->drad, s->root[l]->dvalue);
           rdpe_mul_eq_d (s->root[l]->drad,
                          (double) (2 * cluster->n));
-          cdpe_add_eq (s->root[l]->dvalue, g);
+          cdpe_add_eq (s->root[l]->dvalue, g->dvalue);
           if (rdpe_lt (s->root[l]->drad, rtmp))
             rdpe_set (s->root[l]->drad, rtmp);
         }
+
     loop1:
+      if (g)
+	mps_approximation_free (s, g);
       ;
     }
 }
@@ -1431,19 +1438,19 @@ mps_drestart (mps_status * s)
 void
 mps_mrestart (mps_status * s)
 {
-  mps_boolean tst, cont;
+  mps_boolean tst;
   int j, k, l;
-  rdpe_t sr, rad, rtmp, rtmp1, rtmp2;
+  rdpe_t sr, rtmp, rtmp1, rtmp2;
   cdpe_t tmp;
   mpf_t rea, srmp;
   mpc_t sc, corr, temp;
-  mpc_t g;
   mps_monomial_poly* p = s->monomial_poly;
 
   /* Variables for cluster iteration */
   mps_cluster_item * c_item;
   mps_cluster * cluster;
   mps_root * root;
+  mps_approximation * g = NULL;
 
   /* int old_wp = s->mpwp; */
 
@@ -1463,7 +1470,6 @@ mps_mrestart (mps_status * s)
   mpc_init2 (sc, s->mpwp);
   mpc_init2 (corr, s->mpwp);
   mpc_init2 (temp, s->mpwp);
-  mpc_init2 (g, s->mpwp);
 
   /* Try to detach quasi-convergent elements from
    * the clusters */
@@ -1616,25 +1622,25 @@ mps_mrestart (mps_status * s)
       /* Apply at most max_newt_it steps of Newton's iterations
        * to the above derivative starting from the super center
        * of the cluster. */
-      mpc_set (g, sc);
+      g = mps_approximation_new (s);
+      mpc_set (g->mvalue, sc);
 
       if (s->debug_level & MPS_DEBUG_CLUSTER)
-	MPS_DEBUG_MPC (s, 30, g, "g before newton");
+	MPS_DEBUG_MPC (s, 30, g->mvalue, "g before newton");
 
       for (j = 0; j < s->max_newt_it; j++)
         {                       /* loop_newt: */
-          rdpe_set (rad, rdpe_zero);
-          mps_mnewton (s, s->n - cluster->n + 1, g, rad,
-                       corr, s->mfpc1, s->mfppc1, s->dap1, s->spar1, &cont,
+          mps_mnewton (s, s->n - cluster->n + 1, g,
+                       corr, s->mfpc1, s->mfppc1, s->dap1, s->spar1,
                        0, false);
-          if (cont)
+          if (g->again)
             {
-              mpc_sub_eq (g, corr);
+              mpc_sub_eq (g->mvalue, corr);
 
 	      if (s->debug_level & MPS_DEBUG_CLUSTER)
 		{
-		  MPS_DEBUG_RDPE (s, rad, "Radius of the cluster");
-		  MPS_DEBUG_MPC (s, 100, g, "Iteration %d on the derivative", j);
+		  MPS_DEBUG_RDPE (s, g->drad, "Radius of the cluster");
+		  MPS_DEBUG_MPC  (s, 100, g->mvalue, "Iteration %d on the derivative", j);
 		}
             }
           else
@@ -1652,7 +1658,7 @@ mps_mrestart (mps_status * s)
           goto loop1;
         }
 
-      mpc_sub (temp, sc, g);
+      mpc_sub (temp, sc, g->mvalue);
       mpc_get_cdpe (tmp, temp);
       cdpe_mod (rtmp, tmp);
       if (rdpe_gt (rtmp, sr))
@@ -1674,13 +1680,13 @@ mps_mrestart (mps_status * s)
       /* if (s->algorithm == MPS_ALGORITHM_SECULAR_GA) */
       /* 	rdpe_set (rtmp, sr); */
       /* else */
-	rdpe_mul_d (rtmp, sr, 0.25);
+      rdpe_mul_d (rtmp, sr, 0.25);
 
       /*#D AGO99 Factors: 0.1 (MPS2.0), 0.5 (GIUGN98) */
-      mps_mshift (s, c_item->cluster->n, c_item, sr, g);
+      mps_mshift (s, c_item->cluster->n, c_item, sr, g->mvalue);
       if (rdpe_le (sr, rtmp))
         {                       /* Perform shift only if the new clust is smaller */
-          mpc_get_cdpe (tmp, g);
+          mpc_get_cdpe (tmp, g->mvalue);
           cdpe_mod (rtmp, tmp);
           rdpe_mul_eq (rtmp, s->mp_epsilon);
           rdpe_mul_eq_d (rtmp, 2);
@@ -1689,7 +1695,7 @@ mps_mrestart (mps_status * s)
             {
 	      l = root->k;
               mpc_set_cdpe (s->root[l]->mvalue, s->root[l]->dvalue);
-              mpc_add_eq (s->root[l]->mvalue, g);
+              mpc_add_eq (s->root[l]->mvalue, g->mvalue);
               cdpe_mod (rtmp1, s->root[l]->dvalue);
 	      rdpe_mul_d (s->root[l]->drad, rtmp1, 
 			  2.0 * cluster->n); 
@@ -1713,11 +1719,13 @@ mps_mrestart (mps_status * s)
 
           goto loop1;
         }
+
     loop1:
+      if (g != NULL)
+	mps_approximation_free (s, g);
       ;
     }
 
-  mpc_clear (g);
   mpc_clear (temp);
   mpc_clear (corr);
   mpc_clear (sc);

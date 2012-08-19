@@ -216,8 +216,8 @@ mps_secular_ga_improve (mps_status * s)
       for (j = 0; j < iterations; j++)
         { 
 	  rdpe_set (old_rad, s->root[i]->drad);
-          mps_secular_mnewton (s, s->root[i]->mvalue, s->root[i]->drad, nwtcorr,
-                               &s->root[i]->again, &it_data, false);
+          mps_secular_mnewton (s, s->root[i], nwtcorr,
+                               &it_data, false);
 
 	  /* Compute quadratic radius */
 	  mpc_get_cdpe (ctmp, s->root[i]->mvalue); 

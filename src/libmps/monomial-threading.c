@@ -226,21 +226,20 @@ mps_thread_dpolzer_worker (void *data_ptr)
 
           if (!MPS_INPUT_CONFIG_IS_USER (s->input_config))
             {
-              mps_dnewton (s, s->n, s->root[i]->dvalue, s->root[i]->drad, corr, p->dpc,
-                           p->dap, &s->root[i]->again, false);
+              mps_dnewton (s, s->n, s->root[i], corr, p->dpc,
+                           p->dap, false);
               if (iter == 0 && !s->root[i]->again && rdpe_gt (s->root[i]->drad, rad1)
                   && rdpe_ne (rad1, rdpe_zero))
                 rdpe_set (s->root[i]->drad, rad1);
             }
           else if (s->dnewton_usr != NULL)
             {
-              (*s->dnewton_usr) (s, s->root[i]->dvalue, s->root[i]->drad, corr,
-                                 &s->root[i]->again, NULL, false);
+              (*s->dnewton_usr) (s, s->root[i], corr,
+                                 NULL, false);
             }
           else
             {
-              mps_dnewton_usr (s, s->root[i]->dvalue, s->root[i]->drad, corr,
-                               &s->root[i]->again);
+              mps_dnewton_usr (s, s->root[i], corr);
             }
 
           /************************************************
@@ -442,8 +441,8 @@ mps_thread_mpolzer_worker (void *data_ptr)
               /* sparse/dense polynomial */
               rdpe_set (rad1, s->root[l]->drad);
 
-	      mps_mnewton (s, s->n, mroot, s->root[l]->drad, corr, p->mfpc,
-			   p->mfppc, p->dap, p->spar, &s->root[l]->again,
+	      mps_mnewton (s, s->n, s->root[l], corr, p->mfpc,
+			   p->mfppc, p->dap, p->spar,
 			   data->thread, false);
 
               if (iter == 0 && !s->root[l]->again && rdpe_gt (s->root[l]->drad, rad1)
@@ -462,11 +461,11 @@ mps_thread_mpolzer_worker (void *data_ptr)
             }
           else /* user's polynomial */ if (s->mnewton_usr != NULL)
             {
-              (*s->mnewton_usr) (s, mroot, s->root[l]->drad, corr, &s->root[l]->again, &it_data, false);
+              (*s->mnewton_usr) (s, s->root[l], corr, &it_data, false);
             }
           else
             {
-              mps_mnewton_usr (s, mroot, s->root[l]->drad, corr, &s->root[l]->again);
+              mps_mnewton_usr (s, s->root[l], corr);
             }
 
           if (s->root[l]->again ||

@@ -69,7 +69,6 @@ mps_improve (mps_status * s)
   cdpe_t ctmp;
   rdpe_t tmp, t, st, sigma, newrad, oldrad, abroot;
   double f, g, cnd;
-  mps_boolean again;
   mps_monomial_poly *p = s->monomial_poly;
   clock_t *my_timer = mps_start_timer ();
 
@@ -242,19 +241,17 @@ mps_improve (mps_status * s)
 
           if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
             {
-              mps_mnewton (s, s->n, s->root[i]->mvalue, s->root[i]->drad,
-                           nwtcorr, p->mfpc, p->mfppc, p->dap, p->spar,
-                           &again, 0, false);
+              mps_mnewton (s, s->n, s->root[i], nwtcorr, p->mfpc, p->mfppc, p->dap, p->spar,
+                           0, false);
             }
           else if (s->mnewton_usr != NULL)
             {
-              (*s->mnewton_usr) (s, s->root[i]->mvalue, s->root[i]->drad, nwtcorr, &again, 
-				 MPS_INPUT_CONFIG_IS_SECULAR (s->input_config) ? &it_data : NULL, 
-				 false);
+              (*s->mnewton_usr) (s, s->root[i], nwtcorr, 
+				 MPS_INPUT_CONFIG_IS_SECULAR (s->input_config) ? &it_data : NULL, false);
             }
           else
             {
-              mps_mnewton_usr (s, s->root[i]->mvalue, s->root[i]->drad, nwtcorr, &again);
+              mps_mnewton_usr (s, s->root[i], nwtcorr);
             }
           mpc_sub_eq (s->root[i]->mvalue, nwtcorr);
 

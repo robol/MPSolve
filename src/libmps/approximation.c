@@ -4,7 +4,7 @@ mps_approximation *
 mps_approximation_new (mps_status * s)
 {
   mps_approximation * appr = mps_new (mps_approximation);
-  mpc_init2 (appr->mvalue, 0);
+  mpc_init2 (appr->mvalue, s->mpwp);
   return appr;
 }
 

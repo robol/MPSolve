@@ -734,21 +734,20 @@ mps_dpolzer (mps_status * s, int *it, mps_boolean * excep)
               rdpe_set (rad1, s->root[i]->drad);
               if (!MPS_INPUT_CONFIG_IS_USER (s->input_config))
                 {
-                  mps_dnewton (s, s->n, s->root[i]->dvalue, s->root[i]->drad, corr, p->dpc,
-                               p->dap, &s->root[i]->again, false);
+                  mps_dnewton (s, s->n, s->root[i], corr, p->dpc,
+                               p->dap, false);
                   if (iter == 0 && !s->root[i]->again && rdpe_gt (s->root[i]->drad, rad1)
                       && rdpe_ne (rad1, rdpe_zero))
                     rdpe_set (s->root[i]->drad, rad1);
                 }
               else if (s->dnewton_usr != NULL)
                 {
-                  (*s->dnewton_usr) (s, s->root[i]->dvalue, s->root[i]->drad, corr,
-                                     &s->root[i]->again, NULL, false);
+                  (*s->dnewton_usr) (s, s->root[i], corr,
+                                     NULL, false);
                 }
               else
                 {
-                  mps_dnewton_usr (s, s->root[i]->dvalue, s->root[i]->drad, corr,
-                                   &s->root[i]->again);
+                  mps_dnewton_usr (s, s->root[i], corr);
                 }
 
                                 /************************************************
@@ -1315,9 +1314,9 @@ mps_mpolzer (mps_status * s, int *it, mps_boolean * excep)
                     {
                       /* sparse/dense polynomial */
                       rdpe_set (rad1, s->root[l]->drad);
-                      mps_mnewton (s, s->n, s->root[l]->mvalue, s->root[l]->drad, corr,
+                      mps_mnewton (s, s->n, s->root[l], corr,
                                    p->mfpc, p->mfppc, p->dap, p->spar,
-                                   &s->root[l]->again, 0, false);
+                                   0, false);
                       if (iter == 0 && !s->root[l]->again && rdpe_gt (s->root[l]->drad,
                                                                 rad1)
                           && rdpe_ne (rad1, rdpe_zero))
@@ -1335,13 +1334,12 @@ mps_mpolzer (mps_status * s, int *it, mps_boolean * excep)
                     }
                   else /* user's polynomial */ if (s->mnewton_usr != NULL)
                     {
-                      (*s->mnewton_usr) (s, s->root[l]->mvalue, s->root[l]->drad, corr,
-                                         &s->root[l]->again, NULL, false);
+                      (*s->mnewton_usr) (s, s->root[l], corr,
+                                         NULL, false);
                     }
                   else
                     {
-                      mps_mnewton_usr (s, s->root[l]->mvalue, s->root[l]->drad, corr,
-                                       &s->root[l]->again);
+                      mps_mnewton_usr (s, s->root[l], corr);
                     }
 
                   if (s->root[l]->again ||
