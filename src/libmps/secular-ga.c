@@ -488,27 +488,30 @@ mps_secular_ga_mpsolve (mps_status * s)
 
       /* Increase the packet counter */
       packet++;
-
+	  
+      /* Check thet we haven't passed the maximum number of allowed iterations */
+      if (packet > s->max_pack)
+	{
+	  mps_error (s, 1, "Maximum number of iteration passed. Aborting.");
+	  return;
+	}
+      
       /* Check if all roots were approximated with the
        * given input precision                      */      
-       if (mps_secular_ga_check_stop (s)) 
-       	  break; 
-       else 
-	 skip_check_stop = true; 
-       
-       /* Check thet we haven't passed the maximum number of allowed iterations */
-       if (packet > s->max_pack)
-	 {
-	   mps_error (s, 1, "Maximum number of iteration passed. Aborting.");
-	   return;
-	 }
+      if (!just_regenerated)
+	{
+	  if (mps_secular_ga_check_stop (s)) 
+	    break; 
+	  else 
+	    skip_check_stop = true; 
+	}
 
        /* If the iterations has ended in less than 2 * not_computed_roots iterations
 	* and we have just regenerated the coefficients, we should increase precision. */
        if (sec->best_approx)
 	 {
 	   skip_check_stop = false;
-
+	   
 	   /* Going to multiprecision if we're not there yet */
 	   if (s->lastphase != mp_phase)
 	     mps_secular_switch_phase (s, mp_phase);
@@ -524,6 +527,7 @@ mps_secular_ga_mpsolve (mps_status * s)
 	       mps_secular_restart (s);
 	     }
 	   
+	   MPS_DEBUG (s, "Triggering regeneration");
 	   if (!mps_secular_ga_regenerate_coefficients (s)) 
 	     {
 	       MPS_DEBUG (s, "Regeneration failed");
@@ -544,35 +548,40 @@ mps_secular_ga_mpsolve (mps_status * s)
 
        /* Check if all the roots are approximated or, if we have done more than 4 packets
 	* of iterations without finding all of them, if at least we are near to the result. */
-       if (mps_secular_ga_regenerate_coefficients (s))
+       if (!just_regenerated)
 	 {
-	   just_regenerated = true;
-	   skip_check_stop = false;
-	 }
-       else
-	 {
-	   MPS_DEBUG (s, "Raising precision because regeneration failed");
-
-	   skip_check_stop = false;
-
-	   /* Going to multiprecision if we're not there yet */
-	   if (s->lastphase != mp_phase)
+	   if (mps_secular_ga_regenerate_coefficients (s))
 	     {
-	       mps_secular_switch_phase (s, mp_phase);
+	       just_regenerated = true;
+	       skip_check_stop = false;
 	     }
 	   else
 	     {
-	       /* Raising precision otherwise */
-	       mps_secular_raise_precision (s, 2 * s->mpwp);
-	       mps_secular_ga_regenerate_coefficients (s);
+	       MPS_DEBUG (s, "Raising precision because regeneration failed");
+	       
+	       skip_check_stop = false;
+	       
+	       /* Going to multiprecision if we're not there yet */
+	       if (s->lastphase != mp_phase)
+		 {
+		   mps_secular_switch_phase (s, mp_phase);
+		 }
+	       else
+		 {
+		   /* Raising precision otherwise */
+		   mps_secular_raise_precision (s, 2 * s->mpwp);
+		   mps_secular_ga_regenerate_coefficients (s);
+		 }
+	       
+	       just_regenerated = true;
+	       sec->best_approx = false;
+	       
+	       /* Set the packet counter to zero, we are restarting */
+	       packet = 0;
 	     }
-
-	   just_regenerated = true;
-	   sec->best_approx = false;
-
-	   /* Set the packet counter to zero, we are restarting */
-	   packet = 0;
 	 }
+
+       just_regenerated = false;
     }
   while (skip_check_stop || !mps_secular_ga_check_stop (s));
 
