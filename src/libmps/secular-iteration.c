@@ -187,7 +187,7 @@ mps_secular_ga_fiterate (mps_status * s, int maxit, mps_boolean just_regenerated
   for (i = 0; i < s->n; i++)
     {
       /* Set again to false if the root is already approximated */
-      if (MPS_ROOT_STATUS_IS_COMPUTED (s, i))
+      if (MPS_ROOT_STATUS_IS_COMPUTED (s, i) || s->root[i]->approximated)
 	{
 	  if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
 	    {
@@ -230,13 +230,16 @@ mps_secular_ga_fiterate (mps_status * s, int maxit, mps_boolean just_regenerated
       mps_dump (s);
 
   /* Check if we need to get higher precision for the roots */
+  int approximated_roots = 0;
   s->secular_equation->best_approx = true;
   for (i = 0; i < s->n; i++)
     if (!s->root[i]->approximated)
-      {
-	s->secular_equation->best_approx = false;
-	break;
-      }
+      s->secular_equation->best_approx = false;
+    else
+      approximated_roots++;
+
+  MPS_DEBUG_WITH_INFO(s, "%d roots are approximated witht the current precision", approximated_roots);
+  MPS_DEBUG_WITH_INFO (s,"%d roots are in the root neighborhood", computed_roots);
 
   if (excep)
     {
@@ -439,14 +442,16 @@ mps_secular_ga_diterate (mps_status * s, int maxit, mps_boolean just_regenerated
       mps_dump (s);
 
   /* Check if we need to get higher precision for the roots */
+  int approximated_roots = 0;
   s->secular_equation->best_approx = true;
   for (i = 0; i < s->n; i++)
     if (!s->root[i]->approximated)
-      {
-	s->secular_equation->best_approx = false;
-	break;
-      }
+      s->secular_equation->best_approx = false;
+    else
+      approximated_roots++;
 
+  MPS_DEBUG_WITH_INFO(s, "%d roots are approximated witht the current precision", approximated_roots);
+  MPS_DEBUG_WITH_INFO (s,"%d roots are in the root neighborhood", computed_roots);
 
   /* Compute the inclusion radii with Gerschgorin so we can compute
    * clusterizations for the roots. */
@@ -698,15 +703,16 @@ mps_secular_ga_miterate (mps_status * s, int maxit, mps_boolean just_regenerated
       mps_dump (s);
 
   /* Check if we need to get higher precision for the roots */
+  int approximated_roots = 0;
   s->secular_equation->best_approx = true;
   for (i = 0; i < s->n; i++)
-    if (!s->root[i]->approximated && !MPS_ROOT_STATUS_IS_COMPUTED (s,i))
-      {
-	MPS_DEBUG (s, "Failing on root %d", i);
-	s->secular_equation->best_approx = false;
-	break;
-      }
+    if (!s->root[i]->approximated)
+      s->secular_equation->best_approx = false;
+    else
+      approximated_roots++;
 
+  MPS_DEBUG_WITH_INFO(s, "%d roots are approximated witht the current precision", approximated_roots);
+  MPS_DEBUG_WITH_INFO (s,"%d roots are in the root neighborhood", computed_roots);
 
   /* Compute the inclusion radii with Gerschgorin so we can compute
    * clusterizations for the roots. */

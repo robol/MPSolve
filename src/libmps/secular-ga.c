@@ -470,27 +470,16 @@ mps_secular_ga_mpsolve (mps_status * s)
           /* If the computation fails we need to switch to DPE so do not
            * break here, but continue the cycle. */
           if (roots_computed != -1)
-            {
-              MPS_DEBUG_WITH_INFO (s,
-                                   "%d roots were computed to the best precision available",
-                                   roots_computed);
-              break;
-            }
+	    break;
 
         case dpe_phase:
           MPS_DEBUG_WITH_INFO (s, "Starting DPE iterations");
           roots_computed = mps_secular_ga_diterate (s, iteration_per_packet, just_regenerated);
-          MPS_DEBUG_WITH_INFO (s,
-                               "%d roots were computed to the best precision available",
-                               roots_computed);
           break;
 
         case mp_phase:
           MPS_DEBUG_WITH_INFO (s, "Starting MP iterations");
           roots_computed = mps_secular_ga_miterate (s, iteration_per_packet, just_regenerated);
-          MPS_DEBUG_WITH_INFO (s,
-                               "%d roots were computed to the best precision available",
-                               roots_computed);
           break;
 
         default:
