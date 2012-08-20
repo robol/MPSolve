@@ -142,7 +142,7 @@ mps_secular_fnewton (mps_status * s, mps_approximation * root, cplx_t corr,
   asum_on_apol = asum / apol;
 
   /* If the approximation falls in the root neighbourhood then we can stop */
-  if ((asum_on_apol + 1) * sec->n * MPS_2SQRT2 * DBL_EPSILON > 1 ||
+  if ((asum_on_apol + 1) * KAPPA * DBL_EPSILON > 1 ||
       (asum_on_apol < 0))
     {
       if (data && s->debug_level & MPS_DEBUG_PACKETS)
@@ -162,13 +162,11 @@ mps_secular_fnewton (mps_status * s, mps_approximation * root, cplx_t corr,
 	root->approximated = true;
     }
 
-  /* if (in_root_neighborhood && (KAPPA * asum / (ax * cplx_mod (fp)) < 1))  */
-  /*    {  */
-  /*      MPS_DEBUG (s, "Criterion");  */
-  /*      MPS_DEBUG (s, "Error amplification = %e", (KAPPA * asum / (ax * cplx_mod (fp))));  */
-  /*      root->approximated = true;  */
-  /*      root->again = false;  */
-  /*    }  */
+  if (in_root_neighborhood && (KAPPA * asum / (ax * cplx_mod (fp)) < 1))  
+    {  
+      root->approximated = true;  
+      root->again = false;  
+    }
 
   /* We compute the following values in order to give a guaranteed
    * Newton inclusion circle. */
