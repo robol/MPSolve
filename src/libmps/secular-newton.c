@@ -259,13 +259,12 @@ mps_secular_dnewton (mps_status * s, mps_approximation * root, cdpe_t corr,
 	  if (rdpe_lt (rtmp, s->root[i]->drad)) 
 	    rdpe_set (s->root[i]->drad, rtmp); 
 
-	  rdpe_mul_d (rtmp, ax, DBL_EPSILON * 4);
-	  if (rdpe_lt (acorr, rtmp))
-	    root->again = false;
-
-	  /* rdpe_mul_d (rtmp, sigma, KAPPA * DBL_EPSILON); */
-	  /* rdpe_add_eq (rtmp, rdpe_one); */
-	  /* rdpe_mul (rad, rtmp, acorr); */
+	  if (root->again)
+	    {
+	      rdpe_mul_d (rtmp, ax, DBL_EPSILON * KAPPA);
+	      if (rdpe_lt (acorr, rtmp))
+		root->approximated = true;
+	    }
 
           return;
 	}
@@ -313,17 +312,6 @@ mps_secular_dnewton (mps_status * s, mps_approximation * root, cdpe_t corr,
   cdpe_mod (rtmp2, x); 
   rdpe_mul_eq_d (rtmp2, sec->n * DBL_EPSILON); 
   
-  /* If |corr| < |x| * DBL_EPSILON then stop */
-  if (rdpe_lt (rtmp, rtmp2)) 
-    { 
-      if (data && (s->debug_level & MPS_DEBUG_PACKETS)) 
-   	{ 
-   	  MPS_DEBUG (s, "Setting again on root %ld to false because the Newton correction is too small", data->k); 
-   	  MPS_DEBUG_CDPE (s, corr, "Newton correction"); 
-   	} 
-      root->approximated = true;
-    }
-
   rdpe_add (rtmp, rdpe_one, asum_on_apol);
   rdpe_mul_eq_d (rtmp, MPS_2SQRT2 * DBL_EPSILON * sec->n);
   if (rdpe_ge (rtmp, rdpe_one))
@@ -333,6 +321,17 @@ mps_secular_dnewton (mps_status * s, mps_approximation * root, cdpe_t corr,
 	  MPS_DEBUG (s, "Setting again on root %ld to false because the approximation is in the root neighbourhood", data->k);
 	}
       root->again = false;
+    }
+
+  /* If |corr| < |x| * DBL_EPSILON then stop */
+  if (root->again && rdpe_lt (rtmp, rtmp2)) 
+    { 
+      if (data && (s->debug_level & MPS_DEBUG_PACKETS)) 
+   	{ 
+   	  MPS_DEBUG (s, "Setting again on root %ld to false because the Newton correction is too small", data->k); 
+   	  MPS_DEBUG_CDPE (s, corr, "Newton correction"); 
+   	} 
+      root->approximated = true;
     }
 
   /* We compute the following values in order to give a guaranteed
@@ -459,8 +458,8 @@ mps_secular_mnewton (mps_status * s, mps_approximation * root, mpc_t corr,
 	    rdpe_set (s->root[i]->drad, rtmp); 
 
 	  rdpe_mul (rtmp, ax, s->mp_epsilon);
-	  if (rdpe_lt (acorr, rtmp))
-	    root->again = false;
+	  if (root->again && rdpe_lt (acorr, rtmp))
+	    root->approximated = true;
 
 	  /* rdpe_mul (rtmp, sigma, s->mp_epsilon); */
 	  /* rdpe_mul_eq_d (rtmp, KAPPA); */
@@ -580,8 +579,8 @@ mps_secular_mnewton (mps_status * s, mps_approximation * root, mpc_t corr,
   /* Check if the newton correction is small with respect to the
    * current precision. */
   rdpe_mul (rtmp, ax, s->mp_epsilon);
-  rdpe_mul_eq_d (rtmp, sec->n);
-  if (rdpe_lt (acorr, rtmp))
+  rdpe_mul_eq_d (rtmp, s->n);
+  if (root->again && rdpe_lt (acorr, rtmp))
     {
       root->approximated = true;
       if (s->debug_level & MPS_DEBUG_PACKETS)

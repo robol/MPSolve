@@ -544,43 +544,34 @@ mps_secular_ga_mpsolve (mps_status * s)
 
        /* Check if all the roots are approximated or, if we have done more than 4 packets
 	* of iterations without finding all of them, if at least we are near to the result. */
-       /* if (((roots_computed == s->n) && (!just_regenerated)) || (packet > 4 && roots_computed >= s->n - (packet - 3))) */
-       if (roots_computed == s->n || (roots_computed >= s->n - packet + 1))
+       if (mps_secular_ga_regenerate_coefficients (s))
 	 {
-	   MPS_DEBUG_WITH_INFO (s, "Regenerating coefficients because %d roots were in the root neighborhood", roots_computed);
-	   if (mps_secular_ga_regenerate_coefficients (s))
-	     {
-	       just_regenerated = true;
-	       skip_check_stop = false;
-	     }
-	   else
-	     {
-	       MPS_DEBUG (s, "Raising precision because regeneration failed");
-
-	       skip_check_stop = false;
-
-	       /* Going to multiprecision if we're not there yet */
-	       if (s->lastphase != mp_phase)
-		 {
-		   mps_secular_switch_phase (s, mp_phase);
-		 }
-	       else
-		 {
-		   /* Raising precision otherwise */
-		   mps_secular_raise_precision (s, 2 * s->mpwp);
-		   mps_secular_ga_regenerate_coefficients (s);
-		 }
-
-	       just_regenerated = true;
-	       sec->best_approx = false;
-
-	       /* Set the packet counter to zero, we are restarting */
-	       packet = 0;
-	     }
+	   just_regenerated = true;
+	   skip_check_stop = false;
 	 }
        else
 	 {
-	   just_regenerated = false;
+	   MPS_DEBUG (s, "Raising precision because regeneration failed");
+
+	   skip_check_stop = false;
+
+	   /* Going to multiprecision if we're not there yet */
+	   if (s->lastphase != mp_phase)
+	     {
+	       mps_secular_switch_phase (s, mp_phase);
+	     }
+	   else
+	     {
+	       /* Raising precision otherwise */
+	       mps_secular_raise_precision (s, 2 * s->mpwp);
+	       mps_secular_ga_regenerate_coefficients (s);
+	     }
+
+	   just_regenerated = true;
+	   sec->best_approx = false;
+
+	   /* Set the packet counter to zero, we are restarting */
+	   packet = 0;
 	 }
     }
   while (skip_check_stop || !mps_secular_ga_check_stop (s));
