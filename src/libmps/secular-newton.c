@@ -84,9 +84,9 @@ mps_secular_fnewton (mps_status * s, mps_approximation * root, cplx_t corr,
 		  if (in_root_neighborhood)
 		    root->approximated = true;
 		}
-
-	      
 	    }
+
+	  root->frad = acorr * (1 + asum * KAPPA * DBL_EPSILON) * sec->n;
 
 	  return;
 	}
