@@ -109,7 +109,7 @@ mps_secular_ga_find_changed_roots (mps_status * s, cdpe_t * old_b, mpc_t * old_m
 
       root_changed[i] = ! cdpe_eq_zero (diff);
       if ((s->debug_level & MPS_DEBUG_REGENERATION) && !root_changed[i])
-	MPS_DEBUG (s, "b_%d hasn't changed, so p(b_%d) will not be recomputed", i, i);	
+	MPS_DEBUG (s, "b_%d hasn't changed, so p(b_%d) will not be recomputed", i, i);
 
       if (root_changed[i])
 	changed_roots++;
@@ -713,7 +713,8 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
 #endif
 
   old_mb = mpc_valloc (s->n);
-  mpc_vinit2 (old_mb, s->n, s->data_prec_max.value);
+  for (i = 0; i < s->n; i++)
+    mpc_init2 (old_mb[i], s->root[i]->wp);
 
   switch (s->lastphase)
     {

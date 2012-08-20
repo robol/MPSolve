@@ -53,9 +53,9 @@ mps_secular_fnewton (mps_status * s, mps_approximation * root, cplx_t corr,
        * for the Newton correction */
       if (cplx_eq_zero (ctmp))
 	{
-	  root->again = true;
 	  int k;
 	  double acorr;
+	  double asum = 0;
 
 	  for (k = 0; k < sec->n; k++)
 	    {
@@ -65,19 +65,27 @@ mps_secular_fnewton (mps_status * s, mps_approximation * root, cplx_t corr,
 		  cplx_add (ctmp2, afpc[i], afpc[k]);
 		  cplx_div_eq (ctmp2, ctmp);
 		  cplx_add_eq (corr, ctmp2);
+
+		  asum += cplx_mod (ctmp2);
 		}
 	    }
+
+	  if (asum * KAPPA * DBL_EPSILON > cplx_mod (corr))
+	    in_root_neighborhood = true;
 
 	  if (!cplx_eq_zero (corr))
 	    {
 	      cplx_div (corr, afpc[i], corr);
 	      
 	      acorr = cplx_mod (corr);
-	      if (acorr < ax * 4 * DBL_EPSILON)
+	      if (acorr < ax * DBL_EPSILON)
 		{
 		  root->again = false;
-		  root->approximated = true;
+		  if (in_root_neighborhood)
+		    root->approximated = true;
 		}
+
+	      
 	    }
 
 	  return;
