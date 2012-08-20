@@ -86,7 +86,7 @@ mps_secular_fnewton (mps_status * s, mps_approximation * root, cplx_t corr,
 		}
 	    }
 
-	  root->frad = acorr * (1 + asum * KAPPA * DBL_EPSILON) * sec->n;
+	  // root->frad = acorr * (1 + asum * KAPPA * DBL_EPSILON) * sec->n;
 
 	  return;
 	}

@@ -791,8 +791,6 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
 
       mps_secular_set_radii (s);
 
-      mps_secular_fstart (s, s->n, NULL, 0, 0, s->eps_out);
-
       break;
 
       /* If this is the DPE phase regenerate DPE coefficients */
@@ -853,10 +851,6 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
       cdpe_vfree (old_da);
       cdpe_vfree (old_db);
 
-      mps_secular_dstart (s, s->n, NULL, 
-			  (__rdpe_struct *) rdpe_zero,
-                          (__rdpe_struct *) rdpe_zero, s->eps_out);
-
       break;
 
     case mp_phase:
@@ -900,10 +894,6 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
        
       mpc_vclear (old_ma, s->n);
       mpc_vfree (old_ma);
-
-      mps_secular_mstart (s, s->n, NULL,
-			  (__rdpe_struct *) rdpe_zero, 
-			  (__rdpe_struct *) rdpe_zero, s->eps_out);
 
       break;
 
