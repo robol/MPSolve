@@ -580,8 +580,8 @@ mps_secular_ga_mpsolve (mps_status * s)
 	       packet = 0;
 	     }
 	 }
-
-       just_regenerated = false;
+       else
+	 just_regenerated = false;
     }
   while (skip_check_stop || !mps_secular_ga_check_stop (s));
 

@@ -498,11 +498,22 @@ mps_secular_raise_precision (mps_status * s, int wp)
 {
   MPS_DEBUG_THIS_CALL;
 
+  int i;
+
   mps_secular_raise_coefficient_precision (s, wp);
   mps_secular_raise_root_precision (s, wp);
   s->mpwp = wp;
 
   s->just_raised_precision = true;
+
+
+  for (i = 0; i < s->n; i++)
+    {
+      s->root[i]->approximated = false;
+      s->root[i]->again = true;
+    }
+
+
 }
 
 /**
@@ -525,6 +536,7 @@ mps_secular_switch_phase (mps_status * s, mps_phase phase)
 
   int i = 0;
   mps_secular_equation *sec = (mps_secular_equation *) s->secular_equation;
+
   if (phase == mp_phase)
     {
       /* Debug the approximations that we have now before going
