@@ -259,8 +259,6 @@ mps_secular_ga_fiterate (mps_status * s, int maxit, mps_boolean just_regenerated
       s->lastphase = dpe_phase;
     }
 
-  mps_dump (s);
-
   /* Compute the inclusion radii with Gerschgorin so we can compute
    * clusterizations for the roots. */
   /* mps_fradii (s, fradii); */

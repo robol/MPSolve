@@ -156,8 +156,6 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
   /* Floating point temporary variables */
   rdpe_t root_epsilon;
 
-  int i = data->i, j;
-
   /* The precision of the temporary variables at the start of the computation. We can set
    * this to s->mpwp; */
   long int coeff_wp = s->root[i]->wp;
@@ -900,9 +898,7 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
 	}
        
       mpc_vclear (old_ma, s->n);
-
       mpc_vfree (old_ma);
-      rdpe_vfree (old_db);
 
       mps_secular_mstart (s, s->n, NULL,
 			  (__rdpe_struct *) rdpe_zero, 
@@ -914,9 +910,6 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
       break;
 
     }                           /* End of switch (s->lastphase) */
-
-  mpc_vclear (old_mb, s->n);
-  mpc_vfree (old_mb);
 
   /* Sum execution time to the total counter */
 #ifndef DISABLE_DEBUG
