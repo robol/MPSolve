@@ -544,9 +544,10 @@ mps_secular_ga_mpsolve (mps_status * s)
 
        /* Check if all the roots are approximated or, if we have done more than 4 packets
 	* of iterations without finding all of them, if at least we are near to the result. */
-       if (((roots_computed == s->n) && (!just_regenerated)) || (packet > 4 && roots_computed >= s->n - (packet - 3)))
+       /* if (((roots_computed == s->n) && (!just_regenerated)) || (packet > 4 && roots_computed >= s->n - (packet - 3))) */
+       if (roots_computed == s->n || (roots_computed >= s->n - packet + 1))
 	 {
-	   MPS_DEBUG_WITH_INFO (s, "Regenerating coefficients because %d roots were approximated", roots_computed);
+	   MPS_DEBUG_WITH_INFO (s, "Regenerating coefficients because %d roots were in the root neighborhood", roots_computed);
 	   if (mps_secular_ga_regenerate_coefficients (s))
 	     {
 	       just_regenerated = true;
