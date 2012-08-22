@@ -521,6 +521,14 @@ mps_secular_ga_regenerate_coefficients_secular (mps_status * s, cdpe_t * old_b, 
        * the last precision used on this root. */
       mps_raise_secular_equation_precision (starting_sec, s->root[i]->wp);
 
+      /* if (!root_changed[i]) */
+      /* 	{ */
+      /* 	  mpc_set_d (diff, DBL_EPSILON, 0); */
+      /* 	  mpc_add_eq_ui (diff, 1U, 0U); */
+      /* 	  mpc_mul_eq (sec->bmpc[i], diff); */
+      /* 	  root_changed[i] = true; */
+      /* 	} */
+
       if (root_changed[i]) {
 
 	/* Try to evaluate the secular equation in the new nodes for the secular equation
@@ -703,18 +711,10 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
   for (i = 0; i < s->n; i++)
     mpc_init2 (old_mb[i], s->root[i]->wp);
 
-  /* Copy the old regeneration epsilon that may come handy
-   * in the case the regeneration does not work */
-  rdpe_t *old_dregeneration_epsilon = rdpe_valloc (s->n);
-
   /* Start timer and add execution time to the total counter */
 #ifndef DISABLE_DEBUG
   clock_t *my_clock = mps_start_timer ();
 #endif
-
-  old_mb = mpc_valloc (s->n);
-  for (i = 0; i < s->n; i++)
-    mpc_init2 (old_mb[i], s->root[i]->wp);
 
   switch (s->lastphase)
     {
@@ -809,13 +809,14 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
           cdpe_set (old_da[i], sec->adpc[i]);
           cdpe_set (old_db[i], sec->bdpc[i]);
           cdpe_set (sec->bdpc[i], s->root[i]->dvalue);
+	  mpc_set_cdpe (old_mb[i], old_db[i]);
           mpc_set_cdpe (sec->bmpc[i], sec->bdpc[i]);
         }
 
       mps_secular_ga_update_coefficients (s);
 
       /* Regeneration */
-      if (!(successful_regeneration = mps_secular_ga_regenerate_coefficients_mp (s, old_db, NULL)))
+      if (!(successful_regeneration = mps_secular_ga_regenerate_coefficients_mp (s, old_db, old_mb)))
         {
 	  MPS_DEBUG (s, "Regeneration failed");
 	  for (i = 0; i < s->n; i++)
@@ -894,6 +895,7 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
        
       mpc_vclear (old_ma, s->n);
       mpc_vfree (old_ma);
+      rdpe_vfree (old_db);
 
       break;
 
@@ -909,13 +911,13 @@ mps_secular_ga_regenerate_coefficients (mps_status * s)
 
   if (successful_regeneration)
     {
+      MPS_DEBUG (s, "Setting again to true");
       for (i = 0; i < s->n; i++) 
 	s->root[i]->again = true;
     }
 
   mpc_vclear (old_mb, s->n);
   mpc_vfree (old_mb);
-  rdpe_vfree (old_dregeneration_epsilon);
 
   return successful_regeneration;
 }

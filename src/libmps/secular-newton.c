@@ -25,7 +25,6 @@ mps_secular_fnewton (mps_status * s, mps_approximation * root, cplx_t corr,
   double local_error, local_error2;
   mps_secular_iteration_data * data = user_data;
   mps_secular_equation *sec = (mps_secular_equation *) s->secular_equation;
-  mps_boolean in_root_neighborhood = false;
 
   cplx_t * afpc = data->local_afpc;
   cplx_t * bfpc = data->local_bfpc;
@@ -54,8 +53,6 @@ mps_secular_fnewton (mps_status * s, mps_approximation * root, cplx_t corr,
       if (cplx_eq_zero (ctmp))
 	{
 	  int k;
-	  double acorr;
-	  double asum = 0;
 
 	  for (k = 0; k < sec->n; k++)
 	    {
@@ -65,28 +62,11 @@ mps_secular_fnewton (mps_status * s, mps_approximation * root, cplx_t corr,
 		  cplx_add (ctmp2, afpc[i], afpc[k]);
 		  cplx_div_eq (ctmp2, ctmp);
 		  cplx_add_eq (corr, ctmp2);
-
-		  asum += cplx_mod (ctmp2);
 		}
 	    }
-
-	  if (asum * KAPPA * DBL_EPSILON > cplx_mod (corr))
-	    in_root_neighborhood = true;
 
 	  if (!cplx_eq_zero (corr))
-	    {
-	      cplx_div (corr, afpc[i], corr);
-	      
-	      acorr = cplx_mod (corr);
-	      if (acorr < ax * DBL_EPSILON)
-		{
-		  root->again = false;
-		  if (in_root_neighborhood)
-		    root->approximated = true;
-		}
-	    }
-
-	  // root->frad = acorr * (1 + asum * KAPPA * DBL_EPSILON) * sec->n;
+	    cplx_div (corr, afpc[i], corr);
 
 	  return;
 	}
@@ -156,7 +136,6 @@ mps_secular_fnewton (mps_status * s, mps_approximation * root, cplx_t corr,
       if (data && s->debug_level & MPS_DEBUG_PACKETS)
 	MPS_DEBUG (s, "Setting again to false on root %ld for root neighbourhood", data->k);
       root->again = false;
-      in_root_neighborhood = true;
     }
 
   /* If the correction is not useful in the current precision do
@@ -166,14 +145,7 @@ mps_secular_fnewton (mps_status * s, mps_approximation * root, cplx_t corr,
       if (data && s->debug_level & MPS_DEBUG_PACKETS)
 	MPS_DEBUG (s, "Setting again to false on root %ld for small Newton correction", data->k);
       root->again = false;
-      if (!in_root_neighborhood)
-	root->approximated = true;
-    }
-
-  if (in_root_neighborhood && (KAPPA * asum / (ax * cplx_mod (fp)) < 1))  
-    {  
-      root->approximated = true;  
-      root->again = false;  
+      root->approximated = true;
     }
 
   /* We compute the following values in order to give a guaranteed
@@ -281,7 +253,7 @@ mps_secular_dnewton (mps_status * s, mps_approximation * root, cdpe_t corr,
 	    {
 	      rdpe_mul_d (rtmp, ax, DBL_EPSILON * KAPPA);
 	      if (rdpe_lt (acorr, rtmp))
-		root->approximated = true;
+		root->again = false;
 	    }
 
           return;
@@ -477,7 +449,7 @@ mps_secular_mnewton (mps_status * s, mps_approximation * root, mpc_t corr,
 
 	  rdpe_mul (rtmp, ax, s->mp_epsilon);
 	  if (root->again && rdpe_lt (acorr, rtmp))
-	    root->approximated = true;
+	    root->again = false;
 
 	  /* rdpe_mul (rtmp, sigma, s->mp_epsilon); */
 	  /* rdpe_mul_eq_d (rtmp, KAPPA); */

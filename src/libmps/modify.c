@@ -120,11 +120,12 @@ mps_fmodify (mps_status * s, mps_boolean track_new_cluster)
 	  if (!track_new_cluster)
 	    {	  
 	      s->root_status[l] = MPS_ROOT_STATUS_CLUSTERED;
-	      rdpe_set_d (rtmp, s->root[l]->frad);
-	      rdpe_div_eq_d (rtmp, cplx_mod (s->root[l]->fvalue));
-	      if (rdpe_le (rtmp, s->eps_out))
-		s->root_status[l] = MPS_ROOT_STATUS_APPROXIMATED_IN_CLUSTER;
 	    }
+
+	  rdpe_set_d (rtmp, s->root[l]->frad);
+	  rdpe_div_eq_d (rtmp, cplx_mod (s->root[l]->fvalue));
+	  if (rdpe_le (rtmp, s->eps_out))
+	    s->root_status[l] = MPS_ROOT_STATUS_APPROXIMATED_IN_CLUSTER;
 
 	  root = root->next;
 	}
@@ -231,7 +232,7 @@ mps_fmodify (mps_status * s, mps_boolean track_new_cluster)
 /* 			 there are very large and/or very small roots (statu='x') */
 /* 			 and for counting only */
 /* 			 *************************************************\/ */
-/*           afri = cplx_mod (s->root[i]->fvalue); */
+/*           afri = cplx_mod (s->froot[i]); */
 	  
 /* 	  /\* Check if the root, even if clustered, is approximated *\/ */
 /* 	  if (s->algorithm == MPS_ALGORITHM_SECULAR_GA) */
@@ -841,12 +842,13 @@ mps_dmodify (mps_status * s, mps_boolean track_new_cluster)
 	  if (!track_new_cluster)
 	    {
 	      s->root_status[l] = MPS_ROOT_STATUS_CLUSTERED;
-	      rdpe_set (tmpr, s->root[l]->drad);
-	      cdpe_mod (tmpr2, s->root[l]->dvalue);
-	      rdpe_div_eq (tmpr, tmpr2);
-	      if (rdpe_le (tmpr, s->eps_out)) 
-		s->root_status[l] = MPS_ROOT_STATUS_APPROXIMATED_IN_CLUSTER;
 	    }
+
+	  rdpe_set (tmpr, s->root[l]->drad);
+	  cdpe_mod (tmpr2, s->root[l]->dvalue);
+	  rdpe_div_eq (tmpr, tmpr2);
+	  if (rdpe_le (tmpr, s->eps_out)) 
+	    s->root_status[l] = MPS_ROOT_STATUS_APPROXIMATED_IN_CLUSTER;
 
 	  root = root->next;
 	}
@@ -1053,7 +1055,7 @@ mps_dmodify (mps_status * s, mps_boolean track_new_cluster)
 /*                           else */
 /*                             { */
 /*                               /\* dsrad(i, sc, sr); DARIO *\/ */
-/*                               rdpe_set (sr, s->root[l]->drad); */
+/*                               rdpe_set (sr, s->drad[l]); */
 /*                               if (rdpe_log (sr) < s->sep - s->n */
 /*                                   * s->lmax_coeff) */
 /*                                 { */
@@ -1157,7 +1159,7 @@ mps_dmodify (mps_status * s, mps_boolean track_new_cluster)
 /*                       if (mps_dtouchimag (s, nf, l)) */
 /*                         { */
 /*                           /\* dsrad(i, sc, sr); *\/ */
-/*                           rdpe_set (sr, s->root[l]->drad); */
+/*                           rdpe_set (sr, s->drad[l]); */
 /*                           if (rdpe_log (sr) < s->sep - s->n * s->lmax_coeff) */
 /*                             { */
 /*                               s->status[l][2] = 'i'; */
@@ -1330,7 +1332,7 @@ mps_dmodify (mps_status * s, mps_boolean track_new_cluster)
 /*                       else */
 /*                         { */
 /*                           /\* dsrad(i, sc, sr); DARIO *\/ */
-/*                           rdpe_set (sr, s->root[l]->drad); */
+/*                           rdpe_set (sr, s->drad[l]); */
 /*                           if (rdpe_log (sr) < s->sep - s->n * s->lmax_coeff) */
 /*                             s->status[l][1] = 'R'; */
 /*                           else */
@@ -1418,7 +1420,7 @@ mps_dmodify (mps_status * s, mps_boolean track_new_cluster)
 /*                   if (mps_dtouchimag (s, nf, l)) */
 /*                     { */
 /*                       /\* dsrad(i, sc, sr); DARIO *\/ */
-/*                       rdpe_set (sr, s->root[l]->drad); */
+/*                       rdpe_set (sr, s->drad[l]); */
 /*                       if (rdpe_log (sr) < s->sep - s->n * s->lmax_coeff) */
 /*                         s->status[l][1] = 'I'; */
 /*                       else */
@@ -1555,13 +1557,14 @@ mps_mmodify (mps_status * s, mps_boolean track_new_cluster)
 	  if (!track_new_cluster)
 	    {
 	      s->root_status[l] = MPS_ROOT_STATUS_CLUSTERED;
-	      rdpe_set (tmpr, s->root[l]->drad);
-	      mpc_get_cdpe (cdtmp, s->root[l]->mvalue);
-	      cdpe_mod (tmpr2, cdtmp);
-	      rdpe_div_eq (tmpr, tmpr2);
-	      if (rdpe_le (tmpr, s->eps_out)) 
-		s->root_status[l] = MPS_ROOT_STATUS_APPROXIMATED_IN_CLUSTER; 
 	    }
+
+	  rdpe_set (tmpr, s->root[l]->drad);
+	  mpc_get_cdpe (cdtmp, s->root[l]->mvalue);
+	  cdpe_mod (tmpr2, cdtmp);
+	  rdpe_div_eq (tmpr, tmpr2);
+	  if (rdpe_le (tmpr, s->eps_out)) 
+	    s->root_status[l] = MPS_ROOT_STATUS_APPROXIMATED_IN_CLUSTER; 
 
 	  root = root->next;
 	}
@@ -1701,7 +1704,7 @@ mps_mmodify (mps_status * s, mps_boolean track_new_cluster)
 /*                 case 'i':      /\* inside unit circle *\/ */
 /*                   if (!mps_mtouchunit (s, nf, l)) */
 /*                     { */
-/*                       mpc_get_cdpe (tmpc, s->root[l]->mvalue); */
+/*                       mpc_get_cdpe (tmpc, s->mroot[l]); */
 /*                       cdpe_mod (tmpr, tmpc); */
 /*                       if (rdpe_lt (tmpr, rdpe_one)) */
 /*                         s->status[l][2] = 'i'; */
@@ -1713,7 +1716,7 @@ mps_mmodify (mps_status * s, mps_boolean track_new_cluster)
 /*                 case 'o':      /\* outside unit circle *\/ */
 /*                   if (!mps_mtouchunit (s, nf, l)) */
 /*                     { */
-/*                       mpc_get_cdpe (tmpc, s->root[l]->mvalue); */
+/*                       mpc_get_cdpe (tmpc, s->mroot[l]); */
 /*                       cdpe_mod (tmpr, tmpc); */
 /*                       if (rdpe_gt (tmpr, rdpe_one)) */
 /*                         s->status[l][2] = 'i'; */
@@ -1725,8 +1728,8 @@ mps_mmodify (mps_status * s, mps_boolean track_new_cluster)
 /*                 case 'l':      /\* left half plane  *\/ */
 /*                   if (!mps_mtouchimag (s, nf, l)) */
 /*                     { */
-/*                       /\* mpc_get_re(tmpf, s->root[l]->mvalue); *\/ */
-/*                       mpf_set (tmpf, mpc_Re (s->root[l]->mvalue)); */
+/*                       /\* mpc_get_re(tmpf, s->mroot[l]); *\/ */
+/*                       mpf_set (tmpf, mpc_Re (s->mroot[l])); */
 /*                       if (mpf_sgn (tmpf) == -1) */
 /*                         s->status[l][2] = 'i'; */
 /*                       else */
@@ -1737,8 +1740,8 @@ mps_mmodify (mps_status * s, mps_boolean track_new_cluster)
 /*                 case 'r':      /\* right half plane *\/ */
 /*                   if (!mps_mtouchimag (s, nf, l)) */
 /*                     { */
-/*                       /\* mpc_get_re(tmpf, s->root[l]->mvalue); *\/ */
-/*                       mpf_set (tmpf, mpc_Re (s->root[l]->mvalue)); */
+/*                       /\* mpc_get_re(tmpf, s->mroot[l]); *\/ */
+/*                       mpf_set (tmpf, mpc_Re (s->mroot[l])); */
 /*                       if (mpf_sgn (tmpf) == 1) */
 /*                         s->status[l][2] = 'i'; */
 /*                       else */
@@ -1749,8 +1752,8 @@ mps_mmodify (mps_status * s, mps_boolean track_new_cluster)
 /*                 case 'u':      /\* upper half plane *\/ */
 /*                   if (!mps_mtouchreal (s, nf, l)) */
 /*                     { */
-/*                       /\* mpc_get_im(tmpf, s->root[l]->mvalue); *\/ */
-/*                       mpf_set (tmpf, mpc_Im (s->root[l]->mvalue)); */
+/*                       /\* mpc_get_im(tmpf, s->mroot[l]); *\/ */
+/*                       mpf_set (tmpf, mpc_Im (s->mroot[l])); */
 /*                       if (mpf_sgn (tmpf) == 1) */
 /*                         s->status[l][2] = 'i'; */
 /*                       else */
@@ -1761,8 +1764,8 @@ mps_mmodify (mps_status * s, mps_boolean track_new_cluster)
 /*                 case 'd':      /\* lower half plane *\/ */
 /*                   if (!mps_mtouchreal (s, nf, l)) */
 /*                     { */
-/*                       /\* mpc_get_im(tmpf, s->root[l]->mvalue); *\/ */
-/*                       mpf_set (tmpf, mpc_Im (s->root[l]->mvalue)); */
+/*                       /\* mpc_get_im(tmpf, s->mroot[l]); *\/ */
+/*                       mpf_set (tmpf, mpc_Im (s->mroot[l])); */
 /*                       if (mpf_sgn (tmpf) == -1) */
 /*                         s->status[l][2] = 'i'; */
 /*                       else */

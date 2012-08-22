@@ -329,7 +329,7 @@ mps_check_stop (mps_status * s)
     {
       for (i = 0; i < s->n; i++)
         {
-	  if (s->root_inclusion[i] == MPS_ROOT_INCLUSION_UNKNOWN &&
+	  if ((s->root_inclusion[i] == MPS_ROOT_INCLUSION_UNKNOWN || s->root_inclusion[i] == MPS_ROOT_INCLUSION_IN) &&
 	      !MPS_ROOT_STATUS_IS_COMPUTED (s, i))
 	    {
 	      if (s->debug_level & MPS_DEBUG_PACKETS)
@@ -580,8 +580,13 @@ mps_fsolve (mps_status * s, mps_boolean * d_after_f)
 
   /* reset the status vector */
   for (j = 0; j < s->n; j++)
-    if (s->root_status[j] == MPS_ROOT_STATUS_NEW_CLUSTERED)
-      s->root_status[j] = MPS_ROOT_STATUS_CLUSTERED;
+    {
+      if (s->root_status[j] == MPS_ROOT_STATUS_NEW_CLUSTERED)
+	s->root_status[j] = MPS_ROOT_STATUS_CLUSTERED;
+      if (s->root_status[j] == MPS_ROOT_STATUS_NOT_FLOAT)
+	*d_after_f = true;
+    }
+
 
  fsolve_final_cleanup:
   double_vfree (frad);
