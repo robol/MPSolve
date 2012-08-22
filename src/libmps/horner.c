@@ -216,8 +216,8 @@ mps_mhorner_sparse (mps_status * s, mps_monomial_poly * p, mpc_t x,
   mps_boolean * b = p->spar;
   int n = p->n + 1;
 
-  mps_boolean *spar2 = mps_boolean_valloc (s->n + 2);
-  mpc_t *mfpc2 = mps_newv (mpc_t, s->n + 1);
+  mps_boolean *spar2 = mps_boolean_valloc (p->n + 2);
+  mpc_t *mfpc2 = mps_newv (mpc_t, p->n + 1);
 
   long int wp;
 
@@ -225,13 +225,13 @@ mps_mhorner_sparse (mps_status * s, mps_monomial_poly * p, mpc_t x,
 
   pthread_mutex_lock (&p->mfpc_mutex[0]);
   wp = mpc_get_prec (p->mfpc[0]);
-  mpc_vinit2 (mfpc2, s->n + 1, wp);
+  mpc_vinit2 (mfpc2, n, wp);
   pthread_mutex_unlock (&p->mfpc_mutex[0]);
 
   mpc_init2 (tmp, wp);
   mpc_init2 (y, wp);
 
-  for (i = 0; i < n + 1; i++)
+  for (i = 0; i < n; i++)
     spar2[i] = b[i];
 
   for (i = 0; i < n; i++)
@@ -277,7 +277,7 @@ mps_mhorner_sparse (mps_status * s, mps_monomial_poly * p, mpc_t x,
   mpc_clear (y);
   mpc_clear (tmp);
 
-  mpc_vclear (mfpc2, s->n + 1);
+  mpc_vclear (mfpc2, p->n + 1);
   free (spar2);
   free (mfpc2);
 }

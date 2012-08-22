@@ -117,7 +117,7 @@ mps_fmodify (mps_status * s, mps_boolean track_new_cluster)
 
 	  /* If track_new_cluster is false then we may directly set here the
 	   * approximation status of the roots. */
-	  if (!track_new_cluster)
+	  /* if (!track_new_cluster) */
 	    {	  
 	      s->root_status[l] = MPS_ROOT_STATUS_CLUSTERED;
 	      rdpe_set_d (rtmp, s->frad[l]);
@@ -838,7 +838,7 @@ mps_dmodify (mps_status * s, mps_boolean track_new_cluster)
 
 	  /* If track_new_cluster is false then we may directly set here the
 	   * approximation status of the roots. */
-	  if (!track_new_cluster)
+	  /* if (!track_new_cluster) */
 	    {
 	      s->root_status[l] = MPS_ROOT_STATUS_CLUSTERED;
 	      rdpe_set (tmpr, s->drad[l]);
@@ -1502,6 +1502,7 @@ mps_dmodify (mps_status * s, mps_boolean track_new_cluster)
 void
 mps_mmodify (mps_status * s, mps_boolean track_new_cluster)
 {
+  MPS_DEBUG_THIS_CALL;
   s->operation = MPS_OPERATION_CLUSTER_ANALYSIS;
 
   int l, i;
@@ -1552,7 +1553,7 @@ mps_mmodify (mps_status * s, mps_boolean track_new_cluster)
 
 	  /* If track_new_cluster is false then we may directly set here the
 	   * approximation status of the roots. */
-	  if (!track_new_cluster)
+	  /* if (!track_new_cluster) */
 	    {
 	      s->root_status[l] = MPS_ROOT_STATUS_CLUSTERED;
 	      rdpe_set (tmpr, s->drad[l]);
