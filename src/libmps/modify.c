@@ -117,14 +117,15 @@ mps_fmodify (mps_status * s, mps_boolean track_new_cluster)
 
 	  /* If track_new_cluster is false then we may directly set here the
 	   * approximation status of the roots. */
-	  /* if (!track_new_cluster) */
+	  if (!track_new_cluster)
 	    {	  
 	      s->root_status[l] = MPS_ROOT_STATUS_CLUSTERED;
-	      rdpe_set_d (rtmp, s->frad[l]);
-	      rdpe_div_eq_d (rtmp, cplx_mod (s->froot[l]));
-	      if (rdpe_le (rtmp, s->eps_out))
-		s->root_status[l] = MPS_ROOT_STATUS_APPROXIMATED_IN_CLUSTER;
 	    }
+
+	  rdpe_set_d (rtmp, s->frad[l]);
+	  rdpe_div_eq_d (rtmp, cplx_mod (s->froot[l]));
+	  if (rdpe_le (rtmp, s->eps_out))
+	    s->root_status[l] = MPS_ROOT_STATUS_APPROXIMATED_IN_CLUSTER;
 
 	  root = root->next;
 	}
@@ -838,15 +839,16 @@ mps_dmodify (mps_status * s, mps_boolean track_new_cluster)
 
 	  /* If track_new_cluster is false then we may directly set here the
 	   * approximation status of the roots. */
-	  /* if (!track_new_cluster) */
+	  if (!track_new_cluster)
 	    {
 	      s->root_status[l] = MPS_ROOT_STATUS_CLUSTERED;
-	      rdpe_set (tmpr, s->drad[l]);
-	      cdpe_mod (tmpr2, s->droot[l]);
-	      rdpe_div_eq (tmpr, tmpr2);
-	      if (rdpe_le (tmpr, s->eps_out)) 
-		s->root_status[l] = MPS_ROOT_STATUS_APPROXIMATED_IN_CLUSTER;
 	    }
+
+	  rdpe_set (tmpr, s->drad[l]);
+	  cdpe_mod (tmpr2, s->droot[l]);
+	  rdpe_div_eq (tmpr, tmpr2);
+	  if (rdpe_le (tmpr, s->eps_out)) 
+	    s->root_status[l] = MPS_ROOT_STATUS_APPROXIMATED_IN_CLUSTER;
 
 	  root = root->next;
 	}
@@ -1502,7 +1504,6 @@ mps_dmodify (mps_status * s, mps_boolean track_new_cluster)
 void
 mps_mmodify (mps_status * s, mps_boolean track_new_cluster)
 {
-  MPS_DEBUG_THIS_CALL;
   s->operation = MPS_OPERATION_CLUSTER_ANALYSIS;
 
   int l, i;
@@ -1553,16 +1554,17 @@ mps_mmodify (mps_status * s, mps_boolean track_new_cluster)
 
 	  /* If track_new_cluster is false then we may directly set here the
 	   * approximation status of the roots. */
-	  /* if (!track_new_cluster) */
+	  if (!track_new_cluster)
 	    {
 	      s->root_status[l] = MPS_ROOT_STATUS_CLUSTERED;
-	      rdpe_set (tmpr, s->drad[l]);
-	      mpc_get_cdpe (cdtmp, s->mroot[l]);
-	      cdpe_mod (tmpr2, cdtmp);
-	      rdpe_div_eq (tmpr, tmpr2);
-	      if (rdpe_le (tmpr, s->eps_out)) 
-		s->root_status[l] = MPS_ROOT_STATUS_APPROXIMATED_IN_CLUSTER; 
 	    }
+
+	  rdpe_set (tmpr, s->drad[l]);
+	  mpc_get_cdpe (cdtmp, s->mroot[l]);
+	  cdpe_mod (tmpr2, cdtmp);
+	  rdpe_div_eq (tmpr, tmpr2);
+	  if (rdpe_le (tmpr, s->eps_out)) 
+	    s->root_status[l] = MPS_ROOT_STATUS_APPROXIMATED_IN_CLUSTER; 
 
 	  root = root->next;
 	}
