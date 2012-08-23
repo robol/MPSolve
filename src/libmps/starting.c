@@ -1236,7 +1236,10 @@ mps_frestart (mps_status * s)
 
     loop1:
       if (g)
-	mps_approximation_free (s, g);
+	{
+	  mps_approximation_free (s, g);
+	  g = NULL;
+	}
       ;
     }
 }
@@ -1391,7 +1394,6 @@ mps_drestart (mps_status * s)
           cdpe_sub_eq (g->dvalue, corr);
           if (!g->again)
 	    {
-	      mps_approximation_free (s, g);
 	      break;
 	    }
         }
@@ -1427,7 +1429,10 @@ mps_drestart (mps_status * s)
 
     loop1:
       if (g)
-	mps_approximation_free (s, g);
+	{
+	  mps_approximation_free (s, g);
+	  g = NULL;
+	}
       ;
     }
 }
@@ -1722,7 +1727,10 @@ mps_mrestart (mps_status * s)
 
     loop1:
       if (g != NULL)
-	mps_approximation_free (s, g);
+	{
+	  mps_approximation_free (s, g);
+	  g = NULL;
+	}
       ;
     }
 
