@@ -527,7 +527,6 @@ mps_secular_ga_mpsolve (mps_status * s)
 	       mps_secular_restart (s);
 	     }
 	   
-	   MPS_DEBUG (s, "Triggering regeneration");
 	   if (!mps_secular_ga_regenerate_coefficients (s)) 
 	     {
 	       MPS_DEBUG (s, "Regeneration failed");
@@ -552,7 +551,6 @@ mps_secular_ga_mpsolve (mps_status * s)
 	 {
 	   if (mps_secular_ga_regenerate_coefficients (s))
 	     {
-	       just_regenerated = true;
 	       skip_check_stop = false;
 	     }
 	   else
@@ -573,7 +571,7 @@ mps_secular_ga_mpsolve (mps_status * s)
 		   mps_secular_ga_regenerate_coefficients (s);
 		 }
 	       
-	       just_regenerated = true;
+	       /* just_regenerated = true; */
 	       sec->best_approx = false;
 	       
 	       /* Set the packet counter to zero, we are restarting */

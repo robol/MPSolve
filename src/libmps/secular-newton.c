@@ -25,7 +25,6 @@ mps_secular_fnewton (mps_status * s, mps_approximation * root, cplx_t corr,
   double local_error, local_error2;
   mps_secular_iteration_data * data = user_data;
   mps_secular_equation *sec = (mps_secular_equation *) s->secular_equation;
-  mps_boolean in_root_neighborhood = false;
 
   cplx_t * afpc = data->local_afpc;
   cplx_t * bfpc = data->local_bfpc;
@@ -70,9 +69,6 @@ mps_secular_fnewton (mps_status * s, mps_approximation * root, cplx_t corr,
 		}
 	    }
 
-	  if (asum * KAPPA * DBL_EPSILON > cplx_mod (corr))
-	    in_root_neighborhood = true;
-
 	  if (!cplx_eq_zero (corr))
 	    {
 	      cplx_div (corr, afpc[i], corr);
@@ -80,9 +76,8 @@ mps_secular_fnewton (mps_status * s, mps_approximation * root, cplx_t corr,
 	      acorr = cplx_mod (corr);
 	      if (acorr < ax * DBL_EPSILON)
 		{
-		  root->again = false; 
-		  /* if (in_root_neighborhood) */
-		  /*   root->approximated = true; */
+		  /* root->again = false; */
+		  root->approximated = true;  
 		}
 	    }
 
@@ -150,13 +145,11 @@ mps_secular_fnewton (mps_status * s, mps_approximation * root, cplx_t corr,
   asum_on_apol = asum / apol;
 
   /* If the approximation falls in the root neighbourhood then we can stop */
-  if ((asum_on_apol + 1) * KAPPA * DBL_EPSILON > 1 ||
-      (asum_on_apol < 0))
+  if ((asum_on_apol + 1) * KAPPA * DBL_EPSILON > 1)
     {
       if (data && s->debug_level & MPS_DEBUG_PACKETS)
 	MPS_DEBUG (s, "Setting again to false on root %ld for root neighbourhood", data->k);
       root->again = false;
-      in_root_neighborhood = true;
     }
 
   /* If the correction is not useful in the current precision do
@@ -165,15 +158,8 @@ mps_secular_fnewton (mps_status * s, mps_approximation * root, cplx_t corr,
     {
       if (data && s->debug_level & MPS_DEBUG_PACKETS)
 	MPS_DEBUG (s, "Setting again to false on root %ld for small Newton correction", data->k);
-      root->again = false;
-      if (!in_root_neighborhood)
-	root->approximated = true;
-    }
-
-  if (in_root_neighborhood && (KAPPA * asum / (ax * cplx_mod (fp)) < 1))  
-    {  
-      root->approximated = true;  
-      root->again = false;  
+      /* root->again = false;  */
+      root->approximated = true;
     }
 
   /* We compute the following values in order to give a guaranteed
