@@ -265,7 +265,7 @@ extern "C"
 
   mps_boolean mps_secular_ga_regenerate_coefficients_monomial (mps_status * s, cdpe_t * old_b, mpc_t * old_mb, mps_boolean * root_changed);
 
-  mps_boolean mps_secular_ga_regenerate_coefficients_secular (mps_status * s, cdpe_t * old_b, mps_boolean * root_changed);
+  mps_boolean mps_secular_ga_regenerate_coefficients_secular (mps_status * s, cdpe_t * old_b, mpc_t * old_mb, mps_boolean * root_changed);
 
   mps_boolean mps_secular_ga_regenerate_coefficients (mps_status * s);
 

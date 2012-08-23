@@ -426,7 +426,7 @@ mps_secular_ga_regenerate_coefficients_monomial (mps_status * s, cdpe_t * old_b,
  * did not changed from the last regeneration. 
  */
 mps_boolean 
-mps_secular_ga_regenerate_coefficients_secular (mps_status * s, cdpe_t * old_b, mps_boolean * root_changed)
+mps_secular_ga_regenerate_coefficients_secular (mps_status * s, cdpe_t * old_b, mpc_t * old_mb, mps_boolean * root_changed)
 {
   MPS_DEBUG_THIS_CALL;
 
@@ -535,36 +535,7 @@ mps_secular_ga_regenerate_coefficients_secular (mps_status * s, cdpe_t * old_b, 
 	 * and verify if the relative error is small enough. */
 	if (!mps_secular_meval_with_error (s, starting_sec, sec->bmpc[i], sec->ampc[i], error))
 	  {
-	    /* Find the guilty coefficient that is equal to our b_i and swap it */
-	    for (j = i + 1; j < sec->n; j++)
-	      {
-		mpc_sub (diff, sec->bmpc[i], starting_sec->bmpc[j]);
-		if (mpc_eq_zero (diff))
-		  {
-		    rdpe_t temp_drad;
-		    double temp_frad;
-		    mpc_set (diff, sec->bmpc[j]);
-		    mpc_set (starting_sec->bmpc[j], sec->bmpc[i]);
-		    mpc_set (sec->bmpc[i], diff);
-		    mpc_set (diff, sec->ampc[j]);
-		    mpc_set (sec->ampc[j], sec->ampc[i]);
-		    mpc_set (sec->ampc[i], diff);
-		    rdpe_set (temp_drad, s->root[i]->drad);
-		    rdpe_set (s->root[i]->drad, s->root[j]->drad);
- 		    rdpe_set (s->root[j]->drad, temp_drad);
-		    temp_frad = s->root[i]->frad;
-		    s->root[i]->frad = s->root[j]->frad;
-		    s->root[j]->frad = temp_frad;
-
-		    root_changed[i] = false;
-
-		    mpc_sub (diff, sec->bmpc[j], starting_sec->bmpc[j]);
-		    if (mpc_eq_zero (diff))
-		      root_changed[j] = false;		    
-
-		    goto secular_regeneration_partial;
-		  }
-	      }
+	    MPS_DEBUG (s, "Failed to evaluate secular equation");
 	  }
 	
 	mpc_rmod (ampc_mod, sec->ampc[i]);
@@ -598,14 +569,13 @@ mps_secular_ga_regenerate_coefficients_secular (mps_status * s, cdpe_t * old_b, 
 	mpc_mul_eq (sec->ampc[i], prod_b);
       }
       else {
-      secular_regeneration_partial:
 	/* Handle the case where b_i = new b_i, so we can't evaluate the secular equation
 	 * in the pole. */
-	mpc_set (sec->ampc[i], starting_sec->ampc[i]);
+	// mpc_set (sec->ampc[i], starting_sec->ampc[i]);
 	mpc_set_ui (prod_b, 1U, 0U);
 	for (j = 0; j < sec->n; j++) {
 	  if (root_changed[j]) {
-	    mpc_sub (diff, sec->bmpc[i], starting_sec->bmpc[j]);
+	    mpc_sub (diff, sec->bmpc[i], old_mb[j]);
 	    mpc_mul_eq (prod_b, diff);
 	    mpc_sub (diff, sec->bmpc[i], sec->bmpc[j]);
 	    mpc_div_eq (prod_b, diff);
@@ -671,7 +641,7 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s, cdpe_t * old_b, mpc_t
     {
       /* Regenerate coefficients starting from the old coefficients store in <code>sec->initial_bmpc[i]</code>
        * evaluating the old secular equation in the new points. */
-      success = mps_secular_ga_regenerate_coefficients_secular (s, old_b, root_changed);
+      success = mps_secular_ga_regenerate_coefficients_secular (s, old_b, old_mb, root_changed);
     }
 
   if (!success)
