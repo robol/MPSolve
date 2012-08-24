@@ -20,7 +20,7 @@ mps_secular_fnewton (mps_status * s, mps_approximation * root, cplx_t corr,
 {
   int i;
   cplx_t ctmp, ctmp2, pol, fp, sumb;
-  double apol, new_rad = 0.0;
+  double apol;
   double asum = 0.0, asum_on_apol, ax = cplx_mod (root->fvalue);
   double asum2 = 0.0, asumb = 0.0;
   double local_error, local_error2;
@@ -72,12 +72,13 @@ mps_secular_fnewton (mps_status * s, mps_approximation * root, cplx_t corr,
 
 	  if (!cplx_eq_zero (corr))
 	    {
+	      mps_boolean in_root_neighborhood = (asum * DBL_EPSILON * KAPPA > cplx_mod (corr));
 	      cplx_div (corr, afpc[i], corr);
 	      
 	      acorr = cplx_mod (corr);
-	      if (acorr < ax * DBL_EPSILON * 4)
+	      if (acorr < ax * DBL_EPSILON || in_root_neighborhood)
 		{
-		  /* root->again = false; */
+		  root->again = false; 
 		  /* root->approximated = true;   */
 		}
 	    }
@@ -163,30 +164,7 @@ mps_secular_fnewton (mps_status * s, mps_approximation * root, cplx_t corr,
       root->approximated = true;
     }
 
-  /* We compute the following values in order to give a guaranteed
-   * Newton inclusion circle. */
-  if (!skip_radius_computation)
-    { 
-      double g_pol = apol + (DBL_EPSILON * asum * MPS_2SQRT2);
-      double g_fp = cplx_mod (fp) - (DBL_EPSILON * asum2 * MPS_2SQRT2);
-      double g_sumb = cplx_mod (sumb) + (DBL_EPSILON * asumb * MPS_2SQRT2);
-
-      /* pthread_mutex_lock (data->gs_mutex); */
-      /* MPS_DEBUG (s, "pol_%ld = %e", data->k, cplx_mod (pol)); */
-      /* MPS_DEBUG (s, "fp_%ld = %e", data->k, cplx_mod (fp)); */
-      /* MPS_DEBUG (s, "sumb_%ld = %e", data->k, cplx_mod (sumb)); */
-      /* MPS_DEBUG (s, "g_pol_%ld = %e", data->k, g_pol); */
-      /* MPS_DEBUG (s, "g_fp_%ld = %e", data->k, g_fp); */
-      /* MPS_DEBUG (s, "g_sumb_%ld = %e", data->k, g_sumb); */
-
-      new_rad = g_pol / (g_fp - g_pol * g_sumb) * sec->n + ax * 4.0 * DBL_EPSILON;
-
-      /* MPS_DEBUG (s, "new_rad_%ld = %e", data->k, new_rad); */
-      /* pthread_mutex_unlock (data->gs_mutex); */
-
-      if (new_rad < root->frad && !(g_fp < 0 || new_rad < 0))
-	root->frad = new_rad;
-    }
+  root->frad = cplx_mod (corr) * (1 + DBL_EPSILON * KAPPA * (asum_on_apol + 1)) * sec->n;
 }
 
 void
@@ -336,39 +314,10 @@ mps_secular_dnewton (mps_status * s, mps_approximation * root, cdpe_t corr,
       root->approximated = true;
     }
 
-  /* We compute the following values in order to give a guaranteed
-   * Newton inclusion circle. */
-  if (root->again && !skip_radius_computation)
-    { 
-      rdpe_t new_rad;
-      rdpe_t g_pol, g_fp, g_sumb;
-      rdpe_t rtmp;
-      
-      rdpe_mul_d (g_pol, asum, DBL_EPSILON * MPS_2SQRT2);
-      rdpe_add_eq_d (g_pol, 1.0);
-      rdpe_mul_eq (g_pol, apol);
-
-      rdpe_mul_d (g_fp, asum2, -DBL_EPSILON * MPS_2SQRT2);
-      rdpe_add_eq_d (g_fp, 1.0);
-      cdpe_mod (rtmp, fp);
-      rdpe_mul_eq (g_fp, rtmp);
-
-      rdpe_mul_d (g_sumb, asumb, DBL_EPSILON * MPS_2SQRT2);
-      rdpe_add_eq_d (g_sumb, 1.0);
-      cdpe_mod (rtmp, sumb);
-      rdpe_mul_eq (g_sumb, rtmp);
-
-      rdpe_mul (new_rad, g_pol, g_sumb);
-      rdpe_sub (new_rad, g_fp, new_rad);
-      rdpe_div (new_rad, g_pol, new_rad);
-      rdpe_mul_eq_d (new_rad, sec->n);
-
-      rdpe_mul_d (rtmp, ax, DBL_EPSILON * 4.0);
-      rdpe_add_eq (new_rad, rtmp);
-      
-      if (rdpe_lt (new_rad, root->drad) && !(rdpe_le (g_fp, rdpe_zero) || rdpe_le (new_rad, rdpe_zero)))
-	rdpe_set (root->drad, new_rad);
-    }
+  rdpe_mul_d (rtmp, asum_on_apol, DBL_EPSILON * KAPPA);
+  rdpe_add_eq (rtmp, rdpe_one);
+  cdpe_mod (root->drad, corr);
+  rdpe_mul_eq (root->drad, rtmp);
 }
 
 void
@@ -379,7 +328,7 @@ mps_secular_mnewton (mps_status * s, mps_approximation * root, mpc_t corr,
   int i;
   mpc_t ctmp, ctmp2, pol, fp, sumb;
   cdpe_t cdtmp;
-  rdpe_t apol, new_rad, rtmp, ax, afp, rtmp2;
+  rdpe_t apol, rtmp, ax, afp, rtmp2;
   rdpe_t asum_on_apol, acorr;
 
   rdpe_t asum, asum2, asumb, diff;
@@ -590,85 +539,10 @@ mps_secular_mnewton (mps_status * s, mps_approximation * root, mpc_t corr,
       goto mnewton_cleanup;
     }
 
-  if (!skip_radius_computation)
-    {
-      rdpe_t g_pol, g_fp, g_sumb, g_den;
-
-      /* We need a guaranteed value of the module of S(x) ... */
-      rdpe_add (g_pol, asum_eps, apol);
-
-      /* ... of the module of S'(x), but guaranteed with a lower
-       * bound and not upper, ... */
-      rdpe_sub (g_fp, afp, asum2_eps);
-
-      /* ... and finally of \sum 1 / (x - b_i) */
-      rdpe_add (g_sumb, asumb, asumb_eps);
-
-      /* Compute the guaranteed newton correction. To do this we need a guaranteed
-       * denominator for the fraction. Let's do this in MP, so we can have a hope to find
-       * a usable value.*/
-      {
-	mpf_t den, fp_mod, sumb_mod, ftmp;
-	mpf_init2 (den, s->mpwp);
-	mpf_init2 (fp_mod, s->mpwp);
-	mpf_init2 (sumb_mod, s->mpwp);
-	mpf_init2 (ftmp, s->mpwp);
-
-	/* Get the guaranteed module of S'(x) */
-	mpc_mod (fp_mod, fp);
-	mpf_set_rdpe (ftmp, asum2_eps);
-	mpf_sub_eq (fp_mod, ftmp); 
-
-	/* And the guaranteed \sum 1 / (x - b_i) */
-	mpc_mod (sumb_mod, sumb);
-	mpf_set_rdpe (ftmp, asumb_eps);
-	mpf_add_eq (sumb_mod, ftmp); 
-
-	/* And the module of S(x) */
-	mpc_mod (den, pol);
-	mpf_set_rdpe (ftmp, asum_eps); 
-	mpf_add_eq (ftmp, den);
-	mpf_mul_eq (ftmp, sumb_mod);
-
-	/* Substract them */
-	mpf_sub (den, fp_mod, ftmp);
-	mpf_get_rdpe (g_den, den);
-
-	/* Getting error on g_den */
-	rdpe_mul (rtmp, asumb, apol);
-	rdpe_add_eq (rtmp, afp);
-	rdpe_mul_eq (rtmp, s->mp_epsilon);
-
-	rdpe_sub_eq (g_den, rtmp);
-
-	mpc_mul (ctmp, pol, sumb);
-
-	mpf_clear (ftmp);
-	mpf_clear (sumb_mod);
-	mpf_clear (fp_mod);
-	mpf_clear (den);
-      }
-
-      /* If this is lower than zero, we haven't been able to give a 
-       * usable results, so let's quit. */
-      if (rdpe_lt (g_den, rdpe_zero))
-	{
-	  if (s->debug_level & MPS_DEBUG_PACKETS)
-	    MPS_DEBUG (s, "Cannot give a guaranteed correction");
-	  goto mnewton_cleanup;
-	}
-
-      /* In the other case compute the radius */
-      rdpe_div (new_rad, g_pol, g_den);
-      rdpe_mul_eq_d (new_rad, sec->n);
-
-      if (rdpe_lt (new_rad, root->drad))
-	rdpe_set (root->drad, new_rad);
-
-      /* MPS_DEBUG_MPC (s, 15, x, "x"); */
-      /* MPS_DEBUG_RDPE (s, new_rad, "Computed newton radius for root"); */
-
-    }
+  rdpe_mul_d (rtmp, asum_on_apol, DBL_EPSILON * KAPPA);
+  rdpe_add_eq (rtmp, rdpe_one);
+  mpc_rmod (root->drad, corr);
+  rdpe_mul_eq (root->drad, rtmp);
   
  mnewton_cleanup:
 
