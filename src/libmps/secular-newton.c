@@ -134,10 +134,12 @@ mps_secular_fnewton (mps_status * s, mps_approximation * root, cplx_t corr,
 	MPS_DEBUG (s, "Setting again to false on root %ld for root neighbourhood", data->k);
       root->again = false;
 
-      if ((KAPPA * asumb / cplx_mod (fp) < 1))
+      if ((KAPPA * asum / cplx_mod (fp) < 1))
 	{
 	  if (data && s->debug_level & MPS_DEBUG_PACKETS)
-	    MPS_DEBUG (s, "Setting approximated = true on root %ld for small conditioning number", data->k);
+	    {
+	      MPS_DEBUG (s, "Setting approximated = true on root %ld for small conditioning number", data->k);
+	    }
 	  root->approximated = true;
 	}
     }
