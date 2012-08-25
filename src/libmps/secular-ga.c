@@ -531,6 +531,8 @@ mps_secular_ga_mpsolve (mps_status * s)
 	     {
 	       MPS_DEBUG (s, "Regeneration failed");
 	     }
+	   else
+	     just_regenerated = true;
 
 	   /* just_regenerated = true; */
 	   sec->best_approx = false;
