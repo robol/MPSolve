@@ -46,8 +46,9 @@ mps_fsort (mps_status * s)
 
   for (i = 0; i < s->n; i++)
     {
-      cplx_Re (real_parts[i]) = cplx_Re (s->root[i]->fvalue);
-      cplx_Im (real_parts[i]) = i;
+      cplx_set_d (real_parts[i],
+		  cplx_Re (s->root[i]->fvalue),
+		  i);
     }
 
   qsort (real_parts, s->n, sizeof (cplx_t), mps_fcmp);

@@ -55,26 +55,12 @@
 **              functions for cplx_t                      **
 ***********************************************************/
 
+#ifdef MPS_USE_BUILTIN_COMPLEX
+
 /* base constants */
 const cplx_t cplx_zero = { {0.0, 0.0} };
 const cplx_t cplx_one = { {1.0, 0.0} };
 const cplx_t cplx_i = { {0.0, 1.0} };
-
-int
-cplx_check_fpe (cplx_t c)
-/* Check if the components are NaN or Inf */
-{
-  int fp = 0;
-  if (isnan (cplx_Re (c)))
-    fp += 1;
-  if (isnan (cplx_Im (c)))
-    fp += (1 << 1);
-  if (isinf (cplx_Re (c)))
-    fp += (1 << 2);
-  if (isinf (cplx_Im(c)))
-    fp += (1 << 3);
-  return fp;
-}
 
 void
 cplx_d (cplx_t temp_cplx, double r, double i)
@@ -522,6 +508,41 @@ cplx_ne (const cplx_t x1, const cplx_t x2)
   return cplx_Re (x1) != cplx_Re (x2) || cplx_Im (x1) != cplx_Im (x2);
 }
 
+/*------------  vector functions  ------------------------*/
+
+void
+cplx_vinit (cplx_t v[], long size)
+{
+  long i;
+
+  for (i = 0; i < size; i++)
+    cplx_Move (v[i], cplx_zero);
+}
+
+#else
+
+const cplx_t cplx_zero = { 0.0 };
+const cplx_t cplx_one = { 1.0 };
+const cplx_t cplx_i = { 1.0I };
+
+#endif
+
+int
+cplx_check_fpe (cplx_t c)
+/* Check if the components are NaN or Inf */
+{
+  int fp = 0;
+  if (isnan (cplx_Re (c)))
+    fp += 1;
+  if (isnan (cplx_Im (c)))
+    fp += (1 << 1);
+  if (isinf (cplx_Re (c)))
+    fp += (1 << 2);
+  if (isinf (cplx_Im(c)))
+    fp += (1 << 3);
+  return fp;
+}
+
 /*------------  I/O functions  ---------------------------*/
 
 int
@@ -546,29 +567,24 @@ int
 cplx_inp_str_u (cplx_t x, FILE * f)
 /* input from file as (re, im) */
 {
+  double real, imag;
   if (f == NULL)
     f = stdin;
-  return fscanf (f, CPLX_INP_UFMT, &cplx_Re (x), &cplx_Im (x));
+  int ret = fscanf (f, CPLX_INP_UFMT, &real, &imag);
+  cplx_set_d (x, real, imag);
+  return ret;
 }
 
 int
 cplx_inp_str (cplx_t x, FILE * f)
 /* input from file as (re, im) */
 {
+  double real, imag;
   if (f == NULL)
     f = stdin;
-  return fscanf (f, CPLX_INP_FMT, &cplx_Re (x), &cplx_Im (x));
-}
-
-/*------------  vector functions  ------------------------*/
-
-void
-cplx_vinit (cplx_t v[], long size)
-{
-  long i;
-
-  for (i = 0; i < size; i++)
-    cplx_Move (v[i], cplx_zero);
+  int ret = fscanf (f, CPLX_INP_FMT, &real, &imag);
+  cplx_set_d (x, real, imag);
+  return ret;
 }
 
 /***********************************************************
@@ -1784,8 +1800,9 @@ void
 cdpe_get_x (cplx_t x, const cdpe_t c)
 /* e = im(c) */
 {
-  cplx_Re (x) = ldexp (rdpe_Mnt (cdpe_Re (c)), (int) rdpe_Esp (cdpe_Re (c)));
-  cplx_Im (x) = ldexp (rdpe_Mnt (cdpe_Im (c)), (int) rdpe_Esp (cdpe_Im (c)));
+  cplx_set_d (x, 
+	      ldexp (rdpe_Mnt (cdpe_Re (c)), (int) rdpe_Esp (cdpe_Re (c))),
+	      ldexp (rdpe_Mnt (cdpe_Im (c)), (int) rdpe_Esp (cdpe_Im (c))));
 }
 
 void

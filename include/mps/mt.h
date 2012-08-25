@@ -32,6 +32,8 @@ extern "C"
 **              cplx_t type                               **
 ***********************************************************/
 
+#ifdef MPS_USE_BUILTIN_COMPLEX
+
 /* ----   definition  ---- */
   typedef struct
   {
@@ -133,6 +135,78 @@ extern "C"
 /* #define cplx_vclear(V)       free(V) */
 /* #define cplx_vclear(V, N)    cplx_vinit(V, N) */
 #define cplx_vfree(V)        free(V)
+
+#else
+
+  #include <complex.h>
+  typedef _Complex double cplx_t[1];
+
+/* macros for fields access */
+
+#define cplx_Re(X)        (creal(*X))
+#define cplx_Im(X)        (cimag(*X))
+#define cplx_Addr(X)      ((complex *) X)
+
+/* base constants */
+  extern const cplx_t cplx_zero;        /* complex zero  (0, 0)    */
+  extern const cplx_t cplx_one; /* complex one   (1, 0)    */
+  extern const cplx_t cplx_i;   /* imag. unit    (0, 1)    */
+
+/* initializers */
+#define cplx_set(x,y) (*x = *y)
+#define cplx_set_d(x,y,z) (*x = y + 1.0I * z)
+
+  /* check floating point exceptions */
+  int cplx_check_fpe (cplx_t x);
+
+/* unary functions */
+#define cplx_mod(x) (cabs(*x))
+#define cplx_inv(x,y) (*x = 1 / *y)
+#define cplx_sqr(x,y) (*x = csqrt(*y))
+
+/* binary functions */
+#define cplx_add(x,y,z) (*x = *y + *z)
+#define cplx_sub(x,y,z) (*x = *y - *z)
+#define cplx_mul(x,y,z) (*x = *y * *z)
+#define cplx_div(x,y,z) (*x = *y / *z)
+#define cplx_mul_d(x,y,z) (*x = *y * z)
+#define cplx_div_d(x,y,z) (*x = *y / z)
+
+#define cplx_add_eq(x,y) (*x += *y)
+#define cplx_sub_eq(x,y) (*x -= *y)
+#define cplx_mul_eq(x,y) (*x *= *y)
+#define cplx_div_eq(x,y) (*x /= *y)
+#define cplx_mul_eq_d(x,y) (*x *= y)
+#define cplx_div_eq_d(x,y) (*x /= y)
+#define cplx_inv_eq(x) (*x = 1.0 / *x)
+
+/* relational operators */
+#define cplx_eq_zero(x) (*x == 0.0)
+#define cplx_eq(x,y) (*x == *y)
+#define cplx_ne(x,y) (*x != éy)
+
+/* I/O functions */
+  int cplx_out_str_u (FILE * f, const cplx_t x);
+  int cplx_out_str (FILE * f, const cplx_t x);
+  int cplx_inp_str_u (cplx_t x, FILE * f);
+  int cplx_inp_str (cplx_t x, FILE * f);
+#define cplx_outln_str_u(F, C) cplx_out_str_u(F, C), fputc('\n', F)
+#define cplx_outln_str(F, C)   cplx_out_str(F, C), fputc('\n', F)
+#define cplx_out_u(C)          cplx_out_str_u(stdout, C)
+#define cplx_out(C)            cplx_out_str(stdout, C)
+#define cplx_outln_u(C)        cplx_out_str_u(stdout, C), putchar('\n')
+#define cplx_outln(C)          cplx_out_str(stdout, C), putchar('\n')
+#define cplx_inp_u(C)          cplx_inp_str_u(C, stdin)
+#define cplx_inp(C)            cplx_inp_str(C, stdin)
+
+/* vector functions */
+#define cplx_valloc(N)       (cplx_t *) malloc((N) * sizeof(cplx_t))
+/* #define cplx_vclear(V)       free(V) */
+/* #define cplx_vclear(V, N)    cplx_vinit(V, N) */
+#define cplx_vfree(V)        free(V)
+
+#endif
+
 
 /***********************************************************
 **              rdpe_t type                               ** 
