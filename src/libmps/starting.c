@@ -1890,8 +1890,7 @@ mps_mshift (mps_status * s, int m, mps_cluster_item * cluster_item, rdpe_t clust
         {
           mpwp_temp += s->mpwp;
 
-	  if (s->algorithm == MPS_ALGORITHM_STANDARD_MPSOLVE && 
-	      (mpwp_temp > mpwp_max || mpwp_temp > s->output_config->prec * m * 2)) 
+	  if ((mpwp_temp > mpwp_max || mpwp_temp > s->output_config->prec * m * 2)) 
              { 
                MPS_DEBUG (s, "Reached the maximum allowed precision in mshift"); 
 	       break; 
@@ -1954,6 +1953,12 @@ mps_mshift (mps_status * s, int m, mps_cluster_item * cluster_item, rdpe_t clust
         mpc_get_cdpe (abd, s->mfppc1[i]);
         cdpe_mod (s->dap1[i], abd);
       }
+
+  /* Debug the coefficients of the shifted polynomial */
+  if (s->debug_level & MPS_DEBUG_CLUSTER)
+    for (i = 0; i <= m; i++)
+      MPS_DEBUG_MPC (s, mpc_get_prec (s->mfppc1[i]), s->mfppc1[i], 
+		     "P(x - g), coefficient of degree %d", i);
 
   mps_mstart (s, m, cluster_item, clust_rad, ag, s->dap1, g);
 
