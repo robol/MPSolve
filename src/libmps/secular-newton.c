@@ -22,15 +22,12 @@ mps_secular_fnewton (mps_status * s, mps_approximation * root, cplx_t corr,
   cplx_t ctmp, ctmp2, pol, fp, sumb;
   double apol;
   double asum = 0.0, asum_on_apol, ax = cplx_mod (root->fvalue);
-  double asum2 = 0.0, asumb = 0.0;
-  double local_error, local_error2;
+  double asumb = 0.0;
   mps_secular_iteration_data * data = user_data;
   mps_secular_equation *sec = (mps_secular_equation *) s->secular_equation;
 
   cplx_t * afpc = data->local_afpc;
   cplx_t * bfpc = data->local_bfpc;
-
-  double actmp, actmp2, abfpc, aafpc;
 
   cplx_t x;
   cplx_set (x, root->fvalue);
@@ -90,40 +87,24 @@ mps_secular_fnewton (mps_status * s, mps_approximation * root, cplx_t corr,
 
       /* Compute (z-b_i)^{-1} */
       cplx_inv_eq (ctmp);
-      if (isinf (cplx_Re (ctmp)) || 
-	  isinf (cplx_Re (ctmp)))
-	{
-	  root->again = false;
-	  s->root_status[data->k] = MPS_ROOT_STATUS_NOT_FLOAT;
-	  return;
-	}
-
-      aafpc = cplx_mod (afpc[i]);
-      abfpc = cplx_mod (bfpc[i]);
-      actmp = cplx_mod (ctmp);
 
       /* Local error computation */
-      local_error = (ax + abfpc) / (actmp * actmp);
-      local_error2 = local_error * actmp;
-      asumb += local_error;
+      asumb += cplx_mod (ctmp);
 
       /* Compute sum of (z-b_i)^{-1} */
       cplx_add_eq (sumb, ctmp);
 
       /* Compute a_i / (z - b_i) */
       cplx_mul (ctmp2, afpc[i], ctmp);
-
-      actmp2 = cplx_mod (ctmp2);
       
       /* Compute the sum of module of (a_i/(z-b_i)) * (i + 2) */
-      asum += (local_error + actmp2) * aafpc;
+      asum += cplx_mod (ctmp2);
 
       /* Add a_i / (z - b_i) to pol */
       cplx_add_eq (pol, ctmp2);
 
       /* Compute a_i / (z - b_i)^2a */
       cplx_mul_eq (ctmp2, ctmp);
-      asum2 += (local_error2 + actmp2) * aafpc;
 
       /* Add it to fp */
       cplx_sub_eq (fp, ctmp2);
@@ -152,15 +133,19 @@ mps_secular_fnewton (mps_status * s, mps_approximation * root, cplx_t corr,
       if (data && s->debug_level & MPS_DEBUG_PACKETS)
 	MPS_DEBUG (s, "Setting again to false on root %ld for root neighbourhood", data->k);
       root->again = false;
-    }
 
-  /* If the correction is not useful in the current precision do
-   * not iterate more */
-  if ((cplx_mod (corr) < MPS_SQRT2 * ax * DBL_EPSILON))
+      if ((KAPPA * asumb / cplx_mod (fp) < 1))
+	{
+	  if (data && s->debug_level & MPS_DEBUG_PACKETS)
+	    MPS_DEBUG (s, "Setting approximated = true on root %ld for small conditioning number", data->k);
+	  root->approximated = true;
+	}
+    }
+  else if ((cplx_mod (corr) < MPS_SQRT2 * ax * DBL_EPSILON))
     {
       if (data && s->debug_level & MPS_DEBUG_PACKETS)
-	MPS_DEBUG (s, "Setting again to false on root %ld for small Newton correction", data->k);
-      /* root->again = false;  */
+	MPS_DEBUG (s, "Setting approximated to true on root %ld for small Newton correction", data->k);
+      root->again = false;  
       root->approximated = true;
     }
 
@@ -179,7 +164,7 @@ mps_secular_dnewton (mps_status * s, mps_approximation * root, cdpe_t corr,
 
   cdpe_t pol, fp, sumb, ctmp, ctmp2, x;
   rdpe_t rtmp, rtmp2, apol, asum, asum_on_apol;
-  rdpe_t asumb, asum2, ax;
+  rdpe_t asumb, ax;
 
   root->again = true;
   
@@ -189,7 +174,6 @@ mps_secular_dnewton (mps_status * s, mps_approximation * root, cdpe_t corr,
   cdpe_set (sumb, cdpe_zero);
   rdpe_set (apol, rdpe_zero);
   rdpe_set (asum, rdpe_zero);
-  rdpe_set (asum2, rdpe_zero);
   rdpe_set (asumb, rdpe_zero);
 
   cdpe_mod (ax, x);
@@ -201,7 +185,6 @@ mps_secular_dnewton (mps_status * s, mps_approximation * root, cdpe_t corr,
 
       /* Compute prod [ (z - b_i) / (z - z_j) ] */
       cdpe_mod (rtmp, ctmp);
-      rdpe_mul_eq_d (rtmp, (i + 10));
       rdpe_add_eq (asumb, rtmp);
 
       /* Check if we are in the case where z == b_i and 
@@ -259,14 +242,10 @@ mps_secular_dnewton (mps_status * s, mps_approximation * root, cdpe_t corr,
       cdpe_mul (ctmp2, sec->adpc[i], ctmp);
       cdpe_add_eq (pol, ctmp2);
       cdpe_mod (rtmp, ctmp2);
-      rdpe_mul_eq_d (rtmp, i + 10);
       rdpe_add_eq (asum, rtmp);
 
       /* Compute a / (z - b_i)^2 and add it to the first derivative */
       cdpe_mul_eq (ctmp2, ctmp);
-      cdpe_mod (rtmp, ctmp2);
-      rdpe_mul_eq_d (rtmp, (i + 10));
-      rdpe_add_eq (asum2, rtmp);
       cdpe_sub_eq (fp, ctmp2);
     }
 
@@ -285,7 +264,7 @@ mps_secular_dnewton (mps_status * s, mps_approximation * root, cdpe_t corr,
   rdpe_div (asum_on_apol, asum, apol);
 
   rdpe_add (rtmp, rdpe_one, asum_on_apol);
-  rdpe_mul_eq_d (rtmp, MPS_2SQRT2 * DBL_EPSILON * sec->n);
+  rdpe_mul_eq_d (rtmp, KAPPA * DBL_EPSILON);
   if (rdpe_ge (rtmp, rdpe_one))
     {
       if (data && (s->debug_level & MPS_DEBUG_PACKETS))
@@ -293,25 +272,34 @@ mps_secular_dnewton (mps_status * s, mps_approximation * root, cdpe_t corr,
 	  MPS_DEBUG (s, "Setting again on root %ld to false because the approximation is in the root neighbourhood", data->k);
 	}
       root->again = false;
+
+      cdpe_mod (rtmp, fp);
+      rdpe_div (rtmp, asumb, rtmp);
+      rdpe_mul_eq_d (rtmp, KAPPA);
+
+      if (rdpe_le (rtmp, rdpe_one))
+	{
+	  if (data && s->debug_level & MPS_DEBUG_PACKETS)
+	    MPS_DEBUG (s, "Setting approximated = true on root %ld for small conditioning number", data->k);
+	  root->approximated = true;
+	}
     }
+  else 
+    {      
+      cdpe_mod (rtmp, corr); 
+      cdpe_mod (rtmp2, x); 
+      rdpe_mul_eq_d (rtmp2, MPS_SQRT2 * DBL_EPSILON); 
 
-  /* If newton correction is less than
-   * the modules of |x| multiplied for
-   * for epsilon stop */
-  /* Computation of |x| and |corr| */
-  cdpe_mod (rtmp, corr); 
-  cdpe_mod (rtmp2, x); 
-  rdpe_mul_eq_d (rtmp2, MPS_SQRT2 * DBL_EPSILON); 
-
-  /* If |corr| < |x| * DBL_EPSILON then stop */
-  if (rdpe_lt (rtmp, rtmp2)) 
-    { 
-      if (data && (s->debug_level & MPS_DEBUG_PACKETS)) 
-   	{ 
-   	  MPS_DEBUG (s, "Setting again on root %ld to false because the Newton correction is too small", data->k); 
-   	  MPS_DEBUG_CDPE (s, corr, "Newton correction"); 
-   	} 
-      root->approximated = true;
+      /* If |corr| < |x| * DBL_EPSILON then stop */
+      if (rdpe_lt (rtmp, rtmp2)) 
+	{ 
+	  if (data && (s->debug_level & MPS_DEBUG_PACKETS)) 
+	    { 
+	      MPS_DEBUG (s, "Setting again on root %ld to false because the Newton correction is too small", data->k); 
+	      MPS_DEBUG_CDPE (s, corr, "Newton correction"); 
+	    } 
+	  root->approximated = true;
+	}
     }
 
   rdpe_mul_d (rtmp, asum_on_apol, DBL_EPSILON * KAPPA);
@@ -331,10 +319,8 @@ mps_secular_mnewton (mps_status * s, mps_approximation * root, mpc_t corr,
   rdpe_t apol, rtmp, ax, afp, rtmp2;
   rdpe_t asum_on_apol, acorr;
 
-  rdpe_t asum, asum2, asumb, diff;
-  rdpe_t asum_eps, asum2_eps, asumb_eps;
-
-  rdpe_t local_error, local_error2;
+  rdpe_t asum, asumb, diff;
+  rdpe_t asum_eps, asumb_eps;
 
   mpc_t * ampc;
   mpc_t * bmpc;
@@ -359,7 +345,6 @@ mps_secular_mnewton (mps_status * s, mps_approximation * root, mpc_t corr,
   mpc_init2 (sumb, s->mpwp);
 
   rdpe_set (asum, rdpe_zero);
-  rdpe_set (asum2, rdpe_zero);
   rdpe_set (asumb, rdpe_zero);
 
   for (i = 0; i < sec->n; i++)
@@ -422,27 +407,11 @@ mps_secular_mnewton (mps_status * s, mps_approximation * root, mpc_t corr,
 
       /* Invert x - b_i */
       mpc_inv_eq (ctmp);
-
-      mpc_rmod (local_error, bmpc[i]);
-      rdpe_add_eq (local_error, ax);
       mpc_rmod (rtmp, ctmp);
-      rdpe_inv (local_error2, rtmp);
-      rdpe_mul_eq (rtmp, rtmp);
-      rdpe_div_eq (local_error, rtmp);
-      rdpe_add_eq (asumb, local_error);
-      rdpe_mul_eq (local_error2, local_error);
+      rdpe_add_eq (asumb, rtmp);
       
       /* Computation of the sum of x - b_i */
       mpc_add_eq (sumb, ctmp);
-
-      /* Sum the module of (1 / (x - b_i)) to asumb. Will be used later
-       * for radius computation */
-      /* mpc_rmod (rtmp, bmpc[i]); */
-      /* rdpe_add_eq (rtmp, ax); */
-      /* rdpe_div_eq (rtmp, diff); */
-      /* rdpe_add_eq_d (rtmp, (i + 2) + 8); */
-      /* rdpe_div_eq (rtmp, diff); */
-      /* rdpe_add_eq (asumb, rtmp); */
 
       /* Compute a_i / (x - b_i) */
       mpc_mul (ctmp2, ctmp, ampc[i]);
@@ -452,38 +421,11 @@ mps_secular_mnewton (mps_status * s, mps_approximation * root, mpc_t corr,
       mpc_add_eq (pol, ctmp2);
 
       mpc_rmod (rtmp, ctmp2);
-      rdpe_add_eq (rtmp, local_error);
-      mpc_rmod (rtmp2, ampc[i]);
-      rdpe_mul_eq (rtmp, rtmp2);
       rdpe_add_eq (asum, rtmp);
-
-      /* Get its module and add it to asum */
-      /* mpc_rmod (rtmp, bmpc[i]); */
-      /* rdpe_add_eq (rtmp, ax); */
-      /* rdpe_div_eq (rtmp, diff); */
-      /* rdpe_add_eq_d (rtmp, (i + 2) + 8); */
-      /* mpc_rmod (rtmp2, ctmp2); */
-      /* rdpe_mul_eq (rtmp, rtmp2); */
-      /* rdpe_add_eq (asum, rtmp); */
 
       /* Computing the derivative S'(x) */
       mpc_mul_eq (ctmp, ctmp2);
       mpc_sub_eq (fp, ctmp);
-
-      /* Add its module at asum2, that will be used later
-       * for radius computation */
-      /* mpc_rmod (rtmp, bmpc[i]); */
-      /* rdpe_add_eq (rtmp, ax); */
-      /* rdpe_div_eq (rtmp, diff); */
-      /* rdpe_add_eq_d (rtmp, (i  + 2) + 8); */
-      /* mpc_rmod (rtmp2, ctmp); */
-      /* rdpe_mul_eq (rtmp, rtmp2); */
-      /* rdpe_add_eq (asum2, rtmp); */
-
-      mpc_rmod (rtmp, ctmp);
-      rdpe_add_eq (rtmp, local_error2);
-      rdpe_mul_eq (rtmp, rtmp2);
-      rdpe_add_eq (asum2, rtmp);
     }
 
   /* Finalize the computation of S(x) */
@@ -492,7 +434,6 @@ mps_secular_mnewton (mps_status * s, mps_approximation * root, mpc_t corr,
 
   /* Compute the local error */
   rdpe_mul (asum_eps, asum, s->mp_epsilon);
-  rdpe_mul (asum2_eps, asum2, s->mp_epsilon);
   rdpe_mul (asumb_eps, asumb, s->mp_epsilon);
 
   /* Compute newton correction */
@@ -524,19 +465,33 @@ mps_secular_mnewton (mps_status * s, mps_approximation * root, mpc_t corr,
       root->again = false;
       if (s->debug_level & MPS_DEBUG_PACKETS)
 	MPS_DEBUG (s, "Stopping Aberth iterations due to root neighborhood");
+
+      mpc_rmod (rtmp2, fp);
+      rdpe_div (rtmp, asumb, rtmp2);
+      rdpe_mul_eq_d (rtmp, KAPPA);
+
+      if (rdpe_le (rtmp, rdpe_one))
+	{
+	  if (data && s->debug_level & MPS_DEBUG_PACKETS)
+	    MPS_DEBUG (s, "Setting approximated = true on root %ld for small conditioning number", data->k);
+	  root->approximated = true;
+	}
+
       goto mnewton_cleanup;
     }
-
-  /* Check if the newton correction is small with respect to the
-   * current precision. */
-  rdpe_mul (rtmp, ax, s->mp_epsilon);
-  rdpe_mul_eq_d (rtmp, MPS_SQRT2);
-  if (rdpe_lt (acorr, rtmp))
+  else 
     {
-      root->approximated = true;
-      if (s->debug_level & MPS_DEBUG_PACKETS)
-	MPS_DEBUG (s, "Stopping Aberth iterations due to small Newton correction");
-      goto mnewton_cleanup;
+      /* Check if the newton correction is small with respect to the
+       * current precision. */
+      rdpe_mul (rtmp, ax, s->mp_epsilon);
+      rdpe_mul_eq_d (rtmp, MPS_SQRT2);
+      if (rdpe_lt (acorr, rtmp))
+	{
+	  root->approximated = true;
+	  if (s->debug_level & MPS_DEBUG_PACKETS)
+	    MPS_DEBUG (s, "Stopping Aberth iterations due to small Newton correction");
+	  goto mnewton_cleanup;
+	}
     }
 
   rdpe_mul_d (rtmp, asum_on_apol, DBL_EPSILON * KAPPA);
