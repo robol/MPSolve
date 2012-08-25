@@ -571,16 +571,62 @@ mps_secular_ga_regenerate_coefficients_secular (mps_status * s, cdpe_t * old_b, 
       else {
 	/* Handle the case where b_i = new b_i, so we can't evaluate the secular equation
 	 * in the pole. */
-	// mpc_set (sec->ampc[i], starting_sec->ampc[i]);
-	mpc_set_ui (prod_b, 1U, 0U);
-	for (j = 0; j < sec->n; j++) {
-	  if (root_changed[j]) {
-	    mpc_sub (diff, sec->bmpc[i], old_mb[j]);
-	    mpc_mul_eq (prod_b, diff);
-	    mpc_sub (diff, sec->bmpc[i], sec->bmpc[j]);
-	    mpc_div_eq (prod_b, diff);
+
+	switch (s->lastphase)
+	  {
+	  case float_phase:
+	    {
+	      cplx_t cprod_b, cdiff, ctmp;
+	      cplx_set (cprod_b, cplx_one);
+
+	      for (j = 0; j < sec->n; j++)
+		{
+		  if (root_changed[j]) {
+		    cdpe_get_x (ctmp, old_b[j]);
+		    cplx_sub (cdiff, sec->bfpc[i], ctmp);
+		    cplx_mul_eq (cprod_b, cdiff);
+		    cplx_sub (cdiff, sec->bfpc[i], sec->bfpc[j]);
+		    cplx_div_eq (cprod_b, cdiff);
+		  }
+		}
+	      mpc_set_cplx (prod_b, cprod_b);
+	    }
+	    break;
+
+	  case dpe_phase:
+	    {
+	      cdpe_t cprod_b, cdiff;
+	      cdpe_set (cprod_b, cdpe_one);
+
+	      for (j = 0; j < sec->n; j++)
+		{
+		  if (root_changed[j]) {
+		    cdpe_sub (cdiff, sec->bdpc[i], old_b[j]);
+		    cdpe_mul_eq (cprod_b, cdiff);
+		    cdpe_sub (cdiff, sec->bdpc[i], sec->bdpc[j]);
+		    cdpe_div_eq (cprod_b, cdiff);
+		  }
+		}
+	      mpc_set_cdpe (prod_b, cprod_b);
+	    }
+	    break;
+
+	  case mp_phase:
+	    mpc_set_ui (prod_b, 1U, 0U);
+	    for (j = 0; j < sec->n; j++) {
+	      if (root_changed[j]) {
+		mpc_sub (diff, sec->bmpc[i], old_mb[j]);
+		mpc_mul_eq (prod_b, diff);
+		mpc_sub (diff, sec->bmpc[i], sec->bmpc[j]);
+		mpc_div_eq (prod_b, diff);
+	      }
+	    }
+	    break;
+	  case no_phase:
+	    mps_error (s, 1, "no_phase set in regeneration");
+	    break;
+
 	  }
-	}
 
 	mpc_mul_eq (sec->ampc[i], prod_b);
       }
