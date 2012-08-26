@@ -75,7 +75,7 @@ mps_secular_fnewton (mps_status * s, mps_approximation * root, cplx_t corr,
 	      acorr = cplx_mod (corr);
 	      if (acorr < ax * DBL_EPSILON || in_root_neighborhood)
 		{
-		  root->again = false; 
+		  /* root->again = false;  */
 		  /* root->approximated = true;   */
 		}
 	    }
@@ -359,13 +359,13 @@ mps_secular_mnewton (mps_status * s, mps_approximation * root, mpc_t corr,
        * the case return without doing anything more */
       if (mpc_eq_zero (ctmp))
 	{
-	  root->again = true;
+	  /* root->again = true; */
 	  int k;
-	  rdpe_t acorr;
-	  rdpe_t sigma;
+	  /* rdpe_t acorr; */
+	  /* rdpe_t sigma; */
 
 	  mpc_set_ui (corr, 0U, 0U);
-	  rdpe_set (sigma, rdpe_zero);
+	  /* rdpe_set (sigma, rdpe_zero); */
 
 	  for (k = 0; k < sec->n; k++)
 	    {
@@ -376,28 +376,28 @@ mps_secular_mnewton (mps_status * s, mps_approximation * root, mpc_t corr,
 		  mpc_div_eq (ctmp2, ctmp);
 		  mpc_add_eq (corr, ctmp2);
 
-		  mpc_rmod (rtmp, ctmp2);
-		  rdpe_add_eq (sigma, rtmp);
+		  /* mpc_rmod (rtmp, ctmp2); */
+		  /* rdpe_add_eq (sigma, rtmp); */
 		}
 	    }
 
-	  mpc_rmod (rtmp, corr);
-	  rdpe_mul_eq_d (sigma, KAPPA);
-	  rdpe_mul_eq (sigma, s->mp_epsilon);
-	  if (rdpe_lt (rtmp, sigma))
-	    root->again = false;
+	  /* mpc_rmod (rtmp, corr); */
+	  /* rdpe_mul_eq_d (sigma, KAPPA); */
+	  /* rdpe_mul_eq (sigma, s->mp_epsilon); */
+	  /* if (rdpe_lt (rtmp, sigma)) */
+	  /*   root->again = false; */
 
 	  mpc_div (corr, sec->ampc[i], corr);
-	  mpc_rmod (acorr, corr);
+	  /* mpc_rmod (acorr, corr); */
  
-	  rdpe_mul_d (rtmp, acorr, sec->n * (1 + sec->n)); 
-	  rdpe_mul_eq (rtmp, s->mp_epsilon);
-	  if (rdpe_lt (rtmp, s->root[i]->drad)) 
-	    rdpe_set (s->root[i]->drad, rtmp); 
+	  /* rdpe_mul_d (rtmp, acorr, sec->n * (1 + sec->n));  */
+	  /* rdpe_mul_eq (rtmp, s->mp_epsilon); */
+	  /* if (rdpe_lt (rtmp, s->root[i]->drad))  */
+	  /*   rdpe_set (s->root[i]->drad, rtmp);  */
 
-	  rdpe_mul (rtmp, ax, s->mp_epsilon);
-	  if (root->again && rdpe_lt (acorr, rtmp))
-	    root->approximated = true;
+	  /* rdpe_mul (rtmp, ax, s->mp_epsilon); */
+	  /* if (root->again && rdpe_lt (acorr, rtmp)) */
+	  /*   root->again = false; */
 
 	  /* rdpe_mul (rtmp, sigma, s->mp_epsilon); */
 	  /* rdpe_mul_eq_d (rtmp, KAPPA); */
