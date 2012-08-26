@@ -41,6 +41,8 @@ extern "C"
 
   void append_slash (char *dest);
 
+  const char * get_pol_name_from_path (const char * pol_path);
+
   char *get_pol_file (const char *pol_name, const char *type_name);
 
   char *get_res_file (const char *pol_name, const char *type_name);

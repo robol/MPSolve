@@ -9,6 +9,17 @@ set_timeout (int timeout)
   putenv (set_timeout_string);
 }
 
+const char *
+get_pol_name_from_path (const char * pol_path)
+{
+  const char * start = pol_path + strlen (pol_path) - 1;
+  while (start >= pol_path && *start != '/')
+    {
+      start--;
+    }
+  return (start == pol_path) ? pol_path : start + 1;
+}
+
 void
 starting_setup (void)
 {

@@ -154,6 +154,14 @@ mps_secular_fnewton (mps_status * s, mps_approximation * root, cplx_t corr,
   if (!cplx_eq_zero (corr))
     {
       double new_rad = cplx_mod (corr) * (1 + DBL_EPSILON * KAPPA * (asum_on_apol + 1)) * sec->n;
+      if (new_rad < DBL_EPSILON)
+	{
+	  MPS_DEBUG_CPLX (s, corr, "corr");
+	  MPS_DEBUG_CPLX (s, pol, "pol");
+	  MPS_DEBUG_CPLX (s, fp, "fp");
+	  MPS_DEBUG_CPLX (s, x, "x");
+	  MPS_DEBUG (s, "new_rad = %e", new_rad);
+	}
       if (new_rad < root->frad)
 	root->frad = new_rad;
     }

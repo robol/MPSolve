@@ -223,7 +223,7 @@ void mps_thread_pool_set_concurrency_limit (mps_status * s, mps_thread_pool * po
   for (i = 0; i < pool->concurrency_limit - l_cl; i++)
     sem_wait (&pool->free_count);
 
-  for (i = 0; i < l_cl - pool->concurrency_limit; i++)
+  for (i = 0; i < l_cl - (long int) pool->concurrency_limit; i++)
     sem_post (&pool->free_count);
 
   pool->concurrency_limit = concurrency_limit;

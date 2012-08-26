@@ -37,12 +37,14 @@ test_secsolve_on_pol (test_pol * pol)
 
   if (!result_stream) 
     {
-      fprintf (stderr, "Checking \033[1m%-30s\033[0m \033[31;1mno results file found!\033[0m\n", pol->pol_file + 9); 
+      fprintf (stderr, "Checking \033[1m%-30s\033[0m \033[31;1mno results file found!\033[0m\n", 
+	       get_pol_name_from_path (pol->pol_file)); 
       return EXIT_FAILURE;
     }
   if (!input_stream)
     {
-      fprintf (stderr, "Checking \033[1m%-30s\033[0m \033[31;1mno polinomial file found!\033[0m\n", pol->pol_file + 9); 
+      fprintf (stderr, "Checking \033[1m%-30s\033[0m \033[31;1mno polinomial file found!\033[0m\n", 
+	       get_pol_name_from_path (pol->pol_file)); 
       return EXIT_FAILURE;
     }
 
@@ -55,7 +57,8 @@ test_secsolve_on_pol (test_pol * pol)
   /* Load the polynomial that has been given to us */
   mps_parse_stream (s, input_stream);
   
-  fprintf (stderr, "Checking \033[1m%-30s\033[0m [\033[34;1mchecking\033[0m]", pol->pol_file + 9);
+  fprintf (stderr, "Checking \033[1m%-30s\033[0m [\033[34;1mchecking\033[0m]", 
+	   get_pol_name_from_path (pol->pol_file));
 
   mps_status_set_output_goal (s, MPS_OUTPUT_GOAL_ISOLATE);
 
@@ -167,9 +170,11 @@ test_secsolve_on_pol (test_pol * pol)
   mps_status_free (s);
 
   if (passed)
-    fprintf (stderr, "\rChecking \033[1m%-30s\033[0m [\033[32;1m  done  \033[0m]\n", pol->pol_file + 9);
+    fprintf (stderr, "\rChecking \033[1m%-30s\033[0m [\033[32;1m  done  \033[0m]\n", 
+	     get_pol_name_from_path (pol->pol_file));
   else
-    fprintf (stderr, "\rChecking \033[1m%-30s\033[0m [\033[31;1m failed \033[0m]\n", pol->pol_file + 9);
+    fprintf (stderr, "\rChecking \033[1m%-30s\033[0m [\033[31;1m failed \033[0m]\n", 
+	     get_pol_name_from_path (pol->pol_file));
 
   if (getenv ("MPS_VERBOSE_TEST"))
     fail_unless (passed == true,
@@ -441,13 +446,13 @@ START_TEST (test_secsolve_kir1_20)
 }
 END_TEST
 
-/* START_TEST (test_secsolve_kir1_40) */
-/* { */
-/*   test_pol * pol = test_pol_new ("kir1_40", "unisolve", 10, float_phase, true); */
-/*   test_secsolve_on_pol (pol); */
-/*   test_pol_free (pol); */
-/* } */
-/* END_TEST */
+START_TEST (test_secsolve_kir1_40) 
+{ 
+  test_pol * pol = test_pol_new ("kir1_40", "unisolve", 10, float_phase, true); 
+  test_secsolve_on_pol (pol); 
+  test_pol_free (pol); 
+} 
+END_TEST 
 
 START_TEST (test_secsolve_spiral10)
 {
@@ -543,7 +548,7 @@ END_TEST
   /* Kirinnis polynomials */
   tcase_add_test (tc_monomial, test_secsolve_kir1_10);
   tcase_add_test (tc_monomial, test_secsolve_kir1_20);
-  /* tcase_add_test (tc_monomial, test_secsolve_kir1_40); */
+  tcase_add_test (tc_monomial, test_secsolve_kir1_40); 
 
   /* Spiral polynomials */
   tcase_add_test (tc_monomial, test_secsolve_spiral10);
