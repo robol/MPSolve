@@ -151,7 +151,12 @@ mps_secular_fnewton (mps_status * s, mps_approximation * root, cplx_t corr,
       root->approximated = true;
     }
 
-  root->frad = cplx_mod (corr) * (1 + DBL_EPSILON * KAPPA * (asum_on_apol + 1)) * sec->n;
+  if (!cplx_eq_zero (corr))
+    {
+      double new_rad = cplx_mod (corr) * (1 + DBL_EPSILON * KAPPA * (asum_on_apol + 1)) * sec->n;
+      if (new_rad < root->frad)
+	root->frad = new_rad;
+    }
 }
 
 void
@@ -304,10 +309,16 @@ mps_secular_dnewton (mps_status * s, mps_approximation * root, cdpe_t corr,
 	}
     }
 
-  rdpe_mul_d (rtmp, asum_on_apol, DBL_EPSILON * KAPPA);
-  rdpe_add_eq (rtmp, rdpe_one);
-  cdpe_mod (root->drad, corr);
-  rdpe_mul_eq (root->drad, rtmp);
+  if (!cdpe_eq_zero (corr))
+    {
+      rdpe_mul_d (rtmp, asum_on_apol, DBL_EPSILON * KAPPA);
+      rdpe_add_eq (rtmp, rdpe_one);
+      cdpe_mod (rtmp2, corr);
+      rdpe_mul_eq (rtmp2, rtmp);
+
+      if (rdpe_lt (rtmp2, root->drad))
+	rdpe_set (root->drad, rtmp2);
+    }
 }
 
 void
@@ -496,10 +507,16 @@ mps_secular_mnewton (mps_status * s, mps_approximation * root, mpc_t corr,
 	}
     }
 
-  rdpe_mul_d (rtmp, asum_on_apol, DBL_EPSILON * KAPPA);
-  rdpe_add_eq (rtmp, rdpe_one);
-  mpc_rmod (root->drad, corr);
-  rdpe_mul_eq (root->drad, rtmp);
+
+  mpc_rmod (rtmp2, corr);
+  if (!rdpe_eq_zero (rtmp2))
+    {
+      rdpe_mul_d (rtmp, asum_on_apol, DBL_EPSILON * KAPPA);
+      rdpe_add_eq (rtmp, rdpe_one);
+      rdpe_mul_eq (rtmp2, rtmp);
+      if (rdpe_lt (rtmp2, root->drad))
+	rdpe_set (root->drad, rtmp2);
+    }
   
  mnewton_cleanup:
 
