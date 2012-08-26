@@ -75,7 +75,7 @@ mps_secular_fnewton (mps_status * s, mps_approximation * root, cplx_t corr,
 	      acorr = cplx_mod (corr);
 	      if (acorr < ax * DBL_EPSILON || in_root_neighborhood)
 		{
-		  /* root->again = false;  */
+		  root->again = false;
 		  /* root->approximated = true;   */
 		}
 	    }
@@ -227,7 +227,7 @@ mps_secular_dnewton (mps_status * s, mps_approximation * root, cdpe_t corr,
 	      rdpe_mul_d (rtmp, ax, DBL_EPSILON * MPS_SQRT2);
 	      if (rdpe_lt (acorr, rtmp))
 		{
-		  /* root->again = false; */
+		  root->again = false;
 		}
 	    }
 
@@ -395,9 +395,9 @@ mps_secular_mnewton (mps_status * s, mps_approximation * root, mpc_t corr,
 	  /* if (rdpe_lt (rtmp, s->root[i]->drad))  */
 	  /*   rdpe_set (s->root[i]->drad, rtmp);  */
 
-	  /* rdpe_mul (rtmp, ax, s->mp_epsilon); */
-	  /* if (root->again && rdpe_lt (acorr, rtmp)) */
-	  /*   root->again = false; */
+	  rdpe_mul (rtmp, ax, s->mp_epsilon);
+	  if (root->again && rdpe_lt (acorr, rtmp))
+	      root->again = false;
 
 	  /* rdpe_mul (rtmp, sigma, s->mp_epsilon); */
 	  /* rdpe_mul_eq_d (rtmp, KAPPA); */
