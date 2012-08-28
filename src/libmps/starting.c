@@ -1457,7 +1457,7 @@ mps_mrestart (mps_status * s)
   mps_root * root;
   mps_approximation * g = NULL;
 
-  /* int old_wp = s->mpwp; */
+  long int starting_wp = s->mpwp;
 
   MPS_DEBUG_THIS_CALL;
 
@@ -1492,6 +1492,9 @@ mps_mrestart (mps_status * s)
 
       if (cluster->n == 1)
         continue;
+
+      /* Raise the precision to s->mpwp * cluster->n */
+      mps_raise_data (s, starting_wp * cluster->n);
 
       tst = true;
       for (root = cluster->first; root != NULL; root = root->next)
@@ -1731,6 +1734,9 @@ mps_mrestart (mps_status * s)
 	  mps_approximation_free (s, g);
 	  g = NULL;
 	}
+
+      /* Lower the precision before exiting */
+      mps_raise_data (s, starting_wp);
       ;
     }
 
@@ -1860,7 +1866,7 @@ mps_mshift (mps_status * s, int m, mps_cluster_item * cluster_item, rdpe_t clust
 
   /* store the current working precision mpnw into mpnw_tmp */
   mpwp_temp = s->mpwp;
-  mpwp_max = s->mpwp;
+  mpwp_max = s->mpwp * m;
   
   do
     {                           /* loop */
