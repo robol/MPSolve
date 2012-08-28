@@ -239,16 +239,16 @@ mps_secular_ga_fiterate (mps_status * s, int maxit, mps_boolean just_regenerated
       mps_dump (s);
 
   /* Check if we need to get higher precision for the roots */
-  /* s->secular_equation->best_approx = true; */
-  /* for (i = 0; i < s->n; i++) */
-  /*   { */
-  /*     if (!s->root[i]->approximated) */
-  /* 	s->secular_equation->best_approx = false; */
-  /*     if (s->root[i]->approximated) */
-  /* 	approximated_roots++; */
-  /*     if (!s->root[i]->again) */
-  /* 	root_neighborhood_roots++; */
-  /*   } */
+   s->secular_equation->best_approx = true; 
+   for (i = 0; i < s->n; i++) 
+     { 
+       if (!s->root[i]->approximated) 
+   	s->secular_equation->best_approx = false; 
+       if (s->root[i]->approximated) 
+   	approximated_roots++; 
+       if (!s->root[i]->again) 
+   	root_neighborhood_roots++; 
+     } 
 
   if (nit <= it_threshold)
     s->secular_equation->best_approx = true;
@@ -391,6 +391,7 @@ mps_secular_ga_diterate (mps_status * s, int maxit, mps_boolean just_regenerated
   int approximated_roots = 0;
   int i;
   int nit = 0;
+  int it_threshold = 0;
 
   s->operation = MPS_OPERATION_ABERTH_DPE_ITERATIONS;
 
@@ -436,6 +437,8 @@ mps_secular_ga_diterate (mps_status * s, int maxit, mps_boolean just_regenerated
         computed_roots++;
     }
 
+  it_threshold = (s->n - computed_roots);
+
   MPS_DEBUG_WITH_INFO (s, "%d roots are already approximated at the start of the packet", computed_roots);
 
   mps_thread_job_queue *queue = mps_thread_job_queue_new (s);
@@ -474,6 +477,9 @@ mps_secular_ga_diterate (mps_status * s, int maxit, mps_boolean just_regenerated
       if (!s->root[i]->again)
 	root_neighborhood_roots++;
     }
+
+  if (nit <= it_threshold)
+    s->secular_equation->best_approx = true;
 
   MPS_DEBUG_WITH_INFO(s, "%d roots are approximated with the current precision", approximated_roots);
   MPS_DEBUG_WITH_INFO (s,"%d roots are in the root neighborhood", root_neighborhood_roots);
@@ -654,6 +660,7 @@ mps_secular_ga_miterate (mps_status * s, int maxit, mps_boolean just_regenerated
   int root_neighborhood_roots = 0;
   int i;
   int nit = 0;
+  int it_threshold = 0;
 
   s->operation = MPS_OPERATION_ABERTH_MP_ITERATIONS;
 
@@ -682,6 +689,8 @@ mps_secular_ga_miterate (mps_status * s, int maxit, mps_boolean just_regenerated
   MPS_DEBUG_THIS_CALL;
 
   sec->best_approx = false;
+
+  it_threshold = s->n - computed_roots;
 
   /* Mark the approximated roots as ready for output */
   for (i = 0; i < s->n; i++)
@@ -738,6 +747,9 @@ mps_secular_ga_miterate (mps_status * s, int maxit, mps_boolean just_regenerated
       if (!s->root[i]->again)
 	root_neighborhood_roots++;
     }
+
+  if (nit <= it_threshold)
+    s->secular_equation->best_approx = true;
 
   MPS_DEBUG_WITH_INFO(s, "%d roots are approximated with the current precision", approximated_roots);
   MPS_DEBUG_WITH_INFO (s,"%d roots are in the root neighborhood", root_neighborhood_roots);
