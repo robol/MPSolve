@@ -110,6 +110,50 @@ __mps_secular_ga_fiterate_worker (void* data_ptr)
 	  modcorr = cplx_mod (abcorr);
 	  s->root[i]->frad += modcorr;
 
+	  {
+	    mps_boolean radius_correct = false;
+	    cplx_t ctmp;
+	    cplx_set_d (ctmp, 0.5, 0.0);
+	    cplx_sub_eq (ctmp, s->root[i]->fvalue);
+	    if (cplx_mod (ctmp) < s->root[i]->frad)
+	      radius_correct = true;
+	    cplx_set_d (ctmp, -0.5, 0.0);
+	    cplx_sub_eq (ctmp, s->root[i]->fvalue);
+	    if (cplx_mod (ctmp) < s->root[i]->frad)
+	      radius_correct = true;
+	    cplx_set_d (ctmp, 0.0, 0.5);
+	    cplx_sub_eq (ctmp, s->root[i]->fvalue);
+	    if (cplx_mod (ctmp) < s->root[i]->frad)
+	      radius_correct = true;
+	    cplx_set_d (ctmp, 0.0, -0.5);
+	    cplx_sub_eq (ctmp, s->root[i]->fvalue);
+	    if (cplx_mod (ctmp) < s->root[i]->frad)
+	      radius_correct = true;
+	    cplx_set_d (ctmp, 0.500244140625e0, 0.0);
+	    cplx_sub_eq (ctmp, s->root[i]->fvalue);
+	    if (cplx_mod (ctmp) < s->root[i]->frad)
+	      radius_correct = true;
+	    cplx_set_d (ctmp, -0.500244140625e0, 0.0);
+	    cplx_sub_eq (ctmp, s->root[i]->fvalue);
+	    if (cplx_mod (ctmp) < s->root[i]->frad)
+	      radius_correct = true;
+	    cplx_set_d (ctmp, 0.0, 0.500244140625e0);
+	    cplx_sub_eq (ctmp, s->root[i]->fvalue);
+	    if (cplx_mod (ctmp) < s->root[i]->frad)
+	      radius_correct = true;
+	    cplx_set_d (ctmp, 0.0, -0.500244140625e0);
+	    cplx_sub_eq (ctmp, s->root[i]->fvalue);
+	    if (cplx_mod (ctmp) < s->root[i]->frad)
+	      radius_correct = true;
+
+	    if (!radius_correct)
+	      {
+		MPS_DEBUG (s, "Wrong radius");
+		MPS_DEBUG_CPLX (s, s->root[i]->fvalue, "Root_%d", i);
+		MPS_DEBUG (s, "Radius_%d = %e", i, s->root[i]->frad);
+	      }
+	  }
+
 	  if (!s->root[i]->again || s->root[i]->approximated)
 	    {
 	      if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)

@@ -69,18 +69,19 @@ mps_secular_fnewton (mps_status * s, mps_approximation * root, cplx_t corr,
 
 	  if (!cplx_eq_zero (corr))
 	    {
-	      mps_boolean in_root_neighborhood = (asum * DBL_EPSILON * KAPPA > cplx_mod (corr));
+	      /* mps_boolean in_root_neighborhood = (asum * DBL_EPSILON * KAPPA > cplx_mod (corr)); */
 	      cplx_div (corr, afpc[i], corr);
 	      
 	      acorr = cplx_mod (corr);
-	      if (acorr < ax * DBL_EPSILON || in_root_neighborhood)
+	      if (acorr < ax * DBL_EPSILON)
 		{
 		  root->again = false;  
 		  /* root->approximated = true;    */
 		}
+
+	      /* root->frad = acorr * (1 + asum * KAPPA * DBL_EPSILON) * sec->n; */
 	    }
 
-	  // root->frad = acorr * (1 + asum * KAPPA * DBL_EPSILON) * sec->n;
 
 	  return;
 	}
@@ -153,7 +154,7 @@ mps_secular_fnewton (mps_status * s, mps_approximation * root, cplx_t corr,
 
   if (!cplx_eq_zero (corr) && root->again)
     {
-      double new_rad = cplx_mod (corr) * (1 + DBL_EPSILON * KAPPA * (asum_on_apol + 1)) * sec->n;
+      double new_rad = cplx_mod (corr) * (1 + DBL_EPSILON * KAPPA * (asum + 1) / apol) * sec->n;
 
       if (new_rad < root->frad)
 	root->frad = new_rad;
