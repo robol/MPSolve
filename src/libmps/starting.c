@@ -1495,6 +1495,7 @@ mps_mrestart (mps_status * s)
 
       /* Raise the precision to s->mpwp * cluster->n */
       mps_raise_data (s, starting_wp * cluster->n);
+      s->mpwp = starting_wp * cluster->n;
 
       tst = true;
       for (root = cluster->first; root != NULL; root = root->next)
@@ -1627,6 +1628,13 @@ mps_mrestart (mps_status * s)
 	    }
         }
 
+      MPS_DEBUG (s, "s->mpwp = %ld", s->mpwp);
+      MPS_DEBUG (s, "cluster->n = %ld", cluster->n);
+      for (j = 0; j <= cluster->n; j++)
+	{
+	  MPS_DEBUG_MPC (s, s->mpwp, s->mfpc1[j], "mfpc1[%d]", j);
+	}
+
       /* Apply at most max_newt_it steps of Newton's iterations
        * to the above derivative starting from the super center
        * of the cluster. */
@@ -1696,8 +1704,15 @@ mps_mrestart (mps_status * s)
         {                       /* Perform shift only if the new clust is smaller */
           mpc_get_cdpe (tmp, g->mvalue);
           cdpe_mod (rtmp, tmp);
-          rdpe_mul_eq (rtmp, s->mp_epsilon);
+	  if (s->lastphase == mp_phase)
+	    rdpe_set_2dl (rtmp1, 1.0, -starting_wp);
+	  else
+	    rdpe_set_d (rtmp1, DBL_EPSILON);
+          rdpe_mul_eq (rtmp, rtmp1);
           rdpe_mul_eq_d (rtmp, 2);
+
+	  MPS_DEBUG_RDPE(s, rtmp, "rtmp");
+	  MPS_DEBUG_RDPE(s, rtmp1, "rtmp1");
 
 	  for (root = cluster->first; root != NULL; root = root->next)
             {
@@ -1737,6 +1752,7 @@ mps_mrestart (mps_status * s)
 
       /* Lower the precision before exiting */
       mps_raise_data (s, starting_wp);
+      s->mpwp = starting_wp;
       ;
     }
 
@@ -1866,7 +1882,7 @@ mps_mshift (mps_status * s, int m, mps_cluster_item * cluster_item, rdpe_t clust
 
   /* store the current working precision mpnw into mpnw_tmp */
   mpwp_temp = s->mpwp;
-  mpwp_max = s->mpwp * m;
+  mpwp_max = s->mpwp;
   
   do
     {                           /* loop */
@@ -1896,11 +1912,12 @@ mps_mshift (mps_status * s, int m, mps_cluster_item * cluster_item, rdpe_t clust
         {
           mpwp_temp += s->mpwp;
 
-	  if ((mpwp_temp > mpwp_max || mpwp_temp > s->output_config->prec * m * 2)) 
+	  if (s->algorithm == MPS_ALGORITHM_STANDARD_MPSOLVE && 
+	      (mpwp_temp > mpwp_max || mpwp_temp > s->output_config->prec * m * 2)) 
              { 
                MPS_DEBUG (s, "Reached the maximum allowed precision in mshift"); 
 	       break; 
-             } 
+             }
 
           rdpe_set_2dl (mp_ep, 1.0, 1 - mpwp_temp);
           mps_raisetemp (s, mpwp_temp);
@@ -1964,7 +1981,7 @@ mps_mshift (mps_status * s, int m, mps_cluster_item * cluster_item, rdpe_t clust
   if (s->debug_level & MPS_DEBUG_CLUSTER)
     for (i = 0; i <= m; i++)
       MPS_DEBUG_MPC (s, mpc_get_prec (s->mfppc1[i]), s->mfppc1[i], 
-		     "P(x - g), coefficient of degree %d", i);
+		     "P(x + g), coefficient of degree %d", i);
 
   mps_mstart (s, m, cluster_item, clust_rad, ag, s->dap1, g);
 

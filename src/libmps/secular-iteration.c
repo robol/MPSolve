@@ -102,57 +102,6 @@ __mps_secular_ga_fiterate_worker (void* data_ptr)
 	      break;
 	    }
 
-	  pthread_mutex_lock (&data->aberth_mutex[i]);
-	  cplx_sub_eq (s->root[i]->fvalue, abcorr);
-	  pthread_mutex_unlock (&data->aberth_mutex[i]);
-
-	  /* Correct the radius */
-	  modcorr = cplx_mod (abcorr);
-	  s->root[i]->frad += modcorr;
-
-	  {
-	    mps_boolean radius_correct = false;
-	    cplx_t ctmp;
-	    cplx_set_d (ctmp, 0.5, 0.0);
-	    cplx_sub_eq (ctmp, s->root[i]->fvalue);
-	    if (cplx_mod (ctmp) < s->root[i]->frad)
-	      radius_correct = true;
-	    cplx_set_d (ctmp, -0.5, 0.0);
-	    cplx_sub_eq (ctmp, s->root[i]->fvalue);
-	    if (cplx_mod (ctmp) < s->root[i]->frad)
-	      radius_correct = true;
-	    cplx_set_d (ctmp, 0.0, 0.5);
-	    cplx_sub_eq (ctmp, s->root[i]->fvalue);
-	    if (cplx_mod (ctmp) < s->root[i]->frad)
-	      radius_correct = true;
-	    cplx_set_d (ctmp, 0.0, -0.5);
-	    cplx_sub_eq (ctmp, s->root[i]->fvalue);
-	    if (cplx_mod (ctmp) < s->root[i]->frad)
-	      radius_correct = true;
-	    cplx_set_d (ctmp, 0.500244140625e0, 0.0);
-	    cplx_sub_eq (ctmp, s->root[i]->fvalue);
-	    if (cplx_mod (ctmp) < s->root[i]->frad)
-	      radius_correct = true;
-	    cplx_set_d (ctmp, -0.500244140625e0, 0.0);
-	    cplx_sub_eq (ctmp, s->root[i]->fvalue);
-	    if (cplx_mod (ctmp) < s->root[i]->frad)
-	      radius_correct = true;
-	    cplx_set_d (ctmp, 0.0, 0.500244140625e0);
-	    cplx_sub_eq (ctmp, s->root[i]->fvalue);
-	    if (cplx_mod (ctmp) < s->root[i]->frad)
-	      radius_correct = true;
-	    cplx_set_d (ctmp, 0.0, -0.500244140625e0);
-	    cplx_sub_eq (ctmp, s->root[i]->fvalue);
-	    if (cplx_mod (ctmp) < s->root[i]->frad)
-	      radius_correct = true;
-
-	    if (!radius_correct)
-	      {
-		MPS_DEBUG (s, "Wrong radius");
-		MPS_DEBUG_CPLX (s, s->root[i]->fvalue, "Root_%d", i);
-		MPS_DEBUG (s, "Radius_%d = %e", i, s->root[i]->frad);
-	      }
-	  }
 
 	  if (!s->root[i]->again || s->root[i]->approximated)
 	    {
@@ -167,6 +116,17 @@ __mps_secular_ga_fiterate_worker (void* data_ptr)
 	      pthread_mutex_unlock (data->gs_mutex);
 #endif
 	    }
+	  else 
+	    {
+	      pthread_mutex_lock (&data->aberth_mutex[i]);
+	      cplx_sub_eq (s->root[i]->fvalue, abcorr);
+	      pthread_mutex_unlock (&data->aberth_mutex[i]);
+
+	      /* Correct the radius */
+	      modcorr = cplx_mod (abcorr);
+	      s->root[i]->frad += modcorr;
+	    }
+
 	}
 
       pthread_mutex_unlock (&data->roots_mutex[i]);
@@ -371,7 +331,7 @@ __mps_secular_ga_diterate_worker (void* data_ptr)
 
       pthread_mutex_lock (&data->roots_mutex[i]);
 
-      if (s->root[i]->again)
+      if (s->root[i]->again && !s->root[i]->approximated)
 	{
           /* Lock this roots to make sure that we are the only one working on it */
 	  cdpe_set (droot, s->root[i]->dvalue);
@@ -387,20 +347,21 @@ __mps_secular_ga_diterate_worker (void* data_ptr)
 	  cdpe_mul_eq (abcorr, corr);
 	  cdpe_sub (abcorr, cdpe_one, abcorr);
 	  cdpe_div (abcorr, corr, abcorr);
+
 	  cdpe_sub_eq (droot, abcorr);
 
 	  /* Correct the radius */
 	  cdpe_mod (modcorr, abcorr);
 	  rdpe_add_eq (s->root[i]->drad, modcorr);
 
-	  if (!s->root[i]->again && s->root[i]->approximated)
+	  if (!s->root[i]->again || s->root[i]->approximated)
 	    {
 	      if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
 		MPS_DEBUG (s, "Root %d again was set to false on iteration %d by thread %d", i, *data->it, data->thread);
 	      (*data->nzeros)++;
 	    }
-
-	  cdpe_set (s->root[i]->dvalue, droot);
+	  else
+	    cdpe_set (s->root[i]->dvalue, droot);
 	}
 
       pthread_mutex_unlock (&data->roots_mutex[i]);
@@ -474,6 +435,8 @@ mps_secular_ga_diterate (mps_status * s, int maxit, mps_boolean just_regenerated
       if (!s->root[i]->again || s->root[i]->approximated)
         computed_roots++;
     }
+
+  MPS_DEBUG_WITH_INFO (s, "%d roots are already approximated at the start of the packet", computed_roots);
 
   mps_thread_job_queue *queue = mps_thread_job_queue_new (s);
 
@@ -634,13 +597,6 @@ __mps_secular_ga_miterate_worker (void* data_ptr)
 	  else
 	    s->root[i]->again = true;
 
-	  pthread_mutex_lock (&data->aberth_mutex[i]); 
-	  mpc_set (s->root[i]->mvalue, mroot); 
-	  pthread_mutex_unlock (&data->aberth_mutex[i]); 
-	   
-	  /* Correct the radius */
-	  mpc_rmod (modcorr, abcorr);
-	  rdpe_add_eq (s->root[i]->drad, modcorr);
 
 	  if (!s->root[i]->again || s->root[i]->approximated)
 	    {
@@ -648,6 +604,16 @@ __mps_secular_ga_miterate_worker (void* data_ptr)
 		MPS_DEBUG (s, "Root %d again was set to false on iteration %d by thread %d", i, *data->it, data->thread);
 
 	      (*data->nzeros)++;
+	    }
+	  else 
+	    {
+	      pthread_mutex_lock (&data->aberth_mutex[i]); 
+	      mpc_set (s->root[i]->mvalue, mroot); 
+	      pthread_mutex_unlock (&data->aberth_mutex[i]); 
+	   
+	      /* Correct the radius */
+	      mpc_rmod (modcorr, abcorr);
+	      rdpe_add_eq (s->root[i]->drad, modcorr);
 	    }
 	}
 

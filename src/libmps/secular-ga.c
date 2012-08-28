@@ -358,7 +358,10 @@ mps_secular_ga_mpsolve (mps_status * s)
       mps_monomial_poly *p = s->monomial_poly;
 
       for (i = 0; i < s->n; i++)
-	cplx_set (sec->bfpc[i], cplx_zero);
+	{
+	  cplx_set (sec->bfpc[i], cplx_zero);
+	  cdpe_set (sec->bdpc[i], cdpe_zero);
+	}
 
       /* Check data first */
       if (s->input_config->starting_phase == no_phase)
