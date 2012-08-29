@@ -20,6 +20,10 @@
 #include <mps/mps.h>
 #include <math.h>
 
+  typedef struct {
+    int i;
+    mps_status * s;
+  } __mps_improve_data;
 
 /**
  * @brief Improve all the approximations up to prec_out digits.
@@ -70,19 +74,30 @@ mps_improve (mps_status * s)
   /* Set lastphase to mp */
   s->lastphase = mp_phase;
 
+  __mps_improve_data *improve_data = mps_newv (__mps_improve_data, s->n);
+
   for (i = 0; i < s->n; i++)
     {
-      mps_improve_root (s, i);
+      improve_data[i].i = i;
+      improve_data[i].s = s;
+      mps_thread_pool_assign (s, NULL, mps_improve_root, improve_data + i);
+      // mps_improve_root (s, i);
     }
+
+  mps_thread_pool_wait (s, s->pool);
+  free (improve_data);
 
   long improve_time = mps_stop_timer (my_timer);
   if (s->debug_level & MPS_DEBUG_TIMINGS)
     MPS_DEBUG (s, "Improvement of roots took %lu ms", improve_time);
 }
 
-void
-mps_improve_root (mps_status * s, int i)
+void *
+mps_improve_root (void * data_ptr)
 {
+  __mps_improve_data * data = (__mps_improve_data*) data_ptr;
+  int i = data->i;
+  mps_status * s = data->s;
   int j, k, m;
   long mpnb_in, mpnb_out;
   mpc_t mtmp;
@@ -257,7 +272,7 @@ mps_improve_root (mps_status * s, int i)
           if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
             {
               mps_mnewton (s, s->n, s->root[i], nwtcorr, p->mfpc, p->mfppc, p->dap, p->spar,
-                           0, false);
+                           mps_thread_get_id (s, s->pool), false);
             }
           else if (s->mnewton_usr != NULL)
             {
@@ -320,4 +335,6 @@ mps_improve_root (mps_status * s, int i)
 
       mpc_clear (nwtcorr);
       mpc_clear (mtmp);
+
+      return NULL;
 }
