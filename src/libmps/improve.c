@@ -62,7 +62,28 @@
 void
 mps_improve (mps_status * s)
 {
-  int i, j, k, m;
+  int i;
+  clock_t *my_timer = mps_start_timer ();
+
+  s->operation = MPS_OPERATION_REFINEMENT;
+
+  /* Set lastphase to mp */
+  s->lastphase = mp_phase;
+
+  for (i = 0; i < s->n; i++)
+    {
+      mps_improve_root (s, i);
+    }
+
+  long improve_time = mps_stop_timer (my_timer);
+  if (s->debug_level & MPS_DEBUG_TIMINGS)
+    MPS_DEBUG (s, "Improvement of roots took %lu ms", improve_time);
+}
+
+void
+mps_improve_root (mps_status * s, int i)
+{
+  int j, k, m;
   long mpnb_in, mpnb_out;
   mpc_t mtmp;
   mpc_t nwtcorr;
@@ -70,9 +91,6 @@ mps_improve (mps_status * s)
   rdpe_t tmp, t, st, sigma, newrad, oldrad, abroot;
   double f, g, cnd;
   mps_monomial_poly *p = s->monomial_poly;
-  clock_t *my_timer = mps_start_timer ();
-
-  s->operation = MPS_OPERATION_REFINEMENT;
 
   mps_secular_iteration_data it_data;
   if (s->secular_equation)
@@ -80,9 +98,6 @@ mps_improve (mps_status * s)
       it_data.local_ampc = s->secular_equation->ampc;
       it_data.local_bmpc = s->secular_equation->bmpc;
     }
-
-  /* Set lastphase to mp */
-  s->lastphase = mp_phase;
 
    if (s->debug_level & MPS_DEBUG_IMPROVEMENT) 
      { 
@@ -123,7 +138,7 @@ mps_improve (mps_status * s)
 
   /* == 3 ==
    * scan the approximations to apply Newton's iterations */
-  for (i = 0; i < s->n; i++)
+  /* for (i = 0; i < s->n; i++) */
     {
       if (s->debug_level & MPS_DEBUG_IMPROVEMENT)
         MPS_DEBUG (s, "Starting to refine root %d", i);
@@ -133,7 +148,7 @@ mps_improve (mps_status * s)
 	  if (s->debug_level & MPS_DEBUG_IMPROVEMENT)
 	    MPS_DEBUG (s, "Not approximating root %d since it is already approximated", i);
 
-          continue;             /* Do not refine approximated roots */
+          goto improve_clear;             /* Do not refine approximated roots */
         }
 
       /*  == 3.1 ==
@@ -301,10 +316,8 @@ mps_improve (mps_status * s)
         }
     }
 
-  mpc_clear (nwtcorr);
-  mpc_clear (mtmp);
+    improve_clear:
 
-  long improve_time = mps_stop_timer (my_timer);
-  if (s->debug_level & MPS_DEBUG_TIMINGS)
-    MPS_DEBUG (s, "Improvement of roots took %lu ms", improve_time);
+      mpc_clear (nwtcorr);
+      mpc_clear (mtmp);
 }
