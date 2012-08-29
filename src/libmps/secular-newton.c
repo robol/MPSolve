@@ -407,16 +407,16 @@ mps_secular_mnewton (mps_status * s, mps_approximation * root, mpc_t corr,
 	  /*   root->again = false; */
 
 	  mpc_div (corr, sec->ampc[i], corr);
-	  /* mpc_rmod (acorr, corr); */
+	  mpc_rmod (acorr, corr);
  
 	  /* rdpe_mul_d (rtmp, acorr, sec->n * (1 + sec->n));  */
 	  /* rdpe_mul_eq (rtmp, s->mp_epsilon); */
 	  /* if (rdpe_lt (rtmp, s->root[i]->drad))  */
 	  /*   rdpe_set (s->root[i]->drad, rtmp);  */
 
-	  /* rdpe_mul (rtmp, ax, s->mp_epsilon); */
-	  /* if (root->again && rdpe_lt (acorr, rtmp)) */
-	  /*   root->again = false; */
+	  rdpe_mul (rtmp, ax, s->mp_epsilon); 
+	  if (root->again && rdpe_lt (acorr, rtmp)) 
+	    root->again = false; 
 
 	  /* rdpe_mul (rtmp, sigma, s->mp_epsilon); */
 	  /* rdpe_mul_eq_d (rtmp, KAPPA); */
