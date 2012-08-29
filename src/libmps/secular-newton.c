@@ -21,10 +21,6 @@ mps_secular_fparallel_sum (mps_status * s, mps_approximation * root, int n, cplx
     {
       int i;
       cplx_t ctmp, ctmp2;
-      cplx_set (pol, cplx_zero);
-      cplx_set (fp, cplx_zero);
-      cplx_set (sumb, cplx_zero);
-      *asum = 0;
       for (i = 0; i < n; i++)
 	{
 	  /* Compute z - b_i */
@@ -70,23 +66,15 @@ mps_secular_fparallel_sum (mps_status * s, mps_approximation * root, int n, cplx
   else 
     {
       int i = n/2, k;
-      cplx_t pol1, fp1, sumb1;
-      cplx_t pol2, fp2, sumb2;
-      double asum2, asum1;
-      if ((k = mps_secular_fparallel_sum (s, root, i, afpc, bfpc, pol1, fp1, sumb1, &asum1)) >= 0)
+      if ((k = mps_secular_fparallel_sum (s, root, i, afpc, bfpc, pol, fp, sumb, asum)) >= 0)
 	{
 	  return k;
 	}
-      if ((k = mps_secular_fparallel_sum (s, root, n-i, afpc + i, bfpc + i, pol2, fp2, sumb2, &asum2)) >= 0)
+      if ((k = mps_secular_fparallel_sum (s, root, n-i, afpc + i, bfpc + i, pol, fp, sumb, asum)) >= 0)
 	{
 	  return i + k;
 	}
       
-      cplx_add (sumb, sumb1, sumb2);
-      cplx_add (pol, pol1, pol2);
-      cplx_add (fp, fp1, fp2);
-      *asum = asum1 + asum2;
-
       return -1;
     }
 }
@@ -222,10 +210,6 @@ mps_secular_dparallel_sum (mps_status * s, mps_approximation * root, int n, cdpe
       int i;
       cdpe_t ctmp, ctmp2;
       rdpe_t rtmp;
-      cdpe_set (pol, cdpe_zero);
-      cdpe_set (fp, cdpe_zero);
-      cdpe_set (sumb, cdpe_zero);
-      rdpe_set (asum, rdpe_zero);
       for (i = 0; i < n; i++)
 	{
 	  /* Compute z - b_i */
@@ -266,23 +250,15 @@ mps_secular_dparallel_sum (mps_status * s, mps_approximation * root, int n, cdpe
   else 
     {
       int i = n/2, k;
-      cdpe_t pol1, fp1, sumb1;
-      cdpe_t pol2, fp2, sumb2;
-      rdpe_t asum2, asum1;
-      if ((k = mps_secular_dparallel_sum (s, root, i, adpc, bdpc, pol1, fp1, sumb1, asum1)) >= 0)
+      if ((k = mps_secular_dparallel_sum (s, root, i, adpc, bdpc, pol, fp, sumb, asum)) >= 0)
 	{
 	  return k;
 	}
-      if ((k = mps_secular_dparallel_sum (s, root, n-i, adpc + i, bdpc + i, pol2, fp2, sumb2, asum2)) >= 0)
+      if ((k = mps_secular_dparallel_sum (s, root, n-i, adpc + i, bdpc + i, pol, fp, sumb, asum)) >= 0)
 	{
 	  return i + k;
 	}
       
-      cdpe_add (sumb, sumb1, sumb2);
-      cdpe_add (pol, pol1, pol2);
-      cdpe_add (fp, fp1, fp2);
-      rdpe_add (asum, asum1, asum2);
-
       return -1;
     }
 }
@@ -428,11 +404,6 @@ mps_secular_mparallel_sum (mps_status * s, mps_approximation * root, int n, mpc_
       mpc_init2 (ctmp, s->mpwp);
       mpc_init2 (ctmp2, s->mpwp);
 
-      mpc_set_ui (pol, 0U, 0U);
-      mpc_set_ui (fp, 0U, 0U);
-      mpc_set_ui (sumb, 0U, 0U);
-
-      rdpe_set (asum, rdpe_zero);
       for (i = 0; i < n; i++)
 	{
 	  /* Compute z - b_i */
@@ -476,38 +447,16 @@ mps_secular_mparallel_sum (mps_status * s, mps_approximation * root, int n, mpc_
   else 
     {
       int i = n/2, k;
-      mpc_t pol1, fp1, sumb1;
-      mpc_t pol2, fp2, sumb2;
-      rdpe_t asum2, asum1;
 
-      mpc_init2 (pol1, s->mpwp);
-      mpc_init2 (fp1,  s->mpwp);
-      mpc_init2 (sumb1, s->mpwp);
-      mpc_init2 (pol2, s->mpwp);
-      mpc_init2 (fp2, s->mpwp);
-      mpc_init2 (sumb2, s->mpwp);
-
-      if ((k = mps_secular_mparallel_sum (s, root, i, ampc, bmpc, pol1, fp1, sumb1, asum1)) >= 0)
+      if ((k = mps_secular_mparallel_sum (s, root, i, ampc, bmpc, pol, fp, sumb, asum)) >= 0)
 	{
 	  return k;
 	}
-      if ((k = mps_secular_mparallel_sum (s, root, n-i, ampc + i, bmpc + i, pol2, fp2, sumb2, asum2)) >= 0)
+      if ((k = mps_secular_mparallel_sum (s, root, n-i, ampc + i, bmpc + i, pol, fp, sumb, asum)) >= 0)
 	{
 	  return i + k;
 	}
       
-      mpc_add (sumb, sumb1, sumb2);
-      mpc_add (pol, pol1, pol2);
-      mpc_add (fp, fp1, fp2);
-      rdpe_add (asum, asum1, asum2);
-
-      mpc_clear (pol1);
-      mpc_clear (fp1);
-      mpc_clear (sumb1);
-      mpc_clear (pol2);
-      mpc_clear (fp2);
-      mpc_clear (sumb2);
-
       return -1;
     }
 }
