@@ -261,6 +261,8 @@ mps_prepare_data (mps_status * s, long int prec)
 {
   MPS_DEBUG_THIS_CALL;
 
+  pthread_mutex_lock (&s->precision_mutex);
+
   if (s->debug_level & MPS_DEBUG_MEMORY)
     MPS_DEBUG (s, "Increasing working precision to %ld bits", prec);
 
@@ -281,6 +283,8 @@ mps_prepare_data (mps_status * s, long int prec)
     }
 
   MPS_UNLOCK (s->data_prec_max);
+
+  pthread_mutex_unlock (&s->precision_mutex);
 }
 
 /**

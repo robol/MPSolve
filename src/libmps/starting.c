@@ -1494,7 +1494,7 @@ mps_mrestart (mps_status * s)
         continue;
 
       /* Raise the precision to s->mpwp * cluster->n */
-      mps_raise_data (s, starting_wp * cluster->n);
+      mps_prepare_data (s, starting_wp * cluster->n);
       s->mpwp = starting_wp * cluster->n;
 
       tst = true;
@@ -1751,7 +1751,7 @@ mps_mrestart (mps_status * s)
 	}
 
       /* Lower the precision before exiting */
-      mps_raise_data (s, starting_wp);
+      mps_prepare_data (s, starting_wp);
       s->mpwp = starting_wp;
       ;
     }
