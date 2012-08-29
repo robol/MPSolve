@@ -10,7 +10,7 @@
 #include <math.h>
 
 #define MPS_2SQRT2 2.82842712474619009760
-#define KAPPA (log2(sec->n) + 7 * 1.4151135)
+#define KAPPA (log2(sec->n) + 7 * 1.4151135 + 1)
 #define MPS_SQRT2 1.4142135623
 
 int
