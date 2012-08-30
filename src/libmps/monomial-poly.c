@@ -32,7 +32,7 @@ mps_monomial_poly_new (mps_status * s, long int degree)
   mp->dap = rdpe_valloc (degree + 1);
 
   /* Allocate space for the coefficients of the derivative */
-  mp->fppc = cplx_valloc (degree);
+  mp->fppc = cplx_valloc (degree + 1);
   mp->mfppc = mpc_valloc (degree + 1);
   mpc_vinit2 (mp->mfppc, degree + 1, s->mpwp);
 
