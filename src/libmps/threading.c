@@ -21,6 +21,16 @@ mps_thread_get_core_number (mps_status * s)
   FILE *cpuinfo = fopen ("/proc/cpuinfo", "r");
   char buf;
   int cores = 0;
+  char * cores_env = NULL;
+
+  if ((cores_env = getenv ("MPS_JOBS")) != NULL)
+    {
+      cores = atoi (cores_env);
+      return cores;
+
+      if (cpuinfo) 
+	fclose (cpuinfo);
+    }
 
   /* If the metafile /proc/cpuinfo is not available
    * return 0                                    */

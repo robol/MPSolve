@@ -920,8 +920,8 @@ mps_mcluster (mps_status * s, rdpe_t * drad, int nf)
 	      rdpe_mul_eq_d (new_rad, 4.0f);  
 	      rdpe_add_eq (new_rad, drad[k]);  
 	      
-	      if (rdpe_lt (new_rad, s->root[k]->drad))     
-		rdpe_set (s->root[k]->drad, new_rad);     
+	      if (rdpe_lt (new_rad, s->root[k]->drad))      
+	       	rdpe_set (s->root[k]->drad, new_rad);      
 	    } 
 	}
     }

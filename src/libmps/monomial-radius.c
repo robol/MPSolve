@@ -1,4 +1,5 @@
 #include <mps/mps.h>
+#include <math.h>
 
 /**
  * @brief Compute the radius of inclusions for the roots using Gerschgorin
@@ -151,6 +152,8 @@ mps_monomial_mradii (mps_status * s, rdpe_t * dradii)
       rdpe_mul_eq (rtmp, s->mp_epsilon);
       rdpe_add_eq (new_rad, rtmp);
 
+      rdpe_set (relative_error, rdpe_zero);
+
       for (j = 0; j < s->n; j++)
 	{
 	  if (i == j)
@@ -160,19 +163,23 @@ mps_monomial_mradii (mps_status * s, rdpe_t * dradii)
 	  mpc_get_cdpe (diff, mdiff);
 	      
 	  /* Check for floating point exceptions in here */
-	  if (cdpe_eq_zero (diff))
+	  if (mpc_eq_zero (mdiff))
 	    {
-	      rdpe_set (new_rad, RDPE_MAX);
-	      break;
+	      rdpe_set (dradii[i], RDPE_MAX);
+	      goto mradius_cleanup;
 	    }
 
-	  cdpe_mod (rtmp, diff);
+	  mpc_rmod (rtmp, mdiff);
 	  rdpe_div_eq (new_rad, rtmp);
 	}
 
+      rdpe_mul_eq_d (new_rad, 1 + 2 * s->n * sqrt(2) * DBL_EPSILON);
+      rdpe_mul_eq_d (new_rad, p->n);
       rdpe_div_eq (new_rad, p->dap[s->n]);
       rdpe_set (dradii[i], new_rad);
     }
+
+ mradius_cleanup:
 
   mpc_clear (pol);
   mpc_clear (mdiff);
