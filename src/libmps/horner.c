@@ -43,11 +43,11 @@ mps_mhorner (mps_status * s, mps_monomial_poly * p, mpc_t x, mpc_t value)
     }
   else  
     { 
-      mps_with_lock (p->mfpc_mutex[s->n],
+      mps_with_lock (p->mfpc_mutex[p->n],
 		     mpc_set (value, p->mfpc[p->n]);
 		     );
 
-      for (j = s->n - 1; j >= 0; j--)
+      for (j = p->n - 1; j >= 0; j--)
 	{
 	  mpc_mul_eq (value, x);
 	  
@@ -108,7 +108,7 @@ mps_mhorner_with_error2 (mps_status * s, mps_monomial_poly * p, mpc_t x, mpc_t v
   cdpe_mod (ax, cx);
 
   rdpe_set (apol, p->dap[p->n]);
-  for (i = s->n - 1; i >= 0; i--)
+  for (i = p->n - 1; i >= 0; i--)
     {
       rdpe_mul_eq (apol, ax);
       rdpe_add_eq (apol, p->dap[i]);
@@ -162,7 +162,7 @@ mps_mhorner_with_error (mps_status * s, mps_monomial_poly * p, mpc_t x, mpc_t va
   rdpe_set (relative_error, rdpe_zero);
 
   mpc_set (value, p->mfpc[p->n]);
-  for (j = s->n - 1; j >= 0; j--)
+  for (j = p->n - 1; j >= 0; j--)
     {
       /* Normal horner computation */
       mpc_mul (ss, value, x);
@@ -216,8 +216,8 @@ mps_mhorner_sparse (mps_status * s, mps_monomial_poly * p, mpc_t x,
   mps_boolean * b = p->spar;
   int n = p->n + 1;
 
-  mps_boolean *spar2 = mps_boolean_valloc (s->n + 2);
-  mpc_t *mfpc2 = mps_newv (mpc_t, s->n + 1);
+  mps_boolean *spar2 = mps_boolean_valloc (p->n + 2);
+  mpc_t *mfpc2 = mps_newv (mpc_t, p->n + 1);
 
   long int wp;
 
@@ -225,7 +225,7 @@ mps_mhorner_sparse (mps_status * s, mps_monomial_poly * p, mpc_t x,
 
   pthread_mutex_lock (&p->mfpc_mutex[0]);
   wp = mpc_get_prec (p->mfpc[0]);
-  mpc_vinit2 (mfpc2, s->n + 1, wp);
+  mpc_vinit2 (mfpc2, p->n + 1, wp);
   pthread_mutex_unlock (&p->mfpc_mutex[0]);
 
   mpc_init2 (tmp, wp);
@@ -277,7 +277,7 @@ mps_mhorner_sparse (mps_status * s, mps_monomial_poly * p, mpc_t x,
   mpc_clear (y);
   mpc_clear (tmp);
 
-  mpc_vclear (mfpc2, s->n + 1);
+  mpc_vclear (mfpc2, p->n + 1);
   free (spar2);
   free (mfpc2);
 }
