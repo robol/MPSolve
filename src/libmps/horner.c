@@ -43,11 +43,11 @@ mps_mhorner (mps_status * s, mps_monomial_poly * p, mpc_t x, mpc_t value)
     }
   else  
     { 
-      mps_with_lock (p->mfpc_mutex[p->n],
+      mps_with_lock (p->mfpc_mutex[s->n],
 		     mpc_set (value, p->mfpc[p->n]);
 		     );
 
-      for (j = p->n - 1; j >= 0; j--)
+      for (j = s->n - 1; j >= 0; j--)
 	{
 	  mpc_mul_eq (value, x);
 	  
@@ -102,24 +102,16 @@ mps_mhorner_with_error2 (mps_status * s, mps_monomial_poly * p, mpc_t x, mpc_t v
   
   /* Compute the polynomial using horner */
   mps_mhorner (s, p, x, value);
-
+  
   /* Compute ap(|x|) using horner */
   mpc_get_cdpe (cx, x);
   cdpe_mod (ax, cx);
-      
-  if (MPS_INPUT_CONFIG_IS_SPARSE (s->input_config))
+
+  rdpe_set (apol, p->dap[p->n]);
+  for (i = s->n - 1; i >= 0; i--)
     {
-      mps_aparhorner (s, p->n + 1, ax, p->dap, p->spar, 
-		      apol, mps_thread_get_id (s, s->pool));
-    }
-  else 
-    {
-      rdpe_set (apol, p->dap[p->n]);
-      for (i = p->n - 1; i >= 0; i--)
-	{
-	  rdpe_mul_eq (apol, ax);
-	  rdpe_add_eq (apol, p->dap[i]);
-	}
+      rdpe_mul_eq (apol, ax);
+      rdpe_add_eq (apol, p->dap[i]);
     }
 
   /* Compute ap(|x|) / |p(x)| */
@@ -170,7 +162,7 @@ mps_mhorner_with_error (mps_status * s, mps_monomial_poly * p, mpc_t x, mpc_t va
   rdpe_set (relative_error, rdpe_zero);
 
   mpc_set (value, p->mfpc[p->n]);
-  for (j = p->n - 1; j >= 0; j--)
+  for (j = s->n - 1; j >= 0; j--)
     {
       /* Normal horner computation */
       mpc_mul (ss, value, x);
@@ -222,26 +214,27 @@ mps_mhorner_sparse (mps_status * s, mps_monomial_poly * p, mpc_t x,
 
   /* Degree of the polynomial and sparsity vector */
   mps_boolean * b = p->spar;
+  int n = p->n + 1;
 
-  mps_boolean *spar2 = mps_boolean_valloc (p->n + 2);
-  mpc_t *mfpc2 = mps_newv (mpc_t, p->n + 1);
+  mps_boolean *spar2 = mps_boolean_valloc (s->n + 2);
+  mpc_t *mfpc2 = mps_newv (mpc_t, s->n + 1);
 
   long int wp;
 
   MPS_DEBUG_THIS_CALL;
 
-  /* pthread_mutex_lock (&p->mfpc_mutex[0]); */
+  pthread_mutex_lock (&p->mfpc_mutex[0]);
   wp = mpc_get_prec (p->mfpc[0]);
-  mpc_vinit2 (mfpc2, p->n + 1, wp);
-  /* pthread_mutex_unlock (&p->mfpc_mutex[0]); */
+  mpc_vinit2 (mfpc2, s->n + 1, wp);
+  pthread_mutex_unlock (&p->mfpc_mutex[0]);
 
   mpc_init2 (tmp, wp);
   mpc_init2 (y, wp);
 
-  for (i = 0; i < p->n + 2; i++)
+  for (i = 0; i < n + 1; i++)
     spar2[i] = b[i];
 
-  for (i = 0; i <= p->n; i++)
+  for (i = 0; i < n; i++)
     if (b[i])
       {
 	pthread_mutex_lock (&p->mfpc_mutex[i]);
@@ -249,8 +242,8 @@ mps_mhorner_sparse (mps_status * s, mps_monomial_poly * p, mpc_t x,
 	pthread_mutex_unlock (&p->mfpc_mutex[i]);
       }
 
-  q = mps_intlog2 (p->n + 2);
-  m = p->n + 1;
+  q = mps_intlog2 (n + 1);
+  m = n;
   mpc_set (y, x);
   for (j = 0; j < q; j++)
     {
@@ -284,7 +277,7 @@ mps_mhorner_sparse (mps_status * s, mps_monomial_poly * p, mpc_t x,
   mpc_clear (y);
   mpc_clear (tmp);
 
-  mpc_vclear (mfpc2, p->n + 1);
+  mpc_vclear (mfpc2, s->n + 1);
   free (spar2);
   free (mfpc2);
 }

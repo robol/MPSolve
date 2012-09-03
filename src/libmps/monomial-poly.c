@@ -16,7 +16,7 @@ mps_monomial_poly_new (mps_status * s, long int degree)
 
   /* Allocate the space for the coefficients of the polynomial, all
   * the floating point versions. */
-  mp->spar = mps_boolean_valloc (degree + 1);
+  mp->spar = mps_boolean_valloc (degree + 2);
   mp->fpc  = cplx_valloc (degree + 1);
   mp->fpr  = double_valloc (degree + 1);
   mp->dpr  = rdpe_valloc (degree + 1);
