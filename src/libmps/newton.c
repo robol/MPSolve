@@ -291,13 +291,21 @@ mps_parhorner (mps_status * st, int n, mpc_t x, mpc_t p[],
   mpc_t tmp, y;
   mps_boolean bi;
 
+  long int wp = mpc_get_prec (x);
+
   /* Set the pointer for paraller horner to be thread specific
    * so there is not conflict with other threads.           */
   mps_boolean *spar2 = mps_thread_get_spar2 (st, n_thread);
   mpc_t *mfpc2 = mps_thread_get_mfpc2 (st, n_thread);
 
-  mpc_init2 (tmp, st->mpwp);
-  mpc_init2 (y, st->mpwp);
+  /* Raise the precision of the thread local mfpc is it does not 
+   * match the current working precision. */
+  if (mpc_get_prec (mfpc2[0]) < wp)
+    for (i = 0; i < n; i++)
+      mpc_set_prec (mfpc2[i], wp);
+
+  mpc_init2 (tmp, wp);
+  mpc_init2 (y, wp);
 
   for (i = 0; i < n + 1; i++)
     spar2[i] = b[i];
@@ -457,12 +465,14 @@ mps_mnewton (mps_status * s, int n, mps_approximation * root, mpc_t corr,
   cdpe_t temp1;
   mpc_t p, p1;
 
+  long int wp = mpc_get_prec (root->mvalue);
+
   /* Set the pointer for mnewton to be thread specific
    * so there is not conflict with other threads.      */
   mps_boolean *spar2 = mps_thread_get_spar2 (s, n_thread);
 
-  mpc_init2 (p, s->mpwp);
-  mpc_init2 (p1, s->mpwp);
+  mpc_init2 (p, wp);
+  mpc_init2 (p1, wp);
 
   rdpe_mul_d (ep, s->mp_epsilon, (double) (n * 4));
   if (MPS_INPUT_CONFIG_IS_SPARSE (s->input_config))

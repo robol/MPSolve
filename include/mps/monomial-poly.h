@@ -133,15 +133,20 @@ extern "C"
 
   void mps_monomial_poly_free (mps_status * s, mps_monomial_poly * mp);
 
+  long int mps_monomial_poly_get_precision (mps_status * s, mps_monomial_poly * mp);
+
   void mps_monomial_poly_raise_precision (mps_status * s, mps_monomial_poly * mp, long int prec);
 
   void mps_monomial_poly_set_coefficient_q (mps_status * s, mps_monomial_poly * mp, long int i, 
 					    mpq_t real_part, mpq_t imag_part);
   void mps_monomial_poly_set_coefficient_d (mps_status * s, mps_monomial_poly * mp, long int i,
 					    double real_part, double imag_part);
-
+  void mps_mononomial_poly_set_coefficient_f (mps_status * s, mps_monomial_poly * p, long int i,
+					      mpc_t coeff);
   void mps_monomial_poly_set_coefficient_int (mps_status * s, mps_monomial_poly * mp, long int i,
 					      long long real_part, long long imag_part);
+  mps_monomial_poly * 
+  mps_monomial_poly_derive (mps_status * s, mps_monomial_poly * p, int k, long int wp);
 
 
 
