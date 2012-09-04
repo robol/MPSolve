@@ -1603,19 +1603,18 @@ mps_mrestart (mps_status * s)
       rdpe_t epsilon;
       rdpe_t error;
 
-      /* rdpe_t error2; */
-      /* mps_monomial_poly * derp = mps_monomial_poly_derive (s, der, 1, s->mpwp); */
-
       /* Get the relative error that we'd like to obtain */
-      mpc_rmod (rtmp, g->mvalue);
-      rdpe_set_2dl (epsilon, 1.0, 1 - s->mpwp);
-      rdpe_mul_eq (epsilon, rtmp);
+      rdpe_set (epsilon, rdpe_zero);
 
       /* Evaluate the necessary precision to perform the Newton iterations. */
       do
 	{
 	  long int prec = mps_monomial_poly_get_precision (s, der);
 	  mps_mhorner_with_error2 (s, der, g->mvalue, corr, error, prec);
+
+	  mpc_rmod (rtmp, corr);
+	  rdpe_set_2dl (epsilon, 1.0, 1 - s->mpwp);
+	  rdpe_mul_eq (epsilon, rtmp);
 
 	  if (rdpe_gt (error, epsilon))
 	    {
@@ -1624,7 +1623,7 @@ mps_mrestart (mps_status * s)
 	      mps_monomial_poly_raise_precision (s, der, prec * 2);
 	      mpc_set_prec (g->mvalue, prec * 2);
 	    }
-	} while (rdpe_gt (error, epsilon)); // && mps_monomial_poly_get_precision (s, der) <= cluster->n * s->mpwp);
+	} while (rdpe_gt (error, epsilon) && mps_monomial_poly_get_precision (s, der) <= cluster->n * s->mpwp);
 
       /* for (j = 0; j <= s->n; j++) */
       /* 	{ */
@@ -1960,9 +1959,9 @@ mps_mshift (mps_status * s, int m, mps_cluster_item * cluster_item, rdpe_t clust
             mpc_set (s->mfpc1[j], p->mfpc[j]);
         }
     }
-  while (rdpe_lt (as, ap)); //  && (k <= m)); /* loop */
+  while (rdpe_lt (as, ap) && (k <= m)); /* loop */
 
-  mps_raisetemp (s, 2 * mpwp_temp);
+  mps_raisetemp (s, 1 * mpwp_temp);
 
   for (i = 1; i <= m; i++)
     {
