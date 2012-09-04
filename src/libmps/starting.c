@@ -1624,7 +1624,7 @@ mps_mrestart (mps_status * s)
 	      mps_monomial_poly_raise_precision (s, der, prec * 2);
 	      mpc_set_prec (g->mvalue, prec * 2);
 	    }
-	} while (rdpe_gt (error, epsilon));
+	} while (rdpe_gt (error, epsilon)); // && mps_monomial_poly_get_precision (s, der) <= cluster->n * s->mpwp);
 
       /* for (j = 0; j <= s->n; j++) */
       /* 	{ */
@@ -1943,12 +1943,11 @@ mps_mshift (mps_status * s, int m, mps_cluster_item * cluster_item, rdpe_t clust
         {
           mpwp_temp += s->mpwp;
 
-	  if (s->algorithm == MPS_ALGORITHM_STANDARD_MPSOLVE && 
-	      (mpwp_temp > mpwp_max || mpwp_temp > s->output_config->prec * m * 2)) 
-             { 
-               MPS_DEBUG (s, "Reached the maximum allowed precision in mshift"); 
-	       break; 
-             }
+	  /* if ((mpwp_temp > mpwp_max || mpwp_temp > s->output_config->prec * m * 2))  */
+          /*    {  */
+          /*      MPS_DEBUG (s, "Reached the maximum allowed precision in mshift");  */
+	  /*      break;  */
+          /*    } */
 
           rdpe_set_2dl (mp_ep, 1.0, 1 - mpwp_temp);
           mps_raisetemp (s, mpwp_temp);
@@ -1961,14 +1960,16 @@ mps_mshift (mps_status * s, int m, mps_cluster_item * cluster_item, rdpe_t clust
             mpc_set (s->mfpc1[j], p->mfpc[j]);
         }
     }
-  while (rdpe_lt (as, ap) && (k <= m)); /* loop */
+  while (rdpe_lt (as, ap)); //  && (k <= m)); /* loop */
+
+  mps_raisetemp (s, 2 * mpwp_temp);
 
   for (i = 1; i <= m; i++)
     {
-      mpwp_temp = 2 * MAX (mpwp_temp - s->mpwp, s->mpwp);
-      mps_raisetemp (s, mpwp_temp);
-      mpc_set_prec (t, (unsigned long int) mpwp_temp);
-      mpc_set_prec (g, (unsigned long int) mpwp_temp);
+      /* mpwp_temp = MAX (mpwp_temp - s->mpwp, s->mpwp); */
+      /* mps_raisetemp (s, mpwp_temp); */
+      /* mpc_set_prec (t, (unsigned long int) mpwp_temp); */
+      /* mpc_set_prec (g, (unsigned long int) mpwp_temp); */
       mpc_set (t, s->mfpc1[s->n]);
 
       for (j = s->n - 1; j >= i; j--)
@@ -1990,7 +1991,7 @@ mps_mshift (mps_status * s, int m, mps_cluster_item * cluster_item, rdpe_t clust
   /* mps_raisetemp (s, 2 * mpwp_max); */
   /* mpc_set_prec (t, (unsigned long int) 2 * mpwp_max); */
   /* mpc_set_prec (g, (unsigned long int) 2 * mpwp_max); */
-  mps_raisetemp (s, 2 * s->mpwp);
+  mps_raisetemp (s, 2 * mpwp_temp);
   mpc_set_prec (t, (unsigned long int) s->mpwp);
   mpc_set_prec (g, (unsigned long int) s->mpwp);
 
