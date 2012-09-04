@@ -1613,7 +1613,7 @@ mps_mrestart (mps_status * s)
 	  mps_mhorner_with_error2 (s, der, g->mvalue, corr, error, prec);
 
 	  mpc_rmod (rtmp, corr);
-	  rdpe_set_2dl (epsilon, 1.0, 1 - s->mpwp);
+	  rdpe_set_2dl (epsilon, 1.0, 1);
 	  rdpe_mul_eq (epsilon, rtmp);
 
 	  if (rdpe_gt (error, epsilon))
