@@ -250,7 +250,7 @@ mps_secular_ga_fiterate (mps_status * s, int maxit, mps_boolean just_regenerated
    	root_neighborhood_roots++; 
      } 
 
-  if (nit <= it_threshold)
+  if (just_regenerated && (nit <= it_threshold))
     s->secular_equation->best_approx = true;
 
   MPS_DEBUG_WITH_INFO(s, "%d roots are approximated with the current precision", approximated_roots);
@@ -478,7 +478,7 @@ mps_secular_ga_diterate (mps_status * s, int maxit, mps_boolean just_regenerated
 	root_neighborhood_roots++;
     }
 
-  if (nit <= it_threshold)
+  if (just_regenerated && (nit <= it_threshold))
     s->secular_equation->best_approx = true;
 
   MPS_DEBUG_WITH_INFO(s, "%d roots are approximated with the current precision", approximated_roots);
@@ -748,7 +748,7 @@ mps_secular_ga_miterate (mps_status * s, int maxit, mps_boolean just_regenerated
 	root_neighborhood_roots++;
     }
 
-  if (nit <= it_threshold)
+  if (just_regenerated && (nit <= it_threshold))
     s->secular_equation->best_approx = true;
 
   MPS_DEBUG_WITH_INFO(s, "%d roots are approximated with the current precision", approximated_roots);
