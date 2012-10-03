@@ -13,6 +13,35 @@
 #define KAPPA (log2(sec->n) + 7 * 1.4151135 + 1)
 #define MPS_SQRT2 1.4142135623
 
+/* We need some special codes to identify the meaning of the exit
+ * status of mps_secular_fparallel_sum() and its DPE and MP
+ * versions. */
+#define MPS_PARALLEL_SUM_SUCCESS -1
+#define MPS_PARALLEL_SUM_FAILED  -2
+
+/**
+ * @brief Perform the evaluation of the Newton correction with the formula
+ * obtained implicitly by the secular equation using the parallel
+ * algorithm.
+ * 
+ * @param s The mps_status associated to the current computation
+ * @param root The approximation that shall be used as evaluation point
+ * @param n The length of the terms that should be summed by the function
+ * @param afpc A pointer to the first floating point a_i coefficient
+ * @param bfpc A pointer to the first floating point b_i coefficient
+ * @param pol The complex value where the result of the evaluation of S(x) will
+ *   be stored
+ * @param fp The complex value where the result of the evaluation of S'(x) will be
+ *   stored
+ * @param sumb The complex value where the result of the evaluation of the sum of 
+ *   the terms 1 / (x - b_i) will be stored
+ * @param asum A pointer to a double where the sum of the module of the complex terms
+ *   a_i / (x - b_i) will be saved
+ * @return If the returned value is a positive integer it is the index of the b_i term 
+ *   that is equal to x, suggesting that the alternate evaluation algorithm must be used. 
+ *   If it is MPS_PARALLEL_SUM_FAILED then a floting point was encountered in the computation, 
+ *   while MPS_PARALLEL_SUM_SUCCESS indicates that the evaluation was successful. 
+ */
 int
 mps_secular_fparallel_sum (mps_status * s, mps_approximation * root, int n, cplx_t * afpc, cplx_t * bfpc,
 			   cplx_t pol, cplx_t fp, cplx_t sumb, double * asum)
@@ -39,7 +68,7 @@ mps_secular_fparallel_sum (mps_status * s, mps_approximation * root, int n, cplx
 	      isinf (cplx_Re (ctmp)))
 	    {
 	      root->again = false;	     
-	      return -2;
+	      return MPS_PARALLEL_SUM_FAILED;
 	    }
 
 	  /* Compute sum of (z-b_i)^{-1} */
@@ -61,7 +90,7 @@ mps_secular_fparallel_sum (mps_status * s, mps_approximation * root, int n, cplx
 	  cplx_sub_eq (fp, ctmp2);
 	}
       
-      return -1;
+      return MPS_PARALLEL_SUM_SUCCESS;
     }
   else 
     {
@@ -75,7 +104,7 @@ mps_secular_fparallel_sum (mps_status * s, mps_approximation * root, int n, cplx
 	  return i + k;
 	}
       
-      return -1;
+      return MPS_PARALLEL_SUM_SUCCESS;
     }
 }
 
@@ -136,15 +165,18 @@ mps_secular_fnewton (mps_status * s, mps_approximation * root, cplx_t corr,
 	  if (acorr < ax * DBL_EPSILON)
 	    {
 	      root->again = false;  
-	      /* root->approximated = true;    */
+// 	      root->approximated = true;   
 	    }
 
-	  /* root->frad = acorr * (1 + asum * KAPPA * DBL_EPSILON) * sec->n; */
-	}	  
+// 	  root->frad = acorr * (1 + asum * KAPPA * DBL_EPSILON) * sec->n;
+	}
+      else
+	root->again = false;
+      
       return;
     }
 
-  if (i == -2)
+  if (i == MPS_PARALLEL_SUM_FAILED)
     {
       s->root_status[data->k] = MPS_ROOT_STATUS_NOT_FLOAT;
       root->again = false;
