@@ -1603,7 +1603,6 @@ mps_mrestart (mps_status * s)
       rdpe_t epsilon;
       rdpe_t error;
 
-      /* Get the relative error that we'd like to obtain */
       rdpe_set (epsilon, rdpe_zero);
 
       /* Evaluate the necessary precision to perform the Newton iterations. */

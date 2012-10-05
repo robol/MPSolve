@@ -191,8 +191,10 @@ mps_secular_ga_fiterate (mps_status * s, int maxit, mps_boolean just_regenerated
   /* Mark the approximated roots as ready for output */
   for (i = 0; i < s->n; i++)
     {
-      /* Set again to false if the root is already approximated */
-      if (MPS_ROOT_STATUS_IS_COMPUTED (s, i))
+      /* Set again to false if the root is already approximated. If a root is approximated but
+       * it has less digits than the current precision don't stop the iterations on that component. */
+      if (s->root_status[i] == MPS_ROOT_STATUS_ISOLATED ||
+	  (s->root_status[i] == MPS_ROOT_STATUS_APPROXIMATED && (s->mpwp < s->output_config->prec)))
 	{
 	  if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
 	    {
@@ -422,8 +424,10 @@ mps_secular_ga_diterate (mps_status * s, int maxit, mps_boolean just_regenerated
   /* Mark the approximated roots as ready for output */
   for (i = 0; i < s->n; i++)
     {
-      /* Set again to false if the root is already approximated */
-      if (MPS_ROOT_STATUS_IS_COMPUTED (s, i))
+      /* Set again to false if the root is already approximated. If a root is approximated but
+       * it has less digits than the current precision don't stop the iterations on that component. */
+      if (s->root_status[i] == MPS_ROOT_STATUS_ISOLATED ||
+	  (s->root_status[i] == MPS_ROOT_STATUS_APPROXIMATED && (s->mpwp < s->output_config->prec)))
 	{
 	  if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
 	    {
@@ -695,8 +699,10 @@ mps_secular_ga_miterate (mps_status * s, int maxit, mps_boolean just_regenerated
   /* Mark the approximated roots as ready for output */
   for (i = 0; i < s->n; i++)
     {
-      /* Set again to false if the root is already approximated */
-      if (MPS_ROOT_STATUS_IS_COMPUTED (s, i))
+      /* Set again to false if the root is already approximated. If a root is approximated but
+       * it has less digits than the current precision don't stop the iterations on that component. */
+      if (s->root_status[i] == MPS_ROOT_STATUS_ISOLATED ||
+	  (s->root_status[i] == MPS_ROOT_STATUS_APPROXIMATED && (s->mpwp < s->output_config->prec)))
 	{
 	  if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
 	    {

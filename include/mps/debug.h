@@ -262,7 +262,6 @@ extern "C"
 #endif
 #endif
 
-
   /**
    * @brief This is the flag that enables debugging of general
    * information about the flow of the program.
