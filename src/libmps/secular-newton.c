@@ -41,8 +41,8 @@
  *   \f$\frac{a_i}{(x - b_i)^2}\f$ will be stored
  * @param asumb A pointer to a double where the sum of the moduli of the complex terms
  *   \f$\frac{1}{x - b_i}$ will be stored
- * @return If the returned value is a positive integer it is the index of the b_i term 
- *   that is equal to x, suggesting that the alternate evaluation algorithm must be used. 
+ * @return If the returned value is a positive integer it is the index of the \f$b_i\f$ term 
+ *   that is equal to \f$x\f$, suggesting that the alternate evaluation algorithm must be used. 
  *   If it is MPS_PARALLEL_SUM_FAILED then a floting point was encountered in the computation, 
  *   while MPS_PARALLEL_SUM_SUCCESS indicates that the evaluation was successful. 
  */
@@ -265,8 +265,8 @@ mps_secular_fnewton (mps_status * s, mps_approximation * root, cplx_t corr,
  *   \f$\frac{a_i}{(x - b_i)^2}\f$ will be stored
  * @param asumb The RDPE value where the sum of the moduli of the complex terms
  *   \f$\frac{1}{x - b_i}$ will be stored
- * @return If the returned value is a positive integer it is the index of the b_i term 
- *   that is equal to x, suggesting that the alternate evaluation algorithm must be used. 
+ * @return If the returned value is a positive integer it is the index of the \f$b_i\f$ term 
+ *   that is equal to \f$x\f$, suggesting that the alternate evaluation algorithm must be used. 
  *   If it is MPS_PARALLEL_SUM_FAILED then a floting point was encountered in the computation, 
  *   while MPS_PARALLEL_SUM_SUCCESS indicates that the evaluation was successful. 
  */
@@ -492,8 +492,8 @@ mps_secular_dnewton (mps_status * s, mps_approximation * root, cdpe_t corr,
  *   \f$\frac{a_i}{(x - b_i)^2}\f$ will be stored
  * @param asumb The RDPE value where the sum of the moduli of the complex terms
  *   \f$\frac{1}{x - b_i}$ will be stored
- * @return If the returned value is a positive integer it is the index of the b_i term 
- *   that is equal to x, suggesting that the alternate evaluation algorithm must be used. 
+ * @return If the returned value is a positive integer it is the index of the \f$b_i\f$ term 
+ *   that is equal to \f$x\f$, suggesting that the alternate evaluation algorithm must be used. 
  *   If it is MPS_PARALLEL_SUM_FAILED then a floting point was encountered in the computation, 
  *   while MPS_PARALLEL_SUM_SUCCESS indicates that the evaluation was successful. 
  */
