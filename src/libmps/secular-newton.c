@@ -180,8 +180,8 @@ mps_secular_fnewton (mps_context * s, mps_approximation * root, cplx_t corr,
 	  if (acorr < ax * DBL_EPSILON)
 	    {
 	      root->again = false;
-	      if (asum * KAPPA * DBL_EPSILON < acorr)
-		root->approximated = true;
+	      /* if (asum * DBL_EPSILON < acorr) */
+	      /* 	root->approximated = true; */
 	    }
 	}
       else
@@ -403,9 +403,9 @@ mps_secular_dnewton (mps_context * s, mps_approximation * root, cdpe_t corr,
 	    {
 	      root->again = false;
 	      
-	      rdpe_mul_d (rtmp2, asum, KAPPA * DBL_EPSILON);
-	      if (rdpe_lt (rtmp2, rtmp))
-		  root->approximated = true;
+	      /* rdpe_mul_d (rtmp2, asum, KAPPA * DBL_EPSILON); */
+	      /* if (rdpe_lt (rtmp2, rtmp)) */
+	      /* 	  root->approximated = true; */
 	    }
 	}
 
@@ -670,10 +670,10 @@ mps_secular_mnewton (mps_context * s, mps_approximation * root, mpc_t corr,
 	  
 	  /* Mark the root as approximated only if the Newton correction
 	   * computation was well conditioned. */
-	  rdpe_mul_d (rtmp, asum, KAPPA);
-	  rdpe_mul_eq (rtmp, s->mp_epsilon);
-	  if (rdpe_lt (rtmp, acorr))
-	    root->approximated = true;
+	  /* rdpe_mul_d (rtmp, asum, KAPPA); */
+	  /* rdpe_mul_eq (rtmp, s->mp_epsilon); */
+	  /* if (rdpe_lt (rtmp, acorr)) */
+	  /*   root->approximated = true; */
 	}
 
       goto mnewton_cleanup;

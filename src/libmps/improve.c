@@ -129,13 +129,13 @@ mps_improve_root2 (void * data_ptr)
     }
 
   mpc_init2 (nwtcorr, wp);
+  mpc_set_prec (root->mvalue, wp);
 
   for (j = 0; j < max_steps; j++)
     {
       mps_prepare_data (ctx, wp);
 
       mpc_set_prec (nwtcorr, wp);
-      mpc_set_prec (root->mvalue, wp);
 
       if (ctx->mpwp < wp)
 	{
