@@ -1,13 +1,15 @@
-/***********************************************************
-**       Multiprecision Polynomial Solver (MPSolve)       **
-**                 Version 2.2, May 2001                  **
-**                                                        **
-**                      Written by                        **
-**       Dario Andrea Bini and Giuseppe Fiorentino        **
-**       (bini@dm.unipi.it)  (fiorent@dm.unipi.it)        **
-**                                                        **
-** (C) 2001, Dipartimento di Matematica, FRISCO LTR 21024 **
-***********************************************************/
+/*
+ * This file is part of MPSolve 3.0
+ *
+ * Copyright (C) 2001-2012, Dipartimento di Matematica "L. Tonelli", Pisa.
+ * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
+ *
+ * Authors: 
+ *   Dario Andrea Bini <bini@dm.unipi.it>
+ *   Giuseppe Fiorentino <fiorent@dm.unipi.it>
+ *   Leonardo Robol <robol@mail.dm.unipi.it>
+ */
+
 
 /********************************************************
 This file contains a sample of a user-defined polynomial.

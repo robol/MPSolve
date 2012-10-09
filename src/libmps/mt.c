@@ -1,12 +1,15 @@
-/***********************************************************
-**      More Types library for extended C arithmetic      **
-**                      Version 1.1                       **
-**                                                        **
-**             Written by Giuseppe Fiorentino             **
-**                 (fiorent@dm.unipi.it)                  **
-**                                                        **
-** (C) 1997, Dipartimento di Matematica, FRISCO LTR 21024 **
-***********************************************************/
+/*
+ * This file is part of MPSolve 3.0
+ *
+ * Copyright (C) 2001-2012, Dipartimento di Matematica "L. Tonelli", Pisa.
+ * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
+ *
+ * Authors: 
+ *   Dario Andrea Bini <bini@dm.unipi.it>
+ *   Giuseppe Fiorentino <fiorent@dm.unipi.it>
+ *   Leonardo Robol <robol@mail.dm.unipi.it>
+ */
+
 
 #include <stdio.h>
 #include <stdlib.h>

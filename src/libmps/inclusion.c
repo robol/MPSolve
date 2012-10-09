@@ -1,21 +1,15 @@
-/************************************************************
- **                                                        **
- **             __  __ ___  ___      _                     **
- **            |  \/  | _ \/ __| ___| |_ _____             **
- **            | |\/| |  _/\__ \/ _ \ \ V / -_)            **
- **            |_|  |_|_|  |___/\___/_|\_/\___|            **
- **                                                        **
- **       Multiprecision Polynomial Solver (MPSolve)       **
- **               Version 2.9, September 2012              **
- **                                                        **
- **                      Written by                        **
- **                                                        **
- **     Dario Andrea Bini       <bini@dm.unipi.it>         **
- **     Giuseppe Fiorentino     <fiorent@dm.unipi.it>      **
- **     Leonardo Robol          <robol@mail.dm.unipi.it>   **
- **                                                        **
- **           (C) 2012, Dipartimento di Matematica         **
- ***********************************************************/
+/*
+ * This file is part of MPSolve 3.0
+ *
+ * Copyright (C) 2001-2012, Dipartimento di Matematica "L. Tonelli", Pisa.
+ * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
+ *
+ * Authors: 
+ *   Dario Andrea Bini <bini@dm.unipi.it>
+ *   Giuseppe Fiorentino <fiorent@dm.unipi.it>
+ *   Leonardo Robol <robol@mail.dm.unipi.it>
+ */
+
 
 #include <mps/mps.h>
 #include <math.h>
