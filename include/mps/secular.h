@@ -177,6 +177,11 @@ extern "C"
      */
     mps_boolean best_approx;
 
+    /**
+     * @brief This mutex is locked while changing precision. 
+     */
+    pthread_mutex_t precision_mutex;
+
   };       /* End of struct mps_secular_equation {... */
 
   /**

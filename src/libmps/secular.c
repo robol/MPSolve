@@ -275,6 +275,8 @@ mps_secular_equation_new_raw (mps_context * s, unsigned long int n)
       pthread_mutex_init (&sec->ampc_mutex[i], NULL);
       pthread_mutex_init (&sec->bmpc_mutex[i], NULL);
     }
+
+  pthread_mutex_init (&sec->precision_mutex, NULL);
   
   return sec;
 }
@@ -440,25 +442,40 @@ mps_secular_raise_coefficient_precision (mps_context * s, int wp)
   int i;
   mps_secular_equation *sec = (mps_secular_equation *) s->secular_equation;
 
-  for (i = 0; i < s->n; i++)
+  pthread_mutex_lock (&s->secular_equation->precision_mutex);
+
+  if (wp < mpc_get_prec (sec->ampc[0]))
     {
-      mpc_set_prec (sec->ampc[i], wp);
-      mpc_set_prec (sec->bmpc[i], wp);
+      pthread_mutex_unlock (&sec->precision_mutex);
+      return;
     }
 
   if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
     mps_monomial_poly_raise_precision (s, s->monomial_poly, wp);
 
-  if (MPS_INPUT_CONFIG_IS_SECULAR (s->input_config) && (!MPS_INPUT_CONFIG_IS_FP (s->input_config)))
+
+  for (i = 0; i < s->n; i++)
     {
-      for (i = 0; i < s->n; i++)
+      pthread_mutex_lock (&sec->ampc_mutex[i]);
+      mpc_set_prec (sec->ampc[i], wp);
+      if (MPS_INPUT_CONFIG_IS_SECULAR (s->input_config) && (!MPS_INPUT_CONFIG_IS_FP (s->input_config)))
 	{
 	  mpf_set_q (mpc_Re (sec->ampc[i]), sec->initial_ampqrc[i]);
 	  mpf_set_q (mpc_Im (sec->ampc[i]), sec->initial_ampqic[i]);
+	}
+      pthread_mutex_unlock (&sec->ampc_mutex[i]);
+
+      pthread_mutex_lock (&sec->bmpc_mutex[i]);
+      mpc_set_prec (sec->bmpc[i], wp);
+      if (MPS_INPUT_CONFIG_IS_SECULAR (s->input_config) && (!MPS_INPUT_CONFIG_IS_FP (s->input_config)))
+	{
 	  mpf_set_q (mpc_Re (sec->bmpc[i]), sec->initial_bmpqrc[i]);
 	  mpf_set_q (mpc_Im (sec->bmpc[i]), sec->initial_bmpqic[i]);
 	}
+      pthread_mutex_unlock (&sec->bmpc_mutex[i]);
     }
+
+  pthread_mutex_unlock (&s->secular_equation->precision_mutex);
 
   rdpe_set_2dl (s->mp_epsilon, 1.0, -wp);
   MPS_DEBUG_WITH_INFO (s, "Precision of the coefficients is now at %d bits", wp);
@@ -518,8 +535,6 @@ mps_secular_raise_precision (mps_context * s, int wp)
       s->root[i]->approximated = false;
       s->root[i]->again = true;
     }
-
-
 }
 
 /**

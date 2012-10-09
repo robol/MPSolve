@@ -512,6 +512,11 @@ mps_secular_mparallel_sum (mps_context * s, mps_approximation * root, int n, mpc
       int i;
       mpc_t ctmp, ctmp2;
       rdpe_t rtmp;
+      mps_secular_equation *sec = s->secular_equation;
+
+      /* Generally we'll be working on the b_i and a_i coefficient starting from
+       * a common shift. */
+      int shift = bmpc - sec->bmpc;
 
       mpc_init2 (ctmp, s->mpwp);
       mpc_init2 (ctmp2, s->mpwp);
@@ -519,7 +524,9 @@ mps_secular_mparallel_sum (mps_context * s, mps_approximation * root, int n, mpc
       for (i = 0; i < n; i++)
 	{
 	  /* Compute z - b_i */
+	  pthread_mutex_lock (&sec->bmpc_mutex[i + shift]);
 	  mpc_sub (ctmp, root->mvalue, bmpc[i]);
+	  pthread_mutex_unlock (&sec->bmpc_mutex[i + shift]);
 	  
 	  /* Check if we are in the case where z == b_i and return,
 	   * without doing any further iteration */
@@ -539,7 +546,9 @@ mps_secular_mparallel_sum (mps_context * s, mps_approximation * root, int n, mpc
 	  mpc_add_eq (sumb, ctmp);
 
 	  /* Compute a_i / (z - b_i) */
+	  pthread_mutex_lock (&sec->ampc_mutex[i + shift]);
 	  mpc_mul (ctmp2, ampc[i], ctmp);
+	  pthread_mutex_unlock (&sec->ampc_mutex[i + shift]);
 
 	  /* Compute the sum of module of (a_i/(z-b_i)) * (i + 2) */
 	  mpc_rmod (rtmp, ctmp2);
@@ -627,16 +636,26 @@ mps_secular_mnewton (mps_context * s, mps_approximation * root, mpc_t corr,
       
       mpc_set_ui (corr, 0U, 0U);
 
+      pthread_mutex_lock (&sec->ampc_mutex[i]);
+      pthread_mutex_lock (&sec->bmpc_mutex[i]);
       for (k = 0; k < sec->n; k++)
 	{
 	  if (i != k)
 	    {
+	      pthread_mutex_lock (&sec->bmpc_mutex[k]);
 	      mpc_sub (ctmp, sec->bmpc[i], sec->bmpc[k]);
+	      pthread_mutex_unlock (&sec->bmpc_mutex[k]);
+
+	      pthread_mutex_lock (&sec->ampc_mutex[k]);
 	      mpc_add (ctmp2, sec->ampc[i], sec->ampc[k]);
+	      pthread_mutex_lock (&sec->ampc_mutex[k]);
+
 	      mpc_div_eq (ctmp2, ctmp);
 	      mpc_add_eq (corr, ctmp2);
 	    }
 	}
+      pthread_mutex_unlock (&sec->ampc_mutex[i]);
+      pthread_mutex_unlock (&sec->bmpc_mutex[i]);
 
       mpc_set_ui (ctmp, 1U, 0U);
       mpc_sub_eq (corr, ctmp);

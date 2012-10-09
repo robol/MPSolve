@@ -19,6 +19,8 @@
     mps_context * s;
   } __mps_improve_data;
 
+void * mps_improve_root2 (void*);
+
 /**
  * @brief Improve all the approximations up to prec_out digits.
  *
@@ -74,7 +76,7 @@ mps_improve (mps_context * s)
     {
       improve_data[i].i = i;
       improve_data[i].s = s;
-      mps_thread_pool_assign (s, NULL, mps_improve_root, improve_data + i);
+      mps_thread_pool_assign (s, NULL, mps_improve_root2, improve_data + i);
       // mps_improve_root (s, i);
     }
 
@@ -87,17 +89,98 @@ mps_improve (mps_context * s)
 }
 
 void *
+mps_improve_root2 (void * data_ptr)
+{
+  __mps_improve_data * data = (__mps_improve_data*) data_ptr;
+  int i = data->i;
+  int j;
+  mps_context *ctx = data->s;
+
+  mps_approximation * root = ctx->root[i];
+  rdpe_t aroot;
+
+  /* Determine the number of steps necessary to have at least 
+   * log10 (ctx->output_config->prec) correct digits. */
+  mpc_rmod (aroot, root->mvalue);
+  int correct_bits = MAX (1, rdpe_Esp (aroot) - rdpe_Esp (root->drad) - 2);
+  int max_steps = mps_intlog2 (ctx->output_config->prec / correct_bits);
+
+  long int wp = root->wp;
+  mpc_t nwtcorr;
+
+  mps_monomial_poly * p = ctx->monomial_poly;
+
+  mps_secular_iteration_data it_data;
+  if (ctx->secular_equation)
+    {
+      it_data.local_ampc = ctx->secular_equation->ampc;
+      it_data.local_bmpc = ctx->secular_equation->bmpc;
+    }
+
+  if (ctx->debug_level & MPS_DEBUG_IMPROVEMENT)
+    MPS_DEBUG (ctx, "Starting to refine root %d", i);
+  if (ctx->root_status[i] != MPS_ROOT_STATUS_ISOLATED || 
+      ctx->root_status[i] == MPS_ROOT_STATUS_APPROXIMATED_IN_CLUSTER)
+    {
+      if (ctx->debug_level & MPS_DEBUG_IMPROVEMENT)
+	MPS_DEBUG (ctx, "Not approximating root %d since it is already approximated", i);
+      
+      return NULL;
+    }
+
+  mpc_init2 (nwtcorr, wp);
+
+  for (j = 0; j < max_steps; j++)
+    {
+      mps_prepare_data (ctx, wp);
+
+      mpc_set_prec (nwtcorr, wp);
+      mpc_set_prec (root->mvalue, wp);
+
+      if (ctx->mpwp < wp)
+	{
+	  ctx->mpwp = wp;
+	}
+	  
+      if (MPS_INPUT_CONFIG_IS_MONOMIAL (ctx->input_config))
+	{
+	  mps_mnewton (ctx, ctx->n, root, nwtcorr, p->mfpc, p->mfppc, p->dap, p->spar,
+		       mps_thread_get_id (ctx, ctx->pool), false);
+	}
+      else
+	{
+	  (*ctx->mnewton_usr) (ctx, ctx->root[i], nwtcorr, 
+			       MPS_INPUT_CONFIG_IS_SECULAR (ctx->input_config) ? &it_data : NULL, false);
+	}
+
+      mpc_set_prec (root->mvalue, 2 * wp);
+
+      mpc_sub_eq (root->mvalue, nwtcorr);
+      correct_bits *= 2;
+      correct_bits -= 1;
+      rdpe_set_2dl (root->drad, 2.0, - correct_bits);
+
+      wp *= 2;
+    }
+
+  mpc_clear (nwtcorr);
+
+  return NULL;
+}
+
+void *
 mps_improve_root (void * data_ptr)
 {
   __mps_improve_data * data = (__mps_improve_data*) data_ptr;
   int i = data->i;
   mps_context * s = data->s;
   int j, k, m;
+  int mpwp = s->mpwp;
   long mpnb_in, mpnb_out;
   mpc_t mtmp;
   mpc_t nwtcorr;
   cdpe_t ctmp;
-  rdpe_t tmp, t, st, sigma, newrad, oldrad, abroot;
+  rdpe_t tmp, t, st, sigma, newrad, oldrad, abroot, mp_epsilon;
   double f, g, cnd;
   mps_monomial_poly *p = s->monomial_poly;
 
@@ -140,8 +223,6 @@ mps_improve_root (void * data_ptr)
     {
       mps_mp_set_prec (s, mpnb_out * 2);
       mps_prepare_data (s, mpnb_out * 2);
-      if (MPS_INPUT_CONFIG_IS_SECULAR (s->input_config))
-	mps_secular_raise_precision (s, mpnb_out * 2);
     }
 
 
@@ -208,7 +289,8 @@ mps_improve_root (void * data_ptr)
       rdpe_div (sigma, t, st);
 
       /* Workaround added by me to solve nan problems. Leo. */
-      rdpe_add_eq (sigma, s->mp_epsilon); 
+      rdpe_set_2dl (mp_epsilon, 2.0, - mpwp);
+      rdpe_add_eq (sigma, mp_epsilon); 
 
       g = -rdpe_log (sigma) / LOG2;
       rdpe_set (tmp, abroot);
@@ -239,29 +321,26 @@ mps_improve_root (void * data_ptr)
 	  /* } */
 
 	  /* Round it to 64 integers */
-	  s->mpwp = (long) (f + g + cnd);
+	  mpwp = (long) (f + g + cnd);
 
-          if (s->mpwp > mpnb_in && mpnb_in != 0)
+          if (mpwp > mpnb_in && mpnb_in != 0)
 	    {
 	      /* Lower the precision so it won't go over mpnb_in
 	       * that would clearly get us to an error, for over estimating
 	       * the precision of the input coefficients. */
-	      s->mpwp = mpnb_in - 63;
+	      mpwp = mpnb_in - 63;
 	      break;
 	    }
 
-          mps_mp_set_prec (s, s->mpwp);
+          mps_mp_set_prec (s, mpwp);
 
           mpc_clear (nwtcorr);
-          mpc_init2 (nwtcorr, s->mpwp);
+          mpc_init2 (nwtcorr, mpwp);
 
 	  /* If using the standard MPSolve algorithm then use the old
 	   * mps_prepare_data routine, otherwise use the one that
 	   * raises the precision of the coefficients */
-	  mps_prepare_data (s, s->mpwp);
-
-          if (MPS_INPUT_CONFIG_IS_SECULAR (s->input_config))
-	    mps_secular_raise_coefficient_precision (s, s->mpwp);
+	  mps_prepare_data (s, mpwp);
 
           if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
             {
@@ -304,14 +383,14 @@ mps_improve_root (void * data_ptr)
 	  /* Check if the radius that we have obtained until now is good, and if
 	   * we have passed the maximum allowed precision. */
           if (rdpe_lt (s->root[i]->drad, tmp) || 
-	      (mpnb_in != 0 && s->mpwp >= mpnb_in))
+	      (mpnb_in != 0 && mpwp >= mpnb_in))
 	    {
-	      if (s->mpwp >= mpnb_in && mpnb_in != 0)
+	      if (mpwp >= mpnb_in && mpnb_in != 0)
 		s->over_max = true;
 
 	      if (s->debug_level & MPS_DEBUG_IMPROVEMENT)
 		{
-		  if (s->mpwp >= mpnb_in && mpnb_in != 0)
+		  if (mpwp >= mpnb_in && mpnb_in != 0)
 		    {
 		      MPS_DEBUG (s, "Stopping newton iterations on root %d because we have reached input precision", i);
 		    }
