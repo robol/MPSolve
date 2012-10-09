@@ -3,13 +3,13 @@
 /**
  * @brief Evaluate a secular equation <code>sec</code> in the point <code>x</code>
  *
- * @param s The <code>mps_status</code> of the computation.
+ * @param s The <code>mps_context</code> of the computation.
  * @param sec The secular equation to evaluate.
  * @param x The point in which the secular equation must be evaluated.
  * @param value The value of the secular equation in the pointer <code>x</code>.
  */
 void
-mps_secular_feval (mps_status * s, mps_secular_equation * sec, cplx_t x, cplx_t value)
+mps_secular_feval (mps_context * s, mps_secular_equation * sec, cplx_t x, cplx_t value)
 {
   cplx_t ctmp;
   int i;
@@ -30,14 +30,14 @@ mps_secular_feval (mps_status * s, mps_secular_equation * sec, cplx_t x, cplx_t 
  * @brief Evaluate a secular equation <code>sec</code> in the point <code>x</code>, 
  * estimating the error on the evaluation.
  *
- * @param s The <code>mps_status</code> of the computation.
+ * @param s The <code>mps_context</code> of the computation.
  * @param sec The secular equation to evaluate.
  * @param x The point in which the secular equation must be evaluated.
  * @param value The value of the secular equation in the pointer <code>x</code>.
  * @param error The absolute error on the evaluation.
  */
 void
-mps_secular_feval_with_error (mps_status * s, mps_secular_equation * sec, cplx_t x, cplx_t value,
+mps_secular_feval_with_error (mps_context * s, mps_secular_equation * sec, cplx_t x, cplx_t value,
 			      double * error)
 {
   cplx_t ctmp;
@@ -63,13 +63,13 @@ mps_secular_feval_with_error (mps_status * s, mps_secular_equation * sec, cplx_t
 /**
  * @brief Evaluate a secular equation <code>sec</code> in the point <code>x</code>
  *
- * @param s The <code>mps_status</code> of the computation.
+ * @param s The <code>mps_context</code> of the computation.
  * @param sec The secular equation to evaluate.
  * @param x The point in which the secular equation must be evaluated.
  * @param value The value of the secular equation in the point <code>x</code>.
  */
 void
-mps_secular_deval (mps_status * s, mps_secular_equation * sec, cdpe_t x, cdpe_t value)
+mps_secular_deval (mps_context * s, mps_secular_equation * sec, cdpe_t x, cdpe_t value)
 {
   cdpe_t ctmp;
   int i;
@@ -89,14 +89,14 @@ mps_secular_deval (mps_status * s, mps_secular_equation * sec, cdpe_t x, cdpe_t 
 /**
  * @brief Evaluate a secular equation <code>sec</code> in the point <code>x</code>
  *
- * @param s The <code>mps_status</code> of the computation.
+ * @param s The <code>mps_context</code> of the computation.
  * @param sec The secular equation to evaluate.
  * @param x The point in which the secular equation must be evaluated.
  * @param value The value of the secular equation in the point <code>x</code>.
  * @param error A bound to the module of the relative error occurred in the computation.
  */
 void
-mps_secular_deval_with_error (mps_status * s, mps_secular_equation * sec, 
+mps_secular_deval_with_error (mps_context * s, mps_secular_equation * sec, 
 			      cdpe_t x, cdpe_t value, rdpe_t error)
 {
   cdpe_t ctmp;
@@ -126,13 +126,13 @@ mps_secular_deval_with_error (mps_status * s, mps_secular_equation * sec,
 /**
  * @brief Evaluate a secular equation <code>sec</code> in the point <code>x</code>.
  *
- * @param s The <code>mps_status</code> of the computation.
+ * @param s The <code>mps_context</code> of the computation.
  * @param sec The secular equation to evaluate.
  * @param x The point in which the sceular equation must be evaluated.
  * @param value The value of the secular equation in the point <code>x</code>.
  */
 void
-mps_secular_meval (mps_status * s, mps_secular_equation * sec, mpc_t x, mpc_t value)
+mps_secular_meval (mps_context * s, mps_secular_equation * sec, mpc_t x, mpc_t value)
 {
   mpc_t ctmp;
   unsigned int wp = mpc_get_prec (x);
@@ -156,14 +156,14 @@ mps_secular_meval (mps_status * s, mps_secular_equation * sec, mpc_t x, mpc_t va
 /**
  * @brief Evaluate a secular equation <code>sec</code> in the point <code>x</code>.
  *
- * @param s The <code>mps_status</code> of the computation.
+ * @param s The <code>mps_context</code> of the computation.
  * @param sec The secular equation to evaluate.
  * @param x The point in which the sceular equation must be evaluated.
  * @param value The value of the secular equation in the point <code>x</code>.
  * @param error A bound to the absolute value of the error introduced in the computation.
  */
 mps_boolean
-mps_secular_meval_with_error (mps_status * s, mps_secular_equation * sec, mpc_t x, mpc_t value, rdpe_t error)
+mps_secular_meval_with_error (mps_context * s, mps_secular_equation * sec, mpc_t x, mpc_t value, rdpe_t error)
 {
   mpc_t ctmp;
   rdpe_t rtmp, ax;

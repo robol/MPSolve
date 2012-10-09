@@ -75,11 +75,11 @@ update_drawing_area (void * user_data)
 }
 
 void
-on_polynomial_solved (mps_status * s, GtkButton * button)
+on_polynomial_solved (mps_context * s, GtkButton * button)
 {
-  points = cplx_valloc (mps_status_get_degree (s));
-  mps_status_get_roots_d (s, points, NULL);
-  degree = mps_status_get_degree (s);
+  points = cplx_valloc (mps_context_get_degree (s));
+  mps_context_get_roots_d (s, points, NULL);
+  degree = mps_context_get_degree (s);
 
   /* Call the update function from the right thread! */
   g_idle_add (update_drawing_area, NULL);
@@ -92,7 +92,7 @@ void
 on_solve_button_clicked (GtkButton * button, GtkSpinButton * spin_button)
 {
   int degree = gtk_spin_button_get_value_as_int (spin_button);
-  mps_status * s = mps_status_new ();
+  mps_context * s = mps_context_new ();
   mps_monomial_poly * p = mps_monomial_poly_new (s, degree);
 
   /* Please note that here a mutex will be required to avoid
@@ -111,7 +111,7 @@ on_solve_button_clicked (GtkButton * button, GtkSpinButton * spin_button)
   mps_monomial_poly_set_coefficient_d (s, p, degree, 1, 0);
 
   /* Asking MPSolve to solve it asynchronously */
-  mps_status_set_input_poly (s, p);
+  mps_context_set_input_poly (s, p);
   mps_mpsolve_async (s, (mps_callback) on_polynomial_solved, button);
 }
 

@@ -4,7 +4,7 @@
 #include <string.h>
 
 long int
-mps_status_get_data_prec_max (mps_status * s)
+mps_context_get_data_prec_max (mps_context * s)
 {
   long int ret;
   MPS_LOCK (s->data_prec_max);
@@ -14,7 +14,7 @@ mps_status_get_data_prec_max (mps_status * s)
 }
 
 int 
-mps_status_get_degree (mps_status * s)
+mps_context_get_degree (mps_context * s)
 {
   return s->n;
 }
@@ -30,17 +30,17 @@ mps_status_get_degree (mps_status * s)
  *   applied to secular equations;
  */
 void
-mps_status_select_algorithm (mps_status * s, mps_algorithm algorithm)
+mps_context_select_algorithm (mps_context * s, mps_algorithm algorithm)
 {
   /* Select ga if we are in the case of monomial input, since is the only algorithm
    * that we can use. */
-  if (MPS_INPUT_CONFIG_IS_MONOMIAL (mps_status_get_input_config (s)) && algorithm == MPS_ALGORITHM_SECULAR_MPSOLVE)
+  if (MPS_INPUT_CONFIG_IS_MONOMIAL (mps_context_get_input_config (s)) && algorithm == MPS_ALGORITHM_SECULAR_MPSOLVE)
     {
       algorithm = MPS_ALGORITHM_SECULAR_GA;
       MPS_DEBUG_WITH_INFO (s, "Selecting algorithm MPS_ALGORITHM_SECULAR_GA since MPS_ALGORITHM_SECULAR_MPSOLVE is not available for monomial input");
     }
   
-  /* First set algorithm in the mps_status */
+  /* First set algorithm in the mps_context */
   s->algorithm = algorithm;
 
   switch (algorithm)
@@ -88,20 +88,20 @@ mps_status_select_algorithm (mps_status * s, mps_algorithm algorithm)
 
 
 /**
- * @brief Allocate a new mps_status struct with default
+ * @brief Allocate a new mps_context struct with default
  * options.
  */
-mps_status *
-mps_status_new ()
+mps_context *
+mps_context_new ()
 {
-  /* Allocate the new mps_status and load default options */
-  mps_status * s = (mps_status*) mps_malloc (sizeof (mps_status));
-  mps_status_init (s);
+  /* Allocate the new mps_context and load default options */
+  mps_context * s = (mps_context*) mps_malloc (sizeof (mps_context));
+  mps_context_init (s);
   return s;
 }
 
 void
-mps_status_init (mps_status * s)
+mps_context_init (mps_context * s)
 {
   /* Set default streams */
   s->instr = stdin;
@@ -125,12 +125,12 @@ mps_status_init (mps_status * s)
 }
 
 /**
- * @brief Free a not more useful mps_status.
+ * @brief Free a not more useful mps_context.
  *
- * @param s the mps_status struct pointer to free.
+ * @param s the mps_context struct pointer to free.
  */
 void
-mps_status_free (mps_status * s)
+mps_context_free (mps_context * s)
 {
   if (s->initialized)
     mps_free_data (s);
@@ -160,41 +160,41 @@ mps_status_free (mps_status * s)
  *
  * This is an example of call to this function:
  * @code
- * // Set a polynomial of degree n with associated mps_status* s
+ * // Set a polynomial of degree n with associated mps_context* s
  * // and use the provided routines to compute newton corrections.
- * mps_status_set_poly_u(s, n,
+ * mps_context_set_poly_u(s, n,
  *   MPS_FNEWTON_PTR(mps_secular_fnewton),
  *	 MPS_DNEWTON_PTR(mps_secular_dnewton),
  *	 MPS_MNEWTON_PTR(mps_secular_mnewton));
  * @endcode
  *
- * @param s The <code>mps_status</code> struct;
+ * @param s The <code>mps_context</code> struct;
  * @param n The degree of the polynomial;
  * @param fnewton The routine that performs the computation of the newton correction
  *   in floating point. It must be of the type
- *   <code>(void*)(mps_status* s, cplx_t x, double *rad, cplx_t corr, mps_boolean * again)</code>
+ *   <code>(void*)(mps_context* s, cplx_t x, double *rad, cplx_t corr, mps_boolean * again)</code>
  *   and can be passed to the function with the right casting using the macro
  *   <code>MPS_FNEWTON_PTR</code>.
  * @param dnewton The routine that performs the computation of the newton correction in
  *   <code>dpe</code> precision. It must be of the type
- *   <code>(void*)(mps_status* s, cdpe_t x, rdpe_t rad, cdpe_t corr, mps_boolean * again)</code>
+ *   <code>(void*)(mps_context* s, cdpe_t x, rdpe_t rad, cdpe_t corr, mps_boolean * again)</code>
  *   and can be passed to the function with the right casting using the macro
  *   <code>MPS_DNEWTON_PTR</code>.
  * @param mnewton The routine that performs the computation of the newton correction in
  *   multiprecision. It must be of the type
- *   <code>(void*)(mps_status* s, mpc_t x, rdpe_t rad, mpc_t corr, mps_boolean * again)</code>
+ *   <code>(void*)(mps_context* s, mpc_t x, rdpe_t rad, mpc_t corr, mps_boolean * again)</code>
  *   and can be passed to the function with the right casting using the macro
  *   <code>MPS_MNEWTON_PTR</code>. 
  */
 int
-mps_status_set_poly_u (mps_status * s, int n, mps_fnewton_ptr fnewton,
+mps_context_set_poly_u (mps_context * s, int n, mps_fnewton_ptr fnewton,
                        mps_dnewton_ptr dnewton, mps_mnewton_ptr mnewton)
 {
   mps_monomial_poly *p = mps_monomial_poly_new (s, n);
   s->monomial_poly = p;
 
   /* Set degree and allocate data */
-  mps_status_set_degree (s, n);
+  mps_context_set_degree (s, n);
 
   /* Set functions */
   s->fnewton_usr = fnewton;
@@ -209,7 +209,7 @@ mps_status_set_poly_u (mps_status * s, int n, mps_fnewton_ptr fnewton,
 }
 
 void
-mps_status_set_degree (mps_status * s, int n)
+mps_context_set_degree (mps_context * s, int n)
 {
   s->deg = s->n = n;
   
@@ -223,17 +223,17 @@ mps_status_set_degree (mps_status * s, int n)
  * @brief Set the monomial poly p as the input polynomial for 
  * the current equation.
  *
- * @param s The mps_status to set the monomial_poly into.
+ * @param s The mps_context to set the monomial_poly into.
  * @param p The mps_monomial_poly to solve.
  */
 void
-mps_status_set_input_poly (mps_status * s, mps_monomial_poly * p)
+mps_context_set_input_poly (mps_context * s, mps_monomial_poly * p)
 {
   MPS_DEBUG_THIS_CALL;
 
   int i;
   s->monomial_poly = p;
-  mps_status_set_degree (s, p->n);
+  mps_context_set_degree (s, p->n);
 
   /* Set the right flag for the input */
   s->input_config->representation = MPS_REPRESENTATION_MONOMIAL;
@@ -270,7 +270,7 @@ mps_status_set_input_poly (mps_status * s, mps_monomial_poly * p)
  * \f]
  */
 int
-mps_status_set_poly_d (mps_status * s, cplx_t * coeff, long unsigned int n)
+mps_context_set_poly_d (mps_context * s, cplx_t * coeff, long unsigned int n)
 {
 
   int i;
@@ -285,7 +285,7 @@ mps_status_set_poly_d (mps_status * s, cplx_t * coeff, long unsigned int n)
 					   cplx_Im (coeff[i]));
     }
 
-  mps_status_set_input_poly (s, p);
+  mps_context_set_input_poly (s, p);
   
   return 0;
 }
@@ -301,12 +301,12 @@ mps_status_set_poly_d (mps_status * s, cplx_t * coeff, long unsigned int n)
  * \f]
  */
 int
-mps_status_set_poly_i (mps_status * s, int *coeff, long unsigned int n)
+mps_context_set_poly_i (mps_context * s, int *coeff, long unsigned int n)
 {
 
   int i;
 
-  /* Allocate data in mps_status to hold the polynomial of degree n */
+  /* Allocate data in mps_context to hold the polynomial of degree n */
   mps_monomial_poly * p = mps_monomial_poly_new (s, n);
 
   /* Fill polynomial */
@@ -324,7 +324,7 @@ mps_status_set_poly_i (mps_status * s, int *coeff, long unsigned int n)
  * to the i-th inclusion radius.
  */
 int
-mps_status_get_roots_d (mps_status * s, cplx_t * roots, double *radius)
+mps_context_get_roots_d (mps_context * s, cplx_t * roots, double *radius)
 {
   int i;
   for (i = 0; i < s->n; i++)
@@ -363,7 +363,7 @@ mps_status_get_roots_d (mps_status * s, cplx_t * roots, double *radius)
  * @brief Get the roots computed as multiprecision complex numbers.
  */
 int
-mps_status_get_roots_m (mps_status * s, mpc_t * roots, rdpe_t * radius)
+mps_context_get_roots_m (mps_context * s, mpc_t * roots, rdpe_t * radius)
 {
   int i;
 
@@ -393,11 +393,11 @@ mps_status_get_roots_m (mps_status * s, mpc_t * roots, rdpe_t * radius)
  * this is the minimum precision required for the roots in
  * output.
  *
- * @param s The <code>mps_status</code> of the computation.
+ * @param s The <code>mps_context</code> of the computation.
  * @param prec The desired output precision.
  */
 void 
-mps_status_set_output_prec (mps_status * s, long int prec)
+mps_context_set_output_prec (mps_context * s, long int prec)
 {
   s->output_config->prec = prec;
 }
@@ -408,11 +408,11 @@ mps_status_set_output_prec (mps_status * s, long int prec)
  * This has meaning only for fp coefficients, and the special
  * value 0 means infinite precision.
  *
- * @param s The mps_status of the current computation.
+ * @param s The mps_context of the current computation.
  * @param prec The precisision to be set.
  */
 void
-mps_status_set_input_prec (mps_status * s, long int prec)
+mps_context_set_input_prec (mps_context * s, long int prec)
 {
   s->input_config->prec = prec;
 }
@@ -421,11 +421,11 @@ mps_status_set_input_prec (mps_status * s, long int prec)
  * @brief Set the desired output format that will be used when
  * calling mps_output(). 
  *
- * @param s The <code>mps_status</code> of the current computation.
+ * @param s The <code>mps_context</code> of the current computation.
  * @param format The format chosen for the output.
  */
 void 
-mps_status_set_output_format (mps_status * s, mps_output_format format)
+mps_context_set_output_format (mps_context * s, mps_output_format format)
 {
   s->output_config->format = format;
 }
@@ -433,11 +433,11 @@ mps_status_set_output_format (mps_status * s, mps_output_format format)
 /**
  * @brief Set the output goal for the computation.
  *
- * @param s The <code>mps_status</code> of the computation.
+ * @param s The <code>mps_context</code> of the computation.
  * @param goal The goal that will be reached before stopping.
  */
 void 
-mps_status_set_output_goal (mps_status * s, mps_output_goal goal)
+mps_context_set_output_goal (mps_context * s, mps_output_goal goal)
 {
   s->output_config->goal = goal;
 }
@@ -445,11 +445,11 @@ mps_status_set_output_goal (mps_status * s, mps_output_goal goal)
 /**
  * @brief Set the debug level in MPSolve.
  *
- * @param s The <code>mps_status</code> of the current computation.
+ * @param s The <code>mps_context</code> of the current computation.
  * @param level The debug_level to set.
  */
 void 
-mps_status_set_debug_level (mps_status * s, mps_debug_level level)
+mps_context_set_debug_level (mps_context * s, mps_debug_level level)
 {
   s->debug_level = level;
   if (level)
@@ -464,35 +464,35 @@ mps_status_set_debug_level (mps_status * s, mps_debug_level level)
  * @brief Add another debug domain to the ones displayed. This will
  * enable debug if disabled and show message from the given region.
  *
- * @param s The <code>mps_status</code> of the current computation.
+ * @param s The <code>mps_context</code> of the current computation.
  * @param level The domain to add to the already set debug_level.
  */
 void 
-mps_status_add_debug_domain (mps_status * s, mps_debug_level level)
+mps_context_add_debug_domain (mps_context * s, mps_debug_level level)
 {
-  mps_status_set_debug_level (s, s->debug_level | level);
+  mps_context_set_debug_level (s, s->debug_level | level);
 }
 
 /**
  * @brief Get a pointer to the input config stored in the 
- * given mps_status.
+ * given mps_context.
  *
- * @param s The <code>mps_status</code> of the current computation.
+ * @param s The <code>mps_context</code> of the current computation.
  */
 mps_input_configuration * 
-mps_status_get_input_config (mps_status * s)
+mps_context_get_input_config (mps_context * s)
 {
   return s->input_config;
 }
 
 /**
  * @brief Get a pointer to the output config stored in the
- * given mps_status.
+ * given mps_context.
  *
- * @param s The <code>mps_status</code> of the current computation.
+ * @param s The <code>mps_context</code> of the current computation.
  */
 mps_output_configuration * 
-mps_status_get_output_config (mps_status * s)
+mps_context_get_output_config (mps_context * s)
 {
   return s->output_config;
 }
@@ -501,11 +501,11 @@ mps_status_get_output_config (mps_status * s)
 /**
  * @brief Set logstr as the default output for logging.
  *
- * @param s The <code>mps_status</code> of the current computation.
+ * @param s The <code>mps_context</code> of the current computation.
  * @param logstr The desired stream to be used for logging. 
  */
 void
-mps_status_set_log_stream (mps_status * s, FILE * logstr)
+mps_context_set_log_stream (mps_context * s, FILE * logstr)
 {
   s->logstr = logstr;
 }
@@ -513,12 +513,12 @@ mps_status_set_log_stream (mps_status * s, FILE * logstr)
 /**
  * @brief Set the phase from which the computation should start.
  *
- * @param s The <code>mps_status</code> of the current computation.
+ * @param s The <code>mps_context</code> of the current computation.
  * @param phase The phase which should be chosen at the start of the
  * computation.
  */
 void 
-mps_status_set_starting_phase (mps_status * s, mps_phase phase)
+mps_context_set_starting_phase (mps_context * s, mps_phase phase)
 {
   s->input_config->starting_phase = phase;
 }
@@ -527,10 +527,10 @@ mps_status_set_starting_phase (mps_status * s, mps_phase phase)
  * @brief Get the number of zero roots in the output. Must be called
  * after mps_mpsolve() has complete.
  *
- * @param s The <code>mps_status</code> of the current computation.
+ * @param s The <code>mps_context</code> of the current computation.
  */
 int 
-mps_status_get_zero_roots (mps_status * s)
+mps_context_get_zero_roots (mps_context * s)
 {
   return s->zero_roots;
 }
@@ -541,10 +541,10 @@ mps_status_get_zero_roots (mps_status * s)
  * precision without any further information on the input
  * coefficients.
  *
- * @param s The <code>mps_status</code> of the current computation.
+ * @param s The <code>mps_context</code> of the current computation.
  */
 mps_boolean 
-mps_status_get_over_max (mps_status * s)
+mps_context_get_over_max (mps_context * s)
 {
   return s->over_max;
 }
@@ -553,9 +553,9 @@ mps_status_get_over_max (mps_status * s)
  * @brief Return true if mpsolve has encountered an error
  * in the computation.
  *
- * @param s The <code>mps_status</code> of the current computation.
+ * @param s The <code>mps_context</code> of the current computation.
  */
-mps_boolean mps_status_has_errors (mps_status * s)
+mps_boolean mps_context_has_errors (mps_context * s)
 {
   return s->error_state;
 }
@@ -566,9 +566,9 @@ mps_boolean mps_status_has_errors (mps_status * s)
  *
  * This char array should be freed by the user.
  *
- * @param s The <code>mps_status</code> of the current computation.
+ * @param s The <code>mps_context</code> of the current computation.
  */
-char * mps_status_error_msg (mps_status * s)
+char * mps_context_error_msg (mps_context * s)
 {
   if (s->last_error)
     return strdup (s->last_error);

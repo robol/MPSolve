@@ -257,8 +257,8 @@ extern "C"
       fprintf(s->logstr, "%s:%d %s() ", __FILE__, __LINE__, __FUNCTION__); \
     __c_impl____MPS_DEBUG						\
       }
-  void __c_impl__MPS_DEBUG (mps_status * s, const char *templ, ...);
-  void __c_impl____MPS_DEBUG (mps_status * s, const char *templ, ...);
+  void __c_impl__MPS_DEBUG (mps_context * s, const char *templ, ...);
+  void __c_impl____MPS_DEBUG (mps_context * s, const char *templ, ...);
 #endif
 #endif
 

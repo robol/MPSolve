@@ -6,7 +6,7 @@
  **            |_|  |_|_|  |___/\___/_|\_/\___|            **
  **                                                        **
  **       Multiprecision Polynomial Solver (MPSolve)       **
- **                 Version 2.9, April 2011                **
+ **               Version 2.9, September 2012              **
  **                                                        **
  **                      Written by                        **
  **                                                        **
@@ -14,7 +14,7 @@
  **     Giuseppe Fiorentino     <fiorent@dm.unipi.it>      **
  **     Leonardo Robol          <robol@mail.dm.unipi.it>   **
  **                                                        **
- **           (C) 2011, Dipartimento di Matematica         **
+ **           (C) 2012, Dipartimento di Matematica         **
  ***********************************************************/
 
 #include <mps/mps.h>
@@ -23,11 +23,11 @@
 /**
  * @brief Globally set the current precision of mp variables
  *
- * @param s The <code>mps_status</code> of the computation.
+ * @param s The <code>mps_context</code> of the computation.
  * @param prec The precision that is desired for the next MP computations. 
  */
 void
-mps_mp_set_prec (mps_status * s, long int prec)
+mps_mp_set_prec (mps_context * s, long int prec)
 {
   s->mpwp = (prec / 64 + 1) * 64;
   rdpe_set_2dl (s->mp_epsilon, 1.0, -s->mpwp);
@@ -41,10 +41,10 @@ mps_mp_set_prec (mps_status * s, long int prec)
  * the degree of the polynomial (or, more generally, the number of root of the
  * equation) in <code>s->deg</code>.
  *
- * @param s The <code>mps_status</code> of the computation.
+ * @param s The <code>mps_context</code> of the computation.
  */
 void
-mps_allocate_data (mps_status * s)
+mps_allocate_data (mps_context * s)
 {
   MPS_DEBUG_THIS_CALL;
   int i;
@@ -126,13 +126,13 @@ mps_allocate_data (mps_status * s)
 /**
  * @brief Raise precision performing a real computation of the data.
  *
- * @param s The <code>mps_status</code> of the computation.
+ * @param s The <code>mps_context</code> of the computation.
  * @param prec The desired precision.
  * @return The precision set (that may be different from the one requested
  * since GMP works only with precision divisible by 64bits.
  */
 long int
-mps_raise_data (mps_status * s, long int prec)
+mps_raise_data (mps_context * s, long int prec)
 {
   int i, k;
   mps_monomial_poly *p = s->monomial_poly;
@@ -211,11 +211,11 @@ mps_raise_data (mps_status * s, long int prec)
  * @brief The same of <code>mps_raise_data()</code> but using
  * raw routines of GMP, that will not change allocations. 
  *
- * @param s The <code>mps_status</code> of the computation.
+ * @param s The <code>mps_context</code> of the computation.
  * @param prec The desired precision.
  */
 void
-mps_raise_data_raw (mps_status * s, long int prec)
+mps_raise_data_raw (mps_context * s, long int prec)
 {
   int k;
   mps_monomial_poly *p = s->monomial_poly;
@@ -252,12 +252,12 @@ mps_raise_data_raw (mps_status * s, long int prec)
  * with the  current precision of mpwds words, given the
  * rational or integer coefficients.
  *
- * @param s The <code>mps_status</code> of the computation.
+ * @param s The <code>mps_context</code> of the computation.
  * @param prec The precision that should be set and to which the data should
  * be adjusted.
  */
 void 
-mps_prepare_data (mps_status * s, long int prec)
+mps_prepare_data (mps_context * s, long int prec)
 {
   MPS_DEBUG_THIS_CALL;
 
@@ -290,10 +290,10 @@ mps_prepare_data (mps_status * s, long int prec)
 /**
  * @brief Resets the data to the highest used precision
  *
- * @param s The <code>mps_status</code> of the computation.
+ * @param s The <code>mps_context</code> of the computation.
  */
 void
-mps_restore_data (mps_status * s)
+mps_restore_data (mps_context * s)
 {
   MPS_LOCK (s->data_prec_max);
   if (s->debug_level & MPS_DEBUG_MEMORY)
@@ -311,10 +311,10 @@ mps_restore_data (mps_status * s)
 /**
  * @brief Free all the data allocated with <code>mps_allocate_data()</code>
  *
- * @param s The <code>mps_status</code> of the computation.
+ * @param s The <code>mps_context</code> of the computation.
  */
 void
-mps_free_data (mps_status * s)
+mps_free_data (mps_context * s)
 {
   int i;
 

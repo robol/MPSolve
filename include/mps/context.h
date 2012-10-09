@@ -8,7 +8,7 @@ extern "C"
 
   /**
    * @file
-   * @brief This file contains the definition of <code>mps_status</code> and 
+   * @brief This file contains the definition of <code>mps_context</code> and 
    * most of its fields.
    */
 #include <mps/mps.h>
@@ -17,14 +17,14 @@ extern "C"
   /**
    * @brief Function that computes \f$\frac{p}{p'}\f$ (floating point version)
    */
-  typedef void (*mps_fnewton_ptr) (mps_status * status, mps_approximation *, cplx_t,
+  typedef void (*mps_fnewton_ptr) (mps_context * status, mps_approximation *, cplx_t,
                                    void * user_data,
 				   mps_boolean skip_radius_check);
 
   /**
    * @brief Function that computes \f$\frac{p}{p'}\f$ (dpe version)
    */
-  typedef void (*mps_dnewton_ptr) (mps_status * status, mps_approximation * root,
+  typedef void (*mps_dnewton_ptr) (mps_context * status, mps_approximation * root,
                                    cdpe_t corr,
 				   void * user_data,
 				   mps_boolean skip_radius_check);
@@ -32,7 +32,7 @@ extern "C"
   /**
    * @brief Function that computes \f$\frac{p}{p'}\f$ (multiprecision version)
    */
-  typedef void (*mps_mnewton_ptr) (mps_status * status, mps_approximation * root,
+  typedef void (*mps_mnewton_ptr) (mps_context * status, mps_approximation * root,
                                    mpc_t corr,
 				   void * user_data,
 				   mps_boolean skip_radius_check);
@@ -41,38 +41,38 @@ extern "C"
    * @brief Functions that check if float phase is needed or not and set
    * which_case accordingly to <code>'f'</code> or <code>'d'</code>.
    */
-  typedef void (*mps_check_data_ptr) (mps_status *status, char *which_case);
+  typedef void (*mps_check_data_ptr) (mps_context *status, char *which_case);
 
   /**
    * @brief Function to dispose starting approximations in the case of
    * floating point iterations.
    */
-  typedef void (*mps_fstart_ptr) (mps_status *status, int n, mps_cluster_item * cluster,
+  typedef void (*mps_fstart_ptr) (mps_context *status, int n, mps_cluster_item * cluster,
                                   double clust_rad, double g, rdpe_t eps);
 
   /**
    * @brief Function to dispose starting approximations in the case of
    * DPE iterations.
    */
-  typedef void (*mps_dstart_ptr) (mps_status *status, int n, mps_cluster_item * cluster,
+  typedef void (*mps_dstart_ptr) (mps_context *status, int n, mps_cluster_item * cluster,
                                   rdpe_t clust_rad, rdpe_t g, rdpe_t eps);
 
   /**
    * @brief Function that computes radii to perform cluster analysis on the
    * roots in the floating point iterations.
    */
-  typedef void (*mps_fradii_ptr) (mps_status * status);
+  typedef void (*mps_fradii_ptr) (mps_context * status);
 
   /**
    * @brief Routine that performs the computation loop to solve the polynomial
    * or the secular equation
    */
-  typedef void (*mps_mpsolve_ptr) (mps_status *status);
+  typedef void (*mps_mpsolve_ptr) (mps_context *status);
 
   /**
    * @brief Pointer to the callback for the async version of mpsolve
    */
-  typedef void* (*mps_callback) (mps_status * status, void * user_data);
+  typedef void* (*mps_callback) (mps_context * status, void * user_data);
 
 
   /*
@@ -90,7 +90,7 @@ extern "C"
   /**
    * @brief this struct holds the state of the mps computation
    */
-  struct mps_status
+  struct mps_context
   {
     /**
      * @brief true if an error has occurred during the computation.
@@ -559,7 +559,7 @@ extern "C"
      * @brief Pointer to the function to perform newton in dpe
      * implemented by the user.
      */
-    /* void (*dnewton_usr) (mps_status *status, cdpe_t x, rdpe_t rad, cdpe_t corr, */
+    /* void (*dnewton_usr) (mps_context *status, cdpe_t x, rdpe_t rad, cdpe_t corr, */
     /*                      mps_boolean * again, void * user_data,  */
     /* 			 mps_boolean * skip_radius_computation); */
     mps_dnewton_ptr dnewton_usr;
@@ -568,7 +568,7 @@ extern "C"
      * @brief Pointer to the function to perform newton in multiprecision
      * implemented by the user.
      */
-    /* void (*mnewton_usr) (mps_status *status, mpc_t x, rdpe_t rad, mpc_t corr, */
+    /* void (*mnewton_usr) (mps_context *status, mpc_t x, rdpe_t rad, mpc_t corr, */
     /*                      mps_boolean * again, void * user_data,  */
     /* 			 mps_boolean * skip_radius_computation); */
     mps_mnewton_ptr mnewton_usr;
@@ -577,26 +577,26 @@ extern "C"
      * @brief Check data routine that has the task to determine if a float phase
      * can be performed or dpe are needed now.
      */
-    void (*check_data_usr) (mps_status *status, char *which_case);
+    void (*check_data_usr) (mps_context *status, char *which_case);
 
     /**
      * @brief Routine to dispose starting approximations provided by the user
      */
-    void (*fstart_usr) (mps_status *status, int n, mps_cluster_item * cluster, double clust_rad,
+    void (*fstart_usr) (mps_context *status, int n, mps_cluster_item * cluster, double clust_rad,
                         double g, rdpe_t eps);
 
     /**
      * @brief Routine to dispose starting approximations provided
      * by user in the case of DPE computation.
      */
-    void (*dstart_usr) (mps_status *status, int n, mps_cluster_item * cluster, rdpe_t clust_rad,
+    void (*dstart_usr) (mps_context *status, int n, mps_cluster_item * cluster, rdpe_t clust_rad,
                         rdpe_t g, rdpe_t eps);
 
     /**
      * @brief Routine that performs the loop needed to coordinate
      * root finding. It has to be called to do the hard work.
      */
-    void (*mpsolve_ptr) (mps_status *status);
+    void (*mpsolve_ptr) (mps_context *status);
 
     /**
      * @brief A pointer to the polynomial that is being solve or
@@ -645,52 +645,52 @@ extern "C"
 #endif /* #ifdef _MPS_PRIVATE */
 
   /* Allocator, deallocator, constructors.. */
-  mps_status * mps_status_new (void);
-  void mps_status_init (mps_status * s);
-  void mps_status_free (mps_status * s);
+  mps_context * mps_context_new (void);
+  void mps_context_init (mps_context * s);
+  void mps_context_free (mps_context * s);
 
   /* Accessor functions (setters) */
-  int mps_status_set_poly_d (mps_status * s, cplx_t * coeff,
+  int mps_context_set_poly_d (mps_context * s, cplx_t * coeff,
 			     long unsigned int n);
-  void mps_status_set_input_poly (mps_status * s, mps_monomial_poly * p);
-  int mps_status_set_poly_i (mps_status * s, int *coeff, long unsigned int n);
-  int mps_status_set_poly_u (mps_status * s, int n, mps_fnewton_ptr fnewton,
+  void mps_context_set_input_poly (mps_context * s, mps_monomial_poly * p);
+  int mps_context_set_poly_i (mps_context * s, int *coeff, long unsigned int n);
+  int mps_context_set_poly_u (mps_context * s, int n, mps_fnewton_ptr fnewton,
 			     mps_dnewton_ptr dnewton,
 			     mps_mnewton_ptr mnewton);
-  void mps_status_select_algorithm (mps_status * s, mps_algorithm algorithm);
-  void mps_status_set_degree (mps_status * s, int n);
+  void mps_context_select_algorithm (mps_context * s, mps_algorithm algorithm);
+  void mps_context_set_degree (mps_context * s, int n);
 
 #ifdef _MPS_PRIVATE
-  void mps_status_allocate_poly_inplace (mps_status * s, int n);
+  void mps_context_allocate_poly_inplace (mps_context * s, int n);
 #endif
 
   /* Accessor functions */
-  long int mps_status_get_data_prec_max (mps_status * s);
-  int mps_status_get_degree (mps_status * s);
-  int mps_status_get_roots_d (mps_status * s, cplx_t * roots, double *radius);
-  int mps_status_get_roots_m (mps_status * s, mpc_t * roots, rdpe_t * radius);
-  int mps_status_get_zero_roots (mps_status * s);
-  mps_boolean mps_status_get_over_max (mps_status * s);
+  long int mps_context_get_data_prec_max (mps_context * s);
+  int mps_context_get_degree (mps_context * s);
+  int mps_context_get_roots_d (mps_context * s, cplx_t * roots, double *radius);
+  int mps_context_get_roots_m (mps_context * s, mpc_t * roots, rdpe_t * radius);
+  int mps_context_get_zero_roots (mps_context * s);
+  mps_boolean mps_context_get_over_max (mps_context * s);
 
   /* I/O options and flags */
-  void mps_status_set_input_prec (mps_status * s, long int prec);
-  void mps_status_set_output_prec (mps_status * s, long int prec);
-  void mps_status_set_output_format (mps_status * s, mps_output_format format);
-  void mps_status_set_output_goal (mps_status * s, mps_output_goal goal);
-  void mps_status_set_starting_phase (mps_status * s, mps_phase phase);
-  void mps_status_set_log_stream (mps_status * s, FILE * logstr);
+  void mps_context_set_input_prec (mps_context * s, long int prec);
+  void mps_context_set_output_prec (mps_context * s, long int prec);
+  void mps_context_set_output_format (mps_context * s, mps_output_format format);
+  void mps_context_set_output_goal (mps_context * s, mps_output_goal goal);
+  void mps_context_set_starting_phase (mps_context * s, mps_phase phase);
+  void mps_context_set_log_stream (mps_context * s, FILE * logstr);
 
   /* Debugging */
-  void mps_status_set_debug_level (mps_status * s, mps_debug_level level);
-  void mps_status_add_debug_domain (mps_status * s, mps_debug_level level);
+  void mps_context_set_debug_level (mps_context * s, mps_debug_level level);
+  void mps_context_add_debug_domain (mps_context * s, mps_debug_level level);
   
   /* Get input and output config pointers */
-  mps_input_configuration * mps_status_get_input_config (mps_status * s);
-  mps_output_configuration * mps_status_get_output_config (mps_status * s);
+  mps_input_configuration * mps_context_get_input_config (mps_context * s);
+  mps_output_configuration * mps_context_get_output_config (mps_context * s);
 
   /* Error handling */
-  mps_boolean mps_status_has_errors (mps_status * s);
-  char * mps_status_error_msg (mps_status * s);
+  mps_boolean mps_context_has_errors (mps_context * s);
+  char * mps_context_error_msg (mps_context * s);
 
 
 #ifdef __cplusplus

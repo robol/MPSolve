@@ -6,7 +6,7 @@
  **            |_|  |_|_|  |___/\___/_|\_/\___|            **
  **                                                        **
  **       Multiprecision Polynomial Solver (MPSolve)       **
- **                 Version 2.9, April 2011                **
+ **               Version 2.9, September 2012              **
  **                                                        **
  **                      Written by                        **
  **                                                        **
@@ -14,7 +14,7 @@
  **     Giuseppe Fiorentino     <fiorent@dm.unipi.it>      **
  **     Leonardo Robol          <robol@mail.dm.unipi.it>   **
  **                                                        **
- **           (C) 2011, Dipartimento di Matematica         **
+ **           (C) 2012, Dipartimento di Matematica         **
  ***********************************************************/
 
 #include <mps/mps.h>
@@ -22,7 +22,7 @@
 
   typedef struct {
     int i;
-    mps_status * s;
+    mps_context * s;
   } __mps_improve_data;
 
 /**
@@ -61,10 +61,10 @@
  * <code>s->mpwp</code> denotes the number of bits of the current working
  * precision.
  *
- * @param s The mps_status associated with the computation.
+ * @param s The mps_context associated with the computation.
  */
 void
-mps_improve (mps_status * s)
+mps_improve (mps_context * s)
 {
   int i;
   clock_t *my_timer = mps_start_timer ();
@@ -97,7 +97,7 @@ mps_improve_root (void * data_ptr)
 {
   __mps_improve_data * data = (__mps_improve_data*) data_ptr;
   int i = data->i;
-  mps_status * s = data->s;
+  mps_context * s = data->s;
   int j, k, m;
   long mpnb_in, mpnb_out;
   mpc_t mtmp;

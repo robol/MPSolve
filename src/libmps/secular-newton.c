@@ -24,7 +24,7 @@
  * obtained implicitly by the secular equation using the parallel
  * algorithm.
  * 
- * @param s The mps_status associated to the current computation
+ * @param s The mps_context associated to the current computation
  * @param root The approximation that shall be used as evaluation point
  * @param n The length of the terms that should be summed by the function
  * @param afpc A pointer to the first floating point a_i coefficient
@@ -47,7 +47,7 @@
  *   while MPS_PARALLEL_SUM_SUCCESS indicates that the evaluation was successful. 
  */
 int
-mps_secular_fparallel_sum (mps_status * s, mps_approximation * root, int n, cplx_t * afpc, cplx_t * bfpc,
+mps_secular_fparallel_sum (mps_context * s, mps_approximation * root, int n, cplx_t * afpc, cplx_t * bfpc,
 			   cplx_t pol, cplx_t fp, cplx_t sumb, double * asum, double * asum2, double * asumb)
 {
   if (n <= 2)
@@ -119,7 +119,7 @@ mps_secular_fparallel_sum (mps_status * s, mps_approximation * root, int n, cplx
 }
 
 void
-mps_secular_fnewton (mps_status * s, mps_approximation * root, cplx_t corr,
+mps_secular_fnewton (mps_context * s, mps_approximation * root, cplx_t corr,
                      void * user_data,
 		     mps_boolean skip_radius_computation)
 {
@@ -248,7 +248,7 @@ mps_secular_fnewton (mps_status * s, mps_approximation * root, cplx_t corr,
  * obtained implicitly by the secular equation using the parallel
  * algorithm.
  * 
- * @param s The mps_status associated to the current computation
+ * @param s The mps_context associated to the current computation
  * @param root The approximation that shall be used as evaluation point
  * @param n The length of the terms that should be summed by the function
  * @param adpc A pointer to the first DPE a_i coefficient
@@ -271,7 +271,7 @@ mps_secular_fnewton (mps_status * s, mps_approximation * root, cplx_t corr,
  *   while MPS_PARALLEL_SUM_SUCCESS indicates that the evaluation was successful. 
  */
 int
-mps_secular_dparallel_sum (mps_status * s, mps_approximation * root, int n, cdpe_t * adpc, cdpe_t * bdpc,
+mps_secular_dparallel_sum (mps_context * s, mps_approximation * root, int n, cdpe_t * adpc, cdpe_t * bdpc,
 			   cdpe_t pol, cdpe_t fp, cdpe_t sumb, rdpe_t asum, rdpe_t asum2, rdpe_t asumb)
 {
   if (n <= 2)
@@ -341,7 +341,7 @@ mps_secular_dparallel_sum (mps_status * s, mps_approximation * root, int n, cdpe
 }
 
 void
-mps_secular_dnewton (mps_status * s, mps_approximation * root, cdpe_t corr,
+mps_secular_dnewton (mps_context * s, mps_approximation * root, cdpe_t corr,
                      void * user_data,
 		     mps_boolean skip_radius_computation)
 {
@@ -475,7 +475,7 @@ mps_secular_dnewton (mps_status * s, mps_approximation * root, cdpe_t corr,
  * obtained implicitly by the secular equation using the parallel
  * algorithm.
  * 
- * @param s The mps_status associated to the current computation
+ * @param s The mps_context associated to the current computation
  * @param root The approximation that shall be used as evaluation point
  * @param n The length of the terms that should be summed by the function
  * @param ampc A pointer to the first MP a_i coefficient
@@ -498,7 +498,7 @@ mps_secular_dnewton (mps_status * s, mps_approximation * root, cdpe_t corr,
  *   while MPS_PARALLEL_SUM_SUCCESS indicates that the evaluation was successful. 
  */
 int
-mps_secular_mparallel_sum (mps_status * s, mps_approximation * root, int n, mpc_t * ampc, mpc_t * bmpc,
+mps_secular_mparallel_sum (mps_context * s, mps_approximation * root, int n, mpc_t * ampc, mpc_t * bmpc,
 			   mpc_t pol, mpc_t fp, mpc_t sumb, rdpe_t asum, rdpe_t asum2, rdpe_t asumb)
 {
   if (n <= 4)
@@ -576,7 +576,7 @@ mps_secular_mparallel_sum (mps_status * s, mps_approximation * root, int n, mpc_
 }
 
 void
-mps_secular_mnewton (mps_status * s, mps_approximation * root, mpc_t corr,
+mps_secular_mnewton (mps_context * s, mps_approximation * root, mpc_t corr,
 		     void * user_data,
 		     mps_boolean skip_radius_computation)
 {

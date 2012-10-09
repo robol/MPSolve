@@ -41,7 +41,7 @@ obtained by means of a rounding error analysis of (1).
  * means of the relation: p=1+x*p**2, starting with p=1*
  ******************************************************/
 void
-fnewton_usr (mps_status * s, cplx_t x, double *rad, cplx_t corr,
+fnewton_usr (mps_context * s, cplx_t x, double *rad, cplx_t corr,
              mps_boolean * again)
 {
   cplx_t p, pp, pt, tmp;
@@ -84,7 +84,7 @@ fnewton_usr (mps_status * s, cplx_t x, double *rad, cplx_t corr,
  DPE computation
 ******************************************************/
 void
-dnewton_usr (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
+dnewton_usr (mps_context * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
              mps_boolean * again)
 {
   cdpe_t p, pp, pt, tmp;
@@ -137,7 +137,7 @@ dnewton_usr (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
  multiprecision computation
 ******************************************************/
 void
-mnewton_usr (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
+mnewton_usr (mps_context * s, mpc_t x, rdpe_t rad, mpc_t corr,
              mps_boolean * again)
 {
   int i, m;
@@ -204,11 +204,11 @@ int
 main (int argc, char **argv)
 {
 
-  mps_status *s = mps_status_new ();
+  mps_context *s = mps_context_new ();
   int n = 255;
 
   /* Set user poly */
-  mps_status_set_poly_u (s, n, MPS_FNEWTON_PTR (fnewton_usr),   /* floating point */
+  mps_context_set_poly_u (s, n, MPS_FNEWTON_PTR (fnewton_usr),   /* floating point */
                          MPS_DNEWTON_PTR (dnewton_usr), /* dpe version    */
                          MPS_MNEWTON_PTR (mnewton_usr));        /* multiprecision */
 

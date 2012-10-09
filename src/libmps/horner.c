@@ -20,20 +20,20 @@
 #include <mps/mps.h>
 
 void
-mps_mhorner_sparse (mps_status * s, mps_monomial_poly * p, mpc_t x, mpc_t value);
+mps_mhorner_sparse (mps_context * s, mps_monomial_poly * p, mpc_t x, mpc_t value);
 
 /**
  * @brief Compute the value of the polynomial <code>p</code> in the point <code>x</code>
  * and save it in <code>value</code>. If you need a bound to the relative error, try
  * mps_mhorner_with_error().
  *
- * @param s The <code>mps_status</code> of the computation.
+ * @param s The <code>mps_context</code> of the computation.
  * @param p The <code>monomial_poly</code> to evaluate.
  * @param x The point where the polynomial will be evaluated.
  * @param value The multiprecision complex variable where the result will be stored.
  */
 void 
-mps_mhorner (mps_status * s, mps_monomial_poly * p, mpc_t x, mpc_t value)
+mps_mhorner (mps_context * s, mps_monomial_poly * p, mpc_t x, mpc_t value)
 {
   int j;
 
@@ -70,7 +70,7 @@ mps_mhorner (mps_status * s, mps_monomial_poly * p, mpc_t x, mpc_t value)
  * where \f$ap(x)\f$ is the polynomial with the coefficients equal to the moduli of the coefficients
  * of \f$p(x)\f$. 
  *
- * @param s The <code>mps_status</code> of the computation.
+ * @param s The <code>mps_context</code> of the computation.
  * @param p The <code>monomial_poly</code> to evaluate.
  * @param x The point where the polynomial will be evaluated.
  * @param value The multiprecision complex variable where the result will be stored.
@@ -79,7 +79,7 @@ mps_mhorner (mps_status * s, mps_monomial_poly * p, mpc_t x, mpc_t value)
  * will be used.
  */
 void
-mps_mhorner_with_error2 (mps_status * s, mps_monomial_poly * p, mpc_t x, mpc_t value, rdpe_t error, long int wp)
+mps_mhorner_with_error2 (mps_context * s, mps_monomial_poly * p, mpc_t x, mpc_t value, rdpe_t error, long int wp)
 {
   int i;
   rdpe_t apol, ax, u;
@@ -130,7 +130,7 @@ mps_mhorner_with_error2 (mps_status * s, mps_monomial_poly * p, mpc_t x, mpc_t v
  *
  * A upper bound to the relative error of the evaluation will be stored in <code>relative_error</code>.
  *
- * @param s The <code>mps_status</code> of the computation.
+ * @param s The <code>mps_context</code> of the computation.
  * @param p The <code>monomial_poly</code> to evaluate.
  * @param x The point where the polynomial will be evaluated.
  * @param value The multiprecision complex variable where the result will be stored.
@@ -139,7 +139,7 @@ mps_mhorner_with_error2 (mps_status * s, mps_monomial_poly * p, mpc_t x, mpc_t v
  * will be used.
  */
 void 
-mps_mhorner_with_error (mps_status * s, mps_monomial_poly * p, mpc_t x, mpc_t value, rdpe_t relative_error, long int wp)
+mps_mhorner_with_error (mps_context * s, mps_monomial_poly * p, mpc_t x, mpc_t value, rdpe_t relative_error, long int wp)
 {
   int j, my_wp;
   mpc_t ss;
@@ -193,7 +193,7 @@ mps_mhorner_with_error (mps_status * s, mps_monomial_poly * p, mpc_t x, mpc_t va
 /**
  * @brief Compute \f$p(z)\f$ by means of the Horner rule.
  *
- * @param st The pointer to the mps_status struct.
+ * @param st The pointer to the mps_context struct.
  * @param n The degree of the polynomial.
  * @param x The point in which the polynomial should be evaluated.
  * @param p Vector of the coefficients of the polynomial.
@@ -205,7 +205,7 @@ mps_mhorner_with_error (mps_status * s, mps_monomial_poly * p, mpc_t x, mpc_t va
  *  for temporary sparsity vectors.
  */
 void
-mps_mhorner_sparse (mps_status * s, mps_monomial_poly * p, mpc_t x,
+mps_mhorner_sparse (mps_context * s, mps_monomial_poly * p, mpc_t x,
 		    mpc_t value)
 {
   int m, j, i, i1, i2, q;
@@ -285,13 +285,13 @@ mps_mhorner_sparse (mps_status * s, mps_monomial_poly * p, mpc_t x,
 /**
  * @brief Evaluate the polynomial p in the point x.
  *
- * @param s The <code>mps_status</code> of the computation.
+ * @param s The <code>mps_context</code> of the computation.
  * @param p The <code>mps_monomial_poly</code> to evaluate.
  * @param x The point where the polynomial will be evaluated.
  * @param value The value computed by the function.
  */
 void
-mps_dhorner (mps_status * s, mps_monomial_poly * p, cdpe_t x, cdpe_t value)
+mps_dhorner (mps_context * s, mps_monomial_poly * p, cdpe_t x, cdpe_t value)
 {
   int j;
 
@@ -309,14 +309,14 @@ mps_dhorner (mps_status * s, mps_monomial_poly * p, cdpe_t x, cdpe_t value)
  * @brief Evaluate the polynomial p in the point x, and give also a bound to the
  * relative error occured in the computation. 
  *
- * @param s The <code>mps_status</code> of the computation.
+ * @param s The <code>mps_context</code> of the computation.
  * @param p The <code>mps_monomial_poly</code> to evaluate.
  * @param x The point where the polynomial will be evaluated.
  * @param value The value computed by the function.
  * @param error A bound to the absolute error of the computation.
  */
 void
-mps_dhorner_with_error (mps_status * s, mps_monomial_poly * p, cdpe_t x, cdpe_t value, rdpe_t error)
+mps_dhorner_with_error (mps_context * s, mps_monomial_poly * p, cdpe_t x, cdpe_t value, rdpe_t error)
 {
   rdpe_t ax;
   int j;
@@ -337,13 +337,13 @@ mps_dhorner_with_error (mps_status * s, mps_monomial_poly * p, cdpe_t x, cdpe_t 
 /**
  * @brief Evaluate the polynomial p in the point x.
  *
- * @param s The <code>mps_status</code> of the computation.
+ * @param s The <code>mps_context</code> of the computation.
  * @param p The <code>mps_monomial_poly</code> to evaluate.
  * @param x The point where the polynomial will be evaluated.
  * @param value The value computed by the function.
  */
 void
-mps_fhorner (mps_status * s, mps_monomial_poly * p, cplx_t x, cplx_t value)
+mps_fhorner (mps_context * s, mps_monomial_poly * p, cplx_t x, cplx_t value)
 {
   int j;
 
@@ -359,7 +359,7 @@ mps_fhorner (mps_status * s, mps_monomial_poly * p, cplx_t x, cplx_t value)
  * @brief Evaluate the polynomial p in the point x, and give also a bound to the
  * relative error occured in the computation. 
  *
- * @param s The <code>mps_status</code> of the computation.
+ * @param s The <code>mps_context</code> of the computation.
  * @param p The <code>mps_monomial_poly</code> to evaluate.
  * @param x The point where the polynomial will be evaluated.
  * @param error A pointer to the location when an upper bound to the computation
@@ -367,7 +367,7 @@ mps_fhorner (mps_status * s, mps_monomial_poly * p, cplx_t x, cplx_t value)
  * @param value The value computed by the function.
  */
 void
-mps_fhorner_with_error (mps_status * s, mps_monomial_poly * p, cplx_t x, cplx_t value, double * error)
+mps_fhorner_with_error (mps_context * s, mps_monomial_poly * p, cplx_t x, cplx_t value, double * error)
 {
   int j;
   double ax = cplx_mod (x);

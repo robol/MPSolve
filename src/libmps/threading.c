@@ -16,7 +16,7 @@
  * known to this implementations.
  */
 int
-mps_thread_get_core_number (mps_status * s)
+mps_thread_get_core_number (mps_context * s)
 {
   FILE *cpuinfo = fopen ("/proc/cpuinfo", "r");
   char buf;
@@ -63,7 +63,7 @@ mps_thread_get_core_number (mps_status * s)
  * handle at most max_iter iterations for n_roots roots.
  */
 mps_thread_job_queue *
-mps_thread_job_queue_new (mps_status * s)
+mps_thread_job_queue_new (mps_context * s)
 {
   /* Space allocation and related jobs */
   mps_thread_job_queue *q;
@@ -94,7 +94,7 @@ mps_thread_job_queue_free (mps_thread_job_queue * q)
  * @brief Obtain iter and i for the next available job.
  */
 mps_thread_job
-mps_thread_job_queue_next (mps_status * s, mps_thread_job_queue * q)
+mps_thread_job_queue_next (mps_context * s, mps_thread_job_queue * q)
 {
   mps_thread_job j;
   pthread_mutex_lock (&q->mutex);
@@ -202,7 +202,7 @@ mps_thread_mainloop (void * thread_ptr)
  * @brief Start the thread mainloop.
  */
 void
-mps_thread_start_mainloop (mps_status * s, mps_thread * thread)
+mps_thread_start_mainloop (mps_context * s, mps_thread * thread)
 {
   pthread_create (thread->thread, NULL, &mps_thread_mainloop, thread);
 }
@@ -210,7 +210,7 @@ mps_thread_start_mainloop (mps_status * s, mps_thread * thread)
 /**
  * @brief Limit the maximum number of threads that can be used in the thread pool.
  */
-void mps_thread_pool_set_concurrency_limit (mps_status * s, mps_thread_pool * pool, 
+void mps_thread_pool_set_concurrency_limit (mps_context * s, mps_thread_pool * pool, 
 					    unsigned int concurrency_limit)
 {
   int i;
@@ -240,7 +240,7 @@ void mps_thread_pool_set_concurrency_limit (mps_status * s, mps_thread_pool * po
 }
 
 void
-mps_thread_pool_assign (mps_status * s, mps_thread_pool * pool, 
+mps_thread_pool_assign (mps_context * s, mps_thread_pool * pool, 
 			mps_thread_work work, void * args)
 {
   if (!pool)
@@ -285,7 +285,7 @@ mps_thread_pool_assign (mps_status * s, mps_thread_pool * pool,
  * @brief Wait for a thread pool to complete its jobs.
  */
 void
-mps_thread_pool_wait (mps_status * s, mps_thread_pool * pool)
+mps_thread_pool_wait (mps_context * s, mps_thread_pool * pool)
 {
   int value;
   
@@ -312,7 +312,7 @@ mps_thread_pool_wait (mps_status * s, mps_thread_pool * pool)
  * @brief Allocate a new <code>mps_thread</code> and start its mainloop.
  */
 mps_thread * 
-mps_thread_new (mps_status * s, mps_thread_pool * pool)
+mps_thread_new (mps_context * s, mps_thread_pool * pool)
 {  
   if (!pool)
     pool = s->pool;
@@ -339,7 +339,7 @@ mps_thread_new (mps_status * s, mps_thread_pool * pool)
  * @brief Free a thread asking it to stop.
  */
 void
-mps_thread_free (mps_status * s, mps_thread * thread)
+mps_thread_free (mps_context * s, mps_thread * thread)
 {
   /* Wait for the thread to finish its work, if it is doing something */
   /* pthread_mutex_lock (&thread->busy_mutex); */
@@ -362,7 +362,7 @@ mps_thread_free (mps_status * s, mps_thread * thread)
  * @brief Create a new thread and add it to the specified thread pool.
  */
 void
-mps_thread_pool_insert_new_thread (mps_status * s, mps_thread_pool * pool)
+mps_thread_pool_insert_new_thread (mps_context * s, mps_thread_pool * pool)
 {
   if (!pool)
     pool = s->pool;
@@ -379,7 +379,7 @@ mps_thread_pool_insert_new_thread (mps_status * s, mps_thread_pool * pool)
  * with a number of threads suitable for this system.
  */
 mps_thread_pool *
-mps_thread_pool_new (mps_status * s, int n_threads)
+mps_thread_pool_new (mps_context * s, int n_threads)
 {
   mps_thread_pool * pool = mps_new (mps_thread_pool);
   int threads = mps_thread_get_core_number (s); 
@@ -411,7 +411,7 @@ mps_thread_pool_new (mps_status * s, int n_threads)
  * to terminate.
  */
 void 
-mps_thread_pool_free (mps_status * s, mps_thread_pool * pool)
+mps_thread_pool_free (mps_context * s, mps_thread_pool * pool)
 {
   if (!pool)
     pool = s->pool;
@@ -431,7 +431,7 @@ mps_thread_pool_free (mps_status * s, mps_thread_pool * pool)
   free (pool);
 }
 
-int mps_thread_get_id (mps_status * s, mps_thread_pool * pool)
+int mps_thread_get_id (mps_context * s, mps_thread_pool * pool)
 {
   pthread_t self = pthread_self ();
   int i = 0;

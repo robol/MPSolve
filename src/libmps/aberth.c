@@ -6,7 +6,7 @@
  **            |_|  |_|_|  |___/\___/_|\_/\___|            **
  **                                                        **
  **       Multiprecision Polynomial Solver (MPSolve)       **
- **                 Version 2.9, April 2011                **
+ **               Version 2.9, September 2012              **
  **                                                        **
  **                      Written by                        **
  **                                                        **
@@ -14,7 +14,7 @@
  **     Giuseppe Fiorentino     <fiorent@dm.unipi.it>      **
  **     Leonardo Robol          <robol@mail.dm.unipi.it>   **
  **                                                        **
- **           (C) 2011, Dipartimento di Matematica         **
+ **           (C) 2012, Dipartimento di Matematica         **
  ***********************************************************/
 
 #include <mps/mps.h>
@@ -25,7 +25,7 @@
  * selective correction.
  */
 void
-mps_faberth (mps_status * s, int j, cplx_t abcorr)
+mps_faberth (mps_context * s, int j, cplx_t abcorr)
 {
   int i;
   cplx_t z;
@@ -42,7 +42,7 @@ mps_faberth (mps_status * s, int j, cplx_t abcorr)
 }
 
 void
-mps_faberth_wl (mps_status * s, int j, cplx_t abcorr, pthread_mutex_t * aberth_mutexes)
+mps_faberth_wl (mps_context * s, int j, cplx_t abcorr, pthread_mutex_t * aberth_mutexes)
 {
   int i;
   cplx_t z, froot;
@@ -72,7 +72,7 @@ mps_faberth_wl (mps_status * s, int j, cplx_t abcorr, pthread_mutex_t * aberth_m
  * selective correction.
  */
 void
-mps_daberth (mps_status * s, int j, cdpe_t abcorr)
+mps_daberth (mps_context * s, int j, cdpe_t abcorr)
 {
   int i;
   cdpe_t z;
@@ -93,7 +93,7 @@ mps_daberth (mps_status * s, int j, cdpe_t abcorr)
  * selective correction.
  */
 void
-mps_maberth (mps_status * s, int j, mpc_t abcorr)
+mps_maberth (mps_context * s, int j, mpc_t abcorr)
 {
   int i;
   cdpe_t z, temp;
@@ -122,7 +122,7 @@ mps_maberth (mps_status * s, int j, mpc_t abcorr)
  * cluster.
  */
 void
-mps_faberth_s (mps_status * s, int j, mps_cluster * cluster, cplx_t abcorr)
+mps_faberth_s (mps_context * s, int j, mps_cluster * cluster, cplx_t abcorr)
 {
   int k;
   cplx_t z;
@@ -146,7 +146,7 @@ mps_faberth_s (mps_status * s, int j, mps_cluster * cluster, cplx_t abcorr)
  * cluster.
  */
 void
-mps_daberth_s (mps_status * s, int j, mps_cluster * cluster, cdpe_t abcorr)
+mps_daberth_s (mps_context * s, int j, mps_cluster * cluster, cdpe_t abcorr)
 {
   int k;
   mps_root * root;
@@ -170,7 +170,7 @@ mps_daberth_s (mps_status * s, int j, mps_cluster * cluster, cdpe_t abcorr)
  * cluster.
  */
 void
-mps_maberth_s (mps_status * s, int j, mps_cluster * cluster, mpc_t abcorr)
+mps_maberth_s (mps_context * s, int j, mps_cluster * cluster, mpc_t abcorr)
 {
   int k;
   mps_root * root;
@@ -196,7 +196,7 @@ mps_maberth_s (mps_status * s, int j, mps_cluster * cluster, mpc_t abcorr)
 }
 
 void
-mps_daberth_wl (mps_status * s, int j, cdpe_t abcorr, pthread_mutex_t * aberth_mutexes)
+mps_daberth_wl (mps_context * s, int j, cdpe_t abcorr, pthread_mutex_t * aberth_mutexes)
 {
   int i;
   cdpe_t z, droot;
@@ -221,7 +221,7 @@ mps_daberth_wl (mps_status * s, int j, cdpe_t abcorr, pthread_mutex_t * aberth_m
 }
 
 void
-mps_maberth_s_wl (mps_status * s, int j, mps_cluster * cluster, mpc_t abcorr,
+mps_maberth_s_wl (mps_context * s, int j, mps_cluster * cluster, mpc_t abcorr,
                   pthread_mutex_t * aberth_mutexes)
 {
   int k;

@@ -41,7 +41,7 @@ obtained by means of a rounding error analysis of (1).
 * means of the relation: p=1+x*p**2, starting with p=1*
 ******************************************************/
 void
-mps_fnewton_usr (mps_status * s, mps_approximation * root, cplx_t corr)
+mps_fnewton_usr (mps_context * s, mps_approximation * root, cplx_t corr)
 {
   cplx_t p, pp, pt, tmp;
   double ap, ax, eps;
@@ -87,7 +87,7 @@ mps_fnewton_usr (mps_status * s, mps_approximation * root, cplx_t corr)
  DPE computation
 ******************************************************/
 void
-mps_dnewton_usr (mps_status * s, mps_approximation * root, cdpe_t corr)
+mps_dnewton_usr (mps_context * s, mps_approximation * root, cdpe_t corr)
 {
   cdpe_t p, pp, pt, tmp;
   rdpe_t ap, ax, eps, temp, apeps, atmp;
@@ -142,7 +142,7 @@ mps_dnewton_usr (mps_status * s, mps_approximation * root, cdpe_t corr)
  multiprecision computation
 ******************************************************/
 void
-mps_mnewton_usr (mps_status * s, mps_approximation * root, mpc_t corr)
+mps_mnewton_usr (mps_context * s, mps_approximation * root, mpc_t corr)
 {
   int i, m;
   rdpe_t ap, ax, eps, temp, apeps, atmp;

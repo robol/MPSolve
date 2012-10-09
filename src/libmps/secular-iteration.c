@@ -26,7 +26,7 @@ void *
 __mps_secular_ga_fiterate_worker (void* data_ptr)
 {
   mps_thread_worker_data *data = (mps_thread_worker_data *) data_ptr;
-  mps_status *s = data->s;
+  mps_context *s = data->s;
   mps_secular_equation *sec = s->secular_equation;
   int i;
   cplx_t corr, abcorr;
@@ -144,7 +144,7 @@ __mps_secular_ga_fiterate_worker (void* data_ptr)
  * @brief Routine that performs a block of iteration
  * in floating point on the secular equation.
  *
- * @param s the pointer to the mps_status struct.
+ * @param s the pointer to the mps_context struct.
  * @param maxit Maximum number of iteration to perform.
  * @param just_regenerated true if this is the first iteration after a coefficient
  * regeneration. If just_regenerated is true and the iteration packet is completed
@@ -153,7 +153,7 @@ __mps_secular_ga_fiterate_worker (void* data_ptr)
  * @return The number of approximated roots after the iteration.
  */
 int
-mps_secular_ga_fiterate (mps_status * s, int maxit, mps_boolean just_regenerated)
+mps_secular_ga_fiterate (mps_context * s, int maxit, mps_boolean just_regenerated)
 {
   int computed_roots = 0;
   int approximated_roots = 0;
@@ -311,7 +311,7 @@ void *
 __mps_secular_ga_diterate_worker (void* data_ptr)
 {
   mps_thread_worker_data *data = (mps_thread_worker_data *) data_ptr;
-  mps_status *s = data->s;
+  mps_context *s = data->s;
   int i;
   cdpe_t corr, abcorr, droot;
   rdpe_t modcorr;
@@ -377,7 +377,7 @@ __mps_secular_ga_diterate_worker (void* data_ptr)
  * in floating point on the secular equation using
  * CDPE
  *
- * @param s the pointer to the mps_status struct.
+ * @param s the pointer to the mps_context struct.
  * @param maxit Maximum number of iteration to perform.
  * @return The number of approximated roots after the iteration.
  * @param just_regenerated true if this is the first iteration after a coefficient
@@ -386,7 +386,7 @@ __mps_secular_ga_diterate_worker (void* data_ptr)
  * in s->secular_equation so a raise in the precision will be triggered.
  */
 int
-mps_secular_ga_diterate (mps_status * s, int maxit, mps_boolean just_regenerated)
+mps_secular_ga_diterate (mps_context * s, int maxit, mps_boolean just_regenerated)
 {
   int computed_roots = 0;
   int root_neighborhood_roots = 0;
@@ -521,7 +521,7 @@ void *
 __mps_secular_ga_miterate_worker (void* data_ptr)
 {
   mps_thread_worker_data *data = (mps_thread_worker_data *) data_ptr;
-  mps_status *s = data->s;
+  mps_context *s = data->s;
   /* mps_secular_equation *sec = s->secular_equation; */
   int i;
   mpc_t corr, abcorr;
@@ -648,7 +648,7 @@ __mps_secular_ga_miterate_worker (void* data_ptr)
  * in floating point on the secular equation using
  * CDPE
  *
- * @param s the pointer to the mps_status struct.
+ * @param s the pointer to the mps_context struct.
  * @param maxit Maximum number of iteration to perform. 
  * @param just_regenerated true if this is the first iteration after a coefficient
  * regeneration. If just_regenerated is true and the iteration packet is completed
@@ -657,7 +657,7 @@ __mps_secular_ga_miterate_worker (void* data_ptr)
  * @return The number of approximated roots after the iteration.
  */
 int
-mps_secular_ga_miterate (mps_status * s, int maxit, mps_boolean just_regenerated)
+mps_secular_ga_miterate (mps_context * s, int maxit, mps_boolean just_regenerated)
 {
   int computed_roots = 0;
   int approximated_roots = 0;

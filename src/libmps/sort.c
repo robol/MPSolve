@@ -39,7 +39,7 @@ mps_fcmp (const void *a, const void *b)
 *      SUBROUTINE FSORT                                  *
 *********************************************************/
 void
-mps_fsort (mps_status * s)
+mps_fsort (mps_context * s)
 {
   int i;
   cplx_t *real_parts = cplx_valloc (s->n);
@@ -72,7 +72,7 @@ mps_dcmp (const void *a, const void *b)
 *      SUBROUTINE DSORT                                  *
 *********************************************************/
 void
-mps_dsort (mps_status * s)
+mps_dsort (mps_context * s)
 {
   cdpe_t * real_parts = cdpe_valloc (s->n);
   int i;
@@ -104,7 +104,7 @@ mps_mcmp (const void *a, const void *b)
 *      SUBROUTINE MSORT                                  *
 *********************************************************/
 void
-mps_msort (mps_status * s)
+mps_msort (mps_context * s)
 {
   int i;
   mpc_t * real_parts = mpc_valloc (s->n);

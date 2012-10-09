@@ -6,7 +6,7 @@
  **            |_|  |_|_|  |___/\___/_|\_/\___|            **
  **                                                        **
  **       Multiprecision Polynomial Solver (MPSolve)       **
- **                 Version 2.9, April 2011                **
+ **               Version 2.9, September 2012              **
  **                                                        **
  **                      Written by                        **
  **                                                        **
@@ -14,7 +14,7 @@
  **     Giuseppe Fiorentino     <fiorent@dm.unipi.it>      **
  **     Leonardo Robol          <robol@mail.dm.unipi.it>   **
  **                                                        **
- **           (C) 2011, Dipartimento di Matematica         **
+ **           (C) 2012, Dipartimento di Matematica         **
  ***********************************************************/
 
 #include <string.h>
@@ -26,10 +26,10 @@
 
 /**
  * @brief Get an empty mps_cluster, with no roots.
- * @param s The <code>mps_status</code> of the current computation.
+ * @param s The <code>mps_context</code> of the current computation.
  */
 mps_cluster *
-mps_cluster_empty (mps_status * s)
+mps_cluster_empty (mps_context * s)
 {
   mps_cluster * cluster = mps_new (mps_cluster);
   cluster->first = NULL;
@@ -40,11 +40,11 @@ mps_cluster_empty (mps_status * s)
 /**
  * @brief Create a cluster containing only the selected root.
  *
- * @param s The <code>mps_status</code> of the current computation.
+ * @param s The <code>mps_context</code> of the current computation.
  * @param root_index The root that must be in the cluster.
  */
 mps_cluster * 
-mps_cluster_with_root (mps_status * s, long int root_index)
+mps_cluster_with_root (mps_context * s, long int root_index)
 {
   mps_cluster * cluster = mps_new (mps_cluster);
   cluster->first = mps_new (mps_root);
@@ -61,11 +61,11 @@ mps_cluster_with_root (mps_status * s, long int root_index)
  * @brief Free a previously allocated cluster with all the roots in
  * it. 
  *
- * @param s The <code>mps_status</code> of the current computation.
+ * @param s The <code>mps_context</code> of the current computation.
  * @param cluster The cluster to free.
  */
 void 
-mps_cluster_free (mps_status * s, mps_cluster * cluster)
+mps_cluster_free (mps_context * s, mps_cluster * cluster)
 {
   mps_root * root = cluster->first;
   mps_root * old_root;
@@ -84,12 +84,12 @@ mps_cluster_free (mps_status * s, mps_cluster * cluster)
 /**
  * @brief Insert a root in a cluster.
  *
- * @param s The <code>mps_status</code> of the current computation.
+ * @param s The <code>mps_context</code> of the current computation.
  * @param cluster The cluster in which the root must be inserted.
  * @param root_index The index of the root to insert.
  */
 mps_root *
-mps_cluster_insert_root (mps_status * s, 
+mps_cluster_insert_root (mps_context * s, 
 			 mps_cluster  * cluster, 
 			 long int root_index)
 {
@@ -113,7 +113,7 @@ mps_cluster_insert_root (mps_status * s,
 /**
  * @brief Remove a root from a cluster.
  *
- * @param s The <code>mps_status</code> of the current computation.
+ * @param s The <code>mps_context</code> of the current computation.
  * @param cluster The cluster from which the root must be removed.
  * @param root The root to remove.
  *
@@ -121,7 +121,7 @@ mps_cluster_insert_root (mps_status * s,
  * an assertion error or segmentation fault will be triggered.
  */
 void 
-mps_cluster_remove_root (mps_status * s, mps_cluster * cluster, mps_root * root)
+mps_cluster_remove_root (mps_context * s, mps_cluster * cluster, mps_root * root)
 {
   /* Iterate over the cluster to find the root searched */
   mps_root * prev_root = root->prev;
@@ -146,13 +146,13 @@ mps_cluster_remove_root (mps_status * s, mps_cluster * cluster, mps_root * root)
  * @brief Join two cluster in one big cluster containing the roots of
  * both. Please note that the cluster must not overlap. 
  * 
- * @param s The <code>mps_status</code> of the current computation.
+ * @param s The <code>mps_context</code> of the current computation.
  * @param cluster_a The first cluster
  * @param cluster_b The second cluster
  * @return A new cluster containing the roots of both.
  */
 mps_cluster *
-mps_cluster_join (mps_status * s, mps_cluster * cluster_a, mps_cluster * cluster_b)
+mps_cluster_join (mps_context * s, mps_cluster * cluster_a, mps_cluster * cluster_b)
 {
   mps_root * root;
   mps_cluster * small_cluster;
@@ -185,10 +185,10 @@ mps_cluster_join (mps_status * s, mps_cluster * cluster_a, mps_cluster * cluster
 /**
  * @brief Create a new empty clusterization.
  *
- * @param s The <code>mps_status</code> of the current computation.
+ * @param s The <code>mps_context</code> of the current computation.
  */
 mps_clusterization *
-mps_clusterization_empty (mps_status * s)
+mps_clusterization_empty (mps_context * s)
 {
   mps_clusterization * c = mps_new (mps_clusterization);
   c->n = 0;
@@ -198,12 +198,12 @@ mps_clusterization_empty (mps_status * s)
 
 /**
  * @brief Insert a new cluster into a root clusterization.
- * @param s The <code>mps_status</code> of the current computation.
+ * @param s The <code>mps_context</code> of the current computation.
  * @param c The clusterization in which the cluster should be inserted.
  * @param cluster The cluster that should be inserted.
  */
 mps_cluster_item *
-mps_clusterization_insert_cluster (mps_status * s, mps_clusterization * c, mps_cluster * cluster)
+mps_clusterization_insert_cluster (mps_context * s, mps_clusterization * c, mps_cluster * cluster)
 {
   mps_cluster_item * item = mps_new (mps_cluster_item);
 
@@ -230,12 +230,12 @@ mps_clusterization_insert_cluster (mps_status * s, mps_clusterization * c, mps_c
 
 /**
  * @brief Pop out a cluster from a clusterization.
- * @param s The <code>mps_status</code> of the current computation.
+ * @param s The <code>mps_context</code> of the current computation.
  * @param c The clusterization from which the cluster_item should be popped.
  * @param cluster_item The cluster item to remove.
  */
 void
-mps_clusterization_pop_cluster (mps_status * s, mps_clusterization * c, mps_cluster_item * cluster_item)
+mps_clusterization_pop_cluster (mps_context * s, mps_clusterization * c, mps_cluster_item * cluster_item)
 {
   mps_cluster_item * next = cluster_item->next;
   mps_cluster_item * prev = cluster_item->prev;
@@ -253,12 +253,12 @@ mps_clusterization_pop_cluster (mps_status * s, mps_clusterization * c, mps_clus
 
 /**
  * @brief Remove a cluster item from a clusterization, freeing it.
- * @param s The <code>mps_status</code> of the current computation.
+ * @param s The <code>mps_context</code> of the current computation.
  * @param c The clusterization from where the cluster_item should be removed.
  * @param cluster_item The cluster item to remove.
  */
 void 
-mps_clusterization_remove_cluster (mps_status * s, mps_clusterization * c, mps_cluster_item * cluster_item)
+mps_clusterization_remove_cluster (mps_context * s, mps_clusterization * c, mps_cluster_item * cluster_item)
 {
   mps_clusterization_pop_cluster (s, c, cluster_item);
   mps_cluster_free (s, cluster_item->cluster);
@@ -267,11 +267,11 @@ mps_clusterization_remove_cluster (mps_status * s, mps_clusterization * c, mps_c
 
 /**
  * @brief Free a clusterization and all the cluster in it.
- * @param s The <code>mps_status</code> of the current computation.
+ * @param s The <code>mps_context</code> of the current computation.
  * @param c The clusterization to free.
  */
 void
-mps_clusterization_free (mps_status * s, mps_clusterization * c)
+mps_clusterization_free (mps_context * s, mps_clusterization * c)
 {
   mps_cluster_item * item = c->first;
   mps_cluster_item * next_item;
@@ -292,10 +292,10 @@ mps_clusterization_free (mps_status * s, mps_clusterization * c)
  * the call to this routine the roots will be considered as a unique big cluster,
  * discarding every information present before.
  *
- * @param s the mps_status pointer.
+ * @param s the mps_context pointer.
  */
 void
-mps_cluster_reset (mps_status * s)
+mps_cluster_reset (mps_context * s)
 {
   /* Reset cluster status of the roots */ 
   int i;
@@ -339,13 +339,13 @@ mps_cluster_reset (mps_status * s)
  * <code>nclust</code> is the
  * number of clusters.
  *
- * @param s  The <code>mps_status</code> associated with the current
+ * @param s  The <code>mps_context</code> associated with the current
  *           computaion.
  * @param frad The vector of radii to use for cluster analysis.
  * @param nf see above for a detailed description.
  */
 void
-mps_fcluster (mps_status * s, double * frad, int nf)
+mps_fcluster (mps_context * s, double * frad, int nf)
 {
   s->operation = MPS_OPERATION_CLUSTER_ANALYSIS;
 
@@ -511,7 +511,7 @@ mps_fcluster (mps_status * s, double * frad, int nf)
 	}
     }
 
-  /* Set the new clusterizaition in the mps_status */
+  /* Set the new clusterizaition in the mps_context */
   mps_clusterization_free (s, s->clusterization);
   s->clusterization = new_clusterization;
 
@@ -531,7 +531,7 @@ mps_fcluster (mps_status * s, double * frad, int nf)
  *
  */
 void
-mps_dcluster (mps_status * s, rdpe_t * drad, int nf)
+mps_dcluster (mps_context * s, rdpe_t * drad, int nf)
 {
   s->operation = MPS_OPERATION_CLUSTER_ANALYSIS;
 
@@ -699,7 +699,7 @@ mps_dcluster (mps_status * s, rdpe_t * drad, int nf)
 	}
     }
 
-  /* Set the new clusterizaition in the mps_status */
+  /* Set the new clusterizaition in the mps_context */
   mps_clusterization_free (s, s->clusterization);
   s->clusterization = new_clusterization;
 
@@ -712,7 +712,7 @@ mps_dcluster (mps_status * s, rdpe_t * drad, int nf)
 
 
 void
-mps_debug_cluster_structure (mps_status * s)
+mps_debug_cluster_structure (mps_context * s)
 {
   mps_cluster_item * cluster_item;
   mps_cluster * cluster;
@@ -768,7 +768,7 @@ mps_debug_cluster_structure (mps_status * s)
  * @see mps_xcluster
  */
 void
-mps_mcluster (mps_status * s, rdpe_t * drad, int nf)
+mps_mcluster (mps_context * s, rdpe_t * drad, int nf)
 {
   s->operation = MPS_OPERATION_CLUSTER_ANALYSIS;
 
@@ -941,7 +941,7 @@ mps_mcluster (mps_status * s, rdpe_t * drad, int nf)
 	}
     }
 
-  /* Set the new clusterizaition in the mps_status */
+  /* Set the new clusterizaition in the mps_context */
   mps_clusterization_free (s, s->clusterization);
   s->clusterization = new_clusterization;
 
@@ -960,7 +960,7 @@ mps_mcluster (mps_status * s, rdpe_t * drad, int nf)
 
 
 void 
-mps_clusterization_detach_clusters (mps_status * s, mps_clusterization * c)
+mps_clusterization_detach_clusters (mps_context * s, mps_clusterization * c)
 {
   mps_cluster_item * item;
   cdpe_t droot;
@@ -1019,7 +1019,7 @@ mps_clusterization_detach_clusters (mps_status * s, mps_clusterization * c)
 
 
 void 
-mps_clusterization_reassemble_clusters (mps_status * s, mps_clusterization * c)
+mps_clusterization_reassemble_clusters (mps_context * s, mps_clusterization * c)
 {
   MPS_DEBUG_THIS_CALL;
 
@@ -1039,7 +1039,7 @@ mps_clusterization_reassemble_clusters (mps_status * s, mps_clusterization * c)
 }
 
 void
-mps_cluster_detachment_reset (mps_status * s)
+mps_cluster_detachment_reset (mps_context * s)
 {
   mps_clusterization_reassemble_clusters (s, s->clusterization);
 }

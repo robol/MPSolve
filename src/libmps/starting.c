@@ -27,8 +27,8 @@
 #define pi2 6.283184
 
 /* forward declaration */
-void mps_raisetemp (mps_status * s, unsigned long int digits);
-void mps_raisetemp_raw (mps_status * s, unsigned long int digits);
+void mps_raisetemp (mps_context * s, unsigned long int digits);
+void mps_raisetemp_raw (mps_context * s, unsigned long int digits);
 
 /**
  * @brief Compute the greatest common divisor of <code>a</code>
@@ -60,7 +60,7 @@ mps_gcd (int a, int b)
  * This function also set <code>s->last_sigma</code> to the value
  * that is computed.
  *
- * @param s the mps_status struct pointer.
+ * @param s the mps_context struct pointer.
  * @param last_sigma the last value of sigma.
  * @param cluster_item The element of the <code>mps_clusterization</code> of which
  * we are computing the starting points, or NULL if we are computing the starting
@@ -69,7 +69,7 @@ mps_gcd (int a, int b)
  * @return the shift advised for the starting approximation in the annulus.
  */
 double
-mps_maximize_distance (mps_status * s, double last_sigma,
+mps_maximize_distance (mps_context * s, double last_sigma,
                        mps_cluster_item * cluster_item, int n)
 {
   double delta_sigma;
@@ -93,7 +93,7 @@ mps_maximize_distance (mps_status * s, double last_sigma,
  * @brief Compute radii of the circles where the initial approximation
  * will be disposed by mps_fstart()
  *
- * @param s mps_status* stuct pointer.
+ * @param s mps_context* stuct pointer.
  * @param n number of roots in the cluster.
  * @param cluster_item The element of the <code>mps_clusterization</code> of which
  * we are computing the starting points, or NULL if we are computing the starting
@@ -106,7 +106,7 @@ mps_maximize_distance (mps_status * s, double last_sigma,
  * @see mps_fstart()
  */
 void
-mps_fcompute_starting_radii (mps_status * s, int n, mps_cluster_item * cluster_item,
+mps_fcompute_starting_radii (mps_context * s, int n, mps_cluster_item * cluster_item,
                              double clust_rad, double g, rdpe_t eps,
                              double fap[])
 {
@@ -264,7 +264,7 @@ mps_fcompute_starting_radii (mps_status * s, int n, mps_cluster_item * cluster_i
  * The status vector is changed into <code>'x'</code> for the components that
  * cannot be represented as double.
  *
- * @param s The <code>mps_status</code> associated with the current computation.
+ * @param s The <code>mps_context</code> associated with the current computation.
  * @param n number of roots in the cluster.
  * @param cluster_item The element of the <code>mps_clusterization</code> of which
  * we are computing the starting points, or NULL if we are computing the starting
@@ -279,7 +279,7 @@ mps_fcompute_starting_radii (mps_status * s, int n, mps_cluster_item * cluster_i
  * @see status
  */
 void
-mps_fstart (mps_status * s, int n, mps_cluster_item * cluster_item, 
+mps_fstart (mps_context * s, int n, mps_cluster_item * cluster_item, 
 	    double clust_rad, double g, rdpe_t eps, double fap[])
 {
   MPS_DEBUG_THIS_CALL;
@@ -390,7 +390,7 @@ mps_fstart (mps_status * s, int n, mps_cluster_item * cluster_item,
  * @brief Compute radii of the circles where the initial approximation
  * will be disposed by mps_dstart()
  *
- * @param s mps_status* stuct pointer.
+ * @param s mps_context* stuct pointer.
  * @param n number of roots in the cluster.
  * @param cluster_item The element of the <code>mps_clusterization</code> of which
  * we are computing the starting points, or NULL if we are computing the starting
@@ -403,7 +403,7 @@ mps_fstart (mps_status * s, int n, mps_cluster_item * cluster_item,
  * @see mps_dstart()
  */
 void
-mps_dcompute_starting_radii (mps_status * s, int n, 
+mps_dcompute_starting_radii (mps_context * s, int n, 
 			     mps_cluster_item * cluster_item,
                              rdpe_t clust_rad, rdpe_t g, rdpe_t eps,
                              rdpe_t dap[])
@@ -570,7 +570,7 @@ mps_dcompute_starting_radii (mps_status * s, int n,
  * The status vector is changed into <code>'f'</code> for the components
  * that cannot be represented as <code>>dpe</code>.
  *
- * @param s mps_status struct pointer.
+ * @param s mps_context struct pointer.
  * @param n number of root in the cluster to consider
  * @param cluster_item The item of the mps_clusterization containing the cluster
  * that we are analyzing. 
@@ -580,7 +580,7 @@ mps_dcompute_starting_radii (mps_status * s, int n,
  * @param dap[] moduli of the coefficients as <code>dpe</code> numbers.
  */
 void
-mps_dstart (mps_status * s, int n, mps_cluster_item * cluster_item, 
+mps_dstart (mps_context * s, int n, mps_cluster_item * cluster_item, 
 	    rdpe_t clust_rad, rdpe_t g, rdpe_t eps, rdpe_t dap[])
 {
   int l = 0, i, j, jj, nzeros = 0;
@@ -724,7 +724,7 @@ mps_dstart (mps_status * s, int n, mps_cluster_item * cluster_item,
  * @brief Compute radii of the circles where the initial approximation
  * will be disposed by mps_mstart()
  *
- * @param s mps_status* stuct pointer.
+ * @param s mps_context* stuct pointer.
  * @param n number of roots in the cluster.
  * @param cluster_item The element of the <code>mps_clusterization</code> of which
  * we are computing the starting points, or NULL if we are computing the starting
@@ -736,7 +736,7 @@ mps_dstart (mps_status * s, int n, mps_cluster_item * cluster_item,
  * @see mps_mstart()
  */
 void
-mps_mcompute_starting_radii (mps_status * s, int n, mps_cluster_item * cluster_item,
+mps_mcompute_starting_radii (mps_context * s, int n, mps_cluster_item * cluster_item,
                              rdpe_t clust_rad, rdpe_t g, rdpe_t dap[])
 {
 
@@ -882,7 +882,7 @@ mps_mcompute_starting_radii (mps_status * s, int n, mps_cluster_item * cluster_i
  * @see mps_fstart()
  */
 void
-mps_mstart (mps_status * s, int n, mps_cluster_item * cluster_item, 
+mps_mstart (mps_context * s, int n, mps_cluster_item * cluster_item, 
 	    rdpe_t clust_rad,
             rdpe_t g, rdpe_t dap[], mpc_t gg)
 {
@@ -1070,7 +1070,7 @@ mps_mstart (mps_status * s, int n, mps_cluster_item * cluster_item,
  output a warning message.
  ***********************************************************/
 void
-mps_frestart (mps_status * s)
+mps_frestart (mps_context * s)
 {
   int k, j, l;
   double sr, sum, rtmp, rtmp1;
@@ -1273,7 +1273,7 @@ mps_frestart (mps_status * s)
  message.
  ******************************************************************/
 void
-mps_drestart (mps_status * s)
+mps_drestart (mps_context * s)
 {
   int k, j, l;
   rdpe_t sr, rtmp, rtmp1;
@@ -1441,7 +1441,7 @@ mps_drestart (mps_status * s)
  *                     SUBROUTINE MRESTART                    *
  *************************************************************/
 void
-mps_mrestart (mps_status * s)
+mps_mrestart (mps_context * s)
 {
   mps_boolean tst;
   int j, k, l;
@@ -1805,7 +1805,7 @@ mps_mrestart (mps_status * s)
  cannot be represented as float.
  **************************************************************/
 void
-mps_fshift (mps_status * s, int m, mps_cluster_item * cluster_item, double clust_rad,
+mps_fshift (mps_context * s, int m, mps_cluster_item * cluster_item, double clust_rad,
             cplx_t g, rdpe_t eps)
 {
   int i, j;
@@ -1845,7 +1845,7 @@ mps_fshift (mps_status * s, int m, mps_cluster_item * cluster_item, double clust
  *                   SUBROUTINE DSHIFT                      *
  ***********************************************************/
 void
-mps_dshift (mps_status * s, int m, mps_cluster_item * cluster_item, rdpe_t clust_rad,
+mps_dshift (mps_context * s, int m, mps_cluster_item * cluster_item, rdpe_t clust_rad,
             cdpe_t g, rdpe_t eps)
 {
   int i, j;
@@ -1882,7 +1882,7 @@ mps_dshift (mps_status * s, int m, mps_cluster_item * cluster_item, rdpe_t clust
  *              SUBROUTINE MSHIFT                       *
  *******************************************************/
 void
-mps_mshift (mps_status * s, int m, mps_cluster_item * cluster_item, rdpe_t clust_rad, mpc_t g)
+mps_mshift (mps_context * s, int m, mps_cluster_item * cluster_item, rdpe_t clust_rad, mpc_t g)
 {
   int i, j, k;
   long int mpwp_temp, mpwp_max;
@@ -2022,7 +2022,7 @@ mps_mshift (mps_status * s, int m, mps_cluster_item * cluster_item, rdpe_t clust
  *               SUBROUTINE RAISETEMP                         *
  *************************************************************/
 void
-mps_raisetemp (mps_status * s, unsigned long int digits)
+mps_raisetemp (mps_context * s, unsigned long int digits)
 {
   int i;
 
@@ -2037,7 +2037,7 @@ mps_raisetemp (mps_status * s, unsigned long int digits)
  *               SUBROUTINE RAISETEMP_RAW                     *
  *************************************************************/
 void
-mps_raisetemp_raw (mps_status * s, unsigned long int digits)
+mps_raisetemp_raw (mps_context * s, unsigned long int digits)
 {
   int i;
 
@@ -2054,7 +2054,7 @@ mps_raisetemp_raw (mps_status * s, unsigned long int digits)
  *               SUBROUTINE MNEWTIS                           *
  *************************************************************/
 void
-mps_mnewtis (mps_status * s)
+mps_mnewtis (mps_context * s)
 {
   mps_boolean tst;
   int k, l;

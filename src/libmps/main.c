@@ -44,7 +44,7 @@
  * - check for termination
  */
 void
-mps_standard_mpsolve (mps_status * s)
+mps_standard_mpsolve (mps_context * s)
 {
   int i, nzc;
   char which_case;
@@ -98,7 +98,7 @@ mps_standard_mpsolve (mps_status * s)
     }
 
   /* Check for errors in check data */
-  if (mps_status_has_errors (s))
+  if (mps_context_has_errors (s))
     return;
 
   if (s->DOLOG)
@@ -283,7 +283,7 @@ exit_sub:
   * @brief Setup vectors and variables
   */
 void
-mps_setup (mps_status * s)
+mps_setup (mps_context * s)
 {
   int i;
   mps_monomial_poly *p = s->monomial_poly;
@@ -440,11 +440,11 @@ mps_setup (mps_status * s)
  * if a floating point phase is enough, or to <code>'d'</code> if
  * a <code>dpe</code> phase is needed.
  * 
- * @param s The <code>mps_status</code> associated with the current computation.
+ * @param s The <code>mps_context</code> associated with the current computation.
  * @param which_case the address of the variable which_case;
  */
 void
-mps_check_data (mps_status * s, char *which_case)
+mps_check_data (mps_context * s, char *which_case)
 {
   rdpe_t min_coeff, max_coeff, tmp;
   mps_monomial_poly *p = s->monomial_poly;
@@ -596,7 +596,7 @@ mps_check_data (mps_status * s, char *which_case)
  *      SUBROUTINE COMPUTE_SEP                            *
  *********************************************************/
 void
-mps_compute_sep (mps_status * s)
+mps_compute_sep (mps_context * s)
 {
   s->sep = s->n * s->lmax_coeff;
   s->sep = -(s->sep) - s->n * (1 + log ((double) s->n)) / LOG2;

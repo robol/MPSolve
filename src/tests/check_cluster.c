@@ -7,7 +7,7 @@
  * adding other roots in it. */
 START_TEST (cluster_create)
 {
-  mps_status *s = mps_status_new ();
+  mps_context *s = mps_context_new ();
   mps_cluster *cluster = mps_cluster_empty (s);
 
   // Add some roots to the cluster and verify that
@@ -19,7 +19,7 @@ START_TEST (cluster_create)
 	       " cluster->n == 1");
 
   mps_cluster_free (s, cluster);
-  mps_status_free (s);
+  mps_context_free (s);
 }
 END_TEST
 
@@ -37,7 +37,7 @@ START_TEST (cluster_isolation)
 {
   mps_cluster_item *cluster_item = NULL;
   mps_cluster *cluster = NULL;
-  mps_status *s = mps_status_new ();
+  mps_context *s = mps_context_new ();
   
   // Set the input polynomial that we have chosen, i.e.
   // x^3 - 5x^2 + 8x - 4
@@ -47,7 +47,7 @@ START_TEST (cluster_isolation)
   mps_monomial_poly_set_coefficient_int (s, p, 1, 8, 0);
   mps_monomial_poly_set_coefficient_int (s, p, 0, -4, 0);
 
-  mps_status_set_input_poly (s, p);
+  mps_context_set_input_poly (s, p);
   mps_allocate_data (s);
 
   // Select the starting approximations
@@ -90,7 +90,7 @@ START_TEST (cluster_isolation)
     }
 
   free (gerschgorin_radii);
-  mps_status_free (s);
+  mps_context_free (s);
 }
 END_TEST
 

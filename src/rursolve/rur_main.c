@@ -20,7 +20,7 @@ mpz_t *mpdemo = NULL;           /* imaginary part of the integer input coeff. */
   reads and computes the univariate rational representation
  ***********************************************************/
 void
-mps_rursolve (mps_status * s)
+mps_rursolve (mps_context * s)
 {
   mpspoly_t p;
   mpz_t tnden;
@@ -342,7 +342,7 @@ mps_rursolve (mps_status * s)
 *      SUBROUTINE RUROUTROOT                           *
 *********************************************************/
 void
-mps_ruroutroot (mps_status * s, mpc_t root, char status, long prec,
+mps_ruroutroot (mps_context * s, mpc_t root, char status, long prec,
                 long out_prec)
 {
   tmpf_t t;

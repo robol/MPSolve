@@ -6,7 +6,7 @@
  * @brief Return a newly allocated mps_monomial_poly of the given degree.
  */
 mps_monomial_poly *
-mps_monomial_poly_new (mps_status * s, long int degree)
+mps_monomial_poly_new (mps_context * s, long int degree)
 {
   int i;
   mps_monomial_poly  * mp = mps_new (mps_monomial_poly);
@@ -67,7 +67,7 @@ mps_monomial_poly_new (mps_status * s, long int degree)
  * allocated with <code>mps_monomial_poly_new()</code>.
  */
 void
-mps_monomial_poly_free (mps_status * s, mps_monomial_poly * mp)
+mps_monomial_poly_free (mps_context * s, mps_monomial_poly * mp)
 {
   mps_boolean_vfree (mp->spar);
   double_vfree (mp->fpr);
@@ -111,7 +111,7 @@ mps_monomial_poly_free (mps_status * s, mps_monomial_poly * mp)
  * @param prec The selected bits of precision.
  */
 void
-mps_monomial_poly_raise_precision (mps_status * s, mps_monomial_poly * mp, long int prec)
+mps_monomial_poly_raise_precision (mps_context * s, mps_monomial_poly * mp, long int prec)
 {
   int k;
 
@@ -158,7 +158,7 @@ mps_monomial_poly_raise_precision (mps_status * s, mps_monomial_poly * mp, long 
 }
 
 long int 
-mps_monomial_poly_get_precision (mps_status * s, mps_monomial_poly * mp)
+mps_monomial_poly_get_precision (mps_context * s, mps_monomial_poly * mp)
 {
   return mpc_get_prec (mp->mfpc[0]);
 }
@@ -167,7 +167,7 @@ mps_monomial_poly_get_precision (mps_status * s, mps_monomial_poly * mp)
  * @brief This routine can be used to set the i-th coefficients of the 
  * polynomial with a multiprecision rational number. 
  *
- * @param s The mps_status the will be used for the computation. This shall be passed
+ * @param s The mps_context the will be used for the computation. This shall be passed
  * along with the polynomial because it manages user interaction and can perform
  * error handling.
  *
@@ -177,7 +177,7 @@ mps_monomial_poly_get_precision (mps_status * s, mps_monomial_poly * mp)
  * @param imag_part The imaginary part of the coefficients.
  */
 void
-mps_monomial_poly_set_coefficient_q (mps_status * s, mps_monomial_poly * mp, long int i, 
+mps_monomial_poly_set_coefficient_q (mps_context * s, mps_monomial_poly * mp, long int i, 
 				     mpq_t real_part, mpq_t imag_part)
 {
   /* Updating data_type information */
@@ -230,14 +230,14 @@ mps_monomial_poly_set_coefficient_q (mps_status * s, mps_monomial_poly * mp, lon
 /**
  * @brief Set the coefficient in position i of the mpnomial.
  *
- * @param s The <code>mps_status</code> associated to this computation.
+ * @param s The <code>mps_context</code> associated to this computation.
  * @param mp The <code>monomial_poly</code> in which the coefficients will be set.
  * @param i The index of the coefficient to set.
  * @param real_part The real part of the coefficient.
  * @param imag_part The imaginary part of the coefficient.
  */
 void
-mps_monomial_poly_set_coefficient_d (mps_status * s, mps_monomial_poly * mp, long int i,
+mps_monomial_poly_set_coefficient_d (mps_context * s, mps_monomial_poly * mp, long int i,
 				     double real_part, double imag_part)
 {
   /* Updating data structure information */
@@ -278,7 +278,7 @@ mps_monomial_poly_set_coefficient_d (mps_status * s, mps_monomial_poly * mp, lon
 }
 
 void 
-mps_monomial_poly_set_coefficient_int (mps_status * s, mps_monomial_poly * mp, long int i,
+mps_monomial_poly_set_coefficient_int (mps_context * s, mps_monomial_poly * mp, long int i,
 				       long long real_part, long long imag_part)
 {
   /* Updating data_type information */
@@ -330,7 +330,7 @@ mps_monomial_poly_set_coefficient_int (mps_status * s, mps_monomial_poly * mp, l
 }
 
 void
-mps_monomial_poly_set_coefficient_f (mps_status * s, mps_monomial_poly * p, long int i,
+mps_monomial_poly_set_coefficient_f (mps_context * s, mps_monomial_poly * p, long int i,
 				     mpc_t coeff)
 {
   /* Updating data_type information */
@@ -351,12 +351,12 @@ mps_monomial_poly_set_coefficient_f (mps_status * s, mps_monomial_poly * p, long
  * @brief Get the k-th derivative of p with floating point coefficients 
  * approximated with the precision wp. 
  *
- * @param s The current mps_status 
+ * @param s The current mps_context 
  * @param p The polynomial to derive
  * @param wp The selected output working precision
  */
 mps_monomial_poly *
-mps_monomial_poly_derive (mps_status * s, mps_monomial_poly * p, int k, long int wp)
+mps_monomial_poly_derive (mps_context * s, mps_monomial_poly * p, int k, long int wp)
 {
   mps_monomial_poly * d = mps_monomial_poly_new (s, p->n - k);
   int i, j;

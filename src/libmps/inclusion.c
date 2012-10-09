@@ -1,3 +1,22 @@
+/************************************************************
+ **                                                        **
+ **             __  __ ___  ___      _                     **
+ **            |  \/  | _ \/ __| ___| |_ _____             **
+ **            | |\/| |  _/\__ \/ _ \ \ V / -_)            **
+ **            |_|  |_|_|  |___/\___/_|\_/\___|            **
+ **                                                        **
+ **       Multiprecision Polynomial Solver (MPSolve)       **
+ **               Version 2.9, September 2012              **
+ **                                                        **
+ **                      Written by                        **
+ **                                                        **
+ **     Dario Andrea Bini       <bini@dm.unipi.it>         **
+ **     Giuseppe Fiorentino     <fiorent@dm.unipi.it>      **
+ **     Leonardo Robol          <robol@mail.dm.unipi.it>   **
+ **                                                        **
+ **           (C) 2012, Dipartimento di Matematica         **
+ ***********************************************************/
+
 #include <mps/mps.h>
 #include <math.h>
 
@@ -6,7 +25,7 @@
  * the field s->root_inclusion[i] for every root.
  */
 void
-mps_fupdate_inclusions (mps_status * s)
+mps_fupdate_inclusions (mps_context * s)
 {
   mps_cluster_item * cluster_item;
   mps_cluster * cluster;
@@ -145,7 +164,7 @@ mps_fupdate_inclusions (mps_status * s)
  * the field s->root_inclusion[i] for every root.
  */
 void
-mps_dupdate_inclusions (mps_status * s)
+mps_dupdate_inclusions (mps_context * s)
 {
   mps_cluster_item * cluster_item;
   mps_cluster * cluster;
@@ -303,7 +322,7 @@ mps_dupdate_inclusions (mps_status * s)
  * the field s->root_inclusion[i] for every root.
  */
 void
-mps_mupdate_inclusions (mps_status * s)
+mps_mupdate_inclusions (mps_context * s)
 {
   mps_cluster_item * cluster_item;
   mps_cluster * cluster;

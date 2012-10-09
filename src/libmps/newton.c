@@ -33,7 +33,7 @@
  * the newton correction is greater than \f$4n\epsilon s\f$ and to
  * false otherwise.
  *
- * @param s The mps_status struct pointer.
+ * @param s The mps_context struct pointer.
  * @param n The degree of the polynomial.
  * @param z The value of \f$z\f$ for which the computation should be
  *  performed.
@@ -51,7 +51,7 @@
  * be computed.
  */
 void
-mps_fnewton (mps_status * s, int n, mps_approximation * root, 
+mps_fnewton (mps_context * s, int n, mps_approximation * root, 
 	     cplx_t corr,
 	     cplx_t fpc[], double fap[],  
 	     mps_boolean skip_radius_computation)
@@ -163,7 +163,7 @@ mps_fnewton (mps_status * s, int n, mps_approximation * root,
  * This routine is the DPE version of <code>mps_fnewton()</code>.
  *
  *
- * @param s The mps_status struct pointer.
+ * @param s The mps_context struct pointer.
  * @param n The degree of the polynomial.
  * @param z The value of \f$z\f$ for which the computation should be
  *  performed.
@@ -183,7 +183,7 @@ mps_fnewton (mps_status * s, int n, mps_approximation * root,
  * @see mps_fnewton()
  */
 void
-mps_dnewton (mps_status * s, int n, mps_approximation * root, 
+mps_dnewton (mps_context * s, int n, mps_approximation * root, 
 	     cdpe_t corr,
 	     cdpe_t dpc[], rdpe_t dap[],
 	     mps_boolean skip_radius_computation)
@@ -272,7 +272,7 @@ mps_intlog2 (int n)
 /**
  * @brief Compute \f$p(z)\f$ by means of the Horner rule.
  *
- * @param st The pointer to the mps_status struct.
+ * @param st The pointer to the mps_context struct.
  * @param n The degree of the polynomial.
  * @param x The point in which the polynomial should be evaluated.
  * @param p Vector of the coefficients of the polynomial.
@@ -284,7 +284,7 @@ mps_intlog2 (int n)
  *  for temporary sparsity vectors.
  */
 void
-mps_parhorner (mps_status * st, int n, mpc_t x, mpc_t p[],
+mps_parhorner (mps_context * st, int n, mpc_t x, mpc_t p[],
 	       mps_boolean b[], mpc_t s, int n_thread)
 {
   int m, j, i, i1, i2, q;
@@ -352,7 +352,7 @@ mps_parhorner (mps_status * st, int n, mpc_t x, mpc_t p[],
 /**
  * @brief Compute \f$p(z)\f$ by means of the parallel Horner rule.
  *
- * @param st The pointer to the mps_status struct.
+ * @param st The pointer to the mps_context struct.
  * @param n The degree of the polynomial.
  * @param x The point in which the polynomial should be evaluated.
  * @param p Vector of the coefficients of the polynomial.
@@ -364,7 +364,7 @@ mps_parhorner (mps_status * st, int n, mpc_t x, mpc_t p[],
  *  for temporary sparsity vectors.
  */
 void
-mps_aparhorner (mps_status * st,
+mps_aparhorner (mps_context * st,
 		int n, rdpe_t x, rdpe_t p[], mps_boolean b[], rdpe_t s,
 		int n_thread)
 {
@@ -436,7 +436,7 @@ mps_aparhorner (mps_status * st,
  * - If the polynomial is sparse then the computation is performed
  *   with the parallel Horner algorithm.
  *
- * @param s The mps_status struct pointer.
+ * @param s The mps_context struct pointer.
  * @param n The degree of the polynomial.
  * @param z The value of \f$z\f$ for which the computation should be
  *  performed.
@@ -455,7 +455,7 @@ mps_aparhorner (mps_status * st,
  * @see mps_dnewton()
  */
 void
-mps_mnewton (mps_status * s, int n, mps_approximation * root, mpc_t corr,
+mps_mnewton (mps_context * s, int n, mps_approximation * root, mpc_t corr,
 	     mpc_t mfpc[], mpc_t mfppc[], rdpe_t dap[],
 	     mps_boolean spar[], int n_thread, 
 	     mps_boolean skip_radius_computation)

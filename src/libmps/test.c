@@ -23,7 +23,7 @@
 *      SUBROUTINE INCLUSION                             *
 *********************************************************/
 mps_boolean
-mps_inclusion (mps_status * s)
+mps_inclusion (mps_context * s)
 {
   int i, j, k, n1, oldnclust;
   rdpe_t rad, difr;

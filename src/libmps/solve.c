@@ -33,7 +33,7 @@
  * Goal approximate: the same as isolate.
  */
 void
-mps_update (mps_status * s)
+mps_update (mps_context * s)
 {
   int i;
 
@@ -122,13 +122,13 @@ mps_update (mps_status * s)
  * This routines the super radius of the <code>i</code>-th cluster,
  * i.e. the radius of the inclusion disc for the whole cluster
  *
- * @param s The <code>mps_status</code> associated with the current computation.
+ * @param s The <code>mps_context</code> associated with the current computation.
  * @param cluster cluster of which the super center and radius should be computed.
  * @param sc Center of the cluster;
  * @param sr Double that will be set to the super radius of the cluster;
  */
 void
-mps_fsrad (mps_status * s, mps_cluster * cluster, cplx_t sc, double *sr)
+mps_fsrad (mps_context * s, mps_cluster * cluster, cplx_t sc, double *sr)
 {
   cplx_t ctmp;
   double sum;
@@ -163,7 +163,7 @@ mps_fsrad (mps_status * s, mps_cluster * cluster, cplx_t sc, double *sr)
  * @brief <code>dpe</code> version of <code>fsrad()</code>
  */
 void
-mps_dsrad (mps_status * s, mps_cluster * cluster, cdpe_t sc, rdpe_t sr)
+mps_dsrad (mps_context * s, mps_cluster * cluster, cdpe_t sc, rdpe_t sr)
 {
   cdpe_t ctmp;
   rdpe_t sum, rtmp;
@@ -200,7 +200,7 @@ mps_dsrad (mps_status * s, mps_cluster * cluster, cdpe_t sc, rdpe_t sr)
  * @brief Multiprecision versione of <code>fsrad()</code>
  */
 void
-mps_msrad (mps_status * s, mps_cluster * cluster, mpc_t sc, rdpe_t sr)
+mps_msrad (mps_context * s, mps_cluster * cluster, mpc_t sc, rdpe_t sr)
 {
   int l;
   rdpe_t rtmp;
@@ -291,7 +291,7 @@ mps_msrad (mps_status * s, mps_cluster * cluster, mpc_t sc, rdpe_t sr)
  * @see status
  */
 mps_boolean
-mps_check_stop (mps_status * s)
+mps_check_stop (mps_context * s)
 {
   MPS_DEBUG_THIS_CALL;
 
@@ -400,12 +400,12 @@ mps_check_stop (mps_status * s)
  *   <code>again[i]=true</code> means iterate on the <code>i</code>-th 
  *   component
  *
- * @param s The <code>mps_status</code> associated with the current computation.
+ * @param s The <code>mps_context</code> associated with the current computation.
  * @param d_after_f this variable is <code>true</code> if dpe
  * are needed after the floating point pass. 
  */
 void
-mps_fsolve (mps_status * s, mps_boolean * d_after_f)
+mps_fsolve (mps_context * s, mps_boolean * d_after_f)
 {
   mps_boolean excep;
   int it_pack, iter, nit, oldnclust, i, j, required_zeros = s->n;
@@ -603,13 +603,13 @@ mps_fsolve (mps_status * s, mps_boolean * d_after_f)
  * approximation is in
  * the root neighbourhood. Stop if <code>again[i]=false</code> for any <code>i</code>.
  *
- * @param s The <code>mps_status</code> associated with the current computation.
+ * @param s The <code>mps_context</code> associated with the current computation.
  * @param it Index of the component on which the iteration is needed. 
  * @param excep This variable is set to <code>true</code> if after <code>nit</code> 
  * iterations some approximation is still out of the root neighbourhood.
  */
 void
-mps_fpolzer (mps_status * s, int *it, mps_boolean * excep)
+mps_fpolzer (mps_context * s, int *it, mps_boolean * excep)
 {
   int i, iter, nzeros;
   cplx_t corr, abcorr;
@@ -705,7 +705,7 @@ mps_fpolzer (mps_status * s, int *it, mps_boolean * excep)
  * @brief <code>dpe</code> version of <code>fpolzer()</code>.
  */
 void
-mps_dpolzer (mps_status * s, int *it, mps_boolean * excep)
+mps_dpolzer (mps_context * s, int *it, mps_boolean * excep)
 {
   int iter, i, nzeros;
   rdpe_t rad1, rtmp;
@@ -796,7 +796,7 @@ mps_dpolzer (mps_status * s, int *it, mps_boolean * excep)
  * @brief <code>dpe</code> version of <code>fsolve()</code>.
  */
 void
-mps_dsolve (mps_status * s, mps_boolean d_after_f)
+mps_dsolve (mps_context * s, mps_boolean d_after_f)
 {
   int it_pack, iter, nit, oldnclust, i, j, required_zeros = s->n;
   mps_boolean excep;
@@ -970,7 +970,7 @@ mps_dsolve (mps_status * s, mps_boolean d_after_f)
  * @brief Multiprecision version of <code>fsolve()</code>.
  */
 void 
-mps_msolve (mps_status * s)
+mps_msolve (mps_context * s)
 {
   int iter, nit, oldnclust, i, j, it_pack, required_zeros = s->n;
   mps_boolean excep;
@@ -1271,7 +1271,7 @@ mps_msolve (mps_status * s)
  * @brief Multiprecision versione of <code>fpolzer()</code>.
  */
 void
-mps_mpolzer (mps_status * s, int *it, mps_boolean * excep)
+mps_mpolzer (mps_context * s, int *it, mps_boolean * excep)
 {
   int nzeros, i, iter, l;
   mpc_t corr, abcorr;

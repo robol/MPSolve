@@ -11,7 +11,7 @@
 #define pi2 6.283184
 
 void
-mps_secular_fstart (mps_status * s, int n, mps_cluster_item * cluster_item, double clust_rad,
+mps_secular_fstart (mps_context * s, int n, mps_cluster_item * cluster_item, double clust_rad,
                     double g, rdpe_t eps)
 {
   MPS_DEBUG_THIS_CALL;
@@ -76,7 +76,7 @@ mps_secular_fstart (mps_status * s, int n, mps_cluster_item * cluster_item, doub
 }
 
 void
-mps_secular_dstart (mps_status * s, int n, mps_cluster_item * cluster_item, rdpe_t clust_rad,
+mps_secular_dstart (mps_context * s, int n, mps_cluster_item * cluster_item, rdpe_t clust_rad,
                     rdpe_t g, rdpe_t eps)
 {
   MPS_DEBUG_THIS_CALL;
@@ -153,7 +153,7 @@ mps_secular_dstart (mps_status * s, int n, mps_cluster_item * cluster_item, rdpe
 }
 
 void
-mps_secular_mstart (mps_status * s, int n, mps_cluster_item * cluster_item, rdpe_t clust_rad,
+mps_secular_mstart (mps_context * s, int n, mps_cluster_item * cluster_item, rdpe_t clust_rad,
                     rdpe_t g, rdpe_t eps)
 {
   MPS_DEBUG_THIS_CALL;

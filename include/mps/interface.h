@@ -117,10 +117,10 @@ extern "C"
    * // Select the degree
    * int n = 4;
    *
-   * // Allocate a new mps_status that hold the status of a computation.
+   * // Allocate a new mps_context that hold the status of a computation.
    * // Its field should never be accessed directly but only via appropriate
    * //functions.
-   * mps_status * status = mps_status_new ();
+   * mps_context * status = mps_context_new ();
    * 
    * // Create a polynomial that will be solved
    * mps_monomial_poly * poly = mps_monomial_poly_new (status, n);
@@ -131,23 +131,23 @@ extern "C"
    *
    * // Select some common output options, i.e. 512 bits of precision
    * // (more or less 200 digits guaranteed) and approximation goal.
-   * mps_status_set_output_precision (status, 512);
-   * mps_status_set_output_goal (status, MPS_OUTPUT_GOAL_APPROXIMATE);
+   * mps_context_set_output_precision (status, 512);
+   * mps_context_set_output_goal (status, MPS_OUTPUT_GOAL_APPROXIMATE);
    *
    * // Solve the polynomial
-   * mps_status_set_input_poly (status, poly);
+   * mps_context_set_input_poly (status, poly);
    * mps_mpsolve (status);
    * 
    * // Get the roots in a <code>cplx_t</code> vector. Please note that
    * // this make completely useless to have asked 512 bits of output
-   * // precision, and you should use mps_status_get_roots_m() to get
+   * // precision, and you should use mps_context_get_roots_m() to get
    * // multiprecision approximation of the roots.
    * cplx_t * results = cplx_valloc (n);
-   * mps_status_get_roots_d (status, results, NULL);
+   * mps_context_get_roots_d (status, results, NULL);
    *
    * // Free the data used. This will free the monomial_poly if you have
    * // not done it by yourself.
-   * mps_status_free (status);
+   * mps_context_free (status);
    * cplx_vfree (results);
    * @endcode
    *
@@ -155,7 +155,7 @@ extern "C"
    * for a lot of digits in output, but then discard all this good by copying the roots
    * in floating point <code>cplx_t</code> types. 
    *
-   * Please see the documentation of mps_status_get_roots_m() for a better way to get
+   * Please see the documentation of mps_context_get_roots_m() for a better way to get
    * the results. It was not used in example in order to keep it short and clear. 
    *
    * @subsection inclusion How to include libmps
@@ -168,26 +168,26 @@ extern "C"
    * Remember to include always <code>mps/mps.h</code> and not the other headers in the
    * directory. This is not supported and not guaranteed to work.
    *
-   * For example you can instantiate a pointer to a new <code>mps_status</code> with
-   * the function <code>mps_status_new()</code>, add the input to it, solve the polynoial
-   * with <code>mps_mpsolve()</code> and then free its resources with <code>mps_status_free()</code>.
+   * For example you can instantiate a pointer to a new <code>mps_context</code> with
+   * the function <code>mps_context_new()</code>, add the input to it, solve the polynoial
+   * with <code>mps_mpsolve()</code> and then free its resources with <code>mps_context_free()</code>.
    *
    * The data structures that will be mostly used are:
-   * -# <code>mps_status</code>: This structure holds the state of the computation and must
+   * -# <code>mps_context</code>: This structure holds the state of the computation and must
    * be instanciated for every polynomial solving operation. After allocating a pointer to
-   * an <code>mps_status</code> you should, generally,:
+   * an <code>mps_context</code> you should, generally,:
    *   -# Set the input data and output requirements (i.e. the input polynomial, the desired
    *   output digits and goal, ...)
    *   -# Ask libmps to solve the polynomial by calling <code>mps_mpsolve()</code>
    *   -# Retrieve the computed data with the appropriate accessors functions
-   * <code>mps_status_get_roots_d()</code> or <code>mps_status_get_roots_m()</code>.
-   * All the functions usable on an <code>mps_status</code> pointer are available in
+   * <code>mps_context_get_roots_d()</code> or <code>mps_context_get_roots_m()</code>.
+   * All the functions usable on an <code>mps_context</code> pointer are available in
    * status.h.
    *
    * -# <code>mps_monomial_poly</code>: A polynomial given by its coefficients. Can be allocated
    * with <code>mps_monomial_poly_new()</code> and manipulated with the functions in 
    * monomial-poly.h. Once it is the desired polynomial to solve you can call
-   * <code>mps_status_set_input_poly()</code> to set it as the active polynomial to solve.
+   * <code>mps_context_set_input_poly()</code> to set it as the active polynomial to solve.
    *
    * -# <code>mps_secular_equation</code>: The same as the monomial poly, but for secular equations.
    * See secular.h for some functions to allocate, free and manipulate them.
@@ -207,18 +207,18 @@ extern "C"
    */
 
   /* functions in mps_defaults.c */
-  void mps_set_default_values (mps_status * s);
+  void mps_set_default_values (mps_context * s);
 
   /* Functions in mps_main.c */
-  void mps_mpsolve (mps_status * s);
-  void mps_standard_mpsolve (mps_status * s);
+  void mps_mpsolve (mps_context * s);
+  void mps_standard_mpsolve (mps_context * s);
 
   /* functions in mps_interface.c */
   void * mps_malloc (size_t size);
   void * mps_realloc (void * pointer, size_t size);
   void * mps_alloca (size_t size);
 
-  void mps_mpsolve_async (mps_status * s, mps_callback callback, void * user_data);
+  void mps_mpsolve_async (mps_context * s, mps_callback callback, void * user_data);
 
   /* Macros to init pointer and/or vectors in a convenient way */
 #define mps_new(type) ((type *) mps_malloc (sizeof (type)))

@@ -20,7 +20,7 @@ include_HEADERS = \
         ${top_srcdir}/include/mps/rursolve.h \
         ${top_srcdir}/include/mps/secular.h \
         ${top_srcdir}/include/mps/threading.h \
-	${top_srcdir}/include/mps/status.h \
+	${top_srcdir}/include/mps/context.h \
 	${top_srcdir}/include/mps/options.h \
 	$(NULL)
 

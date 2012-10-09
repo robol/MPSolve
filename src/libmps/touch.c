@@ -25,7 +25,7 @@
  * if \f$n = 2*m\f$ where \f$m\f$ is the degree of the polynomial
  * then it correspond to newton isolation.
  *
- * @param s mps_status struct.
+ * @param s mps_context struct.
  * @param n See above.
  * @param i the first root.
  * @param j the second root.
@@ -34,7 +34,7 @@
  *   are newton-isolated.
  */
 mps_boolean
-mps_ftouchnwt (mps_status * s, double * frad, int n, int i, int j)
+mps_ftouchnwt (mps_context * s, double * frad, int n, int i, int j)
 {
   cplx_t ctmp;
   double t;
@@ -60,7 +60,7 @@ mps_ftouchnwt (mps_status * s, double * frad, int n, int i, int j)
  * if \f$n = 2*m\f$ where \f$m\f$ is the degree of the polynomial
  * then it correspond to newton isolation.
  *
- * @param s mps_status struct.
+ * @param s mps_context struct.
  * @param drad The inclusion radii that should be used to perform
  * cluster analysis. 
  * @param n See above.
@@ -70,7 +70,7 @@ mps_ftouchnwt (mps_status * s, double * frad, int n, int i, int j)
  *   are newton-isolated.
  */
 mps_boolean
-mps_dtouchnwt (mps_status * s, rdpe_t * drad, int n, int i, int j)
+mps_dtouchnwt (mps_context * s, rdpe_t * drad, int n, int i, int j)
 {
   cdpe_t ctmp;
   rdpe_t dtmp1, dtmp2;
@@ -95,7 +95,7 @@ mps_dtouchnwt (mps_status * s, rdpe_t * drad, int n, int i, int j)
  * if \f$n = 2*m\f$ where \f$m\f$ is the degree of the polynomial
  * then it correspond to newton isolation.
  *
- * @param s mps_status struct.
+ * @param s mps_context struct.
  * @param drad The inclusion radii that should be used to perform
  * cluster analysis.
  * @param n See above.
@@ -105,7 +105,7 @@ mps_dtouchnwt (mps_status * s, rdpe_t * drad, int n, int i, int j)
  *   are newton-isolated.
  */
 mps_boolean
-mps_mtouchnwt (mps_status * s, rdpe_t * drad, int n, int i, int j)
+mps_mtouchnwt (mps_context * s, rdpe_t * drad, int n, int i, int j)
 {
   mpc_t mtmp;
   cdpe_t ctmp;
@@ -135,7 +135,7 @@ mps_mtouchnwt (mps_status * s, rdpe_t * drad, int n, int i, int j)
  true if the disk intersects the real axis, false otherwise
 ************************************************************/
 mps_boolean
-mps_ftouchreal (mps_status * s, int n, int i)
+mps_ftouchreal (mps_context * s, int n, int i)
 {
   if (s->root[i]->frad >= DBL_MAX / n)
     return true;
@@ -147,7 +147,7 @@ mps_ftouchreal (mps_status * s, int n, int i)
 *              FUNCTION DTOUCHREAL                          *
 ************************************************************/
 mps_boolean
-mps_dtouchreal (mps_status * s, int n, int i)
+mps_dtouchreal (mps_context * s, int n, int i)
 {
   rdpe_t tmp1, tmp2;
 
@@ -160,7 +160,7 @@ mps_dtouchreal (mps_status * s, int n, int i)
 *              FUNCTION MTOUCHREAL                          *
 ************************************************************/
 mps_boolean
-mps_mtouchreal (mps_status * s, int n, int i)
+mps_mtouchreal (mps_context * s, int n, int i)
 {
   rdpe_t tmp1, tmp2;
 
@@ -177,7 +177,7 @@ mps_mtouchreal (mps_status * s, int n, int i)
  true iff the disk intersects the imaginary axis 
 ************************************************************/
 mps_boolean
-mps_ftouchimag (mps_status * s, int n, int i)
+mps_ftouchimag (mps_context * s, int n, int i)
 {
   if (s->root[i]->frad >= DBL_MAX / n)
     return true;
@@ -189,7 +189,7 @@ mps_ftouchimag (mps_status * s, int n, int i)
 *              FUNCTION  DTOUCHIMAG                         *
 ************************************************************/
 mps_boolean
-mps_dtouchimag (mps_status * s, int n, int i)
+mps_dtouchimag (mps_context * s, int n, int i)
 {
   rdpe_t tmp1, tmp2;
 
@@ -202,7 +202,7 @@ mps_dtouchimag (mps_status * s, int n, int i)
 *              FUNCTION  MTOUCHIMAG                         *
 ************************************************************/
 mps_boolean
-mps_mtouchimag (mps_status * s, int n, int i)
+mps_mtouchimag (mps_context * s, int n, int i)
 {
   rdpe_t tmp1, tmp2;
 
@@ -220,7 +220,7 @@ mps_mtouchimag (mps_status * s, int n, int i)
   (n*drad[i]+1 >= |froot[i]|) && (n*drad[i]+|froot[i]| >= 1)
 *************************************************************/
 mps_boolean
-mps_ftouchunit (mps_status * s, int n, int i)
+mps_ftouchunit (mps_context * s, int n, int i)
 {
   double ab, rad;
 
@@ -236,7 +236,7 @@ mps_ftouchunit (mps_status * s, int n, int i)
 *              FUNCTION  DTOUCHUNIT                         *
 ************************************************************/
 mps_boolean
-mps_dtouchunit (mps_status * s, int n, int i)
+mps_dtouchunit (mps_context * s, int n, int i)
 {
   rdpe_t ab, rad, tmp;
 
@@ -253,7 +253,7 @@ mps_dtouchunit (mps_status * s, int n, int i)
 *              FUNCTION  MTOUCHUNIT                         *
 ************************************************************/
 mps_boolean
-mps_mtouchunit (mps_status * s, int n, int i)
+mps_mtouchunit (mps_context * s, int n, int i)
 {
   mpf_t mab;
   rdpe_t ab, rad;

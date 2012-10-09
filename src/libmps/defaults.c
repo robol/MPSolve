@@ -6,7 +6,7 @@
  **            |_|  |_|_|  |___/\___/_|\_/\___|            **
  **                                                        **
  **       Multiprecision Polynomial Solver (MPSolve)       **
- **                 Version 2.9, April 2011                **
+ **               Version 2.9, September 2012              **
  **                                                        **
  **                      Written by                        **
  **                                                        **
@@ -14,7 +14,7 @@
  **     Giuseppe Fiorentino     <fiorent@dm.unipi.it>      **
  **     Leonardo Robol          <robol@mail.dm.unipi.it>   **
  **                                                        **
- **           (C) 2011, Dipartimento di Matematica         **
+ **           (C) 2012, Dipartimento di Matematica         **
  ***********************************************************/
 
 #include <stdio.h>
@@ -23,7 +23,7 @@
 #include <string.h>
 
 void
-mps_set_default_values (mps_status * s)
+mps_set_default_values (mps_context * s)
 {
   /* flags */
   s->skip_float = false;        /* set to true to skip float phase     */

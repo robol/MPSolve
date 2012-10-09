@@ -7,7 +7,7 @@ void *
 mps_thread_fpolzer_worker (void *data_ptr)
 {
   mps_thread_worker_data *data = (mps_thread_worker_data *) data_ptr;
-  mps_status *s = data->s;
+  mps_context *s = data->s;
   mps_monomial_poly *p = s->monomial_poly;
   int i, iter;
   cplx_t corr, abcorr, froot;
@@ -122,7 +122,7 @@ mps_thread_fpolzer_worker (void *data_ptr)
  * This version adds multithread support.
  */
 void
-mps_thread_fpolzer (mps_status * s, int *it, mps_boolean * excep, int required_zeros)
+mps_thread_fpolzer (mps_context * s, int *it, mps_boolean * excep, int required_zeros)
 {
   int i, nzeros = 0, n_threads = s->n_threads;
 
@@ -192,7 +192,7 @@ mps_thread_dpolzer_worker (void *data_ptr)
 
   /* Parse input data */
   mps_thread_worker_data *data = (mps_thread_worker_data *) data_ptr;
-  mps_status *s = data->s;
+  mps_context *s = data->s;
   mps_monomial_poly *p = s->monomial_poly;
   mps_thread_job job;
 
@@ -293,7 +293,7 @@ mps_thread_dpolzer_worker (void *data_ptr)
  * @brief Multithread version of mps_dpolzer ().
  */
 void
-mps_thread_dpolzer (mps_status * s, int *it, mps_boolean * excep, int required_zeros)
+mps_thread_dpolzer (mps_context * s, int *it, mps_boolean * excep, int required_zeros)
 {
   mps_thread_worker_data *data;
   pthread_mutex_t *aberth_mutex, *roots_mutex;
@@ -358,7 +358,7 @@ void *
 mps_thread_mpolzer_worker (void *data_ptr)
 {
   mps_thread_worker_data *data = (mps_thread_worker_data *) data_ptr;
-  mps_status *s = data->s;
+  mps_context *s = data->s;
   mps_monomial_poly *p = s->monomial_poly;
   mps_thread_job job;
   int iter, l;
@@ -547,7 +547,7 @@ endfun:                        /* free local MP variables */
  * @brief Drop-in threaded replacement for the stock mpolzer.
  */
 void
-mps_thread_mpolzer (mps_status * s, int *it, mps_boolean * excep, int required_zeros)
+mps_thread_mpolzer (mps_context * s, int *it, mps_boolean * excep, int required_zeros)
 {
   int i, nzeros = 0, n_threads = s->n_threads;
 

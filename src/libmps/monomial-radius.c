@@ -9,11 +9,11 @@
  * in <code>s->root[i]->frad</code>, where <code>i</code> is the index of
  * the considered component.
  *
- * @param s The <code>mps_status</code> of the computation.
+ * @param s The <code>mps_context</code> of the computation.
  * @param fradii The array where the computed radii will be stored.
  */
 void
-mps_monomial_fradii (mps_status * s, double * fradii)
+mps_monomial_fradii (mps_context * s, double * fradii)
 {
   MPS_DEBUG_THIS_CALL;
 
@@ -68,11 +68,11 @@ mps_monomial_fradii (mps_status * s, double * fradii)
  * in <code>s->root[i]->frad</code>, where <code>i</code> is the index of
  * the considered component.
  *
- * @param s The <code>mps_status</code> of the computation.
+ * @param s The <code>mps_context</code> of the computation.
  * @param dradii The array of DPE where the radii will be stored.
  */
 void
-mps_monomial_dradii (mps_status * s, rdpe_t * dradii)
+mps_monomial_dradii (mps_context * s, rdpe_t * dradii)
 {
   MPS_DEBUG_THIS_CALL;
 
@@ -123,11 +123,11 @@ mps_monomial_dradii (mps_status * s, rdpe_t * dradii)
  * in <code>s->root[i]->frad</code>, where <code>i</code> is the index of
  * the considered component.
  *
- * @param s The <code>mps_status</code> of the computation.
+ * @param s The <code>mps_context</code> of the computation.
  * @param dradii The array of DPE where the radii will be stored.
  */
 void
-mps_monomial_mradii (mps_status * s, rdpe_t * dradii)
+mps_monomial_mradii (mps_context * s, rdpe_t * dradii)
 {
   MPS_DEBUG_THIS_CALL;
 

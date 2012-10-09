@@ -251,75 +251,75 @@ extern "C"
 #define mps_secular_equation_from_status(s) (mps_secular_equation*) (s)->secular_equation
 
   /* Routines in secular-newton.c */
-  void mps_secular_fnewton (mps_status * st, mps_approximation * root, cplx_t corr,
+  void mps_secular_fnewton (mps_context * st, mps_approximation * root, cplx_t corr,
 			    void * user_data, mps_boolean skip_radius_compuation);
-  void mps_secular_dnewton (mps_status * st, mps_approximation * root, cdpe_t corr,
+  void mps_secular_dnewton (mps_context * st, mps_approximation * root, cdpe_t corr,
 			    void * user_data, mps_boolean skip_radius_computation);
-  void mps_secular_mnewton (mps_status * st, mps_approximation * root, mpc_t corr,
+  void mps_secular_mnewton (mps_context * st, mps_approximation * root, mpc_t corr,
 			    void * user_data, mps_boolean skip_radius_computation);
 
   /* Routines in secular-regeneartion.c */
-  mps_boolean * mps_secular_ga_find_changed_roots (mps_status * s, cdpe_t * old_b, mpc_t * old_mb);
+  mps_boolean * mps_secular_ga_find_changed_roots (mps_context * s, cdpe_t * old_b, mpc_t * old_mb);
 
-  mps_boolean mps_secular_ga_regenerate_coefficients_mp (mps_status * s, cdpe_t * old_b, mpc_t * old_mb);
+  mps_boolean mps_secular_ga_regenerate_coefficients_mp (mps_context * s, cdpe_t * old_b, mpc_t * old_mb);
 
-  mps_boolean mps_secular_ga_regenerate_coefficients_monomial (mps_status * s, cdpe_t * old_b, mpc_t * old_mb, mps_boolean * root_changed);
+  mps_boolean mps_secular_ga_regenerate_coefficients_monomial (mps_context * s, cdpe_t * old_b, mpc_t * old_mb, mps_boolean * root_changed);
 
-  mps_boolean mps_secular_ga_regenerate_coefficients_secular (mps_status * s, cdpe_t * old_b, mpc_t * old_mb, mps_boolean * root_changed);
+  mps_boolean mps_secular_ga_regenerate_coefficients_secular (mps_context * s, cdpe_t * old_b, mpc_t * old_mb, mps_boolean * root_changed);
 
-  mps_boolean mps_secular_ga_regenerate_coefficients (mps_status * s);
+  mps_boolean mps_secular_ga_regenerate_coefficients (mps_context * s);
 
   /* Routines in secular.c */
-  void mps_secular_deflate (mps_status * s, mps_secular_equation * sec);
+  void mps_secular_deflate (mps_context * s, mps_secular_equation * sec);
 
-  void mps_secular_check_data (mps_status * s, char *which_case);
+  void mps_secular_check_data (mps_context * s, char *which_case);
 
-  void mps_secular_restart (mps_status * s);
+  void mps_secular_restart (mps_context * s);
 
-  void mps_secular_switch_phase (mps_status * s, mps_phase phase);
+  void mps_secular_switch_phase (mps_context * s, mps_phase phase);
 
-  void mps_secular_raise_coefficient_precision (mps_status * s, int wp);
+  void mps_secular_raise_coefficient_precision (mps_context * s, int wp);
 
-  void mps_secular_raise_precision (mps_status * s, int wp);
+  void mps_secular_raise_precision (mps_context * s, int wp);
 
-  void mps_secular_raise_root_precision (mps_status * s, int wp);
+  void mps_secular_raise_root_precision (mps_context * s, int wp);
 
   /* Routines in secular-starting.c */
-  void mps_secular_fstart (mps_status * s, int n, mps_cluster_item * cluster, double clust_rad,
+  void mps_secular_fstart (mps_context * s, int n, mps_cluster_item * cluster, double clust_rad,
 			   double g, rdpe_t eps);
-  void mps_secular_dstart (mps_status * s, int n, mps_cluster_item * cluster, rdpe_t clust_rad,
+  void mps_secular_dstart (mps_context * s, int n, mps_cluster_item * cluster, rdpe_t clust_rad,
 			   rdpe_t g, rdpe_t eps);
-  void mps_secular_mstart (mps_status * s, int n, mps_cluster_item * cluster, rdpe_t clust_rad,
+  void mps_secular_mstart (mps_context * s, int n, mps_cluster_item * cluster, rdpe_t clust_rad,
 			   rdpe_t g, rdpe_t eps);
 
   /* Routines in secular-iteration.c */
-  int mps_secular_ga_fiterate (mps_status * s, int maxit, mps_boolean just_regenerated);
+  int mps_secular_ga_fiterate (mps_context * s, int maxit, mps_boolean just_regenerated);
 
-  int mps_secular_ga_diterate (mps_status * s, int maxit, mps_boolean just_regenerated);
+  int mps_secular_ga_diterate (mps_context * s, int maxit, mps_boolean just_regenerated);
 
-  int mps_secular_ga_miterate (mps_status * s, int maxit, mps_boolean just_regenerated);
+  int mps_secular_ga_miterate (mps_context * s, int maxit, mps_boolean just_regenerated);
   
   /* Routines in secular-ga.c */
-  mps_boolean mps_secular_ga_check_stop (mps_status * s);
+  mps_boolean mps_secular_ga_check_stop (mps_context * s);
 
-  void mps_secular_ga_improve (mps_status * s);
+  void mps_secular_ga_improve (mps_context * s);
 
-  void mps_secular_ga_mpsolve (mps_status * s);
+  void mps_secular_ga_mpsolve (mps_context * s);
 
-  void mps_secular_ga_update_coefficients (mps_status * s);
+  void mps_secular_ga_update_coefficients (mps_context * s);
 
   /* Interface functions in secular.c */
-  mps_secular_equation *mps_secular_equation_new (mps_status * s,
+  mps_secular_equation *mps_secular_equation_new (mps_context * s,
                                                   cplx_t * afpc,
                                                   cplx_t * bfpc,
                                                   unsigned long int n);
 
-  mps_secular_equation *mps_secular_equation_new_raw (mps_status * s,
+  mps_secular_equation *mps_secular_equation_new_raw (mps_context * s,
                                                       unsigned long int n);
 
   void mps_secular_equation_free (mps_secular_equation * s);
 
-  void mps_secular_set_radii (mps_status * s);
+  void mps_secular_set_radii (mps_context * s);
 
 #ifdef	__cplusplus
 }

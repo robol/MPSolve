@@ -7,12 +7,12 @@
  * <code>s->root[i]->wp</code> with the given precision rounded to the 
  * closer multiple of 64 (since GMP does not handle intermediate precisions).
  *
- * @param s The <code>mps_status</code> of the computation.
+ * @param s The <code>mps_context</code> of the computation.
  * @param i The index of the root whose precision must be updated.
  * @param wp The precision to set.
  */
 long int
-mps_secular_ga_update_root_wp (mps_status * s, int i, long int wp, mpc_t * bmpc)
+mps_secular_ga_update_root_wp (mps_context * s, int i, long int wp, mpc_t * bmpc)
 {
   mps_secular_equation * sec = s->secular_equation;  
   mps_monomial_poly * p = s->monomial_poly;  
@@ -67,13 +67,13 @@ mps_secular_ga_update_root_wp (mps_status * s, int i, long int wp, mpc_t * bmpc)
  * recompute the value of the polynomial in that point, so <code>root_changed[i]</code> is set
  * to false
  *
- * @param s The <code>mps_status</code> of the computation.
+ * @param s The <code>mps_context</code> of the computation.
  * @param old_b A vector of the old \f$b_i\f$ coefficients.
  * @param old_mb The vector of the old \f$b_i\f$ in <code>mpc_t</code> version. Must be set
  * to NULL if we are not in a multiprecision phase. 
  */
 mps_boolean *
-mps_secular_ga_find_changed_roots (mps_status * s, cdpe_t * old_b, mpc_t * old_mb)
+mps_secular_ga_find_changed_roots (mps_context * s, cdpe_t * old_b, mpc_t * old_mb)
 {
   MPS_DEBUG_THIS_CALL;
 
@@ -125,7 +125,7 @@ mps_secular_ga_find_changed_roots (mps_status * s, cdpe_t * old_b, mpc_t * old_m
 }
 
 struct __mps_secular_ga_regenerate_coefficients_monomial_data {
-  mps_status * s;
+  mps_context * s;
   cdpe_t * old_b;
   mpc_t * old_mb;
   mpc_t * bmpc;
@@ -140,7 +140,7 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
 {
   struct __mps_secular_ga_regenerate_coefficients_monomial_data * data = data_ptr;
 
-  mps_status * s = data->s;
+  mps_context * s = data->s;
   mpc_t * old_mb = data->old_mb;
   mpc_t * bmpc = data->bmpc + (mps_thread_get_id (s, s->pool) * s->n);
   mps_boolean * root_changed = data->root_changed;
@@ -346,7 +346,7 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
  * @brief Compute the new secular equation coefficients based on the monomial input
  * in <code>s->monomial_poly</code>.
  *
- * @param s The <code>mps_status</code> of the computation
+ * @param s The <code>mps_context</code> of the computation
  * @param old_b The old \f$b_i\f$ coefficients of the secular equation used to recompute
  * the value of \f$a_i\f$ in the case where, denoting with \f$b_i\f$ the new coefficients, 
  * with \f$\tilde b_i\f$ the old ones and with \f$u\f$ the machine precision:
@@ -357,7 +357,7 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
  * did not changed from the last regeneration. 
  */
 mps_boolean
-mps_secular_ga_regenerate_coefficients_monomial (mps_status * s, cdpe_t * old_b, mpc_t * old_mb, mps_boolean * root_changed)
+mps_secular_ga_regenerate_coefficients_monomial (mps_context * s, cdpe_t * old_b, mpc_t * old_mb, mps_boolean * root_changed)
 {
   MPS_DEBUG_THIS_CALL;
 
@@ -416,7 +416,7 @@ mps_secular_ga_regenerate_coefficients_monomial (mps_status * s, cdpe_t * old_b,
  * @brief This function recomputes the \f$a_i\f$ coefficients of the secular equation based
  * on the new \f$b_i\f$ that are set in <code>s->secular_equation->bmpc[i]</code>.
  *
- * @param s The <code>mps_status</code> of the computation.
+ * @param s The <code>mps_context</code> of the computation.
  * @param old_b The old \f$b_i\f$ coefficients of the secular equation used to recompute
  * the value of \f$a_i\f$ in the case where, denoting with \f$b_i\f$ the new coefficients, 
  * with \f$\tilde b_i\f$ the old ones and with \f$u\f$ the machine precision:
@@ -426,7 +426,7 @@ mps_secular_ga_regenerate_coefficients_monomial (mps_status * s, cdpe_t * old_b,
  * did not changed from the last regeneration. 
  */
 mps_boolean 
-mps_secular_ga_regenerate_coefficients_secular (mps_status * s, cdpe_t * old_b, mpc_t * old_mb, mps_boolean * root_changed)
+mps_secular_ga_regenerate_coefficients_secular (mps_context * s, cdpe_t * old_b, mpc_t * old_mb, mps_boolean * root_changed)
 {
   MPS_DEBUG_THIS_CALL;
 
@@ -656,11 +656,11 @@ mps_secular_ga_regenerate_coefficients_secular (mps_status * s, cdpe_t * old_b, 
  *
  * A useful function that does all the things above, doing
  * the rigth thing based on <code>s->lastphase</code>, where
- * <code>s</code> is a pointer to the <code>mps_status</code>
+ * <code>s</code> is a pointer to the <code>mps_context</code>
  * is <code>mps_secular_ga_regenerate_coefficients()</code> and
  * is the one that should be used
  *
- * @param s The mps_status of the computation.
+ * @param s The mps_context of the computation.
  * @param old_b Old \f$b_i\f$ coefficients from which we are regenerating from. These are used
  * to adjust the a_i for already approximated roots.
  * @param old_mb Old \f$b_i\f$ in the multiprecision version. These are used only in the case
@@ -668,7 +668,7 @@ mps_secular_ga_regenerate_coefficients_secular (mps_status * s, cdpe_t * old_b, 
  * it must be set to NULL.
  */
 mps_boolean
-mps_secular_ga_regenerate_coefficients_mp (mps_status * s, cdpe_t * old_b, mpc_t * old_mb)
+mps_secular_ga_regenerate_coefficients_mp (mps_context * s, cdpe_t * old_b, mpc_t * old_mb)
 {
   /* Declaration and initialization of the multprecision
    * variables that are used only in that case */
@@ -703,10 +703,10 @@ mps_secular_ga_regenerate_coefficients_mp (mps_status * s, cdpe_t * old_b, mpc_t
  * \f$b_i = z_i\f$, i.e. the current root approximation
  * and recomputing \f$a_i\f$ accordingly.
  *
- * @param s The mps_status of the computation.
+ * @param s The mps_context of the computation.
  */
 mps_boolean
-mps_secular_ga_regenerate_coefficients (mps_status * s)
+mps_secular_ga_regenerate_coefficients (mps_context * s)
 {
   MPS_DEBUG_THIS_CALL;
 

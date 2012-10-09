@@ -6,7 +6,7 @@
  **            |_|  |_|_|  |___/\___/_|\_/\___|            **
  **                                                        **
  **       Multiprecision Polynomial Solver (MPSolve)       **
- **                 Version 2.9, April 2011                **
+ **               Version 2.9, September 2012              **
  **                                                        **
  **                      Written by                        **
  **                                                        **
@@ -14,7 +14,7 @@
  **     Giuseppe Fiorentino     <fiorent@dm.unipi.it>      **
  **     Leonardo Robol          <robol@mail.dm.unipi.it>   **
  **                                                        **
- **           (C) 2011, Dipartimento di Matematica         **
+ **           (C) 2012, Dipartimento di Matematica         **
  ***********************************************************/
 
 /*
@@ -43,7 +43,7 @@ const double TOLER = 0.4;       /* slope tolerace */
  * \f[ \{ (k, a_k) \ | \ k \in \{ lo, \dots, i \} \} \f]
  */
 int
-mps_left (mps_status * s, int i, int lo)
+mps_left (mps_context * s, int i, int lo)
 {
   if (i == lo)
     return lo;
@@ -62,7 +62,7 @@ mps_left (mps_status * s, int i, int lo)
  * \f[ \{ (k, a_k) \ | \ k \in \{ i, \dots, up \} \} \f]
  */
 int
-mps_right (mps_status * s, int i, int up)
+mps_right (mps_context * s, int i, int up)
 {
   if (i == up)
     return up;
@@ -80,14 +80,14 @@ mps_right (mps_status * s, int i, int up)
  * of the line from \f$P_1\f$ to \f$P_2\f$ is at least <code>TOLER</code>
  * less than the slope of the line joining \f$P_2\f$ and \f$P_3\f$. 
  * 
- * @param s The <code>mps_status</code> associated with the current computation.
+ * @param s The <code>mps_context</code> associated with the current computation.
  * @param il index of the first point
  * @param i  index of the middle point
  * @param ir index of the last point
  * @param a  array with the points
  */
 mps_boolean
-mps_fctest (mps_status * s, int il, int i, int ir, double a[])
+mps_fctest (mps_context * s, int il, int i, int ir, double a[])
 {
   double s1, s2;
 
@@ -102,7 +102,7 @@ mps_fctest (mps_status * s, int il, int i, int ir, double a[])
 /**
  * @brief Merge two adjacent convex hulls [lo, i] and [i, hi].
  *
- * @param s The <code>mps_status</code> associated with the current computation.
+ * @param s The <code>mps_context</code> associated with the current computation.
  * @param lo starting index of the points of the first convex hull
  * in the vector <code>a</code>.
  * @param i last index of the points in the first convex hull and
@@ -111,7 +111,7 @@ mps_fctest (mps_status * s, int il, int i, int ir, double a[])
  * @param a array of points
  */
 void
-mps_fmerge (mps_status * s, int lo, int i, int up, double a[])
+mps_fmerge (mps_context * s, int lo, int i, int up, double a[])
 {
   int il, ir, ill, irr;
   mps_boolean tstl, tstr;
@@ -160,12 +160,12 @@ mps_fmerge (mps_status * s, int lo, int i, int up, double a[])
  * is in the mps_boolean vector <code>h[]</code>. The algorithm successively
  * merges adjacent convex hulls of sizes 2, 4, 8, ...
  *
- * @param s The <code>mps_status</code> associated with the current computation.
+ * @param s The <code>mps_context</code> associated with the current computation.
  * @param a vector of points whose convex hull must be computed.
  * @param n size of the vector <code>a</code>.
  */
 void
-mps_fconvex (mps_status * s, int n, double a[])
+mps_fconvex (mps_context * s, int n, double a[])
 {
   int m, c;
 

@@ -84,8 +84,8 @@ is \"s\"\
     ComplexColumnVector res(n - 1);
     cplx_t *results = cplx_valloc(n-1);
 
-    mps_status* s = mps_status_new();
-    mps_status_select_algorithm (s, algorithm);
+    mps_context* s = mps_context_new();
+    mps_context_select_algorithm (s, algorithm);
 
     mps_monomial_poly * p = mps_monomial_poly_new (s, n - 1);
 
@@ -101,21 +101,21 @@ is \"s\"\
       }
     }
 
-    mps_status_set_input_poly (s, p);
-    mps_status_set_output_goal (s, MPS_OUTPUT_GOAL_APPROXIMATE);
+    mps_context_set_input_poly (s, p);
+    mps_context_set_output_goal (s, MPS_OUTPUT_GOAL_APPROXIMATE);
 
     /* Actually solve it */
     mps_mpsolve(s);
 
     /* Get roots and return them */
-    mps_status_get_roots_d(s, results, NULL);
+    mps_context_get_roots_d(s, results, NULL);
     for(int i = 0; i < n - 1; i++) {
         res(i) = Complex(cplx_Re(results[i]), cplx_Im(results[i]));
     }
     cplx_vfree (results);
 
     /* Free mpsolve status */
-    mps_status_free (s);
+    mps_context_free (s);
 
     return octave_value(res);
 }

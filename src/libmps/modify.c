@@ -24,7 +24,7 @@
  * @brief Modify the vector 'status' according to the goal, and
  * to the location of the roots.
  *
- * @param s The mps_status associated to the current computation.
+ * @param s The mps_context associated to the current computation.
  * @param track_new_cluster true if old clusters should be marked
  * with 'C' instead of 'c', so they are recognizable (for shifting).
  *
@@ -55,7 +55,7 @@
  * real roots
  */
 void
-mps_fmodify (mps_status * s, mps_boolean track_new_cluster)
+mps_fmodify (mps_context * s, mps_boolean track_new_cluster)
 {
   s->operation = MPS_OPERATION_CLUSTER_ANALYSIS;
 
@@ -139,7 +139,7 @@ mps_fmodify (mps_status * s, mps_boolean track_new_cluster)
 }
 
 /* void */
-/* mps_fmodify2 (mps_status * s, mps_boolean track_new_cluster) */
+/* mps_fmodify2 (mps_context * s, mps_boolean track_new_cluster) */
 /* { */
 /*   int i, j, l, k, nnewclust, i_new, i_old, ip1, i1, l1, j1, nf, j2, l2; */
 /*   double sr, tmpr, afri, sep1; */
@@ -778,14 +778,14 @@ mps_fmodify (mps_status * s, mps_boolean track_new_cluster)
 /**
  * @brief The DPE version of <code>mps_fmodify()</code>.
  *
- * @param s The mps_status associated to the current computation.
+ * @param s The mps_context associated to the current computation.
  * @param track_new_cluster true if old clusters should be marked
  * with 'C' instead of 'c', so they are recognizable (for shifting).
  *
  * @see mps_fmodify()
  */
 void
-mps_dmodify (mps_status * s, mps_boolean track_new_cluster)
+mps_dmodify (mps_context * s, mps_boolean track_new_cluster)
 {
   s->operation = MPS_OPERATION_CLUSTER_ANALYSIS;
 
@@ -862,7 +862,7 @@ mps_dmodify (mps_status * s, mps_boolean track_new_cluster)
 
 
 /* void */
-/* mps_dmodify (mps_status * s, mps_boolean track_new_cluster) */
+/* mps_dmodify (mps_context * s, mps_boolean track_new_cluster) */
 /* { */
 /*   int i, j, l, k, nnewclust, i_new, i_old, ip1, i1, l1, j1, j2, l2, nf; */
 /*   double rtmp, sep1; */
@@ -1495,14 +1495,14 @@ mps_dmodify (mps_status * s, mps_boolean track_new_cluster)
  * @brief The multiprecision version of the routine
  * <code>mps_fmodify()</code>. 
  *
- * @param s The mps_status associated to the current computation.
+ * @param s The mps_context associated to the current computation.
  * @param track_new_cluster true if old clusters should be marked
  * with 'C' instead of 'c', so they are recognizable (for shifting).
  *
  * @see mps_fmodify()
  */
 void
-mps_mmodify (mps_status * s, mps_boolean track_new_cluster)
+mps_mmodify (mps_context * s, mps_boolean track_new_cluster)
 {
   s->operation = MPS_OPERATION_CLUSTER_ANALYSIS;
 
@@ -1578,7 +1578,7 @@ mps_mmodify (mps_status * s, mps_boolean track_new_cluster)
 
 
 /* void */
-/* mps_mmodify (mps_status * s, mps_boolean track_new_cluster) */
+/* mps_mmodify (mps_context * s, mps_boolean track_new_cluster) */
 /* { */
 /*   int i, j, l, k, nnewclust, i_new, i_old, ip1, i1, l1, j1, nf, j2, l2; */
 /*   double rtmp, sep1; */

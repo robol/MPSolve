@@ -13,10 +13,10 @@
  * @brief Update all the coefficients of the secular equation, and their
  * moduli, using the recomputed one stored in the multiprecision version.
  * 
- * @param s The mps_status of the computation.
+ * @param s The mps_context of the computation.
  */
 void
-mps_secular_ga_update_coefficients (mps_status * s)
+mps_secular_ga_update_coefficients (mps_context * s)
 {
   int i;
   mps_secular_equation * sec = s->secular_equation;
@@ -45,10 +45,10 @@ mps_secular_ga_update_coefficients (mps_status * s)
  * <code>mps_secular_improve ()</code> should be used to reach
  * the required precision.
  *
- * @param s The mps_status of the computation.
+ * @param s The mps_context of the computation.
  */
 mps_boolean
-mps_secular_ga_check_stop (mps_status * s)
+mps_secular_ga_check_stop (mps_context * s)
 {
   MPS_DEBUG_THIS_CALL;
 
@@ -109,7 +109,7 @@ mps_secular_ga_check_stop (mps_status * s)
  * one) are used. 
  */
 void
-mps_secular_ga_load_initial_coefficients (mps_status * s)
+mps_secular_ga_load_initial_coefficients (mps_context * s)
 {
   MPS_DEBUG_THIS_CALL;
 
@@ -145,10 +145,10 @@ mps_secular_ga_load_initial_coefficients (mps_status * s)
  * @brief Improve the isolated roots. Should be called after isolation
  * is reached and confirmed by <code>mps_secular_ga_check_stop ()</code>.
  *
- * @param s The mps_status of the computation.
+ * @param s The mps_context of the computation.
  */
 void
-mps_secular_ga_improve (mps_status * s)
+mps_secular_ga_improve (mps_context * s)
 {
   MPS_DEBUG_THIS_CALL;
 
@@ -277,10 +277,10 @@ mps_secular_ga_improve (mps_status * s)
  * @brief MPSolve main function for the secular equation solving
  * using Gemignani's approach.
  *
- * @param s The mps_status of the computation.
+ * @param s The mps_context of the computation.
  */
 void 
-mps_secular_ga_mpsolve (mps_status * s)
+mps_secular_ga_mpsolve (mps_context * s)
 {
   int roots_computed = 0;
   int packet;
@@ -369,7 +369,7 @@ mps_secular_ga_mpsolve (mps_status * s)
 	  char which_case;
 	  mps_check_data (s, &which_case);
 
-	  if (mps_status_has_errors (s))
+	  if (mps_context_has_errors (s))
 	    return;
 
 	  MPS_DEBUG_WITH_INFO (s, "Check data suggests starting phase should be %s", (which_case == 'f') ? "floating point" : "DPE phase");
