@@ -4,4 +4,4 @@
 #
 # Author: Leonardo Robol <leo@robol.it>
 
-autoreconf -i || exit 1
+autoreconf -i --force || exit 1
