@@ -628,34 +628,42 @@ mps_secular_mnewton (mps_context * s, mps_approximation * root, mpc_t corr,
 				      asum, asum2, asumb, sec->ampc_mutex, sec->bmpc_mutex)) != MPS_PARALLEL_SUM_SUCCESS)
     {
       int k;
+      mpc_t ampc_i, bmpc_i;
+
+      mpc_init2 (ampc_i, s->mpwp);
+      mpc_init2 (bmpc_i, s->mpwp);
       
       mpc_set_ui (corr, 0U, 0U);
 
       pthread_mutex_lock (&sec->ampc_mutex[i]);
+      mpc_set (ampc_i, sec->ampc[i]);
+      pthread_mutex_unlock (&sec->ampc_mutex[i]);
+
       pthread_mutex_lock (&sec->bmpc_mutex[i]);
+      mpc_set (bmpc_i, sec->bmpc[i]);
+      pthread_mutex_unlock (&sec->bmpc_mutex[i]);
+
       for (k = 0; k < sec->n; k++)
 	{
 	  if (i != k)
 	    {
-	      pthread_mutex_lock (&sec->bmpc_mutex[k]);
-	      mpc_sub (ctmp, sec->bmpc[i], sec->bmpc[k]);
-	      pthread_mutex_unlock (&sec->bmpc_mutex[k]);
+	      pthread_mutex_lock (&sec->bmpc_mutex[k]); 
+	      mpc_sub (ctmp, bmpc_i, sec->bmpc[k]);
+	      pthread_mutex_unlock (&sec->bmpc_mutex[k]); 
 
-	      pthread_mutex_lock (&sec->ampc_mutex[k]);
-	      mpc_add (ctmp2, sec->ampc[i], sec->ampc[k]);
-	      pthread_mutex_lock (&sec->ampc_mutex[k]);
+	      pthread_mutex_lock (&sec->ampc_mutex[k]); 
+	      mpc_add (ctmp2, ampc_i, sec->ampc[k]);
+	      pthread_mutex_unlock (&sec->ampc_mutex[k]); 
 
 	      mpc_div_eq (ctmp2, ctmp);
 	      mpc_add_eq (corr, ctmp2);
 	    }
 	}
-      pthread_mutex_unlock (&sec->ampc_mutex[i]);
-      pthread_mutex_unlock (&sec->bmpc_mutex[i]);
 
       mpc_set_ui (ctmp, 1U, 0U);
       mpc_sub_eq (corr, ctmp);
 
-      mpc_div (corr, sec->ampc[i], corr);
+      mpc_div (corr, ampc_i, corr);
       mpc_rmod (acorr, corr);
  
       rdpe_mul (rtmp, ax, s->mp_epsilon); 
