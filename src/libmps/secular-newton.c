@@ -679,6 +679,9 @@ mps_secular_mnewton (mps_context * s, mps_approximation * root, mpc_t corr,
 	    root->approximated = true;
 	}
 
+      mpc_clear (ampc_i);
+      mpc_clear (bmpc_i);
+
       goto mnewton_cleanup;
     }
 
