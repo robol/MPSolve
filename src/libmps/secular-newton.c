@@ -505,18 +505,14 @@ mps_secular_dnewton (mps_context * s, mps_approximation * root, cdpe_t corr,
  */
 int
 mps_secular_mparallel_sum (mps_context * s, mps_approximation * root, int n, mpc_t * ampc, mpc_t * bmpc,
-			   mpc_t pol, mpc_t fp, mpc_t sumb, rdpe_t asum, rdpe_t asum2, rdpe_t asumb)
+			   mpc_t pol, mpc_t fp, mpc_t sumb, rdpe_t asum, rdpe_t asum2, rdpe_t asumb, 
+			   pthread_mutex_t * ampc_mutex, pthread_mutex_t * bmpc_mutex)
 {
   if (n <= 4)
     {
       int i;
       mpc_t ctmp, ctmp2;
       rdpe_t rtmp;
-      mps_secular_equation *sec = s->secular_equation;
-
-      /* Generally we'll be working on the b_i and a_i coefficient starting from
-       * a common shift. */
-      int shift = bmpc - sec->bmpc;
 
       mpc_init2 (ctmp, s->mpwp);
       mpc_init2 (ctmp2, s->mpwp);
@@ -524,9 +520,9 @@ mps_secular_mparallel_sum (mps_context * s, mps_approximation * root, int n, mpc
       for (i = 0; i < n; i++)
 	{
 	  /* Compute z - b_i */
-	  pthread_mutex_lock (&sec->bmpc_mutex[i + shift]);
+	  pthread_mutex_lock (&bmpc_mutex[i]);
 	  mpc_sub (ctmp, root->mvalue, bmpc[i]);
-	  pthread_mutex_unlock (&sec->bmpc_mutex[i + shift]);
+	  pthread_mutex_unlock (&bmpc_mutex[i]);
 	  
 	  /* Check if we are in the case where z == b_i and return,
 	   * without doing any further iteration */
@@ -546,9 +542,9 @@ mps_secular_mparallel_sum (mps_context * s, mps_approximation * root, int n, mpc
 	  mpc_add_eq (sumb, ctmp);
 
 	  /* Compute a_i / (z - b_i) */
-	  pthread_mutex_lock (&sec->ampc_mutex[i + shift]);
+	  pthread_mutex_lock (&ampc_mutex[i]);
 	  mpc_mul (ctmp2, ampc[i], ctmp);
-	  pthread_mutex_unlock (&sec->ampc_mutex[i + shift]);
+	  pthread_mutex_unlock (&ampc_mutex[i]);
 
 	  /* Compute the sum of module of (a_i/(z-b_i)) * (i + 2) */
 	  mpc_rmod (rtmp, ctmp2);
@@ -577,11 +573,11 @@ mps_secular_mparallel_sum (mps_context * s, mps_approximation * root, int n, mpc
     {
       int i = n/2, k;
 
-      if ((k = mps_secular_mparallel_sum (s, root, i, ampc, bmpc, pol, fp, sumb, asum, asum2, asumb)) >= 0)
+      if ((k = mps_secular_mparallel_sum (s, root, i, ampc, bmpc, pol, fp, sumb, asum, asum2, asumb, ampc_mutex, bmpc_mutex)) >= 0)
 	{
 	  return k;
 	}
-      if ((k = mps_secular_mparallel_sum (s, root, n-i, ampc + i, bmpc + i, pol, fp, sumb, asum, asum2, asumb)) >= 0)
+      if ((k = mps_secular_mparallel_sum (s, root, n-i, ampc + i, bmpc + i, pol, fp, sumb, asum, asum2, asumb, ampc_mutex + i, bmpc_mutex + i)) >= 0)
 	{
 	  return i + k;
 	}
@@ -613,8 +609,6 @@ mps_secular_mnewton (mps_context * s, mps_approximation * root, mpc_t corr,
   ampc = data->local_ampc;
   bmpc = data->local_bmpc;
 
-  /* printf ("x_%ld = ", data->k); mpc_outln_str (stdout, 10, 15, x); printf ("\n"); fflush(stdout); */
-
   mpc_get_cdpe (cdtmp, root->mvalue);
   cdpe_mod (ax, cdtmp);
 
@@ -630,7 +624,8 @@ mps_secular_mnewton (mps_context * s, mps_approximation * root, mpc_t corr,
   rdpe_set (asumb, rdpe_zero);
   rdpe_set (asum2, rdpe_zero);
 
-  if ((i = mps_secular_mparallel_sum (s, root, sec->n, ampc, bmpc, pol, fp, sumb, asum, asum2, asumb)) != MPS_PARALLEL_SUM_SUCCESS)
+  if ((i = mps_secular_mparallel_sum (s, root, sec->n, ampc, bmpc, pol, fp, sumb, 
+				      asum, asum2, asumb, sec->ampc_mutex, sec->bmpc_mutex)) != MPS_PARALLEL_SUM_SUCCESS)
     {
       int k;
       
