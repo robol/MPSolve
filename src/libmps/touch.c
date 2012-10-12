@@ -1,13 +1,15 @@
-/***********************************************************
-**       Multiprecision Polynomial Solver (MPSolve)       **
-**                 Version 2.2, May 2001                  **
-**                                                        **
-**                      Written by                        **
-**       Dario Andrea Bini and Giuseppe Fiorentino        **
-**       (bini@dm.unipi.it)  (fiorent@dm.unipi.it)        **
-**                                                        **
-** (C) 2001, Dipartimento di Matematica, FRISCO LTR 21024 **
-***********************************************************/
+/*
+ * This file is part of MPSolve 3.0
+ *
+ * Copyright (C) 2001-2012, Dipartimento di Matematica "L. Tonelli", Pisa.
+ * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
+ *
+ * Authors: 
+ *   Dario Andrea Bini <bini@dm.unipi.it>
+ *   Giuseppe Fiorentino <fiorent@dm.unipi.it>
+ *   Leonardo Robol <robol@mail.dm.unipi.it>
+ */
+
 
 #include <float.h>
 #include <math.h>
@@ -25,7 +27,7 @@
  * if \f$n = 2*m\f$ where \f$m\f$ is the degree of the polynomial
  * then it correspond to newton isolation.
  *
- * @param s mps_status struct.
+ * @param s mps_context struct.
  * @param n See above.
  * @param i the first root.
  * @param j the second root.
@@ -34,7 +36,7 @@
  *   are newton-isolated.
  */
 mps_boolean
-mps_ftouchnwt (mps_status * s, double * frad, int n, int i, int j)
+mps_ftouchnwt (mps_context * s, double * frad, int n, int i, int j)
 {
   cplx_t ctmp;
   double t;
@@ -43,7 +45,7 @@ mps_ftouchnwt (mps_status * s, double * frad, int n, int i, int j)
   if (frad[i] >= t || frad[j] >= t)
     return true;
 
-  cplx_sub (ctmp, s->froot[i], s->froot[j]);
+  cplx_sub (ctmp, s->root[i]->fvalue, s->root[j]->fvalue);
 
   return n * (frad[i] + frad[j]) >= cplx_mod (ctmp);
 }
@@ -60,7 +62,7 @@ mps_ftouchnwt (mps_status * s, double * frad, int n, int i, int j)
  * if \f$n = 2*m\f$ where \f$m\f$ is the degree of the polynomial
  * then it correspond to newton isolation.
  *
- * @param s mps_status struct.
+ * @param s mps_context struct.
  * @param drad The inclusion radii that should be used to perform
  * cluster analysis. 
  * @param n See above.
@@ -70,7 +72,7 @@ mps_ftouchnwt (mps_status * s, double * frad, int n, int i, int j)
  *   are newton-isolated.
  */
 mps_boolean
-mps_dtouchnwt (mps_status * s, rdpe_t * drad, int n, int i, int j)
+mps_dtouchnwt (mps_context * s, rdpe_t * drad, int n, int i, int j)
 {
   cdpe_t ctmp;
   rdpe_t dtmp1, dtmp2;
@@ -78,7 +80,7 @@ mps_dtouchnwt (mps_status * s, rdpe_t * drad, int n, int i, int j)
   rdpe_add (dtmp1, drad[i], drad[j]);
       
   rdpe_mul_eq_d (dtmp1, (double) n);
-  cdpe_sub (ctmp, s->droot[i], s->droot[j]);
+  cdpe_sub (ctmp, s->root[i]->dvalue, s->root[j]->dvalue);
   cdpe_mod (dtmp2, ctmp);
   return rdpe_ge (dtmp1, dtmp2);
 }
@@ -95,7 +97,7 @@ mps_dtouchnwt (mps_status * s, rdpe_t * drad, int n, int i, int j)
  * if \f$n = 2*m\f$ where \f$m\f$ is the degree of the polynomial
  * then it correspond to newton isolation.
  *
- * @param s mps_status struct.
+ * @param s mps_context struct.
  * @param drad The inclusion radii that should be used to perform
  * cluster analysis.
  * @param n See above.
@@ -105,7 +107,7 @@ mps_dtouchnwt (mps_status * s, rdpe_t * drad, int n, int i, int j)
  *   are newton-isolated.
  */
 mps_boolean
-mps_mtouchnwt (mps_status * s, rdpe_t * drad, int n, int i, int j)
+mps_mtouchnwt (mps_context * s, rdpe_t * drad, int n, int i, int j)
 {
   mpc_t mtmp;
   cdpe_t ctmp;
@@ -115,12 +117,12 @@ mps_mtouchnwt (mps_status * s, rdpe_t * drad, int n, int i, int j)
 
   rdpe_add (dtmp1, drad[i], drad[j]);
 
-  /* if (rdpe_Esp (dtmp1) < rdpe_Esp (s->drad[i]) || */
-  /*     rdpe_Esp (dtmp1) < rdpe_Esp (s->drad[j])) */
+  /* if (rdpe_Esp (dtmp1) < rdpe_Esp (s->root[i]->drad) || */
+  /*     rdpe_Esp (dtmp1) < rdpe_Esp (s->root[j]->drad)) */
   /*     return true; */
 
   rdpe_mul_eq_d (dtmp1, (double) n);
-  mpc_sub (mtmp, s->mroot[i], s->mroot[j]);
+  mpc_sub (mtmp, s->root[i]->mvalue, s->root[j]->mvalue);
   mpc_get_cdpe (ctmp, mtmp);
   cdpe_mod (dtmp2, ctmp);
 
@@ -135,24 +137,24 @@ mps_mtouchnwt (mps_status * s, rdpe_t * drad, int n, int i, int j)
  true if the disk intersects the real axis, false otherwise
 ************************************************************/
 mps_boolean
-mps_ftouchreal (mps_status * s, int n, int i)
+mps_ftouchreal (mps_context * s, int n, int i)
 {
-  if (s->frad[i] >= DBL_MAX / n)
+  if (s->root[i]->frad >= DBL_MAX / n)
     return true;
 
-  return n * s->frad[i] >= fabs (cplx_Im (s->froot[i]));
+  return n * s->root[i]->frad >= fabs (cplx_Im (s->root[i]->fvalue));
 }
 
 /************************************************************
 *              FUNCTION DTOUCHREAL                          *
 ************************************************************/
 mps_boolean
-mps_dtouchreal (mps_status * s, int n, int i)
+mps_dtouchreal (mps_context * s, int n, int i)
 {
   rdpe_t tmp1, tmp2;
 
-  rdpe_mul_d (tmp1, s->drad[i], (double) n);
-  rdpe_abs (tmp2, cdpe_Im (s->droot[i]));
+  rdpe_mul_d (tmp1, s->root[i]->drad, (double) n);
+  rdpe_abs (tmp2, cdpe_Im (s->root[i]->dvalue));
   return rdpe_ge (tmp1, tmp2);
 }
 
@@ -160,12 +162,12 @@ mps_dtouchreal (mps_status * s, int n, int i)
 *              FUNCTION MTOUCHREAL                          *
 ************************************************************/
 mps_boolean
-mps_mtouchreal (mps_status * s, int n, int i)
+mps_mtouchreal (mps_context * s, int n, int i)
 {
   rdpe_t tmp1, tmp2;
 
-  rdpe_mul_d (tmp1, s->drad[i], (double) n);
-  mpf_get_rdpe (tmp2, mpc_Im (s->mroot[i]));
+  rdpe_mul_d (tmp1, s->root[i]->drad, (double) n);
+  mpf_get_rdpe (tmp2, mpc_Im (s->root[i]->mvalue));
   rdpe_abs_eq (tmp2);
 
   return rdpe_ge (tmp1, tmp2);
@@ -177,24 +179,24 @@ mps_mtouchreal (mps_status * s, int n, int i)
  true iff the disk intersects the imaginary axis 
 ************************************************************/
 mps_boolean
-mps_ftouchimag (mps_status * s, int n, int i)
+mps_ftouchimag (mps_context * s, int n, int i)
 {
-  if (s->frad[i] >= DBL_MAX / n)
+  if (s->root[i]->frad >= DBL_MAX / n)
     return true;
 
-  return n * s->frad[i] >= fabs (cplx_Re (s->froot[i]));
+  return n * s->root[i]->frad >= fabs (cplx_Re (s->root[i]->fvalue));
 }
 
 /************************************************************
 *              FUNCTION  DTOUCHIMAG                         *
 ************************************************************/
 mps_boolean
-mps_dtouchimag (mps_status * s, int n, int i)
+mps_dtouchimag (mps_context * s, int n, int i)
 {
   rdpe_t tmp1, tmp2;
 
-  rdpe_mul_d (tmp1, s->drad[i], (double) n);
-  rdpe_abs (tmp2, cdpe_Re (s->droot[i]));
+  rdpe_mul_d (tmp1, s->root[i]->drad, (double) n);
+  rdpe_abs (tmp2, cdpe_Re (s->root[i]->dvalue));
   return rdpe_ge (tmp1, tmp2);
 }
 
@@ -202,12 +204,12 @@ mps_dtouchimag (mps_status * s, int n, int i)
 *              FUNCTION  MTOUCHIMAG                         *
 ************************************************************/
 mps_boolean
-mps_mtouchimag (mps_status * s, int n, int i)
+mps_mtouchimag (mps_context * s, int n, int i)
 {
   rdpe_t tmp1, tmp2;
 
-  rdpe_mul_d (tmp1, s->drad[i], (double) n);
-  mpf_get_rdpe (tmp2, mpc_Re (s->mroot[i]));
+  rdpe_mul_d (tmp1, s->root[i]->drad, (double) n);
+  mpf_get_rdpe (tmp2, mpc_Re (s->root[i]->mvalue));
   rdpe_abs_eq (tmp2);
 
   return rdpe_ge (tmp1, tmp2);
@@ -220,15 +222,15 @@ mps_mtouchimag (mps_status * s, int n, int i)
   (n*drad[i]+1 >= |froot[i]|) && (n*drad[i]+|froot[i]| >= 1)
 *************************************************************/
 mps_boolean
-mps_ftouchunit (mps_status * s, int n, int i)
+mps_ftouchunit (mps_context * s, int n, int i)
 {
   double ab, rad;
 
-  if (s->frad[i] >= DBL_MAX / n)
+  if (s->root[i]->frad >= DBL_MAX / n)
     return true;
 
-  rad = n * s->frad[i];
-  ab = cplx_mod (s->froot[i]);
+  rad = n * s->root[i]->frad;
+  ab = cplx_mod (s->root[i]->fvalue);
   return (rad + 1 >= ab) && (rad + ab >= 1);
 }
 
@@ -236,12 +238,12 @@ mps_ftouchunit (mps_status * s, int n, int i)
 *              FUNCTION  DTOUCHUNIT                         *
 ************************************************************/
 mps_boolean
-mps_dtouchunit (mps_status * s, int n, int i)
+mps_dtouchunit (mps_context * s, int n, int i)
 {
   rdpe_t ab, rad, tmp;
 
-  cdpe_mod (ab, s->droot[i]);
-  rdpe_mul_d (rad, s->drad[i], (double) n);
+  cdpe_mod (ab, s->root[i]->dvalue);
+  rdpe_mul_d (rad, s->root[i]->drad, (double) n);
   rdpe_add_d (tmp, rad, 1.0);
   if (rdpe_lt (tmp, ab))
     return false;
@@ -253,20 +255,20 @@ mps_dtouchunit (mps_status * s, int n, int i)
 *              FUNCTION  MTOUCHUNIT                         *
 ************************************************************/
 mps_boolean
-mps_mtouchunit (mps_status * s, int n, int i)
+mps_mtouchunit (mps_context * s, int n, int i)
 {
   mpf_t mab;
   rdpe_t ab, rad;
 
   mpf_init2 (mab, s->mpwp);
 
-  mpc_mod (mab, s->mroot[i]);
+  mpc_mod (mab, s->root[i]->mvalue);
   mpf_sub_eq_ui (mab, 1);
   mpf_get_rdpe (ab, mab);
 
   mpf_clear (mab);
 
-  rdpe_mul_d (rad, s->drad[i], (double) n);
+  rdpe_mul_d (rad, s->root[i]->drad, (double) n);
 
   if (rdpe_lt (rad, ab))
     return false;

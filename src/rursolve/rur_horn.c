@@ -16,7 +16,7 @@
 *                   PROCEDURE HORNER                     *
 **********************************************************/
 void
-mps_horner (mps_status * s, mpc_t res, int *dprec, int *iprec, int deg, int i)
+mps_horner (mps_context * s, mpc_t res, int *dprec, int *iprec, int deg, int i)
 {
   int j, k;
   tmpc_t x, y;
@@ -69,7 +69,7 @@ mps_horner (mps_status * s, mpc_t res, int *dprec, int *iprec, int deg, int i)
 *                   PROCEDURE REFINE                     *
 **********************************************************/
 void
-mps_refine (mps_status * s, int i, long prec)
+mps_refine (mps_context * s, int i, long prec)
 {
   int j, k, m;
   tmpc_t mtmp;

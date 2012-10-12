@@ -1,3 +1,15 @@
+/*
+ * This file is part of MPSolve 3.0
+ *
+ * Copyright (C) 2001-2012, Dipartimento di Matematica "L. Tonelli", Pisa.
+ * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
+ *
+ * Authors: 
+ *   Dario Andrea Bini <bini@dm.unipi.it>
+ *   Giuseppe Fiorentino <fiorent@dm.unipi.it>
+ *   Leonardo Robol <robol@mail.dm.unipi.it>
+ */
+
 #include <mps/mps.h>
 #include <string.h>
 #include <assert.h>
@@ -6,10 +18,10 @@
  * @brief Return a newly allocated mps_monomial_poly of the given degree.
  */
 mps_monomial_poly *
-mps_monomial_poly_new (mps_status * s, long int degree)
+mps_monomial_poly_new (mps_context * s, long int degree)
 {
   int i;
-  mps_monomial_poly  * mp = mps_malloc (sizeof (mps_monomial_poly));
+  mps_monomial_poly  * mp = mps_new (mps_monomial_poly);
   
   /* Set the degree of the polynomial */
   mp->n = degree;
@@ -21,18 +33,22 @@ mps_monomial_poly_new (mps_status * s, long int degree)
   mp->fpr  = double_valloc (degree + 1);
   mp->dpr  = rdpe_valloc (degree + 1);
   mp->dpc  = cdpe_valloc (degree + 1);
-  mp->mfpc = mpc_valloc (degree + 1);
+  mp->db.mfpc1 = mpc_valloc (degree + 1);
+  mp->db.mfpc2 = mpc_valloc (degree + 1);
+  mp->mfpc = mp->db.mfpc1;
+  mp->db.active = 1;
   mp->mfpr = mpf_valloc (degree + 1);
 
   mpf_vinit2 (mp->mfpr, degree + 1, s->mpwp);
-  mpc_vinit2 (mp->mfpc, degree + 1, s->mpwp);
+  mpc_vinit2 (mp->db.mfpc1, degree + 1, s->mpwp);
+  mpc_vinit2 (mp->db.mfpc2, degree + 1, s->mpwp);
 
   /* Allocate space for the moduli of the coefficients */
   mp->fap = double_valloc (degree + 1);
   mp->dap = rdpe_valloc (degree + 1);
 
   /* Allocate space for the coefficients of the derivative */
-  mp->fppc = cplx_valloc (degree);
+  mp->fppc = cplx_valloc (degree + 1);
   mp->mfppc = mpc_valloc (degree + 1);
   mpc_vinit2 (mp->mfppc, degree + 1, s->mpwp);
 
@@ -67,7 +83,7 @@ mps_monomial_poly_new (mps_status * s, long int degree)
  * allocated with <code>mps_monomial_poly_new()</code>.
  */
 void
-mps_monomial_poly_free (mps_status * s, mps_monomial_poly * mp)
+mps_monomial_poly_free (mps_context * s, mps_monomial_poly * mp)
 {
   mps_boolean_vfree (mp->spar);
   double_vfree (mp->fpr);
@@ -79,10 +95,12 @@ mps_monomial_poly_free (mps_status * s, mps_monomial_poly * mp)
   rdpe_vfree (mp->dap);
 
   mpf_vclear (mp->mfpr, mp->n + 1);
-  mpc_vclear (mp->mfpc, mp->n + 1);
+  mpc_vclear (mp->db.mfpc1, mp->n + 1);
+  mpc_vclear (mp->db.mfpc2, mp->n + 1);
 
   mpf_vfree (mp->mfpr);
-  mpc_vfree (mp->mfpc);
+  mpc_vfree (mp->db.mfpc1);
+  mpc_vfree (mp->db.mfpc2);
 
   mpq_vclear (mp->initial_mqp_r, mp->n + 1);
   mpq_vclear (mp->initial_mqp_i, mp->n + 1);
@@ -111,30 +129,36 @@ mps_monomial_poly_free (mps_status * s, mps_monomial_poly * mp)
  * @param prec The selected bits of precision.
  */
 void
-mps_monomial_poly_raise_precision (mps_status * s, mps_monomial_poly * mp, long int prec)
+mps_monomial_poly_raise_precision (mps_context * s, mps_monomial_poly * mp, long int prec)
 {
   int k;
+  mpc_t * raising_mfpc;
 
   pthread_mutex_lock (&mp->regenerating);
 
-  if (prec <= mpc_get_prec (mp->mfpc[s->n]))
+  if ((mp->db.active == 1 && prec <= mpc_get_prec (mp->db.mfpc1[0])) ||
+      (mp->db.active == 2 && prec <= mpc_get_prec (mp->db.mfpc2[0])))
     {
       pthread_mutex_unlock (&mp->regenerating);
       return;
     }
+    
+
+  if (mp->db.active == 1)
+    raising_mfpc = mp->db.mfpc2;
+  else
+    raising_mfpc = mp->db.mfpc1;
 
   /* raise the precision of  mfpc */
   if (!MPS_INPUT_CONFIG_IS_USER (s->input_config))
     for (k = 0; k < mp->n + 1; k++)
       {
-	pthread_mutex_lock (&mp->mfpc_mutex[k]); 
-	mpc_set_prec (mp->mfpc[k], prec);
-	pthread_mutex_unlock (&mp->mfpc_mutex[k]); 
+	mpc_set_prec (raising_mfpc[k], prec);
       }
 
   /* Raise the precision of p' */
   if (MPS_INPUT_CONFIG_IS_SPARSE (s->input_config))
-    for (k = 0; k < s->n; k++)
+    for (k = 0; k < mp->n; k++)
       if (mp->spar[k + 1])
         {
           mpc_set_prec (mp->mfppc[k], prec);
@@ -144,24 +168,38 @@ mps_monomial_poly_raise_precision (mps_status * s, mps_monomial_poly * mp, long 
   if (MPS_INPUT_CONFIG_IS_INTEGER (s->input_config) 
       || MPS_INPUT_CONFIG_IS_RATIONAL (s->input_config))
     {
-      for (k = 0; k <= s->n ; ++k)
+      for (k = 0; k <= mp->n ; ++k)
 	{
-	  pthread_mutex_lock (&mp->mfpc_mutex[k]); 
-	  mpf_set_q (mpc_Re (mp->mfpc[k]), mp->initial_mqp_r[k]);
-	  mpf_set_q (mpc_Im (mp->mfpc[k]), mp->initial_mqp_i[k]);
-	  pthread_mutex_unlock (&mp->mfpc_mutex[k]); 
+	  mpf_set_q (mpc_Re (raising_mfpc[k]), mp->initial_mqp_r[k]);
+	  mpf_set_q (mpc_Im (raising_mfpc[k]), mp->initial_mqp_i[k]);
+	}
+    }
+  else
+    {
+      for (k = 0; k <= mp->n; k++)
+	{
+	  mpc_set (raising_mfpc[k], mp->mfpc[k]);
 	}
     }
 
+  mp->db.active = (mp->db.active % 2) + 1;
+  mp->mfpc = raising_mfpc;
+
   mp->prec = prec;
   pthread_mutex_unlock (&mp->regenerating);
+}
+
+long int 
+mps_monomial_poly_get_precision (mps_context * s, mps_monomial_poly * mp)
+{
+  return mpc_get_prec (mp->mfpc[0]);
 }
 
 /**
  * @brief This routine can be used to set the i-th coefficients of the 
  * polynomial with a multiprecision rational number. 
  *
- * @param s The mps_status the will be used for the computation. This shall be passed
+ * @param s The mps_context the will be used for the computation. This shall be passed
  * along with the polynomial because it manages user interaction and can perform
  * error handling.
  *
@@ -171,7 +209,7 @@ mps_monomial_poly_raise_precision (mps_status * s, mps_monomial_poly * mp, long 
  * @param imag_part The imaginary part of the coefficients.
  */
 void
-mps_monomial_poly_set_coefficient_q (mps_status * s, mps_monomial_poly * mp, long int i, 
+mps_monomial_poly_set_coefficient_q (mps_context * s, mps_monomial_poly * mp, long int i, 
 				     mpq_t real_part, mpq_t imag_part)
 {
   /* Updating data_type information */
@@ -224,14 +262,14 @@ mps_monomial_poly_set_coefficient_q (mps_status * s, mps_monomial_poly * mp, lon
 /**
  * @brief Set the coefficient in position i of the mpnomial.
  *
- * @param s The <code>mps_status</code> associated to this computation.
+ * @param s The <code>mps_context</code> associated to this computation.
  * @param mp The <code>monomial_poly</code> in which the coefficients will be set.
  * @param i The index of the coefficient to set.
  * @param real_part The real part of the coefficient.
  * @param imag_part The imaginary part of the coefficient.
  */
 void
-mps_monomial_poly_set_coefficient_d (mps_status * s, mps_monomial_poly * mp, long int i,
+mps_monomial_poly_set_coefficient_d (mps_context * s, mps_monomial_poly * mp, long int i,
 				     double real_part, double imag_part)
 {
   /* Updating data structure information */
@@ -272,7 +310,7 @@ mps_monomial_poly_set_coefficient_d (mps_status * s, mps_monomial_poly * mp, lon
 }
 
 void 
-mps_monomial_poly_set_coefficient_int (mps_status * s, mps_monomial_poly * mp, long int i,
+mps_monomial_poly_set_coefficient_int (mps_context * s, mps_monomial_poly * mp, long int i,
 				       long long real_part, long long imag_part)
 {
   /* Updating data_type information */
@@ -321,4 +359,104 @@ mps_monomial_poly_set_coefficient_int (mps_status * s, mps_monomial_poly * mp, l
       rdpe_set (mp->dap[i], rdpe_zero);
       mp->fap[i] = 0.0f;
     }
+}
+
+void
+mps_monomial_poly_set_coefficient_f (mps_context * s, mps_monomial_poly * p, long int i,
+				     mpc_t coeff)
+{
+  /* Updating data_type information */
+  if (p->structure == MPS_STRUCTURE_UNKNOWN)
+    p->structure = MPS_STRUCTURE_COMPLEX_FP;
+
+  mpc_set (p->mfpc[i], coeff);
+  mpc_get_cplx (p->fpc[i], p->mfpc[i]);
+  mpc_get_cdpe (p->dpc[i], p->mfpc[i]);
+
+  mpc_rmod (p->dap[i], p->mfpc[i]);
+  p->fap[i] = rdpe_get_d (p->dap[i]);
+
+  p->spar[i] = ! mpc_eq_zero (coeff);
+}
+
+/** 
+ * @brief Get the k-th derivative of p with floating point coefficients 
+ * approximated with the precision wp. 
+ *
+ * @param s The current mps_context 
+ * @param p The polynomial to derive
+ * @param wp The selected output working precision
+ */
+mps_monomial_poly *
+mps_monomial_poly_derive (mps_context * s, mps_monomial_poly * p, int k, long int wp)
+{
+  mps_monomial_poly * d = mps_monomial_poly_new (s, p->n - k);
+  int i, j;
+
+  if (wp != s->mpwp)
+    mps_monomial_poly_raise_precision (s, d, wp);
+
+  switch (p->structure)
+    {
+    case MPS_STRUCTURE_COMPLEX_INTEGER:
+    case MPS_STRUCTURE_COMPLEX_RATIONAL:
+    case MPS_STRUCTURE_REAL_INTEGER:
+    case MPS_STRUCTURE_REAL_RATIONAL:
+      {
+	mpq_t coeff_r;
+	mpq_t coeff_i;
+	mpq_t qtmp;
+	mpq_init (coeff_r);
+	mpq_init (coeff_i);
+	mpq_init (qtmp);
+	
+	for (i = 0; i <= d->n; i++)
+	  {
+	    mpq_set (coeff_r, p->initial_mqp_r[i + k]);
+	    mpq_set (coeff_i, p->initial_mqp_i[i + k]);
+	    
+	    for (j = 0; j < k; j++)
+	      {	      
+		mpq_set_si (qtmp, k + i - j, 1);
+		mpq_mul (coeff_r, coeff_r, qtmp);
+		mpq_mul (coeff_i, coeff_i, qtmp);
+	      }
+	    mps_monomial_poly_set_coefficient_q (s, d, i, coeff_r, coeff_i);
+	  }
+	
+	mpq_clear (coeff_r);
+	mpq_clear (coeff_i);
+	mpq_clear (qtmp);
+
+      }
+
+      break;
+
+    default:
+      {
+	mpc_t * coeffs = mps_newv (mpc_t, d->n + 1);
+	mpc_vinit2 (coeffs, d->n + 1, wp);
+	
+	for (i = 0; i <= d->n; i++)
+	  mpc_set (coeffs[i], p->mfpc[i + k]);
+	
+	for (j = 0; j < k; j++)
+	for (i = 0; i <= d->n; i++)
+	  mpc_mul_eq_ui (coeffs[i], k + i - j);
+
+
+	for (i = 0; i <= d->n; i++)
+	  mps_monomial_poly_set_coefficient_f (s, d, i, coeffs[i]);
+	
+	mpc_vclear (coeffs, d->n + 1);
+	free (coeffs);
+      }
+      break;
+    }
+
+  if (MPS_INPUT_CONFIG_IS_SPARSE (s->input_config))
+    for (i = 0; i < d->n; i++)
+      mpc_mul_ui (d->mfppc[i], d->mfpc[i+1], i+1);
+
+  return d;
 }

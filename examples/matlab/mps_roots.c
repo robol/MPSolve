@@ -9,7 +9,7 @@ mexFunction (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
 {
 
   int i, m, n;
-  mps_status *s;
+  mps_context *s;
   double *real_coeff, *imag_coeff, *real_res, *imag_res;
   mxArray *roots;
   cplx_t *coefficients, *results;
@@ -44,7 +44,7 @@ mexFunction (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
   n = (m < n) ? n : m;
 
   /* Inizialize mpsolve */
-  s = mps_status_new ();
+  s = mps_context_new ();
 
   /* Allocate coefficients and space for the results */
   coefficients = cplx_valloc (n);
@@ -56,13 +56,15 @@ mexFunction (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
   for (i = 0; i < n; i++)
     {
       if (!imag_coeff)
-        cplx_set_d (coefficients[n - i - 1], real_coeff[i], 0.0);
+	  cplx_set_d (coefficients[n - i - 1], real_coeff[i], 0.0);
       else
-        cplx_set_d (coefficients[n - i - 1], real_coeff[i], imag_coeff[i]);
+	{
+	  cplx_set_d (coefficients[n - i - 1], real_coeff[i], imag_coeff[i]);
+	}
     }
 
   /* Solve the equation */
-  mps_status_set_poly_d (s, coefficients, n - 1);
+  mps_context_set_poly_d (s, coefficients, n - 1);
 
   /* Check if the second parameter was passed */
   if (nrhs == 2)
@@ -77,10 +79,10 @@ mexFunction (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
       switch (alg[0])
 	{
 	case 's':
-	  mps_status_select_algorithm (s, MPS_ALGORITHM_SECULAR_GA);
+	  mps_context_select_algorithm (s, MPS_ALGORITHM_SECULAR_GA);
 	  break;
 	case 'u':
-	  mps_status_select_algorithm (s, MPS_ALGORITHM_STANDARD_MPSOLVE);
+	  mps_context_select_algorithm (s, MPS_ALGORITHM_STANDARD_MPSOLVE);
 	  break;
 	default:
 	  mexErrMsgTxt("The selected algorithm is not supported, use 's' or 'u'");
@@ -91,7 +93,7 @@ mexFunction (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
   mps_mpsolve (s);
 
   /* Get results back */
-  mps_status_get_roots_d (s, results, NULL);
+  mps_context_get_roots_d (s, results, NULL);
 
   roots = mxCreateDoubleMatrix (n - 1, 1, mxCOMPLEX);
   real_res = mxGetPr (roots);
@@ -105,7 +107,7 @@ mexFunction (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
   /* Free used data */
   cplx_vfree (results);
   cplx_vfree (coefficients);
-  mps_status_free (s);
+  mps_context_free (s);
 
   /* Return the roots */
   plhs[0] = roots;

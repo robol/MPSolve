@@ -1,21 +1,15 @@
-/************************************************************
- **                                                        **
- **             __  __ ___  ___      _                     **
- **            |  \/  | _ \/ __| ___| |_ _____             **
- **            | |\/| |  _/\__ \/ _ \ \ V / -_)            **
- **            |_|  |_|_|  |___/\___/_|\_/\___|            **
- **                                                        **
- **       Multiprecision Polynomial Solver (MPSolve)       **
- **                 Version 2.9, April 2011                **
- **                                                        **
- **                      Written by                        **
- **                                                        **
- **     Dario Andrea Bini       <bini@dm.unipi.it>         **
- **     Giuseppe Fiorentino     <fiorent@dm.unipi.it>      **
- **     Leonardo Robol          <robol@mail.dm.unipi.it>   **
- **                                                        **
- **           (C) 2011, Dipartimento di Matematica         **
- ***********************************************************/
+/*
+ * This file is part of MPSolve 3.0
+ *
+ * Copyright (C) 2001-2012, Dipartimento di Matematica "L. Tonelli", Pisa.
+ * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
+ *
+ * Authors: 
+ *   Dario Andrea Bini <bini@dm.unipi.it>
+ *   Giuseppe Fiorentino <fiorent@dm.unipi.it>
+ *   Leonardo Robol <robol@mail.dm.unipi.it>
+ */
+
 
 /**
  * @file
@@ -44,7 +38,7 @@
  * - check for termination
  */
 void
-mps_standard_mpsolve (mps_status * s)
+mps_standard_mpsolve (mps_context * s)
 {
   int i, nzc;
   char which_case;
@@ -98,7 +92,7 @@ mps_standard_mpsolve (mps_status * s)
     }
 
   /* Check for errors in check data */
-  if (mps_status_has_errors (s))
+  if (mps_context_has_errors (s))
     return;
 
   if (s->DOLOG)
@@ -132,8 +126,8 @@ mps_standard_mpsolve (mps_status * s)
       if (d_after_f)
         for (i = 0; i < s->n; i++)
           {
-            rdpe_set_d (s->drad[i], s->frad[i]);
-            cdpe_set_x (s->droot[i], s->froot[i]);
+            rdpe_set_d (s->root[i]->drad, s->root[i]->frad);
+            cdpe_set_x (s->root[i]->dvalue, s->root[i]->fvalue);
           }
       s->lastphase = dpe_phase;
       mps_dsolve (s, d_after_f);
@@ -162,11 +156,11 @@ mps_standard_mpsolve (mps_status * s)
   for (i = 0; i < s->n; i++)
     {
       if (which_case == 'd' || d_after_f)
-        mpc_set_cdpe (s->mroot[i], s->droot[i]);
+        mpc_set_cdpe (s->root[i]->mvalue, s->root[i]->dvalue);
       else
         {
-          mpc_set_cplx (s->mroot[i], s->froot[i]);
-          rdpe_set_d (s->drad[i], s->frad[i]);
+          mpc_set_cplx (s->root[i]->mvalue, s->root[i]->fvalue);
+          rdpe_set_d (s->root[i]->drad, s->root[i]->frad);
         }
     }
   if (computed && s->output_config->goal == MPS_OUTPUT_GOAL_APPROXIMATE)
@@ -283,7 +277,7 @@ exit_sub:
   * @brief Setup vectors and variables
   */
 void
-mps_setup (mps_status * s)
+mps_setup (mps_context * s)
 {
   int i;
   mps_monomial_poly *p = s->monomial_poly;
@@ -323,7 +317,7 @@ mps_setup (mps_status * s)
 
   /* precision of each root */
   for (i = 0; i < s->n; i++)
-    s->rootwp[i] = 53;
+    s->root[i]->wp = 53;
 
   /* output order info */
   for (i = 0; i < s->n; i++)
@@ -440,11 +434,11 @@ mps_setup (mps_status * s)
  * if a floating point phase is enough, or to <code>'d'</code> if
  * a <code>dpe</code> phase is needed.
  * 
- * @param s The <code>mps_status</code> associated with the current computation.
+ * @param s The <code>mps_context</code> associated with the current computation.
  * @param which_case the address of the variable which_case;
  */
 void
-mps_check_data (mps_status * s, char *which_case)
+mps_check_data (mps_context * s, char *which_case)
 {
   rdpe_t min_coeff, max_coeff, tmp;
   mps_monomial_poly *p = s->monomial_poly;
@@ -596,7 +590,7 @@ mps_check_data (mps_status * s, char *which_case)
  *      SUBROUTINE COMPUTE_SEP                            *
  *********************************************************/
 void
-mps_compute_sep (mps_status * s)
+mps_compute_sep (mps_context * s)
 {
   s->sep = s->n * s->lmax_coeff;
   s->sep = -(s->sep) - s->n * (1 + log ((double) s->n)) / LOG2;

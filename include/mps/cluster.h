@@ -94,20 +94,20 @@ struct mps_clusterization {
  *********************************************************************************/
  
 /* Functions for mps_cluster */
-mps_cluster * mps_cluster_empty (mps_status * s);
-mps_cluster * mps_cluster_with_root (mps_status * s, long int root_index);
-void mps_cluster_free (mps_status * s, mps_cluster * cluster);
-mps_root * mps_cluster_insert_root (mps_status * s, mps_cluster * cluster, long int root_index);
-void mps_cluster_remove_root (mps_status * s, mps_cluster * cluster, mps_root * root);
-mps_cluster * mps_cluster_join (mps_status * s, mps_cluster * cluster_a, mps_cluster * cluster_b);
+mps_cluster * mps_cluster_empty (mps_context * s);
+mps_cluster * mps_cluster_with_root (mps_context * s, long int root_index);
+void mps_cluster_free (mps_context * s, mps_cluster * cluster);
+mps_root * mps_cluster_insert_root (mps_context * s, mps_cluster * cluster, long int root_index);
+void mps_cluster_remove_root (mps_context * s, mps_cluster * cluster, mps_root * root);
+mps_cluster * mps_cluster_join (mps_context * s, mps_cluster * cluster_a, mps_cluster * cluster_b);
 
 /* Functions for mps_clusterization */
-mps_clusterization * mps_clusterization_empty (mps_status * s);
-mps_cluster_item * mps_clusterization_insert_cluster (mps_status * s, mps_clusterization * c, mps_cluster * cluster);
-void mps_clusterization_pop_cluster (mps_status * s, mps_clusterization * c, mps_cluster_item * cluster_item);
-void mps_clusterization_remove_cluster (mps_status * s, mps_clusterization * c, mps_cluster_item * cluster_item);
-void mps_clusterization_free (mps_status * s, mps_clusterization * c);
-void mps_clusterization_detach_clusters (mps_status * s, mps_clusterization * c);
-void mps_clusterization_reassemble_clusters (mps_status * s, mps_clusterization * c);
+mps_clusterization * mps_clusterization_empty (mps_context * s);
+mps_cluster_item * mps_clusterization_insert_cluster (mps_context * s, mps_clusterization * c, mps_cluster * cluster);
+void mps_clusterization_pop_cluster (mps_context * s, mps_clusterization * c, mps_cluster_item * cluster_item);
+void mps_clusterization_remove_cluster (mps_context * s, mps_clusterization * c, mps_cluster_item * cluster_item);
+void mps_clusterization_free (mps_context * s, mps_clusterization * c);
+void mps_clusterization_detach_clusters (mps_context * s, mps_clusterization * c);
+void mps_clusterization_reassemble_clusters (mps_context * s, mps_clusterization * c);
 
 #endif

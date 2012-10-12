@@ -1,21 +1,15 @@
-/************************************************************
- **                                                        **
- **             __  __ ___  ___      _                     **
- **            |  \/  | _ \/ __| ___| |_ _____             **
- **            | |\/| |  _/\__ \/ _ \ \ V / -_)            **
- **            |_|  |_|_|  |___/\___/_|\_/\___|            **
- **                                                        **
- **       Multiprecision Polynomial Solver (MPSolve)       **
- **                 Version 2.9, April 2011                **
- **                                                        **
- **                      Written by                        **
- **                                                        **
- **     Dario Andrea Bini       <bini@dm.unipi.it>         **
- **     Giuseppe Fiorentino     <fiorent@dm.unipi.it>      **
- **     Leonardo Robol          <robol@mail.dm.unipi.it>   **
- **                                                        **
- **           (C) 2011, Dipartimento di Matematica         **
- ***********************************************************/
+/*
+ * This file is part of MPSolve 3.0
+ *
+ * Copyright (C) 2001-2012, Dipartimento di Matematica "L. Tonelli", Pisa.
+ * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
+ *
+ * Authors: 
+ *   Dario Andrea Bini <bini@dm.unipi.it>
+ *   Giuseppe Fiorentino <fiorent@dm.unipi.it>
+ *   Leonardo Robol <robol@mail.dm.unipi.it>
+ */
+
 
 #include <string.h>
 #include <float.h>
@@ -26,10 +20,10 @@
 
 /**
  * @brief Get an empty mps_cluster, with no roots.
- * @param s The <code>mps_status</code> of the current computation.
+ * @param s The <code>mps_context</code> of the current computation.
  */
 mps_cluster *
-mps_cluster_empty (mps_status * s)
+mps_cluster_empty (mps_context * s)
 {
   mps_cluster * cluster = mps_new (mps_cluster);
   cluster->first = NULL;
@@ -40,11 +34,11 @@ mps_cluster_empty (mps_status * s)
 /**
  * @brief Create a cluster containing only the selected root.
  *
- * @param s The <code>mps_status</code> of the current computation.
+ * @param s The <code>mps_context</code> of the current computation.
  * @param root_index The root that must be in the cluster.
  */
 mps_cluster * 
-mps_cluster_with_root (mps_status * s, long int root_index)
+mps_cluster_with_root (mps_context * s, long int root_index)
 {
   mps_cluster * cluster = mps_new (mps_cluster);
   cluster->first = mps_new (mps_root);
@@ -61,11 +55,11 @@ mps_cluster_with_root (mps_status * s, long int root_index)
  * @brief Free a previously allocated cluster with all the roots in
  * it. 
  *
- * @param s The <code>mps_status</code> of the current computation.
+ * @param s The <code>mps_context</code> of the current computation.
  * @param cluster The cluster to free.
  */
 void 
-mps_cluster_free (mps_status * s, mps_cluster * cluster)
+mps_cluster_free (mps_context * s, mps_cluster * cluster)
 {
   mps_root * root = cluster->first;
   mps_root * old_root;
@@ -84,12 +78,12 @@ mps_cluster_free (mps_status * s, mps_cluster * cluster)
 /**
  * @brief Insert a root in a cluster.
  *
- * @param s The <code>mps_status</code> of the current computation.
+ * @param s The <code>mps_context</code> of the current computation.
  * @param cluster The cluster in which the root must be inserted.
  * @param root_index The index of the root to insert.
  */
 mps_root *
-mps_cluster_insert_root (mps_status * s, 
+mps_cluster_insert_root (mps_context * s, 
 			 mps_cluster  * cluster, 
 			 long int root_index)
 {
@@ -113,7 +107,7 @@ mps_cluster_insert_root (mps_status * s,
 /**
  * @brief Remove a root from a cluster.
  *
- * @param s The <code>mps_status</code> of the current computation.
+ * @param s The <code>mps_context</code> of the current computation.
  * @param cluster The cluster from which the root must be removed.
  * @param root The root to remove.
  *
@@ -121,7 +115,7 @@ mps_cluster_insert_root (mps_status * s,
  * an assertion error or segmentation fault will be triggered.
  */
 void 
-mps_cluster_remove_root (mps_status * s, mps_cluster * cluster, mps_root * root)
+mps_cluster_remove_root (mps_context * s, mps_cluster * cluster, mps_root * root)
 {
   /* Iterate over the cluster to find the root searched */
   mps_root * prev_root = root->prev;
@@ -146,13 +140,13 @@ mps_cluster_remove_root (mps_status * s, mps_cluster * cluster, mps_root * root)
  * @brief Join two cluster in one big cluster containing the roots of
  * both. Please note that the cluster must not overlap. 
  * 
- * @param s The <code>mps_status</code> of the current computation.
+ * @param s The <code>mps_context</code> of the current computation.
  * @param cluster_a The first cluster
  * @param cluster_b The second cluster
  * @return A new cluster containing the roots of both.
  */
 mps_cluster *
-mps_cluster_join (mps_status * s, mps_cluster * cluster_a, mps_cluster * cluster_b)
+mps_cluster_join (mps_context * s, mps_cluster * cluster_a, mps_cluster * cluster_b)
 {
   mps_root * root;
   mps_cluster * small_cluster;
@@ -185,10 +179,10 @@ mps_cluster_join (mps_status * s, mps_cluster * cluster_a, mps_cluster * cluster
 /**
  * @brief Create a new empty clusterization.
  *
- * @param s The <code>mps_status</code> of the current computation.
+ * @param s The <code>mps_context</code> of the current computation.
  */
 mps_clusterization *
-mps_clusterization_empty (mps_status * s)
+mps_clusterization_empty (mps_context * s)
 {
   mps_clusterization * c = mps_new (mps_clusterization);
   c->n = 0;
@@ -198,12 +192,12 @@ mps_clusterization_empty (mps_status * s)
 
 /**
  * @brief Insert a new cluster into a root clusterization.
- * @param s The <code>mps_status</code> of the current computation.
+ * @param s The <code>mps_context</code> of the current computation.
  * @param c The clusterization in which the cluster should be inserted.
  * @param cluster The cluster that should be inserted.
  */
 mps_cluster_item *
-mps_clusterization_insert_cluster (mps_status * s, mps_clusterization * c, mps_cluster * cluster)
+mps_clusterization_insert_cluster (mps_context * s, mps_clusterization * c, mps_cluster * cluster)
 {
   mps_cluster_item * item = mps_new (mps_cluster_item);
 
@@ -230,12 +224,12 @@ mps_clusterization_insert_cluster (mps_status * s, mps_clusterization * c, mps_c
 
 /**
  * @brief Pop out a cluster from a clusterization.
- * @param s The <code>mps_status</code> of the current computation.
+ * @param s The <code>mps_context</code> of the current computation.
  * @param c The clusterization from which the cluster_item should be popped.
  * @param cluster_item The cluster item to remove.
  */
 void
-mps_clusterization_pop_cluster (mps_status * s, mps_clusterization * c, mps_cluster_item * cluster_item)
+mps_clusterization_pop_cluster (mps_context * s, mps_clusterization * c, mps_cluster_item * cluster_item)
 {
   mps_cluster_item * next = cluster_item->next;
   mps_cluster_item * prev = cluster_item->prev;
@@ -253,12 +247,12 @@ mps_clusterization_pop_cluster (mps_status * s, mps_clusterization * c, mps_clus
 
 /**
  * @brief Remove a cluster item from a clusterization, freeing it.
- * @param s The <code>mps_status</code> of the current computation.
+ * @param s The <code>mps_context</code> of the current computation.
  * @param c The clusterization from where the cluster_item should be removed.
  * @param cluster_item The cluster item to remove.
  */
 void 
-mps_clusterization_remove_cluster (mps_status * s, mps_clusterization * c, mps_cluster_item * cluster_item)
+mps_clusterization_remove_cluster (mps_context * s, mps_clusterization * c, mps_cluster_item * cluster_item)
 {
   mps_clusterization_pop_cluster (s, c, cluster_item);
   mps_cluster_free (s, cluster_item->cluster);
@@ -267,11 +261,11 @@ mps_clusterization_remove_cluster (mps_status * s, mps_clusterization * c, mps_c
 
 /**
  * @brief Free a clusterization and all the cluster in it.
- * @param s The <code>mps_status</code> of the current computation.
+ * @param s The <code>mps_context</code> of the current computation.
  * @param c The clusterization to free.
  */
 void
-mps_clusterization_free (mps_status * s, mps_clusterization * c)
+mps_clusterization_free (mps_context * s, mps_clusterization * c)
 {
   mps_cluster_item * item = c->first;
   mps_cluster_item * next_item;
@@ -292,10 +286,10 @@ mps_clusterization_free (mps_status * s, mps_clusterization * c)
  * the call to this routine the roots will be considered as a unique big cluster,
  * discarding every information present before.
  *
- * @param s the mps_status pointer.
+ * @param s the mps_context pointer.
  */
 void
-mps_cluster_reset (mps_status * s)
+mps_cluster_reset (mps_context * s)
 {
   /* Reset cluster status of the roots */ 
   int i;
@@ -339,13 +333,13 @@ mps_cluster_reset (mps_status * s)
  * <code>nclust</code> is the
  * number of clusters.
  *
- * @param s  The <code>mps_status</code> associated with the current
+ * @param s  The <code>mps_context</code> associated with the current
  *           computaion.
  * @param frad The vector of radii to use for cluster analysis.
  * @param nf see above for a detailed description.
  */
 void
-mps_fcluster (mps_status * s, double * frad, int nf)
+mps_fcluster (mps_context * s, double * frad, int nf)
 {
   s->operation = MPS_OPERATION_CLUSTER_ANALYSIS;
 
@@ -366,7 +360,7 @@ mps_fcluster (mps_status * s, double * frad, int nf)
       MPS_DEBUG (s, "Debugging the radius and approximations obtained for the roots before cluster analysis");
       for (i = 0; i < s->n; i++)
 	{
-	  MPS_DEBUG_CPLX (s, s->froot[i], "Root %d", i);
+	  MPS_DEBUG_CPLX (s, s->root[i]->fvalue, "Root %d", i);
 	  MPS_DEBUG (s, "radius for root %4d: %e", i, frad[i]);
 	}
 
@@ -377,11 +371,15 @@ mps_fcluster (mps_status * s, double * frad, int nf)
   /*
    * Mark newton isolated roots as newton isolated.
    */
+  double * newton_radii = mps_newv (double, s->n);
+  for (i = 0; i < s->n; i++)
+    newton_radii[i] = s->root[i]->frad;
+  
   for (i = 0; i < s->n; i++)
     {
       for (j = 0; j < s->n; j++)
 	{
-	  if ((i != j) && mps_ftouchnwt (s, s->frad, nf, i, j))
+	  if ((i != j) && mps_ftouchnwt (s, newton_radii, nf, i, j))
 	    {
 	      newton_isolation = false;
 	      break;
@@ -389,6 +387,8 @@ mps_fcluster (mps_status * s, double * frad, int nf)
 	  /* s->root_status[i] = MPS_ROOT_STATUS_NEWTON_ISOLATED; */
 	}
     }
+
+  free (newton_radii);
 
   item = s->clusterization->first;
   while (item)
@@ -479,12 +479,12 @@ mps_fcluster (mps_status * s, double * frad, int nf)
 	         int k = new_cluster->first->k;   
 	         double new_rad;   
 
-	         new_rad = cplx_mod (s->froot[k]) * 4.0f * DBL_EPSILON + frad[k];    
+	         new_rad = cplx_mod (s->root[k]->fvalue) * 4.0f * DBL_EPSILON + frad[k];    
 
 	         /* Check if the computed radius is more convenient than the old one.  */  
 	         /* 	 If that's the case, apply it as inclusion radius   */  
-	         if (new_rad < s->frad[k])      
-		   s->frad[k] = new_rad;      
+	         if (new_rad < s->root[k]->frad)      
+		   s->root[k]->frad = new_rad;      
 	      }  
 	}
 
@@ -505,7 +505,7 @@ mps_fcluster (mps_status * s, double * frad, int nf)
 	}
     }
 
-  /* Set the new clusterizaition in the mps_status */
+  /* Set the new clusterizaition in the mps_context */
   mps_clusterization_free (s, s->clusterization);
   s->clusterization = new_clusterization;
 
@@ -525,7 +525,7 @@ mps_fcluster (mps_status * s, double * frad, int nf)
  *
  */
 void
-mps_dcluster (mps_status * s, rdpe_t * drad, int nf)
+mps_dcluster (mps_context * s, rdpe_t * drad, int nf)
 {
   s->operation = MPS_OPERATION_CLUSTER_ANALYSIS;
 
@@ -545,7 +545,7 @@ mps_dcluster (mps_status * s, rdpe_t * drad, int nf)
       MPS_DEBUG (s, "Debugging the radius and approximations obtained for the roots before cluster analysis");
       for (i = 0; i < s->n; i++)
 	{
-	  MPS_DEBUG_CDPE (s, s->droot[i], "Root %d", i);
+	  MPS_DEBUG_CDPE (s, s->root[i]->dvalue, "Root %d", i);
 	  MPS_DEBUG_RDPE (s, drad[i], "radius for root %4d", i);
 	}
 
@@ -559,18 +559,23 @@ mps_dcluster (mps_status * s, rdpe_t * drad, int nf)
    * radii. These are not valid to perform cluster analysis in
    * general, but can be used if they provide *COMPLETE* Newton
    * isolation. */  
+  rdpe_t * newton_radii = rdpe_valloc (s->n);
+  for (i = 0; i < s->n; i++)
+    rdpe_set (newton_radii[i], s->root[i]->drad);
+  
   for (i = 0; i < s->n; i++)
     {
       for (j = 0; j < s->n; j++)
 	{
-	  if ((i != j) && mps_dtouchnwt (s, s->drad, nf, i, j))
+	  if ((i != j) && mps_dtouchnwt (s, newton_radii, nf, i, j))
 	    {
 	      newton_isolation = false;
 	      break;
 	    }
-	  /* s->root_status[i] = MPS_ROOT_STATUS_NEWTON_ISOLATED; */
 	}
     }
+
+  rdpe_vfree (newton_radii);
 
   /* If newton isolation has not been reached check with Gerschgorin */
     {
@@ -659,15 +664,15 @@ mps_dcluster (mps_status * s, rdpe_t * drad, int nf)
 	        int k = new_cluster->first->k;  
 	        rdpe_t new_rad;  
 	  
-	        cdpe_mod (new_rad, s->droot[k]);  
+	        cdpe_mod (new_rad, s->root[k]->dvalue);  
 	        rdpe_mul_eq_d (new_rad, 4 * DBL_EPSILON);  
 	        rdpe_add_eq (new_rad, drad[k]);  
 
 
 	        /* Check if the computed radius is more convenient than the old one.  
 	    	 If that's the case, apply it as inclusion radius */  
-	        if (rdpe_lt (new_rad, s->drad[k]))    
-	    	rdpe_set (s->drad[k], new_rad);    
+	        if (rdpe_lt (new_rad, s->root[k]->drad))    
+	    	rdpe_set (s->root[k]->drad, new_rad);    
 	      }  
 	}
     }
@@ -688,7 +693,7 @@ mps_dcluster (mps_status * s, rdpe_t * drad, int nf)
 	}
     }
 
-  /* Set the new clusterizaition in the mps_status */
+  /* Set the new clusterizaition in the mps_context */
   mps_clusterization_free (s, s->clusterization);
   s->clusterization = new_clusterization;
 
@@ -701,7 +706,7 @@ mps_dcluster (mps_status * s, rdpe_t * drad, int nf)
 
 
 void
-mps_debug_cluster_structure (mps_status * s)
+mps_debug_cluster_structure (mps_context * s)
 {
   mps_cluster_item * cluster_item;
   mps_cluster * cluster;
@@ -757,7 +762,7 @@ mps_debug_cluster_structure (mps_status * s)
  * @see mps_xcluster
  */
 void
-mps_mcluster (mps_status * s, rdpe_t * drad, int nf)
+mps_mcluster (mps_context * s, rdpe_t * drad, int nf)
 {
   s->operation = MPS_OPERATION_CLUSTER_ANALYSIS;
 
@@ -777,7 +782,7 @@ mps_mcluster (mps_status * s, rdpe_t * drad, int nf)
       MPS_DEBUG (s, "Debugging the radius and approximations obtained for the roots before cluster analysis");
       for (i = 0; i < s->n; i++)
 	{
-	  MPS_DEBUG_MPC (s, mpc_get_prec (s->mroot[i]), s->mroot[i], "Root %d", i);
+	  MPS_DEBUG_MPC (s, mpc_get_prec (s->root[i]->mvalue), s->root[i]->mvalue, "Root %d", i);
 	  MPS_DEBUG_RDPE (s, drad[i], "radius for root %4d", i);
 	}
 
@@ -791,11 +796,15 @@ mps_mcluster (mps_status * s, rdpe_t * drad, int nf)
    * radii. These are not valid to perform cluster analysis in
    * general, but can be used if they provide *COMPLETE* Newton
    * isolation. */  
+  rdpe_t * newton_radii = rdpe_valloc (s->n);
+  for (i = 0; i < s->n; i++)
+    rdpe_set (newton_radii[i], s->root[i]->drad);
+
   for (i = 0; i < s->n; i++)
     {
       for (j = 0; j < s->n; j++)
 	{
-	  if ((i != j) && mps_mtouchnwt (s, s->drad, nf, i, j))
+	  if ((i != j) && mps_mtouchnwt (s, newton_radii, nf, i, j))
 	    {
 	      if (s->debug_level & MPS_DEBUG_CLUSTER)
 		MPS_DEBUG (s, "Failing newton isolation on root %d and %d", i, j);
@@ -806,6 +815,8 @@ mps_mcluster (mps_status * s, rdpe_t * drad, int nf)
 	  /* s->root_status[i] = MPS_ROOT_STATUS_NEWTON_ISOLATED; */
 	}
     }
+
+  rdpe_vfree (newton_radii);
 
   /* If newton isolation is not reached with Newton use Gerschgorin */
     {
@@ -897,14 +908,14 @@ mps_mcluster (mps_status * s, rdpe_t * drad, int nf)
 	      
 	      /* Check if the computed radius is more convenient than the old one.  
 	    	 If that's the case, apply it as inclusion radius */  
-	      mpc_get_cdpe (c, s->mroot[k]);  
+	      mpc_get_cdpe (c, s->root[k]->mvalue);  
 	      cdpe_mod (new_rad, c);  
 	      rdpe_mul_eq (new_rad, s->mp_epsilon);  
 	      rdpe_mul_eq_d (new_rad, 4.0f);  
 	      rdpe_add_eq (new_rad, drad[k]);  
 	      
-	      if (rdpe_lt (new_rad, s->drad[k]))     
-		rdpe_set (s->drad[k], new_rad);     
+	      if (rdpe_lt (new_rad, s->root[k]->drad))      
+	       	rdpe_set (s->root[k]->drad, new_rad);      
 	    } 
 	}
     }
@@ -924,7 +935,7 @@ mps_mcluster (mps_status * s, rdpe_t * drad, int nf)
 	}
     }
 
-  /* Set the new clusterizaition in the mps_status */
+  /* Set the new clusterizaition in the mps_context */
   mps_clusterization_free (s, s->clusterization);
   s->clusterization = new_clusterization;
 
@@ -943,7 +954,7 @@ mps_mcluster (mps_status * s, rdpe_t * drad, int nf)
 
 
 void 
-mps_clusterization_detach_clusters (mps_status * s, mps_clusterization * c)
+mps_clusterization_detach_clusters (mps_context * s, mps_clusterization * c)
 {
   mps_cluster_item * item;
   cdpe_t droot;
@@ -966,11 +977,12 @@ mps_clusterization_detach_clusters (mps_status * s, mps_clusterization * c)
       while (root != NULL)
 	{
 	  k = root->k;
-	  mpc_get_cdpe (droot, s->mroot[k]);
+	  mpc_get_cdpe (droot, s->root[k]->mvalue);
 	  cdpe_mod (rtmp, droot);
 
-          rdpe_set_2dl (precision, 1, (long int) (- 0.5 * s->mpwp + rdpe_Esp (rtmp)));
-          if (rdpe_lt (s->drad[k], precision))
+          rdpe_set_dl (precision, 1, (long int) ((1 - 0.5 * s->mpwp) * LOG10_2
+                                                 + rdpe_log10 (rtmp)));
+          if (rdpe_lt (s->root[k]->drad, precision))
             {
 	      if (s->debug_level & MPS_DEBUG_CLUSTER)
 		{
@@ -1001,7 +1013,7 @@ mps_clusterization_detach_clusters (mps_status * s, mps_clusterization * c)
 
 
 void 
-mps_clusterization_reassemble_clusters (mps_status * s, mps_clusterization * c)
+mps_clusterization_reassemble_clusters (mps_context * s, mps_clusterization * c)
 {
   MPS_DEBUG_THIS_CALL;
 
@@ -1021,7 +1033,7 @@ mps_clusterization_reassemble_clusters (mps_status * s, mps_clusterization * c)
 }
 
 void
-mps_cluster_detachment_reset (mps_status * s)
+mps_cluster_detachment_reset (mps_context * s)
 {
   mps_clusterization_reassemble_clusters (s, s->clusterization);
 }

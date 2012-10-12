@@ -1,21 +1,15 @@
-/************************************************************
- **                                                        **
- **             __  __ ___  ___      _                     **
- **            |  \/  | _ \/ __| ___| |_ _____             **
- **            | |\/| |  _/\__ \/ _ \ \ V / -_)            **
- **            |_|  |_|_|  |___/\___/_|\_/\___|            **
- **                                                        **
- **       Multiprecision Polynomial Solver (MPSolve)       **
- **                 Version 2.9, April 2011                **
- **                                                        **
- **                      Written by                        **
- **                                                        **
- **     Dario Andrea Bini       <bini@dm.unipi.it>         **
- **     Giuseppe Fiorentino     <fiorent@dm.unipi.it>      **
- **     Leonardo Robol          <robol@mail.dm.unipi.it>   **
- **                                                        **
- **           (C) 2011, Dipartimento di Matematica         **
- ***********************************************************/
+/*
+ * This file is part of MPSolve 3.0
+ *
+ * Copyright (C) 2001-2012, Dipartimento di Matematica "L. Tonelli", Pisa.
+ * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
+ *
+ * Authors: 
+ *   Dario Andrea Bini <bini@dm.unipi.it>
+ *   Giuseppe Fiorentino <fiorent@dm.unipi.it>
+ *   Leonardo Robol <robol@mail.dm.unipi.it>
+ */
+
 
 #include <stdio.h>
 #include <float.h>
@@ -23,7 +17,7 @@
 #include <string.h>
 
 void
-mps_set_default_values (mps_status * s)
+mps_set_default_values (mps_context * s)
 {
   /* flags */
   s->skip_float = false;        /* set to true to skip float phase     */
@@ -44,7 +38,7 @@ mps_set_default_values (mps_status * s)
 
   /* constants/parameters */
   s->max_pack = 100000;           /* number of max packets of iterations */
-  s->max_it = 250;               /* number of max iterations per packet */
+  s->max_it = 10;               /* number of max iterations per packet */
   s->max_newt_it = 15;           /* number of max newton iterations for */
 
   /* Set number of threads to 1.5 * number_of_cores, if this is
@@ -77,18 +71,6 @@ mps_set_default_values (mps_status * s)
   /* soution related variables */
   s->lastphase = no_phase;      /* store last computed phase           */
   s->order = NULL;              /* output index order: ord[0],..,ord[n] */
-  s->froot = NULL;              /* root approxs. as standard complex   */
-  s->droot = NULL;              /* root approx. as complex dpe         */
-  s->mroot = NULL;              /* root approximations as complex mp   */
-  s->frad = NULL;               /* radii of inclusion disks as real    */
-  s->drad = NULL;               /* radii of inclusion disks as rdpe_t  */
-
-  s->rootwp = NULL;             /* working precision used for each root */
-  /* s->mfppc = NULL;              /\* multiprecision complex coeffs of p' *\/ */
-  /* s->fap = NULL;                /\* moduli of the coefficients as double *\/ */
-  /* s->dap = NULL;                /\* moduli of the coefficients as dpe   *\/ */
-  s->again = NULL;              /* flag vector: true where more        */
-  /* s->fppc = NULL;               /\* standard complex coefficients       *\/ */
   s->fppc1 = NULL;              /* standard complex coefficients       */
   s->dpc1 = NULL;               /* dpe complex coefficients            */
   s->dpc2 = NULL;               /* dpe complex coefficients            */

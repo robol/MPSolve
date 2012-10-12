@@ -19,8 +19,8 @@ int
 main (int argc, char **argv)
 {
 
-  /* Allocate mps_status */
-  mps_status *s = malloc (sizeof (mps_status));
+  /* Allocate mps_context */
+  mps_context *s = malloc (sizeof (mps_context));
 
   /* set default values */
   s->prec_in = -1;              /* default input precision */

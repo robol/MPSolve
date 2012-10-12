@@ -1,21 +1,15 @@
-/************************************************************
- **                                                        **
- **             __  __ ___  ___      _                     **
- **            |  \/  | _ \/ __| ___| |_ _____             **
- **            | |\/| |  _/\__ \/ _ \ \ V / -_)            **
- **            |_|  |_|_|  |___/\___/_|\_/\___|            **
- **                                                        **
- **       Multiprecision Polynomial Solver (MPSolve)       **
- **                 Version 2.9, April 2011                **
- **                                                        **
- **                      Written by                        **
- **                                                        **
- **     Dario Andrea Bini       <bini@dm.unipi.it>         **
- **     Giuseppe Fiorentino     <fiorent@dm.unipi.it>      **
- **     Leonardo Robol          <robol@mail.dm.unipi.it>   **
- **                                                        **
- **           (C) 2011, Dipartimento di Matematica         **
- ***********************************************************/
+/*
+ * This file is part of MPSolve 3.0
+ *
+ * Copyright (C) 2001-2012, Dipartimento di Matematica "L. Tonelli", Pisa.
+ * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
+ *
+ * Authors: 
+ *   Dario Andrea Bini <bini@dm.unipi.it>
+ *   Giuseppe Fiorentino <fiorent@dm.unipi.it>
+ *   Leonardo Robol <robol@mail.dm.unipi.it>
+ */
+
 
 #include <mps/mps.h>
 #include <math.h>
@@ -24,7 +18,7 @@
  * @brief Modify the vector 'status' according to the goal, and
  * to the location of the roots.
  *
- * @param s The mps_status associated to the current computation.
+ * @param s The mps_context associated to the current computation.
  * @param track_new_cluster true if old clusters should be marked
  * with 'C' instead of 'c', so they are recognizable (for shifting).
  *
@@ -55,7 +49,7 @@
  * real roots
  */
 void
-mps_fmodify (mps_status * s, mps_boolean track_new_cluster)
+mps_fmodify (mps_context * s, mps_boolean track_new_cluster)
 {
   s->operation = MPS_OPERATION_CLUSTER_ANALYSIS;
 
@@ -100,7 +94,7 @@ mps_fmodify (mps_status * s, mps_boolean track_new_cluster)
 	      /* s->root_inclusion[root->k] = MPS_ROOT_INCLUSION_IN; */
 
 	      /* Check if we need to mark this root as approximated */
-	      if (s->frad[l] < cplx_mod (s->froot[l]) * eps_out)
+	      if (s->root[l]->frad < cplx_mod (s->root[l]->fvalue) * eps_out)
 		s->root_status[root->k] = MPS_ROOT_STATUS_APPROXIMATED;
 	    }
 
@@ -122,8 +116,8 @@ mps_fmodify (mps_status * s, mps_boolean track_new_cluster)
 	      s->root_status[l] = MPS_ROOT_STATUS_CLUSTERED;
 	    }
 
-	  rdpe_set_d (rtmp, s->frad[l]);
-	  rdpe_div_eq_d (rtmp, cplx_mod (s->froot[l]));
+	  rdpe_set_d (rtmp, s->root[l]->frad);
+	  rdpe_div_eq_d (rtmp, cplx_mod (s->root[l]->fvalue));
 	  if (rdpe_le (rtmp, s->eps_out))
 	    s->root_status[l] = MPS_ROOT_STATUS_APPROXIMATED_IN_CLUSTER;
 
@@ -139,7 +133,7 @@ mps_fmodify (mps_status * s, mps_boolean track_new_cluster)
 }
 
 /* void */
-/* mps_fmodify2 (mps_status * s, mps_boolean track_new_cluster) */
+/* mps_fmodify2 (mps_context * s, mps_boolean track_new_cluster) */
 /* { */
 /*   int i, j, l, k, nnewclust, i_new, i_old, ip1, i1, l1, j1, nf, j2, l2; */
 /*   double sr, tmpr, afri, sep1; */
@@ -237,7 +231,7 @@ mps_fmodify (mps_status * s, mps_boolean track_new_cluster)
 /* 	  /\* Check if the root, even if clustered, is approximated *\/ */
 /* 	  if (s->algorithm == MPS_ALGORITHM_SECULAR_GA) */
 /* 	    { */
-/* 	      rdpe_set_d (rtmp, s->frad[l] / cplx_mod (s->froot[l])); */
+/* 	      rdpe_set_d (rtmp, s->root[l]->frad / cplx_mod (s->root[l]->fvalue)); */
 /* 	      if (rdpe_le (rtmp, s->eps_out))      */
 /* 		s->status[l][0] = 'o';      */
 /* 	    } */
@@ -269,7 +263,7 @@ mps_fmodify (mps_status * s, mps_boolean track_new_cluster)
 /*                 case 'i':      /\* inside unit circle *\/ */
 /*                   if (!mps_ftouchunit (s, nf, l)) */
 /*                     { */
-/*                       if (cplx_mod (s->froot[l]) < 1) */
+/*                       if (cplx_mod (s->root[l]->fvalue) < 1) */
 /*                         s->status[l][2] = 'i'; */
 /*                       else */
 /*                         s->status[l][2] = 'o'; */
@@ -279,7 +273,7 @@ mps_fmodify (mps_status * s, mps_boolean track_new_cluster)
 /*                 case 'o':      /\* outside unit circle *\/ */
 /*                   if (!mps_ftouchunit (s, nf, l)) */
 /*                     { */
-/*                       if (cplx_mod (s->froot[l]) > 1) */
+/*                       if (cplx_mod (s->root[l]->fvalue) > 1) */
 /*                         s->status[l][2] = 'i'; */
 /*                       else */
 /*                         s->status[l][2] = 'o'; */
@@ -289,7 +283,7 @@ mps_fmodify (mps_status * s, mps_boolean track_new_cluster)
 /*                 case 'l':      /\* left half plane  *\/ */
 /*                   if (!mps_ftouchimag (s, nf, l)) */
 /*                     { */
-/*                       if (cplx_Re (s->froot[l]) < 0) */
+/*                       if (cplx_Re (s->root[l]->fvalue) < 0) */
 /*                         s->status[l][2] = 'i'; */
 /*                       else */
 /*                         s->status[l][2] = 'o'; */
@@ -299,7 +293,7 @@ mps_fmodify (mps_status * s, mps_boolean track_new_cluster)
 /*                 case 'r':      /\* right half plane *\/ */
 /*                   if (!mps_ftouchimag (s, nf, l)) */
 /*                     { */
-/*                       if (cplx_Re (s->froot[l]) > 0) */
+/*                       if (cplx_Re (s->root[l]->fvalue) > 0) */
 /*                         s->status[l][2] = 'i'; */
 /*                       else */
 /*                         s->status[l][2] = 'o'; */
@@ -309,7 +303,7 @@ mps_fmodify (mps_status * s, mps_boolean track_new_cluster)
 /*                 case 'u':      /\* upper half plane *\/ */
 /*                   if (!mps_ftouchreal (s, nf, l)) */
 /*                     { */
-/*                       if (cplx_Im (s->froot[l]) > 0) */
+/*                       if (cplx_Im (s->root[l]->fvalue) > 0) */
 /*                         s->status[l][2] = 'i'; */
 /*                       else */
 /*                         s->status[l][2] = 'o'; */
@@ -319,7 +313,7 @@ mps_fmodify (mps_status * s, mps_boolean track_new_cluster)
 /*                 case 'd':      /\* lower half plane *\/ */
 /*                   if (!mps_ftouchreal (s, nf, l)) */
 /*                     { */
-/*                       if (cplx_Im (s->froot[l]) < 0) */
+/*                       if (cplx_Im (s->root[l]->fvalue) < 0) */
 /*                         s->status[l][2] = 'i'; */
 /*                       else */
 /*                         s->status[l][2] = 'o'; */
@@ -341,7 +335,7 @@ mps_fmodify (mps_status * s, mps_boolean track_new_cluster)
 /*                           else */
 /*                             { */
 /*                               /\* fsrad(i, sc, &sr); DARIO *\/ */
-/*                               sr = s->frad[l]; */
+/*                               sr = s->root[l]->frad; */
 /*                               if (log (sr) < s->sep - s->n * s->lmax_coeff) */
 /*                                 { */
 /*                                   s->status[l][2] = 'i'; */
@@ -444,7 +438,7 @@ mps_fmodify (mps_status * s, mps_boolean track_new_cluster)
 /*                       if (mps_ftouchimag (s, nf, l)) */
 /*                         { */
 /*                           /\* fsrad(i, sc, &sr); DARIO *\/ */
-/*                           sr = s->frad[l]; */
+/*                           sr = s->root[l]->frad; */
 /*                           if (log (sr) < s->sep - s->n * s->lmax_coeff) */
 /*                             { */
 /*                               s->status[l][2] = 'i'; */
@@ -616,7 +610,7 @@ mps_fmodify (mps_status * s, mps_boolean track_new_cluster)
 /*                       else */
 /*                         { */
 /*                           /\* fsrad(i, sc, &sr); DARIO *\/ */
-/*                           sr = s->frad[l]; */
+/*                           sr = s->root[l]->frad; */
 /*                           if (log (sr) < s->sep - s->n * s->lmax_coeff) */
 /*                             s->status[l][1] = 'R'; */
 /*                           else */
@@ -703,7 +697,7 @@ mps_fmodify (mps_status * s, mps_boolean track_new_cluster)
 /*                   if (mps_ftouchimag (s, nf, l)) */
 /*                     { */
 /*                       /\* fsrad(i, sc, &sr); DARIO *\/ */
-/*                       sr = s->frad[l]; */
+/*                       sr = s->root[l]->frad; */
 /*                       if (log (sr) < s->sep - s->n * s->lmax_coeff) */
 /*                         s->status[l][1] = 'I'; */
 /*                       else */
@@ -778,14 +772,14 @@ mps_fmodify (mps_status * s, mps_boolean track_new_cluster)
 /**
  * @brief The DPE version of <code>mps_fmodify()</code>.
  *
- * @param s The mps_status associated to the current computation.
+ * @param s The mps_context associated to the current computation.
  * @param track_new_cluster true if old clusters should be marked
  * with 'C' instead of 'c', so they are recognizable (for shifting).
  *
  * @see mps_fmodify()
  */
 void
-mps_dmodify (mps_status * s, mps_boolean track_new_cluster)
+mps_dmodify (mps_context * s, mps_boolean track_new_cluster)
 {
   s->operation = MPS_OPERATION_CLUSTER_ANALYSIS;
 
@@ -844,8 +838,8 @@ mps_dmodify (mps_status * s, mps_boolean track_new_cluster)
 	      s->root_status[l] = MPS_ROOT_STATUS_CLUSTERED;
 	    }
 
-	  rdpe_set (tmpr, s->drad[l]);
-	  cdpe_mod (tmpr2, s->droot[l]);
+	  rdpe_set (tmpr, s->root[l]->drad);
+	  cdpe_mod (tmpr2, s->root[l]->dvalue);
 	  rdpe_div_eq (tmpr, tmpr2);
 	  if (rdpe_le (tmpr, s->eps_out)) 
 	    s->root_status[l] = MPS_ROOT_STATUS_APPROXIMATED_IN_CLUSTER;
@@ -862,7 +856,7 @@ mps_dmodify (mps_status * s, mps_boolean track_new_cluster)
 
 
 /* void */
-/* mps_dmodify (mps_status * s, mps_boolean track_new_cluster) */
+/* mps_dmodify (mps_context * s, mps_boolean track_new_cluster) */
 /* { */
 /*   int i, j, l, k, nnewclust, i_new, i_old, ip1, i1, l1, j1, j2, l2, nf; */
 /*   double rtmp, sep1; */
@@ -977,7 +971,7 @@ mps_dmodify (mps_status * s, mps_boolean track_new_cluster)
 /*                 case 'i':      /\* inside unit circle *\/ */
 /*                   if (!mps_dtouchunit (s, nf, l)) */
 /*                     { */
-/*                       cdpe_mod (tmpr, s->droot[l]); */
+/*                       cdpe_mod (tmpr, s->root[l]->dvalue); */
 /*                       if (rdpe_lt (tmpr, rdpe_one)) */
 /*                         s->status[l][2] = 'i'; */
 /*                       else */
@@ -988,7 +982,7 @@ mps_dmodify (mps_status * s, mps_boolean track_new_cluster)
 /*                 case 'o':      /\* outside unit circle *\/ */
 /*                   if (!mps_dtouchunit (s, nf, l)) */
 /*                     { */
-/*                       cdpe_mod (tmpr, s->droot[l]); */
+/*                       cdpe_mod (tmpr, s->root[l]->dvalue); */
 /*                       if (rdpe_gt (tmpr, rdpe_one)) */
 /*                         s->status[l][2] = 'i'; */
 /*                       else */
@@ -999,7 +993,7 @@ mps_dmodify (mps_status * s, mps_boolean track_new_cluster)
 /*                 case 'l':      /\* left half plane  *\/ */
 /*                   if (!mps_dtouchimag (s, nf, l)) */
 /*                     { */
-/*                       rdpe_set (tmpr, cdpe_Re (s->droot[l])); */
+/*                       rdpe_set (tmpr, cdpe_Re (s->root[l]->dvalue)); */
 /*                       if (rdpe_lt (tmpr, rdpe_zero)) */
 /*                         s->status[l][2] = 'i'; */
 /*                       else */
@@ -1010,7 +1004,7 @@ mps_dmodify (mps_status * s, mps_boolean track_new_cluster)
 /*                 case 'r':      /\* right half plane *\/ */
 /*                   if (!mps_dtouchimag (s, nf, l)) */
 /*                     { */
-/*                       rdpe_set (tmpr, cdpe_Re (s->droot[l])); */
+/*                       rdpe_set (tmpr, cdpe_Re (s->root[l]->dvalue)); */
 /*                       if (rdpe_gt (tmpr, rdpe_zero)) */
 /*                         s->status[l][2] = 'i'; */
 /*                       else */
@@ -1021,7 +1015,7 @@ mps_dmodify (mps_status * s, mps_boolean track_new_cluster)
 /*                 case 'u':      /\* upper half plane *\/ */
 /*                   if (!mps_dtouchreal (s, nf, l)) */
 /*                     { */
-/*                       rdpe_set (tmpr, cdpe_Im (s->droot[l])); */
+/*                       rdpe_set (tmpr, cdpe_Im (s->root[l]->dvalue)); */
 /*                       if (rdpe_gt (tmpr, rdpe_zero)) */
 /*                         s->status[l][2] = 'i'; */
 /*                       else */
@@ -1032,7 +1026,7 @@ mps_dmodify (mps_status * s, mps_boolean track_new_cluster)
 /*                 case 'd':      /\* lower half plane *\/ */
 /*                   if (!mps_dtouchreal (s, nf, l)) */
 /*                     { */
-/*                       rdpe_set (tmpr, cdpe_Im (s->droot[l])); */
+/*                       rdpe_set (tmpr, cdpe_Im (s->root[l]->dvalue)); */
 /*                       if (rdpe_lt (tmpr, rdpe_zero)) */
 /*                         s->status[l][2] = 'i'; */
 /*                       else */
@@ -1495,14 +1489,14 @@ mps_dmodify (mps_status * s, mps_boolean track_new_cluster)
  * @brief The multiprecision version of the routine
  * <code>mps_fmodify()</code>. 
  *
- * @param s The mps_status associated to the current computation.
+ * @param s The mps_context associated to the current computation.
  * @param track_new_cluster true if old clusters should be marked
  * with 'C' instead of 'c', so they are recognizable (for shifting).
  *
  * @see mps_fmodify()
  */
 void
-mps_mmodify (mps_status * s, mps_boolean track_new_cluster)
+mps_mmodify (mps_context * s, mps_boolean track_new_cluster)
 {
   s->operation = MPS_OPERATION_CLUSTER_ANALYSIS;
 
@@ -1559,8 +1553,8 @@ mps_mmodify (mps_status * s, mps_boolean track_new_cluster)
 	      s->root_status[l] = MPS_ROOT_STATUS_CLUSTERED;
 	    }
 
-	  rdpe_set (tmpr, s->drad[l]);
-	  mpc_get_cdpe (cdtmp, s->mroot[l]);
+	  rdpe_set (tmpr, s->root[l]->drad);
+	  mpc_get_cdpe (cdtmp, s->root[l]->mvalue);
 	  cdpe_mod (tmpr2, cdtmp);
 	  rdpe_div_eq (tmpr, tmpr2);
 	  if (rdpe_le (tmpr, s->eps_out)) 
@@ -1578,7 +1572,7 @@ mps_mmodify (mps_status * s, mps_boolean track_new_cluster)
 
 
 /* void */
-/* mps_mmodify (mps_status * s, mps_boolean track_new_cluster) */
+/* mps_mmodify (mps_context * s, mps_boolean track_new_cluster) */
 /* { */
 /*   int i, j, l, k, nnewclust, i_new, i_old, ip1, i1, l1, j1, nf, j2, l2; */
 /*   double rtmp, sep1; */
@@ -1787,7 +1781,7 @@ mps_mmodify (mps_status * s, mps_boolean track_new_cluster)
 /*                             } */
 /*                           else */
 /*                             { */
-/*                               rdpe_set (sr, s->drad[l]); */
+/*                               rdpe_set (sr, s->root[l]->drad); */
 /*                               /\* msrad(i, sc, sr);**#DARIO *\/ */
 /*                               if (rdpe_log (sr) < s->sep - s->n */
 /*                                   * s->lmax_coeff) */
@@ -1892,7 +1886,7 @@ mps_mmodify (mps_status * s, mps_boolean track_new_cluster)
 /*                       if (mps_mtouchimag (s, nf, l)) */
 /*                         { */
 /*                           /\* msrad(i, sc, sr); *\//\*#DARIO *\/ */
-/*                           rdpe_set (sr, s->drad[l]); */
+/*                           rdpe_set (sr, s->root[l]->drad); */
 /*                           if (rdpe_log (sr) < s->sep - s->n * s->lmax_coeff) */
 /*                             { */
 /*                               s->status[l][2] = 'i'; */
@@ -2066,7 +2060,7 @@ mps_mmodify (mps_status * s, mps_boolean track_new_cluster)
 /*                       else */
 /*                         { */
 /*                           /\* msrad(i, sc, sr); *\//\*#DARIO *\/ */
-/*                           rdpe_set (sr, s->drad[l]); */
+/*                           rdpe_set (sr, s->root[l]->drad); */
 /*                           if (rdpe_log (sr) < s->sep - s->n * s->lmax_coeff) */
 /*                             s->status[l][1] = 'R'; */
 /*                           else */
@@ -2152,7 +2146,7 @@ mps_mmodify (mps_status * s, mps_boolean track_new_cluster)
 /*                 {               /\* one disk *\/ */
 /*                   if (mps_mtouchimag (s, nf, l)) */
 /*                     { */
-/*                       rdpe_set (sr, s->drad[l]); */
+/*                       rdpe_set (sr, s->root[l]->drad); */
 /*                       /\* msrad(i, sc, sr); DARIO *\/ */
 /*                       if (rdpe_log (sr) < s->sep - s->n * s->lmax_coeff) */
 /*                         s->status[l][1] = 'I'; */

@@ -1,21 +1,15 @@
-/************************************************************
- **                                                        **
- **             __  __ ___  ___      _                     **
- **            |  \/  | _ \/ __| ___| |_ _____             **
- **            | |\/| |  _/\__ \/ _ \ \ V / -_)            **
- **            |_|  |_|_|  |___/\___/_|\_/\___|            **
- **                                                        **
- **       Multiprecision Polynomial Solver (MPSolve)       **
- **                 Version 2.9, April 2011                **
- **                                                        **
- **                      Written by                        **
- **                                                        **
- **     Dario Andrea Bini       <bini@dm.unipi.it>         **
- **     Giuseppe Fiorentino     <fiorent@dm.unipi.it>      **
- **     Leonardo Robol          <robol@mail.dm.unipi.it>   **
- **                                                        **
- **           (C) 2011, Dipartimento di Matematica         **
- ***********************************************************/
+/*
+ * This file is part of MPSolve 3.0
+ *
+ * Copyright (C) 2001-2012, Dipartimento di Matematica "L. Tonelli", Pisa.
+ * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
+ *
+ * Authors: 
+ *   Dario Andrea Bini <bini@dm.unipi.it>
+ *   Giuseppe Fiorentino <fiorent@dm.unipi.it>
+ *   Leonardo Robol <robol@mail.dm.unipi.it>
+ */
+
 
 #include <mps/mps.h>
 #include <pthread.h>
@@ -25,7 +19,7 @@
  * selective correction.
  */
 void
-mps_faberth (mps_status * s, int j, cplx_t abcorr)
+mps_faberth (mps_context * s, int j, cplx_t abcorr)
 {
   int i;
   cplx_t z;
@@ -35,20 +29,20 @@ mps_faberth (mps_status * s, int j, cplx_t abcorr)
     {
       if (i == j)
         continue;
-      cplx_sub (z, s->froot[j], s->froot[i]);
+      cplx_sub (z, s->root[j]->fvalue, s->root[i]->fvalue);
       cplx_inv_eq (z);
       cplx_add_eq (abcorr, z);
     }
 }
 
 void
-mps_faberth_wl (mps_status * s, int j, cplx_t abcorr, pthread_mutex_t * aberth_mutexes)
+mps_faberth_wl (mps_context * s, int j, cplx_t abcorr, pthread_mutex_t * aberth_mutexes)
 {
   int i;
   cplx_t z, froot;
 
   pthread_mutex_lock (&aberth_mutexes[j]);
-  cplx_set (froot, s->froot[j]);
+  cplx_set (froot, s->root[j]->fvalue);
   pthread_mutex_unlock (&aberth_mutexes[j]);
 
   cplx_set (abcorr, cplx_zero);
@@ -58,7 +52,7 @@ mps_faberth_wl (mps_status * s, int j, cplx_t abcorr, pthread_mutex_t * aberth_m
         continue;
 
       pthread_mutex_lock (&aberth_mutexes[i]);
-      cplx_sub (z, froot, s->froot[i]);
+      cplx_sub (z, froot, s->root[i]->fvalue);
       pthread_mutex_unlock (&aberth_mutexes[i]);
 
       cplx_inv_eq (z);
@@ -72,7 +66,7 @@ mps_faberth_wl (mps_status * s, int j, cplx_t abcorr, pthread_mutex_t * aberth_m
  * selective correction.
  */
 void
-mps_daberth (mps_status * s, int j, cdpe_t abcorr)
+mps_daberth (mps_context * s, int j, cdpe_t abcorr)
 {
   int i;
   cdpe_t z;
@@ -82,7 +76,7 @@ mps_daberth (mps_status * s, int j, cdpe_t abcorr)
     {
       if (i == j)
         continue;
-      cdpe_sub (z, s->droot[j], s->droot[i]);
+      cdpe_sub (z, s->root[j]->dvalue, s->root[i]->dvalue);
       cdpe_inv_eq (z);
       cdpe_add_eq (abcorr, z);
     }
@@ -93,7 +87,7 @@ mps_daberth (mps_status * s, int j, cdpe_t abcorr)
  * selective correction.
  */
 void
-mps_maberth (mps_status * s, int j, mpc_t abcorr)
+mps_maberth (mps_context * s, int j, mpc_t abcorr)
 {
   int i;
   cdpe_t z, temp;
@@ -106,7 +100,7 @@ mps_maberth (mps_status * s, int j, mpc_t abcorr)
     {
       if (i == j)
         continue;
-      mpc_sub (diff, s->mroot[j], s->mroot[i]);
+      mpc_sub (diff, s->root[j]->mvalue, s->root[i]->mvalue);
       mpc_get_cdpe (z, diff);
       cdpe_inv_eq (z);
       cdpe_add_eq (temp, z);
@@ -122,7 +116,7 @@ mps_maberth (mps_status * s, int j, mpc_t abcorr)
  * cluster.
  */
 void
-mps_faberth_s (mps_status * s, int j, mps_cluster * cluster, cplx_t abcorr)
+mps_faberth_s (mps_context * s, int j, mps_cluster * cluster, cplx_t abcorr)
 {
   int k;
   cplx_t z;
@@ -134,7 +128,7 @@ mps_faberth_s (mps_status * s, int j, mps_cluster * cluster, cplx_t abcorr)
       k = root->k;
       if (k == j)
         continue;
-      cplx_sub (z, s->froot[j], s->froot[k]);
+      cplx_sub (z, s->root[j]->fvalue, s->root[k]->fvalue);
       cplx_inv_eq (z);
       cplx_add_eq (abcorr, z);
     }
@@ -146,7 +140,7 @@ mps_faberth_s (mps_status * s, int j, mps_cluster * cluster, cplx_t abcorr)
  * cluster.
  */
 void
-mps_daberth_s (mps_status * s, int j, mps_cluster * cluster, cdpe_t abcorr)
+mps_daberth_s (mps_context * s, int j, mps_cluster * cluster, cdpe_t abcorr)
 {
   int k;
   mps_root * root;
@@ -158,7 +152,7 @@ mps_daberth_s (mps_status * s, int j, mps_cluster * cluster, cdpe_t abcorr)
       k = root->k;
       if (k == j)
         continue;
-      cdpe_sub (z, s->droot[j], s->droot[k]);
+      cdpe_sub (z, s->root[j]->dvalue, s->root[k]->dvalue);
       cdpe_inv_eq (z);
       cdpe_add_eq (abcorr, z);
     }
@@ -170,7 +164,7 @@ mps_daberth_s (mps_status * s, int j, mps_cluster * cluster, cdpe_t abcorr)
  * cluster.
  */
 void
-mps_maberth_s (mps_status * s, int j, mps_cluster * cluster, mpc_t abcorr)
+mps_maberth_s (mps_context * s, int j, mps_cluster * cluster, mpc_t abcorr)
 {
   int k;
   mps_root * root;
@@ -185,7 +179,7 @@ mps_maberth_s (mps_status * s, int j, mps_cluster * cluster, mpc_t abcorr)
       k = root->k;
       if (k == j)
         continue;
-      mpc_sub (diff, s->mroot[j], s->mroot[k]);
+      mpc_sub (diff, s->root[j]->mvalue, s->root[k]->mvalue);
       mpc_get_cdpe (z, diff);
       cdpe_inv_eq (z);
       cdpe_add_eq (temp, z);
@@ -196,13 +190,13 @@ mps_maberth_s (mps_status * s, int j, mps_cluster * cluster, mpc_t abcorr)
 }
 
 void
-mps_daberth_wl (mps_status * s, int j, cdpe_t abcorr, pthread_mutex_t * aberth_mutexes)
+mps_daberth_wl (mps_context * s, int j, cdpe_t abcorr, pthread_mutex_t * aberth_mutexes)
 {
   int i;
   cdpe_t z, droot;
 
   pthread_mutex_lock (&aberth_mutexes[j]);
-  cdpe_set (droot, s->droot[j]);
+  cdpe_set (droot, s->root[j]->dvalue);
   pthread_mutex_unlock (&aberth_mutexes[j]);
 
   cdpe_set (abcorr, cdpe_zero);
@@ -212,7 +206,7 @@ mps_daberth_wl (mps_status * s, int j, cdpe_t abcorr, pthread_mutex_t * aberth_m
         continue;
 
       pthread_mutex_lock (&aberth_mutexes[i]);
-      cdpe_sub (z, droot, s->droot[i]);
+      cdpe_sub (z, droot, s->root[i]->dvalue);
       pthread_mutex_unlock (&aberth_mutexes[i]);
 
       cdpe_inv_eq (z);
@@ -221,7 +215,7 @@ mps_daberth_wl (mps_status * s, int j, cdpe_t abcorr, pthread_mutex_t * aberth_m
 }
 
 void
-mps_maberth_s_wl (mps_status * s, int j, mps_cluster * cluster, mpc_t abcorr,
+mps_maberth_s_wl (mps_context * s, int j, mps_cluster * cluster, mpc_t abcorr,
                   pthread_mutex_t * aberth_mutexes)
 {
   int k;
@@ -233,7 +227,7 @@ mps_maberth_s_wl (mps_status * s, int j, mps_cluster * cluster, mpc_t abcorr,
   mpc_init2 (diff, s->mpwp);
 
   pthread_mutex_lock (&aberth_mutexes[j]);
-  mpc_set (mroot, s->mroot[j]);
+  mpc_set (mroot, s->root[j]->mvalue);
   pthread_mutex_unlock (&aberth_mutexes[j]);
 
   cdpe_set (temp, cdpe_zero);
@@ -244,7 +238,7 @@ mps_maberth_s_wl (mps_status * s, int j, mps_cluster * cluster, mpc_t abcorr,
         continue;
 
       pthread_mutex_lock (&aberth_mutexes[k]);
-      mpc_sub (diff, mroot, s->mroot[k]);
+      mpc_sub (diff, mroot, s->root[k]->mvalue);
       pthread_mutex_unlock (&aberth_mutexes[k]);
       mpc_get_cdpe (z, diff);
 

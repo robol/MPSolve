@@ -1,13 +1,15 @@
-/***********************************************************
-**       Multiprecision Polynomial Solver (MPSolve)       **
-**                 Version 2.2, May 2001                  **
-**                                                        **
-**                      Written by                        **
-**       Dario Andrea Bini and Giuseppe Fiorentino        **
-**       (bini@dm.unipi.it)  (fiorent@dm.unipi.it)        **
-**                                                        **
-** (C) 2001, Dipartimento di Matematica, FRISCO LTR 21024 **
-***********************************************************/
+/*
+ * This file is part of MPSolve 3.0
+ *
+ * Copyright (C) 2001-2012, Dipartimento di Matematica "L. Tonelli", Pisa.
+ * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
+ *
+ * Authors: 
+ *   Dario Andrea Bini <bini@dm.unipi.it>
+ *   Giuseppe Fiorentino <fiorent@dm.unipi.it>
+ *   Leonardo Robol <robol@mail.dm.unipi.it>
+ */
+
 
 /********************************************************
 This file contains a sample of a user-defined polynomial.
@@ -41,12 +43,16 @@ obtained by means of a rounding error analysis of (1).
 * means of the relation: p=1+x*p**2, starting with p=1*
 ******************************************************/
 void
-mps_fnewton_usr (mps_status * s, cplx_t x, double *rad, cplx_t corr,
-                 mps_boolean * again)
+mps_fnewton_usr (mps_context * s, mps_approximation * root, cplx_t corr)
 {
   cplx_t p, pp, pt, tmp;
   double ap, ax, eps;
   int i, m;
+
+  cplx_t x;
+  cplx_set (x, root->fvalue);
+  double * rad = &root->frad;
+  mps_boolean * again = &root->again;
 
   m = (int) (log (s->n + 1.0) / LOG2);
   if ((1 << m) <= s->n)
@@ -83,12 +89,14 @@ mps_fnewton_usr (mps_status * s, cplx_t x, double *rad, cplx_t corr,
  DPE computation
 ******************************************************/
 void
-mps_dnewton_usr (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
-                 mps_boolean * again)
+mps_dnewton_usr (mps_context * s, mps_approximation * root, cdpe_t corr)
 {
   cdpe_t p, pp, pt, tmp;
   rdpe_t ap, ax, eps, temp, apeps, atmp;
   int i, m;
+  cdpe_t x;
+
+  cdpe_set (x, root->dvalue);
 
   m = (int) (log (s->n + 1.0) / LOG2);
   if ((1 << m) <= s->n)
@@ -120,16 +128,14 @@ mps_dnewton_usr (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
   cdpe_mod (temp, p);
   rdpe_mul (apeps, ap, eps);
   rdpe_mul_eq_d (apeps, 3.0);
-  *again = rdpe_gt (temp, apeps);
+  root->again = rdpe_gt (temp, apeps);
 
-  rdpe_add (rad, temp, apeps);
-  rdpe_mul_eq_d (rad, (double) s->n);
+  rdpe_add (root->drad, temp, apeps);
+  rdpe_mul_eq_d (root->drad, (double) s->n);
   cdpe_mod (temp, pp);
-  rdpe_div_eq (rad, temp);
-  if (rdpe_eq (rad, rdpe_zero))
-    rdpe_mul (rad, ax, eps);
-
-  MPS_DEBUG_RDPE (s, rad, "rad");
+  rdpe_div_eq (root->drad, temp);
+  if (rdpe_eq (root->drad, rdpe_zero))
+    rdpe_mul (root->drad, ax, eps);
 }
 
 /******************************************************
@@ -138,8 +144,7 @@ mps_dnewton_usr (mps_status * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
  multiprecision computation
 ******************************************************/
 void
-mps_mnewton_usr (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
-                 mps_boolean * again)
+mps_mnewton_usr (mps_context * s, mps_approximation * root, mpc_t corr)
 {
   int i, m;
   rdpe_t ap, ax, eps, temp, apeps, atmp;
@@ -156,7 +161,7 @@ mps_mnewton_usr (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
     m++;
   rdpe_set (eps, s->mp_epsilon);
   rdpe_mul_eq_d (eps, (double) 4 * s->n);
-  mpc_get_cdpe (ctmp, x);
+  mpc_get_cdpe (ctmp, root->mvalue);
   cdpe_mod (ax, ctmp);
 
   mpc_set_ui (p, 1, 0);
@@ -165,9 +170,9 @@ mps_mnewton_usr (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
   for (i = 1; i <= m; i++)
     {
       mpc_sqr (tmp, p);
-      mpc_mul (pt, x, tmp);
+      mpc_mul (pt, root->mvalue, tmp);
       mpc_add_eq_ui (pt, 1, 0);
-      mpc_mul_eq (pp, x);
+      mpc_mul_eq (pp, root->mvalue);
       mpc_mul_eq (pp, p);
       mpc_mul_eq_ui (pp, 2);
       mpc_add_eq (pp, tmp);
@@ -184,15 +189,15 @@ mps_mnewton_usr (mps_status * s, mpc_t x, rdpe_t rad, mpc_t corr,
   cdpe_mod (temp, ctmp);
   rdpe_mul (apeps, ap, eps);
   rdpe_mul_eq_d (apeps, 3.0);
-  *again = rdpe_gt (temp, apeps);
+  root->again = rdpe_gt (temp, apeps);
 
-  rdpe_add (rad, temp, apeps);
-  rdpe_mul_eq_d (rad, (double) s->n);
+  rdpe_add (root->drad, temp, apeps);
+  rdpe_mul_eq_d (root->drad, (double) s->n);
   mpc_get_cdpe (ctmp, pp);
   cdpe_mod (temp, ctmp);
-  rdpe_div_eq (rad, temp);
-  if (rdpe_eq (rad, rdpe_zero))
-    rdpe_mul (rad, ax, eps);
+  rdpe_div_eq (root->drad, temp);
+  if (rdpe_eq (root->drad, rdpe_zero))
+    rdpe_mul (root->drad, ax, eps);
 
   mpc_clear (tmp);
   mpc_clear (pt);

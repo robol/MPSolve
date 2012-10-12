@@ -25,7 +25,7 @@
 #include <config.h>
 #endif
 
-mps_status * s = NULL;
+mps_context * s = NULL;
 
 #ifndef __WINDOWS
 #include <signal.h>
@@ -53,17 +53,17 @@ status (int signal)
         case no_phase:
         case float_phase:
 	  fprintf (logstr, "  Approximation  %4d = ", i);
-	  cplx_outln_str (logstr, s->froot[i]);
+	  cplx_outln_str (logstr, s->root[i]->fvalue);
           break;
 
         case dpe_phase:
 	  fprintf (logstr, "  Approximation  %4d = ", i);
-	  cdpe_outln_str (logstr, s->droot[i]);
+	  cdpe_outln_str (logstr, s->root[i]->dvalue);
           break;
 
         case mp_phase:
 	  fprintf (logstr, "  Approximation  %4d = ", i);
-	  mpc_outln_str (logstr, 10, s->mpwp, s->mroot[i]);
+	  mpc_outln_str (logstr, 10, s->mpwp, s->root[i]->mvalue);
           break;
         }
     }
@@ -76,13 +76,13 @@ status (int signal)
         {
         case no_phase:
         case float_phase:
-	  fprintf (logstr, "  Radius of root %4d = %e\n", i, s->frad[i]);
+	  fprintf (logstr, "  Radius of root %4d = %e\n", i, s->root[i]->frad);
           break;
 
         case dpe_phase:
         case mp_phase:
 	  fprintf (logstr, "  Radius of root %4d", i);
-	  rdpe_outln_str (logstr, s->drad[i]);
+	  rdpe_outln_str (logstr, s->root[i]->drad);
           break;
         }
     }
@@ -105,7 +105,7 @@ status (int signal)
 #endif
 
 void
-usage (mps_status * s, const char *program)
+usage (mps_context * s, const char *program)
 {
   fprintf (stdout,
            "%s [-l filename] [-dv] [-S set] [-D detection] [-O format] [-G goal] [-t type] [-a alg] [-j threads] [-i digits] [-o digits] [infile]\n"
@@ -171,14 +171,14 @@ int
 main (int argc, char **argv)
 {
   /* Create a new status */
-  s = mps_status_new ();
+  s = mps_context_new ();
 
   /* Associate the SIGUSR1 signal to the mps_dump () function */
 #ifndef __WINDOWS
   signal (SIGUSR1, status);
 #endif
 
-  mps_status_set_input_prec (s, 0);
+  mps_context_set_input_prec (s, 0);
 
   FILE *infile;
 
@@ -196,7 +196,7 @@ main (int argc, char **argv)
 	    FILE* logstr = fopen (opt->optvalue, "w");
 	    if (!logstr)
 	      mps_error (s, 1, "Cannot open selected log file.");
-	    mps_status_set_log_stream (s, logstr);
+	    mps_context_set_log_stream (s, logstr);
 	  }
 	  break;
 
@@ -208,7 +208,7 @@ main (int argc, char **argv)
 	  printf ("MPSolve 3.0\n");
 #endif
 
-	  mps_status_free (s);
+	  mps_context_free (s);
 	  exit (EXIT_SUCCESS);
 
 	case 'O':
@@ -219,29 +219,29 @@ main (int argc, char **argv)
 	  switch (*opt->optvalue)
 	    {
 	    case 'f':
-	      mps_status_set_output_format (s, MPS_OUTPUT_FORMAT_FULL);
+	      mps_context_set_output_format (s, MPS_OUTPUT_FORMAT_FULL);
 	      break;
 	    case 'b':
-	      mps_status_set_output_format (s, MPS_OUTPUT_FORMAT_BARE);
+	      mps_context_set_output_format (s, MPS_OUTPUT_FORMAT_BARE);
 	      break;
 	    case 'g':
-	      mps_status_set_output_format (s, MPS_OUTPUT_FORMAT_GNUPLOT);
+	      mps_context_set_output_format (s, MPS_OUTPUT_FORMAT_GNUPLOT);
 	      if (*(opt->optvalue + 1) == 'f')
 		{
-		  mps_status_set_output_format (s, MPS_OUTPUT_FORMAT_GNUPLOT_FULL);
+		  mps_context_set_output_format (s, MPS_OUTPUT_FORMAT_GNUPLOT_FULL);
 		  s->gnuplot_format = "xyerrorbars";
 		}
 	      else if (*(opt->optvalue + 1) == 'p')
 		{
-		  mps_status_set_output_format (s, MPS_OUTPUT_FORMAT_GNUPLOT_FULL);
+		  mps_context_set_output_format (s, MPS_OUTPUT_FORMAT_GNUPLOT_FULL);
 		  s->gnuplot_format = "points";
 		}
 	      break;
 	    case 'v':
-	      mps_status_set_output_format (s, MPS_OUTPUT_FORMAT_VERBOSE);
+	      mps_context_set_output_format (s, MPS_OUTPUT_FORMAT_VERBOSE);
 	      break;
 	    case 'c':
-	      mps_status_set_output_format (s, MPS_OUTPUT_FORMAT_COMPACT);
+	      mps_context_set_output_format (s, MPS_OUTPUT_FORMAT_COMPACT);
 	      break;
 	    default:
 	      mps_error (s, 1, "The selected output format is not supported");
@@ -366,10 +366,10 @@ main (int argc, char **argv)
 	  switch (*opt->optvalue)
 	    {
 	    case 'u':
-	      mps_status_select_algorithm (s, MPS_ALGORITHM_STANDARD_MPSOLVE);
+	      mps_context_select_algorithm (s, MPS_ALGORITHM_STANDARD_MPSOLVE);
 	      break;
 	    case 's':
-	      mps_status_select_algorithm (s, MPS_ALGORITHM_SECULAR_GA);
+	      mps_context_select_algorithm (s, MPS_ALGORITHM_SECULAR_GA);
 	      break;
 	    default:
 	      mps_error (s, 1, "The selected algorithm is not supported");
@@ -377,22 +377,22 @@ main (int argc, char **argv)
 	    }
           break;
         case 'o':
-          mps_status_set_output_prec (s, (atoi (opt->optvalue)) * LOG2_10 + 1);
+          mps_context_set_output_prec (s, (atoi (opt->optvalue)) * LOG2_10 + 1);
           break;
 	case 'i':
-	  mps_status_set_input_prec (s, (atoi (opt->optvalue)));
+	  mps_context_set_input_prec (s, (atoi (opt->optvalue)));
 	  break;
         case 'G':
 	  switch (*opt->optvalue)
 	    {
 	    case 'a':
-	      mps_status_set_output_goal (s, MPS_OUTPUT_GOAL_APPROXIMATE);
+	      mps_context_set_output_goal (s, MPS_OUTPUT_GOAL_APPROXIMATE);
 	      break;
 	    case 'i':
-	      mps_status_set_output_goal (s, MPS_OUTPUT_GOAL_ISOLATE);
+	      mps_context_set_output_goal (s, MPS_OUTPUT_GOAL_ISOLATE);
 	      break;
 	    case 'c':
-	      mps_status_set_output_goal (s, MPS_OUTPUT_GOAL_COUNT);
+	      mps_context_set_output_goal (s, MPS_OUTPUT_GOAL_COUNT);
 	      break;
 	    default:
 	      mps_error (s, 1, "The selected goal does not exists");
@@ -400,7 +400,7 @@ main (int argc, char **argv)
 	    }
           break;
         case 'd':
-	  mps_status_add_debug_domain (s, MPS_DEBUG_INFO);
+	  mps_context_add_debug_domain (s, MPS_DEBUG_INFO);
 	  
 	  if (!opt->optvalue)
 	    break;
@@ -412,34 +412,34 @@ main (int argc, char **argv)
               switch (*opt->optvalue++)
                 {
                 case 't':
-                  mps_status_add_debug_domain (s, MPS_DEBUG_TRACE);
+                  mps_context_add_debug_domain (s, MPS_DEBUG_TRACE);
                   break;
                 case 'a':
-		  mps_status_add_debug_domain (s, MPS_DEBUG_APPROXIMATIONS);
+		  mps_context_add_debug_domain (s, MPS_DEBUG_APPROXIMATIONS);
                   break;
                 case 'c':
-		  mps_status_add_debug_domain (s, MPS_DEBUG_CLUSTER);
+		  mps_context_add_debug_domain (s, MPS_DEBUG_CLUSTER);
                   break;
                 case 'i':
-		  mps_status_add_debug_domain (s, MPS_DEBUG_IMPROVEMENT);
+		  mps_context_add_debug_domain (s, MPS_DEBUG_IMPROVEMENT);
                   break;
                 case 'w':
-		  mps_status_add_debug_domain (s, MPS_DEBUG_TIMINGS);
+		  mps_context_add_debug_domain (s, MPS_DEBUG_TIMINGS);
                   break;
                 case 'o':
-		  mps_status_add_debug_domain (s, MPS_DEBUG_IO);
+		  mps_context_add_debug_domain (s, MPS_DEBUG_IO);
                   break;
                 case 'm':
-		  mps_status_add_debug_domain (s, MPS_DEBUG_MEMORY);
+		  mps_context_add_debug_domain (s, MPS_DEBUG_MEMORY);
                   break;
                 case 'f':
-		  mps_status_add_debug_domain (s, MPS_DEBUG_FUNCTION_CALLS);
+		  mps_context_add_debug_domain (s, MPS_DEBUG_FUNCTION_CALLS);
                   break;
 		case 'p':
-		  mps_status_add_debug_domain (s, MPS_DEBUG_PACKETS);
+		  mps_context_add_debug_domain (s, MPS_DEBUG_PACKETS);
 		  break;
 		case 'r':
-		  mps_status_add_debug_domain (s, MPS_DEBUG_REGENERATION);
+		  mps_context_add_debug_domain (s, MPS_DEBUG_REGENERATION);
 		  break;
                 default:
 		  sprintf (output, "Unrecognized debug option: %c", *(opt->optvalue - 1));
@@ -472,7 +472,7 @@ main (int argc, char **argv)
         }
     }
 
-  if (mps_status_has_errors (s))
+  if (mps_context_has_errors (s))
     {
       mps_print_errors (s);
       return EXIT_FAILURE;
@@ -503,13 +503,13 @@ main (int argc, char **argv)
     fclose (infile);
 
   /* Select the starting phase according to user input */
-  mps_status_set_starting_phase (s, phase);
+  mps_context_set_starting_phase (s, phase);
 
   /* Solve the polynomial */
   mps_mpsolve (s);
 
   /* Check for errors */
-  if (mps_status_has_errors (s))
+  if (mps_context_has_errors (s))
     {
       mps_print_errors (s);
       return EXIT_FAILURE;
@@ -519,5 +519,5 @@ main (int argc, char **argv)
   mps_output (s);
 
   /* Free used data */
-  mps_status_free (s);
+  mps_context_free (s);
 }

@@ -1,21 +1,15 @@
-/************************************************************
- **                                                        **
- **             __  __ ___  ___      _                     **
- **            |  \/  | _ \/ __| ___| |_ _____             **
- **            | |\/| |  _/\__ \/ _ \ \ V / -_)            **
- **            |_|  |_|_|  |___/\___/_|\_/\___|            **
- **                                                        **
- **       Multiprecision Polynomial Solver (MPSolve)       **
- **                 Version 2.9, April 2011                **
- **                                                        **
- **                      Written by                        **
- **                                                        **
- **     Dario Andrea Bini       <bini@dm.unipi.it>         **
- **     Giuseppe Fiorentino     <fiorent@dm.unipi.it>      **
- **     Leonardo Robol          <robol@mail.dm.unipi.it>   **
- **                                                        **
- **           (C) 2011, Dipartimento di Matematica         **
- ***********************************************************/
+/*
+ * This file is part of MPSolve 3.0
+ *
+ * Copyright (C) 2001-2012, Dipartimento di Matematica "L. Tonelli", Pisa.
+ * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
+ *
+ * Authors: 
+ *   Dario Andrea Bini <bini@dm.unipi.it>
+ *   Giuseppe Fiorentino <fiorent@dm.unipi.it>
+ *   Leonardo Robol <robol@mail.dm.unipi.it>
+ */
+
 
 #include <mps/mps.h>
 
@@ -23,11 +17,11 @@
  * @brief Compute the floating point inclusion radius according to the 
  * polynomial representation.
  *
- * @param s The <code>mps_status</code> of the computation.
+ * @param s The <code>mps_context</code> of the computation.
  * @param fradii The array of double where the radii will be stored.
  */
 void
-mps_fradii (mps_status * s, double * fradii)
+mps_fradii (mps_context * s, double * fradii)
 {
   int i;
 
@@ -38,7 +32,7 @@ mps_fradii (mps_status * s, double * fradii)
     mps_monomial_fradii (s, fradii);
   else {
 	  for (i = 0; i < s->n; i++)
-	    fradii[i] = s->frad[i];
+	    fradii[i] = s->root[i]->frad;
   }
 }
 
@@ -46,11 +40,11 @@ mps_fradii (mps_status * s, double * fradii)
  * @brief Compute the DPE inclusion radius according to the 
  * polynomial representation.
  *
- * @param s The <code>mps_status</code> of the computation.
+ * @param s The <code>mps_context</code> of the computation.
  * @param dradii The array of DPE where the radii will be stored.
  */
 void
-mps_dradii (mps_status * s, rdpe_t * dradii)
+mps_dradii (mps_context * s, rdpe_t * dradii)
 {
   int i;
 
@@ -61,7 +55,7 @@ mps_dradii (mps_status * s, rdpe_t * dradii)
     mps_monomial_dradii (s, dradii);
   else {
     for (i = 0; i < s->n; i++)
-      rdpe_set (dradii[i], s->drad[i]);
+      rdpe_set (dradii[i], s->root[i]->drad);
   }
 }
 
@@ -69,11 +63,11 @@ mps_dradii (mps_status * s, rdpe_t * dradii)
  * @brief Compute the Multiprecision inclusion radius according to the 
  * polynomial representation.
  *
- * @param s The <code>mps_status</code> of the computation.
+ * @param s The <code>mps_context</code> of the computation.
  * @param dradii The array of DPE where the radii will be stored.
  */
 void
-mps_mradii (mps_status * s, rdpe_t * dradii)
+mps_mradii (mps_context * s, rdpe_t * dradii)
 {
   int i;
 
@@ -84,6 +78,6 @@ mps_mradii (mps_status * s, rdpe_t * dradii)
     mps_monomial_mradii (s, dradii);
   else {
     for (i = 0; i < s->n; i++)
-      rdpe_set (dradii[i], s->drad[i]);
+      rdpe_set (dradii[i], s->root[i]->drad);
   }
 }

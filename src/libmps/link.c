@@ -1,10 +1,15 @@
-/***********************************************************
-**            Link library for MT, MPC and GMP            **
-**                      Version 1.1                       **
-**                                                        **
-**             Written by Giuseppe Fiorentino             **
-**                 (fiorent@dm.unipi.it)                  **
-***********************************************************/
+/*
+ * This file is part of MPSolve 3.0
+ *
+ * Copyright (C) 2001-2012, Dipartimento di Matematica "L. Tonelli", Pisa.
+ * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
+ *
+ * Authors: 
+ *   Dario Andrea Bini <bini@dm.unipi.it>
+ *   Giuseppe Fiorentino <fiorent@dm.unipi.it>
+ *   Leonardo Robol <robol@mail.dm.unipi.it>
+ */
+
 
 #include <mps/link.h>
 
@@ -43,8 +48,13 @@ mpc_set_cplx (mpc_t mc, cplx_t c)
 void
 mpc_get_cplx (cplx_t c, mpc_t mc)
 {
+#ifdef MPS_USE_BUILTIN_COMPLEX
   cplx_Re (c) = mpf_get_d (mpc_Re (mc));
   cplx_Im (c) = mpf_get_d (mpc_Im (mc));
+#else
+  cplx_set_d (c, mpf_get_d (mpc_Re (mc)), 
+	      mpf_get_d (mpc_Im (mc)));
+#endif
 }
 
 void

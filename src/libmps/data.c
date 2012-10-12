@@ -1,21 +1,15 @@
-/************************************************************
- **                                                        **
- **             __  __ ___  ___      _                     **
- **            |  \/  | _ \/ __| ___| |_ _____             **
- **            | |\/| |  _/\__ \/ _ \ \ V / -_)            **
- **            |_|  |_|_|  |___/\___/_|\_/\___|            **
- **                                                        **
- **       Multiprecision Polynomial Solver (MPSolve)       **
- **                 Version 2.9, April 2011                **
- **                                                        **
- **                      Written by                        **
- **                                                        **
- **     Dario Andrea Bini       <bini@dm.unipi.it>         **
- **     Giuseppe Fiorentino     <fiorent@dm.unipi.it>      **
- **     Leonardo Robol          <robol@mail.dm.unipi.it>   **
- **                                                        **
- **           (C) 2011, Dipartimento di Matematica         **
- ***********************************************************/
+/*
+ * This file is part of MPSolve 3.0
+ *
+ * Copyright (C) 2001-2012, Dipartimento di Matematica "L. Tonelli", Pisa.
+ * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
+ *
+ * Authors: 
+ *   Dario Andrea Bini <bini@dm.unipi.it>
+ *   Giuseppe Fiorentino <fiorent@dm.unipi.it>
+ *   Leonardo Robol <robol@mail.dm.unipi.it>
+ */
+
 
 #include <mps/mps.h>
 #include <float.h>
@@ -23,11 +17,11 @@
 /**
  * @brief Globally set the current precision of mp variables
  *
- * @param s The <code>mps_status</code> of the computation.
+ * @param s The <code>mps_context</code> of the computation.
  * @param prec The precision that is desired for the next MP computations. 
  */
 void
-mps_mp_set_prec (mps_status * s, long int prec)
+mps_mp_set_prec (mps_context * s, long int prec)
 {
   s->mpwp = (prec / 64 + 1) * 64;
   rdpe_set_2dl (s->mp_epsilon, 1.0, -s->mpwp);
@@ -41,10 +35,10 @@ mps_mp_set_prec (mps_status * s, long int prec)
  * the degree of the polynomial (or, more generally, the number of root of the
  * equation) in <code>s->deg</code>.
  *
- * @param s The <code>mps_status</code> of the computation.
+ * @param s The <code>mps_context</code> of the computation.
  */
 void
-mps_allocate_data (mps_status * s)
+mps_allocate_data (mps_context * s)
 {
   MPS_DEBUG_THIS_CALL;
   int i;
@@ -53,7 +47,9 @@ mps_allocate_data (mps_status * s)
   /* s->punt = int_valloc (s->deg + 1); */
   /* s->clust_detached = int_valloc (s->deg); */
 
-  s->again = mps_boolean_valloc (s->deg);
+  s->root = mps_newv (mps_approximation*, s->n);
+  for (i = 0; i < s->n; i++)
+    s->root[i] = mps_approximation_new (s);
 
   /* s->status = (char (*)[3]) char_valloc (3 * s->deg); */
   
@@ -64,18 +60,6 @@ mps_allocate_data (mps_status * s)
   mps_cluster_reset (s);
 
   s->order = int_valloc (s->deg);
-  s->rootwp = long_valloc (s->deg);
-
-  s->frad = double_valloc (s->deg);
-  s->froot = cplx_valloc (s->deg);
-  s->drad = rdpe_valloc (s->deg);
-  s->droot = cdpe_valloc (s->deg);
-
-  s->mroot = mpc_valloc (s->deg);
-  for (i = 0; i < s->deg; i++)
-    {
-      mpc_init2 (s->mroot[i], 0);
-    }
 
   /* s->fppc = cplx_valloc (s->deg + 1); */
   s->fppc1 = cplx_valloc (s->deg + 1);
@@ -122,7 +106,7 @@ mps_allocate_data (mps_status * s)
   /* Setting some default here, that were not settable because we didn't know
    * the degree of the polynomial */
   for (i = 0; i < s->n; i++) 
-    s->rootwp[i] = DBL_DIG * LOG2_10;
+    s->root[i]->wp = DBL_DIG * LOG2_10;
 
   /* Init the mutex that need it */
   pthread_mutex_init (&s->precision_mutex, NULL);
@@ -136,20 +120,20 @@ mps_allocate_data (mps_status * s)
 /**
  * @brief Raise precision performing a real computation of the data.
  *
- * @param s The <code>mps_status</code> of the computation.
+ * @param s The <code>mps_context</code> of the computation.
  * @param prec The desired precision.
  * @return The precision set (that may be different from the one requested
  * since GMP works only with precision divisible by 64bits.
  */
 long int
-mps_raise_data (mps_status * s, long int prec)
+mps_raise_data (mps_context * s, long int prec)
 {
   int i, k;
   mps_monomial_poly *p = s->monomial_poly;
 
   /* raise the precision of  mroot */
   for (k = 0; k < s->n; k++)
-    mpc_set_prec (s->mroot[k], prec);
+    mpc_set_prec (s->root[k]->mvalue, prec);
 
   if (!MPS_INPUT_CONFIG_IS_USER (s->input_config))
     {
@@ -214,25 +198,25 @@ mps_raise_data (mps_status * s, long int prec)
     for (k = 0; k < (s->n + 1) * s->n_threads; k++)
       mpc_set_prec (s->mfpc2[k], prec);
 
-  return mpc_get_prec (s->mroot[0]);
+  return mpc_get_prec (s->root[0]->mvalue);
 }
 
 /**
  * @brief The same of <code>mps_raise_data()</code> but using
  * raw routines of GMP, that will not change allocations. 
  *
- * @param s The <code>mps_status</code> of the computation.
+ * @param s The <code>mps_context</code> of the computation.
  * @param prec The desired precision.
  */
 void
-mps_raise_data_raw (mps_status * s, long int prec)
+mps_raise_data_raw (mps_context * s, long int prec)
 {
   int k;
   mps_monomial_poly *p = s->monomial_poly;
 
   /* raise the precision of  mroot */
   for (k = 0; k < s->n; k++)
-    mpc_set_prec_raw (s->mroot[k], prec);
+    mpc_set_prec_raw (s->root[k]->mvalue, prec);
 
   /* raise the precision of  mfpc */
   if (!MPS_INPUT_CONFIG_IS_USER (s->input_config))
@@ -262,14 +246,16 @@ mps_raise_data_raw (mps_status * s, long int prec)
  * with the  current precision of mpwds words, given the
  * rational or integer coefficients.
  *
- * @param s The <code>mps_status</code> of the computation.
+ * @param s The <code>mps_context</code> of the computation.
  * @param prec The precision that should be set and to which the data should
  * be adjusted.
  */
 void 
-mps_prepare_data (mps_status * s, long int prec)
+mps_prepare_data (mps_context * s, long int prec)
 {
   MPS_DEBUG_THIS_CALL;
+
+  pthread_mutex_lock (&s->precision_mutex);
 
   if (s->debug_level & MPS_DEBUG_MEMORY)
     MPS_DEBUG (s, "Increasing working precision to %ld bits", prec);
@@ -291,15 +277,17 @@ mps_prepare_data (mps_status * s, long int prec)
     }
 
   MPS_UNLOCK (s->data_prec_max);
+
+  pthread_mutex_unlock (&s->precision_mutex);
 }
 
 /**
  * @brief Resets the data to the highest used precision
  *
- * @param s The <code>mps_status</code> of the computation.
+ * @param s The <code>mps_context</code> of the computation.
  */
 void
-mps_restore_data (mps_status * s)
+mps_restore_data (mps_context * s)
 {
   MPS_LOCK (s->data_prec_max);
   if (s->debug_level & MPS_DEBUG_MEMORY)
@@ -317,10 +305,10 @@ mps_restore_data (mps_status * s)
 /**
  * @brief Free all the data allocated with <code>mps_allocate_data()</code>
  *
- * @param s The <code>mps_status</code> of the computation.
+ * @param s The <code>mps_context</code> of the computation.
  */
 void
-mps_free_data (mps_status * s)
+mps_free_data (mps_context * s)
 {
   int i;
 
@@ -336,24 +324,17 @@ mps_free_data (mps_status * s)
     }
 
   mps_clusterization_free (s, s->clusterization);
-  free (s->again);
   free (s->root_status);
   free (s->root_attrs);
   free (s->root_inclusion);
-  free (s->rootwp);
   free (s->order);
 
   /* free (s->fap); */
   /* rdpe_vfree (s->dap); */
 
-  free (s->frad);
-  rdpe_vfree (s->drad);
-
-  cplx_vfree (s->froot);
-  cdpe_vfree (s->droot);
-  for (i = 0; i < s->deg; i++)
-    mpc_clear (s->mroot[i]);
-  free (s->mroot);
+  for (i = 0; i < s->n; i++)
+    mps_approximation_free (s, s->root[i]);
+  free (s->root);
 
   for (i = 0; i <= s->deg; i++)
     mpc_clear (s->mfpc1[i]);

@@ -1,3 +1,15 @@
+/*
+ * This file is part of MPSolve 3.0
+ *
+ * Copyright (C) 2001-2012, Dipartimento di Matematica "L. Tonelli", Pisa.
+ * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
+ *
+ * Authors: 
+ *   Dario Andrea Bini <bini@dm.unipi.it>
+ *   Giuseppe Fiorentino <fiorent@dm.unipi.it>
+ *   Leonardo Robol <robol@mail.dm.unipi.it>
+ */
+
 #include <mps/mps.h>
 
 /**
@@ -7,7 +19,7 @@ void *
 mps_thread_fpolzer_worker (void *data_ptr)
 {
   mps_thread_worker_data *data = (mps_thread_worker_data *) data_ptr;
-  mps_status *s = data->s;
+  mps_context *s = data->s;
   mps_monomial_poly *p = s->monomial_poly;
   int i, iter;
   cplx_t corr, abcorr, froot;
@@ -30,10 +42,10 @@ mps_thread_fpolzer_worker (void *data_ptr)
       /* Lock this roots to make sure that we are the only one working on it */
       pthread_mutex_lock (&data->roots_mutex[i]);
 
-      if (s->again[i])
+      if (s->root[i]->again)
         {
           /* Check if, while we were waiting, excep condition has been reached */
-          if (*data->excep || !s->again[i] || (*data->nzeros > data->required_zeros))
+          if (*data->excep || !s->root[i]->again || (*data->nzeros > data->required_zeros))
             {
               pthread_mutex_unlock (&data->roots_mutex[i]);
               return 0;
@@ -41,19 +53,19 @@ mps_thread_fpolzer_worker (void *data_ptr)
 
           (*data->it)++;
 
-          rad1 = s->frad[i];
+          rad1 = s->root[i]->frad;
 
           /* Make a local copy of the root */
           pthread_mutex_lock (&data->aberth_mutex[i]);
-          cplx_set (froot, s->froot[i]);
+          cplx_set (froot, s->root[i]->fvalue);
           pthread_mutex_unlock (&data->aberth_mutex[i]);
 
           if (!MPS_INPUT_CONFIG_IS_USER (s->input_config))
             {
-              mps_fnewton (s, s->n, froot, &s->frad[i], corr, p->fpc, p->fap,
-                           &s->again[i], false);
-              if (iter == 0 && !s->again[i] && s->frad[i] > rad1 && rad1 != 0)
-                s->frad[i] = rad1;
+              mps_fnewton (s, s->n, s->root[i], corr, p->fpc, p->fap,
+                           false);
+              if (iter == 0 && !s->root[i]->again && s->root[i]->frad > rad1 && rad1 != 0)
+                s->root[i]->frad = rad1;
               /***************************************
                The above condition is needed to cope with the case
                where at the first iteration the starting point
@@ -66,16 +78,16 @@ mps_thread_fpolzer_worker (void *data_ptr)
             }
           else if (s->fnewton_usr != NULL)
             {
-              (*s->fnewton_usr) (s, froot, &s->frad[i], corr, &s->again[i], NULL, false);
+              (*s->fnewton_usr) (s, s->root[i], corr, NULL, false);
             }
           else
             {
-              mps_fnewton_usr (s, froot, &s->frad[i], corr, &s->again[i]);
+              mps_fnewton_usr (s, s->root[i], corr);
             }
 
-          if (s->again[i] ||
+          if (s->root[i]->again ||
               /* the correction is performed only if iter!=1 or rad(i)!=rad1 */
-              MPS_INPUT_CONFIG_IS_USER (s->input_config) || iter != 0 || s->frad[i] != rad1)
+              MPS_INPUT_CONFIG_IS_USER (s->input_config) || iter != 0 || s->root[i]->frad != rad1)
             {
               mps_faberth (s, i, abcorr);
 
@@ -91,15 +103,15 @@ mps_thread_fpolzer_worker (void *data_ptr)
               cplx_div (abcorr, corr, abcorr);
               cplx_sub_eq (froot, abcorr);
               modcorr = cplx_mod (abcorr);
-              s->frad[i] += modcorr;
+              s->root[i]->frad += modcorr;
 
               pthread_mutex_lock (&data->aberth_mutex[i]);
-              cplx_set (s->froot[i], froot);
+              cplx_set (s->root[i]->fvalue, froot);
               pthread_mutex_unlock (&data->aberth_mutex[i]);
             }
 
           /* check for new approximated roots */
-          if (!s->again[i])
+          if (!s->root[i]->again)
             {
               (*data->nzeros)++;
               if (*data->nzeros >= data->required_zeros)
@@ -122,7 +134,7 @@ mps_thread_fpolzer_worker (void *data_ptr)
  * This version adds multithread support.
  */
 void
-mps_thread_fpolzer (mps_status * s, int *it, mps_boolean * excep, int required_zeros)
+mps_thread_fpolzer (mps_context * s, int *it, mps_boolean * excep, int required_zeros)
 {
   int i, nzeros = 0, n_threads = s->n_threads;
 
@@ -146,7 +158,7 @@ mps_thread_fpolzer (mps_status * s, int *it, mps_boolean * excep, int required_z
 
   /* count the number of approximations in the root neighbourhood */
   for (i = 0; i < s->n; i++)
-    if (!s->again[i])
+    if (!s->root[i]->again)
       nzeros++;
   if (nzeros == s->n)
     {
@@ -192,7 +204,7 @@ mps_thread_dpolzer_worker (void *data_ptr)
 
   /* Parse input data */
   mps_thread_worker_data *data = (mps_thread_worker_data *) data_ptr;
-  mps_status *s = data->s;
+  mps_context *s = data->s;
   mps_monomial_poly *p = s->monomial_poly;
   mps_thread_job job;
 
@@ -212,35 +224,34 @@ mps_thread_dpolzer_worker (void *data_ptr)
       /* Make sure that we are the only one iterating on this root */
       pthread_mutex_lock (&data->roots_mutex[i]);
 
-      if (s->again[i])
+      if (s->root[i]->again)
         {
           /* Check if, while we were waiting, excep condition has been reached */
-          if (*data->excep || !s->again[i] || (*data->nzeros > data->required_zeros))
+          if (*data->excep || !s->root[i]->again || (*data->nzeros > data->required_zeros))
             {
               pthread_mutex_unlock (&data->roots_mutex[i]);
               return 0;
             }
 
           (*data->it)++;
-          rdpe_set (rad1, s->drad[i]);
+          rdpe_set (rad1, s->root[i]->drad);
 
           if (!MPS_INPUT_CONFIG_IS_USER (s->input_config))
             {
-              mps_dnewton (s, s->n, s->droot[i], s->drad[i], corr, p->dpc,
-                           p->dap, &s->again[i], false);
-              if (iter == 0 && !s->again[i] && rdpe_gt (s->drad[i], rad1)
+              mps_dnewton (s, s->n, s->root[i], corr, p->dpc,
+                           p->dap, false);
+              if (iter == 0 && !s->root[i]->again && rdpe_gt (s->root[i]->drad, rad1)
                   && rdpe_ne (rad1, rdpe_zero))
-                rdpe_set (s->drad[i], rad1);
+                rdpe_set (s->root[i]->drad, rad1);
             }
           else if (s->dnewton_usr != NULL)
             {
-              (*s->dnewton_usr) (s, s->droot[i], s->drad[i], corr,
-                                 &s->again[i], NULL, false);
+              (*s->dnewton_usr) (s, s->root[i], corr,
+                                 NULL, false);
             }
           else
             {
-              mps_dnewton_usr (s, s->droot[i], s->drad[i], corr,
-                               &s->again[i]);
+              mps_dnewton_usr (s, s->root[i], corr);
             }
 
           /************************************************
@@ -252,10 +263,10 @@ mps_thread_dpolzer_worker (void *data_ptr)
            Rouche' is more reliable and strict
            **********************************************/
 
-          if (s->again[i] ||
+          if (s->root[i]->again ||
               /* the correction is performed only if iter!=1 or rad(i)!=rad1 */
               MPS_INPUT_CONFIG_IS_USER (s->input_config) || iter != 0
-              || rdpe_ne (s->drad[i], rad1))
+              || rdpe_ne (s->root[i]->drad, rad1))
             {
               mps_daberth (s, i, abcorr);
               cdpe_mul_eq (abcorr, corr);
@@ -268,13 +279,13 @@ mps_thread_dpolzer_worker (void *data_ptr)
                 }
 
               cdpe_div (abcorr, corr, abcorr);
-              cdpe_sub_eq (s->droot[i], abcorr);
+              cdpe_sub_eq (s->root[i]->dvalue, abcorr);
               cdpe_mod (rtmp, abcorr);
-              rdpe_add_eq (s->drad[i], rtmp);
+              rdpe_add_eq (s->root[i]->drad, rtmp);
             }
 
           /* check for new approximated roots */
-          if (!s->again[i])
+          if (!s->root[i]->again)
             {
               (*data->nzeros)++;
               if ((*data->nzeros) >= data->required_zeros)
@@ -294,7 +305,7 @@ mps_thread_dpolzer_worker (void *data_ptr)
  * @brief Multithread version of mps_dpolzer ().
  */
 void
-mps_thread_dpolzer (mps_status * s, int *it, mps_boolean * excep, int required_zeros)
+mps_thread_dpolzer (mps_context * s, int *it, mps_boolean * excep, int required_zeros)
 {
   mps_thread_worker_data *data;
   pthread_mutex_t *aberth_mutex, *roots_mutex;
@@ -306,7 +317,7 @@ mps_thread_dpolzer (mps_status * s, int *it, mps_boolean * excep, int required_z
 
   /* count the number of approximations in the root neighbourhood */
   for (i = 0; i < s->n; i++)
-    if (!s->again[i])
+    if (!s->root[i]->again)
       nzeros++;
   if (nzeros == s->n)
     return;
@@ -359,7 +370,7 @@ void *
 mps_thread_mpolzer_worker (void *data_ptr)
 {
   mps_thread_worker_data *data = (mps_thread_worker_data *) data_ptr;
-  mps_status *s = data->s;
+  mps_context *s = data->s;
   mps_monomial_poly *p = s->monomial_poly;
   mps_thread_job job;
   int iter, l;
@@ -419,7 +430,7 @@ mps_thread_mpolzer_worker (void *data_ptr)
 
       /* MPS_DEBUG (s, "Iterating on root %d, iter %d", l, job.iter); */
 
-      if (s->again[l])
+      if (s->root[l]->again)
         {
           /* Check if, while we were waiting, excep condition has been reached,
            * or all the zeros has been approximated.                         */
@@ -434,21 +445,21 @@ mps_thread_mpolzer_worker (void *data_ptr)
 
           /* Copy locally the root to work on */
           pthread_mutex_lock (&data->aberth_mutex[l]);
-          mpc_set (mroot, s->mroot[l]);
+          mpc_set (mroot, s->root[l]->mvalue);
           pthread_mutex_unlock (&data->aberth_mutex[l]);
 
           if (!MPS_INPUT_CONFIG_IS_USER (s->input_config))
             {
               /* sparse/dense polynomial */
-              rdpe_set (rad1, s->drad[l]);
+              rdpe_set (rad1, s->root[l]->drad);
 
-	      mps_mnewton (s, s->n, mroot, s->drad[l], corr, p->mfpc,
-			   p->mfppc, p->dap, p->spar, &s->again[l],
+	      mps_mnewton (s, s->n, s->root[l], corr, p->mfpc,
+			   p->mfppc, p->dap, p->spar,
 			   data->thread, false);
 
-              if (iter == 0 && !s->again[l] && rdpe_gt (s->drad[l], rad1)
+              if (iter == 0 && !s->root[l]->again && rdpe_gt (s->root[l]->drad, rad1)
                   && rdpe_ne (rad1, rdpe_zero))
-                rdpe_set (s->drad[l], rad1);
+                rdpe_set (s->root[l]->drad, rad1);
 
               /************************************************
                The above condition is needed to cope with the case
@@ -462,17 +473,17 @@ mps_thread_mpolzer_worker (void *data_ptr)
             }
           else /* user's polynomial */ if (s->mnewton_usr != NULL)
             {
-              (*s->mnewton_usr) (s, mroot, s->drad[l], corr, &s->again[l], &it_data, false);
+              (*s->mnewton_usr) (s, s->root[l], corr, &it_data, false);
             }
           else
             {
-              mps_mnewton_usr (s, mroot, s->drad[l], corr, &s->again[l]);
+              mps_mnewton_usr (s, s->root[l], corr);
             }
 
-          if (s->again[l] ||
+          if (s->root[l]->again ||
               /* the correction is performed only if iter!=1 or rad[l]!=rad1 */
               MPS_INPUT_CONFIG_IS_USER (s->input_config) || iter != 0
-              || rdpe_ne (s->drad[l], rad1))
+              || rdpe_ne (s->root[l]->drad, rad1))
             {
               /* Global lock to aberth step to reach a real Gauss-Seidel iteration */
               pthread_mutex_lock (data->global_aberth_mutex);
@@ -490,12 +501,12 @@ mps_thread_mpolzer_worker (void *data_ptr)
               mpc_sub_eq (mroot, abcorr);
               mpc_get_cdpe (ctmp, abcorr);
               cdpe_mod (rtmp, ctmp);
-              rdpe_add_eq (s->drad[l], rtmp);
+              rdpe_add_eq (s->root[l]->drad, rtmp);
 
               /* Lock aberth_mutex and copy the computed root back
                * to its place                                   */
               pthread_mutex_lock (&data->aberth_mutex[l]);
-              mpc_set (s->mroot[l], mroot);
+              mpc_set (s->root[l]->mvalue, mroot);
               pthread_mutex_unlock (&data->aberth_mutex[l]);
 
               /* Go with others aberth iterations */
@@ -504,7 +515,7 @@ mps_thread_mpolzer_worker (void *data_ptr)
             }
 
           /* check for new approximated roots */
-          if (!s->again[l])
+          if (!s->root[l]->again)
             {
               (*data->nzeros)++;
               if ((*data->nzeros) >= data->required_zeros)
@@ -518,8 +529,8 @@ mps_thread_mpolzer_worker (void *data_ptr)
       
       pthread_mutex_unlock (&data->roots_mutex[l]);
 
-      /* MPS_DEBUG_MPC (s, 15, s->mroot[l], "s->mroot[%d]", l); */
-      /* MPS_DEBUG_RDPE (s, s->drad[l], "s->drad[%d]", l); */
+      /* MPS_DEBUG_MPC (s, 15, s->root[l]->mvalue, "s->mroot[%d]", l); */
+      /* MPS_DEBUG_RDPE (s, s->root[l]->drad, "s->drad[%d]", l); */
 
       if ((*data->nzeros) == s->n)
         {
@@ -548,7 +559,7 @@ endfun:                        /* free local MP variables */
  * @brief Drop-in threaded replacement for the stock mpolzer.
  */
 void
-mps_thread_mpolzer (mps_status * s, int *it, mps_boolean * excep, int required_zeros)
+mps_thread_mpolzer (mps_context * s, int *it, mps_boolean * excep, int required_zeros)
 {
   int i, nzeros = 0, n_threads = s->n_threads;
 
@@ -557,7 +568,7 @@ mps_thread_mpolzer (mps_status * s, int *it, mps_boolean * excep, int required_z
 
   /* Check if we have already approxmiated roots */
   for (i = 0; i < s->n; i++)
-    if (!s->again[i])
+    if (!s->root[i]->again)
       nzeros++;
   if (nzeros == s->n)
     {

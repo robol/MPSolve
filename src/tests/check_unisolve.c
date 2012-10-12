@@ -35,45 +35,48 @@ test_unisolve_on_pol (test_pol * pol)
 
   if (!result_stream) 
     {
-      fprintf (stderr, "Checking \033[1m%-30s\033[0m \033[31;1mno results file found!\033[0m\n", pol->pol_file + 9); 
+      fprintf (stderr, "Checking \033[1m%-30s\033[0m \033[31;1mno results file found!\033[0m\n", 
+	       get_pol_name_from_path (pol->pol_file)); 
       return EXIT_FAILURE;
     }
   if (!input_stream)
     {
-      fprintf (stderr, "Checking \033[1m%-30s\033[0m \033[31;1mno polinomial file found!\033[0m\n", pol->pol_file + 9); 
+      fprintf (stderr, "Checking \033[1m%-30s\033[0m \033[31;1mno polinomial file found!\033[0m\n", 
+	       get_pol_name_from_path (pol->pol_file)); 
       return EXIT_FAILURE;
     }
 
-  /* Create a new empty mps_status */
-  mps_status * s = mps_status_new ();
+  /* Create a new empty mps_context */
+  mps_context * s = mps_context_new ();
 
   if (getenv ("MPS_VERBOSE_TEST") && strstr (pol->pol_file, getenv ("MPS_VERBOSE_TEST")))
-    mps_status_set_debug_level (s, MPS_DEBUG_TRACE);
+    mps_context_set_debug_level (s, MPS_DEBUG_TRACE);
 
   /* Load the polynomial that has been given to us */
   mps_parse_stream (s, input_stream);
   
-  fprintf (stderr, "Checking \033[1m%-30s\033[0m [\033[34;1mchecking\033[0m]", pol->pol_file + 9);
+  fprintf (stderr, "Checking \033[1m%-30s\033[0m [\033[34;1mchecking\033[0m]", 
+	   get_pol_name_from_path (pol->pol_file));
 
-  mps_status_set_output_goal (s, MPS_OUTPUT_GOAL_ISOLATE);
+  mps_context_set_output_goal (s, MPS_OUTPUT_GOAL_ISOLATE);
 
   /* Solve it */
-  mps_status_select_algorithm (s, MPS_ALGORITHM_STANDARD_MPSOLVE);
+  mps_context_select_algorithm (s, MPS_ALGORITHM_STANDARD_MPSOLVE);
   mps_mpsolve (s);
   
-  mpc_init2 (root, mps_status_get_data_prec_max (s));
-  mpc_init2 (ctmp, mps_status_get_data_prec_max (s));
+  mpc_init2 (root, mps_context_get_data_prec_max (s));
+  mpc_init2 (ctmp, mps_context_get_data_prec_max (s));
     
   /* Test if roots are equal to the roots provided in the check */   
   passed = true;
 
-  rdpe_t * drad = rdpe_valloc (mps_status_get_degree (s));
-  mpc_t * mroot = mpc_valloc (mps_status_get_degree (s));
-  mpc_vinit2 (mroot, mps_status_get_degree (s), 53);
+  rdpe_t * drad = rdpe_valloc (mps_context_get_degree (s));
+  mpc_t * mroot = mpc_valloc (mps_context_get_degree (s));
+  mpc_vinit2 (mroot, mps_context_get_degree (s), 53);
 
-  mps_status_get_roots_m (s, mroot, drad);
+  mps_context_get_roots_m (s, mroot, drad);
 
-  for (i = 0; i < mps_status_get_degree (s); i++)   
+  for (i = 0; i < mps_context_get_degree (s); i++)   
     {   
       rdpe_t rtmp;   
       cdpe_t cdtmp;   
@@ -103,12 +106,12 @@ test_unisolve_on_pol (test_pol * pol)
       if (getenv ("MPS_VERBOSE_TEST") && (strstr (pol->pol_file, getenv ("MPS_VERBOSE_TEST"))))
 	{
 	  printf ("Read root_%d = ", i);
-	  mpc_out_str_2 (stdout, 10, mps_status_get_data_prec_max (s), mps_status_get_data_prec_max (s),
+	  mpc_out_str_2 (stdout, 10, mps_context_get_data_prec_max (s), mps_context_get_data_prec_max (s),
 			 root);
 	  printf ("\n");
 	}
       
-      for (j = 1; j < mps_status_get_degree (s); j++)   
+      for (j = 1; j < mps_context_get_degree (s); j++)   
    	{   
    	  mpc_sub (ctmp, root, mroot[j]);
      	  mpc_get_cdpe (cdtmp, ctmp);   
@@ -125,7 +128,7 @@ test_unisolve_on_pol (test_pol * pol)
       cdpe_mod (rtmp, cdtmp);
       rdpe_mul_eq (rtmp, eps);
 
-      if ((!rdpe_le (min_dist, drad[found_root]) && !rdpe_gt (drad[found_root], exp_drad)) && !mps_status_get_over_max (s))
+      if ((!rdpe_le (min_dist, drad[found_root]) && !rdpe_gt (drad[found_root], exp_drad)) && !mps_context_get_over_max (s))
 	{
 	  passed = false;
 	  
@@ -143,24 +146,26 @@ test_unisolve_on_pol (test_pol * pol)
 	}
     }
 
-  if (zero_roots != mps_status_get_zero_roots (s))
+  if (zero_roots != mps_context_get_zero_roots (s))
     passed = false;
   
   fclose (result_stream);    
   
   mpc_clear (ctmp);   
   mpc_clear (root);
-  mpc_vclear (mroot, mps_status_get_degree (s));
+  mpc_vclear (mroot, mps_context_get_degree (s));
   
   free (mroot);
   free (drad);
 
-  mps_status_free (s);
+  mps_context_free (s);
 
   if (passed)
-    fprintf (stderr, "\rChecking \033[1m%-30s\033[0m [\033[32;1m  done  \033[0m]\n", pol->pol_file + 9);
+    fprintf (stderr, "\rChecking \033[1m%-30s\033[0m [\033[32;1m  done  \033[0m]\n", 
+	     get_pol_name_from_path (pol->pol_file));
   else
-    fprintf (stderr, "\rChecking \033[1m%-30s\033[0m [\033[31;1m failed \033[0m]\n", pol->pol_file + 9);
+    fprintf (stderr, "\rChecking \033[1m%-30s\033[0m [\033[31;1m failed \033[0m]\n", 
+	     get_pol_name_from_path (pol->pol_file));
 
   if (getenv ("MPS_VERBOSE_TEST"))
     fail_unless (passed == true,

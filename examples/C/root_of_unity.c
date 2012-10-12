@@ -24,7 +24,7 @@ main (int argc, char **argv)
    * i is used as counter */
   long int n = 0, i;
   mps_monomial_poly *p;
-  mps_status *s;
+  mps_context *s;
 
   mpq_t one, m_one, zero;
 
@@ -48,7 +48,7 @@ main (int argc, char **argv)
       n = 5;
     }
   
-  s = mps_status_new ();
+  s = mps_context_new ();
   p = mps_monomial_poly_new (s, n);
 
   mps_monomial_poly_set_coefficient_q (s, p, 0, m_one, zero); 
@@ -58,7 +58,7 @@ main (int argc, char **argv)
   /* mps_monomial_poly_set_coefficient_d (s, p, n, -1, 0); */
 
   /* Set the input polynomial */
-  mps_status_set_input_poly (s, p);
+  mps_context_set_input_poly (s, p);
 
   /* Allocate space to hold the results. We check only floating point results
    * in here */
@@ -68,7 +68,7 @@ main (int argc, char **argv)
   mps_mpsolve (s);
 
   /* Save roots computed in the vector results */
-  mps_status_get_roots_d (s, results, NULL);
+  mps_context_get_roots_d (s, results, NULL);
 
   /* Print out roots */
   for (i = 0; i < n; i++)

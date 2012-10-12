@@ -1,9 +1,15 @@
 /*
- * mps_secular.c
+ * This file is part of MPSolve 3.0
  *
- *  Created on: 10/apr/2011
- *      Author: leonardo
+ * Copyright (C) 2001-2012, Dipartimento di Matematica "L. Tonelli", Pisa.
+ * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
+ *
+ * Authors: 
+ *   Dario Andrea Bini <bini@dm.unipi.it>
+ *   Giuseppe Fiorentino <fiorent@dm.unipi.it>
+ *   Leonardo Robol <robol@mail.dm.unipi.it>
  */
+
 
 #include <mps/mps.h>
 
@@ -11,11 +17,11 @@
  * @brief Utility routine that dumps the DPE coefficients of the secular equation
  * passed as second argument. It is only used for debugging purpose.
  *
- * @param s The mps_status of the computation
+ * @param s The mps_context of the computation
  * @param sec The secular equation whose DPE coefficients will be dumped
  */
 void
-mps_secular_dump (mps_status * s, mps_secular_equation * sec)
+mps_secular_dump (mps_context * s, mps_secular_equation * sec)
 {
   int i;
   MPS_DEBUG (s, "Dumping secular equation:");
@@ -49,7 +55,7 @@ mps_secular_dump (mps_status * s, mps_secular_equation * sec)
 }
 
 void
-mps_secular_restart (mps_status * s)
+mps_secular_restart (mps_context * s)
 {
   MPS_DEBUG_THIS_CALL;
 
@@ -59,11 +65,11 @@ mps_secular_restart (mps_status * s)
     {
     case float_phase:
       for (i = 0; i < s->n; i++)
-	mpc_set_cplx (s->mroot[i], s->froot[i]);
+	mpc_set_cplx (s->root[i]->mvalue, s->root[i]->fvalue);
       break;
     case dpe_phase:
       for (i = 0; i < s->n; i++)
-	mpc_set_cdpe (s->mroot[i], s->droot[i]);
+	mpc_set_cdpe (s->root[i]->mvalue, s->root[i]->dvalue);
       break;
     default:
       break;
@@ -73,8 +79,8 @@ mps_secular_restart (mps_status * s)
 
   for (i = 0; i < s->n; i++)
     {
-      mpc_get_cplx (s->froot[i], s->mroot[i]);
-      mpc_get_cdpe (s->droot[i], s->mroot[i]);
+      mpc_get_cplx (s->root[i]->fvalue, s->root[i]->mvalue);
+      mpc_get_cdpe (s->root[i]->dvalue, s->root[i]->mvalue);
     }
 }
 
@@ -87,13 +93,13 @@ mps_secular_restart (mps_status * s)
  * that they are set according to <code>sec->n</code> if deflation
  * take place.
  * 
- * @see <code>mps_status_set_degree ()</code>
+ * @see <code>mps_context_set_degree ()</code>
  *
- * @param s The mps_status of the computation
+ * @param s The mps_context of the computation
  * @param sec The secular equation that will be deflated.
  */
 void
-mps_secular_deflate (mps_status * s, mps_secular_equation * sec)
+mps_secular_deflate (mps_context * s, mps_secular_equation * sec)
 {
   int i, j, k;
 
@@ -214,11 +220,11 @@ mps_secular_deflate (mps_status * s, mps_secular_equation * sec)
  * allocate space for the coefficients but relies on the user
  * to fill their values.
  *
- * @param s The mps_status of the computation.
+ * @param s The mps_context of the computation.
  * @param n The degree of the new secular equation to be created.
  */
 mps_secular_equation *
-mps_secular_equation_new_raw (mps_status * s, unsigned long int n)
+mps_secular_equation_new_raw (mps_context * s, unsigned long int n)
 {
   int i;
   mps_secular_equation *sec =
@@ -233,8 +239,18 @@ mps_secular_equation_new_raw (mps_status * s, unsigned long int n)
   sec->bdpc = cdpe_valloc (n);
 
   /* Allocate multiprecision complex coefficients of the secular equation */
-  sec->ampc = mpc_valloc (n);
-  sec->bmpc = mpc_valloc (n);
+  /* Prepare the double buffer */
+  struct mps_secular_equation_double_buffer *db = &sec->db;
+  db->ampc1 = mpc_valloc (n);
+  db->ampc2 = mpc_valloc (n);
+  db->bmpc1 = mpc_valloc (n);
+  db->bmpc2 = mpc_valloc (n);
+
+  sec->ampc = db->ampc1;
+  sec->bmpc = db->bmpc1;
+
+  db->active = 1;
+
   sec->initial_ampc = mpc_valloc (n);
   sec->initial_bmpc = mpc_valloc (n);
   sec->initial_ampqrc = mpq_valloc (n);
@@ -249,8 +265,10 @@ mps_secular_equation_new_raw (mps_status * s, unsigned long int n)
   sec->abfpc = double_valloc (n);
 
   /* Init multiprecision arrays */
-  mpc_vinit2 (sec->ampc, n, s->mpwp);
-  mpc_vinit2 (sec->bmpc, n, s->mpwp);
+  mpc_vinit2 (sec->db.ampc1, n, s->mpwp);
+  mpc_vinit2 (sec->db.bmpc1, n, s->mpwp);
+  mpc_vinit2 (sec->db.ampc2, n, s->mpwp);
+  mpc_vinit2 (sec->db.bmpc2, n, s->mpwp);
   mpc_vinit2 (sec->initial_ampc, n, s->mpwp);
   mpc_vinit2 (sec->initial_bmpc, n, s->mpwp);
   mpq_vinit (sec->initial_ampqrc, n);
@@ -269,6 +287,8 @@ mps_secular_equation_new_raw (mps_status * s, unsigned long int n)
       pthread_mutex_init (&sec->ampc_mutex[i], NULL);
       pthread_mutex_init (&sec->bmpc_mutex[i], NULL);
     }
+
+  pthread_mutex_init (&sec->precision_mutex, NULL);
   
   return sec;
 }
@@ -276,13 +296,13 @@ mps_secular_equation_new_raw (mps_status * s, unsigned long int n)
 /**
  * @brief Create a new secular equation struct
  * 
- * @param s The mps_status of the computation.
+ * @param s The mps_context of the computation.
  * @param afpc The floating point complex numerator coefficients.
  * @param bfpc The floating point complex denominator coefficients.
  * @param n The degree of the secular equation.
  */
 mps_secular_equation *
-mps_secular_equation_new (mps_status * s, cplx_t * afpc, cplx_t * bfpc,
+mps_secular_equation_new (mps_context * s, cplx_t * afpc, cplx_t * bfpc,
                           unsigned long int n)
 {
   int i;
@@ -334,11 +354,15 @@ mps_secular_equation_free (mps_secular_equation * s)
   cdpe_vfree (s->adpc);
   cdpe_vfree (s->bdpc);
 
-  mpc_vclear (s->ampc, s->n);
-  mpc_vclear (s->bmpc, s->n);
+  mpc_vclear (s->db.ampc1, s->n);
+  mpc_vclear (s->db.bmpc1, s->n);
+  mpc_vclear (s->db.ampc2, s->n);
+  mpc_vclear (s->db.bmpc2, s->n);
 
-  mpc_vfree (s->ampc);
-  mpc_vfree (s->bmpc);
+  mpc_vfree (s->db.ampc1);
+  mpc_vfree (s->db.ampc2);
+  mpc_vfree (s->db.bmpc1);
+  mpc_vfree (s->db.bmpc2);
 
   rdpe_vfree (s->aadpc);
   rdpe_vfree (s->abdpc);
@@ -374,12 +398,12 @@ mps_secular_equation_free (mps_secular_equation * s)
  * The evalutation will be done in floating point and this routine
  * is used only for debugging purpose.
  * 
- * @param s The mps_status of the computation.
+ * @param s The mps_context of the computation.
  * @param x The point in which the secular equation will be evaluated.
  * @param sec_ev The result of the evalutation (output variable). 
  */
 void
-mps_secular_evaluate (mps_status * s, cplx_t x, cplx_t sec_ev)
+mps_secular_evaluate (mps_context * s, cplx_t x, cplx_t sec_ev)
 {
   cplx_t ctmp;
   int i;
@@ -408,7 +432,7 @@ mps_secular_evaluate (mps_status * s, cplx_t x, cplx_t sec_ev)
  * <code>sec->starting_case</code>.
  */
 void
-mps_secular_check_data (mps_status * s, char *which_case)
+mps_secular_check_data (mps_context * s, char *which_case)
 {
   /* While we can't found a good criterion to check
    * the possibility to start in pure floating point we
@@ -420,39 +444,68 @@ mps_secular_check_data (mps_status * s, char *which_case)
  * @brief Raise precision of the coefficient of the secular equation
  * (not the roots and neither the precison of the system) to <code>wp</code>.
  *
- * @param s The mps_status of the computation.
+ * @param s The mps_context of the computation.
  * @param wp The bits of precision to which the coefficients will be set.
  *
  * @see <code>mps_secular_raise_root_precision ()</code>
  * @see <code>mps_secular_raise_precision ()</code>
  */
 void
-mps_secular_raise_coefficient_precision (mps_status * s, int wp)
+mps_secular_raise_coefficient_precision (mps_context * s, int wp)
 {
   MPS_DEBUG_THIS_CALL;
 
   int i;
   mps_secular_equation *sec = (mps_secular_equation *) s->secular_equation;
 
-  for (i = 0; i < s->n; i++)
+  mpc_t * raising_ampc;
+  mpc_t * raising_bmpc;
+
+  pthread_mutex_lock (&s->secular_equation->precision_mutex);
+
+  if (wp < mpc_get_prec (sec->ampc[0]))
     {
-      mpc_set_prec (sec->ampc[i], wp);
-      mpc_set_prec (sec->bmpc[i], wp);
+      pthread_mutex_unlock (&sec->precision_mutex);
+      return;
     }
 
   if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
     mps_monomial_poly_raise_precision (s, s->monomial_poly, wp);
 
-  if (MPS_INPUT_CONFIG_IS_SECULAR (s->input_config) && (!MPS_INPUT_CONFIG_IS_FP (s->input_config)))
+  if (sec->db.active == 1)
     {
-      for (i = 0; i < s->n; i++)
+      raising_ampc = sec->db.ampc2;
+      raising_bmpc = sec->db.bmpc2;
+    }
+  else
+    {
+      raising_ampc = sec->db.ampc1;
+      raising_bmpc = sec->db.bmpc1;
+    }
+
+  for (i = 0; i < s->n; i++)
+    {
+      mpc_set_prec (raising_ampc[i], wp);
+      if (MPS_INPUT_CONFIG_IS_SECULAR (s->input_config) && (!MPS_INPUT_CONFIG_IS_FP (s->input_config)))
 	{
-	  mpf_set_q (mpc_Re (sec->ampc[i]), sec->initial_ampqrc[i]);
-	  mpf_set_q (mpc_Im (sec->ampc[i]), sec->initial_ampqic[i]);
-	  mpf_set_q (mpc_Re (sec->bmpc[i]), sec->initial_bmpqrc[i]);
-	  mpf_set_q (mpc_Im (sec->bmpc[i]), sec->initial_bmpqic[i]);
+	  mpf_set_q (mpc_Re (raising_ampc[i]), sec->initial_ampqrc[i]);
+	  mpf_set_q (mpc_Im (raising_ampc[i]), sec->initial_ampqic[i]);
+	}
+
+      mpc_set_prec (raising_bmpc[i], wp);
+      if (MPS_INPUT_CONFIG_IS_SECULAR (s->input_config) && (!MPS_INPUT_CONFIG_IS_FP (s->input_config)))
+	{
+	  mpf_set_q (mpc_Re (raising_bmpc[i]), sec->initial_bmpqrc[i]);
+	  mpf_set_q (mpc_Im (raising_bmpc[i]), sec->initial_bmpqic[i]);
 	}
     }
+
+  sec->ampc = raising_ampc;
+  sec->bmpc = raising_bmpc;
+
+  sec->db.active = (sec->db.active % 2) + 1;
+
+  pthread_mutex_unlock (&s->secular_equation->precision_mutex);
 
   rdpe_set_2dl (s->mp_epsilon, 1.0, -wp);
   MPS_DEBUG_WITH_INFO (s, "Precision of the coefficients is now at %d bits", wp);
@@ -464,21 +517,21 @@ mps_secular_raise_coefficient_precision (mps_status * s, int wp)
  * @brief Raise precision of the roots (not the coefficients nor the
  * system) to <code>wp</code> bits.
  * 
- * @param s The mps_status of the computation.
+ * @param s The mps_context of the computation.
  * @param wp The bits of precision to which the roots will be set.
  *
  * @see <code>mps_secular_raise_coefficient_precision ()</code>
  * @see <code>mps_secular_raise_precision ()</code>
  */
 void
-mps_secular_raise_root_precision (mps_status * s, int wp)
+mps_secular_raise_root_precision (mps_context * s, int wp)
 {
   MPS_DEBUG_THIS_CALL;
   int i;
 
   for (i = 0; i < s->n; i++)
     {
-      mpc_set_prec (s->mroot[i], wp);
+      mpc_set_prec (s->root[i]->mvalue, wp);
     }
 }
 
@@ -489,20 +542,29 @@ mps_secular_raise_root_precision (mps_status * s, int wp)
  * of the roots via <code>mps_secular_raise_root_precision ()</code>
  * and set <code>s->mpwp</code>.
  *
- * @param s The mps_status of the computation.
+ * @param s The mps_context of the computation.
  * @param wp The bits of precision to which all the computation will
  * be brought.
  */
 void
-mps_secular_raise_precision (mps_status * s, int wp)
+mps_secular_raise_precision (mps_context * s, int wp)
 {
   MPS_DEBUG_THIS_CALL;
+
+  int i;
 
   mps_secular_raise_coefficient_precision (s, wp);
   mps_secular_raise_root_precision (s, wp);
   s->mpwp = wp;
 
   s->just_raised_precision = true;
+
+
+  for (i = 0; i < s->n; i++)
+    {
+      s->root[i]->approximated = false;
+      s->root[i]->again = true;
+    }
 }
 
 /**
@@ -513,11 +575,11 @@ mps_secular_raise_precision (mps_status * s, int wp)
  * from floating point phases (i.e. float_phase or dpe_phase) to
  * multiprecision, and not coming back.
  *
- * @param s The mps_status of the computation.
+ * @param s The mps_context of the computation.
  * @param phase The phase to switch the computation to.
  */
 void
-mps_secular_switch_phase (mps_status * s, mps_phase phase)
+mps_secular_switch_phase (mps_context * s, mps_phase phase)
 {
   MPS_DEBUG_THIS_CALL;
 
@@ -525,6 +587,7 @@ mps_secular_switch_phase (mps_status * s, mps_phase phase)
 
   int i = 0;
   mps_secular_equation *sec = (mps_secular_equation *) s->secular_equation;
+
   if (phase == mp_phase)
     {
       /* Debug the approximations that we have now before going
@@ -543,10 +606,10 @@ mps_secular_switch_phase (mps_status * s, mps_phase phase)
            * secular equation coefficients */
           for (i = 0; i < s->n; i++)
             {
-              mpc_set_cplx (s->mroot[i], s->froot[i]);
+              mpc_set_cplx (s->root[i]->mvalue, s->root[i]->fvalue);
               mpc_set_cplx (sec->ampc[i], sec->afpc[i]);
               mpc_set_cplx (sec->bmpc[i], sec->bfpc[i]);
-              rdpe_set_d (s->drad[i], s->frad[i]);
+              rdpe_set_d (s->root[i]->drad, s->root[i]->frad);
             }
           break;
 
@@ -555,7 +618,7 @@ mps_secular_switch_phase (mps_status * s, mps_phase phase)
            * roots into the multiprecision values    */
           for (i = 0; i < s->n; i++)
             {
-              mpc_set_cdpe (s->mroot[i], s->droot[i]);
+              mpc_set_cdpe (s->root[i]->mvalue, s->root[i]->dvalue);
               mpc_set_cdpe (sec->ampc[i], sec->adpc[i]);
               mpc_set_cdpe (sec->bmpc[i], sec->bdpc[i]);
             }
@@ -584,10 +647,10 @@ mps_secular_switch_phase (mps_status * s, mps_phase phase)
  * of the secular equation in this moment, if they are better of
  * the radii present now.
  *
- * @param s The mps_status of the computation.
+ * @param s The mps_context of the computation.
  */
 void
-mps_secular_set_radii (mps_status * s)
+mps_secular_set_radii (mps_context * s)
 {
   MPS_DEBUG_THIS_CALL;
 
@@ -600,7 +663,7 @@ mps_secular_set_radii (mps_status * s)
   rdpe_t * drad = rdpe_valloc (s->n);
 
   mpc_t mtmp;
-  mpc_init2 (mtmp, mps_status_get_data_prec_max (s));
+  mpc_init2 (mtmp, mps_context_get_data_prec_max (s));
 
   if (s->lastphase == mp_phase)
     rdpe_set (rad_eps, s->mp_epsilon);
@@ -622,7 +685,7 @@ mps_secular_set_radii (mps_status * s)
       
       rdpe_set (drad[i], rad);
 
-      mpc_rmod (rtmp, s->mroot[i]);
+      mpc_rmod (rtmp, s->root[i]->mvalue);
       rdpe_mul_eq (rtmp, s->mp_epsilon);
       rdpe_mul_eq_d (rtmp, 4.0);
       rdpe_add_eq (drad[i], rtmp);
@@ -634,16 +697,16 @@ mps_secular_set_radii (mps_status * s)
        { 
 	 for (i = 0; i < s->n; i++) 
 	   { 
-	     rdpe_set_d (s->drad[i], s->frad[i]); 
-	     mpc_set_d  (s->mroot[i], cplx_Re (s->froot[i]),  
-			 cplx_Im (s->froot[i])); 
+	     rdpe_set_d (s->root[i]->drad, s->root[i]->frad); 
+	     mpc_set_d  (s->root[i]->mvalue, cplx_Re (s->root[i]->fvalue),  
+			 cplx_Im (s->root[i]->fvalue)); 
 	   } 
 	 
 	 mps_mcluster (s, drad, 2.0 * s->n);  
 	 mps_fmodify (s, false);  
 
 	 for (i = 0; i < s->n; i++)
-	   s->frad[i] = rdpe_get_d (s->drad[i]); 
+	   s->root[i]->frad = rdpe_get_d (s->root[i]->drad); 
        }
        break;
 

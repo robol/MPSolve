@@ -1,13 +1,15 @@
-/***********************************************************
-**       Multiprecision Polynomial Solver (MPSolve)       **
-**                 Version 2.2, May 2001                  **
-**                                                        **
-**                      Written by                        **
-**       Dario Andrea Bini and Giuseppe Fiorentino        **
-**       (bini@dm.unipi.it)  (fiorent@dm.unipi.it)        **
-**                                                        **
-** (C) 2001, Dipartimento di Matematica, FRISCO LTR 21024 **
-***********************************************************/
+/*
+ * This file is part of MPSolve 3.0
+ *
+ * Copyright (C) 2001-2012, Dipartimento di Matematica "L. Tonelli", Pisa.
+ * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
+ *
+ * Authors: 
+ *   Dario Andrea Bini <bini@dm.unipi.it>
+ *   Giuseppe Fiorentino <fiorent@dm.unipi.it>
+ *   Leonardo Robol <robol@mail.dm.unipi.it>
+ */
+
 
 #define _GNU_SOURCE
 
@@ -36,7 +38,7 @@ mps_skip_comments (FILE * input_stream)
 }
 
 void
-mps_raise_parsing_error (mps_status * s, mps_input_buffer * buffer, 
+mps_raise_parsing_error (mps_context * s, mps_input_buffer * buffer, 
 			 const char * token, 
 			 const char * message)
 {
@@ -58,7 +60,7 @@ mps_raise_parsing_error (mps_status * s, mps_input_buffer * buffer,
  * identified by the given string
  */
 mps_boolean
-mps_is_option (mps_status * s, const char *option_string1,
+mps_is_option (mps_context * s, const char *option_string1,
                const char *option_string2)
 {
   mps_boolean is_option = false;
@@ -105,7 +107,7 @@ mps_is_option (mps_status * s, const char *option_string1,
  * Valid options, recognized at the moment being are:
  */
 mps_input_option
-mps_parse_option_line (mps_status * s, char *line, size_t length)
+mps_parse_option_line (mps_context * s, char *line, size_t length)
 {
   char *first_comment;
   char *option;
@@ -200,7 +202,7 @@ mps_parse_option_line (mps_status * s, char *line, size_t length)
 }
 
 void
-mps_monomial_poly_read_from_stream (mps_status * s,
+mps_monomial_poly_read_from_stream (mps_context * s,
 				    mps_input_buffer * buffer)
 {
   mps_monomial_poly * poly;
@@ -363,12 +365,12 @@ mps_monomial_poly_read_from_stream (mps_status * s,
     }
 
   poly->structure = s->input_config->structure;
-  mps_status_set_input_poly (s, poly);
+  mps_context_set_input_poly (s, poly);
   mpf_clear (ftmp);
 }
 
 void
-mps_secular_equation_read_from_stream (mps_status * s,
+mps_secular_equation_read_from_stream (mps_context * s,
                                        mps_input_buffer * buffer)
 {
   mps_secular_equation *sec;
@@ -566,7 +568,7 @@ mps_secular_equation_read_from_stream (mps_status * s,
     }
 
   s->secular_equation = sec;
-  mps_status_set_degree (s, sec->n);
+  mps_context_set_degree (s, sec->n);
 
   /* Deflate input, if identical b_i coefficients are found */
   mps_secular_deflate (s, sec);
@@ -575,7 +577,7 @@ mps_secular_equation_read_from_stream (mps_status * s,
 }
 
 void
-mps_parse_stream_old (mps_status * s, mps_input_buffer * buffer)
+mps_parse_stream_old (mps_context * s, mps_input_buffer * buffer)
 {
   int i;
   mps_monomial_poly *poly;
@@ -935,7 +937,7 @@ mps_parse_stream_old (mps_status * s, mps_input_buffer * buffer)
     }
 
   poly->structure = s->input_config->structure;
-  mps_status_set_input_poly (s, poly);
+  mps_context_set_input_poly (s, poly);
   mpf_clear (ftmp);
   mpq_clear (qtmp);
 }
@@ -945,7 +947,7 @@ mps_parse_stream_old (mps_status * s, mps_input_buffer * buffer)
  * @brief Parse a stream for input data.
  */
 void
-mps_parse_stream (mps_status * s, FILE * input_stream)
+mps_parse_stream (mps_context * s, FILE * input_stream)
 {
   mps_boolean parsing_options = true;
   mps_input_buffer *buffer;
@@ -1007,7 +1009,7 @@ mps_parse_stream (mps_status * s, FILE * input_stream)
 	  /* Parsing precision of input coefficients */
 	  if (input_option.flag == MPS_KEY_PRECISION)
 	    {
-	      mps_status_set_input_prec (s, atoi (input_option.value) * LOG2_10);
+	      mps_context_set_input_prec (s, atoi (input_option.value) * LOG2_10);
 	      if (s->input_config->prec <= 0)
 		mps_error (s, 1, "Precision must be a positive integer");
 	    }
@@ -1085,7 +1087,7 @@ mps_parse_stream (mps_status * s, FILE * input_stream)
   if (MPS_INPUT_CONFIG_IS_SECULAR (s->input_config))
     {
       if (s->algorithm == MPS_ALGORITHM_STANDARD_MPSOLVE)
-	mps_status_select_algorithm (s, MPS_ALGORITHM_SECULAR_MPSOLVE);
+	mps_context_select_algorithm (s, MPS_ALGORITHM_SECULAR_MPSOLVE);
 
       if (s->debug_level & MPS_DEBUG_IO)
         {
@@ -1110,7 +1112,7 @@ mps_parse_stream (mps_status * s, FILE * input_stream)
 *      SUBROUTINE READROOTS                              *
 *********************************************************/
 void
-mps_readroots (mps_status * s)
+mps_readroots (mps_context * s)
 {
   long digits;
   int i, read_elements;
@@ -1127,14 +1129,14 @@ mps_readroots (mps_status * s)
   /* precision setup code goes here */
 
   for (i = 0; i < s->n; i++)
-    mpc_inp_str_u (s->mroot[i], s->rtstr, 10);
+    mpc_inp_str_u (s->root[i]->mvalue, s->rtstr, 10);
 }
 
 /*********************************************************
 *      SUBROUTINE COUNTROOTS                             *
 *********************************************************/
 void
-mps_countroots (mps_status * s)
+mps_countroots (mps_context * s)
 {
   int k;
 
@@ -1167,7 +1169,7 @@ mps_countroots (mps_status * s)
 *      SUBROUTINE OUTCOUNT                               *
 *********************************************************/
 void
-mps_outcount (mps_status * s)
+mps_outcount (mps_context * s)
 {
   mps_countroots (s);
 
@@ -1186,7 +1188,7 @@ mps_outcount (mps_status * s)
 *      SUBROUTINE OUTFLOAT                               *
 *********************************************************/
 void
-mps_outfloat (mps_status * s, mpf_t f, rdpe_t rad, long out_digit,
+mps_outfloat (mps_context * s, mpf_t f, rdpe_t rad, long out_digit,
               mps_boolean sign)
 {
   mpf_t t;
@@ -1242,7 +1244,7 @@ mps_outfloat (mps_status * s, mpf_t f, rdpe_t rad, long out_digit,
 *      SUBROUTINE OUTROOT                                *
 *********************************************************/
 void
-mps_outroot (mps_status * s, int i, int num)
+mps_outroot (mps_context * s, int i, int num)
 {
   long out_digit;
 
@@ -1266,7 +1268,7 @@ mps_outroot (mps_status * s, int i, int num)
   if (i == ISZERO || s->root_attrs[i] == MPS_ROOT_ATTRS_IMAG)
     fprintf (s->outstr, "0");
   else
-    mps_outfloat (s, mpc_Re (s->mroot[i]), s->drad[i], out_digit, true);
+    mps_outfloat (s, mpc_Re (s->root[i]->mvalue), s->root[i]->drad, out_digit, true);
 
   /* print format middle part */
   switch (s->output_config->format)
@@ -1283,7 +1285,7 @@ mps_outroot (mps_status * s, int i, int num)
       fprintf (s->outstr, ", ");
       break;
     case MPS_OUTPUT_FORMAT_VERBOSE:
-      if (i == ISZERO || mpf_sgn (mpc_Im (s->mroot[i])) >= 0)
+      if (i == ISZERO || mpf_sgn (mpc_Im (s->root[i]->mvalue)) >= 0)
         fprintf (s->outstr, " + I * ");
       else
         fprintf (s->outstr, " - I * ");
@@ -1296,16 +1298,16 @@ mps_outroot (mps_status * s, int i, int num)
   if (i == ISZERO || s->root_attrs[i] == MPS_ROOT_ATTRS_REAL)
     fprintf (s->outstr, "0");
   else
-    mps_outfloat (s, mpc_Im (s->mroot[i]), s->drad[i], out_digit,
+    mps_outfloat (s, mpc_Im (s->root[i]->mvalue), s->root[i]->drad, out_digit,
                   s->output_config->format != MPS_OUTPUT_FORMAT_VERBOSE);
 
   /* If the output format is GNUPLOT_FORMAT_FULL, print out also the radius */
   if (s->output_config->format == MPS_OUTPUT_FORMAT_GNUPLOT_FULL)
     {
       fprintf (s->outstr, "\t");
-      rdpe_out_str_u (s->outstr, s->drad[i]);
+      rdpe_out_str_u (s->outstr, s->root[i]->drad);
       fprintf (s->outstr, "\t");
-      rdpe_out_str_u (s->outstr, s->drad[i]);
+      rdpe_out_str_u (s->outstr, s->root[i]->drad);
     }
 
   /* print format ending */
@@ -1318,7 +1320,7 @@ mps_outroot (mps_status * s, int i, int num)
       fprintf (s->outstr, ")\n");
       if (i != ISZERO)
         {
-          rdpe_outln_str (s->outstr, s->drad[i]);
+          rdpe_outln_str (s->outstr, s->root[i]->drad);
           fprintf (s->outstr, "Status: %s, %s, %s\n", 
 		   MPS_ROOT_STATUS_TO_STRING (s->root_status[i]),
 		   MPS_ROOT_ATTRS_TO_STRING (s->root_attrs[i]),
@@ -1340,12 +1342,12 @@ mps_outroot (mps_status * s, int i, int num)
       else
         {
           fprintf (s->logstr, "Root %-4d = ", i);
-          mpc_out_str_2 (s->logstr, 10, 0, 0, s->mroot[i]);
+          mpc_out_str_2 (s->logstr, 10, 0, 0, s->root[i]->mvalue);
           fprintf (s->logstr, "\n");
           fprintf (s->logstr, "  Radius = ");
-          rdpe_outln_str (s->logstr, s->drad[i]);
+          rdpe_outln_str (s->logstr, s->root[i]->drad);
           fprintf (s->logstr, "  Prec = %ld\n",
-                   (long) (mpc_get_prec (s->mroot[i]) / LOG2_10));
+                   (long) (mpc_get_prec (s->root[i]->mvalue) / LOG2_10));
           fprintf (s->logstr, "  Approximation = %s\n", 
 		   MPS_ROOT_STATUS_TO_STRING (s->root_status[i]));
 	  fprintf (s->logstr, "  Attributes = %s\n",
@@ -1361,7 +1363,7 @@ mps_outroot (mps_status * s, int i, int num)
 *      SUBROUTINE OUTPUT                                 *
 *********************************************************/
 void
-mps_output (mps_status * s)
+mps_output (mps_context * s)
 {
   int i, ind, num = 0;
 
@@ -1419,7 +1421,7 @@ mps_output (mps_status * s)
 *      SUBROUTINE COPY_ROOTS                             *
 *********************************************************/
 void
-mps_copy_roots (mps_status * s)
+mps_copy_roots (mps_context * s)
 {
   int i;
 
@@ -1436,9 +1438,9 @@ mps_copy_roots (mps_status * s)
         mps_fsort (s);
       for (i = 0; i < s->n; i++)
         {
-          mpc_set_prec (s->mroot[i], DBL_MANT_DIG);
-          mpc_set_cplx (s->mroot[i], s->froot[i]);
-          rdpe_set_d (s->drad[i], s->frad[i]);
+          mpc_set_prec (s->root[i]->mvalue, DBL_MANT_DIG);
+          mpc_set_cplx (s->root[i]->mvalue, s->root[i]->fvalue);
+          rdpe_set_d (s->root[i]->drad, s->root[i]->frad);
         }
       break;
 
@@ -1447,8 +1449,8 @@ mps_copy_roots (mps_status * s)
         mps_dsort (s);
       for (i = 0; i < s->n; i++)
         {
-          mpc_set_prec (s->mroot[i], DBL_MANT_DIG);
-          mpc_set_cdpe (s->mroot[i], s->droot[i]);
+          mpc_set_prec (s->root[i]->mvalue, DBL_MANT_DIG);
+          mpc_set_cdpe (s->root[i]->mvalue, s->root[i]->dvalue);
         }
       break;
 
@@ -1464,7 +1466,7 @@ mps_copy_roots (mps_status * s)
  *                     SUBROUTINE DUMP                       *
  *************************************************************/
 void
-mps_dump (mps_status * s)
+mps_dump (mps_context * s)
 {
   int i;
   FILE * dmpstr = s->logstr;
@@ -1490,15 +1492,15 @@ mps_dump (mps_status * s)
         {
         case no_phase:
         case float_phase:
-	  MPS_DEBUG_CPLX (s, s->froot[i], "Approximation  %4d", i);
+	  MPS_DEBUG_CPLX (s, s->root[i]->fvalue, "Approximation  %4d", i);
           break;
 
         case dpe_phase:
-	  MPS_DEBUG_CDPE (s, s->droot[i], "Approximation  %4d", i);
+	  MPS_DEBUG_CDPE (s, s->root[i]->dvalue, "Approximation  %4d", i);
           break;
 
         case mp_phase:
-	  MPS_DEBUG_MPC (s, s->mpwp, s->mroot[i], "Approximation  %4d", i);
+	  MPS_DEBUG_MPC (s, s->mpwp, s->root[i]->mvalue, "Approximation  %4d", i);
           break;
         }
     }
@@ -1511,12 +1513,12 @@ mps_dump (mps_status * s)
         {
         case no_phase:
         case float_phase:
-	  MPS_DEBUG (s, "Radius of root %4d = %e", i, s->frad[i]);
+	  MPS_DEBUG (s, "Radius of root %4d = %e", i, s->root[i]->frad);
           break;
 
         case dpe_phase:
         case mp_phase:
-	  MPS_DEBUG_RDPE (s, s->drad[i], "Radius of root %4d", i);
+	  MPS_DEBUG_RDPE (s, s->root[i]->drad, "Radius of root %4d", i);
           break;
         }
     }
@@ -1528,12 +1530,12 @@ mps_dump (mps_status * s)
 /**
  * @brief Dump cluster structure to <code>outstr</code>.
  *
- * @param s the mps_status struct pointer.
+ * @param s the mps_context struct pointer.
  * @param outstr The output stream where the cluster structure
  *  will be dumped.
  */
 void
-mps_dump_cluster_structure (mps_status * s, FILE * outstr)
+mps_dump_cluster_structure (mps_context * s, FILE * outstr)
 {
   fprintf (outstr,
            "    MPS_DUMP_CLUSTER_STRUCTURE: Dumping cluster structure\n");
@@ -1572,7 +1574,7 @@ mps_dump_cluster_structure (mps_status * s, FILE * outstr)
  * @brief Dump status of all the root approximations
  */
 void
-mps_dump_status (mps_status * s, FILE * outstr)
+mps_dump_status (mps_context * s, FILE * outstr)
 {
   int i;
   MPS_DEBUG (s, "              Approximation              Attributes       Inclusion");
@@ -1589,7 +1591,7 @@ mps_dump_status (mps_status * s, FILE * outstr)
  *                     SUBROUTINE WARN                       *
  *************************************************************/
 void
-mps_warn (mps_status * st, char *s)
+mps_warn (mps_context * st, char *s)
 {
   if (st->DOWARN)
     {
@@ -1624,7 +1626,7 @@ mps_is_a_tty (FILE * stream)
  *                     SUBROUTINE VAERROR                    *
  *************************************************************/
 void
-mps_error (mps_status * s, int args, ...)
+mps_error (mps_context * s, int args, ...)
 {
   va_list ap;
   char *token;
@@ -1650,13 +1652,13 @@ mps_error (mps_status * s, int args, ...)
   s->error_state = true;
 
   /* Dump approximations, but only if they are present */
-  if (s->froot && s->lastphase)
+  if (s->root && s->lastphase)
     mps_dump (s);  /* dump status          */
   /* exit (EXIT_FAILURE);          /\* exit program         *\/ */
 }
 
 void
-mps_print_errors (mps_status * s)
+mps_print_errors (mps_context * s)
 {
   if (mps_is_a_tty (s->logstr))
     mps_warn (s, "\033[31;1m!\033[0m MPSolve encountered an error:");  /* output error message */

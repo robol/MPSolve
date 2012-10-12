@@ -138,9 +138,9 @@ extern "C"
     volatile int *it;
 
     /**
-     * @brief  The pointer to the <code>mps_status</code> struct.
+     * @brief  The pointer to the <code>mps_context</code> struct.
      */
-    mps_status *s;
+    mps_context *s;
 
     /**
      * @brief The index of this thread.
@@ -313,40 +313,40 @@ extern "C"
 
   void * mps_thread_mainloop (void * thread_ptr);
 
-  void mps_thread_start_mainloop (mps_status * s, mps_thread * thread);
+  void mps_thread_start_mainloop (mps_context * s, mps_thread * thread);
 
-  mps_thread * mps_thread_new (mps_status * s, mps_thread_pool * pool);
+  mps_thread * mps_thread_new (mps_context * s, mps_thread_pool * pool);
 
-  void mps_thread_free (mps_status * s, mps_thread * thread);
+  void mps_thread_free (mps_context * s, mps_thread * thread);
 
-  void mps_thread_pool_set_concurrency_limit (mps_status * s, mps_thread_pool * pool, 
+  void mps_thread_pool_set_concurrency_limit (mps_context * s, mps_thread_pool * pool, 
 					      unsigned int concurrency_limit);
 
-  void mps_thread_pool_assign (mps_status * s, mps_thread_pool * pool, mps_thread_work work, void * args);
+  void mps_thread_pool_assign (mps_context * s, mps_thread_pool * pool, mps_thread_work work, void * args);
 
-  void mps_thread_pool_insert_new_thread (mps_status * s, mps_thread_pool * pool);
+  void mps_thread_pool_insert_new_thread (mps_context * s, mps_thread_pool * pool);
 
-  void mps_thread_pool_wait (mps_status * s, mps_thread_pool * pool);
+  void mps_thread_pool_wait (mps_context * s, mps_thread_pool * pool);
 
-  mps_thread_pool * mps_thread_pool_new (mps_status * s, int n_threads);
+  mps_thread_pool * mps_thread_pool_new (mps_context * s, int n_threads);
 
-  void mps_thread_pool_free (mps_status * s, mps_thread_pool * pool);
+  void mps_thread_pool_free (mps_context * s, mps_thread_pool * pool);
 
-  mps_thread_job_queue * mps_thread_job_queue_new (mps_status * s);
+  mps_thread_job_queue * mps_thread_job_queue_new (mps_context * s);
 
   void mps_thread_job_queue_free (mps_thread_job_queue * q);
 
-  mps_thread_job mps_thread_job_queue_next (mps_status * s, mps_thread_job_queue * q);
+  mps_thread_job mps_thread_job_queue_next (mps_context * s, mps_thread_job_queue * q);
 
-  void mps_thread_fpolzer (mps_status * s, int *nit, mps_boolean * excep, int required_zeros);
+  void mps_thread_fpolzer (mps_context * s, int *nit, mps_boolean * excep, int required_zeros);
 
-  void mps_thread_mpolzer (mps_status * s, int *nit, mps_boolean * excep, int required_zeros);
+  void mps_thread_mpolzer (mps_context * s, int *nit, mps_boolean * excep, int required_zeros);
 
-  void mps_thread_dpolzer (mps_status * s, int *nit, mps_boolean * excep, int required_zeros);
+  void mps_thread_dpolzer (mps_context * s, int *nit, mps_boolean * excep, int required_zeros);
 
-  int mps_thread_get_core_number (mps_status * s);
+  int mps_thread_get_core_number (mps_context * s);
 
-  int mps_thread_get_id (mps_status * s, mps_thread_pool * pool);
+  int mps_thread_get_id (mps_context * s, mps_thread_pool * pool);
 
   /* MACROS */
 

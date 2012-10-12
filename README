@@ -10,30 +10,38 @@
 
  == 1. How to install MPSolve ==
 
- You can install MPSolve simply by typing 
+ If you have downloaded an official MPSolve tarball you can 
+ install MPSolve simply by typing 
 
   ./configure 
   make 
   [sudo] make install
 
- The last command is optional and install mpsolve system-wide. You can simply
- use the mpsolve executable built in its directory by launching ./src/mpsolve/mpsolve
- from the source directory.
+  whilst, if you have checked out the git repository directly
+  you have to use the script autogen.sh first, and then the
+  usual configure.sh, make, make install sequece. 
 
- Full install is needed to use MPSolve as a library in other C, fortran, Matlab, ... software
- without further tweaking. 
+ The last command is optional and install mpsolve system-wide. You can simply
+ use the mpsolve executable built in its directory by launching 
+ ./src/mpsolve/mpsolve from the source directory.
+
+ Full install is needed to use MPSolve as a library in other C, 
+ fortran, Matlab, ... software without further tweaking. 
 
  == 2. Using the mpsolve binary ==
 
- The mpsolve binary is thought as a simple way to solve polynomials and/or secular equation
- using a text file as input. A generic input file for mpsolve is composed by a preamble and 
+ The mpsolve binary is thought as a simple way to solve polynomials 
+ and/or secular equation using a text file as input. A generic 
+ input file for mpsolve is composed by a preamble and 
  a body. The comments are identified by lines starting with '!'.
 
- In the preamble will be specified all the options for solving and some general information
- about the polynomial. The body will contain the coefficients.
+ In the preamble will be specified all the options for solving 
+ and some general information about the polynomial. 
+ The body will contain the coefficients.
 
  Every option in the preamble has to be specified as Key; or Key=value;
- This is an example of a valid input for mpsolve that specifies the polynomial x^5 - 1
+ This is an example of a valid input for mpsolve that specifies 
+ the polynomial x^5 - 1
 
  ! File: nroots5.pol 
  Degree=5;

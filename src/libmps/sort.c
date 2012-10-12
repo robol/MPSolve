@@ -1,21 +1,15 @@
-/************************************************************
- **                                                        **
- **             __  __ ___  ___      _                     **
- **            |  \/  | _ \/ __| ___| |_ _____             **
- **            | |\/| |  _/\__ \/ _ \ \ V / -_)            **
- **            |_|  |_|_|  |___/\___/_|\_/\___|            **
- **                                                        **
- **       Multiprecision Polynomial Solver (MPSolve)       **
- **                 Version 2.9, April 2011                **
- **                                                        **
- **                      Written by                        **
- **                                                        **
- **     Dario Andrea Bini       <bini@dm.unipi.it>         **
- **     Giuseppe Fiorentino     <fiorent@dm.unipi.it>      **
- **     Leonardo Robol          <robol@mail.dm.unipi.it>   **
- **                                                        **
- **           (C) 2011, Dipartimento di Matematica         **
- ***********************************************************/
+/*
+ * This file is part of MPSolve 3.0
+ *
+ * Copyright (C) 2001-2012, Dipartimento di Matematica "L. Tonelli", Pisa.
+ * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
+ *
+ * Authors: 
+ *   Dario Andrea Bini <bini@dm.unipi.it>
+ *   Giuseppe Fiorentino <fiorent@dm.unipi.it>
+ *   Leonardo Robol <robol@mail.dm.unipi.it>
+ */
+
 
 #include <mps/mps.h>
 
@@ -39,15 +33,16 @@ mps_fcmp (const void *a, const void *b)
 *      SUBROUTINE FSORT                                  *
 *********************************************************/
 void
-mps_fsort (mps_status * s)
+mps_fsort (mps_context * s)
 {
   int i;
   cplx_t *real_parts = cplx_valloc (s->n);
 
   for (i = 0; i < s->n; i++)
     {
-      cplx_Re (real_parts[i]) = cplx_Re (s->froot[i]);
-      cplx_Im (real_parts[i]) = i;
+      cplx_set_d (real_parts[i],
+		  cplx_Re (s->root[i]->fvalue),
+		  i);
     }
 
   qsort (real_parts, s->n, sizeof (cplx_t), mps_fcmp);
@@ -71,14 +66,14 @@ mps_dcmp (const void *a, const void *b)
 *      SUBROUTINE DSORT                                  *
 *********************************************************/
 void
-mps_dsort (mps_status * s)
+mps_dsort (mps_context * s)
 {
   cdpe_t * real_parts = cdpe_valloc (s->n);
   int i;
 
   for (i = 0; i < s->n; i++)
     {
-      rdpe_set (cdpe_Re (real_parts[i]), cdpe_Re (s->droot[i]));
+      rdpe_set (cdpe_Re (real_parts[i]), cdpe_Re (s->root[i]->dvalue));
       rdpe_set_d (cdpe_Im (real_parts[i]), i);
     }
 
@@ -103,7 +98,7 @@ mps_mcmp (const void *a, const void *b)
 *      SUBROUTINE MSORT                                  *
 *********************************************************/
 void
-mps_msort (mps_status * s)
+mps_msort (mps_context * s)
 {
   int i;
   mpc_t * real_parts = mpc_valloc (s->n);
@@ -111,7 +106,7 @@ mps_msort (mps_status * s)
 
   for (i = 0; i < s->n; i++)
     {
-      mpf_set (mpc_Re (real_parts[i]), mpc_Re (s->mroot[i]));
+      mpf_set (mpc_Re (real_parts[i]), mpc_Re (s->root[i]->mvalue));
       mpf_set_ui (mpc_Im (real_parts[i]), i);
     }
 

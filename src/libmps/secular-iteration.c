@@ -1,21 +1,15 @@
-/************************************************************
- **                                                        **
- **             __  __ ___  ___      _                     **
- **            |  \/  | _ \/ __| ___| |_ _____             **
- **            | |\/| |  _/\__ \/ _ \ \ V / -_)            **
- **            |_|  |_|_|  |___/\___/_|\_/\___|            **
- **                                                        **
- **       Multiprecision Polynomial Solver (MPSolve)       **
- **                 Version 2.9, April 2011                **
- **                                                        **
- **                      Written by                        **
- **                                                        **
- **     Dario Andrea Bini       <bini@dm.unipi.it>         **
- **     Giuseppe Fiorentino     <fiorent@dm.unipi.it>      **
- **     Leonardo Robol          <robol@mail.dm.unipi.it>   **
- **                                                        **
- **           (C) 2011, Dipartimento di Matematica         **
- ***********************************************************/
+/*
+ * This file is part of MPSolve 3.0
+ *
+ * Copyright (C) 2001-2012, Dipartimento di Matematica "L. Tonelli", Pisa.
+ * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
+ *
+ * Authors: 
+ *   Dario Andrea Bini <bini@dm.unipi.it>
+ *   Giuseppe Fiorentino <fiorent@dm.unipi.it>
+ *   Leonardo Robol <robol@mail.dm.unipi.it>
+ */
+
 
 #include <mps/mps.h>
 #include <math.h>
@@ -26,7 +20,7 @@ void *
 __mps_secular_ga_fiterate_worker (void* data_ptr)
 {
   mps_thread_worker_data *data = (mps_thread_worker_data *) data_ptr;
-  mps_status *s = data->s;
+  mps_context *s = data->s;
   mps_secular_equation *sec = s->secular_equation;
   int i;
   cplx_t corr, abcorr;
@@ -48,6 +42,8 @@ __mps_secular_ga_fiterate_worker (void* data_ptr)
       job = mps_thread_job_queue_next (s, data->queue);
       i = job.i;
 
+      it_data.k = i;
+
       if (job.iter == MPS_THREAD_JOB_EXCEP || *data->nzeros >= s->n)
 	goto cleanup;
 
@@ -59,7 +55,7 @@ __mps_secular_ga_fiterate_worker (void* data_ptr)
 	  goto cleanup;
 	}
 
-      if (s->again[i])
+      if (s->root[i]->again && !s->root[i]->approximated)
 	{
 	  /* Increment the number of performed iterations */
 #if defined(__GCC__)
@@ -69,13 +65,9 @@ __mps_secular_ga_fiterate_worker (void* data_ptr)
 	  (*data->it)++;
 	  pthread_mutex_unlock (data->gs_mutex);
 #endif
-
-	  it_data.k = i;
-	  it_data.gs_mutex = data->gs_mutex;
-	  // MPS_DEBUG_CPLX (s, s->froot[i], "s->froot[%d]", i);
-	  cdpe_set_x (s->droot[i], s->froot[i]);
-	  mps_secular_fnewton (s, s->froot[i], &s->frad[i], corr,
-			       &s->again[i], &it_data, false);
+	  cdpe_set_x (s->root[i]->dvalue, s->root[i]->fvalue);
+	  mps_secular_fnewton (s, s->root[i], corr,
+			       &it_data, false);
 
 	  if (s->root_status[i] == MPS_ROOT_STATUS_NOT_FLOAT)
 	    {
@@ -88,7 +80,7 @@ __mps_secular_ga_fiterate_worker (void* data_ptr)
 
 	  if (isnan (cplx_Re (abcorr)) || isnan (cplx_Im (abcorr))) 
 	    {
-	      s->again[i] = false;
+	      s->root[i]->again = false;
 	      pthread_mutex_unlock (&data->roots_mutex[i]);
 	      continue;
 	    }
@@ -97,22 +89,15 @@ __mps_secular_ga_fiterate_worker (void* data_ptr)
 	  cplx_sub (abcorr, cplx_one, abcorr);
 	  cplx_div (abcorr, corr, abcorr);
 
-	  if (isnan (cplx_Re (s->froot[i])) || isnan (cplx_Im (s->froot[i])))
+	  if (isnan (cplx_Re (s->root[i]->fvalue)) || isnan (cplx_Im (s->root[i]->fvalue)))
 	    {
 	      *data->excep = true;
-	      cdpe_get_x (s->froot[i], s->droot[i]);
+	      cdpe_get_x (s->root[i]->fvalue, s->root[i]->dvalue);
 	      break;
 	    }
 
-	  pthread_mutex_lock (&data->aberth_mutex[i]);
-	  cplx_sub_eq (s->froot[i], abcorr);
-	  pthread_mutex_unlock (&data->aberth_mutex[i]);
 
-	  /* Correct the radius */
-	  modcorr = cplx_mod (abcorr);
-	  s->frad[i] += modcorr;
-
-	  if (!s->again[i])
+	  if (!s->root[i]->again || s->root[i]->approximated)
 	    {
 	      if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
 		MPS_DEBUG (s, "Root %d again was set to false on iteration %d by thread %d", i, *data->it, data->thread);
@@ -125,6 +110,17 @@ __mps_secular_ga_fiterate_worker (void* data_ptr)
 	      pthread_mutex_unlock (data->gs_mutex);
 #endif
 	    }
+	  else 
+	    {
+	      pthread_mutex_lock (&data->aberth_mutex[i]);
+	      cplx_sub_eq (s->root[i]->fvalue, abcorr);
+	      pthread_mutex_unlock (&data->aberth_mutex[i]);
+
+	      /* Correct the radius */
+	      modcorr = cplx_mod (abcorr);
+	      s->root[i]->frad += modcorr;
+	    }
+
 	}
 
       pthread_mutex_unlock (&data->roots_mutex[i]);
@@ -142,7 +138,7 @@ __mps_secular_ga_fiterate_worker (void* data_ptr)
  * @brief Routine that performs a block of iteration
  * in floating point on the secular equation.
  *
- * @param s the pointer to the mps_status struct.
+ * @param s the pointer to the mps_context struct.
  * @param maxit Maximum number of iteration to perform.
  * @param just_regenerated true if this is the first iteration after a coefficient
  * regeneration. If just_regenerated is true and the iteration packet is completed
@@ -151,20 +147,20 @@ __mps_secular_ga_fiterate_worker (void* data_ptr)
  * @return The number of approximated roots after the iteration.
  */
 int
-mps_secular_ga_fiterate (mps_status * s, int maxit, mps_boolean just_regenerated)
+mps_secular_ga_fiterate (mps_context * s, int maxit, mps_boolean just_regenerated)
 {
   int computed_roots = 0;
+  int approximated_roots = 0;
+  int root_neighborhood_roots = 0;
   int i;
   int nit = 0;
-  int it_threshold;
+  int it_threshold = 0;
 
   mps_boolean excep = false;
 
 #ifndef DISABLE_DEBUG
   clock_t *my_clock = mps_start_timer ();
 #endif
-
-  mps_secular_equation *sec = s->secular_equation;
 
   s->operation = MPS_OPERATION_ABERTH_FP_ITERATIONS;
 
@@ -186,34 +182,29 @@ mps_secular_ga_fiterate (mps_status * s, int maxit, mps_boolean just_regenerated
 
   MPS_DEBUG_THIS_CALL;
 
-  sec->best_approx = false;
-
   /* Mark the approximated roots as ready for output */
   for (i = 0; i < s->n; i++)
     {
-      /* Set again to false if the root is already approximated */
-      if (MPS_ROOT_STATUS_IS_COMPUTED (s, i))
+      /* Set again to false if the root is already approximated. If a root is approximated but
+       * it has less digits than the current precision don't stop the iterations on that component. */
+      if (s->root_status[i] == MPS_ROOT_STATUS_ISOLATED ||
+	  (s->root_status[i] == MPS_ROOT_STATUS_APPROXIMATED && (s->mpwp < s->output_config->prec)))
 	{
 	  if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
 	    {
 	      MPS_DEBUG_WITH_INFO (s, "Setting again[%d] to false since the root is ready for output (or isolated)", i);
 	    }
-	  s->again[i] = false;
+	  s->root[i]->again = false;
+	  s->root[i]->approximated = true;
 	}
 
-      if (!s->again[i])
+      if (!s->root[i]->again || s->root[i]->approximated)
         computed_roots++;
     }
 
-  /* Set the iterations threshold to 2 iterations
-   * for every non approximated root. */
-  it_threshold = 2 * (s->n - computed_roots);
+  MPS_DEBUG_WITH_INFO (s, "%d roots are already approximated at the start of the packet", computed_roots);
 
-  if (s->debug_level & MPS_DEBUG_PACKETS)
-    {
-      MPS_DEBUG (s, "There are %d roots with again set to false", computed_roots);
-      MPS_DEBUG (s, "Iteration theshold set to %d iterations", it_threshold);
-    }
+  it_threshold = s->n - computed_roots;
 
   mps_thread_job_queue *queue = mps_thread_job_queue_new (s);
 
@@ -243,23 +234,42 @@ mps_secular_ga_fiterate (mps_status * s, int maxit, mps_boolean just_regenerated
   if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
       mps_dump (s);
 
-  if (nit <= it_threshold && just_regenerated)
-    {
-      MPS_DEBUG_WITH_INFO (s, "Asking for regeneration since we stopped after a few iterations");
-      s->secular_equation->best_approx = true;
-    }
+  /* Check if we need to get higher precision for the roots */
+   s->secular_equation->best_approx = true; 
+   for (i = 0; i < s->n; i++) 
+     { 
+       if (!s->root[i]->approximated) 
+   	s->secular_equation->best_approx = false; 
+       if (s->root[i]->approximated) 
+   	approximated_roots++; 
+       if (!s->root[i]->again) 
+   	root_neighborhood_roots++; 
+     } 
+
+  if (just_regenerated && (nit <= it_threshold))
+    s->secular_equation->best_approx = true;
+
+  MPS_DEBUG_WITH_INFO(s, "%d roots are approximated with the current precision", approximated_roots);
+  MPS_DEBUG_WITH_INFO (s,"%d roots are in the root neighborhood", root_neighborhood_roots);
+  MPS_DEBUG_WITH_INFO (s, "%d roots have reached a stop condition", computed_roots);
 
   if (excep)
     {
       MPS_DEBUG_WITH_INFO (s, "Switching to DPE arithmetic since there are roots not representable in standard floating point");
       for (i = 0; i < s->n; i++)
 	{
-	  cdpe_set_x (s->droot[i], s->froot[i]);
-	  rdpe_set_d (s->drad[i], s->frad[i]);
+	  cdpe_set_x (s->root[i]->dvalue, s->root[i]->fvalue);
+	  rdpe_set_d (s->root[i]->drad, s->root[i]->frad);
 	  s->root_status[i] = MPS_ROOT_STATUS_CLUSTERED;
 	}
       s->lastphase = dpe_phase;
     }
+
+  /* Compute the inclusion radii with Gerschgorin so we can compute
+   * clusterizations for the roots. */
+  /* mps_fradii (s, fradii); */
+  /* mps_fcluster (s, fradii, 2.0 * s->n);  */
+  /* mps_fmodify (s, false);  */
 
   /* These lines are used to debug the again vector, but are not useful
    * at the moment being */
@@ -268,7 +278,7 @@ mps_secular_ga_fiterate (mps_status * s, int maxit, mps_boolean just_regenerated
       __MPS_DEBUG (s, "Again vector = ");
       for(i = 0; i < s->n; i++)
 	{
-	  fprintf (s->logstr, "%d ", s->again[i]);
+	  fprintf (s->logstr, "%d ", s->root[i]->again);
 	}
       fprintf (s->logstr, "\n");
     }
@@ -295,8 +305,7 @@ void *
 __mps_secular_ga_diterate_worker (void* data_ptr)
 {
   mps_thread_worker_data *data = (mps_thread_worker_data *) data_ptr;
-  mps_status *s = data->s;
-  /* mps_secular_equation *sec = s->secular_equation; */
+  mps_context *s = data->s;
   int i;
   cdpe_t corr, abcorr, droot;
   rdpe_t modcorr;
@@ -309,6 +318,8 @@ __mps_secular_ga_diterate_worker (void* data_ptr)
       job = mps_thread_job_queue_next (s, data->queue);
       i = job.i;
 
+      it_data.k = i;
+
       if (job.iter == MPS_THREAD_JOB_EXCEP)
         {
           return NULL;
@@ -316,36 +327,37 @@ __mps_secular_ga_diterate_worker (void* data_ptr)
 
       pthread_mutex_lock (&data->roots_mutex[i]);
 
-      if (s->again[i])
+      if (s->root[i]->again && !s->root[i]->approximated)
 	{
           /* Lock this roots to make sure that we are the only one working on it */
-	  cdpe_set (droot, s->droot[i]);
+	  cdpe_set (droot, s->root[i]->dvalue);
 
 	  (*data->it)++;
 
 	  it_data.k = i;
-	  mps_secular_dnewton (s, droot, s->drad[i], corr,
-			       &s->again[i], &it_data, false);
+	  mps_secular_dnewton (s, s->root[i], corr,
+			       &it_data, false);
 
 	  /* Apply Aberth correction */
 	  mps_daberth_wl (s, i, abcorr, data->aberth_mutex);
 	  cdpe_mul_eq (abcorr, corr);
 	  cdpe_sub (abcorr, cdpe_one, abcorr);
 	  cdpe_div (abcorr, corr, abcorr);
+
 	  cdpe_sub_eq (droot, abcorr);
 
 	  /* Correct the radius */
 	  cdpe_mod (modcorr, abcorr);
-	  rdpe_add_eq (s->drad[i], modcorr);
+	  rdpe_add_eq (s->root[i]->drad, modcorr);
 
-	  if (!s->again[i])
+	  if (!s->root[i]->again || s->root[i]->approximated)
 	    {
 	      if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
 		MPS_DEBUG (s, "Root %d again was set to false on iteration %d by thread %d", i, *data->it, data->thread);
 	      (*data->nzeros)++;
 	    }
-
-	  cdpe_set (s->droot[i], droot);
+	  else
+	    cdpe_set (s->root[i]->dvalue, droot);
 	}
 
       pthread_mutex_unlock (&data->roots_mutex[i]);
@@ -359,7 +371,7 @@ __mps_secular_ga_diterate_worker (void* data_ptr)
  * in floating point on the secular equation using
  * CDPE
  *
- * @param s the pointer to the mps_status struct.
+ * @param s the pointer to the mps_context struct.
  * @param maxit Maximum number of iteration to perform.
  * @return The number of approximated roots after the iteration.
  * @param just_regenerated true if this is the first iteration after a coefficient
@@ -368,12 +380,14 @@ __mps_secular_ga_diterate_worker (void* data_ptr)
  * in s->secular_equation so a raise in the precision will be triggered.
  */
 int
-mps_secular_ga_diterate (mps_status * s, int maxit, mps_boolean just_regenerated)
+mps_secular_ga_diterate (mps_context * s, int maxit, mps_boolean just_regenerated)
 {
   int computed_roots = 0;
+  int root_neighborhood_roots = 0;
+  int approximated_roots = 0;
   int i;
   int nit = 0;
-  int it_threshold;
+  int it_threshold = 0;
 
   s->operation = MPS_OPERATION_ABERTH_DPE_ITERATIONS;
 
@@ -404,29 +418,26 @@ mps_secular_ga_diterate (mps_status * s, int maxit, mps_boolean just_regenerated
   /* Mark the approximated roots as ready for output */
   for (i = 0; i < s->n; i++)
     {
-      /* Set again to false if the root is already approximated */
-      if (MPS_ROOT_STATUS_IS_COMPUTED (s, i))
+      /* Set again to false if the root is already approximated. If a root is approximated but
+       * it has less digits than the current precision don't stop the iterations on that component. */
+      if (s->root_status[i] == MPS_ROOT_STATUS_ISOLATED ||
+	  (s->root_status[i] == MPS_ROOT_STATUS_APPROXIMATED && (s->mpwp < s->output_config->prec)))
 	{
 	  if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
 	    {
 	      MPS_DEBUG_WITH_INFO (s, "Setting again[%d] to false since the root is ready for output (or isolated)", i);
 	    }
-	  s->again[i] = false;
+	  s->root[i]->again = false;
+	  s->root[i]->approximated = true;
 	}
 
-      if (!s->again[i])
+      if (!s->root[i]->again || s->root[i]->approximated)
         computed_roots++;
     }
 
-  /* Set the iterations threshold to 2 iterations
-   * for every non approximated root. */
-  it_threshold = 2 * (s->n - computed_roots);
+  it_threshold = (s->n - computed_roots);
 
-  if (s->debug_level & MPS_DEBUG_PACKETS)
-    {
-      MPS_DEBUG (s, "There are %d roots with again set to false", computed_roots);
-      MPS_DEBUG (s, "Iteration theshold set to %d iterations", it_threshold);
-    }
+  MPS_DEBUG_WITH_INFO (s, "%d roots are already approximated at the start of the packet", computed_roots);
 
   mps_thread_job_queue *queue = mps_thread_job_queue_new (s);
 
@@ -453,17 +464,24 @@ mps_secular_ga_diterate (mps_status * s, int maxit, mps_boolean just_regenerated
   if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
       mps_dump (s);
 
-  if (nit <= it_threshold && just_regenerated)
+  /* Check if we need to get higher precision for the roots */
+  s->secular_equation->best_approx = true;
+  for (i = 0; i < s->n; i++)
     {
-      MPS_DEBUG_WITH_INFO (s, "Asking for regeneration since we stopped after a few iterations");
-      s->secular_equation->best_approx = true;
+      if (!s->root[i]->approximated)
+	s->secular_equation->best_approx = false;
+      if (s->root[i]->approximated)
+	approximated_roots++;
+      if (!s->root[i]->again)
+	root_neighborhood_roots++;
     }
 
-  /* Compute the inclusion radii with Gerschgorin so we can compute
-   * clusterizations for the roots. */
-  /* mps_dradii (s, dradii); */
-  /* mps_dcluster (s, dradii, 2.0 * s->n);  */
-  /* mps_dmodify (s, false);  */
+  if (just_regenerated && (nit <= it_threshold))
+    s->secular_equation->best_approx = true;
+
+  MPS_DEBUG_WITH_INFO(s, "%d roots are approximated with the current precision", approximated_roots);
+  MPS_DEBUG_WITH_INFO (s,"%d roots are in the root neighborhood", root_neighborhood_roots);
+  MPS_DEBUG_WITH_INFO (s, "%d roots have reached a stop condition", computed_roots);
 
   /* These lines are used to debug the again vector, but are not useful
    * at the moment being */
@@ -472,7 +490,7 @@ mps_secular_ga_diterate (mps_status * s, int maxit, mps_boolean just_regenerated
       __MPS_DEBUG (s, "Again vector = ");
       for(i = 0; i < s->n; i++)
 	{
-	  fprintf (s->logstr, "%d ", s->again[i]);
+	  fprintf (s->logstr, "%d ", s->root[i]->again);
 	}
       fprintf (s->logstr, "\n");
     }
@@ -497,7 +515,7 @@ void *
 __mps_secular_ga_miterate_worker (void* data_ptr)
 {
   mps_thread_worker_data *data = (mps_thread_worker_data *) data_ptr;
-  mps_status *s = data->s;
+  mps_context *s = data->s;
   /* mps_secular_equation *sec = s->secular_equation; */
   int i;
   mpc_t corr, abcorr;
@@ -543,11 +561,11 @@ __mps_secular_ga_miterate_worker (void* data_ptr)
 
       cluster = job.cluster_item->cluster;
 
-      if (s->again[i])
+      if (s->root[i]->again && !s->root[i]->approximated)
 	{
           /* Lock this roots to make sure that we are the only one working on it */
 	  pthread_mutex_lock (&data->aberth_mutex[i]); 
-	  mpc_set (mroot, s->mroot[i]); 
+	  mpc_set (mroot, s->root[i]->mvalue); 
 	  pthread_mutex_unlock (&data->aberth_mutex[i]); 
 
           /* Check if, while we were waiting, excep condition has been reached,
@@ -564,8 +582,8 @@ __mps_secular_ga_miterate_worker (void* data_ptr)
 
 	  it_data.k = i;
 	  it_data.gs_mutex = data->gs_mutex;
-	  mps_secular_mnewton (s, mroot, s->drad[i], corr,
-			       &s->again[i], &it_data, false);
+	  mps_secular_mnewton (s, s->root[i], corr,
+			       &it_data, false);
 
 	  /* Apply Aberth correction */
 	  mps_maberth_s_wl (s, i, cluster, abcorr, data->aberth_mutex);
@@ -581,22 +599,25 @@ __mps_secular_ga_miterate_worker (void* data_ptr)
 	      pthread_mutex_unlock (&data->aberth_mutex[i]);
 	    } 
 	  else
-	    s->again[i] = true;
+	    s->root[i]->again = true;
 
-	  pthread_mutex_lock (&data->aberth_mutex[i]); 
-	  mpc_set (s->mroot[i], mroot); 
-	  pthread_mutex_unlock (&data->aberth_mutex[i]); 
-	   
-	  /* Correct the radius */
-	  mpc_rmod (modcorr, abcorr);
-	  rdpe_add_eq (s->drad[i], modcorr);
 
-	  if (!s->again[i])
+	  if (!s->root[i]->again || s->root[i]->approximated)
 	    {
 	      if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
 		MPS_DEBUG (s, "Root %d again was set to false on iteration %d by thread %d", i, *data->it, data->thread);
 
 	      (*data->nzeros)++;
+	    }
+	  else 
+	    {
+	      pthread_mutex_lock (&data->aberth_mutex[i]); 
+	      mpc_set (s->root[i]->mvalue, mroot); 
+	      pthread_mutex_unlock (&data->aberth_mutex[i]); 
+	   
+	      /* Correct the radius */
+	      mpc_rmod (modcorr, abcorr);
+	      rdpe_add_eq (s->root[i]->drad, modcorr);
 	    }
 	}
 
@@ -621,7 +642,7 @@ __mps_secular_ga_miterate_worker (void* data_ptr)
  * in floating point on the secular equation using
  * CDPE
  *
- * @param s the pointer to the mps_status struct.
+ * @param s the pointer to the mps_context struct.
  * @param maxit Maximum number of iteration to perform. 
  * @param just_regenerated true if this is the first iteration after a coefficient
  * regeneration. If just_regenerated is true and the iteration packet is completed
@@ -630,12 +651,14 @@ __mps_secular_ga_miterate_worker (void* data_ptr)
  * @return The number of approximated roots after the iteration.
  */
 int
-mps_secular_ga_miterate (mps_status * s, int maxit, mps_boolean just_regenerated)
+mps_secular_ga_miterate (mps_context * s, int maxit, mps_boolean just_regenerated)
 {
   int computed_roots = 0;
+  int approximated_roots = 0;
+  int root_neighborhood_roots = 0;
   int i;
   int nit = 0;
-  int it_threshold;
+  int it_threshold = 0;
 
   s->operation = MPS_OPERATION_ABERTH_MP_ITERATIONS;
 
@@ -665,31 +688,26 @@ mps_secular_ga_miterate (mps_status * s, int maxit, mps_boolean just_regenerated
 
   sec->best_approx = false;
 
+  it_threshold = s->n - computed_roots;
+
   /* Mark the approximated roots as ready for output */
   for (i = 0; i < s->n; i++)
     {
-      /* Set again to false if the root is already approximated */
-      if (MPS_ROOT_STATUS_IS_COMPUTED (s, i))
+      /* Set again to false if the root is already approximated. If a root is approximated but
+       * it has less digits than the current precision don't stop the iterations on that component. */
+      if (s->root_status[i] == MPS_ROOT_STATUS_ISOLATED ||
+	  (s->root_status[i] == MPS_ROOT_STATUS_APPROXIMATED && (s->mpwp < s->output_config->prec)))
 	{
 	  if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
 	    {
 	      MPS_DEBUG_WITH_INFO (s, "Setting again[%d] to false since the root is ready for output (or isolated)", i);
 	    }
-	  s->again[i] = false;
+	  s->root[i]->again = false;
+	  s->root[i]->approximated = true;
 	}
 
-      if (!s->again[i])
+      if (!s->root[i]->again || s->root[i]->approximated)
         computed_roots++;
-    }
-
-  /* Set the iterations threshold to 2 iterations
-   * for every non approximated root. */
-  it_threshold = 2 * (s->n - computed_roots);
-
-  if (s->debug_level & MPS_DEBUG_PACKETS)
-    {
-      MPS_DEBUG (s, "There are %d roots with again set to false", computed_roots);
-      MPS_DEBUG (s, "Iteration theshold set to %d iterations", it_threshold);
     }
 
   mps_thread_job_queue *queue = mps_thread_job_queue_new (s);
@@ -718,17 +736,24 @@ mps_secular_ga_miterate (mps_status * s, int maxit, mps_boolean just_regenerated
   if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
       mps_dump (s);
 
-  if (nit <= it_threshold && just_regenerated)
+  /* Check if we need to get higher precision for the roots */
+  s->secular_equation->best_approx = true;
+  for (i = 0; i < s->n; i++)
     {
-      MPS_DEBUG_WITH_INFO (s, "Asking for regeneration since we stopped after a few iterations");
-      s->secular_equation->best_approx = true;
+      if (!s->root[i]->approximated)
+	s->secular_equation->best_approx = false;
+      if (s->root[i]->approximated)
+	approximated_roots++;
+      if (!s->root[i]->again)
+	root_neighborhood_roots++;
     }
 
-  /* Compute the inclusion radii with Gerschgorin so we can compute
-   * clusterizations for the roots. */
-  /* mps_mradii (s, dradii); */
-  /* mps_mcluster (s, dradii, 2.0 * s->n);  */
-  /* mps_mmodify (s, false);  */
+  if (just_regenerated && (nit <= it_threshold))
+    s->secular_equation->best_approx = true;
+
+  MPS_DEBUG_WITH_INFO(s, "%d roots are approximated with the current precision", approximated_roots);
+  MPS_DEBUG_WITH_INFO (s,"%d roots are in the root neighborhood", root_neighborhood_roots);
+  MPS_DEBUG_WITH_INFO (s, "%d roots have reached a stop condition", computed_roots);
 
   /* These lines are used to debug the again vector, but are not useful
    * at the moment being */
@@ -737,7 +762,7 @@ mps_secular_ga_miterate (mps_status * s, int maxit, mps_boolean just_regenerated
       __MPS_DEBUG (s, "Again vector = ");
       for(i = 0; i < s->n; i++)
 	{
-	  fprintf (s->logstr, "%d ", s->again[i]);
+	  fprintf (s->logstr, "%d ", s->root[i]->again);
 	}
       fprintf (s->logstr, "\n");
     }
@@ -756,3 +781,4 @@ mps_secular_ga_miterate (mps_status * s, int maxit, mps_boolean just_regenerated
   /* Return the number of approximated roots */
   return computed_roots;
 }
+

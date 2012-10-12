@@ -1,8 +1,13 @@
 /*
- * mps_interface.c
+ * This file is part of MPSolve 3.0
  *
- *  Created on: 05/apr/2011
- *      Author: Leonardo Robol <robol@poisson.phc.unipi.it>
+ * Copyright (C) 2001-2012, Dipartimento di Matematica "L. Tonelli", Pisa.
+ * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
+ *
+ * Authors: 
+ *   Dario Andrea Bini <bini@dm.unipi.it>
+ *   Giuseppe Fiorentino <fiorent@dm.unipi.it>
+ *   Leonardo Robol <robol@mail.dm.unipi.it>
  */
 
 
@@ -27,26 +32,26 @@ int feenableexcept(int excepts);
  * and the data (the coefficients, or whatever the algorithm may require) should be provided
  * after that.
  *
- * Roots can then be obtained with the functions <code>mps_status_get_roots_*</code>
+ * Roots can then be obtained with the functions <code>mps_context_get_roots_*</code>
  *
  */
 void
-mps_mpsolve (mps_status * s)
+mps_mpsolve (mps_context * s)
 {
 #ifdef MPS_CATCH_FPE
   feenableexcept (FE_INVALID|FE_DIVBYZERO|FE_OVERFLOW); 
 #endif
 
-  if (mps_status_has_errors (s))
+  if (mps_context_has_errors (s))
     return;
 
   (*s->mpsolve_ptr) (s);
 }
 
 void*
-mps_caller (mps_status * s)
+mps_caller (mps_context * s)
 {
-  if (!mps_status_has_errors (s))
+  if (!mps_context_has_errors (s))
     s->mpsolve_ptr (s);
 
   /* Call user defined callback if available */
@@ -57,7 +62,7 @@ mps_caller (mps_status * s)
 }
 
 void
-mps_mpsolve_async (mps_status * s, mps_callback callback, void * user_data)
+mps_mpsolve_async (mps_context * s, mps_callback callback, void * user_data)
 {
 #ifdef MPS_CATCH_FPE
   feenableexcept (FE_INVALID|FE_DIVBYZERO|FE_OVERFLOW); 
