@@ -137,8 +137,18 @@ mps_secular_fnewton (mps_context * s, mps_approximation * root, cplx_t corr,
   mps_secular_iteration_data * data = user_data;
   mps_secular_equation *sec = (mps_secular_equation *) s->secular_equation;
 
-  cplx_t * afpc = data->local_afpc;
-  cplx_t * bfpc = data->local_bfpc;
+  cplx_t *afpc, *bfpc;
+
+  if (data)
+    {
+      afpc = data->local_afpc;
+      bfpc = data->local_bfpc;
+    }
+  else
+    {
+      afpc = sec->afpc;
+      bfpc = sec->bfpc;
+    }
 
   cplx_t x;
   cplx_set (x, root->fvalue);

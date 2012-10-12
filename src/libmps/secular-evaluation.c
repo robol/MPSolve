@@ -171,7 +171,7 @@ mps_secular_deval_with_error (mps_context * s, mps_secular_equation * sec,
       cdpe_div (ctmp, sec->adpc[i], ctmp);
       cdpe_mod (rtmp, ctmp);
       cdpe_add_eq (value, ctmp);
-      rdpe_mul_eq_d (error, i + 2);
+      rdpe_mul_eq_d (rtmp, i + 2);
       rdpe_add_eq (error, rtmp);
     }
 
