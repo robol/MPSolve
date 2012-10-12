@@ -33,11 +33,15 @@ mps_monomial_poly_new (mps_context * s, long int degree)
   mp->fpr  = double_valloc (degree + 1);
   mp->dpr  = rdpe_valloc (degree + 1);
   mp->dpc  = cdpe_valloc (degree + 1);
-  mp->mfpc = mpc_valloc (degree + 1);
+  mp->db.mfpc1 = mpc_valloc (degree + 1);
+  mp->db.mfpc2 = mpc_valloc (degree + 1);
+  mp->mfpc = mp->db.mfpc1;
+  mp->db.active = 1;
   mp->mfpr = mpf_valloc (degree + 1);
 
   mpf_vinit2 (mp->mfpr, degree + 1, s->mpwp);
-  mpc_vinit2 (mp->mfpc, degree + 1, s->mpwp);
+  mpc_vinit2 (mp->db.mfpc1, degree + 1, s->mpwp);
+  mpc_vinit2 (mp->db.mfpc2, degree + 1, s->mpwp);
 
   /* Allocate space for the moduli of the coefficients */
   mp->fap = double_valloc (degree + 1);
@@ -91,10 +95,12 @@ mps_monomial_poly_free (mps_context * s, mps_monomial_poly * mp)
   rdpe_vfree (mp->dap);
 
   mpf_vclear (mp->mfpr, mp->n + 1);
-  mpc_vclear (mp->mfpc, mp->n + 1);
+  mpc_vclear (mp->db.mfpc1, mp->n + 1);
+  mpc_vclear (mp->db.mfpc2, mp->n + 1);
 
   mpf_vfree (mp->mfpr);
-  mpc_vfree (mp->mfpc);
+  mpc_vfree (mp->db.mfpc1);
+  mpc_vfree (mp->db.mfpc2);
 
   mpq_vclear (mp->initial_mqp_r, mp->n + 1);
   mpq_vclear (mp->initial_mqp_i, mp->n + 1);
@@ -126,22 +132,28 @@ void
 mps_monomial_poly_raise_precision (mps_context * s, mps_monomial_poly * mp, long int prec)
 {
   int k;
+  mpc_t * raising_mfpc;
 
   pthread_mutex_lock (&mp->regenerating);
 
-  if (prec <= mpc_get_prec (mp->mfpc[0]))
+  if ((mp->db.active == 1 && prec <= mpc_get_prec (mp->db.mfpc1[0])) ||
+      (mp->db.active == 2 && prec <= mpc_get_prec (mp->db.mfpc2[0])))
     {
       pthread_mutex_unlock (&mp->regenerating);
       return;
     }
+    
+
+  if (mp->db.active == 1)
+    raising_mfpc = mp->db.mfpc2;
+  else
+    raising_mfpc = mp->db.mfpc1;
 
   /* raise the precision of  mfpc */
   if (!MPS_INPUT_CONFIG_IS_USER (s->input_config))
     for (k = 0; k < mp->n + 1; k++)
       {
-	pthread_mutex_lock (&mp->mfpc_mutex[k]); 
-	mpc_set_prec (mp->mfpc[k], prec);
-	pthread_mutex_unlock (&mp->mfpc_mutex[k]); 
+	mpc_set_prec (raising_mfpc[k], prec);
       }
 
   /* Raise the precision of p' */
@@ -158,12 +170,20 @@ mps_monomial_poly_raise_precision (mps_context * s, mps_monomial_poly * mp, long
     {
       for (k = 0; k <= mp->n ; ++k)
 	{
-	  pthread_mutex_lock (&mp->mfpc_mutex[k]); 
-	  mpf_set_q (mpc_Re (mp->mfpc[k]), mp->initial_mqp_r[k]);
-	  mpf_set_q (mpc_Im (mp->mfpc[k]), mp->initial_mqp_i[k]);
-	  pthread_mutex_unlock (&mp->mfpc_mutex[k]); 
+	  mpf_set_q (mpc_Re (raising_mfpc[k]), mp->initial_mqp_r[k]);
+	  mpf_set_q (mpc_Im (raising_mfpc[k]), mp->initial_mqp_i[k]);
 	}
     }
+  else
+    {
+      for (k = 0; k <= mp->n; k++)
+	{
+	  mpc_set (raising_mfpc[k], mp->mfpc[k]);
+	}
+    }
+
+  mp->db.active = (mp->db.active % 2) + 1;
+  mp->mfpc = raising_mfpc;
 
   mp->prec = prec;
   pthread_mutex_unlock (&mp->regenerating);

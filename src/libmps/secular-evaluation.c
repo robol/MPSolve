@@ -38,6 +38,29 @@ mps_secular_feval (mps_context * s, mps_secular_equation * sec, cplx_t x, cplx_t
   cplx_sub_eq (value, cplx_one);
 }
 
+void
+mps_secular_feval_derivative (mps_context * s, mps_secular_equation * sec, cplx_t x, cplx_t value)
+{
+  cplx_t ctmp;
+  int i;
+
+  cplx_set (value, cplx_zero);
+
+  for (i = 0; i < s->n; i++)
+    {
+      /* Compute 1 / (x - b_i) */
+      cplx_sub (ctmp, x, sec->bfpc[i]);
+      cplx_inv_eq (ctmp);
+      cplx_mul_eq (ctmp, ctmp);
+
+      /* Compute a_i / (x - b_i) */
+      cplx_mul_eq (ctmp, sec->afpc[i]);
+
+      /* Sum to the secular eqation */
+      cplx_sub_eq (value, ctmp);
+    }
+}
+
 /**
  * @brief Evaluate a secular equation <code>sec</code> in the point <code>x</code>, 
  * estimating the error on the evaluation.
@@ -97,6 +120,30 @@ mps_secular_deval (mps_context * s, mps_secular_equation * sec, cdpe_t x, cdpe_t
 
   cdpe_sub_eq (value, cdpe_one);
 }
+
+void
+mps_secular_deval_derivative (mps_context * s, mps_secular_equation * sec, cdpe_t x, cdpe_t value)
+{
+  cdpe_t ctmp;
+  int i;
+
+  cdpe_set (value, cdpe_zero);
+
+  for (i = 0; i < s->n; i++)
+    {
+      /* Compute 1 / (x - b_i) */
+      cdpe_sub (ctmp, x, sec->bdpc[i]);
+      cdpe_inv_eq (ctmp);
+      cdpe_mul_eq (ctmp, ctmp);
+
+      /* Compute a_i / (x - b_i) */
+      cdpe_mul_eq (ctmp, sec->adpc[i]);
+
+      /* Sum to the secular eqation */
+      cdpe_sub_eq (value, ctmp);
+    }
+}
+
 
 /**
  * @brief Evaluate a secular equation <code>sec</code> in the point <code>x</code>

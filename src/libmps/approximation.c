@@ -29,3 +29,17 @@ mps_approximation_free (mps_context * s, mps_approximation * appr)
   mpc_clear (appr->mvalue);
   free (appr);
 }
+
+mps_approximation *
+mps_approximation_copy (mps_context * ctx, mps_approximation * original)
+{
+  mps_approximation *new = mps_approximation_new (ctx);
+  mpc_set_prec (new->mvalue, mpc_get_prec (original->mvalue));
+  mpc_set (new->mvalue, original->mvalue);
+  rdpe_set (new->drad, original->drad);
+  cdpe_set (new->dvalue, original->dvalue);
+  cplx_set (new->fvalue, original->fvalue);
+  new->frad = original->frad;
+  new->wp = original->wp;
+  return new;
+}

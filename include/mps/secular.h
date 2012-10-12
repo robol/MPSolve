@@ -39,6 +39,15 @@ extern "C"
    */
 #define MPS_SECULAR_EQUIVALENT_FP_PRECISION (MPS_SECULAR_STARTING_MP_PRECISION / 2)
 
+  struct mps_secular_equation_double_buffer
+  {
+    char active;
+    mpc_t *ampc1;
+    mpc_t *ampc2;
+    mpc_t *bmpc1;
+    mpc_t *bmpc2;
+  };
+
   /**
    * @brief Secular equation data.
    *
@@ -51,6 +60,8 @@ extern "C"
    */
   struct mps_secular_equation
   {
+    struct mps_secular_equation_double_buffer db;
+
     /**
      * @brief Vector of \f$a_i\f$ as complex floating
      * point numbers.

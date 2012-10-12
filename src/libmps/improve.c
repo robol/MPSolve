@@ -14,9 +14,12 @@
 #include <mps/mps.h>
 #include <math.h>
 
+pthread_mutex_t output_mutex = PTHREAD_MUTEX_INITIALIZER;
+
   typedef struct {
     int i;
     mps_context * s;
+    long int base_wp;
   } __mps_improve_data;
 
 void * mps_improve_root2 (void*);
@@ -72,10 +75,13 @@ mps_improve (mps_context * s)
 
   __mps_improve_data *improve_data = mps_newv (__mps_improve_data, s->n);
 
+  long int base_wp = s->mpwp;
+
   for (i = 0; i < s->n; i++)
     {
       improve_data[i].i = i;
       improve_data[i].s = s;
+      improve_data[i].base_wp = base_wp;
       mps_thread_pool_assign (s, NULL, mps_improve_root2, improve_data + i);
       // mps_improve_root (s, i);
     }
@@ -88,27 +94,30 @@ mps_improve (mps_context * s)
     MPS_DEBUG (s, "Improvement of roots took %lu ms", improve_time);
 }
 
+void
+mps_evaluate_root_conditioning (mps_context *ctx, mps_approximation *root, rdpe_t conditioning)
+{
+  rdpe_set (conditioning, rdpe_one);
+}
+
 void *
 mps_improve_root2 (void * data_ptr)
 {
   __mps_improve_data * data = (__mps_improve_data*) data_ptr;
   int i = data->i;
+
   int j;
   mps_context *ctx = data->s;
 
-  mps_approximation * root = ctx->root[i];
+  mps_approximation * root = mps_approximation_copy (ctx, ctx->root[i]);
   rdpe_t aroot;
+  long int wp = root->wp;
 
   /* Determine the number of steps necessary to have at least 
    * log10 (ctx->output_config->prec) correct digits. */
   mpc_rmod (aroot, root->mvalue);
-  int correct_bits = MAX (1, rdpe_Esp (aroot) - rdpe_Esp (root->drad) - 2);
+  int correct_bits = rdpe_Esp (aroot) - rdpe_Esp (root->drad) - 1;
   int max_steps = mps_intlog2 (ctx->output_config->prec / correct_bits);
-
-  long int wp = root->wp;
-  mpc_t nwtcorr;
-
-  mps_monomial_poly * p = ctx->monomial_poly;
 
   mps_secular_iteration_data it_data;
   if (ctx->secular_equation)
@@ -116,6 +125,17 @@ mps_improve_root2 (void * data_ptr)
       it_data.local_ampc = ctx->secular_equation->ampc;
       it_data.local_bmpc = ctx->secular_equation->bmpc;
     }
+
+  mpc_t nwtcorr;
+  mps_monomial_poly * p = ctx->monomial_poly;
+  mpc_init2 (nwtcorr, wp);
+
+  /* We need to decide the initial precision needed for the iterations based on 
+   * the conditioning of the root. If the conditioning is 2^k then we need w + k
+   * bits of precision to have the right digits in the output. */
+  rdpe_t conditioning;
+  mps_evaluate_root_conditioning (ctx, root, conditioning);
+  wp += rdpe_Esp (conditioning);
 
   if (ctx->debug_level & MPS_DEBUG_IMPROVEMENT)
     MPS_DEBUG (ctx, "Starting to refine root %d", i);
@@ -128,20 +148,30 @@ mps_improve_root2 (void * data_ptr)
       return NULL;
     }
 
-  mpc_init2 (nwtcorr, wp);
-
   for (j = 0; j < max_steps; j++)
     {
-      mps_prepare_data (ctx, wp);
+      /* mps_prepare_data (ctx, wp); */
 
       mpc_set_prec (nwtcorr, wp);
       mpc_set_prec (root->mvalue, wp);
+      root->wp = wp;
 
       if (ctx->mpwp < wp)
 	{
+	  if (MPS_INPUT_CONFIG_IS_MONOMIAL (ctx->input_config))
+	    {
+	      mps_monomial_poly_raise_precision (ctx, ctx->monomial_poly, wp);
+	    }
+	  else if (MPS_INPUT_CONFIG_IS_SECULAR (ctx->input_config))
+	    {
+	      mps_secular_raise_coefficient_precision (ctx, wp);
+	      it_data.local_ampc = ctx->secular_equation->ampc;
+	      it_data.local_bmpc = ctx->secular_equation->bmpc;
+	    }
+
 	  ctx->mpwp = wp;
 	}
-	  
+      
       if (MPS_INPUT_CONFIG_IS_MONOMIAL (ctx->input_config))
 	{
 	  mps_mnewton (ctx, ctx->n, root, nwtcorr, p->mfpc, p->mfppc, p->dap, p->spar,
@@ -149,19 +179,27 @@ mps_improve_root2 (void * data_ptr)
 	}
       else
 	{
-	  (*ctx->mnewton_usr) (ctx, ctx->root[i], nwtcorr, 
+	  (*ctx->mnewton_usr) (ctx, root, nwtcorr, 
 			       MPS_INPUT_CONFIG_IS_SECULAR (ctx->input_config) ? &it_data : NULL, false);
 	}
 
       mpc_set_prec (root->mvalue, 2 * wp);
 
-      mpc_sub_eq (root->mvalue, nwtcorr);
-      correct_bits *= 2;
-      correct_bits -= 1;
-      rdpe_set_2dl (root->drad, 2.0, - correct_bits);
+      mpc_sub_eq (root->mvalue, nwtcorr);   
+       
+      /* Double the number of correct bits */
+      correct_bits = 2 * correct_bits - 1;
 
+      /* Set a proper radius to the approximations */
+      rdpe_set_2dl (root->drad, 2.0, - correct_bits); 
+      rdpe_mul_eq (root->drad, aroot);
+
+      /* Double the current precision */
       wp *= 2;
     }
+
+  mps_approximation_free (ctx, ctx->root[i]);
+  ctx->root[i] = root;
 
   mpc_clear (nwtcorr);
 

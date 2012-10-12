@@ -459,7 +459,7 @@ mps_mnewton (mps_context * s, int n, mps_approximation * root, mpc_t corr,
   cdpe_t temp1;
   mpc_t p, p1;
 
-  long int wp = mpc_get_prec (root->mvalue);
+  long int wp = mpc_get_prec (corr);
 
   /* Set the pointer for mnewton to be thread specific
    * so there is not conflict with other threads.      */

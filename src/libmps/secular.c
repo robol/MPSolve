@@ -239,8 +239,18 @@ mps_secular_equation_new_raw (mps_context * s, unsigned long int n)
   sec->bdpc = cdpe_valloc (n);
 
   /* Allocate multiprecision complex coefficients of the secular equation */
-  sec->ampc = mpc_valloc (n);
-  sec->bmpc = mpc_valloc (n);
+  /* Prepare the double buffer */
+  struct mps_secular_equation_double_buffer *db = &sec->db;
+  db->ampc1 = mpc_valloc (n);
+  db->ampc2 = mpc_valloc (n);
+  db->bmpc1 = mpc_valloc (n);
+  db->bmpc2 = mpc_valloc (n);
+
+  sec->ampc = db->ampc1;
+  sec->bmpc = db->bmpc1;
+
+  db->active = 1;
+
   sec->initial_ampc = mpc_valloc (n);
   sec->initial_bmpc = mpc_valloc (n);
   sec->initial_ampqrc = mpq_valloc (n);
@@ -255,8 +265,10 @@ mps_secular_equation_new_raw (mps_context * s, unsigned long int n)
   sec->abfpc = double_valloc (n);
 
   /* Init multiprecision arrays */
-  mpc_vinit2 (sec->ampc, n, s->mpwp);
-  mpc_vinit2 (sec->bmpc, n, s->mpwp);
+  mpc_vinit2 (sec->db.ampc1, n, s->mpwp);
+  mpc_vinit2 (sec->db.bmpc1, n, s->mpwp);
+  mpc_vinit2 (sec->db.ampc2, n, s->mpwp);
+  mpc_vinit2 (sec->db.bmpc2, n, s->mpwp);
   mpc_vinit2 (sec->initial_ampc, n, s->mpwp);
   mpc_vinit2 (sec->initial_bmpc, n, s->mpwp);
   mpq_vinit (sec->initial_ampqrc, n);
@@ -342,11 +354,15 @@ mps_secular_equation_free (mps_secular_equation * s)
   cdpe_vfree (s->adpc);
   cdpe_vfree (s->bdpc);
 
-  mpc_vclear (s->ampc, s->n);
-  mpc_vclear (s->bmpc, s->n);
+  mpc_vclear (s->db.ampc1, s->n);
+  mpc_vclear (s->db.bmpc1, s->n);
+  mpc_vclear (s->db.ampc2, s->n);
+  mpc_vclear (s->db.bmpc2, s->n);
 
-  mpc_vfree (s->ampc);
-  mpc_vfree (s->bmpc);
+  mpc_vfree (s->db.ampc1);
+  mpc_vfree (s->db.ampc2);
+  mpc_vfree (s->db.bmpc1);
+  mpc_vfree (s->db.bmpc2);
 
   rdpe_vfree (s->aadpc);
   rdpe_vfree (s->abdpc);
@@ -442,6 +458,9 @@ mps_secular_raise_coefficient_precision (mps_context * s, int wp)
   int i;
   mps_secular_equation *sec = (mps_secular_equation *) s->secular_equation;
 
+  mpc_t * raising_ampc;
+  mpc_t * raising_bmpc;
+
   pthread_mutex_lock (&s->secular_equation->precision_mutex);
 
   if (wp < mpc_get_prec (sec->ampc[0]))
@@ -453,27 +472,38 @@ mps_secular_raise_coefficient_precision (mps_context * s, int wp)
   if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
     mps_monomial_poly_raise_precision (s, s->monomial_poly, wp);
 
+  if (sec->db.active == 1)
+    {
+      raising_ampc = sec->db.ampc2;
+      raising_bmpc = sec->db.bmpc2;
+    }
+  else
+    {
+      raising_ampc = sec->db.ampc1;
+      raising_bmpc = sec->db.bmpc1;
+    }
 
   for (i = 0; i < s->n; i++)
     {
-      pthread_mutex_lock (&sec->ampc_mutex[i]);
-      mpc_set_prec (sec->ampc[i], wp);
+      mpc_set_prec (raising_ampc[i], wp);
       if (MPS_INPUT_CONFIG_IS_SECULAR (s->input_config) && (!MPS_INPUT_CONFIG_IS_FP (s->input_config)))
 	{
-	  mpf_set_q (mpc_Re (sec->ampc[i]), sec->initial_ampqrc[i]);
-	  mpf_set_q (mpc_Im (sec->ampc[i]), sec->initial_ampqic[i]);
+	  mpf_set_q (mpc_Re (raising_ampc[i]), sec->initial_ampqrc[i]);
+	  mpf_set_q (mpc_Im (raising_ampc[i]), sec->initial_ampqic[i]);
 	}
-      pthread_mutex_unlock (&sec->ampc_mutex[i]);
 
-      pthread_mutex_lock (&sec->bmpc_mutex[i]);
-      mpc_set_prec (sec->bmpc[i], wp);
+      mpc_set_prec (raising_bmpc[i], wp);
       if (MPS_INPUT_CONFIG_IS_SECULAR (s->input_config) && (!MPS_INPUT_CONFIG_IS_FP (s->input_config)))
 	{
-	  mpf_set_q (mpc_Re (sec->bmpc[i]), sec->initial_bmpqrc[i]);
-	  mpf_set_q (mpc_Im (sec->bmpc[i]), sec->initial_bmpqic[i]);
+	  mpf_set_q (mpc_Re (raising_bmpc[i]), sec->initial_bmpqrc[i]);
+	  mpf_set_q (mpc_Im (raising_bmpc[i]), sec->initial_bmpqic[i]);
 	}
-      pthread_mutex_unlock (&sec->bmpc_mutex[i]);
     }
+
+  sec->ampc = raising_ampc;
+  sec->bmpc = raising_bmpc;
+
+  sec->db.active = (sec->db.active % 2) + 1;
 
   pthread_mutex_unlock (&s->secular_equation->precision_mutex);
 

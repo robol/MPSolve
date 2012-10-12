@@ -16,7 +16,8 @@
 #include <math.h>
 
 #define MPS_2SQRT2 2.82842712474619009760
-#define KAPPA (log2(sec->n) + 7 * 1.4151135 + 1)
+#define KAPPA_LOG (log2(sec->n) + 7 * 1.4151135 + 1)
+#define KAPPA (sec->n + 7 * 1.4142135623)
 #define MPS_SQRT2 1.4142135623
 
 /* We need some special codes to identify the meaning of the exit
@@ -508,14 +509,16 @@ mps_secular_mparallel_sum (mps_context * s, mps_approximation * root, int n, mpc
 			   mpc_t pol, mpc_t fp, mpc_t sumb, rdpe_t asum, rdpe_t asum2, rdpe_t asumb, 
 			   pthread_mutex_t * ampc_mutex, pthread_mutex_t * bmpc_mutex)
 {
+  long int wp = mpc_get_prec (ampc[0]);
+
   if (n <= 4)
     {
       int i;
       mpc_t ctmp, ctmp2;
       rdpe_t rtmp;
 
-      mpc_init2 (ctmp, s->mpwp);
-      mpc_init2 (ctmp2, s->mpwp);
+      mpc_init2 (ctmp, wp);
+      mpc_init2 (ctmp2, wp);
 
       for (i = 0; i < n; i++)
 	{
@@ -528,6 +531,8 @@ mps_secular_mparallel_sum (mps_context * s, mps_approximation * root, int n, mpc
 	   * without doing any further iteration */
 	  if (mpc_eq_zero (ctmp))
 	    {
+	      mpc_clear (ctmp);
+	      mpc_clear (ctmp2);
 	      return i;
 	    }
 
@@ -606,6 +611,8 @@ mps_secular_mnewton (mps_context * s, mps_approximation * root, mpc_t corr,
   mps_secular_equation * sec = s->secular_equation;
   mps_secular_iteration_data * data = user_data;
 
+  long int wp = mpc_get_prec (corr);
+
   ampc = data->local_ampc;
   bmpc = data->local_bmpc;
 
@@ -614,11 +621,11 @@ mps_secular_mnewton (mps_context * s, mps_approximation * root, mpc_t corr,
 
   root->again = true;
 
-  mpc_init2 (ctmp, s->mpwp);
-  mpc_init2 (ctmp2, s->mpwp);
-  mpc_init2 (pol, s->mpwp);
-  mpc_init2 (fp, s->mpwp);
-  mpc_init2 (sumb, s->mpwp);
+  mpc_init2 (ctmp, wp);
+  mpc_init2 (ctmp2, wp);
+  mpc_init2 (pol, wp);
+  mpc_init2 (fp, wp);
+  mpc_init2 (sumb, wp);
 
   rdpe_set (asum, rdpe_zero);
   rdpe_set (asumb, rdpe_zero);
@@ -630,8 +637,8 @@ mps_secular_mnewton (mps_context * s, mps_approximation * root, mpc_t corr,
       int k;
       mpc_t ampc_i, bmpc_i;
 
-      mpc_init2 (ampc_i, s->mpwp);
-      mpc_init2 (bmpc_i, s->mpwp);
+      mpc_init2 (ampc_i, wp);
+      mpc_init2 (bmpc_i, wp);
       
       mpc_set_ui (corr, 0U, 0U);
 

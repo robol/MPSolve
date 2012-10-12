@@ -17,11 +17,21 @@ extern "C"
   #include <pthread.h>
 
 #ifdef _MPS_PRIVATE
+
+  struct mps_monomial_poly_double_buffer {
+    char active;
+    mpc_t *mfpc1;
+    mpc_t *mfpc2;
+  };
+
+
   /**
    * @brief Data regarding a polynomial represented in the monomial
    * base.
    */
   struct mps_monomial_poly {
+
+    struct mps_monomial_poly_double_buffer db;
     
     /**
      * @brief The degree of the polynomial.
