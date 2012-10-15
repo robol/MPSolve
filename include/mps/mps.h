@@ -73,6 +73,9 @@ typedef int mps_debug_level;
   /* monomial-poly.h */
   struct mps_monomial_poly;
 
+  /* polynomial.h */
+  struct mps_polynomial;
+
   /* input-buffer.h */
   struct mps_input_buffer;
 
@@ -115,6 +118,9 @@ extern  "C"
 
   /* monomial-poly.h */
   typedef struct mps_monomial_poly mps_monomial_poly;
+
+  /* polynomial.h */
+  typedef struct mps_polynomial mps_polynomial;
 
   /* input-buffer.h */
   typedef struct mps_input_buffer mps_input_buffer;
@@ -450,6 +456,7 @@ extern  "C"
 #include <mps/mt.h>
 #include <mps/gmptools.h>
 #include <mps/mpc.h>
+#include <mps/polynomial.h>
 #include <mps/link.h>
 #include <mps/debug.h>
 #include <mps/input-buffer.h>

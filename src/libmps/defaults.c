@@ -106,7 +106,7 @@ mps_set_default_values (mps_context * s)
   s->last_sigma = 0.1;
 
   s->secular_equation = NULL;
-  s->monomial_poly = NULL;
+  s->active_poly = NULL;
 
   /* Input */
   s->input_config->representation = MPS_REPRESENTATION_MONOMIAL;

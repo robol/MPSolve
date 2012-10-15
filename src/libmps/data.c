@@ -128,77 +128,14 @@ mps_allocate_data (mps_context * s)
 long int
 mps_raise_data (mps_context * s, long int prec)
 {
-  int i, k;
-  mps_monomial_poly *p = s->monomial_poly;
+  int k;
+  mps_polynomial *p = s->active_poly;
 
   /* raise the precision of  mroot */
   for (k = 0; k < s->n; k++)
     mpc_set_prec (s->root[k]->mvalue, prec);
 
-  if (!MPS_INPUT_CONFIG_IS_USER (s->input_config))
-    {
-      /* raise the precision of  mfpc */
-      for (k = 0; k < s->n + 1; k++)
-        if (!MPS_INPUT_CONFIG_IS_SPARSE (s->input_config) || p->spar[k])
-          mpc_set_prec (p->mfpc[k], prec);
-
-      for (i = 0; i <= s->n; i++)
-        if (!MPS_INPUT_CONFIG_IS_SPARSE (s->input_config) || p->spar[i])
-          {
-	    if (MPS_INPUT_CONFIG_IS_REAL (s->input_config))
-	      {
-		if (MPS_INPUT_CONFIG_IS_RATIONAL (s->input_config) ||
-		    MPS_INPUT_CONFIG_IS_INTEGER (s->input_config))
-		  {
-		    mpf_set_q (mpc_Re (p->mfpc[i]), p->initial_mqp_r[i]);
-                    mpf_set_ui (mpc_Im (p->mfpc[i]), 0);
-                    /* GMP 2.0.2 bug begin */
-                    if (mpf_sgn (mpc_Re (p->mfpc[i])) !=
-                        mpq_sgn (p->initial_mqp_r[i]))
-                      mpf_neg (mpc_Re (p->mfpc[i]), mpc_Re (p->mfpc[i]));
-                    /* GMP bug end */
-		  }
-	      }
-	    else if (MPS_INPUT_CONFIG_IS_COMPLEX (s->input_config))
-	      {
-		if (MPS_INPUT_CONFIG_IS_INTEGER (s->input_config) ||
-		    MPS_INPUT_CONFIG_IS_RATIONAL (s->input_config))
-		  {
-                    mpc_set_q (p->mfpc[i], p->initial_mqp_r[i], p->initial_mqp_i[i]);
-                    /* GMP 2.0.2 bug begin */
-                    if (mpf_sgn (mpc_Re (p->mfpc[i])) !=
-                        mpq_sgn (p->initial_mqp_r[i]))
-                      mpf_neg (mpc_Re (p->mfpc[i]), mpc_Re (p->mfpc[i]));
-                    if (mpf_sgn (mpc_Im (p->mfpc[i])) !=
-                        mpq_sgn (p->initial_mqp_i[i]))
-                      mpf_neg (mpc_Im (p->mfpc[i]), mpc_Im (p->mfpc[i]));
-                    /* GMP bug end */
-		  }
-              }
-          }
-    }
-
-  /* Raise the precision of p' */
-  if (MPS_INPUT_CONFIG_IS_SPARSE (s->input_config))
-    for (k = 0; k < s->n; k++)
-      if (p->spar[k + 1])
-        {
-          mpc_set_prec (p->mfppc[k], prec);
-          mpc_mul_ui (p->mfppc[k], p->mfpc[k + 1], k + 1);
-        }
-
-  /* raise the precision of auxiliary variables */
-  for (k = 0; k < s->n + 1; k++)
-    {
-      mpc_set_prec (s->mfpc1[k], prec);
-      mpc_set_prec (s->mfppc1[k], prec);
-    }
-
-  if (MPS_INPUT_CONFIG_IS_SPARSE (s->input_config))
-    for (k = 0; k < (s->n + 1) * s->n_threads; k++)
-      mpc_set_prec (s->mfpc2[k], prec);
-
-  return mpc_get_prec (s->root[0]->mvalue);
+  return mps_polynomial_raise_data (s, p, prec);
 }
 
 /**
@@ -212,7 +149,10 @@ void
 mps_raise_data_raw (mps_context * s, long int prec)
 {
   int k;
-  mps_monomial_poly *p = s->monomial_poly;
+  mps_monomial_poly *p = MPS_MONOMIAL_POLY (s->active_poly);
+
+  if (!MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
+    abort ();
 
   /* raise the precision of  mroot */
   for (k = 0; k < s->n; k++)
@@ -264,16 +204,11 @@ mps_prepare_data (mps_context * s, long int prec)
 
   if (prec > s->data_prec_max.value)
     {
-	s->data_prec_max.value = mps_raise_data (s, prec);
+      s->data_prec_max.value = mps_raise_data (s, prec);
     }
   else 
     {
-      if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
-	{
-	  mps_monomial_poly_raise_precision (s, s->monomial_poly, prec);
-	}
-      else if (MPS_INPUT_CONFIG_IS_SECULAR (s->input_config))
-	mps_secular_raise_coefficient_precision (s, prec);
+      mps_polynomial_raise_data (s, s->active_poly, prec);
     }
 
   MPS_UNLOCK (s->data_prec_max);

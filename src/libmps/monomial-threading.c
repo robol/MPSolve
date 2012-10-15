@@ -20,7 +20,7 @@ mps_thread_fpolzer_worker (void *data_ptr)
 {
   mps_thread_worker_data *data = (mps_thread_worker_data *) data_ptr;
   mps_context *s = data->s;
-  mps_monomial_poly *p = s->monomial_poly;
+  mps_monomial_poly *p = MPS_MONOMIAL_POLY (s->active_poly);
   int i, iter;
   cplx_t corr, abcorr, froot;
   double rad1, modcorr;
@@ -205,7 +205,7 @@ mps_thread_dpolzer_worker (void *data_ptr)
   /* Parse input data */
   mps_thread_worker_data *data = (mps_thread_worker_data *) data_ptr;
   mps_context *s = data->s;
-  mps_monomial_poly *p = s->monomial_poly;
+  mps_monomial_poly *p = MPS_MONOMIAL_POLY (s->active_poly);
   mps_thread_job job;
 
   while (!(*data->excep) && (*data->nzeros < data->required_zeros))
@@ -371,7 +371,7 @@ mps_thread_mpolzer_worker (void *data_ptr)
 {
   mps_thread_worker_data *data = (mps_thread_worker_data *) data_ptr;
   mps_context *s = data->s;
-  mps_monomial_poly *p = s->monomial_poly;
+  mps_monomial_poly *p = MPS_MONOMIAL_POLY (s->active_poly);
   mps_thread_job job;
   int iter, l;
   mpc_t corr, abcorr, mroot, diff;
@@ -390,7 +390,7 @@ mps_thread_mpolzer_worker (void *data_ptr)
 
   it_data.local_ampc = it_data.local_bmpc = NULL;
 
-  if (s->mnewton_usr == mps_secular_mnewton) 
+  if (MPS_INPUT_CONFIG_IS_SECULAR (s->input_config))
     {
       it_data.local_ampc = mpc_valloc (s->n);
       it_data.local_bmpc = mpc_valloc (s->n);
@@ -398,8 +398,8 @@ mps_thread_mpolzer_worker (void *data_ptr)
       mpc_vinit2 (it_data.local_bmpc, s->n, s->mpwp);
       for (i = 0; i < s->n; i++)
 	{
-	  mpc_set (it_data.local_ampc[i], s->secular_equation->ampc[i]);
-	  mpc_set (it_data.local_bmpc[i], s->secular_equation->bmpc[i]);
+	  mpc_set (it_data.local_ampc[i], MPS_SECULAR_EQUATION (s->active_poly)->ampc[i]);
+	  mpc_set (it_data.local_bmpc[i], MPS_SECULAR_EQUATION (s->active_poly)->bmpc[i]);
 	}
     }
 

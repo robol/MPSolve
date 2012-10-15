@@ -22,6 +22,7 @@ include_HEADERS = \
         ${top_srcdir}/include/mps/threading.h \
 	${top_srcdir}/include/mps/context.h \
 	${top_srcdir}/include/mps/options.h \
+	${top_srcdir}/include/mps/polynomial.h \
 	$(NULL)
 
 AM_CPPFLAGS= \
@@ -33,6 +34,7 @@ libmps_la_SOURCES = \
 	    aberth.c \
             approximation.c \
 	    cluster.c \
+	    context.c \
 	    convex.c \
 	    data.c \
 	    debug.c \
@@ -49,11 +51,11 @@ libmps_la_SOURCES = \
 	    main.c \
 	    modify.c \
 	    monomial-poly.c \
-	    monomial-radius.c \
 	    monomial-threading.c \
 	    mpc.c \
 	    mt.c \
 	    newton.c \
+	    polynomial.c \
 	    secular-evaluation.c \
 	    secular-ga.c \
 	    secular-iteration.c \
@@ -65,7 +67,6 @@ libmps_la_SOURCES = \
 	    solve.c \
 	    sort.c \
 	    starting.c \
-	    status.c \
 	    stio.c \
 	    test.c \
 	    threading.c \

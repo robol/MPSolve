@@ -280,7 +280,7 @@ void
 mps_setup (mps_context * s)
 {
   int i;
-  mps_monomial_poly *p = s->monomial_poly;
+  mps_monomial_poly *p = MPS_MONOMIAL_POLY(s->active_poly);
   mpf_t mptemp;
   mpc_t mptempc;
 
@@ -297,7 +297,7 @@ mps_setup (mps_context * s)
 
   /* setup temporary vectors */
    if (MPS_INPUT_CONFIG_IS_SPARSE (s->input_config)) 
-     for (i = 0; i <= s->n; i++) 
+     for (i = 0; i <= MPS_POLYNOMIAL (p)->degree; i++) 
        { 
          p->fap[i] = 0.0;
          p->fpr[i] = 0.0;
@@ -405,7 +405,7 @@ mps_setup (mps_context * s)
 
   /* prepare floating point vectors */
   if (!s->skip_float)
-    for (i = 0; i <= p->n; i++)
+    for (i = 0; i <= MPS_POLYNOMIAL (p)->degree; i++)
       {
         if (MPS_INPUT_CONFIG_IS_SPARSE (s->input_config) || !p->spar[i])
           continue;
@@ -441,7 +441,7 @@ void
 mps_check_data (mps_context * s, char *which_case)
 {
   rdpe_t min_coeff, max_coeff, tmp;
-  mps_monomial_poly *p = s->monomial_poly;
+  mps_monomial_poly *p = MPS_MONOMIAL_POLY (s->active_poly);
   cdpe_t ctmp;
   int i;
 

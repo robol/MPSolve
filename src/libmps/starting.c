@@ -1070,7 +1070,7 @@ mps_frestart (mps_context * s)
   double sr, sum, rtmp, rtmp1;
   cplx_t sc, corr, ctmp;
   mps_boolean tst;
-  mps_monomial_poly *p = s->monomial_poly;
+  mps_monomial_poly *p = MPS_MONOMIAL_POLY (s->active_poly);
   mps_approximation * g = NULL;
 
   s->operation = MPS_OPERATION_SHIFT;
@@ -1164,17 +1164,17 @@ mps_frestart (mps_context * s)
       /* Compute the coefficients of the derivative of p(x) having order
        * equal to the multiplicity of the cluster -1. */
       sum = 0.0;
-      for (j = 0; j <= p->n; j++)
+      for (j = 0; j <= MPS_POLYNOMIAL (p)->degree; j++)
         {
           sum += cplx_mod (p->fpc[j]);
           cplx_set (p->fppc[j], p->fpc[j]);
         }
       for (j = 1; j < cluster->n; j++)
         {
-          for (k = 0; k <= p->n - j; k++)
+          for (k = 0; k <= MPS_POLYNOMIAL (p)->degree - j; k++)
             cplx_mul_d (p->fppc[k], p->fppc[k + 1], (double) (k + 1));
         }
-      for (j = 0; j < p->n - cluster->n + 2; j++)
+      for (j = 0; j < MPS_POLYNOMIAL (p)->degree - cluster->n + 2; j++)
         s->fap1[j] = cplx_mod (p->fppc[j]);
 
       /* Apply at most max_newt_it steps of Newton's iterations
@@ -1187,7 +1187,7 @@ mps_frestart (mps_context * s)
       // cplx_set (g, sc);
       for (j = 0; j < s->max_newt_it; j++)
         {
-          mps_fnewton (s, p->n - cluster->n + 1, g,
+          mps_fnewton (s, MPS_POLYNOMIAL (p)->degree - cluster->n + 1, g,
                        corr, p->fppc, s->fap1, false);
           cplx_sub_eq (g->fvalue, corr);
           if (!g->again)
@@ -1273,7 +1273,7 @@ mps_drestart (mps_context * s)
   rdpe_t sr, rtmp, rtmp1;
   cdpe_t sc, corr, ctmp;
   mps_boolean tst;
-  mps_monomial_poly *p = s->monomial_poly;
+  mps_monomial_poly *p = MPS_MONOMIAL_POLY (s->active_poly);
 
   /* Cluster related variables */
   mps_cluster_item * c_item;
@@ -1443,7 +1443,7 @@ mps_mrestart (mps_context * s)
   cdpe_t tmp;
   mpf_t rea, srmp;
   mpc_t sc, corr, temp;
-  mps_monomial_poly* p = s->monomial_poly;
+  mps_monomial_poly* p = MPS_MONOMIAL_POLY (s->active_poly);
 
   /* Variables for cluster iteration */
   mps_cluster_item * c_item;
@@ -1613,7 +1613,7 @@ mps_mrestart (mps_context * s)
 	    {
 	      if (s->debug_level & MPS_DEBUG_CLUSTER)
 		MPS_DEBUG (s, "Raising precision of the derivative to %ld bits", prec * 2);
-	      mps_monomial_poly_raise_precision (s, der, prec * 2);
+	      mps_polynomial_raise_data (s, MPS_POLYNOMIAL (der), prec * 2);
 	      mpc_set_prec (g->mvalue, prec * 2);
 	    }
 	} while (rdpe_gt (error, epsilon) && mps_monomial_poly_get_precision (s, der) <= cluster->n * s->mpwp);
@@ -1684,7 +1684,7 @@ mps_mrestart (mps_context * s)
             break;
         }
 
-      mps_monomial_poly_free (s, der);
+      mps_polynomial_free (s, MPS_POLYNOMIAL (der));
 
       if (s->debug_level & MPS_DEBUG_CLUSTER)
 	MPS_DEBUG (s, "Performed %d Newton iterations", j);
@@ -1805,7 +1805,7 @@ mps_fshift (mps_context * s, int m, mps_cluster_item * cluster_item, double clus
   int i, j;
   double ag;
   cplx_t t;
-  mps_monomial_poly *p = s->monomial_poly;
+  mps_monomial_poly *p = MPS_MONOMIAL_POLY (s->active_poly);
 
   /* Perform divisions */
   ag = cplx_mod (g);
@@ -1845,7 +1845,7 @@ mps_dshift (mps_context * s, int m, mps_cluster_item * cluster_item, rdpe_t clus
   int i, j;
   rdpe_t ag;
   cdpe_t t;
-  mps_monomial_poly * p = s->monomial_poly;
+  mps_monomial_poly * p = MPS_MONOMIAL_POLY (s->active_poly);
 
   cdpe_mod (ag, g);
   for (i = 0; i <= s->n; i++)
@@ -1883,7 +1883,7 @@ mps_mshift (mps_context * s, int m, mps_cluster_item * cluster_item, rdpe_t clus
   rdpe_t ag, ap, abp, as, mp_ep;
   cdpe_t abd;
   mpc_t t;
-  mps_monomial_poly *p = s->monomial_poly;
+  mps_monomial_poly *p = MPS_MONOMIAL_POLY (s->active_poly);
   /* mps_cluster * cluster = cluster_item->cluster;   */
 
   mpc_init2 (t, s->mpwp);
@@ -1909,7 +1909,7 @@ mps_mshift (mps_context * s, int m, mps_cluster_item * cluster_item, rdpe_t clus
   
   do
     {                           /* loop */
-      mpc_set (t, s->mfpc1[p->n]);
+      mpc_set (t, s->mfpc1[MPS_POLYNOMIAL (p)->degree]);
       mpc_get_cdpe (abd, p->mfpc[s->n]);
       cdpe_mod (ap, abd);
       for (j = s->n - 1; j >= 0; j--)

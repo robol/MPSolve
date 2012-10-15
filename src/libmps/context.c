@@ -151,8 +151,10 @@ mps_context_free (mps_context * s)
   free (s->output_config);
 
   /* Check if secular equation or monomial poly need to be freed */
-  if (s->monomial_poly)
-    mps_monomial_poly_free (s, s->monomial_poly);
+  if (s->active_poly != NULL)
+    mps_polynomial_free (s, s->active_poly);
+  s->active_poly = NULL;
+
   if (s->secular_equation)
     mps_secular_equation_free (s->secular_equation);
 
@@ -203,10 +205,8 @@ mps_context_set_poly_u (mps_context * s, int n, mps_fnewton_ptr fnewton,
                        mps_dnewton_ptr dnewton, mps_mnewton_ptr mnewton)
 {
   mps_monomial_poly *p = mps_monomial_poly_new (s, n);
-  s->monomial_poly = p;
+  s->active_poly = MPS_POLYNOMIAL (p);
 
-  /* Set degree and allocate data */
-  mps_context_set_degree (s, n);
 
   /* Set functions */
   s->fnewton_usr = fnewton;
@@ -239,19 +239,19 @@ mps_context_set_degree (mps_context * s, int n)
  * @param p The mps_monomial_poly to solve.
  */
 void
-mps_context_set_input_poly (mps_context * s, mps_polynomial * p)
+mps_context_set_input_poly (mps_context * s, mps_monomial_poly * p)
 {
   MPS_DEBUG_THIS_CALL;
 
   int i;
-  s->active_poly = p;
-  mps_context_set_degree (s, p->degree);
+  s->active_poly = MPS_POLYNOMIAL (p);
+  mps_context_set_degree (s, MPS_POLYNOMIAL (p)->degree);
 
   /* Set the right flag for the input */
-  s->input_config->representation = p->representation;
+  s->input_config->representation = MPS_REPRESENTATION_MONOMIAL;
 
   /* Set the mps_structure passed as input */
-  s->input_config->structure = p->structure;
+  s->input_config->structure = MPS_POLYNOMIAL (p)->structure;
 
   /* Set the density or sparsity of the polynomial, if it's not
    * a user polynomial */
@@ -262,7 +262,7 @@ mps_context_set_input_poly (mps_context * s, mps_polynomial * p)
       /* Check if the input polynomial is sparse or not. We can simply check if
        * the again vector is all of true values */
       s->input_config->density = MPS_DENSITY_DENSE;
-      for (i = 0; i <= mp->n; ++i)
+      for (i = 0; i <= MPS_POLYNOMIAL (mp)->degree; ++i)
 	{
 	  if (!mp->spar[i])
 	    {

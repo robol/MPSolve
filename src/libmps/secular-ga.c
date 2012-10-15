@@ -302,12 +302,12 @@ mps_secular_ga_mpsolve (mps_context * s)
       return;
     }
 
-  /* Check if the secular equation is allocate or if only the
+  /* Check if the secular equation is allocated or if only the
    * polynomial is present. In the last case, allocate an empty
    * secular equation to hold the data during the computation. */
   if (!s->secular_equation)
     {
-      s->secular_equation = mps_secular_equation_new_raw (s, s->monomial_poly->n);
+      s->secular_equation = mps_secular_equation_new_raw (s, s->n);
       sec = mps_secular_equation_from_status (s);
     }
 
@@ -359,9 +359,9 @@ mps_secular_ga_mpsolve (mps_context * s)
 
   /* If the input was polynomial we need to determined the secular
    * coefficients */
-  if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
+  if (!MPS_INPUT_CONFIG_IS_SECULAR (s->input_config))
     {
-      mps_monomial_poly *p = s->monomial_poly;
+      mps_polynomial *p = s->active_poly;
 
       for (i = 0; i < s->n; i++)
 	{
@@ -389,12 +389,11 @@ mps_secular_ga_mpsolve (mps_context * s)
 	s->lastphase = s->input_config->starting_phase;
 
       MPS_DEBUG_WITH_INFO (s, "Computing starting points");
+
       if (s->lastphase == float_phase)
-	  mps_fstart (s, s->n, NULL, 0.0, 0.0, s->eps_out, p->fap);
+	mps_polynomial_fstart (s, p);
       else
-	mps_dstart (s, s->n, NULL, (__rdpe_struct *) rdpe_zero,
-		    (__rdpe_struct *) rdpe_zero, s->eps_out,
-		    p->dap);
+	mps_polynomial_dstart (s, p);
 
       /* Check if we can manage to perform the recomputatio of the
        * coefficients. If in floating point, switch do DPE if it fail.
@@ -405,9 +404,8 @@ mps_secular_ga_mpsolve (mps_context * s)
 	    {
 	      MPS_DEBUG(s, "Switching to DPE phase since initial regeneration of the coefficients did not succeed.");
 	      s->lastphase = dpe_phase;
-	      mps_dstart (s, s->n, 0, (__rdpe_struct *) rdpe_zero,
-			  (__rdpe_struct *) rdpe_zero, s->eps_out,
-			  p->dap);
+	      mps_polynomial_dstart (s, p);
+
 	      if (!mps_secular_ga_regenerate_coefficients (s))
 		{
 		  MPS_DEBUG_WITH_INFO (s, "Initial generation of the secular equation coefficients did not succeed");

@@ -37,11 +37,11 @@ mps_mhorner (mps_context * s, mps_monomial_poly * p, mpc_t x, mpc_t value)
     }
   else  
     { 
-      mps_with_lock (p->mfpc_mutex[p->n],
-		     mpc_set (value, p->mfpc[p->n]);
+      mps_with_lock (p->mfpc_mutex[MPS_POLYNOMIAL (p)->degree],
+		     mpc_set (value, p->mfpc[MPS_POLYNOMIAL (p)->degree]);
 		     );
 
-      for (j = p->n - 1; j >= 0; j--)
+      for (j = MPS_POLYNOMIAL (p)->degree - 1; j >= 0; j--)
 	{
 	  mpc_mul_eq (value, x);
 	  
@@ -83,7 +83,7 @@ mps_mhorner_with_error2 (mps_context * s, mps_monomial_poly * p, mpc_t x, mpc_t 
   if (mpc_get_prec (p->mfpc[0]) < wp)
     {
       pthread_mutex_unlock (&p->mfpc_mutex[0]);
-      mps_monomial_poly_raise_precision (s, p, wp);
+      mps_monomial_poly_raise_precision (s, MPS_POLYNOMIAL (p), wp);
     }
   else
     pthread_mutex_unlock (&p->mfpc_mutex[0]);
@@ -101,8 +101,8 @@ mps_mhorner_with_error2 (mps_context * s, mps_monomial_poly * p, mpc_t x, mpc_t 
   mpc_get_cdpe (cx, x);
   cdpe_mod (ax, cx);
 
-  rdpe_set (apol, p->dap[p->n]);
-  for (i = p->n - 1; i >= 0; i--)
+  rdpe_set (apol, p->dap[MPS_POLYNOMIAL (p)->degree]);
+  for (i = MPS_POLYNOMIAL (p)->degree - 1; i >= 0; i--)
     {
       rdpe_mul_eq (apol, ax);
       rdpe_add_eq (apol, p->dap[i]);
@@ -155,8 +155,8 @@ mps_mhorner_with_error (mps_context * s, mps_monomial_poly * p, mpc_t x, mpc_t v
 
   rdpe_set (relative_error, rdpe_zero);
 
-  mpc_set (value, p->mfpc[p->n]);
-  for (j = p->n - 1; j >= 0; j--)
+  mpc_set (value, p->mfpc[MPS_POLYNOMIAL (p)->degree]);
+  for (j = MPS_POLYNOMIAL (p)->degree - 1; j >= 0; j--)
     {
       /* Normal horner computation */
       mpc_mul (ss, value, x);
@@ -208,10 +208,10 @@ mps_mhorner_sparse (mps_context * s, mps_monomial_poly * p, mpc_t x,
 
   /* Degree of the polynomial and sparsity vector */
   mps_boolean * b = p->spar;
-  int n = p->n + 1;
+  int n = MPS_POLYNOMIAL (p)->degree + 1;
 
-  mps_boolean *spar2 = mps_boolean_valloc (p->n + 2);
-  mpc_t *mfpc2 = mps_newv (mpc_t, p->n + 1);
+  mps_boolean *spar2 = mps_boolean_valloc (MPS_POLYNOMIAL (p)->degree + 2);
+  mpc_t *mfpc2 = mps_newv (mpc_t, MPS_POLYNOMIAL (p)->degree + 1);
 
   long int wp;
 
@@ -219,7 +219,7 @@ mps_mhorner_sparse (mps_context * s, mps_monomial_poly * p, mpc_t x,
 
   pthread_mutex_lock (&p->mfpc_mutex[0]);
   wp = mpc_get_prec (p->mfpc[0]);
-  mpc_vinit2 (mfpc2, p->n + 1, wp);
+  mpc_vinit2 (mfpc2, MPS_POLYNOMIAL (p)->degree + 1, wp);
   pthread_mutex_unlock (&p->mfpc_mutex[0]);
 
   mpc_init2 (tmp, wp);
@@ -271,7 +271,7 @@ mps_mhorner_sparse (mps_context * s, mps_monomial_poly * p, mpc_t x,
   mpc_clear (y);
   mpc_clear (tmp);
 
-  mpc_vclear (mfpc2, p->n + 1);
+  mpc_vclear (mfpc2, MPS_POLYNOMIAL (p)->degree + 1);
   free (spar2);
   free (mfpc2);
 }
@@ -289,8 +289,8 @@ mps_dhorner (mps_context * s, mps_monomial_poly * p, cdpe_t x, cdpe_t value)
 {
   int j;
 
-  cdpe_set (value, p->dpc[p->n]);
-  for (j = p->n - 1; j >= 0; j--)
+  cdpe_set (value, p->dpc[MPS_POLYNOMIAL (p)->degree]);
+  for (j = MPS_POLYNOMIAL (p)->degree - 1; j >= 0; j--)
     {
       cdpe_mul_eq (value, x);
       cdpe_add_eq (value, p->dpc[j]);
@@ -318,8 +318,8 @@ mps_dhorner_with_error (mps_context * s, mps_monomial_poly * p, cdpe_t x, cdpe_t
   mps_dhorner (s, p, x, value);
   
   cdpe_mod (ax, x);
-  rdpe_set (error, p->dap[p->n]);
-  for (j = p->n - 1; j >= 0; j--)
+  rdpe_set (error, p->dap[MPS_POLYNOMIAL (p)->degree]);
+  for (j = MPS_POLYNOMIAL (p)->degree - 1; j >= 0; j--)
     {
       rdpe_mul_eq (error, ax);
       rdpe_add_eq (error, p->dap[j]);
@@ -341,8 +341,8 @@ mps_fhorner (mps_context * s, mps_monomial_poly * p, cplx_t x, cplx_t value)
 {
   int j;
 
-  cplx_set (value, p->fpc[p->n]);
-  for (j = p->n - 1; j >= 0; j--)
+  cplx_set (value, p->fpc[MPS_POLYNOMIAL (p)->degree]);
+  for (j = MPS_POLYNOMIAL (p)->degree - 1; j >= 0; j--)
     {
       cplx_mul_eq (value, x);
       cplx_add_eq (value, p->fpc[j]);
@@ -368,8 +368,8 @@ mps_fhorner_with_error (mps_context * s, mps_monomial_poly * p, cplx_t x, cplx_t
 
   mps_fhorner (s, p, x, value);
 
-  *error = p->fap[p->n];
-  for (j = p->n - 1; j >= 0; j--)
+  *error = p->fap[MPS_POLYNOMIAL (p)->degree];
+  for (j = MPS_POLYNOMIAL (p)->degree - 1; j >= 0; j--)
     {
       *error *= ax;
       *error += p->fap[j];

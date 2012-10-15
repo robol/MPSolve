@@ -469,8 +469,7 @@ mps_secular_raise_coefficient_precision (mps_context * s, int wp)
       return;
     }
 
-  if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
-    mps_monomial_poly_raise_precision (s, s->monomial_poly, wp);
+  mps_polynomial_raise_data (s, s->active_poly, wp);
 
   if (sec->db.active == 1)
     {

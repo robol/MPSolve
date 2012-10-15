@@ -26,7 +26,7 @@ mps_inclusion (mps_context * s)
   rdpe_t ap, az, temp, ep, apeps;
   cdpe_t temp1;
   mpc_t p;
-  mps_monomial_poly *poly = s->monomial_poly;
+  mps_monomial_poly *poly = MPS_MONOMIAL_POLY (s->active_poly);
 
 
   /* add inclusion code here */

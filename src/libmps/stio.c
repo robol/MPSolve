@@ -364,7 +364,7 @@ mps_monomial_poly_read_from_stream (mps_context * s,
 	}
     }
 
-  poly->structure = s->input_config->structure;
+  MPS_POLYNOMIAL (poly)->structure = s->input_config->structure;
   mps_context_set_input_poly (s, poly);
   mpf_clear (ftmp);
 }
@@ -936,7 +936,7 @@ mps_parse_stream_old (mps_context * s, mps_input_buffer * buffer)
 	}
     }
 
-  poly->structure = s->input_config->structure;
+  MPS_POLYNOMIAL (poly)->structure = s->input_config->structure;
   mps_context_set_input_poly (s, poly);
   mpf_clear (ftmp);
   mpq_clear (qtmp);

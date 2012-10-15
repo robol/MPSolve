@@ -412,7 +412,7 @@ mps_fsolve (mps_context * s, mps_boolean * d_after_f)
   mps_boolean excep;
   int it_pack, iter, nit, oldnclust, i, j, required_zeros = s->n;
   rdpe_t eps_out;
-  mps_monomial_poly *p = s->monomial_poly;
+  mps_monomial_poly *p = MPS_MONOMIAL_POLY (s->active_poly);
   double * frad = double_valloc (s->n);
 
   /* == 1 ==  Initialize variables */
@@ -616,7 +616,7 @@ mps_fpolzer (mps_context * s, int *it, mps_boolean * excep)
   int i, iter, nzeros;
   cplx_t corr, abcorr;
   double rad1, modcorr;
-  mps_monomial_poly * p = s->monomial_poly;
+  mps_monomial_poly * p = MPS_MONOMIAL_POLY (s->active_poly);
 
   /* initialize the iteration counter */
   *it = 0;
@@ -712,7 +712,7 @@ mps_dpolzer (mps_context * s, int *it, mps_boolean * excep)
   int iter, i, nzeros;
   rdpe_t rad1, rtmp;
   cdpe_t corr, abcorr;
-  mps_monomial_poly * p = s->monomial_poly;
+  mps_monomial_poly * p = MPS_MONOMIAL_POLY (s->active_poly);
 
   /* initialize the iteration counter */
   *it = 0;
@@ -803,7 +803,7 @@ mps_dsolve (mps_context * s, mps_boolean d_after_f)
   int it_pack, iter, nit, oldnclust, i, j, required_zeros = s->n;
   mps_boolean excep;
   rdpe_t dummy;
-  mps_monomial_poly * p = s->monomial_poly;
+  mps_monomial_poly * p = MPS_MONOMIAL_POLY (s->active_poly);
   rdpe_t * drad = rdpe_valloc (s->n);
 
   if (s->DOLOG)
@@ -1279,7 +1279,7 @@ mps_mpolzer (mps_context * s, int *it, mps_boolean * excep)
   mpc_t corr, abcorr;
   rdpe_t eps, rad1, rtmp;
   cdpe_t ctmp;
-  mps_monomial_poly * p = s->monomial_poly;
+  mps_monomial_poly * p = MPS_MONOMIAL_POLY (s->active_poly);
 
   mpc_init2 (abcorr, s->mpwp);
   mpc_init2 (corr, s->mpwp);

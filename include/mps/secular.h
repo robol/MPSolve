@@ -21,6 +21,8 @@ extern "C"
 #include <mps/mps.h>
 #include <float.h>
 
+#define MPS_SECULAR_EQUATION(t) ((mps_secular_equation *) t)
+
 #ifdef _MPS_PRIVATE
 
   /* CONSTANTS */

@@ -12,6 +12,7 @@
 
 
 #include <mps/mps.h>
+#include <math.h>
 
 /**
  * @brief Compute the floating point inclusion radius according to the 
@@ -23,17 +24,51 @@
 void
 mps_fradii (mps_context * s, double * fradii)
 {
-  int i;
+  MPS_DEBUG_THIS_CALL;
 
-  if (MPS_INPUT_CONFIG_IS_SECULAR (s->input_config))
-    mps_secular_fradii (s, fradii);
-  else if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config) && 
-	   !MPS_INPUT_CONFIG_IS_USER (s->input_config))
-    mps_monomial_fradii (s, fradii);
-  else {
-	  for (i = 0; i < s->n; i++)
-	    fradii[i] = s->root[i]->frad;
-  }
+  cplx_t pol;
+  double new_rad, relative_error;
+  mps_polynomial *p = mps_context_get_active_poly (s);
+  int i, j;
+
+  for (i = 0; i < s->n; i++)
+    {
+      cplx_t diff;
+      
+      /* Compute the value of the polynomial in this point */
+      mps_polynomial_feval (s, p, s->root[i]->fvalue, pol, &relative_error);
+
+      /* If we got a floating point exception, we need to switch to DPE on this component */
+      if (cplx_check_fpe (pol))
+	{
+	  s->root_status[i] = MPS_ROOT_STATUS_NOT_FLOAT;
+	  fradii[i] = DBL_MAX;
+	  continue;
+	}
+      new_rad = cplx_mod (pol) + relative_error + cplx_mod (s->root[i]->fvalue) * 4.0 * DBL_EPSILON;
+
+      for (j = 0; j < s->n; j++)
+	{
+	  if (i == j)
+	    continue;
+
+	  cplx_sub (diff, s->root[i]->fvalue, s->root[j]->fvalue);
+	      
+	  /* Check for floating point exceptions in here */
+	  if (cplx_eq_zero (diff))
+	    {
+	      new_rad = DBL_MAX;
+	      break;
+	    }
+
+	  new_rad /= cplx_mod (diff);
+	}
+
+      if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
+	new_rad /= MPS_MONOMIAL_POLY (p)->fap[p->degree];
+      
+      fradii[i] = new_rad;
+    }
 }
 
 /**
@@ -46,17 +81,47 @@ mps_fradii (mps_context * s, double * fradii)
 void
 mps_dradii (mps_context * s, rdpe_t * dradii)
 {
-  int i;
+  MPS_DEBUG_THIS_CALL;
 
-  if (MPS_INPUT_CONFIG_IS_SECULAR (s->input_config))
-    mps_secular_dradii (s, dradii);
-  else if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config) && 
-	   !MPS_INPUT_CONFIG_IS_USER (s->input_config))
-    mps_monomial_dradii (s, dradii);
-  else {
-    for (i = 0; i < s->n; i++)
-      rdpe_set (dradii[i], s->root[i]->drad);
-  }
+  cdpe_t pol;
+  rdpe_t new_rad, relative_error, rtmp;
+  mps_polynomial * p = s->active_poly;
+  int i, j;
+
+  for (i = 0; i < s->n; i++)
+    {
+      cdpe_t diff;
+      mps_polynomial_deval (s, p, s->root[i]->dvalue, pol, relative_error);
+
+      cdpe_mod (new_rad, pol);
+      rdpe_add_eq (new_rad, relative_error);
+      cdpe_mod (rtmp, s->root[i]->dvalue);
+      rdpe_mul_eq_d (rtmp, 4.0 * DBL_EPSILON);
+      rdpe_add_eq (new_rad, rtmp);
+
+      for (j = 0; j < s->n; j++)
+	{
+	  if (i == j)
+	    continue;
+
+	  cdpe_sub (diff, s->root[i]->dvalue, s->root[j]->dvalue);
+	      
+	  /* Check for floating point exceptions in here */
+	  if (cdpe_eq_zero (diff))
+	    {
+	      rdpe_set (new_rad, RDPE_MAX);
+	      break;
+	    }
+
+	  cdpe_mod (rtmp, diff);
+	  rdpe_div_eq (new_rad, rtmp);
+	}
+
+      if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
+	rdpe_div_eq (new_rad, MPS_MONOMIAL_POLY (p)->dap[p->degree]);
+
+      rdpe_set (dradii[i], new_rad);
+    }
 }
 
 /**
@@ -69,15 +134,61 @@ mps_dradii (mps_context * s, rdpe_t * dradii)
 void
 mps_mradii (mps_context * s, rdpe_t * dradii)
 {
-  int i;
+  MPS_DEBUG_THIS_CALL;
 
-  if (MPS_INPUT_CONFIG_IS_SECULAR (s->input_config))
-    mps_secular_mradii (s, dradii);
-  else if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config) && 
-	   !MPS_INPUT_CONFIG_IS_USER (s->input_config))
-    mps_monomial_mradii (s, dradii);
-  else {
-    for (i = 0; i < s->n; i++)
-      rdpe_set (dradii[i], s->root[i]->drad);
-  }
+  mpc_t pol, mdiff;
+  cdpe_t cpol, diff, cdtmp;
+  rdpe_t new_rad, relative_error, rtmp;
+  mps_polynomial * p = s->active_poly;
+  int i, j;
+
+  mpc_init2 (pol, s->mpwp);
+  mpc_init2 (mdiff, s->mpwp);
+
+  for (i = 0; i < s->n; i++)
+    {
+      mps_polynomial_meval (s, p, s->root[i]->mvalue, pol, relative_error);
+
+      mpc_get_cdpe (cpol, pol);
+      cdpe_mod (new_rad, cpol);
+      rdpe_add_eq (new_rad, relative_error);
+      mpc_get_cdpe (cdtmp, s->root[i]->mvalue);
+      cdpe_mod (rtmp, cdtmp);
+      rdpe_mul_eq (rtmp, s->mp_epsilon);
+      rdpe_add_eq (new_rad, rtmp);
+
+      rdpe_set (relative_error, rdpe_zero);
+
+      for (j = 0; j < s->n; j++)
+	{
+	  if (i == j)
+	    continue;
+
+	  mpc_sub (mdiff, s->root[i]->mvalue, s->root[j]->mvalue);
+	  mpc_get_cdpe (diff, mdiff);
+	      
+	  /* Check for floating point exceptions in here */
+	  if (mpc_eq_zero (mdiff))
+	    {
+	      rdpe_set (dradii[i], RDPE_MAX);
+	      goto mradius_cleanup;
+	    }
+
+	  mpc_rmod (rtmp, mdiff);
+	  rdpe_div_eq (new_rad, rtmp);
+	}
+
+      rdpe_mul_eq_d (new_rad, 1 + 2 * s->n * sqrt(2) * DBL_EPSILON);
+      rdpe_mul_eq_d (new_rad, p->degree);
+
+      if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
+	rdpe_div_eq (new_rad, MPS_MONOMIAL_POLY (p)->dap[s->n]);
+
+      rdpe_set (dradii[i], new_rad);
+    }
+
+ mradius_cleanup:
+
+  mpc_clear (pol);
+  mpc_clear (mdiff);
 }

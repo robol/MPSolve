@@ -599,17 +599,12 @@ extern "C"
     void (*mpsolve_ptr) (mps_context *status);
 
     /**
-     * @brief A pointer to the polynomial that is being solve or
-     * NULL if there is no such monomial representation.
+     * @brief This is the polynomial that is currently being solved in MPSolve.
      */
-    mps_monomial_poly * monomial_poly;
+    mps_polynomial * active_poly;
 
     /**
-     * @brief A pointer that can be set to anything the user
-     * would like to access during computations. It is meant to be
-     * used when implementing fnewton, dnewton and mnewton
-     * functions to provide additional data for the
-     * computing of the polynomial.
+     * @brief Pointer to the secular equation used in computations.
      */
     mps_secular_equation * secular_equation;
 
@@ -671,6 +666,7 @@ extern "C"
   int mps_context_get_roots_m (mps_context * s, mpc_t * roots, rdpe_t * radius);
   int mps_context_get_zero_roots (mps_context * s);
   mps_boolean mps_context_get_over_max (mps_context * s);
+  mps_polynomial * mps_context_get_active_poly (mps_context * ctx);
 
   /* I/O options and flags */
   void mps_context_set_input_prec (mps_context * s, long int prec);

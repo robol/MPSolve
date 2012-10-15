@@ -27,7 +27,7 @@ long int
 mps_secular_ga_update_root_wp (mps_context * s, int i, long int wp, mpc_t * bmpc)
 {
   mps_secular_equation * sec = s->secular_equation;  
-  mps_monomial_poly * p = s->monomial_poly;  
+  mps_polynomial * p = s->active_poly;
   int j;
 
   s->root[i]->wp = ((wp - 1) / 64 + 1) * 64;
@@ -63,9 +63,8 @@ mps_secular_ga_update_root_wp (mps_context * s, int i, long int wp, mpc_t * bmpc
   if (mpc_get_prec (sec->ampc[i]) < s->root[i]->wp)  
     mpc_set_prec (sec->ampc[i], s->root[i]->wp);  
   pthread_mutex_unlock (&sec->ampc_mutex[i]);
-  
-  if (p != NULL)
-    mps_monomial_poly_raise_precision (s, p, s->root[i]->wp);
+
+  mps_polynomial_raise_data (s, p, s->root[i]->wp);
   
   return s->root[i]->wp;
 }
@@ -159,7 +158,7 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
   
   /* Pointers to the secular equation and the monomial_poly */
   mps_secular_equation * sec = s->secular_equation;
-  mps_monomial_poly * p = s->monomial_poly;
+  mps_polynomial * p = s->active_poly;
   int i = data->i, j;
 
   /* Multiprecision variables */
@@ -202,9 +201,13 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
   mpc_init2 (my_b, coeff_wp);
 
   mpc_set_si (lc, -1, 0);
-  mps_with_lock (p->mfpc_mutex[s->n],
-		 mpc_div_eq (lc, p->mfpc[s->n]);
-		 );
+  if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
+    {
+      mps_monomial_poly *mp = MPS_MONOMIAL_POLY (p);
+      mps_with_lock (mp->mfpc_mutex[s->n],
+		     mpc_div_eq (lc, mp->mfpc[s->n]);
+		     );
+    }
       
   /*
    * The new coefficients of the secular equation can be computed
@@ -219,11 +222,19 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
     {
       rdpe_t relative_error, rtmp;
       cdpe_t cpol;
+      mpc_t tx;
+
+      /* Set up a temporary memory location to hold the value of b_i, since we need
+       * to play with its precision. This is not doable directly because it will
+       * disturb other threads at work. */
+      mpc_init2 (tx, s->root[i]->wp);
 
       mps_secular_ga_update_root_wp (s, i, s->root[i]->wp, bmpc);
 
       /* pthread_mutex_lock (&sec->bmpc_mutex[i]); */
-      mps_mhorner_with_error2 (s, p, bmpc[i], sec->ampc[i], relative_error, s->root[i]->wp);
+      /* mpc_set_prec (sec->bmpc[i], s->root[i]->wp); */
+      mpc_set (tx, sec->bmpc[i]);
+      mps_polynomial_meval (s, p, tx, sec->ampc[i], relative_error);
       /* pthread_mutex_unlock (&sec->bmpc_mutex[i]); */
 
       if (s->debug_level & MPS_DEBUG_REGENERATION)
@@ -251,7 +262,8 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
 	  
 	  /* Try to recompute the polynomial with the augmented precision and see if now relative_error matches */
 	  /* pthread_mutex_lock (&sec->bmpc_mutex[i]); */
-	  mps_mhorner_with_error2 (s, p, bmpc[i], sec->ampc[i], relative_error, s->root[i]->wp);
+	  mpc_set_prec (tx, s->root[i]->wp);
+	  mps_polynomial_meval (s, p, tx, sec->ampc[i], relative_error);
 	  /* pthread_mutex_unlock (&sec->bmpc_mutex[i]); */
 	  
 	  if (s->debug_level & MPS_DEBUG_REGENERATION)
@@ -277,9 +289,13 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
 	  mpc_set_prec (mprod_b, s->root[i]->wp);
 	  mpc_set_prec (lc, s->root[i]->wp);
 	  mpc_set_si (lc, -1, 0);
-	  mps_with_lock (p->mfpc_mutex[s->n],
-			 mpc_div_eq (lc, p->mfpc[s->n]);
-			 );
+	  if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
+	    {
+	      mps_monomial_poly *mp = MPS_MONOMIAL_POLY (p);
+	      mps_with_lock (mp->mfpc_mutex[s->n],
+			     mpc_div_eq (lc, mp->mfpc[s->n]);
+			     );
+	    }
 	  mpc_set_prec (my_b, s->root[i]->wp);
 	}
 
@@ -323,6 +339,8 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
 	  MPS_DEBUG_MPC (s, s->mpwp, sec->ampc[i], "a_%d", i);
 	  MPS_DEBUG_MPC (s, s->mpwp, sec->bmpc[i], "b_%d", i);
 	}
+
+      mpc_clear (tx);
       
     } /* Close the case where the coefficient are not approximated or isolated */
       else
