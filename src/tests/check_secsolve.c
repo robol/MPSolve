@@ -414,6 +414,14 @@ START_TEST (test_secsolve_mult)
 }
 END_TEST
 
+START_TEST (test_secsolve_mult_high_precision)
+{
+  test_pol * pol = test_pol_new ("mult1", "unisolve", 400, float_phase, true);
+  test_secsolve_on_pol (pol);
+  test_pol_free (pol);
+}
+END_TEST
+
 START_TEST (test_secsolve_toep)
 {
   test_pol * pol = test_pol_new ("toep1_128", "unisolve", 15, float_phase, true);
@@ -545,6 +553,7 @@ END_TEST
 
   /* Mult* polynomials */
   tcase_add_test (tc_monomial, test_secsolve_mult);
+  tcase_add_test (tc_monomial, test_secsolve_mult_high_precision);
 
   /* Topelitz */
   tcase_add_test (tc_monomial, test_secsolve_toep);
