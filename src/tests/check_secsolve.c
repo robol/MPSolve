@@ -478,6 +478,14 @@ START_TEST (test_secsolve_spiral10_high_precision)
 }
 END_TEST
 
+START_TEST (test_secsolve_mig1_200_high_precision)
+{
+  test_pol * pol = test_pol_new ("mig1_200", "unisolve", 1000, float_phase, true);
+  test_secsolve_on_pol (pol);
+  test_pol_free (pol);
+}
+END_TEST
+
 
 /**
  * @brief Create the secsolve test suite
@@ -554,6 +562,9 @@ END_TEST
   tcase_add_test (tc_monomial, test_secsolve_spiral10);
   tcase_add_test (tc_monomial, test_secsolve_spiral20);
   tcase_add_test (tc_monomial, test_secsolve_spiral10_high_precision);
+
+  /* Mig polynomial with high precision */
+  tcase_add_test (tc_monomial, test_secsolve_mig1_200_high_precision);
 
   /* Add test case to the suite */
   suite_add_tcase (s, tc_secular);
