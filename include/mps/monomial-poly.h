@@ -18,6 +18,7 @@ extern "C"
   #include <pthread.h>
 
 #define MPS_MONOMIAL_POLY(t) ((mps_monomial_poly*) t)
+#define MPS_IS_MONOMIAL_POLY(t) (mps_polynomial_check_type (t, "mps_monomial_poly"))
 
 #ifdef _MPS_PRIVATE
 

@@ -553,20 +553,15 @@ extern  "C"
   void mps_monomial_dradii (mps_context * s, rdpe_t * dradii);
   void mps_monomial_mradii (mps_context * s, rdpe_t * dradii);
 
-  /* Functions in secular-radius.c */
-  void mps_secular_fradii (mps_context * s, double * fradii);
-  void mps_secular_dradii (mps_context * s, rdpe_t * dradii);
-  void mps_secular_mradii (mps_context * s, rdpe_t * dradii);
-
   /* Functions in secular-evaluation.c */
-  void mps_secular_feval (mps_context * s, mps_secular_equation * sec, cplx_t x, cplx_t value);
-  void mps_secular_feval_with_error (mps_context * s, mps_secular_equation * sec, cplx_t x, cplx_t value, double * error);
-  void mps_secular_deval (mps_context * s, mps_secular_equation * sec, cdpe_t x, cdpe_t value);
-  void mps_secular_deval_derivative (mps_context * s, mps_secular_equation * sec, cdpe_t x, cdpe_t value);
-  void mps_secular_deval_with_error (mps_context * s, mps_secular_equation * sec, cdpe_t x, cdpe_t value, rdpe_t error);
-  void mps_secular_meval (mps_context * s, mps_secular_equation * sec, mpc_t x, mpc_t value);
-  mps_boolean mps_secular_meval_with_error (mps_context * s, mps_secular_equation * sec, mpc_t x, mpc_t value, rdpe_t error);
-  void mps_secular_feval_derivative (mps_context * s, mps_secular_equation * sec, cplx_t x, cplx_t value);
+  mps_boolean mps_secular_feval (mps_context * s, mps_polynomial * p, cplx_t x, cplx_t value);
+  mps_boolean mps_secular_feval_with_error (mps_context * s, mps_polynomial * p, cplx_t x, cplx_t value, double * error);
+  mps_boolean mps_secular_deval (mps_context * s, mps_polynomial * p, cdpe_t x, cdpe_t value);
+  mps_boolean mps_secular_deval_derivative (mps_context * s, mps_polynomial * p, cdpe_t x, cdpe_t value);
+  mps_boolean mps_secular_deval_with_error (mps_context * s, mps_polynomial * p, cdpe_t x, cdpe_t value, rdpe_t error);
+  mps_boolean mps_secular_meval (mps_context * s, mps_polynomial * p, mpc_t x, mpc_t value);
+  mps_boolean mps_secular_meval_with_error (mps_context * s, mps_polynomial * p, mpc_t x, mpc_t value, rdpe_t error);
+  mps_boolean mps_secular_feval_derivative (mps_context * s, mps_polynomial * p, cplx_t x, cplx_t value);
   
   /* Function in getopts.c */
   void mps_parse_opts (mps_context * s, int argc, char *argv[]);

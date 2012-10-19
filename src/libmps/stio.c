@@ -546,7 +546,7 @@ mps_secular_equation_read_from_stream (mps_context * s,
     }
 
   /* Copy coefficients back in other places */
-  for (i = 0; i < sec->n; i++)
+  for (i = 0; i < MPS_POLYNOMIAL (sec)->degree; i++)
     {
       /* Bulk copy of the MP coefficients */
       mpc_set (sec->ampc[i], sec->initial_ampc[i]);
@@ -567,8 +567,8 @@ mps_secular_equation_read_from_stream (mps_context * s,
       sec->abfpc[i] = cplx_mod (sec->bfpc[i]);
     }
 
-  s->secular_equation = sec;
-  mps_context_set_degree (s, sec->n);
+  s->active_poly = MPS_POLYNOMIAL (sec);
+  mps_context_set_degree (s, MPS_POLYNOMIAL (sec)->degree);
 
   /* Deflate input, if identical b_i coefficients are found */
   mps_secular_deflate (s, sec);

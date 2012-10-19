@@ -156,7 +156,7 @@ mps_context_free (mps_context * s)
   s->active_poly = NULL;
 
   if (s->secular_equation)
-    mps_secular_equation_free (s->secular_equation);
+    mps_secular_equation_free (s, MPS_POLYNOMIAL (s->secular_equation));
 
   /* Close input and output streams if they're not stdin, stdout and
    * stderr */
@@ -255,7 +255,7 @@ mps_context_set_input_poly (mps_context * s, mps_monomial_poly * p)
 
   /* Set the density or sparsity of the polynomial, if it's not
    * a user polynomial */
-  if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
+  if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config) && !MPS_INPUT_CONFIG_IS_USER (s->input_config))
     {
       mps_monomial_poly *mp = (mps_monomial_poly*) p;
 

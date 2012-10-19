@@ -61,7 +61,7 @@ START_TEST (cluster_isolation)
 
   // Compute the gerschgorin radii of inclusions
   double * gerschgorin_radii = mps_newv (double, 3);
-  mps_monomial_fradii (s, gerschgorin_radii);
+  mps_fradii (s, gerschgorin_radii);
 
   mps_fcluster (s, gerschgorin_radii, 2.0 * s->n);
 

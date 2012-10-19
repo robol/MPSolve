@@ -16,8 +16,8 @@
 #include <math.h>
 
 #define MPS_2SQRT2 2.82842712474619009760
-#define KAPPA_LOG (log2(sec->n) + 7 * 1.4151135 + 1)
-#define KAPPA (sec->n + 7 * 1.4142135623)
+#define KAPPA_LOG (log2(MPS_POLYNOMIAL (sec)->degree) + 7 * 1.4151135 + 1)
+#define KAPPA (MPS_POLYNOMIAL (sec)->degree + 7 * 1.4142135623)
 #define MPS_SQRT2 1.4142135623
 
 /* We need some special codes to identify the meaning of the exit
@@ -161,14 +161,14 @@ mps_secular_fnewton (mps_context * s, mps_approximation * root, cplx_t corr,
   cplx_set (sumb, cplx_zero);
   cplx_set (corr, cplx_zero);
 
-  if ((i = mps_secular_fparallel_sum (s, root, sec->n, s->secular_equation->afpc, 
+  if ((i = mps_secular_fparallel_sum (s, root, MPS_POLYNOMIAL (sec)->degree, s->secular_equation->afpc, 
 				      s->secular_equation->bfpc, pol, 
 				      fp, sumb, &asum, &asum2, &asumb)) >= 0)
     {
       int k;
       asum = 0.0;
 
-      for (k = 0; k < sec->n; k++)
+      for (k = 0; k < MPS_POLYNOMIAL (sec)->degree; k++)
 	{
 	  if (i != k)
 	    {
@@ -382,13 +382,13 @@ mps_secular_dnewton (mps_context * s, mps_approximation * root, cdpe_t corr,
   cdpe_set (sumb, cdpe_zero);
   cdpe_set (corr, cdpe_zero);
 
-  if ((i = mps_secular_dparallel_sum (s, root, sec->n, s->secular_equation->adpc, s->secular_equation->bdpc, 
+  if ((i = mps_secular_dparallel_sum (s, root, MPS_POLYNOMIAL (sec)->degree, s->secular_equation->adpc, s->secular_equation->bdpc, 
 				       pol, fp, sumb, asum, asum2, asumb)) != MPS_PARALLEL_SUM_SUCCESS)
     {
       int k;
       rdpe_set (asum, rdpe_zero);
 
-      for (k = 0; k < sec->n; k++)
+      for (k = 0; k < MPS_POLYNOMIAL (sec)->degree; k++)
 	{
 	  if (i != k)
 	    {
@@ -479,7 +479,7 @@ mps_secular_dnewton (mps_context * s, mps_approximation * root, cdpe_t corr,
       cdpe_mod (new_rad, corr);
       rdpe_mul_d (rtmp, asum_on_apol, KAPPA * DBL_EPSILON);
       rdpe_add_eq (rtmp, rdpe_one);
-      rdpe_mul_eq_d (rtmp, sec->n);
+      rdpe_mul_eq_d (rtmp, MPS_POLYNOMIAL (sec)->degree);
       rdpe_mul_eq (new_rad, rtmp);
 
       if (rdpe_lt (new_rad, root->drad))
@@ -641,7 +641,7 @@ mps_secular_mnewton (mps_context * s, mps_approximation * root, mpc_t corr,
   rdpe_set (asumb, rdpe_zero);
   rdpe_set (asum2, rdpe_zero);
 
-  if ((i = mps_secular_mparallel_sum (s, root, sec->n, ampc, bmpc, pol, fp, sumb, 
+  if ((i = mps_secular_mparallel_sum (s, root, MPS_POLYNOMIAL (sec)->degree, ampc, bmpc, pol, fp, sumb, 
 				      asum, asum2, asumb, sec->ampc_mutex, sec->bmpc_mutex)) != MPS_PARALLEL_SUM_SUCCESS)
     {
       int k;
@@ -660,7 +660,7 @@ mps_secular_mnewton (mps_context * s, mps_approximation * root, mpc_t corr,
       mpc_set (bmpc_i, sec->bmpc[i]);
       pthread_mutex_unlock (&sec->bmpc_mutex[i]);
 
-      for (k = 0; k < sec->n; k++)
+      for (k = 0; k < MPS_POLYNOMIAL (sec)->degree; k++)
 	{
 	  if (i != k)
 	    {
@@ -733,7 +733,7 @@ mps_secular_mnewton (mps_context * s, mps_approximation * root, mpc_t corr,
   /* Check if more iteration on this root are needed or not */
   rdpe_add (rtmp, rdpe_one, asum_on_apol);
   rdpe_mul_eq (rtmp, s->mp_epsilon);
-  rdpe_mul_eq_d (rtmp, MPS_2SQRT2 * sec->n);
+  rdpe_mul_eq_d (rtmp, MPS_2SQRT2 * MPS_POLYNOMIAL (sec)->degree);
   if (rdpe_gt (rtmp, rdpe_one))
     {
       root->again = false;

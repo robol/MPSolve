@@ -60,7 +60,6 @@ libmps_la_SOURCES = \
 	    secular-ga.c \
 	    secular-iteration.c \
 	    secular-newton.c \
-	    secular-radius.c \
 	    secular-regeneration.c \
 	    secular-starting.c \
 	    secular.c \

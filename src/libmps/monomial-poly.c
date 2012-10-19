@@ -25,6 +25,7 @@ mps_monomial_poly_new (mps_context * s, long int degree)
 
   /* Load monomial-poly methods */
   mps_polynomial *poly = (mps_polynomial*) mp;
+  poly->type_name = "mps_monomial_poly";
   poly->feval = mps_monomial_poly_feval;
   poly->deval = mps_monomial_poly_deval;
   poly->meval = mps_monomial_poly_meval;

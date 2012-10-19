@@ -148,138 +148,6 @@ mps_secular_ga_load_initial_coefficients (mps_context * s)
 }
 
 /**
- * @brief Improve the isolated roots. Should be called after isolation
- * is reached and confirmed by <code>mps_secular_ga_check_stop ()</code>.
- *
- * @param s The mps_context of the computation.
- */
-void
-mps_secular_ga_improve (mps_context * s)
-{
-  MPS_DEBUG_THIS_CALL;
-
-  int i;
-  mps_secular_equation  * sec = s->secular_equation;
-
-  if (s->lastphase != mp_phase)
-    mps_secular_switch_phase (s, mp_phase);
-
-  /* Before improving with newton we shall reuse
-   * the original coefficients */
-  mps_secular_ga_load_initial_coefficients (s);
- 
-  mpc_t nwtcorr;
-  cdpe_t ctmp;
-  rdpe_t rtmp, old_rad, abroot;
-
-  mpc_init2 (nwtcorr, s->mpwp);
-
-  int starting_precision = s->mpwp;
-
-  mps_secular_iteration_data it_data;
-  it_data.local_ampc = sec->ampc;
-  it_data.local_bmpc = sec->bmpc;
-
-  for (i = 0; i < s->n; i++)
-    {
-      int j;
-
-      /* Reset precision of coefficients and of the root we're 
-       * interested in. */
-      if (s->mpwp != starting_precision)
-        {
-          mps_secular_raise_coefficient_precision (s, starting_precision);
-          mpc_set_prec (s->root[i]->mvalue, starting_precision);
-          mpc_set_prec (nwtcorr, starting_precision);
-          s->mpwp = starting_precision;
-        }
-
-      mpc_get_cdpe (ctmp, s->root[i]->mvalue);
-      cdpe_mod (rtmp, ctmp);
-      rdpe_div_eq (rtmp, s->root[i]->drad);
-
-      /* Find correct digits and maximum number of iterations */
-      int correct_digits = rdpe_log10 (rtmp) - 1;
-      if (s->debug_level & MPS_DEBUG_IMPROVEMENT)
-	MPS_DEBUG (s, "Root %d has %d correct digits", i, correct_digits);
-      int iterations =
-        log (1.0 * s->output_config->prec / correct_digits / LOG2_10) * LOG2_10 + 1;
-      iterations = (iterations > 0) ? iterations : 0;
-
-      if (s->debug_level & MPS_DEBUG_IMPROVEMENT)
-        {
-          if (iterations != 0)
-	    {
-              MPS_DEBUG (s, "Performing not more than %d iterations on root %d",
-                         iterations, i);
-	    }
-          else
-	    {
-              MPS_DEBUG (s, "Not improving root %d, since it is already approximated", i);
-	    }
-        }
-
-      for (j = 0; j < iterations; j++)
-        { 
-	  rdpe_set (old_rad, s->root[i]->drad);
-          mps_secular_mnewton (s, s->root[i], nwtcorr,
-                               &it_data, false);
-
-	  /* Compute quadratic radius */
-	  mpc_get_cdpe (ctmp, s->root[i]->mvalue); 
-	  cdpe_mod (rtmp, ctmp); 
-	  rdpe_div_eq (old_rad, rtmp); 
-	  rdpe_mul_eq (old_rad, old_rad); 
-	  rdpe_mul_eq (old_rad, rtmp);
-
-	  /* Apply newton correction */
-	  mpc_sub_eq (s->root[i]->mvalue, nwtcorr);
-
-	  mpc_get_cdpe (ctmp, s->root[i]->mvalue);
-	  cdpe_mod (abroot, ctmp);
-	  
-	  correct_digits *= 2;
-	  /* rdpe_set_dl (s->root[i]->drad, 1.0, -correct_digits + 1); */
-	  /* rdpe_add_eq (s->root[i]->drad, s->mp_epsilon); */
-	  /* rdpe_mul_eq (s->root[i]->drad, abroot); */
-
-          /* Debug iterations */
-          if (s->debug_level & MPS_DEBUG_IMPROVEMENT)
-            {
-              MPS_DEBUG_MPC (s, 10, s->root[i]->mvalue, "s->mroot[%d]", i);
-              MPS_DEBUG_RDPE (s, s->root[i]->drad, "s->drad[%d]", i);
-            }
-
-          /* Check if the approximation is already good. */
-          mpc_get_cdpe (ctmp, s->root[i]->mvalue);
-          cdpe_mod (rtmp, ctmp);
-          rdpe_div (rtmp, s->root[i]->drad, rtmp);
-
-          if (rdpe_le (rtmp, s->eps_out))
-            {
-              s->root_status[i] = MPS_ROOT_STATUS_APPROXIMATED;
-              break;
-            }
-          else
-            {
-              s->mpwp *= 2;
-              mps_secular_raise_coefficient_precision (s, s->mpwp);
-              mpc_set_prec (nwtcorr, s->mpwp);
-              mpc_set_prec (s->root[i]->mvalue, s->mpwp);
-	      mps_secular_ga_load_initial_coefficients (s);
-            }
-        }
-
-      /* Since we have passed the bound of the maximum allowed iterations
-       * and quadratic convergence was guaranteed, the root is now 
-       * approximated. */
-      s->root_status[i] = MPS_ROOT_STATUS_APPROXIMATED;
-    }
-  mpc_clear (nwtcorr);
-
-}
-
-/**
  * @brief MPSolve main function for the secular equation solving
  * using Gemignani's approach.
  *
@@ -305,7 +173,7 @@ mps_secular_ga_mpsolve (mps_context * s)
   /* Check if the secular equation is allocated or if only the
    * polynomial is present. In the last case, allocate an empty
    * secular equation to hold the data during the computation. */
-  if (!s->secular_equation)
+  if (!sec)
     {
       s->secular_equation = mps_secular_equation_new_raw (s, s->n);
       sec = mps_secular_equation_from_status (s);
@@ -329,7 +197,7 @@ mps_secular_ga_mpsolve (mps_context * s)
 
   /* Set degree and allocate polynomial-related variables
    * to allow initializitation to be performed. */
-  s->deg = s->n = sec->n;
+  s->deg = s->n = s->active_poly->degree;
 
   /* Manually set FILE* pointer for streams.
    * More refined options will be added later. */
@@ -423,6 +291,20 @@ mps_secular_ga_mpsolve (mps_context * s)
   else
     {
       MPS_DEBUG_WITH_INFO (s, "Generated initial coefficients for the secular equation");
+      
+      for (i = 0; i < s->n; i++)
+	{
+	  cplx_set (s->secular_equation->afpc[i], MPS_SECULAR_EQUATION (s->active_poly)->afpc[i]);
+	  cplx_set (s->secular_equation->bfpc[i], MPS_SECULAR_EQUATION (s->active_poly)->bfpc[i]);
+	  cdpe_set (s->secular_equation->adpc[i], MPS_SECULAR_EQUATION (s->active_poly)->adpc[i]);
+	  cdpe_set (s->secular_equation->bdpc[i], MPS_SECULAR_EQUATION (s->active_poly)->bdpc[i]);
+	  mpc_set (s->secular_equation->ampc[i], MPS_SECULAR_EQUATION (s->active_poly)->ampc[i]);
+	  mpc_set (s->secular_equation->bmpc[i], MPS_SECULAR_EQUATION (s->active_poly)->bmpc[i]);
+
+	  MPS_POLYNOMIAL (s->secular_equation)->degree = s->active_poly->degree;
+	  MPS_POLYNOMIAL (s->secular_equation)->structure = MPS_STRUCTURE_COMPLEX_FP;
+	}
+
       s->lastphase = float_phase;
       for (i = 0; i < s->n; i++)
 	s->root[i]->wp = 53;
@@ -466,7 +348,7 @@ mps_secular_ga_mpsolve (mps_context * s)
   do
     {
       skip_check_stop = false;
-      s->secular_equation->best_approx = false;
+      s->best_approx = false;
 
       /* Perform an iteration of floating point Aberth method */
       switch (s->lastphase)
@@ -515,7 +397,7 @@ mps_secular_ga_mpsolve (mps_context * s)
 
        /* If the iterations has ended in less than 2 * not_computed_roots iterations
 	* and we have just regenerated the coefficients, we should increase precision. */
-       if (sec->best_approx)
+       if (s->best_approx)
 	 {
 	   skip_check_stop = false;
 	   
@@ -542,7 +424,7 @@ mps_secular_ga_mpsolve (mps_context * s)
 	     just_regenerated = true;
 
 	   /* just_regenerated = true; */
-	   sec->best_approx = false;
+	   s->best_approx = false;
 
 	   /* Set the packet counter to zero, we are restarting */
 	   packet = 0;
@@ -581,7 +463,7 @@ mps_secular_ga_mpsolve (mps_context * s)
 		 }
 	       
 	       /* just_regenerated = true; */
-	       sec->best_approx = false;
+	       s->best_approx = false;
 	       
 	       /* Set the packet counter to zero, we are restarting */
 	       packet = 0;
@@ -603,8 +485,6 @@ mps_secular_ga_mpsolve (mps_context * s)
 	  MPS_DEBUG (s, "mps_improve took %u ms", improve_time);
 	}
     }
-
-  mps_restore_data (s);  
 
   /* Debug total time taken but only if debug is enabled */
 #ifndef DISABLE_DEBUG

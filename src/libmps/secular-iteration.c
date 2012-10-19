@@ -235,11 +235,11 @@ mps_secular_ga_fiterate (mps_context * s, int maxit, mps_boolean just_regenerate
       mps_dump (s);
 
   /* Check if we need to get higher precision for the roots */
-   s->secular_equation->best_approx = true; 
+   s->best_approx = true; 
    for (i = 0; i < s->n; i++) 
      { 
        if (!s->root[i]->approximated) 
-   	s->secular_equation->best_approx = false; 
+   	s->best_approx = false; 
        if (s->root[i]->approximated) 
    	approximated_roots++; 
        if (!s->root[i]->again) 
@@ -247,7 +247,7 @@ mps_secular_ga_fiterate (mps_context * s, int maxit, mps_boolean just_regenerate
      } 
 
   if (just_regenerated && (nit <= it_threshold))
-    s->secular_equation->best_approx = true;
+    s->best_approx = true;
 
   MPS_DEBUG_WITH_INFO(s, "%d roots are approximated with the current precision", approximated_roots);
   MPS_DEBUG_WITH_INFO (s,"%d roots are in the root neighborhood", root_neighborhood_roots);
@@ -395,8 +395,6 @@ mps_secular_ga_diterate (mps_context * s, int maxit, mps_boolean just_regenerate
   clock_t *my_clock = mps_start_timer ();
 #endif
 
-  mps_secular_equation *sec = s->secular_equation;
-
   mps_thread_worker_data *data;
   pthread_mutex_t *aberth_mutex =
     (pthread_mutex_t *) mps_malloc (sizeof (pthread_mutex_t) * s->n);
@@ -413,7 +411,7 @@ mps_secular_ga_diterate (mps_context * s, int maxit, mps_boolean just_regenerate
 
   MPS_DEBUG_THIS_CALL;
 
-  sec->best_approx = false;
+  s->best_approx = false;
 
   /* Mark the approximated roots as ready for output */
   for (i = 0; i < s->n; i++)
@@ -465,11 +463,11 @@ mps_secular_ga_diterate (mps_context * s, int maxit, mps_boolean just_regenerate
       mps_dump (s);
 
   /* Check if we need to get higher precision for the roots */
-  s->secular_equation->best_approx = true;
+  s->best_approx = true;
   for (i = 0; i < s->n; i++)
     {
       if (!s->root[i]->approximated)
-	s->secular_equation->best_approx = false;
+	s->best_approx = false;
       if (s->root[i]->approximated)
 	approximated_roots++;
       if (!s->root[i]->again)
@@ -477,7 +475,7 @@ mps_secular_ga_diterate (mps_context * s, int maxit, mps_boolean just_regenerate
     }
 
   if (just_regenerated && (nit <= it_threshold))
-    s->secular_equation->best_approx = true;
+    s->best_approx = true;
 
   MPS_DEBUG_WITH_INFO(s, "%d roots are approximated with the current precision", approximated_roots);
   MPS_DEBUG_WITH_INFO (s,"%d roots are in the root neighborhood", root_neighborhood_roots);
@@ -666,8 +664,6 @@ mps_secular_ga_miterate (mps_context * s, int maxit, mps_boolean just_regenerate
   clock_t *my_clock = mps_start_timer ();
 #endif
 
-  mps_secular_equation *sec = s->secular_equation;
-
   mps_thread_worker_data *data;
   pthread_mutex_t *aberth_mutex =
     (pthread_mutex_t *) mps_malloc (sizeof (pthread_mutex_t) * s->n);
@@ -686,7 +682,7 @@ mps_secular_ga_miterate (mps_context * s, int maxit, mps_boolean just_regenerate
 
   MPS_DEBUG_THIS_CALL;
 
-  sec->best_approx = false;
+  s->best_approx = false;
 
   it_threshold = s->n - computed_roots;
 
@@ -737,11 +733,11 @@ mps_secular_ga_miterate (mps_context * s, int maxit, mps_boolean just_regenerate
       mps_dump (s);
 
   /* Check if we need to get higher precision for the roots */
-  s->secular_equation->best_approx = true;
+  s->best_approx = true;
   for (i = 0; i < s->n; i++)
     {
       if (!s->root[i]->approximated)
-	s->secular_equation->best_approx = false;
+	s->best_approx = false;
       if (s->root[i]->approximated)
 	approximated_roots++;
       if (!s->root[i]->again)
@@ -749,7 +745,7 @@ mps_secular_ga_miterate (mps_context * s, int maxit, mps_boolean just_regenerate
     }
 
   if (just_regenerated && (nit <= it_threshold))
-    s->secular_equation->best_approx = true;
+    s->best_approx = true;
 
   MPS_DEBUG_WITH_INFO(s, "%d roots are approximated with the current precision", approximated_roots);
   MPS_DEBUG_WITH_INFO (s,"%d roots are in the root neighborhood", root_neighborhood_roots);

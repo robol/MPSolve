@@ -291,6 +291,18 @@ extern "C"
     mps_phase lastphase;
 
     /**
+     * @brief Selected starting case, can be 'd' for DPE
+     * or 'f' for floating point
+     */
+    mps_phase starting_case;
+
+    /**
+     * @brief Set to true if the approximation are the best that
+     * can be obtained with the current precision
+     */
+    mps_boolean best_approx;
+
+    /**
      * @brief shift in the angle in the positioning of the
      * starting approximation for the last cluster. It will
      * be used to determine the new sigma to maximize distance
