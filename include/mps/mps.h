@@ -66,7 +66,7 @@ typedef int mps_debug_level;
   struct mps_cluster_item;
   struct mps_clusterization;
 
-  /* secular.h */
+  /* secular-equation.h */
   struct mps_secular_equation;
   struct mps_secular_iteration_data;
 
@@ -112,7 +112,7 @@ extern  "C"
   typedef struct mps_cluster_item mps_cluster_item;
   typedef struct mps_clusterization mps_clusterization;
 
-  /* secular.h */
+  /* secular-equation.h */
   typedef struct mps_secular_equation mps_secular_equation;
   typedef struct mps_secular_iteration_data mps_secular_iteration_data;
 
@@ -462,7 +462,7 @@ extern  "C"
 #include <mps/input-buffer.h>
 #include <mps/context.h>
 #include <mps/monomial-poly.h>
-#include <mps/secular.h>
+#include <mps/secular-equation.h>
 #include <mps/approximation.h>
 
 /* Interface should be a subset of core, so what is defined

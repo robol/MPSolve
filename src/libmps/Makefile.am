@@ -18,7 +18,7 @@ include_HEADERS = \
         ${top_srcdir}/include/mps/link.h \
         ${top_srcdir}/include/mps/mps.h \
         ${top_srcdir}/include/mps/rursolve.h \
-        ${top_srcdir}/include/mps/secular.h \
+        ${top_srcdir}/include/mps/secular-equation.h \
         ${top_srcdir}/include/mps/threading.h \
 	${top_srcdir}/include/mps/context.h \
 	${top_srcdir}/include/mps/options.h \
@@ -62,7 +62,7 @@ libmps_la_SOURCES = \
 	    secular-newton.c \
 	    secular-regeneration.c \
 	    secular-starting.c \
-	    secular.c \
+	    secular-equation.c \
 	    solve.c \
 	    sort.c \
 	    starting.c \

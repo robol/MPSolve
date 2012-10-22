@@ -190,7 +190,7 @@ extern "C"
    * <code>mps_context_set_input_poly()</code> to set it as the active polynomial to solve.
    *
    * -# <code>mps_secular_equation</code>: The same as the monomial poly, but for secular equations.
-   * See secular.h for some functions to allocate, free and manipulate them.
+   * See secular-equation.h for some functions to allocate, free and manipulate them.
    *
    * @subsection async Calling MPSolve asynchronously
    * 
