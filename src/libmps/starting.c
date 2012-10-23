@@ -1473,7 +1473,7 @@ mps_mrestart (mps_context * s)
   /* Try to detach quasi-convergent elements from
    * the clusters */
   /* mps_cluster_detach (s, MPS_ALL_CLUSTERS); */
-  mps_clusterization_detach_clusters (s, s->clusterization); 
+  /* mps_clusterization_detach_clusters (s, s->clusterization);  */
 
   k = 0;
   for (c_item = s->clusterization->first; c_item != NULL; c_item = c_item->next)
