@@ -1146,7 +1146,7 @@ mps_countroots (mps_context * s)
   s->count[0] = s->count[1] = s->count[2] = 0;
 
   for (k = 0; k < s->n; k++)
-    switch (s->root_inclusion[k])
+    switch (s->root[k]->inclusion)
       {
       case MPS_ROOT_INCLUSION_IN:
         s->count[0]++;
@@ -1265,7 +1265,7 @@ mps_outroot (mps_context * s, int i, int num)
     }
 
   /* print real part */
-  if (i == ISZERO || s->root_attrs[i] == MPS_ROOT_ATTRS_IMAG)
+  if (i == ISZERO || s->root[i]->attrs == MPS_ROOT_ATTRS_IMAG)
     fprintf (s->outstr, "0");
   else
     mps_outfloat (s, mpc_Re (s->root[i]->mvalue), s->root[i]->drad, out_digit, true);
@@ -1295,7 +1295,7 @@ mps_outroot (mps_context * s, int i, int num)
     }
 
   /* print imaginary part */
-  if (i == ISZERO || s->root_attrs[i] == MPS_ROOT_ATTRS_REAL)
+  if (i == ISZERO || s->root[i]->attrs == MPS_ROOT_ATTRS_REAL)
     fprintf (s->outstr, "0");
   else
     mps_outfloat (s, mpc_Im (s->root[i]->mvalue), s->root[i]->drad, out_digit,
@@ -1322,9 +1322,9 @@ mps_outroot (mps_context * s, int i, int num)
         {
           rdpe_outln_str (s->outstr, s->root[i]->drad);
           fprintf (s->outstr, "Status: %s, %s, %s\n", 
-		   MPS_ROOT_STATUS_TO_STRING (s->root_status[i]),
-		   MPS_ROOT_ATTRS_TO_STRING (s->root_attrs[i]),
-		   MPS_ROOT_INCLUSION_TO_STRING (s->root_inclusion[i]));
+		   MPS_ROOT_STATUS_TO_STRING (s->root[i]->status),
+		   MPS_ROOT_ATTRS_TO_STRING (s->root[i]->attrs),
+		   MPS_ROOT_INCLUSION_TO_STRING (s->root[i]->inclusion));
         }
       else
         fprintf (s->outstr, " 0\n ---\n");
@@ -1349,11 +1349,11 @@ mps_outroot (mps_context * s, int i, int num)
           fprintf (s->logstr, "  Prec = %ld\n",
                    (long) (mpc_get_prec (s->root[i]->mvalue) / LOG2_10));
           fprintf (s->logstr, "  Approximation = %s\n", 
-		   MPS_ROOT_STATUS_TO_STRING (s->root_status[i]));
+		   MPS_ROOT_STATUS_TO_STRING (s->root[i]->status));
 	  fprintf (s->logstr, "  Attributes = %s\n",
-		   MPS_ROOT_ATTRS_TO_STRING (s->root_attrs[i]));
+		   MPS_ROOT_ATTRS_TO_STRING (s->root[i]->attrs));
 	  fprintf (s->logstr, "  Inclusion = %s\n",
-		   MPS_ROOT_INCLUSION_TO_STRING (s->root_inclusion[i]));
+		   MPS_ROOT_INCLUSION_TO_STRING (s->root[i]->inclusion));
           fprintf (s->logstr, "--------------------\n");
         }
     }
@@ -1402,7 +1402,7 @@ mps_output (mps_context * s)
       for (ind = 0; ind < s->n; ind++)
         {
           i = s->order[ind];
-          if (s->root_inclusion[i] == MPS_ROOT_INCLUSION_OUT)
+          if (s->root[i]->inclusion == MPS_ROOT_INCLUSION_OUT)
             continue;
           mps_outroot (s, i, num++);
         }
@@ -1581,9 +1581,9 @@ mps_dump_status (mps_context * s, FILE * outstr)
   for (i = 0; i < s->n; i++)
     {
       MPS_DEBUG (s, "Status  %4d: %-25s  %-15s  %-15s", i,
-		 MPS_ROOT_STATUS_TO_STRING (s->root_status[i]),
-		 MPS_ROOT_ATTRS_TO_STRING  (s->root_attrs[i]), 
-		 MPS_ROOT_INCLUSION_TO_STRING (s->root_inclusion[i]));
+		 MPS_ROOT_STATUS_TO_STRING (s->root[i]->status),
+		 MPS_ROOT_ATTRS_TO_STRING  (s->root[i]->attrs), 
+		 MPS_ROOT_INCLUSION_TO_STRING (s->root[i]->inclusion));
     }
 }
 

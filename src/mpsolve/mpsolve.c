@@ -93,9 +93,9 @@ status (int signal)
   for (i = 0; i < s->n; i++)
     {
       fprintf (logstr, "  Status  %4d: %-25s  %-15s  %-15s\n", i,
-	       MPS_ROOT_STATUS_TO_STRING (s->root_status[i]),
-	       MPS_ROOT_ATTRS_TO_STRING  (s->root_attrs[i]), 
-	       MPS_ROOT_INCLUSION_TO_STRING (s->root_inclusion[i]));
+	       MPS_ROOT_STATUS_TO_STRING (s->root[i]->status),
+	       MPS_ROOT_ATTRS_TO_STRING  (s->root[i]->attrs), 
+	       MPS_ROOT_INCLUSION_TO_STRING (s->root[i]->inclusion));
     }
 
   fprintf (stderr, "\n\nOperation running now: %s\n", MPS_OPERATION_TO_STRING (s->operation));

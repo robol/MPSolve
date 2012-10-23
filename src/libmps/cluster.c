@@ -297,9 +297,9 @@ mps_cluster_reset (mps_context * s)
 
   for (i = 0; i < s->n; i++) 
     { 
-      s->root_status[i] = MPS_ROOT_STATUS_CLUSTERED;
-      s->root_attrs[i] = MPS_ROOT_ATTRS_NONE;
-      s->root_inclusion[i] = MPS_ROOT_INCLUSION_UNKNOWN;
+      s->root[i]->status = MPS_ROOT_STATUS_CLUSTERED;
+      s->root[i]->attrs = MPS_ROOT_ATTRS_NONE;
+      s->root[i]->inclusion = MPS_ROOT_INCLUSION_UNKNOWN;
     }
 
   if (s->clusterization != NULL)
@@ -764,6 +764,8 @@ mps_debug_cluster_structure (mps_context * s)
 void
 mps_mcluster (mps_context * s, rdpe_t * drad, int nf)
 {
+  MPS_DEBUG_THIS_CALL;
+
   s->operation = MPS_OPERATION_CLUSTER_ANALYSIS;
 
   /* We need to scan every cluster and make it in pieces, if possible */

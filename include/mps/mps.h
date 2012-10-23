@@ -219,9 +219,9 @@ extern  "C"
   static const mps_boolean mps_table_of_approximated_roots [] = { false, false, false, true, true, false, false, false };
   static const mps_boolean mps_table_of_computed_roots [] = { false, false, true, true, true, false, false, false };
   static const mps_boolean mps_table_of_improvable_roots [] = { false, false, true, true, false, false, false, false };
-#define MPS_ROOT_STATUS_IS_APPROXIMATED(s, i) (mps_table_of_approximated_roots[s->root_status[i]]) 
-#define MPS_ROOT_STATUS_IS_COMPUTED(s, i)     (mps_table_of_computed_roots[s->root_status[i]]) 
-#define MPS_ROOT_STATUS_IS_IMPROVABLE(s, i)   (mps_table_of_improvable_roots[s->root_status[i]]) 
+#define MPS_ROOT_STATUS_IS_APPROXIMATED(s, i) (mps_table_of_approximated_roots[s->root[i]->status]) 
+#define MPS_ROOT_STATUS_IS_COMPUTED(s, i)     (mps_table_of_computed_roots[s->root[i]->status]) 
+#define MPS_ROOT_STATUS_IS_IMPROVABLE(s, i)   (mps_table_of_improvable_roots[s->root[i]->status]) 
 
   /* Cast of root_status to string */
   static const mps_string mps_root_status_string[] = {

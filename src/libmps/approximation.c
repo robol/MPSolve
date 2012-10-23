@@ -20,6 +20,11 @@ mps_approximation_new (mps_context * s)
   mpc_init2 (appr->mvalue, s->mpwp);
   appr->again = true;
   appr->approximated = false;
+
+  appr->status = MPS_ROOT_STATUS_CLUSTERED;
+  appr->attrs  = MPS_ROOT_ATTRS_NONE;
+  appr->inclusion = MPS_ROOT_INCLUSION_UNKNOWN;
+
   return appr;
 }
 
@@ -41,5 +46,8 @@ mps_approximation_copy (mps_context * ctx, mps_approximation * original)
   cplx_set (new->fvalue, original->fvalue);
   new->frad = original->frad;
   new->wp = original->wp;
+  new->status = original->status;
+  new->attrs = original->attrs;
+  new->inclusion = original->inclusion;
   return new;
 }

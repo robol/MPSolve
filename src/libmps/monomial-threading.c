@@ -377,9 +377,6 @@ mps_thread_mpolzer_worker (void *data_ptr)
   mpc_t corr, abcorr, mroot, diff;
   rdpe_t eps, rad1, rtmp;
   cdpe_t ctmp;
-  int i;
-
-  mps_secular_iteration_data it_data;
 
   mpc_init2 (abcorr, s->mpwp);
   mpc_init2 (corr, s->mpwp);
@@ -387,21 +384,6 @@ mps_thread_mpolzer_worker (void *data_ptr)
   mpc_init2 (diff, s->mpwp);
 
   rdpe_mul_d (eps, s->mp_epsilon, (double) 4 * s->n);
-
-  it_data.local_ampc = it_data.local_bmpc = NULL;
-
-  if (MPS_INPUT_CONFIG_IS_SECULAR (s->input_config))
-    {
-      it_data.local_ampc = mpc_valloc (s->n);
-      it_data.local_bmpc = mpc_valloc (s->n);
-      mpc_vinit2 (it_data.local_ampc, s->n, s->mpwp);
-      mpc_vinit2 (it_data.local_bmpc, s->n, s->mpwp);
-      for (i = 0; i < s->n; i++)
-	{
-	  mpc_set (it_data.local_ampc[i], MPS_SECULAR_EQUATION (s->active_poly)->ampc[i]);
-	  mpc_set (it_data.local_bmpc[i], MPS_SECULAR_EQUATION (s->active_poly)->bmpc[i]);
-	}
-    }
 
   /* Continue to iterate while exception condition has not
    * been reached and there more roots to approximate   */
@@ -473,7 +455,7 @@ mps_thread_mpolzer_worker (void *data_ptr)
             }
           else /* user's polynomial */ if (s->mnewton_usr != NULL)
             {
-              (*s->mnewton_usr) (s, s->root[l], corr, &it_data, false);
+              (*s->mnewton_usr) (s, s->root[l], corr, NULL, false);
             }
           else
             {
@@ -543,14 +525,6 @@ endfun:                        /* free local MP variables */
   mpc_clear (abcorr);
   mpc_clear (mroot);
   mpc_clear (diff);
-
-  if (s->mnewton_usr == mps_secular_mnewton)
-    {
-      mpc_vclear (it_data.local_ampc, s->n);
-      mpc_vclear (it_data.local_bmpc, s->n);
-      free (it_data.local_ampc);
-      free (it_data.local_bmpc);
-    }
 
   return NULL;
 }

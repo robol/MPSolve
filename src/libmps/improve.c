@@ -140,8 +140,8 @@ mps_improve_root2 (void * data_ptr)
 
   if (ctx->debug_level & MPS_DEBUG_IMPROVEMENT)
     MPS_DEBUG (ctx, "Starting to refine root %d", i);
-  if (ctx->root_status[i] != MPS_ROOT_STATUS_ISOLATED || 
-      ctx->root_status[i] == MPS_ROOT_STATUS_APPROXIMATED_IN_CLUSTER)
+  if (ctx->root[i]->status != MPS_ROOT_STATUS_ISOLATED || 
+      ctx->root[i]->status == MPS_ROOT_STATUS_APPROXIMATED_IN_CLUSTER)
     {
       if (ctx->debug_level & MPS_DEBUG_IMPROVEMENT)
 	MPS_DEBUG (ctx, "Not approximating root %d since it is already approximated", i);

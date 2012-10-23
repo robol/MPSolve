@@ -21,28 +21,15 @@ __mps_secular_ga_fiterate_worker (void* data_ptr)
 {
   mps_thread_worker_data *data = (mps_thread_worker_data *) data_ptr;
   mps_context *s = data->s;
-  mps_secular_equation *sec = s->secular_equation;
   int i;
   cplx_t corr, abcorr;
   double modcorr;
   mps_thread_job job;
 
-  mps_secular_iteration_data it_data;
-
-  it_data.local_afpc = cplx_valloc (s->n);
-  it_data.local_bfpc = cplx_valloc (s->n);
-  for (i = 0; i < s->n; i++)
-    {
-      cplx_set (it_data.local_afpc[i], sec->afpc[i]);
-      cplx_set (it_data.local_bfpc[i], sec->bfpc[i]);
-    }
-
   while ((*data->nzeros < s->n) && !*data->excep)
     {
       job = mps_thread_job_queue_next (s, data->queue);
       i = job.i;
-
-      it_data.k = i;
 
       if (job.iter == MPS_THREAD_JOB_EXCEP || *data->nzeros >= s->n)
 	goto cleanup;
@@ -66,10 +53,9 @@ __mps_secular_ga_fiterate_worker (void* data_ptr)
 	  pthread_mutex_unlock (data->gs_mutex);
 #endif
 	  cdpe_set_x (s->root[i]->dvalue, s->root[i]->fvalue);
-	  mps_secular_fnewton (s, s->root[i], corr,
-			       &it_data, false);
+	  mps_secular_fnewton (s, MPS_POLYNOMIAL (s->secular_equation), s->root[i], corr);
 
-	  if (s->root_status[i] == MPS_ROOT_STATUS_NOT_FLOAT)
+	  if (s->root[i]->status == MPS_ROOT_STATUS_NOT_FLOAT)
 	    {
 	      *data->excep = true;
 	      break;
@@ -128,9 +114,6 @@ __mps_secular_ga_fiterate_worker (void* data_ptr)
 
  cleanup:
 
-  cplx_vfree (it_data.local_afpc);
-  cplx_vfree (it_data.local_bfpc);
-
   return NULL;
 }
 
@@ -187,8 +170,8 @@ mps_secular_ga_fiterate (mps_context * s, int maxit, mps_boolean just_regenerate
     {
       /* Set again to false if the root is already approximated. If a root is approximated but
        * it has less digits than the current precision don't stop the iterations on that component. */
-      if (s->root_status[i] == MPS_ROOT_STATUS_ISOLATED ||
-	  (s->root_status[i] == MPS_ROOT_STATUS_APPROXIMATED && (s->mpwp < s->output_config->prec)))
+      if (s->root[i]->status == MPS_ROOT_STATUS_ISOLATED ||
+	  (s->root[i]->status == MPS_ROOT_STATUS_APPROXIMATED && (s->mpwp < s->output_config->prec)))
 	{
 	  if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
 	    {
@@ -260,7 +243,7 @@ mps_secular_ga_fiterate (mps_context * s, int maxit, mps_boolean just_regenerate
 	{
 	  cdpe_set_x (s->root[i]->dvalue, s->root[i]->fvalue);
 	  rdpe_set_d (s->root[i]->drad, s->root[i]->frad);
-	  s->root_status[i] = MPS_ROOT_STATUS_CLUSTERED;
+	  s->root[i]->status = MPS_ROOT_STATUS_CLUSTERED;
 	}
       s->lastphase = dpe_phase;
     }
@@ -311,14 +294,10 @@ __mps_secular_ga_diterate_worker (void* data_ptr)
   rdpe_t modcorr;
   mps_thread_job job;
 
-  mps_secular_iteration_data it_data;
-
   while ((*data->nzeros < s->n))
     {
       job = mps_thread_job_queue_next (s, data->queue);
       i = job.i;
-
-      it_data.k = i;
 
       if (job.iter == MPS_THREAD_JOB_EXCEP)
         {
@@ -334,9 +313,7 @@ __mps_secular_ga_diterate_worker (void* data_ptr)
 
 	  (*data->it)++;
 
-	  it_data.k = i;
-	  mps_secular_dnewton (s, s->root[i], corr,
-			       &it_data, false);
+	  mps_secular_dnewton (s, MPS_POLYNOMIAL (s->secular_equation), s->root[i], corr);
 
 	  /* Apply Aberth correction */
 	  mps_daberth_wl (s, i, abcorr, data->aberth_mutex);
@@ -418,8 +395,8 @@ mps_secular_ga_diterate (mps_context * s, int maxit, mps_boolean just_regenerate
     {
       /* Set again to false if the root is already approximated. If a root is approximated but
        * it has less digits than the current precision don't stop the iterations on that component. */
-      if (s->root_status[i] == MPS_ROOT_STATUS_ISOLATED ||
-	  (s->root_status[i] == MPS_ROOT_STATUS_APPROXIMATED && (s->mpwp < s->output_config->prec)))
+      if (s->root[i]->status == MPS_ROOT_STATUS_ISOLATED ||
+	  (s->root[i]->status == MPS_ROOT_STATUS_APPROXIMATED && (s->mpwp < s->output_config->prec)))
 	{
 	  if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
 	    {
@@ -521,7 +498,6 @@ __mps_secular_ga_miterate_worker (void* data_ptr)
   rdpe_t modcorr;
   mps_thread_job job;
 
-  mps_secular_iteration_data it_data;
   mps_cluster * cluster = NULL;
 
   mpc_init2 (corr, s->mpwp);
@@ -529,16 +505,6 @@ __mps_secular_ga_miterate_worker (void* data_ptr)
   mpc_init2 (mroot, s->mpwp); 
 
   /* Get a copy of the MP coefficients that is local to this thread */
-  it_data.local_ampc = mpc_valloc (s->n);
-  it_data.local_bmpc = mpc_valloc (s->n);
-  mpc_vinit2 (it_data.local_ampc, s->n, s->mpwp);
-  mpc_vinit2 (it_data.local_bmpc, s->n, s->mpwp);
-  for (i = 0; i < s->n; i++)
-    {
-      mpc_set (it_data.local_ampc[i], s->secular_equation->ampc[i]);
-      mpc_set (it_data.local_bmpc[i], s->secular_equation->bmpc[i]);
-    }
-
   while ((*data->nzeros < s->n))
     {
       job = mps_thread_job_queue_next (s, data->queue);
@@ -578,10 +544,7 @@ __mps_secular_ga_miterate_worker (void* data_ptr)
 	  (*data->it)++;
 	  /* pthread_mutex_unlock (data->gs_mutex); */
 
-	  it_data.k = i;
-	  it_data.gs_mutex = data->gs_mutex;
-	  mps_secular_mnewton (s, s->root[i], corr,
-			       &it_data, false);
+	  mps_secular_mnewton (s, MPS_POLYNOMIAL (s->secular_equation), s->root[i], corr);
 
 	  /* Apply Aberth correction */
 	  mps_maberth_s_wl (s, i, cluster, abcorr, data->aberth_mutex);
@@ -626,11 +589,6 @@ __mps_secular_ga_miterate_worker (void* data_ptr)
   mpc_clear (mroot);
   mpc_clear (abcorr);
   mpc_clear (corr);
-
-  mpc_vclear (it_data.local_bmpc, s->n);
-  mpc_vclear (it_data.local_ampc, s->n);
-  mpc_vfree (it_data.local_ampc);
-  mpc_vfree (it_data.local_bmpc);
 
   return NULL;
 }
@@ -691,8 +649,8 @@ mps_secular_ga_miterate (mps_context * s, int maxit, mps_boolean just_regenerate
     {
       /* Set again to false if the root is already approximated. If a root is approximated but
        * it has less digits than the current precision don't stop the iterations on that component. */
-      if (s->root_status[i] == MPS_ROOT_STATUS_ISOLATED ||
-	  (s->root_status[i] == MPS_ROOT_STATUS_APPROXIMATED && (s->mpwp < s->output_config->prec)))
+      if (s->root[i]->status == MPS_ROOT_STATUS_ISOLATED ||
+	  (s->root[i]->status == MPS_ROOT_STATUS_APPROXIMATED && (s->mpwp < s->output_config->prec)))
 	{
 	  if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
 	    {

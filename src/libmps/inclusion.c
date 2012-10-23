@@ -40,46 +40,46 @@ mps_fupdate_inclusions (mps_context * s)
 	  
 	  /* First check if the root has already recongnized as part of
 	   * a set (or out of it) and if that's true skip to the next one. */
-	  if (s->root_inclusion[i] == MPS_ROOT_INCLUSION_UNKNOWN)
+	  if (s->root[i]->inclusion == MPS_ROOT_INCLUSION_UNKNOWN)
 	    switch (s->output_config->search_set)
 	      {
 	      case MPS_SEARCH_SET_COMPLEX_PLANE:
-		s->root_inclusion[i] = MPS_ROOT_INCLUSION_IN;
+		s->root[i]->inclusion = MPS_ROOT_INCLUSION_IN;
 		break;
 	    
 	      case MPS_SEARCH_SET_UNITARY_DISC:
 		if (!mps_ftouchunit (s, nf, i))
-		  s->root_inclusion[i] = (cplx_mod (s->root[i]->fvalue) < 1) ? MPS_ROOT_INCLUSION_IN : 
+		  s->root[i]->inclusion = (cplx_mod (s->root[i]->fvalue) < 1) ? MPS_ROOT_INCLUSION_IN : 
 		    MPS_ROOT_INCLUSION_OUT;
 		break;
 	    
 	      case MPS_SEARCH_SET_UNITARY_DISC_COMPL:
 		if (!mps_ftouchunit (s, nf, i))
-		  s->root_inclusion[i] = (cplx_mod (s->root[i]->fvalue) > 1) ? 
+		  s->root[i]->inclusion = (cplx_mod (s->root[i]->fvalue) > 1) ? 
 		    MPS_ROOT_INCLUSION_IN : MPS_ROOT_INCLUSION_OUT;
 		break;
 
 	      case MPS_SEARCH_SET_NEGATIVE_REAL_PART:
 		if (!mps_ftouchimag (s, nf, i))
-		  s->root_inclusion[i] = (cplx_Re (s->root[i]->fvalue) < 0) ? 
+		  s->root[i]->inclusion = (cplx_Re (s->root[i]->fvalue) < 0) ? 
 		    MPS_ROOT_INCLUSION_IN : MPS_ROOT_INCLUSION_OUT;
 		break;
 
 	      case MPS_SEARCH_SET_POSITIVE_REAL_PART:
 		if (!mps_ftouchimag (s, nf, i))
-		  s->root_inclusion[i] = (cplx_Re (s->root[i]->fvalue) > 0) ? 
+		  s->root[i]->inclusion = (cplx_Re (s->root[i]->fvalue) > 0) ? 
 		    MPS_ROOT_INCLUSION_IN : MPS_ROOT_INCLUSION_OUT;
 		break;
 
 	      case MPS_SEARCH_SET_NEGATIVE_IMAG_PART:
 		if (!mps_ftouchreal (s, nf, i))
-		  s->root_inclusion[i] = (cplx_Im (s->root[i]->fvalue) < 0) ? 
+		  s->root[i]->inclusion = (cplx_Im (s->root[i]->fvalue) < 0) ? 
 		    MPS_ROOT_INCLUSION_IN : MPS_ROOT_INCLUSION_OUT;
 		break;
 
 	      case MPS_SEARCH_SET_POSITIVE_IMAG_PART:
 		if (!mps_ftouchreal (s, nf, i))
-		  s->root_inclusion[i] = (cplx_Im (s->root[i]->fvalue) > 0) ?
+		  s->root[i]->inclusion = (cplx_Im (s->root[i]->fvalue) > 0) ?
 		    MPS_ROOT_INCLUSION_IN : MPS_ROOT_INCLUSION_OUT;
 		break;
 
@@ -93,14 +93,14 @@ mps_fupdate_inclusions (mps_context * s)
 			if (MPS_INPUT_CONFIG_IS_REAL (s->input_config) ||
 			    (log (s->root[i]->frad) < s->sep - s->n * s->lmax_coeff))
 			  {
-			    s->root_inclusion[i] = MPS_ROOT_INCLUSION_IN;
-			    s->root_attrs[i] = MPS_ROOT_ATTRS_REAL;
+			    s->root[i]->inclusion = MPS_ROOT_INCLUSION_IN;
+			    s->root[i]->attrs = MPS_ROOT_ATTRS_REAL;
 			  }
 		      }
 		    else 
 		      {
-			s->root_inclusion[i] = MPS_ROOT_INCLUSION_OUT;
-			s->root_attrs[i] = MPS_ROOT_ATTRS_NONE;
+			s->root[i]->inclusion = MPS_ROOT_INCLUSION_OUT;
+			s->root[i]->attrs = MPS_ROOT_ATTRS_NONE;
 		      }   
 		  }
 		
@@ -115,13 +115,13 @@ mps_fupdate_inclusions (mps_context * s)
 		      {
 			if (log (s->root[i]->frad) < s->sep - s->n * s->lmax_coeff)
 			  {
-			    s->root_inclusion[i] = MPS_ROOT_INCLUSION_IN;
-			    s->root_attrs[i] = MPS_ROOT_ATTRS_IMAG;
+			    s->root[i]->inclusion = MPS_ROOT_INCLUSION_IN;
+			    s->root[i]->attrs = MPS_ROOT_ATTRS_IMAG;
 			  }
 			else
 			  {
-			    s->root_inclusion[i] = MPS_ROOT_INCLUSION_OUT;
-			    s->root_attrs[i] = MPS_ROOT_ATTRS_NONE;
+			    s->root[i]->inclusion = MPS_ROOT_INCLUSION_OUT;
+			    s->root[i]->attrs = MPS_ROOT_ATTRS_NONE;
 			  }
 		      }
 		  }
@@ -143,10 +143,10 @@ mps_fupdate_inclusions (mps_context * s)
       for (root = cluster->first; root != NULL; root = root->next)
 	{
 	  i = root->k;
-	  if (s->root_inclusion[i] == MPS_ROOT_INCLUSION_UNKNOWN)
+	  if (s->root[i]->inclusion == MPS_ROOT_INCLUSION_UNKNOWN)
 	    {
 	      for (root = cluster->first; root != NULL; root = root->next)
-		s->root_inclusion[root->k] = MPS_ROOT_INCLUSION_UNKNOWN;
+		s->root[root->k]->inclusion = MPS_ROOT_INCLUSION_UNKNOWN;
 	      break;
 	    }
 	}
@@ -155,7 +155,7 @@ mps_fupdate_inclusions (mps_context * s)
 
 /**
  * @brief Check if the target set has been reached or not, and update
- * the field s->root_inclusion[i] for every root.
+ * the field s->root[i]->inclusion for every root.
  */
 void
 mps_dupdate_inclusions (mps_context * s)
@@ -180,18 +180,18 @@ mps_dupdate_inclusions (mps_context * s)
 	  
 	  /* First check if the root has already recongnized as part of
 	   * a set (or out of it) and if that's true skip to the next one. */
-	  if (s->root_inclusion[i] == MPS_ROOT_INCLUSION_UNKNOWN)
+	  if (s->root[i]->inclusion == MPS_ROOT_INCLUSION_UNKNOWN)
 	    switch (s->output_config->search_set)
 	      {
 	      case MPS_SEARCH_SET_COMPLEX_PLANE:
-		s->root_inclusion[i] = MPS_ROOT_INCLUSION_IN;
+		s->root[i]->inclusion = MPS_ROOT_INCLUSION_IN;
 		break;
 	    
 	      case MPS_SEARCH_SET_UNITARY_DISC:
 		if (!mps_dtouchunit (s, nf, i))
 		  {
 		    cdpe_mod (mod, s->root[i]->dvalue);
-		    s->root_inclusion[i] = (rdpe_le (mod, rdpe_one)) ? 
+		    s->root[i]->inclusion = (rdpe_le (mod, rdpe_one)) ? 
 		      MPS_ROOT_INCLUSION_IN : MPS_ROOT_INCLUSION_OUT;
 		  }
 		break;
@@ -200,7 +200,7 @@ mps_dupdate_inclusions (mps_context * s)
 		if (!mps_dtouchunit (s, nf, i))
 		  {
 		    cdpe_mod (mod, s->root[i]->dvalue);
-		    s->root_inclusion[i] = (rdpe_ge (mod, rdpe_one)) ?
+		    s->root[i]->inclusion = (rdpe_ge (mod, rdpe_one)) ?
 		      MPS_ROOT_INCLUSION_IN : MPS_ROOT_INCLUSION_OUT;
 		  }
 		break;
@@ -209,7 +209,7 @@ mps_dupdate_inclusions (mps_context * s)
 		if (!mps_dtouchimag (s, nf, i))
 		  {
 		    rdpe_set (mod, cdpe_Re (s->root[i]->dvalue));
-		    s->root_inclusion[i] = (rdpe_le (mod, rdpe_zero)) ?
+		    s->root[i]->inclusion = (rdpe_le (mod, rdpe_zero)) ?
 		      MPS_ROOT_INCLUSION_IN : MPS_ROOT_INCLUSION_OUT;
 		  }
 		break;
@@ -218,7 +218,7 @@ mps_dupdate_inclusions (mps_context * s)
 		if (!mps_dtouchimag (s, nf, i))
 		  {
 		    rdpe_set (mod, cdpe_Re (s->root[i]->dvalue));
-		    s->root_inclusion[i] = (rdpe_ge (mod, rdpe_zero)) ?
+		    s->root[i]->inclusion = (rdpe_ge (mod, rdpe_zero)) ?
 		      MPS_ROOT_INCLUSION_IN : MPS_ROOT_INCLUSION_OUT;
 		  }
 		break;
@@ -227,7 +227,7 @@ mps_dupdate_inclusions (mps_context * s)
 		if (!mps_dtouchreal (s, nf, i))
 		  {
 		    rdpe_set (mod, cdpe_Im (s->root[i]->dvalue));
-		    s->root_inclusion[i] = (rdpe_le (mod, rdpe_zero)) ?
+		    s->root[i]->inclusion = (rdpe_le (mod, rdpe_zero)) ?
 		      MPS_ROOT_INCLUSION_IN : MPS_ROOT_INCLUSION_OUT;
 		  }
 		break;
@@ -236,7 +236,7 @@ mps_dupdate_inclusions (mps_context * s)
 		{
 		  rdpe_set (mod, cdpe_Im (s->root[i]->dvalue));
 		  if (!mps_dtouchreal (s, nf, i))
-		    s->root_inclusion[i] = (rdpe_ge (mod, rdpe_zero)) ?
+		    s->root[i]->inclusion = (rdpe_ge (mod, rdpe_zero)) ?
 		      MPS_ROOT_INCLUSION_IN : MPS_ROOT_INCLUSION_OUT;
 		}
 		break;
@@ -251,14 +251,14 @@ mps_dupdate_inclusions (mps_context * s)
 			if (MPS_INPUT_CONFIG_IS_REAL (s->input_config) ||
 			    (rdpe_log (s->root[i]->drad) < s->sep - s->n * s->lmax_coeff))
 			  {
-			    s->root_inclusion[i] = MPS_ROOT_INCLUSION_IN;
-			    s->root_attrs[i] = MPS_ROOT_ATTRS_REAL;
+			    s->root[i]->inclusion = MPS_ROOT_INCLUSION_IN;
+			    s->root[i]->attrs = MPS_ROOT_ATTRS_REAL;
 			  }
 		      }
 		    else 
 		      {
-			s->root_inclusion[i] = MPS_ROOT_INCLUSION_OUT;
-			s->root_attrs[i] = MPS_ROOT_ATTRS_NONE;
+			s->root[i]->inclusion = MPS_ROOT_INCLUSION_OUT;
+			s->root[i]->attrs = MPS_ROOT_ATTRS_NONE;
 		      }   
 		  }
 		
@@ -273,13 +273,13 @@ mps_dupdate_inclusions (mps_context * s)
 		      {
 			if (rdpe_log (s->root[i]->drad) < s->sep - s->n * s->lmax_coeff)
 			  {
-			    s->root_inclusion[i] = MPS_ROOT_INCLUSION_IN;
-			    s->root_attrs[i] = MPS_ROOT_ATTRS_IMAG;
+			    s->root[i]->inclusion = MPS_ROOT_INCLUSION_IN;
+			    s->root[i]->attrs = MPS_ROOT_ATTRS_IMAG;
 			  }
 			else
 			  {
-			    s->root_inclusion[i] = MPS_ROOT_INCLUSION_OUT;
-			    s->root_attrs[i] = MPS_ROOT_ATTRS_NONE;
+			    s->root[i]->inclusion = MPS_ROOT_INCLUSION_OUT;
+			    s->root[i]->attrs = MPS_ROOT_ATTRS_NONE;
 			  }
 		      }
 		  }
@@ -301,10 +301,10 @@ mps_dupdate_inclusions (mps_context * s)
       for (root = cluster->first; root != NULL; root = root->next)
 	{
 	  i = root->k;
-	  if (s->root_inclusion[i] == MPS_ROOT_INCLUSION_UNKNOWN)
+	  if (s->root[i]->inclusion == MPS_ROOT_INCLUSION_UNKNOWN)
 	    {
 	      for (root = cluster->first; root != NULL; root = root->next)
-		s->root_inclusion[root->k] = MPS_ROOT_INCLUSION_UNKNOWN;
+		s->root[root->k]->inclusion = MPS_ROOT_INCLUSION_UNKNOWN;
 	      break;
 	    }
 	}
@@ -313,7 +313,7 @@ mps_dupdate_inclusions (mps_context * s)
 
 /**
  * @brief Check if the target set has been reached or not, and update
- * the field s->root_inclusion[i] for every root.
+ * the field s->root[i]->inclusion for every root.
  */
 void
 mps_mupdate_inclusions (mps_context * s)
@@ -342,18 +342,18 @@ mps_mupdate_inclusions (mps_context * s)
 	  
 	  /* First check if the root has already recongnized as part of
 	   * a set (or out of it) and if that's true skip to the next one. */
-	  if (s->root_inclusion[i] == MPS_ROOT_INCLUSION_UNKNOWN)
+	  if (s->root[i]->inclusion == MPS_ROOT_INCLUSION_UNKNOWN)
 	    switch (s->output_config->search_set)
 	      {
 	      case MPS_SEARCH_SET_COMPLEX_PLANE:
-		s->root_inclusion[i] = MPS_ROOT_INCLUSION_IN;
+		s->root[i]->inclusion = MPS_ROOT_INCLUSION_IN;
 		break;
 	    
 	      case MPS_SEARCH_SET_UNITARY_DISC:
 		if (!mps_mtouchunit (s, nf, i))
 		  {
 		    cdpe_mod (mod, cmod);
-		    s->root_inclusion[i] = (rdpe_le (mod, rdpe_one)) ? 
+		    s->root[i]->inclusion = (rdpe_le (mod, rdpe_one)) ? 
 		      MPS_ROOT_INCLUSION_IN : MPS_ROOT_INCLUSION_OUT;
 		  }
 		break;
@@ -362,7 +362,7 @@ mps_mupdate_inclusions (mps_context * s)
 		if (!mps_mtouchunit (s, nf, i))
 		  {
 		    cdpe_mod (mod, cmod);
-		    s->root_inclusion[i] = (rdpe_ge (mod, rdpe_one)) ?
+		    s->root[i]->inclusion = (rdpe_ge (mod, rdpe_one)) ?
 		      MPS_ROOT_INCLUSION_IN : MPS_ROOT_INCLUSION_OUT;
 		  }
 		break;
@@ -371,7 +371,7 @@ mps_mupdate_inclusions (mps_context * s)
 		if (!mps_mtouchimag (s, nf, i))
 		  {
 		    rdpe_set (mod, cdpe_Re (cmod));
-		    s->root_inclusion[i] = (rdpe_le (mod, rdpe_zero)) ?
+		    s->root[i]->inclusion = (rdpe_le (mod, rdpe_zero)) ?
 		      MPS_ROOT_INCLUSION_IN : MPS_ROOT_INCLUSION_OUT;
 		  }
 		break;
@@ -380,7 +380,7 @@ mps_mupdate_inclusions (mps_context * s)
 		if (!mps_mtouchimag (s, nf, i))
 		  {
 		    rdpe_set (mod, cdpe_Re (cmod));
-		    s->root_inclusion[i] = (rdpe_ge (mod, rdpe_zero)) ?
+		    s->root[i]->inclusion = (rdpe_ge (mod, rdpe_zero)) ?
 		      MPS_ROOT_INCLUSION_IN : MPS_ROOT_INCLUSION_OUT;
 		  }
 		break;
@@ -389,7 +389,7 @@ mps_mupdate_inclusions (mps_context * s)
 		if (!mps_mtouchreal (s, nf, i))
 		  {
 		    rdpe_set (mod, cdpe_Im (cmod));
-		    s->root_inclusion[i] = (rdpe_le (mod, rdpe_zero)) ?
+		    s->root[i]->inclusion = (rdpe_le (mod, rdpe_zero)) ?
 		      MPS_ROOT_INCLUSION_IN : MPS_ROOT_INCLUSION_OUT;
 		  }
 		break;
@@ -398,7 +398,7 @@ mps_mupdate_inclusions (mps_context * s)
 		{
 		  rdpe_set (mod, cdpe_Im (cmod));
 		  if (!mps_mtouchreal (s, nf, i))
-		    s->root_inclusion[i] = (rdpe_ge (mod, rdpe_zero)) ?
+		    s->root[i]->inclusion = (rdpe_ge (mod, rdpe_zero)) ?
 		      MPS_ROOT_INCLUSION_IN : MPS_ROOT_INCLUSION_OUT;
 		}
 		break;
@@ -413,14 +413,14 @@ mps_mupdate_inclusions (mps_context * s)
 			if (MPS_INPUT_CONFIG_IS_REAL (s->input_config) ||
 			    (rdpe_log (s->root[i]->drad) < s->sep - s->n * s->lmax_coeff))
 			  {
-			    s->root_inclusion[i] = MPS_ROOT_INCLUSION_IN;
-			    s->root_attrs[i] = MPS_ROOT_ATTRS_REAL;
+			    s->root[i]->inclusion = MPS_ROOT_INCLUSION_IN;
+			    s->root[i]->attrs = MPS_ROOT_ATTRS_REAL;
 			  }
 		      }
 		    else 
 		      {
-			s->root_inclusion[i] = MPS_ROOT_INCLUSION_OUT;
-			s->root_attrs[i] = MPS_ROOT_ATTRS_NONE;
+			s->root[i]->inclusion = MPS_ROOT_INCLUSION_OUT;
+			s->root[i]->attrs = MPS_ROOT_ATTRS_NONE;
 		      }
 		  }
 		
@@ -435,13 +435,13 @@ mps_mupdate_inclusions (mps_context * s)
 		      {
 			if (rdpe_log (s->root[i]->drad) < s->sep - s->n * s->lmax_coeff)
 			  {
-			    s->root_inclusion[i] = MPS_ROOT_INCLUSION_IN;
-			    s->root_attrs[i] = MPS_ROOT_ATTRS_IMAG;
+			    s->root[i]->inclusion = MPS_ROOT_INCLUSION_IN;
+			    s->root[i]->attrs = MPS_ROOT_ATTRS_IMAG;
 			  }
 			else
 			  {
-			    s->root_inclusion[i] = MPS_ROOT_INCLUSION_OUT;
-			    s->root_attrs[i] = MPS_ROOT_ATTRS_NONE;
+			    s->root[i]->inclusion = MPS_ROOT_INCLUSION_OUT;
+			    s->root[i]->attrs = MPS_ROOT_ATTRS_NONE;
 			  }
 		      }
 		  }
@@ -463,10 +463,10 @@ mps_mupdate_inclusions (mps_context * s)
       for (root = cluster->first; root != NULL; root = root->next)
 	{
 	  i = root->k;
-	  if (s->root_inclusion[i] == MPS_ROOT_INCLUSION_UNKNOWN)
+	  if (s->root[i]->inclusion == MPS_ROOT_INCLUSION_UNKNOWN)
 	    {
 	      for (root = cluster->first; root != NULL; root = root->next)
-		s->root_inclusion[root->k] = MPS_ROOT_INCLUSION_UNKNOWN;
+		s->root[root->k]->inclusion = MPS_ROOT_INCLUSION_UNKNOWN;
 	      break;
 	    }
 	}

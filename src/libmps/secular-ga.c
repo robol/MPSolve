@@ -83,12 +83,12 @@ mps_secular_ga_check_stop (mps_context * s)
           if (!MPS_ROOT_STATUS_IS_COMPUTED (s, i))
             {
               MPS_DEBUG_WITH_INFO (s, "Root %d is not isolated, nor approximated, so we can't stop now.", i);
-	      MPS_DEBUG_WITH_INFO (s, "Status of root %d: %s", i, MPS_ROOT_STATUS_TO_STRING (s->root_status[i]));
+	      MPS_DEBUG_WITH_INFO (s, "Status of root %d: %s", i, MPS_ROOT_STATUS_TO_STRING (s->root[i]->status));
               return false;
             }
           break;
         case dpe_phase:
-	  MPS_DEBUG (s, "Status of root %d: %s", i, MPS_ROOT_STATUS_TO_STRING (s->root_status[i]));
+	  MPS_DEBUG (s, "Status of root %d: %s", i, MPS_ROOT_STATUS_TO_STRING (s->root[i]->status));
           if (!MPS_ROOT_STATUS_IS_COMPUTED (s, i))
             {
               MPS_DEBUG_WITH_INFO (s, "Root %d is not isolated, nor approximated, so we can't stop now.", i);
@@ -415,7 +415,7 @@ mps_secular_ga_mpsolve (mps_context * s)
 	       MPS_DEBUG (s, "Performing restart phase");
 	       mps_secular_restart (s);
 	     }
-	   
+
 	   if (!mps_secular_ga_regenerate_coefficients (s)) 
 	     {
 	       MPS_DEBUG (s, "Regeneration failed");

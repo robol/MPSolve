@@ -71,7 +71,7 @@ extern "C"
    * -# Multiprecision GMP types
    *
    * @subsection FloatingPoint Floating point simple types
-   * There is clearly nothing to explain about floating point doubles, but MPSolve need to deal
+   * There is clearly nothing to explain about floating point doubles, but MPSolve needs to deal
    * with complex floating point and it uses a type called <code>cplx_t</code> that is nothing
    * more than a struct with two double field, <code>r</code> and <code>i</code> that represents
    * the real and imaginary part of the given complex number. 

@@ -321,24 +321,6 @@ extern "C"
     int zero_roots;
 
     /**
-     * @brief Status of approximation of a root. 
-     */
-    mps_root_status    * root_status;
-
-    /**
-     * @brief Array containing attributes that have been set on
-     * the roots.
-     */
-    mps_root_attrs     * root_attrs;
-
-    /**
-     * @brief Array containing the inclusion status of the root
-     * in the target set specified in the field
-     * <code>input_config->search_set</code>.
-     */
-    mps_root_inclusion * root_inclusion;
-
-    /**
      * @brief Output index order
      */
     int *order;

@@ -687,6 +687,8 @@ mps_secular_ga_regenerate_coefficients (mps_context * s)
            * if they are convenient   */
           mps_secular_set_radii (s);
         }
+      else
+	MPS_DEBUG (s, "Regeneration failed");
 
       if (s->debug_level & MPS_DEBUG_REGENERATION)
 	{

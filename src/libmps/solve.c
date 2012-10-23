@@ -47,21 +47,21 @@ mps_update (mps_context * s)
     case MPS_OUTPUT_GOAL_COUNT:                  /*  count */
       for (i = 0; i < s->n; i++)
         {
-          if (s->root_inclusion[i] == MPS_ROOT_INCLUSION_UNKNOWN)
+          if (s->root[i]->inclusion == MPS_ROOT_INCLUSION_UNKNOWN)
             if (!MPS_ROOT_STATUS_IS_APPROXIMATED (s, i) && 
-		s->root_status[i] != MPS_ROOT_STATUS_NOT_DPE)
+		s->root[i]->status != MPS_ROOT_STATUS_NOT_DPE)
               s->root[i]->again = true;
 	  
           if (s->output_config->multiplicity && 
-	      s->root_status[i] == MPS_ROOT_STATUS_CLUSTERED &&
-	      s->root_inclusion[i] != MPS_ROOT_INCLUSION_OUT)
+	      s->root[i]->status == MPS_ROOT_STATUS_CLUSTERED &&
+	      s->root[i]->inclusion != MPS_ROOT_INCLUSION_OUT)
 	    s->root[i]->again = true;
 
 	    if (s->output_config->root_properties &&
-		(s->root_attrs == MPS_ROOT_ATTRS_NONE &&
-		 (s->root_inclusion != MPS_ROOT_INCLUSION_UNKNOWN ||
+		(s->root[i]->attrs == MPS_ROOT_ATTRS_NONE &&
+		 (s->root[i]->inclusion != MPS_ROOT_INCLUSION_UNKNOWN ||
 		  (!MPS_ROOT_STATUS_IS_APPROXIMATED (s, i) && 
-		   s->root_status[i] != MPS_ROOT_STATUS_NOT_DPE))))
+		   s->root[i]->status != MPS_ROOT_STATUS_NOT_DPE))))
 	      s->root[i]->again = true;
 	}
       break;
@@ -69,24 +69,24 @@ mps_update (mps_context * s)
     case MPS_OUTPUT_GOAL_ISOLATE:                  /* isolate */
       for (i = 0; i < s->n; i++)
         {
-	  if (s->root_inclusion[i] == MPS_ROOT_INCLUSION_UNKNOWN ||
-	      (s->root_status[i] == MPS_ROOT_STATUS_CLUSTERED && 
-	       s->root_inclusion[i] == MPS_ROOT_INCLUSION_IN))
+	  if (s->root[i]->inclusion == MPS_ROOT_INCLUSION_UNKNOWN ||
+	      (s->root[i]->status == MPS_ROOT_STATUS_CLUSTERED && 
+	       s->root[i]->inclusion == MPS_ROOT_INCLUSION_IN))
 	    if (!MPS_ROOT_STATUS_IS_APPROXIMATED (s, i) &&
-		(s->root_status[i] != MPS_ROOT_STATUS_ISOLATED ||
-		 s->root_inclusion[i] != MPS_ROOT_INCLUSION_IN))
+		(s->root[i]->status != MPS_ROOT_STATUS_ISOLATED ||
+		 s->root[i]->inclusion != MPS_ROOT_INCLUSION_IN))
               s->root[i]->again = true;
 
           if (s->output_config->multiplicity && 
-	      s->root_status[i] == MPS_ROOT_STATUS_CLUSTERED &&
-	      s->root_inclusion[i] != MPS_ROOT_INCLUSION_OUT)
+	      s->root[i]->status == MPS_ROOT_STATUS_CLUSTERED &&
+	      s->root[i]->inclusion != MPS_ROOT_INCLUSION_OUT)
             s->root[i]->again = true;
 
 	  if (s->output_config->root_properties)
 	    {
-	      if (s->root_attrs[i] == MPS_ROOT_ATTRS_NONE &&
+	      if (s->root[i]->attrs == MPS_ROOT_ATTRS_NONE &&
 		  (!MPS_ROOT_STATUS_IS_APPROXIMATED (s, i) &&
-		   s->root_status[i] != MPS_ROOT_STATUS_NOT_DPE))
+		   s->root[i]->status != MPS_ROOT_STATUS_NOT_DPE))
 		s->root[i]->again = true;
 	    }
         }
@@ -96,20 +96,20 @@ mps_update (mps_context * s)
     case MPS_OUTPUT_GOAL_APPROXIMATE:                  /* approximate (the same as isolate) */
       for (i = 0; i < s->n; i++)
         {
-	  if (s->root_inclusion[i] == MPS_ROOT_INCLUSION_UNKNOWN ||
-	      (s->root_status[i] == MPS_ROOT_STATUS_CLUSTERED &&
-	       s->root_inclusion[i] == MPS_ROOT_INCLUSION_IN))
+	  if (s->root[i]->inclusion == MPS_ROOT_INCLUSION_UNKNOWN ||
+	      (s->root[i]->status == MPS_ROOT_STATUS_CLUSTERED &&
+	       s->root[i]->inclusion == MPS_ROOT_INCLUSION_IN))
 	    if (!MPS_ROOT_STATUS_IS_APPROXIMATED (s, i))
               s->root[i]->again = true;
 
 	  if (s->output_config->multiplicity &&
-	      s->root_status[i] == MPS_ROOT_STATUS_CLUSTERED &&
-	      s->root_inclusion[i] != MPS_ROOT_INCLUSION_OUT)
+	      s->root[i]->status == MPS_ROOT_STATUS_CLUSTERED &&
+	      s->root[i]->inclusion != MPS_ROOT_INCLUSION_OUT)
 	    s->root[i]->again = true;
 
 	  if (s->output_config->root_properties)
 	    {
-	      if (s->root_attrs == MPS_ROOT_ATTRS_NONE && 
+	      if (s->root[i]->attrs == MPS_ROOT_ATTRS_NONE && 
 		  MPS_ROOT_STATUS_IS_APPROXIMATED (s, i))
 		s->root[i]->again = true;
 	    }
@@ -307,19 +307,19 @@ mps_check_stop (mps_context * s)
       for (i = 0; i < s->n; i++)
         {
 	  if (!MPS_ROOT_STATUS_IS_APPROXIMATED (s, i) &&
-	      s->root_inclusion[i] == MPS_ROOT_INCLUSION_UNKNOWN)
+	      s->root[i]->inclusion == MPS_ROOT_INCLUSION_UNKNOWN)
             return computed;
 
           if (s->output_config->multiplicity && 
-	      s->root_status[i] == MPS_ROOT_STATUS_CLUSTERED &&
-	      s->root_inclusion[i] != MPS_ROOT_INCLUSION_OUT)
+	      s->root[i]->status == MPS_ROOT_STATUS_CLUSTERED &&
+	      s->root[i]->inclusion != MPS_ROOT_INCLUSION_OUT)
             return computed;
 
 	  if (s->output_config->root_properties &&
-	      s->root_attrs[i] == MPS_ROOT_ATTRS_NONE &&
-	      s->root_inclusion[i] != MPS_ROOT_INCLUSION_OUT &&
+	      s->root[i]->attrs == MPS_ROOT_ATTRS_NONE &&
+	      s->root[i]->inclusion != MPS_ROOT_INCLUSION_OUT &&
 	      !MPS_ROOT_STATUS_IS_APPROXIMATED (s, i) && 
-	      s->root_status[i] != MPS_ROOT_STATUS_MULTIPLE)
+	      s->root[i]->status != MPS_ROOT_STATUS_MULTIPLE)
 	    return computed;
         }
       computed = true;
@@ -331,7 +331,7 @@ mps_check_stop (mps_context * s)
     {
       for (i = 0; i < s->n; i++)
         {
-	  if ((s->root_inclusion[i] == MPS_ROOT_INCLUSION_UNKNOWN || s->root_inclusion[i] == MPS_ROOT_INCLUSION_IN) &&
+	  if ((s->root[i]->inclusion == MPS_ROOT_INCLUSION_UNKNOWN || s->root[i]->inclusion == MPS_ROOT_INCLUSION_IN) &&
 	      !MPS_ROOT_STATUS_IS_COMPUTED (s, i))
 	    {
 	      if (s->debug_level & MPS_DEBUG_PACKETS)
@@ -339,8 +339,8 @@ mps_check_stop (mps_context * s)
 	      return computed;
 	    }
 
-	  if (s->root_status[i] == MPS_ROOT_STATUS_CLUSTERED &&
-	      s->root_inclusion[i] != MPS_ROOT_INCLUSION_OUT)
+	  if (s->root[i]->status == MPS_ROOT_STATUS_CLUSTERED &&
+	      s->root[i]->inclusion != MPS_ROOT_INCLUSION_OUT)
 	    {
 	      if (s->debug_level & MPS_DEBUG_PACKETS)
 		MPS_DEBUG (s, "Cannot stop because root %d is clustered and not certainly out of the target set", i);
@@ -348,8 +348,8 @@ mps_check_stop (mps_context * s)
 	    }
 
 	  if (s->output_config->multiplicity &&
-	      s->root_inclusion[i] != MPS_ROOT_INCLUSION_OUT &&
-	      s->root_status[i] == MPS_ROOT_STATUS_CLUSTERED)
+	      s->root[i]->inclusion != MPS_ROOT_INCLUSION_OUT &&
+	      s->root[i]->status == MPS_ROOT_STATUS_CLUSTERED)
 	    {
 	      if (s->debug_level & MPS_DEBUG_PACKETS)
 		MPS_DEBUG (s, "Cannot stop because root %d is not out of the target set and is clustered", i);
@@ -357,10 +357,10 @@ mps_check_stop (mps_context * s)
 	    }
 
 	  if (s->output_config->root_properties &&
-	      s->root_attrs[i] == MPS_ROOT_ATTRS_NONE && 
-	      s->root_inclusion[i] != MPS_ROOT_INCLUSION_OUT &&
+	      s->root[i]->attrs == MPS_ROOT_ATTRS_NONE && 
+	      s->root[i]->inclusion != MPS_ROOT_INCLUSION_OUT &&
 	      !MPS_ROOT_STATUS_IS_APPROXIMATED (s, i) &&
-	      s->root_status[i] != MPS_ROOT_STATUS_MULTIPLE)
+	      s->root[i]->status != MPS_ROOT_STATUS_MULTIPLE)
 	    {
 	      if (s->debug_level & MPS_DEBUG_PACKETS)
 		MPS_DEBUG (s, "Cannot stop because properties of root %d have not been detected, it's not out of the target set, nor approximated or multiple", i);
@@ -456,7 +456,7 @@ mps_fsolve (mps_context * s, mps_boolean * d_after_f)
   /* Check if there are too large or too small approximations */
   *d_after_f = false;
   for (i = 0; i < s->n; i++)
-    if (s->root_status[i] == MPS_ROOT_STATUS_NOT_FLOAT)
+    if (s->root[i]->status == MPS_ROOT_STATUS_NOT_FLOAT)
       {
         s->root[i]->again = false;
         *d_after_f = true;
@@ -510,8 +510,8 @@ mps_fsolve (mps_context * s, mps_boolean * d_after_f)
 
               if (iter == 0)
                 for (i = 0; i < s->n; i++)
-                  if (s->root_status[i] == MPS_ROOT_STATUS_NEW_CLUSTERED)
-                    s->root_status[i] = MPS_ROOT_STATUS_CLUSTERED;
+                  if (s->root[i]->status == MPS_ROOT_STATUS_NEW_CLUSTERED)
+                    s->root[i]->status = MPS_ROOT_STATUS_CLUSTERED;
 
               /* If the polynomial is not given in terms of its coeff. then
                * skip the restart stage */
@@ -525,8 +525,8 @@ mps_fsolve (mps_context * s, mps_boolean * d_after_f)
               /* reset the status vector */
               for (j = 0; j < s->n; j++)
                 {
-                  if (s->root_status[j] == MPS_ROOT_STATUS_NEW_CLUSTERED)
-                    s->root_status[j] = MPS_ROOT_STATUS_CLUSTERED;
+                  if (s->root[j]->status == MPS_ROOT_STATUS_NEW_CLUSTERED)
+                    s->root[j]->status = MPS_ROOT_STATUS_CLUSTERED;
                   s->again_old[j] = s->root[j]->again;
                 }
 
@@ -583,9 +583,9 @@ mps_fsolve (mps_context * s, mps_boolean * d_after_f)
   /* reset the status vector */
   for (j = 0; j < s->n; j++)
     {
-      if (s->root_status[j] == MPS_ROOT_STATUS_NEW_CLUSTERED)
-	s->root_status[j] = MPS_ROOT_STATUS_CLUSTERED;
-      if (s->root_status[j] == MPS_ROOT_STATUS_NOT_FLOAT)
+      if (s->root[j]->status == MPS_ROOT_STATUS_NEW_CLUSTERED)
+	s->root[j]->status = MPS_ROOT_STATUS_CLUSTERED;
+      if (s->root[j]->status == MPS_ROOT_STATUS_NOT_FLOAT)
 	*d_after_f = true;
     }
 
@@ -816,7 +816,7 @@ mps_dsolve (mps_context * s, mps_boolean d_after_f)
 
   if (d_after_f)
     for (i = 0; i < s->n; i++)
-      if (s->root_status[i] == MPS_ROOT_STATUS_NOT_FLOAT)
+      if (s->root[i]->status == MPS_ROOT_STATUS_NOT_FLOAT)
         {
           s->root[i]->again = true;
           rdpe_set_d (s->root[i]->drad, DBL_MAX);
@@ -849,8 +849,8 @@ mps_dsolve (mps_context * s, mps_boolean d_after_f)
   /* Now adjust the status vector */
   if (d_after_f)
     for (i = 0; i < s->n; i++)
-      if (s->root_status[i] == MPS_ROOT_STATUS_NOT_FLOAT)
-        s->root_status[i] = MPS_ROOT_STATUS_CLUSTERED;
+      if (s->root[i]->status == MPS_ROOT_STATUS_NOT_FLOAT)
+        s->root[i]->status = MPS_ROOT_STATUS_CLUSTERED;
 
   if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
     mps_dump (s);
@@ -895,8 +895,8 @@ mps_dsolve (mps_context * s, mps_boolean d_after_f)
 
               if (iter == 0 && !d_after_f)
                 for (i = 0; i < s->n; i++)
-                  if (s->root_status[i] == MPS_ROOT_STATUS_NEW_CLUSTERED)
-                    s->root_status[i] = MPS_ROOT_STATUS_CLUSTERED;
+                  if (s->root[i]->status == MPS_ROOT_STATUS_NEW_CLUSTERED)
+                    s->root[i]->status = MPS_ROOT_STATUS_CLUSTERED;
 
               /* If the polynomial is not given in terms of its
                * coeff. then skip the restart stage */
@@ -909,8 +909,8 @@ mps_dsolve (mps_context * s, mps_boolean d_after_f)
                 }
               /* reset the status vector */
               for (j = 0; j < s->n; j++)
-                if (s->root_status[j] == MPS_ROOT_STATUS_NEW_CLUSTERED)
-                  s->root_status[j] = MPS_ROOT_STATUS_CLUSTERED;
+                if (s->root[j]->status == MPS_ROOT_STATUS_NEW_CLUSTERED)
+                  s->root[j]->status = MPS_ROOT_STATUS_CLUSTERED;
               for (j = 0; j < s->n; j++)
                 s->again_old[j] = s->root[j]->again;
 
@@ -961,8 +961,8 @@ mps_dsolve (mps_context * s, mps_boolean d_after_f)
 
   /* reset the status vector */
   for (j = 0; j < s->n; j++)
-    if (s->root_status[j] == MPS_ROOT_STATUS_NEW_CLUSTERED)
-      s->root_status[j] = MPS_ROOT_STATUS_CLUSTERED;
+    if (s->root[j]->status == MPS_ROOT_STATUS_NEW_CLUSTERED)
+      s->root[j]->status = MPS_ROOT_STATUS_CLUSTERED;
 
  dsolve_final_cleanup:
   rdpe_vfree (drad);
@@ -1011,8 +1011,8 @@ mps_msolve (mps_context * s)
 
       /* reset the status vector */
       for (j = 0; j < s->n; j++)
-        if (s->root_status[j] == MPS_ROOT_STATUS_NEW_CLUSTERED)
-          s->root_status[j] = MPS_ROOT_STATUS_CLUSTERED;
+        if (s->root[j]->status == MPS_ROOT_STATUS_NEW_CLUSTERED)
+          s->root[j]->status = MPS_ROOT_STATUS_CLUSTERED;
 
       goto msolve_final_cleanup;
     }
@@ -1034,8 +1034,8 @@ mps_msolve (mps_context * s)
 
       /* reset the status vector */
       for (j = 0; j < s->n; j++)
-        if (s->root_status[j] == MPS_ROOT_STATUS_NEW_CLUSTERED)
-          s->root_status[j] = MPS_ROOT_STATUS_CLUSTERED;
+        if (s->root[j]->status == MPS_ROOT_STATUS_NEW_CLUSTERED)
+          s->root[j]->status = MPS_ROOT_STATUS_CLUSTERED;
 
       goto msolve_final_cleanup;
     }
@@ -1082,14 +1082,14 @@ mps_msolve (mps_context * s)
 
           /* reset the status vector */
           for (j = 0; j < s->n; j++)
-            if (s->root_status[j] == MPS_ROOT_STATUS_NEW_CLUSTERED)
-              s->root_status[j] = MPS_ROOT_STATUS_CLUSTERED;
+            if (s->root[j]->status == MPS_ROOT_STATUS_NEW_CLUSTERED)
+              s->root[j]->status = MPS_ROOT_STATUS_CLUSTERED;
           if (s->DOLOG)
             {
 	      MPS_DEBUG (s, "Dumping status");
 	      for (j = 0; j < s->n; j++)
 		MPS_DEBUG (s, " %4d: %s", j, 
-			   MPS_ROOT_STATUS_TO_STRING (s->root_status[j]));
+			   MPS_ROOT_STATUS_TO_STRING (s->root[j]->status));
             }
 
 	  goto msolve_final_cleanup;
@@ -1134,14 +1134,14 @@ mps_msolve (mps_context * s)
               if (iter == 0)
                 /* if first packet: reset the status vector */
                 for (j = 0; j < s->n; j++)
-                  if (s->root_status[j] == MPS_ROOT_STATUS_NEW_CLUSTERED)
-                    s->root_status[j] = MPS_ROOT_STATUS_CLUSTERED;
+                  if (s->root[j]->status == MPS_ROOT_STATUS_NEW_CLUSTERED)
+                    s->root[j]->status = MPS_ROOT_STATUS_CLUSTERED;
               if (s->DOLOG)
                 {
 		  MPS_DEBUG (s, "Dumping status");
                   for (j = 0; j < s->n; j++)
 		    MPS_DEBUG (s, " %4d: %s", j, 
-			       MPS_ROOT_STATUS_TO_STRING (s->root_status[j]));
+			       MPS_ROOT_STATUS_TO_STRING (s->root[j]->status));
                 }
               /* If the polynomial is not given in terms of its coeff. then
                * skip the restart stage */
@@ -1156,8 +1156,8 @@ mps_msolve (mps_context * s)
               /* reset the s->status vector */
               for (j = 0; j < s->n; j++)
                 {
-                  if (s->root_status[j] == MPS_ROOT_STATUS_NEW_CLUSTERED)
-                    s->root_status[j] = MPS_ROOT_STATUS_CLUSTERED;
+                  if (s->root[j]->status == MPS_ROOT_STATUS_NEW_CLUSTERED)
+                    s->root[j]->status = MPS_ROOT_STATUS_CLUSTERED;
                   s->again_old[j] = s->root[j]->again;
                 }
               /* update 'again' */
@@ -1190,8 +1190,8 @@ mps_msolve (mps_context * s)
 
                   /* reset the s->status vector */
                   for (j = 0; j < s->n; j++)
-                    if (s->root_status[j] == MPS_ROOT_STATUS_NEW_CLUSTERED)
-                      s->root_status[j] = MPS_ROOT_STATUS_CLUSTERED;
+                    if (s->root[j]->status == MPS_ROOT_STATUS_NEW_CLUSTERED)
+                      s->root[j]->status = MPS_ROOT_STATUS_CLUSTERED;
 
 		  goto msolve_final_cleanup;
                 }
@@ -1213,8 +1213,8 @@ mps_msolve (mps_context * s)
 
                   /* reset the s->status vector */
                   for (j = 0; j < s->n; j++)
-                    if (s->root_status[j] == MPS_ROOT_STATUS_NEW_CLUSTERED)
-                      s->root_status[j] = MPS_ROOT_STATUS_CLUSTERED;
+                    if (s->root[j]->status == MPS_ROOT_STATUS_NEW_CLUSTERED)
+                      s->root[j]->status = MPS_ROOT_STATUS_CLUSTERED;
 
 		  goto msolve_final_cleanup;
                 }
@@ -1246,15 +1246,15 @@ mps_msolve (mps_context * s)
   mps_mmodify (s, true);
 
   for (j = 0; j < s->n; j++)
-    if (s->root_status[j] == MPS_ROOT_STATUS_NEW_CLUSTERED)
-      s->root_status[j] = MPS_ROOT_STATUS_CLUSTERED;
+    if (s->root[j]->status == MPS_ROOT_STATUS_NEW_CLUSTERED)
+      s->root[j]->status = MPS_ROOT_STATUS_CLUSTERED;
 
   if (s->DOLOG)
     {
       MPS_DEBUG (s, "Dumping status: ");
       for (j = 0; j < s->n; j++)
 	MPS_DEBUG (s, " %4d: %s", j,
-		   MPS_ROOT_STATUS_TO_STRING (s->root_status[j]));
+		   MPS_ROOT_STATUS_TO_STRING (s->root[j]->status));
     }
   mps_update (s);
 

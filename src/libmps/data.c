@@ -53,10 +53,6 @@ mps_allocate_data (mps_context * s)
 
   /* s->status = (char (*)[3]) char_valloc (3 * s->deg); */
   
-  s->root_status = mps_newv (mps_root_status, s->deg);
-  s->root_attrs  = mps_newv (mps_root_attrs,  s->deg);
-  s->root_inclusion = mps_newv (mps_root_inclusion, s->deg);
-
   mps_cluster_reset (s);
 
   s->order = int_valloc (s->deg);
@@ -259,9 +255,6 @@ mps_free_data (mps_context * s)
     }
 
   mps_clusterization_free (s, s->clusterization);
-  free (s->root_status);
-  free (s->root_attrs);
-  free (s->root_inclusion);
   free (s->order);
 
   /* free (s->fap); */

@@ -208,8 +208,8 @@ mps_standard_mpsolve (mps_context * s)
           nzc = 0;
           for (i = 0; i < s->n; i++)
             {
-              if (s->root_status[i] == MPS_ROOT_STATUS_ISOLATED || 
-		  s->root_status[i] == MPS_ROOT_STATUS_APPROXIMATED)
+              if (s->root[i]->status == MPS_ROOT_STATUS_ISOLATED || 
+		  s->root[i]->status == MPS_ROOT_STATUS_APPROXIMATED)
                 nzc++;
             }
           fprintf (s->logstr, "MAIN: isolated %d roots\n", nzc);
@@ -222,8 +222,8 @@ mps_standard_mpsolve (mps_context * s)
 
       /* == 7.4 ==  reset the status vector */
       for (i = 0; i < s->n; i++)
-        if (s->root_status[i] == MPS_ROOT_STATUS_NEW_CLUSTERED)
-          s->root_status[i] = MPS_ROOT_STATUS_CLUSTERED;
+        if (s->root[i]->status == MPS_ROOT_STATUS_NEW_CLUSTERED)
+          s->root[i]->status = MPS_ROOT_STATUS_CLUSTERED;
     }
 
   /* == 8 ==  Check for termination */

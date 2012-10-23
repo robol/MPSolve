@@ -65,8 +65,8 @@ mps_fmodify (mps_context * s, mps_boolean track_new_cluster)
   if (track_new_cluster)
     {
       for (i = 0; i < s->n; i++)
-	if (s->root_status[i] == MPS_ROOT_STATUS_CLUSTERED)
-	  s->root_status[i] = MPS_ROOT_STATUS_NEW_CLUSTERED;
+	if (s->root[i]->status == MPS_ROOT_STATUS_CLUSTERED)
+	  s->root[i]->status = MPS_ROOT_STATUS_NEW_CLUSTERED;
     }
 
   /* Iterate over the cluster to update the status of the roots */
@@ -88,14 +88,14 @@ mps_fmodify (mps_context * s, mps_boolean track_new_cluster)
 	{
 	  /* Check if the root is already approximated; if that's not the
 	   * case set it at least as isolated. */
-	  if (s->root_status[l] != MPS_ROOT_STATUS_APPROXIMATED)
+	  if (s->root[l]->status != MPS_ROOT_STATUS_APPROXIMATED)
 	    {
-	      s->root_status[root->k] = MPS_ROOT_STATUS_ISOLATED;
+	      s->root[l]->status = MPS_ROOT_STATUS_ISOLATED;
 	      /* s->root_inclusion[root->k] = MPS_ROOT_INCLUSION_IN; */
 
 	      /* Check if we need to mark this root as approximated */
 	      if (s->root[l]->frad < cplx_mod (s->root[l]->fvalue) * eps_out)
-		s->root_status[root->k] = MPS_ROOT_STATUS_APPROXIMATED;
+		s->root[root->k]->status = MPS_ROOT_STATUS_APPROXIMATED;
 	    }
 
 	  /* Grab the next cluster and continue scanning */
@@ -113,13 +113,13 @@ mps_fmodify (mps_context * s, mps_boolean track_new_cluster)
 	   * approximation status of the roots. */
 	  if (!track_new_cluster)
 	    {	  
-	      s->root_status[l] = MPS_ROOT_STATUS_CLUSTERED;
+	      s->root[l]->status = MPS_ROOT_STATUS_CLUSTERED;
 	    }
 
 	  rdpe_set_d (rtmp, s->root[l]->frad);
 	  rdpe_div_eq_d (rtmp, cplx_mod (s->root[l]->fvalue));
 	  if (rdpe_le (rtmp, s->eps_out))
-	    s->root_status[l] = MPS_ROOT_STATUS_APPROXIMATED_IN_CLUSTER;
+	    s->root[l]->status = MPS_ROOT_STATUS_APPROXIMATED_IN_CLUSTER;
 
 	  root = root->next;
 	}
@@ -794,8 +794,8 @@ mps_dmodify (mps_context * s, mps_boolean track_new_cluster)
   if (track_new_cluster)
     {
       for (i = 0; i < s->n; i++)
-	if (s->root_status[i] == MPS_ROOT_STATUS_CLUSTERED)
-	  s->root_status[i] = MPS_ROOT_STATUS_NEW_CLUSTERED;
+	if (s->root[i]->status == MPS_ROOT_STATUS_CLUSTERED)
+	  s->root[i]->status = MPS_ROOT_STATUS_NEW_CLUSTERED;
     }
 
   /* Iterate over the cluster to update the status of the roots */
@@ -817,8 +817,8 @@ mps_dmodify (mps_context * s, mps_boolean track_new_cluster)
 	{
 	  /* Check if the root is already approximated; if that's not the
 	   * case set it at least as isolated. */
-	  if (s->root_status[l] != MPS_ROOT_STATUS_APPROXIMATED)
-	    s->root_status[root->k] = MPS_ROOT_STATUS_ISOLATED;
+	  if (s->root[l]->status != MPS_ROOT_STATUS_APPROXIMATED)
+	    s->root[l]->status = MPS_ROOT_STATUS_ISOLATED;
 
 	  /* Grab the next cluster and continue scanning */
 	  c_item = c_item->next;
@@ -835,14 +835,14 @@ mps_dmodify (mps_context * s, mps_boolean track_new_cluster)
 	   * approximation status of the roots. */
 	  if (!track_new_cluster)
 	    {
-	      s->root_status[l] = MPS_ROOT_STATUS_CLUSTERED;
+	      s->root[l]->status = MPS_ROOT_STATUS_CLUSTERED;
 	    }
 
 	  rdpe_set (tmpr, s->root[l]->drad);
 	  cdpe_mod (tmpr2, s->root[l]->dvalue);
 	  rdpe_div_eq (tmpr, tmpr2);
 	  if (rdpe_le (tmpr, s->eps_out)) 
-	    s->root_status[l] = MPS_ROOT_STATUS_APPROXIMATED_IN_CLUSTER;
+	    s->root[l]->status = MPS_ROOT_STATUS_APPROXIMATED_IN_CLUSTER;
 
 	  root = root->next;
 	}
@@ -1509,8 +1509,8 @@ mps_mmodify (mps_context * s, mps_boolean track_new_cluster)
   if (track_new_cluster)
     {
       for (i = 0; i < s->n; i++)
-	if (s->root_status[i] == MPS_ROOT_STATUS_CLUSTERED)
-	  s->root_status[i] = MPS_ROOT_STATUS_NEW_CLUSTERED;
+	if (s->root[i]->status == MPS_ROOT_STATUS_CLUSTERED)
+	  s->root[i]->status = MPS_ROOT_STATUS_NEW_CLUSTERED;
     }
 
   /* Iterate over the cluster to update the status of the roots */
@@ -1532,8 +1532,8 @@ mps_mmodify (mps_context * s, mps_boolean track_new_cluster)
 	{
 	  /* Check if the root is already approximated; if that's not the
 	   * case set it at least as isolated. */
-	  if (s->root_status[l] != MPS_ROOT_STATUS_APPROXIMATED)
-	    s->root_status[root->k] = MPS_ROOT_STATUS_ISOLATED;
+	  if (s->root[l]->status != MPS_ROOT_STATUS_APPROXIMATED)
+	    s->root[l]->status = MPS_ROOT_STATUS_ISOLATED;
 
 	  /* Grab the next cluster and continue scanning */
 	  c_item = c_item->next;
@@ -1550,7 +1550,7 @@ mps_mmodify (mps_context * s, mps_boolean track_new_cluster)
 	   * approximation status of the roots. */
 	  if (!track_new_cluster)
 	    {
-	      s->root_status[l] = MPS_ROOT_STATUS_CLUSTERED;
+	      s->root[l]->status = MPS_ROOT_STATUS_CLUSTERED;
 	    }
 
 	  rdpe_set (tmpr, s->root[l]->drad);
@@ -1558,7 +1558,7 @@ mps_mmodify (mps_context * s, mps_boolean track_new_cluster)
 	  cdpe_mod (tmpr2, cdtmp);
 	  rdpe_div_eq (tmpr, tmpr2);
 	  if (rdpe_le (tmpr, s->eps_out)) 
-	    s->root_status[l] = MPS_ROOT_STATUS_APPROXIMATED_IN_CLUSTER; 
+	    s->root[l]->status = MPS_ROOT_STATUS_APPROXIMATED_IN_CLUSTER; 
 
 	  root = root->next;
 	}

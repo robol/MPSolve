@@ -349,7 +349,7 @@ mps_fstart (mps_context * s, int n, mps_cluster_item * cluster_item,
            * representable range, to 'x' (out)    */
           if ((r == DBL_MIN) || (r == DBL_MAX))
             /* if ((r == small) || (r == big)) DARIO Giugno 23 */
-            s->root_status[l] = MPS_ROOT_STATUS_NOT_FLOAT;
+            s->root[l]->status = MPS_ROOT_STATUS_NOT_FLOAT;
           cplx_set_d (s->root[l]->fvalue,
                       r * cos (ang * jj + th * s->partitioning[i + 1] +
                                sigma),
@@ -372,7 +372,7 @@ mps_fstart (mps_context * s, int n, mps_cluster_item * cluster_item,
 	      for (root = cluster->first; root != NULL; root = root->next)
 		{
 		  l = root->k;
-		  s->root_status[l] = MPS_ROOT_STATUS_APPROXIMATED_IN_CLUSTER;
+		  s->root[l]->status = MPS_ROOT_STATUS_APPROXIMATED_IN_CLUSTER;
 		  s->root[l]->frad = r * nzeros;
 		}
 	    }
@@ -623,7 +623,7 @@ mps_dstart (mps_context * s, int n, mps_cluster_item * cluster_item,
   /* check if it is the case dpe_after_float, in this case set flag=true  */
   for (i = 0; i < n; i++)
     {
-      flag = (s->root_status[i] == MPS_ROOT_STATUS_NOT_FLOAT);
+      flag = (s->root[i]->status == MPS_ROOT_STATUS_NOT_FLOAT);
       if (flag)
         break;
     }
@@ -658,7 +658,7 @@ mps_dstart (mps_context * s, int n, mps_cluster_item * cluster_item,
            * values of only the approximations falling out of the range */
           if (flag)
             {
-              if (s->root_status[l] == MPS_ROOT_STATUS_NOT_FLOAT)
+              if (s->root[l]->status == MPS_ROOT_STATUS_NOT_FLOAT)
                 {
                   cdpe_set_d (s->root[l]->dvalue,
                               cos (ang * jj + th * s->partitioning[i + 1] +
@@ -666,10 +666,10 @@ mps_dstart (mps_context * s, int n, mps_cluster_item * cluster_item,
                               sin (ang * jj + th * s->partitioning[i + 1] +
                                    sigma));
                   cdpe_mul_eq_e (s->root[l]->dvalue, r);
-                  s->root_status[l] = MPS_ROOT_STATUS_CLUSTERED;
+                  s->root[l]->status = MPS_ROOT_STATUS_CLUSTERED;
                   /*#G 27/4/98 if (rdpe_eq(r, big) || rdpe_eq(r, small)) */
                   if (rdpe_eq (r, RDPE_MIN) || rdpe_eq (r, RDPE_MAX))
-                    s->root_status[l] = MPS_ROOT_STATUS_NOT_DPE;
+                    s->root[l]->status = MPS_ROOT_STATUS_NOT_DPE;
                 }
             }
           else
@@ -683,7 +683,7 @@ mps_dstart (mps_context * s, int n, mps_cluster_item * cluster_item,
               cdpe_mul_eq_e (s->root[l]->dvalue, r);
               /*#G 27/4/98 if (rdpe_eq(r, big) || rdpe_eq(r, small)) */
               if (rdpe_eq (r, RDPE_MIN) || rdpe_eq (r, RDPE_MAX))
-                s->root_status[l] = MPS_ROOT_STATUS_NOT_DPE;
+                s->root[l]->status = MPS_ROOT_STATUS_NOT_DPE;
             }
 
 	  if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
@@ -704,7 +704,7 @@ mps_dstart (mps_context * s, int n, mps_cluster_item * cluster_item,
 	      for (root = cluster->first; root != NULL; root = root->next)
 		{
 		  l = root->k;
-		  s->root_status[l] = MPS_ROOT_STATUS_APPROXIMATED_IN_CLUSTER;
+		  s->root[l]->status = MPS_ROOT_STATUS_APPROXIMATED_IN_CLUSTER;
 		  rdpe_set (s->root[l]->drad, tmp1);
 		}
 	    }
@@ -1000,7 +1000,7 @@ mps_mstart (mps_context * s, int n, mps_cluster_item * cluster_item,
 
           if (rdpe_eq (s->dradii[i], big) || rdpe_eq (s->dradii[i], small))
             {
-              s->root_status[l] = MPS_ROOT_STATUS_NOT_DPE;
+              s->root[l]->status = MPS_ROOT_STATUS_NOT_DPE;
             }
 
 	  root = root->next;
@@ -1023,7 +1023,7 @@ mps_mstart (mps_context * s, int n, mps_cluster_item * cluster_item,
 	  for (j = s->partitioning[i]; j < s->partitioning[i + 1]; j++)
 	    {
 	      l = root2->k;
-	      s->root_status[l] = MPS_ROOT_STATUS_APPROXIMATED_IN_CLUSTER;
+	      s->root[l]->status = MPS_ROOT_STATUS_APPROXIMATED_IN_CLUSTER;
 	      rdpe_mul_d (s->root[l]->drad, rtmp1, (double) nzeros); 
 	      root2 = root2->next;
 	    }
@@ -1102,17 +1102,17 @@ mps_frestart (mps_context * s)
             goto loop1;
           if (s->output_config->goal == MPS_OUTPUT_GOAL_COUNT)
             {
-	      if (s->root_status[l] == MPS_ROOT_STATUS_CLUSTERED &&
-		  s->root_inclusion[l] == MPS_ROOT_INCLUSION_UNKNOWN)
+	      if (s->root[l]->status == MPS_ROOT_STATUS_CLUSTERED &&
+		  s->root[l]->inclusion == MPS_ROOT_INCLUSION_UNKNOWN)
                 {
                   tst = false;
                   break;
                 }
             }
-          else if ((s->root_status[l] == MPS_ROOT_STATUS_CLUSTERED && 
-		    s->root_inclusion[l] == MPS_ROOT_INCLUSION_UNKNOWN)
-                   || (s->root_status[l] == MPS_ROOT_STATUS_CLUSTERED && 
-		       s->root_inclusion[l] == MPS_ROOT_INCLUSION_IN))
+          else if ((s->root[l]->status == MPS_ROOT_STATUS_CLUSTERED && 
+		    s->root[l]->inclusion == MPS_ROOT_INCLUSION_UNKNOWN)
+                   || (s->root[l]->status == MPS_ROOT_STATUS_CLUSTERED && 
+		       s->root[l]->inclusion == MPS_ROOT_INCLUSION_IN))
             {
               tst = false;
               break;
@@ -1132,7 +1132,7 @@ mps_frestart (mps_context * s)
         {
 	  mps_root * r;
 	  for (r = cluster->first; r != NULL; r = r->next)
-            s->root_status[r->k] = MPS_ROOT_STATUS_CLUSTERED;
+            s->root[r->k]->status = MPS_ROOT_STATUS_CLUSTERED;
           MPS_DEBUG (s, "Cluster rel. large: skip to the next component");
           goto loop1;
         }
@@ -1154,7 +1154,7 @@ mps_frestart (mps_context * s)
                 if (rtmp < rtmp1)
                   {
 		    for (root = cluster->first; root != NULL; root = root->next)
-                      s->root_status[root->k] = MPS_ROOT_STATUS_CLUSTERED;
+                      s->root[root->k]->status = MPS_ROOT_STATUS_CLUSTERED;
                     MPS_DEBUG_WITH_INFO (s, "Cluster not Newton isolated: skip "
 					 "to the next component.");
                     goto loop1;
@@ -1302,17 +1302,17 @@ mps_drestart (mps_context * s)
             goto loop1;
           if (s->output_config->goal == MPS_OUTPUT_GOAL_COUNT)
             {
-	      if (s->root_status[l] == MPS_ROOT_STATUS_CLUSTERED &&
-		  s->root_inclusion[l] == MPS_ROOT_INCLUSION_UNKNOWN)
+	      if (s->root[l]->status == MPS_ROOT_STATUS_CLUSTERED &&
+		  s->root[l]->inclusion == MPS_ROOT_INCLUSION_UNKNOWN)
                 {
                   tst = false;
                   break;
                 }
             }
-          else if ((s->root_status[l] == MPS_ROOT_STATUS_CLUSTERED && 
-		    s->root_inclusion[l] == MPS_ROOT_INCLUSION_UNKNOWN) ||
-                   (s->root_status[l] == MPS_ROOT_STATUS_CLUSTERED && 
-		    s->root_inclusion[l] == MPS_ROOT_INCLUSION_IN))
+          else if ((s->root[l]->status == MPS_ROOT_STATUS_CLUSTERED && 
+		    s->root[l]->inclusion == MPS_ROOT_INCLUSION_UNKNOWN) ||
+                   (s->root[l]->status == MPS_ROOT_STATUS_CLUSTERED && 
+		    s->root[l]->inclusion == MPS_ROOT_INCLUSION_IN))
             {
               tst = false;
               break;
@@ -1333,7 +1333,7 @@ mps_drestart (mps_context * s)
         {
           for (root = cluster->first; root != NULL; root = root->next)
             {
-              s->root_status[root->k] = MPS_ROOT_STATUS_CLUSTERED;
+              s->root[root->k]->status = MPS_ROOT_STATUS_CLUSTERED;
               /* err(clust[j])=true  */
             }
           MPS_DEBUG (s, "cluster rel. large: skip to the next component");
@@ -1357,7 +1357,7 @@ mps_drestart (mps_context * s)
                 if (rdpe_lt (rtmp, rtmp1))
                   {
 		    for (root = cluster->first; root != NULL; root = root->next)
-                      s->root_status[root->k] = MPS_ROOT_STATUS_CLUSTERED;
+                      s->root[root->k]->status = MPS_ROOT_STATUS_CLUSTERED;
                     MPS_DEBUG (s, "Cluster not Newton isolated: skip to the next component.");
                     goto loop1;
                   }
@@ -1499,17 +1499,17 @@ mps_mrestart (mps_context * s)
             goto loop1;
           if (s->output_config->goal == MPS_OUTPUT_GOAL_COUNT)
             {
-	      if (s->root_status[l] == MPS_ROOT_STATUS_CLUSTERED &&
-		  s->root_inclusion[l] == MPS_ROOT_INCLUSION_UNKNOWN)
+	      if (s->root[l]->status == MPS_ROOT_STATUS_CLUSTERED &&
+		  s->root[l]->inclusion == MPS_ROOT_INCLUSION_UNKNOWN)
                 {
                   tst = false;
                   break;
                 }
             }
-          else if ((s->root_status[l] == MPS_ROOT_STATUS_CLUSTERED && 
-		    s->root_inclusion[l] == MPS_ROOT_INCLUSION_UNKNOWN) ||
-                   (s->root_status[l] == MPS_ROOT_STATUS_CLUSTERED && 
-		    s->root_inclusion[l] == MPS_ROOT_INCLUSION_IN))
+          else if ((s->root[l]->status == MPS_ROOT_STATUS_CLUSTERED && 
+		    s->root[l]->inclusion == MPS_ROOT_INCLUSION_UNKNOWN) ||
+                   (s->root[l]->status == MPS_ROOT_STATUS_CLUSTERED && 
+		    s->root[l]->inclusion == MPS_ROOT_INCLUSION_IN))
             {
               tst = false;
               break;
@@ -1545,7 +1545,7 @@ mps_mrestart (mps_context * s)
       if (rdpe_gt (sr, rtmp))
         {
 	  for (root = cluster->first; root != NULL; root = root->next)
-            s->root_status[root->k] = MPS_ROOT_STATUS_CLUSTERED;
+            s->root[root->k]->status = MPS_ROOT_STATUS_CLUSTERED;
           MPS_DEBUG (s, "Cluster relat. large: skip to the next component");
 
 	  mps_clusterization_reassemble_clusters (s, s->clusterization);
@@ -1580,7 +1580,7 @@ mps_mrestart (mps_context * s)
       if (rdpe_gt (rtmp2, rtmp1))
         {
 	  for (root = cluster->first; root != NULL; root = root->next)
-            s->root_status[root->k] = MPS_ROOT_STATUS_CLUSTERED;
+            s->root[root->k]->status = MPS_ROOT_STATUS_CLUSTERED;
 	  MPS_DEBUG (s, "Cluster not Newton isolated: skip to the next component");
           goto loop1;
         }
@@ -2091,17 +2091,17 @@ mps_mnewtis (mps_context * s)
             goto loop1;
           if (s->output_config->goal == MPS_OUTPUT_GOAL_COUNT)
             {
-	      if (s->root_status[l] == MPS_ROOT_STATUS_CLUSTERED &&
-		  s->root_inclusion[l] == MPS_ROOT_INCLUSION_UNKNOWN)
+	      if (s->root[l]->status == MPS_ROOT_STATUS_CLUSTERED &&
+		  s->root[l]->inclusion == MPS_ROOT_INCLUSION_UNKNOWN)
                 {
                   tst = false;
                   break;
                 }
             }
-          else if ((s->root_status[l] == MPS_ROOT_STATUS_CLUSTERED && 
-		    s->root_inclusion[l] == MPS_ROOT_INCLUSION_UNKNOWN) ||
-                   (s->root_status[l] == MPS_ROOT_STATUS_CLUSTERED && 
-		    s->root_inclusion[l] == MPS_ROOT_INCLUSION_IN))
+          else if ((s->root[l]->status == MPS_ROOT_STATUS_CLUSTERED && 
+		    s->root[l]->inclusion == MPS_ROOT_INCLUSION_UNKNOWN) ||
+                   (s->root[l]->status == MPS_ROOT_STATUS_CLUSTERED && 
+		    s->root[l]->inclusion == MPS_ROOT_INCLUSION_IN))
             {
               tst = false;
               break;
@@ -2150,7 +2150,7 @@ mps_mnewtis (mps_context * s)
       if (rdpe_gt (sr, rtmp))
         {
 	  for (root = cluster->first; root != NULL; root = root->next)
-            s->root_status[root->k] = MPS_ROOT_STATUS_CLUSTERED;
+            s->root[root->k]->status = MPS_ROOT_STATUS_CLUSTERED;
           MPS_DEBUG (s, "Custer relatively large: "
                      "skip to the next compoent");
           goto loop1;
@@ -2184,7 +2184,7 @@ mps_mnewtis (mps_context * s)
       if (rdpe_gt (rtmp2, rtmp1))
         {
 	  for (root = cluster->first; root != NULL; root = root->next)
-            s->root_status[root->k] = MPS_ROOT_STATUS_CLUSTERED;
+            s->root[root->k]->status = MPS_ROOT_STATUS_CLUSTERED;
           MPS_DEBUG (s, "Cluster not Newton isolated: "
                      "skip to the next component");
           goto loop1;
