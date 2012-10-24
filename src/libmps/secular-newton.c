@@ -16,8 +16,8 @@
 #include <math.h>
 
 #define MPS_2SQRT2 2.82842712474619009760
-#define KAPPA_LOG (log2(sec->n) + 7 * 1.4151135 + 1)
-#define KAPPA (sec->n + 7 * 1.4142135623)
+#define KAPPA (log2(sec->n) + 7 * 1.4151135 + 1)
+#define KAPPA_LINEAR (sec->n + 7 * 1.4142135623)
 #define MPS_SQRT2 1.4142135623
 
 /* We need some special codes to identify the meaning of the exit
