@@ -215,6 +215,10 @@ EXTRA_DIST = \
 	../results/unisolve/mand63.res \
 	../results/unisolve/kam2_1.res \
 	../results/unisolve/kir1_10.res \
+	../results/unisolve/kir1_20.res \
+	../results/unisolve/kir1_40.res \
+	../results/unisolve/spiral10.res \
+	../results/unisolve/spiral20.res \
 	../results/unisolve/nroots50.res \
 	../results/unisolve/wilk40.res \
 	../results/unisolve/wilk80.res \

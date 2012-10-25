@@ -153,8 +153,7 @@ mps_monomial_poly_raise_precision (mps_context * s, mps_polynomial * p, long int
 
   pthread_mutex_lock (&mp->regenerating);
 
-  if ((mp->db.active == 1 && prec <= mpc_get_prec (mp->db.mfpc1[0])) ||
-      (mp->db.active == 2 && prec <= mpc_get_prec (mp->db.mfpc2[0])))
+  if (prec <= mp->prec)
     {
       pthread_mutex_unlock (&mp->regenerating);
       return mpc_get_prec (mp->mfpc[0]);

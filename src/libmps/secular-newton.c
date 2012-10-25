@@ -130,7 +130,7 @@ mps_secular_fnewton (mps_context * s, mps_polynomial * p, mps_approximation * ro
 {
   int i;
   cplx_t ctmp, ctmp2, pol, fp, sumb;
-  double apol, acorr, afp;
+  double apol, acorr;
   double asum = 0.0, asum2 = 0.0, asumb = 0.0, asum_on_apol, ax = cplx_mod (root->fvalue);
   mps_secular_equation * sec = MPS_SECULAR_EQUATION (p);
 
@@ -180,8 +180,6 @@ mps_secular_fnewton (mps_context * s, mps_polynomial * p, mps_approximation * ro
 	  if (acorr < ax * DBL_EPSILON)
 	    {
 	      root->again = false;
-	      if (asum * KAPPA * DBL_EPSILON < acorr)
-		root->approximated = true;
 	    }
 	}
       else
@@ -203,7 +201,7 @@ mps_secular_fnewton (mps_context * s, mps_polynomial * p, mps_approximation * ro
 
   /* Compute the module of pol */
   apol = cplx_mod (pol);
-  afp = cplx_mod (fp);
+  /* afp = cplx_mod (fp); */
 
   /* Compute newton correction */
   cplx_mul (corr, pol, sumb);
@@ -222,15 +220,6 @@ mps_secular_fnewton (mps_context * s, mps_polynomial * p, mps_approximation * ro
       if (s->debug_level & MPS_DEBUG_PACKETS)
 	MPS_DEBUG (s, "Setting again to false on root for root neighbourhood");
       root->again = false;
-
-      if ((KAPPA * asum / afp < 1))
-	{
-	  if (s->debug_level & MPS_DEBUG_PACKETS)
-	    {
-	      MPS_DEBUG (s, "Setting approximated = true on root for small conditioning number");
-	    }
-	  root->approximated = true;
-	}
     }
   else if (acorr < MPS_SQRT2 * ax * DBL_EPSILON)
     {
@@ -372,7 +361,6 @@ mps_secular_dnewton (mps_context * s, mps_polynomial * p, mps_approximation * ro
 				       pol, fp, sumb, asum, asum2, asumb)) != MPS_PARALLEL_SUM_SUCCESS)
     {
       int k;
-      rdpe_set (asum, rdpe_zero);
 
       for (k = 0; k < MPS_POLYNOMIAL (sec)->degree; k++)
 	{
@@ -382,9 +370,6 @@ mps_secular_dnewton (mps_context * s, mps_polynomial * p, mps_approximation * ro
 	      cdpe_add (ctmp2, sec->adpc[i], sec->adpc[k]);
 	      cdpe_div_eq (ctmp2, ctmp);
 	      cdpe_add_eq (corr, ctmp2);
-
-	      cdpe_mod (rtmp, ctmp2);
-	      rdpe_add_eq (asum, rtmp);
 	    }
 	}
 
@@ -399,10 +384,6 @@ mps_secular_dnewton (mps_context * s, mps_polynomial * p, mps_approximation * ro
 	  if (rdpe_lt (rtmp, rtmp2))
 	    {
 	      root->again = false;
-	      
-	      rdpe_mul_d (rtmp2, asum, KAPPA * DBL_EPSILON);
-	      if (rdpe_lt (rtmp2, rtmp))
-		  root->approximated = true;
 	    }
 	}
 
@@ -434,17 +415,6 @@ mps_secular_dnewton (mps_context * s, mps_polynomial * p, mps_approximation * ro
       if (s->debug_level & MPS_DEBUG_PACKETS)
 	MPS_DEBUG (s, "Setting again to false on root for root neighbourhood");
       root->again = false;
-
-      rdpe_mul_d (rtmp, asum, KAPPA);
-      cdpe_mod (rtmp2, fp);
-      if (rdpe_lt (rtmp, rtmp2))
-	{
-	  if (s->debug_level & MPS_DEBUG_PACKETS)
-	    {
-	      MPS_DEBUG (s, "Setting approximated = true on root for small conditioning number");
-	    }
-	  root->approximated = true;
-	}
     }
   else 
     {
@@ -670,13 +640,6 @@ mps_secular_mnewton (mps_context * s, mps_polynomial * p, mps_approximation * ro
       if (root->again && rdpe_lt (acorr, rtmp)) 
         {
 	  root->again = false;
-	  
-	  /* Mark the root as approximated only if the Newton correction
-	   * computation was well conditioned. */
-	  rdpe_mul_d (rtmp, asum, KAPPA);
-	  rdpe_mul_eq (rtmp, s->mp_epsilon);
-	  if (rdpe_lt (rtmp, acorr))
-	    root->approximated = true;
 	}
 
       mpc_clear (ampc_i);
@@ -722,18 +685,6 @@ mps_secular_mnewton (mps_context * s, mps_polynomial * p, mps_approximation * ro
       root->again = false;
       if (s->debug_level & MPS_DEBUG_PACKETS)
 	MPS_DEBUG (s, "Stopping Aberth iterations due to root neighborhood");
-
-      mpc_rmod (rtmp2, fp);
-      rdpe_div (rtmp, asumb, rtmp2);
-      rdpe_mul_eq_d (rtmp, KAPPA);
-
-      if (rdpe_le (rtmp, rdpe_one))
-	{
-	  if (s->debug_level & MPS_DEBUG_PACKETS)
-	    MPS_DEBUG (s, "Setting approximated = true on root for small conditioning number");
-	  root->approximated = true;
-	}
-
       goto mnewton_cleanup;
     }
   else 
