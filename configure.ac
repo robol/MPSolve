@@ -93,7 +93,7 @@ AS_IF([test "x$mpsolve_found_gmp_headers" != "xyes"],
 PKG_CHECK_MODULES([CHECK], [check >= 0.9.4], [have_check=yes], [have_check=no])
 CHECK_CFLAGS="$GENERAL_CFLAGS"
 CHECK_LIBS="$GENERAL_LIBS"
-CHECK_PROGRAMS="test_mpsolve check_dpe check_secsolve check_unisolve check_multithread"
+CHECK_PROGRAMS="test_mpsolve check_dpe check_secsolve check_unisolve check_multithread check_cluster"
 
 AC_SUBST(CHECK_PROGRAMS)
 AC_SUBST(CHECK_CFLAGS)

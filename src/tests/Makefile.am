@@ -247,4 +247,5 @@ EXTRA_DIST = \
 	../results/unisolve/kam2_3.res \
 	../results/unisolve/mig1_100.res \
 	../results/unisolve/mig1_200.res \
-	../results/unisolve/lsr_24.res
+	../results/unisolve/lsr_24.res \
+	../results/unisolve/mig1_500_1.res 
