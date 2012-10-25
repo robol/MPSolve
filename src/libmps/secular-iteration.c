@@ -246,7 +246,7 @@ mps_secular_ga_fiterate (mps_context * s, int maxit, mps_boolean just_regenerate
    	root_neighborhood_roots++; 
      } 
 
-  if (just_regenerated && (nit <= it_threshold))
+   if (just_regenerated && (nit <= it_threshold))
     s->secular_equation->best_approx = true;
 
   MPS_DEBUG_WITH_INFO(s, "%d roots are approximated with the current precision", approximated_roots);

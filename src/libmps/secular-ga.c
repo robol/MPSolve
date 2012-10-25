@@ -532,8 +532,8 @@ mps_secular_ga_mpsolve (mps_context * s)
 
 	   if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config)) 
 	     { 
-	       MPS_DEBUG (s, "Performing restart phase");
-	       mps_secular_restart (s);
+	       MPS_DEBUG (s, "Not performing restart phase, since it's temporary disabled");
+	       /* mps_secular_restart (s); */
 	     }
 	   
 	   if (!mps_secular_ga_regenerate_coefficients (s)) 
@@ -558,11 +558,12 @@ mps_secular_ga_mpsolve (mps_context * s)
 
        /* Check if all the roots are approximated or, if we have done more than 4 packets
 	* of iterations without finding all of them, if at least we are near to the result. */
-       if (!just_regenerated && (roots_computed >= MIN (s->n, s->n + 4 - packet)))
+       if (roots_computed >= MIN (s->n, s->n + 4 - packet))
 	 {
 	   if (mps_secular_ga_regenerate_coefficients (s))
 	     {
 	       skip_check_stop = false;
+	       just_regenerated = true;
 	     }
 	   else
 	     {
