@@ -21,7 +21,7 @@
 #define TEST_SECSOLVE_SECULAR(pol_name) {\
   char * pol_file = get_pol_file (pol_name, "secsolve"); \
   char * res_file = get_res_file (pol_name, "secsolve"); \
-  test_mpsolve (pol_file, res_file, MPS_ALGORITHM_SECULAR_MPSOLVE);	\
+  test_mpsolve (pol_file, res_file, MPS_ALGORITHM_STANDARD_MPSOLVE);	\
   free (pol_file); \
   free (res_file); \
   }
@@ -322,11 +322,6 @@ main (int argc, char ** argv)
 		{
 		  /* fprintf (stderr, "SECSOLVE -g mode\n"); */
 		  alg = MPS_ALGORITHM_SECULAR_GA;
-		}
-	      if (*opt->optvalue == 's')
-		{
-		  /* fprintf (stderr, "SECSOLVE mode\n"); */
-		  alg = MPS_ALGORITHM_SECULAR_MPSOLVE;
 		}
 	      if (*opt->optvalue == 'u')
 		{

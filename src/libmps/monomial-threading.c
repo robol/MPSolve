@@ -60,13 +60,10 @@ mps_thread_fpolzer_worker (void *data_ptr)
           cplx_set (froot, s->root[i]->fvalue);
           pthread_mutex_unlock (&data->aberth_mutex[i]);
 
-          if (!MPS_INPUT_CONFIG_IS_USER (s->input_config))
-            {
-              mps_fnewton (s, s->n, s->root[i], corr, p->fpc, p->fap,
-                           false);
-              if (iter == 0 && !s->root[i]->again && s->root[i]->frad > rad1 && rad1 != 0)
-                s->root[i]->frad = rad1;
-              /***************************************
+	  mps_polynomial_fnewton (s, MPS_POLYNOMIAL (p), s->root[i], corr);
+	  if (iter == 0 && !s->root[i]->again && s->root[i]->frad > rad1 && rad1 != 0)
+	    s->root[i]->frad = rad1;
+	  /***************************************
                The above condition is needed to cope with the case
                where at the first iteration the starting point
                is already in the root neighbourhood and the actually
@@ -74,16 +71,7 @@ mps_thread_fpolzer_worker (void *data_ptr)
                derivative is too small.
                In this case the previous radius bound, obtained by
                means of Rouche' is more reliable and strict
-               **************************************/
-            }
-          else if (s->fnewton_usr != NULL)
-            {
-              (*s->fnewton_usr) (s, s->root[i], corr, NULL, false);
-            }
-          else
-            {
-              mps_fnewton_usr (s, s->root[i], corr);
-            }
+	  **************************************/
 
           if (s->root[i]->again ||
               /* the correction is performed only if iter!=1 or rad(i)!=rad1 */
@@ -236,24 +224,10 @@ mps_thread_dpolzer_worker (void *data_ptr)
           (*data->it)++;
           rdpe_set (rad1, s->root[i]->drad);
 
-          if (!MPS_INPUT_CONFIG_IS_USER (s->input_config))
-            {
-              mps_dnewton (s, s->n, s->root[i], corr, p->dpc,
-                           p->dap, false);
-              if (iter == 0 && !s->root[i]->again && rdpe_gt (s->root[i]->drad, rad1)
-                  && rdpe_ne (rad1, rdpe_zero))
-                rdpe_set (s->root[i]->drad, rad1);
-            }
-          else if (s->dnewton_usr != NULL)
-            {
-              (*s->dnewton_usr) (s, s->root[i], corr,
-                                 NULL, false);
-            }
-          else
-            {
-              mps_dnewton_usr (s, s->root[i], corr);
-            }
-
+	  mps_polynomial_dnewton (s, MPS_POLYNOMIAL (p), s->root[i], corr);
+	  if (iter == 0 && !s->root[i]->again && rdpe_gt (s->root[i]->drad, rad1)
+	      && rdpe_ne (rad1, rdpe_zero))
+	    rdpe_set (s->root[i]->drad, rad1);
           /************************************************
            The above condition is needed to manage with the case where
            at the first iteration the starting point is already in the
@@ -430,37 +404,24 @@ mps_thread_mpolzer_worker (void *data_ptr)
           mpc_set (mroot, s->root[l]->mvalue);
           pthread_mutex_unlock (&data->aberth_mutex[l]);
 
-          if (!MPS_INPUT_CONFIG_IS_USER (s->input_config))
-            {
-              /* sparse/dense polynomial */
-              rdpe_set (rad1, s->root[l]->drad);
+	  /* sparse/dense polynomial */
+	  rdpe_set (rad1, s->root[l]->drad);
 
-	      mps_mnewton (s, s->n, s->root[l], corr, p->mfpc,
-			   p->mfppc, p->dap, p->spar,
-			   data->thread, false);
+	  mps_polynomial_mnewton (s, MPS_POLYNOMIAL (p), s->root[l], corr);
+	  
+	  if (iter == 0 && !s->root[l]->again && rdpe_gt (s->root[l]->drad, rad1)
+	      && rdpe_ne (rad1, rdpe_zero))
+	    rdpe_set (s->root[l]->drad, rad1);
 
-              if (iter == 0 && !s->root[l]->again && rdpe_gt (s->root[l]->drad, rad1)
-                  && rdpe_ne (rad1, rdpe_zero))
-                rdpe_set (s->root[l]->drad, rad1);
-
-              /************************************************
-               The above condition is needed to cope with the case
-               where at the first iteration the starting point is
-               already in the root neighbourhood and the actually
-               computed radius is too big since the value of the
-               first derivative is too small.
-               In this case the previous radius bound, obtained by
-               means of Rouche' is more reliable and strict
-               ***********************************************/
-            }
-          else /* user's polynomial */ if (s->mnewton_usr != NULL)
-            {
-              (*s->mnewton_usr) (s, s->root[l], corr, NULL, false);
-            }
-          else
-            {
-              mps_mnewton_usr (s, s->root[l], corr);
-            }
+	  /************************************************
+          The above condition is needed to cope with the case
+          where at the first iteration the starting point is
+          already in the root neighbourhood and the actually
+          computed radius is too big since the value of the
+          first derivative is too small.
+          In this case the previous radius bound, obtained by
+          means of Rouche' is more reliable and strict
+	  ***********************************************/
 
           if (s->root[l]->again ||
               /* the correction is performed only if iter!=1 or rad[l]!=rad1 */

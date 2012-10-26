@@ -284,12 +284,9 @@ extern "C"
   void mps_secular_raise_root_precision (mps_context * s, int wp);
 
   /* Routines in secular-starting.c */
-  void mps_secular_fstart (mps_context * s, int n, mps_cluster_item * cluster, double clust_rad,
-			   double g, rdpe_t eps);
-  void mps_secular_dstart (mps_context * s, int n, mps_cluster_item * cluster, rdpe_t clust_rad,
-			   rdpe_t g, rdpe_t eps);
-  void mps_secular_mstart (mps_context * s, int n, mps_cluster_item * cluster, rdpe_t clust_rad,
-			   rdpe_t g, rdpe_t eps);
+  void mps_secular_fstart (mps_context * s, mps_secular_equation * sec);
+  void mps_secular_dstart (mps_context * s, mps_secular_equation * sec);
+  void mps_secular_mstart (mps_context * s, mps_secular_equation * sec);
 
   /* Routines in secular-iteration.c */
   int mps_secular_ga_fiterate (mps_context * s, int maxit, mps_boolean just_regenerated);

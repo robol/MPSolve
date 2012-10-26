@@ -53,6 +53,7 @@ __mps_secular_ga_fiterate_worker (void* data_ptr)
 	  pthread_mutex_unlock (data->gs_mutex);
 #endif
 	  cdpe_set_x (s->root[i]->dvalue, s->root[i]->fvalue);
+
 	  mps_secular_fnewton (s, MPS_POLYNOMIAL (s->secular_equation), s->root[i], corr);
 
 	  if (s->root[i]->status == MPS_ROOT_STATUS_NOT_FLOAT)
@@ -75,13 +76,12 @@ __mps_secular_ga_fiterate_worker (void* data_ptr)
 	  cplx_sub (abcorr, cplx_one, abcorr);
 	  cplx_div (abcorr, corr, abcorr);
 
-	  if (isnan (cplx_Re (s->root[i]->fvalue)) || isnan (cplx_Im (s->root[i]->fvalue)))
+	  if (cplx_check_fpe (abcorr))
 	    {
-	      *data->excep = true;
-	      cdpe_get_x (s->root[i]->fvalue, s->root[i]->dvalue);
-	      break;
+	      s->root[i]->again = false;
+	      pthread_mutex_unlock (&data->roots_mutex[i]);
+	      continue;
 	    }
-
 
 	  if (!s->root[i]->again || s->root[i]->approximated)
 	    {
@@ -146,6 +146,8 @@ mps_secular_ga_fiterate (mps_context * s, int maxit, mps_boolean just_regenerate
 #endif
 
   s->operation = MPS_OPERATION_ABERTH_FP_ITERATIONS;
+  
+  MPS_DEBUG_CPLX (s, s->root[21]->fvalue, "Root_%d", 21);
 
   mps_thread_worker_data *data;
   pthread_mutex_t *aberth_mutex =

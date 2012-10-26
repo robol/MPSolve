@@ -82,13 +82,8 @@ mps_standard_mpsolve (mps_context * s)
     }
   else
     {
-      /* Check data but only if the user has provided a suitable
-       * check_data routine. */
-      if (s->check_data_usr != NULL)
-        (*s->check_data_usr) (s, &which_case);
-      else
-        /* Otherwise fallback on the standard check_data routine */
-        mps_check_data (s, &which_case);
+      /* Otherwise fallback on the standard check_data routine */
+      mps_check_data (s, &which_case);
     }
 
   /* Check for errors in check data */

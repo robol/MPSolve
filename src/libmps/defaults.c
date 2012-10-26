@@ -93,14 +93,6 @@ mps_set_default_values (mps_context * s)
   s->punt_out = NULL;
   s->clust_out = NULL;
 
-  /* Don't use user define functions in the default case */
-  s->fnewton_usr = NULL;
-  s->dnewton_usr = NULL;
-  s->mnewton_usr = NULL;
-  s->check_data_usr = NULL;
-  s->fstart_usr = NULL;
-  s->dstart_usr = NULL;
-
   s->random_seed = 0;
   s->newtis = 0;
   s->last_sigma = 0.1;

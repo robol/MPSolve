@@ -1187,8 +1187,7 @@ mps_frestart (mps_context * s)
       // cplx_set (g, sc);
       for (j = 0; j < s->max_newt_it; j++)
         {
-          mps_fnewton (s, MPS_POLYNOMIAL (p)->degree - cluster->n + 1, g,
-                       corr, p->fppc, s->fap1, false);
+          mps_fnewton (s, MPS_POLYNOMIAL (p), g, corr);
           cplx_sub_eq (g->fvalue, corr);
           if (!g->again)
 	    {
@@ -1383,8 +1382,7 @@ mps_drestart (mps_context * s)
       cdpe_set (g->dvalue, sc);
       for (j = 0; j < s->max_newt_it; j++)
         {                       /* loop_newt: */
-          mps_dnewton (s, s->n - cluster->n + 1, g,
-                       corr, s->dpc2, s->dap1, false);
+          mps_dnewton (s, MPS_POLYNOMIAL (p), g, corr);
           cdpe_sub_eq (g->dvalue, corr);
           if (!g->again)
 	    {
@@ -1667,9 +1665,7 @@ mps_mrestart (mps_context * s)
 
       for (j = 0; j < s->max_newt_it; j++)
         {                       /* loop_newt: */
-          mps_mnewton (s, s->n - cluster->n + 1, g,
-                       corr, der->mfpc, der->mfppc, der->dap, der->spar,
-                       0, false);
+          mps_mnewton (s, MPS_POLYNOMIAL (der), g, corr);
           if (g->again)
             {
               mpc_sub_eq (g->mvalue, corr);
@@ -1829,10 +1825,7 @@ mps_fshift (mps_context * s, int m, mps_cluster_item * cluster_item, double clus
 
   /* If there is a custom starting point function use it, otherwise
    * use the default one */
-  if (s->fstart_usr)
-    (*s->fstart_usr) (s, m, cluster_item, clust_rad, ag, eps);
-  else
-    mps_fstart (s, m, cluster_item, clust_rad, ag, eps, s->fap1);
+  mps_fstart (s, m, cluster_item, clust_rad, ag, eps, s->fap1);
 }
 
 /***********************************************************
@@ -1866,10 +1859,7 @@ mps_dshift (mps_context * s, int m, mps_cluster_item * cluster_item, rdpe_t clus
   for (i = 0; i <= m; i++)
     cdpe_mod (s->dap1[i], s->dpc2[i]);
 
-  if (s->dstart_usr)
-    (*s->dstart_usr) (s, m, cluster_item, clust_rad, ag, eps);
-  else
-    mps_dstart (s, m, cluster_item, clust_rad, ag, eps, s->dap1);
+  mps_dstart (s, m, cluster_item, clust_rad, ag, eps, s->dap1);
 }
 
 /*******************************************************

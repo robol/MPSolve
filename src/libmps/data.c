@@ -145,10 +145,11 @@ void
 mps_raise_data_raw (mps_context * s, long int prec)
 {
   int k;
-  mps_monomial_poly *p = MPS_MONOMIAL_POLY (s->active_poly);
 
   if (!MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
-    abort ();
+    return;
+
+  mps_monomial_poly *p = MPS_MONOMIAL_POLY (s->active_poly);
 
   /* raise the precision of  mroot */
   for (k = 0; k < s->n; k++)

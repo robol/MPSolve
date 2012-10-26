@@ -150,8 +150,8 @@ mps_secular_fnewton (mps_context * s, mps_polynomial * p, mps_approximation * ro
   cplx_set (sumb, cplx_zero);
   cplx_set (corr, cplx_zero);
 
-  if ((i = mps_secular_fparallel_sum (s, root, p->degree, s->secular_equation->afpc, 
-				      s->secular_equation->bfpc, pol, 
+  if ((i = mps_secular_fparallel_sum (s, root, p->degree, sec->afpc, 
+				      sec->bfpc, pol, 
 				      fp, sumb, &asum, &asum2, &asumb)) >= 0)
     {
       int k;
@@ -172,7 +172,14 @@ mps_secular_fnewton (mps_context * s, mps_polynomial * p, mps_approximation * ro
 
       cplx_sub_eq (corr, cplx_one);
 
-      if (!cplx_eq_zero (corr))
+      if (cplx_eq_zero (corr))
+	cplx_set_d (corr, DBL_EPSILON, 0.0);
+
+      cplx_div (corr, afpc[i], corr);
+      
+      acorr = cplx_mod (corr);
+      
+      if (acorr < ax * DBL_EPSILON)
 	{
 	  cplx_div (corr, afpc[i], corr);
 	      
@@ -182,14 +189,13 @@ mps_secular_fnewton (mps_context * s, mps_polynomial * p, mps_approximation * ro
 	      root->again = false;
 	    }
 	}
-      else
-	root->again = false;
       
       return;
     }
 
-  if (i == MPS_PARALLEL_SUM_FAILED)
+  if (i == MPS_PARALLEL_SUM_FAILED || cplx_check_fpe (pol) || cplx_check_fpe (fp))
     {
+      cplx_set (corr, cplx_zero);
       root->status = MPS_ROOT_STATUS_NOT_FLOAT;
       root->again = false;
       return;
@@ -357,7 +363,7 @@ mps_secular_dnewton (mps_context * s, mps_polynomial * p, mps_approximation * ro
   cdpe_set (sumb, cdpe_zero);
   cdpe_set (corr, cdpe_zero);
 
-  if ((i = mps_secular_dparallel_sum (s, root, p->degree, s->secular_equation->adpc, s->secular_equation->bdpc, 
+  if ((i = mps_secular_dparallel_sum (s, root, p->degree, sec->adpc, sec->bdpc, 
 				       pol, fp, sumb, asum, asum2, asumb)) != MPS_PARALLEL_SUM_SUCCESS)
     {
       int k;
@@ -637,6 +643,7 @@ mps_secular_mnewton (mps_context * s, mps_polynomial * p, mps_approximation * ro
       mpc_rmod (acorr, corr);
  
       rdpe_mul (rtmp, ax, s->mp_epsilon); 
+
       if (root->again && rdpe_lt (acorr, rtmp)) 
         {
 	  root->again = false;

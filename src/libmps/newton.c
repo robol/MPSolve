@@ -45,14 +45,17 @@
  * be computed.
  */
 void
-mps_fnewton (mps_context * s, int n, mps_approximation * root, 
-	     cplx_t corr,
-	     cplx_t fpc[], double fap[],  
-	     mps_boolean skip_radius_computation)
+mps_fnewton (mps_context * s, mps_polynomial * poly, mps_approximation * root, 
+	     cplx_t corr)
 {
   int i;
   double ap, az, absp, azi, eps;
   cplx_t p, p1, zi, den, ppsp, tmp;
+
+  mps_monomial_poly *mp = MPS_MONOMIAL_POLY (poly);
+  cplx_t *fpc = mp->fpc;
+  double *fap = mp->fap;
+  int n = poly->degree;
 
   cplx_t z;
   cplx_set (z, root->fvalue);
@@ -130,10 +133,6 @@ mps_fnewton (mps_context * s, int n, mps_approximation * root,
 	  absp = cplx_mod (p);
 	  *cont = (absp > ap * eps);
 
-	   /* If not asked to compute the radius jump to the end */
-	   if (skip_radius_computation)
-	     return;
-
 	  *radius = cplx_mod (ppsp) + (eps * ap * az) / cplx_mod (p1);
 	  *radius *= n / cplx_mod (den);
 	  *radius *= az;
@@ -177,15 +176,18 @@ mps_fnewton (mps_context * s, int n, mps_approximation * root,
  * @see mps_fnewton()
  */
 void
-mps_dnewton (mps_context * s, int n, mps_approximation * root, 
-	     cdpe_t corr,
-	     cdpe_t dpc[], rdpe_t dap[],
-	     mps_boolean skip_radius_computation)
+mps_dnewton (mps_context * s, mps_polynomial * poly, mps_approximation * root, 
+	     cdpe_t corr)
 {
   int i;
   rdpe_t ap, az, absp, rnew, apeps, rtmp;
   cdpe_t p, p1, tmp, z;
   double eps;
+
+  mps_monomial_poly *mp = MPS_MONOMIAL_POLY (poly);
+  cdpe_t * dpc = mp->dpc;
+  rdpe_t * dap = mp->dap;
+  int n = poly->degree;
 
   cdpe_set (z, root->dvalue);
   mps_boolean * cont = &root->again;
@@ -228,10 +230,6 @@ mps_dnewton (mps_context * s, int n, mps_approximation * root,
   cdpe_mod (absp, p);
   rdpe_mul_d (apeps, ap, eps);
   *cont = rdpe_gt (absp, apeps);
-
-  /* If not asked to compute the radius jump to the end */
-  if (skip_radius_computation)
-    return;
 
   rdpe_add (rnew, absp, apeps);
   cdpe_mod (rtmp, p1);
@@ -289,8 +287,12 @@ mps_parhorner (mps_context * st, int n, mpc_t x, mpc_t p[],
 
   /* Set the pointer for paraller horner to be thread specific
    * so there is not conflict with other threads.           */
-  mps_boolean *spar2 = mps_thread_get_spar2 (st, n_thread);
-  mpc_t *mfpc2 = mps_thread_get_mfpc2 (st, n_thread);
+  /* mps_boolean *spar2 = mps_thread_get_spar2 (st, n_thread); */
+  /* mpc_t *mfpc2 = mps_thread_get_mfpc2 (st, n_thread); */
+
+  mps_boolean *spar2 = mps_boolean_valloc (n + 2);
+  mpc_t * mfpc2 = mpc_valloc (n + 1);
+  mpc_vinit2 (mfpc2, n + 1, mpc_get_prec (p[0]));
 
   /* Raise the precision of the thread local mfpc is it does not 
    * match the current working precision. */
@@ -341,6 +343,10 @@ mps_parhorner (mps_context * st, int n, mpc_t x, mpc_t p[],
 
   mpc_clear (y);
   mpc_clear (tmp);
+
+  mpc_vclear (mfpc2, n + 1);
+  free (mfpc2);
+  free (spar2);
 }
 
 /**
@@ -368,9 +374,12 @@ mps_aparhorner (mps_context * st,
 
   /* Set the pointer for paraller horner to be thread specific
    * so there is not conflict with other threads.           */
-  mps_boolean *spar2 = mps_thread_get_spar2 (st, n_thread);
-  rdpe_t *dap2 = rdpe_valloc (st->deg + 1);
+  /* mps_boolean *spar2 = mps_thread_get_spar2 (st, n_thread); */
+  /* rdpe_t *dap2 = rdpe_valloc (st->deg + 1); */
 
+  mps_boolean *spar2 = mps_boolean_valloc (n + 2);
+  rdpe_t *dap2 = rdpe_valloc (n + 1);
+  
   for (i = 0; i < n + 1; i++)
     spar2[i] = b[i];
   for (i = 0; i < n; i++)
@@ -408,7 +417,7 @@ mps_aparhorner (mps_context * st,
     }
   rdpe_set (s, dap2[0]);
 
-  rdpe_vfree (dap2);
+  free (spar2);
 }
 
 /**
@@ -449,15 +458,21 @@ mps_aparhorner (mps_context * st,
  * @see mps_dnewton()
  */
 void
-mps_mnewton (mps_context * s, int n, mps_approximation * root, mpc_t corr,
-	     mpc_t mfpc[], mpc_t mfppc[], rdpe_t dap[],
-	     mps_boolean spar[], int n_thread, 
-	     mps_boolean skip_radius_computation)
+mps_mnewton (mps_context * s, mps_polynomial * poly, 
+	     mps_approximation * root, mpc_t corr)
 {
   int i, n1, n2;
   rdpe_t ap, az, absp, temp, rnew, ep, apeps;
   cdpe_t temp1;
   mpc_t p, p1;
+
+  mps_monomial_poly * mp = MPS_MONOMIAL_POLY (poly);
+  mpc_t * mfpc = mp->mfpc;
+  mpc_t * mfppc = mp->mfppc;
+  rdpe_t * dap = mp->dap;
+  mps_boolean * spar = mp->spar;
+  int n_thread = mps_thread_get_id (s, s->pool);
+  int n = poly->degree;
 
   long int wp = mpc_get_prec (corr);
 
@@ -550,10 +565,6 @@ mps_mnewton (mps_context * s, int n, mps_approximation * root, mpc_t corr,
   cdpe_mod (temp, temp1);
   rdpe_mul (apeps, ap, ep);
   root->again = rdpe_gt (absp, apeps);
-
-  /* If not asked to set the radius jump to the end */
-  if (skip_radius_computation)
-    goto exit_sub;
 
   rdpe_add (rnew, absp, apeps);
   rdpe_div_eq (rnew, temp);

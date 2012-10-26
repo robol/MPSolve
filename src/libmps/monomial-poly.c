@@ -34,6 +34,9 @@ mps_monomial_poly_new (mps_context * s, long int degree)
   poly->mstart = mps_monomial_poly_mstart;
   poly->free = mps_monomial_poly_free;
   poly->raise_data = mps_monomial_poly_raise_precision;
+  poly->fnewton = mps_monomial_poly_fnewton;
+  poly->dnewton = mps_monomial_poly_dnewton;
+  poly->mnewton = mps_monomial_poly_mnewton;
   poly->representation = MPS_REPRESENTATION_MONOMIAL;
   
   /* Set the degree of the polynomial */
@@ -525,4 +528,25 @@ mps_monomial_poly_mstart (mps_context * ctx, mps_polynomial * p)
   mps_mstart (ctx, ctx->n, NULL, (__rdpe_struct *) rdpe_zero,
 	      (__rdpe_struct *) rdpe_zero, mp->dap, gg);
   mpc_clear (gg);
+}
+
+void 
+mps_monomial_poly_fnewton (mps_context * ctx, mps_polynomial * p, 
+			   mps_approximation * root, cplx_t corr)
+{
+  mps_fnewton (ctx, p, root, corr);
+}
+
+void 
+mps_monomial_poly_dnewton (mps_context * ctx, mps_polynomial * p, 
+			   mps_approximation * root, cdpe_t corr)
+{
+  mps_dnewton (ctx, p, root, corr);
+}
+
+void 
+mps_monomial_poly_mnewton (mps_context * ctx, mps_polynomial * p, 
+			   mps_approximation * root, mpc_t corr)
+{
+  mps_mnewton (ctx, p, root, corr);
 }

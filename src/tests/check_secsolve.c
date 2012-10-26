@@ -63,7 +63,7 @@ test_secsolve_on_pol (test_pol * pol)
   mps_context_set_output_goal (s, MPS_OUTPUT_GOAL_ISOLATE);
 
   /* Solve it */
-  mps_context_select_algorithm (s, (pol->ga) ? MPS_ALGORITHM_SECULAR_GA : MPS_ALGORITHM_SECULAR_MPSOLVE);
+  mps_context_select_algorithm (s, (pol->ga) ? MPS_ALGORITHM_SECULAR_GA : MPS_ALGORITHM_STANDARD_MPSOLVE);
   mps_mpsolve (s);
   
   mpc_init2 (root, mps_context_get_data_prec_max (s));

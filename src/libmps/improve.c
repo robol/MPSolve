@@ -119,14 +119,6 @@ mps_improve_root2 (void * data_ptr)
   int correct_bits = rdpe_Esp (aroot) - rdpe_Esp (root->drad) - 1;
   int max_steps = mps_intlog2 (ctx->output_config->prec / correct_bits);
 
-  mps_secular_iteration_data it_data;
-  if (MPS_INPUT_CONFIG_IS_SECULAR (ctx->input_config))
-    {
-      mps_secular_equation *sec = MPS_SECULAR_EQUATION (ctx->active_poly);
-      it_data.local_ampc = sec->ampc;
-      it_data.local_bmpc = sec->bmpc;
-    }
-
   mpc_t nwtcorr;
   mps_polynomial * p = ctx->active_poly;
   mpc_init2 (nwtcorr, wp);
@@ -160,28 +152,10 @@ mps_improve_root2 (void * data_ptr)
       if (ctx->mpwp < wp)
 	{
 	  mps_polynomial_raise_data (ctx, p, wp);
-
-	  if (MPS_INPUT_CONFIG_IS_SECULAR (ctx->input_config))
-	    {
-	      mps_secular_equation *sec = MPS_SECULAR_EQUATION (p);
-	      it_data.local_ampc = sec->ampc;
-	      it_data.local_bmpc = sec->bmpc;
-	    }
-
 	  ctx->mpwp = wp;
 	}
       
-      if (MPS_INPUT_CONFIG_IS_MONOMIAL (ctx->input_config))
-	{
-	  mps_monomial_poly *mp = MPS_MONOMIAL_POLY (p);
-	  mps_mnewton (ctx, ctx->n, root, nwtcorr, mp->mfpc, mp->mfppc, mp->dap, mp->spar,
-		       mps_thread_get_id (ctx, ctx->pool), false);
-	}
-      else
-	{
-	  (*ctx->mnewton_usr) (ctx, root, nwtcorr, 
-			       MPS_INPUT_CONFIG_IS_SECULAR (ctx->input_config) ? &it_data : NULL, false);
-	}
+      mps_polynomial_mnewton (ctx, p, root, nwtcorr);
 
       mpc_set_prec (root->mvalue, 2 * wp);
 

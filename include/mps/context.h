@@ -15,55 +15,6 @@ extern "C"
 #include <pthread.h>
 
   /**
-   * @brief Function that computes \f$\frac{p}{p'}\f$ (floating point version)
-   */
-  typedef void (*mps_fnewton_ptr) (mps_context * status, mps_approximation *, cplx_t,
-                                   void * user_data,
-				   mps_boolean skip_radius_check);
-
-  /**
-   * @brief Function that computes \f$\frac{p}{p'}\f$ (dpe version)
-   */
-  typedef void (*mps_dnewton_ptr) (mps_context * status, mps_approximation * root,
-                                   cdpe_t corr,
-				   void * user_data,
-				   mps_boolean skip_radius_check);
-
-  /**
-   * @brief Function that computes \f$\frac{p}{p'}\f$ (multiprecision version)
-   */
-  typedef void (*mps_mnewton_ptr) (mps_context * status, mps_approximation * root,
-                                   mpc_t corr,
-				   void * user_data,
-				   mps_boolean skip_radius_check);
-
-  /**
-   * @brief Functions that check if float phase is needed or not and set
-   * which_case accordingly to <code>'f'</code> or <code>'d'</code>.
-   */
-  typedef void (*mps_check_data_ptr) (mps_context *status, char *which_case);
-
-  /**
-   * @brief Function to dispose starting approximations in the case of
-   * floating point iterations.
-   */
-  typedef void (*mps_fstart_ptr) (mps_context *status, int n, mps_cluster_item * cluster,
-                                  double clust_rad, double g, rdpe_t eps);
-
-  /**
-   * @brief Function to dispose starting approximations in the case of
-   * DPE iterations.
-   */
-  typedef void (*mps_dstart_ptr) (mps_context *status, int n, mps_cluster_item * cluster,
-                                  rdpe_t clust_rad, rdpe_t g, rdpe_t eps);
-
-  /**
-   * @brief Function that computes radii to perform cluster analysis on the
-   * roots in the floating point iterations.
-   */
-  typedef void (*mps_fradii_ptr) (mps_context * status);
-
-  /**
    * @brief Routine that performs the computation loop to solve the polynomial
    * or the secular equation
    */
@@ -544,49 +495,6 @@ extern "C"
     mps_algorithm algorithm;
 
     /**
-     * @brief Pointer to the function to perform newton in floating
-     * point implemented by the user.
-     */
-    mps_fnewton_ptr fnewton_usr;
-
-    /**
-     * @brief Pointer to the function to perform newton in dpe
-     * implemented by the user.
-     */
-    /* void (*dnewton_usr) (mps_context *status, cdpe_t x, rdpe_t rad, cdpe_t corr, */
-    /*                      mps_boolean * again, void * user_data,  */
-    /* 			 mps_boolean * skip_radius_computation); */
-    mps_dnewton_ptr dnewton_usr;
-
-    /**
-     * @brief Pointer to the function to perform newton in multiprecision
-     * implemented by the user.
-     */
-    /* void (*mnewton_usr) (mps_context *status, mpc_t x, rdpe_t rad, mpc_t corr, */
-    /*                      mps_boolean * again, void * user_data,  */
-    /* 			 mps_boolean * skip_radius_computation); */
-    mps_mnewton_ptr mnewton_usr;
-
-    /**
-     * @brief Check data routine that has the task to determine if a float phase
-     * can be performed or dpe are needed now.
-     */
-    void (*check_data_usr) (mps_context *status, char *which_case);
-
-    /**
-     * @brief Routine to dispose starting approximations provided by the user
-     */
-    void (*fstart_usr) (mps_context *status, int n, mps_cluster_item * cluster, double clust_rad,
-                        double g, rdpe_t eps);
-
-    /**
-     * @brief Routine to dispose starting approximations provided
-     * by user in the case of DPE computation.
-     */
-    void (*dstart_usr) (mps_context *status, int n, mps_cluster_item * cluster, rdpe_t clust_rad,
-                        rdpe_t g, rdpe_t eps);
-
-    /**
      * @brief Routine that performs the loop needed to coordinate
      * root finding. It has to be called to do the hard work.
      */
@@ -643,9 +551,6 @@ extern "C"
 			     long unsigned int n);
   void mps_context_set_input_poly (mps_context * s, mps_monomial_poly * p);
   int mps_context_set_poly_i (mps_context * s, int *coeff, long unsigned int n);
-  int mps_context_set_poly_u (mps_context * s, int n, mps_fnewton_ptr fnewton,
-			     mps_dnewton_ptr dnewton,
-			     mps_mnewton_ptr mnewton);
   void mps_context_select_algorithm (mps_context * s, mps_algorithm algorithm);
   void mps_context_set_degree (mps_context * s, int n);
 

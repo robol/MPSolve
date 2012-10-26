@@ -318,17 +318,15 @@ mps_secular_ga_mpsolve (mps_context * s)
       switch (s->lastphase)
 	{
 	case  float_phase:
-	  mps_secular_fstart (s, s->n, NULL, 0.0, 0.0, s->eps_out);
+	  mps_secular_fstart (s, sec);
 	  break;
 
 	case dpe_phase:
-	  mps_secular_dstart (s, s->n, NULL, (__rdpe_struct *) rdpe_zero, 
-			      (__rdpe_struct *) rdpe_zero, s->eps_out); 
+	  mps_secular_dstart (s, sec);
 	  break; 
 
 	case mp_phase:
-	  mps_secular_mstart (s, s->n, NULL, (__rdpe_struct *) rdpe_zero,
-			      (__rdpe_struct *) rdpe_zero, s->eps_out);
+	  mps_secular_mstart (s, sec);
 	  break;
 
 	default: 

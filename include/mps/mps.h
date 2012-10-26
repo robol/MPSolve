@@ -290,12 +290,6 @@ extern  "C"
       MPS_ALGORITHM_STANDARD_MPSOLVE,
 
       /**
-       * @brief Standard MPSolve approach applied to
-       * secular equations.
-       */
-      MPS_ALGORITHM_SECULAR_MPSOLVE,
-
-      /**
        * @brief Gemignani's approach applied to secular equations.
        */
       MPS_ALGORITHM_SECULAR_GA
@@ -527,16 +521,12 @@ extern  "C"
   void mps_standard_mpsolve (mps_context * s);
 
   /* functions in newton.c */
-  void mps_fnewton (mps_context * st, int n, mps_approximation * root,
-                    cplx_t corr, cplx_t fpc[], double fap[],
-                    mps_boolean skip_radius_computation);
-  void mps_dnewton (mps_context * st, int n, mps_approximation * root,
-                    cdpe_t corr, cdpe_t dpc[], rdpe_t dap[],
-                    mps_boolean skip_radius_computation);
-  void mps_mnewton (mps_context * st, int n, mps_approximation * root,
-                    mpc_t corr, mpc_t mfpc[], mpc_t mfppc[], rdpe_t dap[],
-                    mps_boolean * spar, int n_thread, 
-		    mps_boolean skip_radius_computation);
+  void mps_fnewton (mps_context * st, mps_polynomial * p, 
+		    mps_approximation * root, cplx_t corr);
+  void mps_dnewton (mps_context * st, mps_polynomial * p,
+		    mps_approximation * root, cdpe_t corr);
+  void mps_mnewton (mps_context * st, mps_polynomial * p, 
+		    mps_approximation * root, mpc_t corr);
   void mps_parhorner (mps_context * st, int n, mpc_t x, mpc_t p[],
                       mps_boolean b[], mpc_t s, int n_thread);
   void mps_aparhorner (mps_context * st, int n, rdpe_t x, rdpe_t p[],

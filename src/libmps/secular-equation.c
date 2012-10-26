@@ -240,6 +240,9 @@ mps_secular_equation_new_raw (mps_context * s, unsigned long int n)
   p->mstart = mps_secular_poly_mstart;
   p->free = mps_secular_equation_free;
   p->raise_data = mps_secular_raise_coefficient_precision;
+  p->fnewton = mps_secular_fnewton;
+  p->dnewton = mps_secular_dnewton;
+  p->mnewton = mps_secular_mnewton;
 
   /* Allocate floating point coefficients */
   sec->afpc = cplx_valloc (n);
@@ -718,7 +721,11 @@ mps_secular_set_radii (mps_context * s)
 	 mps_fmodify (s, false);  
 
 	 for (i = 0; i < s->n; i++)
-	   s->root[i]->frad = rdpe_get_d (s->root[i]->drad); 
+	   {
+	     s->root[i]->frad = rdpe_get_d (s->root[i]->drad); 
+	     if (s->root[i]->frad == 0.0)
+	       s->root[i]->frad += cplx_mod (s->root[i]->fvalue) * DBL_EPSILON;
+	   }
        }
        break;
 
@@ -828,19 +835,17 @@ mps_secular_poly_meval_with_error (mps_context * ctx, mps_polynomial * p, mpc_t 
 void 
 mps_secular_poly_fstart (mps_context * ctx, mps_polynomial * p)
 {
-  mps_secular_fstart (ctx, p->degree, NULL, 0.0, 0.0, ctx->eps_out);
+  mps_secular_fstart (ctx, MPS_SECULAR_EQUATION (p));
 }
 
 void 
 mps_secular_poly_dstart (mps_context * ctx, mps_polynomial * p)
 {
-  mps_secular_dstart (ctx, p->degree, NULL, (__rdpe_struct*) rdpe_zero, 
-		      (__rdpe_struct*) rdpe_zero, ctx->eps_out);
+  mps_secular_dstart (ctx, MPS_SECULAR_EQUATION (p));
 }
 
 void 
 mps_secular_poly_mstart (mps_context * ctx, mps_polynomial * p)
 {
-  mps_secular_mstart (ctx, p->degree, NULL, (__rdpe_struct*) rdpe_zero, 
-		      (__rdpe_struct*) rdpe_zero, ctx->eps_out);
+  mps_secular_mstart (ctx, MPS_SECULAR_EQUATION (p));
 }
