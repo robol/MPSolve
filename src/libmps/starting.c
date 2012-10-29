@@ -1905,7 +1905,7 @@ mps_mshift (mps_context * s, int m, mps_cluster_item * cluster_item, rdpe_t clus
 
   /* store the current working precision mpnw into mpnw_tmp */
   mpwp_temp = s->mpwp;
-  mpwp_max = s->mpwp;
+  mpwp_max = 2 * s->mpwp;
   
   do
     {                           /* loop */
@@ -1935,11 +1935,11 @@ mps_mshift (mps_context * s, int m, mps_cluster_item * cluster_item, rdpe_t clus
         {
           mpwp_temp += s->mpwp;
 
-	  /* if ((mpwp_temp > mpwp_max || mpwp_temp > s->output_config->prec * m * 2))  */
-          /*    {  */
-          /*      MPS_DEBUG (s, "Reached the maximum allowed precision in mshift");  */
-	  /*      break;  */
-          /*    } */
+	  if ((mpwp_temp > mpwp_max || mpwp_temp > s->output_config->prec * m * 2))  
+	    {  
+	      MPS_DEBUG (s, "Reached the maximum allowed precision in mshift");  
+	      break;  
+	    } 
 
           rdpe_set_2dl (mp_ep, 1.0, 1 - mpwp_temp);
           mps_raisetemp (s, mpwp_temp);
