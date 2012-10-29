@@ -446,6 +446,14 @@ START_TEST (test_secsolve_kir1_10)
 }
 END_TEST
 
+START_TEST (test_secsolve_kir1_10_hp)
+{  
+  test_pol * pol = test_pol_new ("kir1_10", "unisolve", 250, float_phase, true);
+  test_secsolve_on_pol (pol);
+  test_pol_free (pol);
+}
+END_TEST
+
 START_TEST (test_secsolve_kir1_20)
 {
   test_pol * pol = test_pol_new ("kir1_20", "unisolve", 10, float_phase, true);
@@ -571,6 +579,7 @@ END_TEST
 
   /* Kirinnis polynomials */
   tcase_add_test (tc_monomial, test_secsolve_kir1_10);
+  tcase_add_test (tc_monomial, test_secsolve_kir1_10_hp);
   tcase_add_test (tc_monomial, test_secsolve_kir1_20);
   tcase_add_test (tc_monomial, test_secsolve_kir1_40); 
 
