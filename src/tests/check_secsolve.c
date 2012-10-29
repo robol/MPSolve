@@ -51,7 +51,7 @@ test_secsolve_on_pol (test_pol * pol)
   /* Create a new empty mps_context */
   mps_context * s = mps_context_new ();
 
-  if (getenv ("MPS_VERBOSE_TEST") && strstr (pol->pol_file, getenv ("MPS_VERBOSE_TEST")))
+  if ((getenv ("MPS_VERBOSE_TEST") && strstr (pol->pol_file, getenv ("MPS_VERBOSE_TEST"))) || pol->DOLOG)
     mps_context_set_debug_level (s, MPS_DEBUG_TRACE);
 
   /* Load the polynomial that has been given to us */
@@ -61,6 +61,7 @@ test_secsolve_on_pol (test_pol * pol)
 	   get_pol_name_from_path (pol->pol_file));
 
   mps_context_set_output_goal (s, MPS_OUTPUT_GOAL_ISOLATE);
+  mps_context_set_output_prec (s, pol->out_digits);
 
   /* Solve it */
   mps_context_select_algorithm (s, (pol->ga) ? MPS_ALGORITHM_SECULAR_GA : MPS_ALGORITHM_SECULAR_MPSOLVE);
@@ -74,7 +75,7 @@ test_secsolve_on_pol (test_pol * pol)
 
   rdpe_t * drad = rdpe_valloc (mps_context_get_degree (s));
   mpc_t * mroot = mpc_valloc (mps_context_get_degree (s));
-  mpc_vinit2 (mroot, mps_context_get_degree (s), 53);
+  mpc_vinit2 (mroot, mps_context_get_degree (s), mps_context_get_data_prec_max (s));
 
   mps_context_get_roots_m (s, mroot, drad);
 
@@ -152,9 +153,9 @@ test_secsolve_on_pol (test_pol * pol)
   if (zero_roots != mps_context_get_zero_roots (s))
     passed = false;
 
-  if (getenv ("MPS_VERBOSE_TEST") && strstr (pol->pol_file, getenv ("MPS_VERBOSE_TEST")))
+  if ((getenv ("MPS_VERBOSE_TEST") && strstr (pol->pol_file, getenv ("MPS_VERBOSE_TEST"))) || pol->DOLOG)
     {
-      mps_context_set_output_format (s, MPS_OUTPUT_FORMAT_GNUPLOT_FULL);
+      /* mps_context_set_output_format (s, MPS_OUTPUT_FORMAT_GNUPLOT_FULL); */
       mps_output (s);
     }
   
@@ -448,7 +449,7 @@ END_TEST
 
 START_TEST (test_secsolve_kir1_10_hp)
 {  
-  test_pol * pol = test_pol_new ("kir1_10", "unisolve", 250, float_phase, true);
+  test_pol * pol = test_pol_new ("kir1_10", "unisolve", 50 * LOG2_10, float_phase, true);
   test_secsolve_on_pol (pol);
   test_pol_free (pol);
 }
