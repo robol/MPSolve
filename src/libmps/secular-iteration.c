@@ -138,7 +138,6 @@ mps_secular_ga_fiterate (mps_context * s, int maxit, mps_boolean just_regenerate
   int i;
   int nit = 0;
   int it_threshold = 0;
-
   mps_boolean excep = false;
 
 #ifndef DISABLE_DEBUG

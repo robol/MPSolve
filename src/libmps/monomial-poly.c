@@ -37,7 +37,6 @@ mps_monomial_poly_new (mps_context * s, long int degree)
   poly->fnewton = mps_monomial_poly_fnewton;
   poly->dnewton = mps_monomial_poly_dnewton;
   poly->mnewton = mps_monomial_poly_mnewton;
-  poly->representation = MPS_REPRESENTATION_MONOMIAL;
   
   /* Set the degree of the polynomial */
   MPS_POLYNOMIAL (mp)->degree = degree;

@@ -410,8 +410,8 @@ mps_secular_ga_mpsolve (mps_context * s)
 
 	   if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config)) 
 	     { 
-	       MPS_DEBUG (s, "Not performing restart phase, since it's temporary disabled");
-	       /* mps_secular_restart (s); */
+	       MPS_DEBUG (s, "Performing restart phase");
+	       mps_secular_restart (s);
 	     }
 
 	   if (!mps_secular_ga_regenerate_coefficients (s)) 
