@@ -13,6 +13,7 @@
 
 #include <mps/mps.h>
 #include <math.h>
+#include <limits.h>
 
 pthread_mutex_t output_mutex = PTHREAD_MUTEX_INITIALIZER;
 
@@ -119,6 +120,9 @@ mps_improve_root2 (void * data_ptr)
   int correct_bits = rdpe_Esp (aroot) - rdpe_Esp (root->drad) - 1;
   int max_steps = mps_intlog2 (ctx->output_config->prec / correct_bits);
 
+  if (max_steps <= 0)
+    max_steps = INT_MAX;
+
   mpc_t nwtcorr;
   mps_polynomial * p = ctx->active_poly;
   mpc_init2 (nwtcorr, wp);
@@ -158,9 +162,12 @@ mps_improve_root2 (void * data_ptr)
       mps_polynomial_mnewton (ctx, p, root, nwtcorr);
 
       mpc_set_prec (root->mvalue, 2 * wp);
+      mpc_sub_eq (root->mvalue, nwtcorr);
 
-      mpc_sub_eq (root->mvalue, nwtcorr);   
-       
+      mpc_rmod (aroot, root->mvalue);
+      if (rdpe_Esp (aroot) - rdpe_Esp (root->drad) - 1 > correct_bits)
+	correct_bits = rdpe_Esp (aroot) - rdpe_Esp (root->drad) - 1;
+
       /* Double the number of correct bits */
       correct_bits = 2 * correct_bits - 1;
 
@@ -168,12 +175,16 @@ mps_improve_root2 (void * data_ptr)
       rdpe_set_2dl (root->drad, 2.0, - correct_bits); 
       rdpe_mul_eq (root->drad, aroot);
 
+      if (correct_bits > ctx->output_config->prec)
+	break;
+
       /* Double the current precision */
       wp *= 2;
     }
 
   mps_approximation_free (ctx, ctx->root[i]);
   ctx->root[i] = root;
+  ctx->root[i]->status = MPS_ROOT_STATUS_APPROXIMATED;
 
   mpc_clear (nwtcorr);
 

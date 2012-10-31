@@ -145,8 +145,6 @@ mps_secular_ga_fiterate (mps_context * s, int maxit, mps_boolean just_regenerate
 #endif
 
   s->operation = MPS_OPERATION_ABERTH_FP_ITERATIONS;
-  
-  MPS_DEBUG_CPLX (s, s->root[21]->fvalue, "Root_%d", 21);
 
   mps_thread_worker_data *data;
   pthread_mutex_t *aberth_mutex =
