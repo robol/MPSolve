@@ -284,8 +284,6 @@ mps_fstart (mps_context * s, int n, mps_cluster_item * cluster_item,
   mps_cluster * cluster = NULL;
   mps_root * root = NULL;
 
-  s->operation = MPS_OPERATION_STARTING_POINTS_FP;
-
   if (cluster_item)
     cluster = cluster_item->cluster;
 
@@ -306,22 +304,6 @@ mps_fstart (mps_context * s, int n, mps_cluster_item * cluster_item,
     }
 
   th = pi2 / n;
-
-
-  /* In the case of user-defined polynomial choose as starting
-   * approximations equally spaced points in the unit circle.  */
-  if (MPS_INPUT_CONFIG_IS_USER (s->input_config))
-    {
-      if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
-	MPS_DEBUG (s, "User polynomial is provided, so not using Newton polygon");
-      ang = pi2 / n;
-      for (i = 0; i < n; i++)
-        {
-          cplx_set_d (s->root[i]->fvalue, cos (ang * i + sigma),
-                      sin (ang * i + sigma));
-        }
-      return;
-    }
 
   /* In the general case apply the Rouche-based criterion */
   mps_fcompute_starting_radii (s, n, cluster_item, clust_rad, g, eps, fap);
@@ -585,8 +567,6 @@ mps_dstart (mps_context * s, int n, mps_cluster_item * cluster_item,
   mps_cluster * cluster = NULL;
   mps_root * root = NULL;
 
-  s->operation = MPS_OPERATION_STARTING_POINTS_DPE;
-
   if (cluster_item)
     cluster = cluster_item->cluster;
 
@@ -608,7 +588,7 @@ mps_dstart (mps_context * s, int n, mps_cluster_item * cluster_item,
 
   /* In the case of user-defined polynomial choose as starting
    * approximations equispaced points in the unit circle. */
-  if (MPS_INPUT_CONFIG_IS_USER (s->input_config))
+  if (MPS_IS_MONOMIAL_POLY (s->active_poly))
     {
       ang = pi2 / n;
       for (i = 0; i < n; i++)
@@ -889,8 +869,6 @@ mps_mstart (mps_context * s, int n, mps_cluster_item * cluster_item,
   mps_boolean need_recomputing = true;
   mps_root * root = NULL;
 
-  s->operation = MPS_OPERATION_STARTING_POINTS_MP;
-
   if (cluster_item)
     cluster = cluster_item->cluster;
 
@@ -1081,7 +1059,7 @@ mps_frestart (mps_context * s)
   mps_root * root;
 
   /* For user's polynomials skip the restart stage (not yet implemented) */
-  if (MPS_INPUT_CONFIG_IS_USER (s->input_config))
+  if (!MPS_IS_MONOMIAL_POLY (s->active_poly))
     return;
 
   /* scan the existing clusters and  select the ones where shift in
@@ -1283,7 +1261,7 @@ mps_drestart (mps_context * s)
   s->operation = MPS_OPERATION_SHIFT;
 
   /*  For user's polynomials skip the restart stage (not yet implemented) */
-  if (MPS_INPUT_CONFIG_IS_USER (s->input_config))
+  if (!MPS_IS_MONOMIAL_POLY (s->active_poly))
     return;
 
   for (c_item = s->clusterization->first; c_item != NULL; c_item = c_item->next)
@@ -1456,7 +1434,7 @@ mps_mrestart (mps_context * s)
   s->operation = MPS_OPERATION_SHIFT;
 
   /* For user's polynomials skip the restart stage (not yet implemented) */
-  if (MPS_INPUT_CONFIG_IS_USER (s->input_config))
+  if (!MPS_IS_MONOMIAL_POLY (s->active_poly))
     {
       MPS_DEBUG_WITH_INFO (s, "Skipping restart on user polynomial");
       return;
@@ -2052,7 +2030,7 @@ mps_mnewtis (mps_context * s)
   mps_root * root;
 
   /* For user's polynomials skip the restart stage (not yet implemented) */
-  if (MPS_INPUT_CONFIG_IS_USER (s->input_config))
+  if (!MPS_IS_MONOMIAL_POLY (s->active_poly))
     return;
   mpf_init2 (rea, s->mpwp);
   mpf_init2 (srmp, s->mpwp);

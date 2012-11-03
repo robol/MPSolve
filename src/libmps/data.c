@@ -146,7 +146,7 @@ mps_raise_data_raw (mps_context * s, long int prec)
 {
   int k;
 
-  if (!MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
+  if (!MPS_IS_MONOMIAL_POLY (s->active_poly))
     return;
 
   mps_monomial_poly *p = MPS_MONOMIAL_POLY (s->active_poly);
@@ -156,12 +156,12 @@ mps_raise_data_raw (mps_context * s, long int prec)
     mpc_set_prec_raw (s->root[k]->mvalue, prec);
 
   /* raise the precision of  mfpc */
-  if (!MPS_INPUT_CONFIG_IS_USER (s->input_config))
+  if (MPS_IS_MONOMIAL_POLY (s->active_poly))
     for (k = 0; k < s->n + 1; k++)
       mpc_set_prec_raw (p->mfpc[k], prec);
 
   /* Raise the precision of sparse vectors */
-  if (MPS_INPUT_CONFIG_IS_SPARSE (s->input_config))
+  if (MPS_DENSITY_IS_SPARSE (s->active_poly->density))
     for (k = 0; k < s->n; k++)
       if (p->spar[k + 1])
         mpc_set_prec_raw (p->mfppc[k], prec);
@@ -173,7 +173,7 @@ mps_raise_data_raw (mps_context * s, long int prec)
       mpc_set_prec_raw (s->mfppc1[k], prec);
     }
 
-  if (MPS_INPUT_CONFIG_IS_SPARSE (s->input_config))
+  if (MPS_DENSITY_IS_SPARSE (s->active_poly->density))
     for (k = 0; k < (s->n + 1) * s->n_threads; k++)
       mpc_set_prec_raw (s->mfpc2[k], prec);
 }

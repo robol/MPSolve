@@ -103,46 +103,25 @@ mps_secular_deflate (mps_context * s, mps_secular_equation * sec)
 {
   int i, j, k;
 
+  /* If the input is floating point check on the
+   * DPE input */
+  if (MPS_STRUCTURE_IS_FP (MPS_POLYNOMIAL (sec)->structure))
+    {
+      /* Do not deflate in floating point, since it is not working
+       * correctly right now */
+      MPS_DEBUG_WITH_INFO (s, "Floating point deflation still has some rough edges, so it's disabled");
+      return;
+    }
+
   for (i = 0; i < MPS_POLYNOMIAL (sec)->degree; i++)
     {
       for (j = i + 1; j < MPS_POLYNOMIAL (sec)->degree; j++)
         {
-          /* If the input is floating point check on the
-           * DPE input */
-          if (MPS_INPUT_CONFIG_IS_FP (s->input_config))
-            {
-              /* Do not deflate in floating point, since it is not working
-               * correctly right now */
-              MPS_DEBUG_WITH_INFO (s, "Floating point deflation still has some rough edges, so it's disabled");
-              return;
-              if (mpc_eq
-                  (sec->initial_bmpc[i], sec->initial_bmpc[j],
-                   s->mpwp_max) == 0)
-                {
-                  MPS_DEBUG_MPC (s, 10, sec->initial_bmpc[i],
-                                 "sec->initial_bmpc[%d]", i);
-                  MPS_DEBUG_MPC (s, 10, sec->initial_bmpc[j],
-                                 "sec->initial_bmpc[%d]", j);
-                  mpc_add_eq (sec->initial_ampc[i], sec->initial_ampc[j]);
-
-                  for (k = j; k < MPS_POLYNOMIAL (sec)->degree - 1; k++)
-                    {
-                      mpc_set (sec->initial_ampc[k],
-                               sec->initial_ampc[k + 1]);
-                      mpc_set (sec->initial_bmpc[k],
-                               sec->initial_bmpc[k + 1]);
-                    }
-
-                  MPS_POLYNOMIAL (sec)->degree--;
-                  j--;
-                  i--;
-                }
-            }
           /* Otherwise, in the case of rational or integer input
            * (that are handled in the same way) use initial_*mqpc
            * values */
-          else if (MPS_INPUT_CONFIG_IS_INTEGER (s->input_config) ||
-                   MPS_INPUT_CONFIG_IS_RATIONAL (s->input_config))
+          if (MPS_STRUCTURE_IS_INTEGER (MPS_POLYNOMIAL (sec)->structure) ||
+	      MPS_STRUCTURE_IS_RATIONAL (MPS_POLYNOMIAL (sec)->structure))
             {
               if (mpq_equal (sec->initial_bmpqrc[i], sec->initial_bmpqrc[j])
                   && mpq_equal (sec->initial_bmpqic[i],
@@ -175,8 +154,8 @@ mps_secular_deflate (mps_context * s, mps_secular_equation * sec)
 
   /* If the input was rational or integer, we need to reset the dpe coefficients
    * according to it */
-  if (MPS_INPUT_CONFIG_IS_INTEGER (s->input_config) ||
-      MPS_INPUT_CONFIG_IS_RATIONAL (s->input_config))
+  if (MPS_STRUCTURE_IS_INTEGER (MPS_POLYNOMIAL (sec)->structure) ||
+      MPS_STRUCTURE_IS_RATIONAL (MPS_POLYNOMIAL (sec)->structure))
     {
       mpf_t ftmp;
       mpf_init (ftmp);
@@ -202,7 +181,7 @@ mps_secular_deflate (mps_context * s, mps_secular_equation * sec)
 
   /* If the input was floating point update the coefficients using initial_*mpc
    * values */
-  if (MPS_INPUT_CONFIG_IS_FP (s->input_config))
+  if (MPS_STRUCTURE_IS_FP (MPS_POLYNOMIAL (sec)->structure))
     {
       for (i = 0; i < MPS_POLYNOMIAL (sec)->degree; i++)
         {
@@ -229,6 +208,8 @@ mps_secular_equation_new_raw (mps_context * s, unsigned long int n)
   int i;
   mps_secular_equation *sec =
     (mps_secular_equation *) mps_malloc (sizeof (mps_secular_equation));
+
+  mps_polynomial_init (MPS_POLYNOMIAL (sec));
 
   /* Hook up the overloaded methods for secular equations */
   mps_polynomial * p = MPS_POLYNOMIAL (sec);
@@ -499,14 +480,14 @@ mps_secular_raise_coefficient_precision (mps_context * s, mps_polynomial * p, lo
   for (i = 0; i < s->n; i++)
     {
       mpc_set_prec (raising_ampc[i], wp);
-      if (MPS_INPUT_CONFIG_IS_SECULAR (s->input_config) && (!MPS_INPUT_CONFIG_IS_FP (s->input_config)))
+      if (!MPS_STRUCTURE_IS_FP (s->active_poly->structure))
 	{
 	  mpf_set_q (mpc_Re (raising_ampc[i]), sec->initial_ampqrc[i]);
 	  mpf_set_q (mpc_Im (raising_ampc[i]), sec->initial_ampqic[i]);
 	}
 
       mpc_set_prec (raising_bmpc[i], wp);
-      if (MPS_INPUT_CONFIG_IS_SECULAR (s->input_config) && (!MPS_INPUT_CONFIG_IS_FP (s->input_config)))
+      if (!MPS_STRUCTURE_IS_FP (s->active_poly->structure))
 	{
 	  mpf_set_q (mpc_Re (raising_bmpc[i]), sec->initial_bmpqrc[i]);
 	  mpf_set_q (mpc_Im (raising_bmpc[i]), sec->initial_bmpqic[i]);

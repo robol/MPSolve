@@ -50,22 +50,7 @@ mps_set_default_values (mps_context * s)
   s->clusterization = NULL;
 
   s->mpwp_max = 100000000;     /* maximum allowed bits for mp         */
-  /*   numbers: used in hi-prec. shifts  */
 
-  /* polynomial data - shared variables */
-  s->input_config->prec = -1;              /* number of digits of input precision */
-  /*   override input file if != -1      */
-  /* s->spar = NULL;               /\* sparsity structure of polynomial    *\/ */
-  /* s->fpr = NULL;                /\* standard real coefficients          *\/ */
-  /* s->fpc = NULL;                /\* standard complex coefficients       *\/ */
-  /* s->dpr = NULL;                /\* dpe real coefficients               *\/ */
-  /* s->dpc = NULL;                /\* dpe complex coefficients            *\/ */
-  /* s->mip_r = NULL;              /\* real part of integer input coefs    *\/ */
-  /* s->mip_i = NULL;              /\* imag. part of integer input coefs   *\/ */
-  /* s->mqp_r = NULL;              /\* real part of rational input coeff.  *\/ */
-  /* s->mqp_i = NULL;              /\* imag. part of rational input coefs  *\/ */
-  /* s->mfpr = NULL;               /\* multiprecision real coefficients    *\/ */
-  /* s->mfpc = NULL;               /\* multiprecision complex coefficients *\/ */
   s->zero_roots = 0;
 
   /* soution related variables */
@@ -101,15 +86,11 @@ mps_set_default_values (mps_context * s)
   s->active_poly = NULL;
 
   /* Input */
-  s->input_config->representation = MPS_REPRESENTATION_MONOMIAL;
-  s->input_config->structure = MPS_STRUCTURE_COMPLEX_FP;
-  s->input_config->density = MPS_DENSITY_DENSE;
-  s->input_config->prec = 0;
   s->input_config->starting_phase = no_phase;
 
   /* Output */
   s->output_config->format = MPS_OUTPUT_FORMAT_COMPACT;
-  s->output_config->prec = 0.8 * DBL_DIG;
+  s->output_config->prec = 0.8 * DBL_DIG * LOG2_10;
   s->output_config->goal = MPS_OUTPUT_GOAL_ISOLATE;
   s->output_config->multiplicity = false;
   s->output_config->root_properties = MPS_OUTPUT_PROPERTY_NONE;

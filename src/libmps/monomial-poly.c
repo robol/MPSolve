@@ -22,6 +22,7 @@ mps_monomial_poly_new (mps_context * s, long int degree)
 {
   int i;
   mps_monomial_poly  * mp = mps_new (mps_monomial_poly);
+  mps_polynomial_init (MPS_POLYNOMIAL (mp));
 
   /* Load monomial-poly methods */
   mps_polynomial *poly = (mps_polynomial*) mp;
@@ -168,14 +169,14 @@ mps_monomial_poly_raise_precision (mps_context * s, mps_polynomial * p, long int
     raising_mfpc = mp->db.mfpc1;
 
   /* raise the precision of  mfpc */
-  if (!MPS_INPUT_CONFIG_IS_USER (s->input_config))
+  if (MPS_IS_MONOMIAL_POLY (p))
     for (k = 0; k < MPS_POLYNOMIAL (mp)->degree + 1; k++)
       {
 	mpc_set_prec (raising_mfpc[k], prec);
       }
 
   /* Raise the precision of p' */
-  if (MPS_INPUT_CONFIG_IS_SPARSE (s->input_config))
+  if (MPS_DENSITY_IS_SPARSE (p->density))
     for (k = 0; k < MPS_POLYNOMIAL (mp)->degree; k++)
       if (mp->spar[k + 1])
         {
@@ -183,8 +184,8 @@ mps_monomial_poly_raise_precision (mps_context * s, mps_polynomial * p, long int
           mpc_mul_ui (mp->mfppc[k], mp->mfpc[k + 1], k + 1);
         }
 
-  if (MPS_INPUT_CONFIG_IS_INTEGER (s->input_config) 
-      || MPS_INPUT_CONFIG_IS_RATIONAL (s->input_config))
+  if (MPS_STRUCTURE_IS_INTEGER (p->structure) 
+      || MPS_STRUCTURE_IS_RATIONAL (p->structure))
     {
       for (k = 0; k <= MPS_POLYNOMIAL (mp)->degree ; ++k)
 	{
@@ -241,8 +242,10 @@ mps_monomial_poly_set_coefficient_q (mps_context * s, mps_monomial_poly * mp, lo
       mpq_sgn (imag_part) != 0)
     MPS_POLYNOMIAL(mp)->structure = MPS_STRUCTURE_COMPLEX_RATIONAL;
 
-  assert (MPS_POLYNOMIAL(mp)->structure == MPS_STRUCTURE_COMPLEX_RATIONAL ||
-	  MPS_POLYNOMIAL(mp)->structure == MPS_STRUCTURE_REAL_RATIONAL);
+  assert (MPS_POLYNOMIAL(mp)->structure == MPS_STRUCTURE_COMPLEX_RATIONAL || 
+   	  MPS_POLYNOMIAL(mp)->structure == MPS_STRUCTURE_REAL_RATIONAL ||
+	  MPS_POLYNOMIAL(mp)->structure == MPS_STRUCTURE_COMPLEX_INTEGER ||
+	  MPS_POLYNOMIAL(mp)->structure == MPS_STRUCTURE_REAL_INTEGER); 
 
   /* Set the coefficients first */
   mpq_set (mp->initial_mqp_r[i], real_part);
@@ -412,6 +415,10 @@ mps_monomial_poly_derive (mps_context * s, mps_monomial_poly * p, int k, long in
   mps_monomial_poly * d = mps_monomial_poly_new (s, MPS_POLYNOMIAL (p)->degree - k);
   int i, j;
 
+  MPS_POLYNOMIAL (d)->structure = MPS_POLYNOMIAL (p)->structure;
+  MPS_POLYNOMIAL (d)->density = MPS_POLYNOMIAL (p)->density;
+  MPS_POLYNOMIAL (d)->prec = MPS_POLYNOMIAL (p)->prec;
+
   if (wp != s->mpwp)
     mps_monomial_poly_raise_precision (s, MPS_POLYNOMIAL (d), wp);
 
@@ -473,7 +480,7 @@ mps_monomial_poly_derive (mps_context * s, mps_monomial_poly * p, int k, long in
       break;
     }
 
-  if (MPS_INPUT_CONFIG_IS_SPARSE (s->input_config))
+  if (MPS_DENSITY_IS_SPARSE (MPS_POLYNOMIAL (d)->density))
     for (i = 0; i < MPS_POLYNOMIAL (d)->degree; i++)
       mpc_mul_ui (d->mfppc[i], d->mfpc[i+1], i+1);
 

@@ -90,7 +90,7 @@ mps_fupdate_inclusions (mps_context * s)
 		  {
 		    if (mps_ftouchreal (s, 1, i))
 		      {
-			if (MPS_INPUT_CONFIG_IS_REAL (s->input_config) ||
+			if (MPS_STRUCTURE_IS_REAL (s->active_poly->structure) ||
 			    (log (s->root[i]->frad) < s->sep - s->n * s->lmax_coeff))
 			  {
 			    s->root[i]->inclusion = MPS_ROOT_INCLUSION_IN;
@@ -248,7 +248,7 @@ mps_dupdate_inclusions (mps_context * s)
 		  {
 		    if (mps_dtouchreal (s, 1, i))
 		      {
-			if (MPS_INPUT_CONFIG_IS_REAL (s->input_config) ||
+			if (MPS_STRUCTURE_IS_REAL (s->active_poly->structure) ||
 			    (rdpe_log (s->root[i]->drad) < s->sep - s->n * s->lmax_coeff))
 			  {
 			    s->root[i]->inclusion = MPS_ROOT_INCLUSION_IN;
@@ -410,7 +410,7 @@ mps_mupdate_inclusions (mps_context * s)
 		  {
 		    if (mps_mtouchreal (s, 1, i))
 		      {
-			if (MPS_INPUT_CONFIG_IS_REAL (s->input_config) ||
+			if (MPS_STRUCTURE_IS_REAL (s->active_poly->structure) ||
 			    (rdpe_log (s->root[i]->drad) < s->sep - s->n * s->lmax_coeff))
 			  {
 			    s->root[i]->inclusion = MPS_ROOT_INCLUSION_IN;

@@ -47,7 +47,7 @@ START_TEST (cluster_isolation)
   mps_monomial_poly_set_coefficient_int (s, p, 1, 8, 0);
   mps_monomial_poly_set_coefficient_int (s, p, 0, -4, 0);
 
-  mps_context_set_input_poly (s, p);
+  mps_context_set_input_poly (s, MPS_POLYNOMIAL (p));
   mps_allocate_data (s);
 
   // Select the starting approximations

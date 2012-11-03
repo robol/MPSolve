@@ -549,7 +549,7 @@ extern "C"
   /* Accessor functions (setters) */
   int mps_context_set_poly_d (mps_context * s, cplx_t * coeff,
 			     long unsigned int n);
-  void mps_context_set_input_poly (mps_context * s, mps_monomial_poly * p);
+  void mps_context_set_input_poly (mps_context * s, mps_polynomial * p);
   int mps_context_set_poly_i (mps_context * s, int *coeff, long unsigned int n);
   void mps_context_select_algorithm (mps_context * s, mps_algorithm algorithm);
   void mps_context_set_degree (mps_context * s, int n);
@@ -561,8 +561,8 @@ extern "C"
   /* Accessor functions */
   long int mps_context_get_data_prec_max (mps_context * s);
   int mps_context_get_degree (mps_context * s);
-  int mps_context_get_roots_d (mps_context * s, cplx_t * roots, double *radius);
-  int mps_context_get_roots_m (mps_context * s, mpc_t * roots, rdpe_t * radius);
+  int mps_context_get_roots_d (mps_context * s, cplx_t ** roots, double **radius);
+  int mps_context_get_roots_m (mps_context * s, mpc_t ** roots, rdpe_t ** radius);
   int mps_context_get_zero_roots (mps_context * s);
   mps_boolean mps_context_get_over_max (mps_context * s);
   mps_polynomial * mps_context_get_active_poly (mps_context * ctx);

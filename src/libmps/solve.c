@@ -509,7 +509,7 @@ mps_fsolve (mps_context * s, mps_boolean * d_after_f)
 
               /* If the polynomial is not given in terms of its coeff. then
                * skip the restart stage */
-              if (!MPS_INPUT_CONFIG_IS_USER (s->input_config))
+              if (MPS_IS_MONOMIAL_POLY (s->active_poly))
                 {
                   /* choose new starting approximations only for new clusters */
                   if (s->DOLOG)
@@ -659,7 +659,7 @@ mps_fpolzer (mps_context * s, int *it, mps_boolean * excep)
 
               if (s->root[i]->again ||
                   /* the correction is performed only if iter!=1 or rad(i)!=rad1 */
-                  MPS_INPUT_CONFIG_IS_USER (s->input_config) || iter != 0 || s->root[i]->frad != rad1)
+                  iter != 0 || s->root[i]->frad != rad1)
                 {
                   mps_faberth (s, i, abcorr);
                   cplx_mul_eq (abcorr, corr);
@@ -735,7 +735,7 @@ mps_dpolzer (mps_context * s, int *it, mps_boolean * excep)
 
               if (s->root[i]->again ||
                   /* the correction is performed only if iter!=1 or rad(i)!=rad1 */
-                  MPS_INPUT_CONFIG_IS_USER (s->input_config) || iter != 0
+                  iter != 0
                   || rdpe_ne (s->root[i]->drad, rad1))
                 {
                   mps_daberth (s, i, abcorr);
@@ -860,7 +860,7 @@ mps_dsolve (mps_context * s, mps_boolean d_after_f)
 
               /* If the polynomial is not given in terms of its
                * coeff. then skip the restart stage */
-              if (!MPS_INPUT_CONFIG_IS_USER (s->input_config))
+              if (MPS_IS_MONOMIAL_POLY (s->active_poly))
                 {
                   /* choose new starting approximations only for new clusters */
                   if (s->DOLOG)
@@ -944,7 +944,7 @@ mps_msolve (mps_context * s)
 
   if (s->DOLOG)
     fprintf (s->logstr, "  MSOLVE: call restart\n");
-  if (!MPS_INPUT_CONFIG_IS_USER (s->input_config))
+  if (MPS_IS_MONOMIAL_POLY (s->active_poly))
     mps_mrestart (s);
   if (s->DOLOG)
     fprintf (s->logstr, "  MSOLVE: call update1\n");
@@ -1105,7 +1105,7 @@ mps_msolve (mps_context * s)
                 }
               /* If the polynomial is not given in terms of its coeff. then
                * skip the restart stage */
-              if (!MPS_INPUT_CONFIG_IS_USER (s->input_config))
+              if (MPS_IS_MONOMIAL_POLY (s->active_poly))
                 {
                   /* choose new starting approximations only for new clusters */
                   if (s->DOLOG)
@@ -1297,7 +1297,7 @@ mps_mpolzer (mps_context * s, int *it, mps_boolean * excep)
 
                   if (s->root[l]->again ||
                       /* the correction is performed only if iter!=1 or rad[l]!=rad1 */
-                      MPS_INPUT_CONFIG_IS_USER (s->input_config) || iter != 0
+                      iter != 0
                       || rdpe_ne (s->root[l]->drad, rad1))
                     {
                       mps_maberth_s (s, l, cluster, abcorr);

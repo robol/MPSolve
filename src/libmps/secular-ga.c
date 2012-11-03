@@ -107,47 +107,6 @@ mps_secular_ga_check_stop (mps_context * s)
 }
 
 /**
- * @brief Load the original coefficients of the secular equation.
- * 
- * This routine is used to load in the fields ampc and bmpc the original
- * coefficients of the secular equation, mainly in the improvement of the
- * isolated roots where the original coefficients (and not the rigenerated
- * one) are used. 
- */
-void
-mps_secular_ga_load_initial_coefficients (mps_context * s)
-{
-  MPS_DEBUG_THIS_CALL;
-
-  int i;
-  mps_secular_equation * sec = s->secular_equation;
-
- for (i = 0; i < s->n; i++)
-    {
-      if (MPS_INPUT_CONFIG_IS_SECULAR (s->input_config))
-	{
-	  if (MPS_INPUT_CONFIG_IS_FP (s->input_config))
-	    {
-	      mpc_set (sec->ampc[i],
-		       sec->initial_ampc[i]);
-	      mpc_set (sec->bmpc[i],
-		       sec->initial_bmpc[i]);
-	    }
-	  else
-	    {
-	      mpc_set_q (sec->ampc[i],
-			 sec->initial_ampqrc[i],
-			 sec->initial_ampqic[i]);
-
-	      mpc_set_q (sec->bmpc[i],
-			 sec->initial_bmpqrc[i],
-			 sec->initial_bmpqic[i]);
-	    }
-	}
-    }
-}
-
-/**
  * @brief MPSolve main function for the secular equation solving
  * using Gemignani's approach.
  *
@@ -227,7 +186,7 @@ mps_secular_ga_mpsolve (mps_context * s)
 
   /* If the input was polynomial we need to determined the secular
    * coefficients */
-  if (!MPS_INPUT_CONFIG_IS_SECULAR (s->input_config))
+  if (MPS_IS_MONOMIAL_POLY (s->active_poly))
     {
       mps_polynomial *p = s->active_poly;
 
@@ -408,7 +367,7 @@ mps_secular_ga_mpsolve (mps_context * s)
               mps_secular_raise_precision (s, 2 * s->mpwp);
             }
 
-	   if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config)) 
+	   if (MPS_IS_MONOMIAL_POLY (s->active_poly))
 	     { 
 	       MPS_DEBUG (s, "Performing restart phase");
 	       mps_secular_restart (s);

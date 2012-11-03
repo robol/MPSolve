@@ -101,7 +101,7 @@ test_mpsolve (char * pol_file, char * res_file, mps_algorithm algorithm)
   mpc_t * mroot = mpc_valloc (mps_context_get_degree (s));
   mpc_vinit2 (mroot, mps_context_get_degree (s), 53);
 
-  mps_context_get_roots_m (s, mroot, drad);
+  mps_context_get_roots_m (s, &mroot, &drad);
 
   for (i = 0; i < mps_context_get_degree (s); i++)   
     {   

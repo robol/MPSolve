@@ -90,7 +90,6 @@ mps_context_init (mps_context * s)
   /* Set standard precision */
   s->output_config->prec = (int) (0.9 * DBL_DIG * LOG2_10);
   MPS_DEBUG (s, "Setting prec_out to %ld digits", s->output_config->prec);
-  s->input_config->prec = 0;
 
   mps_mp_set_prec (s, DBL_DIG * LOG2_10 + 1);
 
@@ -148,38 +147,35 @@ mps_context_set_degree (mps_context * s, int n)
  * @param p The mps_monomial_poly to solve.
  */
 void
-mps_context_set_input_poly (mps_context * s, mps_monomial_poly * p)
+mps_context_set_input_poly (mps_context * s, mps_polynomial * p)
 {
   MPS_DEBUG_THIS_CALL;
 
+  MPS_DEBUG (s, "Setting input poly");
+  
   int i;
-  s->active_poly = MPS_POLYNOMIAL (p);
-  mps_context_set_degree (s, MPS_POLYNOMIAL (p)->degree);
-
-  /* Set the right flag for the input */
-  s->input_config->representation = MPS_REPRESENTATION_MONOMIAL;
-
-  /* Set the mps_structure passed as input */
-  s->input_config->structure = MPS_POLYNOMIAL (p)->structure;
+  s->active_poly = p;
 
   /* Set the density or sparsity of the polynomial, if it's not
    * a user polynomial */
-  if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config) && !MPS_INPUT_CONFIG_IS_USER (s->input_config))
+  if (MPS_IS_MONOMIAL_POLY (p))
     {
-      mps_monomial_poly *mp = (mps_monomial_poly*) p;
+      mps_monomial_poly *mp = MPS_MONOMIAL_POLY (p);
 
       /* Check if the input polynomial is sparse or not. We can simply check if
        * the again vector is all of true values */
-      s->input_config->density = MPS_DENSITY_DENSE;
+      p->density = MPS_DENSITY_DENSE;
       for (i = 0; i <= MPS_POLYNOMIAL (mp)->degree; ++i)
-	{
-	  if (!mp->spar[i])
-	    {
-	      s->input_config->density = MPS_DENSITY_SPARSE;
-	      break;
-	    }
-	}
+       {
+         if (!mp->spar[i])
+           {
+             p->density = MPS_DENSITY_SPARSE;
+             break;
+           }
+       }
     }
+
+  mps_context_set_degree (s, p->degree);
 }
 
 /**
@@ -208,7 +204,7 @@ mps_context_set_poly_d (mps_context * s, cplx_t * coeff, long unsigned int n)
 					   cplx_Im (coeff[i]));
     }
 
-  mps_context_set_input_poly (s, p);
+  mps_context_set_input_poly (s, MPS_POLYNOMIAL (p));
   
   return 0;
 }
@@ -247,36 +243,40 @@ mps_context_set_poly_i (mps_context * s, int *coeff, long unsigned int n)
  * to the i-th inclusion radius.
  */
 int
-mps_context_get_roots_d (mps_context * s, cplx_t * roots, double *radius)
+mps_context_get_roots_d (mps_context * s, cplx_t ** roots, double **radius)
 {
   int i;
+
+  if (!*roots)
+    *roots = cplx_valloc (s->n);
+  if (!*radius)
+    *radius = double_valloc (s->n);
+
   for (i = 0; i < s->n; i++)
     {
-
-      if (radius != NULL)
+      if (*radius != NULL)
         {
           if (s->lastphase == float_phase || s->lastphase == dpe_phase)
             {
-              radius[i] = s->root[i]->frad;
+              *radius[i] = s->root[i]->frad;
             }
           else
             {
-              radius[i] = rdpe_get_d (s->root[i]->drad);
+              *radius[i] = rdpe_get_d (s->root[i]->drad);
             }
-
         }
 
       if (s->lastphase == mp_phase)
         {
-          mpc_get_cplx (roots[i], s->root[i]->mvalue);
+          mpc_get_cplx (*roots[i], s->root[i]->mvalue);
         }
       else if (s->lastphase == float_phase)
         {
-          cplx_set (roots[i], s->root[i]->fvalue);
+          cplx_set (*roots[i], s->root[i]->fvalue);
         }
       else if (s->lastphase == dpe_phase)
         {
-          cdpe_get_x (roots[i], s->root[i]->dvalue);
+          cdpe_get_x (*roots[i], s->root[i]->dvalue);
         }
     }
   return 0;
@@ -286,18 +286,34 @@ mps_context_get_roots_d (mps_context * s, cplx_t * roots, double *radius)
  * @brief Get the roots computed as multiprecision complex numbers.
  */
 int
-mps_context_get_roots_m (mps_context * s, mpc_t * roots, rdpe_t * radius)
+mps_context_get_roots_m (mps_context * s, mpc_t ** roots, rdpe_t ** radius)
 {
   int i;
 
   mps_copy_roots (s);
 
-  for (i = 0; i < s->n; i++)
+  if (!*roots)
     {
-      mpc_set_prec (roots[i], mpc_get_prec (s->root[i]->mvalue));
-      mpc_set (roots[i], s->root[i]->mvalue);
-      rdpe_set (radius[i], s->root[i]->drad);
+      *roots = mpc_valloc (s->n);
+      mpc_vinit2 (*roots, s->n, 0);
     }
+
+  if (!*radius)
+    {
+      *radius = rdpe_valloc (s->n);
+    }
+
+  {
+    mpc_t * local_roots = *roots;
+    rdpe_t * local_radius = *radius;
+    
+    for (i = 0; i < s->n; i++)
+      {
+	mpc_set_prec (local_roots[i], mpc_get_prec (s->root[i]->mvalue));
+	mpc_set (local_roots[i], s->root[i]->mvalue);
+	rdpe_set (local_radius[i], s->root[i]->drad);
+      }
+  }
 
   return 0;
 }
@@ -337,7 +353,9 @@ mps_context_set_output_prec (mps_context * s, long int prec)
 void
 mps_context_set_input_prec (mps_context * s, long int prec)
 {
-  s->input_config->prec = prec;
+  if (!s->active_poly)
+    return;
+  s->active_poly->prec = prec;
 }
 
 /**

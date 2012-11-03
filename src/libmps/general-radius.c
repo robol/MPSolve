@@ -31,6 +31,13 @@ mps_fradii (mps_context * s, double * fradii)
   mps_polynomial *p = mps_context_get_active_poly (s);
   int i, j;
 
+  if (!p->feval) 
+    {
+      for (i = 0; i < s->n; i++)
+	fradii[i] = s->root[i]->frad;
+      return;
+    }
+
   for (i = 0; i < s->n; i++)
     {
       cplx_t diff;
@@ -64,7 +71,7 @@ mps_fradii (mps_context * s, double * fradii)
 	  new_rad /= cplx_mod (diff);
 	}
 
-      if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
+      if (MPS_IS_MONOMIAL_POLY (p))
 	new_rad /= MPS_MONOMIAL_POLY (p)->fap[p->degree];
       
       fradii[i] = new_rad;
@@ -87,6 +94,13 @@ mps_dradii (mps_context * s, rdpe_t * dradii)
   rdpe_t new_rad, relative_error, rtmp;
   mps_polynomial * p = s->active_poly;
   int i, j;
+
+  if (!p->deval) 
+    {
+      for (i = 0; i < s->n; i++)
+	rdpe_set (dradii[i], s->root[i]->drad);
+      return;
+    }
 
   for (i = 0; i < s->n; i++)
     {
@@ -117,7 +131,7 @@ mps_dradii (mps_context * s, rdpe_t * dradii)
 	  rdpe_div_eq (new_rad, rtmp);
 	}
 
-      if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
+      if (MPS_IS_MONOMIAL_POLY (s->active_poly))
 	rdpe_div_eq (new_rad, MPS_MONOMIAL_POLY (p)->dap[p->degree]);
 
       rdpe_set (dradii[i], new_rad);
@@ -141,6 +155,14 @@ mps_mradii (mps_context * s, rdpe_t * dradii)
   rdpe_t new_rad, relative_error, rtmp;
   mps_polynomial * p = s->active_poly;
   int i, j;
+
+  if (!p->meval) 
+    {
+      for (i = 0; i < s->n; i++)
+	rdpe_set (dradii[i], s->root[i]->drad);
+      return;
+    }
+
 
   mpc_init2 (pol, s->mpwp);
   mpc_init2 (mdiff, s->mpwp);
@@ -181,7 +203,7 @@ mps_mradii (mps_context * s, rdpe_t * dradii)
       rdpe_mul_eq_d (new_rad, 1 + 2 * s->n * sqrt(2) * DBL_EPSILON);
       rdpe_mul_eq_d (new_rad, p->degree);
 
-      if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
+      if (MPS_IS_MONOMIAL_POLY (p))
 	rdpe_div_eq (new_rad, MPS_MONOMIAL_POLY (p)->dap[s->n]);
 
       rdpe_set (dradii[i], new_rad);

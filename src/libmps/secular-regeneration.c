@@ -101,7 +101,7 @@ mps_secular_ga_find_changed_roots (mps_context * s, cdpe_t * old_b, mpc_t * old_
   
   for (i = 0; i < s->n; i++)
     {
-      if (s->just_raised_precision && MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
+      if (s->just_raised_precision)
 	{
 	  root_changed[i] = true;
 	  continue;
@@ -201,7 +201,7 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
   mpc_init2 (my_b, coeff_wp);
 
   mpc_set_si (lc, -1, 0);
-  if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
+  if (MPS_IS_MONOMIAL_POLY (p))
     {
       mps_monomial_poly *mp = MPS_MONOMIAL_POLY (p);
       mps_with_lock (mp->mfpc_mutex[s->n],
@@ -254,7 +254,7 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
       /* cdpe_mod (rtmp, cpol);  */
       /* rdpe_mul_eq (rtmp, root_epsilon);  */
 
-      while (rdpe_gt (relative_error, root_epsilon) && (s->root[i]->wp < s->n * s->mpwp))
+      while (rdpe_gt (relative_error, root_epsilon) && (s->root[i]->wp < s->n * s->mpwp) && rdpe_gt (rtmp, s->mp_epsilon))
 	{
 	  /* Update the working precision of the selected root with a realistic estimate of the
 	   * required precision to get a result exact to machine precision */
@@ -273,6 +273,9 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
 	      MPS_DEBUG_MPC (s, mpc_get_prec (sec->ampc[i]), sec->ampc[i], "p(b_%d)", i);
 	    }
 
+	  /* MPS_DEBUG (s, "s->mpwp = %ld", s->mpwp); */
+	  /* MPS_DEBUG (s, "root->wp = %ld", s->root[i]->wp); */
+
 	  mpc_get_cdpe (cpol, sec->ampc[i]);
 	  cdpe_mod (rtmp, cpol);
 	  rdpe_div_eq (relative_error, rtmp);
@@ -289,7 +292,7 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
 	  mpc_set_prec (mprod_b, s->root[i]->wp);
 	  mpc_set_prec (lc, s->root[i]->wp);
 	  mpc_set_si (lc, -1, 0);
-	  if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
+	  if (MPS_IS_MONOMIAL_POLY (p))
 	    {
 	      mps_monomial_poly *mp = MPS_MONOMIAL_POLY (p);
 	      mps_with_lock (mp->mfpc_mutex[s->n],

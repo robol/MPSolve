@@ -40,6 +40,7 @@ libmps_la_SOURCES = \
 	    debug.c \
 	    defaults.c \
 	    general-radius.c \
+	    general-starting.c \
 	    getopts.c \
 	    gmptools.c \
 	    horner.c \

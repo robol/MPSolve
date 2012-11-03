@@ -77,7 +77,7 @@ mps_inclusion (mps_context * s)
       rdpe_mul_eq (rad, poly->dap[s->n]);
 
       /* compute numerator */
-      if (MPS_INPUT_CONFIG_IS_SPARSE (s->input_config))
+      if (MPS_DENSITY_IS_SPARSE (s->active_poly->density))
         {                       /* case of sparse polynomial */
 
           n1 = s->n + 1;

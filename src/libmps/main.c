@@ -76,19 +76,13 @@ mps_standard_mpsolve (mps_context * s)
   d_after_f = false;
 
   /* Check if a dpe phase is needed and deflate polynomial */
-  if (!MPS_INPUT_CONFIG_IS_USER (s->input_config))
-    {
-      mps_check_data (s, &which_case);
-    }
-  else
-    {
-      /* Otherwise fallback on the standard check_data routine */
-      mps_check_data (s, &which_case);
-    }
+  mps_check_data (s, &which_case);
 
   /* Check for errors in check data */
   if (mps_context_has_errors (s))
     return;
+
+  rdpe_set_2dl (s->eps_out, 1.0, - s->output_config->prec);
 
   if (s->DOLOG)
     fprintf (s->logstr, "Which_case = %c, skip_float= %d\n", which_case,
@@ -165,17 +159,17 @@ mps_standard_mpsolve (mps_context * s)
     }
 
   MPS_DEBUG (s, "s->mpwp = %ld, s->mpwp_max = %ld", s->mpwp, s->mpwp_max);
-  MPS_DEBUG (s, "s->input_config->prec = %ld", s->input_config->prec);
+  MPS_DEBUG (s, "s->input_config->prec = %ld", s->active_poly->prec);
 
   /* == 7 ==  Start MPsolve loop */
   s->mpwp = DBL_MANT_DIG;
-  while (!computed && s->mpwp < s->mpwp_max && (s->input_config->prec == 0 || s->mpwp
-                                                < s->input_config->prec))
+  while (!computed && s->mpwp < s->mpwp_max && (s->active_poly->prec == 0 || s->mpwp
+                                                < s->active_poly->prec))
     {
       s->mpwp *= 2;
 
-      if (s->input_config->prec != 0 && s->mpwp > s->input_config->prec)
-        s->mpwp = s->input_config->prec + (int) (log (4.0 * s->n) / LOG2);
+      if (s->active_poly->prec != 0 && s->mpwp > s->active_poly->prec)
+        s->mpwp = s->active_poly->prec + (int) (log (4.0 * s->n) / LOG2);
 
       if (s->mpwp > s->mpwp_max)
         {
@@ -284,14 +278,14 @@ mps_setup (mps_context * s)
       /* fprintf (s->logstr, "Goal      = %5s\n", s->goal); */
       /* fprintf (s->logstr, "Data type = %3s\n", s->data_type); */
       fprintf (s->logstr, "Degree    = %d\n", s->n);
-      fprintf (s->logstr, "Input prec.  = %ld digits\n", (long) (s->input_config->prec
+      fprintf (s->logstr, "Input prec.  = %ld digits\n", (long) (s->active_poly->prec
                                                                  * LOG10_2));
       fprintf (s->logstr, "Output prec. = %ld digits\n", (long) (s->output_config->prec
                                                                  * LOG10_2));
     }
 
   /* setup temporary vectors */
-   if (MPS_INPUT_CONFIG_IS_SPARSE (s->input_config)) 
+   if (MPS_DENSITY_IS_SPARSE (s->active_poly->density)) 
      for (i = 0; i <= MPS_POLYNOMIAL (p)->degree; i++) 
        { 
          p->fap[i] = 0.0;
@@ -307,7 +301,7 @@ mps_setup (mps_context * s)
   mps_cluster_reset (s);
 
   /* set input and output epsilon */
-  rdpe_set_2dl (s->eps_in, 1.0, 1 - s->input_config->prec);
+  rdpe_set_2dl (s->eps_in, 1.0, 1 - s->active_poly->prec);
   rdpe_set_2dl (s->eps_out, 1.0, 1 - s->output_config->prec);
 
   /* precision of each root */
@@ -322,7 +316,7 @@ mps_setup (mps_context * s)
   s->count[0] = s->count[1] = s->count[2] = 0;
 
   /* compute DPE approximations */
-  if (MPS_INPUT_CONFIG_IS_USER (s->input_config))
+  if (!MPS_IS_MONOMIAL_POLY (s->active_poly))
     return;                     /* nothing to do */
 
   /* init temporary mp variables */
@@ -334,13 +328,13 @@ mps_setup (mps_context * s)
   for (i = 0; i <= s->n; i++)
     {
 
-      if (MPS_INPUT_CONFIG_IS_SPARSE (s->input_config) && !p->spar[i])
+      if (MPS_DENSITY_IS_SPARSE (s->active_poly->density) && !p->spar[i])
         continue;
 
-      if (MPS_INPUT_CONFIG_IS_REAL (s->input_config))
+      if (MPS_STRUCTURE_IS_REAL (s->active_poly->structure))
 	{
-	  if (MPS_INPUT_CONFIG_IS_RATIONAL (s->input_config) ||
-	      MPS_INPUT_CONFIG_IS_INTEGER (s->input_config))
+	  if (MPS_STRUCTURE_IS_RATIONAL (s->active_poly->structure) ||
+	      MPS_STRUCTURE_IS_INTEGER (s->active_poly->structure))
 	    {
               mpf_set_q (mptemp, p->initial_mqp_r[i]);
               mpf_get_rdpe (p->dpr[i], mptemp);
@@ -350,7 +344,7 @@ mps_setup (mps_context * s)
               /*#G GMP bug end */
 	    }
 
-	  if (MPS_INPUT_CONFIG_IS_FP (s->input_config))
+	  if (MPS_STRUCTURE_IS_FP (s->active_poly->structure))
 	    mpf_get_rdpe (p->dpr[i], mpc_Re (p->mfpc[i]));
 	  
           cdpe_set_e (p->dpc[i], p->dpr[i], rdpe_zero);
@@ -363,10 +357,10 @@ mps_setup (mps_context * s)
             s->skip_float = true;
 
 	}
-      else if (MPS_INPUT_CONFIG_IS_COMPLEX (s->input_config))
+      else if (MPS_STRUCTURE_IS_COMPLEX (s->active_poly->structure))
 	{
-	  if (MPS_INPUT_CONFIG_IS_RATIONAL (s->input_config) ||
-	      MPS_INPUT_CONFIG_IS_INTEGER (s->input_config))
+	  if (MPS_STRUCTURE_IS_RATIONAL (s->active_poly->structure) ||
+	      MPS_STRUCTURE_IS_INTEGER (s->active_poly->structure))
 	    {
 	      mpc_set_q (mptempc, p->initial_mqp_r[i], p->initial_mqp_i[i]);
               mpc_get_cdpe (p->dpc[i], mptempc);
@@ -377,7 +371,7 @@ mps_setup (mps_context * s)
                 rdpe_neg_eq (cdpe_Im (p->dpc[i]));
               /*#G GMP bug end */
 	    }
-	  else if (MPS_INPUT_CONFIG_IS_FP (s->input_config))
+	  else if (MPS_STRUCTURE_IS_FP (s->active_poly->structure))
               mpc_get_cdpe (p->dpc[i], p->mfpc[i]);
 	  
           /* compute dap[i] */
@@ -394,17 +388,17 @@ mps_setup (mps_context * s)
   mpc_clear (mptempc);
 
   /* adjust input data type */
-  if (MPS_INPUT_CONFIG_IS_FP (s->input_config) && s->skip_float)
-    s->input_config->structure = MPS_INPUT_CONFIG_IS_REAL (s->input_config) ? 
+  if (MPS_STRUCTURE_IS_FP (s->active_poly->structure) && s->skip_float)
+    s->active_poly->structure = MPS_STRUCTURE_IS_REAL (s->active_poly->structure) ? 
       MPS_STRUCTURE_REAL_BIGFLOAT : MPS_STRUCTURE_COMPLEX_BIGFLOAT;
 
   /* prepare floating point vectors */
   if (!s->skip_float)
     for (i = 0; i <= MPS_POLYNOMIAL (p)->degree; i++)
       {
-        if (MPS_INPUT_CONFIG_IS_SPARSE (s->input_config) || !p->spar[i])
+        if (MPS_DENSITY_IS_SPARSE (s->active_poly->density) || !p->spar[i])
           continue;
-        if (MPS_INPUT_CONFIG_IS_REAL (s->input_config))
+        if (MPS_STRUCTURE_IS_REAL (s->active_poly->structure))
           {
             p->fpr[i] = rdpe_get_d (p->dpr[i]);
             p->fap[i] = fabs (p->fpr[i]);
@@ -441,7 +435,7 @@ mps_check_data (mps_context * s, char *which_case)
   int i;
 
   /* case of user-defined polynomial */
-  if (MPS_INPUT_CONFIG_IS_USER (s->input_config))
+  if (!MPS_IS_MONOMIAL_POLY (s->active_poly))
     {
       if (s->output_config->multiplicity)
         mps_error (s, 1,
@@ -504,11 +498,11 @@ mps_check_data (mps_context * s, char *which_case)
   /*  Multiplicity and sep */
   if (s->output_config->multiplicity)
     {
-    if (MPS_INPUT_CONFIG_IS_INTEGER (s->input_config))
+    if (MPS_STRUCTURE_IS_INTEGER (s->active_poly->structure))
       {
         mps_compute_sep (s);
       }
-    else if (MPS_INPUT_CONFIG_IS_RATIONAL (s->input_config))
+    else if (MPS_STRUCTURE_IS_RATIONAL (s->active_poly->structure))
       {
         mps_warn (s, "The multiplicity option has not been yet implemented");
         s->sep = 0.0;
@@ -526,11 +520,11 @@ mps_check_data (mps_context * s, char *which_case)
       s->output_config->search_set == MPS_SEARCH_SET_REAL || 
       s->output_config->search_set == MPS_SEARCH_SET_IMAG)
     {
-      if (MPS_INPUT_CONFIG_IS_INTEGER (s->input_config))
+      if (MPS_STRUCTURE_IS_INTEGER (s->active_poly->structure))
 	{
 	  mps_compute_sep (s);
 	}
-      else if (MPS_INPUT_CONFIG_IS_RATIONAL (s->input_config))
+      else if (MPS_STRUCTURE_IS_RATIONAL (s->active_poly->structure))
 	{
 	  mps_warn (s,
 		    "The  real/imaginary option has not been yet implemented");
@@ -564,7 +558,7 @@ mps_check_data (mps_context * s, char *which_case)
         {
           rdpe_mul (tmp, p->dap[i], min_coeff);
           p->fap[i] = rdpe_get_d (tmp);
-          if (MPS_INPUT_CONFIG_IS_COMPLEX (s->input_config))
+          if (MPS_STRUCTURE_IS_COMPLEX (s->active_poly->structure))
             {
               cdpe_mul_e (ctmp, p->dpc[i], min_coeff);
               cdpe_get_x (p->fpc[i], ctmp);

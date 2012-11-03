@@ -73,9 +73,9 @@ mps_thread_fpolzer_worker (void *data_ptr)
                means of Rouche' is more reliable and strict
 	  **************************************/
 
-          if (s->root[i]->again ||
+          if (s->root[i]->again
               /* the correction is performed only if iter!=1 or rad(i)!=rad1 */
-              MPS_INPUT_CONFIG_IS_USER (s->input_config) || iter != 0 || s->root[i]->frad != rad1)
+             || iter != 0 || s->root[i]->frad != rad1)
             {
               mps_faberth (s, i, abcorr);
 
@@ -237,9 +237,9 @@ mps_thread_dpolzer_worker (void *data_ptr)
            Rouche' is more reliable and strict
            **********************************************/
 
-          if (s->root[i]->again ||
+          if (s->root[i]->again
               /* the correction is performed only if iter!=1 or rad(i)!=rad1 */
-              MPS_INPUT_CONFIG_IS_USER (s->input_config) || iter != 0
+              || iter != 0
               || rdpe_ne (s->root[i]->drad, rad1))
             {
               mps_daberth (s, i, abcorr);
@@ -423,9 +423,9 @@ mps_thread_mpolzer_worker (void *data_ptr)
           means of Rouche' is more reliable and strict
 	  ***********************************************/
 
-          if (s->root[l]->again ||
+          if (s->root[l]->again
               /* the correction is performed only if iter!=1 or rad[l]!=rad1 */
-              MPS_INPUT_CONFIG_IS_USER (s->input_config) || iter != 0
+              || iter != 0
               || rdpe_ne (s->root[l]->drad, rad1))
             {
               /* Global lock to aberth step to reach a real Gauss-Seidel iteration */

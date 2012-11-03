@@ -417,6 +417,7 @@ mps_aparhorner (mps_context * st,
     }
   rdpe_set (s, dap2[0]);
 
+  rdpe_vfree (dap2);
   free (spar2);
 }
 
@@ -484,7 +485,7 @@ mps_mnewton (mps_context * s, mps_polynomial * poly,
   mpc_init2 (p1, wp);
 
   rdpe_mul_d (ep, s->mp_epsilon, (double) (n * 4));
-  if (MPS_INPUT_CONFIG_IS_SPARSE (s->input_config))
+  if (MPS_DENSITY_IS_SPARSE (poly->density))
     {				/* case of sparse polynomial */
       n1 = n + 1;
       n2 = n;

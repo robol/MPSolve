@@ -842,7 +842,9 @@ mps_dmodify (mps_context * s, mps_boolean track_new_cluster)
 	  cdpe_mod (tmpr2, s->root[l]->dvalue);
 	  rdpe_div_eq (tmpr, tmpr2);
 	  if (rdpe_le (tmpr, s->eps_out)) 
-	    s->root[l]->status = MPS_ROOT_STATUS_APPROXIMATED_IN_CLUSTER;
+	    {
+	      s->root[l]->status = MPS_ROOT_STATUS_APPROXIMATED_IN_CLUSTER;
+	    }
 
 	  root = root->next;
 	}

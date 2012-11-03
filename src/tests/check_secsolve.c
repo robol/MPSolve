@@ -60,7 +60,7 @@ test_secsolve_on_pol (test_pol * pol)
   fprintf (stderr, "Checking \033[1m%-30s\033[0m [\033[34;1mchecking\033[0m]", 
 	   get_pol_name_from_path (pol->pol_file));
 
-  mps_context_set_output_goal (s, MPS_OUTPUT_GOAL_ISOLATE);
+  mps_context_set_output_goal (s, MPS_OUTPUT_GOAL_APPROXIMATE);
   mps_context_set_output_prec (s, pol->out_digits * LOG2_10);
 
   /* Solve it */
@@ -77,7 +77,7 @@ test_secsolve_on_pol (test_pol * pol)
   mpc_t * mroot = mpc_valloc (mps_context_get_degree (s));
   mpc_vinit2 (mroot, mps_context_get_degree (s), mps_context_get_data_prec_max (s));
 
-  mps_context_get_roots_m (s, mroot, drad);
+  mps_context_get_roots_m (s, &mroot, &drad);
 
   for (i = 0; i < mps_context_get_degree (s); i++)   
     {   

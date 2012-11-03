@@ -645,9 +645,14 @@ extern  "C"
   mps_boolean mps_mtouchunit (mps_context * s, int n, int i);
 
   /* functions in user.c */
-  void mps_fnewton_usr (mps_context * st, mps_approximation * root, cplx_t corr);
-  void mps_dnewton_usr (mps_context * st, mps_approximation * root, cdpe_t corr);
-  void mps_mnewton_usr (mps_context * st, mps_approximation * root, mpc_t corr);
+  void mps_fnewton_usr (mps_context * st, mps_polynomial * poly, mps_approximation * root, cplx_t corr);
+  void mps_dnewton_usr (mps_context * st, mps_polynomial * poly, mps_approximation * root, cdpe_t corr);
+  void mps_mnewton_usr (mps_context * st, mps_polynomial * poly, mps_approximation * root, mpc_t corr);
+
+  /* functions in general-starting.c */
+  void mps_general_fstart (mps_context * ctx, mps_polynomial * p);
+  void mps_general_dstart (mps_context * ctx, mps_polynomial * p);
+  void mps_general_mstart (mps_context * ctx, mps_polynomial * p);
 
   /* Routines of Input/Output in stio.c */
   void mps_skip_comments (FILE * input_stream);

@@ -31,7 +31,7 @@ mps_mhorner (mps_context * s, mps_monomial_poly * p, mpc_t x, mpc_t value)
 {
   int j;
 
-  if (MPS_INPUT_CONFIG_IS_SPARSE (s->input_config))
+  if (MPS_DENSITY_IS_SPARSE (s->active_poly->density))
     {
       mps_mhorner_sparse (s, p, x, value);
     }

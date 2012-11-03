@@ -73,26 +73,19 @@ extern "C" {
   const static short int mps_bigfloat_structures[] = { 0, 0, 0, 1, 0, 0, 0, 1, 0 };
 
   /* STRUCTURE related macros */
-#define MPS_INPUT_CONFIG_IS_RATIONAL(x) (mps_rational_structures[(x)->structure])
-#define MPS_INPUT_CONFIG_IS_INTEGER(x)  (mps_integer_structures[(x)->structure])
-#define MPS_INPUT_CONFIG_IS_FP(x)       (mps_fp_structures[(x)->structure])
-#define MPS_INPUT_CONFIG_IS_REAL(x)     (mps_real_structures[(x)->structure])
-#define MPS_INPUT_CONFIG_IS_COMPLEX(x)  (mps_complex_structures[(x)->structure])
-
-  const static short int mps_secular_representations[]  = { 1, 0 };
-  const static short int mps_monomial_representations[] = { 0, 1 };
-
-#define MPS_INPUT_CONFIG_IS_SECULAR(x)  (mps_secular_representations[(x)->representation])
-#define MPS_INPUT_CONFIG_IS_MONOMIAL(x) (mps_monomial_representations[(x)->representation])
+#define MPS_STRUCTURE_IS_RATIONAL(x) (mps_rational_structures[(x)])
+#define MPS_STRUCTURE_IS_INTEGER(x)  (mps_integer_structures[(x)])
+#define MPS_STRUCTURE_IS_FP(x)       (mps_fp_structures[(x)])
+#define MPS_STRUCTURE_IS_REAL(x)     (mps_real_structures[(x)])
+#define MPS_STRUCTURE_IS_COMPLEX(x)  (mps_complex_structures[(x)])
 
 
   const static short int mps_user_representations[]   = { 0, 0, 1 };
   const static short int mps_sparse_representations[] = { 0, 1, 0 };
   const static short int mps_dense_representations[]  = { 1, 0, 0 };
 
-#define MPS_INPUT_CONFIG_IS_USER(x)     (mps_user_representations[(x->density)])
-#define MPS_INPUT_CONFIG_IS_SPARSE(x)   (mps_sparse_representations[(x->density)])
-#define MPS_INPUT_CONFIG_IS_DENSE(x)    (mps_dense_representations[(x->density)])
+#define MPS_DENSITY_IS_SPARSE(x)   (mps_sparse_representations[(x)])
+#define MPS_DENSITY_IS_DENSE(x)    (mps_dense_representations[(x)])
 
 #ifdef _MPS_PRIVATE
   /**
@@ -102,30 +95,6 @@ extern "C" {
    */
   struct mps_input_configuration
   {
-    /**
-     * @brief Structure of the input data. For every
-     * structure a particular format is defined.
-     */
-    mps_structure structure;
-
-    /**
-     * @brief Algorithm to be used, that will determine
-     * the coefficients that will be passed to MPSolve.
-     */
-    mps_representation representation;
-
-    /**
-     * @brief Density of the coefficients, or MPS_DENSITY_USER
-     * if the coefficients (or the newton fraction) is provided
-     * via a user routine
-     */
-    mps_density density;
-
-    /**
-     * @brief Digits of guaranteed input precision.
-     */
-    long int prec;
-
     /**
      * @brief Selet the starting phase for the computation.
      *

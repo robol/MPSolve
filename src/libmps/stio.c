@@ -203,7 +203,9 @@ mps_parse_option_line (mps_context * s, char *line, size_t length)
 
 void
 mps_monomial_poly_read_from_stream (mps_context * s,
-				    mps_input_buffer * buffer)
+				    mps_input_buffer * buffer, 
+				    mps_structure structure,
+				    mps_density density)
 {
   mps_monomial_poly * poly;
   int i;
@@ -216,14 +218,18 @@ mps_monomial_poly_read_from_stream (mps_context * s,
    * if we are trying to solve the associated secular_equation */
   poly = mps_monomial_poly_new (s, s->n);
 
+  MPS_POLYNOMIAL (poly)->structure = structure;
+  MPS_POLYNOMIAL (poly)->density = density;
+  MPS_POLYNOMIAL (poly)->prec = 0;
+
   /* We still do not support sparse input */
   for (i = 0; i <= s->n; ++i)
     poly->spar[i] = true;
 
   /* Dense parsing */
-  if (MPS_INPUT_CONFIG_IS_DENSE (s->input_config))
+  if (MPS_DENSITY_IS_DENSE (density))
     {
-      if (MPS_INPUT_CONFIG_IS_FP (s->input_config))
+      if (MPS_STRUCTURE_IS_FP (structure))
 	{
 	  for (i = 0; i < s->n + 1; ++i)
 	    {
@@ -232,7 +238,7 @@ mps_monomial_poly_read_from_stream (mps_context * s,
 		mps_raise_parsing_error (s, buffer, token, "Error parsing coefficients of the polynomial");
 	      free (token);
 
-	      if (MPS_INPUT_CONFIG_IS_COMPLEX (s->input_config))
+	      if (MPS_STRUCTURE_IS_COMPLEX (structure))
 		{
 		  token = mps_input_buffer_next_token (buffer);
 		  if (!token || (mpf_set_str (mpc_Im (poly->mfpc[i]), token, 10) != 0))
@@ -243,8 +249,8 @@ mps_monomial_poly_read_from_stream (mps_context * s,
 		mpf_set_ui (mpc_Im (poly->mfpc[i]), 0U);
 	    }
 	}
-      else if (MPS_INPUT_CONFIG_IS_RATIONAL (s->input_config) ||
-	       MPS_INPUT_CONFIG_IS_INTEGER (s->input_config))
+      else if (MPS_STRUCTURE_IS_RATIONAL (structure) ||
+	       MPS_STRUCTURE_IS_INTEGER (structure))
 	{
 	  for (i = 0; i < s->n + 1; ++i)
 	    {
@@ -254,7 +260,7 @@ mps_monomial_poly_read_from_stream (mps_context * s,
 	      mpq_canonicalize (poly->initial_mqp_r[i]);
 	      free (token);
       
-	      if (MPS_INPUT_CONFIG_IS_COMPLEX (s->input_config))
+	      if (MPS_STRUCTURE_IS_COMPLEX (structure))
 		{
 		  token = mps_input_buffer_next_token (buffer);
 		  if (!token || (mpq_set_str (poly->initial_mqp_i[i], token, 10) != 0))
@@ -271,7 +277,7 @@ mps_monomial_poly_read_from_stream (mps_context * s,
 	    }
 	}
     } /* closes if (MPS_INPUT_CONFIG_IS_DENSE (s->input_config)) */
-  else if (MPS_INPUT_CONFIG_IS_SPARSE (s->input_config))
+  else if (MPS_DENSITY_IS_SPARSE (density))
     {
       /* Set all the spar to false, since we have still not read
        * any coefficient */
@@ -297,14 +303,14 @@ mps_monomial_poly_read_from_stream (mps_context * s,
 	    poly->spar[i] = true;
 	  free (token);
 
-	  if (MPS_INPUT_CONFIG_IS_FP (s->input_config))
+	  if (MPS_STRUCTURE_IS_FP (structure))
 	    {
 	      token = mps_input_buffer_next_token (buffer);
 	      if (!token || (mpf_set_str (mpc_Re (poly->mfpc[i]), token, 10) != 0))
 		mps_raise_parsing_error (s, buffer, token, "Error parsing coefficients of the polynomial");
 	      free (token);
 	  
-	      if (MPS_INPUT_CONFIG_IS_COMPLEX (s->input_config))
+	      if (MPS_STRUCTURE_IS_COMPLEX (structure))
 		{
 		  token = mps_input_buffer_next_token (buffer);
 		  if (!token || (mpf_set_str (mpc_Im (poly->mfpc[i]), token, 10) != 0))
@@ -314,8 +320,8 @@ mps_monomial_poly_read_from_stream (mps_context * s,
 	      else
 		mpf_set_ui (mpc_Im (poly->mfpc[i]), 0U);
 	    }
-	  else if (MPS_INPUT_CONFIG_IS_RATIONAL (s->input_config) ||
-		   MPS_INPUT_CONFIG_IS_INTEGER (s->input_config))
+	  else if (MPS_STRUCTURE_IS_RATIONAL (structure) ||
+		   MPS_STRUCTURE_IS_INTEGER (structure))
 	    {
 
 	      token = mps_input_buffer_next_token (buffer);
@@ -324,7 +330,7 @@ mps_monomial_poly_read_from_stream (mps_context * s,
 	      mpq_canonicalize (poly->initial_mqp_r[i]);
 	      free (token);
       
-	      if (MPS_INPUT_CONFIG_IS_COMPLEX (s->input_config))
+	      if (MPS_STRUCTURE_IS_COMPLEX (structure))
 		{
 		  token = mps_input_buffer_next_token (buffer);
 		  if (!token || (mpq_set_str (poly->initial_mqp_i[i], token, 10) != 0))
@@ -364,14 +370,15 @@ mps_monomial_poly_read_from_stream (mps_context * s,
 	}
     }
 
-  MPS_POLYNOMIAL (poly)->structure = s->input_config->structure;
-  mps_context_set_input_poly (s, poly);
+  mps_context_set_input_poly (s, MPS_POLYNOMIAL (poly));
   mpf_clear (ftmp);
 }
 
 void
 mps_secular_equation_read_from_stream (mps_context * s,
-                                       mps_input_buffer * buffer)
+                                       mps_input_buffer * buffer,
+				       mps_structure structure,
+				       mps_density density)
 {
   mps_secular_equation *sec;
   int i;
@@ -380,17 +387,17 @@ mps_secular_equation_read_from_stream (mps_context * s,
 
   mpf_init (ftmp);
 
-  /* Set the density of the polynomial as user, since we do not have
-   * the coefficients but only an implicit representation */
-  s->input_config->density = MPS_DENSITY_USER;
-
   /* Read directly the secular equation in DPE, so we don't need
    * to have a fallback case if the coefficients are bigger than
    * what is supported by the standard floating point arithmetic */
   sec = mps_secular_equation_new_raw (s, s->n);
+  MPS_POLYNOMIAL (sec)->degree = s->n;
+  MPS_POLYNOMIAL (sec)->structure = structure;
+  MPS_POLYNOMIAL (sec)->density = density;
+  MPS_POLYNOMIAL (sec)->prec = DBL_DIG;
 
   /* Parsing of integers and floating point is done with Multiprecision */
-  if (MPS_INPUT_CONFIG_IS_FP (s->input_config))
+  if (MPS_STRUCTURE_IS_FP (structure))
     {
       for (i = 0; i < s->n; i++)
         {
@@ -407,7 +414,7 @@ mps_secular_equation_read_from_stream (mps_context * s,
 	  free (token);
 
           /* Imaginary part, read only if the input is complex */
-          if (MPS_INPUT_CONFIG_IS_COMPLEX (s->input_config))
+          if (MPS_STRUCTURE_IS_COMPLEX (structure))
             {
 	      token = mps_input_buffer_next_token (buffer);
               if (!token || (mpf_set_str (mpc_Im (sec->initial_ampc[i]), token, 10) != 0))
@@ -439,7 +446,7 @@ mps_secular_equation_read_from_stream (mps_context * s,
 	  free (token);
 
           /* Again, read the imaginary part only if the input is complex */
-          if (MPS_INPUT_CONFIG_IS_COMPLEX (s->input_config))
+          if (MPS_STRUCTURE_IS_COMPLEX (structure))
             {
 	      token = mps_input_buffer_next_token (buffer);
 	      if (!token || (mpf_set_str (mpc_Im (sec->initial_bmpc[i]), token, 10) != 0))
@@ -464,8 +471,8 @@ mps_secular_equation_read_from_stream (mps_context * s,
    * Parsing of the integer input is done assuming the coefficients
    * as a special case of the rational ones.
    */
-  else if (MPS_INPUT_CONFIG_IS_RATIONAL (s->input_config) ||
-           MPS_INPUT_CONFIG_IS_INTEGER  (s->input_config))
+  else if (MPS_STRUCTURE_IS_RATIONAL (structure) ||
+           MPS_STRUCTURE_IS_INTEGER  (structure))
     {
       for (i = 0; i < s->n; i++)
         {
@@ -481,7 +488,7 @@ mps_secular_equation_read_from_stream (mps_context * s,
 	  free (token);
 
           /* Read imaginary part of the a_i */
-          if (MPS_INPUT_CONFIG_IS_COMPLEX (s->input_config))
+          if (MPS_STRUCTURE_IS_COMPLEX (structure))
             {
 	      token = mps_input_buffer_next_token (buffer);
               if (!token || (mpq_set_str (sec->initial_ampqic[i], token, 10) != 0))
@@ -508,7 +515,7 @@ mps_secular_equation_read_from_stream (mps_context * s,
 	  free (token);
 
           /* Read imaginary part of the b_i */
-          if (MPS_INPUT_CONFIG_IS_COMPLEX (s->input_config))
+          if (MPS_STRUCTURE_IS_COMPLEX (structure))
             {
 	      token = mps_input_buffer_next_token (buffer);
               if (!token || (mpq_set_str (sec->initial_bmpqic[i], token, 10) != 0))
@@ -567,11 +574,7 @@ mps_secular_equation_read_from_stream (mps_context * s,
       sec->abfpc[i] = cplx_mod (sec->bfpc[i]);
     }
 
-  s->active_poly = MPS_POLYNOMIAL (sec);
-  mps_context_set_degree (s, MPS_POLYNOMIAL (sec)->degree);
-
-  /* Deflate input, if identical b_i coefficients are found */
-  mps_secular_deflate (s, sec);
+  mps_context_set_input_poly (s, MPS_POLYNOMIAL (sec));
 
   mpf_clear (ftmp);
 }
@@ -586,10 +589,12 @@ mps_parse_stream_old (mps_context * s, mps_input_buffer * buffer)
   mpf_t ftmp;
   mpq_t qtmp;
 
+  mps_density density = MPS_DENSITY_DENSE;
+  mps_structure structure = MPS_STRUCTURE_COMPLEX_FP;
+  long int prec = 0;
+
   mpq_init (qtmp);
   mpf_init (ftmp);
-
-  s->input_config->representation = MPS_REPRESENTATION_MONOMIAL;
   
   /* Here we have the data_type in the input_buffer, since the first line has been read, or at least
    * that should be the case. */
@@ -605,13 +610,13 @@ mps_parse_stream_old (mps_context * s, mps_input_buffer * buffer)
   switch (data_type[0])
     {
     case 's':
-      s->input_config->density = MPS_DENSITY_SPARSE;
+      density = MPS_DENSITY_SPARSE;
       break;
     case 'd':
-      s->input_config->density = MPS_DENSITY_DENSE;
+      density = MPS_DENSITY_DENSE;
       break;
     case 'u':
-      s->input_config->density = MPS_DENSITY_USER;
+      density = MPS_DENSITY_USER;
       break;
     default:
       mps_error (s, 1, "Found unsupported data_type in input file");
@@ -621,10 +626,10 @@ mps_parse_stream_old (mps_context * s, mps_input_buffer * buffer)
   switch (data_type[1])
     {
     case 'r':
-      s->input_config->structure = MPS_STRUCTURE_REAL_FP;
+      structure = MPS_STRUCTURE_REAL_FP;
       break;
     case 'c':
-      s->input_config->structure = MPS_STRUCTURE_COMPLEX_FP;
+      structure = MPS_STRUCTURE_COMPLEX_FP;
       break;
     default:
       mps_error (s, 1, "Found unsupported data_structure in input file");
@@ -634,22 +639,22 @@ mps_parse_stream_old (mps_context * s, mps_input_buffer * buffer)
   switch (data_type[2])
     {
     case 'q':
-      if (MPS_INPUT_CONFIG_IS_REAL (s->input_config))
-	s->input_config->structure = MPS_STRUCTURE_REAL_RATIONAL;
-      else if (MPS_INPUT_CONFIG_IS_COMPLEX (s->input_config))
-	s->input_config->structure = MPS_STRUCTURE_COMPLEX_RATIONAL;
+      if (MPS_STRUCTURE_IS_REAL (structure))
+	structure = MPS_STRUCTURE_REAL_RATIONAL;
+      else if (MPS_STRUCTURE_IS_COMPLEX (structure))
+	structure = MPS_STRUCTURE_COMPLEX_RATIONAL;
       break;
     case 'i':
-      if (MPS_INPUT_CONFIG_IS_REAL (s->input_config))
-	s->input_config->structure = MPS_STRUCTURE_REAL_INTEGER;
-      else if (MPS_INPUT_CONFIG_IS_COMPLEX (s->input_config))
-	s->input_config->structure = MPS_STRUCTURE_COMPLEX_INTEGER;
+      if (MPS_STRUCTURE_IS_REAL (structure))
+	structure = MPS_STRUCTURE_REAL_INTEGER;
+      else if (MPS_STRUCTURE_IS_COMPLEX (structure))
+	structure = MPS_STRUCTURE_COMPLEX_INTEGER;
       break;
     case 'f':
-      if (MPS_INPUT_CONFIG_IS_REAL (s->input_config))
-	s->input_config->structure = MPS_STRUCTURE_REAL_FP;
-      else if (MPS_INPUT_CONFIG_IS_COMPLEX (s->input_config))
-	s->input_config->structure = MPS_STRUCTURE_COMPLEX_FP;
+      if (MPS_STRUCTURE_IS_REAL (structure))
+	structure = MPS_STRUCTURE_REAL_FP;
+      else if (MPS_STRUCTURE_IS_COMPLEX (structure))
+	structure = MPS_STRUCTURE_COMPLEX_FP;
       break;      
     default:
       mps_error (s, 1, "Found unsupported data structure in input file");
@@ -658,10 +663,10 @@ mps_parse_stream_old (mps_context * s, mps_input_buffer * buffer)
 
   /* Read precision and degree */
   token = mps_input_buffer_next_token (buffer);
-  if (!token || !sscanf (token, "%ld", &s->input_config->prec))
+  if (!token || !sscanf (token, "%ld", &prec))
     mps_error (s, 1, "Error while reading the input precision of the coefficients");
   else 
-    s->input_config->prec *= LOG2_10; 
+    prec *= LOG2_10; 
   free (token);
 
   token = mps_input_buffer_next_token (buffer);
@@ -670,17 +675,42 @@ mps_parse_stream_old (mps_context * s, mps_input_buffer * buffer)
   free (token);
   s->deg = s->n;
 
+  /* Hook up a compatiblity layer with the older MPSolve versions. Since it was possibile
+   * to create custom Newton iteration routines and recomm*/
+  if (density == MPS_DENSITY_USER)
+    {
+      mps_polynomial * user_poly = mps_polynomial_new (s);
+
+      /* Newton iteration */
+      user_poly->fnewton = mps_fnewton_usr;
+      user_poly->dnewton = mps_dnewton_usr;
+      user_poly->mnewton = mps_mnewton_usr;
+
+      /* General disposition */
+      user_poly->fstart = mps_general_fstart;
+      user_poly->dstart = mps_general_dstart;
+      user_poly->mstart = mps_general_mstart;
+
+      MPS_POLYNOMIAL (user_poly)->degree = s->n;
+
+      mps_context_set_input_poly (s, user_poly);
+      return;
+    }
+
   /* Allocate the polynomial */
   poly = mps_monomial_poly_new (s, s->n);
+
+  MPS_POLYNOMIAL (poly)->structure = structure;
+  MPS_POLYNOMIAL (poly)->density = density;
 
   /* We still do not support sparse input */
   for (i = 0; i <= s->n; ++i)
       poly->spar[i] = true;
 
   /* Dense parsing */
-  if (MPS_INPUT_CONFIG_IS_DENSE (s->input_config))
+  if (MPS_DENSITY_IS_DENSE (density))
     {
-      if (MPS_INPUT_CONFIG_IS_FP (s->input_config))
+      if (MPS_STRUCTURE_IS_FP (structure))
 	{
 	  for (i = 0; i < s->n + 1; ++i)
 	    {
@@ -689,7 +719,7 @@ mps_parse_stream_old (mps_context * s, mps_input_buffer * buffer)
 		mps_raise_parsing_error (s, buffer, token, "Error parsing coefficients of the polynomial");
 	      free (token);
 
-	      if (MPS_INPUT_CONFIG_IS_COMPLEX (s->input_config))
+	      if (MPS_STRUCTURE_IS_COMPLEX (structure))
 		{
 		  token = mps_input_buffer_next_token (buffer);
 		  if (!token || (mpf_set_str (mpc_Im (poly->mfpc[i]), token, 10) != 0))
@@ -700,7 +730,7 @@ mps_parse_stream_old (mps_context * s, mps_input_buffer * buffer)
 		mpf_set_ui (mpc_Im (poly->mfpc[i]), 0U);
 	    }
 	}
-      else if (MPS_INPUT_CONFIG_IS_INTEGER (s->input_config))
+      else if (MPS_STRUCTURE_IS_INTEGER (structure))
 	{
 	  for (i = 0; i < s->n + 1; ++i)
 	    {
@@ -710,7 +740,7 @@ mps_parse_stream_old (mps_context * s, mps_input_buffer * buffer)
 	      mpq_canonicalize (poly->initial_mqp_r[i]);
 	      free (token);
       
-	      if (MPS_INPUT_CONFIG_IS_COMPLEX (s->input_config))
+	      if (MPS_STRUCTURE_IS_COMPLEX (structure))
 		{
 		  token = mps_input_buffer_next_token (buffer);
 		  if (!token || (mpq_set_str (poly->initial_mqp_i[i], token, 10) != 0))
@@ -726,7 +756,7 @@ mps_parse_stream_old (mps_context * s, mps_input_buffer * buffer)
 	      mpf_set_q (mpc_Im (poly->mfpc[i]), poly->initial_mqp_i[i]);
 	    }
 	}
-      else if (MPS_INPUT_CONFIG_IS_RATIONAL (s->input_config))
+      else if (MPS_STRUCTURE_IS_RATIONAL (structure))
 	{
 	  /* The old MPSolve format for the rational input is not understood
 	   * by GMP that expect rational to be represented as n / d, and here
@@ -750,7 +780,7 @@ mps_parse_stream_old (mps_context * s, mps_input_buffer * buffer)
 	      mpq_div (poly->initial_mqp_r[i], poly->initial_mqp_r[i], qtmp);
 	      mpq_canonicalize (poly->initial_mqp_r[i]);
 
-	      if (MPS_INPUT_CONFIG_IS_COMPLEX (s->input_config))
+	      if (MPS_STRUCTURE_IS_COMPLEX (structure))
 		{
 		  /* Numerator of the real part of the coefficient */
 		  token = mps_input_buffer_next_token (buffer);
@@ -773,7 +803,7 @@ mps_parse_stream_old (mps_context * s, mps_input_buffer * buffer)
 	    }	  
 	}
     } /* closes if (MPS_INPUT_CONFIG_IS_DENSE (s->input_config)) */
-  else if (MPS_INPUT_CONFIG_IS_SPARSE (s->input_config))
+  else if (MPS_DENSITY_IS_SPARSE (density))
     {
       /* There is another number in the config file that
        * represents the number of coefficients of the polynomial, so let's
@@ -809,14 +839,14 @@ mps_parse_stream_old (mps_context * s, mps_input_buffer * buffer)
 	    poly->spar[i] = true;
 	  free (token);
 
-	  if (MPS_INPUT_CONFIG_IS_FP (s->input_config))
+	  if (MPS_STRUCTURE_IS_FP (structure))
 	    {
 	      token = mps_input_buffer_next_token (buffer);
 	      if (!token || (mpf_set_str (mpc_Re (poly->mfpc[i]), token, 10) != 0))
 		mps_raise_parsing_error (s, buffer, token, "Error parsing coefficients of the polynomial");
 	      free (token);
 	  
-	      if (MPS_INPUT_CONFIG_IS_COMPLEX (s->input_config))
+	      if (MPS_STRUCTURE_IS_COMPLEX (structure))
 		{
 		  token = mps_input_buffer_next_token (buffer);
 		  if (!token || (mpf_set_str (mpc_Im (poly->mfpc[i]), token, 10) != 0))
@@ -826,7 +856,7 @@ mps_parse_stream_old (mps_context * s, mps_input_buffer * buffer)
 	      else
 		mpf_set_ui (mpc_Im (poly->mfpc[i]), 0U);
 	    }
-	  else if (MPS_INPUT_CONFIG_IS_INTEGER (s->input_config))
+	  else if (MPS_STRUCTURE_IS_INTEGER (structure))
 	    {
 	      token = mps_input_buffer_next_token (buffer);
 	      if (!token || (mpq_set_str (poly->initial_mqp_r[i], token, 10) != 0))
@@ -834,7 +864,7 @@ mps_parse_stream_old (mps_context * s, mps_input_buffer * buffer)
 	      mpq_canonicalize (poly->initial_mqp_r[i]);
 	      free (token);
       
-	      if (MPS_INPUT_CONFIG_IS_COMPLEX (s->input_config))
+	      if (MPS_STRUCTURE_IS_COMPLEX (structure))
 		{
 		  token = mps_input_buffer_next_token (buffer);
 		  if (!token || (mpq_set_str (poly->initial_mqp_i[i], token, 10) != 0))
@@ -849,7 +879,7 @@ mps_parse_stream_old (mps_context * s, mps_input_buffer * buffer)
 	      mpf_set_q (mpc_Re (poly->mfpc[i]), poly->initial_mqp_r[i]);
 	      mpf_set_q (mpc_Im (poly->mfpc[i]), poly->initial_mqp_i[i]);
 	    }
-	  else if (MPS_INPUT_CONFIG_IS_RATIONAL (s->input_config))
+	  else if (MPS_STRUCTURE_IS_RATIONAL (structure))
 	    {
 	      /* Numerator of the real part of the coefficient */
 	      token = mps_input_buffer_next_token (buffer);
@@ -867,7 +897,7 @@ mps_parse_stream_old (mps_context * s, mps_input_buffer * buffer)
 	      mpq_div (poly->initial_mqp_r[i], poly->initial_mqp_r[i], qtmp);
 	      mpq_canonicalize (poly->initial_mqp_r[i]);
 
-	      if (MPS_INPUT_CONFIG_IS_COMPLEX (s->input_config))
+	      if (MPS_STRUCTURE_IS_COMPLEX (structure))
 		{
 		  /* Numerator of the real part of the coefficient */
 		  token = mps_input_buffer_next_token (buffer);
@@ -896,8 +926,8 @@ mps_parse_stream_old (mps_context * s, mps_input_buffer * buffer)
     {
       if (poly->spar[i])
 	{
-	   if (MPS_INPUT_CONFIG_IS_INTEGER (s->input_config) || 
-	       MPS_INPUT_CONFIG_IS_RATIONAL (s->input_config)) 
+	   if (MPS_STRUCTURE_IS_INTEGER (structure) || 
+	       MPS_STRUCTURE_IS_RATIONAL (structure)) 
 	     { 
 	       mpf_set_q (mpc_Re (poly->mfpc[i]), poly->initial_mqp_r[i]); 
 	       mpf_set_q (mpc_Im (poly->mfpc[i]), poly->initial_mqp_i[i]); 
@@ -910,7 +940,7 @@ mps_parse_stream_old (mps_context * s, mps_input_buffer * buffer)
 	  cdpe_mod (poly->dap[i], poly->dpc[i]);
 	  poly->fap[i] = rdpe_get_d (poly->dap[i]);
 
-	  if (MPS_INPUT_CONFIG_IS_FP (s->input_config))
+	  if (MPS_STRUCTURE_IS_FP (structure))
 	    mpf_set (poly->mfpr[i], mpc_Re (poly->mfpc[i]));
 
 	  if (s->debug_level & MPS_DEBUG_IO)
@@ -926,7 +956,7 @@ mps_parse_stream_old (mps_context * s, mps_input_buffer * buffer)
 	  rdpe_set (poly->dap[i], rdpe_zero);
 	  poly->fap[i] = 0.0f;
 
-	  if (MPS_INPUT_CONFIG_IS_FP (s->input_config))
+	  if (MPS_STRUCTURE_IS_FP (structure))
 	    mpf_set (poly->mfpr[i], mpc_Re (poly->mfpc[i]));
 	}
 
@@ -936,8 +966,8 @@ mps_parse_stream_old (mps_context * s, mps_input_buffer * buffer)
 	}
     }
 
-  MPS_POLYNOMIAL (poly)->structure = s->input_config->structure;
-  mps_context_set_input_poly (s, poly);
+  mps_context_set_input_poly (s, MPS_POLYNOMIAL (poly));
+
   mpf_clear (ftmp);
   mpq_clear (qtmp);
 }
@@ -954,6 +984,12 @@ mps_parse_stream (mps_context * s, FILE * input_stream)
   mps_input_option input_option;
   char * line;
   mps_boolean first_pass = true;
+
+  /* Variables used to hold the options given by the user */
+  mps_structure structure = MPS_STRUCTURE_COMPLEX_FP;
+  mps_density density = MPS_DENSITY_DENSE;
+  mps_representation representation = MPS_REPRESENTATION_MONOMIAL;
+  long int input_precision = 0;
 
   if (!input_stream)
     input_stream = s->instr;
@@ -1010,66 +1046,66 @@ mps_parse_stream (mps_context * s, FILE * input_stream)
 	  if (input_option.flag == MPS_KEY_PRECISION)
 	    {
 	      mps_context_set_input_prec (s, atoi (input_option.value) * LOG2_10);
-	      if (s->input_config->prec <= 0)
+	      if (input_precision <= 0)
 		mps_error (s, 1, "Precision must be a positive integer");
 	    }
 
           /* Parsing of representations */
           else if (input_option.flag == MPS_FLAG_SECULAR)
-            s->input_config->representation = MPS_REPRESENTATION_SECULAR;
+	    representation = MPS_REPRESENTATION_SECULAR;
 	  else if (input_option.flag == MPS_FLAG_MONOMIAL)
-	    s->input_config->representation = MPS_REPRESENTATION_MONOMIAL;
+	    representation = MPS_REPRESENTATION_MONOMIAL;
 
 	  /* And of dense and or sparse input */
 	  else if (input_option.flag == MPS_FLAG_SPARSE)
-	    s->input_config->density = MPS_DENSITY_SPARSE;
+	    density = MPS_DENSITY_SPARSE;
 	  else if (input_option.flag == MPS_FLAG_DENSE)
-	    s->input_config->density = MPS_DENSITY_DENSE;	      
+	    density = MPS_DENSITY_DENSE;	      
 
           /* Parsing of algebraic structure of the input */
           else if (input_option.flag == MPS_FLAG_REAL)
             {
               /* Switch on algebraic structure that is already set */
-              if (MPS_INPUT_CONFIG_IS_INTEGER (s->input_config))
-                s->input_config->structure = MPS_STRUCTURE_REAL_INTEGER;
-              else if (MPS_INPUT_CONFIG_IS_RATIONAL (s->input_config))
-                s->input_config->structure = MPS_STRUCTURE_REAL_RATIONAL;
-              else if (MPS_INPUT_CONFIG_IS_FP (s->input_config))
-                s->input_config->structure = MPS_STRUCTURE_REAL_FP;
+              if (MPS_STRUCTURE_IS_INTEGER (structure))
+                structure = MPS_STRUCTURE_REAL_INTEGER;
+              else if (MPS_STRUCTURE_IS_RATIONAL (structure))
+                structure = MPS_STRUCTURE_REAL_RATIONAL;
+              else if (MPS_STRUCTURE_IS_FP (structure))
+                structure = MPS_STRUCTURE_REAL_FP;
             }
           else if (input_option.flag == MPS_FLAG_COMPLEX)
             {
               /* Switch on algebraic structure that is already set */
-              if (MPS_INPUT_CONFIG_IS_INTEGER (s->input_config))
-                s->input_config->structure = MPS_STRUCTURE_COMPLEX_INTEGER;
-              else if (MPS_INPUT_CONFIG_IS_RATIONAL (s->input_config))
-                s->input_config->structure = MPS_STRUCTURE_COMPLEX_RATIONAL;
-              else if (MPS_INPUT_CONFIG_IS_FP (s->input_config))
-                s->input_config->structure = MPS_STRUCTURE_COMPLEX_FP;
+              if (MPS_STRUCTURE_IS_INTEGER (structure))
+                structure = MPS_STRUCTURE_COMPLEX_INTEGER;
+              else if (MPS_STRUCTURE_IS_RATIONAL (structure))
+                structure = MPS_STRUCTURE_COMPLEX_RATIONAL;
+              else if (MPS_STRUCTURE_IS_FP (structure))
+                structure = MPS_STRUCTURE_COMPLEX_FP;
             }
 
           /* Parsing of algebraic structure of the input, i.e.
            * Integer, Rational or floating point */
           else if (input_option.flag == MPS_FLAG_INTEGER)
             {
-              if (MPS_INPUT_CONFIG_IS_REAL (s->input_config))
-                s->input_config->structure = MPS_STRUCTURE_REAL_INTEGER;
-              else if (MPS_INPUT_CONFIG_IS_COMPLEX (s->input_config))
-                s->input_config->structure = MPS_STRUCTURE_COMPLEX_INTEGER;
+              if (MPS_STRUCTURE_IS_REAL (structure))
+                structure = MPS_STRUCTURE_REAL_INTEGER;
+              else if (MPS_STRUCTURE_IS_COMPLEX (structure))
+                structure = MPS_STRUCTURE_COMPLEX_INTEGER;
             }
           else if (input_option.flag == MPS_FLAG_RATIONAL)
             {
-              if (MPS_INPUT_CONFIG_IS_REAL (s->input_config))
-                s->input_config->structure = MPS_STRUCTURE_REAL_RATIONAL;
-              else if (MPS_INPUT_CONFIG_IS_COMPLEX (s->input_config))
-                s->input_config->structure = MPS_STRUCTURE_COMPLEX_RATIONAL;
+              if (MPS_STRUCTURE_IS_REAL (structure))
+                structure = MPS_STRUCTURE_REAL_RATIONAL;
+              else if (MPS_STRUCTURE_IS_COMPLEX (structure))
+                structure = MPS_STRUCTURE_COMPLEX_RATIONAL;
             }
           else if (input_option.flag == MPS_FLAG_FP)
             {
-              if (MPS_INPUT_CONFIG_IS_REAL (s->input_config))
-                s->input_config->structure = MPS_STRUCTURE_REAL_FP;
-              else if (MPS_INPUT_CONFIG_IS_COMPLEX (s->input_config))
-                s->input_config->structure = MPS_STRUCTURE_COMPLEX_FP;
+              if (MPS_STRUCTURE_IS_REAL (structure))
+                structure = MPS_STRUCTURE_REAL_FP;
+              else if (MPS_STRUCTURE_IS_COMPLEX (structure))
+                structure = MPS_STRUCTURE_COMPLEX_FP;
             }
         }
 
@@ -1084,21 +1120,27 @@ mps_parse_stream (mps_context * s, FILE * input_stream)
       MPS_DEBUG (s, "Degree: %d", s->n);
     }
 
-  if (MPS_INPUT_CONFIG_IS_SECULAR (s->input_config))
+  if (representation == MPS_REPRESENTATION_SECULAR)
     {
       if (s->debug_level & MPS_DEBUG_IO)
         {
           MPS_DEBUG (s, "Parsing secular equation from stream");
         }
-      mps_secular_equation_read_from_stream (s, buffer);
+      mps_secular_equation_read_from_stream (s, buffer, structure, density);
     }
-  else if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
+  else if (representation == MPS_REPRESENTATION_MONOMIAL)
     {
       if (s->debug_level & MPS_DEBUG_IO)
 	MPS_DEBUG (s, "Parsing polynomial from stream");
 
-      mps_monomial_poly_read_from_stream (s, buffer);
+      mps_monomial_poly_read_from_stream (s, buffer, structure, density);
     }
+
+  MPS_POLYNOMIAL (s->active_poly)->structure = structure;
+  MPS_POLYNOMIAL (s->active_poly)->density = density;
+
+  mps_context_set_input_prec (s, input_precision);
+  mps_context_set_output_prec (s, input_precision);
 
   mps_input_buffer_free (buffer);
 }
