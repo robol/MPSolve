@@ -60,7 +60,7 @@ test_secsolve_on_pol (test_pol * pol)
   fprintf (stderr, "Checking \033[1m%-30s\033[0m [\033[34;1mchecking\033[0m]", 
 	   get_pol_name_from_path (pol->pol_file));
 
-  mps_context_set_output_goal (s, MPS_OUTPUT_GOAL_ISOLATE);
+  mps_context_set_output_goal (s, MPS_OUTPUT_GOAL_APPROXIMATE);
 
   /* Solve it */
   mps_context_select_algorithm (s, (pol->ga) ? MPS_ALGORITHM_SECULAR_GA : MPS_ALGORITHM_SECULAR_MPSOLVE);

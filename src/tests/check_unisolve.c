@@ -58,7 +58,7 @@ test_unisolve_on_pol (test_pol * pol)
   fprintf (stderr, "Checking \033[1m%-30s\033[0m [\033[34;1mchecking\033[0m]", 
 	   get_pol_name_from_path (pol->pol_file));
 
-  mps_context_set_output_goal (s, MPS_OUTPUT_GOAL_ISOLATE);
+  mps_context_set_output_goal (s, MPS_OUTPUT_GOAL_APPROXIMATE);
 
   /* Solve it */
   mps_context_select_algorithm (s, MPS_ALGORITHM_STANDARD_MPSOLVE);
@@ -216,12 +216,12 @@ main (void)
 
   starting_setup ();
 
-  test_polynomials = (test_pol **) malloc (sizeof (test_pol *) * 2 * 30);
+  test_polynomials = (test_pol **) malloc (sizeof (test_pol *) * 2 * 29);
 
   for (i = 0; i < 2; i++)
     {
       test_polynomials[n++] = test_pol_new_simple ("exp100", digits[i]);
-      test_polynomials[n++] = test_pol_new_simple ("exp50", digits[i]);
+      /* test_polynomials[n++] = test_pol_new_simple ("exp50", digits[i]); */
       test_polynomials[n++] = test_pol_new_simple ("kam1_1", digits[i]);
       test_polynomials[n++] = test_pol_new_simple ("kam1_2", digits[i]);
       test_polynomials[n++] = test_pol_new_simple ("kam1_3", digits[i]);
