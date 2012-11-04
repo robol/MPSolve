@@ -58,8 +58,8 @@ test_unisolve_on_pol (test_pol * pol)
   fprintf (stderr, "Checking \033[1m%-30s\033[0m [\033[34;1mchecking\033[0m]", 
 	   get_pol_name_from_path (pol->pol_file));
 
-  mps_context_set_output_goal (s, MPS_OUTPUT_GOAL_APPROXIMATE);
-  mps_context_set_output_prec (s, pol->out_digits * LOG2_10);
+  mps_context_set_output_goal (s, MPS_OUTPUT_GOAL_ISOLATE);
+  mps_context_set_output_prec (s, pol->out_digits);
 
   /* Solve it */
   mps_context_select_algorithm (s, MPS_ALGORITHM_STANDARD_MPSOLVE);
