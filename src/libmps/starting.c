@@ -1606,7 +1606,7 @@ mps_mrestart (mps_context * s)
 	  mps_mhorner_with_error2 (s, der, g->mvalue, corr, error, prec);
 
 	  mpc_rmod (rtmp, corr);
-	  rdpe_set_2dl (epsilon, 1.0, -s->mpwp);
+	  rdpe_set_2dl (epsilon, 1.0, 1);
 	  rdpe_mul_eq (epsilon, rtmp);
 
 	  if (rdpe_gt (error, epsilon))
@@ -1670,23 +1670,24 @@ mps_mrestart (mps_context * s)
           mps_mnewton (s, s->n - cluster->n + 1, g,
                        corr, der->mfpc, der->mfppc, der->dap, der->spar,
                        0, false);
+          if (g->again)
+            {
+              mpc_sub_eq (g->mvalue, corr);
 
-	  mpc_sub_eq (g->mvalue, corr);
-
-	  if (s->debug_level & MPS_DEBUG_CLUSTER)
-	    {
-	      MPS_DEBUG_RDPE (s, g->drad, "Radius of the cluster");
-	      MPS_DEBUG_MPC  (s, 100, g->mvalue, "Iteration %d on the derivative", j);
-	    }
-
-          if (!g->again)
+	      if (s->debug_level & MPS_DEBUG_CLUSTER)
+		{
+		  MPS_DEBUG_RDPE (s, g->drad, "Radius of the cluster");
+		  MPS_DEBUG_MPC  (s, 100, g->mvalue, "Iteration %d on the derivative", j);
+		}
+            }
+          else
             break;
         }
 
       mps_monomial_poly_free (s, der);
 
       if (s->debug_level & MPS_DEBUG_CLUSTER)
-	MPS_DEBUG (s, "Performed %d Newton iterations", j + 1);
+	MPS_DEBUG (s, "Performed %d Newton iterations", j);
       if (j == s->max_newt_it)
         {
 	  if (s->debug_level & MPS_DEBUG_CLUSTER)
@@ -1904,7 +1905,7 @@ mps_mshift (mps_context * s, int m, mps_cluster_item * cluster_item, rdpe_t clus
 
   /* store the current working precision mpnw into mpnw_tmp */
   mpwp_temp = s->mpwp;
-  mpwp_max = m * s->mpwp;
+  mpwp_max = s->mpwp;
   
   do
     {                           /* loop */
@@ -1934,11 +1935,11 @@ mps_mshift (mps_context * s, int m, mps_cluster_item * cluster_item, rdpe_t clus
         {
           mpwp_temp += s->mpwp;
 
-	  if ((mpwp_temp > mpwp_max || mpwp_temp > s->output_config->prec * m * 2))   
-	    {   
-	      MPS_DEBUG (s, "Reached the maximum allowed precision in mshift");   
-	      break;   
-	    }  
+	  /* if ((mpwp_temp > mpwp_max || mpwp_temp > s->output_config->prec * m * 2))  */
+          /*    {  */
+          /*      MPS_DEBUG (s, "Reached the maximum allowed precision in mshift");  */
+	  /*      break;  */
+          /*    } */
 
           rdpe_set_2dl (mp_ep, 1.0, 1 - mpwp_temp);
           mps_raisetemp (s, mpwp_temp);
