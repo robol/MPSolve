@@ -83,7 +83,7 @@ mps_improve (mps_context * s)
       improve_data[i].i = i;
       improve_data[i].s = s;
       improve_data[i].base_wp = base_wp;
-      mps_thread_pool_assign (s, NULL, mps_improve_root2, improve_data + i);
+      mps_thread_pool_assign (s, NULL, mps_improve_root, improve_data + i);
       // mps_improve_root (s, i);
     }
 
@@ -266,12 +266,15 @@ mps_improve_root (void * data_ptr)
   mpc_init2 (mtmp, mpnb_out * 2);      /* puo' essere settato a precisione minima */
   mpc_init2 (nwtcorr, mpnb_out * 2);
 
-  if (s->input_config->prec != 0 && !MPS_INPUT_CONFIG_IS_USER (s->input_config))
+  if (s->input_config->prec != 0 && !MPS_INPUT_CONFIG_IS_USER (s->input_config) && mpnb_in < s->mpwp)
     mps_prepare_data (s, mpnb_in);
   else
     {
-      mps_mp_set_prec (s, mpnb_out * 2);
-      mps_prepare_data (s, mpnb_out * 2);
+      if (mpnb_out * 2 > s->mpwp)
+	{
+	  mps_mp_set_prec (s, mpnb_out * 2);
+	  mps_prepare_data (s, mpnb_out * 2);
+	}
     }
 
 
@@ -389,7 +392,8 @@ mps_improve_root (void * data_ptr)
 	  /* If using the standard MPSolve algorithm then use the old
 	   * mps_prepare_data routine, otherwise use the one that
 	   * raises the precision of the coefficients */
-	  mps_prepare_data (s, mpwp);
+	  if (mpwp > s->mpwp)
+	    mps_prepare_data (s, mpwp);
 
           if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
             {
