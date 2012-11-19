@@ -84,8 +84,8 @@ mps_improve (mps_context * s)
       improve_data[i].i = i;
       improve_data[i].s = s;
       improve_data[i].base_wp = base_wp;
-      // mps_thread_pool_assign (s, NULL, mps_improve_root2, improve_data + i);
-      mps_improve_root (improve_data + i);
+      mps_thread_pool_assign (s, NULL, mps_improve_root, improve_data + i);
+      /* mps_improve_root (improve_data + i); */
     }
 
   mps_thread_pool_wait (s, s->pool);
@@ -214,11 +214,11 @@ mps_improve_root2 (void * data_ptr)
       MPS_DEBUG (ctx, "Correct bits for root %d = %d", i, correct_bits); 
 
       /* Set a proper radius to the approximations */
-      rdpe_set_2dl (root->drad, 2.0, - correct_bits);   
-      rdpe_mul_eq (root->drad, aroot);  
+      /* rdpe_set_2dl (root->drad, 2.0, - correct_bits);    */
+      /* rdpe_mul_eq (root->drad, aroot);   */
       
-      if (rdpe_lt (rtmp, root->drad))  
-	rdpe_set (root->drad, rtmp);  
+      /* if (rdpe_lt (rtmp, root->drad))   */
+      /* 	rdpe_set (root->drad, rtmp);   */
 
       MPS_DEBUG_MPC (ctx, 45, root->mvalue, "Approximation");
       MPS_DEBUG_RDPE (ctx, root->drad, "Radius");
@@ -424,7 +424,7 @@ mps_improve_root (void * data_ptr)
           if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
             {
               mps_mnewton (s, s->n, s->root[i], nwtcorr, p->mfpc, p->mfppc, p->dap, p->spar,
-                           0, false);
+                           mps_thread_get_id (s, s->pool), false);
             }
           else if (s->mnewton_usr != NULL)
             {
