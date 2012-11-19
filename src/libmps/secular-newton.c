@@ -726,6 +726,11 @@ mps_secular_mnewton (mps_context * s, mps_approximation * root, mpc_t corr,
       rdpe_mul_d (rtmp, asum_on_apol, DBL_EPSILON * KAPPA);
       rdpe_add_eq (rtmp, rdpe_one);
       rdpe_mul_eq (rtmp2, rtmp);
+
+      rdpe_mul_d (rtmp, ax, KAPPA);
+      rdpe_mul_eq (rtmp, s->mp_epsilon);
+      rdpe_add_eq (rtmp2, rtmp);
+
       if (rdpe_lt (rtmp2, root->drad))
 	rdpe_set (root->drad, rtmp2);
     }

@@ -24,6 +24,7 @@ pthread_mutex_t output_mutex = PTHREAD_MUTEX_INITIALIZER;
   } __mps_improve_data;
 
 void * mps_improve_root2 (void*);
+void * mps_improve_root  (void*);
 
 /**
  * @brief Improve all the approximations up to prec_out digits.
@@ -83,8 +84,8 @@ mps_improve (mps_context * s)
       improve_data[i].i = i;
       improve_data[i].s = s;
       improve_data[i].base_wp = base_wp;
-      mps_thread_pool_assign (s, NULL, mps_improve_root, improve_data + i);
-      // mps_improve_root (s, i);
+      // mps_thread_pool_assign (s, NULL, mps_improve_root2, improve_data + i);
+      mps_improve_root (improve_data + i);
     }
 
   mps_thread_pool_wait (s, s->pool);
@@ -111,13 +112,14 @@ mps_improve_root2 (void * data_ptr)
   mps_context *ctx = data->s;
 
   mps_approximation * root = mps_approximation_copy (ctx, ctx->root[i]);
-  rdpe_t aroot;
+  rdpe_t aroot, rtmp;
   long int wp = root->wp;
 
   /* Determine the number of steps necessary to have at least 
    * log10 (ctx->output_config->prec) correct digits. */
   mpc_rmod (aroot, root->mvalue);
   int correct_bits = rdpe_Esp (aroot) - rdpe_Esp (root->drad) - 1;
+  int conditioning_bits = root->wp - correct_bits; 
   int max_steps = mps_intlog2 (ctx->output_config->prec / correct_bits);
 
   if (max_steps <= 0)
@@ -139,7 +141,7 @@ mps_improve_root2 (void * data_ptr)
    * bits of precision to have the right digits in the output. */
   rdpe_t conditioning;
   mps_evaluate_root_conditioning (ctx, root, conditioning);
-  wp += rdpe_Esp (conditioning);
+  wp += conditioning_bits; 
 
   if (ctx->debug_level & MPS_DEBUG_IMPROVEMENT)
     MPS_DEBUG (ctx, "Starting to refine root %d", i);
@@ -152,7 +154,7 @@ mps_improve_root2 (void * data_ptr)
       return NULL;
     }
 
-  for (j = 0; j < max_steps; j++)
+  for (j = 0; max_steps ; j++)
     {
       /* mps_prepare_data (ctx, wp); */
 
@@ -160,7 +162,13 @@ mps_improve_root2 (void * data_ptr)
       mpc_set_prec (root->mvalue, wp);
       root->wp = wp;
 
-      if (ctx->mpwp < wp)
+      /* Update the value of data_prec_max if needed */
+      MPS_LOCK (ctx->data_prec_max);
+      if (ctx->data_prec_max.value < root->wp)
+	ctx->data_prec_max.value = root->wp;
+      MPS_UNLOCK (ctx->data_prec_max);
+
+      /* if (ctx->mpwp < wp) */
 	{
 	  if (MPS_INPUT_CONFIG_IS_MONOMIAL (ctx->input_config))
 	    {
@@ -173,8 +181,14 @@ mps_improve_root2 (void * data_ptr)
 	      it_data.local_bmpc = ctx->secular_equation->bmpc;
 	    }
 
-	  ctx->mpwp = wp;
+	  /* ctx->mpwp = wp; */
 	}
+
+      /* Save the old radius before the iteration */
+      rdpe_set (rtmp, root->drad);
+      rdpe_div_eq (rtmp, aroot);
+      rdpe_sqr_eq (rtmp);
+      rdpe_mul_eq (rtmp, aroot);
       
       if (MPS_INPUT_CONFIG_IS_MONOMIAL (ctx->input_config))
 	{
@@ -190,19 +204,31 @@ mps_improve_root2 (void * data_ptr)
       mpc_set_prec (root->mvalue, 2 * wp);
       mpc_sub_eq (root->mvalue, nwtcorr);
 
+      MPS_DEBUG_MPC (ctx, 15, nwtcorr, "nwtcorr");
+
       if (rdpe_Esp (aroot) - rdpe_Esp (root->drad) - 1 > correct_bits)
 	correct_bits = rdpe_Esp (aroot) - rdpe_Esp (root->drad) - 1;
        
       /* Double the number of correct bits */
       correct_bits = 2 * correct_bits - 1;
-      MPS_DEBUG (ctx, "Correct bits for root %d = %d", i, correct_bits);
+      MPS_DEBUG (ctx, "Correct bits for root %d = %d", i, correct_bits); 
 
       /* Set a proper radius to the approximations */
-      rdpe_set_2dl (root->drad, 2.0, - correct_bits); 
-      rdpe_mul_eq (root->drad, aroot);
+      rdpe_set_2dl (root->drad, 2.0, - correct_bits);   
+      rdpe_mul_eq (root->drad, aroot);  
+      
+      if (rdpe_lt (rtmp, root->drad))  
+	rdpe_set (root->drad, rtmp);  
 
-      if (correct_bits > ctx->output_config->prec)
+      MPS_DEBUG_MPC (ctx, 45, root->mvalue, "Approximation");
+      MPS_DEBUG_RDPE (ctx, root->drad, "Radius");
+
+      rdpe_div (rtmp, root->drad, aroot);
+      if (-rdpe_Esp (rtmp) > ctx->output_config->prec)
 	break;
+
+      /* if (correct_bits > ctx->output_config->prec) */
+      /* 	break; */
 
       /* Double the current precision */
       wp *= 2;
@@ -398,7 +424,7 @@ mps_improve_root (void * data_ptr)
           if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
             {
               mps_mnewton (s, s->n, s->root[i], nwtcorr, p->mfpc, p->mfppc, p->dap, p->spar,
-                           mps_thread_get_id (s, s->pool), false);
+                           0, false);
             }
           else if (s->mnewton_usr != NULL)
             {
