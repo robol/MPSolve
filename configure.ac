@@ -6,7 +6,7 @@ AC_INIT([MPSolve], [3.0.0], [robol@poisson.phc.unipi.it])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS([config.h])
 
-AC_LIBTOOL_WIN32_DLL
+# AC_LIBTOOL_WIN32_DLL
 
 # Just for now, won't be in final release, probabily,
 # but it's just too useful for debugging. 
