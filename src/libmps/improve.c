@@ -184,7 +184,7 @@ mps_improve_root2 (void * data_ptr)
 	{
 	  if (MPS_INPUT_CONFIG_IS_MONOMIAL (ctx->input_config))
 	    {
-	      mps_monomial_poly_raise_precision (ctx, ctx->monomial_poly, wp);
+	      mps_prepare_data (ctx, wp);
 	    }
 	  else if (MPS_INPUT_CONFIG_IS_SECULAR (ctx->input_config))
 	    {

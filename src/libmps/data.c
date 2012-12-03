@@ -188,15 +188,15 @@ mps_raise_data (mps_context * s, long int prec)
         }
 
   /* raise the precision of auxiliary variables */
-  for (k = 0; k < s->n + 1; k++)
-    {
-      mpc_set_prec (s->mfpc1[k], prec);
-      mpc_set_prec (s->mfppc1[k], prec);
-    }
-
-  if (MPS_INPUT_CONFIG_IS_SPARSE (s->input_config))
-    for (k = 0; k < (s->n + 1) * s->n_threads; k++)
-      mpc_set_prec (s->mfpc2[k], prec);
+  for (k = 0; k < s->n + 1; k++) 
+    { 
+      mpc_set_prec (s->mfpc1[k], prec); 
+      mpc_set_prec (s->mfppc1[k], prec); 
+    } 
+  
+  if (MPS_INPUT_CONFIG_IS_SPARSE (s->input_config)) 
+    for (k = 0; k < (s->n + 1) * s->n_threads; k++) 
+      mpc_set_prec (s->mfpc2[k], prec); 
 
   return mpc_get_prec (s->root[0]->mvalue);
 }
