@@ -145,7 +145,7 @@ extern "C"
 
 #define cplx_Re(X)        (creal(*X))
 #define cplx_Im(X)        (cimag(*X))
-#define cplx_Addr(X)      ((complex *) X)
+#define cplx_Addr(X)      ((complex double *) X)
 
 /* base constants */
   extern const cplx_t cplx_zero;        /* complex zero  (0, 0)    */
