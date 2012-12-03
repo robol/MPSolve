@@ -157,7 +157,6 @@ usage (mps_context * s, const char *program)
 	   "                 secular equation with the same roots of the polynomial\n"
            " -t type     Type can be 'f' for floating point or 'd' for DPE\n"
 	   " -j n        Number of threads to spawn as workers\n"
-           "             or 'd' for DPE\n"
            " -o digits   Exact digits of the roots given as output.\n"
 	   " -i digits   Digits of precision of the input coefficients\n"
 	   " -v          Print the version and exit\n"
