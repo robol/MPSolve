@@ -56,7 +56,7 @@ mexFunction (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
   imag_coeff = mxGetPi (prhs[0]);
   for (i = 0; i < n; i++)
     {
-        mps_monomial_poly_set_coefficient_d (s, mp, i, real_coeff[i], 
+        mps_monomial_poly_set_coefficient_d (s, mp, n - i - 1, real_coeff[i],
                                             (imag_coeff) ? imag_coeff[i] : 0.0);
     }
 
