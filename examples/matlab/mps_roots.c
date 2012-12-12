@@ -9,7 +9,8 @@ mexFunction (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
 {
 
   int i, m, n;
-  mps_context *s;
+  mps_context *s = NULL;
+  mps_monomial_poly *mp = NULL;
   double *real_coeff, *imag_coeff, *real_res, *imag_res;
   mxArray *roots;
   cplx_t *coefficients, *results;
@@ -47,24 +48,21 @@ mexFunction (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
   s = mps_context_new ();
 
   /* Allocate coefficients and space for the results */
-  coefficients = cplx_valloc (n);
   results = cplx_valloc (n - 1);
+  mp = mps_monomial_poly_new (s, n - 1);
 
   /* Set coefficients */
   real_coeff = mxGetPr (prhs[0]);
   imag_coeff = mxGetPi (prhs[0]);
   for (i = 0; i < n; i++)
     {
-      if (!imag_coeff)
-	  cplx_set_d (coefficients[n - i - 1], real_coeff[i], 0.0);
-      else
-	{
-	  cplx_set_d (coefficients[n - i - 1], real_coeff[i], imag_coeff[i]);
-	}
+        mps_monomial_poly_set_coefficient_d (s, mp, i, real_coeff[i], 
+                                            (imag_coeff) ? imag_coeff[i] : 0.0);
     }
 
   /* Solve the equation */
-  mps_context_set_poly_d (s, coefficients, n - 1);
+  mps_context_set_input_poly (s, mp);
+  mps_context_select_output_goal (s, MPS_OUTPUT_GOAL_APPROXIMATE);
 
   /* Check if the second parameter was passed */
   if (nrhs == 2)
@@ -106,7 +104,6 @@ mexFunction (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
 
   /* Free used data */
   cplx_vfree (results);
-  cplx_vfree (coefficients);
   mps_context_free (s);
 
   /* Return the roots */
