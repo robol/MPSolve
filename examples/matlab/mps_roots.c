@@ -62,7 +62,7 @@ mexFunction (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
 
   /* Solve the equation */
   mps_context_set_input_poly (s, mp);
-  mps_context_select_output_goal (s, MPS_OUTPUT_GOAL_APPROXIMATE);
+  mps_context_set_output_goal (s, MPS_OUTPUT_GOAL_APPROXIMATE);
 
   /* Check if the second parameter was passed */
   if (nrhs == 2)
