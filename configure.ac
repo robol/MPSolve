@@ -45,7 +45,7 @@ fi
 CFLAGS="$GMP_CFLAGS $CFLAGS"
 LDFLAGS="$GMP_LIBS $LDFLAGS"
 
-GENERAL_CFLAGS="-D_REENTRANT -Wstrict-prototypes -Wall -Werror $CFLAGS"
+GENERAL_CFLAGS="-D_REENTRANT -Wstrict-prototypes -Wall $CFLAGS"
 # AS_IF([test x$platform_win32 != "yes"], [
 #  GENERAL_LIBS="$GENERAL_LIBS -no-undefined -Wl,--export-all-symbols
 #])
