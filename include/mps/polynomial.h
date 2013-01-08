@@ -184,8 +184,6 @@ struct mps_polynomial
   mps_polynomial_mnewton_t mnewton;
 };
 
-typedef struct mps_polynomial mps_polynomial;
-
 void mps_polynomial_init (mps_polynomial * p);
 
 mps_polynomial * mps_polynomial_new (mps_context * ctx);
