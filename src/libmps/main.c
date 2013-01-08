@@ -569,6 +569,9 @@ mps_check_data (mps_context * s, char *which_case)
               cdpe_mul_e (ctmp, p->dpc[i], min_coeff);
               cdpe_get_x (p->fpc[i], ctmp);
             }
+
+	  /* Update the floating point modules of the coefficients */
+	  /* p->fap[i] = rdpe_get_d (p->dap[i]); */
         }
     }
   else

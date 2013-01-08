@@ -60,11 +60,9 @@ mps_set_default_values (mps_context * s)
   s->dpc1 = NULL;               /* dpe complex coefficients            */
   s->dpc2 = NULL;               /* dpe complex coefficients            */
   s->mfpc1 = NULL;              /* temp multiprec. complex coeff. of p' */
-  s->mfpc2 = NULL;              /* temp multiprec. complex coeff.      */
   s->mfppc1 = NULL;             /* temp multiprec. complex coeff.      */
 
   s->spar1 = NULL;              /* temp sparsity structure of poly     */
-  s->spar2 = NULL;              /* temp sparsity structure of poly     */
   s->oldpunt = NULL;            /* stores the previous value of punt   */
   s->fap1 = NULL;               /* moduli of the coefficients as double */
   s->fap2 = NULL;               /* temp. log of the coeffs as double   */

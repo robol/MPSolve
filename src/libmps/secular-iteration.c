@@ -203,8 +203,8 @@ mps_secular_ga_fiterate (mps_context * s, int maxit, mps_boolean just_regenerate
       data[i].gs_mutex = &gs_mutex;
       data[i].excep = &excep;
 
-      mps_thread_pool_assign (s, s->pool, 
-			      __mps_secular_ga_fiterate_worker, data + i); 
+      mps_thread_pool_assign (s, s->pool,  
+       			      __mps_secular_ga_fiterate_worker, data + i);  
     }
 
   mps_thread_pool_wait (s, s->pool);

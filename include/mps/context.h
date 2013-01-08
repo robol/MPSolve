@@ -362,14 +362,6 @@ extern "C"
     mpc_t *mfpc1;
 
     /**
-     * @brief Multiprecision complex coefficients of the polynomial.
-     *
-     * This is used as a temporary vector while shifting the polynomial
-     * with a new gravity center in <code>mps_mshift()</code>.
-     */
-    mpc_t *mfpc2;
-
-    /**
      * @brief Multiprecision complex coefficients of the
      * first derivative of the polynomial.
      *
@@ -387,16 +379,6 @@ extern "C"
      * @see spar
      */
     mps_boolean *spar1;
-
-    /**
-     * @brief Vector representing sparsity of the polynomial in the
-     * same way that <code>spar</code> does.
-     *
-     * It is used as a temporary vector.
-     *
-     * @see spar
-     */
-    mps_boolean *spar2;
 
     /**
      * @brief Old value of <code>punt</code> (temporary vector).

@@ -963,6 +963,7 @@ mps_parse_stream_old (mps_context * s, mps_input_buffer * buffer)
       if (s->debug_level & MPS_DEBUG_IO)
 	{
 	  MPS_DEBUG_RDPE (s, poly->dap[i], "poly->dap[%d]", i);
+	  MPS_DEBUG (s, "poly->fap[%d] = %e", i, poly->fap[i]);
 	}
     }
 

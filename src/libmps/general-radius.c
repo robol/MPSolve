@@ -45,6 +45,9 @@ mps_fradii (mps_context * s, double * fradii)
       /* Compute the value of the polynomial in this point */
       mps_polynomial_feval (s, p, s->root[i]->fvalue, pol, &relative_error);
 
+      MPS_DEBUG_CPLX (s, pol, "pol");
+      MPS_DEBUG (s, "Relative_error = %e", relative_error);
+
       /* If we got a floating point exception, we need to switch to DPE on this component */
       if (cplx_check_fpe (pol))
 	{

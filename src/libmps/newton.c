@@ -479,7 +479,7 @@ mps_mnewton (mps_context * s, mps_polynomial * poly,
 
   /* Set the pointer for mnewton to be thread specific
    * so there is not conflict with other threads.      */
-  mps_boolean *spar2 = mps_thread_get_spar2 (s, n_thread);
+  mps_boolean *spar2 = mps_boolean_valloc (n + 2);
 
   mpc_init2 (p, wp);
   mpc_init2 (p1, wp);
@@ -579,4 +579,5 @@ mps_mnewton (mps_context * s, mps_polynomial * poly,
 exit_sub:
   mpc_clear (p1);
   mpc_clear (p);
+  free (spar2);
 }

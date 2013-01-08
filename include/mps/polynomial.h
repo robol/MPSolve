@@ -188,6 +188,8 @@ typedef struct mps_polynomial mps_polynomial;
 
 void mps_polynomial_init (mps_polynomial * p);
 
+mps_polynomial * mps_polynomial_new (mps_context * ctx);
+
 mps_boolean mps_polynomial_check_type (mps_polynomial * p, const char * type_name);
 
 mps_boolean mps_polynomial_feval (mps_context * ctx, mps_polynomial * p, cplx_t x, cplx_t value, double * error);

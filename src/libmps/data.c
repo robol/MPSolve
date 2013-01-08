@@ -72,13 +72,8 @@ mps_allocate_data (mps_context * s)
   for (i = 0; i <= s->deg; i++)
     mpc_init2 (s->mfppc1[i], 0);
 
-  s->mfpc2 = mpc_valloc ((s->deg + 1) * s->n_threads);
-  for (i = 0; i < (s->deg + 1) * s->n_threads; i++)
-    mpc_init2 (s->mfpc2[i], 0);
-
   /* temporary vectors */
   s->spar1 = mps_boolean_valloc (s->deg + 2);
-  s->spar2 = mps_boolean_valloc ((s->deg + 2) * s->n_threads);
   s->h = mps_boolean_valloc (s->deg + 2);
   s->again_old = mps_boolean_valloc (s->deg);
 
@@ -172,10 +167,6 @@ mps_raise_data_raw (mps_context * s, long int prec)
       mpc_set_prec_raw (s->mfpc1[k], prec);
       mpc_set_prec_raw (s->mfppc1[k], prec);
     }
-
-  if (MPS_DENSITY_IS_SPARSE (s->active_poly->density))
-    for (k = 0; k < (s->n + 1) * s->n_threads; k++)
-      mpc_set_prec_raw (s->mfpc2[k], prec);
 }
 
 /**
@@ -275,15 +266,10 @@ mps_free_data (mps_context * s)
       mpc_clear (s->mfppc1[i]);
     }
 
-  for (i = 0; i < (s->deg + 1) * s->n_threads; i++)
-      mpc_clear (s->mfpc2[i]);
-
   free (s->mfppc1);
-  free (s->mfpc2);
 
   /* free temporary vectors */
   free (s->spar1);
-  free (s->spar2);
   free (s->h);
   free (s->again_old);
 
