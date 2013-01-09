@@ -45,9 +45,6 @@ mps_fradii (mps_context * s, double * fradii)
       /* Compute the value of the polynomial in this point */
       mps_polynomial_feval (s, p, s->root[i]->fvalue, pol, &relative_error);
 
-      MPS_DEBUG_CPLX (s, pol, "pol");
-      MPS_DEBUG (s, "Relative_error = %e", relative_error);
-
       /* If we got a floating point exception, we need to switch to DPE on this component */
       if (cplx_check_fpe (pol))
 	{
@@ -55,7 +52,9 @@ mps_fradii (mps_context * s, double * fradii)
 	  fradii[i] = DBL_MAX;
 	  continue;
 	}
+
       new_rad = cplx_mod (pol) + relative_error + cplx_mod (s->root[i]->fvalue) * 4.0 * DBL_EPSILON;
+      new_rad *= s->n;
 
       for (j = 0; j < s->n; j++)
 	{
@@ -74,9 +73,7 @@ mps_fradii (mps_context * s, double * fradii)
 	  new_rad /= cplx_mod (diff);
 	}
 
-      if (MPS_IS_MONOMIAL_POLY (p))
-	new_rad /= MPS_MONOMIAL_POLY (p)->fap[p->degree];
-      
+      new_rad /= cplx_mod (p->leading_coefficient_f);
       fradii[i] = new_rad;
     }
 }
@@ -115,6 +112,7 @@ mps_dradii (mps_context * s, rdpe_t * dradii)
       cdpe_mod (rtmp, s->root[i]->dvalue);
       rdpe_mul_eq_d (rtmp, 4.0 * DBL_EPSILON);
       rdpe_add_eq (new_rad, rtmp);
+      rdpe_mul_eq_d (new_rad, s->n);
 
       for (j = 0; j < s->n; j++)
 	{
@@ -134,9 +132,8 @@ mps_dradii (mps_context * s, rdpe_t * dradii)
 	  rdpe_div_eq (new_rad, rtmp);
 	}
 
-      if (MPS_IS_MONOMIAL_POLY (s->active_poly))
-	rdpe_div_eq (new_rad, MPS_MONOMIAL_POLY (p)->dap[p->degree]);
-
+      cdpe_mod (rtmp, p->leading_coefficient_d);
+      rdpe_div_eq (new_rad, rtmp);
       rdpe_set (dradii[i], new_rad);
     }
 }
@@ -181,6 +178,7 @@ mps_mradii (mps_context * s, rdpe_t * dradii)
       cdpe_mod (rtmp, cdtmp);
       rdpe_mul_eq (rtmp, s->mp_epsilon);
       rdpe_add_eq (new_rad, rtmp);
+      rdpe_mul_eq_d (new_rad, s->n);
 
       rdpe_set (relative_error, rdpe_zero);
 
@@ -206,9 +204,8 @@ mps_mradii (mps_context * s, rdpe_t * dradii)
       rdpe_mul_eq_d (new_rad, 1 + 2 * s->n * sqrt(2) * DBL_EPSILON);
       rdpe_mul_eq_d (new_rad, p->degree);
 
-      if (MPS_IS_MONOMIAL_POLY (p))
-	rdpe_div_eq (new_rad, MPS_MONOMIAL_POLY (p)->dap[s->n]);
-
+      cdpe_mod (rtmp, p->leading_coefficient_d);
+      rdpe_div_eq (new_rad, rtmp);
       rdpe_set (dradii[i], new_rad);
     }
 

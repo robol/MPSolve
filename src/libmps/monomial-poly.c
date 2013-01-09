@@ -22,7 +22,7 @@ mps_monomial_poly_new (mps_context * s, long int degree)
 {
   int i;
   mps_monomial_poly  * mp = mps_new (mps_monomial_poly);
-  mps_polynomial_init (MPS_POLYNOMIAL (mp));
+  mps_polynomial_init (s, MPS_POLYNOMIAL (mp));
 
   /* Load monomial-poly methods */
   mps_polynomial *poly = (mps_polynomial*) mp;
@@ -162,7 +162,6 @@ mps_monomial_poly_raise_precision (mps_context * s, mps_polynomial * p, long int
       return mpc_get_prec (mp->mfpc[0]);
     }
     
-
   if (mp->db.active == 1)
     raising_mfpc = mp->db.mfpc2;
   else
@@ -258,6 +257,10 @@ mps_monomial_poly_set_coefficient_q (mps_context * s, mps_monomial_poly * mp, lo
   mpc_get_cdpe (mp->dpc[i], mp->mfpc[i]);
   mpc_get_cplx (mp->fpc[i], mp->mfpc[i]);
 
+  /* Update the leading coefficient if needed */
+  if (i == MPS_POLYNOMIAL (mp)->degree)
+    mps_polynomial_set_leading_coefficient (s, MPS_POLYNOMIAL (mp), mp->mfpc[i]);
+
   if ((mpq_sgn (real_part) == 0) && (mpq_sgn (imag_part) == 0))
     mp->spar[i] = false;
   else 
@@ -310,6 +313,10 @@ mps_monomial_poly_set_coefficient_d (mps_context * s, mps_monomial_poly * mp, lo
   mpf_set_d (mp->mfpr[i], real_part);
   mpc_set_d (mp->mfpc[i], real_part, imag_part);
 
+  /* Update the leading coefficient, if needed */
+  if (i == MPS_POLYNOMIAL (mp)->degree)
+    mps_polynomial_set_leading_coefficient (s, MPS_POLYNOMIAL (mp), mp->mfpc[i]);
+
   /* Update spar */
   mp->spar[i] = !((real_part == 0) && (imag_part == 0));
 
@@ -359,6 +366,9 @@ mps_monomial_poly_set_coefficient_int (mps_context * s, mps_monomial_poly * mp, 
   mpc_get_cdpe (mp->dpc[i], mp->mfpc[i]);
   mpc_get_cplx (mp->fpc[i], mp->mfpc[i]);
 
+  if (i == MPS_POLYNOMIAL (mp)->degree)
+    mps_polynomial_set_leading_coefficient (s, MPS_POLYNOMIAL (mp), mp->mfpc[i]);
+
   if ((real_part == 0) && (imag_part == 0))
     mp->spar[i] = false;
   else 
@@ -390,6 +400,10 @@ mps_monomial_poly_set_coefficient_f (mps_context * s, mps_monomial_poly * p, lon
   /* Updating data_type information */
   if (MPS_POLYNOMIAL (p)->structure == MPS_STRUCTURE_UNKNOWN)
     MPS_POLYNOMIAL (p)->structure = MPS_STRUCTURE_COMPLEX_FP;
+
+  /* Update the leading coefficient if needed */
+  if (i == MPS_POLYNOMIAL (p)->degree)
+    mps_polynomial_set_leading_coefficient (s, MPS_POLYNOMIAL (p), coeff);
 
   mpc_set (p->mfpc[i], coeff);
   mpc_get_cplx (p->fpc[i], p->mfpc[i]);

@@ -201,13 +201,7 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
   mpc_init2 (my_b, coeff_wp);
 
   mpc_set_si (lc, -1, 0);
-  if (MPS_IS_MONOMIAL_POLY (p))
-    {
-      mps_monomial_poly *mp = MPS_MONOMIAL_POLY (p);
-      mps_with_lock (mp->mfpc_mutex[s->n],
-		     mpc_div_eq (lc, mp->mfpc[s->n]);
-		     );
-    }
+  mpc_div_eq (lc, p->leading_coefficient_m);
       
   /*
    * The new coefficients of the secular equation can be computed
@@ -292,13 +286,7 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
 	  mpc_set_prec (mprod_b, s->root[i]->wp);
 	  mpc_set_prec (lc, s->root[i]->wp);
 	  mpc_set_si (lc, -1, 0);
-	  if (MPS_IS_MONOMIAL_POLY (p))
-	    {
-	      mps_monomial_poly *mp = MPS_MONOMIAL_POLY (p);
-	      mps_with_lock (mp->mfpc_mutex[s->n],
-			     mpc_div_eq (lc, mp->mfpc[s->n]);
-			     );
-	    }
+	  mpc_div_eq (lc, p->leading_coefficient_m);
 	  mpc_set_prec (my_b, s->root[i]->wp);
 	}
 

@@ -588,7 +588,7 @@ mps_dstart (mps_context * s, int n, mps_cluster_item * cluster_item,
 
   /* In the case of user-defined polynomial choose as starting
    * approximations equispaced points in the unit circle. */
-  if (MPS_IS_MONOMIAL_POLY (s->active_poly))
+  if (!MPS_IS_MONOMIAL_POLY (s->active_poly))
     {
       ang = pi2 / n;
       for (i = 0; i < n; i++)

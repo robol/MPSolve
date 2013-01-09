@@ -209,7 +209,7 @@ mps_secular_equation_new_raw (mps_context * s, unsigned long int n)
   mps_secular_equation *sec =
     (mps_secular_equation *) mps_malloc (sizeof (mps_secular_equation));
 
-  mps_polynomial_init (MPS_POLYNOMIAL (sec));
+  mps_polynomial_init (s, MPS_POLYNOMIAL (sec));
 
   /* Hook up the overloaded methods for secular equations */
   mps_polynomial * p = MPS_POLYNOMIAL (sec);

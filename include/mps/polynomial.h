@@ -128,6 +128,36 @@ struct mps_polynomial
   mps_density density;
 
   /**
+   * @brief Leading coefficient of the polynomial. This is needed in many parts
+   * of the algorithm, so it must be available. 
+   *
+   * This is the floating point version of the coefficient.
+   * Please use the auxiliary function mps_polynomial_set_leading_coefficient() to
+   * set it when creating the polynomial. The default value is 1.0;
+   */
+  cplx_t leading_coefficient_f;
+
+  /**
+   * @brief Leading coefficient of the polynomial. This is needed in many parts
+   * of the algorithm, so it must be available. 
+   *
+   * This is the CDPE version of the coefficient.
+   * Please use the auxiliary function mps_polynomial_set_leading_coefficient() to
+   * set it when creating the polynomial. The default value is 1.0;
+   */
+  cdpe_t leading_coefficient_d;
+
+  /**
+   * @brief Leading coefficient of the polynomial. This is needed in many parts
+   * of the algorithm, so it must be available. 
+   *
+   * This is the MP version of the coefficient.
+   * Please use the auxiliary function mps_polynomial_set_leading_coefficient() to
+   * set it when creating the polynomial. The default value is 1.0;
+   */
+  mpc_t leading_coefficient_m;
+
+  /**
    * @brief Method that evaluates the polynomial. 
    */
   mps_polynomial_feval_t feval;
@@ -184,9 +214,11 @@ struct mps_polynomial
   mps_polynomial_mnewton_t mnewton;
 };
 
-void mps_polynomial_init (mps_polynomial * p);
+void mps_polynomial_init (mps_context * ctx, mps_polynomial * p);
 
 mps_polynomial * mps_polynomial_new (mps_context * ctx);
+
+void mps_polynomial_set_leading_coefficient (mps_context * ctx, mps_polynomial * p, mpc_t lc);
 
 mps_boolean mps_polynomial_check_type (mps_polynomial * p, const char * type_name);
 
