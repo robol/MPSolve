@@ -103,6 +103,8 @@ mps_monomial_poly_free (mps_context * s, mps_polynomial * p)
 {
   mps_monomial_poly *mp = MPS_MONOMIAL_POLY (p);
 
+  mps_polynomial_release (s, p);
+
   mps_boolean_vfree (mp->spar);
   double_vfree (mp->fpr);
   cplx_vfree (mp->fpc);

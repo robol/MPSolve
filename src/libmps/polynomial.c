@@ -49,6 +49,13 @@ mps_polynomial_init (mps_context * ctx, mps_polynomial * p)
 
   /* Assume a monic polynomial if nothing else is specfied */
   mps_polynomial_set_leading_coefficient (ctx, p, lc);
+  mpc_clear (lc);
+}
+
+void
+mps_polynomial_release (mps_context * ctx, mps_polynomial * p)
+{
+  mpc_clear (p->leading_coefficient_m);
 }
 
 void

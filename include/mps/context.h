@@ -381,13 +381,6 @@ extern "C"
     mps_boolean *spar1;
 
     /**
-     * @brief Old value of <code>punt</code> (temporary vector).
-     *
-     * @see punt
-     */
-    int *oldpunt;
-
-    /**
      * @brief Vector containing the moduli of the coefficients
      * of the polynomial as floating point numbers.
      *
@@ -440,11 +433,6 @@ extern "C"
      */
     mps_boolean *again_old;
 
-    int *clust_aux;             /* auxiliary vector                    */
-    int *punt_aux;              /* auxiliary vector                    */
-    int *punt_out;              /* auxiliary vector                    */
-    int *clust_out;             /* auxiliary vector                    */
-
     /**
      * @brief The number of circles with initial approximations.
      */
@@ -468,7 +456,7 @@ extern "C"
      */
     int *partitioning;
 
-    /* SECTION -- Algorihtmm selection */
+    /* SECTION -- Algorihtm selection */
 
     /**
      * @brief This is used in the program to switch behavious based
@@ -498,16 +486,6 @@ extern "C"
     int n_threads;
 
     /**
-     * @brief The thread pool used for the concurrent part of MPSolve.
-     */
-    mps_thread_pool * pool;
-
-    /**
-     * @brief TBD
-     */
-    mpc_t * bmpc;
-
-    /**
      * @brief Char to be intersted after the with statement in the output piped to gnuplot.
      */
     const char * gnuplot_format;
@@ -519,6 +497,10 @@ extern "C"
     unsigned long int dpe_iteration_time;
     unsigned long int fp_iteration_time;
 
+    /**
+     * @brief The thread pool used for the concurrent part of MPSolve.
+     */
+    mps_thread_pool * pool;
   };                 /* End of typedef struct { ... */
 
 #endif /* #ifdef _MPS_PRIVATE */

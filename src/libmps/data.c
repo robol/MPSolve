@@ -77,12 +77,6 @@ mps_allocate_data (mps_context * s)
   s->h = mps_boolean_valloc (s->deg + 2);
   s->again_old = mps_boolean_valloc (s->deg);
 
-  s->oldpunt = int_valloc (s->deg + 1);
-  s->clust_aux = int_valloc (s->deg + 1);
-  s->punt_aux = int_valloc (s->deg + 1);
-  s->punt_out = int_valloc (s->deg + 1);
-  s->clust_out = int_valloc (s->deg + 1);
-
   s->fap1 = double_valloc (s->deg + 1);
   s->fap2 = double_valloc (s->deg + 1);
 
@@ -240,12 +234,6 @@ mps_free_data (mps_context * s)
       MPS_DEBUG (s, "Deallocating data");
     }
 
-  if (s->bmpc)
-    {
-      mpc_vclear (s->bmpc, s->n * s->pool->n);
-      free (s->bmpc);
-    }
-
   mps_clusterization_free (s, s->clusterization);
   free (s->order);
 
@@ -272,12 +260,6 @@ mps_free_data (mps_context * s)
   free (s->spar1);
   free (s->h);
   free (s->again_old);
-
-  free (s->oldpunt);
-  free (s->clust_aux);
-  free (s->punt_aux);
-  free (s->punt_out);
-  free (s->clust_out);
 
   free (s->fap1);
   free (s->fap2);

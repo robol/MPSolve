@@ -344,6 +344,8 @@ mps_secular_equation_free (mps_context *ctx, mps_polynomial * p)
 {
   mps_secular_equation *s = MPS_SECULAR_EQUATION (p);
 
+  mps_polynomial_release (ctx, p);
+
   /* Free internal data */
   cplx_vfree (s->afpc);
   cplx_vfree (s->bfpc);
