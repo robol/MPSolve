@@ -44,10 +44,6 @@
  *   the terms \f$\frac{1}{(x - b_i)}\f$ will be stored
  * @param asum A pointer to a double where the sum of the module of the complex terms
  *   \f$\frac{a_i}{(x - b_i)}\f$ will be saved
- * @param asum2 A pointer to a double where the sum of the module of the complex terms
- *   \f$\frac{a_i}{(x - b_i)^2}\f$ will be stored
- * @param asumb A pointer to a double where the sum of the moduli of the complex terms
- *   \f$\frac{1}{x - b_i}\f$ will be stored
  * @return If the returned value is a positive integer it is the index of the \f$b_i\f$ term 
  *   that is equal to \f$x\f$, suggesting that the alternate evaluation algorithm must be used. 
  *   If it is MPS_PARALLEL_SUM_FAILED then a floting point was encountered in the computation, 
@@ -55,7 +51,7 @@
  */
 int
 mps_secular_fparallel_sum (mps_context * s, mps_approximation * root, int n, cplx_t * afpc, cplx_t * bfpc,
-			   cplx_t pol, cplx_t fp, cplx_t sumb, double * asum, double * asum2, double * asumb)
+			   cplx_t pol, cplx_t fp, cplx_t sumb, double * asum)
 {
   if (n <= 2)
     {
@@ -85,9 +81,6 @@ mps_secular_fparallel_sum (mps_context * s, mps_approximation * root, int n, cpl
 	  /* Compute sum of (z-b_i)^{-1} */
 	  cplx_add_eq (sumb, ctmp);
 
-	  /* Add the module of the term to asumb */
-	  *asumb += cplx_mod (ctmp);
-
 	  /* Compute a_i / (z - b_i) */
 	  cplx_mul (ctmp2, afpc[i], ctmp);
 
@@ -100,9 +93,6 @@ mps_secular_fparallel_sum (mps_context * s, mps_approximation * root, int n, cpl
 	  /* Compute a_i / (z - b_i)^2a */
 	  cplx_mul_eq (ctmp2, ctmp);
 
-	  /* Add the module of the term of the derivative to the sum */
-	  *asum2 += cplx_mod (ctmp2);
-
 	  /* Add it to fp */
 	  cplx_sub_eq (fp, ctmp2);
 	}
@@ -112,11 +102,11 @@ mps_secular_fparallel_sum (mps_context * s, mps_approximation * root, int n, cpl
   else 
     {
       int i = n/2, k;
-      if ((k = mps_secular_fparallel_sum (s, root, i, afpc, bfpc, pol, fp, sumb, asum, asum2, asumb)) >= 0)
+      if ((k = mps_secular_fparallel_sum (s, root, i, afpc, bfpc, pol, fp, sumb, asum)) >= 0)
 	{
 	  return k;
 	}
-      if ((k = mps_secular_fparallel_sum (s, root, n-i, afpc + i, bfpc + i, pol, fp, sumb, asum, asum2, asumb)) >= 0)
+      if ((k = mps_secular_fparallel_sum (s, root, n-i, afpc + i, bfpc + i, pol, fp, sumb, asum)) >= 0)
 	{
 	  return i + k;
 	}
@@ -133,7 +123,7 @@ mps_secular_fnewton (mps_context * s, mps_approximation * root, cplx_t corr,
   int i;
   cplx_t ctmp, ctmp2, pol, fp, sumb;
   double apol, acorr;
-  double asum = 0.0, asum2 = 0.0, asumb = 0.0, asum_on_apol, ax = cplx_mod (root->fvalue);
+  double asum = 0.0, asum_on_apol, ax = cplx_mod (root->fvalue);
   mps_secular_iteration_data * data = user_data;
   mps_secular_equation *sec = (mps_secular_equation *) s->secular_equation;
 
@@ -163,7 +153,7 @@ mps_secular_fnewton (mps_context * s, mps_approximation * root, cplx_t corr,
 
   if ((i = mps_secular_fparallel_sum (s, root, sec->n, s->secular_equation->afpc, 
 				      s->secular_equation->bfpc, pol, 
-				      fp, sumb, &asum, &asum2, &asumb)) >= 0)
+				      fp, sumb, &asum)) >= 0)
     {
       int k;
       asum = 0.0;
@@ -267,10 +257,6 @@ mps_secular_fnewton (mps_context * s, mps_approximation * root, cplx_t corr,
  *   the terms \f$\frac{1}{(x - b_i)}\f$ will be stored
  * @param asum The RDPE value where the sum of the module of the complex terms
  *   \f$\frac{a_i}{(x - b_i)}\f$ will be saved
- * @param asum2 The RDPE value where the sum of the module of the complex terms
- *   \f$\frac{a_i}{(x - b_i)^2}\f$ will be stored
- * @param asumb The RDPE value where the sum of the moduli of the complex terms
- *   \f$\frac{1}{x - b_i}\f$ will be stored
  * @return If the returned value is a positive integer it is the index of the \f$b_i\f$ term 
  *   that is equal to \f$x\f$, suggesting that the alternate evaluation algorithm must be used. 
  *   If it is MPS_PARALLEL_SUM_FAILED then a floting point was encountered in the computation, 
@@ -278,7 +264,7 @@ mps_secular_fnewton (mps_context * s, mps_approximation * root, cplx_t corr,
  */
 int
 mps_secular_dparallel_sum (mps_context * s, mps_approximation * root, int n, cdpe_t * adpc, cdpe_t * bdpc,
-			   cdpe_t pol, cdpe_t fp, cdpe_t sumb, rdpe_t asum, rdpe_t asum2, rdpe_t asumb)
+			   cdpe_t pol, cdpe_t fp, cdpe_t sumb, rdpe_t asum)
 {
   if (n <= 2)
     {
@@ -297,10 +283,6 @@ mps_secular_dparallel_sum (mps_context * s, mps_approximation * root, int n, cdp
 	      return i;
 	    }
 	    
-	  /* Add the module of 1 / (x - b_i) to asumb */
-	  cdpe_mod (rtmp, ctmp);
-	  rdpe_add_eq (asumb, rtmp);
-
 	  /* Compute (z-b_i)^{-1} */
 	  cdpe_inv_eq (ctmp);
 
@@ -320,10 +302,6 @@ mps_secular_dparallel_sum (mps_context * s, mps_approximation * root, int n, cdp
 	  /* Compute a_i / (z - b_i)^2a */
 	  cdpe_mul_eq (ctmp2, ctmp);
 	  
-	  /* Add the module of a_i / (x - b_i)^2 to asum2 */
-	  cdpe_mod (rtmp, ctmp2);
-	  rdpe_add_eq (asum2, rtmp);
-
 	  /* Add it to fp */
 	  cdpe_sub_eq (fp, ctmp2);
 	}
@@ -333,11 +311,11 @@ mps_secular_dparallel_sum (mps_context * s, mps_approximation * root, int n, cdp
   else 
     {
       int i = n/2, k;
-      if ((k = mps_secular_dparallel_sum (s, root, i, adpc, bdpc, pol, fp, sumb, asum, asum2, asumb)) >= 0)
+      if ((k = mps_secular_dparallel_sum (s, root, i, adpc, bdpc, pol, fp, sumb, asum)) >= 0)
 	{
 	  return k;
 	}
-      if ((k = mps_secular_dparallel_sum (s, root, n-i, adpc + i, bdpc + i, pol, fp, sumb, asum, asum2, asumb)) >= 0)
+      if ((k = mps_secular_dparallel_sum (s, root, n-i, adpc + i, bdpc + i, pol, fp, sumb, asum)) >= 0)
 	{
 	  return i + k;
 	}
@@ -353,14 +331,12 @@ mps_secular_dnewton (mps_context * s, mps_approximation * root, cdpe_t corr,
 {
   int i;
   cdpe_t ctmp, ctmp2, pol, fp, sumb, x;
-  rdpe_t apol, asum, asumb, asum2, asum_on_apol, ax, rtmp, rtmp2, acorr;
+  rdpe_t apol, asum, asum_on_apol, ax, rtmp, rtmp2, acorr;
   mps_secular_iteration_data * data = user_data;
   mps_secular_equation *sec = (mps_secular_equation *) s->secular_equation;
 
   cdpe_set (x, root->dvalue);
   rdpe_set (asum, rdpe_zero);
-  rdpe_set (asumb, rdpe_zero);
-  rdpe_set (asum2, rdpe_zero);
   cdpe_mod (ax, x);
 
   /* First set again to true */
@@ -372,7 +348,7 @@ mps_secular_dnewton (mps_context * s, mps_approximation * root, cdpe_t corr,
   cdpe_set (corr, cdpe_zero);
 
   if ((i = mps_secular_dparallel_sum (s, root, sec->n, s->secular_equation->adpc, s->secular_equation->bdpc, 
-				       pol, fp, sumb, asum, asum2, asumb)) != MPS_PARALLEL_SUM_SUCCESS)
+				       pol, fp, sumb, asum)) != MPS_PARALLEL_SUM_SUCCESS)
     {
       int k;
 
@@ -475,10 +451,6 @@ mps_secular_dnewton (mps_context * s, mps_approximation * root, cdpe_t corr,
  *   the terms \f$\frac{1}{(x - b_i)}\f$ will be stored
  * @param asum The RDPE value where the sum of the module of the complex terms
  *   \f$\frac{a_i}{(x - b_i)}\f$ will be saved
- * @param asum2 The RDPE value where the sum of the module of the complex terms
- *   \f$\frac{a_i}{(x - b_i)^2}\f$ will be stored
- * @param asumb The RDPE value where the sum of the moduli of the complex terms
- *   \f$\frac{1}{x - b_i}\f$ will be stored
  * @return If the returned value is a positive integer it is the index of the \f$b_i\f$ term 
  *   that is equal to \f$x\f$, suggesting that the alternate evaluation algorithm must be used. 
  *   If it is MPS_PARALLEL_SUM_FAILED then a floting point was encountered in the computation, 
@@ -486,7 +458,7 @@ mps_secular_dnewton (mps_context * s, mps_approximation * root, cdpe_t corr,
  */
 int
 mps_secular_mparallel_sum (mps_context * s, mps_approximation * root, int n, mpc_t * ampc, mpc_t * bmpc,
-			   mpc_t pol, mpc_t fp, mpc_t sumb, rdpe_t asum, rdpe_t asum2, rdpe_t asumb, 
+			   mpc_t pol, mpc_t fp, mpc_t sumb, rdpe_t asum, 
 			   pthread_mutex_t * ampc_mutex, pthread_mutex_t * bmpc_mutex)
 {
   long int wp = mpc_get_prec (ampc[0]);
@@ -519,10 +491,6 @@ mps_secular_mparallel_sum (mps_context * s, mps_approximation * root, int n, mpc
 	  /* Compute (z-b_i)^{-1} */
 	  mpc_inv_eq (ctmp);
 	  
-	  /* Add the module of 1 / (x - b_i) to asumb */
-	  mpc_rmod (rtmp, ctmp);
-	  rdpe_add_eq (asumb, rtmp);
-
 	  /* Compute sum of (z-b_i)^{-1} */
 	  mpc_add_eq (sumb, ctmp);
 
@@ -541,10 +509,6 @@ mps_secular_mparallel_sum (mps_context * s, mps_approximation * root, int n, mpc
 	  /* Compute a_i / (z - b_i)^2a */
 	  mpc_mul_eq (ctmp2, ctmp);
 	  
-	  /* Add the module of a_i / (x - b_i)^2 to asum2 */
-	  mpc_rmod (rtmp, ctmp2);
-	  rdpe_add_eq (asum2, rtmp);
-
 	  /* Add it to fp */
 	  mpc_sub_eq (fp, ctmp2);
 	}
@@ -558,11 +522,11 @@ mps_secular_mparallel_sum (mps_context * s, mps_approximation * root, int n, mpc
     {
       int i = n/2, k;
 
-      if ((k = mps_secular_mparallel_sum (s, root, i, ampc, bmpc, pol, fp, sumb, asum, asum2, asumb, ampc_mutex, bmpc_mutex)) >= 0)
+      if ((k = mps_secular_mparallel_sum (s, root, i, ampc, bmpc, pol, fp, sumb, asum, ampc_mutex, bmpc_mutex)) >= 0)
 	{
 	  return k;
 	}
-      if ((k = mps_secular_mparallel_sum (s, root, n-i, ampc + i, bmpc + i, pol, fp, sumb, asum, asum2, asumb, ampc_mutex + i, bmpc_mutex + i)) >= 0)
+      if ((k = mps_secular_mparallel_sum (s, root, n-i, ampc + i, bmpc + i, pol, fp, sumb, asum, ampc_mutex + i, bmpc_mutex + i)) >= 0)
 	{
 	  return i + k;
 	}
@@ -582,8 +546,8 @@ mps_secular_mnewton (mps_context * s, mps_approximation * root, mpc_t corr,
   rdpe_t apol, rtmp, ax, afp, rtmp2;
   rdpe_t asum_on_apol, acorr;
 
-  rdpe_t asum, asumb, asum2;
-  rdpe_t asum_eps, asumb_eps;
+  rdpe_t asum;
+  rdpe_t asum_eps;
 
   mpc_t * ampc;
   mpc_t * bmpc;
@@ -608,11 +572,9 @@ mps_secular_mnewton (mps_context * s, mps_approximation * root, mpc_t corr,
   mpc_init2 (sumb, wp);
 
   rdpe_set (asum, rdpe_zero);
-  rdpe_set (asumb, rdpe_zero);
-  rdpe_set (asum2, rdpe_zero);
 
   if ((i = mps_secular_mparallel_sum (s, root, sec->n, ampc, bmpc, pol, fp, sumb, 
-				      asum, asum2, asumb, sec->ampc_mutex, sec->bmpc_mutex)) != MPS_PARALLEL_SUM_SUCCESS)
+				      asum, sec->ampc_mutex, sec->bmpc_mutex)) != MPS_PARALLEL_SUM_SUCCESS)
     {
       int k;
       mpc_t ampc_i, bmpc_i;
@@ -671,7 +633,6 @@ mps_secular_mnewton (mps_context * s, mps_approximation * root, mpc_t corr,
 
   /* Compute the local error */
   rdpe_mul (asum_eps, asum, s->mp_epsilon);
-  rdpe_mul (asumb_eps, asumb, s->mp_epsilon);
 
   /* Compute newton correction */
   mpc_mul (ctmp, sumb, pol);
