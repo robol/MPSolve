@@ -71,12 +71,6 @@ mps_secular_fparallel_sum (mps_context * s, mps_approximation * root, int n, cpl
 
 	  /* Compute (z-b_i)^{-1} */
 	  cplx_inv_eq (ctmp);
-	  if (isinf (cplx_Re (ctmp)) || 
-	      isinf (cplx_Re (ctmp)))
-	    {
-	      root->again = false;	     
-	      return MPS_PARALLEL_SUM_FAILED;
-	    }
 
 	  /* Compute sum of (z-b_i)^{-1} */
 	  cplx_add_eq (sumb, ctmp);
@@ -84,8 +78,8 @@ mps_secular_fparallel_sum (mps_context * s, mps_approximation * root, int n, cpl
 	  /* Compute a_i / (z - b_i) */
 	  cplx_mul (ctmp2, afpc[i], ctmp);
 
-	  /* Compute the sum of module of (a_i/(z-b_i)) * (i + 2) */
-	  *asum += cplx_mod (ctmp2);
+	  /* Compute the sum of module of (a_i/(z-b_i)) */
+	  *asum += fabs (cplx_Re (ctmp2)) + fabs (cplx_Im (ctmp2));
 
 	  /* Add a_i / (z - b_i) to pol */
 	  cplx_add_eq (pol, ctmp2);
@@ -167,7 +161,7 @@ mps_secular_fnewton (mps_context * s, mps_approximation * root, cplx_t corr,
 	      cplx_div_eq (ctmp2, ctmp);
 	      cplx_add_eq (corr, ctmp2);
 
-	      asum += cplx_mod (ctmp2);
+	      asum += fabs (cplx_Re (ctmp2)) + fabs (cplx_Im (ctmp2));
 	    }
 	}
 
@@ -293,8 +287,10 @@ mps_secular_dparallel_sum (mps_context * s, mps_approximation * root, int n, cdp
 	  cdpe_mul (ctmp2, adpc[i], ctmp);
 
 	  /* Compute the sum of module of (a_i/(z-b_i)) * (i + 2) */
-	  cdpe_mod (rtmp, ctmp2);
+          rdpe_abs (rtmp, cdpe_Re (ctmp2));
 	  rdpe_add_eq (asum, rtmp);
+          rdpe_abs (rtmp, cdpe_Im (ctmp2));
+          rdpe_add_eq (asum, rtmp);
 
 	  /* Add a_i / (z - b_i) to pol */
 	  cdpe_add_eq (pol, ctmp2);
