@@ -178,8 +178,6 @@ mps_secular_ga_mpsolve (mps_context * s)
   /* Set phase */
   s->lastphase = s->input_config->starting_phase;
 
-      printf ("gnuplot_format = %s\n", s->gnuplot_format);
-
   /* Set the number of roots in and out from the target set. Since we do not
    * support this yet, we can say that all the roots are in the set. */
   s->count[0] = s->n;

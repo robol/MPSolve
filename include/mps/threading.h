@@ -273,7 +273,7 @@ extern "C"
     /**
      * @brief The numer of thread in the thread pool.
      */
-    int n;
+    unsigned int n;
 
     /**
      * @brief Limit to the maximum spawnable number
@@ -284,7 +284,7 @@ extern "C"
      * This variables MUST be updated using the accessor function
      * mps_thread_pool_set_
      */
-    int concurrency_limit;
+    unsigned int concurrency_limit;
 
     /**
      * @brief A pointer to the first thread in the thread pool.

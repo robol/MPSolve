@@ -216,8 +216,6 @@ struct mps_polynomial
 
 void mps_polynomial_init (mps_context * ctx, mps_polynomial * p);
 
-void mps_polynomial_release (mps_context * ctx, mps_polynomial * p);
-
 mps_polynomial * mps_polynomial_new (mps_context * ctx);
 
 void mps_polynomial_set_leading_coefficient (mps_context * ctx, mps_polynomial * p, mpc_t lc);

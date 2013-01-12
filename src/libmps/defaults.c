@@ -63,6 +63,7 @@ mps_set_default_values (mps_context * s)
   s->mfppc1 = NULL;             /* temp multiprec. complex coeff.      */
 
   s->spar1 = NULL;              /* temp sparsity structure of poly     */
+  s->oldpunt = NULL;            /* stores the previous value of punt   */
   s->fap1 = NULL;               /* moduli of the coefficients as double */
   s->fap2 = NULL;               /* temp. log of the coeffs as double   */
   s->dap1 = NULL;               /* temp moduli of the coeffs as dpe    */
@@ -70,6 +71,10 @@ mps_set_default_values (mps_context * s)
   s->h = NULL;                  /* needed for convex hull computations */
   s->again_old = NULL;          /* temp flag vector: true where more   */
   /* iterations must be performed        */
+  s->clust_aux = NULL;          /* auxiliary vectors ...               */
+  s->punt_aux = NULL;
+  s->punt_out = NULL;
+  s->clust_out = NULL;
 
   s->random_seed = 0;
   s->newtis = 0;
@@ -109,6 +114,9 @@ mps_set_default_values (mps_context * s)
   s->last_error = NULL;
 
   s->over_max = false;
+
+  s->bmpc = NULL;
   s->gnuplot_format = NULL;
+  
   s->self_thread_pool = NULL;
 }

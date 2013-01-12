@@ -220,6 +220,7 @@ void mps_thread_pool_set_concurrency_limit (mps_context * s, mps_thread_pool * p
 					    unsigned int concurrency_limit)
 {
   int i;
+  long int l_cl;
 
   if (!pool)
     pool = s->pool;
@@ -227,21 +228,18 @@ void mps_thread_pool_set_concurrency_limit (mps_context * s, mps_thread_pool * p
   if (pool->n < concurrency_limit)
     concurrency_limit = pool->n;
 
-  if (concurrency_limit == 0)
-    concurrency_limit = pool->n;
+  /* We need to keep some threads occupied with nothing to do */  
+  if (pool->concurrency_limit == 0 && concurrency_limit == 0)
+    return;
 
-  /* /\* We need to keep some threads occupied with nothing to do *\/   */
-  /* if (pool->concurrency_limit == 0 && concurrency_limit == 0) */
-  /*   return; */
+  /* Update concurrency magic values */
+  pool->concurrency_limit = (pool->concurrency_limit == 0) ? pool->n : pool->concurrency_limit;
+  l_cl = (concurrency_limit == 0) ? pool->n : concurrency_limit;
 
-  /* /\* Update concurrency magic values *\/ */
-  /* pool->concurrency_limit = (pool->concurrency_limit == 0) ? pool->n : pool->concurrency_limit; */
-  /* l_cl = (concurrency_limit == 0) ? pool->n : concurrency_limit; */
-
-  for (i = 0; i < pool->concurrency_limit - concurrency_limit; i++)
+  for (i = 0; i < pool->concurrency_limit - l_cl; i++)
     sem_wait (&pool->free_count);
 
-  for (i = 0; i < concurrency_limit - pool->concurrency_limit; i++)
+  for (i = 0; i < l_cl - (long int) pool->concurrency_limit; i++)
     sem_post (&pool->free_count);
 
   pool->concurrency_limit = concurrency_limit;
@@ -300,7 +298,7 @@ mps_thread_pool_wait (mps_context * s, mps_thread_pool * pool)
   if (!pool)
     pool = s->pool;
   
-  long int threads_to_wait = pool->concurrency_limit;
+  long int threads_to_wait = (pool->concurrency_limit == 0) ? pool->n : pool->concurrency_limit;
 
   do
     {
@@ -380,7 +378,6 @@ mps_thread_pool_insert_new_thread (mps_context * s, mps_thread_pool * pool)
   thread->next = pool->first; 
   pool->first = thread;
   pool->n++;
-  pool->concurrency_limit++;
 }
 
 /**
@@ -408,7 +405,7 @@ mps_thread_pool_new (mps_context * s, int n_threads)
   for (i = 0; i < threads; i++) 
     mps_thread_pool_insert_new_thread (s, pool); 
 
-  pool->concurrency_limit = pool->n;
+  pool->concurrency_limit = 0;
 
   mps_thread_pool_wait (s, pool);
 

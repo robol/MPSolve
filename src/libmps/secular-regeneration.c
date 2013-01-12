@@ -386,24 +386,26 @@ mps_secular_ga_regenerate_coefficients_monomial (mps_context * s, cdpe_t * old_b
   mps_secular_equation * sec = s->secular_equation;
   long current_wp = mpc_get_prec (sec->bmpc[0]);
   mps_boolean success = true;
-  mpc_t * bmpc = NULL;
 
   struct __mps_secular_ga_regenerate_coefficients_monomial_data * data = 
     mps_newv (struct __mps_secular_ga_regenerate_coefficients_monomial_data, s->n);
 
   MPS_DEBUG (s, "Regenerating coefficients from monomial input");
 
-  if (s->debug_level & MPS_DEBUG_MEMORY)
-    MPS_DEBUG (s, "Allocating space for thread-local bmpc coefficients");
-  bmpc = mps_newv (mpc_t, s->n * s->pool->n);
-  mpc_vinit2 (bmpc, s->n * s->pool->n, s->mpwp);
+  if (!s->bmpc)
+    {
+      if (s->debug_level & MPS_DEBUG_MEMORY)
+	MPS_DEBUG (s, "Allocating space for thread-local bmpc coefficients");
+      s->bmpc = mps_newv (mpc_t, s->n * s->pool->n);
+      mpc_vinit2 (s->bmpc, s->n * s->pool->n, s->mpwp);
+    }
 
   for (i = 0; i < s->pool->n; i++)
     {
       for (j = 0; j < s->n; j++)
 	{
-	  mpc_set_prec (bmpc[i * s->n + j], current_wp);
-	  mpc_set (bmpc[i * s->n + j], sec->bmpc[j]);
+	  mpc_set_prec (s->bmpc[i * s->n + j], current_wp);
+	  mpc_set (s->bmpc[i * s->n + j], sec->bmpc[j]);
 	}
     }
 
@@ -415,7 +417,7 @@ mps_secular_ga_regenerate_coefficients_monomial (mps_context * s, cdpe_t * old_b
       data[i].root_changed = root_changed;
       data[i].s = s;
       data[i].success = &success;
-      data[i].bmpc = bmpc;
+      data[i].bmpc = s->bmpc;
       mps_thread_pool_assign (s, s->pool, __mps_secular_ga_regenerate_coefficients_monomial_worker,   
        			      data + i);
       /* __mps_secular_ga_regenerate_coefficients_monomial_worker (data + i);  */
@@ -423,8 +425,8 @@ mps_secular_ga_regenerate_coefficients_monomial (mps_context * s, cdpe_t * old_b
 
   mps_thread_pool_wait (s, s->pool);
 
-  mpc_vclear (bmpc, s->n * s->pool->n); 
-  mpc_vfree (bmpc);
+  /* mpc_vclear (bmpc, s->n * s->pool->n); */
+  /* free (bmpc); */
 
   free (data);
 
