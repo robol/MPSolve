@@ -38,6 +38,7 @@ mps_monomial_poly_new (mps_context * s, long int degree)
   poly->fnewton = mps_monomial_poly_fnewton;
   poly->dnewton = mps_monomial_poly_dnewton;
   poly->mnewton = mps_monomial_poly_mnewton;
+  poly->get_leading_coefficient = mps_monomial_poly_get_leading_coefficient;
   
   /* Set the degree of the polynomial */
   MPS_POLYNOMIAL (mp)->degree = degree;
@@ -257,10 +258,6 @@ mps_monomial_poly_set_coefficient_q (mps_context * s, mps_monomial_poly * mp, lo
   mpc_get_cdpe (mp->dpc[i], mp->mfpc[i]);
   mpc_get_cplx (mp->fpc[i], mp->mfpc[i]);
 
-  /* Update the leading coefficient if needed */
-  if (i == MPS_POLYNOMIAL (mp)->degree)
-    mps_polynomial_set_leading_coefficient (s, MPS_POLYNOMIAL (mp), mp->mfpc[i]);
-
   if ((mpq_sgn (real_part) == 0) && (mpq_sgn (imag_part) == 0))
     mp->spar[i] = false;
   else 
@@ -313,10 +310,6 @@ mps_monomial_poly_set_coefficient_d (mps_context * s, mps_monomial_poly * mp, lo
   mpf_set_d (mp->mfpr[i], real_part);
   mpc_set_d (mp->mfpc[i], real_part, imag_part);
 
-  /* Update the leading coefficient, if needed */
-  if (i == MPS_POLYNOMIAL (mp)->degree)
-    mps_polynomial_set_leading_coefficient (s, MPS_POLYNOMIAL (mp), mp->mfpc[i]);
-
   /* Update spar */
   mp->spar[i] = !((real_part == 0) && (imag_part == 0));
 
@@ -366,9 +359,6 @@ mps_monomial_poly_set_coefficient_int (mps_context * s, mps_monomial_poly * mp, 
   mpc_get_cdpe (mp->dpc[i], mp->mfpc[i]);
   mpc_get_cplx (mp->fpc[i], mp->mfpc[i]);
 
-  if (i == MPS_POLYNOMIAL (mp)->degree)
-    mps_polynomial_set_leading_coefficient (s, MPS_POLYNOMIAL (mp), mp->mfpc[i]);
-
   if ((real_part == 0) && (imag_part == 0))
     mp->spar[i] = false;
   else 
@@ -400,10 +390,6 @@ mps_monomial_poly_set_coefficient_f (mps_context * s, mps_monomial_poly * p, lon
   /* Updating data_type information */
   if (MPS_POLYNOMIAL (p)->structure == MPS_STRUCTURE_UNKNOWN)
     MPS_POLYNOMIAL (p)->structure = MPS_STRUCTURE_COMPLEX_FP;
-
-  /* Update the leading coefficient if needed */
-  if (i == MPS_POLYNOMIAL (p)->degree)
-    mps_polynomial_set_leading_coefficient (s, MPS_POLYNOMIAL (p), coeff);
 
   mpc_set (p->mfpc[i], coeff);
   mpc_get_cplx (p->fpc[i], p->mfpc[i]);
@@ -569,4 +555,11 @@ mps_monomial_poly_mnewton (mps_context * ctx, mps_polynomial * p,
 			   mps_approximation * root, mpc_t corr)
 {
   mps_mnewton (ctx, p, root, corr);
+}
+
+void
+mps_monomial_poly_get_leading_coefficient (mps_context * ctx, mps_polynomial * p,
+					   mpc_t leading_coefficient)
+{
+  mpc_set (leading_coefficient, MPS_MONOMIAL_POLY (p)->mfpc[p->degree]);
 }

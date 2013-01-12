@@ -25,14 +25,15 @@ _mps_polynomial_raise_data (mps_context * ctx, mps_polynomial * p, long int wp)
   return wp;
 }
 
+void
+_mps_polynomial_get_leading_coefficient (mps_context * ctx, mps_polynomial * p, mpc_t lc)
+{
+  mpc_set_ui (lc, 1U, 0U);
+}
+
 void 
 mps_polynomial_init (mps_context * ctx, mps_polynomial * p)
 {
-  mpc_t lc;
-
-  mpc_init2 (lc, 64);
-  mpc_set_ui (lc, 1U, 0u);
-
   p->type_name = NULL;
   p->feval = NULL;
   p->deval = NULL;
@@ -45,19 +46,7 @@ mps_polynomial_init (mps_context * ctx, mps_polynomial * p)
   p->fnewton = NULL;
   p->dnewton = NULL;
   p->mnewton = NULL;
-  mpc_init2 (p->leading_coefficient_m, 0);
-
-  /* Assume a monic polynomial if nothing else is specfied */
-  mps_polynomial_set_leading_coefficient (ctx, p, lc);
-}
-
-void
-mps_polynomial_set_leading_coefficient (mps_context * ctx, mps_polynomial * p, mpc_t lc)
-{
-  mpc_set_prec (p->leading_coefficient_m, mpc_get_prec (lc));
-  mpc_set (p->leading_coefficient_m, lc);
-  mpc_get_cdpe (p->leading_coefficient_d, lc);
-  cdpe_get_x (p->leading_coefficient_f, p->leading_coefficient_d);
+  p->get_leading_coefficient = _mps_polynomial_get_leading_coefficient;
 }
 
 mps_polynomial * 
@@ -122,9 +111,6 @@ mps_polynomial_free (mps_context * ctx, mps_polynomial * p)
 long int
 mps_polynomial_raise_data (mps_context * ctx, mps_polynomial * p, long int wp)
 {
-  /* First raise our internal data */
-  mpc_set_prec (p->leading_coefficient_m, wp);
-
   return (*p->raise_data)(ctx, p, wp);
 }
 
@@ -147,4 +133,11 @@ mps_polynomial_mnewton (mps_context * ctx, mps_polynomial *p,
 			mps_approximation * root, mpc_t corr)
 {
   (*p->mnewton) (ctx, p, root, corr);
+}
+
+void
+mps_polynomial_get_leading_coefficient (mps_context * ctx, mps_polynomial * p,
+					mpc_t leading_coefficient)
+{
+  (*p->get_leading_coefficient) (ctx, p, leading_coefficient);
 }

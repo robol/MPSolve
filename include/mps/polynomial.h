@@ -86,6 +86,13 @@ typedef void (*mps_polynomial_dnewton_t) (mps_context * ctx, mps_polynomial * p,
 typedef void (*mps_polynomial_mnewton_t) (mps_context * ctx, mps_polynomial * p, 
 					  mps_approximation * root, mpc_t corr);
 
+/** 
+ * @brief Function that returns the leading coefficient of the polynomial. 
+ * This defaults to the function that returns one (i.e. the default polynomial
+ * is monic). 
+ */
+typedef void (*mps_polynomial_get_leading_coefficient_t) (mps_context * ctx, mps_polynomial * p, mpc_t lc);
+
 /**
  * @brief Struct that represents an abstract polynomial. All the other
  * real polynomial implementations (such as mps_monomial_poly, mps_secular_equation, ...)
@@ -126,36 +133,6 @@ struct mps_polynomial
    * via a user routine
    */
   mps_density density;
-
-  /**
-   * @brief Leading coefficient of the polynomial. This is needed in many parts
-   * of the algorithm, so it must be available. 
-   *
-   * This is the floating point version of the coefficient.
-   * Please use the auxiliary function mps_polynomial_set_leading_coefficient() to
-   * set it when creating the polynomial. The default value is 1.0;
-   */
-  cplx_t leading_coefficient_f;
-
-  /**
-   * @brief Leading coefficient of the polynomial. This is needed in many parts
-   * of the algorithm, so it must be available. 
-   *
-   * This is the CDPE version of the coefficient.
-   * Please use the auxiliary function mps_polynomial_set_leading_coefficient() to
-   * set it when creating the polynomial. The default value is 1.0;
-   */
-  cdpe_t leading_coefficient_d;
-
-  /**
-   * @brief Leading coefficient of the polynomial. This is needed in many parts
-   * of the algorithm, so it must be available. 
-   *
-   * This is the MP version of the coefficient.
-   * Please use the auxiliary function mps_polynomial_set_leading_coefficient() to
-   * set it when creating the polynomial. The default value is 1.0;
-   */
-  mpc_t leading_coefficient_m;
 
   /**
    * @brief Method that evaluates the polynomial. 
@@ -212,13 +189,17 @@ struct mps_polynomial
    * @brief Function used to compute the Newton correction in a point. 
    */
   mps_polynomial_mnewton_t mnewton;
+
+  /**
+   * @brief Function used to retrieve the leading coefficient of the
+   * polynomial. 
+   */
+  mps_polynomial_get_leading_coefficient_t get_leading_coefficient;
 };
 
 void mps_polynomial_init (mps_context * ctx, mps_polynomial * p);
 
 mps_polynomial * mps_polynomial_new (mps_context * ctx);
-
-void mps_polynomial_set_leading_coefficient (mps_context * ctx, mps_polynomial * p, mpc_t lc);
 
 mps_boolean mps_polynomial_check_type (mps_polynomial * p, const char * type_name);
 
@@ -244,6 +225,8 @@ void mps_polynomial_dnewton (mps_context * ctx, mps_polynomial *p,
 
 void mps_polynomial_mnewton (mps_context * ctx, mps_polynomial *p, 
 			     mps_approximation * root, mpc_t corr);
+
+void mps_polynomial_get_leading_coefficient (mps_context * ctx, mps_polynomial * p, mpc_t lc);
 
 long int mps_polynomial_raise_data (mps_context * ctx, mps_polynomial * p, long int wp);
 

@@ -73,7 +73,16 @@ mps_fradii (mps_context * s, double * fradii)
 	  new_rad /= cplx_mod (diff);
 	}
 
-      new_rad /= cplx_mod (p->leading_coefficient_f);
+      {
+	mpc_t lc;
+	cplx_t ctmp;
+	mpc_init2 (lc, 64);
+	mps_polynomial_get_leading_coefficient (s, p, lc);
+	mpc_get_cplx (ctmp, lc);
+	new_rad /= cplx_mod (ctmp);
+	mpc_clear (lc);
+      }
+
       fradii[i] = new_rad;
     }
 }
@@ -132,8 +141,15 @@ mps_dradii (mps_context * s, rdpe_t * dradii)
 	  rdpe_div_eq (new_rad, rtmp);
 	}
 
-      cdpe_mod (rtmp, p->leading_coefficient_d);
-      rdpe_div_eq (new_rad, rtmp);
+      {
+	mpc_t lc;
+	mpc_init2 (lc, 64);
+	mps_polynomial_get_leading_coefficient (s, p, lc);
+	mpc_rmod (rtmp, lc);
+	rdpe_div_eq (new_rad, rtmp);
+	mpc_clear (lc);
+      }
+
       rdpe_set (dradii[i], new_rad);
     }
 }
@@ -204,8 +220,15 @@ mps_mradii (mps_context * s, rdpe_t * dradii)
       rdpe_mul_eq_d (new_rad, 1 + 2 * s->n * sqrt(2) * DBL_EPSILON);
       rdpe_mul_eq_d (new_rad, p->degree);
 
-      cdpe_mod (rtmp, p->leading_coefficient_d);
-      rdpe_div_eq (new_rad, rtmp);
+      {
+	mpc_t lc;
+	mpc_init2 (lc, 64);
+	mps_polynomial_get_leading_coefficient (s, p, lc);
+	mpc_rmod (rtmp, lc);
+	rdpe_div_eq (new_rad, rtmp);
+	mpc_clear (lc);
+      }
+
       rdpe_set (dradii[i], new_rad);
     }
 

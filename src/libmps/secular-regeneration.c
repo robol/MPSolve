@@ -201,7 +201,8 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
   mpc_init2 (my_b, coeff_wp);
 
   mpc_set_si (lc, -1, 0);
-  mpc_div_eq (lc, p->leading_coefficient_m);
+  mps_polynomial_get_leading_coefficient (s, p, ctmp);
+  mpc_div_eq (lc, ctmp);
       
   /*
    * The new coefficients of the secular equation can be computed
@@ -286,7 +287,8 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
 	  mpc_set_prec (mprod_b, s->root[i]->wp);
 	  mpc_set_prec (lc, s->root[i]->wp);
 	  mpc_set_si (lc, -1, 0);
-	  mpc_div_eq (lc, p->leading_coefficient_m);
+	  mps_polynomial_get_leading_coefficient (s, p, ctmp);
+	  mpc_div_eq (lc, ctmp);
 	  mpc_set_prec (my_b, s->root[i]->wp);
 	}
 
