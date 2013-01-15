@@ -220,10 +220,13 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
       rdpe_t relative_error, rtmp;
       cdpe_t cpol;
 
+      /* Give a sensible minimum bound to the necessary precision */
+      s->root[i]->wp = MAX (s->mpwp + log2 (s->n), s->root[i]->wp);
       mps_secular_ga_update_root_wp (s, i, s->root[i]->wp, bmpc);
 
       /* pthread_mutex_lock (&sec->bmpc_mutex[i]); */
       mps_mhorner_with_error2 (s, p, bmpc[i], sec->ampc[i], relative_error, s->root[i]->wp);
+
       /* pthread_mutex_unlock (&sec->bmpc_mutex[i]); */
 
       if (s->debug_level & MPS_DEBUG_REGENERATION)
@@ -330,13 +333,13 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
 	  mpc_set_ui (mprod_b, 1U, 0U);
 	  for (j = 0; j < sec->n; j++) {
 	    if (root_changed[j] && i != j) {
-	      mpc_sub (mdiff, bmpc[i], old_mb[j]); 
-	      mpc_mul_eq (mprod_b, mdiff); 
-	      mpc_sub (mdiff, bmpc[i], bmpc[j]);
-	      mpc_div_eq (mprod_b, mdiff);
+	       mpc_sub (mdiff, bmpc[i], old_mb[j]);  
+	       mpc_mul_eq (mprod_b, mdiff);  
+	       mpc_sub (mdiff, bmpc[i], bmpc[j]); 
+	       mpc_div_eq (mprod_b, mdiff); 
 	    }
 	  }
-	  
+
 	  mpc_mul_eq (sec->ampc[i], mprod_b);
 	}
 
