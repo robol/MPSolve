@@ -19,11 +19,6 @@ extern "C"
 {
 #endif
 
-  /* Octave module workardound */
-#ifdef __UNDEF_CPLUSPLUS
-#undef __cplusplus
-#endif
-
   /**
    * @file
    * @brief Simple routines used to interact with MPSolve without going into the internals.
