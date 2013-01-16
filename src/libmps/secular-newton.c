@@ -71,6 +71,12 @@ mps_secular_fparallel_sum (mps_context * s, mps_approximation * root, int n, cpl
 
 	  /* Compute (z-b_i)^{-1} */
 	  cplx_inv_eq (ctmp);
+          if (isinf (cplx_Re (ctmp)) || 
+              isinf (cplx_Re (ctmp)))
+            {
+              root->again = false;           
+              return MPS_PARALLEL_SUM_FAILED;
+            }
 
 	  /* Compute sum of (z-b_i)^{-1} */
 	  cplx_add_eq (sumb, ctmp);
@@ -164,6 +170,13 @@ mps_secular_fnewton (mps_context * s, mps_approximation * root, cplx_t corr,
 	      asum += fabs (cplx_Re (ctmp2)) + fabs (cplx_Im (ctmp2));
 	    }
 	}
+
+  if (i == MPS_PARALLEL_SUM_FAILED)
+    {
+      s->root_status[data->k] = MPS_ROOT_STATUS_NOT_FLOAT;
+      root->again = false;
+      return;
+    }
 
       cplx_sub_eq (corr, cplx_one);
 
