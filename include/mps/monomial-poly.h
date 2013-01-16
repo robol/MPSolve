@@ -7,14 +7,15 @@
  * handling of monomial polynomials. 
  */
 
-#ifdef	__cplusplus
-extern "C"
-{
-#endif
 
   #include <mps/mps.h>
   #include <gmp.h>
   #include <pthread.h>
+
+#ifdef	__cplusplus
+extern "C"
+{
+#endif
 
 #ifdef _MPS_PRIVATE
 

@@ -8,6 +8,12 @@
 #ifndef MPS_INTERFACE_H
 #define	MPS_INTERFACE_H
 
+#include <stdlib.h>
+#include <stdio.h>
+#include <pthread.h>
+#include <gmp.h>
+#include <mps/mps.h>
+
 #ifdef	__cplusplus
 extern "C"
 {
@@ -17,12 +23,6 @@ extern "C"
 #ifdef __UNDEF_CPLUSPLUS
 #undef __cplusplus
 #endif
-
-#include <stdlib.h>
-#include <stdio.h>
-#include <pthread.h>
-#include <gmp.h>
-#include <mps/mps.h>
 
   /**
    * @file

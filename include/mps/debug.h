@@ -14,11 +14,6 @@
 #ifndef MPS_DEBUG_H
 #define	 MPS_DEBUG_H
 
-#ifdef	__cplusplus
-extern "C"
-{
-#endif
-
 #ifndef __WINDOWS
 #include <unistd.h>
 #else
@@ -28,6 +23,11 @@ extern "C"
 #include <mps/gmptools.h>
 #include <gmp.h>
 #include <time.h>
+
+#ifdef	__cplusplus  
+extern "C"  
+{  
+#endif  
 
   /* Timer functions */
   clock_t * mps_start_timer (void);
@@ -52,7 +52,7 @@ extern "C"
     if (s->debug_level & MPS_DEBUG_INFO) {	\
       MPS_DEBUG(s, templ);			\
     }						\
-  }
+}
 
 #define MPS_DEBUG(s, templ...) {		\
     __MPS_DEBUG(s, templ) ;			\
@@ -166,7 +166,7 @@ extern "C"
       {									\
 	fprintf(s->logstr, function); fprintf(s->logstr, "()\n");	\
       }									\
-  }
+}
 #else
 #define MPS_DEBUG_CALL(s, function) if (s->DOLOG && (s->debug_level & MPS_DEBUG_FUNCTION_CALLS)) { \
     if (_isatty(_fileno(s->logstr))) {					\
@@ -329,9 +329,8 @@ extern "C"
     debug_instruction;							\
   }
 
-
-/* #ifdef	__cplusplus */
-/* } */
-/* #endif */
+#ifdef	__cplusplus  
+} 
+#endif  
 
 #endif                          /* DEBUG_H */

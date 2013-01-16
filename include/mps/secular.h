@@ -13,13 +13,13 @@
 #ifndef SECULAR_H
 #define	 SECULAR_H
 
+#include <mps/mps.h>
+#include <float.h>
+
 #ifdef	__cplusplus
 extern "C"
 {
 #endif
-
-#include <mps/mps.h>
-#include <float.h>
 
 #ifdef _MPS_PRIVATE
 
