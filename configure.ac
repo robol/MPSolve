@@ -6,11 +6,7 @@ AC_INIT([MPSolve], [3.0.0], [robol@poisson.phc.unipi.it])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS([config.h])
 
-# AC_LIBTOOL_WIN32_DLL
-
-# Just for now, won't be in final release, probabily,
-# but it's just too useful for debugging. 
-# AC_DISABLE_SHARED
+AC_LIBTOOL_WIN32_DLL
 AC_CONFIG_MACRO_DIR([m4])
 
 LT_INIT
@@ -25,6 +21,8 @@ AC_PROG_CC
 AM_PROG_CC_C_O
 AC_PROG_CC_C99
 
+# Check if we are building on Windows, so we can add additional
+# hacks to make MPSolve work there. 
 AC_MSG_CHECKING([for Win32 platform])
 case "$host" in
   *-*-mingw*|*-*-cygwin*)
@@ -59,13 +57,19 @@ AC_ARG_ENABLE([debug],
 	AS_HELP_STRING([--disable-debug], [Disable debug prints in the code]),
 	[enable_debug=$enableval have_debug=$enableval],
 	[enable_debug=yes have_debug=yes])
-AC_MSG_RESULT([$enable_debug])
+# AC_MSG_RESULT([$enable_debug])
 
 # Select CFLAGS based on debug enabled or not
 AS_IF([test x$enable_debug != xno], [
 	GENERAL_CFLAGS="$GENERAL_CFLAGS -DNICE_DEBUG"
 ])
 
+# Determine if examples are desired. If that's the case check for the library
+# that are installed on the system and see which examples can be added. 
+AC_ARG_ENABLE([examples],
+	AS_HELP_STRING([--disable-examples], [Disable additional examples and modules bundled with MPSolve]),
+	[build_examples=$enableval have_examples=$enableval],
+	[build_examples=yes have_examples=yes])
 
 # Checks for libraries.
 AC_CHECK_LIB([gmp], [__gmpz_init2])
@@ -101,35 +105,56 @@ AC_SUBST(CHECK_LIBS)
 
 # Check the existance of mkoctfile to compile octave 
 # module
-AC_CHECK_PROGS([MKOCTFILE], [mkoctfile])
-enable_octave=no
-AS_IF([test "$MKOCTFILE" != ""], [enable_octave=yes OCTAVE_MODULES_PROGRAMS=mps_roots.oct])
-AC_SUBST(OCTAVE_MODULES_PROGRAMS)
+AS_IF([test x$build_examples == xyes], [
+	AC_CHECK_PROGS([MKOCTFILE], [mkoctfile])
+	enable_octave=no
+	AS_IF([test "$MKOCTFILE" != ""], [enable_octave=yes OCTAVE_MODULES_PROGRAMS=mps_roots.oct])
+	AC_SUBST(OCTAVE_MODULES_PROGRAMS)
+])
 
 # Check for the presence of "mex", the Matlab compiler
 # and if it's present, define MATLAB_MODULES_PROGRAMS
 # to be mps_roots.mexglx if we are on a 32 bit pc
 # and mps_roots.mexglxa64 if we are on a 64 bit machine.
-AC_CHECK_PROGS([MEX], [mex])
+AS_IF([test x$build_examples == xyes], [
+	AC_CHECK_PROGS([MEX], [mex])
 
-# We need to test if MEX is the matlab compiler
-# or the polish version of the pdftex.
-AC_MSG_CHECKING(if mex is the matlab compiler)
-mex_is_matlab_output=`mex -help 2>&1 | grep MATLAB`
-mex_is_matlab_retcode=$?
-if [[ "$mex_is_matlab_retcode" != "0" ]]; then
-  MEX=""
-  AC_MSG_RESULT(no)
-else
-  AC_MSG_RESULT(yes)
-fi
+	# We need to test if MEX is the matlab compiler
+	# or the polish version of the pdftex.
+	AC_MSG_CHECKING(if mex is the matlab compiler)
+	mex_is_matlab_output=`mex -help 2>&1 | grep MATLAB`
+	mex_is_matlab_retcode=$?
+	if [[ "$mex_is_matlab_retcode" != "0" ]]; then
+	  MEX=""
+	  AC_MSG_RESULT(no)
+	else
+	  AC_MSG_RESULT(yes)
+	fi
 
-# If we have find a valid Matlab compiler then add
-# MATLAB to the target of compilation
-enable_matlab=no
-AS_IF([test "$MEX" != ""], [enable_matlab=yes
-  MATLAB_MODULES_PROGRAMS=mps_roots])
-AC_SUBST(MATLAB_MODULES_PROGRAMS)
+	# If we have find a valid Matlab compiler then add
+	# MATLAB to the target of compilation
+	enable_matlab=no
+	AS_IF([test "$MEX" != ""], [enable_matlab=yes
+	  MATLAB_MODULES_PROGRAMS=mps_roots])
+	AC_SUBST(MATLAB_MODULES_PROGRAMS)
+])
+
+# Check for GTK libraries to enable the example that is given
+# in examples/gtk
+AS_IF([test x$build_examples == xyes], [
+	ROOTS_OF_UNITY_PROGRAMS=roots_of_unity
+	PKG_CHECK_MODULES([GTK], [gtk+-3.0], [], [
+		PKG_CHECK_MODULES([GTK], [gtk+-2.0], [], [
+			ROOTS_OF_UNITY_PROGRAMS=""
+		])
+	])
+
+	AC_SUBST([GTK_CFLAGS])
+	AC_SUBST([GTK_LIBS])
+	AC_SUBST([GTK_FOUND])
+	AC_SUBST([ROOTS_OF_UNITY_PROGRAMS])
+])
+			
 
 # Check for doxygen to generate documentation
 AC_CHECK_PROGS([DOXYGEN], [doxygen])
@@ -176,6 +201,7 @@ AC_CONFIG_FILES([Makefile
                  examples/Makefile
 		 examples/octave/Makefile
                  examples/matlab/Makefile
+		 examples/gtk/Makefile
                  src/Makefile
 		 src/mpsolve/Makefile
                  src/libmps/Makefile
