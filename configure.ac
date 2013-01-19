@@ -154,8 +154,26 @@ AS_IF([test x$build_examples == xyes], [
 	AC_SUBST([GTK_FOUND])
 	AC_SUBST([ROOTS_OF_UNITY_PROGRAMS])
 ])
-			
 
+# Search qmake and Qt related things, so we can build
+# MPSolve UI
+AC_CHECK_PROGS([QMAKE_QT4], [qmake-qt4 qmake])
+QT4_PROGRAMS=
+if test "x$QMAKE_QT4" != "x"; then
+	# Check that this is really the qmake-qt4 command and
+	# not the Qt3 one. 
+	AC_MSG_CHECKING([if qmake is at least for Qt 4.0.0])
+	QMAKE_VERSION=`$QMAKE_QT4 -version | grep "Qt version" | cut -d ' ' -f4`
+	AC_SUBST([QMAKE_VERSION])
+	AX_COMPARE_VERSION([$QMAKE_VERSION], [ge], [4.0.0], [
+		AC_MSG_RESULT([yes])
+		QT4_PROGRAMS=xmpsolve
+	], [
+		AC_MSG_RESULT([no])
+	])
+fi
+AC_SUBST(QT4_PROGRAMS)
+		
 # Check for doxygen to generate documentation
 AC_CHECK_PROGS([DOXYGEN], [doxygen])
 
@@ -206,6 +224,8 @@ AC_CONFIG_FILES([Makefile
 		 src/mpsolve/Makefile
                  src/libmps/Makefile
                  src/tests/Makefile
+		 src/xmpsolve/Makefile
+		 src/xmpsolve/xmpsolve.pro
 		 doc/Makefile
 		 doc/Doxyfile])
 
