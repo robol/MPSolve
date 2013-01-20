@@ -9,17 +9,22 @@ INCLUDEPATH += @top_srcdir@/include
 LIBS += @top_builddir@/src/libmps/libmps.la
 
 CONFIG += compile_libtool
+QMAKE_MAKEFILE = Makefile.qmake
 
 # Input
 HEADERS += mainwindow.h \
            mpsolveworker.h \
            polynomialsolver.h \
            root.h \
-           rootsrenderer.h
+           rootsrenderer.h \
+	   polynomialparser.h \
+	   monomial.h
 FORMS += mainwindow.ui
 SOURCES += main.cpp \
            mainwindow.cpp \
            mpsolveworker.cpp \
            polynomialsolver.cpp \
            root.cpp \
-           rootsrenderer.cpp
+           rootsrenderer.cpp \
+           polynomialparser.cpp \
+           monomial.cpp

@@ -1,6 +1,7 @@
 #include "polynomialsolver.h"
 #include "mpsolveworker.h"
 #include "root.h"
+#include "polynomialparser.h"
 #include <QDebug>
 #include <QRegExp>
 #include <QStringList>
@@ -37,121 +38,18 @@ PolynomialSolver::solvePoly(mps_monomial_poly *poly)
 int
 PolynomialSolver::solvePoly(QString inputString)
 {
-    int degree = -1;
+    PolynomialParser parser(m_mpsContext);
 
-    if (!inputString.isEmpty())
-        degree = 0;
-    else
-        return degree;
+    // Parse the input string that the user has given.
+    mps_monomial_poly * poly = parser.parse(inputString);
 
-    /* Find out the degree of the polynomial */
-    QRegExp exponents("x\\^(\\d+)");
-
-    bool conversion_ok;
-    int pos = 0;
-    while ((pos = exponents.indexIn(inputString, pos)) != -1)
-    {
-        int new_degree = exponents.cap(1).toInt(&conversion_ok);
-        if (!conversion_ok)
-        {
-           degree = -1;
-           break;
-        }
-        if (new_degree > degree)
-            degree = new_degree;
-        pos += exponents.matchedLength();
+    if (poly != NULL) {
+        return solvePoly(poly);
     }
-
-    // qDebug() << "Degree = " << degree;
-
-    /* Now allocate the polynomial and find the coefficients */
-    mps_monomial_poly * p = mps_monomial_poly_new(m_mpsContext, degree);
-
-    int sign = 1;
-
-    /* Scan the input for coefficients */
-    int aux_pos;
-    for (pos = 0; pos < inputString.length(); pos++)
-    {
-
-        if (inputString[pos].isSpace())
-        {
-            continue;
-        }
-
-        if (inputString[pos] == '-')
-        {
-            sign = -1;
-            continue;
-        }
-
-        /* Start of a coefficient */
-        if (inputString[pos].isNumber() || inputString[pos] == 'x' || inputString[pos] == 'X')
-        {
-            QString coeff;
-            bool imag = false;
-            aux_pos = pos;
-
-            if (inputString[pos] == 'x' || inputString[pos] == 'X')
-            {
-                coeff = "1";
-            }
-            else
-            {
-
-                while ((inputString[aux_pos].isNumber() || inputString[aux_pos] == '.' || inputString[aux_pos] == 'e'
-                        || inputString[aux_pos] == 'E' || inputString[aux_pos] == 'i') && aux_pos < inputString.length())
-                {
-                    aux_pos++;
-                    if (inputString[aux_pos] == 'i')
-                        imag = true;
-                }
-
-                coeff = inputString.mid (pos, aux_pos - pos);
-            }
-
-            /* Find out the degree */
-            QString d;
-            int c_pos;
-            aux_pos++;
-            while (!(inputString[aux_pos] == '^' || aux_pos >= inputString.length() ||
-                   inputString[aux_pos].isSpace() || inputString[aux_pos] == '-'
-                   || inputString[aux_pos] == '+'))
-                aux_pos++;
-            aux_pos++;
-
-            c_pos = aux_pos;
-
-            if (inputString[aux_pos - 1].isSpace() || aux_pos - 1 == inputString.length()
-                || inputString[aux_pos - 1] == '-' || inputString[aux_pos - 1]  == '+')
-            {
-                if (aux_pos >= 2 && inputString[aux_pos - 2] == 'x')
-                    d = "1";
-                else
-                    d = "0";
-            }
-            else
-            {
-
-                while (inputString[c_pos].isNumber() && c_pos <= inputString.length())
-                {
-                    c_pos++;
-                }
-                c_pos++;
-
-                d = inputString.mid (aux_pos, c_pos - aux_pos);
-            }
-
-            int new_degree = d.toInt(&conversion_ok);
-            mps_monomial_poly_set_coefficient_d(m_mpsContext, p, new_degree,
-                                                sign * coeff.toFloat(), 0);
-
-            pos = c_pos - 2;
-            sign = +1;
-        }
+    else {
+        qDebug() << tr("Cannot parse input polynomial string: %1").arg(parser.errorMessage());
+        return -1;
     }
-
-    return solvePoly(p);
 }
 
 void
