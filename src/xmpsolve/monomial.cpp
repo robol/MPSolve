@@ -1,0 +1,291 @@
+#include "monomial.h"
+#include <QDebug>
+
+namespace xmpsolve {
+
+Monomial::Monomial(QString input, QObject *parent) :
+    QObject(parent)
+{
+    mpq_init(realRationalCoefficient);
+    mpq_init(imagRationalCoefficient);
+
+    m_valid = true;
+
+    // Start the parsing
+    parseMonomial(input.trimmed());
+
+    // Canonicalize the rational number
+    mpq_canonicalize(realRationalCoefficient);
+    mpq_canonicalize(imagRationalCoefficient);
+}
+
+void
+Monomial::parseMonomial(QString input)
+{
+    qDebug() << QString("Monomial::parseMonomial(%1)").arg(input);
+
+    bool conversionOk;
+
+    if (input == QString("x")) {
+        m_degree = 1;
+        mpq_set_str (realRationalCoefficient, "1", 10);
+        mpq_set_str (imagRationalCoefficient, "0", 10);
+        return;
+    }
+
+    if (input.startsWith("x")) {
+        // Check that we really have exponentiation here.
+        if (input.at(1) != '^') {
+            setError(tr("unexpected character %1, expected ^").arg(input.at(1)));
+            return;
+        }
+
+        // Check which is the degree of this term
+        QString exponent = input.right(input.length() - 2);
+        m_degree = exponent.toInt(&conversionOk);
+
+        if (!conversionOk) {
+            setError(tr("not valid exponent: %1").arg(exponent));
+            return;
+        }
+
+        mpq_set_str(realRationalCoefficient, "1", 10);
+        mpq_set_str(imagRationalCoefficient, "0", 10);
+    }
+
+    // In the last case we have a monomial of the type Cx^E
+    int exp_pos = input.indexOf('x');
+    if (exp_pos == -1) {
+        m_degree = 0;
+    }
+    else {
+        if (input.length() <= exp_pos + 1) {
+            m_degree = 1;
+        }
+        else {
+            if (input.at(exp_pos + 1) != '^') {
+                setError(tr("Expected ^, got %1").arg(input.at(exp_pos + 1)));
+                return;
+            }
+
+            QString exponent = input.right(input.length() - exp_pos - 2);
+            m_degree = exponent.toInt(&conversionOk);
+
+            if (!conversionOk) {
+                setError(tr("not valid exponent: %1").arg(exponent));
+                return;
+            }
+        }
+    }
+
+    // Parse the coefficient
+    parseCoefficient((exp_pos == -1) ? input : input.left(exp_pos));
+}
+
+void
+Monomial::parseCoefficient(QString coefficient)
+{
+    qDebug() << QString("Monomial::parseCoefficient(%1)").arg(coefficient);
+
+    if (coefficient.isEmpty()) {
+        parseCoefficient("1");
+        return;
+    }
+
+    // We have to handle a fair number of differente cases in here:
+    int indexOfFrac = coefficient.indexOf('/');
+
+    // This case means that we have a fraction, so parse both
+    // numerator and denominator.
+    if (indexOfFrac != -1) {
+        mpq_t t_real, t_imag, zero;
+        mpq_init(t_real);
+        mpq_init(t_imag);
+        mpq_init(zero);
+
+        parseNumber(coefficient.left(indexOfFrac), t_real, t_imag);
+        mpq_set(realRationalCoefficient, t_real);
+        mpq_set(imagRationalCoefficient, t_imag);
+
+        parseNumber(coefficient.right(coefficient.length() - indexOfFrac - 1), t_real, t_imag);
+
+        // Check that we have not a zero denominator
+        if (mpq_equal(t_real, zero) && mpq_equal(t_imag, zero)) {
+            setError(tr("zero denominator in coefficient: %1").arg(coefficient));
+            return;
+        }
+
+        // Perform complex division
+        {
+            mpq_t t1, t2;
+            mpq_init(t1);
+            mpq_init(t2);
+
+            mpq_neg(t_imag, t_imag);
+            mpq_mul(t1, t_real, t_real);
+            mpq_mul(t2, t_imag, t_imag);
+
+            mpq_add(t1, t1, t2);
+            mpq_inv(t1, t1);
+
+            mpq_mul(realRationalCoefficient, realRationalCoefficient, t1);
+            mpq_mul(imagRationalCoefficient, imagRationalCoefficient, t1);
+
+            mpq_mul(t1, realRationalCoefficient, t_real);
+            mpq_mul(t2, imagRationalCoefficient, t_imag);
+            mpq_sub(t1, t1, t2);
+
+            mpq_mul(t2, realRationalCoefficient, t_imag);
+            mpq_mul(imagRationalCoefficient, imagRationalCoefficient, t_real);
+            mpq_add(imagRationalCoefficient, imagRationalCoefficient, t2);
+
+            mpq_set(realRationalCoefficient, t1);
+
+            mpq_clear(t1);
+            mpq_clear(t2);
+        }
+
+        mpq_clear(t_real);
+        mpq_clear(t_imag);
+        mpq_clear(zero);
+    }
+    else {
+        parseNumber(coefficient, realRationalCoefficient, imagRationalCoefficient);
+    }
+}
+
+void
+Monomial::parseNumber(QString number, mpq_t real_output, mpq_t imag_output)
+{
+    qDebug() << QString("Monomial::parseNumber(%1)").arg(number);
+
+    bool conversionOk;
+    int exponent = 0;
+    int indexOfE = number.indexOf('e');
+    if (indexOfE != -1) {
+        // Get the exponent and cut the string
+        exponent = number.right(number.length() - indexOfE - 1).toInt(&conversionOk);
+
+        if (!conversionOk) {
+            setError(tr("unable to parse the exponent of the number: %1").arg(number));
+            return;
+        }
+
+        number = number.left(indexOfE);
+    }
+
+    // Now we have a number, that may be composed as a decimal number
+    int indexOfDot = number.indexOf('.');
+    if (indexOfDot != -1) {
+        mpq_t real, imag, t1, t2;
+        mpq_init(real);
+        mpq_init(imag);
+        mpq_init(t1);
+        mpq_init(t2);
+
+        QString first = number.left(indexOfDot);
+        QString decimal = number.right(number.length() - indexOfDot - 1);
+
+        // Get the leading part first.
+        parseNumber(first, real_output, imag_output);
+
+        // ...and then the decimal one. Remeber to divide
+        // it for the appropriate number before adding
+        // to the leading one.
+        parseNumber(decimal, real, imag);
+        int exp = decimal.length();
+
+        mpq_set_str(t1, "1", 10);
+        mpq_set_str(t2, "10", 10);
+        for (int i = 0; i < exp; i++) {
+            mpq_mul(t1,t1,t2);
+        }
+
+        mpq_div(real, real, t1);
+        mpq_div(imag, imag, t1);
+
+        mpq_add(real_output, real_output, real);
+        mpq_add(imag_output, imag_output, imag);
+
+        mpq_clear(real);
+        mpq_clear(imag);
+        mpq_clear(t1);
+        mpq_clear(t2);
+    }
+    else {
+        QByteArray data = number.toLocal8Bit();
+        mpq_set_str(imag_output, "0", 10);
+        mpq_set_str(real_output, data.data(), 10);
+    }
+
+    if (exponent != 0) {
+        // We have to multiply the number for its exponent.
+        mpq_t t1, t2;
+        mpq_init(t1);
+        mpq_init(t2);
+
+        mpq_set_str(t1, "1", 10);
+        mpq_set_str(t2, "10", 10);
+
+        for(int i = 0; i < exponent; i++) {
+            mpq_mul(t1, t1, t2);
+        }
+
+        mpq_mul(real_output, real_output, t1);
+        mpq_mul(imag_output, imag_output, t1);
+
+        mpq_clear(t1);
+        mpq_clear(t2);
+    }
+
+    mpq_canonicalize(real_output);
+    mpq_canonicalize(imag_output);
+}
+
+void
+Monomial::setError(QString message)
+{
+    m_errorMessage = tr("error: ") + message;
+    m_valid = FALSE;
+}
+
+
+Monomial::~Monomial()
+{
+    mpq_clear(realRationalCoefficient);
+    mpq_clear(imagRationalCoefficient);
+}
+
+int
+Monomial::degree()
+{
+    return m_degree;
+}
+
+QString
+Monomial::errorMessage()
+{
+    return m_errorMessage;
+}
+
+bool
+Monomial::isValid()
+{
+    return m_valid;
+}
+
+void
+Monomial::changeSign()
+{
+    mpq_neg(realRationalCoefficient, realRationalCoefficient);
+    mpq_neg(imagRationalCoefficient, imagRationalCoefficient);
+}
+
+void
+Monomial::addToMonomialPoly(mps_context *ctx, mps_monomial_poly *poly)
+{
+    mps_monomial_poly_set_coefficient_q(ctx, poly, degree(),
+        realRationalCoefficient, imagRationalCoefficient);
+}
+
+} // namespace xmpsolve
