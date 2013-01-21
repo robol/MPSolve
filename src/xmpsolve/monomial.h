@@ -15,7 +15,8 @@ namespace xmpsolve {
  * M -> x | x^E | Cx^E
  * E -> N
  * C -> D | D/D
- * D -> G | GeN
+ * D -> S | Si | (S + Si)
+ * S -> G | GeN
  * G -> N | N.N
  */
 

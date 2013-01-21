@@ -159,6 +159,28 @@ Monomial::parseNumber(QString number, mpq_t real_output, mpq_t imag_output)
 {
     qDebug() << QString("Monomial::parseNumber(%1)").arg(number);
 
+    // Base case of empty string
+    if (number.isEmpty()) {
+        mpq_set_str(real_output, "1", 10);
+        mpq_set_str(imag_output, "0", 10);
+    }
+
+    // Check if we are in the pure imaginary case
+    if (number.endsWith('i') || number.endsWith('I')) {
+        number = number.left(number.length() - 1);
+        parseNumber(number, real_output, imag_output);
+
+        // Multiply the number by i
+        mpq_t t;
+        mpq_init(t);
+        mpq_set(t, real_output);
+        mpq_neg(real_output, imag_output);
+        mpq_set(imag_output, t);
+        mpq_clear(t);
+
+        return;
+    }
+
     bool conversionOk;
     int exponent = 0;
     int indexOfE = number.indexOf('e');
