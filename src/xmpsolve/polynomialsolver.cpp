@@ -20,10 +20,10 @@ PolynomialSolver::~PolynomialSolver()
 }
 
 int
-PolynomialSolver::solvePoly(mps_monomial_poly *poly)
+PolynomialSolver::solvePoly(mps_monomial_poly *poly, mps_algorithm selected_algorithm)
 {
     mps_context_set_input_poly(m_mpsContext, poly);
-    mps_context_select_algorithm(m_mpsContext, MPS_ALGORITHM_SECULAR_GA);
+    mps_context_select_algorithm(m_mpsContext, selected_algorithm);
     mps_context_set_output_goal(m_mpsContext, MPS_OUTPUT_GOAL_APPROXIMATE);
 
     // Create a new thread that solve the polynomial.
@@ -36,7 +36,7 @@ PolynomialSolver::solvePoly(mps_monomial_poly *poly)
 }
 
 int
-PolynomialSolver::solvePoly(QString inputString)
+PolynomialSolver::solvePoly(QString inputString, mps_algorithm selected_algorithm)
 {
     PolynomialParser parser(m_mpsContext);
 
@@ -44,7 +44,7 @@ PolynomialSolver::solvePoly(QString inputString)
     mps_monomial_poly * poly = parser.parse(inputString);
 
     if (poly != NULL) {
-        return solvePoly(poly);
+        return solvePoly(poly, selected_algorithm);
     }
     else {
        m_errorMessage = parser.errorMessage();

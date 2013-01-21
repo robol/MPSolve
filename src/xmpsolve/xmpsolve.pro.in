@@ -18,7 +18,8 @@ HEADERS += mainwindow.h \
            root.h \
            rootsrenderer.h \
 	   polynomialparser.h \
-	   monomial.h
+	   monomial.h \
+	   polynomial.h
 FORMS += mainwindow.ui
 SOURCES += main.cpp \
            mainwindow.cpp \
@@ -27,4 +28,5 @@ SOURCES += main.cpp \
            root.cpp \
            rootsrenderer.cpp \
            polynomialparser.cpp \
-           monomial.cpp
+           monomial.cpp \
+	   polynomial.cpp

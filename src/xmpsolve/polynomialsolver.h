@@ -28,14 +28,14 @@ public:
       *
       * @return The degree of the polynomial.
       */
-    int solvePoly(mps_monomial_poly * poly);
+    int solvePoly(mps_monomial_poly * poly, mps_algorithm selected_algorithm = MPS_ALGORITHM_SECULAR_GA);
 
     /** @brief Parse the string describing the polynomial
       * and solve it.
       *
       * @return The degree of the polynomial.
       */
-    int solvePoly(QString inputString);
+    int solvePoly(QString inputString, mps_algorithm = MPS_ALGORITHM_SECULAR_GA);
 
     /**
      * @brief errorMessage can be used to access the last error message,

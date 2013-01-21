@@ -31,7 +31,11 @@ void MainWindow::on_solveButton_clicked()
 
     ui->statusBar->showMessage(tr("Solving polynomial..."));
 
-    if (solver->solvePoly(ui->polyLineEdit->text()) < 0)
+    mps_algorithm selected_algorithm = (ui->algorithmComboBox->currentIndex() == 0) ?
+                MPS_ALGORITHM_SECULAR_GA : MPS_ALGORITHM_STANDARD_MPSOLVE;
+
+    if (solver->solvePoly(ui->polyLineEdit->toPlainText(),
+                          selected_algorithm) < 0)
     {
         ui->statusBar->showMessage(tr("Polynomial parsing failed"));
         QMessageBox mbox(QMessageBox::Critical, tr("Error while parsing the polynomial"),

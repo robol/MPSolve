@@ -1,9 +1,9 @@
 #ifndef XMPSOLVE_MONOMIAL_H
 #define XMPSOLVE_MONOMIAL_H
 
-#include <QObject>
 #include <gmp.h>
 #include <mps/mps.h>
+#include <QString>
 
 namespace xmpsolve {
 
@@ -28,15 +28,14 @@ namespace xmpsolve {
  * The abstract method addCoefficientToPoly(), in particular, can be
  * used to insert the coefficient into a monomial poly.
  */
-class Monomial : public QObject
+class Monomial
 {
-    Q_OBJECT
 public:
     /**
      * @param input is the representation of the monomial to parse.
      * @param parent is the parent QObject.
      */
-    explicit Monomial(QString input, QObject *parent = 0);
+    explicit Monomial(QString input);
 
     /**
      * @brief isValid checks if the parsing of the input succeded.
@@ -71,11 +70,18 @@ public:
      */
     void changeSign();
 
-    ~Monomial();
-
-private:
     mpq_t realRationalCoefficient;
     mpq_t imagRationalCoefficient;
+
+    ~Monomial();
+
+    Monomial& operator=(const Monomial& rhs);
+    Monomial& operator+=(const Monomial& rhs);
+    Monomial& operator-=(const Monomial& rhs);
+    const Monomial operator+(const Monomial rhs) const;
+    const Monomial operator-(const Monomial rhs) const;
+
+private:
     int m_degree;
 
     bool m_valid;
@@ -85,10 +91,6 @@ private:
     void parseCoefficient(QString coefficient);
     void parseNumber(QString number, mpq_t output, mpq_t imag_output);
     void setError(QString message);
-    
-signals:
-    
-public slots:
     
 };
 

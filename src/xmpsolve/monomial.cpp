@@ -3,8 +3,7 @@
 
 namespace xmpsolve {
 
-Monomial::Monomial(QString input, QObject *parent) :
-    QObject(parent)
+Monomial::Monomial(QString input)
 {
     mpq_init(realRationalCoefficient);
     mpq_init(imagRationalCoefficient);
@@ -36,7 +35,7 @@ Monomial::parseMonomial(QString input)
     if (input.startsWith("x")) {
         // Check that we really have exponentiation here.
         if (input.at(1) != '^') {
-            setError(tr("unexpected character %1, expected ^").arg(input.at(1)));
+            setError(QObject::QObject::tr("unexpected character %1, expected ^").arg(input.at(1)));
             return;
         }
 
@@ -45,7 +44,7 @@ Monomial::parseMonomial(QString input)
         m_degree = exponent.toInt(&conversionOk);
 
         if (!conversionOk) {
-            setError(tr("not valid exponent: %1").arg(exponent));
+            setError(QObject::QObject::tr("not valid exponent: %1").arg(exponent));
             return;
         }
 
@@ -64,7 +63,7 @@ Monomial::parseMonomial(QString input)
         }
         else {
             if (input.at(exp_pos + 1) != '^') {
-                setError(tr("Expected ^, got %1").arg(input.at(exp_pos + 1)));
+                setError(QObject::QObject::tr("Expected ^, got %1").arg(input.at(exp_pos + 1)));
                 return;
             }
 
@@ -72,7 +71,7 @@ Monomial::parseMonomial(QString input)
             m_degree = exponent.toInt(&conversionOk);
 
             if (!conversionOk) {
-                setError(tr("not valid exponent: %1").arg(exponent));
+                setError(QObject::tr("not valid exponent: %1").arg(exponent));
                 return;
             }
         }
@@ -111,7 +110,7 @@ Monomial::parseCoefficient(QString coefficient)
 
         // Check that we have not a zero denominator
         if (mpq_equal(t_real, zero) && mpq_equal(t_imag, zero)) {
-            setError(tr("zero denominator in coefficient: %1").arg(coefficient));
+            setError(QObject::tr("zero denominator in coefficient: %1").arg(coefficient));
             return;
         }
 
@@ -230,7 +229,7 @@ Monomial::parseNumber(QString number, mpq_t real_output, mpq_t imag_output)
         exponent = number.right(number.length() - indexOfE - 1).toInt(&conversionOk);
 
         if (!conversionOk) {
-            setError(tr("unable to parse the exponent of the number: %1").arg(number));
+            setError(QObject::tr("unable to parse the exponent of the number: %1").arg(number));
             return;
         }
 
@@ -349,6 +348,46 @@ Monomial::addToMonomialPoly(mps_context *ctx, mps_monomial_poly *poly)
 {
     mps_monomial_poly_set_coefficient_q(ctx, poly, degree(),
         realRationalCoefficient, imagRationalCoefficient);
+}
+
+Monomial&
+Monomial::operator=(const Monomial& rhs)
+{
+    mpq_set(realRationalCoefficient, rhs.realRationalCoefficient);
+    mpq_set(imagRationalCoefficient, rhs.imagRationalCoefficient);
+    return *this;
+}
+
+Monomial&
+Monomial::operator+=(const Monomial& rhs)
+{
+    mpq_add(realRationalCoefficient, realRationalCoefficient, rhs.realRationalCoefficient);
+    mpq_add(imagRationalCoefficient, imagRationalCoefficient, rhs.imagRationalCoefficient);
+    return *this;
+}
+
+Monomial&
+Monomial::operator-=(const Monomial& rhs)
+{
+    mpq_sub(realRationalCoefficient, realRationalCoefficient, rhs.realRationalCoefficient);
+    mpq_sub(imagRationalCoefficient, imagRationalCoefficient, rhs.imagRationalCoefficient);
+    return *this;
+}
+
+const Monomial
+Monomial::operator+(const Monomial rhs) const
+{
+    Monomial result = *this;
+    result += rhs;
+    return result;
+}
+
+const Monomial
+Monomial::operator-(const Monomial rhs) const
+{
+    Monomial result = *this;
+    result -= rhs;
+    return result;
 }
 
 } // namespace xmpsolve
