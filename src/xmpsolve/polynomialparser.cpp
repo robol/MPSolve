@@ -41,11 +41,25 @@ PolynomialParser::parse(QString input)
     // We need to tokenize the input string dividing each monomial.
     // We do that scanning recursively for them, tokenizing by + and -
     int position = 0;
-    while (position < input.length() &&
-           input.at(position) != '+' &&
-           input.at(position) != '-')
+    int bracket_depth = 0;
+    while (position < input.length() && (
+           (input.at(position) != '+' &&
+           input.at(position) != '-') ||
+           bracket_depth != 0))
     {
+        if (input.at(position) == '(') {
+            bracket_depth++;
+        }
+        if (input.at(position) == ')') {
+            bracket_depth--;
+        }
+
         position++;
+    }
+
+    if (bracket_depth != 0) {
+        m_errorMessage = tr("Mismatched parenthesis");
+        return NULL;
     }
 
     // So now we have that input[position] \in { +, - } or

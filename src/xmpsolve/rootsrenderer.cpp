@@ -14,7 +14,7 @@ void
 RootsRenderer::setRoots(QList<Root *> roots)
 {
     m_roots.clear();
-    m_maxRealModule = m_maxImagModule = 0.0;
+    m_maxRealModule = m_maxImagModule = DBL_MIN;
 
     foreach(Root *root, roots)
     {

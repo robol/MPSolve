@@ -37,9 +37,17 @@ public:
       */
     int solvePoly(QString inputString);
 
+    /**
+     * @brief errorMessage can be used to access the last error message,
+     * if solvePoly() returns -1.
+     * @return A QString describing the last error.
+     */
+    QString errorMessage();
+
 private:
     MPSolveWorker * m_worker;
     mps_context * m_mpsContext;
+    QString m_errorMessage;
     
 signals:
     /** @brief Signal emitted when the computation ends. */

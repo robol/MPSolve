@@ -3,6 +3,7 @@
 #include <polynomialsolver.h>
 #include <QDebug>
 #include <QPainter>
+#include <QMessageBox>
 
 using namespace xmpsolve;
 
@@ -32,8 +33,11 @@ void MainWindow::on_solveButton_clicked()
 
     if (solver->solvePoly(ui->polyLineEdit->text()) < 0)
     {
-            QList<Root*> empty_list;
-            polynomial_solved(empty_list);
+        ui->statusBar->showMessage(tr("Polynomial parsing failed"));
+        QMessageBox mbox(QMessageBox::Critical, tr("Error while parsing the polynomial"),
+                         tr("The parser reported the following error: ") +
+                         solver->errorMessage(), QMessageBox::Ok);
+        mbox.exec();
     }
 }
 

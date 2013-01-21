@@ -47,9 +47,15 @@ PolynomialSolver::solvePoly(QString inputString)
         return solvePoly(poly);
     }
     else {
-        qDebug() << tr("Cannot parse input polynomial string: %1").arg(parser.errorMessage());
-        return -1;
+       m_errorMessage = parser.errorMessage();
+       return -1;
     }
+}
+
+QString
+PolynomialSolver::errorMessage()
+{
+    return m_errorMessage;
 }
 
 void

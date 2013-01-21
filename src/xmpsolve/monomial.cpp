@@ -165,6 +165,47 @@ Monomial::parseNumber(QString number, mpq_t real_output, mpq_t imag_output)
         mpq_set_str(imag_output, "0", 10);
     }
 
+    // Check for the complex case
+    if (number.startsWith('(')) {
+        // This means that we two numbers to parse, in here.
+        // The input may be a string of the type (C + Di) or
+        // (C - Di) or ...
+
+        // Start to reduce by +
+        int plus_position = number.indexOf('+');
+        int minus_position = number.indexOf('-');
+        int divider_position = (plus_position != -1) ? plus_position : minus_position;
+        if (divider_position != -1) {
+            QString part1 = number.left(divider_position) + ')';
+            QString part2 = '(' + number.right(number.length() - divider_position - 1);
+
+            mpq_t t_real, t_imag;
+            mpq_init(t_real);
+            mpq_init(t_imag);
+
+            parseNumber(part1, real_output, imag_output);
+            parseNumber(part2, t_real, t_imag);
+
+            if (plus_position != -1) {
+                mpq_add(real_output, real_output, t_real);
+                mpq_add(imag_output, imag_output, t_imag);
+            }
+            else {
+                mpq_sub(real_output, real_output, t_real);
+                mpq_sub(imag_output, imag_output, t_imag);
+
+            }
+
+            mpq_clear(t_real);
+            mpq_clear(t_imag);
+        }
+        else {
+            parseNumber(number.mid(1, number.length() - 2), real_output, imag_output);
+        }
+
+        return;
+    }
+
     // Check if we are in the pure imaginary case
     if (number.endsWith('i') || number.endsWith('I')) {
         number = number.left(number.length() - 1);
@@ -267,7 +308,7 @@ Monomial::parseNumber(QString number, mpq_t real_output, mpq_t imag_output)
 void
 Monomial::setError(QString message)
 {
-    m_errorMessage = tr("error: ") + message;
+    m_errorMessage = message;
     m_valid = FALSE;
 }
 
