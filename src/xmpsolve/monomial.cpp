@@ -1,5 +1,6 @@
 #include "monomial.h"
 #include <QDebug>
+#include <QSet>
 
 namespace xmpsolve {
 
@@ -9,6 +10,8 @@ Monomial::Monomial(QString input)
     mpq_init(imagRationalCoefficient);
 
     m_valid = true;
+    m_validChars << '1' << '2' << '3' << '4' << '5' << '6' << '7' << '8'
+                 << '9' << '0' << 'i' << 'I' << '(' << ')' << '/' << '+' << '-';
 
     // Start the parsing
     parseMonomial(input.trimmed());
@@ -157,6 +160,14 @@ void
 Monomial::parseNumber(QString number, mpq_t real_output, mpq_t imag_output)
 {
     qDebug() << QString("Monomial::parseNumber(%1)").arg(number);
+
+    // Sanity check. Check that only allowed symbols are in the number
+    foreach (QChar c, number) {
+        if (!m_validChars.contains(c)) {
+            setError(QObject::tr("Invalid char found: %1").arg(c));
+            return;
+        }
+    }
 
     // Base case of empty string
     if (number.isEmpty()) {

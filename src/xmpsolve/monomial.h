@@ -4,6 +4,8 @@
 #include <gmp.h>
 #include <mps/mps.h>
 #include <QString>
+#include <QSet>
+#include <QChar>
 
 namespace xmpsolve {
 
@@ -83,9 +85,11 @@ public:
 
 private:
     int m_degree;
+    QSet<QChar> m_validChars;
 
     bool m_valid;
     QString m_errorMessage;
+
 
     void parseMonomial(QString block);
     void parseCoefficient(QString coefficient);
