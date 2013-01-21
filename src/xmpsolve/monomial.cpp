@@ -11,7 +11,8 @@ Monomial::Monomial(QString input)
 
     m_valid = true;
     m_validChars << '1' << '2' << '3' << '4' << '5' << '6' << '7' << '8'
-                 << '9' << '0' << 'i' << 'I' << '(' << ')' << '/' << '+' << '-';
+                 << '9' << '0' << 'i' << 'I' << '(' << ')' << '/' << '+'
+                 << '-' << 'e' << '.';
 
     // Start the parsing
     parseMonomial(input.trimmed());
