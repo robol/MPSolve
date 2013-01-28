@@ -11,18 +11,29 @@ using namespace xmpsolve;
 PolynomialSolver::PolynomialSolver(QObject *parent) :
     QObject(parent)
 {
-    m_mpsContext = mps_context_new();
+    m_mpsContext = NULL;
+    m_worker.connect(&m_worker, SIGNAL(finished()),
+                     this, SLOT(workerExited()));
 }
 
 PolynomialSolver::~PolynomialSolver()
 {
-    mps_context_free(m_mpsContext);
+    if (m_mpsContext)
+        mps_context_free(m_mpsContext);
 }
 
 int
 PolynomialSolver::solvePoly(Polynomial poly, mps_algorithm selected_algorithm)
 {
     m_currentPoly = poly;
+
+    // Regenerate a new mps_context, since as of now the same cannot be used
+    // more than one time.
+    if (m_mpsContext)
+        mps_context_free(m_mpsContext);
+    m_mpsContext = mps_context_new();
+
+    m_worker.setMpsContext(m_mpsContext);
 
     mps_monomial_poly * monomialPoly = mps_monomial_poly_new(m_mpsContext, poly.degree());
     for (int i = 0; i <= poly.degree(); i++) {
@@ -33,23 +44,17 @@ PolynomialSolver::solvePoly(Polynomial poly, mps_algorithm selected_algorithm)
     mps_context_select_algorithm(m_mpsContext, selected_algorithm);
     mps_context_set_output_goal(m_mpsContext, MPS_OUTPUT_GOAL_APPROXIMATE);
 
-    // Create a new thread that solve the polynomial.
-    m_worker = new MPSolveWorker(m_mpsContext);
-    m_worker->connect(m_worker, SIGNAL(finished()),
-                      this, SLOT(workerExited()));
-
-    m_worker->start();
+    m_worker.start();
     return mps_context_get_degree (m_mpsContext);
 }
 
 int
 PolynomialSolver::solvePoly(QString inputString, mps_algorithm selected_algorithm)
 {
-    PolynomialParser parser(m_mpsContext);
+    PolynomialParser parser;
 
     // Parse the input string that the user has given.
     Polynomial poly = parser.parse(inputString);
-    // mps_monomial_poly * poly = parser.parse(inputString);
 
     if (poly.degree() != 0) {
         return solvePoly(poly, selected_algorithm);
@@ -105,4 +110,10 @@ PolynomialSolver::workerExited()
     /* Set the roots somewhere and then called
      * the solved() signal */
     solved(roots);
+}
+
+unsigned long int
+PolynomialSolver::CPUTime()
+{
+    return m_worker.CPUTime();
 }

@@ -4,10 +4,9 @@
 
 namespace xmpsolve {
 
-PolynomialParser::PolynomialParser(mps_context *context, QObject *parent) :
+PolynomialParser::PolynomialParser(QObject *parent) :
     QObject(parent)
 {
-    m_context = context;
     m_degree = 0;
 }
 

@@ -44,8 +44,15 @@ public:
      */
     QString errorMessage();
 
+    /**
+     * @brief CPUTime can be used to access the CPU time consumed by the last polynomial
+     * solved. Calling it before solvePoly() leads to undefined behaviour.
+     * @return the number of ms spent on the last polynomial solution.
+     */
+    unsigned long int CPUTime();
+
 private:
-    MPSolveWorker * m_worker;
+    MPSolveWorker m_worker;
     mps_context * m_mpsContext;
     QString m_errorMessage;
     Polynomial m_currentPoly;

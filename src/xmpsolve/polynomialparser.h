@@ -13,7 +13,7 @@ class PolynomialParser : public QObject
 {
     Q_OBJECT
 public:
-    explicit PolynomialParser(mps_context * context, QObject *parent = 0);
+    explicit PolynomialParser(QObject *parent = 0);
 
     /**
      * @brief reset clears all internal data of the parser
@@ -39,7 +39,6 @@ public:
 private:
     QList<Monomial*> m_monomials;
     QString m_errorMessage;
-    mps_context *m_context;
     int m_degree;
     
 signals:

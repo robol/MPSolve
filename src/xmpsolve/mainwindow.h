@@ -3,7 +3,7 @@
 
 #include <QMainWindow>
 #include "root.h"
-
+#include "polynomialsolver.h"
 #include<mps/mps.h>
 
 namespace Ui {
@@ -28,7 +28,7 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
-
+    PolynomialSolver m_solver;
 };
 
 } // Namespace xmpsolve

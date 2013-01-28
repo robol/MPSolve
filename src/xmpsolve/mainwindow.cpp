@@ -11,6 +11,11 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
+    // Connect the signal of computation finished to its callback in
+    // here.
+    QObject::connect(&m_solver, SIGNAL(solved(QList<Root*>)),
+                     this, SLOT(polynomial_solved(QList<Root*>)));
 }
 
 MainWindow::~MainWindow()
@@ -20,15 +25,6 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_solveButton_clicked()
 {
-    /* Create our polynomial solver */
-    PolynomialSolver *solver = new PolynomialSolver();
-
-    // Connect the signal of computation finished to its callback in
-    // here.
-    QObject::connect(solver, SIGNAL(solved(QList<Root*>)),
-                     this, SLOT(polynomial_solved(QList<Root*>)));
-
-
     ui->statusBar->showMessage(tr("Solving polynomial..."));
     ui->plainTextEdit->setEnabled(false);
     ui->solveButton->setEnabled(false);
@@ -36,13 +32,13 @@ void MainWindow::on_solveButton_clicked()
     mps_algorithm selected_algorithm = (ui->algorithmComboBox->currentIndex() == 0) ?
                 MPS_ALGORITHM_SECULAR_GA : MPS_ALGORITHM_STANDARD_MPSOLVE;
 
-    if (solver->solvePoly(ui->polyLineEdit->toPlainText(),
+    if (m_solver.solvePoly(ui->polyLineEdit->toPlainText(),
                           selected_algorithm) < 0)
     {
         ui->statusBar->showMessage(tr("Polynomial parsing failed"));
         QMessageBox mbox(QMessageBox::Critical, tr("Error while parsing the polynomial"),
                          tr("The parser reported the following error: ") +
-                         solver->errorMessage(), QMessageBox::Ok);
+                         m_solver.errorMessage(), QMessageBox::Ok);
         mbox.exec();
     }
 }
@@ -51,7 +47,7 @@ void
 MainWindow::polynomial_solved(QList<Root*> roots)
 {
     QString output;
-    ui->statusBar->showMessage(tr("Polynomial solved"));
+    ui->statusBar->showMessage(tr("Polynomial solved in %1ms").arg(m_solver.CPUTime()));
 
     for (int i = 0; i < roots.length(); i++)
     {
