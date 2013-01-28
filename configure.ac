@@ -71,6 +71,12 @@ AC_ARG_ENABLE([examples],
 	[build_examples=$enableval have_examples=$enableval],
 	[build_examples=yes have_examples=yes])
 
+# Add another option, enable/disable UI. 
+AC_ARG_ENABLE([ui],
+	AS_HELP_STRING([--disable-ui], [Don't build the graphical user interface for MPSolve]),
+	[build_ui=$enableval have_ui=$enableval],
+	[build_ui=yes have_ui=yes])
+
 # Checks for libraries.
 AC_CHECK_LIB([gmp], [__gmpz_init2])
 AC_CHECK_HEADERS([gmp.h], [mpsolve_found_gmp_headers=yes; break;])
@@ -156,22 +162,25 @@ AS_IF([test x$build_examples == xyes], [
 ])
 
 # Search qmake and Qt related things, so we can build
-# MPSolve UI
-AC_CHECK_PROGS([QMAKE_QT4], [qmake-qt4 qmake])
+# MPSolve UI. Don't build the UI if the user has manually
+# disabled it. 
 QT4_PROGRAMS=
-if test "x$QMAKE_QT4" != "x"; then
-	# Check that this is really the qmake-qt4 command and
-	# not the Qt3 one. 
-	AC_MSG_CHECKING([if qmake is at least for Qt 4.0.0])
-	QMAKE_VERSION=`$QMAKE_QT4 -version | grep "Qt version" | cut -d ' ' -f4`
-	AC_SUBST([QMAKE_VERSION])
-	AX_COMPARE_VERSION([$QMAKE_VERSION], [ge], [4.0.0], [
-		AC_MSG_RESULT([yes])
-		QT4_PROGRAMS=xmpsolve
-	], [
-		AC_MSG_RESULT([no])
-	])
-fi
+AS_IF([test x$build_ui == xyes], [
+	AC_CHECK_PROGS([QMAKE_QT4], [qmake-qt4 qmake])
+	if test "x$QMAKE_QT4" != "x"; then
+		# Check that this is really the qmake-qt4 command and
+		# not the Qt3 one. 
+		AC_MSG_CHECKING([if qmake is at least for Qt 4.0.0])
+		QMAKE_VERSION=`$QMAKE_QT4 -version | grep "Qt version" | cut -d ' ' -f4`
+		AC_SUBST([QMAKE_VERSION])
+		AX_COMPARE_VERSION([$QMAKE_VERSION], [ge], [4.0.0], [
+			AC_MSG_RESULT([yes])
+			QT4_PROGRAMS=xmpsolve
+		], [
+			AC_MSG_RESULT([no])
+		])
+	fi
+])
 AC_SUBST(QT4_PROGRAMS)
 		
 # Check for doxygen to generate documentation
@@ -254,6 +263,12 @@ if [test x$enable_matlab = xyes]; then
         echo "	MATLAB (tm) module:	$enable_octave (generates examples/matlab/$MATLAB_MODULES_PROGRAMS.mex)"
 else
         echo "	MATLAB (tm) module:	no"
+fi
+
+if [test x$build_ui = xyes]; then
+	echo "	Graphical UI:		$build_ui"
+else
+	echo "	Graphical UI:		no"
 fi
 
 echo "
