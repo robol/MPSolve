@@ -48,8 +48,6 @@ Monomial::Monomial(const Monomial &other)
 void
 Monomial::parseMonomial(QString input)
 {
-    qDebug() << QString("Monomial::parseMonomial(%1)").arg(input);
-
     bool conversionOk;
 
     if (input == QString("x")) {
@@ -111,8 +109,6 @@ Monomial::parseMonomial(QString input)
 void
 Monomial::parseCoefficient(QString coefficient)
 {
-    qDebug() << QString("Monomial::parseCoefficient(%1)").arg(coefficient);
-
     if (coefficient.isEmpty()) {
         parseCoefficient("1");
         return;
@@ -183,8 +179,6 @@ Monomial::parseCoefficient(QString coefficient)
 void
 Monomial::parseNumber(QString number, mpq_t real_output, mpq_t imag_output)
 {
-    qDebug() << QString("Monomial::parseNumber(%1)").arg(number);
-
     // Sanity check. Check that only allowed symbols are in the number
     foreach (QChar c, number) {
         if (!m_validChars.contains(c)) {
