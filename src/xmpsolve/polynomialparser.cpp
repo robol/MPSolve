@@ -1,4 +1,5 @@
 #include "polynomialparser.h"
+#include "polynomial.h"
 #include <QDebug>
 
 namespace xmpsolve {
@@ -18,14 +19,14 @@ PolynomialParser::reset()
     m_monomials.clear();
 }
 
-mps_monomial_poly *
+Polynomial
 PolynomialParser::parse(QString input)
 {
     bool signChangeNeeded = false;
 
     if (input.isEmpty()) {
         m_errorMessage = tr("Empty string encountered while parsing.");
-        return NULL;
+        return Polynomial();
     }
 
     input = input.trimmed();
@@ -59,7 +60,7 @@ PolynomialParser::parse(QString input)
 
     if (bracket_depth != 0) {
         m_errorMessage = tr("Mismatched parenthesis");
-        return NULL;
+        return Polynomial();
     }
 
     // So now we have that input[position] \in { +, - } or
@@ -69,7 +70,7 @@ PolynomialParser::parse(QString input)
 
     if (!monomial->isValid()) {
         m_errorMessage = monomial->errorMessage();
-        return NULL;
+        return Polynomial();
     }
 
     if (signChangeNeeded) {
@@ -85,14 +86,13 @@ PolynomialParser::parse(QString input)
         return parse(input.right(input.length() - position));
     }
     else {
-        // We can finally construct the polynomial
-        mps_monomial_poly *poly = mps_monomial_poly_new(m_context, m_degree);
+        Polynomial sumPoly;
 
         foreach(Monomial *m, m_monomials) {
-            m->addToMonomialPoly(m_context, poly);
+            sumPoly += *m;
         }
 
-        return poly;
+        return sumPoly;
     }
 }
 

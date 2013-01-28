@@ -4,7 +4,7 @@
 #include <QObject>
 #include "root.h"
 #include "mpsolveworker.h"
-
+#include "polynomial.h"
 #include <mps/mps.h>
 
 namespace xmpsolve {
@@ -28,7 +28,7 @@ public:
       *
       * @return The degree of the polynomial.
       */
-    int solvePoly(mps_monomial_poly * poly, mps_algorithm selected_algorithm = MPS_ALGORITHM_SECULAR_GA);
+    int solvePoly(Polynomial poly, mps_algorithm selected_algorithm = MPS_ALGORITHM_SECULAR_GA);
 
     /** @brief Parse the string describing the polynomial
       * and solve it.
@@ -48,6 +48,7 @@ private:
     MPSolveWorker * m_worker;
     mps_context * m_mpsContext;
     QString m_errorMessage;
+    Polynomial m_currentPoly;
     
 signals:
     /** @brief Signal emitted when the computation ends. */

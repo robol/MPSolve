@@ -5,6 +5,7 @@
 #include <QList>
 #include <mps/mps.h>
 #include "monomial.h"
+#include "polynomial.h"
 
 namespace xmpsolve {
 
@@ -26,7 +27,7 @@ public:
      * @param input is the string representing the input polynomial.
      * @return A pointer to a newly allocated mps_monomial_poly.
      */
-    mps_monomial_poly * parse(QString input);
+    Polynomial parse(QString input);
 
     /**
      * @brief errorMessage can be used to access the last error message in the

@@ -3,6 +3,7 @@
 
 #include <QList>
 #include "monomial.h"
+#include <vector>
 
 namespace xmpsolve {
 
@@ -15,10 +16,23 @@ public:
     // Operators
     Polynomial& operator=(const Polynomial& rhs);
 
+    Polynomial& operator+=(const Monomial& rhs);
+    Polynomial& operator-=(const Monomial& rhs);
+    const Polynomial operator+(const Monomial rhs) const;
+    const Polynomial operator-(const Monomial rhs) const;
+
+    /**
+     * @brief monomial retrieves the monomial of degree specified
+     * @param degree is the degree desired.
+     * @return A reference to the monomial of given degree.
+     */
+    Monomial monomial(int degree) const;
 
 private:
     int m_degree;
-    QList<Monomial> m_monomials;
+    void deflate();
+
+    std::vector<Monomial> m_monomials;
     
 };
 

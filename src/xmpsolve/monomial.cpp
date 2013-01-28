@@ -22,6 +22,29 @@ Monomial::Monomial(QString input)
     mpq_canonicalize(imagRationalCoefficient);
 }
 
+Monomial::Monomial(double coefficient, int exponent)
+{
+    mpq_init(realRationalCoefficient);
+    mpq_init(imagRationalCoefficient);
+
+    mpq_set_d(realRationalCoefficient, coefficient);
+    mpq_set_si(imagRationalCoefficient, 0, 0);
+
+    m_degree = exponent;
+
+    // Canonicalize the rational number
+    mpq_canonicalize(realRationalCoefficient);
+    mpq_canonicalize(imagRationalCoefficient);
+}
+
+Monomial::Monomial(const Monomial &other)
+{
+    mpq_init(realRationalCoefficient);
+    mpq_init(imagRationalCoefficient);
+
+    *this = other;
+}
+
 void
 Monomial::parseMonomial(QString input)
 {
@@ -331,7 +354,7 @@ Monomial::~Monomial()
 }
 
 int
-Monomial::degree()
+Monomial::degree() const
 {
     return m_degree;
 }
@@ -367,39 +390,12 @@ Monomial::operator=(const Monomial& rhs)
 {
     mpq_set(realRationalCoefficient, rhs.realRationalCoefficient);
     mpq_set(imagRationalCoefficient, rhs.imagRationalCoefficient);
+
+    m_degree = rhs.degree();
+
     return *this;
 }
 
-Monomial&
-Monomial::operator+=(const Monomial& rhs)
-{
-    mpq_add(realRationalCoefficient, realRationalCoefficient, rhs.realRationalCoefficient);
-    mpq_add(imagRationalCoefficient, imagRationalCoefficient, rhs.imagRationalCoefficient);
-    return *this;
-}
 
-Monomial&
-Monomial::operator-=(const Monomial& rhs)
-{
-    mpq_sub(realRationalCoefficient, realRationalCoefficient, rhs.realRationalCoefficient);
-    mpq_sub(imagRationalCoefficient, imagRationalCoefficient, rhs.imagRationalCoefficient);
-    return *this;
-}
-
-const Monomial
-Monomial::operator+(const Monomial rhs) const
-{
-    Monomial result = *this;
-    result += rhs;
-    return result;
-}
-
-const Monomial
-Monomial::operator-(const Monomial rhs) const
-{
-    Monomial result = *this;
-    result -= rhs;
-    return result;
-}
 
 } // namespace xmpsolve

@@ -20,9 +20,16 @@ PolynomialSolver::~PolynomialSolver()
 }
 
 int
-PolynomialSolver::solvePoly(mps_monomial_poly *poly, mps_algorithm selected_algorithm)
+PolynomialSolver::solvePoly(Polynomial poly, mps_algorithm selected_algorithm)
 {
-    mps_context_set_input_poly(m_mpsContext, poly);
+    m_currentPoly = poly;
+
+    mps_monomial_poly * monomialPoly = mps_monomial_poly_new(m_mpsContext, poly.degree());
+    for (int i = 0; i <= poly.degree(); i++) {
+        poly.monomial(i).addToMonomialPoly(m_mpsContext, monomialPoly);
+    }
+
+    mps_context_set_input_poly(m_mpsContext, monomialPoly);
     mps_context_select_algorithm(m_mpsContext, selected_algorithm);
     mps_context_set_output_goal(m_mpsContext, MPS_OUTPUT_GOAL_APPROXIMATE);
 
@@ -41,13 +48,19 @@ PolynomialSolver::solvePoly(QString inputString, mps_algorithm selected_algorith
     PolynomialParser parser(m_mpsContext);
 
     // Parse the input string that the user has given.
-    mps_monomial_poly * poly = parser.parse(inputString);
+    Polynomial poly = parser.parse(inputString);
+    // mps_monomial_poly * poly = parser.parse(inputString);
 
-    if (poly != NULL) {
+    if (poly.degree() != 0) {
         return solvePoly(poly, selected_algorithm);
     }
     else {
        m_errorMessage = parser.errorMessage();
+
+       if (m_errorMessage == QString("")) {
+           m_errorMessage = tr("Constant polynomials have no roots");
+       }
+
        return -1;
     }
 }

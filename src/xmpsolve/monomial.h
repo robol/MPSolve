@@ -39,6 +39,10 @@ public:
      */
     explicit Monomial(QString input);
 
+    explicit Monomial(double coefficient, int exponent);
+
+    Monomial(const Monomial& other);
+
     /**
      * @brief isValid checks if the parsing of the input succeded.
      * @return true if the input was valid, and false otherwise.
@@ -56,7 +60,7 @@ public:
      * @brief Degree can be used to access the degree of the monomial
      * @return the degree of the polynomial.
      */
-    int degree();
+    int degree() const;
 
     /**
      * @brief addToMonomialPoly can be used to add this this monomial
@@ -78,10 +82,6 @@ public:
     ~Monomial();
 
     Monomial& operator=(const Monomial& rhs);
-    Monomial& operator+=(const Monomial& rhs);
-    Monomial& operator-=(const Monomial& rhs);
-    const Monomial operator+(const Monomial rhs) const;
-    const Monomial operator-(const Monomial rhs) const;
 
 private:
     int m_degree;
