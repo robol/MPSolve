@@ -30,6 +30,8 @@ void MainWindow::on_solveButton_clicked()
 
 
     ui->statusBar->showMessage(tr("Solving polynomial..."));
+    ui->plainTextEdit->setEnabled(false);
+    ui->solveButton->setEnabled(false);
 
     mps_algorithm selected_algorithm = (ui->algorithmComboBox->currentIndex() == 0) ?
                 MPS_ALGORITHM_SECULAR_GA : MPS_ALGORITHM_STANDARD_MPSOLVE;
@@ -62,6 +64,9 @@ MainWindow::polynomial_solved(QList<Root*> roots)
         // output.append (QString("Radius: %1\n").arg(roots[i]->get_radius()));
         output.append("\n");
     }
+
+    ui->plainTextEdit->setEnabled(true);
+    ui->solveButton->setEnabled(true);
 
     ui->plainTextEdit->clear();
     ui->plainTextEdit->insertPlainText(output);
