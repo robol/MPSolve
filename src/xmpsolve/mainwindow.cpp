@@ -23,11 +23,24 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+void
+MainWindow::lockInterface()
+{
+    ui->plainTextEdit->setEnabled(false);
+    ui->solveButton->setEnabled(false);
+}
+
+void
+MainWindow::unlockInterface()
+{
+    ui->plainTextEdit->setEnabled(true);
+    ui->solveButton->setEnabled(true);
+}
+
 void MainWindow::on_solveButton_clicked()
 {
     ui->statusBar->showMessage(tr("Solving polynomial..."));
-    ui->plainTextEdit->setEnabled(false);
-    ui->solveButton->setEnabled(false);
+    lockInterface();
 
     mps_algorithm selected_algorithm = (ui->algorithmComboBox->currentIndex() == 0) ?
                 MPS_ALGORITHM_SECULAR_GA : MPS_ALGORITHM_STANDARD_MPSOLVE;
@@ -40,6 +53,7 @@ void MainWindow::on_solveButton_clicked()
                          tr("The parser reported the following error: ") +
                          m_solver.errorMessage(), QMessageBox::Ok);
         mbox.exec();
+        unlockInterface();
     }
 }
 
@@ -61,8 +75,7 @@ MainWindow::polynomial_solved(QList<Root*> roots)
         output.append("\n");
     }
 
-    ui->plainTextEdit->setEnabled(true);
-    ui->solveButton->setEnabled(true);
+    unlockInterface();
 
     ui->plainTextEdit->clear();
     ui->plainTextEdit->insertPlainText(output);

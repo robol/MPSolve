@@ -25,6 +25,8 @@ public slots:
     
 private slots:
     void on_solveButton_clicked();
+    void lockInterface();
+    void unlockInterface();
 
 private:
     Ui::MainWindow *ui;
