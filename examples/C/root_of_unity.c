@@ -51,11 +51,13 @@ main (int argc, char **argv)
   s = mps_context_new ();
   p = mps_monomial_poly_new (s, n);
 
-  mps_monomial_poly_set_coefficient_q (s, p, 0, m_one, zero); 
-  mps_monomial_poly_set_coefficient_q (s, p, n, one, zero); 
+/*  mps_monomial_poly_set_coefficient_q (s, p, 0, m_one, zero); 
+  mps_monomial_poly_set_coefficient_q (s, p, n, one, zero);  */
 
-  /* mps_monomial_poly_set_coefficient_d (s, p, 0, 1, 0); */
-  /* mps_monomial_poly_set_coefficient_d (s, p, n, -1, 0); */
+  mps_context_select_algorithm(s, MPS_ALGORITHM_SECULAR_GA);
+
+  mps_monomial_poly_set_coefficient_d (s, p, 0, 1, 0); 
+  mps_monomial_poly_set_coefficient_d (s, p, n, -1, 0); 
 
   /* Set the input polynomial */
   mps_context_set_input_poly (s, p);
