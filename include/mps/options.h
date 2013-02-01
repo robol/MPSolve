@@ -6,11 +6,11 @@
  * @brief Implementation of option parsing for MPSolve.
  */
 
+#include <mps/mps.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include <mps/mps.h>
 
   /**
    * @brief Struct holding the options passed on the command

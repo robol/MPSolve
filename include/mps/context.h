@@ -1,6 +1,9 @@
 #ifndef MPS_STATUS_H
 #define MPS_STATUS_H
 
+#include <mps/mps.h>
+#include <pthread.h>
+
 #ifdef __cplusplus
 extern "C"
 {
@@ -11,8 +14,6 @@ extern "C"
    * @brief This file contains the definition of <code>mps_context</code> and 
    * most of its fields.
    */
-#include <mps/mps.h>
-#include <pthread.h>
 
   /**
    * @brief Routine that performs the computation loop to solve the polynomial

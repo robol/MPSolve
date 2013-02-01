@@ -10,6 +10,10 @@
  * @brief Multithreading iterations for MPSolve.
  */
 
+#include <pthread.h>
+#include <semaphore.h>
+#include <mps/mps.h>
+
 #ifdef __cplusplus
 extern "C"
 {
@@ -17,10 +21,6 @@ extern "C"
 
 #ifndef MPS_THREADING_H_
 #define MPS_THREADING_H_
-
-#include <pthread.h>
-#include <semaphore.h>
-#include <mps/mps.h>
 
 #define MPS_THREAD_JOB_EXCEP -1
 

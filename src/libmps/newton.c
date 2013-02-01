@@ -287,9 +287,6 @@ mps_parhorner (mps_context * st, int n, mpc_t x, mpc_t p[],
 
   /* Set the pointer for paraller horner to be thread specific
    * so there is not conflict with other threads.           */
-  /* mps_boolean *spar2 = mps_thread_get_spar2 (st, n_thread); */
-  /* mpc_t *mfpc2 = mps_thread_get_mfpc2 (st, n_thread); */
-
   mps_boolean *spar2 = mps_boolean_valloc (n + 2);
   mpc_t * mfpc2 = mpc_valloc (n + 1);
   mpc_vinit2 (mfpc2, n + 1, mpc_get_prec (p[0]));
@@ -340,6 +337,9 @@ mps_parhorner (mps_context * st, int n, mpc_t x, mpc_t p[],
       mpc_sqr_eq (y);
     }
   mpc_set (s, mfpc2[0]);
+
+  mpc_vclear (mfpc2, n);
+  free (mfpc2);
 
   mpc_clear (y);
   mpc_clear (tmp);

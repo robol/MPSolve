@@ -441,12 +441,13 @@ mps_fcluster (mps_context * s, double * frad, int nf)
 	   * cluster repeat the checks. */
 	  while (base_root)
 	    {
-	      mps_cluster_item * c_item;
+	      /* mps_cluster_item * c_item; */
 	      mps_root * iter_root;
 
-	      for (c_item = s->clusterization->first; c_item != NULL; c_item = c_item->next)
+	      /* for (c_item = s->clusterization->first; c_item != NULL; c_item = c_item->next) */
 		{
-		  mps_cluster * iter_cluster = c_item->cluster;
+		  /* mps_cluster * iter_cluster = c_item->cluster; */
+		  mps_cluster * iter_cluster = cluster;
 
 		  iter_root = iter_cluster->first;
 		  while (iter_root)
@@ -626,12 +627,13 @@ mps_dcluster (mps_context * s, rdpe_t * drad, int nf)
 	   * cluster repeat the checks. */
 	  while (base_root)
 	    {
-	      mps_cluster_item * c_item;
+	      /* mps_cluster_item * c_item; */
 	      mps_root * iter_root;
 
-	      for (c_item = s->clusterization->first; c_item != NULL; c_item = c_item->next)
+	      /* for (c_item = s->clusterization->first; c_item != NULL; c_item = c_item->next) */
 		{
-		  mps_cluster * iter_cluster = c_item->cluster;
+		  /* mps_cluster * iter_cluster = c_item->cluster; */
+		  mps_cluster * iter_cluster = cluster;
 
 		  iter_root = iter_cluster->first;
 		  while (iter_root)
@@ -869,12 +871,13 @@ mps_mcluster (mps_context * s, rdpe_t * drad, int nf)
 	   * cluster repeat the checks. */
 	  while (base_root)
 	    {
-	      mps_cluster_item * c_item;
+	      /* mps_cluster_item * c_item; */
 	      mps_root * iter_root;
 
-	      for (c_item = s->clusterization->first; c_item != NULL; c_item = c_item->next)
-		{
-		  mps_cluster * iter_cluster = c_item->cluster;
+	      /* for (c_item = s->clusterization->first; c_item != NULL; c_item = c_item->next) */
+	      { 
+		/* 	  mps_cluster * iter_cluster = c_item->cluster; */
+		mps_cluster * iter_cluster = iter_cluster = cluster;
 
 		  iter_root = iter_cluster->first;
 		  while (iter_root)

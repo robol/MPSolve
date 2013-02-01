@@ -78,7 +78,7 @@ void
 on_polynomial_solved (mps_context * s, GtkButton * button)
 {
   points = cplx_valloc (mps_context_get_degree (s));
-  mps_context_get_roots_d (s, points, NULL);
+  mps_context_get_roots_d (s, &points, NULL);
   degree = mps_context_get_degree (s);
 
   /* Call the update function from the right thread! */
@@ -111,7 +111,7 @@ on_solve_button_clicked (GtkButton * button, GtkSpinButton * spin_button)
   mps_monomial_poly_set_coefficient_d (s, p, degree, 1, 0);
 
   /* Asking MPSolve to solve it asynchronously */
-  mps_context_set_input_poly (s, p);
+  mps_context_set_input_poly (s, MPS_POLYNOMIAL (p));
   mps_mpsolve_async (s, (mps_callback) on_polynomial_solved, button);
 }
 

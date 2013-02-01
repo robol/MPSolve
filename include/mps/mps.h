@@ -53,7 +53,6 @@ typedef int mps_debug_level;
 
 #ifdef __cplusplus
 
-
   /* Forward declarations of the type used in the headers, so they can be
    * resolved indepently by the header inclusion order. */
 
@@ -96,8 +95,6 @@ typedef int mps_debug_level;
   struct mps_thread;
   struct mps_thread_pool;
 
-extern  "C"
-{
 #else
 
   /* Forward declarations of the type used in the headers, so they can be
@@ -468,6 +465,10 @@ extern  "C"
 
 #define MPS_ALL_CLUSTERS -1
 
+#ifdef __cplusplus
+  extern "C" {
+#endif
+
 
 /* FUNCTIONS */
 
@@ -510,9 +511,6 @@ extern  "C"
 
   /* functions in improve.c */
   void mps_improve (mps_context * s);
-#ifdef _MPS_PRIVATE
-  void* mps_improve_root (void * data_ptr);
-#endif
   
   /* functions in main.c */
   void mps_setup (mps_context * s);
@@ -671,5 +669,9 @@ extern  "C"
   void mps_mhorner (mps_context * s, mps_monomial_poly * p, mpc_t x, mpc_t value);
   void mps_mhorner_with_error (mps_context * s, mps_monomial_poly * p, mpc_t x, mpc_t value, rdpe_t relative_error, long int wp);
   void mps_mhorner_with_error2 (mps_context * s, mps_monomial_poly * p, mpc_t x, mpc_t value, rdpe_t relative_error, long int wp);
+
+#ifdef __cplusplus
+  }
+#endif
 
 #endif                          /* ndef MPSCORE_H */

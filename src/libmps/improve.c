@@ -24,6 +24,7 @@ pthread_mutex_t output_mutex = PTHREAD_MUTEX_INITIALIZER;
   } __mps_improve_data;
 
 void * mps_improve_root2 (void*);
+void * mps_improve_root (void*);
 
 /**
  * @brief Improve all the approximations up to prec_out digits.

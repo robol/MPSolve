@@ -8,6 +8,7 @@
  */
 
 #ifndef __MPS_MT_TYPES
+#define __MPS_MT_TYPES
 
 #define MPS_LOCK(x) (pthread_mutex_lock (&(x).mutex));
     

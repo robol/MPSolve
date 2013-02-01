@@ -15,19 +15,13 @@
 #ifndef __GMPTOOLS_H__
 #define __GMPTOOLS_H__
 
+#include <gmp.h>
+#include <stdio.h>
+
 #ifdef __cplusplus
 extern "C"
 {
-#undef __cplusplus
-#include <gmp.h>
-#define __cplusplus
-#else
-#include <gmp.h>
 #endif
-
-/* needed header files */
-#include <stdio.h>
-
 
 /**********************************************
 *                  MPZ_T                      *
@@ -139,7 +133,6 @@ extern "C"
   void mpf_vclear (mpf_t v[], unsigned long int size);
 #define mpf_vfree(V)          free(V)
 
-#endif
 
 
 /*
@@ -149,4 +142,6 @@ extern "C"
  */
 #ifdef __cplusplus
 }
+#endif
+
 #endif

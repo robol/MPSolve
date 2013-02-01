@@ -49,8 +49,10 @@ mps_thread_get_core_number (mps_context * s)
 
   /* Check for newlines in /proc/cpuinfo, that should correspond
    * to logical cores.                                        */
-  while ((buf = fgetc (cpuinfo)) != EOF)
+  while (!feof (cpuinfo) && ((buf = fgetc (cpuinfo)) != EOF))
     {
+      if (feof(cpuinfo))
+        break;
       if (buf == '\n')
         if (fgetc (cpuinfo) == '\n')
           cores++;
