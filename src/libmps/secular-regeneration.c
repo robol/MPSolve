@@ -42,7 +42,7 @@ mps_secular_ga_update_root_wp (mps_context * s, int i, long int wp, mpc_t * bmpc
 
   if (sec->bmpc == bmpc)
     {
-      for (j = 0; j < s->n; j++)
+      for (j = 0; j < sec->n; j++)
 	{
 	  pthread_mutex_lock (&sec->bmpc_mutex[j]); 
 	  if (mpc_get_prec (bmpc[j]) < s->root[i]->wp) 
@@ -52,7 +52,7 @@ mps_secular_ga_update_root_wp (mps_context * s, int i, long int wp, mpc_t * bmpc
     }
   else
     {
-      for (j = 0; j < s->n; j++)
+      for (j = 0; j < sec->n; j++)
 	{
 	  if (mpc_get_prec (bmpc[j]) < s->root[i]->wp) 
 	    mpc_set_prec (bmpc[j], s->root[i]->wp);
