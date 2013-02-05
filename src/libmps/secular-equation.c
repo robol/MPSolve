@@ -211,6 +211,8 @@ mps_secular_equation_new_raw (mps_context * s, unsigned long int n)
 
   mps_polynomial_init (s, MPS_POLYNOMIAL (sec));
 
+  MPS_POLYNOMIAL (sec)->type_name = "mps_secular_equation";
+
   /* Hook up the overloaded methods for secular equations */
   mps_polynomial * p = MPS_POLYNOMIAL (sec);
   p->feval = mps_secular_poly_feval_with_error;

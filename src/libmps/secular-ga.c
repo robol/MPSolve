@@ -184,9 +184,9 @@ mps_secular_ga_mpsolve (mps_context * s)
   s->count[1] = 0;
   s->count[2] = 0;
 
-  /* If the input was polynomial we need to determined the secular
+  /* If the input was polynomial we need to determine the secular
    * coefficients */
-  if (MPS_IS_MONOMIAL_POLY (s->active_poly))
+  if (!MPS_IS_SECULAR_EQUATION (s->active_poly))
     {
       mps_polynomial *p = s->active_poly;
 
@@ -370,7 +370,7 @@ mps_secular_ga_mpsolve (mps_context * s)
 	   if (MPS_IS_MONOMIAL_POLY (s->active_poly))
 	     {   
 	       MPS_DEBUG (s, "Performing restart phase");
-	       mps_secular_restart (s);
+	       /* mps_secular_restart (s); */
 	     }
 
 	   if (!mps_secular_ga_regenerate_coefficients (s)) 

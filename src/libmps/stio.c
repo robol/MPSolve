@@ -171,6 +171,8 @@ mps_parse_option_line (mps_context * s, char *line, size_t length)
     input_option.flag = MPS_FLAG_SECULAR;
   if (mps_is_option (s, option, "monomial"))
     input_option.flag = MPS_FLAG_MONOMIAL;
+  if (mps_is_option (s, option, "chebyshev"))
+    input_option.flag = MPS_FLAG_CHEBYSHEV;
 
   /* Parsing keys with values. If = is not found in the
    * input string, than an error has occurred so we should
@@ -577,6 +579,44 @@ mps_secular_equation_read_from_stream (mps_context * s,
   mps_context_set_input_poly (s, MPS_POLYNOMIAL (sec));
 
   mpf_clear (ftmp);
+}
+
+void
+mps_chebyshev_poly_read_from_stream (mps_context * ctx, mps_input_buffer * buffer, 
+  mps_structure structure, mps_density density)
+{
+  int i;
+  char * token;
+  mps_chebyshev_poly * cpoly = mps_chebyshev_poly_new (ctx, ctx->n);
+
+  if (density != MPS_DENSITY_DENSE || structure != MPS_STRUCTURE_COMPLEX_FP) {
+    mps_error (ctx, 1, "Only density = MPS_DENSITY_DENSE and structure = MPS_STRUCTURE_COMPLEX_FP are supported.");
+    return;
+  }
+
+  for (i = 0; i <= ctx->n; i++) {
+    token = mps_input_buffer_next_token (buffer);
+    if (!token || (mpf_set_str (mpc_Re (cpoly->mfpc[i]), token, 10) != 0)) {
+      mps_error (ctx, 1, "Error while reading real part of coefficient %d", i);
+      abort();
+    }
+
+    token = mps_input_buffer_next_token (buffer);
+    if (!token || (mpf_set_str (mpc_Im (cpoly->mfpc[i]), token, 10) != 0)) {
+      mps_error (ctx, 1, "Error while reading imaginary part of coefficient %d", i);
+      abort();
+    }
+
+    /* Update other floating point coefficients */
+    mpc_get_cdpe (cpoly->dpc[i], cpoly->mfpc[i]);
+    mpc_get_cplx (cpoly->fpc[i], cpoly->mfpc[i]);
+
+    if (ctx->debug_level & MPS_DEBUG_IO) {
+      MPS_DEBUG_CPLX (ctx, cpoly->fpc[i], "Coefficient %d", i);
+    }
+  }
+
+  mps_context_set_input_poly (ctx, MPS_POLYNOMIAL (cpoly));
 }
 
 void
@@ -1056,6 +1096,8 @@ mps_parse_stream (mps_context * s, FILE * input_stream)
 	    representation = MPS_REPRESENTATION_SECULAR;
 	  else if (input_option.flag == MPS_FLAG_MONOMIAL)
 	    representation = MPS_REPRESENTATION_MONOMIAL;
+    else if (input_option.flag == MPS_FLAG_CHEBYSHEV)
+      representation = MPS_REPRESENTATION_CHEBYSHEV;
 
 	  /* And of dense and or sparse input */
 	  else if (input_option.flag == MPS_FLAG_SPARSE)
@@ -1121,21 +1163,28 @@ mps_parse_stream (mps_context * s, FILE * input_stream)
       MPS_DEBUG (s, "Degree: %d", s->n);
     }
 
-  if (representation == MPS_REPRESENTATION_SECULAR)
-    {
+
+  switch (representation) {
+    case MPS_REPRESENTATION_SECULAR:
       if (s->debug_level & MPS_DEBUG_IO)
         {
           MPS_DEBUG (s, "Parsing secular equation from stream");
         }
       mps_secular_equation_read_from_stream (s, buffer, structure, density);
-    }
-  else if (representation == MPS_REPRESENTATION_MONOMIAL)
-    {
-      if (s->debug_level & MPS_DEBUG_IO)
-	MPS_DEBUG (s, "Parsing polynomial from stream");
+      break;
 
+    case MPS_REPRESENTATION_MONOMIAL:
+      if (s->debug_level & MPS_DEBUG_IO)
+        MPS_DEBUG (s, "Parsing mps_polynomial from stream");
       mps_monomial_poly_read_from_stream (s, buffer, structure, density);
-    }
+      break;
+
+    case MPS_REPRESENTATION_CHEBYSHEV:
+      if (s->debug_level & MPS_DEBUG_IO)
+        MPS_DEBUG (s, "Parsing mps_chebyshev_poly from stream");
+      mps_chebyshev_poly_read_from_stream (s, buffer, structure, density);
+      break;
+  }
 
   MPS_POLYNOMIAL (s->active_poly)->structure = structure;
   MPS_POLYNOMIAL (s->active_poly)->density = density;

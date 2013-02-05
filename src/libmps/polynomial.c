@@ -38,9 +38,9 @@ mps_polynomial_init (mps_context * ctx, mps_polynomial * p)
   p->feval = NULL;
   p->deval = NULL;
   p->meval = NULL;
-  p->fstart = NULL; // mps_general_fstart;
-  p->dstart = NULL; // mps_general_dstart;
-  p->mstart = NULL; // mps_general_mstart;
+  p->fstart = mps_general_fstart;
+  p->dstart = mps_general_dstart;
+  p->mstart = mps_general_mstart;
   p->free = _mps_polynomial_free;
   p->raise_data = _mps_polynomial_raise_data;
   p->fnewton = NULL;

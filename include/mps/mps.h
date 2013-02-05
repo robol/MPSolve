@@ -320,7 +320,10 @@ extern  "C"
 
       /* Key with a value */
       MPS_KEY_DEGREE,
-      MPS_KEY_PRECISION
+      MPS_KEY_PRECISION,
+
+      /* Key introduced in MPSolve 3.1 */
+      MPS_FLAG_CHEBYSHEV
     };
 
   /**
@@ -439,7 +442,8 @@ extern  "C"
   enum mps_representation
     {
       MPS_REPRESENTATION_SECULAR,
-      MPS_REPRESENTATION_MONOMIAL
+      MPS_REPRESENTATION_MONOMIAL,
+      MPS_REPRESENTATION_CHEBYSHEV
     };
 
 
@@ -457,6 +461,7 @@ extern  "C"
 #include <mps/context.h>
 #include <mps/monomial-poly.h>
 #include <mps/secular-equation.h>
+#include <mps/chebyshev.h>
 #include <mps/approximation.h>
 
 /* Interface should be a subset of core, so what is defined

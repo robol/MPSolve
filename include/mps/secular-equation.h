@@ -22,6 +22,7 @@ extern "C"
 #include <float.h>
 
 #define MPS_SECULAR_EQUATION(t) ((mps_secular_equation *) t)
+#define MPS_IS_SECULAR_EQUATION(t) (mps_polynomial_check_type (t, "mps_secular_equation"))
 
 #ifdef _MPS_PRIVATE
 
