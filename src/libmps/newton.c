@@ -338,9 +338,6 @@ mps_parhorner (mps_context * st, int n, mpc_t x, mpc_t p[],
     }
   mpc_set (s, mfpc2[0]);
 
-  mpc_vclear (mfpc2, n);
-  free (mfpc2);
-
   mpc_clear (y);
   mpc_clear (tmp);
 
