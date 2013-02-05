@@ -485,6 +485,8 @@ mps_secular_raise_coefficient_precision (mps_context * s, mps_polynomial * p, lo
 	  mpf_set_q (mpc_Re (raising_ampc[i]), sec->initial_ampqrc[i]);
 	  mpf_set_q (mpc_Im (raising_ampc[i]), sec->initial_ampqic[i]);
 	}
+      else
+	mpc_set (raising_ampc[i], sec->ampc[i]);
 
       mpc_set_prec (raising_bmpc[i], wp);
       if (!MPS_STRUCTURE_IS_FP (s->active_poly->structure))
@@ -492,6 +494,8 @@ mps_secular_raise_coefficient_precision (mps_context * s, mps_polynomial * p, lo
 	  mpf_set_q (mpc_Re (raising_bmpc[i]), sec->initial_bmpqrc[i]);
 	  mpf_set_q (mpc_Im (raising_bmpc[i]), sec->initial_bmpqic[i]);
 	}
+      else
+	mpc_set (raising_bmpc[i], sec->bmpc[i]);
     }
 
   sec->ampc = raising_ampc;

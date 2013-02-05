@@ -1,0 +1,5 @@
+== 3.0.0 == 03/12/2012
+ - First open source release of MPSolve
+ - Implemented the secular solver as an alternative to the classical one
+ - Support for solving secular equations
+ - Parallelization of most of the parts of the algorithm

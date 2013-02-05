@@ -510,9 +510,6 @@ extern  "C"
 
   /* functions in improve.c */
   void mps_improve (mps_context * s);
-#ifdef _MPS_PRIVATE
-  void* mps_improve_root (void * data_ptr);
-#endif
   
   /* functions in main.c */
   void mps_setup (mps_context * s);

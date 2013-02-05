@@ -545,17 +545,31 @@ mps_check_data (mps_context * s, char *which_case)
   rdpe_mul_eq_d (tmp, (double) (s->n + 1));
   rdpe_mul_eq (tmp, rdpe_mind);
   rdpe_div_eq (tmp, rdpe_maxd);
+
   if (rdpe_lt (tmp, rdpe_one))
     {
+      mpc_t m_min_coeff;
+      cdpe_t c_min_coeff;
+
       /* if  (n+1)*max_coeff/min_coeff < dhuge/dtiny -  float case */
       *which_case = 'f';
       rdpe_mul_eq (min_coeff, max_coeff);
       rdpe_mul (tmp, rdpe_mind, rdpe_maxd);
       rdpe_div (min_coeff, tmp, min_coeff);
       rdpe_sqrt_eq (min_coeff);
+
+      rdpe_set (cdpe_Re (c_min_coeff), min_coeff);
+      rdpe_set (cdpe_Im (c_min_coeff), rdpe_zero);
+
+      mpc_init2 (m_min_coeff, mpc_get_prec (p->mfpc[0]));
+      mpc_set_cdpe (m_min_coeff, c_min_coeff);
+
       /* min_coeff = sqrt(dhuge*dtiny/(min_coeff*max_coeff)) */
       for (i = 0; i <= s->n; i++)
         {
+          /* Multiply the MP leading coefficient */
+          mpc_mul_eq (p->mfpc[i], m_min_coeff);
+
           rdpe_mul (tmp, p->dap[i], min_coeff);
           p->fap[i] = rdpe_get_d (tmp);
           if (MPS_STRUCTURE_IS_COMPLEX (s->active_poly->structure))
@@ -569,10 +583,9 @@ mps_check_data (mps_context * s, char *which_case)
               cdpe_mul_e (ctmp, p->dpc[i], min_coeff);
               cdpe_get_x (p->fpc[i], ctmp);
             }
-
-	  /* Update the floating point modules of the coefficients */
-	  /* p->fap[i] = rdpe_get_d (p->dap[i]); */
         }
+
+        mpc_clear (m_min_coeff);
     }
   else
     *which_case = 'd';
