@@ -243,13 +243,13 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
       rdpe_div_eq (relative_error, rtmp);
 
       if (s->debug_level & MPS_DEBUG_REGENERATION)
-	MPS_DEBUG_RDPE (s, relative_error, "Relative_error on p(b_%d) evaluation", i);
+        MPS_DEBUG_RDPE (s, relative_error, "Relative_error on p(b_%d) evaluation", i);
 
       /* mpc_get_cdpe (cpol, sec->bmpc[i]);  */
       /* cdpe_mod (rtmp, cpol);  */
       /* rdpe_mul_eq (rtmp, root_epsilon);  */
 
-      while (rdpe_gt (relative_error, root_epsilon) && (s->root[i]->wp < s->n * s->mpwp) && rdpe_gt (rtmp, s->mp_epsilon))
+      while (rdpe_gt (relative_error, root_epsilon))
 	{
 	  /* Update the working precision of the selected root with a realistic estimate of the
 	   * required precision to get a result exact to machine precision */
