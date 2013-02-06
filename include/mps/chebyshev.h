@@ -61,6 +61,11 @@ extern "C" {
          */
         mpc_t lc;
 
+        /**
+         * @brief Internal mutex used to manage the change of precision.
+         */
+        pthread_mutex_t precision_mutex;
+
  } mps_chebyshev_poly;
 
 

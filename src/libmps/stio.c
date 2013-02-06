@@ -601,14 +601,16 @@ mps_chebyshev_poly_read_from_stream (mps_context * ctx, mps_input_buffer * buffe
     token = mps_input_buffer_next_token (buffer);
     if (!token || (mpf_set_str (mpc_Re (cpoly->mfpc[i]), token, 10) != 0)) {
       mps_error (ctx, 1, "Error while reading real part of coefficient %d", i);
-      abort();
     }
+    else
+      free (token);
 
     token = mps_input_buffer_next_token (buffer);
     if (!token || (mpf_set_str (mpc_Im (cpoly->mfpc[i]), token, 10) != 0)) {
       mps_error (ctx, 1, "Error while reading imaginary part of coefficient %d", i);
-      abort();
     }
+    else
+      free (token);
 
     /* Update other floating point coefficients */
     mpc_get_cdpe (cpoly->dpc[i], cpoly->mfpc[i]);

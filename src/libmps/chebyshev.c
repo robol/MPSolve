@@ -56,6 +56,8 @@
                 mpc_set_ui (poly->lc, 1U, 0U);
         }
 
+        pthread_mutex_init (&poly->precision_mutex, NULL);
+
         return poly;
  }
 
@@ -80,10 +82,13 @@
         int i;
         mps_chebyshev_poly * cpoly = MPS_CHEBYSHEV_POLY (poly);
 
+        pthread_mutex_lock (&cpoly->precision_mutex);
+
         /* Check if raising precision is a worth operation, or if we are already
          * to a higher preicison. */
         if (wp < mpc_get_prec (cpoly->mfpc[0])) {
-                return mpc_get_prec (cpoly->mfpc[0]);
+            pthread_mutex_unlock (&cpoly->precision_mutex);
+            return mpc_get_prec (cpoly->mfpc[0]);
         }
 
         mpc_set_prec (cpoly->lc, wp);
@@ -92,6 +97,8 @@
         for (i = 0; i <= poly->degree; i++) {
                 mpc_set_prec (cpoly->mfpc[i], wp);
         }
+
+        pthread_mutex_unlock (&cpoly->precision_mutex);
 
         return mpc_get_prec (cpoly->mfpc[0]);
  }
