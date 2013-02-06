@@ -19,6 +19,10 @@
 #include <mps/mt.h>
 #include <mps/mpc.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /***********************************************************
 **              link functions                            **
 ***********************************************************/
@@ -73,6 +77,10 @@ void mpc_set_cdpe (mpc_t mc, cdpe_t c);
  * @param mc The multiprecision complex number to extract the value from.
  */
 void mpc_get_cdpe (cdpe_t c, mpc_t mc);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
 

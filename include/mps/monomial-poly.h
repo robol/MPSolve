@@ -7,10 +7,6 @@
  * handling of monomial polynomials. 
  */
 
-#ifdef	__cplusplus
-extern "C"
-{
-#endif
 
   #include <mps/polynomial.h>
   #include <mps/mps.h>
@@ -19,6 +15,11 @@ extern "C"
 
 #define MPS_MONOMIAL_POLY(t) ((mps_monomial_poly*) t)
 #define MPS_IS_MONOMIAL_POLY(t) (mps_polynomial_check_type (t, "mps_monomial_poly"))
+
+#ifdef	__cplusplus
+extern "C"
+{
+#endif
 
 #ifdef _MPS_PRIVATE
 

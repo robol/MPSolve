@@ -8,21 +8,16 @@
 #ifndef MPS_INTERFACE_H
 #define	MPS_INTERFACE_H
 
-#ifdef	__cplusplus
-extern "C"
-{
-#endif
-
-  /* Octave module workardound */
-#ifdef __UNDEF_CPLUSPLUS
-#undef __cplusplus
-#endif
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <pthread.h>
 #include <gmp.h>
 #include <mps/mps.h>
+
+#ifdef	__cplusplus
+extern "C"
+{
+#endif
 
   /**
    * @file

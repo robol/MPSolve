@@ -20,13 +20,12 @@
 #ifndef __MT_H__
 #define __MT_H__
 
+#include <stdio.h>
+
 #ifdef __cplusplus
 extern "C"
 {
 #endif
-
-/* needed header files */
-#include <stdio.h>
 
 /***********************************************************
 **              cplx_t type                               **

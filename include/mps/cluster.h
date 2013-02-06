@@ -8,6 +8,10 @@
 
 #include <mps/mps.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifdef _MPS_PRIVATE
 /**
  * @brief This struct represent a root inside of a <code>mps_cluster</code>.
@@ -109,5 +113,9 @@ void mps_clusterization_remove_cluster (mps_context * s, mps_clusterization * c,
 void mps_clusterization_free (mps_context * s, mps_clusterization * c);
 void mps_clusterization_detach_clusters (mps_context * s, mps_clusterization * c);
 void mps_clusterization_reassemble_clusters (mps_context * s, mps_clusterization * c);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

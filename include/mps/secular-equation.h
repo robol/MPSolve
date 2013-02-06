@@ -13,13 +13,13 @@
 #ifndef SECULAR_H
 #define	 SECULAR_H
 
+#include <mps/mps.h>
+#include <float.h>
+
 #ifdef	__cplusplus
 extern "C"
 {
 #endif
-
-#include <mps/mps.h>
-#include <float.h>
 
 #define MPS_SECULAR_EQUATION(t) ((mps_secular_equation *) t)
 #define MPS_IS_SECULAR_EQUATION(t) (mps_polynomial_check_type (t, "mps_secular_equation"))
