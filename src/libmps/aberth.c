@@ -243,7 +243,7 @@ mps_maberth_s_wl (mps_context * s, int j, mps_cluster * cluster, mpc_t abcorr,
       mpc_get_cdpe (z, diff);
 
       if (cdpe_eq_zero(z))
-	continue;
+        continue;
 
       cdpe_inv_eq (z);
       cdpe_add_eq (temp, z);

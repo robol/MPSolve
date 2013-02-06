@@ -20,7 +20,7 @@ GtkWidget * drawing_area = NULL;
 
 void
 on_drawing_area_draw (GtkWidget * widget, 
-		      cairo_t * cr)
+                      cairo_t * cr)
 {
   int width, height;
 
@@ -54,15 +54,15 @@ on_drawing_area_draw (GtkWidget * widget,
 
       /* Check if we can draw in here. */
       if (width < 2 * PADDING || height < 2 * PADDING)
-	return;
+        return;
 
       for (i = 0; i < degree; i++)
-	{
-	  x = cplx_Re (points[i]) * (0.5 * width - PADDING) + width / 2;
-	  y = -cplx_Im (points[i]) * (0.5 * height - PADDING) + height / 2;
-	  cairo_arc (cr, x, y, 1.3, 0, 6.29);
-	  cairo_fill (cr);
-	}
+        {
+          x = cplx_Re (points[i]) * (0.5 * width - PADDING) + width / 2;
+          y = -cplx_Im (points[i]) * (0.5 * height - PADDING) + height / 2;
+          cairo_arc (cr, x, y, 1.3, 0, 6.29);
+          cairo_fill (cr);
+        }
 #undef PADDING
     }
 }
@@ -77,8 +77,8 @@ update_drawing_area (void * user_data)
 void
 on_polynomial_solved (mps_context * s, GtkButton * button)
 {
-  points = cplx_valloc (mps_context_get_degree (s));
-  mps_context_get_roots_d (s, points, NULL);
+  points = NULL;
+  mps_context_get_roots_d (s, &points, NULL);
   degree = mps_context_get_degree (s);
 
   /* Call the update function from the right thread! */
@@ -111,7 +111,7 @@ on_solve_button_clicked (GtkButton * button, GtkSpinButton * spin_button)
   mps_monomial_poly_set_coefficient_d (s, p, degree, 1, 0);
 
   /* Asking MPSolve to solve it asynchronously */
-  mps_context_set_input_poly (s, p);
+  mps_context_set_input_poly (s, MPS_POLYNOMIAL (p));
   mps_mpsolve_async (s, (mps_callback) on_polynomial_solved, button);
 }
 

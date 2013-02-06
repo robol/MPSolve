@@ -20,169 +20,169 @@
  mps_chebyshev_poly * 
  mps_chebyshev_poly_new (mps_context * ctx, int n)
  {
- 	mps_chebyshev_poly * poly = mps_new (mps_chebyshev_poly);
+        mps_chebyshev_poly * poly = mps_new (mps_chebyshev_poly);
 
- 	/* Call the base constructor */
- 	MPS_POLYNOMIAL (poly)->degree = n;
- 	mps_polynomial_init (ctx, MPS_POLYNOMIAL (poly));
+        /* Call the base constructor */
+        MPS_POLYNOMIAL (poly)->degree = n;
+        mps_polynomial_init (ctx, MPS_POLYNOMIAL (poly));
 
- 	/* Chances are that these are not really needed. In this case we can 
- 	 * simply leave this values set to NULL. They will be allocated on
- 	 * demand by mps_chebyshev_poly_set_coefficient_q(). */
- 	poly->rational_real_coeffs = poly->rational_imag_coeffs = NULL;
+        /* Chances are that these are not really needed. In this case we can 
+         * simply leave this values set to NULL. They will be allocated on
+         * demand by mps_chebyshev_poly_set_coefficient_q(). */
+        poly->rational_real_coeffs = poly->rational_imag_coeffs = NULL;
 
- 	poly->fpc = cplx_valloc (n + 1);
- 	poly->dpc = cdpe_valloc (n + 1);
- 	poly->mfpc = mpc_valloc (n + 1);
+        poly->fpc = cplx_valloc (n + 1);
+        poly->dpc = cdpe_valloc (n + 1);
+        poly->mfpc = mpc_valloc (n + 1);
 
- 	mpc_vinit2 (poly->mfpc, n + 1, ctx->mpwp);
+        mpc_vinit2 (poly->mfpc, n + 1, ctx->mpwp);
 
- 	/* Construct the polynomial vtable in a proper way */
- 	MPS_POLYNOMIAL (poly)->free = mps_chebyshev_poly_free;
- 	MPS_POLYNOMIAL (poly)->raise_data = mps_chebyshev_poly_raise_data;
- 	MPS_POLYNOMIAL (poly)->meval = mps_chebyshev_poly_meval;
- 	MPS_POLYNOMIAL (poly)->get_leading_coefficient = mps_chebyshev_get_leading_coefficient;
+        /* Construct the polynomial vtable in a proper way */
+        MPS_POLYNOMIAL (poly)->free = mps_chebyshev_poly_free;
+        MPS_POLYNOMIAL (poly)->raise_data = mps_chebyshev_poly_raise_data;
+        MPS_POLYNOMIAL (poly)->meval = mps_chebyshev_poly_meval;
+        MPS_POLYNOMIAL (poly)->get_leading_coefficient = mps_chebyshev_get_leading_coefficient;
 
- 	/* Attach the typename to this polynomial */
- 	MPS_POLYNOMIAL (poly)->type_name = MPS_CHEBYSHEV_POLY_TYPE_NAME;
+        /* Attach the typename to this polynomial */
+        MPS_POLYNOMIAL (poly)->type_name = MPS_CHEBYSHEV_POLY_TYPE_NAME;
 
- 	/* Compute the leading coefficient of the polynomial */
- 	mpc_init2 (poly->lc, ctx->mpwp);
- 	if (n > 0) {
- 		mpc_set_ui (poly->lc, 2U, 0U);
- 		mpc_pow_si (poly->lc, poly->lc, n - 1);
- 	}
- 	else {
- 		mpc_set_ui (poly->lc, 1U, 0U);
- 	}
+        /* Compute the leading coefficient of the polynomial */
+        mpc_init2 (poly->lc, ctx->mpwp);
+        if (n > 0) {
+                mpc_set_ui (poly->lc, 2U, 0U);
+                mpc_pow_si (poly->lc, poly->lc, n - 1);
+        }
+        else {
+                mpc_set_ui (poly->lc, 1U, 0U);
+        }
 
- 	return poly;
+        return poly;
  }
 
  void
  mps_chebyshev_poly_free (mps_context * ctx, mps_polynomial * poly)
  {
- 	mps_chebyshev_poly * cpoly = MPS_CHEBYSHEV_POLY (poly);
+        mps_chebyshev_poly * cpoly = MPS_CHEBYSHEV_POLY (poly);
 
- 	mpc_vclear (cpoly->mfpc, poly->degree + 1);
- 	mpc_clear (cpoly->lc);
+        mpc_vclear (cpoly->mfpc, poly->degree + 1);
+        mpc_clear (cpoly->lc);
 
- 	cplx_vfree (cpoly->fpc);
- 	cdpe_vfree (cpoly->dpc);
- 	mpc_vfree (cpoly->mfpc);
+        cplx_vfree (cpoly->fpc);
+        cdpe_vfree (cpoly->dpc);
+        mpc_vfree (cpoly->mfpc);
 
- 	free (poly);
+        free (poly);
  }
 
  long int
  mps_chebyshev_poly_raise_data (mps_context * ctx, mps_polynomial * poly, long int wp)
  {
- 	int i;
- 	mps_chebyshev_poly * cpoly = MPS_CHEBYSHEV_POLY (poly);
+        int i;
+        mps_chebyshev_poly * cpoly = MPS_CHEBYSHEV_POLY (poly);
 
- 	/* Check if raising precision is a worth operation, or if we are already
- 	 * to a higher preicison. */
- 	if (wp < mpc_get_prec (cpoly->mfpc[0])) {
- 		return mpc_get_prec (cpoly->mfpc[0]);
- 	}
+        /* Check if raising precision is a worth operation, or if we are already
+         * to a higher preicison. */
+        if (wp < mpc_get_prec (cpoly->mfpc[0])) {
+                return mpc_get_prec (cpoly->mfpc[0]);
+        }
 
- 	mpc_set_prec (cpoly->lc, wp);
+        mpc_set_prec (cpoly->lc, wp);
 
- 	/* Otherwise really increase it */
- 	for (i = 0; i <= poly->degree; i++) {
- 		mpc_set_prec (cpoly->mfpc[i], wp);
- 	}
+        /* Otherwise really increase it */
+        for (i = 0; i <= poly->degree; i++) {
+                mpc_set_prec (cpoly->mfpc[i], wp);
+        }
 
- 	return mpc_get_prec (cpoly->mfpc[0]);
+        return mpc_get_prec (cpoly->mfpc[0]);
  }
 
  mps_boolean
  mps_chebyshev_poly_meval (mps_context * ctx, mps_polynomial * poly, mpc_t x, mpc_t value, rdpe_t error)
  {
- 	long int wp = mpc_get_prec (x);
- 	mps_chebyshev_poly * cpoly = MPS_CHEBYSHEV_POLY (poly);
- 	int i;
+        long int wp = mpc_get_prec (x);
+        mps_chebyshev_poly * cpoly = MPS_CHEBYSHEV_POLY (poly);
+        int i;
 
- 	mpc_t t0, t1, ctmp, ctmp2;
- 	rdpe_t ax, rtmp, rtmp2;
+        mpc_t t0, t1, ctmp, ctmp2;
+        rdpe_t ax, rtmp, rtmp2;
 
- 	mpc_rmod (ax, x);
- 	rdpe_set (error, rdpe_zero);
+        mpc_rmod (ax, x);
+        rdpe_set (error, rdpe_zero);
 
- 	/* Make sure that we have sufficient precision to perform the computation */
- 	mps_chebyshev_poly_raise_data (ctx, poly, wp);
+        /* Make sure that we have sufficient precision to perform the computation */
+        mps_chebyshev_poly_raise_data (ctx, poly, wp);
 
- 	mpc_init2 (t0, wp);
- 	mpc_init2 (t1, wp);
- 	mpc_init2 (ctmp, wp);
- 	mpc_init2 (ctmp2, wp);
+        mpc_init2 (t0, wp);
+        mpc_init2 (t1, wp);
+        mpc_init2 (ctmp, wp);
+        mpc_init2 (ctmp2, wp);
 
- 	mpc_set (value, cpoly->mfpc[0]);
- 	mpc_set_ui (t0, 1U, 0U);
- 	if (poly->degree == 0) {
- 		return true;
- 	}
+        mpc_set (value, cpoly->mfpc[0]);
+        mpc_set_ui (t0, 1U, 0U);
+        if (poly->degree == 0) {
+                return true;
+        }
 
- 	mpc_set (t1, x);
- 	mpc_mul (ctmp, cpoly->mfpc[1], x);
- 	mpc_add_eq (value, ctmp);
+        mpc_set (t1, x);
+        mpc_mul (ctmp, cpoly->mfpc[1], x);
+        mpc_add_eq (value, ctmp);
 
- 	mpc_rmod (rtmp, ctmp);
- 	rdpe_add_eq (error, rtmp);
+        mpc_rmod (rtmp, ctmp);
+        rdpe_add_eq (error, rtmp);
 
- 	for (i = 2; i <= poly->degree; i++) {
- 		mpc_mul (ctmp, x, t1);
- 		mpc_mul_eq_ui (ctmp, 2U);
- 		mpc_rmod (rtmp, ctmp);
- 		mpc_sub_eq (ctmp, t0);
+        for (i = 2; i <= poly->degree; i++) {
+                mpc_mul (ctmp, x, t1);
+                mpc_mul_eq_ui (ctmp, 2U);
+                mpc_rmod (rtmp, ctmp);
+                mpc_sub_eq (ctmp, t0);
 
- 		mpc_rmod (rtmp2, t0);
- 		rdpe_add_eq (rtmp, rtmp2);
+                mpc_rmod (rtmp2, t0);
+                rdpe_add_eq (rtmp, rtmp2);
 
- 		mpc_mul (ctmp2, ctmp, cpoly->mfpc[i]);
- 		mpc_add_eq (value, ctmp2);
+                mpc_mul (ctmp2, ctmp, cpoly->mfpc[i]);
+                mpc_add_eq (value, ctmp2);
 
- 		rdpe_mul_eq (rtmp, ax);
- 		rdpe_add_eq (error, rtmp);
+                rdpe_mul_eq (rtmp, ax);
+                rdpe_add_eq (error, rtmp);
 
- 		mpc_set (t0, t1);
- 		mpc_set (t1, ctmp);
- 	}
+                mpc_set (t0, t1);
+                mpc_set (t1, ctmp);
+        }
 
- 	mpc_clear (t0);
- 	mpc_clear (t1);
- 	mpc_clear (ctmp);
- 	mpc_clear (ctmp2);
+        mpc_clear (t0);
+        mpc_clear (t1);
+        mpc_clear (ctmp);
+        mpc_clear (ctmp2);
 
- 	rdpe_set_2dl (rtmp, 2.0, -wp);
- 	rdpe_mul_eq (error, rtmp);
+        rdpe_set_2dl (rtmp, 2.0, -wp);
+        rdpe_mul_eq (error, rtmp);
 
- 	return true;
+        return true;
  }
 
 void mps_chebyshev_get_leading_coefficient (mps_context * ctx, mps_polynomial * poly, mpc_t lc)
 {
-	mps_chebyshev_poly * cpoly = MPS_CHEBYSHEV_POLY (poly);
-	mpc_set (lc, cpoly->lc);
+        mps_chebyshev_poly * cpoly = MPS_CHEBYSHEV_POLY (poly);
+        mpc_set (lc, cpoly->lc);
 }
 
 
  void
  mps_chebyshev_poly_set_coefficient_f (mps_context * ctx, mps_chebyshev_poly * poly,
- 	int i, mpc_t coeff)
+        int i, mpc_t coeff)
  {
- 	if (mpc_get_prec (coeff) > mpc_get_prec (poly->mfpc[0])) {
- 		mps_chebyshev_poly_raise_data (ctx, MPS_POLYNOMIAL (poly), mpc_get_prec (coeff));
- 	}
+        if (mpc_get_prec (coeff) > mpc_get_prec (poly->mfpc[0])) {
+                mps_chebyshev_poly_raise_data (ctx, MPS_POLYNOMIAL (poly), mpc_get_prec (coeff));
+        }
 
- 	mpc_set (poly->mfpc[i], coeff);
- 	mpc_get_cdpe (poly->dpc[i], coeff);
- 	mpc_get_cplx (poly->fpc[i], coeff);
+        mpc_set (poly->mfpc[i], coeff);
+        mpc_get_cdpe (poly->dpc[i], coeff);
+        mpc_get_cplx (poly->fpc[i], coeff);
  }
 
  void 
  mps_chebyshev_poly_set_coefficient_q (mps_context * ctx, mps_chebyshev_poly * poly, 
- 	int i, mpq_t real_part, mpq_t imag_part)
+        int i, mpq_t real_part, mpq_t imag_part)
  {
 
  }

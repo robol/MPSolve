@@ -172,7 +172,7 @@ mps_monomial_poly_raise_precision (mps_context * s, mps_polynomial * p, long int
   if (MPS_IS_MONOMIAL_POLY (p))
     for (k = 0; k < MPS_POLYNOMIAL (mp)->degree + 1; k++)
       {
-	mpc_set_prec (raising_mfpc[k], prec);
+        mpc_set_prec (raising_mfpc[k], prec);
       }
 
   /* Raise the precision of p' */
@@ -188,17 +188,17 @@ mps_monomial_poly_raise_precision (mps_context * s, mps_polynomial * p, long int
       || MPS_STRUCTURE_IS_RATIONAL (p->structure))
     {
       for (k = 0; k <= MPS_POLYNOMIAL (mp)->degree ; ++k)
-	{
-	  mpf_set_q (mpc_Re (raising_mfpc[k]), mp->initial_mqp_r[k]);
-	  mpf_set_q (mpc_Im (raising_mfpc[k]), mp->initial_mqp_i[k]);
-	}
+        {
+          mpf_set_q (mpc_Re (raising_mfpc[k]), mp->initial_mqp_r[k]);
+          mpf_set_q (mpc_Im (raising_mfpc[k]), mp->initial_mqp_i[k]);
+        }
     }
   else
     {
       for (k = 0; k <= MPS_POLYNOMIAL (mp)->degree; k++)
-	{
-	  mpc_set (raising_mfpc[k], mp->mfpc[k]);
-	}
+        {
+          mpc_set (raising_mfpc[k], mp->mfpc[k]);
+        }
     }
 
   mp->db.active = (mp->db.active % 2) + 1;
@@ -231,7 +231,7 @@ mps_monomial_poly_get_precision (mps_context * s, mps_monomial_poly * mp)
  */
 void
 mps_monomial_poly_set_coefficient_q (mps_context * s, mps_monomial_poly * mp, long int i, 
-				     mpq_t real_part, mpq_t imag_part)
+                                     mpq_t real_part, mpq_t imag_part)
 {
   /* Updating data_type information */
   if (MPS_POLYNOMIAL(mp)->structure == MPS_STRUCTURE_UNKNOWN)
@@ -243,9 +243,9 @@ mps_monomial_poly_set_coefficient_q (mps_context * s, mps_monomial_poly * mp, lo
     MPS_POLYNOMIAL(mp)->structure = MPS_STRUCTURE_COMPLEX_RATIONAL;
 
   assert (MPS_POLYNOMIAL(mp)->structure == MPS_STRUCTURE_COMPLEX_RATIONAL || 
-   	  MPS_POLYNOMIAL(mp)->structure == MPS_STRUCTURE_REAL_RATIONAL ||
-	  MPS_POLYNOMIAL(mp)->structure == MPS_STRUCTURE_COMPLEX_INTEGER ||
-	  MPS_POLYNOMIAL(mp)->structure == MPS_STRUCTURE_REAL_INTEGER); 
+          MPS_POLYNOMIAL(mp)->structure == MPS_STRUCTURE_REAL_RATIONAL ||
+          MPS_POLYNOMIAL(mp)->structure == MPS_STRUCTURE_COMPLEX_INTEGER ||
+          MPS_POLYNOMIAL(mp)->structure == MPS_STRUCTURE_REAL_INTEGER); 
 
   /* Set the coefficients first */
   mpq_set (mp->initial_mqp_r[i], real_part);
@@ -271,12 +271,15 @@ mps_monomial_poly_set_coefficient_q (mps_context * s, mps_monomial_poly * mp, lo
       /* Compute modules of coefficients */
       cdpe_mod (mp->dap[i], mp->dpc[i]);
       mp->fap[i] = rdpe_get_d (mp->dap[i]);
+
+      if (i > 0)
+        mpc_mul_ui (mp->mfppc[i-1], mp->mfppc[i], i);
     }
   else
     {
       cplx_set (mp->fpc[i], cplx_zero);
       cdpe_set (mp->dpc[i], cdpe_zero);
-	  
+          
       rdpe_set (mp->dap[i], rdpe_zero);
       mp->fap[i] = 0.0f;
     }
@@ -293,7 +296,7 @@ mps_monomial_poly_set_coefficient_q (mps_context * s, mps_monomial_poly * mp, lo
  */
 void
 mps_monomial_poly_set_coefficient_d (mps_context * s, mps_monomial_poly * mp, long int i,
-				     double real_part, double imag_part)
+                                     double real_part, double imag_part)
 {
   /* Updating data structure information */
   if (MPS_POLYNOMIAL(mp)->structure == MPS_STRUCTURE_UNKNOWN)
@@ -304,7 +307,7 @@ mps_monomial_poly_set_coefficient_d (mps_context * s, mps_monomial_poly * mp, lo
     MPS_POLYNOMIAL(mp)->structure = MPS_STRUCTURE_COMPLEX_FP;
 
   assert (MPS_POLYNOMIAL(mp)->structure == MPS_STRUCTURE_REAL_FP ||
-	  MPS_POLYNOMIAL(mp)->structure == MPS_STRUCTURE_COMPLEX_FP);
+          MPS_POLYNOMIAL(mp)->structure == MPS_STRUCTURE_COMPLEX_FP);
 
   /* Set the coefficients */
   mpf_set_d (mp->mfpr[i], real_part);
@@ -321,12 +324,15 @@ mps_monomial_poly_set_coefficient_d (mps_context * s, mps_monomial_poly * mp, lo
       /* Compute modules of coefficients */
       cdpe_mod (mp->dap[i], mp->dpc[i]);
       mp->fap[i] = rdpe_get_d (mp->dap[i]);
+
+      if (i > 0)
+        mpc_mul_ui (mp->mfppc[i-1], mp->mfppc[i], i);
     }
   else
     {
       cplx_set (mp->fpc[i], cplx_zero);
       cdpe_set (mp->dpc[i], cdpe_zero);
-	  
+          
       rdpe_set (mp->dap[i], rdpe_zero);
       mp->fap[i] = 0.0f;
     }
@@ -334,7 +340,7 @@ mps_monomial_poly_set_coefficient_d (mps_context * s, mps_monomial_poly * mp, lo
 
 void 
 mps_monomial_poly_set_coefficient_int (mps_context * s, mps_monomial_poly * mp, long int i,
-				       long long real_part, long long imag_part)
+                                       long long real_part, long long imag_part)
 {
   /* Updating data_type information */
   if (MPS_POLYNOMIAL(mp)->structure == MPS_STRUCTURE_UNKNOWN)
@@ -346,7 +352,7 @@ mps_monomial_poly_set_coefficient_int (mps_context * s, mps_monomial_poly * mp, 
     MPS_POLYNOMIAL(mp)->structure = MPS_STRUCTURE_COMPLEX_INTEGER;
 
   assert (MPS_POLYNOMIAL(mp)->structure == MPS_STRUCTURE_COMPLEX_INTEGER ||
-	  MPS_POLYNOMIAL(mp)->structure == MPS_STRUCTURE_REAL_INTEGER);
+          MPS_POLYNOMIAL(mp)->structure == MPS_STRUCTURE_REAL_INTEGER);
   
   /* Set the coefficients first */
   mpq_set_si (mp->initial_mqp_r[i], real_part, 1);
@@ -372,12 +378,15 @@ mps_monomial_poly_set_coefficient_int (mps_context * s, mps_monomial_poly * mp, 
       /* Compute modules of coefficients */
       cdpe_mod (mp->dap[i], mp->dpc[i]);
       mp->fap[i] = rdpe_get_d (mp->dap[i]);
+
+      if (i > 0)
+        mpc_mul_ui (mp->mfppc[i-1], mp->mfppc[i], i);
     }
   else
     {
       cplx_set (mp->fpc[i], cplx_zero);
       cdpe_set (mp->dpc[i], cdpe_zero);
-	  
+          
       rdpe_set (mp->dap[i], rdpe_zero);
       mp->fap[i] = 0.0f;
     }
@@ -385,7 +394,7 @@ mps_monomial_poly_set_coefficient_int (mps_context * s, mps_monomial_poly * mp, 
 
 void
 mps_monomial_poly_set_coefficient_f (mps_context * s, mps_monomial_poly * p, long int i,
-				     mpc_t coeff)
+                                     mpc_t coeff)
 {
   /* Updating data_type information */
   if (MPS_POLYNOMIAL (p)->structure == MPS_STRUCTURE_UNKNOWN)
@@ -399,6 +408,9 @@ mps_monomial_poly_set_coefficient_f (mps_context * s, mps_monomial_poly * p, lon
   p->fap[i] = rdpe_get_d (p->dap[i]);
 
   p->spar[i] = ! mpc_eq_zero (coeff);
+
+  if (i > 0)
+    mpc_mul_ui (p->mfppc[i-1], p->mfppc[i], i);
 }
 
 /** 
@@ -429,30 +441,30 @@ mps_monomial_poly_derive (mps_context * s, mps_monomial_poly * p, int k, long in
     case MPS_STRUCTURE_REAL_INTEGER:
     case MPS_STRUCTURE_REAL_RATIONAL:
       {
-	mpq_t coeff_r;
-	mpq_t coeff_i;
-	mpq_t qtmp;
-	mpq_init (coeff_r);
-	mpq_init (coeff_i);
-	mpq_init (qtmp);
-	
-	for (i = 0; i <= MPS_POLYNOMIAL (d)->degree; i++)
-	  {
-	    mpq_set (coeff_r, p->initial_mqp_r[i + k]);
-	    mpq_set (coeff_i, p->initial_mqp_i[i + k]);
-	    
-	    for (j = 0; j < k; j++)
-	      {	      
-		mpq_set_si (qtmp, k + i - j, 1);
-		mpq_mul (coeff_r, coeff_r, qtmp);
-		mpq_mul (coeff_i, coeff_i, qtmp);
-	      }
-	    mps_monomial_poly_set_coefficient_q (s, d, i, coeff_r, coeff_i);
-	  }
-	
-	mpq_clear (coeff_r);
-	mpq_clear (coeff_i);
-	mpq_clear (qtmp);
+        mpq_t coeff_r;
+        mpq_t coeff_i;
+        mpq_t qtmp;
+        mpq_init (coeff_r);
+        mpq_init (coeff_i);
+        mpq_init (qtmp);
+        
+        for (i = 0; i <= MPS_POLYNOMIAL (d)->degree; i++)
+          {
+            mpq_set (coeff_r, p->initial_mqp_r[i + k]);
+            mpq_set (coeff_i, p->initial_mqp_i[i + k]);
+            
+            for (j = 0; j < k; j++)
+              {       
+                mpq_set_si (qtmp, k + i - j, 1);
+                mpq_mul (coeff_r, coeff_r, qtmp);
+                mpq_mul (coeff_i, coeff_i, qtmp);
+              }
+            mps_monomial_poly_set_coefficient_q (s, d, i, coeff_r, coeff_i);
+          }
+        
+        mpq_clear (coeff_r);
+        mpq_clear (coeff_i);
+        mpq_clear (qtmp);
 
       }
 
@@ -460,22 +472,22 @@ mps_monomial_poly_derive (mps_context * s, mps_monomial_poly * p, int k, long in
 
     default:
       {
-	mpc_t * coeffs = mps_newv (mpc_t, MPS_POLYNOMIAL (d)->degree + 1);
-	mpc_vinit2 (coeffs, MPS_POLYNOMIAL (d)->degree + 1, wp);
-	
-	for (i = 0; i <= MPS_POLYNOMIAL (d)->degree; i++)
-	  mpc_set (coeffs[i], p->mfpc[i + k]);
-	
-	for (j = 0; j < k; j++)
-	for (i = 0; i <= MPS_POLYNOMIAL (d)->degree; i++)
-	  mpc_mul_eq_ui (coeffs[i], k + i - j);
+        mpc_t * coeffs = mps_newv (mpc_t, MPS_POLYNOMIAL (d)->degree + 1);
+        mpc_vinit2 (coeffs, MPS_POLYNOMIAL (d)->degree + 1, wp);
+        
+        for (i = 0; i <= MPS_POLYNOMIAL (d)->degree; i++)
+          mpc_set (coeffs[i], p->mfpc[i + k]);
+        
+        for (j = 0; j < k; j++)
+        for (i = 0; i <= MPS_POLYNOMIAL (d)->degree; i++)
+          mpc_mul_eq_ui (coeffs[i], k + i - j);
 
 
-	for (i = 0; i <= MPS_POLYNOMIAL (d)->degree; i++)
-	  mps_monomial_poly_set_coefficient_f (s, d, i, coeffs[i]);
-	
-	mpc_vclear (coeffs, MPS_POLYNOMIAL (d)->degree + 1);
-	free (coeffs);
+        for (i = 0; i <= MPS_POLYNOMIAL (d)->degree; i++)
+          mps_monomial_poly_set_coefficient_f (s, d, i, coeffs[i]);
+        
+        mpc_vclear (coeffs, MPS_POLYNOMIAL (d)->degree + 1);
+        free (coeffs);
       }
       break;
     }
@@ -512,7 +524,7 @@ void
 mps_monomial_poly_fstart (mps_context * ctx, mps_polynomial * p)
 {
   mps_monomial_poly *mp = MPS_MONOMIAL_POLY (p);
-  mps_fstart (ctx, ctx->n, NULL, 0.0, 0.0, ctx->eps_out, mp->fap);	  
+  mps_fstart (ctx, ctx->n, NULL, 0.0, 0.0, ctx->eps_out, mp->fap);        
 }
 
 void
@@ -520,8 +532,8 @@ mps_monomial_poly_dstart (mps_context * ctx, mps_polynomial * p)
 {
   mps_monomial_poly *mp = MPS_MONOMIAL_POLY (p);
   mps_dstart (ctx, ctx->n, NULL, (__rdpe_struct *) rdpe_zero,
-	      (__rdpe_struct *) rdpe_zero, ctx->eps_out,
-	      mp->dap);
+              (__rdpe_struct *) rdpe_zero, ctx->eps_out,
+              mp->dap);
 }
 
 void
@@ -532,34 +544,34 @@ mps_monomial_poly_mstart (mps_context * ctx, mps_polynomial * p)
   mpc_init2 (gg, ctx->mpwp);
   mpc_set_ui (gg, 0U, 0U);
   mps_mstart (ctx, ctx->n, NULL, (__rdpe_struct *) rdpe_zero,
-	      (__rdpe_struct *) rdpe_zero, mp->dap, gg);
+              (__rdpe_struct *) rdpe_zero, mp->dap, gg);
   mpc_clear (gg);
 }
 
 void 
 mps_monomial_poly_fnewton (mps_context * ctx, mps_polynomial * p, 
-			   mps_approximation * root, cplx_t corr)
+                           mps_approximation * root, cplx_t corr)
 {
   mps_fnewton (ctx, p, root, corr);
 }
 
 void 
 mps_monomial_poly_dnewton (mps_context * ctx, mps_polynomial * p, 
-			   mps_approximation * root, cdpe_t corr)
+                           mps_approximation * root, cdpe_t corr)
 {
   mps_dnewton (ctx, p, root, corr);
 }
 
 void 
 mps_monomial_poly_mnewton (mps_context * ctx, mps_polynomial * p, 
-			   mps_approximation * root, mpc_t corr)
+                           mps_approximation * root, mpc_t corr)
 {
   mps_mnewton (ctx, p, root, corr);
 }
 
 void
 mps_monomial_poly_get_leading_coefficient (mps_context * ctx, mps_polynomial * p,
-					   mpc_t leading_coefficient)
+                                           mpc_t leading_coefficient)
 {
   mpc_set (leading_coefficient, MPS_MONOMIAL_POLY (p)->mfpc[p->degree]);
 }

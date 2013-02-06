@@ -16,7 +16,7 @@ START_TEST (cluster_create)
 
   mps_cluster_insert_root (s, cluster, 45);
   fail_unless (cluster->n == 1, "A cluster with a root should have"
-	       " cluster->n == 1");
+               " cluster->n == 1");
 
   mps_cluster_free (s, cluster);
   mps_context_free (s);
@@ -68,25 +68,25 @@ START_TEST (cluster_isolation)
   // Check that we have two clusters and that are the
   // cluster that we are expecting. 
   fail_unless (s->clusterization->n == 2, "There should be two clusters in"
-	       " the given example, but %d were found", s->clusterization->n);
+               " the given example, but %d were found", s->clusterization->n);
 
   for (cluster_item = s->clusterization->first; cluster_item; 
        cluster_item = cluster_item->next)
     {
       cluster = cluster_item->cluster;
       if (cluster->n == 1)
-	fail_unless (cplx_Re (s->root[cluster->first->k]->fvalue) == 1.01, 
-		     "The isolated approximation in the example should be 1.01");
+        fail_unless (cplx_Re (s->root[cluster->first->k]->fvalue) == 1.01, 
+                     "The isolated approximation in the example should be 1.01");
       else
-	{
-	  double first_real_part = cplx_Re (s->root[cluster->first->k]->fvalue);
-	  double second_real_part = 
-	    cplx_Re (s->root[cluster->first->next->k]->fvalue);
-	  fail_unless ((first_real_part == 2.01 && second_real_part == 1.99) ||
-		       (first_real_part == 1.99 && second_real_part == 2.01),
-		       "The approximations in the cluster with cardinality two"
-		       " should be 1.99 and 2.01");
-	}
+        {
+          double first_real_part = cplx_Re (s->root[cluster->first->k]->fvalue);
+          double second_real_part = 
+            cplx_Re (s->root[cluster->first->next->k]->fvalue);
+          fail_unless ((first_real_part == 2.01 && second_real_part == 1.99) ||
+                       (first_real_part == 1.99 && second_real_part == 2.01),
+                       "The approximations in the cluster with cardinality two"
+                       " should be 1.99 and 2.01");
+        }
     }
 
   free (gerschgorin_radii);

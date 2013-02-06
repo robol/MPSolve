@@ -68,24 +68,24 @@ mexFunction (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
   if (nrhs == 2)
     {
       if (!mxIsChar(prhs[1]))
-	mexErrMsgTxt("The second parameter must be of type string");
+        mexErrMsgTxt("The second parameter must be of type string");
       char alg[255];
       mxGetString(prhs[1], alg, 254);
       if (strlen(alg) > 1)
-	mexErrMsgTxt("The second parameter must be a single character");
+        mexErrMsgTxt("The second parameter must be a single character");
 
       switch (alg[0])
-	{
-	case 's':
-	  mps_context_select_algorithm (s, MPS_ALGORITHM_SECULAR_GA);
-	  break;
-	case 'u':
-	  mps_context_select_algorithm (s, MPS_ALGORITHM_STANDARD_MPSOLVE);
-	  break;
-	default:
-	  mexErrMsgTxt("The selected algorithm is not supported, use 's' or 'u'");
-	  break;
-	}
+        {
+        case 's':
+          mps_context_select_algorithm (s, MPS_ALGORITHM_SECULAR_GA);
+          break;
+        case 'u':
+          mps_context_select_algorithm (s, MPS_ALGORITHM_STANDARD_MPSOLVE);
+          break;
+        default:
+          mexErrMsgTxt("The selected algorithm is not supported, use 's' or 'u'");
+          break;
+        }
     }
 
   mps_mpsolve (s);

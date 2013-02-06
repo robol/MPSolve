@@ -19,7 +19,7 @@
 mps_boolean
 mps_inclusion (mps_context * s)
 {
-  int i, j, k, n1, oldnclust;
+  int i, j, k, oldnclust;
   rdpe_t rad, difr;
   cdpe_t difc;
   mpc_t tmp;
@@ -79,17 +79,9 @@ mps_inclusion (mps_context * s)
       /* compute numerator */
       if (MPS_DENSITY_IS_SPARSE (s->active_poly->density))
         {                       /* case of sparse polynomial */
-
-          n1 = s->n + 1;
-
           /* compute p(mroot[i]) */
-          mps_parhorner (s, n1, s->root[i]->mvalue, poly->mfpc, poly->spar, p, 0);
-          mpc_get_cdpe (temp1, s->root[i]->mvalue);
-          cdpe_mod (az, temp1);
-
-          /* compute bound to the error */
-          mps_aparhorner (s, n1, az, poly->dap, poly->spar, ap, 0);
-
+	  mps_polynomial_meval (s, MPS_POLYNOMIAL (poly), s->root[i]->mvalue, p, ap);
+	  rdpe_div_eq (ap, s->mp_epsilon);
         }
       else
         {                       /*  dense polynomial */

@@ -126,6 +126,13 @@ mps_raise_data (mps_context * s, long int prec)
   for (k = 0; k < s->n; k++)
     mpc_set_prec (s->root[k]->mvalue, prec);
 
+  /* raise the precision of auxiliary variables */
+  for (k = 0; k < s->n + 1; k++)
+    {
+      mpc_set_prec (s->mfpc1[k], prec);
+      mpc_set_prec (s->mfppc1[k], prec);
+    }
+
   return mps_polynomial_raise_data (s, p, prec);
 }
 

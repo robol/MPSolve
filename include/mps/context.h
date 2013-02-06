@@ -531,7 +531,7 @@ extern "C"
 
   /* Accessor functions (setters) */
   int mps_context_set_poly_d (mps_context * s, cplx_t * coeff,
-			     long unsigned int n);
+                             long unsigned int n);
   void mps_context_set_input_poly (mps_context * s, mps_polynomial * p);
   int mps_context_set_poly_i (mps_context * s, int *coeff, long unsigned int n);
   void mps_context_select_algorithm (mps_context * s, mps_algorithm algorithm);

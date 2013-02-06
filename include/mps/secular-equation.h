@@ -11,12 +11,12 @@
  */
 
 #ifndef SECULAR_H
-#define	 SECULAR_H
+#define  SECULAR_H
 
 #include <mps/mps.h>
 #include <float.h>
 
-#ifdef	__cplusplus
+#ifdef  __cplusplus
 extern "C"
 {
 #endif
@@ -328,7 +328,7 @@ extern "C"
 
   void mps_secular_poly_mstart (mps_context * ctx, mps_polynomial * p);
 
-#ifdef	__cplusplus
+#ifdef  __cplusplus
 }
 #endif
 

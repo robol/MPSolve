@@ -201,7 +201,7 @@ mps_context_set_poly_d (mps_context * s, cplx_t * coeff, long unsigned int n)
   for (i = 0; i <= n; i++)
     {
       mps_monomial_poly_set_coefficient_d (s, p, i, cplx_Re (coeff[i]),
-					   cplx_Im (coeff[i]));
+                                           cplx_Im (coeff[i]));
     }
 
   mps_context_set_input_poly (s, MPS_POLYNOMIAL (p));
@@ -309,9 +309,9 @@ mps_context_get_roots_m (mps_context * s, mpc_t ** roots, rdpe_t ** radius)
     
     for (i = 0; i < s->n; i++)
       {
-	mpc_set_prec (local_roots[i], mpc_get_prec (s->root[i]->mvalue));
-	mpc_set (local_roots[i], s->root[i]->mvalue);
-	rdpe_set (local_radius[i], s->root[i]->drad);
+        mpc_set_prec (local_roots[i], mpc_get_prec (s->root[i]->mvalue));
+        mpc_set (local_roots[i], s->root[i]->mvalue);
+        rdpe_set (local_radius[i], s->root[i]->drad);
       }
   }
 
@@ -397,7 +397,7 @@ mps_context_set_debug_level (mps_context * s, mps_debug_level level)
     {
       s->DOLOG = true;
       if (!s->logstr)
-	s->logstr = stderr;
+        s->logstr = stderr;
     }
 }
 

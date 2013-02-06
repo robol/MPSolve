@@ -33,7 +33,7 @@ mps_secular_feval (mps_context * s, mps_polynomial * p, cplx_t x, cplx_t value)
     {
       cplx_sub (ctmp, x, sec->bfpc[i]);
       if (cplx_eq_zero (ctmp))
-	return false;
+        return false;
       cplx_div (ctmp, sec->afpc[i], ctmp);
       cplx_add_eq (value, ctmp);
     }
@@ -57,7 +57,7 @@ mps_secular_feval_derivative (mps_context * s, mps_polynomial * p, cplx_t x, cpl
       cplx_sub (ctmp, x, sec->bfpc[i]);
 
       if (cplx_eq_zero (ctmp))
-	return false;
+        return false;
 
       cplx_inv_eq (ctmp);
       cplx_mul_eq (ctmp, ctmp);
@@ -84,7 +84,7 @@ mps_secular_feval_derivative (mps_context * s, mps_polynomial * p, cplx_t x, cpl
  */
 mps_boolean
 mps_secular_feval_with_error (mps_context * s, mps_polynomial * p, cplx_t x, cplx_t value,
-			      double * error)
+                              double * error)
 {
   mps_secular_equation * sec = MPS_SECULAR_EQUATION (p);
   cplx_t ctmp;
@@ -98,7 +98,7 @@ mps_secular_feval_with_error (mps_context * s, mps_polynomial * p, cplx_t x, cpl
       cplx_sub (ctmp, x, sec->bfpc[i]);
 
       if (cplx_eq_zero (ctmp))
-	return false;
+        return false;
 
       cplx_div (ctmp, sec->afpc[i], ctmp);
       cplx_add_eq (value, ctmp);
@@ -135,7 +135,7 @@ mps_secular_deval (mps_context * s, mps_polynomial * p, cdpe_t x, cdpe_t value)
       cdpe_sub (ctmp, x, sec->bdpc[i]);
 
       if (cdpe_eq_zero (ctmp))
-	return false;
+        return false;
 
       cdpe_div (ctmp, sec->adpc[i], ctmp);
       cdpe_add_eq (value, ctmp);
@@ -161,7 +161,7 @@ mps_secular_deval_derivative (mps_context * s, mps_polynomial * p, cdpe_t x, cdp
       cdpe_sub (ctmp, x, sec->bdpc[i]);
 
       if (cdpe_eq_zero (ctmp))
-	return false;
+        return false;
 
       cdpe_inv_eq (ctmp);
       cdpe_mul_eq (ctmp, ctmp);
@@ -188,7 +188,7 @@ mps_secular_deval_derivative (mps_context * s, mps_polynomial * p, cdpe_t x, cdp
  */
 mps_boolean
 mps_secular_deval_with_error (mps_context * s, mps_polynomial * p,
-			      cdpe_t x, cdpe_t value, rdpe_t error)
+                              cdpe_t x, cdpe_t value, rdpe_t error)
 {
   mps_secular_equation * sec = MPS_SECULAR_EQUATION (p);
   cdpe_t ctmp;
@@ -202,7 +202,7 @@ mps_secular_deval_with_error (mps_context * s, mps_polynomial * p,
     {
       cdpe_sub (ctmp, x, sec->bdpc[i]);
       if (cdpe_eq_zero (ctmp))
-	return false;
+        return false;
       cdpe_div (ctmp, sec->adpc[i], ctmp);
       cdpe_mod (rtmp, ctmp);
       cdpe_add_eq (value, ctmp);
@@ -243,10 +243,10 @@ mps_secular_meval (mps_context * s, mps_polynomial * p, mpc_t x, mpc_t value)
     {
       mpc_sub (ctmp, x, sec->bmpc[i]);
       if (mpc_eq_zero (ctmp))
-	{
-	  success = false;
-	  goto cleanup;
-	}
+        {
+          success = false;
+          goto cleanup;
+        }
 
       mpc_div (ctmp, sec->ampc[i], ctmp);
       mpc_add_eq (value, ctmp);
@@ -297,10 +297,10 @@ mps_secular_meval_with_error (mps_context * s, mps_polynomial * p, mpc_t x, mpc_
       mpc_sub (ctmp, x, sec->bmpc[i]);
 
       if (mpc_eq_zero (ctmp))
-	{
-	  successful_evaluation = false;
-	  goto cleanup;
-	}
+        {
+          successful_evaluation = false;
+          goto cleanup;
+        }
 
       mpc_div (ctmp, sec->ampc[i], ctmp);
       mpc_add_eq (value, ctmp);

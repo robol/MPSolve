@@ -21,45 +21,45 @@ extern "C" {
 
  typedef struct {
 
- 	/**
- 	 * @brief Base implementation of a polynomial. 
- 	 */
- 	mps_polynomial super;
+        /**
+         * @brief Base implementation of a polynomial. 
+         */
+        mps_polynomial super;
 
-	/**
-	 * @brief Floating point coefficients of the polynomial in the Chebyshev
-	 * base
-	 */
- 	cplx_t * fpc;
+        /**
+         * @brief Floating point coefficients of the polynomial in the Chebyshev
+         * base
+         */
+        cplx_t * fpc;
 
- 	/**
- 	 * @brief DPE floating point coefficients of the polynomial in the Chebyshev
- 	 * base. 
- 	 */
- 	cdpe_t * dpc;
+        /**
+         * @brief DPE floating point coefficients of the polynomial in the Chebyshev
+         * base. 
+         */
+        cdpe_t * dpc;
 
- 	/**
- 	 * @brief Multiprecision complex coefficients of the polynomial in the Chebyshev
- 	 * base. 
- 	 */
- 	mpc_t * mfpc;
+        /**
+         * @brief Multiprecision complex coefficients of the polynomial in the Chebyshev
+         * base. 
+         */
+        mpc_t * mfpc;
 
- 	/**
- 	 * @brief Rational coefficients of the polynomial. These are the real parts of the
- 	 * coefficients.
- 	 */
- 	mpq_t * rational_real_coeffs;
+        /**
+         * @brief Rational coefficients of the polynomial. These are the real parts of the
+         * coefficients.
+         */
+        mpq_t * rational_real_coeffs;
 
- 	/**
- 	 * @brief Ratinonal coefficients of the polynomial. These are the imaginary parts
- 	 * of the coefficients.
- 	 */
- 	mpq_t * rational_imag_coeffs;
+        /**
+         * @brief Ratinonal coefficients of the polynomial. These are the imaginary parts
+         * of the coefficients.
+         */
+        mpq_t * rational_imag_coeffs;
 
- 	/**
- 	 * @brief Leading coefficient of the polynomial. 
- 	 */
- 	mpc_t lc;
+        /**
+         * @brief Leading coefficient of the polynomial. 
+         */
+        mpc_t lc;
 
  } mps_chebyshev_poly;
 
@@ -78,7 +78,7 @@ extern "C" {
   * Chebyshev polynomial is represented using rational coefficients. 
   */
  void mps_chebyshev_poly_set_coefficient_q (mps_context * ctx, mps_chebyshev_poly * poly, int i, 
- 	mpq_t real_part, mpq_t imag_part);
+        mpq_t real_part, mpq_t imag_part);
 
  /**
   * @brief Set the coefficient relative to the i-th element of the Chebyshev
@@ -87,7 +87,7 @@ extern "C" {
   * This function takes a multiprecision floating point number as input.
   */
  void mps_chebyshev_poly_set_coefficient_f (mps_context * ctx, mps_chebyshev_poly * poly,
- 	int i, mpc_t coeff);
+        int i, mpc_t coeff);
 
 
 #ifdef __cplusplus

@@ -198,7 +198,7 @@ mps_standard_mpsolve (mps_context * s)
           for (i = 0; i < s->n; i++)
             {
               if (s->root[i]->status == MPS_ROOT_STATUS_ISOLATED || 
-		  s->root[i]->status == MPS_ROOT_STATUS_APPROXIMATED)
+                  s->root[i]->status == MPS_ROOT_STATUS_APPROXIMATED)
                 nzc++;
             }
           fprintf (s->logstr, "MAIN: isolated %d roots\n", nzc);
@@ -219,19 +219,19 @@ mps_standard_mpsolve (mps_context * s)
   if (!computed)
     {
       if (s->over_max)
-	{
-	  s->over_max = true;
-	  /* mps_error (s, 1, "Reached the maximum working precision"); */
-	  MPS_DEBUG (s, "Reached the maximum working precision");
-	  goto exit_sub;
-	}
+        {
+          s->over_max = true;
+          /* mps_error (s, 1, "Reached the maximum working precision"); */
+          MPS_DEBUG (s, "Reached the maximum working precision");
+          goto exit_sub;
+        }
       else
-	{
-	  /* mps_warn (s, "Reached the input precision"); */
-	  MPS_DEBUG (s, "Reached the input precision");
-	  goto exit_sub;
-	}
-	  
+        {
+          /* mps_warn (s, "Reached the input precision"); */
+          MPS_DEBUG (s, "Reached the input precision");
+          goto exit_sub;
+        }
+          
     }
 
 exit_sub:
@@ -240,8 +240,8 @@ exit_sub:
   if (computed && s->clusterization->n < s->n)
     if (!mps_inclusion (s))
       {
-	mps_error (s, 1, "Unable to compute inclusion disks");
-	return;
+        mps_error (s, 1, "Unable to compute inclusion disks");
+        return;
       }
 
   /* == 10 ==  Refine roots */
@@ -332,21 +332,21 @@ mps_setup (mps_context * s)
         continue;
 
       if (MPS_STRUCTURE_IS_REAL (s->active_poly->structure))
-	{
-	  if (MPS_STRUCTURE_IS_RATIONAL (s->active_poly->structure) ||
-	      MPS_STRUCTURE_IS_INTEGER (s->active_poly->structure))
-	    {
+        {
+          if (MPS_STRUCTURE_IS_RATIONAL (s->active_poly->structure) ||
+              MPS_STRUCTURE_IS_INTEGER (s->active_poly->structure))
+            {
               mpf_set_q (mptemp, p->initial_mqp_r[i]);
               mpf_get_rdpe (p->dpr[i], mptemp);
               /*#G GMP 2.0.2 bug begin */
               if (rdpe_sgn (p->dpr[i]) != mpq_sgn (p->initial_mqp_r[i]))
                 rdpe_neg_eq (p->dpr[i]);
               /*#G GMP bug end */
-	    }
+            }
 
-	  if (MPS_STRUCTURE_IS_FP (s->active_poly->structure))
-	    mpf_get_rdpe (p->dpr[i], mpc_Re (p->mfpc[i]));
-	  
+          if (MPS_STRUCTURE_IS_FP (s->active_poly->structure))
+            mpf_get_rdpe (p->dpr[i], mpc_Re (p->mfpc[i]));
+          
           cdpe_set_e (p->dpc[i], p->dpr[i], rdpe_zero);
 
           /* compute dap[i] and check for float phase */
@@ -356,13 +356,13 @@ mps_setup (mps_context * s)
               || rdpe_lt (p->dap[i], rdpe_mind))
             s->skip_float = true;
 
-	}
+        }
       else if (MPS_STRUCTURE_IS_COMPLEX (s->active_poly->structure))
-	{
-	  if (MPS_STRUCTURE_IS_RATIONAL (s->active_poly->structure) ||
-	      MPS_STRUCTURE_IS_INTEGER (s->active_poly->structure))
-	    {
-	      mpc_set_q (mptempc, p->initial_mqp_r[i], p->initial_mqp_i[i]);
+        {
+          if (MPS_STRUCTURE_IS_RATIONAL (s->active_poly->structure) ||
+              MPS_STRUCTURE_IS_INTEGER (s->active_poly->structure))
+            {
+              mpc_set_q (mptempc, p->initial_mqp_r[i], p->initial_mqp_i[i]);
               mpc_get_cdpe (p->dpc[i], mptempc);
               /*#G GMP 2.0.2 bug begin */
               if (rdpe_sgn (cdpe_Re (p->dpc[i])) != mpq_sgn (p->initial_mqp_r[i]))
@@ -370,16 +370,16 @@ mps_setup (mps_context * s)
               if (rdpe_sgn (cdpe_Im (p->dpc[i])) != mpq_sgn (p->initial_mqp_i[i]))
                 rdpe_neg_eq (cdpe_Im (p->dpc[i]));
               /*#G GMP bug end */
-	    }
-	  else if (MPS_STRUCTURE_IS_FP (s->active_poly->structure))
+            }
+          else if (MPS_STRUCTURE_IS_FP (s->active_poly->structure))
               mpc_get_cdpe (p->dpc[i], p->mfpc[i]);
-	  
+          
           /* compute dap[i] */
           cdpe_mod (p->dap[i], p->dpc[i]);
           if (rdpe_gt (p->dap[i], rdpe_maxd)
               || rdpe_lt (p->dap[i], rdpe_mind))
             s->skip_float = true;
-	  
+          
         }
     }
 
@@ -521,22 +521,22 @@ mps_check_data (mps_context * s, char *which_case)
       s->output_config->search_set == MPS_SEARCH_SET_IMAG)
     {
       if (MPS_STRUCTURE_IS_INTEGER (s->active_poly->structure))
-	{
-	  mps_compute_sep (s);
-	}
+        {
+          mps_compute_sep (s);
+        }
       else if (MPS_STRUCTURE_IS_RATIONAL (s->active_poly->structure))
-	{
-	  mps_warn (s,
-		    "The  real/imaginary option has not been yet implemented");
-	  s->sep = 0.0;
-	}
+        {
+          mps_warn (s,
+                    "The  real/imaginary option has not been yet implemented");
+          s->sep = 0.0;
+        }
       else
-	{
-	  mps_warn (s, "The input polynomial has neither integer nor rational");
-	  mps_warn (s,
-		    " coefficients: unable to perform real/imaginary options");
-	  s->sep = 0.0;
-	}
+        {
+          mps_warn (s, "The input polynomial has neither integer nor rational");
+          mps_warn (s,
+                    " coefficients: unable to perform real/imaginary options");
+          s->sep = 0.0;
+        }
     }
 
   /* Select cases (dpe or floating point)

@@ -525,11 +525,11 @@ typedef int mps_debug_level;
 
   /* functions in newton.c */
   void mps_fnewton (mps_context * st, mps_polynomial * p, 
-		    mps_approximation * root, cplx_t corr);
+                    mps_approximation * root, cplx_t corr);
   void mps_dnewton (mps_context * st, mps_polynomial * p,
-		    mps_approximation * root, cdpe_t corr);
+                    mps_approximation * root, cdpe_t corr);
   void mps_mnewton (mps_context * st, mps_polynomial * p, 
-		    mps_approximation * root, mpc_t corr);
+                    mps_approximation * root, mpc_t corr);
   void mps_parhorner (mps_context * st, int n, mpc_t x, mpc_t p[],
                       mps_boolean b[], mpc_t s, int n_thread);
   void mps_aparhorner (mps_context * st, int n, rdpe_t x, rdpe_t p[],

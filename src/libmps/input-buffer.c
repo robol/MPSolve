@@ -170,7 +170,7 @@ mps_input_buffer_free (mps_input_buffer * buffer)
   for (i = 0; i < buffer->history_size; ++i)
     {
       if (buffer->history[i])
-	free (buffer->history[i]);
+        free (buffer->history[i]);
     }
 
   free (buffer->history);
@@ -214,7 +214,7 @@ mps_input_buffer_readline (mps_input_buffer * buf)
       /* Check if the line that is going to be overwritten
        * has something in it, and if that's the case, free it */
       if (buf->history[new_pos] != NULL)
-	  free (buf->history[new_pos]);
+          free (buf->history[new_pos]);
       
       /* Push the old line in history */
       buf->history[new_pos] = buf->line;
@@ -233,10 +233,10 @@ mps_input_buffer_readline (mps_input_buffer * buf)
       buf->line_number++;
       char * comment = strstr (buf->line, "!");
       if (comment)
-	{
-	  *comment = '\0';
-	  buf->line = realloc (buf->line, comment - buf->line + 1);
-	}
+        {
+          *comment = '\0';
+          buf->line = realloc (buf->line, comment - buf->line + 1);
+        }
       
     }
   
@@ -262,19 +262,19 @@ mps_input_buffer_next_token (mps_input_buffer * buf)
   if (!buf->line)
     {
       if (mps_input_buffer_readline (buf) == -1)
-	return NULL;
+        return NULL;
     }
 
   do {
     /* See if we have found the starting of the token, selecting 
     * things that are not spaces nor end NULL characters. */
     if (!(isspace (*buf->last_token) || 
-	  (*buf->last_token == '\0')) && 
-	(token == NULL))
+          (*buf->last_token == '\0')) && 
+        (token == NULL))
       {
-	if (buf->last_token == '\0')
-	  break;
-	token = buf->last_token;
+        if (buf->last_token == '\0')
+          break;
+        token = buf->last_token;
       }
 
     /* If we have already started parsing, then increase dimension */
@@ -282,13 +282,13 @@ mps_input_buffer_next_token (mps_input_buffer * buf)
       token_size++;
     buf->last_token++;
   } while ( ((token == NULL) || !isspace (*buf->last_token)) && 
-	    (*buf->last_token != '\0') );
+            (*buf->last_token != '\0') );
 
   /* Check if we have parsed something or if we need to read another line */
   if (token == NULL)
     {
       if (mps_input_buffer_readline (buf) == -1)
-	return NULL;
+        return NULL;
       return mps_input_buffer_next_token (buf);
     }
 

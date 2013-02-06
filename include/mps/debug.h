@@ -12,7 +12,7 @@
  */
 
 #ifndef MPS_DEBUG_H
-#define	 MPS_DEBUG_H
+#define  MPS_DEBUG_H
 
 #ifndef __WINDOWS
 #include <unistd.h>
@@ -24,7 +24,7 @@
 #include <gmp.h>
 #include <time.h>
 
-#ifdef	__cplusplus  
+#ifdef  __cplusplus  
 extern "C"  
 {  
 #endif  
@@ -48,17 +48,17 @@ extern "C"
   /**
    * @brief Shorthand for compiling with the MPS_DEBUG_INFO level.
    */
-#define MPS_DEBUG_WITH_INFO(s, templ...) {	\
-    if (s->debug_level & MPS_DEBUG_INFO) {	\
-      MPS_DEBUG(s, templ);			\
-    }						\
+#define MPS_DEBUG_WITH_INFO(s, templ...) {      \
+    if (s->debug_level & MPS_DEBUG_INFO) {      \
+      MPS_DEBUG(s, templ);                      \
+    }                                           \
 }
 
-#define MPS_DEBUG(s, templ...) {		\
-    __MPS_DEBUG(s, templ) ;			\
-    if (s->DOLOG) {				\
-      fprintf(s->logstr, "\n");			\
-    }						\
+#define MPS_DEBUG(s, templ...) {                \
+    __MPS_DEBUG(s, templ) ;                     \
+    if (s->DOLOG) {                             \
+      fprintf(s->logstr, "\n");                 \
+    }                                           \
   }
 
 #endif
@@ -67,85 +67,85 @@ extern "C"
    * @brief Debug the value of a complex multiprecision
    * variable.
    */
-#define MPS_DEBUG_MPC(s, digits, c, name...) {	\
-    __MPS_DEBUG_EQ(s, name);			\
-    if (s->DOLOG) {				\
-      mpc_outln_str(s->logstr, 10, digits, c);	\
-    }						\
+#define MPS_DEBUG_MPC(s, digits, c, name...) {  \
+    __MPS_DEBUG_EQ(s, name);                    \
+    if (s->DOLOG) {                             \
+      mpc_outln_str(s->logstr, 10, digits, c);  \
+    }                                           \
   }
 
   /**
    * @brief Debug the value of a real multiprecision
    * variable.
    */
-#define MPS_DEBUG_MPF(s, digits, c, name...) {	\
-    __MPS_DEBUG_EQ(s, name);			\
-    if (s->DOLOG) {				\
-      mpf_out_str(s->logstr, 10, digits, c);	\
-      fprintf (s->logstr, "\n");		\
-    }						\
+#define MPS_DEBUG_MPF(s, digits, c, name...) {  \
+    __MPS_DEBUG_EQ(s, name);                    \
+    if (s->DOLOG) {                             \
+      mpf_out_str(s->logstr, 10, digits, c);    \
+      fprintf (s->logstr, "\n");                \
+    }                                           \
   }
 
-#define MPS_DEBUG_MPC2(s, radius, c, name...) {		\
-  __MPS_DEBUG_EQ(s, name);				\
-  if (s->DOLOG) {					\
-  int t = -rdpe_log10 (radius) - 1;			\
-  cdpe_t ctmp;						\
-  rdpe_t mm;						\
-  mpc_get_cdpe (ctmp, c);				\
-  cdpe_mod (mm, ctmp);					\
-  t += rdpe_log (mm);					\
-  mpc_outln_str (s->logstr, 10, t, c);			\
-  }							\
+#define MPS_DEBUG_MPC2(s, radius, c, name...) {         \
+  __MPS_DEBUG_EQ(s, name);                              \
+  if (s->DOLOG) {                                       \
+  int t = -rdpe_log10 (radius) - 1;                     \
+  cdpe_t ctmp;                                          \
+  rdpe_t mm;                                            \
+  mpc_get_cdpe (ctmp, c);                               \
+  cdpe_mod (mm, ctmp);                                  \
+  t += rdpe_log (mm);                                   \
+  mpc_outln_str (s->logstr, 10, t, c);                  \
+  }                                                     \
 }
   
 
   /**
    * @brief Debug the value of a rdpe variable.
    */
-#define MPS_DEBUG_RDPE(s, r, name...) {		\
-    __MPS_DEBUG_EQ(s, name);			\
-    if (s->DOLOG) {				\
-      rdpe_outln_str(s->logstr, r);		\
-    }						\
+#define MPS_DEBUG_RDPE(s, r, name...) {         \
+    __MPS_DEBUG_EQ(s, name);                    \
+    if (s->DOLOG) {                             \
+      rdpe_outln_str(s->logstr, r);             \
+    }                                           \
   }
 
   /**
    * @brief Debug the value of a cdpe variable.
    */
-#define MPS_DEBUG_CDPE(s, c, name...) {		\
-    __MPS_DEBUG_EQ(s, name);			\
-    if (s->DOLOG) {				\
-      cdpe_outln_str(s->logstr, c);		\
-    }						\
+#define MPS_DEBUG_CDPE(s, c, name...) {         \
+    __MPS_DEBUG_EQ(s, name);                    \
+    if (s->DOLOG) {                             \
+      cdpe_outln_str(s->logstr, c);             \
+    }                                           \
   }
 
   /**
    * @brief Debug the values of a cplx_t variable
    */
-#define MPS_DEBUG_CPLX(s, c, name...) {		\
-    __MPS_DEBUG_EQ(s, name);			\
-    if (s->DOLOG) {				\
-      cplx_outln_str(s->logstr, c);		\
-    }						\
+#define MPS_DEBUG_CPLX(s, c, name...) {         \
+    __MPS_DEBUG_EQ(s, name);                    \
+    if (s->DOLOG) {                             \
+      cplx_outln_str(s->logstr, c);             \
+    }                                           \
   }
 
   /**
    * @brief Make some space in the debug stream to make clean that
    * another section is starting.
    */
-#define MPS_DEBUG_BREAK(s) if (s->DOLOG) {	\
-    fprintf(s->logstr, "\n");			\
+#define MPS_DEBUG_BREAK(s) if (s->DOLOG) {      \
+    fprintf(s->logstr, "\n");                   \
   }
 
   /**
    * @brief Low-level debug print that appends an " = " sign to the
    * output (useful for debugging values of variables).
    */
-#define __MPS_DEBUG_EQ(s, templ...)		\
-  __MPS_DEBUG(s, templ);			\
-  if (s->DOLOG) {				\
-    fprintf(s->logstr, " = ");			\
+#define __MPS_DEBUG_EQ(s, templ...)             \
+  __MPS_DEBUG(s, templ);                        \
+  if (s->DOLOG) {                               \
+    fprintf(s->logstr, " = ");                  \
   }
 
   /**
@@ -153,35 +153,35 @@ extern "C"
    */
 #ifndef __WINDOWS
 #define MPS_DEBUG_CALL(s, function) if (s->DOLOG && (s->debug_level & MPS_DEBUG_FUNCTION_CALLS)) { \
-    if (isatty(s->logstr->_fileno)) {					\
-      __MPS_DEBUG(s, "Called \033[31;1m");				\
-    }									\
-    else {								\
-      __MPS_DEBUG(s, "Called ");					\
-    }									\
-    if (isatty(s->logstr->_fileno)) {					\
-      fprintf(s->logstr, function); fprintf(s->logstr, "()\033[0m\n");	\
-    }									\
-    else								\
-      {									\
-	fprintf(s->logstr, function); fprintf(s->logstr, "()\n");	\
-      }									\
+    if (isatty(s->logstr->_fileno)) {                                   \
+      __MPS_DEBUG(s, "Called \033[31;1m");                              \
+    }                                                                   \
+    else {                                                              \
+      __MPS_DEBUG(s, "Called ");                                        \
+    }                                                                   \
+    if (isatty(s->logstr->_fileno)) {                                   \
+      fprintf(s->logstr, function); fprintf(s->logstr, "()\033[0m\n");  \
+    }                                                                   \
+    else                                                                \
+      {                                                                 \
+        fprintf(s->logstr, function); fprintf(s->logstr, "()\n");       \
+      }                                                                 \
 }
 #else
 #define MPS_DEBUG_CALL(s, function) if (s->DOLOG && (s->debug_level & MPS_DEBUG_FUNCTION_CALLS)) { \
-    if (_isatty(_fileno(s->logstr))) {					\
-      __MPS_DEBUG(s, "Called \033[31;1m");				\
-    }									\
-    else {								\
-      __MPS_DEBUG(s, "Called ");					\
-    }									\
-    if (_isatty(_fileno(s->logstr))) {					\
-      fprintf(s->logstr, function); fprintf(s->logstr, "()\033[0m\n");	\
-    }									\
-    else								\
-      {									\
-        fprintf(s->logstr, function); fprintf(s->logstr, "()\n");	\
-      }									\
+    if (_isatty(_fileno(s->logstr))) {                                  \
+      __MPS_DEBUG(s, "Called \033[31;1m");                              \
+    }                                                                   \
+    else {                                                              \
+      __MPS_DEBUG(s, "Called ");                                        \
+    }                                                                   \
+    if (_isatty(_fileno(s->logstr))) {                                  \
+      fprintf(s->logstr, function); fprintf(s->logstr, "()\033[0m\n");  \
+    }                                                                   \
+    else                                                                \
+      {                                                                 \
+        fprintf(s->logstr, function); fprintf(s->logstr, "()\n");       \
+      }                                                                 \
   }
 #endif
 
@@ -193,28 +193,28 @@ extern "C"
    */
 #if __STDC_VERSION__ >= 199901L
 #ifndef __WINDOWS
-#define __MPS_DEBUG(s, templ...) if (s->DOLOG) {		\
-    if (isatty(s->logstr->_fileno)) {				\
-      fprintf(s->logstr, "%s:%d \033[32;1m%s()\033[;0m ",	\
-	      __FILE__, __LINE__, __FUNCTION__);		\
-    }								\
-    else {							\
-      fprintf(s->logstr, "%s:%d %s() ",				\
-	      __FILE__, __LINE__, __FUNCTION__);		\
-    }								\
-    fprintf(s->logstr, templ);					\
+#define __MPS_DEBUG(s, templ...) if (s->DOLOG) {                \
+    if (isatty(s->logstr->_fileno)) {                           \
+      fprintf(s->logstr, "%s:%d \033[32;1m%s()\033[;0m ",       \
+              __FILE__, __LINE__, __FUNCTION__);                \
+    }                                                           \
+    else {                                                      \
+      fprintf(s->logstr, "%s:%d %s() ",                         \
+              __FILE__, __LINE__, __FUNCTION__);                \
+    }                                                           \
+    fprintf(s->logstr, templ);                                  \
   }
 #else
-#define __MPS_DEBUG(s, templ...) if (s->DOLOG) {		\
-    if (_isatty(_fileno(s->logstr))) {				\
-      fprintf(s->logstr, "%s:%d \033[32;1m%s()\033[;0m ",	\
-	      __FILE__, __LINE__, __FUNCTION__);		\
-    }								\
-    else {							\
-      fprintf(s->logstr, "%s:%d %s() ",				\
-	      __FILE__, __LINE__, __FUNCTION__);		\
-    }								\
-    fprintf(s->logstr, templ);					\
+#define __MPS_DEBUG(s, templ...) if (s->DOLOG) {                \
+    if (_isatty(_fileno(s->logstr))) {                          \
+      fprintf(s->logstr, "%s:%d \033[32;1m%s()\033[;0m ",       \
+              __FILE__, __LINE__, __FUNCTION__);                \
+    }                                                           \
+    else {                                                      \
+      fprintf(s->logstr, "%s:%d %s() ",                         \
+              __FILE__, __LINE__, __FUNCTION__);                \
+    }                                                           \
+    fprintf(s->logstr, templ);                                  \
   }
 #endif
 
@@ -243,19 +243,19 @@ extern "C"
 #ifdef __MPS_DEBUG
 #undef __MPS_DEBUG
 #endif
-#define MPS_DEBUG {							\
-    if (s->DOLOG && mps_is_a_tty(s->logstr))				\
+#define MPS_DEBUG {                                                     \
+    if (s->DOLOG && mps_is_a_tty(s->logstr))                            \
       fprintf(s->logstr, "%s:%d \033[32;1m%s()\033[;0m ", __FILE__, __LINE__, __FUNCTION__); \
-    if (s->DOLOG && !mps_is_a_tty(s->logstr))				\
+    if (s->DOLOG && !mps_is_a_tty(s->logstr))                           \
       fprintf(s->logstr, "%s:%d %s() ", __FILE__, __LINE__, __FUNCTION__); \
-    __c_impl__MPS_DEBUG							\
+    __c_impl__MPS_DEBUG                                                 \
       }
-#define __MPS_DEBUG {							\
-    if (s->DOLOG && mps_is_a_tty(s->logstr))				\
+#define __MPS_DEBUG {                                                   \
+    if (s->DOLOG && mps_is_a_tty(s->logstr))                            \
       fprintf(s->logstr, "%s:%d \033[32;1m%s()\033[;0m ", __FILE__, __LINE__, __FUNCTION__); \
-    if (s->DOLOG && !mps_is_a_tty(s->logstr))				\
+    if (s->DOLOG && !mps_is_a_tty(s->logstr))                           \
       fprintf(s->logstr, "%s:%d %s() ", __FILE__, __LINE__, __FUNCTION__); \
-    __c_impl____MPS_DEBUG						\
+    __c_impl____MPS_DEBUG                                               \
       }
   void __c_impl__MPS_DEBUG (mps_context * s, const char *templ, ...);
   void __c_impl____MPS_DEBUG (mps_context * s, const char *templ, ...);
@@ -325,11 +325,11 @@ extern "C"
    */
 #define MPS_DEBUG_TRACE    (0xFFFF)
 
-#define MPS_DEBUG_IF(s, debug_level, debug_instruction)	if (debug_level & s->debug_level) { \
-    debug_instruction;							\
+#define MPS_DEBUG_IF(s, debug_level, debug_instruction) if (debug_level & s->debug_level) { \
+    debug_instruction;                                                  \
   }
 
-#ifdef	__cplusplus  
+#ifdef  __cplusplus  
 } 
 #endif  
 

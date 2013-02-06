@@ -53,7 +53,7 @@ mpc_get_cplx (cplx_t c, mpc_t mc)
   cplx_Im (c) = mpf_get_d (mpc_Im (mc));
 #else
   cplx_set_d (c, mpf_get_d (mpc_Re (mc)), 
-	      mpf_get_d (mpc_Im (mc)));
+              mpf_get_d (mpc_Im (mc)));
 #endif
 }
 

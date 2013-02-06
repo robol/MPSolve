@@ -35,7 +35,7 @@ mps_thread_get_core_number (mps_context * s)
       return cores;
 
       if (cpuinfo) 
-	fclose (cpuinfo);
+        fclose (cpuinfo);
     }
 
   /* If the metafile /proc/cpuinfo is not available
@@ -43,7 +43,7 @@ mps_thread_get_core_number (mps_context * s)
   if (!cpuinfo)
     {
       if (s->debug_level & MPS_DEBUG_MEMORY)
-	MPS_DEBUG (s, "Found %d cores on this system", cores);
+        MPS_DEBUG (s, "Found %d cores on this system", cores);
       return cores;
     }
 
@@ -127,28 +127,28 @@ mps_thread_job_queue_next (mps_context * s, mps_thread_job_queue * q)
       /* Check if the previous one was the last element in the
        * cluster, and if that's the case pass to the next one. */
       if (q->root == NULL)
-	{
-	  q->cluster_item = q->cluster_item->next;
+        {
+          q->cluster_item = q->cluster_item->next;
 
-	  /* If we got to the end of the clusterization restart from
-	   * the first cluster and dump the iteration counter. */
-	  if (q->cluster_item == NULL)
-	    {
-	      q->cluster_item = s->clusterization->first;
-	      q->iter++;
-	    }
+          /* If we got to the end of the clusterization restart from
+           * the first cluster and dump the iteration counter. */
+          if (q->cluster_item == NULL)
+            {
+              q->cluster_item = s->clusterization->first;
+              q->iter++;
+            }
 
-	  q->root = q->cluster_item->cluster->first;
+          q->root = q->cluster_item->cluster->first;
       
 
-	  /* Check if maximum number of iteration was reached and
-	   * if that was the case set j->iter to MPS_THREAD_JOB_EXCEP.  */
-	  if (j.iter == q->max_iter)
-	    {
-	      j.iter = MPS_THREAD_JOB_EXCEP;
-	      q->iter = MPS_THREAD_JOB_EXCEP;
-	    }
-	}
+          /* Check if maximum number of iteration was reached and
+           * if that was the case set j->iter to MPS_THREAD_JOB_EXCEP.  */
+          if (j.iter == q->max_iter)
+            {
+              j.iter = MPS_THREAD_JOB_EXCEP;
+              q->iter = MPS_THREAD_JOB_EXCEP;
+            }
+        }
     }
 
   pthread_mutex_unlock (&q->mutex);
@@ -183,9 +183,9 @@ mps_thread_mainloop (void * thread_ptr)
       pthread_mutex_unlock (&thread->busy_mutex);
 
       if (thread->alive)
-	{
-	  thread->work (thread->args);
-	}
+        {
+          thread->work (thread->args);
+        }
 
       /* printf("(thread %p) Realmente finito\n", thread); fflush(stdout); */
     }
@@ -219,7 +219,7 @@ mps_thread_start_mainloop (mps_context * s, mps_thread * thread)
  * @brief Limit the maximum number of threads that can be used in the thread pool.
  */
 void mps_thread_pool_set_concurrency_limit (mps_context * s, mps_thread_pool * pool, 
-					    unsigned int concurrency_limit)
+                                            unsigned int concurrency_limit)
 {
   int i;
   long int l_cl;
@@ -249,7 +249,7 @@ void mps_thread_pool_set_concurrency_limit (mps_context * s, mps_thread_pool * p
 
 void
 mps_thread_pool_assign (mps_context * s, mps_thread_pool * pool, 
-			mps_thread_work work, void * args)
+                        mps_thread_work work, void * args)
 {
   if (!pool)
     pool = s->pool;
@@ -268,22 +268,22 @@ mps_thread_pool_assign (mps_context * s, mps_thread_pool * pool,
     {
       pthread_mutex_lock (&thread->busy_mutex);
       if (thread->busy == false)
-	{
-	  /* printf("Assigning to thread %p\n", thread); fflush(stdout);  */
-	  thread->work = work;
-	  thread->args = args;
+        {
+          /* printf("Assigning to thread %p\n", thread); fflush(stdout);  */
+          thread->work = work;
+          thread->args = args;
 
-	  thread->busy = true;
-	  pthread_cond_signal (&thread->start_condition);
-	  pthread_mutex_unlock (&thread->busy_mutex);
+          thread->busy = true;
+          pthread_cond_signal (&thread->start_condition);
+          pthread_mutex_unlock (&thread->busy_mutex);
 
-	  return;
-	}
+          return;
+        }
       else 
-	{
-	  pthread_mutex_unlock (&thread->busy_mutex);
-	  thread = thread->next;
-	}
+        {
+          pthread_mutex_unlock (&thread->busy_mutex);
+          thread = thread->next;
+        }
     }
 
   /* printf ("Non ho trovato il thread libero\n");  */
@@ -308,7 +308,7 @@ mps_thread_pool_wait (mps_context * s, mps_thread_pool * pool)
       sem_getvalue (&pool->free_count, &value);
 
       if (value != threads_to_wait)
-	pthread_cond_wait (&pool->free_count_changed_cond, &pool->free_count_changed_mutex);
+        pthread_cond_wait (&pool->free_count_changed_cond, &pool->free_count_changed_mutex);
 
       pthread_mutex_unlock (&pool->free_count_changed_mutex);
 
@@ -448,9 +448,9 @@ int mps_thread_get_id (mps_context * s, mps_thread_pool * pool)
   while (thread)
     {
       if (pthread_equal (*thread->thread, self))
-	{
-	  return i;
-	}
+        {
+          return i;
+        }
       i++;
       thread = thread->next;
     }

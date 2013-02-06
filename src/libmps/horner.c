@@ -38,17 +38,17 @@ mps_mhorner (mps_context * s, mps_monomial_poly * p, mpc_t x, mpc_t value)
   else  
     { 
       mps_with_lock (p->mfpc_mutex[MPS_POLYNOMIAL (p)->degree],
-		     mpc_set (value, p->mfpc[MPS_POLYNOMIAL (p)->degree]);
-		     );
+                     mpc_set (value, p->mfpc[MPS_POLYNOMIAL (p)->degree]);
+                     );
 
       for (j = MPS_POLYNOMIAL (p)->degree - 1; j >= 0; j--)
-	{
-	  mpc_mul_eq (value, x);
-	  
-	  pthread_mutex_lock (&p->mfpc_mutex[j]);
-	  mpc_add_eq (value, p->mfpc[j]);
-	  pthread_mutex_unlock (&p->mfpc_mutex[j]);
-	}
+        {
+          mpc_mul_eq (value, x);
+          
+          pthread_mutex_lock (&p->mfpc_mutex[j]);
+          mpc_add_eq (value, p->mfpc[j]);
+          pthread_mutex_unlock (&p->mfpc_mutex[j]);
+        }
      } 
 }
 
@@ -200,7 +200,7 @@ mps_mhorner_with_error (mps_context * s, mps_monomial_poly * p, mpc_t x, mpc_t v
  */
 void
 mps_mhorner_sparse (mps_context * s, mps_monomial_poly * p, mpc_t x,
-		    mpc_t value)
+                    mpc_t value)
 {
   int m, j, i, i1, i2, q;
   mpc_t tmp, y;
@@ -231,9 +231,9 @@ mps_mhorner_sparse (mps_context * s, mps_monomial_poly * p, mpc_t x,
   for (i = 0; i < n; i++)
     if (b[i])
       {
-	pthread_mutex_lock (&p->mfpc_mutex[i]);
-	mpc_set (mfpc2[i], p->mfpc[i]);
-	pthread_mutex_unlock (&p->mfpc_mutex[i]);
+        pthread_mutex_lock (&p->mfpc_mutex[i]);
+        mpc_set (mfpc2[i], p->mfpc[i]);
+        pthread_mutex_unlock (&p->mfpc_mutex[i]);
       }
 
   q = mps_intlog2 (n + 1);
@@ -244,25 +244,25 @@ mps_mhorner_sparse (mps_context * s, mps_monomial_poly * p, mpc_t x,
       spar2[m] = false;
       m = (m + 1) >> 1;
       for (i = 0; i < m; i++)
-	{
-	  i2 = (i << 1) + 1;
-	  i1 = i2 - 1;
-	  bi = spar2[i1] || spar2[i2];
-	  if (bi)
-	    {
-	      if (spar2[i1])
-		if (spar2[i2])
-		  {
-		    mpc_mul (tmp, y, mfpc2[i2]);
-		    mpc_add (mfpc2[i], mfpc2[i1], tmp);
-		  }
-		else
-		  mpc_set (mfpc2[i], mfpc2[i1]);
-	      else
-		mpc_mul (mfpc2[i], y, mfpc2[i2]);
-	    }
-	  spar2[i] = bi;
-	}
+        {
+          i2 = (i << 1) + 1;
+          i1 = i2 - 1;
+          bi = spar2[i1] || spar2[i2];
+          if (bi)
+            {
+              if (spar2[i1])
+                if (spar2[i2])
+                  {
+                    mpc_mul (tmp, y, mfpc2[i2]);
+                    mpc_add (mfpc2[i], mfpc2[i1], tmp);
+                  }
+                else
+                  mpc_set (mfpc2[i], mfpc2[i1]);
+              else
+                mpc_mul (mfpc2[i], y, mfpc2[i2]);
+            }
+          spar2[i] = bi;
+        }
       spar2[m] = false;
       mpc_sqr_eq (y);
     }
