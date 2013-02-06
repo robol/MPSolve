@@ -11,14 +11,15 @@
 #include <mps/mps.h>
 #include <mps/chebyshev.h>
 
-
  void mps_chebyshev_poly_free(mps_context *, mps_polynomial *);
  long int mps_chebyshev_poly_raise_data (mps_context * ctx, mps_polynomial * poly, long int wp);
- mps_boolean mps_chebyshev_poly_meval (mps_context * ctx, mps_polynomial * poly, mpc_t x, mpc_t value, rdpe_t error);
  void mps_chebyshev_get_leading_coefficient (mps_context * ctx, mps_polynomial * poly, mpc_t lc);
 
+ /* This is implemented in chebyshev-evaluation.c */
+ mps_boolean mps_chebyshev_poly_meval (mps_context * ctx, mps_polynomial * poly, mpc_t x, mpc_t value, rdpe_t error);
+
  mps_chebyshev_poly * 
- mps_chebyshev_poly_new (mps_context * ctx, int n)
+ mps_chebyshev_poly_new (mps_context * ctx, int n, mps_structure structure)
  {
         mps_chebyshev_poly * poly = mps_new (mps_chebyshev_poly);
 
@@ -26,10 +27,21 @@
         MPS_POLYNOMIAL (poly)->degree = n;
         mps_polynomial_init (ctx, MPS_POLYNOMIAL (poly));
 
+        MPS_POLYNOMIAL (poly)->structure = structure;
+
         /* Chances are that these are not really needed. In this case we can 
          * simply leave this values set to NULL. They will be allocated on
          * demand by mps_chebyshev_poly_set_coefficient_q(). */
         poly->rational_real_coeffs = poly->rational_imag_coeffs = NULL;
+
+        if (MPS_STRUCTURE_IS_INTEGER (structure) || MPS_STRUCTURE_IS_RATIONAL (structure))
+        {
+          poly->rational_real_coeffs = mps_newv (mpq_t, n + 1);
+          poly->rational_imag_coeffs = mps_newv (mpq_t, n + 1);
+
+          mpq_vinit (poly->rational_real_coeffs, n + 1);
+          mpq_vinit (poly->rational_imag_coeffs, n + 1);
+        }
 
         poly->fpc = cplx_valloc (n + 1);
         poly->dpc = cdpe_valloc (n + 1);
@@ -73,6 +85,15 @@
         cdpe_vfree (cpoly->dpc);
         mpc_vfree (cpoly->mfpc);
 
+        if (MPS_STRUCTURE_IS_INTEGER (poly->structure) || MPS_STRUCTURE_IS_RATIONAL (poly->structure))
+          {
+            mpq_vclear (cpoly->rational_real_coeffs, poly->degree + 1);
+            mpq_vclear (cpoly->rational_imag_coeffs, poly->degree + 1);
+
+            free (cpoly->rational_real_coeffs);
+            free (cpoly->rational_imag_coeffs);
+          }
+
         free (poly);
  }
 
@@ -98,73 +119,21 @@
                 mpc_set_prec (cpoly->mfpc[i], wp);
         }
 
+        if (MPS_STRUCTURE_IS_INTEGER (poly->structure) ||
+            MPS_STRUCTURE_IS_RATIONAL (poly->structure))
+          {
+            /* Regenerate the coefficients starting from the exact input
+             * of the user. */
+            for (i = 0; i <= poly->degree; i++)
+              {
+                mpf_set_q (mpc_Re (cpoly->mfpc[i]), cpoly->rational_real_coeffs[i]);
+                mpf_set_q (mpc_Im (cpoly->mfpc[i]), cpoly->rational_imag_coeffs[i]);
+              }
+          }
+
         pthread_mutex_unlock (&cpoly->precision_mutex);
 
         return mpc_get_prec (cpoly->mfpc[0]);
- }
-
- mps_boolean
- mps_chebyshev_poly_meval (mps_context * ctx, mps_polynomial * poly, mpc_t x, mpc_t value, rdpe_t error)
- {
-        long int wp = mpc_get_prec (x);
-        mps_chebyshev_poly * cpoly = MPS_CHEBYSHEV_POLY (poly);
-        int i;
-
-        mpc_t t0, t1, ctmp, ctmp2;
-        rdpe_t ax, rtmp, rtmp2;
-
-        mpc_rmod (ax, x);
-        rdpe_set (error, rdpe_zero);
-
-        /* Make sure that we have sufficient precision to perform the computation */
-        mps_chebyshev_poly_raise_data (ctx, poly, wp);
-
-        mpc_init2 (t0, wp);
-        mpc_init2 (t1, wp);
-        mpc_init2 (ctmp, wp);
-        mpc_init2 (ctmp2, wp);
-
-        mpc_set (value, cpoly->mfpc[0]);
-        mpc_set_ui (t0, 1U, 0U);
-        if (poly->degree == 0) {
-                return true;
-        }
-
-        mpc_set (t1, x);
-        mpc_mul (ctmp, cpoly->mfpc[1], x);
-        mpc_add_eq (value, ctmp);
-
-        mpc_rmod (rtmp, ctmp);
-        rdpe_add_eq (error, rtmp);
-
-        for (i = 2; i <= poly->degree; i++) {
-                mpc_mul (ctmp, x, t1);
-                mpc_mul_eq_ui (ctmp, 2U);
-                mpc_rmod (rtmp, ctmp);
-                mpc_sub_eq (ctmp, t0);
-
-                mpc_rmod (rtmp2, t0);
-                rdpe_add_eq (rtmp, rtmp2);
-
-                mpc_mul (ctmp2, ctmp, cpoly->mfpc[i]);
-                mpc_add_eq (value, ctmp2);
-
-                rdpe_mul_eq (rtmp, ax);
-                rdpe_add_eq (error, rtmp);
-
-                mpc_set (t0, t1);
-                mpc_set (t1, ctmp);
-        }
-
-        mpc_clear (t0);
-        mpc_clear (t1);
-        mpc_clear (ctmp);
-        mpc_clear (ctmp2);
-
-        rdpe_set_2dl (rtmp, 2.0, -wp);
-        rdpe_mul_eq (error, rtmp);
-
-        return true;
  }
 
 void mps_chebyshev_get_leading_coefficient (mps_context * ctx, mps_polynomial * poly, mpc_t lc)
@@ -187,9 +156,15 @@ void mps_chebyshev_get_leading_coefficient (mps_context * ctx, mps_polynomial * 
         mpc_get_cplx (poly->fpc[i], coeff);
  }
 
- void 
- mps_chebyshev_poly_set_coefficient_q (mps_context * ctx, mps_chebyshev_poly * poly, 
-        int i, mpq_t real_part, mpq_t imag_part)
- {
+void 
+mps_chebyshev_poly_set_coefficient_q (mps_context * ctx, mps_chebyshev_poly * poly, 
+       int i, mpq_t real_part, mpq_t imag_part)
+{
+  mps_chebyshev_poly * cpoly = MPS_CHEBYSHEV_POLY (poly);
 
- }
+  mpq_set (cpoly->rational_real_coeffs[i], real_part);
+  mpq_set (cpoly->rational_imag_coeffs[i], imag_part);
+
+  mpf_set_q (mpc_Re (cpoly->mfpc[i]), real_part);
+  mpf_set_q (mpc_Im (cpoly->mfpc[i]), imag_part);
+}

@@ -35,6 +35,7 @@ libmps_la_SOURCES = \
 	    aberth.c \
         approximation.c \
         chebyshev.c \
+        chebyshev-evaluation.c \
 	    cluster.c \
 	    context.c \
 	    convex.c \

@@ -590,36 +590,66 @@ mps_chebyshev_poly_read_from_stream (mps_context * ctx, mps_input_buffer * buffe
 {
   int i;
   char * token;
-  mps_chebyshev_poly * cpoly = mps_chebyshev_poly_new (ctx, ctx->n);
+  mps_chebyshev_poly * cpoly = mps_chebyshev_poly_new (ctx, ctx->n, structure);
 
-  if (density != MPS_DENSITY_DENSE || structure != MPS_STRUCTURE_COMPLEX_FP) {
-    mps_error (ctx, 1, "Only density = MPS_DENSITY_DENSE and structure = MPS_STRUCTURE_COMPLEX_FP are supported.");
-    return;
-  }
-
-  for (i = 0; i <= ctx->n; i++) {
-    token = mps_input_buffer_next_token (buffer);
-    if (!token || (mpf_set_str (mpc_Re (cpoly->mfpc[i]), token, 10) != 0)) {
-      mps_error (ctx, 1, "Error while reading real part of coefficient %d", i);
+  if (density != MPS_DENSITY_DENSE) 
+    {
+      mps_error (ctx, 1, "Only density = MPS_DENSITY_DENSE is supported with Chebyshev polynomials.");
+      return;
     }
-    else
-      free (token);
 
-    token = mps_input_buffer_next_token (buffer);
-    if (!token || (mpf_set_str (mpc_Im (cpoly->mfpc[i]), token, 10) != 0)) {
-      mps_error (ctx, 1, "Error while reading imaginary part of coefficient %d", i);
+  for (i = 0; i <= ctx->n; i++) 
+    {
+      if (MPS_STRUCTURE_IS_FP (structure))
+        {
+          token = mps_input_buffer_next_token (buffer);
+
+          if (!token || (mpf_set_str (mpc_Re (cpoly->mfpc[i]), token, 10) != 0)) 
+              mps_error (ctx, 1, "Error while reading real part of coefficient %d", i);
+          else
+            free (token);
+
+          if (MPS_STRUCTURE_IS_COMPLEX (structure))
+            {
+              token = mps_input_buffer_next_token (buffer);
+
+              if (!token || (mpf_set_str (mpc_Im (cpoly->mfpc[i]), token, 10) != 0)) 
+                  mps_error (ctx, 1, "Error while reading imaginary part of coefficient %d", i);
+              else
+                free (token);
+            }
+          }
+        else if (MPS_STRUCTURE_IS_RATIONAL (structure) || MPS_STRUCTURE_IS_INTEGER (structure))
+          {
+            token = mps_input_buffer_next_token (buffer);
+
+            if (!token || (mpq_set_str (cpoly->rational_real_coeffs[i], token, 10)))
+              mps_error (ctx, 1, "Error while reading the real part of coefficient %d", i);
+            else
+              free (token);
+
+            if (MPS_STRUCTURE_IS_COMPLEX (structure))
+              {
+                token = mps_input_buffer_next_token (buffer);
+
+                if (!token || (mpq_set_str (cpoly->rational_imag_coeffs[i], token, 10)))
+                  mps_error (ctx, 1, "Error while reading the imaginary part of coefficient %d", i);
+                else
+                  free (token);
+              }
+
+              mpf_set_q (mpc_Re (cpoly->mfpc[i]), cpoly->rational_real_coeffs[i]);
+              mpf_set_q (mpc_Im (cpoly->mfpc[i]), cpoly->rational_imag_coeffs[i]);
+          }
+
+      /* Update other floating point coefficients */
+      mpc_get_cdpe (cpoly->dpc[i], cpoly->mfpc[i]);
+      mpc_get_cplx (cpoly->fpc[i], cpoly->mfpc[i]);
+
+      if (ctx->debug_level & MPS_DEBUG_IO) {
+        MPS_DEBUG_CPLX (ctx, cpoly->fpc[i], "Coefficient %d", i);
+      }
     }
-    else
-      free (token);
-
-    /* Update other floating point coefficients */
-    mpc_get_cdpe (cpoly->dpc[i], cpoly->mfpc[i]);
-    mpc_get_cplx (cpoly->fpc[i], cpoly->mfpc[i]);
-
-    if (ctx->debug_level & MPS_DEBUG_IO) {
-      MPS_DEBUG_CPLX (ctx, cpoly->fpc[i], "Coefficient %d", i);
-    }
-  }
 
   mps_context_set_input_poly (ctx, MPS_POLYNOMIAL (cpoly));
 }

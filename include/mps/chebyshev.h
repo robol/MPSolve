@@ -73,7 +73,7 @@ extern "C" {
  * @brief Create a new polynomial represented in the Chebyshev base with
  * degree set to n. 
  */
- mps_chebyshev_poly * mps_chebyshev_poly_new (mps_context * ctx, int n);
+ mps_chebyshev_poly * mps_chebyshev_poly_new (mps_context * ctx, int n, mps_structure structure);
 
  /**
   * @brief Set the coefficient relative to the i-th element of the Chebyshev
