@@ -115,9 +115,10 @@
         mpc_set_prec (cpoly->lc, wp);
 
         /* Otherwise really increase it */
-        for (i = 0; i <= poly->degree; i++) {
-                mpc_set_prec (cpoly->mfpc[i], wp);
-        }
+        for (i = 0; i <= poly->degree; i++) 
+          {
+            mpc_set_prec (cpoly->mfpc[i], wp);
+          }
 
         if (MPS_STRUCTURE_IS_INTEGER (poly->structure) ||
             MPS_STRUCTURE_IS_RATIONAL (poly->structure))

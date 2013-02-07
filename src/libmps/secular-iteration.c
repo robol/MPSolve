@@ -324,7 +324,8 @@ __mps_secular_ga_diterate_worker (void* data_ptr)
 
           /* Correct the radius */
           cdpe_mod (modcorr, abcorr);
-          rdpe_add_eq (s->root[i]->drad, modcorr);
+          if (s->root[i]->again)
+            rdpe_add_eq (s->root[i]->drad, modcorr);
 
           if (!s->root[i]->again || s->root[i]->approximated)
             {
