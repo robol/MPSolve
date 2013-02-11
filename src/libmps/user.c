@@ -213,6 +213,9 @@ mps_feval_usr (mps_context * ctx, mps_polynomial * p, cplx_t x, cplx_t value, do
   double ax = cplx_mod (x);
   cplx_t tmp;
 
+  if ((1 << m) <= p->degree)
+    m++;
+
   cplx_set (value, cplx_one);
 
   if (error)
@@ -227,6 +230,9 @@ mps_feval_usr (mps_context * ctx, mps_polynomial * p, cplx_t x, cplx_t value, do
       if (error)
         *error = *error * ax + cplx_mod (value);
     }
+
+  if (error)
+    *error *= DBL_EPSILON;
 }
 
 void
@@ -236,6 +242,9 @@ mps_deval_usr (mps_context * ctx, mps_polynomial * p, cdpe_t x, cdpe_t value, rd
   int m = (int) (log (p->degree + 1.0) / LOG2);
   rdpe_t ax, rtmp;
   cdpe_t tmp;
+
+  if ((1 << m) <= p->degree)
+    m++;
 
   cdpe_mod (ax, x);
   cdpe_set (value, cdpe_one);
@@ -250,6 +259,8 @@ mps_deval_usr (mps_context * ctx, mps_polynomial * p, cdpe_t x, cdpe_t value, rd
       cdpe_mod (rtmp, value);
       rdpe_add_eq (error, rtmp);
     }
+
+  rdpe_mul_eq_d (error, DBL_EPSILON);
 }
 
 void
@@ -260,6 +271,9 @@ mps_meval_usr (mps_context * ctx, mps_polynomial * p, mpc_t x, mpc_t value, rdpe
   rdpe_t ax, rtmp;
   mpc_t tmp;
   long int wp = mpc_get_prec (x);
+
+  if ((1 << m) <= p->degree)
+    m++;
 
   mpc_init2 (tmp, wp);
 
@@ -276,6 +290,9 @@ mps_meval_usr (mps_context * ctx, mps_polynomial * p, mpc_t x, mpc_t value, rdpe
       mpc_rmod (rtmp, value);
       rdpe_add_eq (error, rtmp);
     }
+
+  rdpe_set_2dl (rtmp, 1.0, -wp);
+  rdpe_mul_eq (error, rtmp);
 
   mpc_clear (tmp);
 }
