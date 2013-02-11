@@ -766,6 +766,11 @@ mps_parse_stream_old (mps_context * s, mps_input_buffer * buffer)
       user_poly->dstart = mps_general_dstart;
       user_poly->mstart = mps_general_mstart;
 
+      /* Evaluation */
+      user_poly->feval = mps_feval_usr;
+      user_poly->deval = mps_deval_usr;
+      user_poly->meval = mps_meval_usr;
+
       MPS_POLYNOMIAL (user_poly)->degree = s->n;
 
       mps_context_set_input_poly (s, user_poly);

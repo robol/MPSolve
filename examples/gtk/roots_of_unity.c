@@ -110,8 +110,6 @@ on_solve_button_clicked (GtkButton * button, GtkSpinButton * spin_button)
   mps_monomial_poly_set_coefficient_d (s, p, 0, -1, 0);
   mps_monomial_poly_set_coefficient_d (s, p, degree, 1, 0);
 
-  mps_context_set_output_goal (s, MPS_OUTPUT_GOAL_ISOLATE);
-
   /* Asking MPSolve to solve it asynchronously */
   mps_context_set_input_poly (s, MPS_POLYNOMIAL (p));
   mps_mpsolve_async (s, (mps_callback) on_polynomial_solved, button);
