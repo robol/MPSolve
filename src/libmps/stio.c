@@ -737,6 +737,7 @@ mps_parse_stream_old (mps_context * s, mps_input_buffer * buffer)
     }
 
   /* Read precision and degree */
+  prec = 0;
   token = mps_input_buffer_next_token (buffer);
   if (!token || !sscanf (token, "%ld", &prec))
     mps_error (s, 1, "Error while reading the input precision of the coefficients");
@@ -755,6 +756,9 @@ mps_parse_stream_old (mps_context * s, mps_input_buffer * buffer)
   if (density == MPS_DENSITY_USER)
     {
       mps_polynomial * user_poly = mps_polynomial_new (s);
+
+      user_poly->density = MPS_DENSITY_USER;
+      user_poly->structure = MPS_STRUCTURE_REAL_INTEGER;
 
       /* Newton iteration */
       user_poly->fnewton = mps_fnewton_usr;
@@ -1049,6 +1053,8 @@ mps_parse_stream_old (mps_context * s, mps_input_buffer * buffer)
           MPS_DEBUG (s, "poly->fap[%d] = %e", i, poly->fap[i]);
         }
     }
+
+  poly->prec = prec;
 
   mps_context_set_input_poly (s, MPS_POLYNOMIAL (poly));
 
