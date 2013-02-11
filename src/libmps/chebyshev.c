@@ -113,6 +113,8 @@
         }
 
         mpc_set_prec (cpoly->lc, wp);
+        mpc_set_ui (cpoly->lc, 2U, 0U);
+        mpc_pow_si (cpoly->lc, cpoly->lc, MAX(poly->degree - 1, 0));
 
         /* Otherwise really increase it */
         for (i = 0; i <= poly->degree; i++) {
@@ -140,6 +142,7 @@ void mps_chebyshev_get_leading_coefficient (mps_context * ctx, mps_polynomial * 
 {
         mps_chebyshev_poly * cpoly = MPS_CHEBYSHEV_POLY (poly);
         mpc_set (lc, cpoly->lc);
+        mpc_mul_eq (lc, cpoly->mfpc[poly->degree]);
 }
 
 
