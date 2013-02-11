@@ -6,6 +6,9 @@
  * specfied by the user and then displays the roots on a plot.
  *
  * Author: Leonardo Robol <robol@mail.dm.unipi.it>
+ *
+ * Copyright (C) 2001-2013, Dipartimento di Matematica "L. Tonelli", Pisa.
+ * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  */
 
 #include <mps/mps.h>

@@ -1,7 +1,7 @@
 /*
  * This file is part of MPSolve 3.0
  *
- * Copyright (C) 2001-2012, Dipartimento di Matematica "L. Tonelli", Pisa.
+ * Copyright (C) 2001-2013, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
  * Authors: 
@@ -92,13 +92,13 @@ mps_improve (mps_context * s)
   for (i = 0; i < s->n; i++)
     {
       if (s->root[i]->status != MPS_ROOT_STATUS_ISOLATED || 
-                s->root[i]->status == MPS_ROOT_STATUS_APPROXIMATED_IN_CLUSTER)
+          s->root[i]->status == MPS_ROOT_STATUS_APPROXIMATED_IN_CLUSTER)
                {
                  if (s->debug_level & MPS_DEBUG_IMPROVEMENT)
-                 MPS_DEBUG (s, "Not approximating root %i since it is already approximated", i);         
+                  MPS_DEBUG (s, "Not approximating root %i since it is already approximated", i);
                }
       else
-               mps_thread_pool_assign (s, NULL, mps_improve_root2, improve_data + i);
+          mps_thread_pool_assign (s, NULL, mps_improve_root2, improve_data + i);
     }
 
   mps_thread_pool_wait (s, s->pool);

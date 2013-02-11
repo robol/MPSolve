@@ -1,7 +1,7 @@
 /*
  * This file is part of MPSolve 3.0
  *
- * Copyright (C) 2001-2012, Dipartimento di Matematica "L. Tonelli", Pisa.
+ * Copyright (C) 2001-2013, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
  * Authors: 
@@ -1233,7 +1233,6 @@ mps_parse_stream (mps_context * s, FILE * input_stream)
   MPS_POLYNOMIAL (s->active_poly)->density = density;
 
   mps_context_set_input_prec (s, input_precision);
-  mps_context_set_output_prec (s, input_precision);
 
   mps_input_buffer_free (buffer);
 }

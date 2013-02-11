@@ -1,7 +1,7 @@
 /*
  * This file is part of MPSolve 3.0
  *
- * Copyright (C) 2001-2012, Dipartimento di Matematica "L. Tonelli", Pisa.
+ * Copyright (C) 2001-2013, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
  * Authors: 
@@ -205,7 +205,7 @@ mps_mnewton_usr (mps_context * s, mps_polynomial * poly, mps_approximation * roo
   mpc_clear (p);
 }
 
-void
+mps_boolean
 mps_feval_usr (mps_context * ctx, mps_polynomial * p, cplx_t x, cplx_t value, double * error)
 {
   int i;
@@ -233,9 +233,11 @@ mps_feval_usr (mps_context * ctx, mps_polynomial * p, cplx_t x, cplx_t value, do
 
   if (error)
     *error *= DBL_EPSILON;
+
+  return true;
 }
 
-void
+mps_boolean
 mps_deval_usr (mps_context * ctx, mps_polynomial * p, cdpe_t x, cdpe_t value, rdpe_t error)
 {
   int i;
@@ -261,9 +263,10 @@ mps_deval_usr (mps_context * ctx, mps_polynomial * p, cdpe_t x, cdpe_t value, rd
     }
 
   rdpe_mul_eq_d (error, DBL_EPSILON);
+  return true;
 }
 
-void
+mps_boolean
 mps_meval_usr (mps_context * ctx, mps_polynomial * p, mpc_t x, mpc_t value, rdpe_t error)
 {
   int i;
@@ -295,4 +298,6 @@ mps_meval_usr (mps_context * ctx, mps_polynomial * p, mpc_t x, mpc_t value, rdpe
   rdpe_mul_eq (error, rtmp);
 
   mpc_clear (tmp);
+
+  return true;
 }
