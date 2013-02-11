@@ -38,9 +38,9 @@ mps_polynomial_init (mps_context * ctx, mps_polynomial * p)
   p->feval = NULL;
   p->deval = NULL;
   p->meval = NULL;
-  p->fstart = NULL; // mps_general_fstart;
-  p->dstart = NULL; // mps_general_dstart;
-  p->mstart = NULL; // mps_general_mstart;
+  p->fstart = mps_general_fstart;
+  p->dstart = mps_general_dstart;
+  p->mstart = mps_general_mstart;
   p->free = _mps_polynomial_free;
   p->raise_data = _mps_polynomial_raise_data;
   p->fnewton = NULL;
@@ -116,28 +116,28 @@ mps_polynomial_raise_data (mps_context * ctx, mps_polynomial * p, long int wp)
 
 void 
 mps_polynomial_fnewton (mps_context * ctx, mps_polynomial *p, 
-			mps_approximation * root, cplx_t corr)
+                        mps_approximation * root, cplx_t corr)
 {
   (*p->fnewton)(ctx, p, root, corr);
 }
 
 void 
 mps_polynomial_dnewton (mps_context * ctx, mps_polynomial *p, 
-			mps_approximation * root, cdpe_t corr)
+                        mps_approximation * root, cdpe_t corr)
 {
   (*p->dnewton) (ctx, p, root, corr);
 }
 
 void 
 mps_polynomial_mnewton (mps_context * ctx, mps_polynomial *p, 
-			mps_approximation * root, mpc_t corr)
+                        mps_approximation * root, mpc_t corr)
 {
   (*p->mnewton) (ctx, p, root, corr);
 }
 
 void
 mps_polynomial_get_leading_coefficient (mps_context * ctx, mps_polynomial * p,
-					mpc_t leading_coefficient)
+                                        mpc_t leading_coefficient)
 {
   (*p->get_leading_coefficient) (ctx, p, leading_coefficient);
 }

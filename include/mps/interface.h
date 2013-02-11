@@ -6,7 +6,7 @@
  */
 
 #ifndef MPS_INTERFACE_H
-#define	MPS_INTERFACE_H
+#define MPS_INTERFACE_H
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -14,7 +14,7 @@
 #include <gmp.h>
 #include <mps/mps.h>
 
-#ifdef	__cplusplus
+#ifdef  __cplusplus
 extern "C"
 {
 #endif
@@ -219,7 +219,7 @@ extern "C"
 #define mps_new(type) ((type *) mps_malloc (sizeof (type)))
 #define mps_newv(type, n) ((type *) mps_malloc (sizeof (type) * (n)))
 
-#ifdef	__cplusplus
+#ifdef  __cplusplus
 }
 #endif
 

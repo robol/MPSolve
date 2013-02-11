@@ -73,18 +73,18 @@ typedef void (*mps_polynomial_mstart_t) (mps_context * ctx, mps_polynomial * p);
  * @brief Function that computes \f$\frac{p}{p'}\f$ (floating point version)
  */
 typedef void (*mps_polynomial_fnewton_t) (mps_context * ctx, mps_polynomial * p, 
-					  mps_approximation * root, cplx_t x);
+                                          mps_approximation * root, cplx_t x);
 /**
  * @brief Function that computes \f$\frac{p}{p'}\f$ (dpe version)
  */
 typedef void (*mps_polynomial_dnewton_t) (mps_context * ctx, mps_polynomial * p, 
-					  mps_approximation * root, cdpe_t corr);
+                                          mps_approximation * root, cdpe_t corr);
 
 /**
  * @brief Function that computes \f$\frac{p}{p'}\f$ (multiprecision version)
  */
 typedef void (*mps_polynomial_mnewton_t) (mps_context * ctx, mps_polynomial * p, 
-					  mps_approximation * root, mpc_t corr);
+                                          mps_approximation * root, mpc_t corr);
 
 /** 
  * @brief Function that returns the leading coefficient of the polynomial. 
@@ -218,13 +218,13 @@ void mps_polynomial_mstart (mps_context * ctx, mps_polynomial * p);
 void mps_polynomial_free (mps_context * ctx, mps_polynomial * p);
 
 void mps_polynomial_fnewton (mps_context * ctx, mps_polynomial *p, 
-			     mps_approximation * root, cplx_t corr);
+                             mps_approximation * root, cplx_t corr);
 
 void mps_polynomial_dnewton (mps_context * ctx, mps_polynomial *p, 
-			     mps_approximation * root, cdpe_t corr);
+                             mps_approximation * root, cdpe_t corr);
 
 void mps_polynomial_mnewton (mps_context * ctx, mps_polynomial *p, 
-			     mps_approximation * root, mpc_t corr);
+                             mps_approximation * root, mpc_t corr);
 
 void mps_polynomial_get_leading_coefficient (mps_context * ctx, mps_polynomial * p, mpc_t lc);
 

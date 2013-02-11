@@ -36,13 +36,13 @@ test_unisolve_on_pol (test_pol * pol)
   if (!result_stream) 
     {
       fprintf (stderr, "Checking \033[1m%-30s\033[0m \033[31;1mno results file found!\033[0m\n", 
-	       get_pol_name_from_path (pol->pol_file)); 
+               get_pol_name_from_path (pol->pol_file)); 
       return EXIT_FAILURE;
     }
   if (!input_stream)
     {
       fprintf (stderr, "Checking \033[1m%-30s\033[0m \033[31;1mno polinomial file found!\033[0m\n", 
-	       get_pol_name_from_path (pol->pol_file)); 
+               get_pol_name_from_path (pol->pol_file)); 
       return EXIT_FAILURE;
     }
 
@@ -56,7 +56,7 @@ test_unisolve_on_pol (test_pol * pol)
   mps_parse_stream (s, input_stream);
   
   fprintf (stderr, "Checking \033[1m%-30s\033[0m [\033[34;1mchecking\033[0m]", 
-	   get_pol_name_from_path (pol->pol_file));
+           get_pol_name_from_path (pol->pol_file));
 
   mps_context_set_output_goal (s, MPS_OUTPUT_GOAL_ISOLATE);
   mps_context_set_output_prec (s, pol->out_digits);
@@ -90,14 +90,14 @@ test_unisolve_on_pol (test_pol * pol)
       mpc_inp_str (root, result_stream, 10);   
 
       if (mpc_eq_zero (root))
-	{
-	  zero_roots++;
+        {
+          zero_roots++;
 
-	  /* We need to read it another time. This seems a bug in
-	   * mpc_inp_str, but I don't get why is necessary. */
-	  mpc_inp_str (root, result_stream, 10);
-	  continue;
-	}
+          /* We need to read it another time. This seems a bug in
+           * mpc_inp_str, but I don't get why is necessary. */
+          mpc_inp_str (root, result_stream, 10);
+          continue;
+        }
       
       mpc_sub (ctmp, root, mroot[0]);   
       mpc_get_cdpe (cdtmp, ctmp);   
@@ -105,46 +105,46 @@ test_unisolve_on_pol (test_pol * pol)
       rdpe_set (min_dist, rtmp);   
 
       if (getenv ("MPS_VERBOSE_TEST") && (strstr (pol->pol_file, getenv ("MPS_VERBOSE_TEST"))))
-	{
-	  printf ("Read root_%d = ", i);
-	  mpc_out_str_2 (stdout, 10, mps_context_get_data_prec_max (s), mps_context_get_data_prec_max (s),
-			 root);
-	  printf ("\n");
-	}
+        {
+          printf ("Read root_%d = ", i);
+          mpc_out_str_2 (stdout, 10, mps_context_get_data_prec_max (s), mps_context_get_data_prec_max (s),
+                         root);
+          printf ("\n");
+        }
       
       for (j = 1; j < mps_context_get_degree (s); j++)   
-   	{   
-   	  mpc_sub (ctmp, root, mroot[j]);
-     	  mpc_get_cdpe (cdtmp, ctmp);   
-     	  cdpe_mod (rtmp, cdtmp);   
-	  
-     	  if (rdpe_le (rtmp, min_dist))
-	    {
-	      rdpe_set (min_dist, rtmp);
-	      found_root = j;
-	    }
-	}
+        {   
+          mpc_sub (ctmp, root, mroot[j]);
+          mpc_get_cdpe (cdtmp, ctmp);   
+          cdpe_mod (rtmp, cdtmp);   
+          
+          if (rdpe_le (rtmp, min_dist))
+            {
+              rdpe_set (min_dist, rtmp);
+              found_root = j;
+            }
+        }
       
       mpc_get_cdpe (cdtmp, mroot[found_root]);
       cdpe_mod (rtmp, cdtmp);
       rdpe_mul_eq (rtmp, eps);
 
       if ((!rdpe_le (min_dist, drad[found_root]) && !rdpe_gt (drad[found_root], exp_drad)) && !mps_context_get_over_max (s))
-	{
-	  passed = false;
-	  
-	  if (getenv ("MPS_VERBOSE_TEST") && (strstr (pol->pol_file, getenv ("MPS_VERBOSE_TEST"))))
-	    {
-	      printf("Failing on root %d, with min_dist = ", found_root);
-	      rdpe_out_str (stdout, min_dist);
-	      printf("\ndrad_%d", found_root);
-	      rdpe_out_str (stdout, drad[found_root]);
-	      printf("\n");
-	      printf("Approximation_%d = ", found_root);
-	      mpc_out_str_2 (stdout, 10, -rdpe_Esp (drad[found_root]), -rdpe_Esp (drad[found_root]), mroot[found_root]);
-	      printf("\n");
-	    }
-	}
+        {
+          passed = false;
+          
+          if (getenv ("MPS_VERBOSE_TEST") && (strstr (pol->pol_file, getenv ("MPS_VERBOSE_TEST"))))
+            {
+              printf("Failing on root %d, with min_dist = ", found_root);
+              rdpe_out_str (stdout, min_dist);
+              printf("\ndrad_%d", found_root);
+              rdpe_out_str (stdout, drad[found_root]);
+              printf("\n");
+              printf("Approximation_%d = ", found_root);
+              mpc_out_str_2 (stdout, 10, -rdpe_Esp (drad[found_root]), -rdpe_Esp (drad[found_root]), mroot[found_root]);
+              printf("\n");
+            }
+        }
     }
 
   if (zero_roots != mps_context_get_zero_roots (s))
@@ -163,23 +163,23 @@ test_unisolve_on_pol (test_pol * pol)
 
   if (passed)
     fprintf (stderr, "\rChecking \033[1m%-30s\033[0m [\033[32;1m  done  \033[0m]\n", 
-	     get_pol_name_from_path (pol->pol_file));
+             get_pol_name_from_path (pol->pol_file));
   else
     fprintf (stderr, "\rChecking \033[1m%-30s\033[0m [\033[31;1m failed \033[0m]\n", 
-	     get_pol_name_from_path (pol->pol_file));
+             get_pol_name_from_path (pol->pol_file));
 
   if (getenv ("MPS_VERBOSE_TEST"))
     fail_unless (passed == true,
-		 "Computed results are not exact to the required "
-		 "precision.\n" "\n" " Dumping test configuration: \n"
-		 "   => Polynomial file: %s;\n" "   => Required digits: %d\n"
-		 "   => Gemignani's approach: %s;\n"
-		 "   => Starting phase: %s;\n", pol->pol_file, pol->out_digits,
-		 mps_boolean_to_string (pol->ga),
-		 (pol->phase == float_phase) ? "float_phase" : "dpe_phase");
+                 "Computed results are not exact to the required "
+                 "precision.\n" "\n" " Dumping test configuration: \n"
+                 "   => Polynomial file: %s;\n" "   => Required digits: %d\n"
+                 "   => Gemignani's approach: %s;\n"
+                 "   => Starting phase: %s;\n", pol->pol_file, pol->out_digits,
+                 mps_boolean_to_string (pol->ga),
+                 (pol->phase == float_phase) ? "float_phase" : "dpe_phase");
   else
     fail_unless (passed == true,
-		 "Computed results are not exact to the required precision");    
+                 "Computed results are not exact to the required precision");    
 
   return passed;
 }

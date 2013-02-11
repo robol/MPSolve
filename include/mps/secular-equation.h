@@ -11,17 +11,18 @@
  */
 
 #ifndef SECULAR_H
-#define	 SECULAR_H
+#define  SECULAR_H
 
 #include <mps/mps.h>
 #include <float.h>
 
-#ifdef	__cplusplus
+#ifdef  __cplusplus
 extern "C"
 {
 #endif
 
 #define MPS_SECULAR_EQUATION(t) ((mps_secular_equation *) t)
+#define MPS_IS_SECULAR_EQUATION(t) (mps_polynomial_check_type (t, "mps_secular_equation"))
 
 #ifdef _MPS_PRIVATE
 
@@ -327,7 +328,7 @@ extern "C"
 
   void mps_secular_poly_mstart (mps_context * ctx, mps_polynomial * p);
 
-#ifdef	__cplusplus
+#ifdef  __cplusplus
 }
 #endif
 

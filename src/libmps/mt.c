@@ -1439,9 +1439,9 @@ rdpe_lt (const rdpe_t e1, const rdpe_t e2)
   if (rdpe_Mnt (e1) != 0 && rdpe_Mnt (e2) != 0)
     {
       if (rdpe_Esp (e1) > rdpe_Esp (e2))
-	  return 0;
+          return 0;
       if (rdpe_Esp (e2) > rdpe_Esp (e1)) 
-	  return 1; 
+          return 1; 
     }
 
   rdpe_sub (t, e1, e2);
@@ -1463,9 +1463,9 @@ rdpe_le (const rdpe_t e1, const rdpe_t e2)
   if (rdpe_Mnt (e1) != 0 && rdpe_Mnt (e2) != 0)
     {
       if (rdpe_Esp (e1) > rdpe_Esp (e2)) 
-	return 0;
+        return 0;
       if (rdpe_Esp (e2) > rdpe_Esp (e1)) 
-	return 1;
+        return 1;
     }
 
   rdpe_sub (t, e1, e2);
@@ -1487,9 +1487,9 @@ rdpe_gt (const rdpe_t e1, const rdpe_t e2)
   if (rdpe_Mnt (e1) != 0 && rdpe_Mnt (e2) != 0)
     {       
       if (rdpe_Esp (e1) > rdpe_Esp (e2)) 
-	return 1; 
+        return 1; 
       if (rdpe_Esp (e2) > rdpe_Esp (e1)) 
-	return 0; 
+        return 0; 
     }
 
   rdpe_sub (t, e1, e2);
@@ -1511,9 +1511,9 @@ rdpe_ge (const rdpe_t e1, const rdpe_t e2)
   if (rdpe_Mnt (e1) != 0 && rdpe_Mnt (e2) != 0)
     {       
       if (rdpe_Esp (e1) > rdpe_Esp (e2)) 
-	return 1; 
+        return 1; 
       if (rdpe_Esp (e2) > rdpe_Esp (e1)) 
-	return 0; 
+        return 0; 
     }
 
   rdpe_sub (t, e1, e2);
@@ -1804,8 +1804,8 @@ cdpe_get_x (cplx_t x, const cdpe_t c)
 /* e = im(c) */
 {
   cplx_set_d (x, 
-	      ldexp (rdpe_Mnt (cdpe_Re (c)), (int) rdpe_Esp (cdpe_Re (c))),
-	      ldexp (rdpe_Mnt (cdpe_Im (c)), (int) rdpe_Esp (cdpe_Im (c))));
+              ldexp (rdpe_Mnt (cdpe_Re (c)), (int) rdpe_Esp (cdpe_Re (c))),
+              ldexp (rdpe_Mnt (cdpe_Im (c)), (int) rdpe_Esp (cdpe_Im (c))));
 }
 
 void

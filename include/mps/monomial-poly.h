@@ -16,7 +16,7 @@
 #define MPS_MONOMIAL_POLY(t) ((mps_monomial_poly*) t)
 #define MPS_IS_MONOMIAL_POLY(t) (mps_polynomial_check_type (t, "mps_monomial_poly"))
 
-#ifdef	__cplusplus
+#ifdef  __cplusplus
 extern "C"
 {
 #endif
@@ -146,13 +146,13 @@ extern "C"
   long int mps_monomial_poly_raise_precision (mps_context * s, mps_polynomial * mp, long int prec);
 
   void mps_monomial_poly_set_coefficient_q (mps_context * s, mps_monomial_poly * mp, long int i, 
-					    mpq_t real_part, mpq_t imag_part);
+                                            mpq_t real_part, mpq_t imag_part);
   void mps_monomial_poly_set_coefficient_d (mps_context * s, mps_monomial_poly * mp, long int i,
-					    double real_part, double imag_part);
+                                            double real_part, double imag_part);
   void mps_mononomial_poly_set_coefficient_f (mps_context * s, mps_monomial_poly * p, long int i,
-					      mpc_t coeff);
+                                              mpc_t coeff);
   void mps_monomial_poly_set_coefficient_int (mps_context * s, mps_monomial_poly * mp, long int i,
-					      long long real_part, long long imag_part);
+                                              long long real_part, long long imag_part);
   mps_monomial_poly * mps_monomial_poly_derive (mps_context * s, mps_monomial_poly * p, int k, long int wp);
 
   mps_boolean mps_monomial_poly_feval (mps_context * ctx, mps_polynomial *p, cplx_t x, cplx_t value, double * error);
@@ -168,19 +168,19 @@ extern "C"
   void mps_monomial_poly_mstart (mps_context * ctx, mps_polynomial * p);
 
   void mps_monomial_poly_fnewton (mps_context * ctx, mps_polynomial * p, 
-				  mps_approximation * root, cplx_t corr);
+                                  mps_approximation * root, cplx_t corr);
 
   void mps_monomial_poly_dnewton (mps_context * ctx, mps_polynomial * p, 
-				  mps_approximation * root, cdpe_t corr);
+                                  mps_approximation * root, cdpe_t corr);
 
   void mps_monomial_poly_mnewton (mps_context * ctx, mps_polynomial * p, 
-				  mps_approximation * root, mpc_t corr);
+                                  mps_approximation * root, mpc_t corr);
 
   void mps_monomial_poly_get_leading_coefficient (mps_context * ctx, mps_polynomial * p,
-						  mpc_t leading_coefficient);
+                                                  mpc_t leading_coefficient);
 
 
-#ifdef	__cplusplus
+#ifdef  __cplusplus
 }
 #endif
 

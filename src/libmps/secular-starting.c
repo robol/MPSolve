@@ -27,11 +27,11 @@ mps_secular_fstart (mps_context * s, mps_secular_equation * sec)
   for (i = 0; i < n; i++)
     {
       if (!MPS_ROOT_STATUS_IS_COMPUTED (s, i))
-	{
-	  cplx_set (s->root[i]->fvalue, sec->bfpc[i]);
-	  if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
-	    MPS_DEBUG_CPLX (s, s->root[i]->fvalue, "s->froot[%d]", i);
-	}
+        {
+          cplx_set (s->root[i]->fvalue, sec->bfpc[i]);
+          if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
+            MPS_DEBUG_CPLX (s, s->root[i]->fvalue, "s->froot[%d]", i);
+        }
     }
 }
 
@@ -44,14 +44,14 @@ mps_secular_dstart (mps_context * s, mps_secular_equation * sec)
   for (l = 0; l < MPS_POLYNOMIAL (sec)->degree; l++)
     {
       if (!MPS_ROOT_STATUS_IS_COMPUTED (s, l))
-	{
-	  cdpe_set (s->root[l]->dvalue, sec->bdpc[l]);
-	  
-	  if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
-	    {
-	      MPS_DEBUG_CDPE (s, s->root[l]->dvalue, "s->droot[%d]", l);
-	    }
-	}
+        {
+          cdpe_set (s->root[l]->dvalue, sec->bdpc[l]);
+          
+          if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
+            {
+              MPS_DEBUG_CDPE (s, s->root[l]->dvalue, "s->droot[%d]", l);
+            }
+        }
     }
 }
 
@@ -64,8 +64,8 @@ mps_secular_mstart (mps_context * s, mps_secular_equation * sec)
   for (l = 0; l < MPS_POLYNOMIAL (sec)->degree; l++)
     {
       if (!MPS_ROOT_STATUS_IS_COMPUTED (s, l))
-	{
-	  mpc_set (s->root[l]->mvalue, sec->bmpc[l]);
-	}	  
+        {
+          mpc_set (s->root[l]->mvalue, sec->bmpc[l]);
+        }         
     }
 }

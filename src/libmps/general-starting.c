@@ -35,7 +35,7 @@ mps_general_fstart (mps_context * ctx, mps_polynomial * p)
   for (i = 0; i < ctx->n; i++)
     {
       cplx_set_d (ctx->root[i]->fvalue, cos (ang * i + sigma),
-		  sin (ang * i + sigma));
+                  sin (ang * i + sigma));
     }
 }
 
@@ -58,7 +58,7 @@ mps_general_dstart (mps_context * ctx, mps_polynomial * p)
   for (i = 0; i < ctx->n; i++)
     {
       cdpe_set_d (ctx->root[i]->dvalue, cos (ang * i + sigma),
-		  sin (ang * i + sigma));
+                  sin (ang * i + sigma));
     }
 }
 
@@ -82,7 +82,7 @@ mps_general_mstart (mps_context * ctx, mps_polynomial * p)
     {
       cplx_t tmp;
       cplx_set_d (tmp, cos (ang * i + sigma),
-		  sin (ang * i + sigma));
+                  sin (ang * i + sigma));
       mpc_set_cplx (ctx->root[i]->mvalue, tmp);
     }
 }

@@ -320,7 +320,7 @@ extern "C"
   void mps_thread_free (mps_context * s, mps_thread * thread);
 
   void mps_thread_pool_set_concurrency_limit (mps_context * s, mps_thread_pool * pool, 
-					      unsigned int concurrency_limit);
+                                              unsigned int concurrency_limit);
 
   void mps_thread_pool_assign (mps_context * s, mps_thread_pool * pool, mps_thread_work work, void * args);
 

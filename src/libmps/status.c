@@ -176,8 +176,8 @@ mps_context_free (mps_context * s)
  * // and use the provided routines to compute newton corrections.
  * mps_context_set_poly_u(s, n,
  *   MPS_FNEWTON_PTR(mps_secular_fnewton),
- *	 MPS_DNEWTON_PTR(mps_secular_dnewton),
- *	 MPS_MNEWTON_PTR(mps_secular_mnewton));
+ *       MPS_DNEWTON_PTR(mps_secular_dnewton),
+ *       MPS_MNEWTON_PTR(mps_secular_mnewton));
  * @endcode
  *
  * @param s The <code>mps_context</code> struct;
@@ -263,13 +263,13 @@ mps_context_set_input_poly (mps_context * s, mps_polynomial * p)
        * the again vector is all of true values */
       s->input_config->density = MPS_DENSITY_DENSE;
       for (i = 0; i <= mp->n; ++i)
-	{
-	  if (!mp->spar[i])
-	    {
-	      s->input_config->density = MPS_DENSITY_SPARSE;
-	      break;
-	    }
-	}
+        {
+          if (!mp->spar[i])
+            {
+              s->input_config->density = MPS_DENSITY_SPARSE;
+              break;
+            }
+        }
     }
 }
 
@@ -296,7 +296,7 @@ mps_context_set_poly_d (mps_context * s, cplx_t * coeff, long unsigned int n)
   for (i = 0; i <= n; i++)
     {
       mps_monomial_poly_set_coefficient_d (s, p, i, cplx_Re (coeff[i]),
-					   cplx_Im (coeff[i]));
+                                           cplx_Im (coeff[i]));
     }
 
   mps_context_set_input_poly (s, p);
@@ -470,7 +470,7 @@ mps_context_set_debug_level (mps_context * s, mps_debug_level level)
     {
       s->DOLOG = true;
       if (!s->logstr)
-	s->logstr = stderr;
+        s->logstr = stderr;
     }
 }
 

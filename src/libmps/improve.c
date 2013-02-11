@@ -20,11 +20,12 @@ pthread_mutex_t output_mutex = PTHREAD_MUTEX_INITIALIZER;
   typedef struct {
     int i;
     mps_context * s;
+    mps_approximation * starting_approximation;
     long int base_wp;
   } __mps_improve_data;
 
 void * mps_improve_root2 (void*);
-void * mps_improve_root (void*);
+void * mps_improve_root  (void*); 
 
 /**
  * @brief Improve all the approximations up to prec_out digits.
@@ -81,14 +82,34 @@ mps_improve (mps_context * s)
 
   for (i = 0; i < s->n; i++)
     {
-      improve_data[i].i = i;
       improve_data[i].s = s;
       improve_data[i].base_wp = base_wp;
-      mps_thread_pool_assign (s, NULL, mps_improve_root, improve_data + i);
-      // mps_improve_root (s, i);
+      improve_data[i].i = i;
+      improve_data[i].starting_approximation = mps_approximation_copy (s, s->root[i]);
+      /* mps_improve_root (improve_data + i); */
+    }
+
+  for (i = 0; i < s->n; i++)
+    {
+      if (s->root[i]->status != MPS_ROOT_STATUS_ISOLATED || 
+                s->root[i]->status == MPS_ROOT_STATUS_APPROXIMATED_IN_CLUSTER)
+               {
+                 if (s->debug_level & MPS_DEBUG_IMPROVEMENT)
+                 MPS_DEBUG (s, "Not approximating root %i since it is already approximated", i);         
+               }
+      else
+               mps_thread_pool_assign (s, NULL, mps_improve_root2, improve_data + i);
     }
 
   mps_thread_pool_wait (s, s->pool);
+
+  for (i = 0; i < s->n; i++)
+    {
+      mps_approximation_free (s, s->root[i]);
+      s->root[i] = improve_data[i].starting_approximation;
+      s->root[i]->status = MPS_ROOT_STATUS_APPROXIMATED;
+    }
+
   free (improve_data);
 
   long improve_time = mps_stop_timer (my_timer);
@@ -106,13 +127,12 @@ void *
 mps_improve_root2 (void * data_ptr)
 {
   __mps_improve_data * data = (__mps_improve_data*) data_ptr;
-  int i = data->i;
 
   int j;
   mps_context *ctx = data->s;
 
-  mps_approximation * root = mps_approximation_copy (ctx, ctx->root[i]);
-  rdpe_t aroot;
+  mps_approximation * root = data->starting_approximation;
+  rdpe_t aroot, rtmp;
   long int wp = root->wp;
 
   /* Determine the conditioning number of the roots */
@@ -125,10 +145,10 @@ mps_improve_root2 (void * data_ptr)
   int max_steps = mps_intlog2 (1 + ctx->output_config->prec / correct_bits);
 
   MPS_DEBUG (ctx, "Correct bits = %d", correct_bits);
-  MPS_DEBUG_RDPE (ctx, root->drad, "Drad %d", i);
-  MPS_DEBUG_RDPE (ctx, aroot, "|x_%d|", i);
+  MPS_DEBUG_RDPE (ctx, root->drad, "Drad");
+  MPS_DEBUG_RDPE (ctx, aroot, "|x|");
   MPS_DEBUG (ctx, "Output prec = %ld", ctx->output_config->prec);
-  MPS_DEBUG (ctx, "At most %d steps of the Newton methods required to improve root %d", max_steps, i);
+  MPS_DEBUG (ctx, "At most %d steps of the Newton methods required to improve root", max_steps);
 
   if (max_steps <= 0)
     max_steps = INT_MAX;
@@ -143,17 +163,17 @@ mps_improve_root2 (void * data_ptr)
   wp += conditioning;
 
   if (ctx->debug_level & MPS_DEBUG_IMPROVEMENT)
-    MPS_DEBUG (ctx, "Starting to refine root %d", i);
-  if (ctx->root[i]->status != MPS_ROOT_STATUS_ISOLATED || 
-      ctx->root[i]->status == MPS_ROOT_STATUS_APPROXIMATED_IN_CLUSTER)
+    MPS_DEBUG (ctx, "Starting to refine root");
+  if (root->status != MPS_ROOT_STATUS_ISOLATED || 
+      root->status == MPS_ROOT_STATUS_APPROXIMATED_IN_CLUSTER)
     {
       if (ctx->debug_level & MPS_DEBUG_IMPROVEMENT)
-	MPS_DEBUG (ctx, "Not approximating root %d since it is already approximated", i);
+        MPS_DEBUG (ctx, "Not approximating root since it is already approximated");
       
       return NULL;
     }
 
-  for (j = 0; j < max_steps; j++)
+  for (j = 0; max_steps ; j++)
     {
       /* mps_prepare_data (ctx, wp); */
 
@@ -161,11 +181,23 @@ mps_improve_root2 (void * data_ptr)
       mpc_set_prec (root->mvalue, wp);
       root->wp = wp;
 
-      if (ctx->mpwp < wp)
-	{
-	  mps_polynomial_raise_data (ctx, p, wp);
-	  ctx->mpwp = wp;
-	}
+      /* Update the value of data_prec_max if needed */
+      MPS_LOCK (ctx->data_prec_max);
+      if (ctx->data_prec_max.value < root->wp)
+        ctx->data_prec_max.value = root->wp;
+      MPS_UNLOCK (ctx->data_prec_max);
+
+      /* if (ctx->mpwp < wp) */
+        {
+          mps_polynomial_raise_data (ctx, p, wp);
+          ctx->mpwp = wp;
+        }
+
+      /* Save the old radius before the iteration */
+      rdpe_set (rtmp, root->drad);
+      rdpe_div_eq (rtmp, aroot);
+      rdpe_sqr_eq (rtmp);
+      rdpe_mul_eq (rtmp, aroot);
       
       mps_polynomial_mnewton (ctx, p, root, nwtcorr);
 
@@ -174,250 +206,466 @@ mps_improve_root2 (void * data_ptr)
 
       mpc_rmod (aroot, root->mvalue);
       if (rdpe_Esp (aroot) - rdpe_Esp (root->drad) - 1 > correct_bits)
-	correct_bits = rdpe_Esp (aroot) - rdpe_Esp (root->drad) - 1;
+        correct_bits = rdpe_Esp (aroot) - rdpe_Esp (root->drad) - 1;
 
       /* Double the number of correct bits */
       correct_bits = 2 * correct_bits - 1;
+      MPS_DEBUG (ctx, "Correct bits for root = %d", correct_bits); 
 
       /* Set a proper radius to the approximations */
-      rdpe_set_2dl (root->drad, 2.0, - correct_bits); 
-      rdpe_mul_eq (root->drad, aroot);
+      /* rdpe_set_2dl (root->drad, 2.0, - correct_bits);    */
+      /* rdpe_mul_eq (root->drad, aroot);   */
+      
+      /* if (rdpe_lt (rtmp, root->drad))   */
+      /*        rdpe_set (root->drad, rtmp);   */
 
-      if (correct_bits > ctx->output_config->prec)
-	break;
+      rdpe_div (rtmp, root->drad, aroot);
+      if (-rdpe_Esp (rtmp) > ctx->output_config->prec)
+        break;
+
+      /* if (correct_bits > ctx->output_config->prec) */
+      /*        break; */
 
       /* Double the current precision */
       wp *= 2;
     }
 
-  mps_approximation_free (ctx, ctx->root[i]);
-  ctx->root[i] = root;
-  ctx->root[i]->status = MPS_ROOT_STATUS_APPROXIMATED;
+  // mps_approximation_free (ctx, ctx->root[i]);
+  // ctx->root[i] = root;
+  // ctx->root[i]->status = MPS_ROOT_STATUS_APPROXIMATED;
 
   mpc_clear (nwtcorr);
 
   return NULL;
 }
 
-void *
-mps_improve_root (void * data_ptr)
-{
-  __mps_improve_data * data = (__mps_improve_data*) data_ptr;
-  int i = data->i;
-  mps_context * s = data->s;
-  int j, k, m;
-  int mpwp = s->mpwp;
-  long mpnb_in, mpnb_out;
-  mpc_t mtmp;
-  mpc_t nwtcorr;
-  cdpe_t ctmp;
-  rdpe_t tmp, t, st, sigma, newrad, oldrad, abroot, mp_epsilon;
-  double f, g, cnd;
+// <<<<<<< HEAD
+// void *
+// mps_improve_root (void * data_ptr)
+// {
+//   __mps_improve_data * data = (__mps_improve_data*) data_ptr;
+//   int i = data->i;
+//   mps_context * s = data->s;
+//   int j, k, m;
+//   int mpwp = s->mpwp;
+//   long mpnb_in, mpnb_out;
+//   mpc_t mtmp;
+//   mpc_t nwtcorr;
+//   cdpe_t ctmp;
+//   rdpe_t tmp, t, st, sigma, newrad, oldrad, abroot, mp_epsilon;
+//   double f, g, cnd;
 
-   if (s->debug_level & MPS_DEBUG_IMPROVEMENT) 
-     { 
-       MPS_DEBUG (s, "Refining the roots"); 
-     }
+//    if (s->debug_level & MPS_DEBUG_IMPROVEMENT) 
+//      { 
+//        MPS_DEBUG (s, "Refining the roots"); 
+//      }
 
-  /* == 1 ==
-   * compute the number mpnb_in of bits
-   * corresponding to the given input precision.
-   * Set mpnb_in=0 if the input precision is infinite (prec_in=0) */
-  if (s->active_poly->prec == 0)
-    mpnb_in = 0;
-  else
-    mpnb_in = (long) (s->active_poly->prec * LOG2_10 + log (4.0 * s->n) / LOG2);
-  mpnb_out = (long) (s->output_config->prec * LOG2_10);
+//   /* == 1 ==
+//    * compute the number mpnb_in of bits
+//    * corresponding to the given input precision.
+//    * Set mpnb_in=0 if the input precision is infinite (prec_in=0) */
+//   if (s->active_poly->prec == 0)
+//     mpnb_in = 0;
+//   else
+//     mpnb_in = (long) (s->active_poly->prec * LOG2_10 + log (4.0 * s->n) / LOG2);
+//   mpnb_out = (long) (s->output_config->prec * LOG2_10);
 
-  /* == 2  ==
-   * compute the coefficients of the polynomial as mpc_t with mpnb_in bits
-   * only if the polynomial is not assigned as a straight line program and
-   * the input precision is not infinite. */
-  if (mpnb_in != 0)
-    mps_mp_set_prec (s, mpnb_in);
+//   /* == 2  ==
+//    * compute the coefficients of the polynomial as mpc_t with mpnb_in bits
+//    * only if the polynomial is not assigned as a straight line program and
+//    * the input precision is not infinite. */
+//   if (mpnb_in != 0)
+//     mps_mp_set_prec (s, mpnb_in);
 
-  /* mpc_init2(mtmp, mpwp);  *//* puo' essere settato a precisione minima */
-  mpc_init2 (mtmp, mpnb_out * 2);      /* puo' essere settato a precisione minima */
-  mpc_init2 (nwtcorr, mpnb_out * 2);
+//   /* mpc_init2(mtmp, mpwp);  *//* puo' essere settato a precisione minima */
+//   mpc_init2 (mtmp, mpnb_out * 2);      /* puo' essere settato a precisione minima */
+//   mpc_init2 (nwtcorr, mpnb_out * 2);
 
-  if (s->active_poly->prec != 0)
-    mps_prepare_data (s, mpnb_in);
-  else
-    {
-      mps_mp_set_prec (s, mpnb_out * 2);
-      mps_prepare_data (s, mpnb_out * 2);
-    }
+//   if (s->active_poly->prec != 0)
+//     mps_prepare_data (s, mpnb_in);
+//   else
+//     {
+//       mps_mp_set_prec (s, mpnb_out * 2);
+//       mps_prepare_data (s, mpnb_out * 2);
+//     }
 
 
-  /* == 3 ==
-   * scan the approximations to apply Newton's iterations */
-  /* for (i = 0; i < s->n; i++) */
-    {
-      if (s->debug_level & MPS_DEBUG_IMPROVEMENT)
-        MPS_DEBUG (s, "Starting to refine root %d", i);
-      if (s->root[i]->status != MPS_ROOT_STATUS_ISOLATED || 
-	  s->root[i]->status == MPS_ROOT_STATUS_APPROXIMATED_IN_CLUSTER)
-        {
-	  if (s->debug_level & MPS_DEBUG_IMPROVEMENT)
-	    MPS_DEBUG (s, "Not approximating root %d since it is already approximated", i);
+//   /* == 3 ==
+//    * scan the approximations to apply Newton's iterations */
+//   /* for (i = 0; i < s->n; i++) */
+//     {
+//       if (s->debug_level & MPS_DEBUG_IMPROVEMENT)
+//         MPS_DEBUG (s, "Starting to refine root %d", i);
+//       if (s->root[i]->status != MPS_ROOT_STATUS_ISOLATED || 
+//        s->root[i]->status == MPS_ROOT_STATUS_APPROXIMATED_IN_CLUSTER)
+//         {
+//        if (s->debug_level & MPS_DEBUG_IMPROVEMENT)
+//          MPS_DEBUG (s, "Not approximating root %d since it is already approximated", i);
 
-          goto improve_clear;             /* Do not refine approximated roots */
-        }
+//           goto improve_clear;             /* Do not refine approximated roots */
+//         }
+// =======
+// void * 
+// mps_improve_root (void * data_ptr) 
+// { 
+//   __mps_improve_data * data = (__mps_improve_data*) data_ptr; 
+//    int i = data->i; 
+//    mps_context * s = data->s; 
+//    int j, k, m; 
+//    int mpwp = s->mpwp; 
+//    long mpnb_in, mpnb_out; 
+//    mpc_t mtmp; 
+//    mpc_t nwtcorr; 
+//    cdpe_t ctmp; 
+//    rdpe_t tmp, t, st, sigma, newrad, oldrad, abroot, mp_epsilon; 
+//    double f, g, cnd; 
+//    mps_monomial_poly *p = s->monomial_poly; 
+//    mps_approximation * root = data->starting_approximation;
 
-      /*  == 3.1 ==
-       * for data_type[0]='d' compute  t=Min_j |root(i)-root(j)|-rad(j)-rad(i)
-       * otherwise set t=5*n*rad[i] since the root is Newton-isolated.
-       * This allows us to remove an O(n^2) complexity  */
+//    mps_secular_iteration_data it_data; 
+//    if (s->secular_equation) 
+//      { 
+//        it_data.local_ampc = s->secular_equation->ampc; 
+//        it_data.local_bmpc = s->secular_equation->bmpc; 
+//      } 
 
-      if (MPS_DENSITY_IS_SPARSE (s->active_poly->density))
-        rdpe_mul_d (t, s->root[i]->drad, 5.0 * s->n);
-      else
-        {
-          k = i + 1;
-          if (i == s->n - 1)
-            k = 0;
-          mpc_sub (mtmp, s->root[k]->mvalue, s->root[i]->mvalue);
-          mpc_get_cdpe (ctmp, mtmp);
-          cdpe_mod (t, ctmp);
-          rdpe_sub_eq (t, s->root[k]->drad);
-          rdpe_sub_eq (t, s->root[i]->drad);
-          for (j = 0; j < s->n; j++)
-            if (j != i)
-              {
-                mpc_sub (mtmp, s->root[j]->mvalue, s->root[i]->mvalue);
-                mpc_get_cdpe (ctmp, mtmp);
-                cdpe_mod (tmp, ctmp);
-                rdpe_sub_eq (tmp, s->root[i]->drad);
-                rdpe_sub_eq (tmp, s->root[j]->drad);
-                if (rdpe_gt (t, tmp))
-                  rdpe_set (t, tmp);
-              }
-        }
+//     if (s->debug_level & MPS_DEBUG_IMPROVEMENT)  
+//       {  
+//         MPS_DEBUG (s, "Refining the roots");  
+//       } 
 
-      /*  == 3.2 ==
-       * compute an  estimate of the condition number in terms of bits
-       * as log_2(rad/(4*n*epsilon*|x|))       */
+//    /* == 1 == 
+//     * compute the number mpnb_in of bits 
+//     * corresponding to the given input precision. 
+//     * Set mpnb_in=0 if the input precision is infinite (prec_in=0) */ 
+//    if (s->input_config->prec == 0) 
+//      mpnb_in = 0; 
+//    else 
+//      mpnb_in = (long) (s->input_config->prec * LOG2_10 + log (4.0 * s->n) / LOG2); 
+//    mpnb_out = (long) (s->output_config->prec * LOG2_10); 
 
-      rdpe_mul_d (tmp, s->root[i]->drad, 4.0 * s->n);
-      mpc_get_cdpe (ctmp, s->root[i]->mvalue);
-      cdpe_mod (abroot, ctmp);
-      rdpe_div (tmp, tmp, abroot);
+//    /* == 2  == 
+//     * compute the coefficients of the polynomial as mpc_t with mpnb_in bits 
+//     * only if the polynomial is not assigned as a straight line program and 
+//     * the input precision is not infinite. */ 
+//    if (mpnb_in != 0) 
+//      mps_mp_set_prec (s, mpnb_in); 
 
-      cnd = s->root[i]->wp + rdpe_log (tmp) / LOG2 + 1;
+//    /* mpc_init2(mtmp, mpwp);  *//* puo' essere settato a precisione minima */ 
+//    mpc_init2 (mtmp, mpnb_out * 2);      /* puo' essere settato a precisione minima */ 
+//    mpc_init2 (nwtcorr, mpnb_out * 2); 
 
-      /* then evaluate the number of bits g,f */
-      rdpe_div (t, s->root[i]->drad, t);
-      rdpe_mul_eq_d (t, (double) s->n - 1);
-      rdpe_sub (st, rdpe_one, t);
-      rdpe_div (sigma, t, st);
+//    if (s->input_config->prec != 0 && !MPS_INPUT_CONFIG_IS_USER (s->input_config) && mpnb_in < s->mpwp) 
+//      mps_prepare_data (s, mpnb_in); 
+//    else 
+//      { 
+//        if (mpnb_out * 2 > s->mpwp) 
+//      { 
+//        mps_mp_set_prec (s, mpnb_out * 2); 
+//        mps_prepare_data (s, mpnb_out * 2); 
+//      } 
+//      } 
+// >>>>>>> master
 
-      /* Workaround added by me to solve nan problems. Leo. */
-      rdpe_set_2dl (mp_epsilon, 2.0, - mpwp);
-      rdpe_add_eq (sigma, mp_epsilon); 
 
-      g = -rdpe_log (sigma) / LOG2;
-      rdpe_set (tmp, abroot);
-      rdpe_mul_eq (tmp, sigma);
-      rdpe_div (tmp, s->root[i]->drad, tmp);
-      f = -rdpe_log (tmp) / LOG2;
+// <<<<<<< HEAD
+//       if (MPS_DENSITY_IS_SPARSE (s->active_poly->density))
+//         rdpe_mul_d (t, s->root[i]->drad, 5.0 * s->n);
+//       else
+//         {
+//           k = i + 1;
+//           if (i == s->n - 1)
+//             k = 0;
+//           mpc_sub (mtmp, s->root[k]->mvalue, s->root[i]->mvalue);
+//           mpc_get_cdpe (ctmp, mtmp);
+//           cdpe_mod (t, ctmp);
+//           rdpe_sub_eq (t, s->root[k]->drad);
+//           rdpe_sub_eq (t, s->root[i]->drad);
+//           for (j = 0; j < s->n; j++)
+//             if (j != i)
+//               {
+//                 mpc_sub (mtmp, s->root[j]->mvalue, s->root[i]->mvalue);
+//                 mpc_get_cdpe (ctmp, mtmp);
+//                 cdpe_mod (tmp, ctmp);
+//                 rdpe_sub_eq (tmp, s->root[i]->drad);
+//                 rdpe_sub_eq (tmp, s->root[j]->drad);
+//                 if (rdpe_gt (t, tmp))
+//                   rdpe_set (t, tmp);
+//               }
+//         }
 
-      /* evaluate the upper bound m to the number of iterations
-       * needed to reach the desired precision */
-      m = (int) (log ((mpnb_out - f) / g) / LOG2) + 1;
+//       /*  == 3.2 ==
+//        * compute an  estimate of the condition number in terms of bits
+//        * as log_2(rad/(4*n*epsilon*|x|))       */
 
-      MPS_DEBUG (s, "A maximum of %d iterations will be performed to improve root %d", m, i);
+//       rdpe_mul_d (tmp, s->root[i]->drad, 4.0 * s->n);
+//       mpc_get_cdpe (ctmp, s->root[i]->mvalue);
+//       cdpe_mod (abroot, ctmp);
+//       rdpe_div (tmp, tmp, abroot);
 
-      /*  == 4 ==      Start Newton */
-      rdpe_set (oldrad, s->root[i]->drad);
-      for (j = 1; j <= m; j++)
-        {
-          if (s->debug_level & MPS_DEBUG_IMPROVEMENT)
-            MPS_DEBUG (s, "Iteration %d of the improvement of root %d", j, i);
-          g *= 2;
+//       cnd = s->root[i]->wp + rdpe_log (tmp) / LOG2 + 1;
 
-	  /* { */
-	  /*   rdpe_t rtmp; */
-	  /*   mpc_rmod (rtmp, s->root[i]->mvalue); */
-	  /*   int correct_digits = (-rdpe_log (s->root[i]->drad) - rdpe_log (rtmp)) / LOG2_10; */
-	  /*   MPS_DEBUG_RDPE (s, s->root[i]->drad, "s->drad[%d]", i); */
-	  /*   MPS_DEBUG_MPC (s, correct_digits, s->root[i]->mvalue, "mroot_%d", i); */
-	  /* } */
+//       /* then evaluate the number of bits g,f */
+//       rdpe_div (t, s->root[i]->drad, t);
+//       rdpe_mul_eq_d (t, (double) s->n - 1);
+//       rdpe_sub (st, rdpe_one, t);
+//       rdpe_div (sigma, t, st);
 
-	  /* Round it to 64 integers */
-	  mpwp = (long) (f + g + cnd);
+//       /* Workaround added by me to solve nan problems. Leo. */
+//       rdpe_set_2dl (mp_epsilon, 2.0, - mpwp);
+//       rdpe_add_eq (sigma, mp_epsilon); 
 
-          if (mpwp > mpnb_in && mpnb_in != 0)
-	    {
-	      /* Lower the precision so it won't go over mpnb_in
-	       * that would clearly get us to an error, for over estimating
-	       * the precision of the input coefficients. */
-	      mpwp = mpnb_in - 63;
-	      break;
-	    }
+//       g = -rdpe_log (sigma) / LOG2;
+//       rdpe_set (tmp, abroot);
+//       rdpe_mul_eq (tmp, sigma);
+//       rdpe_div (tmp, s->root[i]->drad, tmp);
+//       f = -rdpe_log (tmp) / LOG2;
 
-          mps_mp_set_prec (s, mpwp);
+//       /* evaluate the upper bound m to the number of iterations
+//        * needed to reach the desired precision */
+//       m = (int) (log ((mpnb_out - f) / g) / LOG2) + 1;
 
-          mpc_clear (nwtcorr);
-          mpc_init2 (nwtcorr, mpwp);
+//       MPS_DEBUG (s, "A maximum of %d iterations will be performed to improve root %d", m, i);
 
-	  /* If using the standard MPSolve algorithm then use the old
-	   * mps_prepare_data routine, otherwise use the one that
-	   * raises the precision of the coefficients */
-	  mps_prepare_data (s, mpwp);
+//       /*  == 4 ==      Start Newton */
+//       rdpe_set (oldrad, s->root[i]->drad);
+//       for (j = 1; j <= m; j++)
+//         {
+//           if (s->debug_level & MPS_DEBUG_IMPROVEMENT)
+//             MPS_DEBUG (s, "Iteration %d of the improvement of root %d", j, i);
+//           g *= 2;
 
-	  mps_polynomial_mnewton (s, s->active_poly, s->root[i], nwtcorr);
-          mpc_sub_eq (s->root[i]->mvalue, nwtcorr);
+//        /* { */
+//        /*   rdpe_t rtmp; */
+//        /*   mpc_rmod (rtmp, s->root[i]->mvalue); */
+//        /*   int correct_digits = (-rdpe_log (s->root[i]->drad) - rdpe_log (rtmp)) / LOG2_10; */
+//        /*   MPS_DEBUG_RDPE (s, s->root[i]->drad, "s->drad[%d]", i); */
+//        /*   MPS_DEBUG_MPC (s, correct_digits, s->root[i]->mvalue, "mroot_%d", i); */
+//        /* } */
 
-          /* correct radius, since the computed one is referred to the previous
-           * approximation. Due to the quadratic convergence the new approximation
-           * the radius is bounded by 2^(-g-f+1) */
-          rdpe_set_2dl (newrad, 4.0, (long) (-g - f + 1));
-          rdpe_set (tmp, abroot);
-          rdpe_mul_eq (newrad, tmp);
-          rdpe_mul_eq (tmp, s->eps_out);
+//        /* Round it to 64 integers */
+//        mpwp = (long) (f + g + cnd);
 
-	  if (rdpe_eq (s->root[i]->drad, rdpe_zero)) 
-	    rdpe_set (s->root[i]->drad, newrad); 
+//           if (mpwp > mpnb_in && mpnb_in != 0)
+//          {
+//            /* Lower the precision so it won't go over mpnb_in
+//             * that would clearly get us to an error, for over estimating
+//             * the precision of the input coefficients. */
+//            mpwp = mpnb_in - 63;
+//            break;
+//          }
 
-	  if (rdpe_lt (newrad, s->root[i]->drad))    
-	    rdpe_set (s->root[i]->drad, newrad);    
-	   
-	  mpc_rmod (tmp, s->root[i]->mvalue);
-	  rdpe_mul_eq (tmp, s->eps_out);
-	  rdpe_mul_eq_d (tmp, 4.0);
-	  rdpe_add_eq (s->root[i]->drad, tmp);
-	  
-	  if (s->debug_level & MPS_DEBUG_IMPROVEMENT)
-	    MPS_DEBUG_RDPE (s, s->root[i]->drad, "Radius of root %d at iteration %d", i, j);
-	   
-	  /* Check if the radius that we have obtained until now is good, and if
-	   * we have passed the maximum allowed precision. */
-          if (rdpe_lt (s->root[i]->drad, tmp) || 
-	      (mpnb_in != 0 && mpwp >= mpnb_in))
-	    {
-	      if (mpwp >= mpnb_in && mpnb_in != 0)
-		s->over_max = true;
+//           mps_mp_set_prec (s, mpwp);
 
-	      if (s->debug_level & MPS_DEBUG_IMPROVEMENT)
-		{
-		  if (mpwp >= mpnb_in && mpnb_in != 0)
-		    {
-		      MPS_DEBUG (s, "Stopping newton iterations on root %d because we have reached input precision", i);
-		    }
-		  else
-		    {
-		      MPS_DEBUG (s, "Stopping newton iterations on root %d because radius is small enough", i);
-		    }
-		}
-	      break;
-	    }
-        }
-    }
+//           mpc_clear (nwtcorr);
+//           mpc_init2 (nwtcorr, mpwp);
 
-    improve_clear:
+//         If using the standard MPSolve algorithm then use the old
+//         * mps_prepare_data routine, otherwise use the one that
+//         * raises the precision of the coefficients 
+//        mps_prepare_data (s, mpwp);
 
-      mpc_clear (nwtcorr);
-      mpc_clear (mtmp);
+//        mps_polynomial_mnewton (s, s->active_poly, s->root[i], nwtcorr);
+//           mpc_sub_eq (s->root[i]->mvalue, nwtcorr);
 
-      return NULL;
-}
+//           /* correct radius, since the computed one is referred to the previous
+//            * approximation. Due to the quadratic convergence the new approximation
+//            * the radius is bounded by 2^(-g-f+1) */
+//           rdpe_set_2dl (newrad, 4.0, (long) (-g - f + 1));
+//           rdpe_set (tmp, abroot);
+//           rdpe_mul_eq (newrad, tmp);
+//           rdpe_mul_eq (tmp, s->eps_out);
+
+//        if (rdpe_eq (s->root[i]->drad, rdpe_zero)) 
+//          rdpe_set (s->root[i]->drad, newrad); 
+
+//        if (rdpe_lt (newrad, s->root[i]->drad))    
+//          rdpe_set (s->root[i]->drad, newrad);    
+// =======
+//    /* == 3 == 
+//     * scan the approximations to apply Newton's iterations */ 
+//    /* for (i = 0; i < s->n; i++) */ 
+//      { 
+//        if (s->debug_level & MPS_DEBUG_IMPROVEMENT) 
+//          MPS_DEBUG (s, "Starting to refine root %d", i); 
+//        if (s->root_status[i] != MPS_ROOT_STATUS_ISOLATED ||  
+//        s->root_status[i] == MPS_ROOT_STATUS_APPROXIMATED_IN_CLUSTER) 
+//          { 
+//        if (s->debug_level & MPS_DEBUG_IMPROVEMENT) 
+//          MPS_DEBUG (s, "Not approximating root %d since it is already approximated", i); 
+
+//            goto improve_clear;             /* Do not refine approximated roots */ 
+//          } 
+
+//        /*  == 3.1 == 
+//         * for data_type[0]='d' compute  t=Min_j |root(i)-root(j)|-rad(j)-rad(i) 
+//         * otherwise set t=5*n*rad[i] since the root is Newton-isolated. 
+//         * This allows us to remove an O(n^2) complexity  */ 
+
+//        if (MPS_INPUT_CONFIG_IS_SPARSE (s->input_config)) 
+//          rdpe_mul_d (t, root->drad, 5.0 * s->n); 
+//        else 
+//          { 
+//            k = i + 1; 
+//            if (i == s->n - 1) 
+//              k = 0; 
+//            mpc_sub (mtmp, s->root[k]->mvalue, root->mvalue); 
+//            mpc_get_cdpe (ctmp, mtmp); 
+//            cdpe_mod (t, ctmp); 
+//            rdpe_sub_eq (t, s->root[k]->drad); 
+//            rdpe_sub_eq (t, root->drad); 
+//            for (j = 0; j < s->n; j++) 
+//              if (j != i) 
+//                { 
+//                  mpc_sub (mtmp, s->root[j]->mvalue, root->mvalue); 
+//                  mpc_get_cdpe (ctmp, mtmp); 
+//                  cdpe_mod (tmp, ctmp); 
+//                  rdpe_sub_eq (tmp, root->drad); 
+//                  rdpe_sub_eq (tmp, s->root[j]->drad); 
+//                  if (rdpe_gt (t, tmp)) 
+//                    rdpe_set (t, tmp); 
+//                } 
+//          } 
+
+//        /*  == 3.2 == 
+//         * compute an  estimate of the condition number in terms of bits 
+//         * as log_2(rad/(4*n*epsilon*|x|))       */ 
+
+//        rdpe_mul_d (tmp, root->drad, 4.0 * s->n); 
+//        mpc_get_cdpe (ctmp, root->mvalue); 
+//        cdpe_mod (abroot, ctmp); 
+//        rdpe_div (tmp, tmp, abroot); 
+
+//        cnd = root->wp + rdpe_log (tmp) / LOG2 + 1; 
+
+//        /* then evaluate the number of bits g,f */ 
+//        rdpe_div (t, root->drad, t); 
+//        rdpe_mul_eq_d (t, (double) s->n - 1); 
+//        rdpe_sub (st, rdpe_one, t); 
+//        rdpe_div (sigma, t, st); 
+
+//        /* Workaround added by me to solve nan problems. Leo. */ 
+//        rdpe_set_2dl (mp_epsilon, 2.0, - mpwp); 
+//        rdpe_add_eq (sigma, mp_epsilon);  
+
+//        g = -rdpe_log (sigma) / LOG2; 
+//        rdpe_set (tmp, abroot); 
+//        rdpe_mul_eq (tmp, sigma); 
+//        rdpe_div (tmp, root->drad, tmp); 
+//        f = -rdpe_log (tmp) / LOG2; 
+
+//        /* evaluate the upper bound m to the number of iterations 
+//         * needed to reach the desired precision */ 
+//        m = (int) (log ((mpnb_out - f) / g) / LOG2) + 1; 
+
+//        MPS_DEBUG (s, "A maximum of %d iterations will be performed to improve root %d", m, i); 
+
+//        /*  == 4 ==      Start Newton */ 
+//        rdpe_set (oldrad, root->drad); 
+//        for (j = 1; j <= m; j++) 
+//          { 
+//            if (s->debug_level & MPS_DEBUG_IMPROVEMENT) 
+//              MPS_DEBUG (s, "Iteration %d of the improvement of root %d", j, i); 
+//            g *= 2; 
+
+//        /* { */ 
+//        /*   rdpe_t rtmp; */ 
+//        /*   mpc_rmod (rtmp, root->mvalue); */ 
+//        /*   int correct_digits = (-rdpe_log (root->drad) - rdpe_log (rtmp)) / LOG2_10; */ 
+//        /*   MPS_DEBUG_RDPE (s, root->drad, "s->drad[%d]", i); */ 
+//        /*   MPS_DEBUG_MPC (s, correct_digits, root->mvalue, "mroot_%d", i); */ 
+//        /* } */ 
+
+//        /* Round it to 64 integers */ 
+//        mpwp = (long) (f + g + cnd); 
+
+//            if (mpwp > mpnb_in && mpnb_in != 0) 
+//          { 
+//            /* Lower the precision so it won't go over mpnb_in 
+//             * that would clearly get us to an error, for over estimating 
+//             * the precision of the input coefficients. */ 
+//            mpwp = mpnb_in - 63; 
+//            break; 
+//          } 
+
+//            mps_mp_set_prec (s, mpwp); 
+
+//            mpc_clear (nwtcorr); 
+//            mpc_init2 (nwtcorr, mpwp); 
+
+//        /* If using the standard MPSolve algorithm then use the old 
+//         * mps_prepare_data routine, otherwise use the one that 
+//         * raises the precision of the coefficients */ 
+//        if (mpwp > s->mpwp) 
+//          mps_prepare_data (s, mpwp); 
+
+//            if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config)) 
+//              { 
+//                mps_mnewton (s, s->n, root, nwtcorr, p->mfpc, p->mfppc, p->dap, p->spar, 
+//                             mps_thread_get_id (s, s->pool), false); 
+//              } 
+//            else if (s->mnewton_usr != NULL) 
+//              { 
+//                (*s->mnewton_usr) (s, root, nwtcorr,  
+//                               MPS_INPUT_CONFIG_IS_SECULAR (s->input_config) ? &it_data : NULL, false); 
+//              } 
+//            else 
+//              { 
+//                mps_mnewton_usr (s, root, nwtcorr); 
+//              } 
+//            mpc_sub_eq (root->mvalue, nwtcorr); 
+
+//            /* correct radius, since the computed one is referred to the previous 
+//             * approximation. Due to the quadratic convergence the new approximation 
+//             * the radius is bounded by 2^(-g-f+1) */ 
+//            rdpe_set_2dl (newrad, 4.0, (long) (-g - f + 1)); 
+//            rdpe_set (tmp, abroot); 
+//            rdpe_mul_eq (newrad, tmp); 
+//            rdpe_mul_eq (tmp, s->eps_out); 
+
+//        if (rdpe_eq (root->drad, rdpe_zero))  
+//          rdpe_set (root->drad, newrad);  
+
+//        if (rdpe_lt (newrad, root->drad))     
+//          rdpe_set (root->drad, newrad);     
+// >>>>>>> master
+           
+//        mpc_rmod (tmp, root->mvalue); 
+//        rdpe_mul_eq (tmp, s->eps_out); 
+//        rdpe_mul_eq_d (tmp, 4.0); 
+//        rdpe_add_eq (root->drad, tmp); 
+          
+//        if (s->debug_level & MPS_DEBUG_IMPROVEMENT) 
+//          MPS_DEBUG_RDPE (s, root->drad, "Radius of root %d at iteration %d", i, j); 
+           
+//        /* Check if the radius that we have obtained until now is good, and if 
+//         * we have passed the maximum allowed precision. */ 
+//            if (rdpe_lt (root->drad, tmp) ||  
+//            (mpnb_in != 0 && mpwp >= mpnb_in)) 
+//          { 
+//            if (mpwp >= mpnb_in && mpnb_in != 0) 
+//              s->over_max = true; 
+
+//            if (s->debug_level & MPS_DEBUG_IMPROVEMENT) 
+//              { 
+//                if (mpwp >= mpnb_in && mpnb_in != 0) 
+//                  { 
+//                    MPS_DEBUG (s, "Stopping newton iterations on root %d because we have reached input precision", i); 
+//                  } 
+//                else 
+//                  { 
+//                    MPS_DEBUG (s, "Stopping newton iterations on root %d because radius is small enough", i); 
+//                  } 
+//              } 
+//            break; 
+//          } 
+//          } 
+//      } 
+
+//      improve_clear: 
+
+//        mpc_clear (nwtcorr); 
+//        mpc_clear (mtmp); 
+
+//        return NULL; 
+//  } 

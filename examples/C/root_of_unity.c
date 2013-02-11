@@ -58,7 +58,7 @@ main (int argc, char **argv)
   /* mps_monomial_poly_set_coefficient_d (s, p, n, -1, 0); */
 
   /* Set the input polynomial */
-  mps_context_set_input_poly (s, p);
+  mps_context_set_input_poly (s, MPS_POLYNOMIAL (p));
 
   /* Allocate space to hold the results. We check only floating point results
    * in here */

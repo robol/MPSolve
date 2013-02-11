@@ -317,7 +317,10 @@ typedef int mps_debug_level;
 
       /* Key with a value */
       MPS_KEY_DEGREE,
-      MPS_KEY_PRECISION
+      MPS_KEY_PRECISION,
+
+      /* Key introduced in MPSolve 3.1 */
+      MPS_FLAG_CHEBYSHEV
     };
 
   /**
@@ -436,7 +439,8 @@ typedef int mps_debug_level;
   enum mps_representation
     {
       MPS_REPRESENTATION_SECULAR,
-      MPS_REPRESENTATION_MONOMIAL
+      MPS_REPRESENTATION_MONOMIAL,
+      MPS_REPRESENTATION_CHEBYSHEV
     };
 
 
@@ -454,6 +458,7 @@ typedef int mps_debug_level;
 #include <mps/context.h>
 #include <mps/monomial-poly.h>
 #include <mps/secular-equation.h>
+#include <mps/chebyshev.h>
 #include <mps/approximation.h>
 
 /* Interface should be a subset of core, so what is defined
@@ -520,11 +525,11 @@ typedef int mps_debug_level;
 
   /* functions in newton.c */
   void mps_fnewton (mps_context * st, mps_polynomial * p, 
-		    mps_approximation * root, cplx_t corr);
+                    mps_approximation * root, cplx_t corr);
   void mps_dnewton (mps_context * st, mps_polynomial * p,
-		    mps_approximation * root, cdpe_t corr);
+                    mps_approximation * root, cdpe_t corr);
   void mps_mnewton (mps_context * st, mps_polynomial * p, 
-		    mps_approximation * root, mpc_t corr);
+                    mps_approximation * root, mpc_t corr);
   void mps_parhorner (mps_context * st, int n, mpc_t x, mpc_t p[],
                       mps_boolean b[], mpc_t s, int n_thread);
   void mps_aparhorner (mps_context * st, int n, rdpe_t x, rdpe_t p[],
