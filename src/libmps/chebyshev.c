@@ -18,6 +18,8 @@
  /* This is implemented in chebyshev-evaluation.c */
  mps_boolean mps_chebyshev_poly_meval (mps_context * ctx, mps_polynomial * poly, mpc_t x, mpc_t value, rdpe_t error);
 
+ void mps_chebyshev_poly_fstart (mps_context * ctx, mps_polynomial * poly);
+
  mps_chebyshev_poly * 
  mps_chebyshev_poly_new (mps_context * ctx, int n, mps_structure structure)
  {
@@ -54,6 +56,7 @@
         MPS_POLYNOMIAL (poly)->raise_data = mps_chebyshev_poly_raise_data;
         MPS_POLYNOMIAL (poly)->meval = mps_chebyshev_poly_meval;
         MPS_POLYNOMIAL (poly)->get_leading_coefficient = mps_chebyshev_get_leading_coefficient;
+        MPS_POLYNOMIAL (poly)->fstart = mps_chebyshev_poly_fstart;
 
         /* Attach the typename to this polynomial */
         MPS_POLYNOMIAL (poly)->type_name = MPS_CHEBYSHEV_POLY_TYPE_NAME;
@@ -97,6 +100,13 @@
         free (poly);
  }
 
+
+void 
+mps_chebyshev_poly_fstart (mps_context * ctx, mps_polynomial * poly)
+{
+  mps_general_fstart (ctx, poly);
+}
+
  long int
  mps_chebyshev_poly_raise_data (mps_context * ctx, mps_polynomial * poly, long int wp)
  {
@@ -111,8 +121,6 @@
             pthread_mutex_unlock (&cpoly->precision_mutex);
             return mpc_get_prec (cpoly->mfpc[0]);
         }
-
-        mpc_set_prec (cpoly->lc, wp);
 
         /* Otherwise really increase it */
         for (i = 0; i <= poly->degree; i++) 
@@ -131,6 +139,16 @@
                 mpf_set_q (mpc_Im (cpoly->mfpc[i]), cpoly->rational_imag_coeffs[i]);
               }
           }
+
+        mpc_set_prec (cpoly->lc, wp);
+        if (poly->degree > 0) {
+                mpc_set_ui (cpoly->lc, 2U, 0U);
+                mpc_pow_si (cpoly->lc, cpoly->lc, poly->degree - 1);
+        }
+        else {
+                mpc_set_ui (cpoly->lc, 1U, 0U);
+        }
+        mpc_mul_eq (cpoly->lc, cpoly->mfpc[poly->degree]);
 
         pthread_mutex_unlock (&cpoly->precision_mutex);
 

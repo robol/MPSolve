@@ -85,7 +85,7 @@ mps_improve (mps_context * s)
       improve_data[i].s = s;
       improve_data[i].base_wp = base_wp;
       improve_data[i].i = i;
-      improve_data[i].starting_approximation = mps_approximation_copy (s, s->root[i]);
+      improve_data[i].starting_approximation = s->root[i]; // mps_approximation_copy (s, s->root[i]);
       /* mps_improve_root (improve_data + i); */
     }
 
@@ -93,22 +93,22 @@ mps_improve (mps_context * s)
     {
       if (s->root[i]->status != MPS_ROOT_STATUS_ISOLATED || 
                 s->root[i]->status == MPS_ROOT_STATUS_APPROXIMATED_IN_CLUSTER)
-               {
-                 if (s->debug_level & MPS_DEBUG_IMPROVEMENT)
-                 MPS_DEBUG (s, "Not approximating root %i since it is already approximated", i);         
-               }
+        {
+          if (s->debug_level & MPS_DEBUG_IMPROVEMENT)
+          MPS_DEBUG (s, "Not approximating root %i since it is already approximated", i);         
+        }
       else
-               mps_thread_pool_assign (s, NULL, mps_improve_root2, improve_data + i);
+        mps_thread_pool_assign (s, NULL, mps_improve_root2, improve_data + i);
     }
 
   mps_thread_pool_wait (s, s->pool);
 
-  for (i = 0; i < s->n; i++)
-    {
-      mps_approximation_free (s, s->root[i]);
-      s->root[i] = improve_data[i].starting_approximation;
-      s->root[i]->status = MPS_ROOT_STATUS_APPROXIMATED;
-    }
+  // for (i = 0; i < s->n; i++)
+  //   {
+  //     mps_approximation_free (s, s->root[i]);
+  //     s->root[i] = improve_data[i].starting_approximation;
+  //     s->root[i]->status = MPS_ROOT_STATUS_APPROXIMATED;
+  //   }
 
   free (improve_data);
 

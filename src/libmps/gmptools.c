@@ -151,10 +151,10 @@ mpf_get_2dl (double *d, long int *l, mpf_t f)
   int i;
 
   /* pick mantissa and exponent from f */
-  e = f->_mp_exp;
-  f->_mp_exp = 0;
+  e = f->_mpfr_exp;
+  f->_mpfr_exp = 0;
   t = mpf_get_d (f);
-  f->_mp_exp = e;
+  f->_mpfr_exp = e;
 
   /* scale mantissa to (1/2, 1] */
   *d = frexp (t, &i);

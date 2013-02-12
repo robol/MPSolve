@@ -298,20 +298,22 @@ mps_context_get_roots_m (mps_context * s, mpc_t ** roots, rdpe_t ** radius)
       mpc_vinit2 (*roots, s->n, 0);
     }
 
-  if (!*radius)
+  if (radius && !*radius)
     {
       *radius = rdpe_valloc (s->n);
     }
 
   {
     mpc_t * local_roots = *roots;
-    rdpe_t * local_radius = *radius;
+    rdpe_t * local_radius = radius ? *radius : NULL;
     
     for (i = 0; i < s->n; i++)
       {
         mpc_set_prec (local_roots[i], mpc_get_prec (s->root[i]->mvalue));
         mpc_set (local_roots[i], s->root[i]->mvalue);
-        rdpe_set (local_radius[i], s->root[i]->drad);
+
+        if (radius)
+          rdpe_set (local_radius[i], s->root[i]->drad);
       }
   }
 

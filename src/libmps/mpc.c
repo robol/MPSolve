@@ -10,6 +10,10 @@
  *   Leonardo Robol <robol@mail.dm.unipi.it>
  */
 
+#include <gmp.h>
+#include <mpfr.h>
+#include <mpf2mpfr.h>
+
 
 #include <stdlib.h>
 #include <mps/mpc.h>
@@ -34,6 +38,7 @@ mpc_init (mpc_t c)
 void
 mpc_init2 (mpc_t c, unsigned long int prec)
 {
+  prec = (prec <= 2) ? 53 : prec;
   mpf_init2 (mpc_Re (c), prec);
   mpf_init2 (mpc_Im (c), prec);
 }
@@ -49,6 +54,7 @@ mpc_clear (mpc_t c)
 void
 mpc_set_prec (mpc_t c, unsigned long int prec)
 {
+  prec = (prec <= 2) ? 53 : prec;
   if (mpf_get_prec (mpc_Re (c)) < prec)
     {
       mpf_set_prec (mpc_Re (c), prec);
