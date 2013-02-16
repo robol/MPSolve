@@ -358,7 +358,7 @@ mps_fstart (mps_context * s, int n, mps_cluster_item * cluster_item,
       	      for (root = cluster->first; root != NULL; root = root->next)
           		  {
             		  l = root->k;
-            		  s->root_status[l] = MPS_ROOT_STATUS_APPROXIMATED_IN_CLUSTER;
+            		  s->root[l]->status = MPS_ROOT_STATUS_APPROXIMATED_IN_CLUSTER;
             		  s->root[l]->frad = r * nzeros;
           		  }
       	    }
