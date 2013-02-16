@@ -412,6 +412,7 @@ void
 mps_context_set_output_prec (mps_context * s, long int prec)
 {
   s->output_config->prec = prec;
+  rdpe_set_2dl (s->eps_out, 1.0, -prec);
 }
 
 /**

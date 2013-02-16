@@ -279,6 +279,7 @@ mps_fstart (mps_context * s, int n, mps_cluster_item * cluster_item,
   MPS_DEBUG_THIS_CALL;
   int i, j, jj, l, nzeros = 0;
   double sigma, th, ang, r = 0;
+  mps_root * it_root = NULL;
   rdpe_t tmp;
 
   mps_cluster * cluster = NULL;
@@ -326,19 +327,19 @@ mps_fstart (mps_context * s, int n, mps_cluster_item * cluster_item,
   /* In the general case apply the Rouche-based criterion */
   mps_fcompute_starting_radii (s, n, cluster_item, clust_rad, g, eps, fap);
 
+  if (g != 0.0)
+    it_root = cluster->first;
+
   for (i = 0; i < s->n_radii; i++)
     {
       nzeros = s->partitioning[i + 1] - s->partitioning[i];
       ang = pi2 / nzeros;
       r = s->fradii[i];
 
-      if (g != 0.0)
-	root = cluster->first;
-
       for (j = s->partitioning[i]; j < s->partitioning[i + 1]; j++)
         {
           if (g != 0.0)
-            l = root->k;
+            l = it_root->k;
           else
             l = j;
 
@@ -355,10 +356,13 @@ mps_fstart (mps_context * s, int n, mps_cluster_item * cluster_item,
                                sigma),
                       r * sin (ang * jj + th * s->partitioning[i + 1] +
                                sigma));
-	  if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
-	    {
-	      MPS_DEBUG_CPLX (s, s->root[l]->fvalue, "s->froot[%d]", l);
-	    }
+      	  if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
+      	    {
+      	      MPS_DEBUG_CPLX (s, s->root[l]->fvalue, "s->froot[%d]", l);
+      	    }
+
+          if (it_root)
+            it_root = it_root->next;
         }
 
 
@@ -368,14 +372,14 @@ mps_fstart (mps_context * s, int n, mps_cluster_item * cluster_item,
         {
           rdpe_mul_d (tmp, eps, g);
           if (r * nzeros <= rdpe_get_d (tmp))
-	    {
-	      for (root = cluster->first; root != NULL; root = root->next)
-		{
-		  l = root->k;
-		  s->root_status[l] = MPS_ROOT_STATUS_APPROXIMATED_IN_CLUSTER;
-		  s->root[l]->frad = r * nzeros;
-		}
-	    }
+      	    {
+      	      for (root = cluster->first; root != NULL; root = root->next)
+          		  {
+            		  l = root->k;
+            		  s->root_status[l] = MPS_ROOT_STATUS_APPROXIMATED_IN_CLUSTER;
+            		  s->root[l]->frad = r * nzeros;
+          		  }
+      	    }
         }
     }
 }
@@ -639,14 +643,14 @@ mps_dstart (mps_context * s, int n, mps_cluster_item * cluster_item,
       rdpe_set (r, s->dradii[i]);
 
       if (cluster_item)
-	root = cluster->first;
+      	root = cluster->first;
 
       for (j = s->partitioning[i]; j < s->partitioning[i + 1]; j++)
         {
           if (cluster_item)
             {
               l = root->k;
-	      root = root->next;
+	            root = root->next;
             }
           else
             l = j;
@@ -990,7 +994,7 @@ mps_mstart (mps_context * s, int n, mps_cluster_item * cluster_item,
           /* Take index relative to the cluster
            * that we are analyzing. */
           /* l = s->clust[s->punt[i_clust] + j]; */
-	  l = root->k;
+	        l = root->k;
 
           cdpe_set_d (ctmp,
                       cos (ang * jj + th * s->partitioning[i + 1] + sigma),
@@ -1003,7 +1007,7 @@ mps_mstart (mps_context * s, int n, mps_cluster_item * cluster_item,
               s->root_status[l] = MPS_ROOT_STATUS_NOT_DPE;
             }
 
-	  root = root->next;
+	        root = root->next;
         }
 
 
