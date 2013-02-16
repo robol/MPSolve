@@ -10,7 +10,6 @@
  *   Leonardo Robol <robol@mail.dm.unipi.it>
  */
 
-#include <gmp.h>
 #include <stdlib.h>
 #include <mps/mpc.h>
 #include <mps/gmptools.h>

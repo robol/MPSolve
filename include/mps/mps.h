@@ -443,8 +443,6 @@ typedef int mps_debug_level;
       MPS_REPRESENTATION_CHEBYSHEV
     };
 
-#include <gmp.h>
-
 /* Local include files that should not be included directly */
 #include <mps/options.h>
 #include <mps/cluster.h>
