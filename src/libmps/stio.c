@@ -1,7 +1,7 @@
 /*
  * This file is part of MPSolve 3.0
  *
- * Copyright (C) 2001-2012, Dipartimento di Matematica "L. Tonelli", Pisa.
+ * Copyright (C) 2001-2013, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
  * Authors: 
@@ -364,6 +364,8 @@ mps_monomial_poly_read_from_stream (mps_context * s,
 
           if (i > 0)
             mpc_mul_ui (poly->mfppc[i-1], poly->mfppc[i], i);
+
+          MPS_DEBUG_RDPE(s, poly->dap[i], "poly->dap[%d]", i);
         }
       else
         {
@@ -801,6 +803,7 @@ mps_parse_stream_old (mps_context * s, mps_input_buffer * buffer)
     }
 
   /* Read precision and degree */
+  prec = 0;
   token = mps_input_buffer_next_token (buffer);
   if (!token || !sscanf (token, "%ld", &prec))
     mps_error (s, 1, "Error while reading the input precision of the coefficients");
@@ -820,6 +823,9 @@ mps_parse_stream_old (mps_context * s, mps_input_buffer * buffer)
     {
       mps_polynomial * user_poly = mps_polynomial_new (s);
 
+      user_poly->density = MPS_DENSITY_USER;
+      user_poly->structure = MPS_STRUCTURE_REAL_INTEGER;
+
       /* Newton iteration */
       user_poly->fnewton = mps_fnewton_usr;
       user_poly->dnewton = mps_dnewton_usr;
@@ -829,6 +835,11 @@ mps_parse_stream_old (mps_context * s, mps_input_buffer * buffer)
       user_poly->fstart = mps_general_fstart;
       user_poly->dstart = mps_general_dstart;
       user_poly->mstart = mps_general_mstart;
+
+      /* Evaluation */
+      user_poly->feval = mps_feval_usr;
+      user_poly->deval = mps_deval_usr;
+      user_poly->meval = mps_meval_usr;
 
       MPS_POLYNOMIAL (user_poly)->degree = s->n;
 
@@ -1109,6 +1120,8 @@ mps_parse_stream_old (mps_context * s, mps_input_buffer * buffer)
         }
     }
 
+  poly->prec = prec;
+
   mps_context_set_input_poly (s, MPS_POLYNOMIAL (poly));
 
   mpf_clear (ftmp);
@@ -1265,7 +1278,6 @@ mps_parse_stream (mps_context * s, FILE * input_stream)
       MPS_DEBUG (s, "Degree: %d", s->n);
     }
 
-
   switch (representation) {
     case MPS_REPRESENTATION_SECULAR:
       if (s->debug_level & MPS_DEBUG_IO)
@@ -1275,16 +1287,17 @@ mps_parse_stream (mps_context * s, FILE * input_stream)
       mps_secular_equation_read_from_stream (s, buffer, structure, density);
       break;
 
-    case MPS_REPRESENTATION_MONOMIAL:
-      if (s->debug_level & MPS_DEBUG_IO)
-        MPS_DEBUG (s, "Parsing mps_polynomial from stream");
-      mps_monomial_poly_read_from_stream (s, buffer, structure, density);
-      break;
-
     case MPS_REPRESENTATION_CHEBYSHEV:
       if (s->debug_level & MPS_DEBUG_IO)
         MPS_DEBUG (s, "Parsing mps_chebyshev_poly from stream");
       mps_chebyshev_poly_read_from_stream (s, buffer, structure, density);
+      break;
+
+    case MPS_REPRESENTATION_MONOMIAL:
+    default:
+      if (s->debug_level & MPS_DEBUG_IO)
+        MPS_DEBUG (s, "Parsing mps_polynomial from stream");
+      mps_monomial_poly_read_from_stream (s, buffer, structure, density);
       break;
   }
 

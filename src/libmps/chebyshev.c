@@ -1,7 +1,7 @@
 /*
  * This file is part of MPSolve 3.0
  *
- * Copyright (C) 2001-2012, Dipartimento di Matematica "L. Tonelli", Pisa.
+ * Copyright (C) 2001-2013, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
  * Authors: 
@@ -17,8 +17,6 @@
 
  /* This is implemented in chebyshev-evaluation.c */
  mps_boolean mps_chebyshev_poly_meval (mps_context * ctx, mps_polynomial * poly, mpc_t x, mpc_t value, rdpe_t error);
-
- void mps_chebyshev_poly_fstart (mps_context * ctx, mps_polynomial * poly);
 
  mps_chebyshev_poly * 
  mps_chebyshev_poly_new (mps_context * ctx, int n, mps_structure structure)
@@ -56,7 +54,6 @@
         MPS_POLYNOMIAL (poly)->raise_data = mps_chebyshev_poly_raise_data;
         MPS_POLYNOMIAL (poly)->meval = mps_chebyshev_poly_meval;
         MPS_POLYNOMIAL (poly)->get_leading_coefficient = mps_chebyshev_get_leading_coefficient;
-        MPS_POLYNOMIAL (poly)->fstart = mps_chebyshev_poly_fstart;
 
         /* Attach the typename to this polynomial */
         MPS_POLYNOMIAL (poly)->type_name = MPS_CHEBYSHEV_POLY_TYPE_NAME;
@@ -100,13 +97,6 @@
         free (poly);
  }
 
-
-void 
-mps_chebyshev_poly_fstart (mps_context * ctx, mps_polynomial * poly)
-{
-  mps_general_fstart (ctx, poly);
-}
-
  long int
  mps_chebyshev_poly_raise_data (mps_context * ctx, mps_polynomial * poly, long int wp)
  {
@@ -122,11 +112,14 @@ mps_chebyshev_poly_fstart (mps_context * ctx, mps_polynomial * poly)
             return mpc_get_prec (cpoly->mfpc[0]);
         }
 
+        mpc_set_prec (cpoly->lc, wp);
+        mpc_set_ui (cpoly->lc, 2U, 0U);
+        mpc_pow_si (cpoly->lc, cpoly->lc, MAX(poly->degree - 1, 0));
+
         /* Otherwise really increase it */
-        for (i = 0; i <= poly->degree; i++) 
-          {
-            mpc_set_prec (cpoly->mfpc[i], wp);
-          }
+        for (i = 0; i <= poly->degree; i++) {
+                mpc_set_prec (cpoly->mfpc[i], wp);
+        }
 
         if (MPS_STRUCTURE_IS_INTEGER (poly->structure) ||
             MPS_STRUCTURE_IS_RATIONAL (poly->structure))
@@ -140,16 +133,6 @@ mps_chebyshev_poly_fstart (mps_context * ctx, mps_polynomial * poly)
               }
           }
 
-        mpc_set_prec (cpoly->lc, wp);
-        if (poly->degree > 0) {
-                mpc_set_ui (cpoly->lc, 2U, 0U);
-                mpc_pow_si (cpoly->lc, cpoly->lc, poly->degree - 1);
-        }
-        else {
-                mpc_set_ui (cpoly->lc, 1U, 0U);
-        }
-        mpc_mul_eq (cpoly->lc, cpoly->mfpc[poly->degree]);
-
         pthread_mutex_unlock (&cpoly->precision_mutex);
 
         return mpc_get_prec (cpoly->mfpc[0]);
@@ -159,6 +142,7 @@ void mps_chebyshev_get_leading_coefficient (mps_context * ctx, mps_polynomial * 
 {
         mps_chebyshev_poly * cpoly = MPS_CHEBYSHEV_POLY (poly);
         mpc_set (lc, cpoly->lc);
+        mpc_mul_eq (lc, cpoly->mfpc[poly->degree]);
 }
 
 

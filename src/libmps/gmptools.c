@@ -1,7 +1,7 @@
 /*
  * This file is part of MPSolve 3.0
  *
- * Copyright (C) 2001-2012, Dipartimento di Matematica "L. Tonelli", Pisa.
+ * Copyright (C) 2001-2013, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
  * Authors: 
@@ -151,10 +151,10 @@ mpf_get_2dl (double *d, long int *l, mpf_t f)
   int i;
 
   /* pick mantissa and exponent from f */
-  e = f->_mpfr_exp;
-  f->_mpfr_exp = 0;
+  e = f->_mp_exp;
+  f->_mp_exp = 0;
   t = mpf_get_d (f);
-  f->_mpfr_exp = e;
+  f->_mp_exp = e;
 
   /* scale mantissa to (1/2, 1] */
   *d = frexp (t, &i);

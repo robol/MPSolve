@@ -1,7 +1,7 @@
 /*
  * This file is part of MPSolve 3.0
  *
- * Copyright (C) 2001-2012, Dipartimento di Matematica "L. Tonelli", Pisa.
+ * Copyright (C) 2001-2013, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
  * Authors: 
@@ -159,13 +159,6 @@ mps_secular_fnewton (mps_context * s, mps_polynomial * p, mps_approximation * ro
               asum += fabs (cplx_Re (ctmp2)) + fabs (cplx_Im (ctmp2));
             }
         }
-
-  if (i == MPS_PARALLEL_SUM_FAILED)
-    {
-      root->status = MPS_ROOT_STATUS_NOT_FLOAT;
-      root->again = false;
-      return;
-    }
 
       cplx_sub_eq (corr, cplx_one);
 
@@ -609,6 +602,14 @@ mps_secular_mnewton (mps_context * s, mps_polynomial * p, mps_approximation * ro
 
       mpc_set_ui (ctmp, 1U, 0U);
       mpc_sub_eq (corr, ctmp);
+
+      if (mpc_eq_zero (corr))
+      {
+        mpf_set_rdpe (mpc_Re (corr), s->mp_epsilon);
+        mpf_set_ui (mpc_Im (corr), 0U);
+
+        goto mnewton_cleanup;
+      }
 
       mpc_div (corr, ampc_i, corr);
       mpc_rmod (acorr, corr);

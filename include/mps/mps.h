@@ -444,8 +444,6 @@ typedef int mps_debug_level;
     };
 
 #include <gmp.h>
-#include <mpfr.h>
-#include <mpf2mpfr.h>
 
 /* Local include files that should not be included directly */
 #include <mps/options.h>
@@ -654,6 +652,9 @@ typedef int mps_debug_level;
   void mps_fnewton_usr (mps_context * st, mps_polynomial * poly, mps_approximation * root, cplx_t corr);
   void mps_dnewton_usr (mps_context * st, mps_polynomial * poly, mps_approximation * root, cdpe_t corr);
   void mps_mnewton_usr (mps_context * st, mps_polynomial * poly, mps_approximation * root, mpc_t corr);
+  mps_boolean mps_feval_usr (mps_context * ctx, mps_polynomial * p, cplx_t x, cplx_t value, double * error);
+  mps_boolean mps_deval_usr (mps_context * ctx, mps_polynomial * p, cdpe_t x, cdpe_t value, rdpe_t error);
+  mps_boolean mps_meval_usr (mps_context * ctx, mps_polynomial * p, mpc_t x, mpc_t value, rdpe_t error);
 
   /* functions in general-starting.c */
   void mps_general_fstart (mps_context * ctx, mps_polynomial * p);

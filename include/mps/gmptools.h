@@ -16,12 +16,7 @@
 #define __GMPTOOLS_H__
 
 #include <gmp.h>
-#include <mpfr.h>
-#include <mpf2mpfr.h>
 #include <stdio.h>
-
-#define mpfr_inp_str __gmpfr_inp_str
-#define mpfr_out_str __gmpfr_out_str
 
 #ifdef __cplusplus
 extern "C"

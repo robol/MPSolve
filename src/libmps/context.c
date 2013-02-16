@@ -1,7 +1,7 @@
 /*
  * This file is part of MPSolve 3.0
  *
- * Copyright (C) 2001-2012, Dipartimento di Matematica "L. Tonelli", Pisa.
+ * Copyright (C) 2001-2013, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
  * Authors: 
@@ -247,36 +247,37 @@ mps_context_get_roots_d (mps_context * s, cplx_t ** roots, double **radius)
 {
   int i;
 
-  if (!*roots)
+  if (*roots == NULL)
     *roots = cplx_valloc (s->n);
-  if (!*radius)
+
+  if (radius && !*radius)
     *radius = double_valloc (s->n);
 
   for (i = 0; i < s->n; i++)
     {
-      if (*radius != NULL)
+      if (radius && *radius != NULL)
         {
           if (s->lastphase == float_phase || s->lastphase == dpe_phase)
             {
-              *radius[i] = s->root[i]->frad;
+              (*radius)[i] = s->root[i]->frad;
             }
           else
             {
-              *radius[i] = rdpe_get_d (s->root[i]->drad);
+              (*radius)[i] = rdpe_get_d (s->root[i]->drad);
             }
         }
 
       if (s->lastphase == mp_phase)
         {
-          mpc_get_cplx (*roots[i], s->root[i]->mvalue);
+          mpc_get_cplx ((*roots)[i], s->root[i]->mvalue);
         }
       else if (s->lastphase == float_phase)
         {
-          cplx_set (*roots[i], s->root[i]->fvalue);
+          cplx_set ((*roots)[i], s->root[i]->fvalue);
         }
       else if (s->lastphase == dpe_phase)
         {
-          cdpe_get_x (*roots[i], s->root[i]->dvalue);
+          cdpe_get_x ((*roots)[i], s->root[i]->dvalue);
         }
     }
   return 0;
