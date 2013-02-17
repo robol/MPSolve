@@ -93,7 +93,8 @@ is \"s\"\
       int64NDArray real_coeffs = args(0).real().int64_array_value();
       int64NDArray imag_coeffs = args(0).imag().int64_array_value();
       for (int i = 0; i < n; i++)
-	mps_monomial_poly_set_coefficient_int (s, p, static_cast<long int>(n - i - 1), static_cast<long long int>(real_coeffs(i)), static_cast<long long int>(imag_coeffs(i)));
+    	mps_monomial_poly_set_coefficient_int (s, p, static_cast<long long int>(n - i - 1), 
+            (int64_t) real_coeffs(i), (int64_t) imag_coeffs(i));
     }
     else {
       for(int i = 0; i < n; i++) {
