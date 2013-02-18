@@ -1,3 +1,12 @@
+== 3.0.1 == 19/02/2013
+ - Fixed some bugs in unisolve that caused early exists
+   without full approximation of some roots. 
+ - Correction in the Octave module to ease compilation
+   on all targets. 
+ - Corrected a bug in the floating point shift
+ - Slight optimizations on algorithm MPS_ALGORITHM_SECULAR_GA.
+ - Corrections in the Matlab (TM) module. 
+
 == 3.0.0 == 03/12/2012
  - First open source release of MPSolve
  - Implemented the secular solver as an alternative to the classical one
