@@ -1419,7 +1419,7 @@ mps_mrestart (mps_context * s)
 {
   mps_boolean tst;
   int j, k, l;
-  rdpe_t sr, rtmp, rtmp1, rtmp2;
+  rdpe_t sr, rtmp, rtmp1, rtmp2, ag;
   cdpe_t tmp;
   mpf_t rea, srmp;
   mpc_t sc, corr, temp;
@@ -1569,7 +1569,7 @@ mps_mrestart (mps_context * s)
 
       /* Create the approximation used to find the derivative zero */
       g = mps_approximation_new (s); 
-      mpc_set (g->mvalue, sc); 
+      mpc_set (g->mvalue, sc);
 
       /* Compute the coefficients of the derivative of p(x) having order
        * equal to the multiplicity of the cluster -1. */
@@ -1598,49 +1598,9 @@ mps_mrestart (mps_context * s)
             }
         } while (rdpe_gt (error, epsilon) && mps_monomial_poly_get_precision (s, der) <= cluster->n * s->mpwp);
 
-      /* for (j = 0; j <= s->n; j++) */
-      /*        { */
-      /*          mpc_set (s->mfpc1[j], p->mfpc[j]); */
-      /*        } */
-      /* for (j = 1; j < cluster->n; j++) */
-      /*   { */
-      /*     for (k = 0; k <= s->n - j; k++) */
-      /*       mpc_mul_ui (s->mfpc1[k], s->mfpc1[k + 1], k + 1); */
-      /*          /\* MPS_DEBUG_MPC (s, 15, s->mfpc1[j], "p->mfpc[%d]", j); *\/ */
-      /*   } */
-
-      /* for (j = 0; j < s->n - cluster->n + 2; j++) */
-      /*   { */
-      /*     mpc_get_cdpe (tmp, s->mfpc1[j]); */
-      /*     cdpe_mod (s->dap1[j], tmp); */
-      /*   } */
-
-      /* /\* create the vectors needed if the polynomial is sparse *\/ */
-      /* if (MPS_INPUT_CONFIG_IS_SPARSE (s->input_config)) */
-      /*   { */
-      /*     for (j = 0; j < s->n - cluster->n + 2; j++) */
-      /*       { */
-      /*         if (rdpe_ne (s->dap1[j], rdpe_zero)) */
-      /*           s->spar1[j] = true; */
-      /*         else */
-      /*           s->spar1[j] = false; */
-      /*       } */
-      /*     for (j = 0; j < s->n - cluster->n + 1; j++) */
-      /*            { */
-      /*              mpc_mul_ui (s->mfppc1[j], s->mfpc1[j + 1], j + 1); */
-      /*            } */
-      /*   } */
-
-      /* MPS_DEBUG (s, "s->mpwp = %ld", s->mpwp); */
-      /* MPS_DEBUG (s, "cluster->n = %ld", cluster->n); */
-      /* for (j = 0; j <= cluster->n; j++) */
-      /*        { */
-      /*          MPS_DEBUG_MPC (s, s->mpwp, s->mfpc1[j], "mfpc1[%d]", j); */
-      /*        } */
-
-      /* /\* Apply at most max_newt_it steps of Newton's iterations */
-      /*  * to the above derivative starting from the super center */
-      /*  * of the cluster. *\/ */
+      /*  Apply at most max_newt_it steps of Newton's iterations */
+      /*  to the above derivative starting from the super center */
+      /*  of the cluster. */
 
       if (s->debug_level & MPS_DEBUG_CLUSTER)
         MPS_DEBUG_MPC (s, 30, g->mvalue, "g before newton");
@@ -1656,7 +1616,9 @@ mps_mrestart (mps_context * s)
               MPS_DEBUG_MPC  (s, 100, g->mvalue, "Iteration %d on the derivative", j);
             }
 
-          if (!g->again)
+          mpc_rmod (ag, g->mvalue);
+
+          if (!g->again || rdpe_Esp (g->drad) < rdpe_Esp (ag) - s->mpwp)
             break;
         }
 
