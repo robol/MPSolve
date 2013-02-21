@@ -6,7 +6,7 @@ TEMPLATE = app
 TARGET = 
 DEPENDPATH += .
 INCLUDEPATH += @top_srcdir@/include
-LIBS += @top_builddir@/src/libmps/libmps.la
+LIBS += @top_builddir@/src/libmps/libmps.la @LIBS@
 
 CONFIG += compile_libtool
 QMAKE_MAKEFILE = Makefile.qmake
