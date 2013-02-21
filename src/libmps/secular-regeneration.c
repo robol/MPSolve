@@ -216,7 +216,7 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
   if (root_changed[i])
     {
       rdpe_t relative_error, rtmp;
-      cdpe_t cpol;
+      cdpe_t cpol, cdiff, cprod_b;
       mpc_t tx;
 
       /* Set up a temporary memory location to hold the value of b_i, since we need
@@ -289,16 +289,19 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
       /* Compute the difference of the b_i */
       mpc_set_ui (mprod_b, 1U, 0U);
 
+      cdpe_set (cprod_b, cdpe_one);
+
       for (j = 0; j < s->n; ++j)
             {
               if (i == j)
                 continue;
               
-              /* Lock i-th and -j-th mutex to gain control of the the
-               * b_i of the secular equation. */
-              /* pthread_mutex_lock (&sec->bmpc_mutex[j]); */
               mpc_sub (mdiff, my_b, bmpc[j]);
-              /* pthread_mutex_unlock (&sec->bmpc_mutex[j]);  */
+
+              /* We'll make floating point multiplication to have
+               * a faster implementation. */
+              if (s->lastphase != mp_phase)
+                mpc_get_cdpe (cdiff, mdiff);
               
               /* If the difference is zero then regeneration cannot succeed, and means
                * that we need more precision in the roots */
@@ -308,8 +311,14 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
                   success = false;
                   goto monomial_regenerate_exit;
                 }
-              mpc_mul_eq (mprod_b, mdiff);
+              if (s->lastphase != mp_phase)
+                cdpe_mul_eq (cprod_b, cdiff);
+              else
+                mpc_mul_eq (mprod_b, mdiff);
             }
+
+      if (s->lastphase != mp_phase)
+        mpc_set_cdpe (mprod_b, cprod_b);
       
       /* Actually divide the result and store it in
        * a_i, as requested. */
