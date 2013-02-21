@@ -250,6 +250,7 @@ mps_deval_usr (mps_context * ctx, mps_polynomial * p, cdpe_t x, cdpe_t value, rd
 
   cdpe_mod (ax, x);
   cdpe_set (value, cdpe_one);
+  cdpe_mod (error, value);
 
   for (i = 1; i <= m; i++)
     {
@@ -282,6 +283,7 @@ mps_meval_usr (mps_context * ctx, mps_polynomial * p, mpc_t x, mpc_t value, rdpe
 
   mpc_rmod (ax, x);
   mpc_set_ui (value, 1U, 0U);
+  mpc_rmod (error, value);
 
   for (i = 1; i <= m; i++)
     {
