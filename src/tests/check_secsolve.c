@@ -21,7 +21,7 @@ test_pol **test_polynomials;
  * referenced by <code>pol</code>.
  */
 int
-test_secsolve_on_pol (test_pol * pol)
+test_secsolve_on_pol_impl (test_pol * pol, mps_output_goal goal)
 {
   mpc_t root, ctmp;
   mps_boolean passed = true;
@@ -61,7 +61,7 @@ test_secsolve_on_pol (test_pol * pol)
            get_pol_name_from_path (pol->pol_file));
 
   mps_context_set_output_prec (s, pol->out_digits);
-  mps_context_set_output_goal (s, MPS_OUTPUT_GOAL_APPROXIMATE);
+  mps_context_set_output_goal (s, goal);
 
   /* Solve it */
   mps_context_select_algorithm (s, (pol->ga) ? MPS_ALGORITHM_SECULAR_GA : MPS_ALGORITHM_STANDARD_MPSOLVE);
@@ -193,12 +193,19 @@ test_secsolve_on_pol (test_pol * pol)
   return passed;
 }
 
+int
+test_secsolve_on_pol (test_pol * pol)
+{
+  return test_secsolve_on_pol_impl (pol, MPS_OUTPUT_GOAL_ISOLATE) &&
+    test_secsolve_on_pol_impl (pol, MPS_OUTPUT_GOAL_APPROXIMATE);
+}
+
 START_TEST (test_secsolve)
 {
   test_secsolve_on_pol (test_polynomials[_i]);
 }
-
 END_TEST
+
 START_TEST (test_secsolve_altern)
 {
   /* Start with testing floating point without ga */

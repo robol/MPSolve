@@ -19,7 +19,7 @@
 test_pol **test_polynomials;
 
 int
-test_unisolve_on_pol (test_pol * pol)
+test_unisolve_on_pol_impl (test_pol * pol, mps_output_goal goal)
 {
   mpc_t root, ctmp;
   mps_boolean passed = true;
@@ -58,7 +58,7 @@ test_unisolve_on_pol (test_pol * pol)
   fprintf (stderr, "Checking \033[1m%-30s\033[0m [\033[34;1mchecking\033[0m]", 
            get_pol_name_from_path (pol->pol_file));
 
-  mps_context_set_output_goal (s, MPS_OUTPUT_GOAL_ISOLATE);
+  mps_context_set_output_goal (s, goal);
   mps_context_set_output_prec (s, pol->out_digits);
 
   /* Solve it */
@@ -127,7 +127,7 @@ test_unisolve_on_pol (test_pol * pol)
       
       mpc_get_cdpe (cdtmp, mroot[found_root]);
       cdpe_mod (rtmp, cdtmp);
-      rdpe_mul_eq (rtmp, eps);
+      rdpe_mul (exp_drad, rtmp, eps);
 
       if ((!rdpe_le (min_dist, drad[found_root]) && !rdpe_gt (drad[found_root], exp_drad)) && !mps_context_get_over_max (s))
         {
@@ -182,6 +182,13 @@ test_unisolve_on_pol (test_pol * pol)
                  "Computed results are not exact to the required precision");    
 
   return passed;
+}
+
+int
+test_unisolve_on_pol (test_pol * pol)
+{
+  return test_unisolve_on_pol_impl (pol, MPS_OUTPUT_GOAL_ISOLATE) &&
+    test_unisolve_on_pol_impl (pol, MPS_OUTPUT_GOAL_APPROXIMATE);
 }
 
 
