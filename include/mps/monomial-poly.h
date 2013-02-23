@@ -179,6 +179,8 @@ extern "C"
   void mps_monomial_poly_get_leading_coefficient (mps_context * ctx, mps_polynomial * p,
                                                   mpc_t leading_coefficient);
 
+  void mps_monomial_poly_deflate (mps_context * ctx, mps_polynomial * p);
+
 
 #ifdef  __cplusplus
 }

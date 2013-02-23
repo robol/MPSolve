@@ -103,6 +103,17 @@ PolynomialSolver::workerExited()
         roots.append(r);
     }
 
+    for (int i = 0; i < mps_context_get_zero_roots (m_mpsContext); i++)
+    {
+        Root * r = new Root();
+
+        mpc_init2 (r->value, 0);
+        mpc_set_ui (r->value, 0U, 0U);
+        rdpe_set (r->radius, rdpe_zero);
+
+        roots.append(r);
+    }
+
     mpc_vclear (results, n);
     delete [] results;
     delete [] radii;
