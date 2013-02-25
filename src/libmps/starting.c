@@ -1436,6 +1436,7 @@ mps_cluster_check_detachment (mps_context * ctx, mps_clusterization * clusteriza
   mpc_init2 (distance, ctx->mpwp);
 
   mps_msrad (ctx, cluster, center, radius);
+  rdpe_mul_eq_d (radius, 2.0 * ctx->n);
 
   for (item = clusterization->first; item != NULL; item = item->next)
     {
