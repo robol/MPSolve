@@ -371,9 +371,6 @@ mps_mnewton (mps_context * s, mps_polynomial * poly,
         }
     }
 
-    MPS_DEBUG_MPC (s, 10, p, "p");
-    MPS_DEBUG_MPC (s, 10, p1, "p1");
-
   /* common part */
   if (!mpc_eq_zero (p))
     if (mpc_eq_zero (p1))

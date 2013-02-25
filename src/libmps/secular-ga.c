@@ -222,7 +222,7 @@ mps_secular_ga_mpsolve (mps_context * s)
       else
         mps_polynomial_dstart (s, p);
 
-      /* Check if we can manage to perform the recomputatio of the
+      /* Check if we can manage to perform the recomputation of the
        * coefficients. If in floating point, switch do DPE if it fail.
        */
       if (!mps_secular_ga_regenerate_coefficients (s))
