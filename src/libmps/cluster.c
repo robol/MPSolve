@@ -964,6 +964,12 @@ mps_clusterization_detach_clusters (mps_context * s, mps_clusterization * c)
 {
   MPS_DEBUG_THIS_CALL;
 
+  /* Disable this function since it is not working as it should. */
+  /* The problem, now, is that more than a root could be removed from
+   * a cluster and will be then marked as isolated even if it is only isolated
+   * from the base cluster and from the other detached roots. */
+  return;
+
   mps_cluster_item * item;
   rdpe_t rtmp;
   int k;
