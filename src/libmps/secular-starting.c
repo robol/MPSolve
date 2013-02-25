@@ -28,9 +28,7 @@ mps_secular_fstart (mps_context * s, mps_secular_equation * sec)
     {
       if (!MPS_ROOT_STATUS_IS_COMPUTED (s, i))
         {
-          cplx_set_d (s->root[i]->fvalue, cos (i * n) * DBL_EPSILON * 4.0 * cplx_mod (sec->bfpc[i]),
-            sin (i * n) * DBL_EPSILON * 4.0 * cplx_mod (sec->bfpc[i]));
-          cplx_add_eq (s->root[i]->fvalue, sec->bfpc[i]);
+          cplx_set (s->root[i]->fvalue, sec->bfpc[i]);
           if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
             MPS_DEBUG_CPLX (s, s->root[i]->fvalue, "s->froot[%d]", i);
         }
