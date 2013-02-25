@@ -456,32 +456,6 @@ mps_check_data (mps_context * s, char *which_case)
       while (rdpe_eq (p->dap[s->n], rdpe_zero));
     }
 
-  /* count number of zero roots (undeflated input polynomial) */
-  s->zero_roots = 0;
-  while (rdpe_eq (p->dap[s->zero_roots], rdpe_zero))
-    (s->zero_roots)++;
-  /* shift down input vectors */
-  if (s->zero_roots)
-    {
-      for (i = 0; i <= s->n - s->zero_roots; i++)
-        {
-          rdpe_set (p->dap[i], p->dap[i + s->zero_roots]);
-          p->fap[i] = p->fap[i + s->zero_roots];
-          p->fpr[i] = p->fpr[i + s->zero_roots];
-          cplx_set (p->fpc[i], p->fpc[i + s->zero_roots]);
-          rdpe_set (p->dpr[i], p->dpr[i + s->zero_roots]);
-          cdpe_set (p->dpc[i], p->dpc[i + s->zero_roots]);
-          mpf_set (p->mfpr[i], p->mfpr[i + s->zero_roots]);
-          mpc_set (p->mfpc[i], p->mfpc[i + s->zero_roots]);
-          if (i < s->n - s->zero_roots)
-            mpc_set (p->mfppc[i], p->mfppc[i + s->zero_roots]);
-          mpq_set (p->initial_mqp_r[i], p->initial_mqp_r[i + s->zero_roots]);
-          mpq_set (p->initial_mqp_i[i], p->initial_mqp_i[i + s->zero_roots]);
-          p->spar[i] = p->spar[i + s->zero_roots];
-        }
-      s->n = s->n - s->zero_roots;
-    }
-
   /* Compute min_coeff */
   if (rdpe_lt (p->dap[0], p->dap[s->n]))
     rdpe_set (min_coeff, p->dap[0]);

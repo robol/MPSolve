@@ -575,3 +575,37 @@ mps_monomial_poly_get_leading_coefficient (mps_context * ctx, mps_polynomial * p
 {
   mpc_set (leading_coefficient, MPS_MONOMIAL_POLY (p)->mfpc[p->degree]);
 }
+
+void mps_monomial_poly_deflate (mps_context * ctx, mps_polynomial * poly)
+{
+  int i;
+  mps_monomial_poly * p = MPS_MONOMIAL_POLY (poly);
+
+  /* count number of zero roots (undeflated input polynomial) */
+  int zero_roots = 0;
+  while (rdpe_eq (p->dap[zero_roots], rdpe_zero))
+    zero_roots++;
+
+  /* shift down input vectors */
+  if (zero_roots)
+    {
+      for (i = 0; i <= poly->degree - zero_roots; i++)
+        {
+          rdpe_set (p->dap[i], p->dap[i + zero_roots]);
+          p->fap[i] = p->fap[i + zero_roots];
+          p->fpr[i] = p->fpr[i + zero_roots];
+          cplx_set (p->fpc[i], p->fpc[i + zero_roots]);
+          rdpe_set (p->dpr[i], p->dpr[i + zero_roots]);
+          cdpe_set (p->dpc[i], p->dpc[i + zero_roots]);
+          mpf_set (p->mfpr[i], p->mfpr[i + zero_roots]);
+          mpc_set (p->mfpc[i], p->mfpc[i + zero_roots]);
+          if (i < poly->degree - zero_roots)
+            mpc_set (p->mfppc[i], p->mfppc[i + zero_roots]);
+          mpq_set (p->initial_mqp_r[i], p->initial_mqp_r[i + zero_roots]);
+          mpq_set (p->initial_mqp_i[i], p->initial_mqp_i[i + zero_roots]);
+          p->spar[i] = p->spar[i + zero_roots];
+        }
+    }
+
+  poly->degree -= zero_roots;
+}

@@ -155,12 +155,18 @@ mps_context_set_input_poly (mps_context * s, mps_polynomial * p)
   
   int i;
   s->active_poly = p;
+  s->n = p->degree;
 
   /* Set the density or sparsity of the polynomial, if it's not
    * a user polynomial */
   if (MPS_IS_MONOMIAL_POLY (p))
     {
       mps_monomial_poly *mp = MPS_MONOMIAL_POLY (p);
+
+      /* Deflate the polynomial if necessary */
+      mps_monomial_poly_deflate (s, p);
+      s->zero_roots = s->n - p->degree;
+      s->n = p->degree;
 
       /* Check if the input polynomial is sparse or not. We can simply check if
        * the again vector is all of true values */
