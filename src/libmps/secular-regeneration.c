@@ -311,6 +311,7 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
                   success = false;
                   goto monomial_regenerate_exit;
                 }
+
               if (s->lastphase != mp_phase)
                 cdpe_mul_eq (cprod_b, cdiff);
               else
