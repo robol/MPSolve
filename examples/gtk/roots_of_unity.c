@@ -15,14 +15,33 @@
 #include <gtk/gtk.h>
 #include <cairo/cairo.h>
 
+#ifndef gtk_widget_get_allocated_width
+#define gtk_widget_get_allocated_width(widget) (widget->allocation.width)
+#endif
+
+#ifndef gtk_widget_get_allocated_height
+#define gtk_widget_get_allocated_height(widget) (widget->allocation.height)
+#endif
+
 cplx_t * points = NULL;
 
 int degree = 0;
 
 GtkWidget * drawing_area = NULL;
 
+void on_drawing_area_draw (GtkWidget* , cairo_t*);
+
+#if GTK_MAJOR_VERSION < 3
 void
-on_drawing_area_draw (GtkWidget * widget, 
+on_expose_event (GtkWidget * widget, GdkEvent * event)
+{
+  cairo_t * cr = gdk_cairo_create (widget->window);
+  on_drawing_area_draw (widget, cr);
+}
+#endif
+
+void
+on_drawing_area_draw (GtkWidget * widget,
                       cairo_t * cr)
 {
   int width, height;
@@ -135,13 +154,22 @@ main (int argc, char *argv[])
   GtkWidget * spin_button = gtk_spin_button_new_with_range (1.0, 10000.0, 1.0);
   GtkWidget * degree_label = gtk_label_new ("Degree:");
   GtkWidget * solve_button = gtk_button_new_with_label ("Solve");
+
+#if GTK_MAJOR_VERSION < 3
+  GtkWidget * degree_box = gtk_hbox_new (FALSE, 0);
+#else
   GtkWidget * degree_box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+#endif
 
   gtk_box_pack_start (GTK_BOX (degree_box), GTK_WIDGET (degree_label), false, true, 6);
   gtk_box_pack_start (GTK_BOX (degree_box), GTK_WIDGET (spin_button), true, true, 6);
   gtk_box_pack_start (GTK_BOX (degree_box), solve_button, false, true, 6);
 
+#if GTK_MAJOR_VERSION < 3
+  GtkWidget * main_box = gtk_vbox_new (FALSE, 6);
+#else
   GtkWidget * main_box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 6);
+#endif
   gtk_box_pack_start (GTK_BOX (main_box), GTK_WIDGET (degree_box), false, true, 6);
   gtk_box_pack_start (GTK_BOX (main_box), GTK_WIDGET (drawing_area), true, true, 0);
 
@@ -154,7 +182,12 @@ main (int argc, char *argv[])
   /* Connecting standard callbacks and the one to handle polynomial solving */
   g_signal_connect (window, "destroy", gtk_main_quit, NULL);
   g_signal_connect (solve_button, "clicked", G_CALLBACK (on_solve_button_clicked), spin_button);
+
+#if GTK_MAJOR_VERSION < 3
+  g_signal_connect (drawing_area, "expose-event", G_CALLBACK (on_expose_event), NULL);
+#else
   g_signal_connect (drawing_area, "draw", G_CALLBACK (on_drawing_area_draw), NULL);
+#endif
 
   gtk_main ();
 
