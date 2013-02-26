@@ -15,12 +15,16 @@
 #include <gtk/gtk.h>
 #include <cairo/cairo.h>
 
+#if GTK_MAJOR_VERSION < 3
+
 #ifndef gtk_widget_get_allocated_width
 #define gtk_widget_get_allocated_width(widget) (widget->allocation.width)
 #endif
 
 #ifndef gtk_widget_get_allocated_height
 #define gtk_widget_get_allocated_height(widget) (widget->allocation.height)
+#endif
+
 #endif
 
 cplx_t * points = NULL;
