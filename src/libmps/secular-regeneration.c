@@ -473,7 +473,7 @@ mps_secular_ga_regenerate_coefficients_mp (mps_context * s, cdpe_t * old_b, mpc_
   success = mps_secular_ga_regenerate_coefficients_monomial (s, old_b, old_mb, root_changed);
 
   if (!success)
-      MPS_DEBUG (s, "Regeneration of the coefficients failed");
+    MPS_DEBUG (s, "Regeneration of the coefficients failed");
 
   mps_boolean_vfree (root_changed);
 
@@ -673,7 +673,7 @@ mps_secular_ga_regenerate_coefficients (mps_context * s)
       mps_secular_ga_update_coefficients (s);
 
       /* Regeneration */
-      if (mps_secular_ga_regenerate_coefficients_mp (s, old_db, old_mb))
+      if ((successful_regeneration = mps_secular_ga_regenerate_coefficients_mp (s, old_db, old_mb)))
         {
           mps_secular_ga_update_coefficients (s);
           /* Finally set radius according to new computed a_i coefficients,
