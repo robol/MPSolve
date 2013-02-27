@@ -188,6 +188,7 @@ mps_secular_ga_mpsolve (mps_context * s)
    * coefficients */
   if (!MPS_IS_SECULAR_EQUATION (s->active_poly))
     {
+      mps_boolean excep;
       mps_polynomial *p = s->active_poly;
 
       for (i = 0; i < s->n; i++)
@@ -215,12 +216,32 @@ mps_secular_ga_mpsolve (mps_context * s)
       else
         s->lastphase = s->input_config->starting_phase;
 
-      MPS_DEBUG_WITH_INFO (s, "Computing starting points");
+      MPS_DEBUG_WITH_INFO (s, "Computing starting points and performing first Aberth packet");
 
-      if (s->lastphase == float_phase)
-        mps_polynomial_fstart (s, p);
-      else
-        mps_polynomial_dstart (s, p);
+      /* Perform a packet of Aberth iterations */
+      excep = false;
+      switch (s->lastphase)
+      {
+        case float_phase:
+          mps_polynomial_fstart (s, p);
+          mps_fsolve (s, &excep);
+
+          if (!excep)
+            break;
+
+        case dpe_phase:
+          if (!excep)
+            mps_polynomial_dstart (s, p);
+          mps_dsolve (s, excep);
+          break;
+
+        default:
+          mps_error (s, 1, "Unrecognized starting phase");
+          return;
+      }
+
+      if (mps_secular_ga_check_stop (s))
+        goto cleanup;
 
       /* Check if we can manage to perform the recomputation of the
        * coefficients. If in floating point, switch do DPE if it fail.
@@ -292,9 +313,6 @@ mps_secular_ga_mpsolve (mps_context * s)
           break;
         }
     }
-
-  /* Set initial radius */
-  mps_secular_set_radii (s);
 
   for (i = 0; i < s->n; i++)
     {
@@ -429,6 +447,8 @@ mps_secular_ga_mpsolve (mps_context * s)
          }
     }
   while (skip_check_stop || !mps_secular_ga_check_stop (s));
+
+  cleanup:
 
   mps_copy_roots (s);
 
