@@ -153,10 +153,21 @@ mps_iteration_logger_on_drawing_area_draw (GtkWidget * widget,
 
       for (i = 0; i < degree; i++)
         {
-          x =  (cplx_Re (logger->ctx->root[i]->fvalue) - logger->real_center) *
-               (0.5 / logger->x_scale * width - PADDING) + width / 2;
-          y =  -(cplx_Im (logger->ctx->root[i]->fvalue) - logger->imag_center) * 
-               (0.5 / logger->y_scale * height - PADDING) + height / 2;
+          switch (logger->ctx->lastphase)
+          {
+            case mp_phase:
+              mpc_get_cplx (logger->ctx->root[i]->fvalue, logger->ctx->root[i]->mvalue);
+
+            case dpe_phase:
+              cdpe_get_x (logger->ctx->root[i]->fvalue, logger->ctx->root[i]->dvalue);
+
+            default:
+              x =  (cplx_Re (logger->ctx->root[i]->fvalue) - logger->real_center) *
+                   (0.5 / logger->x_scale * width - PADDING) + width / 2;
+              y =  -(cplx_Im (logger->ctx->root[i]->fvalue) - logger->imag_center) * 
+                   (0.5 / logger->y_scale * height - PADDING) + height / 2;
+              break;
+          }
           cairo_arc (cr, x, y, 1.3, 0, 6.29);
           cairo_fill (cr);
         }
