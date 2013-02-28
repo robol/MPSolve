@@ -222,8 +222,8 @@ mps_iteration_logger_on_da_button_press (GtkWidget *widget, GdkEventButton * eve
   int width = gtk_widget_get_allocated_width (widget);
   int height = gtk_widget_get_allocated_height (widget);
 
-#define HOR_COORDS_TO_POINTS(x) ((x * 2.0 / width) - 1.0)
-#define VER_COORDS_TO_POINTS(y) ((-y * 2.0 / height) + 1.0)
+#define HOR_COORDS_TO_POINTS(x) (((x * 2.0 / width) - 1.0) * logger->x_scale + logger->real_center)
+#define VER_COORDS_TO_POINTS(y) (((-y * 2.0 / height) + 1.0) * logger->y_scale + logger->imag_center)
 
   if (!logger->zooming)
     {
@@ -235,8 +235,8 @@ mps_iteration_logger_on_da_button_press (GtkWidget *widget, GdkEventButton * eve
     {
       logger->zooming = FALSE;
 
-      logger->real_center = HOR_COORDS_TO_POINTS ((event->x + logger->zoom_rect_x) / 2);
-      logger->imag_center = VER_COORDS_TO_POINTS ((event->y + logger->zoom_rect_y) / 2);
+      logger->real_center = (HOR_COORDS_TO_POINTS (event->x) + HOR_COORDS_TO_POINTS(logger->zoom_rect_x)) / 2;
+      logger->imag_center = (VER_COORDS_TO_POINTS (event->y) + VER_COORDS_TO_POINTS (logger->zoom_rect_y)) / 2;
 
       logger->x_scale *= (fabs (1.0 * event->x - logger->zoom_rect_x) / width);
       logger->y_scale *= (fabs (1.0 * event->y - logger->zoom_rect_y) / height);
