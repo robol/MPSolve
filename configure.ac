@@ -162,6 +162,10 @@ AS_IF([test x$build_examples == xyes], [
 	AC_SUBST([GTK_LIBS])
 	AC_SUBST([GTK_FOUND])
 	AC_SUBST([ROOTS_OF_UNITY_PROGRAMS])
+
+	AS_IF([test x$GTK_CFLAGS == x], [], [
+		AC_DEFINE([HAVE_GTK], 1, [Defined if GTK is available])
+	])
 ])
 
 # Search qmake and Qt related things, so we can build

@@ -226,7 +226,7 @@ mps_secular_ga_mpsolve (mps_context * s)
           mps_polynomial_fstart (s, p);
           mps_fsolve (s, &excep);
 
-          if (!excep)
+          if (!excep || true)
             break;
 
         case dpe_phase:
@@ -239,6 +239,8 @@ mps_secular_ga_mpsolve (mps_context * s)
           mps_error (s, 1, "Unrecognized starting phase");
           return;
       }
+
+      mps_dump (s);
 
       if (mps_secular_ga_check_stop (s))
         goto cleanup;
@@ -317,6 +319,7 @@ mps_secular_ga_mpsolve (mps_context * s)
   for (i = 0; i < s->n; i++)
     {
       s->root[i]->again = true;
+      s->root[i]->approximated = false;
     }
 
   /* Cycle until approximated */

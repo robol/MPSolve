@@ -443,6 +443,10 @@ typedef int mps_debug_level;
       MPS_REPRESENTATION_CHEBYSHEV
     };
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 /* Local include files that should not be included directly */
 #include <mps/options.h>
 #include <mps/cluster.h>
