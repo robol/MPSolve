@@ -163,7 +163,7 @@ AS_IF([test x$build_examples == xyes], [
 	AC_SUBST([GTK_FOUND])
 	AC_SUBST([ROOTS_OF_UNITY_PROGRAMS])
 
-	AS_IF([test x$GTK_CFLAGS == x], [], [
+	AS_IF([test "$GTK_CFLAGS" == ""], [], [
 		AC_DEFINE([HAVE_GTK], 1, [Defined if GTK is available])
 	])
 ])

@@ -36,8 +36,17 @@ struct _MpsIterationLogger {
         GtkWidget * drawing_area;
         mps_context * ctx;
         
-        double x_scale;
-        double y_scale;
+        /* Scale of the plot */
+        gdouble x_scale;
+        gdouble y_scale;
+
+        /* Handling of the zomming process */
+        gboolean zooming;
+        gint     zoom_rect_x;
+        gint     zoom_rect_y;
+
+        gdouble real_center;
+        gdouble imag_center;
 
         gboolean exit;
 };

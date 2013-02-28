@@ -25,10 +25,10 @@
 #include <config.h>
 #endif
 
- #ifdef HAVE_GTK
+#ifdef HAVE_GTK
  #include <gtk/gtk.h>
  #include <iteration-logger.h>
- #endif
+#endif
 
 mps_context * s = NULL;
 
