@@ -217,7 +217,7 @@ mps_secular_fnewton (mps_context * s, mps_polynomial * p, mps_approximation * ro
         MPS_DEBUG (s, "Setting again to false on root for root neighbourhood");
       root->again = false;
     }
-  else if (acorr < MPS_SQRT2 * ax * DBL_EPSILON)
+  else if (acorr < MPS_SQRT2 * ax * DBL_EPSILON * KAPPA)
     {
       if (s->debug_level & MPS_DEBUG_PACKETS)
         MPS_DEBUG (s, "Setting approximated to true on root for small Newton correction");

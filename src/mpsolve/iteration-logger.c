@@ -101,6 +101,34 @@ get_pointer_position (GtkWidget *widget,
 #define get_pointer_position(text_view,x,y) gtk_widget_get_pointer(text_view, x, y)
 #endif
 
+static gdouble
+mps_iteration_logger_x_coords_to_points (MpsIterationLogger * logger, gdouble x)
+{
+  int width = gtk_widget_get_allocated_width (logger->drawing_area);
+  return ((x * 2.0 / width) - 1.0) * logger->x_scale + logger->real_center;
+}
+
+static gdouble
+mps_iteration_logger_y_coords_to_points (MpsIterationLogger * logger, gdouble y)
+{
+  int height = gtk_widget_get_allocated_height (logger->drawing_area);
+  return 2.0 * (-y + height / 2) / height * logger->y_scale + logger->imag_center;
+}
+
+static gdouble
+mps_iteration_logger_x_points_to_coords (MpsIterationLogger * logger, gdouble x)
+{
+  int width = gtk_widget_get_allocated_width (logger->drawing_area);
+  return (x - logger->real_center) * (0.5 / logger->x_scale * width) + width / 2;
+}
+
+static gdouble
+mps_iteration_logger_y_points_to_coords (MpsIterationLogger * logger, gdouble y)
+{
+  int height = gtk_widget_get_allocated_height (logger->drawing_area);
+  return -(y - logger->imag_center) * (0.5 / logger->y_scale * height) + height / 2;
+}
+
 static void
 mps_iteration_logger_on_drawing_area_draw (GtkWidget * widget,
                                            cairo_t * cr, MpsIterationLogger * logger)
@@ -146,11 +174,6 @@ mps_iteration_logger_on_drawing_area_draw (GtkWidget * widget,
       double x, y;
       cairo_set_source_rgb (cr, 0.9, 0.1, 0.1);
 
-#define PADDING (24)
-      /* Check if we can draw in here. */
-      if (width < 2 * PADDING || height < 2 * PADDING)
-        return;
-
       for (i = 0; i < degree; i++)
         {
           switch (logger->ctx->lastphase)
@@ -162,16 +185,15 @@ mps_iteration_logger_on_drawing_area_draw (GtkWidget * widget,
               cdpe_get_x (logger->ctx->root[i]->fvalue, logger->ctx->root[i]->dvalue);
 
             default:
-              x =  (cplx_Re (logger->ctx->root[i]->fvalue) - logger->real_center) *
-                   (0.5 / logger->x_scale * width - PADDING) + width / 2;
-              y =  -(cplx_Im (logger->ctx->root[i]->fvalue) - logger->imag_center) * 
-                   (0.5 / logger->y_scale * height - PADDING) + height / 2;
+              x = mps_iteration_logger_x_points_to_coords (logger, 
+                cplx_Re (logger->ctx->root[i]->fvalue));
+              y = mps_iteration_logger_y_points_to_coords (logger, 
+                cplx_Im (logger->ctx->root[i]->fvalue));
               break;
           }
           cairo_arc (cr, x, y, 1.3, 0, 6.29);
           cairo_fill (cr);
         }
-#undef PADDING
 
       if (logger->zooming)
         {
@@ -233,9 +255,6 @@ mps_iteration_logger_on_da_button_press (GtkWidget *widget, GdkEventButton * eve
   int width = gtk_widget_get_allocated_width (widget);
   int height = gtk_widget_get_allocated_height (widget);
 
-#define HOR_COORDS_TO_POINTS(x) (((x * 2.0 / width) - 1.0) * logger->x_scale + logger->real_center)
-#define VER_COORDS_TO_POINTS(y) (((-y * 2.0 / height) + 1.0) * logger->y_scale + logger->imag_center)
-
   if (!logger->zooming)
     {
       logger->zooming = true;
@@ -246,8 +265,10 @@ mps_iteration_logger_on_da_button_press (GtkWidget *widget, GdkEventButton * eve
     {
       logger->zooming = FALSE;
 
-      logger->real_center = (HOR_COORDS_TO_POINTS (event->x) + HOR_COORDS_TO_POINTS(logger->zoom_rect_x)) / 2;
-      logger->imag_center = (VER_COORDS_TO_POINTS (event->y) + VER_COORDS_TO_POINTS (logger->zoom_rect_y)) / 2;
+      logger->real_center = (mps_iteration_logger_x_coords_to_points (logger, event->x) +
+        mps_iteration_logger_x_coords_to_points (logger, logger->zoom_rect_x)) / 2;
+      logger->imag_center = (mps_iteration_logger_y_coords_to_points (logger, event->y) + 
+        mps_iteration_logger_y_coords_to_points (logger, logger->zoom_rect_y)) / 2;
 
       logger->x_scale *= (fabs (1.0 * event->x - logger->zoom_rect_x) / width);
       logger->y_scale *= (fabs (1.0 * event->y - logger->zoom_rect_y) / height);
