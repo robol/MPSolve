@@ -235,10 +235,6 @@ main (int argc, char **argv)
 
   mps_boolean graphic_debug = false;
 
-#ifdef HAVE_GTK
-    gtk_init (&argc, &argv);
-#endif  
-
   opt = NULL;
   while ((mps_getopts (&opt, &argc, &argv, "a:G:D:d::xt:o:O:j:S:O:i:vl:")))
     {
@@ -533,6 +529,7 @@ main (int argc, char **argv)
 #ifdef HAVE_GTK
   if (graphic_debug)
   {
+    gtk_init (&argc, &argv);
     logger = mps_iteration_logger_new ();
     mps_iteration_logger_set_mps_context (logger, s);
 
