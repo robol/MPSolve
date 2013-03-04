@@ -224,15 +224,17 @@ mps_secular_ga_mpsolve (mps_context * s)
       {
         case float_phase:
           mps_polynomial_fstart (s, p);
-          mps_fsolve (s, &excep);
+          if (p->fnewton)
+            mps_fsolve (s, &excep);
 
-          if (!excep || true)
+          if (!excep)
             break;
 
         case dpe_phase:
           if (!excep)
             mps_polynomial_dstart (s, p);
-          mps_dsolve (s, excep);
+          if (p->dnewton)
+            mps_dsolve (s, excep);
           break;
 
         default:
@@ -413,6 +415,8 @@ mps_secular_ga_mpsolve (mps_context * s)
        * this precision has been reached. In that case increase the precision
        * of the computation. */
        s->just_raised_precision = false;
+
+       MPS_DEBUG (s, "Packet = %d", packet);
 
        /* Check if all the roots are approximated or, if we have done more than 4 packets
         * of iterations without finding all of them, if at least we are near to the result. */

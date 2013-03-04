@@ -251,6 +251,7 @@ mps_free_data (mps_context * s)
     {
       mpc_vclear (s->bmpc, s->n * s->pool->n);
       free (s->bmpc);
+      s->bmpc = NULL;
     }
 
   mps_clusterization_free (s, s->clusterization);

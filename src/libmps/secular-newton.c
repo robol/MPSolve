@@ -16,7 +16,7 @@
 #include <math.h>
 
 #define MPS_2SQRT2 2.82842712474619009760
-#define KAPPA_LOG (MPS_POLYNOMIAL (sec)->degree * log2(MPS_POLYNOMIAL (sec)->degree) + 7 * 1.4151135 + 1)
+#define KAPPA_LOG (log2(MPS_POLYNOMIAL (sec)->degree) + 7 * 1.4151135 + 1)
 #define KAPPA (MPS_POLYNOMIAL (sec)->degree + 7 * 1.4142135623)
 #define MPS_SQRT2 1.4142135623
 
@@ -203,7 +203,7 @@ mps_secular_fnewton (mps_context * s, mps_polynomial * p, mps_approximation * ro
   cplx_mul (corr, pol, sumb);
   cplx_add_eq (corr, fp);
   if (cplx_eq_zero (corr))
-      cplx_set (corr, pol);
+    cplx_set (corr, pol);
   else
     cplx_div (corr, pol, corr);
 

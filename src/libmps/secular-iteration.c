@@ -180,7 +180,9 @@ mps_secular_ga_fiterate (mps_context * s, int maxit, mps_boolean just_regenerate
               MPS_DEBUG_WITH_INFO (s, "Setting again[%d] to false since the root is ready for output (or isolated)", i);
             }
           s->root[i]->again = false;
-          s->root[i]->approximated = true;
+
+          if (s->root[i]->status == MPS_ROOT_STATUS_APPROXIMATED)
+            s->root[i]->approximated = true;
         }
 
       if (!s->root[i]->again || s->root[i]->approximated)

@@ -29,30 +29,30 @@ typedef struct _MpsIterationLogger              MpsIterationLogger;
 typedef struct _MpsIterationLoggerClass         MpsIterationLoggerClass;
 
 struct _MpsIterationLogger {
-        GObject parent_instance;
+        GtkWindow parent_instance;
 
         /* <private declarations>*/
-        GtkWidget * window;
         GtkWidget * drawing_area;
+        guint timeout_source;
         mps_context * ctx;
         
         /* Scale of the plot */
-        gdouble x_scale;
-        gdouble y_scale;
+        double x_scale;
+        double y_scale;
 
         /* Handling of the zomming process */
         gboolean zooming;
         gint     zoom_rect_x;
         gint     zoom_rect_y;
 
-        gdouble real_center;
-        gdouble imag_center;
+        double real_center;
+        double imag_center;
 
         gboolean exit;
 };
 
 struct _MpsIterationLoggerClass {
-        GObjectClass parent_class;
+        GtkWindowClass parent_class;
 };
 
 GType mps_iteration_logger_get_type (void);

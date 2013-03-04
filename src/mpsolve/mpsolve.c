@@ -28,6 +28,9 @@
 #ifdef HAVE_GTK
  #include <gtk/gtk.h>
  #include <iteration-logger.h>
+
+MpsIterationLogger * logger = NULL;
+static mps_boolean logger_closed = false;
 #endif
 
 mps_context * s = NULL;
@@ -177,8 +180,6 @@ usage (mps_context * s, const char *program)
 void*
 cleanup_context (mps_context * ctx, void * user_data)
 {
-  mps_boolean * graphic_debug = (mps_boolean*) user_data;
-
   /* Check for errors */
   if (mps_context_has_errors (ctx))
     {
@@ -192,13 +193,26 @@ cleanup_context (mps_context * ctx, void * user_data)
   /* Free used data */
   mps_context_free (ctx);
 
-#if HAVE_GTK
-  if (*graphic_debug)
+#ifdef HAVE_GTK
+  if (logger_closed)
     gtk_main_quit ();
-#endif
+#endif  
+
+  s = NULL;
 
   return NULL;
 }
+
+#ifdef HAVE_GTK
+static void on_iteration_logger_destroy (MpsIterationLogger * logger, GdkEvent * event, gpointer user_data)
+{
+  gtk_widget_hide (GTK_WIDGET (logger));
+  logger_closed = true;
+
+  if (s == NULL)
+    gtk_main_quit ();
+}
+#endif
 
 int
 main (int argc, char **argv)
@@ -220,6 +234,10 @@ main (int argc, char **argv)
   mps_phase phase = no_phase;
 
   mps_boolean graphic_debug = false;
+
+#ifdef HAVE_GTK
+    gtk_init (&argc, &argv);
+#endif  
 
   opt = NULL;
   while ((mps_getopts (&opt, &argc, &argv, "a:G:D:d::xt:o:O:j:S:O:i:vl:")))
@@ -515,10 +533,13 @@ main (int argc, char **argv)
 #ifdef HAVE_GTK
   if (graphic_debug)
   {
-    gtk_init (&argc, &argv);
-    MpsIterationLogger * logger = mps_iteration_logger_new ();
+    logger = mps_iteration_logger_new ();
     mps_iteration_logger_set_mps_context (logger, s);
-    gtk_widget_show_all (GTK_WIDGET (logger->window));
+
+    g_signal_connect (GTK_WIDGET (logger), "delete_event", 
+       G_CALLBACK (on_iteration_logger_destroy), NULL);
+
+    gtk_widget_show_all (GTK_WIDGET (logger));
   }
 #endif
 
@@ -559,14 +580,14 @@ main (int argc, char **argv)
   #if HAVE_GTK
   if (graphic_debug)
   {
-    mps_mpsolve_async (s, cleanup_context, &graphic_debug);
+    mps_mpsolve_async (s, cleanup_context, NULL);
     gtk_main ();
   }
   else
   {
   #endif
     mps_mpsolve (s);
-    cleanup_context (s, &graphic_debug);
+    cleanup_context (s, NULL);
   #if HAVE_GTK
   }
   #endif
