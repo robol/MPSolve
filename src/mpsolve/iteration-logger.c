@@ -399,7 +399,7 @@ mps_iteration_logger_build_interface (MpsIterationLogger * logger)
     G_CALLBACK (mps_iteration_logger_on_da_button_press), logger);
 
 #if GTK_MAJOR_VERSION < 3
-  GtkWidget *box = gtk_hbox_new (FALSE, 6);
+  GtkWidget *box = gtk_vbox_new (FALSE, 6);
 #else
   GtkWidget *box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 6);
 #endif
