@@ -104,9 +104,6 @@ __mps_secular_ga_fiterate_worker (void* data_ptr)
 
               /* Correct the radius */
               modcorr = cplx_mod (abcorr);
-
-              // MPS_DEBUG (s, "Adding %e to radius (%e)", modcorr, s->root[i]->frad);
-              // MPS_DEBUG_CPLX (s, corr, "Newton correction");
               s->root[i]->frad += modcorr;
             }
 

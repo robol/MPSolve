@@ -590,7 +590,7 @@ void
 mps_chebyshev_poly_read_from_stream (mps_context * ctx, mps_input_buffer * buffer, 
   mps_structure structure, mps_density density)
 {
-  int i, degree;
+  int i, degree = -1;
   char * token;
   mps_chebyshev_poly * cpoly = mps_chebyshev_poly_new (ctx, ctx->n, structure);
 

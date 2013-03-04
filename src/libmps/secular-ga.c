@@ -186,7 +186,6 @@ mps_secular_ga_mpsolve (mps_context * s)
    * coefficients */
   if (!MPS_IS_SECULAR_EQUATION (s->active_poly))
     {
-      mps_boolean excep;
       mps_polynomial *p = s->active_poly;
 
       for (i = 0; i < s->n; i++)
@@ -228,10 +227,7 @@ mps_secular_ga_mpsolve (mps_context * s)
           break;
 
         case dpe_phase:
-          if (!excep)
-            mps_polynomial_dstart (s, p);
-          if (p->dnewton)
-            mps_dsolve (s, excep);
+          mps_polynomial_dstart (s, p);
           break;
 
         default:
