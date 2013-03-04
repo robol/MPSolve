@@ -29,7 +29,6 @@ include_HEADERS = \
 AM_CPPFLAGS= \
         -I${top_srcdir}/include \
 	$(MPS_CFLAGS) \
-	$(GTK_CFLAGS) \
 	$(NULL)
 
 libmps_la_SOURCES = \
@@ -82,5 +81,4 @@ libmps_la_SOURCES = \
 
 libmps_la_LIBADD = \
 	$(MPS_LDFLAGS) \
-	$(GTK_LIBS) \
 	$(NULL)
