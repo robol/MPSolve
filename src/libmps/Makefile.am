@@ -52,6 +52,7 @@ libmps_la_SOURCES = \
 	    inclusion.c \
 	    input-buffer.c \
 	    interface.c \
+	    jacobi-aberth.c \
 	    link.c \
 	    main.c \
 	    modify.c \

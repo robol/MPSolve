@@ -202,13 +202,6 @@ test_secsolve_on_pol_impl (test_pol * pol, mps_output_goal goal)
   return passed;
 }
 
-int
-test_secsolve_on_pol (test_pol * pol)
-{
-  return test_secsolve_on_pol_impl (pol, MPS_OUTPUT_GOAL_ISOLATE) &&
-    test_secsolve_on_pol_impl (pol, MPS_OUTPUT_GOAL_APPROXIMATE);
-}
-
 START_TEST (test_secsolve)
 {
   test_secsolve_on_pol (test_polynomials[_i]);

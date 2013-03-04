@@ -21,7 +21,7 @@ test_pol **test_polynomials;
 int test_unisolve_on_pol_impl (test_pol *, mps_output_goal);
 
 int
-test_unisolve_on_pol_impl (test_pol * pol, mps_output_goal goal)
+test_unisolve_on_pol (test_pol * pol)
 {
   return test_unisolve_on_pol_impl (pol, MPS_OUTPUT_GOAL_ISOLATE) &&
     test_unisolve_on_pol_impl (pol, MPS_OUTPUT_GOAL_APPROXIMATE);
@@ -192,14 +192,6 @@ test_unisolve_on_pol_impl (test_pol * pol, mps_output_goal goal)
 
   return passed;
 }
-
-int
-test_unisolve_on_pol (test_pol * pol)
-{
-  return test_unisolve_on_pol_impl (pol, MPS_OUTPUT_GOAL_ISOLATE) &&
-    test_unisolve_on_pol_impl (pol, MPS_OUTPUT_GOAL_APPROXIMATE);
-}
-
 
 START_TEST (test_unisolve)
 {

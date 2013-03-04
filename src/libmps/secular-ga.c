@@ -42,8 +42,6 @@ mps_secular_ga_update_coefficients (mps_context * s)
     }
 }
 
-
-
 /**
  * @brief Check if iterations can terminate, i.e. if newton 
  * isolation has been reached, if the target was approximate. 
@@ -219,16 +217,15 @@ mps_secular_ga_mpsolve (mps_context * s)
       MPS_DEBUG_WITH_INFO (s, "Computing starting points and performing first Aberth packet");
 
       /* Perform a packet of Aberth iterations */
-      excep = false;
       switch (s->lastphase)
       {
         case float_phase:
           mps_polynomial_fstart (s, p);
-          if (p->fnewton)
-            mps_fsolve (s, &excep);
 
-          if (!excep)
-            break;
+          if (p->fnewton)
+            mps_faberth_packet (s, p);
+
+          break;
 
         case dpe_phase:
           if (!excep)

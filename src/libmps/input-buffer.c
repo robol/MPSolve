@@ -139,6 +139,8 @@ mps_input_buffer_new (FILE * stream)
   int i;
   buf = (mps_input_buffer *) mps_malloc (sizeof (mps_input_buffer));
 
+  buf->last_token = NULL;
+
   /* Set initial values */
   buf->stream = stream;
   buf->line = NULL;
@@ -226,7 +228,9 @@ mps_input_buffer_readline (mps_input_buffer * buf)
    * so a new space is allocated in there, that will be
    * reused on the subsequent calls. */
   read_chars = getline (&buf->line, &length, buf->stream);
-  buf->last_token = buf->line;
+
+  if (read_chars > 0)
+    buf->last_token = buf->line;
 
   if (buf->line && read_chars > 0) 
     {
@@ -265,6 +269,9 @@ mps_input_buffer_next_token (mps_input_buffer * buf)
         return NULL;
     }
 
+  if (!buf->last_token)
+    return NULL;
+
   do {
     /* See if we have found the starting of the token, selecting 
     * things that are not spaces nor end NULL characters. */
@@ -281,6 +288,7 @@ mps_input_buffer_next_token (mps_input_buffer * buf)
     if (token)
       token_size++;
     buf->last_token++;
+
   } while ( ((token == NULL) || !isspace (*buf->last_token)) && 
             (*buf->last_token != '\0') );
 
