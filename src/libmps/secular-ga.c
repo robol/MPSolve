@@ -228,6 +228,9 @@ mps_secular_ga_mpsolve (mps_context * s)
 
         case dpe_phase:
           mps_polynomial_dstart (s, p);
+
+          if (p->dnewton)
+            mps_daberth_packet (s, p);
           break;
 
         default:
