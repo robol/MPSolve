@@ -135,6 +135,13 @@ struct mps_polynomial
   mps_density density;
 
   /**
+   * @brief This is true if the polynomial has thread-safe methods. Note that
+   * this is the default assumption set by mps_polynomial_init(). You should 
+   * overwrite after calling it if that's not the case.
+   */
+  mps_boolean thread_safe;
+
+  /**
    * @brief Method that evaluates the polynomial. 
    */
   mps_polynomial_feval_t feval;

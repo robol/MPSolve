@@ -35,6 +35,7 @@ void
 mps_polynomial_init (mps_context * ctx, mps_polynomial * p)
 {
   p->type_name = NULL;
+  p->thread_safe = true;
   p->prec = 0;
   p->feval = NULL;
   p->deval = NULL;

@@ -157,6 +157,9 @@ mps_context_set_input_poly (mps_context * s, mps_polynomial * p)
   s->active_poly = p;
   s->n = p->degree;
 
+  if (!p->thread_safe)
+    mps_thread_pool_set_concurrency_limit (s, s->pool, 1);
+
   /* Set the density or sparsity of the polynomial, if it's not
    * a user polynomial */
   if (MPS_IS_MONOMIAL_POLY (p))

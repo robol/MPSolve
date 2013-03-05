@@ -27,6 +27,9 @@
         MPS_POLYNOMIAL (poly)->degree = n;
         mps_polynomial_init (ctx, MPS_POLYNOMIAL (poly));
 
+        /* Our implementation is still not thread safe */
+        MPS_POLYNOMIAL (poly)->thread_safe = false;
+
         MPS_POLYNOMIAL (poly)->structure = structure;
 
         /* Chances are that these are not really needed. In this case we can 
