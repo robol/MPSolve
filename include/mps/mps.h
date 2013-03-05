@@ -508,6 +508,9 @@ typedef int mps_debug_level;
   /* functions in convex.c */
   void mps_fconvex (mps_context * s, int n, double a[]);
 
+  /* functions in cluster-analsys.c */
+  void mps_cluster_analysis (mps_context * ctx, mps_polynomial * p);
+
   /* functions in data.c */
   void mps_mp_set_prec (mps_context * s, long int prec);
   void mps_allocate_data (mps_context * s);
@@ -522,9 +525,9 @@ typedef int mps_debug_level;
 
   /* functions in jacobi-aberth.c */
   mps_boolean mps_fjacobi_aberth_step (mps_context * ctx, mps_polynomial * p);
-  void mps_faberth_packet (mps_context * ctx, mps_polynomial * p);
+  int mps_faberth_packet (mps_context * ctx, mps_polynomial * p);
   mps_boolean mps_djacobi_aberth_step (mps_context * ctx, mps_polynomial * p);
-  void mps_daberth_packet (mps_context * ctx, mps_polynomial * p);
+  int mps_daberth_packet (mps_context * ctx, mps_polynomial * p);
   
   /* functions in main.c */
   void mps_setup (mps_context * s);
@@ -546,9 +549,9 @@ typedef int mps_debug_level;
   int mps_intlog2 (int n);
 
   /* Functions in general-radius.c */
-  void mps_fradii (mps_context * s, double * fradii);
-  void mps_dradii (mps_context * s, rdpe_t * dradii);
-  void mps_mradii (mps_context * s, rdpe_t * dradii);
+  void mps_fradii (mps_context * s, mps_polynomial * p, double * fradii);
+  void mps_dradii (mps_context * s, mps_polynomial * p, rdpe_t * dradii);
+  void mps_mradii (mps_context * s, mps_polynomial * p, rdpe_t * dradii);
 
   /* Functions in monomial-radius.c */
   void mps_monomial_fradii (mps_context * s, double * fradii);

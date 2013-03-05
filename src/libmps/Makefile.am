@@ -33,10 +33,11 @@ AM_CPPFLAGS= \
 
 libmps_la_SOURCES = \
 	    aberth.c \
-        approximation.c \
-        chebyshev.c \
-        chebyshev-evaluation.c \
+	    approximation.c \
+	    chebyshev.c \
+	    chebyshev-evaluation.c \
 	    cluster.c \
+	    cluster-analysis.c \
 	    context.c \
 	    convex.c \
 	    data.c \

@@ -480,6 +480,155 @@ mps_secular_ga_regenerate_coefficients_mp (mps_context * s, cdpe_t * old_b, mpc_
   return success;
 }
 
+static int
+__mps_compare_approximations (const void * approximation1, const void * approximation2)
+{
+  mps_approximation * a1 = *((mps_approximation **) approximation1);
+  mps_approximation * a2 = *((mps_approximation **) approximation2);
+
+  long int wp = mpc_get_prec (a1->mvalue);
+
+  int return_value = 0;
+  mpc_t cmp;
+  cdpe_t ccmp;
+
+  mpc_init2 (cmp, wp);
+
+  mpc_sub (cmp, a1->mvalue, a2->mvalue);
+  mpc_get_cdpe (ccmp, cmp);
+
+  if (rdpe_eq_zero (cdpe_Re (ccmp))) 
+    return_value = rdpe_lt (cdpe_Im (ccmp), rdpe_zero);
+  else
+    return_value = rdpe_lt (cdpe_Re (ccmp), rdpe_zero);
+
+  mpc_clear (cmp);
+
+  return return_value;
+}
+
+static void
+mps_secular_ga_separate_approximations (mps_context * ctx)
+{
+  int i, cluster_base = -1;
+  mpc_t perturbation;
+  rdpe_t epsilon;
+
+  /* We need to permutate the approximations in a way that
+   * allow us to recognize the ones that are identical to the
+   * current working precision. */
+  mps_approximation ** current_approximations = mps_newv (mps_approximation*, ctx->n);
+
+  mpc_init2 (perturbation, ctx->mpwp);
+
+  if (ctx->lastphase == mp_phase)
+    rdpe_set (epsilon, ctx->mp_epsilon);
+  else
+    rdpe_set_d (epsilon, DBL_EPSILON);
+
+  for (i = 0; i < ctx->n; i++)
+  {
+    current_approximations[i] = ctx->root[i];
+    MPS_DEBUG_MPC (ctx, 15, current_approximations[i]->mvalue, "Root %d", i);
+  }
+
+  qsort (current_approximations, ctx->n, sizeof (mps_approximation*), 
+    __mps_compare_approximations);
+
+  for (i = 0; i < ctx->n; i++)
+  {
+    MPS_DEBUG_MPC (ctx, ctx->mpwp / LOG2_10 + 3, current_approximations[i]->mvalue,
+      "Approximation %d", i);
+  }
+
+  /* Check if we find a cluster of k equal approximations */
+  for (i = 0; i < ctx->n - 1; i++)
+    {
+      if (cluster_base >= 0)
+        {
+          mpc_sub (perturbation, current_approximations[i]->mvalue, 
+            current_approximations[i+1]->mvalue);
+
+          MPS_DEBUG (ctx, "i = %d", i);
+
+          /* If the next approximation is different start tracking the cluster. 
+           * Stop event if it is equal but it's the last one. In that case increase
+           * the value of i. */
+          if (!mpc_eq_zero (perturbation) || (i == ctx->n - 2))
+          {
+            if (i == ctx->n - 2)
+              i++;
+
+            int k = i - cluster_base + 1;
+            int j;
+
+            if (ctx->debug_level & MPS_DEBUG_REGENERATION)
+              {
+                MPS_DEBUG (ctx, "Found cluster of %d numerically equal roots: ", k);
+                for (j = 0; j < k; j++)
+                {
+                  MPS_DEBUG_MPC (ctx, ctx->mpwp / LOG2_10 + 3, 
+                    current_approximations[cluster_base + j]->mvalue, 
+                    "Root %d in the cluster", j);
+                }
+              }
+
+            for (j = 0; j < k; j++)
+              {
+                cdpe_t mod, e;
+                mpc_rmod (cdpe_Re (mod), current_approximations[cluster_base + j]->mvalue);
+
+                rdpe_set (cdpe_Im (mod), rdpe_zero);
+                rdpe_mul_eq (cdpe_Re (mod), epsilon);
+                rdpe_mul_eq_d (cdpe_Re (mod), 4.0);
+
+                rdpe_set_d (cdpe_Re (e), cos (1.0 * j / k * 2 * PI));
+                rdpe_set_d (cdpe_Im (e), sin (1.0 * j / k * 2 * PI));
+
+                MPS_DEBUG_CDPE (ctx, e, "e");
+
+                cdpe_mul_eq (mod, e);
+
+
+
+                mpc_set_cdpe (perturbation, mod);
+
+                if (ctx->debug_level & MPS_DEBUG_REGENERATION)
+                  {
+                    MPS_DEBUG (ctx, "Perturbing approximation since it is numerically equal to another one");
+                    MPS_DEBUG_MPC (ctx, ctx->mpwp / LOG2_10, 
+                      current_approximations[cluster_base + j]->mvalue, "Root before perturbation");
+                  }
+
+                mpc_add_eq (current_approximations[cluster_base + j]->mvalue, perturbation);
+
+                if (ctx->debug_level & MPS_DEBUG_REGENERATION)
+                  {
+                    MPS_DEBUG_MPC (ctx, ctx->mpwp / LOG2_10, 
+                      current_approximations[cluster_base + j]->mvalue, "Root after perturbation");
+                  }
+              }
+
+            cluster_base = -1;
+          }
+        }
+      else
+        {
+          mpc_sub (perturbation, current_approximations[i]->mvalue, 
+            current_approximations[i+1]->mvalue);
+
+          if (mpc_eq_zero (perturbation))
+          {
+            cluster_base = i;
+            if (ctx->debug_level & MPS_DEBUG_REGENERATION)
+              MPS_DEBUG (ctx, "Set cluster_base to %d", cluster_base);
+          }
+        }
+    }
+
+  mpc_clear (perturbation);
+}
+
 /**
  * @brief Regenerate \f$a_i\f$ and \f$b_i\f$ setting
  * \f$b_i = z_i\f$, i.e. the current root approximation
@@ -504,6 +653,30 @@ mps_secular_ga_regenerate_coefficients (mps_context * s)
   sec = (mps_secular_equation *) s->secular_equation;
 
   MPS_DEBUG_WITH_INFO (s, "Regenerating coefficients");
+
+  switch (s->lastphase)
+    {
+      case float_phase:
+        for (i = 0; i < s->n; i++)
+          {
+            mpc_set_prec (s->root[i]->mvalue, 64);
+            mpc_set_cplx (s->root[i]->mvalue, s->root[i]->fvalue);
+          }
+        break;
+
+      case dpe_phase:
+        for (i = 0; i < s->n; i++)
+          {
+            mpc_set_prec (s->root[i]->mvalue, 64);
+            mpc_set_cdpe (s->root[i]->mvalue, s->root[i]->dvalue);
+          }
+        break;
+
+      default:
+        break;
+    }
+
+  mps_secular_ga_separate_approximations (s);
 
   old_mb = mpc_valloc (s->n);
   for (i = 0; i < s->n; i++)
@@ -535,7 +708,7 @@ mps_secular_ga_regenerate_coefficients (mps_context * s)
           cplx_set (old_b[i], sec->bfpc[i]);
           cdpe_set_x (old_db[i], old_b[i]);
           mpc_set_cplx (old_mb[i], old_b[i]);
-          mpc_set_cplx (sec->bmpc[i], s->root[i]->fvalue);
+          mpc_set (sec->bmpc[i], s->root[i]->mvalue);
         }
 
       mps_secular_ga_update_coefficients (s);
@@ -606,9 +779,9 @@ mps_secular_ga_regenerate_coefficients (mps_context * s)
         {
           cdpe_set (old_da[i], sec->adpc[i]);
           cdpe_set (old_db[i], sec->bdpc[i]);
-          cdpe_set (sec->bdpc[i], s->root[i]->dvalue);
+          mpc_get_cdpe (sec->bdpc[i], s->root[i]->mvalue);
           mpc_set_cdpe (old_mb[i], old_db[i]);
-          mpc_set_cdpe (sec->bmpc[i], sec->bdpc[i]);
+          mpc_set (sec->bmpc[i], s->root[i]->mvalue);
         }
 
       mps_secular_ga_update_coefficients (s);

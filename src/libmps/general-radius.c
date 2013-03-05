@@ -22,13 +22,12 @@
  * @param fradii The array of double where the radii will be stored.
  */
 void
-mps_fradii (mps_context * s, double * fradii)
+mps_fradii (mps_context * s, mps_polynomial * p, double * fradii)
 {
   MPS_DEBUG_THIS_CALL;
 
   cplx_t pol;
   double new_rad, relative_error;
-  mps_polynomial *p = mps_context_get_active_poly (s);
   int i, j;
 
   if (!p->feval) 
@@ -95,13 +94,12 @@ mps_fradii (mps_context * s, double * fradii)
  * @param dradii The array of DPE where the radii will be stored.
  */
 void
-mps_dradii (mps_context * s, rdpe_t * dradii)
+mps_dradii (mps_context * s, mps_polynomial * p, rdpe_t * dradii)
 {
   MPS_DEBUG_THIS_CALL;
 
   cdpe_t pol;
   rdpe_t new_rad, relative_error, rtmp;
-  mps_polynomial * p = s->active_poly;
   int i, j;
 
   if (!p->deval) 
@@ -162,14 +160,13 @@ mps_dradii (mps_context * s, rdpe_t * dradii)
  * @param dradii The array of DPE where the radii will be stored.
  */
 void
-mps_mradii (mps_context * s, rdpe_t * dradii)
+mps_mradii (mps_context * s, mps_polynomial * p, rdpe_t * dradii)
 {
   MPS_DEBUG_THIS_CALL;
 
   mpc_t pol, mdiff;
   cdpe_t cpol, diff, cdtmp;
   rdpe_t new_rad, relative_error, rtmp;
-  mps_polynomial * p = s->active_poly;
   int i, j;
 
   if (!p->meval) 

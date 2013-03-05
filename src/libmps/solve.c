@@ -482,7 +482,7 @@ mps_fsolve (mps_context * s, mps_boolean * d_after_f)
 
           /* Compute the inclusion radii with Gerschgorin so we can compute
            * clusterizations for the roots. */
-          mps_fradii (s, frad);
+          mps_fradii (s, s->active_poly, frad);
           mps_fcluster (s, frad, 2 * s->n);   /* Isolation factor */
 
           MPS_DEBUG (s, "oldncluster = %d, ncluster = %ld", oldnclust, s->clusterization->n);
@@ -567,7 +567,7 @@ mps_fsolve (mps_context * s, mps_boolean * d_after_f)
 
   /* Compute the inclusion radii with Gerschgorin so we can compute
    * clusterizations for the roots. */
-  mps_fradii (s, frad);
+  mps_fradii (s, s->active_poly, frad);
   mps_fcluster (s, frad, 2 * s->n);   /* Isolation factor */
 
   if (s->DOLOG)
@@ -839,7 +839,7 @@ mps_dsolve (mps_context * s, mps_boolean d_after_f)
           if (s->DOLOG)
             fprintf (s->logstr, "   DSOLVE: call dcluster\n");
 
-          mps_dradii (s, drad);
+          mps_dradii (s, s->active_poly, drad);
           mps_dcluster (s, drad, 2 * s->n);   /* Isolation factor */
           if (oldnclust == s->clusterization->n)
             {
@@ -912,7 +912,7 @@ mps_dsolve (mps_context * s, mps_boolean d_after_f)
     fprintf (s->logstr, "   DSOLVE: now update: call dcluster\n");
   oldnclust = s->clusterization->n;
 
-  mps_dradii (s, drad);
+  mps_dradii (s, s->active_poly, drad);
   mps_dcluster (s, drad, 2 * s->n);   /* Isolation factor */
 
   if (s->DOLOG)
@@ -1067,7 +1067,7 @@ mps_msolve (mps_context * s)
           if (s->DOLOG)
             fprintf (s->logstr, "  MSOLVE: call mcluster\n");
 
-          mps_mradii (s, drad);
+          mps_mradii (s, s->active_poly, drad);
           mps_mcluster (s, drad, 2 * s->n);   /* Isolation factor */
 
           s->newtis_old = s->newtis;
@@ -1195,7 +1195,7 @@ mps_msolve (mps_context * s)
       fprintf (s->logstr, "  MSOLVE: call mcluster\n");
     }
 
-  mps_mradii (s, drad);
+  mps_mradii (s, s->active_poly, drad);
   mps_mcluster (s, drad, 2 * s->n);   /* Isolation factor */
 
   if (s->DOLOG)

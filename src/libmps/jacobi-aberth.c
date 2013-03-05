@@ -74,7 +74,8 @@ mps_fjacobi_aberth_step (mps_context * ctx, mps_polynomial * p)
   /* Update approximations with the new corrections */
   for (i = 0; i < ctx->n; i++)
     {
-      cplx_sub_eq (ctx->root[i]->fvalue, faberth_corrections[i]);
+      if (ctx->root[i]->again)
+        cplx_sub_eq (ctx->root[i]->fvalue, faberth_corrections[i]);
       again |= ctx->root[i]->again;
     }
 
@@ -88,12 +89,13 @@ mps_fjacobi_aberth_step (mps_context * ctx, mps_polynomial * p)
  *
  * @params ctx Current MPSolve context.
  * @params p The polynomial whose roots should be approximated.
+ *
+ * @return The number of approximated roots. 
  */
-void
+int
 mps_faberth_packet (mps_context * ctx, mps_polynomial * p)
 {
-  double * radii = double_valloc (ctx->n);
-  int iteration = 0;
+  int iteration = 0, i = 0, approximated_roots = 0;
 
   do 
     {
@@ -102,14 +104,25 @@ mps_faberth_packet (mps_context * ctx, mps_polynomial * p)
       if (ctx->debug_level & MPS_DEBUG_APPROXIMATIONS)
         MPS_DEBUG (ctx, "Carrying out a packet of Aberth iterations (packet = %d)", iteration);
 
-    } while (mps_fjacobi_aberth_step (ctx, p));
+    } while (mps_fjacobi_aberth_step (ctx, p) && iteration <= ctx->max_it);
 
-  mps_fradii (ctx, radii);
-  mps_fcluster (ctx, radii, 2 * ctx->n);
+  for (i = 0; i < ctx->n; i++)
+    {
+      if (!ctx->root[i]->again)
+        approximated_roots++;
+    }
 
-  mps_fmodify (ctx, false);
+  if (MPS_IS_SECULAR_EQUATION (p))
+  {
+    ctx->best_approx = true;
+    for (i = 0; i < ctx->n; i++)
+      {
+        if (!ctx->root[i]->approximated)
+          ctx->best_approx = false;
+      }
+  }
 
-  double_vfree (radii);
+  return approximated_roots;
 }
 
 struct __mps_djacobi_aberth_step_data {
@@ -176,7 +189,8 @@ mps_djacobi_aberth_step (mps_context * ctx, mps_polynomial * p)
   /* Update approximations with the new corrections */
   for (i = 0; i < ctx->n; i++)
     {
-      cdpe_sub_eq (ctx->root[i]->dvalue, daberth_corrections[i]);
+      if (ctx->root[i]->again)
+        cdpe_sub_eq (ctx->root[i]->dvalue, daberth_corrections[i]);
       again |= ctx->root[i]->again;
     }
 
@@ -191,11 +205,10 @@ mps_djacobi_aberth_step (mps_context * ctx, mps_polynomial * p)
  * @params ctx Current MPSolve context.
  * @params p The polynomial whose roots should be approximated.
  */
-void
+int
 mps_daberth_packet (mps_context * ctx, mps_polynomial * p)
 {
-  rdpe_t * radii = rdpe_valloc (ctx->n);
-  int iteration = 0;
+  int iteration = 0, i, approximated_roots = 0;
 
   do 
     {
@@ -206,10 +219,9 @@ mps_daberth_packet (mps_context * ctx, mps_polynomial * p)
 
     } while (mps_djacobi_aberth_step (ctx, p));
 
-  mps_dradii (ctx, radii);
-  mps_dcluster (ctx, radii, 2 * ctx->n);
+  for (i = 0; i < ctx->n; i++)
+    if (!ctx->root[i]->again)
+      approximated_roots++;
 
-  mps_dmodify (ctx, false);
-
-  rdpe_vfree (radii);
+  return approximated_roots;    
 }
