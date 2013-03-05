@@ -10,6 +10,30 @@
 
 #include <mps/mps.h>
 
+struct __mps_jacobi_aberth_step_data {
+  mps_context * ctx;
+  mps_polynomial * p;
+  int i;
+  cplx_t * aberth_correction;
+};
+
+static void * 
+__mps_fjacobi_aberth_step_worker (void * data_ptr)
+{
+  struct __mps_jacobi_aberth_step_data *data = (struct __mps_jacobi_aberth_step_data *) data_ptr;
+  cplx_t abcorr;
+
+  mps_polynomial_fnewton (data->ctx, data->p, data->ctx->root[data->i], *data->aberth_correction);
+  mps_faberth (data->ctx, data->i, abcorr);
+
+  cplx_mul_eq (abcorr, *data->aberth_correction);
+  cplx_sub (abcorr, cplx_one, abcorr);
+  cplx_div_eq (*data->aberth_correction, abcorr);
+
+  free (data);
+  return NULL;
+}
+
 /**
  * @brief Perform a step of Aberth method in Jacobi-style.
  *
@@ -29,14 +53,23 @@ mps_fjacobi_aberth_step (mps_context * ctx, mps_polynomial * p)
 
   for (i = 0; i < ctx->n; i++)
     {
-      cplx_t abcorr;
-      mps_polynomial_fnewton (ctx, p, ctx->root[i], faberth_corrections[i]);
-      mps_faberth (ctx, i, abcorr);
+      if (ctx->root[i]->again)
+      {
+        struct __mps_jacobi_aberth_step_data * data = mps_new (struct __mps_jacobi_aberth_step_data);
 
-      cplx_mul_eq (abcorr, faberth_corrections[i]);
-      cplx_sub (abcorr, cplx_one, abcorr);
-      cplx_div_eq (faberth_corrections[i], abcorr);
+        data->ctx = ctx;
+        data->p = p;
+        data->i = i;
+        data->aberth_correction = &faberth_corrections[i];
+
+        /* The worker is in charge of freeing the data that we have allocated
+         * here, so we can't ignore this issue in the main thread. */
+        mps_thread_pool_assign (ctx, ctx->pool, __mps_fjacobi_aberth_step_worker, 
+          data);
+      }
     }
+
+  mps_thread_pool_wait (ctx, ctx->pool);
 
   /* Update approximations with the new corrections */
   for (i = 0; i < ctx->n; i++)
@@ -60,11 +93,15 @@ void
 mps_faberth_packet (mps_context * ctx, mps_polynomial * p)
 {
   double * radii = double_valloc (ctx->n);
+  int iteration = 0;
 
   do 
     {
+      iteration++;
+
       if (ctx->debug_level & MPS_DEBUG_APPROXIMATIONS)
-        MPS_DEBUG (ctx, "Performing a step of Aberth");
+        MPS_DEBUG (ctx, "Carrying out a packet of Aberth iterations (packet = %d)", iteration);
+
     } while (mps_fjacobi_aberth_step (ctx, p));
 
   mps_fradii (ctx, radii);
