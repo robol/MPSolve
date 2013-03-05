@@ -28,7 +28,7 @@ __mps_fjacobi_aberth_step_worker (void * data_ptr)
 
   cplx_mul_eq (abcorr, *data->aberth_correction);
   cplx_sub (abcorr, cplx_one, abcorr);
-  cplx_div_eq (*data->aberth_correction, abcorr);
+  cplx_div (*data->aberth_correction, *data->aberth_correction, abcorr);
 
   free (data);
   return NULL;
@@ -130,7 +130,7 @@ __mps_djacobi_aberth_step_worker (void * data_ptr)
 
   cdpe_mul_eq (abcorr, *data->aberth_correction);
   cdpe_sub (abcorr, cdpe_one, abcorr);
-  cdpe_div_eq (*data->aberth_correction, abcorr);
+  cdpe_div (*data->aberth_correction, *data->aberth_correction, abcorr);
 
   free (data);
   return NULL;
