@@ -43,12 +43,12 @@ mps_secular_ga_update_root_wp (mps_context * s, int i, long int wp, mpc_t * bmpc
   if (sec->bmpc == bmpc)
     {
       for (j = 0; j < MPS_POLYNOMIAL (sec)->degree; j++)
-	{
-	  pthread_mutex_lock (&sec->bmpc_mutex[j]); 
-	  if (mpc_get_prec (bmpc[j]) < s->root[i]->wp) 
-	    mpc_set_prec (bmpc[j], s->root[i]->wp);
-	  pthread_mutex_unlock (&sec->bmpc_mutex[j]); 
-	}
+	     {
+    	  pthread_mutex_lock (&sec->bmpc_mutex[j]); 
+    	  if (mpc_get_prec (bmpc[j]) < s->root[i]->wp) 
+    	    mpc_set_prec (bmpc[j], s->root[i]->wp);
+    	  pthread_mutex_unlock (&sec->bmpc_mutex[j]); 
+	     }
     }
   else
     {
@@ -153,7 +153,7 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
 
   mps_context * s = data->s;
   mpc_t * old_mb = data->old_mb;
-  mpc_t * bmpc = data->bmpc + (mps_thread_get_id (s, s->pool) * s->n);
+  mpc_t * bmpc = data->bmpc + (mps_thread_get_id (s, s->pool)) * s->n;
   mps_boolean * root_changed = data->root_changed;
   
   /* Pointers to the secular equation and the monomial_poly */
@@ -547,6 +547,7 @@ mps_secular_ga_separate_approximations (mps_context * ctx)
   for (i = 0; i < ctx->n; i++)
   {
     current_approximations[i] = ctx->root[i];
+    mpc_set_prec (current_approximations[i]->mvalue, ctx->mpwp);
   }
 
   qsort (current_approximations, ctx->n, sizeof (mps_approximation*), 
@@ -849,6 +850,7 @@ mps_secular_ga_regenerate_coefficients (mps_context * s)
         {
           mpc_set (old_ma[i], sec->ampc[i]);
           mpc_set (old_mb[i], sec->bmpc[i]);
+          mpc_set_prec (sec->bmpc[i], mpc_get_prec (s->root[i]->mvalue));
           mpc_set (sec->bmpc[i], s->root[i]->mvalue);
           mpc_get_cdpe (old_db[i], old_mb[i]);
         }
