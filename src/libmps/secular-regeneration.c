@@ -28,7 +28,6 @@ mps_secular_ga_update_root_wp (mps_context * s, int i, long int wp, mpc_t * bmpc
 {
   mps_secular_equation * sec = s->secular_equation;  
   mps_polynomial * p = s->active_poly;
-  int j;
 
   s->root[i]->wp = ((wp - 1) / 64 + 1) * 64;
   
@@ -252,15 +251,13 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
             }
         }
 
-      if (mpc_get_prec (mdiff) < s->root[i]->wp)
+      if (mpc_get_prec (mprod_b) < s->root[i]->wp)
         {
-          mpc_set_prec (mdiff, s->root[i]->wp);
           mpc_set_prec (mprod_b, s->root[i]->wp);
           mpc_set_prec (lc, s->root[i]->wp);
           mpc_set_si (lc, -1, 0);
           mps_polynomial_get_leading_coefficient (s, p, ctmp);
           mpc_div_eq (lc, ctmp);
-          mpc_set_prec (my_b, s->root[i]->wp);
         }
 
       pthread_mutex_lock (&sec->bmpc_mutex[i]);
