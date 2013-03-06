@@ -529,7 +529,10 @@ main (int argc, char **argv)
 #ifdef HAVE_GTK
   if (graphic_debug)
   {
+    /* Init GTK only if graphic debug is requested. In all other case is unnecessary
+     * and will waste computational time that is likely to bias benchmarks. */
     gtk_init (&argc, &argv);
+    
     logger = mps_iteration_logger_new ();
     mps_iteration_logger_set_mps_context (logger, s);
 

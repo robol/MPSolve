@@ -75,8 +75,10 @@ mps_fjacobi_aberth_step (mps_context * ctx, mps_polynomial * p)
   for (i = 0; i < ctx->n; i++)
     {
       if (ctx->root[i]->again)
+      {
         cplx_sub_eq (ctx->root[i]->fvalue, faberth_corrections[i]);
-      again |= ctx->root[i]->again;
+        again = false;
+      }
     }
 
   cplx_vfree (faberth_corrections);
@@ -190,8 +192,10 @@ mps_djacobi_aberth_step (mps_context * ctx, mps_polynomial * p)
   for (i = 0; i < ctx->n; i++)
     {
       if (ctx->root[i]->again)
+      {
         cdpe_sub_eq (ctx->root[i]->dvalue, daberth_corrections[i]);
-      again |= ctx->root[i]->again;
+        again = false;
+      }
     }
 
   cdpe_vfree (daberth_corrections);

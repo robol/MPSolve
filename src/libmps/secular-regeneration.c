@@ -535,12 +535,6 @@ mps_secular_ga_separate_approximations (mps_context * ctx)
   qsort (current_approximations, ctx->n, sizeof (mps_approximation*), 
     __mps_compare_approximations);
 
-  for (i = 0; i < ctx->n; i++)
-  {
-    MPS_DEBUG_MPC (ctx, ctx->mpwp / LOG2_10 + 3, current_approximations[i]->mvalue,
-      "Approximation %d", i);
-  }
-
   /* Check if we find a cluster of k equal approximations */
   for (i = 0; i < ctx->n - 1; i++)
     {
@@ -549,13 +543,13 @@ mps_secular_ga_separate_approximations (mps_context * ctx)
           mpc_sub (perturbation, current_approximations[i]->mvalue, 
             current_approximations[i+1]->mvalue);
 
-          MPS_DEBUG (ctx, "i = %d", i);
-
           /* If the next approximation is different start tracking the cluster. 
            * Stop event if it is equal but it's the last one. In that case increase
            * the value of i. */
           if (!mpc_eq_zero (perturbation) || (i == ctx->n - 2))
           {
+            /* This is a workaround to handle the special case where the cluster ends
+             * with the last approximation. */
             if (i == ctx->n - 2)
               i++;
 
@@ -582,16 +576,13 @@ mps_secular_ga_separate_approximations (mps_context * ctx)
                 rdpe_mul_eq (cdpe_Re (mod), epsilon);
                 rdpe_mul_eq_d (cdpe_Re (mod), 4.0);
 
+                /* We introduce a little rotation in the perturbation so they will
+                 * be all different and disposed on a small circle around the cluster. */
                 rdpe_set_d (cdpe_Re (e), cos (1.0 * j / k * 2 * PI));
                 rdpe_set_d (cdpe_Im (e), sin (1.0 * j / k * 2 * PI));
 
-                MPS_DEBUG_CDPE (ctx, e, "e");
-
-                cdpe_mul_eq (mod, e);
-
-
-
-                mpc_set_cdpe (perturbation, mod);
+                cdpe_mul_eq (e, mod);
+                mpc_set_cdpe (perturbation, e);
 
                 if (ctx->debug_level & MPS_DEBUG_REGENERATION)
                   {
@@ -600,7 +591,16 @@ mps_secular_ga_separate_approximations (mps_context * ctx)
                       current_approximations[cluster_base + j]->mvalue, "Root before perturbation");
                   }
 
+                /* Add a small epsilon to the approximation so it will be different from
+                 * the other ones in the cluster. */
                 mpc_add_eq (current_approximations[cluster_base + j]->mvalue, perturbation);
+
+                /* Correct the approximation radius to account the change that we have made
+                 * to the approximation. */
+                if (ctx->lastphase != float_phase)
+                  rdpe_add_eq (current_approximations[cluster_base + j]->drad, cdpe_Re (mod));
+                else
+                  current_approximations[cluster_base + j]->frad += rdpe_get_d (cdpe_Re (mod));
 
                 if (ctx->debug_level & MPS_DEBUG_REGENERATION)
                   {
@@ -676,7 +676,7 @@ mps_secular_ga_regenerate_coefficients (mps_context * s)
         break;
     }
 
-  mps_secular_ga_separate_approximations (s);
+  // mps_secular_ga_separate_approximations (s);
 
   old_mb = mpc_valloc (s->n);
   for (i = 0; i < s->n; i++)
