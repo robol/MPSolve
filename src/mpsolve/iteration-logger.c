@@ -52,6 +52,8 @@ mps_iteration_logger_init (MpsIterationLogger * logger)
   logger->degree = 0;
   logger->approximations = NULL;
 
+  logger->drawing = FALSE;
+
   mps_iteration_logger_build_interface (logger);
 }
 
@@ -230,7 +232,10 @@ mps_iteration_logger_on_drawing_area_draw (GtkWidget * widget,
   int width, height;
 
   if (logger->exit)
+  {
+    logger->drawing = FALSE;
     return;
+  }
 
   width = gtk_widget_get_allocated_width (widget);
   height = gtk_widget_get_allocated_height (widget);
@@ -262,10 +267,8 @@ mps_iteration_logger_on_drawing_area_draw (GtkWidget * widget,
   int degree = logger->ctx ? logger->ctx->n : logger->degree;
   mps_approximation ** approximations = logger->ctx ? logger->ctx->root : logger->approximations;
 
-  if (!approximations)
-    return;
-
   /* Draw points if present */
+  if (approximations)
     {
       int i;
       double x, y;
@@ -333,6 +336,8 @@ mps_iteration_logger_on_drawing_area_draw (GtkWidget * widget,
         }
 
     }
+
+  logger->drawing = FALSE;
 }
 
 static gboolean 
@@ -340,8 +345,12 @@ mps_iteration_logger_update_drawing_area (gpointer user_data)
 {
   MpsIterationLogger * logger = MPS_ITERATION_LOGGER (user_data);
 
-  if (!logger->exit)
-    gtk_widget_queue_draw (logger->drawing_area);
+  /* Fail silently if we are already drawing */
+  if (!logger->exit && !logger->drawing)
+    {
+      logger->drawing = TRUE;
+      gtk_widget_queue_draw (logger->drawing_area);
+    }
 
   return !logger->exit;
 }

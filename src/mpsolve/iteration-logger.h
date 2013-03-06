@@ -35,6 +35,8 @@ struct _MpsIterationLogger {
         GtkWidget * drawing_area;
         guint timeout_source;
         mps_context * ctx;
+
+        gboolean drawing;
         
         /* Scale of the plot */
         double x_scale;
