@@ -308,6 +308,8 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
               if (mpc_eq_zero (mdiff))
                 {
                   MPS_DEBUG (s, "Regeneration of the coefficients failed because sec->bdpc[%d] == sec->bdpc[%d]", i, j);
+                  MPS_DEBUG_MPC (s, s->mpwp / LOG2_10 + 3, my_b, "b_%d", i);
+                  MPS_DEBUG_MPC (s, s->mpwp / LOG2_10 + 3, bmpc[j], "b_%d", j);
                   success = false;
                   goto monomial_regenerate_exit;
                 }
@@ -487,6 +489,9 @@ __mps_compare_approximations (const void * approximation1, const void * approxim
   mps_approximation * a2 = *((mps_approximation **) approximation2);
 
   long int wp = mpc_get_prec (a1->mvalue);
+  rdpe_t epsilon, rtmp;
+
+  rdpe_set_2dl (epsilon, 1.0, -wp);
 
   int return_value = 0;
   mpc_t cmp;
@@ -497,10 +502,23 @@ __mps_compare_approximations (const void * approximation1, const void * approxim
   mpc_sub (cmp, a1->mvalue, a2->mvalue);
   mpc_get_cdpe (ccmp, cmp);
 
-  if (rdpe_eq_zero (cdpe_Re (ccmp))) 
-    return_value = rdpe_lt (cdpe_Im (ccmp), rdpe_zero);
+  mpc_add (cmp, a1->mvalue, a2->mvalue);
+  mpc_rmod (rtmp, cmp);
+  rdpe_mul_eq (epsilon, rtmp);
+
+  rdpe_abs (rtmp, cdpe_Re (ccmp));
+  if (rdpe_lt (rtmp, epsilon))
+  {
+    rdpe_abs (rtmp, cdpe_Re (ccmp));
+    if (rdpe_lt (rtmp, epsilon))
+      return_value = 0;
+    else
+      return_value = rdpe_lt (cdpe_Im (ccmp), rdpe_zero) ? -1 : 1;
+  }
   else
-    return_value = rdpe_lt (cdpe_Re (ccmp), rdpe_zero);
+  {
+    return_value = rdpe_lt (cdpe_Re (ccmp), rdpe_zero) ? -2 : 2;
+  }
 
   mpc_clear (cmp);
 
@@ -529,7 +547,6 @@ mps_secular_ga_separate_approximations (mps_context * ctx)
   for (i = 0; i < ctx->n; i++)
   {
     current_approximations[i] = ctx->root[i];
-    MPS_DEBUG_MPC (ctx, 15, current_approximations[i]->mvalue, "Root %d", i);
   }
 
   qsort (current_approximations, ctx->n, sizeof (mps_approximation*), 
@@ -540,13 +557,11 @@ mps_secular_ga_separate_approximations (mps_context * ctx)
     {
       if (cluster_base >= 0)
         {
-          mpc_sub (perturbation, current_approximations[i]->mvalue, 
-            current_approximations[i+1]->mvalue);
-
           /* If the next approximation is different start tracking the cluster. 
            * Stop event if it is equal but it's the last one. In that case increase
            * the value of i. */
-          if (!mpc_eq_zero (perturbation) || (i == ctx->n - 2))
+          if ((__mps_compare_approximations (&current_approximations[i], &current_approximations[i+1]) != 0) 
+              || (i == ctx->n - 2))
           {
             /* This is a workaround to handle the special case where the cluster ends
              * with the last approximation. */
@@ -614,15 +629,10 @@ mps_secular_ga_separate_approximations (mps_context * ctx)
         }
       else
         {
-          mpc_sub (perturbation, current_approximations[i]->mvalue, 
-            current_approximations[i+1]->mvalue);
-
-          if (mpc_eq_zero (perturbation))
-          {
-            cluster_base = i;
-            if (ctx->debug_level & MPS_DEBUG_REGENERATION)
-              MPS_DEBUG (ctx, "Set cluster_base to %d", cluster_base);
-          }
+          if (__mps_compare_approximations (&current_approximations[i], &current_approximations[i+1]) == 0)
+            {
+              cluster_base = i;
+            }
         }
     }
 
@@ -676,7 +686,7 @@ mps_secular_ga_regenerate_coefficients (mps_context * s)
         break;
     }
 
-  // mps_secular_ga_separate_approximations (s);
+  mps_secular_ga_separate_approximations (s);
 
   old_mb = mpc_valloc (s->n);
   for (i = 0; i < s->n; i++)
