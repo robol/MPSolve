@@ -77,9 +77,6 @@ mps_iteration_logger_set_roots (MpsIterationLogger * logger, mps_approximation *
 {
   logger->approximations = approximations;
   logger->degree = n;
-
-  printf ("Settings approximations\n");
-
   logger->ctx = NULL;
 }
 
