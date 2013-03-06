@@ -193,7 +193,7 @@ cleanup_context (mps_context * ctx, void * user_data)
 #ifdef HAVE_GTK
   if (logger_closed)
     gtk_main_quit ();
-  else
+  else if (logger)
   {
     /* In the other case copy the approximation in the right place
      * so the logger can display them again. */
@@ -203,8 +203,7 @@ cleanup_context (mps_context * ctx, void * user_data)
     for (i = 0; i < ctx->n; i++)
       approximations[i] = mps_approximation_copy (ctx, ctx->root[i]);
 
-    mps_iteration_logger_set_roots (logger, approximations, ctx->n);
-    // logger->ctx = NULL;
+      mps_iteration_logger_set_roots (logger, approximations, ctx->n);
   }
 #endif  
 

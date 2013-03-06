@@ -75,10 +75,8 @@ mps_fjacobi_aberth_step (mps_context * ctx, mps_polynomial * p)
   for (i = 0; i < ctx->n; i++)
     {
       if (ctx->root[i]->again)
-      {
         cplx_sub_eq (ctx->root[i]->fvalue, faberth_corrections[i]);
-        again = false;
-      }
+      again |= ctx->root[i]->again;
     }
 
   cplx_vfree (faberth_corrections);
@@ -103,7 +101,8 @@ mps_faberth_packet (mps_context * ctx, mps_polynomial * p)
     {
       iteration++;
 
-      MPS_DEBUG_WITH_INFO (ctx, "Carrying out a packet of Aberth iterations (packet = %d)", iteration);
+      if (ctx->debug_level & MPS_DEBUG_APPROXIMATIONS)
+        MPS_DEBUG (ctx, "Carrying out a packet of Aberth iterations (packet = %d)", iteration);
 
     } while (mps_fjacobi_aberth_step (ctx, p) && iteration <= ctx->max_it);
 
@@ -191,10 +190,8 @@ mps_djacobi_aberth_step (mps_context * ctx, mps_polynomial * p)
   for (i = 0; i < ctx->n; i++)
     {
       if (ctx->root[i]->again)
-      {
         cdpe_sub_eq (ctx->root[i]->dvalue, daberth_corrections[i]);
-        again = false;
-      }
+      again |= ctx->root[i]->again;
     }
 
   cdpe_vfree (daberth_corrections);
@@ -217,13 +214,26 @@ mps_daberth_packet (mps_context * ctx, mps_polynomial * p)
     {
       iteration++;
 
-      MPS_DEBUG_WITH_INFO (ctx, "Carrying out a packet of Aberth iterations (packet = %d)", iteration);
+      if (ctx->debug_level & MPS_DEBUG_APPROXIMATIONS)
+        MPS_DEBUG (ctx, "Carrying out a packet of Aberth iterations (packet = %d)", iteration);
 
     } while (mps_djacobi_aberth_step (ctx, p));
 
   for (i = 0; i < ctx->n; i++)
-    if (!ctx->root[i]->again)
-      approximated_roots++;
+    {
+      if (!ctx->root[i]->again)
+        approximated_roots++;
+    }
+
+  if (MPS_IS_SECULAR_EQUATION (p))
+  {
+    ctx->best_approx = true;
+    for (i = 0; i < ctx->n; i++)
+      {
+        if (!ctx->root[i]->approximated)
+          ctx->best_approx = false;
+      }
+  }
 
   return approximated_roots;    
 }
