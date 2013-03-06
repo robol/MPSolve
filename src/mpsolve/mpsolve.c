@@ -190,13 +190,26 @@ cleanup_context (mps_context * ctx, void * user_data)
   /* Output the roots */
   mps_output (ctx);
 
-  /* Free used data */
-  mps_context_free (ctx);
-
 #ifdef HAVE_GTK
   if (logger_closed)
     gtk_main_quit ();
+  else
+  {
+    /* In the other case copy the approximation in the right place
+     * so the logger can display them again. */
+    int i = 0;
+    mps_approximation ** approximations = mps_newv (mps_approximation*, ctx->n);
+
+    for (i = 0; i < ctx->n; i++)
+      approximations[i] = mps_approximation_copy (ctx, ctx->root[i]);
+
+    mps_iteration_logger_set_roots (logger, approximations, ctx->n);
+    // logger->ctx = NULL;
+  }
 #endif  
+
+  /* Free used data */
+  mps_context_free (ctx);
 
   s = NULL;
 
@@ -532,7 +545,7 @@ main (int argc, char **argv)
     /* Init GTK only if graphic debug is requested. In all other case is unnecessary
      * and will waste computational time that is likely to bias benchmarks. */
     gtk_init (&argc, &argv);
-    
+
     logger = mps_iteration_logger_new ();
     mps_iteration_logger_set_mps_context (logger, s);
 

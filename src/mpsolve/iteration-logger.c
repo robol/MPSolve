@@ -49,6 +49,9 @@ mps_iteration_logger_init (MpsIterationLogger * logger)
   logger->imag_center = 0.0;
   logger->x_scale = logger->y_scale = 1.0;
 
+  logger->degree = 0;
+  logger->approximations = NULL;
+
   mps_iteration_logger_build_interface (logger);
 }
 
@@ -64,6 +67,18 @@ void
 mps_iteration_logger_set_mps_context (MpsIterationLogger * logger, mps_context * context)
 {
   logger->ctx = context;
+  // mps_iteration_logger_set_roots (logger, logger->ctx->root, mps_context_get_degree (context));
+}
+
+void
+mps_iteration_logger_set_roots (MpsIterationLogger * logger, mps_approximation ** approximations, int n)
+{
+  logger->approximations = approximations;
+  logger->degree = n;
+
+  printf ("Settings approximations\n");
+
+  logger->ctx = NULL;
 }
 
 static void mps_iteration_logger_on_drawing_area_draw (GtkWidget* , cairo_t*, MpsIterationLogger * logger);
@@ -244,13 +259,13 @@ mps_iteration_logger_on_drawing_area_draw (GtkWidget * widget,
   mps_iteration_logger_draw_x_ticks (logger, cr);
   mps_iteration_logger_draw_y_ticks (logger, cr);
 
-  if (!logger->ctx)
+  int degree = logger->ctx ? logger->ctx->n : logger->degree;
+  mps_approximation ** approximations = logger->ctx ? logger->ctx->root : logger->approximations;
+
+  if (!approximations)
     return;
 
-  int degree = mps_context_get_degree (logger->ctx);
-
   /* Draw points if present */
-  if (logger->ctx && logger->ctx->root && logger->ctx->bmpc)
     {
       int i;
       double x, y;
@@ -258,28 +273,25 @@ mps_iteration_logger_on_drawing_area_draw (GtkWidget * widget,
 
       for (i = 0; i < degree; i++)
         {
-          if (!logger->ctx || !logger->ctx->bmpc)
-            return;
-
-          switch (logger->ctx->lastphase)
+          switch (logger->ctx ? logger->ctx->lastphase : mp_phase)
           {
             case mp_phase:
-              mpc_get_cplx (logger->ctx->root[i]->fvalue, logger->ctx->root[i]->mvalue);
+              mpc_get_cplx (approximations[i]->fvalue, approximations[i]->mvalue);
 
             case dpe_phase:
-              cdpe_get_x (logger->ctx->root[i]->fvalue, logger->ctx->root[i]->dvalue);
+              cdpe_get_x (approximations[i]->fvalue, approximations[i]->dvalue);
 
             default:
               x = mps_iteration_logger_x_points_to_coords (logger, 
-                cplx_Re (logger->ctx->root[i]->fvalue));
+                cplx_Re (approximations[i]->fvalue));
               y = mps_iteration_logger_y_points_to_coords (logger, 
-                cplx_Im (logger->ctx->root[i]->fvalue));
+                cplx_Im (approximations[i]->fvalue));
               break;
           }
 
 
           /* Check if the user has zommed enough to see the radii */
-          if (logger->ctx->root[i]->frad > 1.3 * MAX (logger->x_scale, logger->y_scale) && false)
+          if (approximations[i]->frad > 1.3 * MAX (logger->x_scale, logger->y_scale) && false)
             {
               cairo_save (cr);
 
@@ -287,7 +299,7 @@ mps_iteration_logger_on_drawing_area_draw (GtkWidget * widget,
                 1.0 / logger->y_scale);
 
               cairo_set_source_rgba (cr, 0.9, 0.1, 0.1, 0.3);
-              cairo_arc (cr, x, y, logger->ctx->root[i]->frad, 0, 6.29);
+              cairo_arc (cr, x, y, approximations[i]->frad, 0, 6.29);
               cairo_fill_preserve (cr);
 
               cairo_set_source_rgba (cr, 0.9, 0.1, 0.1, 1.0);

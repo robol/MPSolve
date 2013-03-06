@@ -40,6 +40,9 @@ struct _MpsIterationLogger {
         double x_scale;
         double y_scale;
 
+        mps_approximation ** approximations;
+        int degree;
+
         /* Handling of the zomming process */
         gboolean zooming;
         gint     zoom_rect_x;
@@ -67,6 +70,11 @@ MpsIterationLogger* mps_iteration_logger_new (void);
  * approximations as soon as they change. 
  */
 void mps_iteration_logger_set_mps_context (MpsIterationLogger * logger, mps_context * context);
+
+/**
+ * @brief Assign to the iteration logger a set of static roots to be displayed.
+ */
+void mps_iteration_logger_set_roots (MpsIterationLogger * logger, mps_approximation ** approximations, int degree);
 
 
 #endif

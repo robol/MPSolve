@@ -103,8 +103,7 @@ mps_faberth_packet (mps_context * ctx, mps_polynomial * p)
     {
       iteration++;
 
-      if (ctx->debug_level & MPS_DEBUG_APPROXIMATIONS)
-        MPS_DEBUG (ctx, "Carrying out a packet of Aberth iterations (packet = %d)", iteration);
+      MPS_DEBUG_WITH_INFO (ctx, "Carrying out a packet of Aberth iterations (packet = %d)", iteration);
 
     } while (mps_fjacobi_aberth_step (ctx, p) && iteration <= ctx->max_it);
 
@@ -218,8 +217,7 @@ mps_daberth_packet (mps_context * ctx, mps_polynomial * p)
     {
       iteration++;
 
-      if (ctx->debug_level & MPS_DEBUG_APPROXIMATIONS)
-        MPS_DEBUG (ctx, "Carrying out a packet of Aberth iterations (packet = %d)", iteration);
+      MPS_DEBUG_WITH_INFO (ctx, "Carrying out a packet of Aberth iterations (packet = %d)", iteration);
 
     } while (mps_djacobi_aberth_step (ctx, p));
 
