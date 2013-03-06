@@ -40,29 +40,10 @@ mps_secular_ga_update_root_wp (mps_context * s, int i, long int wp, mpc_t * bmpc
   if (s->debug_level & MPS_DEBUG_MEMORY)  
     MPS_DEBUG (s, "Setting wp for root %d to %ld bits", i, s->root[i]->wp);  
 
-  if (sec->bmpc == bmpc)
-    {
-      for (j = 0; j < MPS_POLYNOMIAL (sec)->degree; j++)
-	     {
-    	  pthread_mutex_lock (&sec->bmpc_mutex[j]); 
-    	  if (mpc_get_prec (bmpc[j]) < s->root[i]->wp) 
-    	    mpc_set_prec (bmpc[j], s->root[i]->wp);
-    	  pthread_mutex_unlock (&sec->bmpc_mutex[j]); 
-	     }
-    }
-  else
-    {
-      for (j = 0; j < MPS_POLYNOMIAL (sec)->degree; j++)
-	{
-	  if (mpc_get_prec (bmpc[j]) < s->root[i]->wp) 
-	    mpc_set_prec (bmpc[j], s->root[i]->wp);
-	}
-    }
-  
-  pthread_mutex_lock (&sec->ampc_mutex[i]);
+  // pthread_mutex_lock (&sec->ampc_mutex[i]);
   if (mpc_get_prec (sec->ampc[i]) < s->root[i]->wp)  
     mpc_set_prec (sec->ampc[i], s->root[i]->wp);  
-  pthread_mutex_unlock (&sec->ampc_mutex[i]);
+  // pthread_mutex_unlock (&sec->ampc_mutex[i]);
 
   mps_polynomial_raise_data (s, p, s->root[i]->wp);
   
@@ -283,7 +264,7 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
         }
 
       pthread_mutex_lock (&sec->bmpc_mutex[i]);
-      mpc_set (my_b, sec->bmpc[i]);
+      mpc_set (my_b, bmpc[i]);
       pthread_mutex_unlock (&sec->bmpc_mutex[i]);
       
       /* Compute the difference of the b_i */
@@ -719,10 +700,9 @@ mps_secular_ga_regenerate_coefficients (mps_context * s)
           cplx_set (old_b[i], sec->bfpc[i]);
           cdpe_set_x (old_db[i], old_b[i]);
           mpc_set_cplx (old_mb[i], old_b[i]);
+          mpc_set_prec (sec->bmpc[i], s->mpwp);
           mpc_set (sec->bmpc[i], s->root[i]->mvalue);
         }
-
-      mps_secular_ga_update_coefficients (s);
 
       /* Regeneration */
       if (!(successful_regeneration = mps_secular_ga_regenerate_coefficients_mp (s, old_db, old_mb)))
@@ -792,10 +772,9 @@ mps_secular_ga_regenerate_coefficients (mps_context * s)
           cdpe_set (old_db[i], sec->bdpc[i]);
           mpc_get_cdpe (sec->bdpc[i], s->root[i]->mvalue);
           mpc_set_cdpe (old_mb[i], old_db[i]);
+          mpc_set_prec (sec->bmpc[i], s->mpwp);
           mpc_set (sec->bmpc[i], s->root[i]->mvalue);
         }
-
-      mps_secular_ga_update_coefficients (s);
 
       /* Regeneration */
       if (!(successful_regeneration = mps_secular_ga_regenerate_coefficients_mp (s, old_db, old_mb)))
@@ -854,8 +833,6 @@ mps_secular_ga_regenerate_coefficients (mps_context * s)
           mpc_set (sec->bmpc[i], s->root[i]->mvalue);
           mpc_get_cdpe (old_db[i], old_mb[i]);
         }
-
-      mps_secular_ga_update_coefficients (s);
 
       /* Regeneration */
       if ((successful_regeneration = mps_secular_ga_regenerate_coefficients_mp (s, old_db, old_mb)))
