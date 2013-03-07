@@ -318,15 +318,39 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
     } /* Close the case where the coefficient are not approximated or isolated */
       else
         {
+          cdpe_t cprod_b;
+
           mpc_set_ui (mprod_b, 1U, 0U);
+          cdpe_set (cprod_b, cdpe_one);
           for (j = 0; j < MPS_POLYNOMIAL (sec)->degree; j++) {
             if (root_changed[j] && i != j) {
-               mpc_sub (mdiff, bmpc[i], old_mb[j]);  
-               mpc_mul_eq (mprod_b, mdiff);  
-               mpc_sub (mdiff, bmpc[i], bmpc[j]); 
-               mpc_div_eq (mprod_b, mdiff); 
-            }
+              cdpe_t cdiff;
+              mpc_sub (mdiff, bmpc[i], old_mb[j]);  
+
+              if (s->lastphase != mp_phase)
+              {
+                mpc_get_cdpe (cdiff, mdiff);
+                cdpe_mul_eq (cprod_b, cdiff);
+              }
+              else 
+              {
+                mpc_mul_eq (mprod_b, mdiff);                  
+              }
+
+              mpc_sub (mdiff, bmpc[i], bmpc[j]); 
+
+              if (s->lastphase != mp_phase)
+              {
+                mpc_get_cdpe (cdiff, mdiff);
+                cdpe_div_eq (cprod_b, cdiff);
+              }
+              else
+                mpc_div_eq (mprod_b, mdiff); 
+              }
           }
+
+          if (s->lastphase != mp_phase)
+            mpc_set_cdpe (mprod_b, cprod_b);
 
           mpc_mul_eq (sec->ampc[i], mprod_b);
         }
