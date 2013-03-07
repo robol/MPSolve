@@ -22,13 +22,24 @@ __mps_fjacobi_aberth_step_worker (void * data_ptr)
 {
   struct __mps_fjacobi_aberth_step_data *data = (struct __mps_fjacobi_aberth_step_data *) data_ptr;
   cplx_t abcorr;
+  mps_approximation * root = data->ctx->root[data->i];
 
-  mps_polynomial_fnewton (data->ctx, data->p, data->ctx->root[data->i], *data->aberth_correction);
+  mps_polynomial_fnewton (data->ctx, data->p, root, *data->aberth_correction);
   mps_faberth (data->ctx, data->i, abcorr);
 
   cplx_mul_eq (abcorr, *data->aberth_correction);
   cplx_sub (abcorr, cplx_one, abcorr);
-  cplx_div (*data->aberth_correction, *data->aberth_correction, abcorr);
+
+  if (cplx_eq_zero (abcorr) || cplx_check_fpe (abcorr))
+    root->again = false;
+  else 
+    cplx_div (*data->aberth_correction, *data->aberth_correction, abcorr);
+
+  if (root->again)
+  {
+    cplx_sub_eq (root->fvalue, *data->aberth_correction);  
+    root->frad += cplx_mod (*data->aberth_correction);
+  }
 
   free (data);
   return NULL;
@@ -41,9 +52,10 @@ __mps_fjacobi_aberth_step_worker (void * data_ptr)
  * @param p The polynomial on which Aberth method should be applied.
  * @param approximations The starting approximations for the method. They will be
  *        updated with the new values when the function returns. 
+ * @param nit Number of iterations performed in the packet. 
  */
 mps_boolean
-mps_fjacobi_aberth_step (mps_context * ctx, mps_polynomial * p)
+mps_fjacobi_aberth_step (mps_context * ctx, mps_polynomial * p, int * nit)
 {
   cplx_t * faberth_corrections = NULL;
   mps_boolean again = false;
@@ -64,19 +76,24 @@ mps_fjacobi_aberth_step (mps_context * ctx, mps_polynomial * p)
 
         /* The worker is in charge of freeing the data that we have allocated
          * here, so we can't ignore this issue in the main thread. */
-        mps_thread_pool_assign (ctx, ctx->pool, __mps_fjacobi_aberth_step_worker, 
-          data);
+        mps_thread_pool_assign (ctx, ctx->pool, 
+          __mps_fjacobi_aberth_step_worker, data);
+
+        if (nit)
+          (*nit)++;
       }
     }
 
   mps_thread_pool_wait (ctx, ctx->pool);
 
-  /* Update approximations with the new corrections */
+  /* Update again */
   for (i = 0; i < ctx->n; i++)
     {
       if (ctx->root[i]->again)
-        cplx_sub_eq (ctx->root[i]->fvalue, faberth_corrections[i]);
-      again |= ctx->root[i]->again;
+        {
+          again = true;
+          break;
+        }
     }
 
   cplx_vfree (faberth_corrections);
@@ -95,34 +112,32 @@ mps_fjacobi_aberth_step (mps_context * ctx, mps_polynomial * p)
 int
 mps_faberth_packet (mps_context * ctx, mps_polynomial * p)
 {
-  int iteration = 0, i = 0, approximated_roots = 0;
+  int iterations = 0, i = 0, approximated_roots = 0, packet = 0, root_neighborhood_roots = 0;
 
   do 
     {
-      iteration++;
+      packet++;
 
       if (ctx->debug_level & MPS_DEBUG_APPROXIMATIONS)
-        MPS_DEBUG (ctx, "Carrying out a packet of Aberth iterations (packet = %d)", iteration);
+        MPS_DEBUG (ctx, "Carrying out a packet of Aberth iterations (packet = %d)", packet);
 
-    } while (mps_fjacobi_aberth_step (ctx, p) && iteration <= ctx->max_it);
+    } while (mps_fjacobi_aberth_step (ctx, p, &iterations) && packet <= ctx->max_it);
 
-  for (i = 0; i < ctx->n; i++)
-    {
-      if (!ctx->root[i]->again)
-        approximated_roots++;
-    }
+  MPS_DEBUG (ctx, "Performed %d iterations in floating point", iterations);
 
-  if (MPS_IS_SECULAR_EQUATION (p))
-  {
-    ctx->best_approx = true;
-    for (i = 0; i < ctx->n; i++)
-      {
-        if (!ctx->root[i]->approximated)
-          ctx->best_approx = false;
-      }
-  }
+  /* Check if we need to get higher precision for the roots */
+   ctx->best_approx = true; 
+   for (i = 0; i < ctx->n; i++) 
+     { 
+       if (!ctx->root[i]->approximated) 
+        ctx->best_approx = false; 
+       if (ctx->root[i]->approximated) 
+        approximated_roots++; 
+       if (!ctx->root[i]->again) 
+        root_neighborhood_roots++; 
+     }
 
-  return approximated_roots;
+  return root_neighborhood_roots;
 }
 
 struct __mps_djacobi_aberth_step_data {
@@ -137,6 +152,7 @@ __mps_djacobi_aberth_step_worker (void * data_ptr)
 {
   struct __mps_djacobi_aberth_step_data *data = (struct __mps_djacobi_aberth_step_data *) data_ptr;
   cdpe_t abcorr;
+  mps_approximation * root = data->ctx->root[data->i];
 
   mps_polynomial_dnewton (data->ctx, data->p, data->ctx->root[data->i], *data->aberth_correction);
   mps_daberth (data->ctx, data->i, abcorr);
@@ -144,6 +160,14 @@ __mps_djacobi_aberth_step_worker (void * data_ptr)
   cdpe_mul_eq (abcorr, *data->aberth_correction);
   cdpe_sub (abcorr, cdpe_one, abcorr);
   cdpe_div (*data->aberth_correction, *data->aberth_correction, abcorr);
+
+  if (root->again)
+  {
+    rdpe_t correction_module;
+    cdpe_sub_eq (root->dvalue, *data->aberth_correction);
+    cdpe_mod (correction_module, *data->aberth_correction);
+    rdpe_add_eq (root->drad, correction_module);
+  }
 
   free (data);
   return NULL;
@@ -158,7 +182,7 @@ __mps_djacobi_aberth_step_worker (void * data_ptr)
  *        updated with the new values when the function returns. 
  */
 mps_boolean
-mps_djacobi_aberth_step (mps_context * ctx, mps_polynomial * p)
+mps_djacobi_aberth_step (mps_context * ctx, mps_polynomial * p, int * nit)
 {
   cdpe_t * daberth_corrections = NULL;
   mps_boolean again = false;
@@ -181,17 +205,22 @@ mps_djacobi_aberth_step (mps_context * ctx, mps_polynomial * p)
          * here, so we can't ignore this issue in the main thread. */
         mps_thread_pool_assign (ctx, ctx->pool, __mps_djacobi_aberth_step_worker, 
           data);
+
+        if (nit)
+          (*nit)++;
       }
     }
 
   mps_thread_pool_wait (ctx, ctx->pool);
 
-  /* Update approximations with the new corrections */
+  /* Update again */
   for (i = 0; i < ctx->n; i++)
     {
       if (ctx->root[i]->again)
-        cdpe_sub_eq (ctx->root[i]->dvalue, daberth_corrections[i]);
-      again |= ctx->root[i]->again;
+        {
+          again = true;
+          break;
+        }
     }
 
   cdpe_vfree (daberth_corrections);
@@ -208,32 +237,29 @@ mps_djacobi_aberth_step (mps_context * ctx, mps_polynomial * p)
 int
 mps_daberth_packet (mps_context * ctx, mps_polynomial * p)
 {
-  int iteration = 0, i, approximated_roots = 0;
+  int iterations = 0, packet = 0, i, approximated_roots = 0,
+    root_neighborhood_roots = 0;
 
   do 
     {
-      iteration++;
+      packet++;
 
       if (ctx->debug_level & MPS_DEBUG_APPROXIMATIONS)
-        MPS_DEBUG (ctx, "Carrying out a packet of Aberth iterations (packet = %d)", iteration);
+        MPS_DEBUG (ctx, "Carrying out a packet of Aberth iterations (packet = %d)", packet);
 
-    } while (mps_djacobi_aberth_step (ctx, p));
+    } while (mps_djacobi_aberth_step (ctx, p, &iterations));
 
-  for (i = 0; i < ctx->n; i++)
-    {
-      if (!ctx->root[i]->again)
-        approximated_roots++;
-    }
+  /* Check if we need to get higher precision for the roots */
+   ctx->best_approx = true; 
+   for (i = 0; i < ctx->n; i++) 
+     { 
+       if (!ctx->root[i]->approximated) 
+        ctx->best_approx = false; 
+       if (ctx->root[i]->approximated) 
+        approximated_roots++; 
+       if (!ctx->root[i]->again) 
+        root_neighborhood_roots++; 
+     }
 
-  if (MPS_IS_SECULAR_EQUATION (p))
-  {
-    ctx->best_approx = true;
-    for (i = 0; i < ctx->n; i++)
-      {
-        if (!ctx->root[i]->approximated)
-          ctx->best_approx = false;
-      }
-  }
-
-  return approximated_roots;    
+  return root_neighborhood_roots;
 }

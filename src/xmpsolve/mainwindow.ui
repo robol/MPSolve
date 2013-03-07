@@ -138,7 +138,6 @@
    <zorder>polyLineEdit</zorder>
    <zorder>plainTextEdit</zorder>
    <zorder>graphicsView</zorder>
-   <zorder></zorder>
    <zorder>polyLineEdit</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
