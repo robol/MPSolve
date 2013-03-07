@@ -487,7 +487,7 @@ __mps_compare_approximations (const void * approximation1, const void * approxim
   rdpe_abs (rtmp, cdpe_Re (ccmp));
   if (rdpe_lt (rtmp, epsilon))
   {
-    rdpe_abs (rtmp, cdpe_Re (ccmp));
+    rdpe_abs (rtmp, cdpe_Im (ccmp));
     if (rdpe_lt (rtmp, epsilon))
       return_value = 0;
     else
