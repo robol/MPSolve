@@ -94,6 +94,8 @@ typedef int mps_debug_level;
   struct mps_thread_worker_data;
   struct mps_thread;
   struct mps_thread_pool;
+  struct mps_thread_pool_queue;
+  struct mps_thread_pool_queue_item;
 
 #else
 
@@ -153,6 +155,8 @@ typedef int mps_debug_level;
   typedef struct mps_thread_worker_data mps_thread_worker_data;
   typedef struct mps_thread mps_thread;
   typedef struct mps_thread_pool mps_thread_pool;
+  typedef struct mps_thread_pool_queue mps_thread_pool_queue;
+  typedef struct mps_thread_pool_queue_item mps_thread_pool_queue_item;
 
 #endif
 
@@ -169,6 +173,7 @@ typedef int mps_debug_level;
     {
       no_phase, float_phase, dpe_phase, mp_phase
     };
+
   static const mps_string mps_phase_string [] = {
     "No phase", "Float phase", "DPE phase", "MP phase"
   };

@@ -265,6 +265,46 @@ extern "C"
   };
 
   /**
+   * @brief An item that can be inserted and/or extracted from
+   * a mps_thread_pool_queue. 
+   */
+  struct mps_thread_pool_queue_item
+  {
+    /**
+     * @brief The actual job that should be performed. 
+     */
+    mps_thread_work work;
+
+    /** 
+     * @brief The args that shall be passed to the work function. 
+     */
+    void * args;
+
+    /**
+     * @brief The next item in the queue. 
+     */
+    mps_thread_pool_queue_item * next;
+  };
+
+  /**
+   * @brief A queue of work items that thread can consume. 
+   */
+  struct mps_thread_pool_queue 
+  {
+    /**
+     * @brief Pointer to the first item of the queue, or NULL if 
+     * the queue is empty.
+     */
+    mps_thread_pool_queue_item * first;
+
+    /**
+     * @brief Pointer to the last item of the queue, or NULL if 
+     * the queue is empty.
+     */
+    mps_thread_pool_queue_item * last;
+  };
+
+  /**
    * @brief A thread pool that contains a set of <code>mps_thread</code>
    * and allow to manage them as a set of worker. 
    */
@@ -292,20 +332,24 @@ extern "C"
     mps_thread * first;
 
     /**
-     * @brief A semaphore counting the numer of free threads.
+     * @brief Queue of the work that shall be consumed by the threads.
      */
-    sem_t free_count;
+    mps_thread_pool_queue * queue;
 
     /** 
-     * @brief Mutex associated with the semaphore changed condition. 
-     */ 
-    pthread_mutex_t free_count_changed_mutex; 
-    
-    /** 
-     * @brief Condition that is signaled when the semaphore changes 
-     * its value. 
-     */ 
-    pthread_cond_t free_count_changed_cond; 
+     * @brief Mutex associated to the queue_changed condition.
+     */
+    pthread_mutex_t queue_changed_mutex;
+
+    /**
+     * @brief Condition that is notified when the queue changes. 
+     */
+    pthread_cond_t  queue_changed;
+
+    pthread_mutex_t work_completed_mutex;
+    pthread_cond_t  work_completed_cond;
+    int busy_counter;
+
   };
 #endif /* #ifdef _MPS_PRIVATE */
 

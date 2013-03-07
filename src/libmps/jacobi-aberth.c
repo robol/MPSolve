@@ -63,6 +63,7 @@ mps_fjacobi_aberth_step (mps_context * ctx, mps_polynomial * p, int * nit)
 
   faberth_corrections = cplx_valloc (ctx->n);
 
+
   for (i = 0; i < ctx->n; i++)
     {
       if (ctx->root[i]->again)
