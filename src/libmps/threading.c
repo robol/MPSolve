@@ -200,6 +200,12 @@ mps_thread_mainloop (void * thread_ptr)
         pthread_cond_signal (&pool->work_completed_cond);
         pthread_mutex_unlock (&pool->work_completed_mutex);
 
+        if (!thread->alive)
+        {
+          pthread_mutex_unlock (&pool->queue_changed_mutex);
+          pthread_exit (NULL);
+        }
+
         pthread_cond_wait (&pool->queue_changed, &pool->queue_changed_mutex);
         pthread_mutex_unlock (&pool->queue_changed_mutex);
       }
@@ -346,7 +352,6 @@ mps_thread_free (mps_context * s, mps_thread * thread)
   /* Wait for the thread to finish its work, if it is doing something */
   /* pthread_mutex_lock (&thread->busy_mutex); */
   /* pthread_mutex_unlock (&thread->busy_mutex); */
-
   thread->alive = false;
 
   /* Start the thread, if it is not running */
