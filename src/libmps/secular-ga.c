@@ -456,6 +456,8 @@ mps_secular_ga_mpsolve (mps_context * s)
 
   mps_copy_roots (s);
 
+  mps_dump (s);
+
   /* Finally improve the roots if approximation is required */
   if (s->output_config->goal == MPS_OUTPUT_GOAL_APPROXIMATE)
     {

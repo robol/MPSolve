@@ -98,7 +98,7 @@ mps_improve (mps_context * s)
 	    MPS_DEBUG (s, "Not approximating root %i since it is already approximated", i);	 
 	}
       else
-	mps_thread_pool_assign (s, NULL, mps_improve_root, improve_data + i);
+	mps_thread_pool_assign (s, NULL, mps_improve_root2, improve_data + i);
     }
 
   mps_thread_pool_wait (s, s->pool);
@@ -121,6 +121,51 @@ void
 mps_evaluate_root_conditioning (mps_context *ctx, mps_approximation *root, rdpe_t conditioning)
 {
   rdpe_set (conditioning, rdpe_one);
+}
+
+void * 
+mps_improve_root2 (void * data_ptr)
+{
+  __mps_improve_data * data = (__mps_improve_data*) data_ptr; 
+  mps_context * ctx = data->s;
+  mps_approximation * root = data->starting_approximation;
+  mps_polynomial * p = ctx->active_poly;
+  long int wp = root->wp;
+
+  mpc_t nwtcorr;
+
+  /* Get the number of correct digits that you have obtained until 
+   * now. */
+  rdpe_t root_mod, radius;
+
+  mpc_rmod (root_mod, root->mvalue);
+  int correct_bits = rdpe_Esp (root_mod) - rdpe_Esp (root->drad) - 1;
+
+  mpc_init2 (nwtcorr, root->wp);
+
+  MPS_DEBUG_MPC (ctx, 15, root->mvalue, "Approximating root ");
+  MPS_DEBUG (ctx, "Correct bits = %d", correct_bits);
+
+  while (correct_bits <= ctx->output_config->prec)
+  {
+    wp *= 2;
+    mpc_set_prec (nwtcorr, wp);
+    mpc_set_prec (root->mvalue, wp);
+    mps_polynomial_raise_data (ctx, p, wp);
+
+    mps_polynomial_mnewton (ctx, p, root, nwtcorr);
+
+    mpc_sub_eq (root->mvalue, nwtcorr);
+    rdpe_set_2dl (radius, 1.0, 1 - correct_bits);
+    rdpe_mul_eq (radius, root_mod);
+    rdpe_set (root->drad, radius);
+
+    correct_bits *= 2;
+  }
+
+  root->status = MPS_ROOT_STATUS_APPROXIMATED;
+
+  return NULL;
 }
 
 
