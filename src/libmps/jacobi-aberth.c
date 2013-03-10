@@ -14,31 +14,35 @@ struct __mps_fjacobi_aberth_step_data {
   mps_context * ctx;
   mps_polynomial * p;
   int i;
-  cplx_t * aberth_correction;
+  pthread_mutex_t * mutexes;
 };
 
 static void * 
 __mps_fjacobi_aberth_step_worker (void * data_ptr)
 {
   struct __mps_fjacobi_aberth_step_data *data = (struct __mps_fjacobi_aberth_step_data *) data_ptr;
-  cplx_t abcorr;
-  mps_approximation * root = data->ctx->root[data->i];
+  cplx_t abcorr, corr;
+  int i = data->i;
+  mps_approximation * root = data->ctx->root[i];
 
-  mps_polynomial_fnewton (data->ctx, data->p, root, *data->aberth_correction);
-  mps_faberth (data->ctx, data->i, abcorr);
+  mps_polynomial_fnewton (data->ctx, data->p, root, corr);
+  mps_faberth_wl (data->ctx, data->i, abcorr, data->mutexes);
 
-  cplx_mul_eq (abcorr, *data->aberth_correction);
+  cplx_mul_eq (abcorr, corr);
   cplx_sub (abcorr, cplx_one, abcorr);
 
   if (cplx_eq_zero (abcorr) || cplx_check_fpe (abcorr))
     root->again = false;
   else 
-    cplx_div (*data->aberth_correction, *data->aberth_correction, abcorr);
+    cplx_div (corr, corr, abcorr);
 
   if (root->again)
   {
-    cplx_sub_eq (root->fvalue, *data->aberth_correction);  
-    root->frad += cplx_mod (*data->aberth_correction);
+    pthread_mutex_lock (&data->mutexes[i]);
+    cplx_sub_eq (root->fvalue, corr);  
+    pthread_mutex_unlock (&data->mutexes[i]);
+
+    root->frad += cplx_mod (corr);
   }
 
   free (data);
@@ -57,12 +61,12 @@ __mps_fjacobi_aberth_step_worker (void * data_ptr)
 mps_boolean
 mps_fjacobi_aberth_step (mps_context * ctx, mps_polynomial * p, int * nit)
 {
-  cplx_t * faberth_corrections = NULL;
   mps_boolean again = false;
   int i = 0;
+  pthread_mutex_t * mutexes = mps_newv (pthread_mutex_t, ctx->n);
 
-  faberth_corrections = cplx_valloc (ctx->n);
-
+  for (i = 0; i < ctx->n; i++)
+    pthread_mutex_init (&mutexes[i], NULL);
 
   for (i = 0; i < ctx->n; i++)
     {
@@ -73,7 +77,7 @@ mps_fjacobi_aberth_step (mps_context * ctx, mps_polynomial * p, int * nit)
         data->ctx = ctx;
         data->p = p;
         data->i = i;
-        data->aberth_correction = &faberth_corrections[i];
+        data->mutexes = mutexes;
 
         /* The worker is in charge of freeing the data that we have allocated
          * here, so we can't ignore this issue in the main thread. */
@@ -97,7 +101,7 @@ mps_fjacobi_aberth_step (mps_context * ctx, mps_polynomial * p, int * nit)
         }
     }
 
-  cplx_vfree (faberth_corrections);
+  cplx_vfree (mutexes);
   return again;
 }
 

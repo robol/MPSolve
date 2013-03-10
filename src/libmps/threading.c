@@ -352,10 +352,10 @@ mps_thread_free (mps_context * s, mps_thread * thread)
   /* Wait for the thread to finish its work, if it is doing something */
   /* pthread_mutex_lock (&thread->busy_mutex); */
   /* pthread_mutex_unlock (&thread->busy_mutex); */
+  pthread_mutex_lock (&thread->pool->queue_changed_mutex);
   thread->alive = false;
 
   /* Start the thread, if it is not running */
-  pthread_mutex_lock (&thread->pool->queue_changed_mutex);
   pthread_cond_broadcast (&thread->pool->queue_changed);
   pthread_mutex_unlock (&thread->pool->queue_changed_mutex);
 
