@@ -317,7 +317,9 @@ mps_mnewton (mps_context * s, mps_polynomial * poly,
   mpc_init2 (p, wp);
   mpc_init2 (p1, wp);
 
-  rdpe_mul_d (ep, s->mp_epsilon, (double) (n * 4));
+  rdpe_set_2dl (ep, 1.0, 2 - wp);
+  rdpe_mul_eq_d (ep, n);
+  
   if (MPS_DENSITY_IS_SPARSE (poly->density))
     {
       /* That's a dirty trick to setup a hackish derivative that 
@@ -415,6 +417,11 @@ mps_mnewton (mps_context * s, mps_polynomial * poly,
     {
       rdpe_mul_d (root->drad, rnew, (double) (n + 1));
     }
+
+  MPS_DEBUG_RDPE (s, root->drad, "Radius");
+  MPS_DEBUG_RDPE (s, absp, "absp");
+  MPS_DEBUG_RDPE (s, apeps, "apeps");
+  MPS_DEBUG_RDPE (s, temp, "temp");
 
 exit_sub:
   mpc_clear (p1);

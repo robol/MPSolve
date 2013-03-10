@@ -93,12 +93,12 @@ mps_improve (mps_context * s)
     {
       if (s->root[i]->status != MPS_ROOT_STATUS_ISOLATED || 
 	       s->root[i]->status == MPS_ROOT_STATUS_APPROXIMATED_IN_CLUSTER)
-	{
-	  if (s->debug_level & MPS_DEBUG_IMPROVEMENT)
-	    MPS_DEBUG (s, "Not approximating root %i since it is already approximated", i);	 
-	}
+      	{
+      	  if (s->debug_level & MPS_DEBUG_IMPROVEMENT)
+      	    MPS_DEBUG (s, "Not approximating root %i since it is already approximated", i);	 
+      	}
       else
-	mps_thread_pool_assign (s, NULL, mps_improve_root2, improve_data + i);
+	      mps_thread_pool_assign (s, NULL, mps_improve_root2, improve_data + i);
     }
 
   mps_thread_pool_wait (s, s->pool);
@@ -148,19 +148,38 @@ mps_improve_root2 (void * data_ptr)
 
   while (correct_bits <= ctx->output_config->prec)
   {
+    rdpe_t nwtcorr_mod;
+
     wp *= 2;
     mpc_set_prec (nwtcorr, wp);
     mpc_set_prec (root->mvalue, wp);
+
     mps_polynomial_raise_data (ctx, p, wp);
+
+    root->wp = wp;
+
+    MPS_LOCK (ctx->data_prec_max);
+    if (ctx->data_prec_max.value < wp)
+      ctx->data_prec_max.value = wp;
+    MPS_UNLOCK (ctx->data_prec_max);
 
     mps_polynomial_mnewton (ctx, p, root, nwtcorr);
 
-    mpc_sub_eq (root->mvalue, nwtcorr);
-    rdpe_set_2dl (radius, 1.0, 1 - correct_bits);
-    rdpe_mul_eq (radius, root_mod);
-    rdpe_set (root->drad, radius);
+    rdpe_set (radius, root->drad);
 
-    correct_bits *= 2;
+    mpc_sub_eq (root->mvalue, nwtcorr);
+    mpc_rmod (nwtcorr_mod, nwtcorr);
+
+    if (rdpe_Esp (root->drad) > rdpe_Esp (radius))
+      rdpe_set (root->drad, radius);
+
+    rdpe_add_eq (root->drad, nwtcorr_mod);
+
+    correct_bits = MAX (correct_bits * 2 - 1, 
+      rdpe_Esp (root_mod) - rdpe_Esp (root->drad) - 1);
+
+    if (ctx->debug_level & MPS_DEBUG_IMPROVEMENT)
+      MPS_DEBUG (ctx, "    Correct bits = %d", correct_bits);
   }
 
   root->status = MPS_ROOT_STATUS_APPROXIMATED;
