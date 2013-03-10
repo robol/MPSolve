@@ -86,7 +86,6 @@ mps_improve (mps_context * s)
       improve_data[i].base_wp = base_wp;
       improve_data[i].i = i;
       improve_data[i].starting_approximation = mps_approximation_copy (s, s->root[i]);
-      /* mps_improve_root (improve_data + i); */
     }
 
   for (i = 0; i < s->n; i++)
@@ -136,7 +135,7 @@ mps_improve_root2 (void * data_ptr)
 
   /* Get the number of correct digits that you have obtained until 
    * now. */
-  rdpe_t root_mod, radius;
+  rdpe_t root_mod;
 
   mpc_rmod (root_mod, root->mvalue);
   int correct_bits = rdpe_Esp (root_mod) - rdpe_Esp (root->drad) - 1;
@@ -165,13 +164,8 @@ mps_improve_root2 (void * data_ptr)
 
     mps_polynomial_mnewton (ctx, p, root, nwtcorr);
 
-    rdpe_set (radius, root->drad);
-
     mpc_sub_eq (root->mvalue, nwtcorr);
     mpc_rmod (nwtcorr_mod, nwtcorr);
-
-    if (rdpe_Esp (root->drad) > rdpe_Esp (radius))
-      rdpe_set (root->drad, radius);
 
     rdpe_add_eq (root->drad, nwtcorr_mod);
 
