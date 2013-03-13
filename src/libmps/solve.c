@@ -48,7 +48,7 @@ mps_update (mps_context * s)
       for (i = 0; i < s->n; i++)
         {
           if (s->root[i]->inclusion == MPS_ROOT_INCLUSION_UNKNOWN)
-            if (!MPS_ROOT_STATUS_IS_APPROXIMATED (s, i) && 
+            if (!MPS_ROOT_STATUS_IS_APPROXIMATED (s->root[i]->status) && 
                 s->root[i]->status != MPS_ROOT_STATUS_NOT_DPE)
               s->root[i]->again = true;
           
@@ -60,7 +60,7 @@ mps_update (mps_context * s)
             if (s->output_config->root_properties &&
                 (s->root[i]->attrs == MPS_ROOT_ATTRS_NONE &&
                  (s->root[i]->inclusion != MPS_ROOT_INCLUSION_UNKNOWN ||
-                  (!MPS_ROOT_STATUS_IS_APPROXIMATED (s, i) && 
+                  (!MPS_ROOT_STATUS_IS_APPROXIMATED (s->root[i]->status) && 
                    s->root[i]->status != MPS_ROOT_STATUS_NOT_DPE))))
               s->root[i]->again = true;
         }
@@ -72,7 +72,7 @@ mps_update (mps_context * s)
           if (s->root[i]->inclusion == MPS_ROOT_INCLUSION_UNKNOWN ||
               (s->root[i]->status == MPS_ROOT_STATUS_CLUSTERED && 
                s->root[i]->inclusion == MPS_ROOT_INCLUSION_IN))
-            if (!MPS_ROOT_STATUS_IS_APPROXIMATED (s, i) &&
+            if (!MPS_ROOT_STATUS_IS_APPROXIMATED (s->root[i]->status) &&
                 (s->root[i]->status != MPS_ROOT_STATUS_ISOLATED ||
                  s->root[i]->inclusion != MPS_ROOT_INCLUSION_IN))
               s->root[i]->again = true;
@@ -85,7 +85,7 @@ mps_update (mps_context * s)
           if (s->output_config->root_properties)
             {
               if (s->root[i]->attrs == MPS_ROOT_ATTRS_NONE &&
-                  (!MPS_ROOT_STATUS_IS_APPROXIMATED (s, i) &&
+                  (!MPS_ROOT_STATUS_IS_APPROXIMATED (s->root[i]->status) &&
                    s->root[i]->status != MPS_ROOT_STATUS_NOT_DPE))
                 s->root[i]->again = true;
             }
@@ -99,7 +99,7 @@ mps_update (mps_context * s)
           if (s->root[i]->inclusion == MPS_ROOT_INCLUSION_UNKNOWN ||
               (s->root[i]->status == MPS_ROOT_STATUS_CLUSTERED &&
                s->root[i]->inclusion == MPS_ROOT_INCLUSION_IN))
-            if (!MPS_ROOT_STATUS_IS_APPROXIMATED (s, i))
+            if (!MPS_ROOT_STATUS_IS_APPROXIMATED (s->root[i]->status))
               s->root[i]->again = true;
 
           if (s->output_config->multiplicity &&
@@ -110,7 +110,7 @@ mps_update (mps_context * s)
           if (s->output_config->root_properties)
             {
               if (s->root[i]->attrs == MPS_ROOT_ATTRS_NONE && 
-                  MPS_ROOT_STATUS_IS_APPROXIMATED (s, i))
+                  MPS_ROOT_STATUS_IS_APPROXIMATED (s->root[i]->status))
                 s->root[i]->again = true;
             }
         }
@@ -306,7 +306,7 @@ mps_check_stop (mps_context * s)
     {
       for (i = 0; i < s->n; i++)
         {
-          if (!MPS_ROOT_STATUS_IS_APPROXIMATED (s, i) &&
+          if (!MPS_ROOT_STATUS_IS_APPROXIMATED (s->root[i]->status) &&
               s->root[i]->inclusion == MPS_ROOT_INCLUSION_UNKNOWN)
             return computed;
 
@@ -318,7 +318,7 @@ mps_check_stop (mps_context * s)
           if (s->output_config->root_properties &&
               s->root[i]->attrs == MPS_ROOT_ATTRS_NONE &&
               s->root[i]->inclusion != MPS_ROOT_INCLUSION_OUT &&
-              !MPS_ROOT_STATUS_IS_APPROXIMATED (s, i) && 
+              !MPS_ROOT_STATUS_IS_APPROXIMATED (s->root[i]->status) && 
               s->root[i]->status != MPS_ROOT_STATUS_MULTIPLE)
             return computed;
         }
@@ -332,7 +332,7 @@ mps_check_stop (mps_context * s)
       for (i = 0; i < s->n; i++)
         {
           if ((s->root[i]->inclusion == MPS_ROOT_INCLUSION_UNKNOWN || s->root[i]->inclusion == MPS_ROOT_INCLUSION_IN) &&
-              !MPS_ROOT_STATUS_IS_COMPUTED (s, i))
+              !MPS_ROOT_STATUS_IS_COMPUTED (s->root[i]->status))
             {
               if (s->debug_level & MPS_DEBUG_PACKETS)
                 MPS_DEBUG (s, "Cannot stop because root %d is not approximated, and its inclusion is not certain", i);
@@ -359,7 +359,7 @@ mps_check_stop (mps_context * s)
           if (s->output_config->root_properties &&
               s->root[i]->attrs == MPS_ROOT_ATTRS_NONE && 
               s->root[i]->inclusion != MPS_ROOT_INCLUSION_OUT &&
-              !MPS_ROOT_STATUS_IS_APPROXIMATED (s, i) &&
+              !MPS_ROOT_STATUS_IS_APPROXIMATED (s->root[i]->status) &&
               s->root[i]->status != MPS_ROOT_STATUS_MULTIPLE)
             {
               if (s->debug_level & MPS_DEBUG_PACKETS)
@@ -981,7 +981,7 @@ mps_msolve (mps_context * s)
       !s->output_config->multiplicity && 
       !s->output_config->root_properties)
     for (i = 0; i < s->n; i++)
-      if (MPS_ROOT_STATUS_IS_COMPUTED (s, i))
+      if (MPS_ROOT_STATUS_IS_COMPUTED (s->root[i]->status))
         nzc++;
   if (s->DOLOG)
     fprintf (s->logstr, "  MSOLVE: nzc=%d\n", nzc);
@@ -1030,7 +1030,7 @@ mps_msolve (mps_context * s)
           !s->output_config->multiplicity &&
           !s->output_config->root_properties)  /* DARIO APRILE 98 */
         for (i = 0; i < s->n; i++)
-          if (MPS_ROOT_STATUS_IS_COMPUTED (s, i))
+          if (MPS_ROOT_STATUS_IS_COMPUTED (s->root[i]->status))
             nzc++;
       if (s->DOLOG)
         fprintf (s->logstr, "  MSOLVE: check again nzc=%d\n", nzc);
@@ -1161,7 +1161,7 @@ mps_msolve (mps_context * s)
                   s->output_config->multiplicity &&
                   !s->output_config->root_properties)
                 for (i = 0; i < s->n; i++)
-                  if (MPS_ROOT_STATUS_IS_COMPUTED (s, i))
+                  if (MPS_ROOT_STATUS_IS_COMPUTED (s->root[i]->status))
                     nzc++;
               if (s->DOLOG)
                 fprintf (s->logstr, "  MSOLVE: check again nzc=%d\n", nzc);

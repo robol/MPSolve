@@ -68,7 +68,7 @@ mps_secular_ga_check_stop (mps_context * s)
         {
           /* Float case */
         case float_phase:
-          if (!MPS_ROOT_STATUS_IS_COMPUTED (s, i))
+          if (!MPS_ROOT_STATUS_IS_COMPUTED (s->root[i]->status))
             {
               MPS_DEBUG_WITH_INFO (s, "Root %d is not isolated, nor approximated, so we can't stop now.", i);
               return false;
@@ -78,7 +78,7 @@ mps_secular_ga_check_stop (mps_context * s)
           /* Multiprecision and DPE case are the same, since the radii
            * are always RDPE. */
         case mp_phase:
-          if (!MPS_ROOT_STATUS_IS_COMPUTED (s, i))
+          if (!MPS_ROOT_STATUS_IS_COMPUTED (s->root[i]->status))
             {
               MPS_DEBUG_WITH_INFO (s, "Root %d is not isolated, nor approximated, so we can't stop now.", i);
               MPS_DEBUG_WITH_INFO (s, "Status of root %d: %s", i, MPS_ROOT_STATUS_TO_STRING (s->root[i]->status));
@@ -87,7 +87,7 @@ mps_secular_ga_check_stop (mps_context * s)
           break;
         case dpe_phase:
           MPS_DEBUG (s, "Status of root %d: %s", i, MPS_ROOT_STATUS_TO_STRING (s->root[i]->status));
-          if (!MPS_ROOT_STATUS_IS_COMPUTED (s, i))
+          if (!MPS_ROOT_STATUS_IS_COMPUTED (s->root[i]->status))
             {
               MPS_DEBUG_WITH_INFO (s, "Root %d is not isolated, nor approximated, so we can't stop now.", i);
               return false;

@@ -26,7 +26,7 @@ mps_secular_fstart (mps_context * s, mps_secular_equation * sec)
 
   for (i = 0; i < n; i++)
     {
-      if (!MPS_ROOT_STATUS_IS_COMPUTED (s, i))
+      if (!MPS_ROOT_STATUS_IS_COMPUTED (s->root[i]->status))
         {
           cplx_set_d (s->root[i]->fvalue, cos (i * n) * DBL_EPSILON * 4.0 * cplx_mod (sec->bfpc[i]),
             sin (i * n) * DBL_EPSILON * 4.0 * cplx_mod (sec->bfpc[i]));
@@ -50,7 +50,7 @@ mps_secular_dstart (mps_context * s, mps_secular_equation * sec)
 
   for (l = 0; l < MPS_POLYNOMIAL (sec)->degree; l++)
     {
-      if (!MPS_ROOT_STATUS_IS_COMPUTED (s, l))
+      if (!MPS_ROOT_STATUS_IS_COMPUTED (s->root[l]->status))
         {          
           rdpe_t bmod;
 
@@ -81,7 +81,7 @@ mps_secular_mstart (mps_context * s, mps_secular_equation * sec)
 
   for (l = 0; l < MPS_POLYNOMIAL (sec)->degree; l++)
     {
-      if (!MPS_ROOT_STATUS_IS_COMPUTED (s, l))
+      if (!MPS_ROOT_STATUS_IS_COMPUTED (s->root[l]->status))
         {          
           rdpe_t bmod;
           cdpe_t ctmp;

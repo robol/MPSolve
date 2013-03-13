@@ -119,6 +119,15 @@ mps_faberth_packet (mps_context * ctx, mps_polynomial * p)
 {
   int iterations = 0, i = 0, approximated_roots = 0, packet = 0, root_neighborhood_roots = 0;
 
+  for (i = 0; i < ctx->n; i++)
+    {
+      if (MPS_ROOT_STATUS_IS_COMPUTED (ctx->root[i]->status))
+        ctx->root[i]->again = false;
+
+      if (MPS_ROOT_STATUS_IS_APPROXIMATED (ctx->root[i]->status))
+        ctx->root[i]->approximated = true;
+    }
+
   do 
     {
       packet++;
