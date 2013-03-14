@@ -222,7 +222,7 @@ mps_secular_ga_mpsolve (mps_context * s)
           mps_polynomial_fstart (s, p);
 
           if (p->fnewton)
-            mps_faberth_packet (s, p);
+            mps_faberth_packet (s, p, false);
 
           break;
 
@@ -332,7 +332,7 @@ mps_secular_ga_mpsolve (mps_context * s)
         case float_phase:
           MPS_DEBUG_WITH_INFO (s, "Starting floating point iterations");
           // roots_computed = mps_secular_ga_fiterate (s, iteration_per_packet, just_regenerated);
-          roots_computed = mps_faberth_packet (s, MPS_POLYNOMIAL (sec));
+          roots_computed = mps_faberth_packet (s, MPS_POLYNOMIAL (sec), just_regenerated);
 
           /* If the computation fails we need to switch to DPE so do not
            * break here, but continue the cycle. */

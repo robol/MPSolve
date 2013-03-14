@@ -530,7 +530,7 @@ typedef int mps_debug_level;
 
   /* functions in jacobi-aberth.c */
   mps_boolean mps_fjacobi_aberth_step (mps_context * ctx, mps_polynomial * p, int * nit);
-  int mps_faberth_packet (mps_context * ctx, mps_polynomial * p);
+  int mps_faberth_packet (mps_context * ctx, mps_polynomial * p, mps_boolean just_regenerated);
   mps_boolean mps_djacobi_aberth_step (mps_context * ctx, mps_polynomial * p, int * nit);
   int mps_daberth_packet (mps_context * ctx, mps_polynomial * p);
   

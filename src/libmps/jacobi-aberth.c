@@ -37,9 +37,7 @@ __mps_fjacobi_aberth_step_worker (void * data_ptr)
     cplx_div (corr, corr, abcorr);
 
   if (root->again)
-  {
     cplx_set (*data->correction, corr);
-  }
 
   free (data);
   return NULL;
@@ -91,7 +89,7 @@ mps_fjacobi_aberth_step (mps_context * ctx, mps_polynomial * p, int * nit)
       if (ctx->root[i]->again)
         {
           cplx_sub_eq (ctx->root[i]->fvalue, corrections[i]);
-          ctx->root[i]->frad += cplx_mod (ctx->root[i]->fvalue);
+          ctx->root[i]->frad += cplx_mod (corrections[i]);
           again = true;
         }
     }
@@ -111,9 +109,10 @@ mps_fjacobi_aberth_step (mps_context * ctx, mps_polynomial * p, int * nit)
  * @return The number of approximated roots. 
  */
 int
-mps_faberth_packet (mps_context * ctx, mps_polynomial * p)
+mps_faberth_packet (mps_context * ctx, mps_polynomial * p, mps_boolean just_regenerated)
 {
   int iterations = 0, i = 0, approximated_roots = 0, packet = 0, root_neighborhood_roots = 0;
+  int it_threshold = ctx->n;
 
   for (i = 0; i < ctx->n; i++)
     {
@@ -121,7 +120,13 @@ mps_faberth_packet (mps_context * ctx, mps_polynomial * p)
         ctx->root[i]->again = false;
 
       if (MPS_ROOT_STATUS_IS_APPROXIMATED (ctx->root[i]->status))
+      {
         ctx->root[i]->approximated = true;
+        ctx->root[i]->again = false;
+      }
+
+      if (!ctx->root[i]->again)
+        it_threshold--;
     }
 
   do 
@@ -146,6 +151,9 @@ mps_faberth_packet (mps_context * ctx, mps_polynomial * p)
        if (!ctx->root[i]->again) 
         root_neighborhood_roots++; 
      }
+
+    if (just_regenerated && (iterations <= it_threshold))
+      ctx->best_approx = true;
 
   return root_neighborhood_roots;
 }
