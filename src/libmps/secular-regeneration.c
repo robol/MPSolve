@@ -328,7 +328,6 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
 
               mpc_sub (mdiff, bmpc[i], bmpc[j]); 
 
-
               mpc_div_eq (mprod_b, mdiff); 
             }
           }

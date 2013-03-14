@@ -140,8 +140,8 @@ mps_secular_fnewton (mps_context * s, mps_polynomial * p, mps_approximation * ro
   cplx_set (sumb, cplx_zero);
   cplx_set (corr, cplx_zero);
 
-  if ((i = mps_secular_fparallel_sum (s, root, MPS_POLYNOMIAL (sec)->degree, s->secular_equation->afpc, 
-				      s->secular_equation->bfpc, pol, 
+  if ((i = mps_secular_fparallel_sum (s, root, MPS_POLYNOMIAL (sec)->degree, sec->afpc, 
+				      sec->bfpc, pol, 
 				      fp, sumb, &asum)) >= 0)
     {
       int k;
@@ -342,7 +342,7 @@ mps_secular_dnewton (mps_context * s, mps_polynomial * p, mps_approximation * ro
   cdpe_set (sumb, cdpe_zero);
   cdpe_set (corr, cdpe_zero);
 
-  if ((i = mps_secular_dparallel_sum (s, root, MPS_POLYNOMIAL (sec)->degree, s->secular_equation->adpc, s->secular_equation->bdpc, 
+  if ((i = mps_secular_dparallel_sum (s, root, MPS_POLYNOMIAL (sec)->degree, sec->adpc, sec->bdpc, 
 				       pol, fp, sumb, asum)) != MPS_PARALLEL_SUM_SUCCESS)
     {
       int k;
