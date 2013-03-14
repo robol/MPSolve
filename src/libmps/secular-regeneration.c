@@ -316,8 +316,6 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
     } /* Close the case where the coefficient are not approximated or isolated */
       else
         {
-          cdpe_t cprod_b;
-
           mpc_set_ui (mprod_b, 1U, 0U);
 
           for (j = 0; j < MPS_POLYNOMIAL (sec)->degree; j++) {
