@@ -81,7 +81,7 @@ mps_secular_ga_find_changed_roots (mps_context * s, cdpe_t * old_b, mpc_t * old_
   
   for (i = 0; i < s->n; i++)
     {
-      if (s->just_raised_precision || true)
+      if (s->just_raised_precision)
         {
           root_changed[i] = true;
           continue;
@@ -208,7 +208,7 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
       s->root[i]->wp = MAX (s->mpwp + log2 (s->n), s->root[i]->wp);
       mps_secular_ga_update_root_wp (s, i, s->root[i]->wp, bmpc);
 
-      mpc_set (tx, sec->bmpc[i]);
+      mpc_set (tx, bmpc[i]);
       mps_polynomial_meval (s, p, tx, sec->ampc[i], relative_error);
 
       if (s->debug_level & MPS_DEBUG_REGENERATION)
@@ -260,9 +260,7 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
           mpc_div_eq (lc, ctmp);
         }
 
-      pthread_mutex_lock (&sec->bmpc_mutex[i]);
       mpc_set (my_b, bmpc[i]);
-      pthread_mutex_unlock (&sec->bmpc_mutex[i]);
       
       /* Compute the difference of the b_i */
       mpc_set_ui (mprod_b, 1U, 0U);
@@ -278,7 +276,7 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
 
               /* We'll make floating point multiplication to have
                * a faster implementation. */
-              if (s->lastphase != mp_phase)
+              if (s->lastphase != mp_phase && false)
                 mpc_get_cdpe (cdiff, mdiff);
               
               /* If the difference is zero then regeneration cannot succeed, and means
@@ -292,13 +290,13 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
                   goto monomial_regenerate_exit;
                 }
 
-              if (s->lastphase != mp_phase)
+              if (s->lastphase != mp_phase && false)
                 cdpe_mul_eq (cprod_b, cdiff);
               else
                 mpc_mul_eq (mprod_b, mdiff);
             }
 
-      if (s->lastphase != mp_phase)
+      if (s->lastphase != mp_phase && false)
         mpc_set_cdpe (mprod_b, cprod_b);
       
       /* Actually divide the result and store it in
@@ -321,36 +319,19 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
           cdpe_t cprod_b;
 
           mpc_set_ui (mprod_b, 1U, 0U);
-          cdpe_set (cprod_b, cdpe_one);
+
           for (j = 0; j < MPS_POLYNOMIAL (sec)->degree; j++) {
             if (root_changed[j] && i != j) {
-              cdpe_t cdiff;
               mpc_sub (mdiff, bmpc[i], old_mb[j]);  
 
-              if (s->lastphase != mp_phase)
-              {
-                mpc_get_cdpe (cdiff, mdiff);
-                cdpe_mul_eq (cprod_b, cdiff);
-              }
-              else 
-              {
-                mpc_mul_eq (mprod_b, mdiff);                  
-              }
+              mpc_mul_eq (mprod_b, mdiff);                  
 
               mpc_sub (mdiff, bmpc[i], bmpc[j]); 
 
-              if (s->lastphase != mp_phase)
-              {
-                mpc_get_cdpe (cdiff, mdiff);
-                cdpe_div_eq (cprod_b, cdiff);
-              }
-              else
-                mpc_div_eq (mprod_b, mdiff); 
-              }
-          }
 
-          if (s->lastphase != mp_phase)
-            mpc_set_cdpe (mprod_b, cprod_b);
+              mpc_div_eq (mprod_b, mdiff); 
+            }
+          }
 
           mpc_mul_eq (sec->ampc[i], mprod_b);
         }

@@ -227,6 +227,7 @@ mps_iteration_logger_on_drawing_area_draw (GtkWidget * widget,
                                            cairo_t * cr, MpsIterationLogger * logger)
 {
   int width, height;
+  double r, g, b;
 
   if (logger->exit)
   {
@@ -289,6 +290,18 @@ mps_iteration_logger_on_drawing_area_draw (GtkWidget * widget,
               break;
           }
 
+          if (approximations[i]->approximated)
+          {
+            r = 0.1 ; g = 0.9 ; b = 0.1;
+          }
+          else if (!approximations[i]->again)
+          {
+            r = 0.1; g = 0.1; b = 0.9;
+          }
+          else 
+          {
+            r = 0.9; g = 0.1; b = 0.1;
+          }
 
           /* Check if the user has zommed enough to see the radii */
           if (approximations[i]->frad > 1.3 * MAX (logger->x_scale, logger->y_scale) && false)
@@ -298,17 +311,18 @@ mps_iteration_logger_on_drawing_area_draw (GtkWidget * widget,
               cairo_scale (cr, 1.0 / logger->x_scale, 
                 1.0 / logger->y_scale);
 
-              cairo_set_source_rgba (cr, 0.9, 0.1, 0.1, 0.3);
+              cairo_set_source_rgba (cr, r, g, b, 0.3);
               cairo_arc (cr, x, y, approximations[i]->frad, 0, 6.29);
               cairo_fill_preserve (cr);
 
-              cairo_set_source_rgba (cr, 0.9, 0.1, 0.1, 1.0);
+              cairo_set_source_rgba (cr, r, g, b, 1.0);
               cairo_stroke (cr);
 
               cairo_restore (cr);
             }
           else
-            {            
+            { 
+              cairo_set_source_rgb (cr, r, g, b);
               cairo_arc (cr, x, y, 1.3, 0, 6.29);
               cairo_fill (cr);
             }

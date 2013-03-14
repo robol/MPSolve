@@ -14,7 +14,7 @@ struct __mps_fjacobi_aberth_step_data {
   mps_context * ctx;
   mps_polynomial * p;
   int i;
-  pthread_mutex_t * mutexes;
+  cplx_t * correction;
 };
 
 static void * 
@@ -26,23 +26,19 @@ __mps_fjacobi_aberth_step_worker (void * data_ptr)
   mps_approximation * root = data->ctx->root[i];
 
   mps_polynomial_fnewton (data->ctx, data->p, root, corr);
-  mps_faberth_wl (data->ctx, data->i, abcorr, data->mutexes);
+  mps_faberth (data->ctx, data->i, abcorr);
 
   cplx_mul_eq (abcorr, corr);
   cplx_sub (abcorr, cplx_one, abcorr);
 
-  if (cplx_eq_zero (abcorr) || cplx_check_fpe (abcorr))
+  if (cplx_eq_zero (abcorr) || cplx_check_fpe (abcorr) || root->approximated)
     root->again = false;
   else 
     cplx_div (corr, corr, abcorr);
 
   if (root->again)
   {
-    pthread_mutex_lock (&data->mutexes[i]);
-    cplx_sub_eq (root->fvalue, corr);  
-    pthread_mutex_unlock (&data->mutexes[i]);
-
-    root->frad += cplx_mod (corr);
+    cplx_set (*data->correction, corr);
   }
 
   free (data);
@@ -63,10 +59,8 @@ mps_fjacobi_aberth_step (mps_context * ctx, mps_polynomial * p, int * nit)
 {
   mps_boolean again = false;
   int i = 0;
-  pthread_mutex_t * mutexes = mps_newv (pthread_mutex_t, ctx->n);
 
-  for (i = 0; i < ctx->n; i++)
-    pthread_mutex_init (&mutexes[i], NULL);
+  cplx_t * corrections = mps_newv (cplx_t, ctx->n);
 
   for (i = 0; i < ctx->n; i++)
     {
@@ -77,7 +71,7 @@ mps_fjacobi_aberth_step (mps_context * ctx, mps_polynomial * p, int * nit)
         data->ctx = ctx;
         data->p = p;
         data->i = i;
-        data->mutexes = mutexes;
+        data->correction = &corrections[i];
 
         /* The worker is in charge of freeing the data that we have allocated
          * here, so we can't ignore this issue in the main thread. */
@@ -96,12 +90,14 @@ mps_fjacobi_aberth_step (mps_context * ctx, mps_polynomial * p, int * nit)
     {
       if (ctx->root[i]->again)
         {
+          cplx_sub_eq (ctx->root[i]->fvalue, corrections[i]);
+          ctx->root[i]->frad += cplx_mod (ctx->root[i]->fvalue);
           again = true;
-          break;
         }
     }
 
-  cplx_vfree (mutexes);
+  cplx_vfree (corrections);
+
   return again;
 }
 
