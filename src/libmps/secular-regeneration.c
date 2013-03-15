@@ -873,8 +873,8 @@ mps_secular_ga_regenerate_coefficients (mps_context * s)
   if (successful_regeneration)
     {
       MPS_DEBUG (s, "Setting again to true");
-      for (i = 0; i < s->n; i++) 
-        s->root[i]->again = true;
+      for (i = 0; i < s->n; i++)
+        s->root[i]->again = ! MPS_ROOT_STATUS_IS_COMPUTED (s->root[i]->status);
     }
 
   mpc_vclear (old_mb, s->n);

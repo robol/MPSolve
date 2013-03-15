@@ -77,7 +77,7 @@ mps_thread_fpolzer_worker (void *data_ptr)
               /* the correction is performed only if iter!=1 or rad(i)!=rad1 */
              || iter != 0 || s->root[i]->frad != rad1)
             {
-              mps_faberth (s, i, abcorr);
+              mps_faberth (s, s->root[i], abcorr);
 
               cplx_mul_eq (abcorr, corr);
               cplx_sub (abcorr, cplx_one, abcorr);
@@ -242,7 +242,7 @@ mps_thread_dpolzer_worker (void *data_ptr)
               || iter != 0
               || rdpe_ne (s->root[i]->drad, rad1))
             {
-              mps_daberth (s, i, abcorr);
+              mps_daberth (s, s->root[i], abcorr);
               cdpe_mul_eq (abcorr, corr);
               cdpe_sub (abcorr, cdpe_one, abcorr);
               if (cdpe_eq_zero (abcorr))

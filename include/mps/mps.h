@@ -486,14 +486,14 @@ typedef int mps_debug_level;
 /* FUNCTIONS */
 
   /* functions in aberth.c */
-  void mps_faberth (mps_context * s, int j, cplx_t abcorr);
-  void mps_daberth (mps_context * s, int j, cdpe_t abcorr);
-  void mps_maberth (mps_context * s, int j, mpc_t abcorr);
-  void mps_faberth_s (mps_context * s, int j, mps_cluster * cluster, cplx_t abcorr);
+  void mps_faberth (mps_context * s, mps_approximation * root, cplx_t abcorr);
+  void mps_daberth (mps_context * s, mps_approximation * root, cdpe_t abcorr);
+  void mps_maberth (mps_context * s, mps_approximation * root, mpc_t abcorr);
+  void mps_faberth_s (mps_context * s, mps_approximation * root, mps_cluster * cluster, cplx_t abcorr);
   void mps_faberth_wl (mps_context * s, int j, cplx_t abcorr, pthread_mutex_t * aberth_mutexes);
-  void mps_daberth_s (mps_context * s, int j, mps_cluster * cluster, cdpe_t abcorr);
+  void mps_daberth_s (mps_context * s, mps_approximation * root, mps_cluster * cluster, cdpe_t abcorr);
   void mps_daberth_wl (mps_context * s, int j, cdpe_t abcorr, pthread_mutex_t * aberth_mutexes);
-  void mps_maberth_s (mps_context * s, int j, mps_cluster * cluster, mpc_t abcorr);
+  void mps_maberth_s (mps_context * s, mps_approximation * root, mps_cluster * cluster, mpc_t abcorr);
   void mps_maberth_s_wl (mps_context * s, int j, mps_cluster * cluster, mpc_t abcorr,
                          pthread_mutex_t * aberth_mutex);
   void mps_mnewtis (mps_context * s);
@@ -529,10 +529,9 @@ typedef int mps_debug_level;
   void mps_improve (mps_context * s);
 
   /* functions in jacobi-aberth.c */
-  mps_boolean mps_fjacobi_aberth_step (mps_context * ctx, mps_polynomial * p, int * nit);
   int mps_faberth_packet (mps_context * ctx, mps_polynomial * p, mps_boolean just_regenerated);
-  mps_boolean mps_djacobi_aberth_step (mps_context * ctx, mps_polynomial * p, int * nit);
-  int mps_daberth_packet (mps_context * ctx, mps_polynomial * p);
+  int mps_daberth_packet (mps_context * ctx, mps_polynomial * p, mps_boolean just_regenerated);
+  int mps_maberth_packet (mps_context * ctx, mps_polynomial * p, mps_boolean just_regenerated);
   
   /* functions in main.c */
   void mps_setup (mps_context * s);

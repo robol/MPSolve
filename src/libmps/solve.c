@@ -661,7 +661,7 @@ mps_fpolzer (mps_context * s, int *it, mps_boolean * excep)
                   /* the correction is performed only if iter!=1 or rad(i)!=rad1 */
                   iter != 0 || s->root[i]->frad != rad1)
                 {
-                  mps_faberth (s, i, abcorr);
+                  mps_faberth (s, s->root[i], abcorr);
                   cplx_mul_eq (abcorr, corr);
                   cplx_sub (abcorr, cplx_one, abcorr);
                   cplx_div (abcorr, corr, abcorr);
@@ -738,7 +738,7 @@ mps_dpolzer (mps_context * s, int *it, mps_boolean * excep)
                   iter != 0
                   || rdpe_ne (s->root[i]->drad, rad1))
                 {
-                  mps_daberth (s, i, abcorr);
+                  mps_daberth (s, s->root[i], abcorr);
                   cdpe_mul_eq (abcorr, corr);
                   cdpe_sub (abcorr, cdpe_one, abcorr);
                   cdpe_div (abcorr, corr, abcorr);
@@ -1300,7 +1300,7 @@ mps_mpolzer (mps_context * s, int *it, mps_boolean * excep)
                       iter != 0
                       || rdpe_ne (s->root[l]->drad, rad1))
                     {
-                      mps_maberth_s (s, l, cluster, abcorr);
+                      mps_maberth_s (s, s->root[l], cluster, abcorr);
                       mpc_mul_eq (abcorr, corr);
                       mpc_neg_eq (abcorr);
                       mpc_add_eq_ui (abcorr, 1, 0);

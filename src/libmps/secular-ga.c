@@ -115,7 +115,6 @@ mps_secular_ga_mpsolve (mps_context * s)
 {
   int roots_computed = 0;
   int packet;
-  int iteration_per_packet = s->max_it;
   int i;
   mps_boolean skip_check_stop = false;
   mps_boolean just_regenerated = false;
@@ -230,7 +229,7 @@ mps_secular_ga_mpsolve (mps_context * s)
           mps_polynomial_dstart (s, p);
 
           if (p->dnewton)
-            mps_daberth_packet (s, p);
+            mps_daberth_packet (s, p, false);
           break;
 
         default:
@@ -331,8 +330,8 @@ mps_secular_ga_mpsolve (mps_context * s)
         {
         case float_phase:
           MPS_DEBUG_WITH_INFO (s, "Starting floating point iterations");
-          roots_computed = mps_secular_ga_fiterate (s, iteration_per_packet, just_regenerated);
-          // roots_computed = mps_faberth_packet (s, MPS_POLYNOMIAL (sec), just_regenerated);
+          // roots_computed = mps_secular_ga_fiterate (s, iteration_per_packet, just_regenerated);
+          roots_computed = mps_faberth_packet (s, MPS_POLYNOMIAL (sec), just_regenerated);
 
           /* If the computation fails we need to switch to DPE so do not
            * break here, but continue the cycle. */
@@ -341,18 +340,21 @@ mps_secular_ga_mpsolve (mps_context * s)
 
         case dpe_phase:
           MPS_DEBUG_WITH_INFO (s, "Starting DPE iterations");
-          roots_computed = mps_secular_ga_diterate (s, iteration_per_packet, just_regenerated);
-          // roots_computed = mps_daberth_packet (s, MPS_POLYNOMIAL (sec));
+          // roots_computed = mps_secular_ga_diterate (s, iteration_per_packet, just_regenerated);
+          roots_computed = mps_daberth_packet (s, MPS_POLYNOMIAL (sec), just_regenerated);
           break;
 
         case mp_phase:
           MPS_DEBUG_WITH_INFO (s, "Starting MP iterations");
-          roots_computed = mps_secular_ga_miterate (s, iteration_per_packet, just_regenerated);
+          // roots_computed = mps_secular_ga_miterate (s, s->max_it, just_regenerated);
+          roots_computed = mps_maberth_packet (s, MPS_POLYNOMIAL (sec), just_regenerated);
           break;
 
         default:
           break;
         }
+
+      mps_dump (s);
 
       /* Increase the packet counter */
       packet++;

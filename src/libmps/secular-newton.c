@@ -148,39 +148,39 @@ mps_secular_fnewton (mps_context * s, mps_polynomial * p, mps_approximation * ro
       asum = 0.0;
 
       for (k = 0; k < MPS_POLYNOMIAL (sec)->degree; k++)
-	{
-	  if (i != k)
-	    {
-	      cplx_sub (ctmp, bfpc[i], bfpc[k]);
-	      cplx_add (ctmp2, afpc[i], afpc[k]);
-	      cplx_div_eq (ctmp2, ctmp);
-	      cplx_add_eq (corr, ctmp2);
+  	    {
+  	       if (i != k)
+  	        {
+  	          cplx_sub (ctmp, bfpc[i], bfpc[k]);
+  	          cplx_add (ctmp2, afpc[i], afpc[k]);
+  	          cplx_div_eq (ctmp2, ctmp);
+  	          cplx_add_eq (corr, ctmp2);
 
-	      asum += fabs (cplx_Re (ctmp2)) + fabs (cplx_Im (ctmp2));
-	    }
-	}
+              asum += fabs (cplx_Re (ctmp2)) + fabs (cplx_Im (ctmp2));
+           }
+  	    }
 
-  if (i == MPS_PARALLEL_SUM_FAILED)
-    {
-      root->status = MPS_ROOT_STATUS_NOT_FLOAT;
-      root->again = false;
-      return;
-    }
+      if (i == MPS_PARALLEL_SUM_FAILED)
+        {
+          root->status = MPS_ROOT_STATUS_NOT_FLOAT;
+          root->again = false;
+          return;
+        }
 
       cplx_sub_eq (corr, cplx_one);
 
       if (!cplx_eq_zero (corr))
-	{
-	  cplx_div (corr, afpc[i], corr);
-	      
-	  acorr = cplx_mod (corr);
-	  if (acorr < ax * DBL_EPSILON)
-	    {
-	      root->again = false;
-	    }
-	}
+      	{
+      	  cplx_div (corr, afpc[i], corr);
+      	      
+      	  acorr = cplx_mod (corr);
+      	  if (acorr < ax * DBL_EPSILON)
+      	    {
+      	      root->again = false;
+      	    }
+      	}
       else
-	root->again = false;
+	      root->again = false;
       
       return;
     }
@@ -585,21 +585,21 @@ mps_secular_mnewton (mps_context * s, mps_polynomial * p, mps_approximation * ro
       pthread_mutex_unlock (&sec->bmpc_mutex[i]);
 
       for (k = 0; k < MPS_POLYNOMIAL (sec)->degree; k++)
-	{
-	  if (i != k)
-	    {
-	      pthread_mutex_lock (&sec->bmpc_mutex[k]); 
-	      mpc_sub (ctmp, bmpc_i, sec->bmpc[k]);
-	      pthread_mutex_unlock (&sec->bmpc_mutex[k]); 
+	     {
+	       if (i != k)
+	          {
+      	      pthread_mutex_lock (&sec->bmpc_mutex[k]); 
+      	      mpc_sub (ctmp, bmpc_i, sec->bmpc[k]);
+      	      pthread_mutex_unlock (&sec->bmpc_mutex[k]); 
 
-	      pthread_mutex_lock (&sec->ampc_mutex[k]); 
-	      mpc_add (ctmp2, ampc_i, sec->ampc[k]);
-	      pthread_mutex_unlock (&sec->ampc_mutex[k]); 
+      	      pthread_mutex_lock (&sec->ampc_mutex[k]); 
+      	      mpc_add (ctmp2, ampc_i, sec->ampc[k]);
+      	      pthread_mutex_unlock (&sec->ampc_mutex[k]); 
 
-	      mpc_div_eq (ctmp2, ctmp);
-	      mpc_add_eq (corr, ctmp2);
-	    }
-	}
+      	      mpc_div_eq (ctmp2, ctmp);
+      	      mpc_add_eq (corr, ctmp2);
+	          }
+	      }
 
       mpc_set_ui (ctmp, 1U, 0U);
       mpc_sub_eq (corr, ctmp);
@@ -610,8 +610,11 @@ mps_secular_mnewton (mps_context * s, mps_polynomial * p, mps_approximation * ro
       rdpe_mul (rtmp, ax, s->mp_epsilon); 
       if (root->again && rdpe_lt (acorr, rtmp)) 
         {
-	  root->again = false;
-	}
+          MPS_DEBUG (s, "OK");
+          MPS_DEBUG_MPC (s, 15, root->mvalue, "ROOT");
+	        root->again = false;
+          root->approximated = true;
+	      }
 
       mpc_clear (ampc_i);
       mpc_clear (bmpc_i);
@@ -634,7 +637,7 @@ mps_secular_mnewton (mps_context * s, mps_polynomial * p, mps_approximation * ro
   else
     {
       if (s->debug_level & MPS_DEBUG_PACKETS)
-	MPS_DEBUG (s, "The derivative is null!");
+	      MPS_DEBUG (s, "The derivative is null!");
       mpc_set (corr, pol);
     }
 
@@ -649,7 +652,7 @@ mps_secular_mnewton (mps_context * s, mps_polynomial * p, mps_approximation * ro
   /* Check if more iteration on this root are needed or not */
   rdpe_add (rtmp, rdpe_one, asum_on_apol);
   rdpe_mul_eq (rtmp, s->mp_epsilon);
-  rdpe_mul_eq_d (rtmp, MPS_2SQRT2 * MPS_POLYNOMIAL (sec)->degree);
+  rdpe_mul_eq_d (rtmp, KAPPA);
   if (rdpe_gt (rtmp, rdpe_one))
     {
       root->again = false;
@@ -662,21 +665,27 @@ mps_secular_mnewton (mps_context * s, mps_polynomial * p, mps_approximation * ro
       /* Check if the newton correction is small with respect to the
        * current precision. */
       rdpe_mul (rtmp, ax, s->mp_epsilon);
-      rdpe_mul_eq_d (rtmp, MPS_SQRT2);
+      rdpe_mul_eq_d (rtmp, MPS_SQRT2 * 4.0);
       if (rdpe_lt (acorr, rtmp))
-	{
-	  root->approximated = true;
-	  if (s->debug_level & MPS_DEBUG_PACKETS)
-	    MPS_DEBUG (s, "Stopping Aberth iterations due to small Newton correction");
-	  goto mnewton_cleanup;
-	}
+	     {
+	        root->approximated = true;
+	        if (s->debug_level & MPS_DEBUG_PACKETS)
+	          MPS_DEBUG (s, "Stopping Aberth iterations due to small Newton correction");
+	        goto mnewton_cleanup;
+	     }
+       else
+        {
+          MPS_DEBUG_RDPE (s, acorr, "acorr");
+          MPS_DEBUG_RDPE (s, rtmp, "threshold");
+        }
     }
 
 
   mpc_rmod (rtmp2, corr);
   if (!rdpe_eq_zero (rtmp2) && root->again)
     {
-      rdpe_mul_d (rtmp, asum_on_apol, DBL_EPSILON * KAPPA);
+      rdpe_mul_d (rtmp, asum_on_apol, KAPPA);
+      rdpe_mul_eq (rtmp, s->mp_epsilon);
       rdpe_add_eq (rtmp, rdpe_one);
       rdpe_mul_eq (rtmp2, rtmp);
 
@@ -685,7 +694,7 @@ mps_secular_mnewton (mps_context * s, mps_polynomial * p, mps_approximation * ro
       rdpe_add_eq (rtmp2, rtmp);
 
       if (rdpe_lt (rtmp2, root->drad))
-	rdpe_set (root->drad, rtmp2);
+	      rdpe_set (root->drad, rtmp2);
     }
   
  mnewton_cleanup:
