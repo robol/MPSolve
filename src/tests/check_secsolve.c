@@ -127,7 +127,7 @@ test_secsolve_on_pol_impl (test_pol * pol, mps_output_goal goal)
         {   
           mpc_sub (ctmp, root, mroot[j]);
           mpc_get_cdpe (cdtmp, ctmp);   
-          cdpe_mod (rtmp, cdtmp);   
+          cdpe_mod (rtmp, cdtmp);
           
           if (rdpe_le (rtmp, min_dist))
             {

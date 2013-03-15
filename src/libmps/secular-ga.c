@@ -354,8 +354,6 @@ mps_secular_ga_mpsolve (mps_context * s)
           break;
         }
 
-      mps_dump (s);
-
       /* Increase the packet counter */
       packet++;
           
