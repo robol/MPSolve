@@ -286,14 +286,8 @@ mps_daberth_packet (mps_context * ctx, mps_polynomial * p, mps_boolean just_rege
 
   for (i = 0; i < ctx->n; i++)
     {
-      if (MPS_ROOT_STATUS_IS_COMPUTED (ctx->root[i]->status))
-        ctx->root[i]->again = false;
-
       if (MPS_ROOT_STATUS_IS_APPROXIMATED (ctx->root[i]->status))
-      {
         ctx->root[i]->approximated = true;
-        ctx->root[i]->again = false;
-      }
 
       if (!ctx->root[i]->again)
         it_threshold--;
