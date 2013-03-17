@@ -130,14 +130,8 @@ mps_faberth_packet (mps_context * ctx, mps_polynomial * p, mps_boolean just_rege
 
   for (i = 0; i < ctx->n; i++)
     {
-      if (MPS_ROOT_STATUS_IS_COMPUTED (ctx->root[i]->status))
-        ctx->root[i]->again = false;
-
       if (MPS_ROOT_STATUS_IS_APPROXIMATED (ctx->root[i]->status))
-      {
         ctx->root[i]->approximated = true;
-        ctx->root[i]->again = false;
-      }
 
       if (!ctx->root[i]->again)
         it_threshold--;
@@ -165,9 +159,6 @@ mps_faberth_packet (mps_context * ctx, mps_polynomial * p, mps_boolean just_rege
       if (!ctx->root[i]->again) 
        root_neighborhood_roots++; 
     }
-
-  if (just_regenerated && (iterations <= it_threshold))
-    ctx->best_approx = true;
 
   MPS_DEBUG_WITH_INFO (ctx, "%d roots are approximated within the current precision", approximated_roots);
   MPS_DEBUG_WITH_INFO (ctx,"%d roots are in the root neighborhood", root_neighborhood_roots);
@@ -447,14 +438,8 @@ mps_maberth_packet (mps_context * ctx, mps_polynomial * p, mps_boolean just_rege
 
   for (i = 0; i < ctx->n; i++)
     {
-      if (MPS_ROOT_STATUS_IS_COMPUTED (ctx->root[i]->status))
-        ctx->root[i]->again = false;
-
       if (MPS_ROOT_STATUS_IS_APPROXIMATED (ctx->root[i]->status))
-      {
         ctx->root[i]->approximated = true;
-        ctx->root[i]->again = false;
-      }
 
       if (!ctx->root[i]->again)
         it_threshold--;
