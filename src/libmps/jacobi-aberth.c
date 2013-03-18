@@ -128,6 +128,10 @@ mps_faberth_packet (mps_context * ctx, mps_polynomial * p, mps_boolean just_rege
   int iterations = 0, i = 0, approximated_roots = 0, packet = 0, root_neighborhood_roots = 0;
   int it_threshold = ctx->n;
 
+#ifndef DISABLE_DEBUG
+  clock_t *my_clock = mps_start_timer ();
+#endif
+
   for (i = 0; i < ctx->n; i++)
     {
       if (MPS_ROOT_STATUS_IS_APPROXIMATED (ctx->root[i]->status))
@@ -162,6 +166,10 @@ mps_faberth_packet (mps_context * ctx, mps_polynomial * p, mps_boolean just_rege
 
   MPS_DEBUG_WITH_INFO (ctx, "%d roots are approximated within the current precision", approximated_roots);
   MPS_DEBUG_WITH_INFO (ctx,"%d roots are in the root neighborhood", root_neighborhood_roots);
+
+#ifndef DISABLE_DEBUG
+  ctx->fp_iteration_time += mps_stop_timer (my_clock);
+#endif
 
   return root_neighborhood_roots;
 }
@@ -275,6 +283,10 @@ mps_daberth_packet (mps_context * ctx, mps_polynomial * p, mps_boolean just_rege
   int iterations = 0, i = 0, approximated_roots = 0, packet = 0, root_neighborhood_roots = 0;
   int it_threshold = ctx->n;
 
+#ifndef DISABLE_DEBUG
+  clock_t *my_clock = mps_start_timer ();
+#endif  
+
   for (i = 0; i < ctx->n; i++)
     {
       if (MPS_ROOT_STATUS_IS_APPROXIMATED (ctx->root[i]->status))
@@ -309,6 +321,10 @@ mps_daberth_packet (mps_context * ctx, mps_polynomial * p, mps_boolean just_rege
 
   MPS_DEBUG_WITH_INFO (ctx, "%d roots are approximated within the current precision", approximated_roots);
   MPS_DEBUG_WITH_INFO (ctx,"%d roots are in the root neighborhood", root_neighborhood_roots);
+
+#ifndef DISABLE_DEBUG
+  ctx->fp_iteration_time += mps_stop_timer (my_clock);
+#endif  
 
   return root_neighborhood_roots;
 }
@@ -436,6 +452,10 @@ mps_maberth_packet (mps_context * ctx, mps_polynomial * p, mps_boolean just_rege
   int iterations = 0, i = 0, approximated_roots = 0, packet = 0, root_neighborhood_roots = 0;
   int it_threshold = ctx->n;
 
+#ifndef DISABLE_DEBUG
+  clock_t *my_clock = mps_start_timer ();
+#endif  
+
   for (i = 0; i < ctx->n; i++)
     {
       if (MPS_ROOT_STATUS_IS_APPROXIMATED (ctx->root[i]->status))
@@ -470,6 +490,10 @@ mps_maberth_packet (mps_context * ctx, mps_polynomial * p, mps_boolean just_rege
 
   MPS_DEBUG_WITH_INFO (ctx, "%d roots are approximated within the current precision", approximated_roots);
   MPS_DEBUG_WITH_INFO (ctx,"%d roots are in the root neighborhood", root_neighborhood_roots);
+
+#ifndef DISABLE_DEBUG
+  ctx->fp_iteration_time += mps_stop_timer (my_clock);
+#endif  
 
   return root_neighborhood_roots;
 }
