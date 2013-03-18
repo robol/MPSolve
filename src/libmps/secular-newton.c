@@ -16,7 +16,7 @@
 #include <math.h>
 
 #define MPS_2SQRT2 2.82842712474619009760
-#define KAPPA (MPS_POLYNOMIAL (sec)->degree * 1.4142135 + log2(MPS_POLYNOMIAL (sec)->degree) + 7 * 1.4151135 + 1)
+#define KAPPA (MPS_POLYNOMIAL (sec)->degree * log2(MPS_POLYNOMIAL (sec)->degree) + 7 * 1.4151135 + 1)
 #define KAPPA_LINEAR (MPS_POLYNOMIAL (sec)->degree + 7 * 1.4142135623)
 #define MPS_SQRT2 1.4142135623
 
@@ -669,15 +669,11 @@ mps_secular_mnewton (mps_context * s, mps_polynomial * p, mps_approximation * ro
       if (rdpe_lt (acorr, rtmp))
 	     {
 	        root->approximated = true;
+          root->again = false;
 	        if (s->debug_level & MPS_DEBUG_PACKETS)
 	          MPS_DEBUG (s, "Stopping Aberth iterations due to small Newton correction");
 	        goto mnewton_cleanup;
 	     }
-       else
-        {
-          MPS_DEBUG_RDPE (s, acorr, "acorr");
-          MPS_DEBUG_RDPE (s, rtmp, "threshold");
-        }
     }
 
 

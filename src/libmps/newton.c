@@ -418,11 +418,6 @@ mps_mnewton (mps_context * s, mps_polynomial * poly,
       rdpe_mul_d (root->drad, rnew, (double) (n + 1));
     }
 
-  MPS_DEBUG_RDPE (s, root->drad, "Radius");
-  MPS_DEBUG_RDPE (s, absp, "absp");
-  MPS_DEBUG_RDPE (s, apeps, "apeps");
-  MPS_DEBUG_RDPE (s, temp, "temp");
-
 exit_sub:
   mpc_clear (p1);
   mpc_clear (p);
