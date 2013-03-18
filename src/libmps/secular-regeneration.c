@@ -149,7 +149,7 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
 
   /* The precision of the temporary variables at the start of the computation. We can set
    * this to s->mpwp; */
-  long int coeff_wp = s->root[i]->wp;
+  long int coeff_wp = s->mpwp;
 
   /* This variable is true if the regeneration succeeded. */
   mps_boolean success = true;
@@ -249,15 +249,6 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
             {
               MPS_DEBUG_RDPE (s, relative_error, "Relative_error on p(b_%d) evaluation", i);
             }
-        }
-
-      if (mpc_get_prec (mprod_b) < s->root[i]->wp)
-        {
-          mpc_set_prec (mprod_b, s->root[i]->wp);
-          mpc_set_prec (lc, s->root[i]->wp);
-          mpc_set_si (lc, -1, 0);
-          mps_polynomial_get_leading_coefficient (s, p, ctmp);
-          mpc_div_eq (lc, ctmp);
         }
 
       mpc_set (my_b, bmpc[i]);
