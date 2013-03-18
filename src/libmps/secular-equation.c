@@ -677,18 +677,21 @@ mps_secular_set_radii (mps_context * s)
 
   /* Check if the Gerschgorin's radii are more convenient */
   for (i = 0; i < s->n; i++)
-    {      
+    {
       mpc_get_cdpe (ctmp, sec->ampc[i]);
       cdpe_mod (rad, ctmp);
-      
+
       rdpe_mul_eq (rad, rad_eps);
-      
+
       rdpe_mul_eq_d (rad, (double) s->n);
-      
+
       rdpe_set (drad[i], rad);
 
       mpc_rmod (rtmp, s->root[i]->mvalue);
-      rdpe_mul_eq (rtmp, s->mp_epsilon);
+      if (s->lastphase == mp_phase)
+        rdpe_mul_eq (rtmp, s->mp_epsilon);
+      else
+        rdpe_mul_eq_d (rtmp, DBL_EPSILON);
       rdpe_mul_eq_d (rtmp, 4.0);
       rdpe_add_eq (drad[i], rtmp);
     }
