@@ -83,8 +83,8 @@ test_mpsolve (char * pol_file, char * res_file, mps_algorithm algorithm)
   
   fprintf (stderr, "Checking \033[1m%-30s\033[0m [\033[34;1mchecking\033[0m]", pol_file + 9);
 
-  mps_context_set_output_goal (s, MPS_OUTPUT_GOAL_APPROXIMATE);
-  mps_context_set_output_prec (s, 15);
+  mps_context_set_output_goal (s, MPS_OUTPUT_GOAL_ISOLATE);
+  mps_context_set_output_prec (s, 50 * LOG2_10);
   rdpe_set_dl (eps, 1.0, -15);
 
   /* Solve it */

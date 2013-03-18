@@ -466,7 +466,6 @@ mps_secular_ga_mpsolve (mps_context * s)
   cleanup:
 
   mps_copy_roots (s);
-
   mps_dump (s);
 
   /* Finally improve the roots if approximation is required */

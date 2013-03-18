@@ -300,8 +300,6 @@ mps_context_get_roots_m (mps_context * s, mpc_t ** roots, rdpe_t ** radius)
 {
   int i;
 
-  mps_copy_roots (s);
-
   if (!*roots)
     {
       *roots = mpc_valloc (s->n);

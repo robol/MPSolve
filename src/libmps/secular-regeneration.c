@@ -276,7 +276,7 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
 
               /* We'll make floating point multiplication to have
                * a faster implementation. */
-              if (s->lastphase != mp_phase && false)
+              if (s->lastphase != mp_phase)
                 mpc_get_cdpe (cdiff, mdiff);
               
               /* If the difference is zero then regeneration cannot succeed, and means
@@ -290,13 +290,13 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
                   goto monomial_regenerate_exit;
                 }
 
-              if (s->lastphase != mp_phase && false)
+              if (s->lastphase != mp_phase)
                 cdpe_mul_eq (cprod_b, cdiff);
               else
                 mpc_mul_eq (mprod_b, mdiff);
             }
 
-      if (s->lastphase != mp_phase && false)
+      if (s->lastphase != mp_phase)
         mpc_set_cdpe (mprod_b, cprod_b);
       
       /* Actually divide the result and store it in
