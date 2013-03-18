@@ -371,6 +371,8 @@ mps_secular_dnewton (mps_context * s, mps_polynomial * p, mps_approximation * ro
 	      root->again = false;
 	    }
 	}
+      else
+	root->again = false;
 
       return;
     }

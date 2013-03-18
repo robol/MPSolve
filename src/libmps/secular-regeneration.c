@@ -208,7 +208,7 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
       s->root[i]->wp = MAX (s->mpwp + log2 (s->n), s->root[i]->wp);
       mps_secular_ga_update_root_wp (s, i, s->root[i]->wp, bmpc);
 
-      mpc_set (tx, bmpc[i]);
+      mpc_set (tx, sec->bmpc[i]);
       mps_polynomial_meval (s, p, tx, sec->ampc[i], relative_error);
 
       if (s->debug_level & MPS_DEBUG_REGENERATION)
@@ -260,7 +260,9 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
           mpc_div_eq (lc, ctmp);
         }
 
+      pthread_mutex_lock (&sec->bmpc_mutex[i]);
       mpc_set (my_b, bmpc[i]);
+      pthread_mutex_unlock (&sec->bmpc_mutex[i]);
       
       /* Compute the difference of the b_i */
       mpc_set_ui (mprod_b, 1U, 0U);
@@ -317,16 +319,15 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
       else
         {
           mpc_set_ui (mprod_b, 1U, 0U);
-
           for (j = 0; j < MPS_POLYNOMIAL (sec)->degree; j++) {
             if (root_changed[j] && i != j) {
               mpc_sub (mdiff, bmpc[i], old_mb[j]);  
 
-              mpc_mul_eq (mprod_b, mdiff);                  
+                mpc_mul_eq (mprod_b, mdiff);                  
 
               mpc_sub (mdiff, bmpc[i], bmpc[j]); 
 
-              mpc_div_eq (mprod_b, mdiff); 
+                mpc_div_eq (mprod_b, mdiff); 
             }
           }
 
@@ -873,9 +874,8 @@ mps_secular_ga_regenerate_coefficients (mps_context * s)
   if (successful_regeneration)
     {
       MPS_DEBUG (s, "Setting again to true");
-      for (i = 0; i < s->n; i++)
-        if (! MPS_ROOT_STATUS_IS_COMPUTED (s->root[i]->status))
-          s->root[i]->again = true; 
+      for (i = 0; i < s->n; i++) 
+        s->root[i]->again = true;
     }
 
   mpc_vclear (old_mb, s->n);
