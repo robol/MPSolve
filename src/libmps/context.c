@@ -397,6 +397,22 @@ mps_context_set_output_goal (mps_context * s, mps_output_goal goal)
 }
 
 /**
+ * @brief Set the value of the jacobi iterations switch in the MPSolve context.
+ *
+ * If jacobi_iterations is true then the Ehrlich-Aberth iterations will be carried
+ * out in a Jacobi fashion, otherwise Gauss-Seidel style will be employed. 
+ *
+ * @param s The mps_context where the value will be set
+ * @param jacobi_iterations The desired value for the jacobi_iterations switch.
+ */
+void 
+mps_context_set_jacobi_iterations (mps_context * s, mps_boolean jacobi_iterations)
+{
+  s->jacobi_iterations = jacobi_iterations;
+}
+
+
+/**
  * @brief Set the debug level in MPSolve.
  *
  * @param s The <code>mps_context</code> of the current computation.

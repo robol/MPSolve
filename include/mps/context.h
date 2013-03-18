@@ -504,9 +504,16 @@ extern "C"
     mps_thread_pool * pool;
 
     /**
-     * @brief TBD
+     * @brief Auxiliary memory used in regeneation to avoid thread-safeness
+     * issues. 
      */
     mpc_t * bmpc;
+
+    /**
+     * @brief True if Jacobi-style iterations must be used in the secular
+     * algorithm.
+     */
+    mps_boolean jacobi_iterations;
 
     /**
      * @brief Char to be intersted after the with statement in the output piped to gnuplot.
@@ -557,6 +564,7 @@ extern "C"
   void mps_context_set_output_goal (mps_context * s, mps_output_goal goal);
   void mps_context_set_starting_phase (mps_context * s, mps_phase phase);
   void mps_context_set_log_stream (mps_context * s, FILE * logstr);
+  void mps_context_set_jacobi_iterations (mps_context * s, mps_boolean jacobi_iterations);
 
   /* Debugging */
   void mps_context_set_debug_level (mps_context * s, mps_debug_level level);

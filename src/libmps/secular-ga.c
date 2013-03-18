@@ -330,8 +330,11 @@ mps_secular_ga_mpsolve (mps_context * s)
         {
         case float_phase:
           MPS_DEBUG_WITH_INFO (s, "Starting floating point iterations");
+
+        if (s->jacobi_iterations)
+          roots_computed = mps_faberth_packet (s, MPS_POLYNOMIAL (sec), just_regenerated);
+        else
           roots_computed = mps_secular_ga_fiterate (s, s->max_it, just_regenerated);
-          // roots_computed = mps_faberth_packet (s, MPS_POLYNOMIAL (sec), just_regenerated);
 
           /* If the computation fails we need to switch to DPE so do not
            * break here, but continue the cycle. */
@@ -340,14 +343,22 @@ mps_secular_ga_mpsolve (mps_context * s)
 
         case dpe_phase:
           MPS_DEBUG_WITH_INFO (s, "Starting DPE iterations");
+
+        if (s->jacobi_iterations)
+          roots_computed = mps_daberth_packet (s, MPS_POLYNOMIAL (sec), just_regenerated);
+        else   
           roots_computed = mps_secular_ga_diterate (s, s->max_it, just_regenerated);
-          // roots_computed = mps_daberth_packet (s, MPS_POLYNOMIAL (sec), just_regenerated);
+
           break;
 
         case mp_phase:
           MPS_DEBUG_WITH_INFO (s, "Starting MP iterations");
+
+        if (s->jacobi_iterations)
+          roots_computed = mps_maberth_packet (s, MPS_POLYNOMIAL (sec), just_regenerated);
+        else 
           roots_computed = mps_secular_ga_miterate (s, s->max_it, just_regenerated);
-          // roots_computed = mps_maberth_packet (s, MPS_POLYNOMIAL (sec), just_regenerated);
+
           break;
 
         default:

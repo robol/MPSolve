@@ -40,6 +40,7 @@ mps_set_default_values (mps_context * s)
   s->max_pack = 100000;           /* number of max packets of iterations */
   s->max_it = 20;                /* number of max iterations per packet */
   s->max_newt_it = 15;           /* number of max newton iterations for */
+  s->jacobi_iterations = false;
 
   /* Set number of threads to 1.5 * number_of_cores, if this is
    * computable. Set it to 12 otherwise.                     */

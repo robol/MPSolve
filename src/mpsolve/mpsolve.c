@@ -166,6 +166,7 @@ usage (mps_context * s, const char *program)
            "              u: Classic unisolve algorithm (Aberth iterations and dynamic precision)\n"
            "              s: Secular algorithm, using regeneration of increasingly better-conditioned\n"
            "                 secular equation with the same roots of the polynomial\n"
+           " -b          Perform Aberth iterations in Jacobi-style instead of Gauss-Seidel\n"
            " -t type     Type can be 'f' for floating point or 'd' for DPE\n"
            " -j n        Number of threads to spawn as workers\n"
            " -o digits   Exact digits of the roots given as output.\n"
@@ -248,7 +249,7 @@ main (int argc, char **argv)
   mps_boolean graphic_debug = false;
 
   opt = NULL;
-  while ((mps_getopts (&opt, &argc, &argv, "a:G:D:d::xt:o:O:j:S:O:i:vl:")))
+  while ((mps_getopts (&opt, &argc, &argv, "a:G:D:d::xt:o:O:j:S:O:i:vl:b")))
     {
       switch (opt->optchar)
         {
@@ -436,6 +437,9 @@ main (int argc, char **argv)
               mps_error (s, 1, "The selected algorithm is not supported");
               break;
             }
+          break;
+        case 'b':
+          mps_context_set_jacobi_iterations (s, true);
           break;
         case 'o':
           mps_context_set_output_prec (s, (atoi (opt->optvalue)) * LOG2_10 + 1);
