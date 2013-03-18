@@ -16,13 +16,15 @@
  */
 test_pol **test_polynomials;
 
-int test_secsolve_on_pol_impl (test_pol*, mps_output_goal);
+int test_secsolve_on_pol_impl (test_pol*, mps_output_goal, mps_boolean jacobi_iterations);
 
 int 
 test_secsolve_on_pol (test_pol * pol)
 {
-  return test_secsolve_on_pol_impl (pol, MPS_OUTPUT_GOAL_ISOLATE) &&
-    test_secsolve_on_pol_impl (pol, MPS_OUTPUT_GOAL_APPROXIMATE);
+  return test_secsolve_on_pol_impl (pol, MPS_OUTPUT_GOAL_ISOLATE, false) &&
+    test_secsolve_on_pol_impl (pol, MPS_OUTPUT_GOAL_APPROXIMATE, false); /*  &&
+    test_secsolve_on_pol_impl (pol, MPS_OUTPUT_GOAL_ISOLATE, true)       &&
+    test_secsolve_on_pol_impl (pol, MPS_OUTPUT_GOAL_APPROXIMATE, true); */
 }
 
 /**
@@ -30,7 +32,7 @@ test_secsolve_on_pol (test_pol * pol)
  * referenced by <code>pol</code>.
  */
 int
-test_secsolve_on_pol_impl (test_pol * pol, mps_output_goal goal)
+test_secsolve_on_pol_impl (test_pol * pol, mps_output_goal goal, mps_boolean jacobi_iterations)
 {
   mpc_t root, ctmp;
   mps_boolean passed = true;
@@ -71,6 +73,7 @@ test_secsolve_on_pol_impl (test_pol * pol, mps_output_goal goal)
 
   mps_context_set_output_prec (s, pol->out_digits);
   mps_context_set_output_goal (s, goal);
+  mps_context_set_jacobi_iterations (s, jacobi_iterations);
 
   /* Solve it */
   mps_context_select_algorithm (s, (pol->ga) ? MPS_ALGORITHM_SECULAR_GA : MPS_ALGORITHM_STANDARD_MPSOLVE);
