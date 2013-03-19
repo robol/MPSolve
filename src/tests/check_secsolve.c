@@ -215,7 +215,7 @@ START_TEST (test_secsolve_altern)
 {
   /* Start with testing floating point without ga */
   test_pol *pol =
-    test_pol_new ("test100", "secsolve", 10, dpe_phase, false);
+    test_pol_new ("test100", "secsolve", 53, dpe_phase, false);
   test_secsolve_on_pol (pol);
   test_pol_free (pol);
 }
@@ -224,7 +224,7 @@ END_TEST
 START_TEST (test_secsolve_altern_ga)
 {
   test_pol *pol = 
-    test_pol_new ("test100", "secsolve", 10, dpe_phase, true);
+    test_pol_new ("test100", "secsolve", 53, dpe_phase, true);
 
   test_secsolve_on_pol (pol);
   test_pol_free (pol);
@@ -262,17 +262,17 @@ END_TEST
 START_TEST (test_secsolve_wilkinson)
 {
   /* Testing the wilkinson polynomial of degree 20 */
-  test_pol *pol = test_pol_new ("wilk20", "secsolve", 11, float_phase, true);
+  test_pol *pol = test_pol_new ("wilk20", "secsolve", 53, float_phase, true);
   test_secsolve_on_pol (pol);
   test_pol_free (pol);
 
   /* Testing the wilkinson polynomial of degree 40 */
-  pol = test_pol_new ("wilk40", "secsolve", 11, float_phase, true);
+  pol = test_pol_new ("wilk40", "secsolve", 53, float_phase, true);
   test_secsolve_on_pol (pol);
   test_pol_free (pol);
 
   /* Testing the wilkinson polynomial of degree 80 */
-  pol = test_pol_new ("wilk80", "secsolve", 11, float_phase, true);
+  pol = test_pol_new ("wilk80", "secsolve", 53, float_phase, true);
   test_secsolve_on_pol (pol);
   test_pol_free (pol);
 }
@@ -281,15 +281,15 @@ END_TEST
 START_TEST (test_secsolve_wilkinson_monomial)
 {
   /* Testinf the wilkinson polynomial of degree 20 */
-  test_pol *pol = test_pol_new ("wilk20", "unisolve", 11, float_phase, true);
+  test_pol *pol = test_pol_new ("wilk20", "unisolve", 53, float_phase, true);
   test_secsolve_on_pol (pol);
   test_pol_free (pol);
 
-  pol = test_pol_new ("wilk40", "unisolve", 11, float_phase, true);
+  pol = test_pol_new ("wilk40", "unisolve", 53, float_phase, true);
   test_secsolve_on_pol (pol);
   test_pol_free (pol);
 
-  pol = test_pol_new ("wilk80", "unisolve", 11, float_phase, true);
+  pol = test_pol_new ("wilk80", "unisolve", 53, float_phase, true);
   test_secsolve_on_pol (pol);
   test_pol_free (pol);
 }
@@ -298,7 +298,7 @@ END_TEST
 START_TEST (test_secsolve_nroots)
 {
   /* Testing secsolve on some polynomial of the type x^n - 1 */
-  test_pol *pol = test_pol_new ("nroots50", "unisolve", 11, float_phase, true);
+  test_pol *pol = test_pol_new ("nroots50", "unisolve", 53, float_phase, true);
   test_secsolve_on_pol (pol);
   test_pol_free (pol);  
 }
@@ -307,7 +307,7 @@ END_TEST
 START_TEST (test_secsolve_kam1_1) 
 { 
   /* Testing the kam polynomials */ 
-  test_pol *pol = test_pol_new ("kam1_1", "unisolve", 11, float_phase, true); 
+  test_pol *pol = test_pol_new ("kam1_1", "unisolve", 53, float_phase, true); 
   test_secsolve_on_pol (pol); 
   test_pol_free (pol); 
 } 
@@ -315,7 +315,7 @@ END_TEST
 
 START_TEST (test_secsolve_kam1_2)
 {
-  test_pol *pol = test_pol_new ("kam1_2", "unisolve", 11, float_phase, true);
+  test_pol *pol = test_pol_new ("kam1_2", "unisolve", 53, float_phase, true);
   test_secsolve_on_pol (pol);
   test_pol_free (pol);
 }
@@ -323,7 +323,7 @@ END_TEST
 
 START_TEST (test_secsolve_kam1_3)
 {
-  test_pol *pol = test_pol_new ("kam1_3", "unisolve", 11, float_phase, true);
+  test_pol *pol = test_pol_new ("kam1_3", "unisolve", 53, float_phase, true);
   test_secsolve_on_pol (pol);
   test_pol_free (pol);
 }
@@ -331,7 +331,7 @@ END_TEST
 
 START_TEST (test_secsolve_kam2_1) 
 { 
-  test_pol *pol = test_pol_new ("kam2_1", "unisolve", 11, float_phase, true); 
+  test_pol *pol = test_pol_new ("kam2_1", "unisolve", 53, float_phase, true); 
   test_secsolve_on_pol (pol); 
   test_pol_free (pol); 
 } 
@@ -339,7 +339,7 @@ END_TEST
  
 START_TEST (test_secsolve_kam2_2)
 {
-  test_pol *pol = test_pol_new ("kam2_2", "unisolve", 11, float_phase, true);
+  test_pol *pol = test_pol_new ("kam2_2", "unisolve", 53, float_phase, true);
   test_secsolve_on_pol (pol);
   test_pol_free (pol);
 }
@@ -347,7 +347,7 @@ END_TEST
 
 START_TEST (test_secsolve_kam2_3)
 {
-  test_pol *pol = test_pol_new ("kam2_3", "unisolve", 11, float_phase, true);
+  test_pol *pol = test_pol_new ("kam2_3", "unisolve", 53, float_phase, true);
   test_secsolve_on_pol (pol);
   test_pol_free (pol);
 }
@@ -355,7 +355,7 @@ END_TEST
 
 START_TEST (test_secsolve_kam3_1) 
 { 
-  test_pol *pol = test_pol_new ("kam3_1", "unisolve", 11, float_phase, true); 
+  test_pol *pol = test_pol_new ("kam3_1", "unisolve", 53, float_phase, true); 
   test_secsolve_on_pol (pol); 
   test_pol_free (pol); 
 } 
@@ -363,7 +363,7 @@ END_TEST
 
 START_TEST (test_secsolve_kam3_2)
 {
-  test_pol *pol = test_pol_new ("kam3_2", "unisolve", 11, float_phase, true);
+  test_pol *pol = test_pol_new ("kam3_2", "unisolve", 53, float_phase, true);
   test_secsolve_on_pol (pol);
   test_pol_free (pol);
 }
@@ -371,7 +371,7 @@ END_TEST
 
 START_TEST (test_secsolve_kam3_3)
 {
-  test_pol *pol = test_pol_new ("kam3_3", "unisolve", 11, float_phase, true);
+  test_pol *pol = test_pol_new ("kam3_3", "unisolve", 53, float_phase, true);
   test_secsolve_on_pol (pol);
   test_pol_free (pol);
 }
@@ -382,12 +382,12 @@ START_TEST (test_secsolve_mand)
   /* Testing secsolve on the mandelbrot polynomials */
 
   /* Mandelbrot classic, degree 63 */
-  test_pol *pol = test_pol_new ("mand63", "unisolve", 11, float_phase, true);
+  test_pol *pol = test_pol_new ("mand63", "unisolve", 53, float_phase, true);
   test_secsolve_on_pol (pol);
   test_pol_free (pol);
 
   /* Mandelbrot classic, degree 127 */
-  pol = test_pol_new ("mand127", "unisolve", 11, float_phase, true);
+  pol = test_pol_new ("mand127", "unisolve", 53, float_phase, true);
   test_secsolve_on_pol (pol);
   test_pol_free (pol);
   
@@ -397,11 +397,11 @@ END_TEST
 START_TEST (test_secsolve_exp)
 {
   /* Testing secsolve on truncated exponential series */
-  test_pol * pol = test_pol_new ("exp50", "unisolve", 11, float_phase, true);
+  test_pol * pol = test_pol_new ("exp50", "unisolve", 53, float_phase, true);
   test_secsolve_on_pol (pol);
   test_pol_free (pol);
 
-  pol = test_pol_new ("exp100", "unisolve", 11, float_phase, true);
+  pol = test_pol_new ("exp100", "unisolve", 53, float_phase, true);
   test_secsolve_on_pol (pol);
   test_pol_free (pol);
 }
@@ -409,11 +409,11 @@ END_TEST
 
 START_TEST (test_secsolve_mignotte)
 {
-  test_pol * pol = test_pol_new ("mig1_100", "unisolve", 11, float_phase, true);
+  test_pol * pol = test_pol_new ("mig1_100", "unisolve", 53, float_phase, true);
   test_secsolve_on_pol (pol);
   test_pol_free (pol);
 
-  pol = test_pol_new ("mig1_200", "unisolve", 11, float_phase, true);
+  pol = test_pol_new ("mig1_200", "unisolve", 53, float_phase, true);
   test_secsolve_on_pol (pol);
   test_pol_free (pol);
 }
@@ -453,7 +453,7 @@ END_TEST
 
 START_TEST (test_secsolve_kir1_10)
 {
-  test_pol * pol = test_pol_new ("kir1_10", "unisolve", 10, float_phase, true);
+  test_pol * pol = test_pol_new ("kir1_10", "unisolve", 53, float_phase, true);
   test_secsolve_on_pol (pol);
   test_pol_free (pol);
 }
@@ -469,7 +469,7 @@ END_TEST
 
 START_TEST (test_secsolve_kir1_20)
 {
-  test_pol * pol = test_pol_new ("kir1_20", "unisolve", 10, float_phase, true);
+  test_pol * pol = test_pol_new ("kir1_20", "unisolve", 53, float_phase, true);
   test_secsolve_on_pol (pol);
   test_pol_free (pol);
 }
@@ -477,7 +477,7 @@ END_TEST
 
 START_TEST (test_secsolve_kir1_40) 
 { 
-  test_pol * pol = test_pol_new ("kir1_40", "unisolve", 10, float_phase, true); 
+  test_pol * pol = test_pol_new ("kir1_40", "unisolve", 53, float_phase, true); 
   test_secsolve_on_pol (pol); 
   test_pol_free (pol); 
 } 
@@ -485,7 +485,7 @@ END_TEST
 
 START_TEST (test_secsolve_spiral10)
 {
-  test_pol * pol = test_pol_new ("spiral10", "unisolve", 10, float_phase, true);
+  test_pol * pol = test_pol_new ("spiral10", "unisolve", 53, float_phase, true);
   test_secsolve_on_pol (pol);
   test_pol_free (pol);
 }
@@ -493,7 +493,7 @@ END_TEST
 
 START_TEST (test_secsolve_spiral20)
 {
-  test_pol * pol = test_pol_new ("spiral20", "unisolve", 10, float_phase, true);
+  test_pol * pol = test_pol_new ("spiral20", "unisolve", 53, float_phase, true);
   test_secsolve_on_pol (pol);
   test_pol_free (pol);
 }
@@ -501,7 +501,7 @@ END_TEST
 
 START_TEST (test_secsolve_spiral10_high_precision)
 {
-  test_pol * pol = test_pol_new ("spiral10", "unisolve", 50, float_phase, true);
+  test_pol * pol = test_pol_new ("spiral10", "unisolve", 500, float_phase, true);
   test_secsolve_on_pol (pol);
   test_pol_free (pol);
 }
@@ -517,7 +517,7 @@ END_TEST
 
 START_TEST (test_secsolve_mig1_500_1)
 {
-  test_pol * pol = test_pol_new ("mig1_500_1", "unisolve", 10, float_phase, true);
+  test_pol * pol = test_pol_new ("mig1_500_1", "unisolve", 53, float_phase, true);
   test_secsolve_on_pol (pol);
   test_pol_free (pol);
 }

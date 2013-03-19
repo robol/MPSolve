@@ -698,7 +698,10 @@ mps_secular_mnewton (mps_context * s, mps_polynomial * p, mps_approximation * ro
       rdpe_add_eq (rtmp2, rtmp);
 
       if (rdpe_lt (rtmp2, root->drad))
-	      rdpe_set (root->drad, rtmp2);
+      {
+	rdpe_set (root->drad, rtmp2);
+        MPS_DEBUG_RDPE (s, root->drad, "drad");
+      }
     }
   
  mnewton_cleanup:

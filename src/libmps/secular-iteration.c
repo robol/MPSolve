@@ -26,7 +26,7 @@ __mps_secular_ga_fiterate_worker (void* data_ptr)
   double modcorr;
   mps_thread_job job;
 
-  while ((*data->nzeros < s->n) && !*data->excep)
+  while (true)
     {
       job = mps_thread_job_queue_next (s, data->queue);
       i = job.i;
@@ -295,7 +295,7 @@ __mps_secular_ga_diterate_worker (void* data_ptr)
   rdpe_t modcorr;
   mps_thread_job job;
 
-  while ((*data->nzeros < s->n))
+  while (true)
     {
       job = mps_thread_job_queue_next (s, data->queue);
       i = job.i;
@@ -509,7 +509,7 @@ __mps_secular_ga_miterate_worker (void* data_ptr)
   mpc_init2 (mroot, s->mpwp); 
 
   /* Get a copy of the MP coefficients that is local to this thread */
-  while ((*data->nzeros < s->n))
+  while (true)
     {
       job = mps_thread_job_queue_next (s, data->queue);
       i = job.i;
@@ -582,6 +582,10 @@ __mps_secular_ga_miterate_worker (void* data_ptr)
            
               /* Correct the radius */
               mpc_rmod (modcorr, abcorr);
+              rdpe_add_eq (s->root[i]->drad, modcorr);
+
+              mpc_rmod (modcorr, mroot);
+              rdpe_mul_eq (modcorr, s->mp_epsilon);
               rdpe_add_eq (s->root[i]->drad, modcorr);
             }
         }
