@@ -297,19 +297,18 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
                   goto monomial_regenerate_exit;
                 }
 
-              if (s->lastphase != mp_phase)
+              if (s->lastphase != mp_phase&& false)
                 cdpe_mul_eq (cprod_b, cdiff);
               else
                 mpc_mul_eq (mprod_b, mdiff);
             }
 
-      if (s->lastphase != mp_phase)
+      if (s->lastphase != mp_phase && false)
         mpc_set_cdpe (mprod_b, cprod_b);
       
       /* Actually divide the result and store it in
        * a_i, as requested. */
       mpc_div_eq (sec->ampc[i], mprod_b);
-      MPS_DEBUG_MPC (s, s->mpwp, sec->ampc[i], "a_%d", i);
       
       /* Debug computed coefficients */
       if (s->debug_level & MPS_DEBUG_REGENERATION)
