@@ -208,18 +208,21 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
       s->root[i]->wp = MAX (s->mpwp + log2 (s->n), s->root[i]->wp);
       mps_secular_ga_update_root_wp (s, i, s->root[i]->wp, bmpc);
 
-      mpc_set (tx, sec->bmpc[i]);
+      mpc_set (tx, bmpc[i]);
       mps_polynomial_meval (s, p, tx, sec->ampc[i], relative_error);
-
-      if (s->debug_level & MPS_DEBUG_REGENERATION)
-        {
-          MPS_DEBUG_MPC  (s, mpc_get_prec (sec->ampc[i]), sec->ampc[i], "p(b_%d)", i);
-          MPS_DEBUG_RDPE (s, relative_error, "Absolute error on p(b_%d) evaluation", i);
-        }
 
       mpc_get_cdpe (cpol, sec->ampc[i]);
       cdpe_mod (rtmp, cpol);
       rdpe_div_eq (relative_error, rtmp);
+
+      mpc_set_si (lc, -1, 0);
+      mps_polynomial_get_leading_coefficient (s, p, ctmp);
+      mpc_div_eq (lc, ctmp);
+
+      mpc_mul_eq (sec->ampc[i], lc);
+
+      if (s->debug_level & MPS_DEBUG_REGENERATION)
+        MPS_DEBUG_MPC  (s, mpc_get_prec (sec->ampc[i]), sec->ampc[i], "p(b_%d)", i);
 
       if (s->debug_level & MPS_DEBUG_REGENERATION)
         MPS_DEBUG_RDPE (s, relative_error, "Relative_error on p(b_%d) evaluation", i);
@@ -233,17 +236,19 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
           /* Try to recompute the polynomial with the augmented precision and see if now relative_error matches */
           mpc_set_prec (tx, s->root[i]->wp);
           mps_polynomial_meval (s, p, tx, sec->ampc[i], relative_error);
-          
-          if (s->debug_level & MPS_DEBUG_REGENERATION)
-            {
-              MPS_DEBUG_MPC  (s, mpc_get_prec (sec->ampc[i]), sec->ampc[i], "p(b_%d)", i);
-              MPS_DEBUG_RDPE (s, relative_error, "Absolute error on p(b_%d) evaluation", i);
-              MPS_DEBUG_MPC (s, mpc_get_prec (sec->ampc[i]), sec->ampc[i], "p(b_%d)", i);
-            }
 
           mpc_get_cdpe (cpol, sec->ampc[i]);
           cdpe_mod (rtmp, cpol);
           rdpe_div_eq (relative_error, rtmp);
+
+          mpc_set_si (lc, -1, 0);
+          mps_polynomial_get_leading_coefficient (s, p, ctmp);
+          mpc_div_eq (lc, ctmp);
+
+          mpc_mul_eq (sec->ampc[i], lc);
+
+          if (s->debug_level & MPS_DEBUG_REGENERATION)
+            MPS_DEBUG_MPC  (s, mpc_get_prec (sec->ampc[i]), sec->ampc[i], "p(b_%d)", i);
               
           if (s->debug_level & MPS_DEBUG_REGENERATION)
             {
@@ -304,7 +309,7 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
       /* Actually divide the result and store it in
        * a_i, as requested. */
       mpc_div_eq (sec->ampc[i], mprod_b);
-      mpc_mul_eq (sec->ampc[i], lc);
+      MPS_DEBUG_MPC (s, s->mpwp, sec->ampc[i], "a_%d", i);
       
       /* Debug computed coefficients */
       if (s->debug_level & MPS_DEBUG_REGENERATION)
@@ -319,15 +324,16 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
       else
         {
           mpc_set_ui (mprod_b, 1U, 0U);
+
           for (j = 0; j < MPS_POLYNOMIAL (sec)->degree; j++) {
             if (root_changed[j] && i != j) {
               mpc_sub (mdiff, bmpc[i], old_mb[j]);  
 
-                mpc_mul_eq (mprod_b, mdiff);                  
+              mpc_mul_eq (mprod_b, mdiff);                  
 
               mpc_sub (mdiff, bmpc[i], bmpc[j]); 
 
-                mpc_div_eq (mprod_b, mdiff); 
+              mpc_div_eq (mprod_b, mdiff); 
             }
           }
 
@@ -874,8 +880,8 @@ mps_secular_ga_regenerate_coefficients (mps_context * s)
   if (successful_regeneration)
     {
       MPS_DEBUG (s, "Setting again to true");
-      for (i = 0; i < s->n; i++) 
-        s->root[i]->again = true;
+      for (i = 0; i < s->n; i++)
+        s->root[i]->again = ! MPS_ROOT_STATUS_IS_COMPUTED (s->root[i]->status);
     }
 
   mpc_vclear (old_mb, s->n);
