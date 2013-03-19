@@ -97,7 +97,7 @@ mps_improve (mps_context * s)
       	    MPS_DEBUG (s, "Not approximating root %i since it is already approximated", i);	 
       	}
       else
-	      mps_thread_pool_assign (s, NULL, mps_improve_root2, improve_data + i);
+        mps_thread_pool_assign (s, NULL, mps_improve_root2, improve_data + i);
     }
 
   mps_thread_pool_wait (s, s->pool);

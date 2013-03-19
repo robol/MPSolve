@@ -485,7 +485,7 @@ END_TEST
 
 START_TEST (test_secsolve_spiral10)
 {
-  test_pol * pol = test_pol_new ("spiral10", "unisolve", 53, float_phase, true);
+  test_pol * pol = test_pol_new ("spiral10", "unisolve", 30, float_phase, true);
   test_secsolve_on_pol (pol);
   test_pol_free (pol);
 }
@@ -493,7 +493,7 @@ END_TEST
 
 START_TEST (test_secsolve_spiral20)
 {
-  test_pol * pol = test_pol_new ("spiral20", "unisolve", 53, float_phase, true);
+  test_pol * pol = test_pol_new ("spiral20", "unisolve", 30, float_phase, true);
   test_secsolve_on_pol (pol);
   test_pol_free (pol);
 }
