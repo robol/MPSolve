@@ -147,13 +147,16 @@ mps_secular_fnewton (mps_context * s, mps_polynomial * p, mps_approximation * ro
       int k;
       asum = 0.0;
 
+      cplx_set (corr, cplx_zero);
+
       for (k = 0; k < MPS_POLYNOMIAL (sec)->degree; k++)
   	    {
   	       if (i != k)
   	        {
   	          cplx_sub (ctmp, bfpc[i], bfpc[k]);
   	          cplx_add (ctmp2, afpc[i], afpc[k]);
-  	          cplx_div_eq (ctmp2, ctmp);
+  	          cplx_inv_eq (ctmp);
+              cplx_mul_eq (ctmp2, ctmp);
   	          cplx_add_eq (corr, ctmp2);
 
               asum += fabs (cplx_Re (ctmp2)) + fabs (cplx_Im (ctmp2));
@@ -347,16 +350,19 @@ mps_secular_dnewton (mps_context * s, mps_polynomial * p, mps_approximation * ro
     {
       int k;
 
+      cdpe_set (corr, cdpe_zero);
+
       for (k = 0; k < MPS_POLYNOMIAL (sec)->degree; k++)
-	{
-	  if (i != k)
-	    {
-	      cdpe_sub (ctmp, sec->bdpc[i], sec->bdpc[k]);
-	      cdpe_add (ctmp2, sec->adpc[i], sec->adpc[k]);
-	      cdpe_div_eq (ctmp2, ctmp);
-	      cdpe_add_eq (corr, ctmp2);
-	    }
-	}
+      	{
+      	  if (i != k)
+      	    {
+      	      cdpe_sub (ctmp, sec->bdpc[i], sec->bdpc[k]);
+      	      cdpe_add (ctmp2, sec->adpc[i], sec->adpc[k]);
+              cdpe_inv_eq (ctmp);
+      	      cdpe_mul_eq (ctmp2, ctmp);
+      	      cdpe_add_eq (corr, ctmp2);
+      	    }
+      	}
 
       cdpe_sub_eq (corr, cdpe_one);
 
