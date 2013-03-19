@@ -149,7 +149,7 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
 
   /* The precision of the temporary variables at the start of the computation. We can set
    * this to s->mpwp; */
-  long int coeff_wp = s->root[i]->wp;
+  long int coeff_wp = s->mpwp;
 
   /* This variable is true if the regeneration succeeded. */
   mps_boolean success = true;
