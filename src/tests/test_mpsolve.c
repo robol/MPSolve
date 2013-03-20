@@ -13,7 +13,7 @@
 #define TEST_UNISOLVE(pol_name) {\
   char * pol_file = get_pol_file (pol_name, "unisolve"); \
   char * res_file = get_res_file (pol_name, "unisolve"); \
-  test_mpsolve (pol_file, res_file, MPS_ALGORITHM_STANDARD_MPSOLVE);	\
+  test_mpsolve (pol_file, res_file, MPS_ALGORITHM_STANDARD_MPSOLVE);    \
   free (pol_file); \
   free (res_file); \
   }
@@ -21,7 +21,7 @@
 #define TEST_SECSOLVE_SECULAR(pol_name) {\
   char * pol_file = get_pol_file (pol_name, "secsolve"); \
   char * res_file = get_res_file (pol_name, "secsolve"); \
-  test_mpsolve (pol_file, res_file, MPS_ALGORITHM_SECULAR_MPSOLVE);	\
+  test_mpsolve (pol_file, res_file, MPS_ALGORITHM_STANDARD_MPSOLVE);    \
   free (pol_file); \
   free (res_file); \
   }
@@ -29,7 +29,7 @@
 #define TEST_SECSOLVE_MONOMIAL(pol_name) {\
   char * pol_file = get_pol_file (pol_name, "unisolve"); \
   char * res_file = get_res_file (pol_name, "unisolve"); \
-  test_mpsolve (pol_file, res_file, MPS_ALGORITHM_SECULAR_GA);	\
+  test_mpsolve (pol_file, res_file, MPS_ALGORITHM_SECULAR_GA);  \
   free (pol_file); \
   free (res_file); \
   }
@@ -83,8 +83,8 @@ test_mpsolve (char * pol_file, char * res_file, mps_algorithm algorithm)
   
   fprintf (stderr, "Checking \033[1m%-30s\033[0m [\033[34;1mchecking\033[0m]", pol_file + 9);
 
-  mps_context_set_output_goal (s, MPS_OUTPUT_GOAL_APPROXIMATE);
-  mps_context_set_output_prec (s, 15);
+  mps_context_set_output_goal (s, MPS_OUTPUT_GOAL_ISOLATE);
+  mps_context_set_output_prec (s, 50 * LOG2_10);
   rdpe_set_dl (eps, 1.0, -15);
 
   /* Solve it */
@@ -101,7 +101,7 @@ test_mpsolve (char * pol_file, char * res_file, mps_algorithm algorithm)
   mpc_t * mroot = mpc_valloc (mps_context_get_degree (s));
   mpc_vinit2 (mroot, mps_context_get_degree (s), 53);
 
-  mps_context_get_roots_m (s, mroot, drad);
+  mps_context_get_roots_m (s, &mroot, &drad);
 
   for (i = 0; i < mps_context_get_degree (s); i++)   
     {   
@@ -116,14 +116,14 @@ test_mpsolve (char * pol_file, char * res_file, mps_algorithm algorithm)
       mpc_inp_str (root, result_stream, 10);   
 
       if (mpc_eq_zero (root))
-	{
-	  zero_roots++;
+        {
+          zero_roots++;
 
-	  /* We need to read it another time. This seems a bug in
-	   * mpc_inp_str, but I don't get why is necessary. */
-	  mpc_inp_str (root, result_stream, 10);
-	  continue;
-	}
+          /* We need to read it another time. This seems a bug in
+           * mpc_inp_str, but I don't get why is necessary. */
+          mpc_inp_str (root, result_stream, 10);
+          continue;
+        }
       
       mpc_sub (ctmp, root, mroot[0]);   
       mpc_get_cdpe (cdtmp, ctmp);   
@@ -131,25 +131,25 @@ test_mpsolve (char * pol_file, char * res_file, mps_algorithm algorithm)
       rdpe_set (min_dist, rtmp);   
 
       if (getenv ("MPS_VERBOSE_TEST") && (strstr (pol_file, getenv ("MPS_VERBOSE_TEST"))))
-	{
-	  printf ("Read root_%d = ", i);
-	  mpc_out_str_2 (stdout, 10, mps_context_get_data_prec_max (s), mps_context_get_data_prec_max (s),
-			 root);
-	  printf ("\n");
-	}
+        {
+          printf ("Read root_%d = ", i);
+          mpc_out_str_2 (stdout, 10, mps_context_get_data_prec_max (s), mps_context_get_data_prec_max (s),
+                         root);
+          printf ("\n");
+        }
       
       for (j = 1; j < mps_context_get_degree (s); j++)   
-   	{   
-   	  mpc_sub (ctmp, root, mroot[j]);
-     	  mpc_get_cdpe (cdtmp, ctmp);   
-     	  cdpe_mod (rtmp, cdtmp);   
-	  
-     	  if (rdpe_le (rtmp, min_dist))
-	    {
-	      rdpe_set (min_dist, rtmp);
-	      found_root = j;
-	    }
-	}
+        {   
+          mpc_sub (ctmp, root, mroot[j]);
+          mpc_get_cdpe (cdtmp, ctmp);   
+          cdpe_mod (rtmp, cdtmp);   
+          
+          if (rdpe_le (rtmp, min_dist))
+            {
+              rdpe_set (min_dist, rtmp);
+              found_root = j;
+            }
+        }
 
       /* printf ("min_dist_%d = ", i); */
       /* rdpe_out_str (stdout, min_dist); */
@@ -164,21 +164,21 @@ test_mpsolve (char * pol_file, char * res_file, mps_algorithm algorithm)
       rdpe_set (exp_drad, rtmp);
       
       if ((!rdpe_le (min_dist, drad[found_root]) && !rdpe_gt (drad[found_root], exp_drad)) && !mps_context_get_over_max (s))
-	{
-	  passed = false;
-	  
-	  if (getenv ("MPS_VERBOSE_TEST") && (strstr (pol_file, getenv ("MPS_VERBOSE_TEST"))))
-	    {
-	      printf("Failing on root %d, with min_dist = ", found_root);
-	      rdpe_out_str (stdout, min_dist);
-	      printf("\ndrad_%d", found_root);
-	      rdpe_out_str (stdout, drad[found_root]);
-	      printf("\n");
-	      printf("Approximation_%d = ", found_root);
-	      mpc_out_str_2 (stdout, 10, -rdpe_Esp (drad[found_root]), -rdpe_Esp (drad[found_root]), mroot[found_root]);
-	      printf("\n");
-	    }
-	}
+        {
+          passed = false;
+          
+          if (getenv ("MPS_VERBOSE_TEST") && (strstr (pol_file, getenv ("MPS_VERBOSE_TEST"))))
+            {
+              printf("Failing on root %d, with min_dist = ", found_root);
+              rdpe_out_str (stdout, min_dist);
+              printf("\ndrad_%d", found_root);
+              rdpe_out_str (stdout, drad[found_root]);
+              printf("\n");
+              printf("Approximation_%d = ", found_root);
+              mpc_out_str_2 (stdout, 10, -rdpe_Esp (drad[found_root]), -rdpe_Esp (drad[found_root]), mroot[found_root]);
+              printf("\n");
+            }
+        }
     }
 
   if (zero_roots != mps_context_get_zero_roots (s))
@@ -237,7 +237,7 @@ void
 standard_tests (void)
 {
   test_header ("Unisolve - Classic approach", 
-	       "Testing polynomial solving with MPSolve classic approach");
+               "Testing polynomial solving with MPSolve classic approach");
 
   /* Some unisolve tests */
   TEST_UNISOLVE ("mand63");
@@ -273,14 +273,14 @@ standard_tests (void)
   TEST_UNISOLVE ("lsr_24");
 
   test_header ("Secsolve - Solving secular equation", 
-	       "Solving secular equation using MPSolve user-polynomial feature");
+               "Solving secular equation using MPSolve user-polynomial feature");
 
   /* Normal secular tests */
   TEST_SECSOLVE_SECULAR ("rand120");
   TEST_SECSOLVE_SECULAR ("rand15");
 
   test_header ("Secsolve - Solving polynomials",
-	       "Solving polynomials by representing them as secular equations");
+               "Solving polynomials by representing them as secular equations");
 
   /* Roots of unity */
   TEST_SECSOLVE_MONOMIAL ("nroots50");
@@ -314,32 +314,27 @@ main (int argc, char ** argv)
   while (mps_getopts (&opt, &argc, &argv, "a::d"))
     {
       switch (opt->optchar)
-	{
-	case 'a':
-	  if (opt->optvalue)
-	    {
-	      if (*opt->optvalue == 'g')
-		{
-		  /* fprintf (stderr, "SECSOLVE -g mode\n"); */
-		  alg = MPS_ALGORITHM_SECULAR_GA;
-		}
-	      if (*opt->optvalue == 's')
-		{
-		  /* fprintf (stderr, "SECSOLVE mode\n"); */
-		  alg = MPS_ALGORITHM_SECULAR_MPSOLVE;
-		}
-	      if (*opt->optvalue == 'u')
-		{
-		  /* fprintf (stderr, "UNISOLVE mode\n"); */
-		  alg = MPS_ALGORITHM_STANDARD_MPSOLVE;
-		}
-	    }
-	  break;
-	case 'd':
-	  debug = true;
-	default:
-	  break;
-	}
+        {
+        case 'a':
+          if (opt->optvalue)
+            {
+              if (*opt->optvalue == 'g')
+                {
+                  /* fprintf (stderr, "SECSOLVE -g mode\n"); */
+                  alg = MPS_ALGORITHM_SECULAR_GA;
+                }
+              if (*opt->optvalue == 'u')
+                {
+                  /* fprintf (stderr, "UNISOLVE mode\n"); */
+                  alg = MPS_ALGORITHM_STANDARD_MPSOLVE;
+                }
+            }
+          break;
+        case 'd':
+          debug = true;
+        default:
+          break;
+        }
     }
 
   if (argc == 3)

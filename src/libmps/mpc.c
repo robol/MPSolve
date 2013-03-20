@@ -1,7 +1,7 @@
 /*
  * This file is part of MPSolve 3.0
  *
- * Copyright (C) 2001-2012, Dipartimento di Matematica "L. Tonelli", Pisa.
+ * Copyright (C) 2001-2013, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
  * Authors: 
@@ -9,7 +9,6 @@
  *   Giuseppe Fiorentino <fiorent@dm.unipi.it>
  *   Leonardo Robol <robol@mail.dm.unipi.it>
  */
-
 
 #include <stdlib.h>
 #include <mps/mpc.h>
@@ -34,6 +33,7 @@ mpc_init (mpc_t c)
 void
 mpc_init2 (mpc_t c, unsigned long int prec)
 {
+  prec = (prec <= 2) ? 53 : prec;
   mpf_init2 (mpc_Re (c), prec);
   mpf_init2 (mpc_Im (c), prec);
 }
@@ -49,6 +49,7 @@ mpc_clear (mpc_t c)
 void
 mpc_set_prec (mpc_t c, unsigned long int prec)
 {
+  prec = (prec <= 2) ? 53 : prec;
   if (mpf_get_prec (mpc_Re (c)) < prec)
     {
       mpf_set_prec (mpc_Re (c), prec);

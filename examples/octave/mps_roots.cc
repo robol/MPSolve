@@ -93,23 +93,22 @@ is \"s\"\
       int64NDArray real_coeffs = args(0).real().int64_array_value();
       int64NDArray imag_coeffs = args(0).imag().int64_array_value();
       for (int i = 0; i < n; i++)
-    	mps_monomial_poly_set_coefficient_int (s, p, static_cast<long long int>(n - i - 1), 
-            (int64_t) real_coeffs(i), (int64_t) imag_coeffs(i));
-    }
+	mps_monomial_poly_set_coefficient_int (s, p, (n - i - 1), (int64_t) (real_coeffs(i)), (int64_t) (imag_coeffs(i)));
+   }
     else {
       for(int i = 0; i < n; i++) {
 	mps_monomial_poly_set_coefficient_d (s, p, n - i - 1, v(i).real(), v(i).imag());
       }
     }
 
-    mps_context_set_input_poly (s, p);
+    mps_context_set_input_poly (s, MPS_POLYNOMIAL (p));
     mps_context_set_output_goal (s, MPS_OUTPUT_GOAL_APPROXIMATE);
 
     /* Actually solve it */
     mps_mpsolve(s);
 
     /* Get roots and return them */
-    mps_context_get_roots_d(s, results, NULL);
+    mps_context_get_roots_d(s, &results, NULL);
     for(int i = 0; i < n - 1; i++) {
         res(i) = Complex(cplx_Re(results[i]), cplx_Im(results[i]));
     }

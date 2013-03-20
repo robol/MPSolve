@@ -1,7 +1,7 @@
 /*
  * This file is part of MPSolve 3.0
  *
- * Copyright (C) 2001-2012, Dipartimento di Matematica "L. Tonelli", Pisa.
+ * Copyright (C) 2001-2013, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
  * Authors: 
@@ -141,9 +141,9 @@ mps_fcompute_starting_radii (mps_context * s, int n, mps_cluster_item * cluster_
   for (i = 0; i <= n; i++)
     {
       if (fap[i] != 0.0)
-	s->fap2[i] = log (fap[i]);
+        s->fap2[i] = log (fap[i]);
       else
-	s->fap2[i] = temp;
+        s->fap2[i] = temp;
     }
 
   /* Compute convex hull */
@@ -217,7 +217,7 @@ mps_fcompute_starting_radii (mps_context * s, int n, mps_cluster_item * cluster_
         }
 
       if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
-	MPS_DEBUG (s, "Compacting circles from %d to %d", i, j);
+        MPS_DEBUG (s, "Compacting circles from %d to %d", i, j);
 
       /* We shall now compact circles between i and j, so
        * we start computing the mean of the radius */
@@ -274,7 +274,7 @@ mps_fcompute_starting_radii (mps_context * s, int n, mps_cluster_item * cluster_
  */
 void
 mps_fstart (mps_context * s, int n, mps_cluster_item * cluster_item, 
-	    double clust_rad, double g, rdpe_t eps, double fap[])
+            double clust_rad, double g, rdpe_t eps, double fap[])
 {
   MPS_DEBUG_THIS_CALL;
   int i, j, jj, l, nzeros = 0;
@@ -284,8 +284,6 @@ mps_fstart (mps_context * s, int n, mps_cluster_item * cluster_item,
 
   mps_cluster * cluster = NULL;
   mps_root * root = NULL;
-
-  s->operation = MPS_OPERATION_STARTING_POINTS_FP;
 
   if (cluster_item)
     cluster = cluster_item->cluster;
@@ -307,22 +305,6 @@ mps_fstart (mps_context * s, int n, mps_cluster_item * cluster_item,
     }
 
   th = pi2 / n;
-
-
-  /* In the case of user-defined polynomial choose as starting
-   * approximations equally spaced points in the unit circle.  */
-  if (MPS_INPUT_CONFIG_IS_USER (s->input_config))
-    {
-      if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
-	MPS_DEBUG (s, "User polynomial is provided, so not using Newton polygon");
-      ang = pi2 / n;
-      for (i = 0; i < n; i++)
-        {
-          cplx_set_d (s->root[i]->fvalue, cos (ang * i + sigma),
-                      sin (ang * i + sigma));
-        }
-      return;
-    }
 
   /* In the general case apply the Rouche-based criterion */
   mps_fcompute_starting_radii (s, n, cluster_item, clust_rad, g, eps, fap);
@@ -350,7 +332,7 @@ mps_fstart (mps_context * s, int n, mps_cluster_item * cluster_item,
            * representable range, to 'x' (out)    */
           if ((r == DBL_MIN) || (r == DBL_MAX))
             /* if ((r == small) || (r == big)) DARIO Giugno 23 */
-            s->root_status[l] = MPS_ROOT_STATUS_NOT_FLOAT;
+            s->root[l]->status = MPS_ROOT_STATUS_NOT_FLOAT;
           cplx_set_d (s->root[l]->fvalue,
                       r * cos (ang * jj + th * s->partitioning[i + 1] +
                                sigma),
@@ -376,7 +358,7 @@ mps_fstart (mps_context * s, int n, mps_cluster_item * cluster_item,
       	      for (root = cluster->first; root != NULL; root = root->next)
           		  {
             		  l = root->k;
-            		  s->root_status[l] = MPS_ROOT_STATUS_APPROXIMATED_IN_CLUSTER;
+            		  s->root[l]->status = MPS_ROOT_STATUS_APPROXIMATED_IN_CLUSTER;
             		  s->root[l]->frad = r * nzeros;
           		  }
       	    }
@@ -402,7 +384,7 @@ mps_fstart (mps_context * s, int n, mps_cluster_item * cluster_item,
  */
 void
 mps_dcompute_starting_radii (mps_context * s, int n, 
-			     mps_cluster_item * cluster_item,
+                             mps_cluster_item * cluster_item,
                              rdpe_t clust_rad, rdpe_t g, rdpe_t eps,
                              rdpe_t dap[])
 {
@@ -446,7 +428,7 @@ mps_dcompute_starting_radii (mps_context * s, int n,
     temp = -2.0 * (LONG_MAX * LOG2);
   for (i = 0; i <= n; i++)
     if (rdpe_ne (dap[i], rdpe_zero))
-	s->fap2[i] = rdpe_log (dap[i]);
+        s->fap2[i] = rdpe_log (dap[i]);
     else
       s->fap2[i] = temp;
 
@@ -579,7 +561,7 @@ mps_dcompute_starting_radii (mps_context * s, int n,
  */
 void
 mps_dstart (mps_context * s, int n, mps_cluster_item * cluster_item, 
-	    rdpe_t clust_rad, rdpe_t g, rdpe_t eps, rdpe_t dap[])
+            rdpe_t clust_rad, rdpe_t g, rdpe_t eps, rdpe_t dap[])
 {
   int l = 0, i, j, jj, nzeros = 0;
   rdpe_t r, tmp, tmp1;
@@ -588,8 +570,6 @@ mps_dstart (mps_context * s, int n, mps_cluster_item * cluster_item,
 
   mps_cluster * cluster = NULL;
   mps_root * root = NULL;
-
-  s->operation = MPS_OPERATION_STARTING_POINTS_DPE;
 
   if (cluster_item)
     cluster = cluster_item->cluster;
@@ -612,7 +592,7 @@ mps_dstart (mps_context * s, int n, mps_cluster_item * cluster_item,
 
   /* In the case of user-defined polynomial choose as starting
    * approximations equispaced points in the unit circle. */
-  if (MPS_INPUT_CONFIG_IS_USER (s->input_config))
+  if (!MPS_IS_MONOMIAL_POLY (s->active_poly))
     {
       ang = pi2 / n;
       for (i = 0; i < n; i++)
@@ -627,7 +607,7 @@ mps_dstart (mps_context * s, int n, mps_cluster_item * cluster_item,
   /* check if it is the case dpe_after_float, in this case set flag=true  */
   for (i = 0; i < n; i++)
     {
-      flag = (s->root_status[i] == MPS_ROOT_STATUS_NOT_FLOAT);
+      flag = (s->root[i]->status == MPS_ROOT_STATUS_NOT_FLOAT);
       if (flag)
         break;
     }
@@ -662,7 +642,7 @@ mps_dstart (mps_context * s, int n, mps_cluster_item * cluster_item,
            * values of only the approximations falling out of the range */
           if (flag)
             {
-              if (s->root_status[l] == MPS_ROOT_STATUS_NOT_FLOAT)
+              if (s->root[l]->status == MPS_ROOT_STATUS_NOT_FLOAT)
                 {
                   cdpe_set_d (s->root[l]->dvalue,
                               cos (ang * jj + th * s->partitioning[i + 1] +
@@ -670,10 +650,10 @@ mps_dstart (mps_context * s, int n, mps_cluster_item * cluster_item,
                               sin (ang * jj + th * s->partitioning[i + 1] +
                                    sigma));
                   cdpe_mul_eq_e (s->root[l]->dvalue, r);
-                  s->root_status[l] = MPS_ROOT_STATUS_CLUSTERED;
+                  s->root[l]->status = MPS_ROOT_STATUS_CLUSTERED;
                   /*#G 27/4/98 if (rdpe_eq(r, big) || rdpe_eq(r, small)) */
                   if (rdpe_eq (r, RDPE_MIN) || rdpe_eq (r, RDPE_MAX))
-                    s->root_status[l] = MPS_ROOT_STATUS_NOT_DPE;
+                    s->root[l]->status = MPS_ROOT_STATUS_NOT_DPE;
                 }
             }
           else
@@ -687,32 +667,32 @@ mps_dstart (mps_context * s, int n, mps_cluster_item * cluster_item,
               cdpe_mul_eq_e (s->root[l]->dvalue, r);
               /*#G 27/4/98 if (rdpe_eq(r, big) || rdpe_eq(r, small)) */
               if (rdpe_eq (r, RDPE_MIN) || rdpe_eq (r, RDPE_MAX))
-                s->root_status[l] = MPS_ROOT_STATUS_NOT_DPE;
+                s->root[l]->status = MPS_ROOT_STATUS_NOT_DPE;
             }
 
-	  if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
-	    {
-	      MPS_DEBUG_CDPE (s, s->root[l]->dvalue, "s->droot[%d]", l);
-	    }
+          if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
+            {
+              MPS_DEBUG_CDPE (s, s->root[l]->dvalue, "s->droot[%d]", l);
+            }
 
-	}
+        }
 
       /* If the new radius of the cluster is relatively small, then
        * set the status component equal to 'o' (output) */
       if (cluster_item)
-	{
-	  rdpe_mul (tmp, g, eps);
-	  rdpe_mul_d (tmp1, r, (double) nzeros);
-	  if (rdpe_lt (tmp1, tmp))
-	    {
-	      for (root = cluster->first; root != NULL; root = root->next)
-		{
-		  l = root->k;
-		  s->root_status[l] = MPS_ROOT_STATUS_APPROXIMATED_IN_CLUSTER;
-		  rdpe_set (s->root[l]->drad, tmp1);
-		}
-	    }
-	}
+        {
+          rdpe_mul (tmp, g, eps);
+          rdpe_mul_d (tmp1, r, (double) nzeros);
+          if (rdpe_lt (tmp1, tmp))
+            {
+              for (root = cluster->first; root != NULL; root = root->next)
+                {
+                  l = root->k;
+                  s->root[l]->status = MPS_ROOT_STATUS_APPROXIMATED_IN_CLUSTER;
+                  rdpe_set (s->root[l]->drad, tmp1);
+                }
+            }
+        }
         
     }
 
@@ -799,7 +779,7 @@ mps_mcompute_starting_radii (mps_context * s, int n, mps_cluster_item * cluster_
           if (rdpe_gt (s->dradii[s->n_radii], clust_rad))
             rdpe_set (s->dradii[s->n_radii], clust_rad);
 
-	  MPS_DEBUG_RDPE (s, s->dradii[s->n_radii], "s->dradii[%d]", s->n_radii);
+          MPS_DEBUG_RDPE (s, s->dradii[s->n_radii], "s->dradii[%d]", s->n_radii);
 
           /* Close partitioning and start a new one */
           s->partitioning[++s->n_radii] = i;
@@ -881,7 +861,7 @@ mps_mcompute_starting_radii (mps_context * s, int n, mps_cluster_item * cluster_
  */
 void
 mps_mstart (mps_context * s, int n, mps_cluster_item * cluster_item, 
-	    rdpe_t clust_rad,
+            rdpe_t clust_rad,
             rdpe_t g, rdpe_t dap[], mpc_t gg)
 {
   mps_cluster *cluster = NULL;
@@ -892,8 +872,6 @@ mps_mstart (mps_context * s, int n, mps_cluster_item * cluster_item,
   mpc_t mtmp;
   mps_boolean need_recomputing = true;
   mps_root * root = NULL;
-
-  s->operation = MPS_OPERATION_STARTING_POINTS_MP;
 
   if (cluster_item)
     cluster = cluster_item->cluster;
@@ -948,8 +926,8 @@ mps_mstart (mps_context * s, int n, mps_cluster_item * cluster_item,
         {
           if (c_item->detached && c_item->detached->cluster == cluster)
             {
-	      mps_root * root = c_item->cluster->first;
-	      i = root->k;
+              mps_root * root = c_item->cluster->first;
+              i = root->k;
 
              /* Check if the root touches the cluster */
               mpc_sub (mtmp, s->root[i]->mvalue, gg);
@@ -957,7 +935,7 @@ mps_mstart (mps_context * s, int n, mps_cluster_item * cluster_item,
               cdpe_mod (rtmp2, ctmp);
 
               /* i is the cluster detached from i_clust, so the unique
-	       * root in it is the first. */
+               * root in it is the first. */
               rdpe_sub_eq (rtmp2, s->root[i]->drad);
               rdpe_sub_eq (rtmp2, rtmp1);
 
@@ -966,8 +944,8 @@ mps_mstart (mps_context * s, int n, mps_cluster_item * cluster_item,
                 {
                   MPS_DEBUG (s, "Recompacting cluster with root %d", i);
                   need_recomputing = true;
-		  mps_clusterization_remove_cluster (s, s->clusterization, c_item);
-		  mps_cluster_insert_root (s, cluster, i);
+                  mps_clusterization_remove_cluster (s, s->clusterization, c_item);
+                  mps_cluster_insert_root (s, cluster, i);
                 }
             }
         }
@@ -994,7 +972,7 @@ mps_mstart (mps_context * s, int n, mps_cluster_item * cluster_item,
           /* Take index relative to the cluster
            * that we are analyzing. */
           /* l = s->clust[s->punt[i_clust] + j]; */
-	        l = root->k;
+          l = root->k;
 
           cdpe_set_d (ctmp,
                       cos (ang * jj + th * s->partitioning[i + 1] + sigma),
@@ -1004,10 +982,10 @@ mps_mstart (mps_context * s, int n, mps_cluster_item * cluster_item,
 
           if (rdpe_eq (s->dradii[i], big) || rdpe_eq (s->dradii[i], small))
             {
-              s->root_status[l] = MPS_ROOT_STATUS_NOT_DPE;
+              s->root[l]->status = MPS_ROOT_STATUS_NOT_DPE;
             }
 
-	        root = root->next;
+          root = root->next;
         }
 
 
@@ -1017,21 +995,21 @@ mps_mstart (mps_context * s, int n, mps_cluster_item * cluster_item,
       rdpe_set (rtmp1, s->dradii[i]);
       rdpe_mul_eq_d (rtmp1, (double) nzeros);
       if (rdpe_lt (rtmp1, clust_rad) && s->algorithm == MPS_ALGORITHM_SECULAR_GA)
-	rdpe_set (rtmp1, clust_rad);
+        rdpe_set (rtmp1, clust_rad);
       rdpe_set (rtmp2, g);
       rdpe_mul_eq (rtmp2, s->eps_out);
       MPS_DEBUG (s, "Performing relatively small check");
       if (rdpe_le (rtmp1, rtmp2))
-	{
-	  mps_root * root2 = starting_root;
-	  for (j = s->partitioning[i]; j < s->partitioning[i + 1]; j++)
-	    {
-	      l = root2->k;
-	      s->root_status[l] = MPS_ROOT_STATUS_APPROXIMATED_IN_CLUSTER;
-	      rdpe_mul_d (s->root[l]->drad, rtmp1, (double) nzeros); 
-	      root2 = root2->next;
-	    }
-	}
+        {
+          mps_root * root2 = starting_root;
+          for (j = s->partitioning[i]; j < s->partitioning[i + 1]; j++)
+            {
+              l = root2->k;
+              s->root[l]->status = MPS_ROOT_STATUS_APPROXIMATED_IN_CLUSTER;
+              rdpe_mul_d (s->root[l]->drad, rtmp1, (double) nzeros); 
+              root2 = root2->next;
+            }
+        }
       rdpe_set (clust_rad, s->dradii[i]);
     }
 
@@ -1074,7 +1052,7 @@ mps_frestart (mps_context * s)
   double sr, sum, rtmp, rtmp1;
   cplx_t sc, corr, ctmp;
   mps_boolean tst;
-  mps_monomial_poly *p = s->monomial_poly;
+  mps_monomial_poly *p = MPS_MONOMIAL_POLY (s->active_poly);
   mps_approximation * g = NULL;
 
   s->operation = MPS_OPERATION_SHIFT;
@@ -1085,7 +1063,7 @@ mps_frestart (mps_context * s)
   mps_root * root;
 
   /* For user's polynomials skip the restart stage (not yet implemented) */
-  if (MPS_INPUT_CONFIG_IS_USER (s->input_config))
+  if (!MPS_IS_MONOMIAL_POLY (s->active_poly))
     return;
 
   /* scan the existing clusters and  select the ones where shift in
@@ -1101,22 +1079,22 @@ mps_frestart (mps_context * s)
       tst = true;
       for (root = cluster->first; root != NULL; root = root->next)
         {                       /* looptst : */
-	  l = root->k;
+          l = root->k;
           if (!s->root[l]->again)
             goto loop1;
           if (s->output_config->goal == MPS_OUTPUT_GOAL_COUNT)
             {
-	      if (s->root_status[l] == MPS_ROOT_STATUS_CLUSTERED &&
-		  s->root_inclusion[l] == MPS_ROOT_INCLUSION_UNKNOWN)
+              if (s->root[l]->status == MPS_ROOT_STATUS_CLUSTERED &&
+                  s->root[l]->inclusion == MPS_ROOT_INCLUSION_UNKNOWN)
                 {
                   tst = false;
                   break;
                 }
             }
-          else if ((s->root_status[l] == MPS_ROOT_STATUS_CLUSTERED && 
-		    s->root_inclusion[l] == MPS_ROOT_INCLUSION_UNKNOWN)
-                   || (s->root_status[l] == MPS_ROOT_STATUS_CLUSTERED && 
-		       s->root_inclusion[l] == MPS_ROOT_INCLUSION_IN))
+          else if ((s->root[l]->status == MPS_ROOT_STATUS_CLUSTERED && 
+                    s->root[l]->inclusion == MPS_ROOT_INCLUSION_UNKNOWN)
+                   || (s->root[l]->status == MPS_ROOT_STATUS_CLUSTERED && 
+                       s->root[l]->inclusion == MPS_ROOT_INCLUSION_IN))
             {
               tst = false;
               break;
@@ -1134,9 +1112,9 @@ mps_frestart (mps_context * s)
        * keep iterating Aberth's step. */
       if (sr > cplx_mod (sc))
         {
-	  mps_root * r;
-	  for (r = cluster->first; r != NULL; r = r->next)
-            s->root_status[r->k] = MPS_ROOT_STATUS_CLUSTERED;
+          mps_root * r;
+          for (r = cluster->first; r != NULL; r = r->next)
+            s->root[r->k]->status = MPS_ROOT_STATUS_CLUSTERED;
           MPS_DEBUG (s, "Cluster rel. large: skip to the next component");
           goto loop1;
         }
@@ -1148,19 +1126,19 @@ mps_frestart (mps_context * s)
       for (c_item2 = s->clusterization->first; c_item2 != NULL; c_item2 = c_item2->next)
         if (c_item2 != c_item)
           {
-	    cluster2 = c_item2->cluster;
-	    for (root = cluster2->first; root != NULL; root = root->next)
+            cluster2 = c_item2->cluster;
+            for (root = cluster2->first; root != NULL; root = root->next)
               {
-		m = root->k;
+                m = root->k;
                 cplx_sub (ctmp, sc, s->root[m]->fvalue);
                 rtmp = cplx_mod (ctmp);
                 rtmp1 = (sr + s->root[m]->frad) * 5 * s->n;
                 if (rtmp < rtmp1)
                   {
-		    for (root = cluster->first; root != NULL; root = root->next)
-                      s->root_status[root->k] = MPS_ROOT_STATUS_CLUSTERED;
+                    for (root = cluster->first; root != NULL; root = root->next)
+                      s->root[root->k]->status = MPS_ROOT_STATUS_CLUSTERED;
                     MPS_DEBUG_WITH_INFO (s, "Cluster not Newton isolated: skip "
-					 "to the next component.");
+                                         "to the next component.");
                     goto loop1;
                   }
               }
@@ -1168,17 +1146,17 @@ mps_frestart (mps_context * s)
       /* Compute the coefficients of the derivative of p(x) having order
        * equal to the multiplicity of the cluster -1. */
       sum = 0.0;
-      for (j = 0; j <= p->n; j++)
+      for (j = 0; j <= MPS_POLYNOMIAL (p)->degree; j++)
         {
           sum += cplx_mod (p->fpc[j]);
           cplx_set (p->fppc[j], p->fpc[j]);
         }
       for (j = 1; j < cluster->n; j++)
         {
-          for (k = 0; k <= p->n - j; k++)
+          for (k = 0; k <= MPS_POLYNOMIAL (p)->degree - j; k++)
             cplx_mul_d (p->fppc[k], p->fppc[k + 1], (double) (k + 1));
         }
-      for (j = 0; j < p->n - cluster->n + 2; j++)
+      for (j = 0; j < MPS_POLYNOMIAL (p)->degree - cluster->n + 2; j++)
         s->fap1[j] = cplx_mod (p->fppc[j]);
 
       /* Apply at most max_newt_it steps of Newton's iterations
@@ -1191,13 +1169,12 @@ mps_frestart (mps_context * s)
       // cplx_set (g, sc);
       for (j = 0; j < s->max_newt_it; j++)
         {
-          mps_fnewton (s, p->n - cluster->n + 1, g,
-                       corr, p->fppc, s->fap1, false);
+          mps_fnewton (s, MPS_POLYNOMIAL (p), g, corr);
           cplx_sub_eq (g->fvalue, corr);
           if (!g->again)
-	    {
-	      break;
-	    }
+            {
+              break;
+            }
         }
 
       if (j == s->max_newt_it)
@@ -1224,7 +1201,7 @@ mps_frestart (mps_context * s)
       rtmp *= DBL_EPSILON * 2;
       for (root = cluster->first; root != NULL; root = root->next)
         {
-	  l = root->k;
+          l = root->k;
           /* Choose as new incl. radius 2*multiplicity*(radius of the circle) */
           s->root[l]->frad = 2 * cluster->n * cplx_mod (s->root[l]->fvalue);
           cplx_add_eq (s->root[l]->fvalue, g->fvalue);
@@ -1234,10 +1211,10 @@ mps_frestart (mps_context * s)
 
     loop1:
       if (g)
-	{
-	  mps_approximation_free (s, g);
-	  g = NULL;
-	}
+        {
+          mps_approximation_free (s, g);
+          g = NULL;
+        }
       ;
     }
 }
@@ -1277,7 +1254,7 @@ mps_drestart (mps_context * s)
   rdpe_t sr, rtmp, rtmp1;
   cdpe_t sc, corr, ctmp;
   mps_boolean tst;
-  mps_monomial_poly *p = s->monomial_poly;
+  mps_monomial_poly *p = MPS_MONOMIAL_POLY (s->active_poly);
 
   /* Cluster related variables */
   mps_cluster_item * c_item;
@@ -1288,7 +1265,7 @@ mps_drestart (mps_context * s)
   s->operation = MPS_OPERATION_SHIFT;
 
   /*  For user's polynomials skip the restart stage (not yet implemented) */
-  if (MPS_INPUT_CONFIG_IS_USER (s->input_config))
+  if (!MPS_IS_MONOMIAL_POLY (s->active_poly))
     return;
 
   for (c_item = s->clusterization->first; c_item != NULL; c_item = c_item->next)
@@ -1301,22 +1278,22 @@ mps_drestart (mps_context * s)
       tst = true;
       for (root = cluster->first; root != NULL; root = root->next)
         {                       /* looptst: */
-	  l = root->k;
+          l = root->k;
           if (!s->root[l]->again)
             goto loop1;
           if (s->output_config->goal == MPS_OUTPUT_GOAL_COUNT)
             {
-	      if (s->root_status[l] == MPS_ROOT_STATUS_CLUSTERED &&
-		  s->root_inclusion[l] == MPS_ROOT_INCLUSION_UNKNOWN)
+              if (s->root[l]->status == MPS_ROOT_STATUS_CLUSTERED &&
+                  s->root[l]->inclusion == MPS_ROOT_INCLUSION_UNKNOWN)
                 {
                   tst = false;
                   break;
                 }
             }
-          else if ((s->root_status[l] == MPS_ROOT_STATUS_CLUSTERED && 
-		    s->root_inclusion[l] == MPS_ROOT_INCLUSION_UNKNOWN) ||
-                   (s->root_status[l] == MPS_ROOT_STATUS_CLUSTERED && 
-		    s->root_inclusion[l] == MPS_ROOT_INCLUSION_IN))
+          else if ((s->root[l]->status == MPS_ROOT_STATUS_CLUSTERED && 
+                    s->root[l]->inclusion == MPS_ROOT_INCLUSION_UNKNOWN) ||
+                   (s->root[l]->status == MPS_ROOT_STATUS_CLUSTERED && 
+                    s->root[l]->inclusion == MPS_ROOT_INCLUSION_IN))
             {
               tst = false;
               break;
@@ -1337,7 +1314,7 @@ mps_drestart (mps_context * s)
         {
           for (root = cluster->first; root != NULL; root = root->next)
             {
-              s->root_status[root->k] = MPS_ROOT_STATUS_CLUSTERED;
+              s->root[root->k]->status = MPS_ROOT_STATUS_CLUSTERED;
               /* err(clust[j])=true  */
             }
           MPS_DEBUG (s, "cluster rel. large: skip to the next component");
@@ -1349,10 +1326,10 @@ mps_drestart (mps_context * s)
       mps_cluster * cluster2;
 
       for (c_item2 = s->clusterization->first; c_item2 != NULL; c_item2 = c_item2->next)
-	if (c_item2 != c_item)
-	    {
-	      cluster2 = c_item2->cluster;
-	      for (root = cluster2->first; root != NULL; root = root->next)
+        if (c_item2 != c_item)
+            {
+              cluster2 = c_item2->cluster;
+              for (root = cluster2->first; root != NULL; root = root->next)
               {
                 cdpe_sub (ctmp, sc, s->root[root->k]->dvalue);
                 cdpe_mod (rtmp, ctmp);
@@ -1360,8 +1337,8 @@ mps_drestart (mps_context * s)
                 rdpe_mul_eq_d (rtmp1, 2.0 * s->n);
                 if (rdpe_lt (rtmp, rtmp1))
                   {
-		    for (root = cluster->first; root != NULL; root = root->next)
-                      s->root_status[root->k] = MPS_ROOT_STATUS_CLUSTERED;
+                    for (root = cluster->first; root != NULL; root = root->next)
+                      s->root[root->k]->status = MPS_ROOT_STATUS_CLUSTERED;
                     MPS_DEBUG (s, "Cluster not Newton isolated: skip to the next component.");
                     goto loop1;
                   }
@@ -1387,13 +1364,12 @@ mps_drestart (mps_context * s)
       cdpe_set (g->dvalue, sc);
       for (j = 0; j < s->max_newt_it; j++)
         {                       /* loop_newt: */
-          mps_dnewton (s, s->n - cluster->n + 1, g,
-                       corr, s->dpc2, s->dap1, false);
+          mps_dnewton (s, MPS_POLYNOMIAL (p), g, corr);
           cdpe_sub_eq (g->dvalue, corr);
           if (!g->again)
-	    {
-	      break;
-	    }
+            {
+              break;
+            }
         }
       if (j == s->max_newt_it)
         {
@@ -1414,7 +1390,7 @@ mps_drestart (mps_context * s)
       rdpe_mul_eq_d (rtmp, DBL_EPSILON * 2);
       for (root = cluster->first; root != NULL; root = root->next)
         {
-	  l = root->k;
+          l = root->k;
 
           /* Choose as new incl. radius 2*multiplicity*(radius of the circle) */
           cdpe_mod (s->root[l]->drad, s->root[l]->dvalue);
@@ -1427,12 +1403,101 @@ mps_drestart (mps_context * s)
 
     loop1:
       if (g)
-	{
-	  mps_approximation_free (s, g);
-	  g = NULL;
-	}
+        {
+          mps_approximation_free (s, g);
+          g = NULL;
+        }
       ;
     }
+}
+
+/**
+ * @brief Walk through the clusterization to find clusters that were detached
+ * from the given one. Check if they were detached correctly according to the 
+ * new inclusion radii computed by mps_mrestart().
+ *
+ * @param ctx The context in which MPSolve is running.
+ * @param clusterization The clusterization where clusters should be looked up
+ * @param cluster_item The item containing the cluster from which the other clusters
+ * may have been detached. 
+ */
+static void
+mps_cluster_check_detachment (mps_context * ctx, mps_clusterization * clusterization, 
+    mps_cluster_item * cluster_item)
+{
+  MPS_DEBUG_CALL (ctx, "mps_cluster_check_detachment");
+
+  mps_cluster_item * item = NULL;
+  mps_cluster * cluster = cluster_item->cluster;
+  rdpe_t radius, distance_abs;
+  mpc_t center, distance;
+
+  mpc_init2 (center, ctx->mpwp);
+  mpc_init2 (distance, ctx->mpwp);
+
+  mps_msrad (ctx, cluster, center, radius);
+  rdpe_mul_eq_d (radius, 2.0 * ctx->n);
+
+  for (item = clusterization->first; item != NULL; item = item->next)
+    {
+      mps_cluster * detached_cluster = item->cluster;
+      if (item->detached == cluster_item)
+        {
+          int k = detached_cluster->first->k;
+          mpc_sub (distance, center, ctx->root[k]->mvalue);
+          mpc_rmod (distance_abs, distance);
+
+          if (rdpe_lt (distance_abs, radius))
+            {
+              if (ctx->debug_level & MPS_DEBUG_CLUSTER)
+                MPS_DEBUG (ctx, 
+                  "Cluster containing root %d has not been correctly detached, reattaching.", k);
+
+              mps_cluster_insert_root (ctx, cluster, k);
+              mps_clusterization_remove_cluster (ctx, clusterization, item);
+            }
+          else 
+            {
+              if (ctx->debug_level & MPS_DEBUG_CLUSTER)
+                MPS_DEBUG (ctx, 
+                  "Cluster containing root %d was successfuly detached.", k)
+
+              /* We need to stop marking this cluster as detached, that means
+               * "experimental" in this context. */
+              item->detached = NULL;
+            }
+        }
+    }
+
+  mpc_clear (center);
+  mpc_clear (distance);
+}
+
+static void
+mps_cluster_reattach_all_detached_clusters (mps_context * ctx, mps_clusterization * clusterization,
+    mps_cluster_item * cluster_item)
+{
+  MPS_DEBUG_CALL (ctx, "mps_cluster_reattach_all_detached_clusters");
+
+  mps_cluster_item * item = NULL;
+  mps_cluster * cluster = cluster_item->cluster;
+
+  /* Find cluster that have been detached from this and
+   * attach them. */
+  for (item = clusterization->first; item != NULL; item = item->next)
+  {
+    mps_cluster *d_cluster = item->cluster;
+
+    if (item->detached == cluster_item)
+    {
+      if (ctx->debug_level & MPS_DEBUG_CLUSTER)
+        MPS_DEBUG (ctx, 
+          "Reattaching root %ld to its original cluster", d_cluster->first->k);
+
+      mps_cluster_insert_root (ctx, cluster, d_cluster->first->k);
+      mps_clusterization_remove_cluster (ctx, clusterization, item);
+    }
+  }
 }
 
 /*************************************************************
@@ -1443,11 +1508,11 @@ mps_mrestart (mps_context * s)
 {
   mps_boolean tst;
   int j, k, l;
-  rdpe_t sr, rtmp, rtmp1, rtmp2;
+  rdpe_t sr, rtmp, rtmp1, rtmp2, ag;
   cdpe_t tmp;
   mpf_t rea, srmp;
   mpc_t sc, corr, temp;
-  mps_monomial_poly* p = s->monomial_poly;
+  mps_monomial_poly* p = MPS_MONOMIAL_POLY (s->active_poly);
 
   /* Variables for cluster iteration */
   mps_cluster_item * c_item;
@@ -1462,7 +1527,7 @@ mps_mrestart (mps_context * s)
   s->operation = MPS_OPERATION_SHIFT;
 
   /* For user's polynomials skip the restart stage (not yet implemented) */
-  if (MPS_INPUT_CONFIG_IS_USER (s->input_config))
+  if (!MPS_IS_MONOMIAL_POLY (s->active_poly))
     {
       MPS_DEBUG_WITH_INFO (s, "Skipping restart on user polynomial");
       return;
@@ -1474,10 +1539,8 @@ mps_mrestart (mps_context * s)
   mpc_init2 (corr, s->mpwp);
   mpc_init2 (temp, s->mpwp);
 
-  /* Try to detach quasi-convergent elements from
-   * the clusters */
-  /* mps_cluster_detach (s, MPS_ALL_CLUSTERS); */
-  /* mps_clusterization_detach_clusters (s, s->clusterization);  */
+  /* Try to detach quasi-convergent elements from the clusters */
+  mps_clusterization_detach_clusters (s, s->clusterization);
 
   k = 0;
   for (c_item = s->clusterization->first; c_item != NULL; c_item = c_item->next)
@@ -1491,29 +1554,26 @@ mps_mrestart (mps_context * s)
       if (cluster->n == 1)
         continue;
 
-      /* Raise the precision to s->mpwp * cluster->n */
-      /* mps_prepare_data (s, starting_wp * cluster->n);  */
-      /* s->mpwp = starting_wp * cluster->n; */
-
       tst = true;
       for (root = cluster->first; root != NULL; root = root->next)
         {                       /* looptst: */
-	  l = root->k;
-          if (!s->root[l]->again && s->algorithm == MPS_ALGORITHM_STANDARD_MPSOLVE)
-            goto loop1;
+          l = root->k;
+          // if (!s->root[l]->again && s->algorithm == MPS_ALGORITHM_STANDARD_MPSOLVE)
+          //   goto clean_detached_cluster;
+
           if (s->output_config->goal == MPS_OUTPUT_GOAL_COUNT)
             {
-	      if (s->root_status[l] == MPS_ROOT_STATUS_CLUSTERED &&
-		  s->root_inclusion[l] == MPS_ROOT_INCLUSION_UNKNOWN)
+              if (s->root[l]->status == MPS_ROOT_STATUS_CLUSTERED &&
+                  s->root[l]->inclusion == MPS_ROOT_INCLUSION_UNKNOWN)
                 {
                   tst = false;
                   break;
                 }
             }
-          else if ((s->root_status[l] == MPS_ROOT_STATUS_CLUSTERED && 
-		    s->root_inclusion[l] == MPS_ROOT_INCLUSION_UNKNOWN) ||
-                   (s->root_status[l] == MPS_ROOT_STATUS_CLUSTERED && 
-		    s->root_inclusion[l] == MPS_ROOT_INCLUSION_IN))
+          else if ((s->root[l]->status == MPS_ROOT_STATUS_CLUSTERED && 
+                    s->root[l]->inclusion == MPS_ROOT_INCLUSION_UNKNOWN) ||
+                   (s->root[l]->status == MPS_ROOT_STATUS_CLUSTERED && 
+                    s->root[l]->inclusion == MPS_ROOT_INCLUSION_IN))
             {
               tst = false;
               break;
@@ -1521,7 +1581,7 @@ mps_mrestart (mps_context * s)
         }                       /* for */
 
       if (tst)
-        goto loop1;
+        goto clean_detached_cluster;
 
       /* Compute super center sc and super radius sr */
       mps_msrad (s, cluster, sc, sr);
@@ -1544,16 +1604,15 @@ mps_mrestart (mps_context * s)
           rdpe_div (rtmp2, sr, rtmp);
         }
       if (s->debug_level & MPS_DEBUG_CLUSTER)
-	MPS_DEBUG_RDPE (s, rtmp2, "Relative width");
+        MPS_DEBUG_RDPE (s, rtmp2, "Relative width");
 
       if (rdpe_gt (sr, rtmp))
         {
-	  for (root = cluster->first; root != NULL; root = root->next)
-            s->root_status[root->k] = MPS_ROOT_STATUS_CLUSTERED;
+          for (root = cluster->first; root != NULL; root = root->next)
+            s->root[root->k]->status = MPS_ROOT_STATUS_CLUSTERED;
           MPS_DEBUG (s, "Cluster relat. large: skip to the next component");
 
-	  mps_clusterization_reassemble_clusters (s, s->clusterization);
-          goto loop1;
+          goto clean_detached_cluster;
         }
 
       /* Now check the Newton isolation of the cluster */
@@ -1564,36 +1623,36 @@ mps_mrestart (mps_context * s)
       for (c_item2 = s->clusterization->first; c_item2 != NULL; c_item2 = c_item2->next)
         {
           if (c_item2 != c_item)
-	    {
-	      cluster2 = c_item2->cluster;
-	      for (root = cluster2->first; root != NULL; root = root->next)
-		{
-		  mpc_sub (temp, sc, s->root[root->k]->mvalue);
-		  mpc_get_cdpe (tmp, temp);
-		  cdpe_mod (rtmp, tmp);
-		  rdpe_sub_eq (rtmp, s->root[root->k]->drad);
-		  rdpe_sub_eq (rtmp, sr);
-		  rdpe_inv_eq (rtmp);
-		  rdpe_add_eq (rtmp2, rtmp);
-		}
-	    }
+            {
+              cluster2 = c_item2->cluster;
+              for (root = cluster2->first; root != NULL; root = root->next)
+                {
+                  mpc_sub (temp, sc, s->root[root->k]->mvalue);
+                  mpc_get_cdpe (tmp, temp);
+                  cdpe_mod (rtmp, tmp);
+                  rdpe_sub_eq (rtmp, s->root[root->k]->drad);
+                  rdpe_sub_eq (rtmp, sr);
+                  rdpe_inv_eq (rtmp);
+                  rdpe_add_eq (rtmp2, rtmp);
+                }
+            }
         }
       rdpe_mul_eq (rtmp2, sr);
       rdpe_set_d (rtmp1, 0.3);
 
       if (rdpe_gt (rtmp2, rtmp1))
         {
-	  for (root = cluster->first; root != NULL; root = root->next)
-            s->root_status[root->k] = MPS_ROOT_STATUS_CLUSTERED;
-	  MPS_DEBUG (s, "Cluster not Newton isolated: skip to the next component");
-          goto loop1;
+          for (root = cluster->first; root != NULL; root = root->next)
+            s->root[root->k]->status = MPS_ROOT_STATUS_CLUSTERED;
+          MPS_DEBUG (s, "Cluster not Newton isolated: skip to the next component");
+          goto clean_detached_cluster;
         }
 
       mps_debug_cluster_structure (s);
 
       /* Create the approximation used to find the derivative zero */
       g = mps_approximation_new (s); 
-      mpc_set (g->mvalue, sc); 
+      mpc_set (g->mvalue, sc);
 
       /* Compute the coefficients of the derivative of p(x) having order
        * equal to the multiplicity of the cluster -1. */
@@ -1605,99 +1664,57 @@ mps_mrestart (mps_context * s)
 
       /* Evaluate the necessary precision to perform the Newton iterations. */
       do
-	{
-	  long int prec = mps_monomial_poly_get_precision (s, der);
-	  mps_mhorner_with_error2 (s, der, g->mvalue, corr, error, prec);
+        {
+          long int prec = mps_monomial_poly_get_precision (s, der);
+          mps_mhorner_with_error2 (s, der, g->mvalue, corr, error, prec);
 
-	  mpc_rmod (rtmp, corr);
-	  rdpe_set_2dl (epsilon, 1.0, -s->mpwp);
-	  rdpe_mul_eq (epsilon, rtmp);
+          mpc_rmod (rtmp, corr);
+          rdpe_set_2dl (epsilon, 1.0, -s->mpwp);
+          rdpe_mul_eq (epsilon, rtmp);
 
-	  if (rdpe_gt (error, epsilon))
-	    {
-	      if (s->debug_level & MPS_DEBUG_CLUSTER)
-		MPS_DEBUG (s, "Raising precision of the derivative to %ld bits", prec * 2);
-	      mps_monomial_poly_raise_precision (s, der, prec * 2);
-	      mpc_set_prec (g->mvalue, prec * 2);
-	    }
-	} while (rdpe_gt (error, epsilon) && mps_monomial_poly_get_precision (s, der) <= cluster->n * s->mpwp);
+          if (rdpe_gt (error, epsilon))
+            {
+              if (s->debug_level & MPS_DEBUG_CLUSTER)
+                MPS_DEBUG (s, "Raising precision of the derivative to %ld bits", prec * 2);
+              mps_polynomial_raise_data (s, MPS_POLYNOMIAL (der), prec * 2);
+              mpc_set_prec (g->mvalue, prec * 2);
+            }
+        } while (rdpe_gt (error, epsilon) && mps_monomial_poly_get_precision (s, der) <= cluster->n * s->mpwp);
 
-      /* for (j = 0; j <= s->n; j++) */
-      /* 	{ */
-      /* 	  mpc_set (s->mfpc1[j], p->mfpc[j]); */
-      /* 	} */
-      /* for (j = 1; j < cluster->n; j++) */
-      /*   { */
-      /*     for (k = 0; k <= s->n - j; k++) */
-      /*       mpc_mul_ui (s->mfpc1[k], s->mfpc1[k + 1], k + 1); */
-      /* 	  /\* MPS_DEBUG_MPC (s, 15, s->mfpc1[j], "p->mfpc[%d]", j); *\/ */
-      /*   } */
-
-      /* for (j = 0; j < s->n - cluster->n + 2; j++) */
-      /*   { */
-      /*     mpc_get_cdpe (tmp, s->mfpc1[j]); */
-      /*     cdpe_mod (s->dap1[j], tmp); */
-      /*   } */
-
-      /* /\* create the vectors needed if the polynomial is sparse *\/ */
-      /* if (MPS_INPUT_CONFIG_IS_SPARSE (s->input_config)) */
-      /*   { */
-      /*     for (j = 0; j < s->n - cluster->n + 2; j++) */
-      /*       { */
-      /*         if (rdpe_ne (s->dap1[j], rdpe_zero)) */
-      /*           s->spar1[j] = true; */
-      /*         else */
-      /*           s->spar1[j] = false; */
-      /*       } */
-      /*     for (j = 0; j < s->n - cluster->n + 1; j++) */
-      /* 	    { */
-      /* 	      mpc_mul_ui (s->mfppc1[j], s->mfpc1[j + 1], j + 1); */
-      /* 	    } */
-      /*   } */
-
-      /* MPS_DEBUG (s, "s->mpwp = %ld", s->mpwp); */
-      /* MPS_DEBUG (s, "cluster->n = %ld", cluster->n); */
-      /* for (j = 0; j <= cluster->n; j++) */
-      /* 	{ */
-      /* 	  MPS_DEBUG_MPC (s, s->mpwp, s->mfpc1[j], "mfpc1[%d]", j); */
-      /* 	} */
-
-      /* /\* Apply at most max_newt_it steps of Newton's iterations */
-      /*  * to the above derivative starting from the super center */
-      /*  * of the cluster. *\/ */
+      /*  Apply at most max_newt_it steps of Newton's iterations */
+      /*  to the above derivative starting from the super center */
+      /*  of the cluster. */
 
       if (s->debug_level & MPS_DEBUG_CLUSTER)
-	MPS_DEBUG_MPC (s, 30, g->mvalue, "g before newton");
+        MPS_DEBUG_MPC (s, 30, g->mvalue, "g before newton");
 
       for (j = 0; j < s->max_newt_it; j++)
         {                       /* loop_newt: */
-          mps_mnewton (s, s->n - cluster->n + 1, g,
-                       corr, der->mfpc, der->mfppc, der->dap, der->spar,
-                       0, false);
+          mps_mnewton (s, MPS_POLYNOMIAL (der), g, corr);
+          mpc_sub_eq (g->mvalue, corr);
 
-	  mpc_sub_eq (g->mvalue, corr);
+          if (s->debug_level & MPS_DEBUG_CLUSTER)
+            {
+              MPS_DEBUG_RDPE (s, g->drad, "Radius of the cluster");
+              MPS_DEBUG_MPC  (s, 100, g->mvalue, "Iteration %d on the derivative", j);
+            }
 
-	  if (s->debug_level & MPS_DEBUG_CLUSTER)
-	    {
-	      MPS_DEBUG_RDPE (s, g->drad, "Radius of the cluster");
-	      MPS_DEBUG_MPC  (s, 100, g->mvalue, "Iteration %d on the derivative", j);
-	    }
+          mpc_rmod (ag, g->mvalue);
 
-          if (!g->again)
+          if (!g->again || rdpe_Esp (g->drad) < rdpe_Esp (ag) - s->mpwp)
             break;
         }
 
-      mps_monomial_poly_free (s, der);
+      mps_polynomial_free (s, MPS_POLYNOMIAL (der));
 
       if (s->debug_level & MPS_DEBUG_CLUSTER)
-	MPS_DEBUG (s, "Performed %d Newton iterations", j + 1);
+        MPS_DEBUG (s, "Performed %d Newton iterations", j + 1);
       if (j == s->max_newt_it)
         {
-	  if (s->debug_level & MPS_DEBUG_CLUSTER)
-	    MPS_DEBUG (s, "Exceeded maximum number of Newton iterations.");
-	  /* mps_cluster_reassemble (s, MPS_ALL_CLUSTERS); */
-	  mps_clusterization_reassemble_clusters (s, s->clusterization);
-          goto loop1;
+          if (s->debug_level & MPS_DEBUG_CLUSTER)
+            MPS_DEBUG (s, "Exceeded maximum number of Newton iterations.");
+
+          goto clean_detached_cluster;
         }
 
       mpc_sub (temp, sc, g->mvalue);
@@ -1705,22 +1722,22 @@ mps_mrestart (mps_context * s)
       cdpe_mod (rtmp, tmp);
       if (rdpe_gt (rtmp, sr))
         {
-	  if (s->debug_level & MPS_DEBUG_CLUSTER)
-	    MPS_DEBUG (s, "The gravity center falls outside the cluster");
-          goto loop1;
+          if (s->debug_level & MPS_DEBUG_CLUSTER)
+            MPS_DEBUG (s, "The gravity center falls outside the cluster");
+          goto clean_detached_cluster;
         }
 
       /* shift the variable and compute new approximations */
       MPS_DEBUG_CALL (s, "mps_mshift");
       for (root = cluster->first; root != NULL; root = root->next)
         {
-	  l = root->k;
+          l = root->k;
           mpc_get_cdpe (s->root[l]->dvalue, s->root[l]->mvalue);
         }
 
       /*#D perform shift only if the new computed sr is smaller than old*0.25 */
       /* if (s->algorithm == MPS_ALGORITHM_SECULAR_GA) */
-      /* 	rdpe_set (rtmp, sr); */
+      /*        rdpe_set (rtmp, sr); */
       /* else */
       rdpe_mul_d (rtmp, sr, 0.25);
 
@@ -1730,56 +1747,55 @@ mps_mrestart (mps_context * s)
         {                       /* Perform shift only if the new clust is smaller */
           mpc_get_cdpe (tmp, g->mvalue);
           cdpe_mod (rtmp, tmp);
-	  if (s->lastphase == mp_phase)
-	    rdpe_set_2dl (rtmp1, 1.0, -starting_wp);
-	  else
-	    rdpe_set_d (rtmp1, DBL_EPSILON);
+          if (s->lastphase == mp_phase)
+            rdpe_set_2dl (rtmp1, 1.0, -starting_wp);
+          else
+            rdpe_set_d (rtmp1, DBL_EPSILON);
           rdpe_mul_eq (rtmp, rtmp1);
           rdpe_mul_eq_d (rtmp, 2);
 
-	  MPS_DEBUG_RDPE(s, rtmp, "rtmp");
-	  MPS_DEBUG_RDPE(s, rtmp1, "rtmp1");
+          MPS_DEBUG_RDPE(s, rtmp, "rtmp");
+          MPS_DEBUG_RDPE(s, rtmp1, "rtmp1");
 
-	  for (root = cluster->first; root != NULL; root = root->next)
+          for (root = cluster->first; root != NULL; root = root->next)
             {
-	      l = root->k;
+              l = root->k;
               mpc_set_cdpe (s->root[l]->mvalue, s->root[l]->dvalue);
               mpc_add_eq (s->root[l]->mvalue, g->mvalue);
               cdpe_mod (rtmp1, s->root[l]->dvalue);
-	      rdpe_mul_d (s->root[l]->drad, rtmp1, 
-			  2.0 * cluster->n); 
-	      if (rdpe_lt (s->root[l]->drad, rtmp)) 
-		rdpe_set (s->root[l]->drad, rtmp);
+              rdpe_mul_d (s->root[l]->drad, rtmp1, 
+                          2.0 * cluster->n); 
+              if (rdpe_lt (s->root[l]->drad, rtmp)) 
+                rdpe_set (s->root[l]->drad, rtmp);
 
-	      if (s->debug_level & MPS_DEBUG_CLUSTER)
-		{
-		  MPS_DEBUG_MPC (s, s->mpwp, s->root[l]->mvalue, "Repositioned root %4d", l);
-		  MPS_DEBUG_RDPE (s, s->root[l]->drad, "Radius for root %4d", l);
-		}
+              if (s->debug_level & MPS_DEBUG_CLUSTER)
+                {
+                  MPS_DEBUG_MPC (s, s->mpwp, s->root[l]->mvalue, "Repositioned root %4d", l);
+                  MPS_DEBUG_RDPE (s, s->root[l]->drad, "Radius for root %4d", l);
+                }
             }
 
+          /* Check if the clusters that have been detached from this have been
+           * detached for a good reason. */
+          mps_cluster_check_detachment (s, s->clusterization, c_item);
         }
       else
         {
-	  if (s->debug_level & MPS_DEBUG_CLUSTER)
-	    MPS_DEBUG (s, "DO NOT PERFORM RESTART, "
-		       "new radius of the cluster is larger");
-	  mps_clusterization_reassemble_clusters (s, s->clusterization);
+          if (s->debug_level & MPS_DEBUG_CLUSTER)
+            MPS_DEBUG (s, "DO NOT PERFORM RESTART, "
+                       "new radius of the cluster is larger");
 
-          goto loop1;
+          goto clean_detached_cluster;
         }
 
-    loop1:
-      if (g != NULL)
-	{
-	  mps_approximation_free (s, g);
-	  g = NULL;
-	}
+    clean_detached_cluster:
+      mps_cluster_reattach_all_detached_clusters (s, s->clusterization, c_item);
 
-      /* Lower the precision before exiting */
-      mps_prepare_data (s, starting_wp); 
-      s->mpwp = starting_wp; 
-      ;
+      if (g != NULL)
+        {
+          mps_approximation_free (s, g);
+          g = NULL;
+        }
     }
 
   mpc_clear (temp);
@@ -1808,7 +1824,7 @@ mps_fshift (mps_context * s, int m, mps_cluster_item * cluster_item, double clus
   int i, j;
   double ag;
   cplx_t t;
-  mps_monomial_poly *p = s->monomial_poly;
+  mps_monomial_poly *p = MPS_MONOMIAL_POLY (s->active_poly);
 
   /* Perform divisions */
   ag = cplx_mod (g);
@@ -1832,10 +1848,7 @@ mps_fshift (mps_context * s, int m, mps_cluster_item * cluster_item, double clus
 
   /* If there is a custom starting point function use it, otherwise
    * use the default one */
-  if (s->fstart_usr)
-    (*s->fstart_usr) (s, m, cluster_item, clust_rad, ag, eps);
-  else
-    mps_fstart (s, m, cluster_item, clust_rad, ag, eps, s->fap1);
+  mps_fstart (s, m, cluster_item, clust_rad, ag, eps, s->fap1);
 }
 
 /***********************************************************
@@ -1848,7 +1861,7 @@ mps_dshift (mps_context * s, int m, mps_cluster_item * cluster_item, rdpe_t clus
   int i, j;
   rdpe_t ag;
   cdpe_t t;
-  mps_monomial_poly * p = s->monomial_poly;
+  mps_monomial_poly * p = MPS_MONOMIAL_POLY (s->active_poly);
 
   cdpe_mod (ag, g);
   for (i = 0; i <= s->n; i++)
@@ -1869,10 +1882,7 @@ mps_dshift (mps_context * s, int m, mps_cluster_item * cluster_item, rdpe_t clus
   for (i = 0; i <= m; i++)
     cdpe_mod (s->dap1[i], s->dpc2[i]);
 
-  if (s->dstart_usr)
-    (*s->dstart_usr) (s, m, cluster_item, clust_rad, ag, eps);
-  else
-    mps_dstart (s, m, cluster_item, clust_rad, ag, eps, s->dap1);
+  mps_dstart (s, m, cluster_item, clust_rad, ag, eps, s->dap1);
 }
 
 /*******************************************************
@@ -1886,7 +1896,7 @@ mps_mshift (mps_context * s, int m, mps_cluster_item * cluster_item, rdpe_t clus
   rdpe_t ag, ap, abp, as, mp_ep;
   cdpe_t abd;
   mpc_t t;
-  mps_monomial_poly *p = s->monomial_poly;
+  mps_monomial_poly *p = MPS_MONOMIAL_POLY (s->active_poly);
   /* mps_cluster * cluster = cluster_item->cluster;   */
 
   mpc_init2 (t, s->mpwp);
@@ -1912,7 +1922,7 @@ mps_mshift (mps_context * s, int m, mps_cluster_item * cluster_item, rdpe_t clus
   
   do
     {                           /* loop */
-      mpc_set (t, s->mfpc1[p->n]);
+      mpc_set (t, s->mfpc1[MPS_POLYNOMIAL (p)->degree]);
       mpc_get_cdpe (abd, p->mfpc[s->n]);
       cdpe_mod (ap, abd);
       for (j = s->n - 1; j >= 0; j--)
@@ -1938,11 +1948,11 @@ mps_mshift (mps_context * s, int m, mps_cluster_item * cluster_item, rdpe_t clus
         {
           mpwp_temp += s->mpwp;
 
-	  /* if ((mpwp_temp > mpwp_max || mpwp_temp > s->output_config->prec * m * 2))    */
-	  /*   {    */
-	  /*     MPS_DEBUG (s, "Reached the maximum allowed precision in mshift");    */
-	  /*     break;    */
-	  /*   }   */
+          /* if ((mpwp_temp > mpwp_max || mpwp_temp > s->output_config->prec * m * 2))    */
+          /*   {    */
+          /*     MPS_DEBUG (s, "Reached the maximum allowed precision in mshift");    */
+          /*     break;    */
+          /*   }   */
 
           rdpe_set_2dl (mp_ep, 1.0, 1 - mpwp_temp);
           mps_raisetemp (s, mpwp_temp);
@@ -2008,7 +2018,7 @@ mps_mshift (mps_context * s, int m, mps_cluster_item * cluster_item, rdpe_t clus
   if (s->debug_level & MPS_DEBUG_CLUSTER)
     for (i = 0; i <= m; i++)
       MPS_DEBUG_MPC (s, mpc_get_prec (s->mfppc1[i]), s->mfppc1[i], 
-		     "P(x + g), coefficient of degree %d", i);
+                     "P(x + g), coefficient of degree %d", i);
 
   mps_mstart (s, m, cluster_item, clust_rad, ag, s->dap1, g);
 
@@ -2067,7 +2077,7 @@ mps_mnewtis (mps_context * s)
   mps_root * root;
 
   /* For user's polynomials skip the restart stage (not yet implemented) */
-  if (MPS_INPUT_CONFIG_IS_USER (s->input_config))
+  if (!MPS_IS_MONOMIAL_POLY (s->active_poly))
     return;
   mpf_init2 (rea, s->mpwp);
   mpf_init2 (srmp, s->mpwp);
@@ -2089,22 +2099,22 @@ mps_mnewtis (mps_context * s)
 
       for (root = cluster->first; root != NULL; root = root->next)
         {                       /* looptst: */
-	  l = root->k;
+          l = root->k;
           if (!s->root[l]->again)
             goto loop1;
           if (s->output_config->goal == MPS_OUTPUT_GOAL_COUNT)
             {
-	      if (s->root_status[l] == MPS_ROOT_STATUS_CLUSTERED &&
-		  s->root_inclusion[l] == MPS_ROOT_INCLUSION_UNKNOWN)
+              if (s->root[l]->status == MPS_ROOT_STATUS_CLUSTERED &&
+                  s->root[l]->inclusion == MPS_ROOT_INCLUSION_UNKNOWN)
                 {
                   tst = false;
                   break;
                 }
             }
-          else if ((s->root_status[l] == MPS_ROOT_STATUS_CLUSTERED && 
-		    s->root_inclusion[l] == MPS_ROOT_INCLUSION_UNKNOWN) ||
-                   (s->root_status[l] == MPS_ROOT_STATUS_CLUSTERED && 
-		    s->root_inclusion[l] == MPS_ROOT_INCLUSION_IN))
+          else if ((s->root[l]->status == MPS_ROOT_STATUS_CLUSTERED && 
+                    s->root[l]->inclusion == MPS_ROOT_INCLUSION_UNKNOWN) ||
+                   (s->root[l]->status == MPS_ROOT_STATUS_CLUSTERED && 
+                    s->root[l]->inclusion == MPS_ROOT_INCLUSION_IN))
             {
               tst = false;
               break;
@@ -2117,14 +2127,14 @@ mps_mnewtis (mps_context * s)
       mpf_set_ui (srmp, 0);
       for (root = cluster->first; root != NULL; root = root->next)
         {
-	  l = root->k;
+          l = root->k;
           mpf_set_rdpe (rea, s->root[l]->drad);
           mpf_add (srmp, srmp, rea);
         }
       mpc_set_ui (sc, 0, 0);
       for (root = cluster->first; root != NULL; root = root->next)
         {
-	  l = root->k;
+          l = root->k;
           mpf_set_rdpe (rea, s->root[l]->drad);
           mpc_mul_f (temp, s->root[l]->mvalue, rea);
           mpc_add_eq (sc, temp);
@@ -2133,7 +2143,7 @@ mps_mnewtis (mps_context * s)
       rdpe_set (sr, rdpe_zero);
       for (root = cluster->first; root != NULL; root = root->next)
         {
-	  l = root->k;
+          l = root->k;
           mpc_sub (temp, sc, s->root[l]->mvalue);
           mpc_get_cdpe (tmp, temp);
           cdpe_mod (rtmp, tmp);
@@ -2152,8 +2162,8 @@ mps_mnewtis (mps_context * s)
       rdpe_div (rtmp2, sr, rtmp);
       if (rdpe_gt (sr, rtmp))
         {
-	  for (root = cluster->first; root != NULL; root = root->next)
-            s->root_status[root->k] = MPS_ROOT_STATUS_CLUSTERED;
+          for (root = cluster->first; root != NULL; root = root->next)
+            s->root[root->k]->status = MPS_ROOT_STATUS_CLUSTERED;
           MPS_DEBUG (s, "Custer relatively large: "
                      "skip to the next compoent");
           goto loop1;
@@ -2167,27 +2177,27 @@ mps_mnewtis (mps_context * s)
       for (c_item2 = s->clusterization->first; c_item2 != NULL; c_item2 = c_item2->next)
         {
           if (c_item2 != c_item)
-	    {
-	      cluster2 = c_item2->cluster;
-	      for (root = cluster2->first; root != NULL; root = root->next)
-		{
-		  mpc_sub (temp, sc, s->root[root->k]->mvalue);
-		  mpc_get_cdpe (tmp, temp);
-		  cdpe_mod (rtmp, tmp);
-		  rdpe_sub_eq (rtmp, s->root[root->k]->drad);
-		  rdpe_sub_eq (rtmp, sr);
-		  rdpe_inv_eq (rtmp);
-		  rdpe_add_eq (rtmp2, rtmp);
-		}
-	    }
+            {
+              cluster2 = c_item2->cluster;
+              for (root = cluster2->first; root != NULL; root = root->next)
+                {
+                  mpc_sub (temp, sc, s->root[root->k]->mvalue);
+                  mpc_get_cdpe (tmp, temp);
+                  cdpe_mod (rtmp, tmp);
+                  rdpe_sub_eq (rtmp, s->root[root->k]->drad);
+                  rdpe_sub_eq (rtmp, sr);
+                  rdpe_inv_eq (rtmp);
+                  rdpe_add_eq (rtmp2, rtmp);
+                }
+            }
         }
       rdpe_mul_eq (rtmp2, sr);
       rdpe_set_d (rtmp1, 0.3);
 
       if (rdpe_gt (rtmp2, rtmp1))
         {
-	  for (root = cluster->first; root != NULL; root = root->next)
-            s->root_status[root->k] = MPS_ROOT_STATUS_CLUSTERED;
+          for (root = cluster->first; root != NULL; root = root->next)
+            s->root[root->k]->status = MPS_ROOT_STATUS_CLUSTERED;
           MPS_DEBUG (s, "Cluster not Newton isolated: "
                      "skip to the next component");
           goto loop1;

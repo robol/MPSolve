@@ -1,7 +1,7 @@
 /*
  * This file is part of MPSolve 3.0
  *
- * Copyright (C) 2001-2012, Dipartimento di Matematica "L. Tonelli", Pisa.
+ * Copyright (C) 2001-2013, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
  * Authors: 
@@ -45,14 +45,17 @@
  * be computed.
  */
 void
-mps_fnewton (mps_context * s, int n, mps_approximation * root, 
-	     cplx_t corr,
-	     cplx_t fpc[], double fap[],  
-	     mps_boolean skip_radius_computation)
+mps_fnewton (mps_context * s, mps_polynomial * poly, mps_approximation * root, 
+             cplx_t corr)
 {
   int i;
   double ap, az, absp, azi, eps;
   cplx_t p, p1, zi, den, ppsp, tmp;
+
+  mps_monomial_poly *mp = MPS_MONOMIAL_POLY (poly);
+  cplx_t *fpc = mp->fpc;
+  double *fap = mp->fap;
+  int n = poly->degree;
 
   cplx_t z;
   cplx_set (z, root->fvalue);
@@ -69,42 +72,42 @@ mps_fnewton (mps_context * s, int n, mps_approximation * root,
       cplx_set (p, fpc[n]);
       cplx_set (p1, p);
       for (i = n - 1; i > 0; i--)
-	{
-	  cplx_mul (tmp, p, z);
-	  cplx_add (p, tmp, fpc[i]);
-	  cplx_mul (tmp, p1, z);
-	  cplx_add (p1, tmp, p);
-	}
+        {
+          cplx_mul (tmp, p, z);
+          cplx_add (p, tmp, fpc[i]);
+          cplx_mul (tmp, p1, z);
+          cplx_add (p1, tmp, p);
+        }
       cplx_mul (tmp, p, z);
       cplx_add (p, tmp, fpc[0]);
       ap = fap[n];
       for (i = n - 1; i >= 0; i--)
-	ap = ap * az + fap[i];
+        ap = ap * az + fap[i];
       absp = cplx_mod (p);
       *cont = (absp > ap * eps);
       *radius = n * (absp + eps * ap) / cplx_mod (p1);
       cplx_div (corr, p, p1);
     }
   else
-    {				/* case |z|>1 */
+    {                           /* case |z|>1 */
       cplx_set (zi, z);
       cplx_inv_eq (zi);
       azi = 1.0 / az;
       cplx_set (p, fpc[0]);
       cplx_set (p1, p);
       for (i = n - 1; i > 0; i--)
-	{
-	  cplx_mul (tmp, p, zi);
-	  cplx_add (p, tmp, fpc[n - i]);
-	  cplx_mul (tmp, p1, zi);
-	  cplx_add (p1, tmp, p);
-	}
+        {
+          cplx_mul (tmp, p, zi);
+          cplx_add (p, tmp, fpc[n - i]);
+          cplx_mul (tmp, p1, zi);
+          cplx_add (p1, tmp, p);
+        }
       cplx_mul (tmp, p, zi);
       cplx_add (p, tmp, fpc[n]);
 
       ap = fap[0];
       for (i = 1; i <= n; i++)
-	ap = ap * azi + fap[i];
+        ap = ap * azi + fap[i];
       absp = cplx_mod (p);
       *cont = (absp > ap * eps);
 
@@ -113,31 +116,27 @@ mps_fnewton (mps_context * s, int n, mps_approximation * root,
       cplx_sub_eq (den, ppsp);
       cplx_mul_eq (den, zi);
       if (cplx_mod (den) != 0)
-	{
-	  cplx_div (corr, p, den);
-	  ap = (ap * eps + absp) * n;
-	  ap = ap / cplx_mod (den);
-	  *radius = ap;
-	}
+        {
+          cplx_div (corr, p, den);
+          ap = (ap * eps + absp) * n;
+          ap = ap / cplx_mod (den);
+          *radius = ap;
+        }
       else
-	{
-	  cplx_mul (ppsp, p, z);
-	  cplx_div_eq (ppsp, p1);
-	  cplx_mul_d (den, ppsp, (double) n);
-	  cplx_sub_eq (den, cplx_one);
-	  cplx_div (corr, ppsp, den);
-	  cplx_mul_eq (corr, z);
-	  absp = cplx_mod (p);
-	  *cont = (absp > ap * eps);
+        {
+          cplx_mul (ppsp, p, z);
+          cplx_div_eq (ppsp, p1);
+          cplx_mul_d (den, ppsp, (double) n);
+          cplx_sub_eq (den, cplx_one);
+          cplx_div (corr, ppsp, den);
+          cplx_mul_eq (corr, z);
+          absp = cplx_mod (p);
+          *cont = (absp > ap * eps);
 
-	   /* If not asked to compute the radius jump to the end */
-	   if (skip_radius_computation)
-	     return;
-
-	  *radius = cplx_mod (ppsp) + (eps * ap * az) / cplx_mod (p1);
-	  *radius *= n / cplx_mod (den);
-	  *radius *= az;
-	}
+          *radius = cplx_mod (ppsp) + (eps * ap * az) / cplx_mod (p1);
+          *radius *= n / cplx_mod (den);
+          *radius *= az;
+        }
 
     }
 }
@@ -177,15 +176,18 @@ mps_fnewton (mps_context * s, int n, mps_approximation * root,
  * @see mps_fnewton()
  */
 void
-mps_dnewton (mps_context * s, int n, mps_approximation * root, 
-	     cdpe_t corr,
-	     cdpe_t dpc[], rdpe_t dap[],
-	     mps_boolean skip_radius_computation)
+mps_dnewton (mps_context * s, mps_polynomial * poly, mps_approximation * root, 
+             cdpe_t corr)
 {
   int i;
   rdpe_t ap, az, absp, rnew, apeps, rtmp;
   cdpe_t p, p1, tmp, z;
   double eps;
+
+  mps_monomial_poly *mp = MPS_MONOMIAL_POLY (poly);
+  cdpe_t * dpc = mp->dpc;
+  rdpe_t * dap = mp->dap;
+  int n = poly->degree;
 
   cdpe_set (z, root->dvalue);
   mps_boolean * cont = &root->again;
@@ -205,11 +207,11 @@ mps_dnewton (mps_context * s, int n, mps_approximation * root,
   if (cdpe_ne (p, cdpe_zero))
     if (cdpe_eq (p1, cdpe_zero))
       {
-	if (s->DOLOG)
-	  fprintf (s->logstr, "%s", "NULL DERIVATIVE\n");
-	cdpe_set (corr, cdpe_zero);
-	*cont = false;
-	return;
+        if (s->DOLOG)
+          fprintf (s->logstr, "%s", "NULL DERIVATIVE\n");
+        cdpe_set (corr, cdpe_zero);
+        *cont = false;
+        return;
       }
     else
       cdpe_div (corr, p, p1);
@@ -229,10 +231,6 @@ mps_dnewton (mps_context * s, int n, mps_approximation * root,
   rdpe_mul_d (apeps, ap, eps);
   *cont = rdpe_gt (absp, apeps);
 
-  /* If not asked to compute the radius jump to the end */
-  if (skip_radius_computation)
-    return;
-
   rdpe_add (rnew, absp, apeps);
   cdpe_mod (rtmp, p1);
 
@@ -243,7 +241,7 @@ mps_dnewton (mps_context * s, int n, mps_approximation * root,
     {
       rdpe_mul_eq_d (rnew, (double) (n + 1));
       if (rdpe_lt (rnew, root->drad))
-	rdpe_set (root->drad, rnew);
+        rdpe_set (root->drad, rnew);
     }
 
   rdpe_mul_d (rtmp, az, 4 * DBL_EPSILON);
@@ -261,159 +259,6 @@ mps_intlog2 (int n)
   if (1 << k < n)
     k++;
   return k;
-}
-
-/**
- * @brief Compute \f$p(z)\f$ by means of the Horner rule.
- *
- * @param st The pointer to the mps_context struct.
- * @param n The degree of the polynomial.
- * @param x The point in which the polynomial should be evaluated.
- * @param p Vector of the coefficients of the polynomial.
- * @param b Sparsity vector. If <code>b[i] == 0</code> then
- *  <code>p[i] == 0</code>.
- * @param s RDPE pointer in which the result will be stored
- * @param n_thread The index of the thread that is calling this
- *  routine. This is used to determine a safe memory are
- *  for temporary sparsity vectors.
- */
-void
-mps_parhorner (mps_context * st, int n, mpc_t x, mpc_t p[],
-	       mps_boolean b[], mpc_t s, int n_thread)
-{
-  int m, j, i, i1, i2, q;
-  mpc_t tmp, y;
-  mps_boolean bi;
-
-  long int wp = mpc_get_prec (x);
-
-  /* Set the pointer for paraller horner to be thread specific
-   * so there is not conflict with other threads.           */
-  mps_boolean *spar2 = mps_thread_get_spar2 (st, n_thread);
-  mpc_t *mfpc2 = mpc_valloc (n);
-  mpc_vinit2 (mfpc2, n, wp);
-  /* mpc_t *mfpc2 = mps_thread_get_mfpc2 (st, n_thread); */
-
-  /* Raise the precision of the thread local mfpc is it does not 
-   * match the current working precision. */
-  if (mpc_get_prec (mfpc2[0]) < wp)
-    for (i = 0; i < n; i++)
-      mpc_set_prec (mfpc2[i], wp);
-
-  mpc_init2 (tmp, wp);
-  mpc_init2 (y, wp);
-
-  for (i = 0; i < n + 1; i++)
-    spar2[i] = b[i];
-  for (i = 0; i < n; i++)
-    if (b[i])
-      mpc_set (mfpc2[i], p[i]);
-
-  q = mps_intlog2 (n + 1);
-  m = n;
-  mpc_set (y, x);
-  for (j = 0; j < q; j++)
-    {
-      spar2[m] = false;
-      m = (m + 1) >> 1;
-      for (i = 0; i < m; i++)
-	{
-	  i2 = (i << 1) + 1;
-	  i1 = i2 - 1;
-	  bi = spar2[i1] || spar2[i2];
-	  if (bi)
-	    {
-	      if (spar2[i1])
-		if (spar2[i2])
-		  {
-		    mpc_mul (tmp, y, mfpc2[i2]);
-		    mpc_add (mfpc2[i], mfpc2[i1], tmp);
-		  }
-		else
-		  mpc_set (mfpc2[i], mfpc2[i1]);
-	      else
-		mpc_mul (mfpc2[i], y, mfpc2[i2]);
-	    }
-	  spar2[i] = bi;
-	}
-      spar2[m] = false;
-      mpc_sqr_eq (y);
-    }
-  mpc_set (s, mfpc2[0]);
-
-  mpc_vclear (mfpc2, n);
-  free (mfpc2);
-
-  mpc_clear (y);
-  mpc_clear (tmp);
-}
-
-/**
- * @brief Compute \f$p(z)\f$ by means of the parallel Horner rule.
- *
- * @param st The pointer to the mps_context struct.
- * @param n The degree of the polynomial.
- * @param x The point in which the polynomial should be evaluated.
- * @param p Vector of the coefficients of the polynomial.
- * @param b Sparsity vector. If <code>b[i] == 0</code> then
- *  <code>p[i] == 0</code>.
- * @param s RDPE pointer in which the result will be stored
- * @param n_thread The index of the thread that is calling this
- *  routine. This is used to determine a safe memory are
- *  for temporary sparsity vectors.
- */
-void
-mps_aparhorner (mps_context * st,
-		int n, rdpe_t x, rdpe_t p[], mps_boolean b[], rdpe_t s,
-		int n_thread)
-{
-  int m, i, j, i1, i2, q;
-  rdpe_t y, tmp;
-  mps_boolean bi;
-
-  /* Set the pointer for paraller horner to be thread specific
-   * so there is not conflict with other threads.           */
-  mps_boolean *spar2 = mps_thread_get_spar2 (st, n_thread);
-  rdpe_t *dap2 = rdpe_valloc (st->deg + 1);
-
-  for (i = 0; i < n + 1; i++)
-    spar2[i] = b[i];
-  for (i = 0; i < n; i++)
-    if (b[i])
-      rdpe_set (dap2[i], p[i]);	/* D99 */
-  q = mps_intlog2 (n + 1);
-  m = n;
-  rdpe_set (y, x);
-  for (j = 0; j < q; j++)
-    {
-      spar2[m] = false;
-      m = (m + 1) >> 1;
-      for (i = 0; i < m; i++)
-	{
-	  i2 = (i << 1) + 1;
-	  i1 = i2 - 1;
-	  bi = spar2[i1] || spar2[i2];
-	  if (bi)
-	    {
-	      if (spar2[i1])
-		if (spar2[i2])
-		  {
-		    rdpe_mul (tmp, y, dap2[i2]);
-		    rdpe_add (dap2[i], dap2[i1], tmp);
-		  }
-		else
-		  rdpe_set (dap2[i], dap2[i1]);
-	      else
-		rdpe_mul (dap2[i], y, dap2[i2]);
-	    }
-	  spar2[i] = bi;
-	}
-      spar2[m] = false;
-      rdpe_sqr_eq (y);
-    }
-  rdpe_set (s, dap2[0]);
-
-  rdpe_vfree (dap2);
 }
 
 /**
@@ -454,58 +299,66 @@ mps_aparhorner (mps_context * st,
  * @see mps_dnewton()
  */
 void
-mps_mnewton (mps_context * s, int n, mps_approximation * root, mpc_t corr,
-	     mpc_t mfpc[], mpc_t mfppc[], rdpe_t dap[],
-	     mps_boolean spar[], int n_thread, 
-	     mps_boolean skip_radius_computation)
+mps_mnewton (mps_context * s, mps_polynomial * poly, 
+             mps_approximation * root, mpc_t corr)
 {
-  int i, n1, n2;
+  int i;
   rdpe_t ap, az, absp, temp, rnew, ep, apeps;
   cdpe_t temp1;
   mpc_t p, p1;
 
-  long int wp = mpc_get_prec (corr);
+  mps_monomial_poly * mp = MPS_MONOMIAL_POLY (poly);
+  mpc_t * mfpc = mp->mfpc;
+  rdpe_t * dap = mp->dap;
+  int n = poly->degree;
 
-  /* Set the pointer for mnewton to be thread specific
-   * so there is not conflict with other threads.      */
-  mps_boolean *spar2 = mps_thread_get_spar2 (s, n_thread);
+  long int wp = mpc_get_prec (root->mvalue);
 
   mpc_init2 (p, wp);
   mpc_init2 (p1, wp);
 
-  rdpe_mul_d (ep, s->mp_epsilon, (double) (n * 4));
-  if (MPS_INPUT_CONFIG_IS_SPARSE (s->input_config))
-    {				/* case of sparse polynomial */
-      n1 = n + 1;
-      n2 = n;
+  rdpe_set_2dl (ep, 1.0, 2 - wp);
+  rdpe_mul_eq_d (ep, n);
+  
+  if (MPS_DENSITY_IS_SPARSE (poly->density))
+    {
+      /* That's a dirty trick to setup a hackish derivative that 
+       * points to the same internal fields of the polynomial, shifted
+       * by one. */
+      mps_monomial_poly derivative;
+      mps_polynomial_init (s, MPS_POLYNOMIAL (&derivative));
 
-      /* compute p(z) */
-      mps_parhorner (s, n1, root->mvalue, mfpc, spar, p, n_thread);
-      mpc_get_cdpe (temp1, root->mvalue);
-      cdpe_mod (az, temp1);
+      MPS_POLYNOMIAL (&derivative)->degree = MPS_POLYNOMIAL (mp)->degree - 1;
+      derivative.spar = mp->spar + 1;
+      derivative.prec = mp->prec;
+      derivative.mfpc_mutex = mp->mfpc_mutex + 1;
 
-      /* compute bound to the error */
-      mps_aparhorner (s, n1, az, dap, spar, ap, n_thread);
-      for (i = 0; i < n2; i++)
-	spar2[i] = spar[i + 1];
-      spar2[n2] = false;
+      derivative.mfpc = mpc_valloc (n);
+      mpc_vinit2 (derivative.mfpc, n, wp);
+      for (i = 0; i < n; i++)
+        mpc_mul_ui (derivative.mfpc[i], mp->mfpc[i+1], i+1);
 
-      /* compute p'(z) */
-      mps_parhorner (s, n2, root->mvalue, mfppc, spar2, p1, n_thread);
+      MPS_POLYNOMIAL (&derivative)->meval = mps_monomial_poly_meval;
+      MPS_POLYNOMIAL (&derivative)->raise_data = mps_monomial_poly_raise_precision;
 
+      mps_polynomial_meval (s, MPS_POLYNOMIAL (mp), root->mvalue, p, ap);
+      mps_mhorner (s, &derivative, root->mvalue, p1);
+
+      mpc_vclear (derivative.mfpc, n);
+      mpc_vfree (derivative.mfpc);
     }
   else
-    {				/*  dense polynomial */
+    {                           /*  dense polynomial */
       /* commpute p(z) and p'(z) */
       mpc_set (p, mfpc[n]);
       mpc_set (p1, p);
       for (i = n - 1; i > 0; i--)
-	{
-	  mpc_mul (p, p, root->mvalue);
-	  mpc_add (p, p, mfpc[i]);
-	  mpc_mul (p1, p1, root->mvalue);
-	  mpc_add (p1, p1, p);
-	}
+        {
+          mpc_mul (p, p, root->mvalue);
+          mpc_add (p, p, mfpc[i]);
+          mpc_mul (p1, p1, root->mvalue);
+          mpc_add (p1, p1, p);
+        }
       mpc_mul (p, p, root->mvalue);
       mpc_add (p, p, mfpc[0]);
 
@@ -514,21 +367,21 @@ mps_mnewton (mps_context * s, int n, mps_approximation * root, mpc_t corr,
       mpc_get_cdpe (temp1, root->mvalue);
       cdpe_mod (az, temp1);
       for (i = n - 1; i >= 0; i--)
-	{
-	  rdpe_mul (temp, ap, az);
-	  rdpe_add (ap, temp, dap[i]);
-	}
+        {
+          rdpe_mul (temp, ap, az);
+          rdpe_add (ap, temp, dap[i]);
+        }
     }
 
   /* common part */
   if (!mpc_eq_zero (p))
     if (mpc_eq_zero (p1))
       {
-	if (s->DOLOG)
-	  fprintf (s->logstr, "%s", "NULL DERIVATIVE\n");
-	root->again = false;
-	mpc_set_ui (corr, 0U, 0U);
-	goto exit_sub;
+        if (s->DOLOG)
+          fprintf (s->logstr, "%s", "NULL DERIVATIVE\n");
+        root->again = false;
+        mpc_set_ui (corr, 0U, 0U);
+        goto exit_sub;
       }
     else
       mpc_div (corr, p, p1);
@@ -540,11 +393,11 @@ mps_mnewton (mps_context * s, int n, mps_approximation * root, mpc_t corr,
       mpc_get_cdpe (temp1, p1);
       cdpe_mod (temp, temp1);
       if (rdpe_eq_zero (temp))
-	{
-	  if (s->DOLOG)
-	    fprintf (s->logstr, "%s", "NULL DERIVATIVE\n");
-	  goto exit_sub;
-	}
+        {
+          if (s->DOLOG)
+            fprintf (s->logstr, "%s", "NULL DERIVATIVE\n");
+          goto exit_sub;
+        }
       rdpe_div (root->drad, apeps, temp);
       rdpe_mul_eq_d (root->drad, (double) n + 1);
       goto exit_sub;
@@ -555,10 +408,6 @@ mps_mnewton (mps_context * s, int n, mps_approximation * root, mpc_t corr,
   cdpe_mod (temp, temp1);
   rdpe_mul (apeps, ap, ep);
   root->again = rdpe_gt (absp, apeps);
-
-  /* If not asked to set the radius jump to the end */
-  if (skip_radius_computation)
-    goto exit_sub;
 
   rdpe_add (rnew, absp, apeps);
   rdpe_div_eq (rnew, temp);

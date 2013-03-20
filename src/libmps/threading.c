@@ -1,7 +1,7 @@
 /*
  * This file is part of MPSolve 3.0
  *
- * Copyright (C) 2001-2012, Dipartimento di Matematica "L. Tonelli", Pisa.
+ * Copyright (C) 2001-2013, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
  * Authors: 
@@ -35,7 +35,7 @@ mps_thread_get_core_number (mps_context * s)
       return cores;
 
       if (cpuinfo) 
-	fclose (cpuinfo);
+        fclose (cpuinfo);
     }
 
   /* If the metafile /proc/cpuinfo is not available
@@ -43,7 +43,7 @@ mps_thread_get_core_number (mps_context * s)
   if (!cpuinfo)
     {
       if (s->debug_level & MPS_DEBUG_MEMORY)
-	MPS_DEBUG (s, "Found %d cores on this system", cores);
+        MPS_DEBUG (s, "Found %d cores on this system", cores);
       return cores;
     }
 
@@ -76,6 +76,7 @@ mps_thread_job_queue_new (mps_context * s)
   /* Space allocation and related jobs */
   mps_thread_job_queue *q;
   q = (mps_thread_job_queue *) mps_malloc (sizeof (mps_thread_job_queue));
+
   pthread_mutex_init (&q->mutex, NULL);
 
   /* Set initial data */
@@ -127,28 +128,28 @@ mps_thread_job_queue_next (mps_context * s, mps_thread_job_queue * q)
       /* Check if the previous one was the last element in the
        * cluster, and if that's the case pass to the next one. */
       if (q->root == NULL)
-	{
-	  q->cluster_item = q->cluster_item->next;
+        {
+          q->cluster_item = q->cluster_item->next;
 
-	  /* If we got to the end of the clusterization restart from
-	   * the first cluster and dump the iteration counter. */
-	  if (q->cluster_item == NULL)
-	    {
-	      q->cluster_item = s->clusterization->first;
-	      q->iter++;
-	    }
+          /* If we got to the end of the clusterization restart from
+           * the first cluster and dump the iteration counter. */
+          if (q->cluster_item == NULL)
+            {
+              q->cluster_item = s->clusterization->first;
+              q->iter++;
+            }
 
-	  q->root = q->cluster_item->cluster->first;
+          q->root = q->cluster_item->cluster->first;
       
 
-	  /* Check if maximum number of iteration was reached and
-	   * if that was the case set j->iter to MPS_THREAD_JOB_EXCEP.  */
-	  if (j.iter == q->max_iter)
-	    {
-	      j.iter = MPS_THREAD_JOB_EXCEP;
-	      q->iter = MPS_THREAD_JOB_EXCEP;
-	    }
-	}
+          /* Check if maximum number of iteration was reached and
+           * if that was the case set j->iter to MPS_THREAD_JOB_EXCEP.  */
+          if (j.iter == q->max_iter)
+            {
+              j.iter = MPS_THREAD_JOB_EXCEP;
+              q->iter = MPS_THREAD_JOB_EXCEP;
+            }
+        }
     }
 
   pthread_mutex_unlock (&q->mutex);
@@ -159,50 +160,58 @@ void *
 mps_thread_mainloop (void * thread_ptr)
 {
   mps_thread * thread = (mps_thread *) thread_ptr;
-  int free_count;
+  mps_thread_pool * pool = thread->pool;
 
   while (thread->alive)
     {
-      /* Start by locking the busy mutex and wait for start condition. This
-       * will unlock the mutex and wait for the thread to be signaled. */
-      /* printf ("(thread %p) Finished...\n", thread); fflush(stdout); */
+      /* Try to pop a work item from the queue, if available. */
+      pthread_mutex_lock (&pool->work_completed_mutex);
+      pthread_mutex_lock (&pool->queue_changed_mutex);
 
-      pthread_mutex_lock (&thread->busy_mutex);
+      if (pool->queue->first != NULL)
+        {
+          mps_thread_pool_queue_item * item = pool->queue->first;
 
-      sem_post (&thread->pool->free_count);
-      sem_getvalue (&thread->pool->free_count, &free_count);
-      thread->busy = false;
+          if (!thread->busy)
+            {
+              pool->busy_counter++;
+              thread->busy = true;
+            }
 
-      /* printf("(thread %p) Now semaphore value is %d\n", thread, free_count);  */
+          /* Pop item from the queue and release the lock on it */
+          pool->queue->first = item->next;
+          if (item->next == NULL)
+            pool->queue->last = item;
 
-      pthread_mutex_lock (&thread->pool->free_count_changed_mutex);
-      pthread_cond_signal (&thread->pool->free_count_changed_cond);
-      pthread_mutex_unlock (&thread->pool->free_count_changed_mutex);
+          pthread_mutex_unlock (&pool->queue_changed_mutex);
+          pthread_mutex_unlock (&pool->work_completed_mutex);
 
-      pthread_cond_wait  (&thread->start_condition, &thread->busy_mutex);
-      pthread_mutex_unlock (&thread->busy_mutex);
+          item->work (item->args);
+          free (item);
+        }
+      else
+      {
+        /* Check if other threads are sleeping */
+        if (thread->busy)
+          {
+            pool->busy_counter--;
+            thread->busy = false;
+          }
+        pthread_cond_signal (&pool->work_completed_cond);
+        pthread_mutex_unlock (&pool->work_completed_mutex);
 
-      if (thread->alive)
-	{
-	  thread->work (thread->args);
-	}
+        if (!thread->alive)
+        {
+          pthread_mutex_unlock (&pool->queue_changed_mutex);
+          pthread_exit (NULL);
+        }
 
-      /* printf("(thread %p) Realmente finito\n", thread); fflush(stdout); */
+        pthread_cond_wait (&pool->queue_changed, &pool->queue_changed_mutex);
+        pthread_mutex_unlock (&pool->queue_changed_mutex);
+      }
     }
 
-  /* printf("Mi hanno buttato fuori\n"); fflush(stdout); */
-
-  pthread_mutex_lock (&thread->pool->free_count_changed_mutex);
-  pthread_mutex_lock (&thread->busy_mutex);
-
-  sem_post (&thread->pool->free_count);
-  thread->busy = false;
-
-  pthread_mutex_unlock (&thread->busy_mutex);
-  pthread_cond_signal (&thread->pool->free_count_changed_cond);
-  pthread_mutex_unlock (&thread->pool->free_count_changed_mutex);
   pthread_exit (NULL);
-
   return NULL;
 }
 
@@ -219,74 +228,70 @@ mps_thread_start_mainloop (mps_context * s, mps_thread * thread)
  * @brief Limit the maximum number of threads that can be used in the thread pool.
  */
 void mps_thread_pool_set_concurrency_limit (mps_context * s, mps_thread_pool * pool, 
-					    unsigned int concurrency_limit)
+                                            unsigned int concurrency_limit)
 {
-  int i;
-  long int l_cl;
-
-  if (!pool)
+  if (pool == NULL)
     pool = s->pool;
 
-  if (pool->n < concurrency_limit)
-    concurrency_limit = pool->n;
+  if (concurrency_limit == 0)
+    concurrency_limit = mps_thread_get_core_number (s);
 
-  /* We need to keep some threads occupied with nothing to do */  
-  if (pool->concurrency_limit == 0 && concurrency_limit == 0)
-    return;
+  if (concurrency_limit < pool->concurrency_limit)
+  {
+    mps_thread * old_first = pool->first;
+    mps_thread * thread;
+    int i = 0;
 
-  /* Update concurrency magic values */
-  pool->concurrency_limit = (pool->concurrency_limit == 0) ? pool->n : pool->concurrency_limit;
-  l_cl = (concurrency_limit == 0) ? pool->n : concurrency_limit;
+    for (thread = pool->first; i < (pool->concurrency_limit - concurrency_limit); thread = thread->next, i++);
 
-  for (i = 0; i < pool->concurrency_limit - l_cl; i++)
-    sem_wait (&pool->free_count);
+    pool->first = thread;
+    pool->n = concurrency_limit;
 
-  for (i = 0; i < l_cl - (long int) pool->concurrency_limit; i++)
-    sem_post (&pool->free_count);
+    i = 0;
+    for (thread = old_first; i < (pool->concurrency_limit - concurrency_limit); thread = thread->next, i++)
+    {
+      mps_thread_free (s, thread);
+    }
+  }
+  else
+  {
+    int i = 0;
+    for (i = 0; i < concurrency_limit - pool->concurrency_limit; i++)
+      mps_thread_pool_insert_new_thread (s, s->pool);
+  }
 
   pool->concurrency_limit = concurrency_limit;
 }
 
 void
 mps_thread_pool_assign (mps_context * s, mps_thread_pool * pool, 
-			mps_thread_work work, void * args)
+                        mps_thread_work work, void * args)
 {
   if (!pool)
     pool = s->pool;
 
-  /* Assign work to the first free thread in the pool */
-  mps_thread * thread = pool->first;
+  /* Insert the job in the queue */
+  pthread_mutex_lock (&pool->queue_changed_mutex);
 
-  /* Wait for free threads in the pool */
-  /* int valp; */
-  /* int i = 0; */
-  /* sem_getvalue (&pool->free_count, &valp); */
-  /* printf("Sem = %d\n", valp); */
-  sem_wait (&pool->free_count);
+  mps_thread_pool_queue_item * item = mps_new (mps_thread_pool_queue_item);
 
-  while (thread != NULL)
+  item->work = work;
+  item->args = args;
+
+  if (pool->queue->first == NULL)
     {
-      pthread_mutex_lock (&thread->busy_mutex);
-      if (thread->busy == false)
-	{
-	  /* printf("Assigning to thread %p\n", thread); fflush(stdout);  */
-	  thread->work = work;
-	  thread->args = args;
-
-	  thread->busy = true;
-	  pthread_cond_signal (&thread->start_condition);
-	  pthread_mutex_unlock (&thread->busy_mutex);
-
-	  return;
-	}
-      else 
-	{
-	  pthread_mutex_unlock (&thread->busy_mutex);
-	  thread = thread->next;
-	}
+      pool->queue->first = pool->queue->last = item;
+      item->next = NULL;
+    }
+  else
+    {
+      pool->queue->last->next = item;
+      pool->queue->last = item;
+      item->next = NULL;
     }
 
-  /* printf ("Non ho trovato il thread libero\n");  */
+  pthread_cond_signal (&pool->queue_changed);
+  pthread_mutex_unlock (&pool->queue_changed_mutex);
 }
 
 /**
@@ -295,25 +300,20 @@ mps_thread_pool_assign (mps_context * s, mps_thread_pool * pool,
 void
 mps_thread_pool_wait (mps_context * s, mps_thread_pool * pool)
 {
-  int value;
-  
-  if (!pool)
-    pool = s->pool;
-  
-  long int threads_to_wait = (pool->concurrency_limit == 0) ? pool->n : pool->concurrency_limit;
+  pthread_mutex_lock (&pool->work_completed_mutex);
 
-  do
+  while (true)
     {
-      pthread_mutex_lock (&pool->free_count_changed_mutex);
-      sem_getvalue (&pool->free_count, &value);
-
-      if (value != threads_to_wait)
-	pthread_cond_wait (&pool->free_count_changed_cond, &pool->free_count_changed_mutex);
-
-      pthread_mutex_unlock (&pool->free_count_changed_mutex);
-
-    } while (value != threads_to_wait);
-
+      if (pool->busy_counter == 0 && pool->queue->first == NULL)
+        {
+          pthread_mutex_unlock (&pool->work_completed_mutex);
+          return;
+        }
+      else
+        {
+          pthread_cond_wait (&pool->work_completed_cond, &pool->work_completed_mutex);
+        }
+    }
 }
 
 /**
@@ -335,7 +335,7 @@ mps_thread_new (mps_context * s, mps_thread_pool * pool)
   thread->args = NULL;
   thread->alive = true;
   thread->pool = pool;
-  thread->busy = true;
+  thread->busy = false;
 
   /* Start the thread mainloop */
   mps_thread_start_mainloop (s, thread);
@@ -352,13 +352,12 @@ mps_thread_free (mps_context * s, mps_thread * thread)
   /* Wait for the thread to finish its work, if it is doing something */
   /* pthread_mutex_lock (&thread->busy_mutex); */
   /* pthread_mutex_unlock (&thread->busy_mutex); */
-
+  pthread_mutex_lock (&thread->pool->queue_changed_mutex);
   thread->alive = false;
 
   /* Start the thread, if it is not running */
-  pthread_mutex_lock (&thread->busy_mutex);
-  pthread_cond_signal (&thread->start_condition);
-  pthread_mutex_unlock (&thread->busy_mutex);
+  pthread_cond_broadcast (&thread->pool->queue_changed);
+  pthread_mutex_unlock (&thread->pool->queue_changed_mutex);
 
   pthread_join (*thread->thread, NULL);
 
@@ -399,15 +398,21 @@ mps_thread_pool_new (mps_context * s, int n_threads)
   pool->n = 0;
   pool->first = NULL;
 
-  pthread_mutex_init (&pool->free_count_changed_mutex, NULL);
-  pthread_cond_init (&pool->free_count_changed_cond, NULL);
-  
-  sem_init (&pool->free_count, 0, 0);
+  pool->queue = mps_new (mps_thread_pool_queue);
+  pool->queue->first = pool->queue->last = NULL;
+
+  pthread_mutex_init (&pool->queue_changed_mutex, NULL);
+  pthread_cond_init (&pool->queue_changed, NULL);
+
+  pthread_mutex_init (&pool->work_completed_mutex, NULL);
+  pthread_cond_init (&pool->work_completed_cond, NULL);
+
+  pool->busy_counter = 0;
   
   for (i = 0; i < threads; i++) 
     mps_thread_pool_insert_new_thread (s, pool); 
 
-  pool->concurrency_limit = 0;
+  pool->concurrency_limit = threads;
 
   mps_thread_pool_wait (s, pool);
 
@@ -436,6 +441,7 @@ mps_thread_pool_free (mps_context * s, mps_thread_pool * pool)
       thread = next_thread;
     }
 
+  free (pool->queue);
   free (pool);
 }
 
@@ -448,9 +454,9 @@ int mps_thread_get_id (mps_context * s, mps_thread_pool * pool)
   while (thread)
     {
       if (pthread_equal (*thread->thread, self))
-	{
-	  return i;
-	}
+        {
+          return i;
+        }
       i++;
       thread = thread->next;
     }

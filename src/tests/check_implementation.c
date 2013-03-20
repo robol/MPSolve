@@ -42,7 +42,7 @@ get_pol_file (const char *pol_name, const char *type_name)
   if (!srcdir_path)
     {
       fprintf (stderr, "Please set the srcdir environment variable or run the test via make check\n"
-	       "Trying to set srcdir as \".\" and hoping it is working.");
+               "Trying to set srcdir as \".\" and hoping it is working.");
       srcdir_path = ".";
       path_length = 1 + strlen (pol_name) + strlen (type_name) + 7;
     }
@@ -76,7 +76,7 @@ get_res_file (const char *pol_name, const char *type_name)
   if (!srcdir_path)
     {
       fprintf (stderr, "Please set the srcdir environment variable or run the test via make check\n"
-	       "Trying to set srcdir as \".\" and hoping it is working.\n");
+               "Trying to set srcdir as \".\" and hoping it is working.\n");
       srcdir_path = ".";
       path_length = 1 + strlen (pol_name) + strlen (type_name) + 19;
     }

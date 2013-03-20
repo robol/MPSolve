@@ -45,36 +45,36 @@ extern "C"
   int dbl_get_exp (double d);
 
 /* vector support functions */
-#define mps_boolean_valloc(N)		(mps_boolean *) malloc((N) * sizeof(mps_boolean))
+#define mps_boolean_valloc(N)           (mps_boolean *) malloc((N) * sizeof(mps_boolean))
   void mps_boolean_vinit (mps_boolean v[], unsigned long int size);
-#define mps_boolean_vclear(V, N)		mps_boolean_vinit(V, N)
-#define mps_boolean_vfree(V)		free(V)
+#define mps_boolean_vclear(V, N)                mps_boolean_vinit(V, N)
+#define mps_boolean_vfree(V)            free(V)
 
 /* vector support functions */
-#define char_valloc(N)			(char *) malloc((N) * sizeof(char))
+#define char_valloc(N)                  (char *) malloc((N) * sizeof(char))
   void char_vinit (char v[], unsigned long int size);
-#define char_vclear(V, N)		char_vinit(V, N)
-#define char_vfree(V)			free(V)
+#define char_vclear(V, N)               char_vinit(V, N)
+#define char_vfree(V)                   free(V)
 
-#define int_valloc(N)			(int *) malloc((N) * sizeof(int))
+#define int_valloc(N)                   (int *) malloc((N) * sizeof(int))
   void int_vinit (int v[], unsigned long int size);
-#define int_vclear(V, N)		int_vinit(V, N)
-#define int_vfree(V)			free(V)
+#define int_vclear(V, N)                int_vinit(V, N)
+#define int_vfree(V)                    free(V)
 
-#define long_valloc(N)			(long *) malloc((N) * sizeof(long))
+#define long_valloc(N)                  (long *) malloc((N) * sizeof(long))
   void long_vinit (long v[], unsigned long int size);
-#define long_vclear(V, N)		lng_vinit(V, N)
-#define long_vfree(V)			free(V)
+#define long_vclear(V, N)               lng_vinit(V, N)
+#define long_vfree(V)                   free(V)
 
-#define float_valloc(N)			(float *) malloc((N) * sizeof(float))
+#define float_valloc(N)                 (float *) malloc((N) * sizeof(float))
   void float_vinit (float v[], unsigned long int size);
-#define float_vclear(V, N)		float_vinit(V, N)
-#define float_vfree(V)			free(V)
+#define float_vclear(V, N)              float_vinit(V, N)
+#define float_vfree(V)                  free(V)
 
-#define double_valloc(N)		(double *) malloc((N) * sizeof(double))
+#define double_valloc(N)                (double *) malloc((N) * sizeof(double))
   void double_vinit (double v[], unsigned long int size);
-#define double_vclear(V, N)		double_vinit(V, N)
-#define double_vfree(V)			free(V)
+#define double_vclear(V, N)             double_vinit(V, N)
+#define double_vfree(V)                 free(V)
 
 /*
  * End of extern "C" {

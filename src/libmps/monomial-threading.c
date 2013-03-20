@@ -1,7 +1,7 @@
 /*
  * This file is part of MPSolve 3.0
  *
- * Copyright (C) 2001-2012, Dipartimento di Matematica "L. Tonelli", Pisa.
+ * Copyright (C) 2001-2013, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
  * Authors: 
@@ -20,7 +20,7 @@ mps_thread_fpolzer_worker (void *data_ptr)
 {
   mps_thread_worker_data *data = (mps_thread_worker_data *) data_ptr;
   mps_context *s = data->s;
-  mps_monomial_poly *p = s->monomial_poly;
+  mps_monomial_poly *p = MPS_MONOMIAL_POLY (s->active_poly);
   int i, iter;
   cplx_t corr, abcorr, froot;
   double rad1, modcorr;
@@ -60,13 +60,10 @@ mps_thread_fpolzer_worker (void *data_ptr)
           cplx_set (froot, s->root[i]->fvalue);
           pthread_mutex_unlock (&data->aberth_mutex[i]);
 
-          if (!MPS_INPUT_CONFIG_IS_USER (s->input_config))
-            {
-              mps_fnewton (s, s->n, s->root[i], corr, p->fpc, p->fap,
-                           false);
-              if (iter == 0 && !s->root[i]->again && s->root[i]->frad > rad1 && rad1 != 0)
-                s->root[i]->frad = rad1;
-              /***************************************
+          mps_polynomial_fnewton (s, MPS_POLYNOMIAL (p), s->root[i], corr);
+          if (iter == 0 && !s->root[i]->again && s->root[i]->frad > rad1 && rad1 != 0)
+            s->root[i]->frad = rad1;
+          /***************************************
                The above condition is needed to cope with the case
                where at the first iteration the starting point
                is already in the root neighbourhood and the actually
@@ -74,22 +71,13 @@ mps_thread_fpolzer_worker (void *data_ptr)
                derivative is too small.
                In this case the previous radius bound, obtained by
                means of Rouche' is more reliable and strict
-               **************************************/
-            }
-          else if (s->fnewton_usr != NULL)
-            {
-              (*s->fnewton_usr) (s, s->root[i], corr, NULL, false);
-            }
-          else
-            {
-              mps_fnewton_usr (s, s->root[i], corr);
-            }
+          **************************************/
 
-          if (s->root[i]->again ||
+          if (s->root[i]->again
               /* the correction is performed only if iter!=1 or rad(i)!=rad1 */
-              MPS_INPUT_CONFIG_IS_USER (s->input_config) || iter != 0 || s->root[i]->frad != rad1)
+             || iter != 0 || s->root[i]->frad != rad1)
             {
-              mps_faberth (s, i, abcorr);
+              mps_faberth (s, s->root[i], abcorr);
 
               cplx_mul_eq (abcorr, corr);
               cplx_sub (abcorr, cplx_one, abcorr);
@@ -166,7 +154,7 @@ mps_thread_fpolzer (mps_context * s, int *it, mps_boolean * excep, int required_
     }
 
   data = (mps_thread_worker_data *) mps_malloc (sizeof (mps_thread_worker_data)
-						* n_threads);
+                                                * n_threads);
   for (i = 0; i < n_threads; i++)
     {
       data[i].it = it;
@@ -205,7 +193,7 @@ mps_thread_dpolzer_worker (void *data_ptr)
   /* Parse input data */
   mps_thread_worker_data *data = (mps_thread_worker_data *) data_ptr;
   mps_context *s = data->s;
-  mps_monomial_poly *p = s->monomial_poly;
+  mps_monomial_poly *p = MPS_MONOMIAL_POLY (s->active_poly);
   mps_thread_job job;
 
   while (!(*data->excep) && (*data->nzeros < data->required_zeros))
@@ -236,24 +224,10 @@ mps_thread_dpolzer_worker (void *data_ptr)
           (*data->it)++;
           rdpe_set (rad1, s->root[i]->drad);
 
-          if (!MPS_INPUT_CONFIG_IS_USER (s->input_config))
-            {
-              mps_dnewton (s, s->n, s->root[i], corr, p->dpc,
-                           p->dap, false);
-              if (iter == 0 && !s->root[i]->again && rdpe_gt (s->root[i]->drad, rad1)
-                  && rdpe_ne (rad1, rdpe_zero))
-                rdpe_set (s->root[i]->drad, rad1);
-            }
-          else if (s->dnewton_usr != NULL)
-            {
-              (*s->dnewton_usr) (s, s->root[i], corr,
-                                 NULL, false);
-            }
-          else
-            {
-              mps_dnewton_usr (s, s->root[i], corr);
-            }
-
+          mps_polynomial_dnewton (s, MPS_POLYNOMIAL (p), s->root[i], corr);
+          if (iter == 0 && !s->root[i]->again && rdpe_gt (s->root[i]->drad, rad1)
+              && rdpe_ne (rad1, rdpe_zero))
+            rdpe_set (s->root[i]->drad, rad1);
           /************************************************
            The above condition is needed to manage with the case where
            at the first iteration the starting point is already in the
@@ -263,12 +237,12 @@ mps_thread_dpolzer_worker (void *data_ptr)
            Rouche' is more reliable and strict
            **********************************************/
 
-          if (s->root[i]->again ||
+          if (s->root[i]->again
               /* the correction is performed only if iter!=1 or rad(i)!=rad1 */
-              MPS_INPUT_CONFIG_IS_USER (s->input_config) || iter != 0
+              || iter != 0
               || rdpe_ne (s->root[i]->drad, rad1))
             {
-              mps_daberth (s, i, abcorr);
+              mps_daberth (s, s->root[i], abcorr);
               cdpe_mul_eq (abcorr, corr);
               cdpe_sub (abcorr, cdpe_one, abcorr);
               if (cdpe_eq_zero (abcorr))
@@ -371,15 +345,12 @@ mps_thread_mpolzer_worker (void *data_ptr)
 {
   mps_thread_worker_data *data = (mps_thread_worker_data *) data_ptr;
   mps_context *s = data->s;
-  mps_monomial_poly *p = s->monomial_poly;
+  mps_monomial_poly *p = MPS_MONOMIAL_POLY (s->active_poly);
   mps_thread_job job;
   int iter, l;
   mpc_t corr, abcorr, mroot, diff;
   rdpe_t eps, rad1, rtmp;
   cdpe_t ctmp;
-  int i;
-
-  mps_secular_iteration_data it_data;
 
   mpc_init2 (abcorr, s->mpwp);
   mpc_init2 (corr, s->mpwp);
@@ -387,21 +358,6 @@ mps_thread_mpolzer_worker (void *data_ptr)
   mpc_init2 (diff, s->mpwp);
 
   rdpe_mul_d (eps, s->mp_epsilon, (double) 4 * s->n);
-
-  it_data.local_ampc = it_data.local_bmpc = NULL;
-
-  if (s->mnewton_usr == mps_secular_mnewton) 
-    {
-      it_data.local_ampc = mpc_valloc (s->n);
-      it_data.local_bmpc = mpc_valloc (s->n);
-      mpc_vinit2 (it_data.local_ampc, s->n, s->mpwp);
-      mpc_vinit2 (it_data.local_bmpc, s->n, s->mpwp);
-      for (i = 0; i < s->n; i++)
-	{
-	  mpc_set (it_data.local_ampc[i], s->secular_equation->ampc[i]);
-	  mpc_set (it_data.local_bmpc[i], s->secular_equation->bmpc[i]);
-	}
-    }
 
   /* Continue to iterate while exception condition has not
    * been reached and there more roots to approximate   */
@@ -417,7 +373,7 @@ mps_thread_mpolzer_worker (void *data_ptr)
       if (job.iter == MPS_THREAD_JOB_EXCEP)
         {
           (*data->excep) = true;
-	  goto endfun;
+          goto endfun;
         }
 
       l = job.i;
@@ -448,41 +404,28 @@ mps_thread_mpolzer_worker (void *data_ptr)
           mpc_set (mroot, s->root[l]->mvalue);
           pthread_mutex_unlock (&data->aberth_mutex[l]);
 
-          if (!MPS_INPUT_CONFIG_IS_USER (s->input_config))
-            {
-              /* sparse/dense polynomial */
-              rdpe_set (rad1, s->root[l]->drad);
+          /* sparse/dense polynomial */
+          rdpe_set (rad1, s->root[l]->drad);
 
-	      mps_mnewton (s, s->n, s->root[l], corr, p->mfpc,
-			   p->mfppc, p->dap, p->spar,
-			   data->thread, false);
+          mps_polynomial_mnewton (s, MPS_POLYNOMIAL (p), s->root[l], corr);
+          
+          if (iter == 0 && !s->root[l]->again && rdpe_gt (s->root[l]->drad, rad1)
+              && rdpe_ne (rad1, rdpe_zero))
+            rdpe_set (s->root[l]->drad, rad1);
 
-              if (iter == 0 && !s->root[l]->again && rdpe_gt (s->root[l]->drad, rad1)
-                  && rdpe_ne (rad1, rdpe_zero))
-                rdpe_set (s->root[l]->drad, rad1);
+          /************************************************
+          The above condition is needed to cope with the case
+          where at the first iteration the starting point is
+          already in the root neighbourhood and the actually
+          computed radius is too big since the value of the
+          first derivative is too small.
+          In this case the previous radius bound, obtained by
+          means of Rouche' is more reliable and strict
+          ***********************************************/
 
-              /************************************************
-               The above condition is needed to cope with the case
-               where at the first iteration the starting point is
-               already in the root neighbourhood and the actually
-               computed radius is too big since the value of the
-               first derivative is too small.
-               In this case the previous radius bound, obtained by
-               means of Rouche' is more reliable and strict
-               ***********************************************/
-            }
-          else /* user's polynomial */ if (s->mnewton_usr != NULL)
-            {
-              (*s->mnewton_usr) (s, s->root[l], corr, &it_data, false);
-            }
-          else
-            {
-              mps_mnewton_usr (s, s->root[l], corr);
-            }
-
-          if (s->root[l]->again ||
+          if (s->root[l]->again
               /* the correction is performed only if iter!=1 or rad[l]!=rad1 */
-              MPS_INPUT_CONFIG_IS_USER (s->input_config) || iter != 0
+              || iter != 0
               || rdpe_ne (s->root[l]->drad, rad1))
             {
               /* Global lock to aberth step to reach a real Gauss-Seidel iteration */
@@ -544,14 +487,6 @@ endfun:                        /* free local MP variables */
   mpc_clear (mroot);
   mpc_clear (diff);
 
-  if (s->mnewton_usr == mps_secular_mnewton)
-    {
-      mpc_vclear (it_data.local_ampc, s->n);
-      mpc_vclear (it_data.local_bmpc, s->n);
-      free (it_data.local_ampc);
-      free (it_data.local_bmpc);
-    }
-
   return NULL;
 }
 
@@ -602,7 +537,7 @@ mps_thread_mpolzer (mps_context * s, int *it, mps_boolean * excep, int required_
   mps_thread_job_queue *queue = mps_thread_job_queue_new (s);
 
   data = (mps_thread_worker_data *) mps_malloc (sizeof (mps_thread_worker_data)
-						* n_threads);
+                                                * n_threads);
 
   /* Set data to be passed to every thread and actually spawn the threads. */
   for (i = 0; i < n_threads; i++)

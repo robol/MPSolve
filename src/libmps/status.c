@@ -1,7 +1,7 @@
 /*
  * This file is part of MPSolve 3.0
  *
- * Copyright (C) 2001-2012, Dipartimento di Matematica "L. Tonelli", Pisa.
+ * Copyright (C) 2001-2013, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
  * Authors: 
@@ -176,8 +176,8 @@ mps_context_free (mps_context * s)
  * // and use the provided routines to compute newton corrections.
  * mps_context_set_poly_u(s, n,
  *   MPS_FNEWTON_PTR(mps_secular_fnewton),
- *	 MPS_DNEWTON_PTR(mps_secular_dnewton),
- *	 MPS_MNEWTON_PTR(mps_secular_mnewton));
+ *       MPS_DNEWTON_PTR(mps_secular_dnewton),
+ *       MPS_MNEWTON_PTR(mps_secular_mnewton));
  * @endcode
  *
  * @param s The <code>mps_context</code> struct;
@@ -239,35 +239,37 @@ mps_context_set_degree (mps_context * s, int n)
  * @param p The mps_monomial_poly to solve.
  */
 void
-mps_context_set_input_poly (mps_context * s, mps_monomial_poly * p)
+mps_context_set_input_poly (mps_context * s, mps_polynomial * p)
 {
   MPS_DEBUG_THIS_CALL;
 
   int i;
-  s->monomial_poly = p;
-  mps_context_set_degree (s, p->n);
+  s->active_poly = p;
+  mps_context_set_degree (s, p->degree);
 
   /* Set the right flag for the input */
-  s->input_config->representation = MPS_REPRESENTATION_MONOMIAL;
+  s->input_config->representation = p->representation;
 
   /* Set the mps_structure passed as input */
   s->input_config->structure = p->structure;
 
   /* Set the density or sparsity of the polynomial, if it's not
    * a user polynomial */
-  if (!MPS_INPUT_CONFIG_IS_USER (s->input_config))
+  if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
     {
+      mps_monomial_poly *mp = (mps_monomial_poly*) p;
+
       /* Check if the input polynomial is sparse or not. We can simply check if
        * the again vector is all of true values */
       s->input_config->density = MPS_DENSITY_DENSE;
-      for (i = 0; i <= p->n; ++i)
-	{
-	  if (!p->spar[i])
-	    {
-	      s->input_config->density = MPS_DENSITY_SPARSE;
-	      break;
-	    }
-	}
+      for (i = 0; i <= mp->n; ++i)
+        {
+          if (!mp->spar[i])
+            {
+              s->input_config->density = MPS_DENSITY_SPARSE;
+              break;
+            }
+        }
     }
 }
 
@@ -294,7 +296,7 @@ mps_context_set_poly_d (mps_context * s, cplx_t * coeff, long unsigned int n)
   for (i = 0; i <= n; i++)
     {
       mps_monomial_poly_set_coefficient_d (s, p, i, cplx_Re (coeff[i]),
-					   cplx_Im (coeff[i]));
+                                           cplx_Im (coeff[i]));
     }
 
   mps_context_set_input_poly (s, p);
@@ -469,7 +471,7 @@ mps_context_set_debug_level (mps_context * s, mps_debug_level level)
     {
       s->DOLOG = true;
       if (!s->logstr)
-	s->logstr = stderr;
+        s->logstr = stderr;
     }
 }
 
@@ -587,4 +589,11 @@ char * mps_context_error_msg (mps_context * s)
     return strdup (s->last_error);
   else
     return NULL;
+}
+
+
+mps_polynomial* 
+mps_context_get_active_poly (mps_context * ctx)
+{
+  return ctx->active_poly;
 }

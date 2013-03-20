@@ -1,7 +1,7 @@
 /*
  * This file is part of MPSolve 3.0
  *
- * Copyright (C) 2001-2012, Dipartimento di Matematica "L. Tonelli", Pisa.
+ * Copyright (C) 2001-2013, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
  * Authors: 
@@ -47,48 +47,48 @@ mps_update (mps_context * s)
     case MPS_OUTPUT_GOAL_COUNT:                  /*  count */
       for (i = 0; i < s->n; i++)
         {
-          if (s->root_inclusion[i] == MPS_ROOT_INCLUSION_UNKNOWN)
-            if (!MPS_ROOT_STATUS_IS_APPROXIMATED (s, i) && 
-		s->root_status[i] != MPS_ROOT_STATUS_NOT_DPE)
+          if (s->root[i]->inclusion == MPS_ROOT_INCLUSION_UNKNOWN)
+            if (!MPS_ROOT_STATUS_IS_APPROXIMATED (s->root[i]->status) && 
+                s->root[i]->status != MPS_ROOT_STATUS_NOT_DPE)
               s->root[i]->again = true;
-	  
+          
           if (s->output_config->multiplicity && 
-	      s->root_status[i] == MPS_ROOT_STATUS_CLUSTERED &&
-	      s->root_inclusion[i] != MPS_ROOT_INCLUSION_OUT)
-	    s->root[i]->again = true;
+              s->root[i]->status == MPS_ROOT_STATUS_CLUSTERED &&
+              s->root[i]->inclusion != MPS_ROOT_INCLUSION_OUT)
+            s->root[i]->again = true;
 
-	    if (s->output_config->root_properties &&
-		(s->root_attrs == MPS_ROOT_ATTRS_NONE &&
-		 (s->root_inclusion != MPS_ROOT_INCLUSION_UNKNOWN ||
-		  (!MPS_ROOT_STATUS_IS_APPROXIMATED (s, i) && 
-		   s->root_status[i] != MPS_ROOT_STATUS_NOT_DPE))))
-	      s->root[i]->again = true;
-	}
+            if (s->output_config->root_properties &&
+                (s->root[i]->attrs == MPS_ROOT_ATTRS_NONE &&
+                 (s->root[i]->inclusion != MPS_ROOT_INCLUSION_UNKNOWN ||
+                  (!MPS_ROOT_STATUS_IS_APPROXIMATED (s->root[i]->status) && 
+                   s->root[i]->status != MPS_ROOT_STATUS_NOT_DPE))))
+              s->root[i]->again = true;
+        }
       break;
-	  
+          
     case MPS_OUTPUT_GOAL_ISOLATE:                  /* isolate */
       for (i = 0; i < s->n; i++)
         {
-	  if (s->root_inclusion[i] == MPS_ROOT_INCLUSION_UNKNOWN ||
-	      (s->root_status[i] == MPS_ROOT_STATUS_CLUSTERED && 
-	       s->root_inclusion[i] == MPS_ROOT_INCLUSION_IN))
-	    if (!MPS_ROOT_STATUS_IS_APPROXIMATED (s, i) &&
-		(s->root_status[i] != MPS_ROOT_STATUS_ISOLATED ||
-		 s->root_inclusion[i] != MPS_ROOT_INCLUSION_IN))
+          if (s->root[i]->inclusion == MPS_ROOT_INCLUSION_UNKNOWN ||
+              (s->root[i]->status == MPS_ROOT_STATUS_CLUSTERED && 
+               s->root[i]->inclusion == MPS_ROOT_INCLUSION_IN))
+            if (!MPS_ROOT_STATUS_IS_APPROXIMATED (s->root[i]->status) &&
+                (s->root[i]->status != MPS_ROOT_STATUS_ISOLATED ||
+                 s->root[i]->inclusion != MPS_ROOT_INCLUSION_IN))
               s->root[i]->again = true;
 
           if (s->output_config->multiplicity && 
-	      s->root_status[i] == MPS_ROOT_STATUS_CLUSTERED &&
-	      s->root_inclusion[i] != MPS_ROOT_INCLUSION_OUT)
+              s->root[i]->status == MPS_ROOT_STATUS_CLUSTERED &&
+              s->root[i]->inclusion != MPS_ROOT_INCLUSION_OUT)
             s->root[i]->again = true;
 
-	  if (s->output_config->root_properties)
-	    {
-	      if (s->root_attrs[i] == MPS_ROOT_ATTRS_NONE &&
-		  (!MPS_ROOT_STATUS_IS_APPROXIMATED (s, i) &&
-		   s->root_status[i] != MPS_ROOT_STATUS_NOT_DPE))
-		s->root[i]->again = true;
-	    }
+          if (s->output_config->root_properties)
+            {
+              if (s->root[i]->attrs == MPS_ROOT_ATTRS_NONE &&
+                  (!MPS_ROOT_STATUS_IS_APPROXIMATED (s->root[i]->status) &&
+                   s->root[i]->status != MPS_ROOT_STATUS_NOT_DPE))
+                s->root[i]->again = true;
+            }
         }
 
       break;
@@ -96,23 +96,23 @@ mps_update (mps_context * s)
     case MPS_OUTPUT_GOAL_APPROXIMATE:                  /* approximate (the same as isolate) */
       for (i = 0; i < s->n; i++)
         {
-	  if (s->root_inclusion[i] == MPS_ROOT_INCLUSION_UNKNOWN ||
-	      (s->root_status[i] == MPS_ROOT_STATUS_CLUSTERED &&
-	       s->root_inclusion[i] == MPS_ROOT_INCLUSION_IN))
-	    if (!MPS_ROOT_STATUS_IS_APPROXIMATED (s, i))
+          if (s->root[i]->inclusion == MPS_ROOT_INCLUSION_UNKNOWN ||
+              (s->root[i]->status == MPS_ROOT_STATUS_CLUSTERED &&
+               s->root[i]->inclusion == MPS_ROOT_INCLUSION_IN))
+            if (!MPS_ROOT_STATUS_IS_APPROXIMATED (s->root[i]->status))
               s->root[i]->again = true;
 
-	  if (s->output_config->multiplicity &&
-	      s->root_status[i] == MPS_ROOT_STATUS_CLUSTERED &&
-	      s->root_inclusion[i] != MPS_ROOT_INCLUSION_OUT)
-	    s->root[i]->again = true;
+          if (s->output_config->multiplicity &&
+              s->root[i]->status == MPS_ROOT_STATUS_CLUSTERED &&
+              s->root[i]->inclusion != MPS_ROOT_INCLUSION_OUT)
+            s->root[i]->again = true;
 
-	  if (s->output_config->root_properties)
-	    {
-	      if (s->root_attrs == MPS_ROOT_ATTRS_NONE && 
-		  MPS_ROOT_STATUS_IS_APPROXIMATED (s, i))
-		s->root[i]->again = true;
-	    }
+          if (s->output_config->root_properties)
+            {
+              if (s->root[i]->attrs == MPS_ROOT_ATTRS_NONE && 
+                  MPS_ROOT_STATUS_IS_APPROXIMATED (s->root[i]->status))
+                s->root[i]->again = true;
+            }
         }
       break;
     }
@@ -242,15 +242,15 @@ mps_msrad (mps_context * s, mps_cluster * cluster, mpc_t sc, rdpe_t sr)
       cdpe_mod (rtmp, cdtmp);
       rdpe_add_eq (rtmp, s->root[l]->drad);
       if (rdpe_lt (sr, rtmp))
-	  rdpe_set (sr, rtmp);
+          rdpe_set (sr, rtmp);
       else
-	{
-	  if (s->debug_level & MPS_DEBUG_CLUSTER) 
-	    {
-	      MPS_DEBUG_RDPE (s, sr, "Super radius of the cluster");
-	      // MPS_DEBUG_RDPE (s, rtmp, "rtmp");
-	    }
-	}
+        {
+          if (s->debug_level & MPS_DEBUG_CLUSTER) 
+            {
+              MPS_DEBUG_RDPE (s, sr, "Super radius of the cluster");
+              // MPS_DEBUG_RDPE (s, rtmp, "rtmp");
+            }
+        }
     }
 
   mpf_clear (sum);
@@ -306,21 +306,21 @@ mps_check_stop (mps_context * s)
     {
       for (i = 0; i < s->n; i++)
         {
-	  if (!MPS_ROOT_STATUS_IS_APPROXIMATED (s, i) &&
-	      s->root_inclusion[i] == MPS_ROOT_INCLUSION_UNKNOWN)
+          if (!MPS_ROOT_STATUS_IS_APPROXIMATED (s->root[i]->status) &&
+              s->root[i]->inclusion == MPS_ROOT_INCLUSION_UNKNOWN)
             return computed;
 
           if (s->output_config->multiplicity && 
-	      s->root_status[i] == MPS_ROOT_STATUS_CLUSTERED &&
-	      s->root_inclusion[i] != MPS_ROOT_INCLUSION_OUT)
+              s->root[i]->status == MPS_ROOT_STATUS_CLUSTERED &&
+              s->root[i]->inclusion != MPS_ROOT_INCLUSION_OUT)
             return computed;
 
-	  if (s->output_config->root_properties &&
-	      s->root_attrs[i] == MPS_ROOT_ATTRS_NONE &&
-	      s->root_inclusion[i] != MPS_ROOT_INCLUSION_OUT &&
-	      !MPS_ROOT_STATUS_IS_APPROXIMATED (s, i) && 
-	      s->root_status[i] != MPS_ROOT_STATUS_MULTIPLE)
-	    return computed;
+          if (s->output_config->root_properties &&
+              s->root[i]->attrs == MPS_ROOT_ATTRS_NONE &&
+              s->root[i]->inclusion != MPS_ROOT_INCLUSION_OUT &&
+              !MPS_ROOT_STATUS_IS_APPROXIMATED (s->root[i]->status) && 
+              s->root[i]->status != MPS_ROOT_STATUS_MULTIPLE)
+            return computed;
         }
       computed = true;
     }
@@ -331,41 +331,41 @@ mps_check_stop (mps_context * s)
     {
       for (i = 0; i < s->n; i++)
         {
-	  if ((s->root_inclusion[i] == MPS_ROOT_INCLUSION_UNKNOWN || s->root_inclusion[i] == MPS_ROOT_INCLUSION_IN) &&
-	      !MPS_ROOT_STATUS_IS_COMPUTED (s, i))
-	    {
-	      if (s->debug_level & MPS_DEBUG_PACKETS)
-		MPS_DEBUG (s, "Cannot stop because root %d is not approximated, and its inclusion is not certain", i);
-	      return computed;
-	    }
+          if ((s->root[i]->inclusion == MPS_ROOT_INCLUSION_UNKNOWN || s->root[i]->inclusion == MPS_ROOT_INCLUSION_IN) &&
+              !MPS_ROOT_STATUS_IS_COMPUTED (s->root[i]->status))
+            {
+              if (s->debug_level & MPS_DEBUG_PACKETS)
+                MPS_DEBUG (s, "Cannot stop because root %d is not approximated, and its inclusion is not certain", i);
+              return computed;
+            }
 
-	  if (s->root_status[i] == MPS_ROOT_STATUS_CLUSTERED &&
-	      s->root_inclusion[i] != MPS_ROOT_INCLUSION_OUT)
-	    {
-	      if (s->debug_level & MPS_DEBUG_PACKETS)
-		MPS_DEBUG (s, "Cannot stop because root %d is clustered and not certainly out of the target set", i);
-	      return computed;
-	    }
+          if (s->root[i]->status == MPS_ROOT_STATUS_CLUSTERED &&
+              s->root[i]->inclusion != MPS_ROOT_INCLUSION_OUT)
+            {
+              if (s->debug_level & MPS_DEBUG_PACKETS)
+                MPS_DEBUG (s, "Cannot stop because root %d is clustered and not certainly out of the target set", i);
+              return computed;
+            }
 
-	  if (s->output_config->multiplicity &&
-	      s->root_inclusion[i] != MPS_ROOT_INCLUSION_OUT &&
-	      s->root_status[i] == MPS_ROOT_STATUS_CLUSTERED)
-	    {
-	      if (s->debug_level & MPS_DEBUG_PACKETS)
-		MPS_DEBUG (s, "Cannot stop because root %d is not out of the target set and is clustered", i);
-	      return computed;
-	    }
+          if (s->output_config->multiplicity &&
+              s->root[i]->inclusion != MPS_ROOT_INCLUSION_OUT &&
+              s->root[i]->status == MPS_ROOT_STATUS_CLUSTERED)
+            {
+              if (s->debug_level & MPS_DEBUG_PACKETS)
+                MPS_DEBUG (s, "Cannot stop because root %d is not out of the target set and is clustered", i);
+              return computed;
+            }
 
-	  if (s->output_config->root_properties &&
-	      s->root_attrs[i] == MPS_ROOT_ATTRS_NONE && 
-	      s->root_inclusion[i] != MPS_ROOT_INCLUSION_OUT &&
-	      !MPS_ROOT_STATUS_IS_APPROXIMATED (s, i) &&
-	      s->root_status[i] != MPS_ROOT_STATUS_MULTIPLE)
-	    {
-	      if (s->debug_level & MPS_DEBUG_PACKETS)
-		MPS_DEBUG (s, "Cannot stop because properties of root %d have not been detected, it's not out of the target set, nor approximated or multiple", i);
-	      return computed;
-	    }
+          if (s->output_config->root_properties &&
+              s->root[i]->attrs == MPS_ROOT_ATTRS_NONE && 
+              s->root[i]->inclusion != MPS_ROOT_INCLUSION_OUT &&
+              !MPS_ROOT_STATUS_IS_APPROXIMATED (s->root[i]->status) &&
+              s->root[i]->status != MPS_ROOT_STATUS_MULTIPLE)
+            {
+              if (s->debug_level & MPS_DEBUG_PACKETS)
+                MPS_DEBUG (s, "Cannot stop because properties of root %d have not been detected, it's not out of the target set, nor approximated or multiple", i);
+              return computed;
+            }
         }
 
       MPS_DEBUG (s, "All roots are computed, stopping Aberth");
@@ -411,8 +411,7 @@ mps_fsolve (mps_context * s, mps_boolean * d_after_f)
 {
   mps_boolean excep;
   int it_pack, iter, nit, oldnclust, i, j, required_zeros = s->n;
-  rdpe_t eps_out;
-  mps_monomial_poly *p = s->monomial_poly;
+  mps_monomial_poly *p = MPS_MONOMIAL_POLY (s->active_poly);
   double * frad = double_valloc (s->n);
 
   /* == 1 ==  Initialize variables */
@@ -429,18 +428,13 @@ mps_fsolve (mps_context * s, mps_boolean * d_after_f)
   if (s->DOLOG)
     fprintf (s->logstr, "FSOLVE: call fstart");
 
-  /* If there is a custom starting point function use it,
-   * otherwise use the default one */
-  if (s->fstart_usr)
-    (*s->fstart_usr) (s, s->n, NULL, 0.0, 0.0, eps_out);
-  else
-    mps_fstart (s, s->n, NULL, 0.0, 0.0, eps_out, p->fap);
+  mps_polynomial_fstart (s, MPS_POLYNOMIAL (p));
 
         /***************
-	 this part of code performs shift in the gravity center of the roots
-	 In order to use it, uncomment the part below and comment the
-	 instruction above. Dangerous for overflow.
-	 ************/
+         this part of code performs shift in the gravity center of the roots
+         In order to use it, uncomment the part below and comment the
+         instruction above. Dangerous for overflow.
+         ************/
   /*
      {
      cplx_t ft;
@@ -456,7 +450,7 @@ mps_fsolve (mps_context * s, mps_boolean * d_after_f)
   /* Check if there are too large or too small approximations */
   *d_after_f = false;
   for (i = 0; i < s->n; i++)
-    if (s->root_status[i] == MPS_ROOT_STATUS_NOT_FLOAT)
+    if (s->root[i]->status == MPS_ROOT_STATUS_NOT_FLOAT)
       {
         s->root[i]->again = false;
         *d_after_f = true;
@@ -486,12 +480,12 @@ mps_fsolve (mps_context * s, mps_boolean * d_after_f)
             fprintf (s->logstr, "   FSOLVE: call fcluster\n");
           /* cluster analysis */
 
-	  /* Compute the inclusion radii with Gerschgorin so we can compute
-	   * clusterizations for the roots. */
-	  mps_fradii (s, frad);
+          /* Compute the inclusion radii with Gerschgorin so we can compute
+           * clusterizations for the roots. */
+          mps_fradii (s, s->active_poly, frad);
           mps_fcluster (s, frad, 2 * s->n);   /* Isolation factor */
 
-	  MPS_DEBUG (s, "oldncluster = %d, ncluster = %ld", oldnclust, s->clusterization->n);
+          MPS_DEBUG (s, "oldncluster = %d, ncluster = %ld", oldnclust, s->clusterization->n);
 
           if (oldnclust == s->clusterization->n)
             {
@@ -510,12 +504,12 @@ mps_fsolve (mps_context * s, mps_boolean * d_after_f)
 
               if (iter == 0)
                 for (i = 0; i < s->n; i++)
-                  if (s->root_status[i] == MPS_ROOT_STATUS_NEW_CLUSTERED)
-                    s->root_status[i] = MPS_ROOT_STATUS_CLUSTERED;
+                  if (s->root[i]->status == MPS_ROOT_STATUS_NEW_CLUSTERED)
+                    s->root[i]->status = MPS_ROOT_STATUS_CLUSTERED;
 
               /* If the polynomial is not given in terms of its coeff. then
                * skip the restart stage */
-              if (!MPS_INPUT_CONFIG_IS_USER (s->input_config))
+              if (MPS_IS_MONOMIAL_POLY (s->active_poly))
                 {
                   /* choose new starting approximations only for new clusters */
                   if (s->DOLOG)
@@ -525,8 +519,8 @@ mps_fsolve (mps_context * s, mps_boolean * d_after_f)
               /* reset the status vector */
               for (j = 0; j < s->n; j++)
                 {
-                  if (s->root_status[j] == MPS_ROOT_STATUS_NEW_CLUSTERED)
-                    s->root_status[j] = MPS_ROOT_STATUS_CLUSTERED;
+                  if (s->root[j]->status == MPS_ROOT_STATUS_NEW_CLUSTERED)
+                    s->root[j]->status = MPS_ROOT_STATUS_CLUSTERED;
                   s->again_old[j] = s->root[j]->again;
                 }
 
@@ -544,7 +538,7 @@ mps_fsolve (mps_context * s, mps_boolean * d_after_f)
                 fprintf (s->logstr, "   FSOLVE: call checkstop\n");
               /* Check the stop condition */
               if (mps_check_stop (s))
-		goto fsolve_final_cleanup;
+                goto fsolve_final_cleanup;
             }
         }
       else
@@ -573,7 +567,7 @@ mps_fsolve (mps_context * s, mps_boolean * d_after_f)
 
   /* Compute the inclusion radii with Gerschgorin so we can compute
    * clusterizations for the roots. */
-  mps_fradii (s, frad);
+  mps_fradii (s, s->active_poly, frad);
   mps_fcluster (s, frad, 2 * s->n);   /* Isolation factor */
 
   if (s->DOLOG)
@@ -583,10 +577,10 @@ mps_fsolve (mps_context * s, mps_boolean * d_after_f)
   /* reset the status vector */
   for (j = 0; j < s->n; j++)
     {
-      if (s->root_status[j] == MPS_ROOT_STATUS_NEW_CLUSTERED)
-	s->root_status[j] = MPS_ROOT_STATUS_CLUSTERED;
-      if (s->root_status[j] == MPS_ROOT_STATUS_NOT_FLOAT)
-	*d_after_f = true;
+      if (s->root[j]->status == MPS_ROOT_STATUS_NEW_CLUSTERED)
+        s->root[j]->status = MPS_ROOT_STATUS_CLUSTERED;
+      if (s->root[j]->status == MPS_ROOT_STATUS_NOT_FLOAT)
+        *d_after_f = true;
     }
 
 
@@ -616,7 +610,7 @@ mps_fpolzer (mps_context * s, int *it, mps_boolean * excep)
   int i, iter, nzeros;
   cplx_t corr, abcorr;
   double rad1, modcorr;
-  mps_monomial_poly * p = s->monomial_poly;
+  mps_monomial_poly * p = MPS_MONOMIAL_POLY (s->active_poly);
 
   /* initialize the iteration counter */
   *it = 0;
@@ -649,38 +643,25 @@ mps_fpolzer (mps_context * s, int *it, mps_boolean * excep)
             {
               (*it)++;
               rad1 = s->root[i]->frad;
-              if (!MPS_INPUT_CONFIG_IS_USER (s->input_config))
-                {
-                  mps_fnewton (s, s->n, s->root[i], corr,
-                               p->fpc, p->fap, true);
-                  if (iter == 0 && !s->root[i]->again && s->root[i]->frad > rad1 && rad1
-                      != 0)
-                    s->root[i]->frad = rad1;
-                                        /***************************************
-					 The above condition is needed to cope with the case
-					 where at the first iteration the starting point
-					 is already in the root neighbourhood and the actually
-					 computed radius is too big since the value of the first
-					 derivative is too small.
-					 In this case the previous radius bound, obtained by
-					 means of Rouche' is more reliable and strict
-					 **************************************/
-                }
-              else if (s->fnewton_usr != NULL)
-                {
-                  (*s->fnewton_usr) (s, s->root[i], corr,
-                                     NULL, false);
-                }
-              else
-                {
-                  mps_fnewton_usr (s, s->root[i], corr);
-                }
+              mps_polynomial_fnewton (s, MPS_POLYNOMIAL (p), s->root[i], corr);
+              if (iter == 0 && !s->root[i]->again && s->root[i]->frad > rad1 && rad1
+                  != 0)
+                s->root[i]->frad = rad1;
+              /***************************************
+               The above condition is needed to cope with the case
+               where at the first iteration the starting point
+               is already in the root neighbourhood and the actually
+               computed radius is too big since the value of the first
+               derivative is too small.
+               In this case the previous radius bound, obtained by
+               means of Rouche' is more reliable and strict
+               **************************************/
 
               if (s->root[i]->again ||
                   /* the correction is performed only if iter!=1 or rad(i)!=rad1 */
-                  MPS_INPUT_CONFIG_IS_USER (s->input_config) || iter != 0 || s->root[i]->frad != rad1)
+                  iter != 0 || s->root[i]->frad != rad1)
                 {
-                  mps_faberth (s, i, abcorr);
+                  mps_faberth (s, s->root[i], abcorr);
                   cplx_mul_eq (abcorr, corr);
                   cplx_sub (abcorr, cplx_one, abcorr);
                   cplx_div (abcorr, corr, abcorr);
@@ -712,7 +693,7 @@ mps_dpolzer (mps_context * s, int *it, mps_boolean * excep)
   int iter, i, nzeros;
   rdpe_t rad1, rtmp;
   cdpe_t corr, abcorr;
-  mps_monomial_poly * p = s->monomial_poly;
+  mps_monomial_poly * p = MPS_MONOMIAL_POLY (s->active_poly);
 
   /* initialize the iteration counter */
   *it = 0;
@@ -739,39 +720,25 @@ mps_dpolzer (mps_context * s, int *it, mps_boolean * excep)
             {
               (*it)++;
               rdpe_set (rad1, s->root[i]->drad);
-              if (!MPS_INPUT_CONFIG_IS_USER (s->input_config))
-                {
-                  mps_dnewton (s, s->n, s->root[i], corr, p->dpc,
-                               p->dap, false);
-                  if (iter == 0 && !s->root[i]->again && rdpe_gt (s->root[i]->drad, rad1)
-                      && rdpe_ne (rad1, rdpe_zero))
-                    rdpe_set (s->root[i]->drad, rad1);
-                }
-              else if (s->dnewton_usr != NULL)
-                {
-                  (*s->dnewton_usr) (s, s->root[i], corr,
-                                     NULL, false);
-                }
-              else
-                {
-                  mps_dnewton_usr (s, s->root[i], corr);
-                }
-
+              mps_polynomial_dnewton (s, MPS_POLYNOMIAL (p), s->root[i], corr);
+              if (iter == 0 && !s->root[i]->again && rdpe_gt (s->root[i]->drad, rad1)
+                  && rdpe_ne (rad1, rdpe_zero))
+                rdpe_set (s->root[i]->drad, rad1);
                                 /************************************************
-				 The above condition is needed to manage with the case where
-				 at the first iteration the starting point is already in the
-				 root neighbourhood and the actually computed radius is too
-				 big since the value of the first derivative is too small.
-				 In this case the previous radius bound, obtained by means of
-				 Rouche' is more reliable and strict
-				 **********************************************/
+                                 The above condition is needed to manage with the case where
+                                 at the first iteration the starting point is already in the
+                                 root neighbourhood and the actually computed radius is too
+                                 big since the value of the first derivative is too small.
+                                 In this case the previous radius bound, obtained by means of
+                                 Rouche' is more reliable and strict
+                                 **********************************************/
 
               if (s->root[i]->again ||
                   /* the correction is performed only if iter!=1 or rad(i)!=rad1 */
-                  MPS_INPUT_CONFIG_IS_USER (s->input_config) || iter != 0
+                  iter != 0
                   || rdpe_ne (s->root[i]->drad, rad1))
                 {
-                  mps_daberth (s, i, abcorr);
+                  mps_daberth (s, s->root[i], abcorr);
                   cdpe_mul_eq (abcorr, corr);
                   cdpe_sub (abcorr, cdpe_one, abcorr);
                   cdpe_div (abcorr, corr, abcorr);
@@ -802,8 +769,7 @@ mps_dsolve (mps_context * s, mps_boolean d_after_f)
 {
   int it_pack, iter, nit, oldnclust, i, j, required_zeros = s->n;
   mps_boolean excep;
-  rdpe_t dummy;
-  mps_monomial_poly * p = s->monomial_poly;
+  mps_monomial_poly * p = MPS_MONOMIAL_POLY (s->active_poly);
   rdpe_t * drad = rdpe_valloc (s->n);
 
   if (s->DOLOG)
@@ -816,7 +782,7 @@ mps_dsolve (mps_context * s, mps_boolean d_after_f)
 
   if (d_after_f)
     for (i = 0; i < s->n; i++)
-      if (s->root_status[i] == MPS_ROOT_STATUS_NOT_FLOAT)
+      if (s->root[i]->status == MPS_ROOT_STATUS_NOT_FLOAT)
         {
           s->root[i]->again = true;
           rdpe_set_d (s->root[i]->drad, DBL_MAX);
@@ -838,19 +804,13 @@ mps_dsolve (mps_context * s, mps_boolean d_after_f)
   if (s->DOLOG)
     fprintf (s->logstr, "   DSOLVE: call dstart con again=\n");
 
-  rdpe_set (dummy, rdpe_zero);
-
-  /* Use a custom routine if it is set, otherwise use the default one */
-  if (s->dstart_usr)
-    (*s->dstart_usr) (s, s->n, NULL, dummy, dummy, dummy);
-  else
-    mps_dstart (s, s->n, NULL, dummy, dummy, dummy, p->dap);
+  mps_polynomial_dstart (s, MPS_POLYNOMIAL (p));
 
   /* Now adjust the status vector */
   if (d_after_f)
     for (i = 0; i < s->n; i++)
-      if (s->root_status[i] == MPS_ROOT_STATUS_NOT_FLOAT)
-        s->root_status[i] = MPS_ROOT_STATUS_CLUSTERED;
+      if (s->root[i]->status == MPS_ROOT_STATUS_NOT_FLOAT)
+        s->root[i]->status = MPS_ROOT_STATUS_CLUSTERED;
 
   if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
     mps_dump (s);
@@ -879,7 +839,7 @@ mps_dsolve (mps_context * s, mps_boolean d_after_f)
           if (s->DOLOG)
             fprintf (s->logstr, "   DSOLVE: call dcluster\n");
 
-	  mps_dradii (s, drad);
+          mps_dradii (s, s->active_poly, drad);
           mps_dcluster (s, drad, 2 * s->n);   /* Isolation factor */
           if (oldnclust == s->clusterization->n)
             {
@@ -895,12 +855,12 @@ mps_dsolve (mps_context * s, mps_boolean d_after_f)
 
               if (iter == 0 && !d_after_f)
                 for (i = 0; i < s->n; i++)
-                  if (s->root_status[i] == MPS_ROOT_STATUS_NEW_CLUSTERED)
-                    s->root_status[i] = MPS_ROOT_STATUS_CLUSTERED;
+                  if (s->root[i]->status == MPS_ROOT_STATUS_NEW_CLUSTERED)
+                    s->root[i]->status = MPS_ROOT_STATUS_CLUSTERED;
 
               /* If the polynomial is not given in terms of its
                * coeff. then skip the restart stage */
-              if (!MPS_INPUT_CONFIG_IS_USER (s->input_config))
+              if (MPS_IS_MONOMIAL_POLY (s->active_poly))
                 {
                   /* choose new starting approximations only for new clusters */
                   if (s->DOLOG)
@@ -909,8 +869,8 @@ mps_dsolve (mps_context * s, mps_boolean d_after_f)
                 }
               /* reset the status vector */
               for (j = 0; j < s->n; j++)
-                if (s->root_status[j] == MPS_ROOT_STATUS_NEW_CLUSTERED)
-                  s->root_status[j] = MPS_ROOT_STATUS_CLUSTERED;
+                if (s->root[j]->status == MPS_ROOT_STATUS_NEW_CLUSTERED)
+                  s->root[j]->status = MPS_ROOT_STATUS_CLUSTERED;
               for (j = 0; j < s->n; j++)
                 s->again_old[j] = s->root[j]->again;
 
@@ -927,7 +887,7 @@ mps_dsolve (mps_context * s, mps_boolean d_after_f)
               if (s->DOLOG)
                 fprintf (s->logstr, "   DSOLVE: call checkstop\n");
               if (mps_check_stop (s))
-		goto dsolve_final_cleanup;
+                goto dsolve_final_cleanup;
             }
         }
       else
@@ -952,7 +912,7 @@ mps_dsolve (mps_context * s, mps_boolean d_after_f)
     fprintf (s->logstr, "   DSOLVE: now update: call dcluster\n");
   oldnclust = s->clusterization->n;
 
-  mps_dradii (s, drad);
+  mps_dradii (s, s->active_poly, drad);
   mps_dcluster (s, drad, 2 * s->n);   /* Isolation factor */
 
   if (s->DOLOG)
@@ -961,8 +921,8 @@ mps_dsolve (mps_context * s, mps_boolean d_after_f)
 
   /* reset the status vector */
   for (j = 0; j < s->n; j++)
-    if (s->root_status[j] == MPS_ROOT_STATUS_NEW_CLUSTERED)
-      s->root_status[j] = MPS_ROOT_STATUS_CLUSTERED;
+    if (s->root[j]->status == MPS_ROOT_STATUS_NEW_CLUSTERED)
+      s->root[j]->status = MPS_ROOT_STATUS_CLUSTERED;
 
  dsolve_final_cleanup:
   rdpe_vfree (drad);
@@ -984,7 +944,7 @@ mps_msolve (mps_context * s)
 
   if (s->DOLOG)
     fprintf (s->logstr, "  MSOLVE: call restart\n");
-  if (!MPS_INPUT_CONFIG_IS_USER (s->input_config))
+  if (MPS_IS_MONOMIAL_POLY (s->active_poly))
     mps_mrestart (s);
   if (s->DOLOG)
     fprintf (s->logstr, "  MSOLVE: call update1\n");
@@ -1011,8 +971,8 @@ mps_msolve (mps_context * s)
 
       /* reset the status vector */
       for (j = 0; j < s->n; j++)
-        if (s->root_status[j] == MPS_ROOT_STATUS_NEW_CLUSTERED)
-          s->root_status[j] = MPS_ROOT_STATUS_CLUSTERED;
+        if (s->root[j]->status == MPS_ROOT_STATUS_NEW_CLUSTERED)
+          s->root[j]->status = MPS_ROOT_STATUS_CLUSTERED;
 
       goto msolve_final_cleanup;
     }
@@ -1021,7 +981,7 @@ mps_msolve (mps_context * s)
       !s->output_config->multiplicity && 
       !s->output_config->root_properties)
     for (i = 0; i < s->n; i++)
-      if (MPS_ROOT_STATUS_IS_COMPUTED (s, i))
+      if (MPS_ROOT_STATUS_IS_COMPUTED (s->root[i]->status))
         nzc++;
   if (s->DOLOG)
     fprintf (s->logstr, "  MSOLVE: nzc=%d\n", nzc);
@@ -1034,8 +994,8 @@ mps_msolve (mps_context * s)
 
       /* reset the status vector */
       for (j = 0; j < s->n; j++)
-        if (s->root_status[j] == MPS_ROOT_STATUS_NEW_CLUSTERED)
-          s->root_status[j] = MPS_ROOT_STATUS_CLUSTERED;
+        if (s->root[j]->status == MPS_ROOT_STATUS_NEW_CLUSTERED)
+          s->root[j]->status = MPS_ROOT_STATUS_CLUSTERED;
 
       goto msolve_final_cleanup;
     }
@@ -1059,18 +1019,18 @@ mps_msolve (mps_context * s)
       mps_thread_mpolzer (s, &nit, &excep, required_zeros--);
 
       if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
-	mps_dump (s);
+        mps_dump (s);
 
-	if (s->DOLOG)
-	  fprintf (s->logstr, "  MSOLVE: Packet %d: iterations= %d\n", iter, nit);
+        if (s->DOLOG)
+          fprintf (s->logstr, "  MSOLVE: Packet %d: iterations= %d\n", iter, nit);
 
       it_pack += nit;
       nzc = 0;
       if (s->output_config->search_set == MPS_SEARCH_SET_COMPLEX_PLANE && 
-	  !s->output_config->multiplicity &&
-	  !s->output_config->root_properties)  /* DARIO APRILE 98 */
+          !s->output_config->multiplicity &&
+          !s->output_config->root_properties)  /* DARIO APRILE 98 */
         for (i = 0; i < s->n; i++)
-          if (MPS_ROOT_STATUS_IS_COMPUTED (s, i))
+          if (MPS_ROOT_STATUS_IS_COMPUTED (s->root[i]->status))
             nzc++;
       if (s->DOLOG)
         fprintf (s->logstr, "  MSOLVE: check again nzc=%d\n", nzc);
@@ -1082,17 +1042,17 @@ mps_msolve (mps_context * s)
 
           /* reset the status vector */
           for (j = 0; j < s->n; j++)
-            if (s->root_status[j] == MPS_ROOT_STATUS_NEW_CLUSTERED)
-              s->root_status[j] = MPS_ROOT_STATUS_CLUSTERED;
+            if (s->root[j]->status == MPS_ROOT_STATUS_NEW_CLUSTERED)
+              s->root[j]->status = MPS_ROOT_STATUS_CLUSTERED;
           if (s->DOLOG)
             {
-	      MPS_DEBUG (s, "Dumping status");
-	      for (j = 0; j < s->n; j++)
-		MPS_DEBUG (s, " %4d: %s", j, 
-			   MPS_ROOT_STATUS_TO_STRING (s->root_status[j]));
+              MPS_DEBUG (s, "Dumping status");
+              for (j = 0; j < s->n; j++)
+                MPS_DEBUG (s, " %4d: %s", j, 
+                           MPS_ROOT_STATUS_TO_STRING (s->root[j]->status));
             }
 
-	  goto msolve_final_cleanup;
+          goto msolve_final_cleanup;
         }
 
       if (s->DOLOG)
@@ -1107,7 +1067,7 @@ mps_msolve (mps_context * s)
           if (s->DOLOG)
             fprintf (s->logstr, "  MSOLVE: call mcluster\n");
 
-	  mps_mradii (s, drad);
+          mps_mradii (s, s->active_poly, drad);
           mps_mcluster (s, drad, 2 * s->n);   /* Isolation factor */
 
           s->newtis_old = s->newtis;
@@ -1134,18 +1094,18 @@ mps_msolve (mps_context * s)
               if (iter == 0)
                 /* if first packet: reset the status vector */
                 for (j = 0; j < s->n; j++)
-                  if (s->root_status[j] == MPS_ROOT_STATUS_NEW_CLUSTERED)
-                    s->root_status[j] = MPS_ROOT_STATUS_CLUSTERED;
+                  if (s->root[j]->status == MPS_ROOT_STATUS_NEW_CLUSTERED)
+                    s->root[j]->status = MPS_ROOT_STATUS_CLUSTERED;
               if (s->DOLOG)
                 {
-		  MPS_DEBUG (s, "Dumping status");
+                  MPS_DEBUG (s, "Dumping status");
                   for (j = 0; j < s->n; j++)
-		    MPS_DEBUG (s, " %4d: %s", j, 
-			       MPS_ROOT_STATUS_TO_STRING (s->root_status[j]));
+                    MPS_DEBUG (s, " %4d: %s", j, 
+                               MPS_ROOT_STATUS_TO_STRING (s->root[j]->status));
                 }
               /* If the polynomial is not given in terms of its coeff. then
                * skip the restart stage */
-              if (!MPS_INPUT_CONFIG_IS_USER (s->input_config))
+              if (MPS_IS_MONOMIAL_POLY (s->active_poly))
                 {
                   /* choose new starting approximations only for new clusters */
                   if (s->DOLOG)
@@ -1156,8 +1116,8 @@ mps_msolve (mps_context * s)
               /* reset the s->status vector */
               for (j = 0; j < s->n; j++)
                 {
-                  if (s->root_status[j] == MPS_ROOT_STATUS_NEW_CLUSTERED)
-                    s->root_status[j] = MPS_ROOT_STATUS_CLUSTERED;
+                  if (s->root[j]->status == MPS_ROOT_STATUS_NEW_CLUSTERED)
+                    s->root[j]->status = MPS_ROOT_STATUS_CLUSTERED;
                   s->again_old[j] = s->root[j]->again;
                 }
               /* update 'again' */
@@ -1190,18 +1150,18 @@ mps_msolve (mps_context * s)
 
                   /* reset the s->status vector */
                   for (j = 0; j < s->n; j++)
-                    if (s->root_status[j] == MPS_ROOT_STATUS_NEW_CLUSTERED)
-                      s->root_status[j] = MPS_ROOT_STATUS_CLUSTERED;
+                    if (s->root[j]->status == MPS_ROOT_STATUS_NEW_CLUSTERED)
+                      s->root[j]->status = MPS_ROOT_STATUS_CLUSTERED;
 
-		  goto msolve_final_cleanup;
+                  goto msolve_final_cleanup;
                 }
 
               nzc = 0;
               if (s->output_config->search_set == MPS_SEARCH_SET_COMPLEX_PLANE && 
-		  s->output_config->multiplicity &&
-		  !s->output_config->root_properties)
+                  s->output_config->multiplicity &&
+                  !s->output_config->root_properties)
                 for (i = 0; i < s->n; i++)
-                  if (MPS_ROOT_STATUS_IS_COMPUTED (s, i))
+                  if (MPS_ROOT_STATUS_IS_COMPUTED (s->root[i]->status))
                     nzc++;
               if (s->DOLOG)
                 fprintf (s->logstr, "  MSOLVE: check again nzc=%d\n", nzc);
@@ -1213,10 +1173,10 @@ mps_msolve (mps_context * s)
 
                   /* reset the s->status vector */
                   for (j = 0; j < s->n; j++)
-                    if (s->root_status[j] == MPS_ROOT_STATUS_NEW_CLUSTERED)
-                      s->root_status[j] = MPS_ROOT_STATUS_CLUSTERED;
+                    if (s->root[j]->status == MPS_ROOT_STATUS_NEW_CLUSTERED)
+                      s->root[j]->status = MPS_ROOT_STATUS_CLUSTERED;
 
-		  goto msolve_final_cleanup;
+                  goto msolve_final_cleanup;
                 }
             }
         }
@@ -1235,7 +1195,7 @@ mps_msolve (mps_context * s)
       fprintf (s->logstr, "  MSOLVE: call mcluster\n");
     }
 
-  mps_mradii (s, drad);
+  mps_mradii (s, s->active_poly, drad);
   mps_mcluster (s, drad, 2 * s->n);   /* Isolation factor */
 
   if (s->DOLOG)
@@ -1246,15 +1206,15 @@ mps_msolve (mps_context * s)
   mps_mmodify (s, true);
 
   for (j = 0; j < s->n; j++)
-    if (s->root_status[j] == MPS_ROOT_STATUS_NEW_CLUSTERED)
-      s->root_status[j] = MPS_ROOT_STATUS_CLUSTERED;
+    if (s->root[j]->status == MPS_ROOT_STATUS_NEW_CLUSTERED)
+      s->root[j]->status = MPS_ROOT_STATUS_CLUSTERED;
 
   if (s->DOLOG)
     {
       MPS_DEBUG (s, "Dumping status: ");
       for (j = 0; j < s->n; j++)
-	MPS_DEBUG (s, " %4d: %s", j,
-		   MPS_ROOT_STATUS_TO_STRING (s->root_status[j]));
+        MPS_DEBUG (s, " %4d: %s", j,
+                   MPS_ROOT_STATUS_TO_STRING (s->root[j]->status));
     }
   mps_update (s);
 
@@ -1279,7 +1239,7 @@ mps_mpolzer (mps_context * s, int *it, mps_boolean * excep)
   mpc_t corr, abcorr;
   rdpe_t eps, rad1, rtmp;
   cdpe_t ctmp;
-  mps_monomial_poly * p = s->monomial_poly;
+  mps_monomial_poly * p = MPS_MONOMIAL_POLY (s->active_poly);
 
   mpc_init2 (abcorr, s->mpwp);
   mpc_init2 (corr, s->mpwp);
@@ -1307,54 +1267,40 @@ mps_mpolzer (mps_context * s, int *it, mps_boolean * excep)
     {                           /* do_iter: */
       for (c_item = s->clusterization->first; c_item != NULL; c_item = c_item->next)
         {                       /* do_clust: */
-	  cluster = c_item->cluster;
+          cluster = c_item->cluster;
           for (root = cluster->first; root != NULL; root = root->next)
             {                   /* do_indice: */
-	      l = root->k;
+              l = root->k;
 
-	      MPS_DEBUG (s, "Iterating on root %d, iter %d", l, iter);
+              MPS_DEBUG (s, "Iterating on root %d, iter %d", l, iter);
 
               if (s->root[l]->again)
                 {
                   (*it)++;
-                  if (!MPS_INPUT_CONFIG_IS_USER (s->input_config))
-                    {
                       /* sparse/dense polynomial */
                       rdpe_set (rad1, s->root[l]->drad);
-                      mps_mnewton (s, s->n, s->root[l], corr,
-                                   p->mfpc, p->mfppc, p->dap, p->spar,
-                                   0, false);
+                      mps_polynomial_mnewton (s, MPS_POLYNOMIAL (p), s->root[l], corr);
                       if (iter == 0 && !s->root[l]->again && rdpe_gt (s->root[l]->drad,
                                                                 rad1)
                           && rdpe_ne (rad1, rdpe_zero))
                         rdpe_set (s->root[l]->drad, rad1);
 
                                                 /************************************************
-						 The above condition is needed to cope with the case
-						 where at the first iteration the starting point is
-						 already in the root neighbourhood and the actually
-						 computed radius is too big since the value of the
-						 first derivative is too small.
-						 In this case the previous radius bound, obtained by
-						 means of Rouche' is more reliable and strict
-						 ***********************************************/
-                    }
-                  else /* user's polynomial */ if (s->mnewton_usr != NULL)
-                    {
-                      (*s->mnewton_usr) (s, s->root[l], corr,
-                                         NULL, false);
-                    }
-                  else
-                    {
-                      mps_mnewton_usr (s, s->root[l], corr);
-                    }
+                                                 The above condition is needed to cope with the case
+                                                 where at the first iteration the starting point is
+                                                 already in the root neighbourhood and the actually
+                                                 computed radius is too big since the value of the
+                                                 first derivative is too small.
+                                                 In this case the previous radius bound, obtained by
+                                                 means of Rouche' is more reliable and strict
+                                                 ***********************************************/
 
                   if (s->root[l]->again ||
                       /* the correction is performed only if iter!=1 or rad[l]!=rad1 */
-                      MPS_INPUT_CONFIG_IS_USER (s->input_config) || iter != 0
+                      iter != 0
                       || rdpe_ne (s->root[l]->drad, rad1))
                     {
-                      mps_maberth_s (s, l, cluster, abcorr);
+                      mps_maberth_s (s, s->root[l], cluster, abcorr);
                       mpc_mul_eq (abcorr, corr);
                       mpc_neg_eq (abcorr);
                       mpc_add_eq_ui (abcorr, 1, 0);
@@ -1373,8 +1319,8 @@ mps_mpolzer (mps_context * s, int *it, mps_boolean * excep)
                         goto endfun;
                     }
 
-		  MPS_DEBUG_MPC (s, 15, s->root[l]->mvalue, "s->mroot[%d]", l);
-		  MPS_DEBUG_RDPE (s, s->root[l]->drad, "s->drad[%d]", l);
+                  MPS_DEBUG_MPC (s, 15, s->root[l]->mvalue, "s->mroot[%d]", l);
+                  MPS_DEBUG_RDPE (s, s->root[l]->drad, "s->drad[%d]", l);
 
                 }
             }

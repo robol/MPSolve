@@ -9,6 +9,9 @@
 /* Define to 1 if you have the <gmp.h> header file. */
 #undef HAVE_GMP_H
 
+/* Defined if GTK is available */
+#undef HAVE_GTK
+
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
 
@@ -17,6 +20,9 @@
 
 /* Define to 1 if you have the `m' library (-lm). */
 #undef HAVE_LIBM
+
+/* Define to 1 if you have the `mpfr' library (-lmpfr). */
+#undef HAVE_LIBMPFR
 
 /* Define to 1 if you have the `tcmalloc_minimal' library
    (-ltcmalloc_minimal). */
@@ -34,6 +40,9 @@
 
 /* Define to 1 if you have the `modf' function. */
 #undef HAVE_MODF
+
+/* Define to 1 if you have the <mpfr.h> header file. */
+#undef HAVE_MPFR_H
 
 /* Define to 1 if you have the `pow' function. */
 #undef HAVE_POW

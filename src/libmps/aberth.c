@@ -1,7 +1,7 @@
 /*
  * This file is part of MPSolve 3.0
  *
- * Copyright (C) 2001-2012, Dipartimento di Matematica "L. Tonelli", Pisa.
+ * Copyright (C) 2001-2013, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
  * Authors: 
@@ -19,17 +19,18 @@
  * selective correction.
  */
 void
-mps_faberth (mps_context * s, int j, cplx_t abcorr)
+mps_faberth (mps_context * s, mps_approximation * root, cplx_t abcorr)
 {
-  int i;
   cplx_t z;
+  int i;
 
   cplx_set (abcorr, cplx_zero);
   for (i = 0; i < s->n; i++)
     {
-      if (i == j)
+      if (s->root[i] == root)
         continue;
-      cplx_sub (z, s->root[j]->fvalue, s->root[i]->fvalue);
+
+      cplx_sub (z, root->fvalue, s->root[i]->fvalue);
       cplx_inv_eq (z);
       cplx_add_eq (abcorr, z);
     }
@@ -66,7 +67,7 @@ mps_faberth_wl (mps_context * s, int j, cplx_t abcorr, pthread_mutex_t * aberth_
  * selective correction.
  */
 void
-mps_daberth (mps_context * s, int j, cdpe_t abcorr)
+mps_daberth (mps_context * s, mps_approximation * root, cdpe_t abcorr)
 {
   int i;
   cdpe_t z;
@@ -74,9 +75,9 @@ mps_daberth (mps_context * s, int j, cdpe_t abcorr)
   cdpe_set (abcorr, cdpe_zero);
   for (i = 0; i < s->n; i++)
     {
-      if (i == j)
+      if (s->root[i] == root)
         continue;
-      cdpe_sub (z, s->root[j]->dvalue, s->root[i]->dvalue);
+      cdpe_sub (z, root->dvalue, s->root[i]->dvalue);
       cdpe_inv_eq (z);
       cdpe_add_eq (abcorr, z);
     }
@@ -87,7 +88,7 @@ mps_daberth (mps_context * s, int j, cdpe_t abcorr)
  * selective correction.
  */
 void
-mps_maberth (mps_context * s, int j, mpc_t abcorr)
+mps_maberth (mps_context * s, mps_approximation * root, mpc_t abcorr)
 {
   int i;
   cdpe_t z, temp;
@@ -98,9 +99,9 @@ mps_maberth (mps_context * s, int j, mpc_t abcorr)
   cdpe_set (temp, cdpe_zero);
   for (i = 0; i < s->n; i++)
     {
-      if (i == j)
+      if (s->root[i] == root)
         continue;
-      mpc_sub (diff, s->root[j]->mvalue, s->root[i]->mvalue);
+      mpc_sub (diff, root->mvalue, s->root[i]->mvalue);
       mpc_get_cdpe (z, diff);
       cdpe_inv_eq (z);
       cdpe_add_eq (temp, z);
@@ -116,19 +117,18 @@ mps_maberth (mps_context * s, int j, mpc_t abcorr)
  * cluster.
  */
 void
-mps_faberth_s (mps_context * s, int j, mps_cluster * cluster, cplx_t abcorr)
+mps_faberth_s (mps_context * s, mps_approximation * ab_root, mps_cluster * cluster, cplx_t abcorr)
 {
-  int k;
   cplx_t z;
   mps_root * root;
 
   cplx_set (abcorr, cplx_zero);
   for (root = cluster->first; root != NULL; root = root->next)
     {
-      k = root->k;
-      if (k == j)
+      mps_approximation * appr = s->root[root->k];
+      if (appr == ab_root)
         continue;
-      cplx_sub (z, s->root[j]->fvalue, s->root[k]->fvalue);
+      cplx_sub (z, ab_root->fvalue, appr->fvalue);
       cplx_inv_eq (z);
       cplx_add_eq (abcorr, z);
     }
@@ -140,19 +140,18 @@ mps_faberth_s (mps_context * s, int j, mps_cluster * cluster, cplx_t abcorr)
  * cluster.
  */
 void
-mps_daberth_s (mps_context * s, int j, mps_cluster * cluster, cdpe_t abcorr)
+mps_daberth_s (mps_context * s, mps_approximation * ab_root, mps_cluster * cluster, cdpe_t abcorr)
 {
-  int k;
   mps_root * root;
   cdpe_t z;
 
   cdpe_set (abcorr, cdpe_zero);
   for (root = cluster->first; root != NULL; root = root->next)
     {
-      k = root->k;
-      if (k == j)
+      mps_approximation * appr = s->root[root->k];
+      if (appr == ab_root)
         continue;
-      cdpe_sub (z, s->root[j]->dvalue, s->root[k]->dvalue);
+      cdpe_sub (z, ab_root->dvalue, appr->dvalue);
       cdpe_inv_eq (z);
       cdpe_add_eq (abcorr, z);
     }
@@ -164,9 +163,8 @@ mps_daberth_s (mps_context * s, int j, mps_cluster * cluster, cdpe_t abcorr)
  * cluster.
  */
 void
-mps_maberth_s (mps_context * s, int j, mps_cluster * cluster, mpc_t abcorr)
+mps_maberth_s (mps_context * s, mps_approximation * ab_root, mps_cluster * cluster, mpc_t abcorr)
 {
-  int k;
   mps_root * root;
   cdpe_t z, temp;
   mpc_t diff;
@@ -176,10 +174,10 @@ mps_maberth_s (mps_context * s, int j, mps_cluster * cluster, mpc_t abcorr)
   cdpe_set (temp, cdpe_zero);
   for (root = cluster->first; root != NULL; root = root->next)
     {
-      k = root->k;
-      if (k == j)
+      mps_approximation * appr = s->root[root->k];
+      if (appr == ab_root)
         continue;
-      mpc_sub (diff, s->root[j]->mvalue, s->root[k]->mvalue);
+      mpc_sub (diff, ab_root->mvalue, appr->mvalue);
       mpc_get_cdpe (z, diff);
       cdpe_inv_eq (z);
       cdpe_add_eq (temp, z);
@@ -243,7 +241,7 @@ mps_maberth_s_wl (mps_context * s, int j, mps_cluster * cluster, mpc_t abcorr,
       mpc_get_cdpe (z, diff);
 
       if (cdpe_eq_zero(z))
-	continue;
+        continue;
 
       cdpe_inv_eq (z);
       cdpe_add_eq (temp, z);

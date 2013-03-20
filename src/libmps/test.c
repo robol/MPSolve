@@ -1,7 +1,7 @@
 /*
  * This file is part of MPSolve 3.0
  *
- * Copyright (C) 2001-2012, Dipartimento di Matematica "L. Tonelli", Pisa.
+ * Copyright (C) 2001-2013, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
  * Authors: 
@@ -10,8 +10,9 @@
  *   Leonardo Robol <robol@mail.dm.unipi.it>
  */
 
-
+#include <mps/gmptools.h>
 #include <mps/mps.h>
+
 
 /********************************************************
 *      SUBROUTINE INCLUSION                             *
@@ -19,14 +20,14 @@
 mps_boolean
 mps_inclusion (mps_context * s)
 {
-  int i, j, k, n1, oldnclust;
+  int i, j, k, oldnclust;
   rdpe_t rad, difr;
   cdpe_t difc;
   mpc_t tmp;
   rdpe_t ap, az, temp, ep, apeps;
   cdpe_t temp1;
   mpc_t p;
-  mps_monomial_poly *poly = s->monomial_poly;
+  mps_monomial_poly *poly = MPS_MONOMIAL_POLY (s->active_poly);
 
 
   /* add inclusion code here */
@@ -77,19 +78,11 @@ mps_inclusion (mps_context * s)
       rdpe_mul_eq (rad, poly->dap[s->n]);
 
       /* compute numerator */
-      if (MPS_INPUT_CONFIG_IS_SPARSE (s->input_config))
+      if (MPS_DENSITY_IS_SPARSE (s->active_poly->density))
         {                       /* case of sparse polynomial */
-
-          n1 = s->n + 1;
-
           /* compute p(mroot[i]) */
-          mps_parhorner (s, n1, s->root[i]->mvalue, poly->mfpc, poly->spar, p, 0);
-          mpc_get_cdpe (temp1, s->root[i]->mvalue);
-          cdpe_mod (az, temp1);
-
-          /* compute bound to the error */
-          mps_aparhorner (s, n1, az, poly->dap, poly->spar, ap, 0);
-
+	  mps_polynomial_meval (s, MPS_POLYNOMIAL (poly), s->root[i]->mvalue, p, ap);
+	  rdpe_div_eq (ap, s->mp_epsilon);
         }
       else
         {                       /*  dense polynomial */

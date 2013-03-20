@@ -1,7 +1,7 @@
 /*
  * This file is part of MPSolve 3.0
  *
- * Copyright (C) 2001-2012, Dipartimento di Matematica "L. Tonelli", Pisa.
+ * Copyright (C) 2001-2013, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
  * Authors: 
@@ -53,7 +53,7 @@ mpc_get_cplx (cplx_t c, mpc_t mc)
   cplx_Im (c) = mpf_get_d (mpc_Im (mc));
 #else
   cplx_set_d (c, mpf_get_d (mpc_Re (mc)), 
-	      mpf_get_d (mpc_Im (mc)));
+              mpf_get_d (mpc_Im (mc)));
 #endif
 }
 

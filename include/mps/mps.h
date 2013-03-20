@@ -65,12 +65,15 @@ typedef int mps_debug_level;
   struct mps_cluster_item;
   struct mps_clusterization;
 
-  /* secular.h */
+  /* secular-equation.h */
   struct mps_secular_equation;
   struct mps_secular_iteration_data;
 
   /* monomial-poly.h */
   struct mps_monomial_poly;
+
+  /* polynomial.h */
+  struct mps_polynomial;
 
   /* input-buffer.h */
   struct mps_input_buffer;
@@ -91,6 +94,8 @@ typedef int mps_debug_level;
   struct mps_thread_worker_data;
   struct mps_thread;
   struct mps_thread_pool;
+  struct mps_thread_pool_queue;
+  struct mps_thread_pool_queue_item;
 
 #else
 
@@ -106,12 +111,15 @@ typedef int mps_debug_level;
   typedef struct mps_cluster_item mps_cluster_item;
   typedef struct mps_clusterization mps_clusterization;
 
-  /* secular.h */
+  /* secular-equation.h */
   typedef struct mps_secular_equation mps_secular_equation;
   typedef struct mps_secular_iteration_data mps_secular_iteration_data;
 
   /* monomial-poly.h */
   typedef struct mps_monomial_poly mps_monomial_poly;
+
+  /* polynomial.h */
+  typedef struct mps_polynomial mps_polynomial;
 
   /* input-buffer.h */
   typedef struct mps_input_buffer mps_input_buffer;
@@ -147,6 +155,8 @@ typedef int mps_debug_level;
   typedef struct mps_thread_worker_data mps_thread_worker_data;
   typedef struct mps_thread mps_thread;
   typedef struct mps_thread_pool mps_thread_pool;
+  typedef struct mps_thread_pool_queue mps_thread_pool_queue;
+  typedef struct mps_thread_pool_queue_item mps_thread_pool_queue_item;
 
 #endif
 
@@ -163,6 +173,7 @@ typedef int mps_debug_level;
     {
       no_phase, float_phase, dpe_phase, mp_phase
     };
+
   static const mps_string mps_phase_string [] = {
     "No phase", "Float phase", "DPE phase", "MP phase"
   };
@@ -210,9 +221,9 @@ typedef int mps_debug_level;
   static const mps_boolean mps_table_of_approximated_roots [] = { false, false, false, true, true, false, false, false };
   static const mps_boolean mps_table_of_computed_roots [] = { false, false, true, true, true, false, false, false };
   static const mps_boolean mps_table_of_improvable_roots [] = { false, false, true, true, false, false, false, false };
-#define MPS_ROOT_STATUS_IS_APPROXIMATED(s, i) (mps_table_of_approximated_roots[s->root_status[i]]) 
-#define MPS_ROOT_STATUS_IS_COMPUTED(s, i)     (mps_table_of_computed_roots[s->root_status[i]]) 
-#define MPS_ROOT_STATUS_IS_IMPROVABLE(s, i)   (mps_table_of_improvable_roots[s->root_status[i]]) 
+#define MPS_ROOT_STATUS_IS_APPROXIMATED(status) (mps_table_of_approximated_roots[status]) 
+#define MPS_ROOT_STATUS_IS_COMPUTED(status)     (mps_table_of_computed_roots[status]) 
+#define MPS_ROOT_STATUS_IS_IMPROVABLE(status)   (mps_table_of_improvable_roots[status]) 
 
   /* Cast of root_status to string */
   static const mps_string mps_root_status_string[] = {
@@ -281,12 +292,6 @@ typedef int mps_debug_level;
       MPS_ALGORITHM_STANDARD_MPSOLVE,
 
       /**
-       * @brief Standard MPSolve approach applied to
-       * secular equations.
-       */
-      MPS_ALGORITHM_SECULAR_MPSOLVE,
-
-      /**
        * @brief Gemignani's approach applied to secular equations.
        */
       MPS_ALGORITHM_SECULAR_GA
@@ -317,7 +322,10 @@ typedef int mps_debug_level;
 
       /* Key with a value */
       MPS_KEY_DEGREE,
-      MPS_KEY_PRECISION
+      MPS_KEY_PRECISION,
+
+      /* Key introduced in MPSolve 3.1 */
+      MPS_FLAG_CHEBYSHEV
     };
 
   /**
@@ -436,9 +444,13 @@ typedef int mps_debug_level;
   enum mps_representation
     {
       MPS_REPRESENTATION_SECULAR,
-      MPS_REPRESENTATION_MONOMIAL
+      MPS_REPRESENTATION_MONOMIAL,
+      MPS_REPRESENTATION_CHEBYSHEV
     };
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
 
 /* Local include files that should not be included directly */
 #include <mps/options.h>
@@ -447,12 +459,14 @@ typedef int mps_debug_level;
 #include <mps/mt.h>
 #include <mps/gmptools.h>
 #include <mps/mpc.h>
+#include <mps/polynomial.h>
 #include <mps/link.h>
 #include <mps/debug.h>
 #include <mps/input-buffer.h>
 #include <mps/context.h>
 #include <mps/monomial-poly.h>
-#include <mps/secular.h>
+#include <mps/secular-equation.h>
+#include <mps/chebyshev.h>
 #include <mps/approximation.h>
 
 /* Interface should be a subset of core, so what is defined
@@ -472,14 +486,14 @@ typedef int mps_debug_level;
 /* FUNCTIONS */
 
   /* functions in aberth.c */
-  void mps_faberth (mps_context * s, int j, cplx_t abcorr);
-  void mps_daberth (mps_context * s, int j, cdpe_t abcorr);
-  void mps_maberth (mps_context * s, int j, mpc_t abcorr);
-  void mps_faberth_s (mps_context * s, int j, mps_cluster * cluster, cplx_t abcorr);
+  void mps_faberth (mps_context * s, mps_approximation * root, cplx_t abcorr);
+  void mps_daberth (mps_context * s, mps_approximation * root, cdpe_t abcorr);
+  void mps_maberth (mps_context * s, mps_approximation * root, mpc_t abcorr);
+  void mps_faberth_s (mps_context * s, mps_approximation * root, mps_cluster * cluster, cplx_t abcorr);
   void mps_faberth_wl (mps_context * s, int j, cplx_t abcorr, pthread_mutex_t * aberth_mutexes);
-  void mps_daberth_s (mps_context * s, int j, mps_cluster * cluster, cdpe_t abcorr);
+  void mps_daberth_s (mps_context * s, mps_approximation * root, mps_cluster * cluster, cdpe_t abcorr);
   void mps_daberth_wl (mps_context * s, int j, cdpe_t abcorr, pthread_mutex_t * aberth_mutexes);
-  void mps_maberth_s (mps_context * s, int j, mps_cluster * cluster, mpc_t abcorr);
+  void mps_maberth_s (mps_context * s, mps_approximation * root, mps_cluster * cluster, mpc_t abcorr);
   void mps_maberth_s_wl (mps_context * s, int j, mps_cluster * cluster, mpc_t abcorr,
                          pthread_mutex_t * aberth_mutex);
   void mps_mnewtis (mps_context * s);
@@ -499,6 +513,9 @@ typedef int mps_debug_level;
   /* functions in convex.c */
   void mps_fconvex (mps_context * s, int n, double a[]);
 
+  /* functions in cluster-analsys.c */
+  void mps_cluster_analysis (mps_context * ctx, mps_polynomial * p);
+
   /* functions in data.c */
   void mps_mp_set_prec (mps_context * s, long int prec);
   void mps_allocate_data (mps_context * s);
@@ -510,6 +527,11 @@ typedef int mps_debug_level;
 
   /* functions in improve.c */
   void mps_improve (mps_context * s);
+
+  /* functions in jacobi-aberth.c */
+  int mps_faberth_packet (mps_context * ctx, mps_polynomial * p, mps_boolean just_regenerated);
+  int mps_daberth_packet (mps_context * ctx, mps_polynomial * p, mps_boolean just_regenerated);
+  int mps_maberth_packet (mps_context * ctx, mps_polynomial * p, mps_boolean just_regenerated);
   
   /* functions in main.c */
   void mps_setup (mps_context * s);
@@ -518,16 +540,12 @@ typedef int mps_debug_level;
   void mps_standard_mpsolve (mps_context * s);
 
   /* functions in newton.c */
-  void mps_fnewton (mps_context * st, int n, mps_approximation * root,
-                    cplx_t corr, cplx_t fpc[], double fap[],
-                    mps_boolean skip_radius_computation);
-  void mps_dnewton (mps_context * st, int n, mps_approximation * root,
-                    cdpe_t corr, cdpe_t dpc[], rdpe_t dap[],
-                    mps_boolean skip_radius_computation);
-  void mps_mnewton (mps_context * st, int n, mps_approximation * root,
-                    mpc_t corr, mpc_t mfpc[], mpc_t mfppc[], rdpe_t dap[],
-                    mps_boolean * spar, int n_thread, 
-		    mps_boolean skip_radius_computation);
+  void mps_fnewton (mps_context * st, mps_polynomial * p, 
+                    mps_approximation * root, cplx_t corr);
+  void mps_dnewton (mps_context * st, mps_polynomial * p,
+                    mps_approximation * root, cdpe_t corr);
+  void mps_mnewton (mps_context * st, mps_polynomial * p, 
+                    mps_approximation * root, mpc_t corr);
   void mps_parhorner (mps_context * st, int n, mpc_t x, mpc_t p[],
                       mps_boolean b[], mpc_t s, int n_thread);
   void mps_aparhorner (mps_context * st, int n, rdpe_t x, rdpe_t p[],
@@ -535,29 +553,24 @@ typedef int mps_debug_level;
   int mps_intlog2 (int n);
 
   /* Functions in general-radius.c */
-  void mps_fradii (mps_context * s, double * fradii);
-  void mps_dradii (mps_context * s, rdpe_t * dradii);
-  void mps_mradii (mps_context * s, rdpe_t * dradii);
+  void mps_fradii (mps_context * s, mps_polynomial * p, double * fradii);
+  void mps_dradii (mps_context * s, mps_polynomial * p, rdpe_t * dradii);
+  void mps_mradii (mps_context * s, mps_polynomial * p, rdpe_t * dradii);
 
   /* Functions in monomial-radius.c */
   void mps_monomial_fradii (mps_context * s, double * fradii);
   void mps_monomial_dradii (mps_context * s, rdpe_t * dradii);
   void mps_monomial_mradii (mps_context * s, rdpe_t * dradii);
 
-  /* Functions in secular-radius.c */
-  void mps_secular_fradii (mps_context * s, double * fradii);
-  void mps_secular_dradii (mps_context * s, rdpe_t * dradii);
-  void mps_secular_mradii (mps_context * s, rdpe_t * dradii);
-
   /* Functions in secular-evaluation.c */
-  void mps_secular_feval (mps_context * s, mps_secular_equation * sec, cplx_t x, cplx_t value);
-  void mps_secular_feval_with_error (mps_context * s, mps_secular_equation * sec, cplx_t x, cplx_t value, double * error);
-  void mps_secular_deval (mps_context * s, mps_secular_equation * sec, cdpe_t x, cdpe_t value);
-  void mps_secular_deval_derivative (mps_context * s, mps_secular_equation * sec, cdpe_t x, cdpe_t value);
-  void mps_secular_deval_with_error (mps_context * s, mps_secular_equation * sec, cdpe_t x, cdpe_t value, rdpe_t error);
-  void mps_secular_meval (mps_context * s, mps_secular_equation * sec, mpc_t x, mpc_t value);
-  mps_boolean mps_secular_meval_with_error (mps_context * s, mps_secular_equation * sec, mpc_t x, mpc_t value, rdpe_t error);
-  void mps_secular_feval_derivative (mps_context * s, mps_secular_equation * sec, cplx_t x, cplx_t value);
+  mps_boolean mps_secular_feval (mps_context * s, mps_polynomial * p, cplx_t x, cplx_t value);
+  mps_boolean mps_secular_feval_with_error (mps_context * s, mps_polynomial * p, cplx_t x, cplx_t value, double * error);
+  mps_boolean mps_secular_deval (mps_context * s, mps_polynomial * p, cdpe_t x, cdpe_t value);
+  mps_boolean mps_secular_deval_derivative (mps_context * s, mps_polynomial * p, cdpe_t x, cdpe_t value);
+  mps_boolean mps_secular_deval_with_error (mps_context * s, mps_polynomial * p, cdpe_t x, cdpe_t value, rdpe_t error);
+  mps_boolean mps_secular_meval (mps_context * s, mps_polynomial * p, mpc_t x, mpc_t value);
+  mps_boolean mps_secular_meval_with_error (mps_context * s, mps_polynomial * p, mpc_t x, mpc_t value, rdpe_t error);
+  mps_boolean mps_secular_feval_derivative (mps_context * s, mps_polynomial * p, cplx_t x, cplx_t value);
   
   /* Function in getopts.c */
   void mps_parse_opts (mps_context * s, int argc, char *argv[]);
@@ -651,9 +664,17 @@ typedef int mps_debug_level;
   mps_boolean mps_mtouchunit (mps_context * s, int n, int i);
 
   /* functions in user.c */
-  void mps_fnewton_usr (mps_context * st, mps_approximation * root, cplx_t corr);
-  void mps_dnewton_usr (mps_context * st, mps_approximation * root, cdpe_t corr);
-  void mps_mnewton_usr (mps_context * st, mps_approximation * root, mpc_t corr);
+  void mps_fnewton_usr (mps_context * st, mps_polynomial * poly, mps_approximation * root, cplx_t corr);
+  void mps_dnewton_usr (mps_context * st, mps_polynomial * poly, mps_approximation * root, cdpe_t corr);
+  void mps_mnewton_usr (mps_context * st, mps_polynomial * poly, mps_approximation * root, mpc_t corr);
+  mps_boolean mps_feval_usr (mps_context * ctx, mps_polynomial * p, cplx_t x, cplx_t value, double * error);
+  mps_boolean mps_deval_usr (mps_context * ctx, mps_polynomial * p, cdpe_t x, cdpe_t value, rdpe_t error);
+  mps_boolean mps_meval_usr (mps_context * ctx, mps_polynomial * p, mpc_t x, mpc_t value, rdpe_t error);
+
+  /* functions in general-starting.c */
+  void mps_general_fstart (mps_context * ctx, mps_polynomial * p);
+  void mps_general_dstart (mps_context * ctx, mps_polynomial * p);
+  void mps_general_mstart (mps_context * ctx, mps_polynomial * p);
 
   /* Routines of Input/Output in stio.c */
   void mps_skip_comments (FILE * input_stream);

@@ -27,7 +27,7 @@ extern "C"
 *                  MPZ_T                      *
 **********************************************/
 
-#define mpz_Val(Z)	        (*Z)
+#define mpz_Val(Z)              (*Z)
 #define mpz_Move(Z1, Z2)        (*Z1 = *Z2)
 
 /* missing functions */
@@ -37,10 +37,10 @@ extern "C"
 #ifndef mpz_tstbit
   int mpz_tstbit (mpz_t z, unsigned long int pos);
 #endif
-#define mpz_get_bit(Z, N)	mpz_tstbit(Z, N)
+#define mpz_get_bit(Z, N)       mpz_tstbit(Z, N)
 
-#define mpz_mul_eq(Z1, Z2) 	mpz_mul(Z1, Z1, Z2)
-#define mpz_add_eq(Z1, Z2) 	mpz_add(Z1, Z1, Z2)
+#define mpz_mul_eq(Z1, Z2)      mpz_mul(Z1, Z1, Z2)
+#define mpz_add_eq(Z1, Z2)      mpz_add(Z1, Z1, Z2)
 
 /* vector support functions */
 #define mpz_valloc(N)         (mpz_t *) malloc((N) * sizeof(mpz_t))
@@ -52,7 +52,7 @@ extern "C"
 *                  MPQ_T                      *
 **********************************************/
 
-#define mpq_Val(Q)	      (*Q)
+#define mpq_Val(Q)            (*Q)
 #define mpq_Move(Q1, Q2)      (*Q1 = *Q2)
 
 /* missing functions */
@@ -75,7 +75,7 @@ extern "C"
 *                  MPF_T                      *
 **********************************************/
 
-#define mpf_Val(F)	      (*F)
+#define mpf_Val(F)            (*F)
 #define mpf_Move(F1, F2)      (*F1 = *F2)
 
 /* missing functions */
@@ -87,7 +87,7 @@ extern "C"
   long int mpf_size_2 (mpf_t f);
 
 /* missing operators */
-#define mpf_inv(R, F)	      mpf_ui_div(R, 1, F)
+#define mpf_inv(R, F)         mpf_ui_div(R, 1, F)
 #define mpf_sqr(R, F)         mpf_mul(R, F, F)
   void mpf_add_si (mpf_t r, mpf_t f, long int i);
   void mpf_sub_si (mpf_t r, mpf_t f, long int i);

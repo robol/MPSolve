@@ -16,55 +16,6 @@ extern "C"
    */
 
   /**
-   * @brief Function that computes \f$\frac{p}{p'}\f$ (floating point version)
-   */
-  typedef void (*mps_fnewton_ptr) (mps_context * status, mps_approximation *, cplx_t,
-                                   void * user_data,
-				   mps_boolean skip_radius_check);
-
-  /**
-   * @brief Function that computes \f$\frac{p}{p'}\f$ (dpe version)
-   */
-  typedef void (*mps_dnewton_ptr) (mps_context * status, mps_approximation * root,
-                                   cdpe_t corr,
-				   void * user_data,
-				   mps_boolean skip_radius_check);
-
-  /**
-   * @brief Function that computes \f$\frac{p}{p'}\f$ (multiprecision version)
-   */
-  typedef void (*mps_mnewton_ptr) (mps_context * status, mps_approximation * root,
-                                   mpc_t corr,
-				   void * user_data,
-				   mps_boolean skip_radius_check);
-
-  /**
-   * @brief Functions that check if float phase is needed or not and set
-   * which_case accordingly to <code>'f'</code> or <code>'d'</code>.
-   */
-  typedef void (*mps_check_data_ptr) (mps_context *status, char *which_case);
-
-  /**
-   * @brief Function to dispose starting approximations in the case of
-   * floating point iterations.
-   */
-  typedef void (*mps_fstart_ptr) (mps_context *status, int n, mps_cluster_item * cluster,
-                                  double clust_rad, double g, rdpe_t eps);
-
-  /**
-   * @brief Function to dispose starting approximations in the case of
-   * DPE iterations.
-   */
-  typedef void (*mps_dstart_ptr) (mps_context *status, int n, mps_cluster_item * cluster,
-                                  rdpe_t clust_rad, rdpe_t g, rdpe_t eps);
-
-  /**
-   * @brief Function that computes radii to perform cluster analysis on the
-   * roots in the floating point iterations.
-   */
-  typedef void (*mps_fradii_ptr) (mps_context * status);
-
-  /**
    * @brief Routine that performs the computation loop to solve the polynomial
    * or the secular equation
    */
@@ -292,6 +243,18 @@ extern "C"
     mps_phase lastphase;
 
     /**
+     * @brief Selected starting case, can be 'd' for DPE
+     * or 'f' for floating point
+     */
+    mps_phase starting_case;
+
+    /**
+     * @brief Set to true if the approximation are the best that
+     * can be obtained with the current precision
+     */
+    mps_boolean best_approx;
+
+    /**
      * @brief shift in the angle in the positioning of the
      * starting approximation for the last cluster. It will
      * be used to determine the new sigma to maximize distance
@@ -308,24 +271,6 @@ extern "C"
      * @brief Number of zero roots.
      */
     int zero_roots;
-
-    /**
-     * @brief Status of approximation of a root. 
-     */
-    mps_root_status    * root_status;
-
-    /**
-     * @brief Array containing attributes that have been set on
-     * the roots.
-     */
-    mps_root_attrs     * root_attrs;
-
-    /**
-     * @brief Array containing the inclusion status of the root
-     * in the target set specified in the field
-     * <code>input_config->search_set</code>.
-     */
-    mps_root_inclusion * root_inclusion;
 
     /**
      * @brief Output index order
@@ -418,14 +363,6 @@ extern "C"
     mpc_t *mfpc1;
 
     /**
-     * @brief Multiprecision complex coefficients of the polynomial.
-     *
-     * This is used as a temporary vector while shifting the polynomial
-     * with a new gravity center in <code>mps_mshift()</code>.
-     */
-    mpc_t *mfpc2;
-
-    /**
      * @brief Multiprecision complex coefficients of the
      * first derivative of the polynomial.
      *
@@ -443,16 +380,6 @@ extern "C"
      * @see spar
      */
     mps_boolean *spar1;
-
-    /**
-     * @brief Vector representing sparsity of the polynomial in the
-     * same way that <code>spar</code> does.
-     *
-     * It is used as a temporary vector.
-     *
-     * @see spar
-     */
-    mps_boolean *spar2;
 
     /**
      * @brief Old value of <code>punt</code> (temporary vector).
@@ -551,66 +478,18 @@ extern "C"
     mps_algorithm algorithm;
 
     /**
-     * @brief Pointer to the function to perform newton in floating
-     * point implemented by the user.
-     */
-    mps_fnewton_ptr fnewton_usr;
-
-    /**
-     * @brief Pointer to the function to perform newton in dpe
-     * implemented by the user.
-     */
-    /* void (*dnewton_usr) (mps_context *status, cdpe_t x, rdpe_t rad, cdpe_t corr, */
-    /*                      mps_boolean * again, void * user_data,  */
-    /* 			 mps_boolean * skip_radius_computation); */
-    mps_dnewton_ptr dnewton_usr;
-
-    /**
-     * @brief Pointer to the function to perform newton in multiprecision
-     * implemented by the user.
-     */
-    /* void (*mnewton_usr) (mps_context *status, mpc_t x, rdpe_t rad, mpc_t corr, */
-    /*                      mps_boolean * again, void * user_data,  */
-    /* 			 mps_boolean * skip_radius_computation); */
-    mps_mnewton_ptr mnewton_usr;
-
-    /**
-     * @brief Check data routine that has the task to determine if a float phase
-     * can be performed or dpe are needed now.
-     */
-    void (*check_data_usr) (mps_context *status, char *which_case);
-
-    /**
-     * @brief Routine to dispose starting approximations provided by the user
-     */
-    void (*fstart_usr) (mps_context *status, int n, mps_cluster_item * cluster, double clust_rad,
-                        double g, rdpe_t eps);
-
-    /**
-     * @brief Routine to dispose starting approximations provided
-     * by user in the case of DPE computation.
-     */
-    void (*dstart_usr) (mps_context *status, int n, mps_cluster_item * cluster, rdpe_t clust_rad,
-                        rdpe_t g, rdpe_t eps);
-
-    /**
      * @brief Routine that performs the loop needed to coordinate
      * root finding. It has to be called to do the hard work.
      */
     void (*mpsolve_ptr) (mps_context *status);
 
     /**
-     * @brief A pointer to the polynomial that is being solve or
-     * NULL if there is no such monomial representation.
+     * @brief This is the polynomial that is currently being solved in MPSolve.
      */
-    mps_monomial_poly * monomial_poly;
+    mps_polynomial * active_poly;
 
     /**
-     * @brief A pointer that can be set to anything the user
-     * would like to access during computations. It is meant to be
-     * used when implementing fnewton, dnewton and mnewton
-     * functions to provide additional data for the
-     * computing of the polynomial.
+     * @brief Pointer to the secular equation used in computations.
      */
     mps_secular_equation * secular_equation;
 
@@ -625,9 +504,16 @@ extern "C"
     mps_thread_pool * pool;
 
     /**
-     * @brief TBD
+     * @brief Auxiliary memory used in regeneation to avoid thread-safeness
+     * issues. 
      */
     mpc_t * bmpc;
+
+    /**
+     * @brief True if Jacobi-style iterations must be used in the secular
+     * algorithm.
+     */
+    mps_boolean jacobi_iterations;
 
     /**
      * @brief Char to be intersted after the with statement in the output piped to gnuplot.
@@ -652,12 +538,9 @@ extern "C"
 
   /* Accessor functions (setters) */
   int mps_context_set_poly_d (mps_context * s, cplx_t * coeff,
-			     long unsigned int n);
-  void mps_context_set_input_poly (mps_context * s, mps_monomial_poly * p);
+                             long unsigned int n);
+  void mps_context_set_input_poly (mps_context * s, mps_polynomial * p);
   int mps_context_set_poly_i (mps_context * s, int *coeff, long unsigned int n);
-  int mps_context_set_poly_u (mps_context * s, int n, mps_fnewton_ptr fnewton,
-			     mps_dnewton_ptr dnewton,
-			     mps_mnewton_ptr mnewton);
   void mps_context_select_algorithm (mps_context * s, mps_algorithm algorithm);
   void mps_context_set_degree (mps_context * s, int n);
 
@@ -668,10 +551,11 @@ extern "C"
   /* Accessor functions */
   long int mps_context_get_data_prec_max (mps_context * s);
   int mps_context_get_degree (mps_context * s);
-  int mps_context_get_roots_d (mps_context * s, cplx_t * roots, double *radius);
-  int mps_context_get_roots_m (mps_context * s, mpc_t * roots, rdpe_t * radius);
+  int mps_context_get_roots_d (mps_context * s, cplx_t ** roots, double **radius);
+  int mps_context_get_roots_m (mps_context * s, mpc_t ** roots, rdpe_t ** radius);
   int mps_context_get_zero_roots (mps_context * s);
   mps_boolean mps_context_get_over_max (mps_context * s);
+  mps_polynomial * mps_context_get_active_poly (mps_context * ctx);
 
   /* I/O options and flags */
   void mps_context_set_input_prec (mps_context * s, long int prec);
@@ -680,6 +564,7 @@ extern "C"
   void mps_context_set_output_goal (mps_context * s, mps_output_goal goal);
   void mps_context_set_starting_phase (mps_context * s, mps_phase phase);
   void mps_context_set_log_stream (mps_context * s, FILE * logstr);
+  void mps_context_set_jacobi_iterations (mps_context * s, mps_boolean jacobi_iterations);
 
   /* Debugging */
   void mps_context_set_debug_level (mps_context * s, mps_debug_level level);

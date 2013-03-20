@@ -1,7 +1,7 @@
 /*
  * This file is part of MPSolve 3.0
  *
- * Copyright (C) 2001-2012, Dipartimento di Matematica "L. Tonelli", Pisa.
+ * Copyright (C) 2001-2013, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
  * Authors: 
@@ -42,8 +42,6 @@ mps_secular_ga_update_coefficients (mps_context * s)
     }
 }
 
-
-
 /**
  * @brief Check if iterations can terminate, i.e. if newton 
  * isolation has been reached, if the target was approximate. 
@@ -70,7 +68,7 @@ mps_secular_ga_check_stop (mps_context * s)
         {
           /* Float case */
         case float_phase:
-          if (!MPS_ROOT_STATUS_IS_COMPUTED (s, i))
+          if (!MPS_ROOT_STATUS_IS_COMPUTED (s->root[i]->status))
             {
               MPS_DEBUG_WITH_INFO (s, "Root %d is not isolated, nor approximated, so we can't stop now.", i);
               return false;
@@ -80,16 +78,16 @@ mps_secular_ga_check_stop (mps_context * s)
           /* Multiprecision and DPE case are the same, since the radii
            * are always RDPE. */
         case mp_phase:
-          if (!MPS_ROOT_STATUS_IS_COMPUTED (s, i))
+          if (!MPS_ROOT_STATUS_IS_COMPUTED (s->root[i]->status))
             {
               MPS_DEBUG_WITH_INFO (s, "Root %d is not isolated, nor approximated, so we can't stop now.", i);
-	      MPS_DEBUG_WITH_INFO (s, "Status of root %d: %s", i, MPS_ROOT_STATUS_TO_STRING (s->root_status[i]));
+              MPS_DEBUG_WITH_INFO (s, "Status of root %d: %s", i, MPS_ROOT_STATUS_TO_STRING (s->root[i]->status));
               return false;
             }
           break;
         case dpe_phase:
-	  MPS_DEBUG (s, "Status of root %d: %s", i, MPS_ROOT_STATUS_TO_STRING (s->root_status[i]));
-          if (!MPS_ROOT_STATUS_IS_COMPUTED (s, i))
+          MPS_DEBUG (s, "Status of root %d: %s", i, MPS_ROOT_STATUS_TO_STRING (s->root[i]->status));
+          if (!MPS_ROOT_STATUS_IS_COMPUTED (s->root[i]->status))
             {
               MPS_DEBUG_WITH_INFO (s, "Root %d is not isolated, nor approximated, so we can't stop now.", i);
               return false;
@@ -107,179 +105,6 @@ mps_secular_ga_check_stop (mps_context * s)
 }
 
 /**
- * @brief Load the original coefficients of the secular equation.
- * 
- * This routine is used to load in the fields ampc and bmpc the original
- * coefficients of the secular equation, mainly in the improvement of the
- * isolated roots where the original coefficients (and not the rigenerated
- * one) are used. 
- */
-void
-mps_secular_ga_load_initial_coefficients (mps_context * s)
-{
-  MPS_DEBUG_THIS_CALL;
-
-  int i;
-  mps_secular_equation * sec = s->secular_equation;
-
- for (i = 0; i < s->n; i++)
-    {
-      if (MPS_INPUT_CONFIG_IS_SECULAR (s->input_config))
-	{
-	  if (MPS_INPUT_CONFIG_IS_FP (s->input_config))
-	    {
-	      mpc_set (sec->ampc[i],
-		       sec->initial_ampc[i]);
-	      mpc_set (sec->bmpc[i],
-		       sec->initial_bmpc[i]);
-	    }
-	  else
-	    {
-	      mpc_set_q (sec->ampc[i],
-			 sec->initial_ampqrc[i],
-			 sec->initial_ampqic[i]);
-
-	      mpc_set_q (sec->bmpc[i],
-			 sec->initial_bmpqrc[i],
-			 sec->initial_bmpqic[i]);
-	    }
-	}
-    }
-}
-
-/**
- * @brief Improve the isolated roots. Should be called after isolation
- * is reached and confirmed by <code>mps_secular_ga_check_stop ()</code>.
- *
- * @param s The mps_context of the computation.
- */
-void
-mps_secular_ga_improve (mps_context * s)
-{
-  MPS_DEBUG_THIS_CALL;
-
-  int i;
-  mps_secular_equation  * sec = s->secular_equation;
-
-  if (s->lastphase != mp_phase)
-    mps_secular_switch_phase (s, mp_phase);
-
-  /* Before improving with newton we shall reuse
-   * the original coefficients */
-  mps_secular_ga_load_initial_coefficients (s);
- 
-  mpc_t nwtcorr;
-  cdpe_t ctmp;
-  rdpe_t rtmp, old_rad, abroot;
-
-  mpc_init2 (nwtcorr, s->mpwp);
-
-  int starting_precision = s->mpwp;
-
-  mps_secular_iteration_data it_data;
-  it_data.local_ampc = sec->ampc;
-  it_data.local_bmpc = sec->bmpc;
-
-  for (i = 0; i < s->n; i++)
-    {
-      int j;
-
-      /* Reset precision of coefficients and of the root we're 
-       * interested in. */
-      if (s->mpwp != starting_precision)
-        {
-          mps_secular_raise_coefficient_precision (s, starting_precision);
-          mpc_set_prec (s->root[i]->mvalue, starting_precision);
-          mpc_set_prec (nwtcorr, starting_precision);
-          s->mpwp = starting_precision;
-        }
-
-      mpc_get_cdpe (ctmp, s->root[i]->mvalue);
-      cdpe_mod (rtmp, ctmp);
-      rdpe_div_eq (rtmp, s->root[i]->drad);
-
-      /* Find correct digits and maximum number of iterations */
-      int correct_digits = rdpe_log10 (rtmp) - 1;
-      if (s->debug_level & MPS_DEBUG_IMPROVEMENT)
-	MPS_DEBUG (s, "Root %d has %d correct digits", i, correct_digits);
-      int iterations =
-        log (1.0 * s->output_config->prec / correct_digits / LOG2_10) * LOG2_10 + 1;
-      iterations = (iterations > 0) ? iterations : 0;
-
-      if (s->debug_level & MPS_DEBUG_IMPROVEMENT)
-        {
-          if (iterations != 0)
-	    {
-              MPS_DEBUG (s, "Performing not more than %d iterations on root %d",
-                         iterations, i);
-	    }
-          else
-	    {
-              MPS_DEBUG (s, "Not improving root %d, since it is already approximated", i);
-	    }
-        }
-
-      for (j = 0; j < iterations; j++)
-        { 
-	  rdpe_set (old_rad, s->root[i]->drad);
-          mps_secular_mnewton (s, s->root[i], nwtcorr,
-                               &it_data, false);
-
-	  /* Compute quadratic radius */
-	  mpc_get_cdpe (ctmp, s->root[i]->mvalue); 
-	  cdpe_mod (rtmp, ctmp); 
-	  rdpe_div_eq (old_rad, rtmp); 
-	  rdpe_mul_eq (old_rad, old_rad); 
-	  rdpe_mul_eq (old_rad, rtmp);
-
-	  /* Apply newton correction */
-	  mpc_sub_eq (s->root[i]->mvalue, nwtcorr);
-
-	  mpc_get_cdpe (ctmp, s->root[i]->mvalue);
-	  cdpe_mod (abroot, ctmp);
-	  
-	  correct_digits *= 2;
-	  /* rdpe_set_dl (s->root[i]->drad, 1.0, -correct_digits + 1); */
-	  /* rdpe_add_eq (s->root[i]->drad, s->mp_epsilon); */
-	  /* rdpe_mul_eq (s->root[i]->drad, abroot); */
-
-          /* Debug iterations */
-          if (s->debug_level & MPS_DEBUG_IMPROVEMENT)
-            {
-              MPS_DEBUG_MPC (s, 10, s->root[i]->mvalue, "s->mroot[%d]", i);
-              MPS_DEBUG_RDPE (s, s->root[i]->drad, "s->drad[%d]", i);
-            }
-
-          /* Check if the approximation is already good. */
-          mpc_get_cdpe (ctmp, s->root[i]->mvalue);
-          cdpe_mod (rtmp, ctmp);
-          rdpe_div (rtmp, s->root[i]->drad, rtmp);
-
-          if (rdpe_le (rtmp, s->eps_out))
-            {
-              s->root_status[i] = MPS_ROOT_STATUS_APPROXIMATED;
-              break;
-            }
-          else
-            {
-              s->mpwp *= 2;
-              mps_secular_raise_coefficient_precision (s, s->mpwp);
-              mpc_set_prec (nwtcorr, s->mpwp);
-              mpc_set_prec (s->root[i]->mvalue, s->mpwp);
-	      mps_secular_ga_load_initial_coefficients (s);
-            }
-        }
-
-      /* Since we have passed the bound of the maximum allowed iterations
-       * and quadratic convergence was guaranteed, the root is now 
-       * approximated. */
-      s->root_status[i] = MPS_ROOT_STATUS_APPROXIMATED;
-    }
-  mpc_clear (nwtcorr);
-
-}
-
-/**
  * @brief MPSolve main function for the secular equation solving
  * using Gemignani's approach.
  *
@@ -290,7 +115,6 @@ mps_secular_ga_mpsolve (mps_context * s)
 {
   int roots_computed = 0;
   int packet;
-  int iteration_per_packet = s->max_it;
   int i;
   mps_boolean skip_check_stop = false;
   mps_boolean just_regenerated = false;
@@ -302,12 +126,18 @@ mps_secular_ga_mpsolve (mps_context * s)
       return;
     }
 
-  /* Check if the secular equation is allocate or if only the
+  if (s->output_config->root_properties != MPS_OUTPUT_PROPERTY_NONE)
+    {
+      mps_error (s, 1, "The root properties detection is not supported using the algorithm MPS_ALGORITHM_SECULAR_GA.");
+      return;
+    }
+
+  /* Check if the secular equation is allocated or if only the
    * polynomial is present. In the last case, allocate an empty
    * secular equation to hold the data during the computation. */
-  if (!s->secular_equation)
+  if (!sec)
     {
-      s->secular_equation = mps_secular_equation_new_raw (s, s->monomial_poly->n);
+      s->secular_equation = mps_secular_equation_new_raw (s, s->n);
       sec = mps_secular_equation_from_status (s);
     }
 
@@ -329,7 +159,7 @@ mps_secular_ga_mpsolve (mps_context * s)
 
   /* Set degree and allocate polynomial-related variables
    * to allow initializitation to be performed. */
-  s->deg = s->n = sec->n;
+  s->deg = s->n = s->active_poly->degree;
 
   /* Manually set FILE* pointer for streams.
    * More refined options will be added later. */
@@ -357,77 +187,112 @@ mps_secular_ga_mpsolve (mps_context * s)
   s->count[1] = 0;
   s->count[2] = 0;
 
-  /* If the input was polynomial we need to determined the secular
+  /* If the input was polynomial we need to determine the secular
    * coefficients */
-  if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config))
+  if (!MPS_IS_SECULAR_EQUATION (s->active_poly))
     {
-      mps_monomial_poly *p = s->monomial_poly;
+      mps_polynomial *p = s->active_poly;
 
       for (i = 0; i < s->n; i++)
-	{
-	  cplx_set (sec->bfpc[i], cplx_zero);
-	  cdpe_set (sec->bdpc[i], cdpe_zero);
-	}
+        {
+          cplx_set (sec->bfpc[i], cplx_zero);
+          cdpe_set (sec->bdpc[i], cdpe_zero);
+        }
 
       /* Check data first */
       if (s->input_config->starting_phase == no_phase)
-	{
-	  char which_case;
-	  mps_check_data (s, &which_case);
+        {
+          char which_case;
+          mps_check_data (s, &which_case);
 
-	  if (mps_context_has_errors (s))
-	    return;
+          if (mps_context_has_errors (s))
+            return;
 
-	  MPS_DEBUG_WITH_INFO (s, "Check data suggests starting phase should be %s", (which_case == 'f') ? "floating point" : "DPE phase");
+          MPS_DEBUG_WITH_INFO (s, "Check data suggests starting phase should be %s", (which_case == 'f') ? "floating point" : "DPE phase");
 
-	  if (which_case == 'f')
-	    s->lastphase = float_phase;
-	  else
-	    s->lastphase = dpe_phase;
-	}
+          if (which_case == 'f')
+            s->lastphase = float_phase;
+          else
+            s->lastphase = dpe_phase;
+        }
       else
-	s->lastphase = s->input_config->starting_phase;
+        s->lastphase = s->input_config->starting_phase;
 
-      MPS_DEBUG_WITH_INFO (s, "Computing starting points");
-      if (s->lastphase == float_phase)
-	  mps_fstart (s, s->n, NULL, 0.0, 0.0, s->eps_out, p->fap);
-      else
-	mps_dstart (s, s->n, NULL, (__rdpe_struct *) rdpe_zero,
-		    (__rdpe_struct *) rdpe_zero, s->eps_out,
-		    p->dap);
+      MPS_DEBUG_WITH_INFO (s, "Computing starting points and performing first Aberth packet");
 
-      /* Check if we can manage to perform the recomputatio of the
+      /* Perform a packet of Aberth iterations */
+      switch (s->lastphase)
+      {
+        case float_phase:
+          mps_polynomial_fstart (s, p);
+
+          if (p->fnewton)
+            mps_faberth_packet (s, p, false);
+
+          break;
+
+        case dpe_phase:
+          mps_polynomial_dstart (s, p);
+
+          if (p->dnewton)
+            mps_daberth_packet (s, p, false);
+          break;
+
+        default:
+          mps_error (s, 1, "Unrecognized starting phase");
+          return;
+      }
+
+      mps_cluster_analysis (s, p);
+
+      if (mps_secular_ga_check_stop (s))
+        goto cleanup;
+
+      /* Check if we can manage to perform the recomputation of the
        * coefficients. If in floating point, switch do DPE if it fail.
        */
       if (!mps_secular_ga_regenerate_coefficients (s))
-	{
-	  if (s->lastphase == float_phase)
-	    {
-	      MPS_DEBUG(s, "Switching to DPE phase since initial regeneration of the coefficients did not succeed.");
-	      s->lastphase = dpe_phase;
-	      mps_dstart (s, s->n, 0, (__rdpe_struct *) rdpe_zero,
-			  (__rdpe_struct *) rdpe_zero, s->eps_out,
-			  p->dap);
-	      if (!mps_secular_ga_regenerate_coefficients (s))
-		{
-		  MPS_DEBUG_WITH_INFO (s, "Initial generation of the secular equation coefficients did not succeed");
-		  return;
-		}
-	    }
-	  else
-	    {
-	      MPS_DEBUG_WITH_INFO (s, "Initial generation of the secular equation coefficients did not succeed");
-	      return;
-	    }
-	  just_regenerated = true;
-	}
+        {
+          if (s->lastphase == float_phase)
+            {
+              MPS_DEBUG(s, "Switching to DPE phase since initial regeneration of the coefficients did not succeed.");
+              s->lastphase = dpe_phase;
+              mps_polynomial_dstart (s, p);
+
+              if (!mps_secular_ga_regenerate_coefficients (s))
+                {
+                  MPS_DEBUG_WITH_INFO (s, "Initial generation of the secular equation coefficients did not succeed");
+                  return;
+                }
+            }
+          else
+            {
+              MPS_DEBUG_WITH_INFO (s, "Initial generation of the secular equation coefficients did not succeed");
+              return;
+            }
+          just_regenerated = true;
+        }
     }
   else
     {
       MPS_DEBUG_WITH_INFO (s, "Generated initial coefficients for the secular equation");
+      
+      for (i = 0; i < s->n; i++)
+        {
+          cplx_set (s->secular_equation->afpc[i], MPS_SECULAR_EQUATION (s->active_poly)->afpc[i]);
+          cplx_set (s->secular_equation->bfpc[i], MPS_SECULAR_EQUATION (s->active_poly)->bfpc[i]);
+          cdpe_set (s->secular_equation->adpc[i], MPS_SECULAR_EQUATION (s->active_poly)->adpc[i]);
+          cdpe_set (s->secular_equation->bdpc[i], MPS_SECULAR_EQUATION (s->active_poly)->bdpc[i]);
+          mpc_set (s->secular_equation->ampc[i], MPS_SECULAR_EQUATION (s->active_poly)->ampc[i]);
+          mpc_set (s->secular_equation->bmpc[i], MPS_SECULAR_EQUATION (s->active_poly)->bmpc[i]);
+
+          MPS_POLYNOMIAL (s->secular_equation)->degree = s->active_poly->degree;
+          MPS_POLYNOMIAL (s->secular_equation)->structure = MPS_STRUCTURE_COMPLEX_FP;
+        }
+
       s->lastphase = float_phase;
       for (i = 0; i < s->n; i++)
-	s->root[i]->wp = 53;
+        s->root[i]->wp = 53;
     }
 
   /* Select initial approximations using the custom secular
@@ -436,59 +301,70 @@ mps_secular_ga_mpsolve (mps_context * s)
     {
       MPS_DEBUG_WITH_INFO (s, "Computing starting points");
       switch (s->lastphase)
-	{
-	case  float_phase:
-	  mps_secular_fstart (s, s->n, NULL, 0.0, 0.0, s->eps_out);
-	  break;
+        {
+        case  float_phase:
+          mps_secular_fstart (s, sec);
+          break;
 
-	case dpe_phase:
-	  mps_secular_dstart (s, s->n, NULL, (__rdpe_struct *) rdpe_zero, 
-			      (__rdpe_struct *) rdpe_zero, s->eps_out); 
-	  break; 
+        case dpe_phase:
+          mps_secular_dstart (s, sec);
+          break; 
 
-	case mp_phase:
-	  mps_secular_mstart (s, s->n, NULL, (__rdpe_struct *) rdpe_zero,
-			      (__rdpe_struct *) rdpe_zero, s->eps_out);
-	  break;
+        case mp_phase:
+          mps_secular_mstart (s, sec);
+          break;
 
-	default: 
-	  break;
-	}
+        default: 
+          break;
+        }
     }
-
-  /* Set initial radius */
-  mps_secular_set_radii (s);
 
   for (i = 0; i < s->n; i++)
     {
       s->root[i]->again = true;
+      s->root[i]->approximated = false;
     }
 
   /* Cycle until approximated */
   do
     {
       skip_check_stop = false;
-      s->secular_equation->best_approx = false;
+      s->best_approx = false;
 
       /* Perform an iteration of floating point Aberth method */
       switch (s->lastphase)
         {
         case float_phase:
           MPS_DEBUG_WITH_INFO (s, "Starting floating point iterations");
-          roots_computed = mps_secular_ga_fiterate (s, iteration_per_packet, just_regenerated);
+
+        if (s->jacobi_iterations)
+          roots_computed = mps_faberth_packet (s, MPS_POLYNOMIAL (sec), just_regenerated);
+        else
+          roots_computed = mps_secular_ga_fiterate (s, s->max_it, just_regenerated);
+
           /* If the computation fails we need to switch to DPE so do not
            * break here, but continue the cycle. */
           if (roots_computed != -1)
-	    break;
+            break;
 
         case dpe_phase:
           MPS_DEBUG_WITH_INFO (s, "Starting DPE iterations");
-          roots_computed = mps_secular_ga_diterate (s, iteration_per_packet, just_regenerated);
+
+        if (s->jacobi_iterations)
+          roots_computed = mps_daberth_packet (s, MPS_POLYNOMIAL (sec), just_regenerated);
+        else   
+          roots_computed = mps_secular_ga_diterate (s, s->max_it, just_regenerated);
+
           break;
 
         case mp_phase:
           MPS_DEBUG_WITH_INFO (s, "Starting MP iterations");
-          roots_computed = mps_secular_ga_miterate (s, iteration_per_packet, just_regenerated);
+
+        if (s->jacobi_iterations)
+          roots_computed = mps_maberth_packet (s, MPS_POLYNOMIAL (sec), just_regenerated);
+        else 
+          roots_computed = mps_secular_ga_miterate (s, s->max_it, just_regenerated);
+
           break;
 
         default:
@@ -497,57 +373,57 @@ mps_secular_ga_mpsolve (mps_context * s)
 
       /* Increase the packet counter */
       packet++;
-	  
+          
       /* Check thet we haven't passed the maximum number of allowed iterations */
       if (packet > s->max_pack)
-	{
-	  mps_error (s, 1, "Maximum number of iteration passed. Aborting.");
-	  return;
-	}
+        {
+          mps_error (s, 1, "Maximum number of iteration passed. Aborting.");
+          return;
+        }
       
       /* Check if all roots were approximated with the
        * given input precision                      */      
       if (!just_regenerated)
-	{
-	  if (mps_secular_ga_check_stop (s)) 
-	    break; 
-	  else 
-	    skip_check_stop = true; 
-	}
+        {
+          if (mps_secular_ga_check_stop (s)) 
+            break; 
+          else 
+            skip_check_stop = true; 
+        }
 
        /* If the iterations has ended in less than 2 * not_computed_roots iterations
-	* and we have just regenerated the coefficients, we should increase precision. */
-       if (sec->best_approx)
-	 {
-	   skip_check_stop = false;
-	   
-	   /* Going to multiprecision if we're not there yet */
-	   if (s->lastphase != mp_phase)
-	     mps_secular_switch_phase (s, mp_phase);
+        * and we have just regenerated the coefficients, we should increase precision. */
+       if (s->best_approx)
+         {
+           skip_check_stop = false;
+           
+           /* Going to multiprecision if we're not there yet */
+           if (s->lastphase != mp_phase)
+             mps_secular_switch_phase (s, mp_phase);
           else
             {
               /* Raising precision otherwise */
               mps_secular_raise_precision (s, 2 * s->mpwp);
             }
 
-	   if (MPS_INPUT_CONFIG_IS_MONOMIAL (s->input_config)) 
-	     { 
-	       MPS_DEBUG (s, "Performing restart phase");
-	       mps_secular_restart (s);
-	     }
-	   
-	   if (!mps_secular_ga_regenerate_coefficients (s)) 
-	     {
-	       MPS_DEBUG (s, "Regeneration failed");
-	     }
-	   else
-	     just_regenerated = true;
+           if (MPS_IS_MONOMIAL_POLY (s->active_poly))
+             {   
+               MPS_DEBUG (s, "Performing restart phase");
+               mps_secular_restart (s);
+             }
 
-	   /* just_regenerated = true; */
-	   sec->best_approx = false;
+           if (!mps_secular_ga_regenerate_coefficients (s)) 
+             {
+               MPS_DEBUG (s, "Regeneration failed");
+             }
+           else
+             just_regenerated = true;
 
-	   /* Set the packet counter to zero, we are restarting */
-	   packet = 0;
+           /* just_regenerated = true; */
+           s->best_approx = false;
+
+           /* Set the packet counter to zero, we are restarting */
+           packet = 0;
         }
 
       /* If we can't stop recompute coefficients in higher precision and
@@ -557,43 +433,46 @@ mps_secular_ga_mpsolve (mps_context * s)
        s->just_raised_precision = false;
 
        /* Check if all the roots are approximated or, if we have done more than 4 packets
-	* of iterations without finding all of them, if at least we are near to the result. */
-       if (roots_computed >= MIN (s->n, s->n + 4 - packet))
-	 {
-	   if (mps_secular_ga_regenerate_coefficients (s))
-	     {
-	       skip_check_stop = false;
-	       just_regenerated = true;
-	     }
-	   else
-	     {
-	       MPS_DEBUG (s, "Raising precision because regeneration failed");
-	       
-	       skip_check_stop = false;
-	       
-	       /* Going to multiprecision if we're not there yet */
-	       if (s->lastphase != mp_phase)
-		 {
-		   mps_secular_switch_phase (s, mp_phase);
-		 }
-	       else
-		 {
-		   /* Raising precision otherwise */
-		   mps_secular_raise_precision (s, 2 * s->mpwp);
-		   mps_secular_ga_regenerate_coefficients (s);
-		 }
-	       
-	       /* just_regenerated = true; */
-	       sec->best_approx = false;
-	       
-	       /* Set the packet counter to zero, we are restarting */
-	       packet = 0;
-	     }
-	 }
+        * of iterations without finding all of them, if at least we are near to the result. */
+       // if (roots_computed >= MIN (s->n, s->n + 4 - packet))
+         {
+           if (mps_secular_ga_regenerate_coefficients (s))
+             {
+               skip_check_stop = false;
+               just_regenerated = true;
+             }
+           else
+             {
+               MPS_DEBUG (s, "Raising precision because regeneration failed");
+               
+               skip_check_stop = false;
+               
+               /* Going to multiprecision if we're not there yet */
+               if (s->lastphase != mp_phase)
+                 {
+                   mps_secular_switch_phase (s, mp_phase);
+                 }
+               else
+                 {
+                   /* Raising precision otherwise */
+                   mps_secular_raise_precision (s, 2 * s->mpwp);
+                   mps_secular_ga_regenerate_coefficients (s);
+                 }
+               
+               /* just_regenerated = true; */
+               s->best_approx = false;
+               
+               /* Set the packet counter to zero, we are restarting */
+               packet = 0;
+             }
+         }
     }
   while (skip_check_stop || !mps_secular_ga_check_stop (s));
 
+  cleanup:
+
   mps_copy_roots (s);
+  mps_dump (s);
 
   /* Finally improve the roots if approximation is required */
   if (s->output_config->goal == MPS_OUTPUT_GOAL_APPROXIMATE)
@@ -602,12 +481,10 @@ mps_secular_ga_mpsolve (mps_context * s)
       mps_improve (s);
       unsigned int improve_time = mps_stop_timer (my_timer);
       if (s->debug_level & MPS_DEBUG_TIMINGS)
-	{
-	  MPS_DEBUG (s, "mps_improve took %u ms", improve_time);
-	}
+        {
+          MPS_DEBUG (s, "mps_improve took %u ms", improve_time);
+        }
     }
-
-  mps_restore_data (s);  
 
   /* Debug total time taken but only if debug is enabled */
 #ifndef DISABLE_DEBUG

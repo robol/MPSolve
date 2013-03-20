@@ -6,11 +6,26 @@
  * specfied by the user and then displays the roots on a plot.
  *
  * Author: Leonardo Robol <robol@mail.dm.unipi.it>
+ *
+ * Copyright (C) 2001-2013, Dipartimento di Matematica "L. Tonelli", Pisa.
+ * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  */
 
 #include <mps/mps.h>
 #include <gtk/gtk.h>
 #include <cairo/cairo.h>
+
+#if GTK_MAJOR_VERSION < 3
+
+#ifndef gtk_widget_get_allocated_width
+#define gtk_widget_get_allocated_width(widget) (widget->allocation.width)
+#endif
+
+#ifndef gtk_widget_get_allocated_height
+#define gtk_widget_get_allocated_height(widget) (widget->allocation.height)
+#endif
+
+#endif
 
 cplx_t * points = NULL;
 
@@ -18,9 +33,20 @@ int degree = 0;
 
 GtkWidget * drawing_area = NULL;
 
+void on_drawing_area_draw (GtkWidget* , cairo_t*);
+
+#if GTK_MAJOR_VERSION < 3
 void
-on_drawing_area_draw (GtkWidget * widget, 
-		      cairo_t * cr)
+on_expose_event (GtkWidget * widget, GdkEvent * event)
+{
+  cairo_t * cr = gdk_cairo_create (widget->window);
+  on_drawing_area_draw (widget, cr);
+}
+#endif
+
+void
+on_drawing_area_draw (GtkWidget * widget,
+                      cairo_t * cr)
 {
   int width, height;
 
@@ -54,15 +80,15 @@ on_drawing_area_draw (GtkWidget * widget,
 
       /* Check if we can draw in here. */
       if (width < 2 * PADDING || height < 2 * PADDING)
-	return;
+        return;
 
       for (i = 0; i < degree; i++)
-	{
-	  x = cplx_Re (points[i]) * (0.5 * width - PADDING) + width / 2;
-	  y = -cplx_Im (points[i]) * (0.5 * height - PADDING) + height / 2;
-	  cairo_arc (cr, x, y, 1.3, 0, 6.29);
-	  cairo_fill (cr);
-	}
+        {
+          x = cplx_Re (points[i]) * (0.5 * width - PADDING) + width / 2;
+          y = -cplx_Im (points[i]) * (0.5 * height - PADDING) + height / 2;
+          cairo_arc (cr, x, y, 1.3, 0, 6.29);
+          cairo_fill (cr);
+        }
 #undef PADDING
     }
 }
@@ -77,8 +103,8 @@ update_drawing_area (void * user_data)
 void
 on_polynomial_solved (mps_context * s, GtkButton * button)
 {
-  points = cplx_valloc (mps_context_get_degree (s));
-  mps_context_get_roots_d (s, points, NULL);
+  points = NULL;
+  mps_context_get_roots_d (s, &points, NULL);
   degree = mps_context_get_degree (s);
 
   /* Call the update function from the right thread! */
@@ -111,7 +137,7 @@ on_solve_button_clicked (GtkButton * button, GtkSpinButton * spin_button)
   mps_monomial_poly_set_coefficient_d (s, p, degree, 1, 0);
 
   /* Asking MPSolve to solve it asynchronously */
-  mps_context_set_input_poly (s, p);
+  mps_context_set_input_poly (s, MPS_POLYNOMIAL (p));
   mps_mpsolve_async (s, (mps_callback) on_polynomial_solved, button);
 }
 
@@ -132,13 +158,22 @@ main (int argc, char *argv[])
   GtkWidget * spin_button = gtk_spin_button_new_with_range (1.0, 10000.0, 1.0);
   GtkWidget * degree_label = gtk_label_new ("Degree:");
   GtkWidget * solve_button = gtk_button_new_with_label ("Solve");
+
+#if GTK_MAJOR_VERSION < 3
+  GtkWidget * degree_box = gtk_hbox_new (FALSE, 0);
+#else
   GtkWidget * degree_box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+#endif
 
   gtk_box_pack_start (GTK_BOX (degree_box), GTK_WIDGET (degree_label), false, true, 6);
   gtk_box_pack_start (GTK_BOX (degree_box), GTK_WIDGET (spin_button), true, true, 6);
   gtk_box_pack_start (GTK_BOX (degree_box), solve_button, false, true, 6);
 
+#if GTK_MAJOR_VERSION < 3
+  GtkWidget * main_box = gtk_vbox_new (FALSE, 6);
+#else
   GtkWidget * main_box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 6);
+#endif
   gtk_box_pack_start (GTK_BOX (main_box), GTK_WIDGET (degree_box), false, true, 6);
   gtk_box_pack_start (GTK_BOX (main_box), GTK_WIDGET (drawing_area), true, true, 0);
 
@@ -151,7 +186,12 @@ main (int argc, char *argv[])
   /* Connecting standard callbacks and the one to handle polynomial solving */
   g_signal_connect (window, "destroy", gtk_main_quit, NULL);
   g_signal_connect (solve_button, "clicked", G_CALLBACK (on_solve_button_clicked), spin_button);
+
+#if GTK_MAJOR_VERSION < 3
+  g_signal_connect (drawing_area, "expose-event", G_CALLBACK (on_expose_event), NULL);
+#else
   g_signal_connect (drawing_area, "draw", G_CALLBACK (on_drawing_area_draw), NULL);
+#endif
 
   gtk_main ();
 

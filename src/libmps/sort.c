@@ -1,7 +1,7 @@
 /*
  * This file is part of MPSolve 3.0
  *
- * Copyright (C) 2001-2012, Dipartimento di Matematica "L. Tonelli", Pisa.
+ * Copyright (C) 2001-2013, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
  * Authors: 
@@ -41,8 +41,8 @@ mps_fsort (mps_context * s)
   for (i = 0; i < s->n; i++)
     {
       cplx_set_d (real_parts[i],
-		  cplx_Re (s->root[i]->fvalue),
-		  i);
+                  cplx_Re (s->root[i]->fvalue),
+                  i);
     }
 
   qsort (real_parts, s->n, sizeof (cplx_t), mps_fcmp);

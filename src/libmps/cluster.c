@@ -1,7 +1,7 @@
 /*
  * This file is part of MPSolve 3.0
  *
- * Copyright (C) 2001-2012, Dipartimento di Matematica "L. Tonelli", Pisa.
+ * Copyright (C) 2001-2013, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
  * Authors: 
@@ -17,6 +17,7 @@
 #include <mps/gmptools.h>
 #include <mps/mps.h>
 #include <mps/cluster.h>
+#include <math.h>
 
 /**
  * @brief Get an empty mps_cluster, with no roots.
@@ -84,8 +85,8 @@ mps_cluster_free (mps_context * s, mps_cluster * cluster)
  */
 mps_root *
 mps_cluster_insert_root (mps_context * s, 
-			 mps_cluster  * cluster, 
-			 long int root_index)
+                         mps_cluster  * cluster, 
+                         long int root_index)
 {
   mps_root * root = mps_new (mps_root);
 
@@ -297,9 +298,9 @@ mps_cluster_reset (mps_context * s)
 
   for (i = 0; i < s->n; i++) 
     { 
-      s->root_status[i] = MPS_ROOT_STATUS_CLUSTERED;
-      s->root_attrs[i] = MPS_ROOT_ATTRS_NONE;
-      s->root_inclusion[i] = MPS_ROOT_INCLUSION_UNKNOWN;
+      s->root[i]->status = MPS_ROOT_STATUS_CLUSTERED;
+      s->root[i]->attrs = MPS_ROOT_ATTRS_NONE;
+      s->root[i]->inclusion = MPS_ROOT_INCLUSION_UNKNOWN;
     }
 
   if (s->clusterization != NULL)
@@ -359,10 +360,10 @@ mps_fcluster (mps_context * s, double * frad, int nf)
       int i;
       MPS_DEBUG (s, "Debugging the radius and approximations obtained for the roots before cluster analysis");
       for (i = 0; i < s->n; i++)
-	{
-	  MPS_DEBUG_CPLX (s, s->root[i]->fvalue, "Root %d", i);
-	  MPS_DEBUG (s, "radius for root %4d: %e", i, frad[i]);
-	}
+        {
+          MPS_DEBUG_CPLX (s, s->root[i]->fvalue, "Root %d", i);
+          MPS_DEBUG (s, "radius for root %4d: %e", i, frad[i]);
+        }
 
       MPS_DEBUG (s, "Debugging cluster structure before cluster analysis");
       mps_debug_cluster_structure (s);
@@ -378,14 +379,14 @@ mps_fcluster (mps_context * s, double * frad, int nf)
   for (i = 0; i < s->n; i++)
     {
       for (j = 0; j < s->n; j++)
-	{
-	  if ((i != j) && mps_ftouchnwt (s, newton_radii, nf, i, j))
-	    {
-	      newton_isolation = false;
-	      break;
-	    }
-	  /* s->root_status[i] = MPS_ROOT_STATUS_NEWTON_ISOLATED; */
-	}
+        {
+          if ((i != j) && mps_ftouchnwt (s, newton_radii, nf, i, j))
+            {
+              newton_isolation = false;
+              break;
+            }
+          /* s->root_status[i] = MPS_ROOT_STATUS_NEWTON_ISOLATED; */
+        }
     }
 
   free (newton_radii);
@@ -398,12 +399,12 @@ mps_fcluster (mps_context * s, double * frad, int nf)
 
       /* Keep isolated cluster isolated, moving them in the new clusterization. */
       if (cluster->n == 1)
-	{
-	  mps_clusterization_insert_cluster (s, new_clusterization,
-					     mps_cluster_with_root (s, cluster->first->k));
-	  mps_clusterization_remove_cluster (s, s->clusterization, item);
-	  analyzed_roots++;
-	}
+        {
+          mps_clusterization_insert_cluster (s, new_clusterization,
+                                             mps_cluster_with_root (s, cluster->first->k));
+          mps_clusterization_remove_cluster (s, s->clusterization, item);
+          analyzed_roots++;
+        }
 
       item = next_item;
     }
@@ -413,81 +414,81 @@ mps_fcluster (mps_context * s, double * frad, int nf)
   if (!newton_isolation)
     {
       /* if (MPS_INPUT_CONFIG_IS_USER (s->input_config))  */
-      /* 	{  */
-      /* 	  mps_clusterization_free (s, new_clusterization);  */
-      /* 	  return; */
-      /* 	} */
+      /*        {  */
+      /*          mps_clusterization_free (s, new_clusterization);  */
+      /*          return; */
+      /*        } */
 
       item = s->clusterization->first;
       while (analyzed_roots < s->n)
-	{
-	  /* Create a new cluster to be inserted in the cluster analysis */
-	  mps_root * base_root;
-	  mps_cluster * cluster = item->cluster;
-	  mps_cluster * new_cluster = mps_cluster_empty (s);
+        {
+          /* Create a new cluster to be inserted in the cluster analysis */
+          mps_root * base_root;
+          mps_cluster * cluster = item->cluster;
+          mps_cluster * new_cluster = mps_cluster_empty (s);
 
-	  while (cluster->n == 0)
-	    {
-	      item = item->next;
-	      cluster = item->cluster;
-	    }
-	  
+          while (cluster->n == 0)
+            {
+              item = item->next;
+              cluster = item->cluster;
+            }
+          
       
-	  base_root = mps_cluster_insert_root (s, new_cluster, cluster->first->k);
-	  analyzed_roots++;
-	  mps_cluster_remove_root (s, cluster, cluster->first);
+          base_root = mps_cluster_insert_root (s, new_cluster, cluster->first->k);
+          analyzed_roots++;
+          mps_cluster_remove_root (s, cluster, cluster->first);
 
-	  /* Check if this root touches others root, and if new roots were added to the 
-	   * cluster repeat the checks. */
-	  while (base_root)
-	    {
-	      /* mps_cluster_item * c_item; */
-	      mps_root * iter_root;
+          /* Check if this root touches others root, and if new roots were added to the 
+           * cluster repeat the checks. */
+          while (base_root)
+            {
+              /* mps_cluster_item * c_item; */
+              mps_root * iter_root;
 
-	      /* for (c_item = s->clusterization->first; c_item != NULL; c_item = c_item->next) */
-		{
-		  /* mps_cluster * iter_cluster = c_item->cluster; */
-		  mps_cluster * iter_cluster = cluster;
+              /* for (c_item = s->clusterization->first; c_item != NULL; c_item = c_item->next) */
+                {
+                  /* mps_cluster * iter_cluster = c_item->cluster; */
+                  mps_cluster * iter_cluster = cluster;
 
-		  iter_root = iter_cluster->first;
-		  while (iter_root)
-		    {
-		      if (mps_ftouchnwt (s, frad, nf, base_root->k, iter_root->k))
-			{
-			  mps_root * next_root = iter_root->next;
-			  mps_cluster_insert_root (s, new_cluster, iter_root->k);
-			  mps_cluster_remove_root (s, iter_cluster, iter_root);
-			  analyzed_roots++;
-			  iter_root = next_root;
-			}
-		      else
-			iter_root = iter_root->next;
-		    }
-		}
+                  iter_root = iter_cluster->first;
+                  while (iter_root)
+                    {
+                      if (mps_ftouchnwt (s, frad, nf, base_root->k, iter_root->k))
+                        {
+                          mps_root * next_root = iter_root->next;
+                          mps_cluster_insert_root (s, new_cluster, iter_root->k);
+                          mps_cluster_remove_root (s, iter_cluster, iter_root);
+                          analyzed_roots++;
+                          iter_root = next_root;
+                        }
+                      else
+                        iter_root = iter_root->next;
+                    }
+                }
 
-	      base_root = base_root->prev;
-	    }
+              base_root = base_root->prev;
+            }
       
-	  /* Now insert the cluster in the new clusterization */
-	  mps_clusterization_insert_cluster (s, new_clusterization, new_cluster);
+          /* Now insert the cluster in the new clusterization */
+          mps_clusterization_insert_cluster (s, new_clusterization, new_cluster);
 
-	  /* Check if the new cluster is isolated and, in that case, set the gerschgorin
-	   * radius as inclusion radius if it's more conveniente than the old one.
-	   * In general the Gerschgorin radius cannot be used as inclusion radius, because
-	   * it may touch another radius and so it may be empty. */
-	    if (new_cluster->n == 1)  
-	      {  
-	         int k = new_cluster->first->k;   
-	         double new_rad;   
+          /* Check if the new cluster is isolated and, in that case, set the gerschgorin
+           * radius as inclusion radius if it's more conveniente than the old one.
+           * In general the Gerschgorin radius cannot be used as inclusion radius, because
+           * it may touch another radius and so it may be empty. */
+            if (new_cluster->n == 1)  
+              {  
+                 int k = new_cluster->first->k;   
+                 double new_rad;   
 
-	         new_rad = cplx_mod (s->root[k]->fvalue) * 4.0f * DBL_EPSILON + frad[k];    
+                 new_rad = cplx_mod (s->root[k]->fvalue) * 4.0f * DBL_EPSILON + frad[k];    
 
-	         /* Check if the computed radius is more convenient than the old one.  */  
-	         /* 	 If that's the case, apply it as inclusion radius   */  
-	         if (new_rad < s->root[k]->frad)      
-		   s->root[k]->frad = new_rad;      
-	      }  
-	}
+                 /* Check if the computed radius is more convenient than the old one.  */  
+                 /*      If that's the case, apply it as inclusion radius   */  
+                 if (new_rad < s->root[k]->frad)      
+                   s->root[k]->frad = new_rad;      
+              }  
+        }
 
     }
 
@@ -497,13 +498,13 @@ mps_fcluster (mps_context * s, double * frad, int nf)
       new_clusterization = mps_clusterization_empty (s);
 
       if (s->debug_level & MPS_DEBUG_CLUSTER)
-	MPS_DEBUG (s, "Reached isolation using Newton radii, so skipping every other check with Gerschgorin");
+        MPS_DEBUG (s, "Reached isolation using Newton radii, so skipping every other check with Gerschgorin");
 
       for (i = 0; i < s->n; i++)
-	{
-	  mps_clusterization_insert_cluster (s, new_clusterization, 
-					     mps_cluster_with_root (s, i));	  
-	}
+        {
+          mps_clusterization_insert_cluster (s, new_clusterization, 
+                                             mps_cluster_with_root (s, i));       
+        }
     }
 
   /* Set the new clusterizaition in the mps_context */
@@ -545,10 +546,10 @@ mps_dcluster (mps_context * s, rdpe_t * drad, int nf)
       int i;
       MPS_DEBUG (s, "Debugging the radius and approximations obtained for the roots before cluster analysis");
       for (i = 0; i < s->n; i++)
-	{
-	  MPS_DEBUG_CDPE (s, s->root[i]->dvalue, "Root %d", i);
-	  MPS_DEBUG_RDPE (s, drad[i], "radius for root %4d", i);
-	}
+        {
+          MPS_DEBUG_CDPE (s, s->root[i]->dvalue, "Root %d", i);
+          MPS_DEBUG_RDPE (s, drad[i], "radius for root %4d", i);
+        }
 
       MPS_DEBUG (s, "Debugging cluster structure before cluster analysis");
       mps_debug_cluster_structure (s);
@@ -567,13 +568,13 @@ mps_dcluster (mps_context * s, rdpe_t * drad, int nf)
   for (i = 0; i < s->n; i++)
     {
       for (j = 0; j < s->n; j++)
-	{
-	  if ((i != j) && mps_dtouchnwt (s, newton_radii, nf, i, j))
-	    {
-	      newton_isolation = false;
-	      break;
-	    }
-	}
+        {
+          if ((i != j) && mps_dtouchnwt (s, newton_radii, nf, i, j))
+            {
+              newton_isolation = false;
+              break;
+            }
+        }
     }
 
   rdpe_vfree (newton_radii);
@@ -581,102 +582,102 @@ mps_dcluster (mps_context * s, rdpe_t * drad, int nf)
   /* If newton isolation has not been reached check with Gerschgorin */
     {
       /* if (MPS_INPUT_CONFIG_IS_USER (s->input_config))  */
-      /* 	{  */
-      /* 	  mps_clusterization_free (s, new_clusterization);  */
-      /* 	  return;  */
-      /* 	} */
+      /*        {  */
+      /*          mps_clusterization_free (s, new_clusterization);  */
+      /*          return;  */
+      /*        } */
 
       item = s->clusterization->first;
       while (item)
-	{
-	  mps_cluster * cluster = item->cluster;
-	  mps_cluster_item * next_item = item->next;
+        {
+          mps_cluster * cluster = item->cluster;
+          mps_cluster_item * next_item = item->next;
 
-	  /* Keep isolated cluster isolated, moving them in the new clusterization. */
-	  if (cluster->n == 1)
-	    {
-	      mps_clusterization_insert_cluster (s, new_clusterization,
-						 mps_cluster_with_root (s, cluster->first->k));
-	      mps_clusterization_remove_cluster (s, s->clusterization, item);
-	      analyzed_roots++;
-	    }
+          /* Keep isolated cluster isolated, moving them in the new clusterization. */
+          if (cluster->n == 1)
+            {
+              mps_clusterization_insert_cluster (s, new_clusterization,
+                                                 mps_cluster_with_root (s, cluster->first->k));
+              mps_clusterization_remove_cluster (s, s->clusterization, item);
+              analyzed_roots++;
+            }
 
-	  item = next_item;
-	}
+          item = next_item;
+        }
 
       /* Now do cluster analysis with the rest of the clusters. */
       item = s->clusterization->first;
       while (analyzed_roots < s->n)
-	{
-	  /* Create a new cluster to be inserted in the cluster analysis */
-	  mps_root * base_root;
-	  mps_cluster * cluster = item->cluster;
-	  mps_cluster * new_cluster = mps_cluster_empty (s);
+        {
+          /* Create a new cluster to be inserted in the cluster analysis */
+          mps_root * base_root;
+          mps_cluster * cluster = item->cluster;
+          mps_cluster * new_cluster = mps_cluster_empty (s);
 
-	  while (cluster->n == 0)
-	    {
-	      item = item->next;
-	      cluster = item->cluster;
-	    }
-	  
-	  base_root = mps_cluster_insert_root (s, new_cluster, cluster->first->k);
-	  analyzed_roots++;
-	  mps_cluster_remove_root (s, cluster, cluster->first);
+          while (cluster->n == 0)
+            {
+              item = item->next;
+              cluster = item->cluster;
+            }
+          
+          base_root = mps_cluster_insert_root (s, new_cluster, cluster->first->k);
+          analyzed_roots++;
+          mps_cluster_remove_root (s, cluster, cluster->first);
 
-	  /* Check if this root touches others root, and if new roots were added to the 
-	   * cluster repeat the checks. */
-	  while (base_root)
-	    {
-	      /* mps_cluster_item * c_item; */
-	      mps_root * iter_root;
+          /* Check if this root touches others root, and if new roots were added to the 
+           * cluster repeat the checks. */
+          while (base_root)
+            {
+              /* mps_cluster_item * c_item; */
+              mps_root * iter_root;
 
-	      /* for (c_item = s->clusterization->first; c_item != NULL; c_item = c_item->next) */
-		{
-		  /* mps_cluster * iter_cluster = c_item->cluster; */
-		  mps_cluster * iter_cluster = cluster;
+              /* for (c_item = s->clusterization->first; c_item != NULL; c_item = c_item->next) */
+                {
+                  /* mps_cluster * iter_cluster = c_item->cluster; */
+                  mps_cluster * iter_cluster = cluster;
 
-		  iter_root = iter_cluster->first;
-		  while (iter_root)
-		    {
-		      if (mps_dtouchnwt (s, drad, nf, base_root->k, iter_root->k))
-			{
-			  mps_root * next_root = iter_root->next;
-			  mps_cluster_insert_root (s, new_cluster, iter_root->k);
-			  mps_cluster_remove_root (s, iter_cluster, iter_root);
-			  analyzed_roots++;
-			  iter_root = next_root;
-			}
-		      else
-			iter_root = iter_root->next;
-		    }
-		}
+                  iter_root = iter_cluster->first;
+                  while (iter_root)
+                    {
+                      if (mps_dtouchnwt (s, drad, nf, base_root->k, iter_root->k))
+                        {
+                          mps_root * next_root = iter_root->next;
+                          mps_cluster_insert_root (s, new_cluster, iter_root->k);
+                          mps_cluster_remove_root (s, iter_cluster, iter_root);
+                          analyzed_roots++;
+                          iter_root = next_root;
+                        }
+                      else
+                        iter_root = iter_root->next;
+                    }
+                }
 
-	      base_root = base_root->prev;
-	    }
+              base_root = base_root->prev;
+            }
       
-	  /* Now insert the cluster in the new clusterization */
-	  mps_clusterization_insert_cluster (s, new_clusterization, new_cluster);
+          /* Now insert the cluster in the new clusterization */
+          mps_clusterization_insert_cluster (s, new_clusterization, new_cluster);
 
-	  /* Check if the new cluster is isolated and, in that case, set the gerschgorin
-	   * radius as inclusion radius if it's more conveniente than the old one.
-	   * In general the Gerschgorin radius cannot be used as inclusion radius, because
-	   * it may touch another radius and so it may be empty. */
-	    if (new_cluster->n == 1)  
-	      {  
-	        int k = new_cluster->first->k;  
-	        rdpe_t new_rad;  
-	  
-	        cdpe_mod (new_rad, s->root[k]->dvalue);  
-	        rdpe_mul_eq_d (new_rad, 4 * DBL_EPSILON);  
-	        rdpe_add_eq (new_rad, drad[k]);  
+          /* Check if the new cluster is isolated and, in that case, set the gerschgorin
+           * radius as inclusion radius if it's more conveniente than the old one.
+           * In general the Gerschgorin radius cannot be used as inclusion radius, because
+           * it may touch another radius and so it may be empty. */
+            if (new_cluster->n == 1)  
+              {  
+                int k = new_cluster->first->k;  
+                rdpe_t new_rad;  
+          
+                cdpe_mod (new_rad, s->root[k]->dvalue);  
+                rdpe_mul_eq_d (new_rad, 4 * DBL_EPSILON);  
+                rdpe_add_eq (new_rad, drad[k]);  
 
 
-	        /* Check if the computed radius is more convenient than the old one.  
-	    	 If that's the case, apply it as inclusion radius */  
-	        if (rdpe_lt (new_rad, s->root[k]->drad))    
-	    	rdpe_set (s->root[k]->drad, new_rad);    
-	      }  
-	}
+                /* Check if the computed radius is more convenient than the old one.  
+                 If that's the case, apply it as inclusion radius */  
+                if (rdpe_lt (new_rad, s->root[k]->drad))    
+                rdpe_set (s->root[k]->drad, new_rad);    
+              }  
+        }
     }
 
 
@@ -686,13 +687,13 @@ mps_dcluster (mps_context * s, rdpe_t * drad, int nf)
       new_clusterization = mps_clusterization_empty (s);
 
       if (s->debug_level & MPS_DEBUG_CLUSTER)
-	MPS_DEBUG (s, "Reached isolation using Newton radii, so skipping every other check with Gerschgorin");
+        MPS_DEBUG (s, "Reached isolation using Newton radii, so skipping every other check with Gerschgorin");
 
       for (i = 0; i < s->n; i++)
-	{
-	  mps_clusterization_insert_cluster (s, new_clusterization, 
-					     mps_cluster_with_root (s, i));
-	}
+        {
+          mps_clusterization_insert_cluster (s, new_clusterization, 
+                                             mps_cluster_with_root (s, i));
+        }
     }
 
   /* Set the new clusterizaition in the mps_context */
@@ -725,18 +726,18 @@ mps_debug_cluster_structure (mps_context * s)
       /* Detect that there are isolated roots, so they will be listed
        * after. */
       if (cluster->n == 1)
-	{
-	  isolated_roots = true;
-	  continue;
-	}
+        {
+          isolated_roots = true;
+          continue;
+        }
 
       __MPS_DEBUG (s, "Found cluster of %ld roots: ", 
-		   cluster->n); 
+                   cluster->n); 
 
       for (root = cluster->first; root != NULL; root = root->next)
-	{
-	  fprintf (s->logstr, "%ld ", root->k);
-	}
+        {
+          fprintf (s->logstr, "%ld ", root->k);
+        }
       fprintf (s->logstr, "\n");
     }
 
@@ -744,11 +745,11 @@ mps_debug_cluster_structure (mps_context * s)
     {
       __MPS_DEBUG (s, "Isolated roots: ");
       for (cluster_item = s->clusterization->first; cluster_item != NULL; cluster_item = cluster_item->next)
-	{
-	  cluster = cluster_item->cluster;
-	  if (cluster->n == 1)
-	    fprintf (s->logstr, "%ld ", cluster->first->k);
-	}
+        {
+          cluster = cluster_item->cluster;
+          if (cluster->n == 1)
+            fprintf (s->logstr, "%ld ", cluster->first->k);
+        }
       fprintf (s->logstr, "\n");
     }
 }
@@ -766,6 +767,8 @@ mps_debug_cluster_structure (mps_context * s)
 void
 mps_mcluster (mps_context * s, rdpe_t * drad, int nf)
 {
+  MPS_DEBUG_THIS_CALL;
+
   s->operation = MPS_OPERATION_CLUSTER_ANALYSIS;
 
   /* We need to scan every cluster and make it in pieces, if possible */
@@ -783,10 +786,10 @@ mps_mcluster (mps_context * s, rdpe_t * drad, int nf)
       int i;
       MPS_DEBUG (s, "Debugging the radius and approximations obtained for the roots before cluster analysis");
       for (i = 0; i < s->n; i++)
-	{
-	  MPS_DEBUG_MPC (s, mpc_get_prec (s->root[i]->mvalue), s->root[i]->mvalue, "Root %d", i);
-	  MPS_DEBUG_RDPE (s, drad[i], "radius for root %4d", i);
-	}
+        {
+          MPS_DEBUG_MPC (s, mpc_get_prec (s->root[i]->mvalue), s->root[i]->mvalue, "Root %d", i);
+          MPS_DEBUG_RDPE (s, drad[i], "radius for root %4d", i);
+        }
 
       MPS_DEBUG (s, "Debugging cluster structure before cluster analysis");
       mps_debug_cluster_structure (s);
@@ -805,17 +808,17 @@ mps_mcluster (mps_context * s, rdpe_t * drad, int nf)
   for (i = 0; i < s->n; i++)
     {
       for (j = 0; j < s->n; j++)
-	{
-	  if ((i != j) && mps_mtouchnwt (s, newton_radii, nf, i, j))
-	    {
-	      if (s->debug_level & MPS_DEBUG_CLUSTER)
-		MPS_DEBUG (s, "Failing newton isolation on root %d and %d", i, j);
+        {
+          if ((i != j) && mps_mtouchnwt (s, newton_radii, nf, i, j))
+            {
+              if (s->debug_level & MPS_DEBUG_CLUSTER)
+                MPS_DEBUG (s, "Failing newton isolation on root %d and %d", i, j);
 
-	      newton_isolation = false;
-	      break;
-	    }
-	  /* s->root_status[i] = MPS_ROOT_STATUS_NEWTON_ISOLATED; */
-	}
+              newton_isolation = false;
+              break;
+            }
+          /* s->root_status[i] = MPS_ROOT_STATUS_NEWTON_ISOLATED; */
+        }
     }
 
   rdpe_vfree (newton_radii);
@@ -823,104 +826,104 @@ mps_mcluster (mps_context * s, rdpe_t * drad, int nf)
   /* If newton isolation is not reached with Newton use Gerschgorin */
     {
       /* if (MPS_INPUT_CONFIG_IS_USER (s->input_config))  */
-      /* 	{  */
-      /* 	  mps_clusterization_free (s, new_clusterization);  */
-      /* 	  return;  */
-      /* 	} */
+      /*        {  */
+      /*          mps_clusterization_free (s, new_clusterization);  */
+      /*          return;  */
+      /*        } */
       
       item = s->clusterization->first;
       while (item != NULL)
-	{
-	  mps_cluster * cluster = item->cluster;
-	  mps_cluster_item * next_item = item->next;
+        {
+          mps_cluster * cluster = item->cluster;
+          mps_cluster_item * next_item = item->next;
 
-	  /* Keep isolated cluster isolated, moving them in the new clusterization. */
-	  if (cluster->n == 1)
-	    {
-	      mps_clusterization_insert_cluster (s, new_clusterization,
-						 mps_cluster_with_root (s, cluster->first->k));
-	      mps_clusterization_remove_cluster (s, s->clusterization, item);
-	      analyzed_roots++;
-	    }
+          /* Keep isolated cluster isolated, moving them in the new clusterization. */
+          if (cluster->n == 1)
+            {
+              mps_clusterization_insert_cluster (s, new_clusterization,
+                                                 mps_cluster_with_root (s, cluster->first->k));
+              mps_clusterization_remove_cluster (s, s->clusterization, item);
+              analyzed_roots++;
+            }
 
-	  item = next_item;
-	}
+          item = next_item;
+        }
 
       /* Now do cluster analysis with the rest of the clusters. */
       item = s->clusterization->first;
       while (analyzed_roots < s->n)
-	{
-	  /* Create a new cluster to be inserted in the cluster analysis */
-	  mps_root * base_root;
-	  mps_cluster * cluster = item->cluster;
-	  mps_cluster * new_cluster = mps_cluster_empty (s);
+        {
+          /* Create a new cluster to be inserted in the cluster analysis */
+          mps_root * base_root;
+          mps_cluster * cluster = item->cluster;
+          mps_cluster * new_cluster = mps_cluster_empty (s);
 
-	  while (cluster->n == 0)
-	    {
-	      item = item->next;
-	      cluster = item->cluster;
-	    }
-	  
-	  base_root = mps_cluster_insert_root (s, new_cluster, cluster->first->k);
-	  analyzed_roots++;
-	  mps_cluster_remove_root (s, cluster, cluster->first);
+          while (cluster->n == 0)
+            {
+              item = item->next;
+              cluster = item->cluster;
+            }
+          
+          base_root = mps_cluster_insert_root (s, new_cluster, cluster->first->k);
+          analyzed_roots++;
+          mps_cluster_remove_root (s, cluster, cluster->first);
 
-	  /* Check if this root touches others root, and if new roots were added to the 
-	   * cluster repeat the checks. */
-	  while (base_root)
-	    {
-	      /* mps_cluster_item * c_item; */
-	      mps_root * iter_root;
+          /* Check if this root touches others root, and if new roots were added to the 
+           * cluster repeat the checks. */
+          while (base_root)
+            {
+              /* mps_cluster_item * c_item; */
+              mps_root * iter_root;
 
-	      /* for (c_item = s->clusterization->first; c_item != NULL; c_item = c_item->next) */
-	      { 
-		/* 	  mps_cluster * iter_cluster = c_item->cluster; */
-		mps_cluster * iter_cluster = iter_cluster = cluster;
+              /* for (c_item = s->clusterization->first; c_item != NULL; c_item = c_item->next) */
+              { 
+                /*        mps_cluster * iter_cluster = c_item->cluster; */
+                mps_cluster * iter_cluster = iter_cluster = cluster;
 
-		  iter_root = iter_cluster->first;
-		  while (iter_root)
-		    {
-		      if (mps_mtouchnwt (s, drad, nf, base_root->k, iter_root->k))
-			{
-			  mps_root * next_root = iter_root->next;
-			  mps_cluster_insert_root (s, new_cluster, iter_root->k);
-			  mps_cluster_remove_root (s, iter_cluster, iter_root);
-			  analyzed_roots++;
-			  iter_root = next_root;
-			}
-		      else
-			iter_root = iter_root->next;
-		    }
-		}
+                  iter_root = iter_cluster->first;
+                  while (iter_root)
+                    {
+                      if (mps_mtouchnwt (s, drad, nf, base_root->k, iter_root->k))
+                        {
+                          mps_root * next_root = iter_root->next;
+                          mps_cluster_insert_root (s, new_cluster, iter_root->k);
+                          mps_cluster_remove_root (s, iter_cluster, iter_root);
+                          analyzed_roots++;
+                          iter_root = next_root;
+                        }
+                      else
+                        iter_root = iter_root->next;
+                    }
+                }
 
-	      base_root = base_root->prev;
-	    }
+              base_root = base_root->prev;
+            }
       
-	  /* Now insert the cluster in the new clusterization */
-	  mps_clusterization_insert_cluster (s, new_clusterization, new_cluster);
+          /* Now insert the cluster in the new clusterization */
+          mps_clusterization_insert_cluster (s, new_clusterization, new_cluster);
 
-	  /* Check if the new cluster is isolated and, in that case, set the gerschgorin
-	   * radius as inclusion radius if it's more conveniente than the old one.
-	   * In general the Gerschgorin radius cannot be used as inclusion radius, because
-	   * it may touch another radius and so it may be empty. */
-	  if (new_cluster->n == 1)  
-	    {  
-	      int k = new_cluster->first->k;  
-	      cdpe_t c;  
-	      rdpe_t new_rad;  
-	      
-	      /* Check if the computed radius is more convenient than the old one.  
-	    	 If that's the case, apply it as inclusion radius */  
-	      mpc_get_cdpe (c, s->root[k]->mvalue);  
-	      cdpe_mod (new_rad, c);  
-	      rdpe_mul_eq (new_rad, s->mp_epsilon);  
-	      rdpe_mul_eq_d (new_rad, 4.0f);  
-	      rdpe_add_eq (new_rad, drad[k]);  
-	      
-	      if (rdpe_lt (new_rad, s->root[k]->drad))      
-	       	rdpe_set (s->root[k]->drad, new_rad);      
-	    } 
-	}
+          /* Check if the new cluster is isolated and, in that case, set the gerschgorin
+           * radius as inclusion radius if it's more conveniente than the old one.
+           * In general the Gerschgorin radius cannot be used as inclusion radius, because
+           * it may touch another radius and so it may be empty. */
+          if (new_cluster->n == 1)  
+            {  
+              int k = new_cluster->first->k;  
+              cdpe_t c;  
+              rdpe_t new_rad;  
+              
+              /* Check if the computed radius is more convenient than the old one.  
+                 If that's the case, apply it as inclusion radius */  
+              mpc_get_cdpe (c, s->root[k]->mvalue);  
+              cdpe_mod (new_rad, c);  
+              rdpe_mul_eq (new_rad, s->mp_epsilon);  
+              rdpe_mul_eq_d (new_rad, 4.0f);  
+              rdpe_add_eq (new_rad, drad[k]);  
+              
+              if (rdpe_lt (new_rad, s->root[k]->drad))      
+                rdpe_set (s->root[k]->drad, new_rad);      
+            } 
+        }
     }
 
   if (newton_isolation)
@@ -929,13 +932,13 @@ mps_mcluster (mps_context * s, rdpe_t * drad, int nf)
       new_clusterization = mps_clusterization_empty (s);
 
       if (s->debug_level & MPS_DEBUG_CLUSTER)
-	MPS_DEBUG (s, "Reached isolation using Newton radii, so skipping every other check with Gerschgorin");
+        MPS_DEBUG (s, "Reached isolation using Newton radii, so skipping every other check with Gerschgorin");
 
       for (i = 0; i < s->n; i++)
-	{
-	  mps_clusterization_insert_cluster (s, new_clusterization, 
-					     mps_cluster_with_root (s, i));
-	}
+        {
+          mps_clusterization_insert_cluster (s, new_clusterization, 
+                                             mps_cluster_with_root (s, i));
+        }
     }
 
   /* Set the new clusterizaition in the mps_context */
@@ -959,13 +962,17 @@ mps_mcluster (mps_context * s, rdpe_t * drad, int nf)
 void 
 mps_clusterization_detach_clusters (mps_context * s, mps_clusterization * c)
 {
-  mps_cluster_item * item;
-  cdpe_t droot;
-  rdpe_t rtmp, precision;
-  int k;
+  MPS_DEBUG_THIS_CALL;
 
-  /* if (s->algorithm == MPS_ALGORITHM_SECULAR_GA)  */
-  /*   return;  */
+  /* Disable this function since it is not working as it should. */
+  /* The problem, now, is that more than a root could be removed from
+   * a cluster and will be then marked as isolated even if it is only isolated
+   * from the base cluster and from the other detached roots. */
+  return;
+
+  mps_cluster_item * item;
+  rdpe_t rtmp;
+  int k;
   
   for (item = c->first; item != NULL; item = item->next)
     {
@@ -973,44 +980,49 @@ mps_clusterization_detach_clusters (mps_context * s, mps_clusterization * c)
       
       /* Skip isolated clusters */
       if (item->cluster->n == 1)
-	continue;
+        continue;
 
       /* Scan the cluster for quasi approximated roots */
       root = item->cluster->first;
       while (root != NULL)
-	{
-	  k = root->k;
-	  mpc_get_cdpe (droot, s->root[k]->mvalue);
-	  cdpe_mod (rtmp, droot);
+        {
+          k = root->k;
+          mpc_rmod (rtmp, s->root[k]->mvalue);
 
-          rdpe_set_dl (precision, 1, (long int) ((1 - 0.5 * s->mpwp) * LOG10_2
-                                                 + rdpe_log10 (rtmp)));
-          if (rdpe_lt (s->root[k]->drad, precision))
+          /* We need a complex condition here since the heuristic used to determine if a root
+           * is a simple root in a cluster is based on Newton radii. 
+           * These have different behavious based on the algorithm that has been selected, so
+           * we introduce here two different guesses that work in each one. */
+          if (((s->algorithm == MPS_ALGORITHM_STANDARD_MPSOLVE) && 
+                ((rdpe_Esp (rtmp) - rdpe_Esp (s->root[k]->drad) > s->mpwp / sqrt(item->cluster->n) + 1) ||
+                (s->root[k]->status == MPS_ROOT_STATUS_APPROXIMATED_IN_CLUSTER))) ||
+              ((s->algorithm == MPS_ALGORITHM_SECULAR_GA) &&
+                (rdpe_Esp (rtmp) - rdpe_Esp (s->root[k]->drad) > s->mpwp - 4)))
             {
-	      if (s->debug_level & MPS_DEBUG_CLUSTER)
-		{
-		  MPS_DEBUG (s, "Temporary removing root %d from its cluster since it is quasi approximated", k);
-		}
+              if (s->debug_level & MPS_DEBUG_CLUSTER)
+                {
+                  MPS_DEBUG (s, "Temporary removing root %d from its cluster since it is quasi approximated", k);
+                }
 
-	      mps_cluster * detached_cluster = mps_cluster_with_root (s, k);
-	      mps_root * next_root = root->next;
-	      mps_cluster_remove_root (s, item->cluster, root);
-	      root = next_root;
+              mps_cluster * detached_cluster = mps_cluster_with_root (s, k);
+              mps_root * next_root = root->next;
+              mps_cluster_remove_root (s, item->cluster, root);
+              root = next_root;
 
-	      /* Insert the cluster in the clusterization */
-	      mps_cluster_item * new_item = mps_clusterization_insert_cluster (s, 
-									       s->clusterization, 
-									       detached_cluster);
-	      /* Set the new item as detached from the old one */
-	      new_item->detached = item;
-	    }
-	  else
-	    root = root->next;
+              /* Insert the cluster in the clusterization */
+              mps_cluster_item * new_item = mps_clusterization_insert_cluster (s, 
+                                                                               s->clusterization, 
+                                                                               detached_cluster);
+              /* Set the new item as detached from the old one */
+              new_item->detached = item;
+            }
+          else
+            root = root->next;
 
-	  /* If we have left only an isolated roots stop checking this cluster */
-	  if (item->cluster->n == 1)
-	    break;
-	}
+          /* If we have left only an isolated roots stop checking this cluster */
+          if (item->cluster->n == 1)
+            break;
+        }
     }
 }
 
@@ -1026,10 +1038,10 @@ mps_clusterization_reassemble_clusters (mps_context * s, mps_clusterization * c)
   while (cluster != NULL)
     {
       if (cluster->detached)
-	{
-	  mps_cluster_insert_root (s, cluster->detached->cluster, cluster->cluster->first->k);
-	  mps_clusterization_remove_cluster (s, s->clusterization, cluster);
-	}
+        {
+          mps_cluster_insert_root (s, cluster->detached->cluster, cluster->cluster->first->k);
+          mps_clusterization_remove_cluster (s, s->clusterization, cluster);
+        }
 
       cluster = cluster->next;
     }

@@ -6,7 +6,7 @@
  */
 
 #ifndef MPS_INTERFACE_H
-#define	MPS_INTERFACE_H
+#define MPS_INTERFACE_H
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -14,7 +14,7 @@
 #include <gmp.h>
 #include <mps/mps.h>
 
-#ifdef	__cplusplus
+#ifdef  __cplusplus
 extern "C"
 {
 #endif
@@ -66,7 +66,7 @@ extern "C"
    * -# Multiprecision GMP types
    *
    * @subsection FloatingPoint Floating point simple types
-   * There is clearly nothing to explain about floating point doubles, but MPSolve need to deal
+   * There is clearly nothing to explain about floating point doubles, but MPSolve needs to deal
    * with complex floating point and it uses a type called <code>cplx_t</code> that is nothing
    * more than a struct with two double field, <code>r</code> and <code>i</code> that represents
    * the real and imaginary part of the given complex number. 
@@ -185,7 +185,7 @@ extern "C"
    * <code>mps_context_set_input_poly()</code> to set it as the active polynomial to solve.
    *
    * -# <code>mps_secular_equation</code>: The same as the monomial poly, but for secular equations.
-   * See secular.h for some functions to allocate, free and manipulate them.
+   * See secular-equation.h for some functions to allocate, free and manipulate them.
    *
    * @subsection async Calling MPSolve asynchronously
    * 
@@ -219,7 +219,7 @@ extern "C"
 #define mps_new(type) ((type *) mps_malloc (sizeof (type)))
 #define mps_newv(type, n) ((type *) mps_malloc (sizeof (type) * (n)))
 
-#ifdef	__cplusplus
+#ifdef  __cplusplus
 }
 #endif
 

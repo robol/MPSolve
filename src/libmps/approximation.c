@@ -1,7 +1,7 @@
 /*
  * This file is part of MPSolve 3.0
  *
- * Copyright (C) 2001-2012, Dipartimento di Matematica "L. Tonelli", Pisa.
+ * Copyright (C) 2001-2013, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
  * Authors: 
@@ -20,6 +20,11 @@ mps_approximation_new (mps_context * s)
   mpc_init2 (appr->mvalue, s->mpwp);
   appr->again = true;
   appr->approximated = false;
+
+  appr->status = MPS_ROOT_STATUS_CLUSTERED;
+  appr->attrs  = MPS_ROOT_ATTRS_NONE;
+  appr->inclusion = MPS_ROOT_INCLUSION_UNKNOWN;
+
   return appr;
 }
 
@@ -41,5 +46,8 @@ mps_approximation_copy (mps_context * ctx, mps_approximation * original)
   cplx_set (new->fvalue, original->fvalue);
   new->frad = original->frad;
   new->wp = original->wp;
+  new->status = original->status;
+  new->attrs = original->attrs;
+  new->inclusion = original->inclusion;
   return new;
 }

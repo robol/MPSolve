@@ -16,8 +16,8 @@
 #include <math.h>
 
 #define MPS_2SQRT2 2.82842712474619009760
-#define KAPPA (log2(sec->n) + 7 * 1.4151135 + 1)
-#define KAPPA_LINEAR (sec->n + 7 * 1.4142135623)
+#define KAPPA (MPS_POLYNOMIAL (sec)->degree * log2(MPS_POLYNOMIAL (sec)->degree) + 7 * 1.4151135 + 1)
+#define KAPPA_LINEAR (MPS_POLYNOMIAL (sec)->degree + 7 * 1.4142135623)
 #define MPS_SQRT2 1.4142135623
 
 /* We need some special codes to identify the meaning of the exit
@@ -116,29 +116,18 @@ mps_secular_fparallel_sum (mps_context * s, mps_approximation * root, int n, cpl
 }
 
 void
-mps_secular_fnewton (mps_context * s, mps_approximation * root, cplx_t corr,
-                     void * user_data,
-		     mps_boolean skip_radius_computation)
+mps_secular_fnewton (mps_context * s, mps_polynomial * p, mps_approximation * root, cplx_t corr)
 {
   int i;
   cplx_t ctmp, ctmp2, pol, fp, sumb;
   double apol, acorr;
   double asum = 0.0, asum_on_apol, ax = cplx_mod (root->fvalue);
-  mps_secular_iteration_data * data = user_data;
-  mps_secular_equation *sec = (mps_secular_equation *) s->secular_equation;
+  mps_secular_equation *sec = MPS_SECULAR_EQUATION (p);
 
   cplx_t *afpc, *bfpc;
 
-  if (data)
-    {
-      afpc = data->local_afpc;
-      bfpc = data->local_bfpc;
-    }
-  else
-    {
-      afpc = sec->afpc;
-      bfpc = sec->bfpc;
-    }
+  afpc = sec->afpc;
+  bfpc = sec->bfpc;
 
   cplx_t x;
   cplx_set (x, root->fvalue);
@@ -151,54 +140,57 @@ mps_secular_fnewton (mps_context * s, mps_approximation * root, cplx_t corr,
   cplx_set (sumb, cplx_zero);
   cplx_set (corr, cplx_zero);
 
-  if ((i = mps_secular_fparallel_sum (s, root, sec->n, s->secular_equation->afpc, 
-				      s->secular_equation->bfpc, pol, 
+  if ((i = mps_secular_fparallel_sum (s, root, MPS_POLYNOMIAL (sec)->degree, sec->afpc, 
+				      sec->bfpc, pol, 
 				      fp, sumb, &asum)) >= 0)
     {
       int k;
       asum = 0.0;
 
-      for (k = 0; k < sec->n; k++)
-	{
-	  if (i != k)
-	    {
-	      cplx_sub (ctmp, bfpc[i], bfpc[k]);
-	      cplx_add (ctmp2, afpc[i], afpc[k]);
-	      cplx_div_eq (ctmp2, ctmp);
-	      cplx_add_eq (corr, ctmp2);
+      cplx_set (corr, cplx_zero);
 
-	      asum += fabs (cplx_Re (ctmp2)) + fabs (cplx_Im (ctmp2));
-	    }
-	}
+      for (k = 0; k < MPS_POLYNOMIAL (sec)->degree; k++)
+  	    {
+  	       if (i != k)
+  	        {
+  	          cplx_sub (ctmp, bfpc[i], bfpc[k]);
+  	          cplx_add (ctmp2, afpc[i], afpc[k]);
+  	          cplx_inv_eq (ctmp);
+              cplx_mul_eq (ctmp2, ctmp);
+  	          cplx_add_eq (corr, ctmp2);
 
-  if (i == MPS_PARALLEL_SUM_FAILED)
-    {
-      s->root_status[data->k] = MPS_ROOT_STATUS_NOT_FLOAT;
-      root->again = false;
-      return;
-    }
+              asum += fabs (cplx_Re (ctmp2)) + fabs (cplx_Im (ctmp2));
+           }
+  	    }
+
+      if (i == MPS_PARALLEL_SUM_FAILED)
+        {
+          root->status = MPS_ROOT_STATUS_NOT_FLOAT;
+          root->again = false;
+          return;
+        }
 
       cplx_sub_eq (corr, cplx_one);
 
       if (!cplx_eq_zero (corr))
-	{
-	  cplx_div (corr, afpc[i], corr);
-	      
-	  acorr = cplx_mod (corr);
-	  if (acorr < ax * DBL_EPSILON)
-	    {
-	      root->again = false;
-	    }
-	}
+      	{
+      	  cplx_div (corr, afpc[i], corr);
+      	      
+      	  acorr = cplx_mod (corr);
+      	  if (acorr < ax * DBL_EPSILON)
+      	    {
+      	      root->again = false;
+      	    }
+      	}
       else
-	root->again = false;
+	      root->again = false;
       
       return;
     }
 
   if (i == MPS_PARALLEL_SUM_FAILED)
     {
-      s->root_status[data->k] = MPS_ROOT_STATUS_NOT_FLOAT;
+      root->status = MPS_ROOT_STATUS_NOT_FLOAT;
       root->again = false;
       return;
     }
@@ -225,14 +217,14 @@ mps_secular_fnewton (mps_context * s, mps_approximation * root, cplx_t corr,
   /* If the approximation falls in the root neighbourhood then we can stop */
   if ((asum_on_apol + 1) * KAPPA * DBL_EPSILON > 1)
     {
-      if (data && s->debug_level & MPS_DEBUG_PACKETS)
-	MPS_DEBUG (s, "Setting again to false on root %ld for root neighbourhood", data->k);
+      if (s->debug_level & MPS_DEBUG_PACKETS)
+	      MPS_DEBUG (s, "Setting again to false on root for root neighbourhood");
       root->again = false;
     }
   else if (acorr < MPS_SQRT2 * ax * DBL_EPSILON)
     {
-      if (data && s->debug_level & MPS_DEBUG_PACKETS)
-	MPS_DEBUG (s, "Setting approximated to true on root %ld for small Newton correction", data->k);
+      if (s->debug_level & MPS_DEBUG_PACKETS)
+	      MPS_DEBUG (s, "Setting approximated to true on root for small Newton correction");
       root->again = false;  
       root->approximated = true;
     }
@@ -242,7 +234,7 @@ mps_secular_fnewton (mps_context * s, mps_approximation * root, cplx_t corr,
       double new_rad = acorr * s->n * (1 + KAPPA * DBL_EPSILON * asum_on_apol);
 
       if ((new_rad > 0) && (new_rad < root->frad))
-	root->frad = new_rad;
+	      root->frad = new_rad;
     }
 }
 
@@ -334,15 +326,12 @@ mps_secular_dparallel_sum (mps_context * s, mps_approximation * root, int n, cdp
 }
 
 void
-mps_secular_dnewton (mps_context * s, mps_approximation * root, cdpe_t corr,
-                     void * user_data,
-		     mps_boolean skip_radius_computation)
+mps_secular_dnewton (mps_context * s, mps_polynomial * p, mps_approximation * root, cdpe_t corr)
 {
   int i;
   cdpe_t ctmp, ctmp2, pol, fp, sumb, x;
   rdpe_t apol, asum, asum_on_apol, ax, rtmp, rtmp2, acorr;
-  mps_secular_iteration_data * data = user_data;
-  mps_secular_equation *sec = (mps_secular_equation *) s->secular_equation;
+  mps_secular_equation *sec = MPS_SECULAR_EQUATION (p);
 
   cdpe_set (x, root->dvalue);
   rdpe_set (asum, rdpe_zero);
@@ -356,21 +345,24 @@ mps_secular_dnewton (mps_context * s, mps_approximation * root, cdpe_t corr,
   cdpe_set (sumb, cdpe_zero);
   cdpe_set (corr, cdpe_zero);
 
-  if ((i = mps_secular_dparallel_sum (s, root, sec->n, s->secular_equation->adpc, s->secular_equation->bdpc, 
+  if ((i = mps_secular_dparallel_sum (s, root, MPS_POLYNOMIAL (sec)->degree, sec->adpc, sec->bdpc, 
 				       pol, fp, sumb, asum)) != MPS_PARALLEL_SUM_SUCCESS)
     {
       int k;
 
-      for (k = 0; k < sec->n; k++)
-	{
-	  if (i != k)
-	    {
-	      cdpe_sub (ctmp, sec->bdpc[i], sec->bdpc[k]);
-	      cdpe_add (ctmp2, sec->adpc[i], sec->adpc[k]);
-	      cdpe_div_eq (ctmp2, ctmp);
-	      cdpe_add_eq (corr, ctmp2);
-	    }
-	}
+      cdpe_set (corr, cdpe_zero);
+
+      for (k = 0; k < MPS_POLYNOMIAL (sec)->degree; k++)
+      	{
+      	  if (i != k)
+      	    {
+      	      cdpe_sub (ctmp, sec->bdpc[i], sec->bdpc[k]);
+      	      cdpe_add (ctmp2, sec->adpc[i], sec->adpc[k]);
+              cdpe_inv_eq (ctmp);
+      	      cdpe_mul_eq (ctmp2, ctmp);
+      	      cdpe_add_eq (corr, ctmp2);
+      	    }
+      	}
 
       cdpe_sub_eq (corr, cdpe_one);
 
@@ -385,6 +377,8 @@ mps_secular_dnewton (mps_context * s, mps_approximation * root, cdpe_t corr,
 	      root->again = false;
 	    }
 	}
+      else
+	root->again = false;
 
       return;
     }
@@ -411,8 +405,8 @@ mps_secular_dnewton (mps_context * s, mps_approximation * root, cdpe_t corr,
   rdpe_mul_eq_d (rtmp, KAPPA * DBL_EPSILON);
   if (rdpe_gt (rtmp, rdpe_one))
     {
-      if (data && s->debug_level & MPS_DEBUG_PACKETS)
-	MPS_DEBUG (s, "Setting again to false on root %ld for root neighbourhood", data->k);
+      if (s->debug_level & MPS_DEBUG_PACKETS)
+	      MPS_DEBUG (s, "Setting again to false on root for root neighbourhood");
       root->again = false;
     }
   else 
@@ -421,8 +415,8 @@ mps_secular_dnewton (mps_context * s, mps_approximation * root, cdpe_t corr,
       rdpe_mul_d (rtmp2, ax, MPS_SQRT2 * DBL_EPSILON);
       if (rdpe_lt (acorr, rtmp2))
 	{
-	  if (data && s->debug_level & MPS_DEBUG_PACKETS)
-	    MPS_DEBUG (s, "Setting approximated to true on root %ld for small Newton correction", data->k);
+	  if (s->debug_level & MPS_DEBUG_PACKETS)
+	    MPS_DEBUG (s, "Setting approximated to true on root for small Newton correction");
 	  root->again = false;  
 	  root->approximated = true;
 	}
@@ -434,11 +428,11 @@ mps_secular_dnewton (mps_context * s, mps_approximation * root, cdpe_t corr,
       cdpe_mod (new_rad, corr);
       rdpe_mul_d (rtmp, asum_on_apol, KAPPA * DBL_EPSILON);
       rdpe_add_eq (rtmp, rdpe_one);
-      rdpe_mul_eq_d (rtmp, sec->n);
+      rdpe_mul_eq_d (rtmp, MPS_POLYNOMIAL (sec)->degree);
       rdpe_mul_eq (new_rad, rtmp);
 
       if (rdpe_lt (new_rad, root->drad))
-	rdpe_set (root->drad, new_rad);
+	      rdpe_set (root->drad, new_rad);
     }
 }
 
@@ -545,9 +539,7 @@ mps_secular_mparallel_sum (mps_context * s, mps_approximation * root, int n, mpc
 }
 
 void
-mps_secular_mnewton (mps_context * s, mps_approximation * root, mpc_t corr,
-		     void * user_data,
-		     mps_boolean skip_radius_computation)
+mps_secular_mnewton (mps_context * s, mps_polynomial * p, mps_approximation * root, mpc_t corr)
 {
   int i;
   mpc_t ctmp, ctmp2, pol, fp, sumb;
@@ -561,13 +553,12 @@ mps_secular_mnewton (mps_context * s, mps_approximation * root, mpc_t corr,
   mpc_t * ampc;
   mpc_t * bmpc;
 
-  mps_secular_equation * sec = s->secular_equation;
-  mps_secular_iteration_data * data = user_data;
+  mps_secular_equation * sec = MPS_SECULAR_EQUATION (p);
 
   long int wp = mpc_get_prec (corr);
 
-  ampc = data->local_ampc;
-  bmpc = data->local_bmpc;
+  ampc = sec->ampc;
+  bmpc = sec->bmpc;
 
   mpc_get_cdpe (cdtmp, root->mvalue);
   cdpe_mod (ax, cdtmp);
@@ -582,7 +573,7 @@ mps_secular_mnewton (mps_context * s, mps_approximation * root, mpc_t corr,
 
   rdpe_set (asum, rdpe_zero);
 
-  if ((i = mps_secular_mparallel_sum (s, root, sec->n, ampc, bmpc, pol, fp, sumb, 
+  if ((i = mps_secular_mparallel_sum (s, root, MPS_POLYNOMIAL (sec)->degree, ampc, bmpc, pol, fp, sumb, 
 				      asum, sec->ampc_mutex, sec->bmpc_mutex)) != MPS_PARALLEL_SUM_SUCCESS)
     {
       int k;
@@ -601,22 +592,22 @@ mps_secular_mnewton (mps_context * s, mps_approximation * root, mpc_t corr,
       mpc_set (bmpc_i, sec->bmpc[i]);
       pthread_mutex_unlock (&sec->bmpc_mutex[i]);
 
-      for (k = 0; k < sec->n; k++)
-	{
-	  if (i != k)
-	    {
-	      pthread_mutex_lock (&sec->bmpc_mutex[k]); 
-	      mpc_sub (ctmp, bmpc_i, sec->bmpc[k]);
-	      pthread_mutex_unlock (&sec->bmpc_mutex[k]); 
+      for (k = 0; k < MPS_POLYNOMIAL (sec)->degree; k++)
+	     {
+	       if (i != k)
+	          {
+      	      pthread_mutex_lock (&sec->bmpc_mutex[k]); 
+      	      mpc_sub (ctmp, bmpc_i, sec->bmpc[k]);
+      	      pthread_mutex_unlock (&sec->bmpc_mutex[k]); 
 
-	      pthread_mutex_lock (&sec->ampc_mutex[k]); 
-	      mpc_add (ctmp2, ampc_i, sec->ampc[k]);
-	      pthread_mutex_unlock (&sec->ampc_mutex[k]); 
+      	      pthread_mutex_lock (&sec->ampc_mutex[k]); 
+      	      mpc_add (ctmp2, ampc_i, sec->ampc[k]);
+      	      pthread_mutex_unlock (&sec->ampc_mutex[k]); 
 
-	      mpc_div_eq (ctmp2, ctmp);
-	      mpc_add_eq (corr, ctmp2);
-	    }
-	}
+      	      mpc_div_eq (ctmp2, ctmp);
+      	      mpc_add_eq (corr, ctmp2);
+	          }
+	      }
 
       mpc_set_ui (ctmp, 1U, 0U);
       mpc_sub_eq (corr, ctmp);
@@ -627,8 +618,11 @@ mps_secular_mnewton (mps_context * s, mps_approximation * root, mpc_t corr,
       rdpe_mul (rtmp, ax, s->mp_epsilon); 
       if (root->again && rdpe_lt (acorr, rtmp)) 
         {
-	  root->again = false;
-	}
+          MPS_DEBUG (s, "OK");
+          MPS_DEBUG_MPC (s, 15, root->mvalue, "ROOT");
+	        root->again = false;
+          root->approximated = true;
+	      }
 
       mpc_clear (ampc_i);
       mpc_clear (bmpc_i);
@@ -651,7 +645,7 @@ mps_secular_mnewton (mps_context * s, mps_approximation * root, mpc_t corr,
   else
     {
       if (s->debug_level & MPS_DEBUG_PACKETS)
-	MPS_DEBUG (s, "The derivative is null!");
+	      MPS_DEBUG (s, "The derivative is null!");
       mpc_set (corr, pol);
     }
 
@@ -666,12 +660,12 @@ mps_secular_mnewton (mps_context * s, mps_approximation * root, mpc_t corr,
   /* Check if more iteration on this root are needed or not */
   rdpe_add (rtmp, rdpe_one, asum_on_apol);
   rdpe_mul_eq (rtmp, s->mp_epsilon);
-  rdpe_mul_eq_d (rtmp, MPS_2SQRT2 * sec->n);
+  rdpe_mul_eq_d (rtmp, KAPPA);
   if (rdpe_gt (rtmp, rdpe_one))
     {
       root->again = false;
       if (s->debug_level & MPS_DEBUG_PACKETS)
-	MPS_DEBUG (s, "Stopping Aberth iterations due to root neighborhood");
+	      MPS_DEBUG (s, "Stopping Aberth iterations due to root neighborhood");
       goto mnewton_cleanup;
     }
   else 
@@ -679,21 +673,23 @@ mps_secular_mnewton (mps_context * s, mps_approximation * root, mpc_t corr,
       /* Check if the newton correction is small with respect to the
        * current precision. */
       rdpe_mul (rtmp, ax, s->mp_epsilon);
-      rdpe_mul_eq_d (rtmp, MPS_SQRT2);
+      rdpe_mul_eq_d (rtmp, MPS_SQRT2 * 4.0);
       if (rdpe_lt (acorr, rtmp))
-	{
-	  root->approximated = true;
-	  if (s->debug_level & MPS_DEBUG_PACKETS)
-	    MPS_DEBUG (s, "Stopping Aberth iterations due to small Newton correction");
-	  goto mnewton_cleanup;
-	}
+	     {
+	        root->approximated = true;
+          root->again = false;
+	        if (s->debug_level & MPS_DEBUG_PACKETS)
+	          MPS_DEBUG (s, "Stopping Aberth iterations due to small Newton correction");
+	        goto mnewton_cleanup;
+	     }
     }
 
 
   mpc_rmod (rtmp2, corr);
   if (!rdpe_eq_zero (rtmp2) && root->again)
     {
-      rdpe_mul_d (rtmp, asum_on_apol, DBL_EPSILON * KAPPA);
+      rdpe_mul_d (rtmp, asum_on_apol, KAPPA);
+      rdpe_mul_eq (rtmp, s->mp_epsilon);
       rdpe_add_eq (rtmp, rdpe_one);
       rdpe_mul_eq (rtmp2, rtmp);
 
@@ -702,7 +698,10 @@ mps_secular_mnewton (mps_context * s, mps_approximation * root, mpc_t corr,
       rdpe_add_eq (rtmp2, rtmp);
 
       if (rdpe_lt (rtmp2, root->drad))
+      {
 	rdpe_set (root->drad, rtmp2);
+        MPS_DEBUG_RDPE (s, root->drad, "drad");
+      }
     }
   
  mnewton_cleanup:

@@ -7,6 +7,7 @@ include_HEADERS = \
         ${top_srcdir}/include/mps/approximation.h \
         ${top_srcdir}/include/mps/tools.h \
         ${top_srcdir}/include/mps/interface.h \
+        ${top_srcdir}/include/mps/chebyshev.h \
 	${top_srcdir}/include/mps/input-buffer.h \
         ${top_srcdir}/include/mps/gmptools.h \
         ${top_srcdir}/include/mps/mpc.h \
@@ -18,10 +19,11 @@ include_HEADERS = \
         ${top_srcdir}/include/mps/link.h \
         ${top_srcdir}/include/mps/mps.h \
         ${top_srcdir}/include/mps/rursolve.h \
-        ${top_srcdir}/include/mps/secular.h \
+        ${top_srcdir}/include/mps/secular-equation.h \
         ${top_srcdir}/include/mps/threading.h \
 	${top_srcdir}/include/mps/context.h \
 	${top_srcdir}/include/mps/options.h \
+	${top_srcdir}/include/mps/polynomial.h \
 	$(NULL)
 
 AM_CPPFLAGS= \
@@ -31,13 +33,18 @@ AM_CPPFLAGS= \
 
 libmps_la_SOURCES = \
 	    aberth.c \
-            approximation.c \
+	    approximation.c \
+	    chebyshev.c \
+	    chebyshev-evaluation.c \
 	    cluster.c \
+	    cluster-analysis.c \
+	    context.c \
 	    convex.c \
 	    data.c \
 	    debug.c \
 	    defaults.c \
 	    general-radius.c \
+	    general-starting.c \
 	    getopts.c \
 	    gmptools.c \
 	    horner.c \
@@ -45,27 +52,26 @@ libmps_la_SOURCES = \
 	    inclusion.c \
 	    input-buffer.c \
 	    interface.c \
+	    jacobi-aberth.c \
 	    link.c \
 	    main.c \
 	    modify.c \
 	    monomial-poly.c \
-	    monomial-radius.c \
 	    monomial-threading.c \
 	    mpc.c \
 	    mt.c \
 	    newton.c \
+	    polynomial.c \
 	    secular-evaluation.c \
 	    secular-ga.c \
 	    secular-iteration.c \
 	    secular-newton.c \
-	    secular-radius.c \
 	    secular-regeneration.c \
 	    secular-starting.c \
-	    secular.c \
+	    secular-equation.c \
 	    solve.c \
 	    sort.c \
 	    starting.c \
-	    status.c \
 	    stio.c \
 	    test.c \
 	    threading.c \

@@ -1,7 +1,7 @@
 /*
  * This file is part of MPSolve 3.0
  *
- * Copyright (C) 2001-2012, Dipartimento di Matematica "L. Tonelli", Pisa.
+ * Copyright (C) 2001-2013, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
  * Authors: 
@@ -20,9 +20,10 @@
  * @param x The point in which the secular equation must be evaluated.
  * @param value The value of the secular equation in the pointer <code>x</code>.
  */
-void
-mps_secular_feval (mps_context * s, mps_secular_equation * sec, cplx_t x, cplx_t value)
+mps_boolean
+mps_secular_feval (mps_context * s, mps_polynomial * p, cplx_t x, cplx_t value)
 {
+  mps_secular_equation * sec = MPS_SECULAR_EQUATION (p);
   cplx_t ctmp;
   int i;
   
@@ -31,16 +32,20 @@ mps_secular_feval (mps_context * s, mps_secular_equation * sec, cplx_t x, cplx_t
   for (i = 0; i < s->n; i++)
     {
       cplx_sub (ctmp, x, sec->bfpc[i]);
+      if (cplx_eq_zero (ctmp))
+        return false;
       cplx_div (ctmp, sec->afpc[i], ctmp);
       cplx_add_eq (value, ctmp);
     }
 
   cplx_sub_eq (value, cplx_one);
+  return true;
 }
 
-void
-mps_secular_feval_derivative (mps_context * s, mps_secular_equation * sec, cplx_t x, cplx_t value)
+mps_boolean
+mps_secular_feval_derivative (mps_context * s, mps_polynomial * p, cplx_t x, cplx_t value)
 {
+  mps_secular_equation * sec = MPS_SECULAR_EQUATION (p);
   cplx_t ctmp;
   int i;
 
@@ -50,6 +55,10 @@ mps_secular_feval_derivative (mps_context * s, mps_secular_equation * sec, cplx_
     {
       /* Compute 1 / (x - b_i) */
       cplx_sub (ctmp, x, sec->bfpc[i]);
+
+      if (cplx_eq_zero (ctmp))
+        return false;
+
       cplx_inv_eq (ctmp);
       cplx_mul_eq (ctmp, ctmp);
 
@@ -59,6 +68,8 @@ mps_secular_feval_derivative (mps_context * s, mps_secular_equation * sec, cplx_
       /* Sum to the secular eqation */
       cplx_sub_eq (value, ctmp);
     }
+
+  return true;
 }
 
 /**
@@ -71,10 +82,11 @@ mps_secular_feval_derivative (mps_context * s, mps_secular_equation * sec, cplx_
  * @param value The value of the secular equation in the pointer <code>x</code>.
  * @param error The absolute error on the evaluation.
  */
-void
-mps_secular_feval_with_error (mps_context * s, mps_secular_equation * sec, cplx_t x, cplx_t value,
-			      double * error)
+mps_boolean
+mps_secular_feval_with_error (mps_context * s, mps_polynomial * p, cplx_t x, cplx_t value,
+                              double * error)
 {
+  mps_secular_equation * sec = MPS_SECULAR_EQUATION (p);
   cplx_t ctmp;
   int i;
   
@@ -84,6 +96,10 @@ mps_secular_feval_with_error (mps_context * s, mps_secular_equation * sec, cplx_
   for (i = 0; i < s->n; i++)
     {
       cplx_sub (ctmp, x, sec->bfpc[i]);
+
+      if (cplx_eq_zero (ctmp))
+        return false;
+
       cplx_div (ctmp, sec->afpc[i], ctmp);
       cplx_add_eq (value, ctmp);
       *error += cplx_mod (ctmp) * (i + 2);
@@ -93,6 +109,8 @@ mps_secular_feval_with_error (mps_context * s, mps_secular_equation * sec, cplx_
   *error += 1.0f;
 
   *error *= 4.0f * DBL_EPSILON;
+
+  return true;
 }
 
 /**
@@ -103,9 +121,10 @@ mps_secular_feval_with_error (mps_context * s, mps_secular_equation * sec, cplx_
  * @param x The point in which the secular equation must be evaluated.
  * @param value The value of the secular equation in the point <code>x</code>.
  */
-void
-mps_secular_deval (mps_context * s, mps_secular_equation * sec, cdpe_t x, cdpe_t value)
+mps_boolean
+mps_secular_deval (mps_context * s, mps_polynomial * p, cdpe_t x, cdpe_t value)
 {
+  mps_secular_equation *sec = MPS_SECULAR_EQUATION (p);
   cdpe_t ctmp;
   int i;
 
@@ -114,16 +133,23 @@ mps_secular_deval (mps_context * s, mps_secular_equation * sec, cdpe_t x, cdpe_t
   for (i = 0; i < s->n; i++)
     {
       cdpe_sub (ctmp, x, sec->bdpc[i]);
+
+      if (cdpe_eq_zero (ctmp))
+        return false;
+
       cdpe_div (ctmp, sec->adpc[i], ctmp);
       cdpe_add_eq (value, ctmp);
     }
 
   cdpe_sub_eq (value, cdpe_one);
+
+  return true;
 }
 
-void
-mps_secular_deval_derivative (mps_context * s, mps_secular_equation * sec, cdpe_t x, cdpe_t value)
+mps_boolean
+mps_secular_deval_derivative (mps_context * s, mps_polynomial * p, cdpe_t x, cdpe_t value)
 {
+  mps_secular_equation *sec= MPS_SECULAR_EQUATION (p);
   cdpe_t ctmp;
   int i;
 
@@ -133,6 +159,10 @@ mps_secular_deval_derivative (mps_context * s, mps_secular_equation * sec, cdpe_
     {
       /* Compute 1 / (x - b_i) */
       cdpe_sub (ctmp, x, sec->bdpc[i]);
+
+      if (cdpe_eq_zero (ctmp))
+        return false;
+
       cdpe_inv_eq (ctmp);
       cdpe_mul_eq (ctmp, ctmp);
 
@@ -142,6 +172,8 @@ mps_secular_deval_derivative (mps_context * s, mps_secular_equation * sec, cdpe_
       /* Sum to the secular eqation */
       cdpe_sub_eq (value, ctmp);
     }
+
+  return true;
 }
 
 
@@ -154,10 +186,11 @@ mps_secular_deval_derivative (mps_context * s, mps_secular_equation * sec, cdpe_
  * @param value The value of the secular equation in the point <code>x</code>.
  * @param error A bound to the module of the relative error occurred in the computation.
  */
-void
-mps_secular_deval_with_error (mps_context * s, mps_secular_equation * sec, 
-			      cdpe_t x, cdpe_t value, rdpe_t error)
+mps_boolean
+mps_secular_deval_with_error (mps_context * s, mps_polynomial * p,
+                              cdpe_t x, cdpe_t value, rdpe_t error)
 {
+  mps_secular_equation * sec = MPS_SECULAR_EQUATION (p);
   cdpe_t ctmp;
   rdpe_t rtmp;
   int i;
@@ -168,6 +201,8 @@ mps_secular_deval_with_error (mps_context * s, mps_secular_equation * sec,
   for (i = 0; i < s->n; i++)
     {
       cdpe_sub (ctmp, x, sec->bdpc[i]);
+      if (cdpe_eq_zero (ctmp))
+        return false;
       cdpe_div (ctmp, sec->adpc[i], ctmp);
       cdpe_mod (rtmp, ctmp);
       cdpe_add_eq (value, ctmp);
@@ -179,6 +214,8 @@ mps_secular_deval_with_error (mps_context * s, mps_secular_equation * sec,
   rdpe_add_eq (error, rdpe_one);
 
   rdpe_mul_eq_d (error, 4.0f * DBL_EPSILON);
+
+  return true;
 }
 
 
@@ -190,9 +227,11 @@ mps_secular_deval_with_error (mps_context * s, mps_secular_equation * sec,
  * @param x The point in which the sceular equation must be evaluated.
  * @param value The value of the secular equation in the point <code>x</code>.
  */
-void
-mps_secular_meval (mps_context * s, mps_secular_equation * sec, mpc_t x, mpc_t value)
+mps_boolean
+mps_secular_meval (mps_context * s, mps_polynomial * p, mpc_t x, mpc_t value)
 {
+  mps_secular_equation * sec = MPS_SECULAR_EQUATION (p);
+  mps_boolean success = true;
   mpc_t ctmp;
   unsigned int wp = mpc_get_prec (x);
   int i;
@@ -203,13 +242,21 @@ mps_secular_meval (mps_context * s, mps_secular_equation * sec, mpc_t x, mpc_t v
   for (i = 0; i < s->n; ++i)
     {
       mpc_sub (ctmp, x, sec->bmpc[i]);
+      if (mpc_eq_zero (ctmp))
+        {
+          success = false;
+          goto cleanup;
+        }
+
       mpc_div (ctmp, sec->ampc[i], ctmp);
       mpc_add_eq (value, ctmp);
     }
   
   mpc_sub_eq_ui (value, 1U, 0U);
-  
+
+ cleanup:
   mpc_clear (ctmp);
+  return success;
 }
 
 /**
@@ -222,8 +269,9 @@ mps_secular_meval (mps_context * s, mps_secular_equation * sec, mpc_t x, mpc_t v
  * @param error A bound to the absolute value of the error introduced in the computation.
  */
 mps_boolean
-mps_secular_meval_with_error (mps_context * s, mps_secular_equation * sec, mpc_t x, mpc_t value, rdpe_t error)
+mps_secular_meval_with_error (mps_context * s, mps_polynomial * p, mpc_t x, mpc_t value, rdpe_t error)
 {
+  mps_secular_equation * sec = MPS_SECULAR_EQUATION (p);
   mpc_t ctmp;
   rdpe_t rtmp, ax;
   cdpe_t cdtmp;
@@ -231,6 +279,9 @@ mps_secular_meval_with_error (mps_context * s, mps_secular_equation * sec, mpc_t
   int i;
 
   mps_boolean successful_evaluation = true;
+
+  if (mpc_get_prec (sec->ampc[0]) < wp)
+    mps_polynomial_raise_data (s, p, wp);
 
   mpc_init2  (ctmp, wp);
   mpc_set_ui (value, 0U, 0U);
@@ -246,10 +297,10 @@ mps_secular_meval_with_error (mps_context * s, mps_secular_equation * sec, mpc_t
       mpc_sub (ctmp, x, sec->bmpc[i]);
 
       if (mpc_eq_zero (ctmp))
-	{
-	  successful_evaluation = false;
-	  goto cleanup;
-	}
+        {
+          successful_evaluation = false;
+          goto cleanup;
+        }
 
       mpc_div (ctmp, sec->ampc[i], ctmp);
       mpc_add_eq (value, ctmp);

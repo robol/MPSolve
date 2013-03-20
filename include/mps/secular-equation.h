@@ -11,15 +11,18 @@
  */
 
 #ifndef SECULAR_H
-#define	 SECULAR_H
+#define  SECULAR_H
 
 #include <mps/mps.h>
 #include <float.h>
 
-#ifdef	__cplusplus
+#ifdef  __cplusplus
 extern "C"
 {
 #endif
+
+#define MPS_SECULAR_EQUATION(t) ((mps_secular_equation *) t)
+#define MPS_IS_SECULAR_EQUATION(t) (mps_polynomial_check_type (t, "mps_secular_equation"))
 
 #ifdef _MPS_PRIVATE
 
@@ -60,6 +63,8 @@ extern "C"
    */
   struct mps_secular_equation
   {
+    struct mps_polynomial __base_class__;
+
     struct mps_secular_equation_double_buffer db;
 
     /**
@@ -171,24 +176,6 @@ extern "C"
     mpq_t *initial_bmpqic;
 
     /**
-     * @brief Size of the vectors of the coefficients of the
-     * secular equation.
-     */
-    unsigned long int n;
-
-    /**
-     * @brief Selected starting case, can be 'd' for DPE
-     * or 'f' for floating point
-     */
-    mps_phase starting_case;
-
-    /**
-     * @brief Set to true if the approximation are the best that
-     * can be obtained with the current precision
-     */
-    mps_boolean best_approx;
-
-    /**
      * @brief This mutex is locked while changing precision. 
      */
     pthread_mutex_t precision_mutex;
@@ -267,12 +254,9 @@ extern "C"
 #define mps_secular_equation_from_status(s) (mps_secular_equation*) (s)->secular_equation
 
   /* Routines in secular-newton.c */
-  void mps_secular_fnewton (mps_context * st, mps_approximation * root, cplx_t corr,
-			    void * user_data, mps_boolean skip_radius_compuation);
-  void mps_secular_dnewton (mps_context * st, mps_approximation * root, cdpe_t corr,
-			    void * user_data, mps_boolean skip_radius_computation);
-  void mps_secular_mnewton (mps_context * st, mps_approximation * root, mpc_t corr,
-			    void * user_data, mps_boolean skip_radius_computation);
+  void mps_secular_fnewton (mps_context * st, mps_polynomial * p, mps_approximation * root, cplx_t corr);
+  void mps_secular_dnewton (mps_context * st, mps_polynomial * p, mps_approximation * root, cdpe_t corr);
+  void mps_secular_mnewton (mps_context * st, mps_polynomial * p, mps_approximation * root, mpc_t corr);
 
   /* Routines in secular-regeneartion.c */
   mps_boolean * mps_secular_ga_find_changed_roots (mps_context * s, cdpe_t * old_b, mpc_t * old_mb);
@@ -294,19 +278,16 @@ extern "C"
 
   void mps_secular_switch_phase (mps_context * s, mps_phase phase);
 
-  void mps_secular_raise_coefficient_precision (mps_context * s, int wp);
+  long int mps_secular_raise_coefficient_precision (mps_context * s, mps_polynomial * p, long int wp);
 
   void mps_secular_raise_precision (mps_context * s, int wp);
 
   void mps_secular_raise_root_precision (mps_context * s, int wp);
 
   /* Routines in secular-starting.c */
-  void mps_secular_fstart (mps_context * s, int n, mps_cluster_item * cluster, double clust_rad,
-			   double g, rdpe_t eps);
-  void mps_secular_dstart (mps_context * s, int n, mps_cluster_item * cluster, rdpe_t clust_rad,
-			   rdpe_t g, rdpe_t eps);
-  void mps_secular_mstart (mps_context * s, int n, mps_cluster_item * cluster, rdpe_t clust_rad,
-			   rdpe_t g, rdpe_t eps);
+  void mps_secular_fstart (mps_context * s, mps_secular_equation * sec);
+  void mps_secular_dstart (mps_context * s, mps_secular_equation * sec);
+  void mps_secular_mstart (mps_context * s, mps_secular_equation * sec);
 
   /* Routines in secular-iteration.c */
   int mps_secular_ga_fiterate (mps_context * s, int maxit, mps_boolean just_regenerated);
@@ -317,8 +298,6 @@ extern "C"
   
   /* Routines in secular-ga.c */
   mps_boolean mps_secular_ga_check_stop (mps_context * s);
-
-  void mps_secular_ga_improve (mps_context * s);
 
   void mps_secular_ga_mpsolve (mps_context * s);
 
@@ -333,11 +312,23 @@ extern "C"
   mps_secular_equation *mps_secular_equation_new_raw (mps_context * s,
                                                       unsigned long int n);
 
-  void mps_secular_equation_free (mps_secular_equation * s);
+  void mps_secular_equation_free (mps_context * ctx, mps_polynomial * p);
 
   void mps_secular_set_radii (mps_context * s);
 
-#ifdef	__cplusplus
+  mps_boolean mps_secular_poly_feval_with_error (mps_context * ctx, mps_polynomial * p, cplx_t x, cplx_t value, double * error);
+
+  mps_boolean mps_secular_poly_deval_with_error (mps_context * ctx, mps_polynomial * p, cdpe_t x, cdpe_t value, rdpe_t error);
+
+  mps_boolean mps_secular_poly_meval_with_error (mps_context * ctx, mps_polynomial * p, mpc_t x, mpc_t value, rdpe_t error);
+
+  void mps_secular_poly_fstart (mps_context * ctx, mps_polynomial * p);
+
+  void mps_secular_poly_dstart (mps_context * ctx, mps_polynomial * p);
+
+  void mps_secular_poly_mstart (mps_context * ctx, mps_polynomial * p);
+
+#ifdef  __cplusplus
 }
 #endif
 
