@@ -1,3 +1,22 @@
+== 3.1.0 == 20/03/2013
+ - Reworked the system of dealing with user polynomial, that is now
+   a lot more flexible. 
+ - Introduction of an initial Aberth floating point packet in the algorithm
+   MPS_ALGORITHM_SECULAR_GA that gives performance boosts on easy polynomials. 
+ - Reworked the regeneration of secular equations to be more performant.
+ - Various consintency fixes
+ - Introduced Jacobi-style iterations of Aberth, and allow the user to select
+   the desired one at runtime
+ - Small API changes to retrieve the results of a computation. 
+ - Reworked improve routine that is more performant than the old one. 
+ - Added a graphical debugger for the iterations. 
+ - Added a graphical user interface for MPSolve, called xmpsolve. 
+ - Added support for polynomials represented in the Chebyshev base. 
+ - All the polynomial types (event secular equations) are now multithread, except
+   the Chebyshev polynomials. 
+ - Modified the Octave module to be compilable under more architectures. 
+ - Reworked the headers to make MPSolve usable directly from C++.
+
 == 3.0.1 == 19/02/2013
  - Fixed some bugs in unisolve that caused early exists
    without full approximation of some roots. 
