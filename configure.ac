@@ -262,6 +262,16 @@ AS_IF([test x$build_ui == xyes], [
 			AC_MSG_RESULT([no])
 		])
 	fi
+
+	AC_CHECK_PROGS([UIC_QT4], [uic-qt4])
+	if test "x$UIC_QT4" == "x"; then
+		QT4_PROGRAMS=""
+	fi
+
+	if test "x$QT4_PROGRAMS" == "x"; then
+		build_ui=no
+		have_ui=no
+	fi
 ])
 AC_SUBST(QT4_PROGRAMS)
 
