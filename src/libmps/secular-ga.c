@@ -126,6 +126,12 @@ mps_secular_ga_mpsolve (mps_context * s)
       return;
     }
 
+  if (s->output_config->root_properties != MPS_OUTPUT_PROPERTY_NONE)
+    {
+      mps_error (s, 1, "The root properties detection is not supported using the algorithm MPS_ALGORITHM_SECULAR_GA.");
+      return;
+    }
+
   /* Check if the secular equation is allocated or if only the
    * polynomial is present. In the last case, allocate an empty
    * secular equation to hold the data during the computation. */
