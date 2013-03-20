@@ -9,6 +9,9 @@
 /* Define to 1 if you have the <gmp.h> header file. */
 #undef HAVE_GMP_H
 
+/* Defined if the graphical debugger should be bundled in MPSolve */
+#undef HAVE_GRAPHICAL_DEBUGGER
+
 /* Defined if GTK is available */
 #undef HAVE_GTK
 

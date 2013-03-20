@@ -25,7 +25,13 @@
 #include <config.h>
 #endif
 
-#ifdef HAVE_GTK
+#if HAVE_GRAPHICAL_DEBUGGER
+#define MPSOLVE_GETOPT_STRING "a:G:D:d::xt:o:O:j:S:O:i:vl:b"
+#else
+#define MPSOLVE_GETOPT_STRING "a:G:D:d::t:o:O:j:S:O:i:vl:b"
+#endif
+
+#if HAVE_GRAPHICAL_DEBUGGER
  #include <gtk/gtk.h>
  #include <iteration-logger.h>
 
@@ -116,7 +122,11 @@ void
 usage (mps_context * s, const char *program)
 {
   fprintf (stdout,
-           "%s [-l filename] [-dv] [-S set] [-D detection] [-O format] [-G goal] [-t type] [-a alg] [-j threads] [-i digits] [-o digits] [infile]\n"
+           "%s [-a alg] [-b] [-G goal] [-o digits] [-i digits] [-j n] [-t type] [-S set] [-D detect] [-O format] [-l filename] "
+#if HAVE_GRAPHICAL_DEBUGGER
+          "[-x] "           
+#endif
+           "[-d] [-v] [infile]\n"
            "\n"
            "Options:\n"
            " -a alg      Select the algorithm used to solve the polynomial/secular equation:\n"
@@ -156,7 +166,7 @@ usage (mps_context * s, const char *program)
            "               gp: The same as gf but only with points (suitable for high degree polynomials)\n"
            " -l filename Set filename as the output for the log, instead of the tty. Use this option with\n"
            "             -d[domains] to activate the desired debug domains. \n"
-#if HAVE_GTK           
+#if HAVE_GRAPHICAL_DEBUGGER           
            " -x          Enable graphic visualization of convergence\n"
 #endif            
           " -d[domains] Activate debug on selected domains, that can be one of:\n"
@@ -191,7 +201,7 @@ cleanup_context (mps_context * ctx, void * user_data)
   /* Output the roots */
   mps_output (ctx);
 
-#ifdef HAVE_GTK
+#ifdef HAVE_GRAPHICAL_DEBUGGER
   if (logger_closed)
     gtk_main_quit ();
   else if (logger)
@@ -204,7 +214,7 @@ cleanup_context (mps_context * ctx, void * user_data)
     for (i = 0; i < ctx->n; i++)
       approximations[i] = mps_approximation_copy (ctx, ctx->root[i]);
 
-      mps_iteration_logger_set_roots (logger, approximations, ctx->n);
+    mps_iteration_logger_set_roots (logger, approximations, ctx->n);
   }
 #endif  
 
@@ -216,7 +226,7 @@ cleanup_context (mps_context * ctx, void * user_data)
   return NULL;
 }
 
-#ifdef HAVE_GTK
+#ifdef HAVE_GRAPHICAL_DEBUGGER
 static void on_iteration_logger_destroy (MpsIterationLogger * logger, GdkEvent * event, gpointer user_data)
 {
   gtk_widget_hide (GTK_WIDGET (logger));
@@ -230,6 +240,10 @@ static void on_iteration_logger_destroy (MpsIterationLogger * logger, GdkEvent *
 int
 main (int argc, char **argv)
 {
+#if HAVE_GRAPHICAL_DEBUGGER
+  mps_boolean graphic_debug = false;
+#endif
+
   /* Create a new status */
   s = mps_context_new ();
 
@@ -246,10 +260,8 @@ main (int argc, char **argv)
   mps_opt *opt;
   mps_phase phase = no_phase;
 
-  mps_boolean graphic_debug = false;
-
   opt = NULL;
-  while ((mps_getopts (&opt, &argc, &argv, "a:G:D:d::xt:o:O:j:S:O:i:vl:b")))
+  while ((mps_getopts (&opt, &argc, &argv, MPSOLVE_GETOPT_STRING)))
     {
       switch (opt->optchar)
         {
@@ -514,9 +526,11 @@ main (int argc, char **argv)
             }
           break;
 
+#if HAVE_GRAPHICAL_DEBUGGER
         case 'x':
           graphic_debug = true;
           break;
+#endif          
 
         case 't':
           switch (opt->optvalue[0])
@@ -542,7 +556,7 @@ main (int argc, char **argv)
         }
     }
 
-#ifdef HAVE_GTK
+#if HAVE_GRAPHICAL_DEBUGGER
   if (graphic_debug)
   {
     /* Init GTK only if graphic debug is requested. In all other case is unnecessary
@@ -593,7 +607,7 @@ main (int argc, char **argv)
   mps_context_set_starting_phase (s, phase);
 
   /* Solve the polynomial */
-  #if HAVE_GTK
+  #if HAVE_GRAPHICAL_DEBUGGER
   if (graphic_debug)
   {
     mps_mpsolve_async (s, cleanup_context, NULL);
@@ -604,7 +618,7 @@ main (int argc, char **argv)
   #endif
     mps_mpsolve (s);
     cleanup_context (s, NULL);
-  #if HAVE_GTK
+  #if HAVE_GRAPHICAL_DEBUGGER
   }
   #endif
 

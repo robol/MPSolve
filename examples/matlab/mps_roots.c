@@ -61,7 +61,7 @@ mexFunction (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
     }
 
   /* Solve the equation */
-  mps_context_set_input_poly (s, mp);
+  mps_context_set_input_poly (s, MPS_POLYNOMIAL (mp));
   mps_context_set_output_goal (s, MPS_OUTPUT_GOAL_APPROXIMATE);
 
   /* Check if the second parameter was passed */
@@ -91,7 +91,7 @@ mexFunction (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
   mps_mpsolve (s);
 
   /* Get results back */
-  mps_context_get_roots_d (s, results, NULL);
+  mps_context_get_roots_d (s, &results, NULL);
 
   roots = mxCreateDoubleMatrix (n - 1, 1, mxCOMPLEX);
   real_res = mxGetPr (roots);

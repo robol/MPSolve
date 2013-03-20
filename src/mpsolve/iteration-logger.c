@@ -2,7 +2,7 @@
 #include <config.h>
 #endif
 
-#ifdef HAVE_GTK
+#ifdef HAVE_GRAPHICAL_DEBUGGER
 
 #define _MPS_PRIVATE
 #include <iteration-logger.h>
