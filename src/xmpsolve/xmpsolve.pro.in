@@ -6,27 +6,29 @@ TEMPLATE = app
 TARGET = 
 DEPENDPATH += .
 INCLUDEPATH += @top_srcdir@/include
+INCLUDEPATH += @srcdir@
 LIBS += @top_builddir@/src/libmps/libmps.la @LIBS@
 
 CONFIG += compile_libtool debug
 QMAKE_MAKEFILE = Makefile.qmake
 
 # Input
-HEADERS += mainwindow.h \
-           mpsolveworker.h \
-           polynomialsolver.h \
-           root.h \
-           rootsrenderer.h \
-	   polynomialparser.h \
-	   monomial.h \
-	   polynomial.h
-FORMS += mainwindow.ui
-SOURCES += main.cpp \
-           mainwindow.cpp \
-           mpsolveworker.cpp \
-           polynomialsolver.cpp \
-           root.cpp \
-           rootsrenderer.cpp \
-           polynomialparser.cpp \
-           monomial.cpp \
-	   polynomial.cpp
+HEADERS += @srcdir@/mainwindow.h \
+           @srcdir@/mpsolveworker.h \
+           @srcdir@/polynomialsolver.h \
+           @srcdir@/root.h \
+           @srcdir@/rootsrenderer.h \
+	   @srcdir@/polynomialparser.h \
+	   @srcdir@/monomial.h \
+	   @srcdir@/polynomial.h
+
+FORMS += @srcdir@/mainwindow.ui
+SOURCES += @srcdir@/main.cpp \
+           @srcdir@/mainwindow.cpp \
+           @srcdir@/mpsolveworker.cpp \
+           @srcdir@/polynomialsolver.cpp \
+           @srcdir@/root.cpp \
+           @srcdir@/rootsrenderer.cpp \
+           @srcdir@/polynomialparser.cpp \
+           @srcdir@/monomial.cpp \
+	   @srcdir@/polynomial.cpp

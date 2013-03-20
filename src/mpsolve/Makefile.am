@@ -10,6 +10,7 @@ mpsolve_CFLAGS = \
 	$(NULL)
 
 mpsolve_SOURCES = \
+	iteration-logger.h \
 	iteration-logger.c \
 	mpsolve.c \
 	$(NULL)
