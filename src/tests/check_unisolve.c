@@ -225,27 +225,33 @@ main (void)
 
   starting_setup ();
 
-  test_polynomials = (test_pol **) malloc (sizeof (test_pol *) * 2 * 29);
+  test_polynomials = (test_pol **) malloc (sizeof (test_pol *) * 46);
 
   for (i = 0; i < 2; i++)
     {
       test_polynomials[n++] = test_pol_new_simple ("exp100", digits[i]);
-      /* test_polynomials[n++] = test_pol_new_simple ("exp50", digits[i]); */
-      test_polynomials[n++] = test_pol_new_simple ("kam1_1", digits[i]);
-      test_polynomials[n++] = test_pol_new_simple ("kam1_2", digits[i]);
-      test_polynomials[n++] = test_pol_new_simple ("kam1_3", digits[i]);
-      test_polynomials[n++] = test_pol_new_simple ("kam2_1", digits[i]);
-      test_polynomials[n++] = test_pol_new_simple ("kam2_2", digits[i]);
-      test_polynomials[n++] = test_pol_new_simple ("kam2_3", digits[i]);
-      test_polynomials[n++] = test_pol_new_simple ("kam3_1", digits[i]);
-      test_polynomials[n++] = test_pol_new_simple ("kam3_2", digits[i]);
-      test_polynomials[n++] = test_pol_new_simple ("kam3_3", digits[i]);
+      test_polynomials[n++] = test_pol_new_simple ("exp50", digits[i]);
+
+      /* Floating point polynomials, don't require many digits */
+      if (i == 0)
+      {    
+        test_polynomials[n++] = test_pol_new_simple ("kam1_1", digits[i]);
+        test_polynomials[n++] = test_pol_new_simple ("kam1_2", digits[i]);
+        test_polynomials[n++] = test_pol_new_simple ("kam1_3", digits[i]);
+        test_polynomials[n++] = test_pol_new_simple ("kam2_1", digits[i]);
+        test_polynomials[n++] = test_pol_new_simple ("kam2_2", digits[i]);
+        test_polynomials[n++] = test_pol_new_simple ("kam2_3", digits[i]);
+        test_polynomials[n++] = test_pol_new_simple ("kam3_1", digits[i]);
+        test_polynomials[n++] = test_pol_new_simple ("kam3_2", digits[i]);
+        test_polynomials[n++] = test_pol_new_simple ("kam3_3", digits[i]);
+        test_polynomials[n++] = test_pol_new_simple ("lar1_200", digits[i]);
+        test_polynomials[n++] = test_pol_new_simple ("lar1", digits[i]);
+        test_polynomials[n++] = test_pol_new_simple ("lar2", digits[i]);
+        test_polynomials[n++] = test_pol_new_simple ("lar3", digits[i]);
+        test_polynomials[n++] = test_pol_new_simple ("lsr_24", digits[i]);
+      }
+
       test_polynomials[n++] = test_pol_new_simple ("kir1_10", digits[i]);
-      test_polynomials[n++] = test_pol_new_simple ("lar1_200", digits[i]);
-      test_polynomials[n++] = test_pol_new_simple ("lar1", digits[i]);
-      test_polynomials[n++] = test_pol_new_simple ("lar2", digits[i]);
-      test_polynomials[n++] = test_pol_new_simple ("lar3", digits[i]);
-      test_polynomials[n++] = test_pol_new_simple ("lsr_24", digits[i]);
       test_polynomials[n++] = test_pol_new_simple ("mand127", digits[i]);
       test_polynomials[n++] = test_pol_new_simple ("mand63", digits[i]);
       test_polynomials[n++] = test_pol_new_simple ("mand63", digits[i]);
