@@ -23,7 +23,8 @@ PolynomialSolver::~PolynomialSolver()
 }
 
 int
-PolynomialSolver::solvePoly(Polynomial poly, mps_algorithm selected_algorithm)
+PolynomialSolver::solvePoly(Polynomial poly, mps_algorithm selected_algorithm,
+                            int required_digits)
 {
     m_currentPoly = poly;
 
@@ -42,6 +43,7 @@ PolynomialSolver::solvePoly(Polynomial poly, mps_algorithm selected_algorithm)
 
     mps_context_set_input_poly(m_mpsContext, MPS_POLYNOMIAL (monomialPoly));
     mps_context_select_algorithm(m_mpsContext, selected_algorithm);
+    mps_context_set_output_prec(m_mpsContext, required_digits * LOG2_10);
     mps_context_set_output_goal(m_mpsContext, MPS_OUTPUT_GOAL_APPROXIMATE);
 
     m_worker.start();
@@ -49,7 +51,8 @@ PolynomialSolver::solvePoly(Polynomial poly, mps_algorithm selected_algorithm)
 }
 
 int
-PolynomialSolver::solvePoly(QString inputString, mps_algorithm selected_algorithm)
+PolynomialSolver::solvePoly(QString inputString, mps_algorithm selected_algorithm,
+                            int required_digits)
 {
     PolynomialParser parser;
 
@@ -57,7 +60,7 @@ PolynomialSolver::solvePoly(QString inputString, mps_algorithm selected_algorith
     Polynomial poly = parser.parse(inputString);
 
     if (poly.degree() != 0) {
-        return solvePoly(poly, selected_algorithm);
+        return solvePoly(poly, selected_algorithm, required_digits);
     }
     else {
        m_errorMessage = parser.errorMessage();

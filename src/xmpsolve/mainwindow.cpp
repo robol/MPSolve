@@ -5,6 +5,8 @@
 #include <QPainter>
 #include <QMessageBox>
 
+#include <gmpxx.h>
+
 using namespace xmpsolve;
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -46,7 +48,7 @@ void MainWindow::on_solveButton_clicked()
                 MPS_ALGORITHM_SECULAR_GA : MPS_ALGORITHM_STANDARD_MPSOLVE;
 
     if (m_solver.solvePoly(ui->polyLineEdit->toPlainText(),
-                          selected_algorithm) < 0)
+                          selected_algorithm, ui->digitsSpinBox->value()) < 0)
     {
         ui->statusBar->showMessage(tr("Polynomial parsing failed"));
         QMessageBox mbox(QMessageBox::Critical, tr("Error while parsing the polynomial"),
@@ -65,13 +67,15 @@ MainWindow::polynomial_solved(QList<Root*> roots)
 
     for (int i = 0; i < roots.length(); i++)
     {
-        // output.append (QString ("Root %1: ").arg(i));
-        if (roots[i]->get_imag_part() != 0)
-            output.append (QString ("%1 + %2i").arg(roots[i]->get_real_part()).arg(roots[i]->get_imag_part()));
-        else
-            output.append (QString ("%1").arg(roots[i]->get_real_part()));
+        int digits = ui->digitsSpinBox->value();
+        char * buffer = new char[2 * digits + 15];
 
-        // output.append (QString("Radius: %1\n").arg(roots[i]->get_radius()));
+        gmp_sprintf (buffer, "%.*Ff + %.*Ffi", digits, mpc_Re (roots[i]->value),
+                     digits, mpc_Im (roots[i]->value));
+
+        output.append(buffer);
+
+        delete [] buffer;
         output.append("\n");
     }
 
