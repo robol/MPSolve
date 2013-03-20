@@ -500,15 +500,16 @@ mps_check_data (mps_context * s, char *which_case)
         }
       else if (MPS_STRUCTURE_IS_RATIONAL (s->active_poly->structure))
         {
-          mps_warn (s,
-                    "The  real/imaginary option has not been yet implemented");
+          mps_error (s, 1,
+                    "The real/imaginary option has not been yet implemented for rational input");
+          return;
           s->sep = 0.0;
         }
       else
         {
-          mps_warn (s, "The input polynomial has neither integer nor rational");
-          mps_warn (s,
-                    " coefficients: unable to perform real/imaginary options");
+          mps_error (s, 1, "The input polynomial has neither integer nor rational "
+                           "coefficients: unable to perform real/imaginary options");
+          return;
           s->sep = 0.0;
         }
     }
