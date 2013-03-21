@@ -497,3 +497,4 @@ mps_maberth_packet (mps_context * ctx, mps_polynomial * p, mps_boolean just_rege
 
   return root_neighborhood_roots;
 }
+

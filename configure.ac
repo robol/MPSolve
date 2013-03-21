@@ -179,8 +179,20 @@ PKG_CHECK_MODULES([GTK], [gtk+-3.0], [], [
         have_gtk="0"
     ])
 ])
+
 AC_DEFINE([HAVE_GTK], $have_gtk, [Defined if GTK is available])
-AS_IF([test x$have_gtk == x1 && test x$have_graphical_debugger == xyes], [
+AC_SUBST(GTK_CFLAGS)
+AC_SUBST(GTK_LIBS)
+
+# Check that we have also the cairo graphic library. This will be already bundled
+# in GTK3 but is not to be taken for granted in GTK2. 
+PKG_CHECK_MODULES([CAIRO], [cairo], [have_cairo="1"], [have_cairo="0"])
+
+AC_DEFINE([HAVE_CAIRO], $have_cairo, [Defined if CAIRO is available])
+AC_SUBST(CAIRO_CFLAGS)
+AC_SUBST(CAIRO_LIBS)
+
+AS_IF([test x$have_gtk == x1 && test x$have_graphical_debugger == xyes && test x$have_cairo == x1], [
   AC_DEFINE([HAVE_GRAPHICAL_DEBUGGER], 1, [Defined if the graphical debugger should be bundled in MPSolve])
 ])
 
@@ -195,7 +207,21 @@ AS_IF([test x$have_gtk == x1 && test x$have_graphical_debugger == xyes], [
 AS_IF([test x$build_examples == xyes], [
 	AC_CHECK_PROGS([MKOCTFILE], [mkoctfile])
 	enable_octave=no
-	AS_IF([test "$MKOCTFILE" != ""], [enable_octave=yes OCTAVE_MODULES_PROGRAMS=mps_roots.oct])
+	
+	# Detect Octave version. We are not able to build the Octave module
+	# if Octave is older than 3.0
+	AC_CHECK_PROGS([OCTAVE], [octave])
+	AC_MSG_CHECKING([if Octave is newer than 3.0])
+	OCTAVE_VERSION=`echo "disp(OCTAVE_VERSION)" | $OCTAVE -qf`	
+	AX_COMPARE_VERSION([$OCTAVE_VERSION], [ge], [3.0.0], [
+			AC_MSG_RESULT([yes])
+			
+			# If we have Octave that is sufficiently recent, we can enable the Octave module
+        	AS_IF([test "$MKOCTFILE" != ""], [enable_octave=yes OCTAVE_MODULES_PROGRAMS=mps_roots.oct])			
+		], [
+			AC_MSG_RESULT([no])
+		])
+
 	AC_SUBST(OCTAVE_MODULES_PROGRAMS)
 ])
 
@@ -228,7 +254,7 @@ AS_IF([test x$build_examples == xyes], [
 
 # Check for GTK libraries to enable the example that is given
 # in examples/gtk
-AS_IF([test x$build_examples == xyes && test x$have_gtk == x1], [
+AS_IF([test x$build_examples == xyes && test x$have_gtk == x1 && test x$have_cairo == x1], [
 	ROOTS_OF_UNITY_PROGRAMS=roots_of_unity
 
 	AC_SUBST([GTK_CFLAGS])
@@ -303,18 +329,18 @@ AC_SUBST(MPSOLVE_CFLAGS)
 AC_SUBST(MPSOLVE_LIBS)
 
 AC_CONFIG_FILES([Makefile
-                 examples/Makefile
-		 examples/octave/Makefile
-                 examples/matlab/Makefile
-		 examples/gtk/Makefile
-                 src/Makefile
-		 src/mpsolve/Makefile
-                 src/libmps/Makefile
-                 src/tests/Makefile
-		 src/xmpsolve/Makefile
-		 src/xmpsolve/xmpsolve.pro
-		 doc/Makefile
-		 doc/Doxyfile])
+    examples/Makefile
+    examples/octave/Makefile
+    examples/matlab/Makefile
+    examples/gtk/Makefile
+    src/Makefile
+    src/mpsolve/Makefile
+    src/libmps/Makefile
+    src/tests/Makefile
+    src/xmpsolve/Makefile
+    src/xmpsolve/xmpsolve.pro
+    doc/Makefile
+    doc/Doxyfile])
 
 AC_OUTPUT
 

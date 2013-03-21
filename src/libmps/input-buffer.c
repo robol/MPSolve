@@ -10,6 +10,8 @@
  *   Leonardo Robol <robol@mail.dm.unipi.it>
  */
 
+#define _GNU_SOURCE
+
 #include <stdio.h>
 #include <mps/mps.h>
 #include <string.h>
