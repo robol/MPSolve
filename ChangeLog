@@ -1,3 +1,7 @@
+== 3.1.1 == 21/03/2013
+ - Fixes to the build system, to make sure that builds of some modules
+   are not tried if the libraries on the systems are too old. 
+
 == 3.1.0 == 20/03/2013
  - Reworked the system of dealing with user polynomial, that is now
    a lot more flexible. 
