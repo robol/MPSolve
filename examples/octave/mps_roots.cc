@@ -78,7 +78,7 @@ is \"s\"\
     ComplexColumnVector v(parsed_args);
 
     /* Get its dimension */
-    octave_idx_type n = v.cols();
+    octave_idx_type n = cols;
 
     /* Create vector of the roots */
     ComplexColumnVector res(n - 1);
