@@ -1,0 +1,13 @@
+[Desktop Entry]
+Name=MPSolve
+GenericName=Polynomial solver
+Comment=Find roots of polynomials
+Exec=xmpsolve
+Terminal=false
+Type=Application
+StartupNotify=true
+MimeType=text/plain;
+Icon=xmpsolve
+Categories=Utility;Science
+Keywords=Polynomial;MPSolve;Roots
+X-Ubuntu-Gettext-Domain=xmpsolve

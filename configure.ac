@@ -339,6 +339,7 @@ AC_CONFIG_FILES([Makefile
     src/tests/Makefile
     src/xmpsolve/Makefile
     src/xmpsolve/xmpsolve.pro
+    src/xmpsolve/xmpsolve.desktop
     doc/Makefile
     doc/Doxyfile])
 

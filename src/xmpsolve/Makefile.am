@@ -3,6 +3,14 @@ EXTRA_PROGRAMS = xmpsolve
 
 xmpsolve_SOURCES = 
 
+# Install desktop file
+desktopdir = $(datadir)/applications
+desktop_DATA = xmpsolve.desktop
+
+# Install icon for xmpsolve
+icondir = $(datadir)/icons
+icon_DATA = xmpsolve.png
+
 EXTRA_DIST = polynomialparser.cpp \
 	rootsrenderer.h \
 	polynomialsolver.cpp \
