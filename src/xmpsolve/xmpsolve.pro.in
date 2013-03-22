@@ -7,7 +7,8 @@ TARGET =
 DEPENDPATH += .
 INCLUDEPATH += @top_srcdir@/include
 INCLUDEPATH += @srcdir@
-LIBS += @top_builddir@/src/libmps/libmps.la @LIBS@
+LIBS += @top_builddir@/src/libmps/libmps.la @LIBS@ @GMP_LIBS@
+QMAKE_CXXFLAGS += @GMP_CFLAGS@
 
 CONFIG += compile_libtool debug
 QMAKE_MAKEFILE = Makefile.qmake
