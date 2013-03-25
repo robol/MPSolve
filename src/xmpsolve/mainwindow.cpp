@@ -103,6 +103,15 @@ void xmpsolve::MainWindow::on_openPolFileButton_clicked()
         ui->polyLineEdit->clear();
         lockInterface();
 
-        m_solver.solvePolFile(selectedFile);
+        if (m_solver.solvePolFile(selectedFile) == -1) {
+            unlockInterface();
+
+            ui->statusBar->showMessage(tr("Polynomial parsing failed"));
+            QMessageBox mbox(QMessageBox::Critical, tr("Error while parsing the polynomial"),
+                             tr("The parser reported the following error: ") +
+                             m_solver.errorMessage(), QMessageBox::Ok);
+            mbox.exec();
+
+        }
     }
 }

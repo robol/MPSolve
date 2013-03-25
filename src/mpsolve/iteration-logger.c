@@ -478,3 +478,4 @@ mps_iteration_logger_build_interface (MpsIterationLogger * logger)
 }
 
 #endif
+  

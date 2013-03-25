@@ -43,6 +43,13 @@ RootsRenderer::scalePoint(QPointF point, int width, int height)
 }
 
 void
+RootsRenderer::drawTicks(QPainter& painter)
+{
+    Q_UNUSED(painter);
+    // TODO: Do somethings useful in here.
+}
+
+void
 RootsRenderer::paintEvent(QPaintEvent *)
 {
     QPainter painter(this);
@@ -65,6 +72,8 @@ RootsRenderer::paintEvent(QPaintEvent *)
     painter.drawLine(QPointF(w - axis_margin, h/2), QPointF(w - 8 - axis_margin, h/2 + 4));
     painter.drawLine(QPointF(w/2, axis_margin), QPointF(w/2 + 4, 8 + axis_margin));
     painter.drawLine(QPointF(w/2, axis_margin), QPointF(w/2 - 4, 8 + axis_margin));
+
+    drawTicks(painter);
 
     painter.setBrush(QBrush("red"));
     foreach(QPointF point, m_roots)

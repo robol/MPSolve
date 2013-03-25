@@ -37,6 +37,11 @@ private:
      */
     QPointF scalePoint(QPointF point, int width, int height);
 
+    /**
+     * @brief drawTicks is used internally to draw ticks on the axis.
+     */
+    void drawTicks(QPainter& painter);
+
     QList<QPointF> m_roots;
 
     double m_maxRealModule;

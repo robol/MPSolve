@@ -47,6 +47,7 @@ PolynomialSolver::solvePolFile(QString selectedFile, mps_algorithm selected_algo
         m_errorMessage = tr("Error while solving the given pol file: %1").
                 arg(mps_context_error_msg(m_mpsContext));
         mps_context_free (m_mpsContext);
+        m_mpsContext = NULL;
         return -1;
     }
 
