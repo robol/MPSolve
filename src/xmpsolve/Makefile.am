@@ -3,7 +3,7 @@ EXTRA_PROGRAMS = xmpsolve
 
 xmpsolve_SOURCES = 
 
-man_MANS = xmpsolve.1
+man_MANS = ${top_srcdir}/xmpsolve.1
 
 # Install desktop file
 desktopdir = $(datadir)/applications
@@ -13,7 +13,7 @@ desktop_DATA = xmpsolve.desktop
 icondir = $(datadir)/icons
 icon_DATA = xmpsolve.png
 
-XPMSOLVE_QT_SOURCES = polynomialparser.cpp \
+XMPSOLVE_QT_SOURCES = polynomialparser.cpp \
 	rootsrenderer.h \
 	polynomialsolver.cpp \
 	mainwindow.cpp \
