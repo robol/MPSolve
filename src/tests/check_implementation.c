@@ -25,7 +25,7 @@ starting_setup (void)
 {
   /* Set a reasonable timeout to make the solving possible, but
    * preventing deadlocking of process out of control */
-  putenv ("CK_DEFAULT_TIMEOUT=45");
+  putenv ("CK_DEFAULT_TIMEOUT=150");
 }
 
 /**

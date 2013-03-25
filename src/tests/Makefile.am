@@ -1,30 +1,30 @@
-TESTS = check_cluster check_unisolve check_secsolve check_multithread check_dpe # $(CHECK_PROGRAMS)
+TESTS = $(CHECK_PROGRAMS)
 check_PROGRAMS = $(CHECK_PROGRAMS)
-EXTRA_PROGRAMS = test_mpsolve check_secsolve check_unisolve check_dpe check_multithread check_cluster
+EXTRA_PROGRAMS = check_secsolve check_unisolve check_dpe test_mpsolve check_multithread check_cluster
 
  check_secsolve_SOURCES = check_secsolve.c check_implementation.c check_implementation.h
- check_secsolve_CFLAGS = $(CHECK_CFLAGS) -I${top_srcdir}/include
- check_secsolve_LDFLAGS = -L${top_builddir}/src/libmps -lmps -lm -lgmp -lcheck
+ check_secsolve_CFLAGS = $(CHECK_CFLAGS) $(GMP_CFLAGS) $(PTHREAD_CFLAGS) -I${top_srcdir}/include
+ check_secsolve_LDFLAGS = -L${top_builddir}/src/libmps -lmps -lm $(GMP_LIBS) $(CHECK_LIBS) $(PTHREAD_LIBS)
 
  check_unisolve_SOURCES = check_unisolve.c check_implementation.c check_implementation.h
- check_unisolve_CFLAGS = $(CHECK_CFLAGS) -I${top_srcdir}/include
- check_unisolve_LDFLAGS = -L${top_builddir}/src/libmps -lmps -lm -lgmp -lcheck
+ check_unisolve_CFLAGS = $(CHECK_CFLAGS) $(GMP_CFLAGS) $(PTHREAD_CFLAGS) -I${top_srcdir}/include
+ check_unisolve_LDFLAGS = -L${top_builddir}/src/libmps -lmps -lm $(GMP_LIBS) $(CHECK_LIBS) $(PTHREAD_LIBS)
 
  check_dpe_SOURCES = check_dpe.c check_implementation.c check_implementation.h
- check_dpe_CFLAGS = $(CHECK_CFLAGS) -I${top_srcdir}/include
- check_dpe_LDFLAGS = -L${top_builddir}/src/libmps -lmps -lm -lgmp -lcheck
+ check_dpe_CFLAGS = $(CHECK_CFLAGS) $(GMP_CFLAGS) $(PTHREAD_CFLAGS) -I${top_srcdir}/include
+ check_dpe_LDFLAGS = -L${top_builddir}/src/libmps -lmps -lm $(GMP_LIBS) $(CHECK_LIBS) $(PTHREAD_LIBS)
 
  test_mpsolve_SOURCES = test_mpsolve.c check_implementation.h check_implementation.c
- test_mpsolve_CFLAGS = ${CHECK_CFLAGS} -I${top_srcdir}/include
- test_mpsolve_LDFLAGS = -L${top_builddir}/src/libmps -lmps -lm -lgmp
+ test_mpsolve_CFLAGS = ${CHECK_CFLAGS} $(GMP_CFLAGS) $(PTHREAD_CFLAGS) -I${top_srcdir}/include
+ test_mpsolve_LDFLAGS = -L${top_builddir}/src/libmps -lmps -lm $(GMP_LIBS) $(PTHREAD_LIBS)
 
  check_multithread_SOURCES = check_multithread.c
- check_multithread_CFLAGS = ${CHECK_CFLAGS} -I${top_srcdir}/include -D_MPS_PRIVATE
- check_multithread_LDFLAGS = -L${top_builddir}/src/libmps -lmps -lm -lgmp
+ check_multithread_CFLAGS = $(CHECK_CFLAGS) $(GMP_CFLAGS) $(PTHREAD_CFLAGS) -I${top_srcdir}/include -D_MPS_PRIVATE
+ check_multithread_LDFLAGS = -L${top_builddir}/src/libmps -lmps -lm $(GMP_LIBS) $(CHECK_LIBS) $(PTHREAD_LIBS)
 
  check_cluster_SOURCES = check_cluster.c check_implementation.c
- check_cluster_CFLAGS = ${CHECK_CFLAGS} -I${top_srcdir}/include -D_MPS_PRIVATE
- check_cluster_LDFLAGS = -L${top_builddir}/src/libmps -lmps -lm -lgmp -lcheck
+ check_cluster_CFLAGS = $(CHECK_CFLAGS) $(GMP_CFLAGS) $(PTHREAD_CFLAGS) -I${top_srcdir}/include -D_MPS_PRIVATE
+ check_cluster_LDFLAGS = -L${top_builddir}/src/libmps -lmps -lm $(GMP_LIBS) $(CHECK_LIBS) $(PTHREAD_LIBS)
 
 EXTRA_DIST = \
 	secsolve/rand15.pol \
