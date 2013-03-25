@@ -2,6 +2,8 @@ NULL =
 
 bin_PROGRAMS = mpsolve
 
+man_MANS = mpsolve.1
+
 mpsolve_CFLAGS = \
         -I${top_srcdir}/include \
 	-I. \

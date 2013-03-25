@@ -3,6 +3,8 @@ EXTRA_PROGRAMS = xmpsolve
 
 xmpsolve_SOURCES = 
 
+man_MANS = xmpsolve.1
+
 # Install desktop file
 desktopdir = $(datadir)/applications
 desktop_DATA = xmpsolve.desktop
