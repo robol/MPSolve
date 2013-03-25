@@ -5,8 +5,6 @@ xmpsolve_SOURCES =
 
 man_MANS = ${srcdir}/xmpsolve.1
 
-EXTRA_DIST = xmpsolve.1
-
 # Install desktop file
 desktopdir = $(datadir)/applications
 desktop_DATA = xmpsolve.desktop
@@ -37,6 +35,7 @@ XMPSOLVE_QT_SOURCES = polynomialparser.cpp \
 
 EXTRA_DIST = $(icon_DATA) \
 	$(desktop_DATA) \
+	xmpsolve.1 \
 	$(XMPSOLVE_QT_SOURCES)
 
 Makefile.qmake: xmpsolve.pro
