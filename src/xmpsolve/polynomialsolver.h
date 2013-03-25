@@ -6,6 +6,7 @@
 #include "mpsolveworker.h"
 #include "polynomial.h"
 #include <mps/mps.h>
+#include <stdio.h>
 
 namespace xmpsolve {
 
@@ -30,6 +31,14 @@ public:
       */
     int solvePoly(Polynomial poly, mps_algorithm selected_algorithm = MPS_ALGORITHM_SECULAR_GA,
                   int required_digits = 16);
+
+    /**
+     * @brief Solve a polynomial specified by a .pol file.
+     *
+     * @return The degree of the polynomial.
+     */
+    int solvePolFile(QString selectedFile, mps_algorithm selected_algorithm = MPS_ALGORITHM_SECULAR_GA,
+                     int required_digits = 16);
 
     /** @brief Parse the string describing the polynomial
       * and solve it.

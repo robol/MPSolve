@@ -4,6 +4,7 @@
 #include <QDebug>
 #include <QPainter>
 #include <QMessageBox>
+#include <QFileDialog>
 
 #include <gmpxx.h>
 
@@ -86,4 +87,22 @@ MainWindow::polynomial_solved(QList<Root*> roots)
 
     // Draw the result on the graphicsView.
     ui->graphicsView->setRoots(roots);
+}
+
+void xmpsolve::MainWindow::on_openPolFileButton_clicked()
+{
+    // If the user click on open polFile, we need to check that
+    // he has selected a valid .pol file and - if that's the
+    // case, solve the associated polynomial.
+    QString selectedFile = QFileDialog::getOpenFileName(this,
+                                                        tr("Select .pol file"),
+                                                        QString(),
+                                                        "Pol files (*.pol);;Text files (*.txt)");
+    if (! selectedFile.isEmpty())
+    {
+        ui->polyLineEdit->clear();
+        lockInterface();
+
+        m_solver.solvePolFile(selectedFile);
+    }
 }

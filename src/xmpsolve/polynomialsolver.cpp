@@ -23,6 +23,42 @@ PolynomialSolver::~PolynomialSolver()
 }
 
 int
+PolynomialSolver::solvePolFile(QString selectedFile, mps_algorithm selected_algorithm, int required_digits)
+{
+    FILE * inputStream = NULL;
+
+    QByteArray stringData = selectedFile.toLatin1().data();
+    inputStream = fopen(reinterpret_cast<char *>(stringData.data()), "r");
+
+    if (!inputStream) {
+        qDebug() << "Error opening the file provided by the user";
+        m_errorMessage = tr("Error opening the specified polynomial file.");
+        return -1;
+    }
+
+    m_mpsContext = mps_context_new();
+    m_worker.setMpsContext(m_mpsContext);
+
+    // Parse the stream specified by the user
+    mps_parse_stream (m_mpsContext, inputStream);
+    fclose(inputStream);
+
+    if (mps_context_has_errors (m_mpsContext)) {
+        m_errorMessage = tr("Error while solving the given pol file: %1").
+                arg(mps_context_error_msg(m_mpsContext));
+        mps_context_free (m_mpsContext);
+        return -1;
+    }
+
+    // Select the options selected by the user
+    mps_context_select_algorithm(m_mpsContext, selected_algorithm);
+    mps_context_set_output_prec(m_mpsContext, required_digits * LOG2_10);
+
+    m_worker.start();
+    return mps_context_get_degree (m_mpsContext);
+}
+
+int
 PolynomialSolver::solvePoly(Polynomial poly, mps_algorithm selected_algorithm,
                             int required_digits)
 {

@@ -14,9 +14,12 @@
    <string>MPSolve</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QHBoxLayout" name="horizontalLayout_3">
+   <layout class="QVBoxLayout" name="verticalLayout_2">
     <item>
      <layout class="QVBoxLayout" name="verticalLayout" stretch="0,1,100">
+      <property name="sizeConstraint">
+       <enum>QLayout::SetNoConstraint</enum>
+      </property>
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_2">
         <item>
@@ -74,9 +77,15 @@
          </spacer>
         </item>
         <item>
-         <widget class="QPushButton" name="solveButton">
+         <widget class="QPushButton" name="openPolFileButton">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="text">
-           <string>Solve</string>
+           <string>Open pol file</string>
           </property>
          </widget>
         </item>
@@ -101,6 +110,19 @@
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="solveButton">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>Solve</string>
           </property>
          </widget>
         </item>

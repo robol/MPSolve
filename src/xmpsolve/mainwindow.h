@@ -28,6 +28,8 @@ private slots:
     void lockInterface();
     void unlockInterface();
 
+    void on_openPolFileButton_clicked();
+
 private:
     Ui::MainWindow *ui;
     PolynomialSolver m_solver;
