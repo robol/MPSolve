@@ -82,7 +82,8 @@ mps_fradii (mps_context * s, mps_polynomial * p, double * fradii)
         mpc_clear (lc);
       }
 
-      fradii[i] = new_rad;
+      fradii[i] = new_rad + cplx_mod (s->root[i]->fvalue) * DBL_EPSILON * 2.0 
+        + DBL_MIN;
     }
 }
 

@@ -145,11 +145,20 @@ mps_improve_root2 (void * data_ptr)
   MPS_DEBUG_MPC (ctx, 15, root->mvalue, "Approximating root ");
   MPS_DEBUG (ctx, "Correct bits = %d", correct_bits);
 
-  while (correct_bits <= ctx->output_config->prec)
+  while (correct_bits <= ctx->output_config->prec || rdpe_eq_zero (root_mod))
   {
     rdpe_t nwtcorr_mod;
 
     wp *= 2;
+
+    if (wp >= p->prec)
+    {
+      MPS_DEBUG (ctx, 
+        "Reached maximum allowed precision due to limited input precision. Aborting improvement");
+      ctx->over_max = true;
+      break;
+    }
+
     mpc_set_prec (nwtcorr, wp);
     mpc_set_prec (root->mvalue, wp);
 
@@ -165,18 +174,19 @@ mps_improve_root2 (void * data_ptr)
     mps_polynomial_mnewton (ctx, p, root, nwtcorr);
 
     mpc_sub_eq (root->mvalue, nwtcorr);
+    mpc_rmod (root_mod, root->mvalue);
     mpc_rmod (nwtcorr_mod, nwtcorr);
 
     rdpe_add_eq (root->drad, nwtcorr_mod);
 
-    correct_bits = MAX (correct_bits * 2 - 1, 
-      rdpe_Esp (root_mod) - rdpe_Esp (root->drad) - 1);
+    correct_bits = rdpe_Esp (root_mod) - rdpe_Esp (root->drad) - 1;
 
     if (ctx->debug_level & MPS_DEBUG_IMPROVEMENT)
       MPS_DEBUG (ctx, "    Correct bits = %d", correct_bits);
   }
 
-  root->status = MPS_ROOT_STATUS_APPROXIMATED;
+  if (correct_bits >= ctx->output_config->prec)
+    root->status = MPS_ROOT_STATUS_APPROXIMATED;
 
   return NULL;
 }
