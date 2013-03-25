@@ -231,7 +231,8 @@ mps_secular_fnewton (mps_context * s, mps_polynomial * p, mps_approximation * ro
 
   if (!cplx_eq_zero (corr) && root->again)
     {
-      double new_rad = acorr * s->n * (1 + KAPPA * DBL_EPSILON * asum_on_apol);
+      double new_rad = acorr * s->n * (1 + KAPPA * DBL_EPSILON * asum_on_apol) +
+        ax * DBL_EPSILON * 4.0;
 
       if ((new_rad > 0) && (new_rad < root->frad))
 	      root->frad = new_rad;

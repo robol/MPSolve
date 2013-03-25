@@ -85,7 +85,7 @@ mps_fnewton (mps_context * s, mps_polynomial * poly, mps_approximation * root,
         ap = ap * az + fap[i];
       absp = cplx_mod (p);
       *cont = (absp > ap * eps);
-      *radius = n * (absp + eps * ap) / cplx_mod (p1);
+      *radius = n * (absp + eps * ap) / cplx_mod (p1) + DBL_MIN;
       cplx_div (corr, p, p1);
     }
   else
