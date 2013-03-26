@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.67])
-AC_INIT([MPSolve], [3.1.2], [robol@poisson.phc.unipi.it])
+AC_INIT([MPSolve], [3.1.3], [robol@poisson.phc.unipi.it])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS([config.h])
 
@@ -67,7 +67,7 @@ LDFLAGS="$GMP_LIBS $LDFLAGS"
 AC_SUBST(GMP_CFLAGS)
 AC_SUBST(GMP_LIBS)
 
-GENERAL_CFLAGS="-D_REENTRANT -Wstrict-prototypes -Wall $CFLAGS"
+LIBMPS_CFLAGS="-D_REENTRANT -Wstrict-prototypes -Wall $CFLAGS"
 
 #
 # ===== OPTION PARSING =====
@@ -89,7 +89,7 @@ AC_ARG_ENABLE([debug],
 
 # Select CFLAGS based on debug enabled or not
 AS_IF([test x$enable_debug != xno], [
-	GENERAL_CFLAGS="$GENERAL_CFLAGS -DNICE_DEBUG"
+	LIBMPS_CFLAGS="$LIBMPS_CFLAGS -DNICE_DEBUG"
 ])
 
 # Determine if examples are desired. If that's the case check for the library
@@ -140,12 +140,9 @@ AX_PTHREAD([], [
 ])
 
 # Set the correct PTHREAD flags and, if needed, change the compiler to one that is pthread-enabled.
+CC="$PTHREAD_CC"
 AC_SUBST(PTHREAD_CFLAGS)
 AC_SUBST(PTHREAD_LIBS)
-GENERAL_CFLAGS="$GENERAL_CFLAGS $PTHREAD_CFLAGS"
-GENERAL_LIBS="$PTHREAD_LIBS $GENERAL_LIBS $LDFLAGS"
-CC="$PTHREAD_CC"
-
 AC_SUBST(CC)
 
 #
@@ -317,19 +314,15 @@ if [test -z "$DOXYGEN"]; then
 fi
 AM_CONDITIONAL([HAVE_DOXYGEN], [test -n "$DOXYGEN"])
 
-MPS_CFLAGS="$GENERAL_CFLAGS -D_MPS_PRIVATE"
-MPS_LDFLAGS="$GENERAL_LIBS"
-MPSOLVE_CFLAGS="$GENERAL_CFLAGS"
-MPSOLVE_LIBS="$GENERAL_LIBS"
+LIBMPS_CFLAGS="$LIBMPS_CFLAGS -D_MPS_PRIVATE"
+LIBMPS_LDFLAGS=""
 
 if test "$platform_win32" = yes; then
-  MPS_LDFLAGS="$MPS_LDFLAGS -no-undefined -Wl,--export-all-symbols -Wl,--output-def,.libs/libmps-3.dll.def"
+  LIBMPS_LDFLAGS="$LIBMPS_LDFLAGS -no-undefined -Wl,--export-all-symbols -Wl,--output-def,.libs/libmps-3.dll.def"
 fi
 
-AC_SUBST(MPS_LDFLAGS)
-AC_SUBST(MPS_CFLAGS)
-AC_SUBST(MPSOLVE_CFLAGS)
-AC_SUBST(MPSOLVE_LIBS)
+AC_SUBST(LIBMPS_LDFLAGS)
+AC_SUBST(LIBMPS_CFLAGS)
 
 AC_CONFIG_FILES([Makefile
     examples/Makefile
@@ -354,8 +347,8 @@ MPSolve configuration:
 
         Source location:	${srcdir}
         C compiler:		${CC}
-	CFLAGS:			${MPS_CFLAGS}
-        LDFLAGS:                ${MPS_LDFLAGS}
+	CFLAGS:			${LIBMPS_CFLAGS}
+        LDFLAGS:                ${LIBMPS_LDFLAGS}
         Debug enabled:		$enable_debug
         Check enabled:		$have_check"
 

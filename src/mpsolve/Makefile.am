@@ -9,7 +9,7 @@ EXTRA_DIST = mpsolve.1
 mpsolve_CFLAGS = \
         -I${top_srcdir}/include \
 	-I. \
-	$(MPSOLVE_CFLAGS) \
+	$(GMP_CFLAGS) \
 	$(GTK_CFLAGS) \
 	$(NULL)
 
@@ -19,9 +19,11 @@ mpsolve_SOURCES = \
 	mpsolve.c \
 	$(NULL)
 
-mpsolve_LDFLAGS = \
+mpsolve_LDFLAGS = 
+
+mpsolve_LDADD = \
+	${top_builddir}/src/libmps/libmps.la \
+	$(GMP_LIBS) \
 	$(MPSOLVE_LIBS) \
 	$(GTK_LIBS)
 
-mpsolve_LDADD = \
-	${top_builddir}/src/libmps/libmps.la

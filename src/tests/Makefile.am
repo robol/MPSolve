@@ -4,27 +4,27 @@ EXTRA_PROGRAMS = check_secsolve check_unisolve check_dpe test_mpsolve check_mult
 
  check_secsolve_SOURCES = check_secsolve.c check_implementation.c check_implementation.h
  check_secsolve_CFLAGS = $(CHECK_CFLAGS) $(GMP_CFLAGS) $(PTHREAD_CFLAGS) -I${top_srcdir}/include
- check_secsolve_LDFLAGS = -L${top_builddir}/src/libmps -lmps -lm $(GMP_LIBS) $(CHECK_LIBS) $(PTHREAD_LIBS)
+ check_secsolve_LDFLAGS = ${top_builddir}/src/libmps/libmps.la -lm $(GMP_LIBS) $(CHECK_LIBS) $(PTHREAD_LIBS)
 
  check_unisolve_SOURCES = check_unisolve.c check_implementation.c check_implementation.h
  check_unisolve_CFLAGS = $(CHECK_CFLAGS) $(GMP_CFLAGS) $(PTHREAD_CFLAGS) -I${top_srcdir}/include
- check_unisolve_LDFLAGS = -L${top_builddir}/src/libmps -lmps -lm $(GMP_LIBS) $(CHECK_LIBS) $(PTHREAD_LIBS)
+ check_unisolve_LDFLAGS = ${top_builddir}/src/libmps/libmps.la -lm $(GMP_LIBS) $(CHECK_LIBS) $(PTHREAD_LIBS)
 
  check_dpe_SOURCES = check_dpe.c check_implementation.c check_implementation.h
  check_dpe_CFLAGS = $(CHECK_CFLAGS) $(GMP_CFLAGS) $(PTHREAD_CFLAGS) -I${top_srcdir}/include
- check_dpe_LDFLAGS = -L${top_builddir}/src/libmps -lmps -lm $(GMP_LIBS) $(CHECK_LIBS) $(PTHREAD_LIBS)
+ check_dpe_LDFLAGS = ${top_builddir}/src/libmps/libmps.la -lm $(GMP_LIBS) $(CHECK_LIBS) $(PTHREAD_LIBS)
 
  test_mpsolve_SOURCES = test_mpsolve.c check_implementation.h check_implementation.c
  test_mpsolve_CFLAGS = ${CHECK_CFLAGS} $(GMP_CFLAGS) $(PTHREAD_CFLAGS) -I${top_srcdir}/include
- test_mpsolve_LDFLAGS = -L${top_builddir}/src/libmps -lmps -lm $(GMP_LIBS) $(PTHREAD_LIBS)
+ test_mpsolve_LDFLAGS = ${top_builddir}/src/libmps/libmps.la -lm $(GMP_LIBS) $(PTHREAD_LIBS)
 
  check_multithread_SOURCES = check_multithread.c
  check_multithread_CFLAGS = $(CHECK_CFLAGS) $(GMP_CFLAGS) $(PTHREAD_CFLAGS) -I${top_srcdir}/include -D_MPS_PRIVATE
- check_multithread_LDFLAGS = -L${top_builddir}/src/libmps -lmps -lm $(GMP_LIBS) $(CHECK_LIBS) $(PTHREAD_LIBS)
+ check_multithread_LDFLAGS = ${top_builddir}/src/libmps/libmps.la -lm $(GMP_LIBS) $(CHECK_LIBS) $(PTHREAD_LIBS)
 
  check_cluster_SOURCES = check_cluster.c check_implementation.c
  check_cluster_CFLAGS = $(CHECK_CFLAGS) $(GMP_CFLAGS) $(PTHREAD_CFLAGS) -I${top_srcdir}/include -D_MPS_PRIVATE
- check_cluster_LDFLAGS = -L${top_builddir}/src/libmps -lmps -lm $(GMP_LIBS) $(CHECK_LIBS) $(PTHREAD_LIBS)
+ check_cluster_LDFLAGS = ${top_builddir}/src/libmps/libmps.la -lm $(GMP_LIBS) $(CHECK_LIBS) $(PTHREAD_LIBS)
 
 EXTRA_DIST = \
 	secsolve/rand15.pol \
