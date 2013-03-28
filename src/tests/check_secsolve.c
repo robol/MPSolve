@@ -22,7 +22,7 @@ int
 test_secsolve_on_pol (test_pol * pol)
 {
   return test_secsolve_on_pol_impl (pol, MPS_OUTPUT_GOAL_ISOLATE, false) &&
-    test_secsolve_on_pol_impl (pol, MPS_OUTPUT_GOAL_APPROXIMATE, false); /*  &&
+    test_secsolve_on_pol_impl (pol, MPS_OUTPUT_GOAL_APPROXIMATE, false); /* &&
     test_secsolve_on_pol_impl (pol, MPS_OUTPUT_GOAL_ISOLATE, true)       &&
     test_secsolve_on_pol_impl (pol, MPS_OUTPUT_GOAL_APPROXIMATE, true); */
 }
@@ -526,16 +526,13 @@ END_TEST
 /**
  * @brief Create the secsolve test suite
  */
-  Suite * secsolve_suite (int standard)
+Suite * secsolve_suite (int standard)
 {
   Suite *s = suite_create ("secsolve");
 
   /* Create a test case for the standard MPSolve case and
    * one for the Gemignani's approach. */
   TCase *tc_secular = tcase_create ("Secular equation");
-
-  /* Add our tests */
-  tcase_add_loop_test (tc_secular, test_secsolve, 0, standard);
 
   /* Case of a_i = (-1)^(i+1) , b_i = i */
   tcase_add_test (tc_secular, test_secsolve_altern);
@@ -619,41 +616,6 @@ main (void)
 
   starting_setup ();
 
-  test_polynomials = (test_pol **) malloc (sizeof (test_pol *) * 9);
-
-  /* Tests with rand15. pol */
-  /* Standard MPSolvea approach */
-  test_polynomials[standard++] =
-    test_pol_new ("rand15", "secsolve", 15, float_phase, false);
-  test_polynomials[standard++] =
-    test_pol_new ("rand15", "secsolve", 600, float_phase, false);
-  test_polynomials[standard++] =
-    test_pol_new ("rand15", "secsolve", 15, dpe_phase, false);
-  test_polynomials[standard++] =
-    test_pol_new ("rand15", "secsolve", 600, dpe_phase, false);
-
-  /* Gemignani's approach */
-  test_polynomials[standard++] =
-    test_pol_new ("rand15", "secsolve", 15, float_phase, true);
-  test_polynomials[standard++] =
-    test_pol_new ("rand15", "secsolve", 600, float_phase, true);
-
-  /* Tests with rand120.pol */
-  test_polynomials[standard++] =
-    test_pol_new ("rand120", "secsolve", 15, float_phase, false);
-  test_polynomials[standard++] =
-    test_pol_new ("rand120", "secsolve", 15, dpe_phase, false);
-  test_polynomials[standard++] =
-    test_pol_new ("rand120", "secsolve", 15, float_phase, true);
-
-  /* /\* Tests with deg500.pol *\/ */
-  /* test_polynomials[standard++] = */
-  /*   test_pol_new ("deg500", "secsolve", 15, float_phase, false); */
-  /* test_polynomials[standard++] = */
-  /*   test_pol_new ("deg500", "secsolve", 15, dpe_phase, false); */
-  /* test_polynomials[standard++] = */
-  /*   test_pol_new ("deg500", "secsolve", 15, float_phase, true); */
-
   /* Create a new test suite for secsolve and run it */
   Suite *s = secsolve_suite (standard);
   SRunner *sr = srunner_create (s);
@@ -662,10 +624,6 @@ main (void)
   /* Get number of failed test and report */
   number_failed = srunner_ntests_failed (sr);
   srunner_free (sr);
-
-  for (standard--; standard >= 0; standard--)
-    test_pol_free (test_polynomials[standard]);
-  free (test_polynomials);
 
   return (number_failed != 0);
 }

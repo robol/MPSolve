@@ -814,7 +814,7 @@ mps_parse_stream_old (mps_context * s, mps_input_buffer * buffer)
       return;
     }
   else 
-    prec *= LOG2_10; 
+    prec *= LOG2_10;
   free (token);
 
   token = mps_input_buffer_next_token (buffer);
@@ -1180,7 +1180,7 @@ mps_parse_stream_old (mps_context * s, mps_input_buffer * buffer)
         }
     }
 
-  poly->prec = prec;
+  MPS_POLYNOMIAL (poly)->prec = prec;
 
   mps_context_set_input_poly (s, MPS_POLYNOMIAL (poly));
 

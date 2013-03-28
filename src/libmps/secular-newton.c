@@ -669,8 +669,10 @@ mps_secular_mnewton (mps_context * s, mps_polynomial * p, mps_approximation * ro
       rdpe_add_eq (rad_epsilon, rdpe_one);
       rdpe_mul_eq (new_rad, rad_epsilon);
 
+      rdpe_add_eq (new_rad, axeps);
+
       if (rdpe_lt (new_rad, root->drad))
-	rdpe_set (root->drad, new_rad);
+	      rdpe_set (root->drad, new_rad);
     }
 
  mnewton_cleanup:
