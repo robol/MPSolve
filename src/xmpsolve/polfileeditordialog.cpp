@@ -2,6 +2,7 @@
 #include "ui_polfileeditordialog.h"
 #include "polsyntaxhighlighter.h"
 #include <QDebug>
+#include <QFile>
 
 PolFileEditorDialog::PolFileEditorDialog(QWidget *parent) :
     QDialog(parent),
