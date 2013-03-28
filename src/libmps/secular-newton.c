@@ -538,7 +538,7 @@ mps_secular_mnewton (mps_context * s, mps_polynomial * p, mps_approximation * ro
   int i;
   long int wp = mpc_get_prec (root->mvalue);
   mpc_t ctmp, ctmp2, pol, fp, sumb, x;
-  rdpe_t apol, acorr, rtmp;
+  rdpe_t apol, acorr, rtmp, epsilon;
   rdpe_t asum, asum_on_apol, ax, axeps;
   mps_secular_equation *sec = MPS_SECULAR_EQUATION (p);
 
@@ -556,7 +556,8 @@ mps_secular_mnewton (mps_context * s, mps_polynomial * p, mps_approximation * ro
   mpc_rmod (ax, root->mvalue);
 
   /* Setup a reasonable epsilon to use for the checks such as |corr| < |x| * eps */
-  rdpe_mul (axeps, ax, s->mp_epsilon);
+  rdpe_set_2dl (epsilon, 1.0, 1 - wp);
+  rdpe_mul (axeps, ax, epsilon);
   rdpe_mul_eq_d (axeps, 4.0);
 
   mpc_t *ampc, *bmpc;
@@ -642,7 +643,7 @@ mps_secular_mnewton (mps_context * s, mps_polynomial * p, mps_approximation * ro
   /* In floating point, (asum_on_apol + 1) * KAPPA * DBL_EPSILON > 1 */
   rdpe_add (rtmp, asum_on_apol, rdpe_one);
   rdpe_mul_eq_d (rtmp, KAPPA);
-  rdpe_mul_eq (rtmp, s->mp_epsilon);
+  rdpe_mul_eq (rtmp, epsilon);
   if (rdpe_gt (rtmp, rdpe_one))
     {
       if (s->debug_level & MPS_DEBUG_PACKETS)
@@ -660,15 +661,13 @@ mps_secular_mnewton (mps_context * s, mps_polynomial * p, mps_approximation * ro
   if (!mpc_eq_zero (corr) && root->again)
     {
       rdpe_t new_rad;
-      rdpe_t epsilon;
+      rdpe_t rad_epsilon;
 
       rdpe_mul_d (new_rad, acorr, s->n);
-      rdpe_mul (epsilon, s->mp_epsilon, asum_on_apol);
-      rdpe_mul_eq_d (epsilon, KAPPA);
-      rdpe_add_eq (epsilon, rdpe_one);
-      rdpe_mul_eq (new_rad, epsilon);
-
-      MPS_DEBUG_RDPE (s, new_rad, "drad");
+      rdpe_mul (rad_epsilon, epsilon, asum_on_apol);
+      rdpe_mul_eq_d (rad_epsilon, KAPPA);
+      rdpe_add_eq (rad_epsilon, rdpe_one);
+      rdpe_mul_eq (new_rad, rad_epsilon);
 
       if (rdpe_lt (new_rad, root->drad))
 	rdpe_set (root->drad, new_rad);
