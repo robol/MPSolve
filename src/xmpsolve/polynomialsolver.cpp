@@ -154,11 +154,12 @@ PolynomialSolver::workerExited()
     delete [] results;
     delete [] radii;
 
+    // Update the internal model with the approximations
     m_rootsModel.setRoots(roots);
 
     /* Set the roots somewhere and then called
      * the solved() signal */
-    solved(roots);
+    solved();
 }
 
 unsigned long int

@@ -13,6 +13,7 @@ RootsModel::RootsModel(QObject *parent) :
     role_names.insert(RADIUS, "radius");
     role_names.insert(STATUS, "status");
     role_names.insert(SHORT_APPROXIMATION, "short_approximation");
+    role_names.insert(ROOT, "root");
 
     setRoleNames(role_names);
 }
@@ -38,7 +39,7 @@ RootsModel::data(const QModelIndex &index, int role) const
     {
         rdpe_t root_module;
         mpc_rmod (root_module, m_roots.at(i)->value);
-        int digits = rdpe_Esp (root_module) - rdpe_Esp (m_roots.at(i)->radius);
+        int digits = (rdpe_Esp (root_module) - rdpe_Esp (m_roots.at(i)->radius)) / LOG2_10;
         char * buffer = NULL;
 
         switch (role)
@@ -59,6 +60,9 @@ RootsModel::data(const QModelIndex &index, int role) const
             case RADIUS:
                 return QString("%1").arg(m_roots[i]->get_radius());
 
+            case ROOT:
+                return QVariant::fromValue((void*) m_roots[i]);
+
             default:
                 qDebug() << "Invalid role";
                 return QVariant();
@@ -69,11 +73,9 @@ RootsModel::data(const QModelIndex &index, int role) const
 void
 RootsModel::setRoots(QList<Root *> roots)
 {
-    qDebug() << "Got roots";
     length = 0;
     m_roots = roots;
     length = roots.length();
-
     reset();
 }
 

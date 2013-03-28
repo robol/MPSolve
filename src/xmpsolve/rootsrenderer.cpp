@@ -12,13 +12,27 @@ RootsRenderer::RootsRenderer(QWidget *parent) :
 }
 
 void
-RootsRenderer::setRoots(QList<Root *> roots)
+RootsRenderer::setModel(RootsModel *model)
+{
+    m_model = model;
+    reloadRoots();
+
+    // Grab data changes and model resets.
+    m_model->connect(m_model, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
+                     this, SLOT(reloadRoots()));
+    m_model->connect(m_model, SIGNAL(modelReset()), this, SLOT(reloadRoots()));
+}
+
+void
+RootsRenderer::reloadRoots()
 {
     m_roots.clear();
     m_maxRealModule = m_maxImagModule = DBL_MIN;
 
-    foreach(Root *root, roots)
+    for (int i = 0; i < m_model->rowCount(); i++)
     {
+        Root * root = (Root*) (m_model->data(m_model->index(i), RootsModel::ROOT).value<void*>());
+
         // Keep track of the maximum module that we reach in both directions, to
         // create a sensible plot later.
         m_maxRealModule = qMax (fabs(root->get_real_part()), m_maxRealModule);
@@ -52,7 +66,7 @@ RootsRenderer::drawTicks(QPainter& painter)
 
     double maxModule = qMax(m_maxImagModule, m_maxRealModule);
 
-    if (maxModule == 0.0)
+    if (maxModule == 0.0 || m_roots.length() == 0)
         return;
 
     int tick_distance_eps = log10 (maxModule);

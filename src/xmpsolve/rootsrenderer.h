@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include "root.h"
+#include "rootsmodel.h"
 
 namespace xmpsolve {
 
@@ -15,15 +16,20 @@ public:
     /**
      * @brief setRoots can be used to set the roots that the RootsRenderer
      * shall renderer.
-     * @param roots The roots that should be shown. Can be an  empty list
-     * to clear a previous plot.
+     * @param model The roots model that should be displayed.
      */
-    void setRoots(QList<Root*> roots);
+    void setModel(RootsModel * model);
     
 signals:
     
 public slots:
     void paintEvent(QPaintEvent *);
+
+private slots:
+    /**
+     * @brief reloadRoots reloads the roots from the model.
+     */
+    void reloadRoots();
 
 private:
     /**
@@ -42,10 +48,25 @@ private:
      */
     void drawTicks(QPainter& painter);
 
+    /**
+     * @brief Points that should be displayed.
+     */
     QList<QPointF> m_roots;
 
+    /**
+     * @brief m_maxRealModule is the maximum module of the real parts of the roots.
+     */
     double m_maxRealModule;
+
+    /**
+     * @brief m_maxImagModule is the maximum module of the imaginary parts of the roots.
+     */
     double m_maxImagModule;
+
+    /**
+     * @brief m_model is the model containing the roots that should be displayed.
+     */
+    RootsModel * m_model;
     
 };
 

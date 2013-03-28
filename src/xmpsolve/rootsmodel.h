@@ -16,12 +16,13 @@ public:
     enum RootsModelRoles {
         RADIUS = Qt::UserRole + 1,
         STATUS,
-        SHORT_APPROXIMATION
+        SHORT_APPROXIMATION,
+        ROOT
     };
 
     explicit RootsModel(QObject *parent = 0);
-    int rowCount(const QModelIndex &parent) const;
-    QVariant data(const QModelIndex &index, int role) const;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
 
     void setRoots(QList<Root*> roots);
 

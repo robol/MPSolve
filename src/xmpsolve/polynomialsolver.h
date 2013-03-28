@@ -79,7 +79,7 @@ private:
     
 signals:
     /** @brief Signal emitted when the computation ends. */
-    void solved(QList<Root*>);
+    void solved();
     
 public slots:
     /** @brief Called when the thread solving the polynomial exits. */

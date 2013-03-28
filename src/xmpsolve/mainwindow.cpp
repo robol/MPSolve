@@ -17,9 +17,11 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // Connect the signal of computation finished to its callback in
     // here.
-    QObject::connect(&m_solver, SIGNAL(solved(QList<Root*>)),
-                     this, SLOT(polynomial_solved(QList<Root*>)));
+    QObject::connect(&m_solver, SIGNAL(solved()),
+                     this, SLOT(polynomial_solved()));
+
     ui->listRootsView->setModel(m_solver.rootsModel());
+    ui->graphicsView->setModel(m_solver.rootsModel());
 }
 
 MainWindow::~MainWindow()
@@ -60,12 +62,9 @@ void MainWindow::on_solveButton_clicked()
 }
 
 void
-MainWindow::polynomial_solved(QList<Root*> roots)
+MainWindow::polynomial_solved()
 {
     ui->statusBar->showMessage(tr("Polynomial solved in %1ms").arg(m_solver.CPUTime()));
-
-    // Draw the result on the graphicsView.
-    ui->graphicsView->setRoots(roots);
 
     unlockInterface();
 }
@@ -81,7 +80,11 @@ void xmpsolve::MainWindow::on_openPolFileButton_clicked()
                                                         "Pol files (*.pol);;Text files (*.txt)");
     if (! selectedFile.isEmpty())
     {
+        // Clean previous polynomials, if any
         ui->polyLineEdit->clear();
+
+        ui->statusBar->showMessage(tr("Solving %1...").arg(selectedFile));
+
         lockInterface();
 
         if (m_solver.solvePolFile(selectedFile) == -1) {

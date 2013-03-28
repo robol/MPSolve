@@ -22,7 +22,7 @@ public:
     ~MainWindow();
 
 public slots:
-    void polynomial_solved(QList<Root*>);
+    void polynomial_solved();
     
 private slots:
     void on_solveButton_clicked();
