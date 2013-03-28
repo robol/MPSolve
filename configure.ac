@@ -154,8 +154,8 @@ AC_SUBST(CC)
 
 # Check for the MPFR multiprecision floating point library. This could be, in principle,
 # an alternative to GMP mpf_t type. This is still not implemented in MPSolve, though. 
-AC_CHECK_LIB([mpfr], [mpfr_neg])
-AC_CHECK_HEADERS([mpfr.h])
+# AC_CHECK_LIB([mpfr], [mpfr_neg])
+# AC_CHECK_HEADERS([mpfr.h])
 
 # This is a custom malloc implementation with thread-caching capabilities. Using this library
 # will make MPSolve much faster. 
