@@ -23,9 +23,12 @@ HEADERS += @srcdir@/mainwindow.h \
 	   @srcdir@/polynomialparser.h \
 	   @srcdir@/monomial.h \
 	   @srcdir@/polynomial.h \
-	   @srcdir@/rootsmodel.h 
+	   @srcdir@/rootsmodel.h \
+	   @srcdir@/polfileeditordialog.h
 
-FORMS += @srcdir@/mainwindow.ui
+FORMS += @srcdir@/mainwindow.ui \
+	@srcdir@/polfileeditordialog.ui
+
 SOURCES += @srcdir@/main.cpp \
            @srcdir@/mainwindow.cpp \
            @srcdir@/mpsolveworker.cpp \
@@ -35,4 +38,5 @@ SOURCES += @srcdir@/main.cpp \
            @srcdir@/polynomialparser.cpp \
            @srcdir@/monomial.cpp \
 	   @srcdir@/polynomial.cpp \
-	   @srcdir@/rootsmodel.cpp
+	   @srcdir@/rootsmodel.cpp \
+	   @srcdir@/polfileeditordialog.cpp

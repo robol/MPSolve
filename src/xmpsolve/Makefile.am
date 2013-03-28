@@ -33,7 +33,10 @@ XMPSOLVE_QT_FILES = polynomialparser.cpp \
 	main.cpp \
 	mainwindow.ui \
 	rootsmodel.h \
-	rootsmodel.cpp 
+	rootsmodel.cpp \
+	polfileeditordialog.ui \
+	polfileeditordialog.cpp \
+	polfileeditordialog.h 
 
 EXTRA_DIST = $(icon_DATA) \
 	$(desktop_DATA) \
