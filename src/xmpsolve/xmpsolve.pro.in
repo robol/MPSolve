@@ -10,6 +10,7 @@ INCLUDEPATH += @top_srcdir@/include
 LIBS += @LIBS@ @GMP_LIBS@ @top_builddir@/src/libmps/libmps.la
 QMAKE_CXXFLAGS += @GMP_CFLAGS@
 
+QMAKE_LIBTOOL = @top_srcdir@/libtool
 CONFIG += compile_libtool
 QMAKE_MAKEFILE = Makefile.qmake
 
