@@ -54,6 +54,7 @@ PolynomialSolver::solvePolFile(QString selectedFile, mps_algorithm selected_algo
     // Select the options selected by the user
     mps_context_select_algorithm(m_mpsContext, selected_algorithm);
     mps_context_set_output_prec(m_mpsContext, required_digits * LOG2_10);
+    mps_context_set_output_goal(m_mpsContext, MPS_OUTPUT_GOAL_APPROXIMATE);
 
     m_worker.start();
     return mps_context_get_degree (m_mpsContext);
