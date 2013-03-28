@@ -14,9 +14,13 @@ class PolFileEditorDialog : public QDialog
 public:
     explicit PolFileEditorDialog(QWidget *parent = 0);
     ~PolFileEditorDialog();
+
+    void loadPolFile(QString polFilePath);
+    void savePolFile();
     
 private:
     Ui::PolFileEditorDialog *ui;
+    QString m_polFilePath;
 };
 
 #endif // POLFILEEDITORDIALOG_H

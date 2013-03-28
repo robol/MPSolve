@@ -5,6 +5,7 @@
 #include <QPainter>
 #include <QMessageBox>
 #include <QFileDialog>
+#include "polfileeditordialog.h"
 
 #include <gmpxx.h>
 
@@ -133,4 +134,15 @@ void xmpsolve::MainWindow::on_listRootsView_clicked(const QModelIndex &index)
                 m_solver.rootsModel()->data(index, RootsModel::RADIUS).toString());
     ui->approximationStatusLabel->setText(
                 m_solver.rootsModel()->data(index, RootsModel::STATUS).toString());
+}
+
+void xmpsolve::MainWindow::on_editPolFileButton_clicked()
+{
+    PolFileEditorDialog dialog; // = new PolFileEditorDialog();
+    dialog.loadPolFile(m_selectedPolFile);
+
+    // Check if need to save the file.
+    if (dialog.exec() == QDialog::Accepted) {
+        dialog.savePolFile();
+    }
 }
