@@ -82,6 +82,9 @@ libmps_la_SOURCES = \
 	    user.c \
 	    $(NULL)
 
+libmps_la_LDFLAGS = \
+	$(PTHREAD_CFLAGS)
+
 libmps_la_LIBADD = \
 	$(MPS_LDFLAGS) \
 	$(GMP_LIBS) \

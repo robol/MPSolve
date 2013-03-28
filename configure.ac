@@ -142,6 +142,7 @@ AX_PTHREAD([], [
 # Set the correct PTHREAD flags and, if needed, change the compiler to one that is pthread-enabled.
 CC="$PTHREAD_CC"
 AC_SUBST(PTHREAD_CFLAGS)
+AC_SUBST(PTHREAD_LDFLAGS)
 AC_SUBST(PTHREAD_LIBS)
 AC_SUBST(CC)
 
