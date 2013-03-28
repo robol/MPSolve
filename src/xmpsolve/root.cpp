@@ -2,9 +2,18 @@
 
 namespace xmpsolve {
 
-Root::Root(QObject *parent) :
-    QObject(parent)
+Root::Root()
 {
+}
+
+Root::Root(mpc_t value, rdpe_t radius, mps_root_status status)
+{
+    mpc_init2 (this->value, mpc_get_prec (value));
+    mpc_set  (this->value, value);
+
+    rdpe_set (this->radius, radius);
+
+    this->status = status;
 }
 
 double

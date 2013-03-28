@@ -554,6 +554,7 @@ extern "C"
   int mps_context_get_roots_d (mps_context * s, cplx_t ** roots, double **radius);
   int mps_context_get_roots_m (mps_context * s, mpc_t ** roots, rdpe_t ** radius);
   int mps_context_get_zero_roots (mps_context * s);
+  mps_root_status mps_context_get_root_status (mps_context * ctx, int i);
   mps_boolean mps_context_get_over_max (mps_context * s);
   mps_polynomial * mps_context_get_active_poly (mps_context * ctx);
 

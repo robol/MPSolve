@@ -19,6 +19,7 @@ MainWindow::MainWindow(QWidget *parent) :
     // here.
     QObject::connect(&m_solver, SIGNAL(solved(QList<Root*>)),
                      this, SLOT(polynomial_solved(QList<Root*>)));
+    ui->listRootsView->setModel(m_solver.rootsModel());
 }
 
 MainWindow::~MainWindow()
@@ -29,14 +30,12 @@ MainWindow::~MainWindow()
 void
 MainWindow::lockInterface()
 {
-    ui->plainTextEdit->setEnabled(false);
     ui->solveButton->setEnabled(false);
 }
 
 void
 MainWindow::unlockInterface()
 {
-    ui->plainTextEdit->setEnabled(true);
     ui->solveButton->setEnabled(true);
 }
 
@@ -63,30 +62,12 @@ void MainWindow::on_solveButton_clicked()
 void
 MainWindow::polynomial_solved(QList<Root*> roots)
 {
-    QString output;
     ui->statusBar->showMessage(tr("Polynomial solved in %1ms").arg(m_solver.CPUTime()));
-
-    for (int i = 0; i < roots.length(); i++)
-    {
-        int digits = ui->digitsSpinBox->value();
-        char * buffer = new char[2 * digits + 15];
-
-        gmp_sprintf (buffer, "%.*Ff + %.*Ffi", digits, mpc_Re (roots[i]->value),
-                     digits, mpc_Im (roots[i]->value));
-
-        output.append(buffer);
-
-        delete [] buffer;
-        output.append("\n");
-    }
-
-    unlockInterface();
-
-    ui->plainTextEdit->clear();
-    ui->plainTextEdit->insertPlainText(output);
 
     // Draw the result on the graphicsView.
     ui->graphicsView->setRoots(roots);
+
+    unlockInterface();
 }
 
 void xmpsolve::MainWindow::on_openPolFileButton_clicked()
@@ -114,4 +95,14 @@ void xmpsolve::MainWindow::on_openPolFileButton_clicked()
 
         }
     }
+}
+
+void xmpsolve::MainWindow::on_listRootsView_clicked(const QModelIndex &index)
+{
+    ui->approximationDetailLabel->setText(
+                m_solver.rootsModel()->data(index, RootsModel::SHORT_APPROXIMATION).toString());
+    ui->approximationRadiusLabel->setText(
+                m_solver.rootsModel()->data(index, RootsModel::RADIUS).toString());
+    ui->approximationStatusLabel->setText(
+                m_solver.rootsModel()->data(index, RootsModel::STATUS).toString());
 }

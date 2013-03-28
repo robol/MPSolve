@@ -550,9 +550,28 @@ char * mps_context_error_msg (mps_context * s)
     return NULL;
 }
 
-
+/**
+ * @brief Retrieve a pointer to the active polynomial being solved. 
+ *
+ * @return A pointer to the requested active polynomial. 
+ */
 mps_polynomial* 
 mps_context_get_active_poly (mps_context * ctx)
 {
   return ctx->active_poly;
+}
+
+/**
+ * @brief Retrieve the status of the root in position i. 
+ * 
+ * This method can be used to obtain more insight on the status of
+ * the approximations previously obtained by a call to mps_context_get_roots_m()
+ * or mps_context_get_roots_d().
+ *
+ * @return A copy to the mps_root_status of the approximation. 
+ */
+mps_root_status 
+mps_context_get_root_status (mps_context * ctx, int i)
+{
+  return ctx->root[i]->status;
 }

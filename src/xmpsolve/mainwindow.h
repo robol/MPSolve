@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QItemSelection>
 #include "root.h"
 #include "polynomialsolver.h"
 #include<mps/mps.h>
@@ -29,6 +30,8 @@ private slots:
     void unlockInterface();
 
     void on_openPolFileButton_clicked();
+
+    void on_listRootsView_clicked(const QModelIndex &index);
 
 private:
     Ui::MainWindow *ui;

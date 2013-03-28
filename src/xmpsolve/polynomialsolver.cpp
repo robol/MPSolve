@@ -134,12 +134,8 @@ PolynomialSolver::workerExited()
 
     for (int i = 0; i < n; i++)
     {
-        Root* r = new Root();
-
-        mpc_init2 (r->value, mpc_get_prec (results[i]));
-        mpc_set (r->value, results[i]);
-        rdpe_set (r->radius, radii[i]);
-
+        mps_root_status status = mps_context_get_root_status (m_mpsContext, i);
+        Root* r = new Root(results[i], radii[i], status);
         roots.append(r);
     }
 
@@ -158,6 +154,8 @@ PolynomialSolver::workerExited()
     delete [] results;
     delete [] radii;
 
+    m_rootsModel.setRoots(roots);
+
     /* Set the roots somewhere and then called
      * the solved() signal */
     solved(roots);
@@ -167,4 +165,10 @@ unsigned long int
 PolynomialSolver::CPUTime()
 {
     return m_worker.CPUTime();
+}
+
+RootsModel *
+PolynomialSolver::rootsModel()
+{
+    return &m_rootsModel;
 }
