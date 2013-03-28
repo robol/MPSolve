@@ -25,23 +25,13 @@ PolynomialSolver::~PolynomialSolver()
 int
 PolynomialSolver::solvePolFile(QString selectedFile, mps_algorithm selected_algorithm, int required_digits)
 {
-    FILE * inputStream = NULL;
-
     QByteArray stringData = selectedFile.toLatin1().data();
-    inputStream = fopen(reinterpret_cast<char *>(stringData.data()), "r");
-
-    if (!inputStream) {
-        qDebug() << "Error opening the file provided by the user";
-        m_errorMessage = tr("Error opening the specified polynomial file.");
-        return -1;
-    }
 
     m_mpsContext = mps_context_new();
     m_worker.setMpsContext(m_mpsContext);
 
     // Parse the stream specified by the user
-    mps_parse_stream (m_mpsContext, inputStream);
-    fclose(inputStream);
+    mps_parse_file (m_mpsContext, stringData.data());
 
     if (mps_context_has_errors (m_mpsContext)) {
         m_errorMessage = tr("Error while solving the given pol file: %1").

@@ -2,6 +2,7 @@
 #define POLFILEEDITORDIALOG_H
 
 #include <QDialog>
+#include "polsyntaxhighlighter.h"
 
 namespace Ui {
 class PolFileEditorDialog;
@@ -20,6 +21,7 @@ public:
     
 private:
     Ui::PolFileEditorDialog *ui;
+    PolSyntaxHighlighter *m_highlighter;
     QString m_polFilePath;
 };
 

@@ -392,7 +392,7 @@ mps_secular_equation_read_from_stream (mps_context * s,
   mpf_t ftmp;
   char * token;
 
-  mpf_init (ftmp);
+  mpf_init2 (ftmp, 64);
 
   /* Read directly the secular equation in DPE, so we don't need
    * to have a fallback case if the coefficients are bigger than
@@ -417,6 +417,7 @@ mps_secular_equation_read_from_stream (mps_context * s,
               mps_raise_parsing_error (s, buffer, token, 
                          "Error reading some coefficients of the secular equation.\n"
                          "Please check your input file.");
+              return;
             }
           free (token);
 
@@ -432,6 +433,7 @@ mps_secular_equation_read_from_stream (mps_context * s,
                   mps_raise_parsing_error (s, buffer, token,
                              "Error reading some coefficients of the secular equation.\n"
                              "Please check your input file.");
+                  return;
                 }
               free (token);
             }
@@ -449,6 +451,7 @@ mps_secular_equation_read_from_stream (mps_context * s,
               mps_raise_parsing_error (s, buffer, token,
                          "Error reading some coefficients of the secular equation.\n"
                          "Please check your input file.");
+              return;
             }
           free (token);
 
@@ -464,6 +467,7 @@ mps_secular_equation_read_from_stream (mps_context * s,
                   mps_raise_parsing_error (s, buffer, token,
                              "Error reading some coefficients of the secular equation.\n"
                              "Please check your input file.");
+                  return;
                 }
               free (token);
             }
@@ -490,6 +494,7 @@ mps_secular_equation_read_from_stream (mps_context * s,
               MPS_DEBUG (s, "Error reading the coefficients a[%d] of the secular equation (real part)", i);
               mps_raise_parsing_error (s, buffer, token, 
                                        "Error reading some coefficients of the secular equation.\nPlease check your input file");
+              return;
             }
           mpq_canonicalize (sec->initial_ampqrc[i]);
           free (token);
@@ -503,6 +508,7 @@ mps_secular_equation_read_from_stream (mps_context * s,
                   MPS_DEBUG (s, "Error reading the coefficients a[%d] of the secular equation (imaginary part)", i);
                   mps_raise_parsing_error (s, buffer, token, 
                                            "Error reading some coefficients of the secular equation.\nPlease check your input file");
+                  return;
                 }
               mpq_canonicalize (sec->initial_ampqic[i]);
               free (token);
@@ -517,6 +523,7 @@ mps_secular_equation_read_from_stream (mps_context * s,
               MPS_DEBUG (s, "Error reading the coefficients b[%d] of the secular equation (real part)", i);
               mps_raise_parsing_error (s, buffer, token, 
                                        "Error reading some coefficients of the secular equation.\nPlease check your input file");
+              return;
             }       
           mpq_canonicalize (sec->initial_bmpqrc[i]);
           free (token);
@@ -530,6 +537,7 @@ mps_secular_equation_read_from_stream (mps_context * s,
                   MPS_DEBUG (s, "Error reading the coefficients b[%d] of the secular equation (imaginary part)", i);
                   mps_raise_parsing_error (s, buffer, token, 
                                            "Error reading some coefficients of the secular equation.\nPlease check your input file");
+                  return;
                 }           
               mpq_canonicalize (sec->initial_bmpqic[i]);
               free (token);
@@ -1186,6 +1194,19 @@ mps_parse_stream_old (mps_context * s, mps_input_buffer * buffer)
 
   mpf_clear (ftmp);
   mpq_clear (qtmp);
+}
+
+void
+mps_parse_file (mps_context * s, const char * path)
+{
+  FILE * handle = fopen(path, "r");
+  if (!handle) {
+    mps_error (s, 2, "Error while opening file: %s", path);
+  }
+  else {
+    mps_parse_stream (s, handle);
+    fclose (handle);
+  }
 }
 
 

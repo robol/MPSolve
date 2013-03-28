@@ -55,7 +55,7 @@ void MainWindow::on_solveButton_clicked()
         ui->statusBar->showMessage(tr("Solving %1...").arg(m_selectedPolFile));
 
         if (m_solver.solvePolFile(m_selectedPolFile, selected_algorithm,
-                                  ui->digitsSpinBox->value()) == -1) {
+                                  ui->digitsSpinBox->value()) < 0) {
             ui->statusBar->showMessage(tr("Polynomial parsing failed"));
             QMessageBox mbox(QMessageBox::Critical, tr("Error while parsing the polynomial"),
                              tr("The parser reported the following error: ") +

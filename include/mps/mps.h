@@ -682,8 +682,8 @@ typedef int mps_debug_level;
   mps_input_option
   mps_parse_option_line (mps_context * s, char *line, size_t length);
 
-  void
-  mps_parse_stream (mps_context * s, FILE * input_stream);
+  void mps_parse_stream (mps_context * s, FILE * input_stream);
+  void mps_parse_file   (mps_context * s, const char * path);
 
   /* Functions in horner.c */
   void mps_fhorner (mps_context * s, mps_monomial_poly * p, cplx_t x, cplx_t value);

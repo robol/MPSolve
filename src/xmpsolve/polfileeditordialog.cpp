@@ -1,5 +1,6 @@
 #include "polfileeditordialog.h"
 #include "ui_polfileeditordialog.h"
+#include "polsyntaxhighlighter.h"
 #include <QDebug>
 
 PolFileEditorDialog::PolFileEditorDialog(QWidget *parent) :
@@ -7,11 +8,13 @@ PolFileEditorDialog::PolFileEditorDialog(QWidget *parent) :
     ui(new Ui::PolFileEditorDialog)
 {
     ui->setupUi(this);
+    m_highlighter = new PolSyntaxHighlighter(ui->polTextEdit->document());
 }
 
 PolFileEditorDialog::~PolFileEditorDialog()
 {
     delete ui;
+    delete m_highlighter;
 }
 
 void
@@ -27,6 +30,7 @@ PolFileEditorDialog::loadPolFile(QString polFilePath)
     }
 
     ui->polTextEdit->setPlainText(polFileContent);
+    m_highlighter->setDocument(ui->polTextEdit->document());
     setWindowTitle(tr("Editing %1").arg(polFilePath));
 }
 
