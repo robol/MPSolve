@@ -69,7 +69,7 @@ RootsRenderer::drawTicks(QPainter& painter)
     if (maxModule == 0.0 || m_roots.length() == 0)
         return;
 
-    int tick_distance_eps = log10 (maxModule);
+    int tick_distance_eps = log10 (maxModule * 2);
     double tick_distance = pow(10, tick_distance_eps);
 
     // Adjust the tick_distance

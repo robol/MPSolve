@@ -43,21 +43,38 @@ MainWindow::unlockInterface()
 
 void MainWindow::on_solveButton_clicked()
 {
-    ui->statusBar->showMessage(tr("Solving polynomial..."));
     lockInterface();
 
     mps_algorithm selected_algorithm = (ui->algorithmComboBox->currentIndex() == 0) ?
                 MPS_ALGORITHM_SECULAR_GA : MPS_ALGORITHM_STANDARD_MPSOLVE;
 
-    if (m_solver.solvePoly(ui->polyLineEdit->toPlainText(),
-                          selected_algorithm, ui->digitsSpinBox->value()) < 0)
-    {
-        ui->statusBar->showMessage(tr("Polynomial parsing failed"));
-        QMessageBox mbox(QMessageBox::Critical, tr("Error while parsing the polynomial"),
-                         tr("The parser reported the following error: ") +
-                         m_solver.errorMessage(), QMessageBox::Ok);
-        mbox.exec();
-        unlockInterface();
+    // If we have a .pol file active, solve that. In the other case, try
+    // to parse the input written by the user.
+    if (! m_selectedPolFile.isEmpty()) {
+        ui->statusBar->showMessage(tr("Solving %1...").arg(m_selectedPolFile));
+
+        if (m_solver.solvePolFile(m_selectedPolFile, selected_algorithm,
+                                  ui->digitsSpinBox->value()) == -1) {
+            ui->statusBar->showMessage(tr("Polynomial parsing failed"));
+            QMessageBox mbox(QMessageBox::Critical, tr("Error while parsing the polynomial"),
+                             tr("The parser reported the following error: ") +
+                             m_solver.errorMessage(), QMessageBox::Ok);
+            mbox.exec();
+            unlockInterface();
+        }
+    }
+    else {
+        ui->statusBar->showMessage(tr("Solving polynomial..."));
+        if (m_solver.solvePoly(ui->polyLineEdit->toPlainText(),
+                              selected_algorithm, ui->digitsSpinBox->value()) < 0)
+        {
+            ui->statusBar->showMessage(tr("Polynomial parsing failed"));
+            QMessageBox mbox(QMessageBox::Critical, tr("Error while parsing the polynomial"),
+                             tr("The parser reported the following error: ") +
+                             m_solver.errorMessage(), QMessageBox::Ok);
+            mbox.exec();
+            unlockInterface();
+        }
     }
 }
 
@@ -71,32 +88,40 @@ MainWindow::polynomial_solved()
 
 void xmpsolve::MainWindow::on_openPolFileButton_clicked()
 {
-    // If the user click on open polFile, we need to check that
-    // he has selected a valid .pol file and - if that's the
-    // case, solve the associated polynomial.
-    QString selectedFile = QFileDialog::getOpenFileName(this,
-                                                        tr("Select .pol file"),
-                                                        QString(),
-                                                        "Pol files (*.pol);;Text files (*.txt)");
-    if (! selectedFile.isEmpty())
-    {
-        // Clean previous polynomials, if any
-        ui->polyLineEdit->clear();
+    if (m_selectedPolFile.isEmpty()) {
 
-        ui->statusBar->showMessage(tr("Solving %1...").arg(selectedFile));
 
-        lockInterface();
+        // If the user click on open polFile, we need to check that
+        // he has selected a valid .pol file and - if that's the
+        // case, solve the associated polynomial.
+        QString selectedFile = QFileDialog::getOpenFileName(this,
+                                                            tr("Select .pol file"),
+                                                            QString(),
+                                                            "Pol files (*.pol);;Text files (*.txt)");
+        if (! selectedFile.isEmpty())
+        {
+            QFile polFile(selectedFile);
 
-        if (m_solver.solvePolFile(selectedFile) == -1) {
-            unlockInterface();
+            // Clean previous polynomials, if any
+            ui->polyLineEdit->clear();
 
-            ui->statusBar->showMessage(tr("Polynomial parsing failed"));
-            QMessageBox mbox(QMessageBox::Critical, tr("Error while parsing the polynomial"),
-                             tr("The parser reported the following error: ") +
-                             m_solver.errorMessage(), QMessageBox::Ok);
-            mbox.exec();
+            // Select the polynomial
+            if (polFile.exists()) {
+                m_selectedPolFile = selectedFile;
+                ui->selectedFileLabel->setText(selectedFile.split("/").last());
+                ui->editPolFileButton->setEnabled(true);
 
+                ui->openPolFileButton->setText(tr("Close file"));
+            }
         }
+    }
+    else {
+        // In the case of a selected pol file, the button will dismiss it
+        m_selectedPolFile = QString();
+
+        ui->openPolFileButton->setText(tr("Open pol file"));
+        ui->editPolFileButton->setEnabled(false);
+        ui->selectedFileLabel->setText(tr("no file selected"));
     }
 }
 

@@ -151,7 +151,7 @@ mps_improve_root2 (void * data_ptr)
 
     wp *= 2;
 
-    if (wp >= p->prec)
+    if (wp >= p->prec && p->prec != 0)
     {
       MPS_DEBUG (ctx, 
         "Reached maximum allowed precision due to limited input precision. Aborting improvement");
@@ -179,7 +179,8 @@ mps_improve_root2 (void * data_ptr)
 
     rdpe_add_eq (root->drad, nwtcorr_mod);
 
-    correct_bits = rdpe_Esp (root_mod) - rdpe_Esp (root->drad) - 1;
+    correct_bits = MAX (rdpe_Esp (root_mod) - rdpe_Esp (root->drad) - 1,
+        correct_bits * 2 - 1);
 
     if (ctx->debug_level & MPS_DEBUG_IMPROVEMENT)
       MPS_DEBUG (ctx, "    Correct bits = %d", correct_bits);

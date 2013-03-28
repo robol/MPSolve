@@ -36,6 +36,8 @@ private slots:
 private:
     Ui::MainWindow *ui;
     PolynomialSolver m_solver;
+
+    QString m_selectedPolFile;
 };
 
 } // Namespace xmpsolve
