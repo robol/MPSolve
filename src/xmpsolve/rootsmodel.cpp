@@ -49,8 +49,12 @@ RootsModel::data(const QModelIndex &index, int role) const
                 // fallthrough
             case Qt::DisplayRole:
                 buffer = new char[2 * digits + 15];
-                gmp_sprintf (buffer, "%.*Ff + %.*Ffi", digits, mpc_Re (m_roots[i]->value),
-                             digits, mpc_Im (m_roots[i]->value));
+                if (m_roots[i]->get_imag_part() > 0)
+                    gmp_sprintf (buffer, "%.*Ff + %.*Ffi", digits, mpc_Re (m_roots[i]->value),
+                                 digits, mpc_Im (m_roots[i]->value));
+                else
+                    gmp_sprintf (buffer, "%.*Ff %.*Ffi", digits, mpc_Re (m_roots[i]->value),
+                                 digits, mpc_Im (m_roots[i]->value));
                 return QString(buffer);
                 break;
 
