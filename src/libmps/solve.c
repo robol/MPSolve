@@ -17,22 +17,19 @@
 
 /**
  * @brief Set <code>again[i]</code> to <code>true</code> or to <code>false</code> 
- * according to the values of <code>status[i,*]</code> and <code>goal</code>.
+ * according to the values of <code>status</code> and <code>inclusion</code>
+ *  in the mps_approximation and the current <code>goal</code>.
  *
  * More precisely:
  *
- * - If goal is "count": .true. only for statu='**u' but not for 
- *         'f*u', 'a*u', 'o*u'                            (1) 
- *      - multipl. on: true also for 'c**'
- *      - Real on    : true also for '*u*' excluded (1)
- *      - Imag. on   : true also for '*v*' excluded (1)
+ * - If goal is <code>MPS_OUTPUT_GOAL_COUNT</code>: <code>true</code> only 
+ *   if inclusion is <code>MPS_ROOT_INCLUSION_UNKNOWN</code> and status is not 
+ *   <code>MPS_ROOT_STATUS_APPROXIMATED</code>, <code>MPS_ROOT_STATUS_APPROXIMATED_IN_CLUSTER</code>
+ *   or <code>MPS_ROOT_STATUS_NOT_FLOAT</code>.
  *
- * Goal isolate: true only for statu='**u' or statu='c**' but
- *          not for 'f**', 'a**', 'o**', 'i*i', 'i*o'     (2) 
- *      - multipl. on: true also for 'c**'
- *      - Real on    : true also for '*u*' excluded (2)
- *      - Imag. on   : true also for '*v*' excluded (2)
- * Goal approximate: the same as isolate.
+ * - If goal is <code>MPS_OUTPUT_GOAL_ISOLATE</code> or <code>MPS_OUTPUT_GOAL_APPROXIMATE</code>:
+ *   <code>true</code> if <code>status</code> is <code>MPS_ROOT_STATUS_CLUSTERED</code> or <code>inclusion</code>
+ *   is <code>MPS_ROOT_INCLUSION_UNKNOWN</code>.
  */
 void
 mps_update (mps_context * s)

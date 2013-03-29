@@ -144,7 +144,7 @@ mps_monomial_poly_free (mps_context * s, mps_polynomial * p)
  * input they will be autoregenerated. 
  *
  * @param s  The status of the computation.
- * @param mp The polynomial that need the precision raised.
+ * @param p The polynomial that need the precision raised, casted to a mps_polynomial.
  * @param prec The selected bits of precision.
  * @return The precision set. 
  */
@@ -419,6 +419,7 @@ mps_monomial_poly_set_coefficient_f (mps_context * s, mps_monomial_poly * p, lon
  *
  * @param s The current mps_context 
  * @param p The polynomial to derive
+ * @param k The order of the derivative that should be computed. 
  * @param wp The selected output working precision
  */
 mps_monomial_poly *

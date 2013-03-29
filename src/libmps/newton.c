@@ -28,21 +28,9 @@
  * false otherwise.
  *
  * @param s The mps_context struct pointer.
- * @param n The degree of the polynomial.
- * @param z The value of \f$z\f$ for which the computation should be
- *  performed.
- * @param radius A pointer to the value that will be set to the
- *  computed inclusion radius.
- * @param corr Value that will be set to the newton correction,
- *  once computed.
- * @param fpc Array with the floating point coefficients of the
- *  polynomial.
- * @param fap Array with the floating points moduli of the coefficient
- *  of the polynomial.
- * @param cont mps_boolean value that will be set to true if another
- *  iteration is needed, to false otherwise.
- * @param skip_radius_computation true if the inclusion radius should not
- * be computed.
+ * @param poly The polynomial to evaluate, casted to a mps_polynomial.
+ * @param root The approximation where the newton fraction should be evaluated.
+ * @param corr The complex value of the newton correction. 
  */
 void
 mps_fnewton (mps_context * s, mps_polynomial * poly, mps_approximation * root, 
@@ -157,20 +145,9 @@ mps_fnewton (mps_context * s, mps_polynomial * poly, mps_approximation * root,
  *
  *
  * @param s The mps_context struct pointer.
- * @param n The degree of the polynomial.
- * @param z The value of \f$z\f$ for which the computation should be
- *  performed.
- * @param radius A pointer to the value that will be set to the
- *  computed inclusion radius.
- * @param corr Value that will be set to the newton correction,
- *  once computed.
- * @param dpc Array with the DPE coefficients of the
- *  polynomial.
- * @param dap Array with the DPE moduli of the coefficient
- *  of the polynomial.
- * @param cont mps_boolean value that will be set to true if another
- *  iteration is needed, to false otherwise.
- * @param skip_radius_computation true if the radius should not be computed.
+ * @param poly The polynomial to evaluate, casted to a mps_polynomial.
+ * @param root The approximation where the newton fraction should be evaluated.
+ * @param corr The complex value of the newton correction. 
  *
  *
  * @see mps_fnewton()
@@ -281,19 +258,9 @@ mps_intlog2 (int n)
  *   with the parallel Horner algorithm.
  *
  * @param s The mps_context struct pointer.
- * @param n The degree of the polynomial.
- * @param z The value of \f$z\f$ for which the computation should be
- *  performed.
- * @param radius A pointer to the value that will be set to the
- *  computed inclusion radius.
- * @param corr Value that will be set to the newton correction,
- *  once computed.
- * @param fpc Array with the DPE coefficients of the
- *  polynomial.
- * @param fap Array with the DPE moduli of the coefficient
- *  of the polynomial.
- * @param cont mps_boolean value that will be set to true if another
- *  iteration is needed, to false otherwise.
+ * @param poly The polynomial to evaluate, casted to a mps_polynomial.
+ * @param root The approximation where the newton fraction should be evaluated.
+ * @param corr The complex value of the newton correction. 
  *
  * @see mps_fnewton()
  * @see mps_dnewton()

@@ -19,6 +19,7 @@
  * polynomial representation.
  *
  * @param s The <code>mps_context</code> of the computation.
+ * @param p The mps_polynomial whose Gerschgorin radii should be evaluated.
  * @param fradii The array of double where the radii will be stored.
  */
 void
@@ -92,6 +93,7 @@ mps_fradii (mps_context * s, mps_polynomial * p, double * fradii)
  * polynomial representation.
  *
  * @param s The <code>mps_context</code> of the computation.
+ * @param p The mps_polynomial whose Gerschgorin radii should be evaluated.
  * @param dradii The array of DPE where the radii will be stored.
  */
 void
@@ -158,6 +160,7 @@ mps_dradii (mps_context * s, mps_polynomial * p, rdpe_t * dradii)
  * polynomial representation.
  *
  * @param s The <code>mps_context</code> of the computation.
+ * @param p The mps_polynomial whose Gerschgorin radii should be evaluated.
  * @param dradii The array of DPE where the radii will be stored.
  */
 void
