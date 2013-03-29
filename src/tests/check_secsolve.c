@@ -143,6 +143,7 @@ test_secsolve_on_pol_impl (test_pol * pol, mps_output_goal goal, mps_boolean jac
       cdpe_mod (rtmp, cdtmp);
       rdpe_mul_eq (rtmp, eps);
       rdpe_set (exp_drad, rtmp);
+      rdpe_div_eq_d (min_dist, 1 + 4.0 * DBL_EPSILON);      
       
       if ((!rdpe_le (min_dist, drad[found_root]) && !rdpe_gt (drad[found_root], exp_drad)) && !mps_context_get_over_max (s))
         {

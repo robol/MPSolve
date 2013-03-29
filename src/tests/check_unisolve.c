@@ -136,7 +136,9 @@ test_unisolve_on_pol_impl (test_pol * pol, mps_output_goal goal)
       
       mpc_get_cdpe (cdtmp, mroot[found_root]);
       cdpe_mod (rtmp, cdtmp);
-      rdpe_mul (exp_drad, rtmp, eps);
+      rdpe_mul (exp_drad, rtmp, eps);      
+      rdpe_div_eq_d (min_dist, 1 + 4.0 * DBL_EPSILON);
+
 
       if ((!rdpe_le (min_dist, drad[found_root]) && !rdpe_gt (drad[found_root], exp_drad)) && !mps_context_get_over_max (s))
         {
