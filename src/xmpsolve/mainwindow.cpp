@@ -110,6 +110,8 @@ void xmpsolve::MainWindow::on_openPolFileButton_clicked()
             if (polFile.exists()) {
                 m_selectedPolFile = selectedFile;
                 ui->selectedFileLabel->setText(selectedFile.split("/").last());
+
+                ui->selectedFileLabel->setEnabled(true);
                 ui->editPolFileButton->setEnabled(true);
 
                 ui->openPolFileButton->setText(tr("Close file"));
@@ -123,6 +125,7 @@ void xmpsolve::MainWindow::on_openPolFileButton_clicked()
         ui->openPolFileButton->setText(tr("Open pol file"));
         ui->editPolFileButton->setEnabled(false);
         ui->selectedFileLabel->setText(tr("no file selected"));
+        ui->selectedFileLabel->setEnabled(false);
     }
 }
 
