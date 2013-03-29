@@ -256,6 +256,15 @@ mps_context_set_poly_i (mps_context * s, int *coeff, long unsigned int n)
  * @brief Set <code>roots[i]</code> to the i-th root of the polynomial
  * and (if it is not <code>NULL</code>) <code>radius[i]</code>
  * to the i-th inclusion radius.
+ *
+ * @param s The current mps_context.
+ * @param roots A pointer to an array of cplx_t variables. if *roots == NULL, 
+ * MPSolve will take care of allocating these for you. You are in charge to free
+ * them when you don't need them anymore. 
+ *
+ * @param radius A pointer to an array of double where MPSolve should store the
+ * inclusion radii. If *radius == NULL MPSolve will allocate those radii for you. 
+ * If radius == NULL no radii will be returned. 
  */
 int
 mps_context_get_roots_d (mps_context * s, cplx_t ** roots, double **radius)
@@ -300,6 +309,14 @@ mps_context_get_roots_d (mps_context * s, cplx_t ** roots, double **radius)
 
 /**
  * @brief Get the roots computed as multiprecision complex numbers.
+ *
+ * @param roots A pointer to an array of mpc_t variables. if *roots == NULL, 
+ * MPSolve will take care of allocate and init those for you. You are in charge to free
+ * and clear them when you don't need them anymore. 
+ *
+ * @param radius A pointer to an array of rdpe_t where MPSolve should store the
+ * inclusion radii. If *radius == NULL MPSolve will allocate those radii for you. 
+ * If radius == NULL no radii will be returned. 
  */
 int
 mps_context_get_roots_m (mps_context * s, mpc_t ** roots, rdpe_t ** radius)
