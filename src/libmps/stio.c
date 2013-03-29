@@ -17,6 +17,7 @@
 #include <string.h>
 #include <mps/mps.h>
 #include <ctype.h>
+#include <locale.h>
 
 #ifndef __WINDOWS
 #include <unistd.h>
@@ -1216,6 +1217,9 @@ mps_parse_file (mps_context * s, const char * path)
 void
 mps_parse_stream (mps_context * s, FILE * input_stream)
 {
+  /* This is needed to avoid strange decimal separators */
+  setlocale(LC_NUMERIC, "C");
+
   mps_boolean parsing_options = true;
   mps_input_buffer *buffer;
   mps_input_option input_option;

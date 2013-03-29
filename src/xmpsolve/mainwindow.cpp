@@ -61,6 +61,7 @@ void MainWindow::on_solveButton_clicked()
                              tr("The parser reported the following error: ") +
                              m_solver.errorMessage(), QMessageBox::Ok);
             mbox.exec();
+            qDebug() << m_solver.errorMessage();
             unlockInterface();
         }
     }

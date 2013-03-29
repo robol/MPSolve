@@ -14,6 +14,7 @@ PolynomialSolver::PolynomialSolver(QObject *parent) :
     m_mpsContext = NULL;
     m_worker.connect(&m_worker, SIGNAL(finished()),
                      this, SLOT(workerExited()));
+    m_errorMessage = "";
 }
 
 PolynomialSolver::~PolynomialSolver()
