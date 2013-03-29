@@ -82,7 +82,7 @@ libmps_la_SOURCES = \
 	    $(NULL)
 
 libmps_la_LDFLAGS = \
-        -version-info 3:0:0
+        -version-info 3:0:0 \
 	$(PTHREAD_CFLAGS)
 
 libmps_la_LIBADD = \
