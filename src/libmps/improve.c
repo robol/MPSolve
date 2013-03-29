@@ -80,6 +80,9 @@ mps_improve (mps_context * s)
 
   long int base_wp = s->mpwp;
 
+  MPS_DEBUG_WITH_INFO (s, "Lowering the number of threads to 1");
+  mps_thread_pool_set_concurrency_limit (s, NULL, 1);
+
   for (i = 0; i < s->n; i++)
     {
       improve_data[i].s = s;
@@ -144,7 +147,7 @@ mps_improve_root2 (void * data_ptr)
 
   rdpe_t conditioning;
   rdpe_div (conditioning, root->drad, root_mod);
-  rdpe_mul_eq (conditioning, root->drad);
+  rdpe_div_eq (conditioning, root->drad);
 
   int conditioning_bits = MAX (0, rdpe_log (conditioning)) / LOG2 + 
     MAX (mpc_get_prec (root->mvalue), root->wp);
