@@ -41,7 +41,10 @@ evaluate_root_conditioning (mps_context * ctx, mps_polynomial * p, mps_approxima
       mpc_rmod (module, value);
 
       /* Get the relative error of this evaluation */
-      rdpe_div_eq (error, module);
+      if (! rdpe_eq_zero (module))
+        rdpe_div_eq (error, module);
+      else
+        rdpe_set_d (error, DBL_EPSILON * p->degree);
 
       /* log2(error) + wp - log(n) is a good estimate of log(k) */
       rdpe_set_d (root_conditioning[i], rdpe_log (error) / LOG2 + appr[i]->wp - log2(n));

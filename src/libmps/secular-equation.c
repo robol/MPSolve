@@ -753,7 +753,10 @@ mps_secular_poly_feval_with_error (mps_context * ctx, mps_polynomial * p, cplx_t
   if (!mps_secular_feval_with_error (ctx, p, x, value, error))
     return false;
 
-  *error /= cplx_mod (value);
+  if (! cplx_eq_zero (value))
+    *error /= cplx_mod (value);
+  else
+    *error = p->degree * DBL_EPSILON;
 
   for (i = 0; i < p->degree; i++)
     {
@@ -777,7 +780,10 @@ mps_secular_poly_deval_with_error (mps_context * ctx, mps_polynomial * p, cdpe_t
     return false;
 
   cdpe_mod (rtmp, value);
-  rdpe_div_eq (error, rtmp);
+  if (! rdpe_eq_zero (rtmp))
+    rdpe_div_eq (error, rtmp);
+  else
+    rdpe_set_d (error, DBL_EPSILON * p->degree);
 
   for (i = 0; i < p->degree; i++)
     {
@@ -807,7 +813,10 @@ mps_secular_poly_meval_with_error (mps_context * ctx, mps_polynomial * p, mpc_t 
     }
 
   mpc_rmod (rtmp, value);
-  rdpe_div_eq (error, rtmp);
+  if (! rdpe_eq_zero (rtmp))
+    rdpe_div_eq (error, rtmp);
+  else
+    rdpe_set_d (error, DBL_EPSILON * p->degree);
 
   mpc_init2 (ctmp, mpc_get_prec (x));
 
