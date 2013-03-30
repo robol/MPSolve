@@ -10,7 +10,18 @@
 
 #include <mps/mps.h>
 
-void
+/**
+ * @brief Parse the stream that has been loaded into buffer and that
+ * describe a mps_secular_equation. 
+ *
+ * @param s The current mps_context
+ * @param buffer The buffer that needs to be parsed
+ * @param The structure of the secular equation 
+ * @param The density configuration of the secular equation
+ *
+ * @return A newly allocated mps_secular_equation, or NULL if the parsing fails.
+ */
+mps_secular_equation *
 mps_secular_equation_read_from_stream (mps_context * s,
                                        mps_input_buffer * buffer,
                                        mps_structure structure,
@@ -47,7 +58,7 @@ mps_secular_equation_read_from_stream (mps_context * s,
                          "Error reading some coefficients of the secular equation.\n"
                          "Please check your input file.");
               free (token);
-              return;
+              return NULL;
             }
           free (token);
 
@@ -64,7 +75,7 @@ mps_secular_equation_read_from_stream (mps_context * s,
                              "Error reading some coefficients of the secular equation.\n"
                              "Please check your input file.");
                   free (token);
-                  return;
+                  return NULL;
                 }
               free (token);
             }
@@ -83,7 +94,7 @@ mps_secular_equation_read_from_stream (mps_context * s,
                          "Error reading some coefficients of the secular equation.\n"
                          "Please check your input file.");
               free (token);
-              return;
+              return NULL;
             }
           free (token);
 
@@ -100,7 +111,7 @@ mps_secular_equation_read_from_stream (mps_context * s,
                              "Error reading some coefficients of the secular equation.\n"
                              "Please check your input file.");
                   free (token);
-                  return;
+                  return NULL;
                 }
               free (token);
             }
@@ -129,7 +140,7 @@ mps_secular_equation_read_from_stream (mps_context * s,
                                        "Error reading some coefficients of the secular equation.\n"
                                        "Please check your input file");
               free (token);
-              return;
+              return NULL;
             }
           mpq_canonicalize (sec->initial_ampqrc[i]);
           free (token);
@@ -145,7 +156,7 @@ mps_secular_equation_read_from_stream (mps_context * s,
                                            "Error reading some coefficients of the secular equation."
                                            "Please check your input file");
                   free (token);
-                  return;
+                  return NULL;
                 }
               mpq_canonicalize (sec->initial_ampqic[i]);
               free (token);
@@ -162,7 +173,7 @@ mps_secular_equation_read_from_stream (mps_context * s,
                                        "Error reading some coefficients of the secular equation."
                                        "Please check your input file");
               free (token);
-              return;
+              return NULL;
             }       
           mpq_canonicalize (sec->initial_bmpqrc[i]);
           free (token);
@@ -178,7 +189,7 @@ mps_secular_equation_read_from_stream (mps_context * s,
                                            "Error reading some coefficients of the secular equation."
                                            "Please check your input file");
                   free (token);
-                  return;
+                  return NULL;
                 }           
               mpq_canonicalize (sec->initial_bmpqic[i]);
               free (token);
@@ -230,7 +241,7 @@ mps_secular_equation_read_from_stream (mps_context * s,
       sec->abfpc[i] = cplx_mod (sec->bfpc[i]);
     }
 
-  mps_context_set_input_poly (s, MPS_POLYNOMIAL (sec));
-
   mpf_clear (ftmp);
+
+  return sec;
 }

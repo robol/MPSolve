@@ -59,21 +59,22 @@ libmps_la_SOURCES = \
 	    link.c \
 	    main.c \
 	    modify.c \
+	    monomial-parser.c \
 	    monomial-poly.c \
 	    monomial-threading.c \
-	    monomial-parser.c \
 	    mpc.c \
 	    mt.c \
 	    newton.c \
+	    parser.c \
 	    polynomial.c \
+	    secular-equation.c \
 	    secular-evaluation.c \
 	    secular-ga.c \
 	    secular-iteration.c \
+	    secular-parser.c \
 	    secular-newton.c \
 	    secular-regeneration.c \
 	    secular-starting.c \
-	    secular-equation.c \
-	    secular-parser.c \
 	    solve.c \
 	    sort.c \
 	    starting.c \
