@@ -50,6 +50,14 @@ extern "C"
   test_pol *test_pol_new (const char *name, const char *type_name,
                           int out_digits, mps_phase phase, mps_boolean ga);
 
+  void starting_test_message (const char * pol_file);
+
+  void failed_test_message (const char * pol_file);
+
+  void success_test_message (const char * pol_file);
+
+  void error_test_message (const char *  pol_file, const char * message);
+
   void test_pol_free (test_pol * pol);
 
 

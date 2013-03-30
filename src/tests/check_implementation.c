@@ -1,5 +1,15 @@
 #include <check_implementation.h>
 
+static int
+_is_a_tty (FILE * stream)
+{
+#ifndef __WINDOWS
+  return isatty (stream->_fileno);
+#else
+  return _isatty (_fileno (stream));
+#endif
+}
+
 void
 set_timeout (int timeout)
 {
@@ -18,6 +28,46 @@ get_pol_name_from_path (const char * pol_path)
       start--;
     }
   return (start == pol_path) ? pol_path : start + 1;
+}
+
+void
+error_test_message (const char * message, const char * pol_file)
+{
+  if (_is_a_tty (stderr))
+    fprintf (stderr, "Checking \033[1m%-30s\033[0m \033[31;1m%s!\033[0m\n", 
+            message,
+            get_pol_name_from_path (pol_file)); 
+  else
+    fprintf (stderr, "Error checking %s: %s\n", get_pol_name_from_path (pol_file), message);
+}
+
+void
+success_test_message (const char * pol_file)
+{
+  if (_is_a_tty (stderr))
+    fprintf (stderr, "\rChecking \033[1m%-30s\033[0m [\033[32;1m  done  \033[0m]\n", 
+             get_pol_name_from_path (pol_file));
+  else
+    fprintf (stderr, "OK\n");
+}
+
+void
+failed_test_message (const char * pol_file)
+{
+  if (_is_a_tty (stderr))
+    fprintf (stderr, "\rChecking \033[1m%-30s\033[0m [\033[31;1m failed \033[0m]\n", 
+           get_pol_name_from_path (pol_file));
+  else
+    fprintf (stderr, "FAILED\n");
+}
+
+void starting_test_message (const char * pol_file)
+{
+  if (_is_a_tty (stderr))
+    fprintf (stderr, "Checking \033[1m%-30s\033[0m [\033[34;1mchecking\033[0m]", 
+             get_pol_name_from_path (pol_file));
+  else
+    fprintf (stderr, "Checking %s...", get_pol_name_from_path (pol_file));
 }
 
 void

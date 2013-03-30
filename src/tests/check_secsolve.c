@@ -47,15 +47,13 @@ test_secsolve_on_pol_impl (test_pol * pol, mps_output_goal goal, mps_boolean jac
   rdpe_set_2dl (eps, 1.0, - pol->out_digits);
 
   if (!result_stream) 
-    {
-      fprintf (stderr, "Checking \033[1m%-30s\033[0m \033[31;1mno results file found!\033[0m\n", 
-               get_pol_name_from_path (pol->pol_file)); 
+    {    
+      error_test_message ("no results file found", pol->pol_file);
       return EXIT_FAILURE;
     }
   if (!input_stream)
     {
-      fprintf (stderr, "Checking \033[1m%-30s\033[0m \033[31;1mno polinomial file found!\033[0m\n", 
-               get_pol_name_from_path (pol->pol_file)); 
+      error_test_message ("no polynomial file found", pol->pol_file);
       return EXIT_FAILURE;
     }
 
@@ -68,8 +66,7 @@ test_secsolve_on_pol_impl (test_pol * pol, mps_output_goal goal, mps_boolean jac
   /* Load the polynomial that has been given to us */
   mps_parse_stream (s, input_stream);
   
-  fprintf (stderr, "Checking \033[1m%-30s\033[0m [\033[34;1mchecking\033[0m]", 
-           get_pol_name_from_path (pol->pol_file));
+  starting_test_message (pol->pol_file);
 
   mps_context_set_output_prec (s, pol->out_digits);
   mps_context_set_output_goal (s, goal);
@@ -184,11 +181,9 @@ test_secsolve_on_pol_impl (test_pol * pol, mps_output_goal goal, mps_boolean jac
   mps_context_free (s);
 
   if (passed)
-    fprintf (stderr, "\rChecking \033[1m%-30s\033[0m [\033[32;1m  done  \033[0m]\n", 
-             get_pol_name_from_path (pol->pol_file));
+    success_test_message (pol->pol_file);
   else
-    fprintf (stderr, "\rChecking \033[1m%-30s\033[0m [\033[31;1m failed \033[0m]\n", 
-             get_pol_name_from_path (pol->pol_file));
+    failed_test_message (pol->pol_file);
 
   if (getenv ("MPS_VERBOSE_TEST"))
     fail_unless (passed == true,
