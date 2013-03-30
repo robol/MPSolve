@@ -1392,7 +1392,7 @@ mps_parse_stream (mps_context * s, FILE * input_stream)
           /* Parsing precision of input coefficients */
           if (input_option.flag == MPS_KEY_PRECISION)
             {
-              mps_context_set_input_prec (s, atoi (input_option.value) * LOG2_10);
+              input_precision = atoi (input_option.value) * LOG2_10;
               if (input_precision <= 0)
               {
                 mps_error (s, "Precision must be a positive integer");
@@ -1405,8 +1405,8 @@ mps_parse_stream (mps_context * s, FILE * input_stream)
             representation = MPS_REPRESENTATION_SECULAR;
           else if (input_option.flag == MPS_FLAG_MONOMIAL)
             representation = MPS_REPRESENTATION_MONOMIAL;
-    else if (input_option.flag == MPS_FLAG_CHEBYSHEV)
-      representation = MPS_REPRESENTATION_CHEBYSHEV;
+          else if (input_option.flag == MPS_FLAG_CHEBYSHEV)
+            representation = MPS_REPRESENTATION_CHEBYSHEV;
 
           /* And of dense and or sparse input */
           else if (input_option.flag == MPS_FLAG_SPARSE)
