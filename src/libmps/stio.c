@@ -41,18 +41,18 @@ mps_skip_comments (FILE * input_stream)
 void
 mps_raise_parsing_error (mps_context * s, mps_input_buffer * buffer, 
                          const char * token, 
-                         const char * message)
+                         const char * message, ...)
 {
   if (!token)
     {
-      mps_error (s, 1, message);
+      mps_error (s, message);
       return;
     }
 
   char * output = (char *) mps_malloc (sizeof (char) * (strlen (token) + 256));
   sprintf (output, "Parsing error on line %ld near the token: %s", buffer->line_number, token);
 
-  mps_error (s, 2, output, message);
+  mps_error (s, output, message);
   free (output);
 }
 
@@ -114,12 +114,15 @@ mps_parse_option_line (mps_context * s, char *line, size_t length)
   char *option;
   char *c_ptr;
   char *equal_position;
-  mps_input_option input_option;
+  mps_input_option input_option = { MPS_FLAG_UNDEFINED, NULL };
   size_t real_length;
 
   if (length > 255)
-    mps_error (s, 1,
+  {
+    mps_error (s,
                "Maximum line length exceeded (length > 255 while parsing)");
+    return input_option;
+  }
 
   /* Check if there are comments in this line */
   if ((first_comment = strchr (line, '!')) != NULL)
@@ -181,6 +184,10 @@ mps_parse_option_line (mps_context * s, char *line, size_t length)
   equal_position = strchr (option, '=');
   if (equal_position == NULL)
     {
+      if (input_option.flag == MPS_FLAG_UNDEFINED)
+        {
+          mps_error (s, "Unrecognized option: %s", option);
+        }
       return input_option;
     }
   else
@@ -198,6 +205,11 @@ mps_parse_option_line (mps_context * s, char *line, size_t length)
     input_option.flag = MPS_KEY_DEGREE;
   else if (mps_is_option (s, option, "precision"))
     input_option.flag = MPS_KEY_PRECISION;
+
+  if (input_option.flag == MPS_FLAG_UNDEFINED)
+  {
+    mps_error (s, "Unrecognized option: %s", option);
+  }
 
   /* Free the copy of the option */
   free (option);
@@ -238,14 +250,22 @@ mps_monomial_poly_read_from_stream (mps_context * s,
             {
               token = mps_input_buffer_next_token (buffer);
               if (!token || (mpf_set_str (mpc_Re (poly->mfpc[i]), token, 10) != 0))
-                mps_raise_parsing_error (s, buffer, token, "Error parsing coefficients of the polynomial");
+                {
+                  mps_raise_parsing_error (s, buffer, token, "Error parsing coefficients of the polynomial");
+                  free (token);
+                  return;
+                }
               free (token);
 
               if (MPS_STRUCTURE_IS_COMPLEX (structure))
                 {
                   token = mps_input_buffer_next_token (buffer);
                   if (!token || (mpf_set_str (mpc_Im (poly->mfpc[i]), token, 10) != 0))
-                    mps_raise_parsing_error (s, buffer, token, "Error parsing coefficients of the polynomial");
+                    {
+                      mps_raise_parsing_error (s, buffer, token, "Error parsing coefficients of the polynomial");
+                      free (token);
+                      return;
+                    }
                   free (token);
                 }
               else
@@ -259,7 +279,11 @@ mps_monomial_poly_read_from_stream (mps_context * s,
             {
               token = mps_input_buffer_next_token (buffer);
               if (!token || (mpq_set_str (poly->initial_mqp_r[i], token, 10) != 0))
-                mps_raise_parsing_error (s, buffer, token, "Error parsing coefficients of the polynomial");
+                {
+                  mps_raise_parsing_error (s, buffer, token, "Error parsing coefficients of the polynomial");
+                  free (token);
+                  return;
+                }
               mpq_canonicalize (poly->initial_mqp_r[i]);
               free (token);
       
@@ -267,7 +291,11 @@ mps_monomial_poly_read_from_stream (mps_context * s,
                 {
                   token = mps_input_buffer_next_token (buffer);
                   if (!token || (mpq_set_str (poly->initial_mqp_i[i], token, 10) != 0))
-                    mps_raise_parsing_error (s, buffer, token, "Error parsing coefficients of the polynomial");
+                    {
+                      mps_raise_parsing_error (s, buffer, token, "Error parsing coefficients of the polynomial");
+                      free (token);
+                      return;
+                    }
                   mpq_canonicalize (poly->initial_mqp_i[i]);
                   free (token);
                 }
@@ -291,7 +319,11 @@ mps_monomial_poly_read_from_stream (mps_context * s,
         {
           /* Read the index from the buffer */
           if (!sscanf (token, "%d", &i))
+          {
             mps_raise_parsing_error (s, buffer, token, "Error while parsing the degree of a monomial");
+            free (token);
+            return;
+          }
 
           if (i < 0 || i > s->n) 
             {
@@ -301,7 +333,11 @@ mps_monomial_poly_read_from_stream (mps_context * s,
             }
 
           if (poly->spar[i]) 
-            mps_raise_parsing_error (s, buffer, token, "A monomial of the same degree has been inserted twice"); 
+            {
+              mps_raise_parsing_error (s, buffer, token, "A monomial of the same degree has been inserted twice"); 
+              free (token);
+              return;
+            }
           else 
             poly->spar[i] = true;
           free (token);
@@ -310,14 +346,22 @@ mps_monomial_poly_read_from_stream (mps_context * s,
             {
               token = mps_input_buffer_next_token (buffer);
               if (!token || (mpf_set_str (mpc_Re (poly->mfpc[i]), token, 10) != 0))
-                mps_raise_parsing_error (s, buffer, token, "Error parsing coefficients of the polynomial");
+                {
+                  mps_raise_parsing_error (s, buffer, token, "Error parsing coefficients of the polynomial");
+                  free (token);
+                  return;
+                }
               free (token);
           
               if (MPS_STRUCTURE_IS_COMPLEX (structure))
                 {
                   token = mps_input_buffer_next_token (buffer);
                   if (!token || (mpf_set_str (mpc_Im (poly->mfpc[i]), token, 10) != 0))
-                    mps_raise_parsing_error (s, buffer, token, "Error parsing coefficients of the polynomial");
+                    {
+                      mps_raise_parsing_error (s, buffer, token, "Error parsing coefficients of the polynomial");
+                      free (token);
+                      return;
+                    }
                   free (token);
                 }
               else
@@ -329,7 +373,11 @@ mps_monomial_poly_read_from_stream (mps_context * s,
 
               token = mps_input_buffer_next_token (buffer);
               if (!token || (mpq_set_str (poly->initial_mqp_r[i], token, 10) != 0))
-                mps_raise_parsing_error (s, buffer, token, "Error parsing coefficients of the polynomial");
+                {
+                  mps_raise_parsing_error (s, buffer, token, "Error parsing coefficients of the polynomial");
+                  free (token);
+                  return;
+                }
               mpq_canonicalize (poly->initial_mqp_r[i]);
               free (token);
       
@@ -337,7 +385,11 @@ mps_monomial_poly_read_from_stream (mps_context * s,
                 {
                   token = mps_input_buffer_next_token (buffer);
                   if (!token || (mpq_set_str (poly->initial_mqp_i[i], token, 10) != 0))
-                    mps_raise_parsing_error (s, buffer, token, "Error parsing coefficients of the polynomial");
+                    {
+                      mps_raise_parsing_error (s, buffer, token, "Error parsing coefficients of the polynomial");
+                      free (token);
+                      return;
+                    }
                   mpq_canonicalize (poly->initial_mqp_i[i]);
                   free (token);
                 }
@@ -365,8 +417,6 @@ mps_monomial_poly_read_from_stream (mps_context * s,
 
           if (i > 0)
             mpc_mul_ui (poly->mfppc[i-1], poly->mfppc[i], i);
-
-          MPS_DEBUG_RDPE(s, poly->dap[i], "poly->dap[%d]", i);
         }
       else
         {
@@ -418,6 +468,7 @@ mps_secular_equation_read_from_stream (mps_context * s,
               mps_raise_parsing_error (s, buffer, token, 
                          "Error reading some coefficients of the secular equation.\n"
                          "Please check your input file.");
+              free (token);
               return;
             }
           free (token);
@@ -434,6 +485,7 @@ mps_secular_equation_read_from_stream (mps_context * s,
                   mps_raise_parsing_error (s, buffer, token,
                              "Error reading some coefficients of the secular equation.\n"
                              "Please check your input file.");
+                  free (token);
                   return;
                 }
               free (token);
@@ -452,6 +504,7 @@ mps_secular_equation_read_from_stream (mps_context * s,
               mps_raise_parsing_error (s, buffer, token,
                          "Error reading some coefficients of the secular equation.\n"
                          "Please check your input file.");
+              free (token);
               return;
             }
           free (token);
@@ -468,6 +521,7 @@ mps_secular_equation_read_from_stream (mps_context * s,
                   mps_raise_parsing_error (s, buffer, token,
                              "Error reading some coefficients of the secular equation.\n"
                              "Please check your input file.");
+                  free (token);
                   return;
                 }
               free (token);
@@ -494,7 +548,9 @@ mps_secular_equation_read_from_stream (mps_context * s,
             {
               MPS_DEBUG (s, "Error reading the coefficients a[%d] of the secular equation (real part)", i);
               mps_raise_parsing_error (s, buffer, token, 
-                                       "Error reading some coefficients of the secular equation.\nPlease check your input file");
+                                       "Error reading some coefficients of the secular equation.\n"
+                                       "Please check your input file");
+              free (token);
               return;
             }
           mpq_canonicalize (sec->initial_ampqrc[i]);
@@ -508,7 +564,9 @@ mps_secular_equation_read_from_stream (mps_context * s,
                 {             
                   MPS_DEBUG (s, "Error reading the coefficients a[%d] of the secular equation (imaginary part)", i);
                   mps_raise_parsing_error (s, buffer, token, 
-                                           "Error reading some coefficients of the secular equation.\nPlease check your input file");
+                                           "Error reading some coefficients of the secular equation."
+                                           "Please check your input file");
+                  free (token);
                   return;
                 }
               mpq_canonicalize (sec->initial_ampqic[i]);
@@ -523,7 +581,9 @@ mps_secular_equation_read_from_stream (mps_context * s,
             {         
               MPS_DEBUG (s, "Error reading the coefficients b[%d] of the secular equation (real part)", i);
               mps_raise_parsing_error (s, buffer, token, 
-                                       "Error reading some coefficients of the secular equation.\nPlease check your input file");
+                                       "Error reading some coefficients of the secular equation."
+                                       "Please check your input file");
+              free (token);
               return;
             }       
           mpq_canonicalize (sec->initial_bmpqrc[i]);
@@ -537,7 +597,9 @@ mps_secular_equation_read_from_stream (mps_context * s,
                 {             
                   MPS_DEBUG (s, "Error reading the coefficients b[%d] of the secular equation (imaginary part)", i);
                   mps_raise_parsing_error (s, buffer, token, 
-                                           "Error reading some coefficients of the secular equation.\nPlease check your input file");
+                                           "Error reading some coefficients of the secular equation."
+                                           "Please check your input file");
+                  free (token);
                   return;
                 }           
               mpq_canonicalize (sec->initial_bmpqic[i]);
@@ -613,16 +675,24 @@ mps_chebyshev_poly_read_from_stream (mps_context * ctx, mps_input_buffer * buffe
                 token = mps_input_buffer_next_token (buffer);
 
                 if (!token || (mpf_set_str (mpc_Re (cpoly->mfpc[i]), token, 10) != 0)) 
-                    mps_error (ctx, 1, "Error while reading real part of coefficient %d", i);
-                else
-                  free (token);
+                  {
+                    mps_raise_parsing_error (ctx, buffer, token, 
+                      "Error while reading real part of coefficient");
+                    free (token);
+                    return;
+                  }
+                free (token);
 
                 if (MPS_STRUCTURE_IS_COMPLEX (structure))
                   {
                     token = mps_input_buffer_next_token (buffer);
 
                     if (!token || (mpf_set_str (mpc_Im (cpoly->mfpc[i]), token, 10) != 0)) 
-                        mps_error (ctx, 1, "Error while reading imaginary part of coefficient %d", i);
+                      {
+                        mps_raise_parsing_error (ctx, buffer, token, "Error while reading imaginary part of coefficient");
+                        free (token);
+                        return;
+                      }
                     else
                       free (token);
                   }
@@ -632,18 +702,26 @@ mps_chebyshev_poly_read_from_stream (mps_context * ctx, mps_input_buffer * buffe
                   token = mps_input_buffer_next_token (buffer);
 
                   if (!token || (mpq_set_str (cpoly->rational_real_coeffs[i], token, 10)))
-                    mps_error (ctx, 1, "Error while reading the real part of coefficient %d", i);
-                  else
-                    free (token);
+                    {
+                      mps_raise_parsing_error (ctx, buffer, token, 
+                        "Error while reading the real part of coefficient");
+                      free (token);
+                      return;
+                    }
+                  free (token);
 
                   if (MPS_STRUCTURE_IS_COMPLEX (structure))
                     {
                       token = mps_input_buffer_next_token (buffer);
 
                       if (!token || (mpq_set_str (cpoly->rational_imag_coeffs[i], token, 10)))
-                        mps_error (ctx, 1, "Error while reading the imaginary part of coefficient %d", i);
-                      else
-                        free (token);
+                        {
+                          mps_raise_parsing_error (ctx, buffer, token, 
+                            "Error while reading the imaginary part of coefficient");
+                          free (token);
+                          return;
+                        }
+                      free (token);
                     }
 
                     mpf_set_q (mpc_Re (cpoly->mfpc[i]), cpoly->rational_real_coeffs[i]);
@@ -673,27 +751,40 @@ mps_chebyshev_poly_read_from_stream (mps_context * ctx, mps_input_buffer * buffe
         /* Read the degree of the coefficient */
         token = mps_input_buffer_next_token (buffer);
         if (!token || !sscanf (token, "%d", &degree))
-          mps_error (ctx, 1, "Cannot parse the degree of the coefficient.");
-        else
-          free (token);
+          {
+            mps_raise_parsing_error (ctx, buffer, token, "Cannot parse the degree of the coefficient.");
+            free (token);
+            return;
+          }
+
+        free (token);
 
         if (MPS_STRUCTURE_IS_FP (structure))
           {
             token = mps_input_buffer_next_token (buffer);
 
             if (!token || (mpf_set_str (mpc_Re (cpoly->mfpc[degree]), token, 10) != 0)) 
-                mps_error (ctx, 1, "Error while reading real part of coefficient %d", degree);
-            else
-              free (token);
+              {
+                mps_raise_parsing_error (ctx, buffer, token, "Error while reading real part of coefficient");
+                free (token);
+                return;
+              }
+
+            free (token);
 
             if (MPS_STRUCTURE_IS_COMPLEX (structure))
               {
                 token = mps_input_buffer_next_token (buffer);
 
                 if (!token || (mpf_set_str (mpc_Im (cpoly->mfpc[degree]), token, 10) != 0)) 
-                    mps_error (ctx, 1, "Error while reading imaginary part of coefficient %d", degree);
-                else
-                  free (token);                
+                  {
+                    mps_raise_parsing_error (ctx, buffer, token, 
+                      "Error while reading imaginary part of coefficient %d", degree);
+                    free (token);
+                    return;
+                  }
+
+                free (token);                
               }
           }
         else
@@ -701,18 +792,27 @@ mps_chebyshev_poly_read_from_stream (mps_context * ctx, mps_input_buffer * buffe
             token = mps_input_buffer_next_token (buffer);
 
             if (!token || (mpq_set_str (cpoly->rational_real_coeffs[degree], token, 10)))
-              mps_error (ctx, 1, "Error while reading the real part of coefficient %d", i);
-            else
-              free (token);
+              {
+                mps_raise_parsing_error (ctx, buffer, token, "Error while reading the real part of coefficient %d", i);
+                free (token);
+                return;
+              }
+
+            free (token);
 
             if (MPS_STRUCTURE_IS_COMPLEX (structure))
               {
                 token = mps_input_buffer_next_token (buffer);
 
                 if (!token || (mpq_set_str (cpoly->rational_imag_coeffs[degree], token, 10)))
-                  mps_error (ctx, 1, "Error while reading the imaginary part of coefficient %d", i);
-                else
-                  free (token);
+                  {
+                    mps_raise_parsing_error (ctx, buffer, token, 
+                      "Error while reading the imaginary part of coefficient %d", i);
+                    free (token);
+                    return;
+                  }
+
+                free (token);
               }
           }
 
@@ -721,7 +821,7 @@ mps_chebyshev_poly_read_from_stream (mps_context * ctx, mps_input_buffer * buffe
       break;
 
       default:
-        mps_error (ctx, 1, "Only MPS_DENSITY_DENSE and MPS_DENSITY_SPARSE are supported in Chebyshev polynomials.");
+        mps_error (ctx, "Only MPS_DENSITY_DENSE and MPS_DENSITY_SPARSE are supported in Chebyshev polynomials.");
         return;
         break;
     }
@@ -751,7 +851,7 @@ mps_parse_stream_old (mps_context * s, mps_input_buffer * buffer)
   token = mps_input_buffer_next_token (buffer);
   if (!token || !sscanf (token, "%3s", data_type))
     {
-      mps_error (s, 1, "Error parsing the input file");
+      mps_error (s, "Error parsing the input file");
       return;
     }
   free (token);
@@ -769,7 +869,7 @@ mps_parse_stream_old (mps_context * s, mps_input_buffer * buffer)
       density = MPS_DENSITY_USER;
       break;
     default:
-      mps_error (s, 1, "Found unsupported data_type in input file");
+      mps_error (s, "Found unsupported data_type in input file");
       return;
       break;
     }
@@ -783,7 +883,7 @@ mps_parse_stream_old (mps_context * s, mps_input_buffer * buffer)
       structure = MPS_STRUCTURE_COMPLEX_FP;
       break;
     default:
-      mps_error (s, 1, "Found unsupported data_structure in input file");
+      mps_error (s, "Found unsupported data_structure in input file");
       return;
       break;
     }
@@ -809,7 +909,7 @@ mps_parse_stream_old (mps_context * s, mps_input_buffer * buffer)
         structure = MPS_STRUCTURE_COMPLEX_FP;
       break;      
     default:
-      mps_error (s, 1, "Found unsupported data structure in input file");
+      mps_error (s, "Found unsupported data structure in input file");
       return;
       break;
     }
@@ -819,7 +919,7 @@ mps_parse_stream_old (mps_context * s, mps_input_buffer * buffer)
   token = mps_input_buffer_next_token (buffer);
   if (!token || !sscanf (token, "%ld", &prec))
     {
-      mps_error (s, 1, "Error while reading the input precision of the coefficients");
+      mps_error (s, "Error while reading the input precision of the coefficients");
       return;
     }
   else 
@@ -829,7 +929,7 @@ mps_parse_stream_old (mps_context * s, mps_input_buffer * buffer)
   token = mps_input_buffer_next_token (buffer);
   if (!token || !sscanf (token, "%d", &s->n))
     {
-      mps_error (s, 1, "Error reading the degree of the polynomial");
+      mps_error (s, "Error reading the degree of the polynomial");
       return;
     }
   free (token);
@@ -1202,7 +1302,7 @@ mps_parse_file (mps_context * s, const char * path)
 {
   FILE * handle = fopen(path, "r");
   if (!handle) {
-    mps_error (s, 2, "Error while opening file: %s", path);
+    mps_error (s, "Error while opening file: %s", path);
   }
   else {
     mps_parse_stream (s, handle);
@@ -1275,12 +1375,18 @@ mps_parse_stream (mps_context * s, FILE * input_stream)
           input_option =
             mps_parse_option_line (s, line, strlen (line));
 
+          if (mps_context_has_errors (s))
+            return;
+
           /* Parsing of the degree */
           if (input_option.flag == MPS_KEY_DEGREE)
             {
               s->n = atoi (input_option.value);
               if (s->n <= 0)
-                mps_error (s, 1, "Degree must be a positive integer");
+              {
+                mps_error (s, "Degree must be a positive integer");
+                return;
+              }
             }
 
           /* Parsing precision of input coefficients */
@@ -1288,7 +1394,10 @@ mps_parse_stream (mps_context * s, FILE * input_stream)
             {
               mps_context_set_input_prec (s, atoi (input_option.value) * LOG2_10);
               if (input_precision <= 0)
-                mps_error (s, 1, "Precision must be a positive integer");
+              {
+                mps_error (s, "Precision must be a positive integer");
+                return;
+              }
             }
 
           /* Parsing of representations */
@@ -1355,9 +1464,12 @@ mps_parse_stream (mps_context * s, FILE * input_stream)
     }
 
   /* Since the Degree is a required parameter, we ask that it is provided. */
-  if (s->n == -1)
-    mps_error (s, 1,
-               "Degree of the polynomial must be provided via the Degree=%d configuration option.");
+  if (s->n == -1) 
+    {
+      mps_error (s,
+                 "Degree of the polynomial must be provided via the Degree=%d configuration option.");
+      return;
+    }
   else if (s->debug_level & MPS_DEBUG_IO)
     {
       MPS_DEBUG (s, "Degree: %d", s->n);
@@ -1381,15 +1493,18 @@ mps_parse_stream (mps_context * s, FILE * input_stream)
     case MPS_REPRESENTATION_MONOMIAL:
     default:
       if (s->debug_level & MPS_DEBUG_IO)
-        MPS_DEBUG (s, "Parsing mps_polynomial from stream");
+        MPS_DEBUG (s, "Parsing mps_monomial_poly from stream");
       mps_monomial_poly_read_from_stream (s, buffer, structure, density);
       break;
   }
 
-  MPS_POLYNOMIAL (s->active_poly)->structure = structure;
-  MPS_POLYNOMIAL (s->active_poly)->density = density;
+  if (s->active_poly)
+  {
+    MPS_POLYNOMIAL (s->active_poly)->structure = structure;
+    MPS_POLYNOMIAL (s->active_poly)->density = density;
 
-  mps_context_set_input_prec (s, input_precision);
+    mps_context_set_input_prec (s, input_precision);
+  }
 
   mps_input_buffer_free (buffer);
 }
@@ -1411,7 +1526,7 @@ mps_readroots (mps_context * s)
   read_elements = fscanf (s->rtstr, "%ld", &digits);
   if (!read_elements)
     {
-      mps_error (s, 1, "Error while reading roots, aborting.");
+      mps_error (s, "Error while reading roots, aborting.");
     }
 
   /* precision setup code goes here */
@@ -1718,7 +1833,7 @@ mps_copy_roots (mps_context * s)
   switch (s->lastphase)
     {
     case no_phase:
-      mps_error (s, 1, "Nothing to copy");
+      mps_error (s, "Nothing to copy");
       break;
 
     case float_phase:
@@ -1914,35 +2029,25 @@ mps_is_a_tty (FILE * stream)
  *                     SUBROUTINE VAERROR                    *
  *************************************************************/
 void
-mps_error (mps_context * s, int args, ...)
+mps_error (mps_context * s, const char * format, ...)
 {
   va_list ap;
-  char *token;
+  int buffer_size = 32;
+  int missing_characters = 0;
 
-  va_start (ap, args);
-  while (args--)
-    {
-      token = va_arg (ap, char *);
-
-      if (s->last_error == NULL)
-        {
-          s->last_error = strdup (token);
-        }
-      else
-        {
-          s->last_error = mps_realloc (s->last_error, strlen (s->last_error) + strlen (token) + 2);
-          s->last_error = strcat (s->last_error, "\n");
-          s->last_error = strcat (s->last_error, token);
-        }
-    }
-  va_end (ap);
+  va_start (ap, format);
 
   s->error_state = true;
+  if (s->last_error == NULL)
+    s->last_error = mps_newv (char, buffer_size);
 
-  /* Dump approximations, but only if they are present */
-  if (s->root && s->lastphase)
-    mps_dump (s);  /* dump status          */
-  /* exit (EXIT_FAILURE);          /\* exit program         *\/ */
+  /* Measure space needed for the string, if our initial guess for the space neede
+   * is not enough */
+  while ((missing_characters = vsnprintf (s->last_error, buffer_size, format, ap)) > buffer_size)
+  {
+    buffer_size += missing_characters + 1;
+    s->last_error = mps_realloc (s->last_error, buffer_size);
+  }
 }
 
 void
@@ -1954,4 +2059,8 @@ mps_print_errors (mps_context * s)
     mps_warn (s, "! MPSolve encountered an error:");
 
   mps_warn (s, s->last_error);
+
+  /* Dump approximations, but only if they are present */
+  if (s->root && s->lastphase)
+    mps_dump (s);
 }

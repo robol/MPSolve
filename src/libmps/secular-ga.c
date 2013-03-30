@@ -122,13 +122,13 @@ mps_secular_ga_mpsolve (mps_context * s)
 
   if (s->output_config->search_set != MPS_SEARCH_SET_COMPLEX_PLANE)
     {
-      mps_error (s, 1, "The restricted search set is not supported using the algorithm MPS_ALGORITHM_SECULAR_GA.");
+      mps_error (s, "The restricted search set is not supported using the algorithm MPS_ALGORITHM_SECULAR_GA.");
       return;
     }
 
   if (s->output_config->root_properties != MPS_OUTPUT_PROPERTY_NONE)
     {
-      mps_error (s, 1, "The root properties detection is not supported using the algorithm MPS_ALGORITHM_SECULAR_GA.");
+      mps_error (s, "The root properties detection is not supported using the algorithm MPS_ALGORITHM_SECULAR_GA.");
       return;
     }
 
@@ -239,7 +239,7 @@ mps_secular_ga_mpsolve (mps_context * s)
           break;
 
         default:
-          mps_error (s, 1, "Unrecognized starting phase");
+          mps_error (s, "Unrecognized starting phase");
           return;
       }
 
@@ -377,7 +377,7 @@ mps_secular_ga_mpsolve (mps_context * s)
       /* Check thet we haven't passed the maximum number of allowed iterations */
       if (packet > s->max_pack)
         {
-          mps_error (s, 1, "Maximum number of iteration passed. Aborting.");
+          mps_error (s, "Maximum number of iteration passed. Aborting.");
           return;
         }
       

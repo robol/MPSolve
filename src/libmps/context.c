@@ -155,7 +155,7 @@ mps_context_set_input_poly (mps_context * s, mps_polynomial * p)
 
   if (p->degree < 0)
   {
-    mps_error (s, 1, "Polynomial degree should be positive");
+    mps_error (s, "Polynomial degree should be positive");
     return;
   }
   

@@ -638,7 +638,7 @@ typedef int mps_debug_level;
   void mps_dump_cluster_structure (mps_context * s, FILE * outstr);
   mps_boolean mps_is_a_tty (FILE * stream);
   void mps_warn (mps_context * st, char *s);
-  void mps_error (mps_context * st, int args, ...);
+  void mps_error (mps_context * st, const char * format, ...);
   void mps_print_errors (mps_context * s);
 
 
