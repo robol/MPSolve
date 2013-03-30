@@ -676,14 +676,23 @@ typedef int mps_debug_level;
   void mps_general_dstart (mps_context * ctx, mps_polynomial * p);
   void mps_general_mstart (mps_context * ctx, mps_polynomial * p);
 
-  /* Routines of Input/Output in stio.c */
+  /* Routines of Input/Output in input-output.c */
   void mps_skip_comments (FILE * input_stream);
-
-  mps_input_option
-  mps_parse_option_line (mps_context * s, char *line, size_t length);
+  void mps_raise_parsing_error (mps_context * s, mps_input_buffer * buffer, 
+                         const char * token, 
+                         const char * message, ...);
+  mps_input_option mps_parse_option_line (mps_context * s, char *line, size_t length);
 
   void mps_parse_stream (mps_context * s, FILE * input_stream);
   void mps_parse_file   (mps_context * s, const char * path);
+
+  void mps_monomial_poly_read_from_stream_v2 (mps_context * s, mps_input_buffer * buffer);
+  void mps_monomial_poly_read_from_stream (mps_context * s, mps_input_buffer * buffer, 
+    mps_structure structure, mps_density density);
+  void mps_chebyshev_poly_read_from_stream (mps_context * ctx, mps_input_buffer * buffer,
+    mps_structure structure, mps_density density);
+  void mps_secular_equation_read_from_stream (mps_context * ctx, mps_input_buffer * buffer,
+    mps_structure structure, mps_density density);
 
   /* Functions in horner.c */
   void mps_fhorner (mps_context * s, mps_monomial_poly * p, cplx_t x, cplx_t value);
