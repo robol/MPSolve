@@ -117,8 +117,9 @@ mps_fjacobi_aberth_step (mps_context * ctx, mps_polynomial * p, int * nit)
  * @brief Perform a packet of Aberth iterations on the approximation
  * to the roots of p. 
  *
- * @params ctx Current MPSolve context.
- * @params p The polynomial whose roots should be approximated.
+ * @param ctx Current MPSolve context.
+ * @param p The polynomial whose roots should be approximated.
+ * @param just regenrated true if this packet is the first following a regeneration.
  *
  * @return The number of approximated roots. 
  */
@@ -274,8 +275,9 @@ mps_djacobi_aberth_step (mps_context * ctx, mps_polynomial * p, int * nit)
  * @brief Perform a packet of Aberth iterations on the approximation
  * to the roots of p. 
  *
- * @params ctx Current MPSolve context.
- * @params p The polynomial whose roots should be approximated.
+ * @param ctx Current MPSolve context.
+ * @param p The polynomial whose roots should be approximated.
+ * @param just regenrated true if this packet is the first following a regeneration.
  */
 int
 mps_daberth_packet (mps_context * ctx, mps_polynomial * p, mps_boolean just_regenerated)
@@ -443,8 +445,9 @@ mps_mjacobi_aberth_step (mps_context * ctx, mps_polynomial * p, int * nit)
  * @brief Perform a packet of Aberth iterations on the approximation
  * to the roots of p. 
  *
- * @params ctx Current MPSolve context.
- * @params p The polynomial whose roots should be approximated.
+ * @param ctx Current MPSolve context.
+ * @param p The polynomial whose roots should be approximated.
+ * @param just regenrated true if this packet is the first following a regeneration.
  */
 int
 mps_maberth_packet (mps_context * ctx, mps_polynomial * p, mps_boolean just_regenerated)

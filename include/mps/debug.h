@@ -228,6 +228,8 @@ extern "C"
 #define MPS_DEBUG_CALL(args...)
 #define MPS_DEBUG_MCLUSTER_ROOTS(args...)
 #define MPS_DEBUG_THIS_CALL
+#define MPS_DEBUG_WITH_INFO(args...)
+#define __MPS_DEBUG(args...)
 #endif
 
   /*

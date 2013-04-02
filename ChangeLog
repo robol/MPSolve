@@ -1,3 +1,12 @@
+== 3.1.3 == 29/03/2013
+  - Rewritten from scratch the improvement engine, in a way more suitable
+    to be parallelized. This solve problems present in 3.1.2 and 3.1.1. 
+  - Adjustment to documentation and the build system. 
+
+== 3.1.2 == 
+  - Various other fixes to the build system
+  - Review of the improvement routine
+
 == 3.1.1 == 21/03/2013
  - Fixes to the build system, to make sure that builds of some modules
    are not tried if the libraries on the systems are too old. 

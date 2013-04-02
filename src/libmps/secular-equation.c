@@ -339,7 +339,8 @@ mps_secular_equation_new (mps_context * s, cplx_t * afpc, cplx_t * bfpc,
 /**
  * @brief Free a secular equation and the data in it.
  *
- * @param s The secular equation to be freed.
+ * @param ctx The secular equation to be freed.
+ * @param p The secular equation casted to a mps_polynomial
  */
 void
 mps_secular_equation_free (mps_context *ctx, mps_polynomial * p)
@@ -429,6 +430,10 @@ mps_secular_evaluate (mps_context * s, cplx_t x, cplx_t sec_ev)
  * @brief Secular version of <code>mps_check_data ()</code> that
  * does nothing except to set the starting case according to
  * <code>sec->starting_case</code>.
+ *
+ * @param s The current mps_context.
+ * @param which_case Pointer to a char that will be set to 'f' or 'd' depending
+*  on the chosen start phase. 
  */
 void
 mps_secular_check_data (mps_context * s, char *which_case)
@@ -444,6 +449,7 @@ mps_secular_check_data (mps_context * s, char *which_case)
  * (not the roots and neither the precison of the system) to <code>wp</code>.
  *
  * @param s The mps_context of the computation.
+ * @param p The secular equation casted to a mps_polynomial.
  * @param wp The bits of precision to which the coefficients will be set.
  *
  * @see <code>mps_secular_raise_root_precision ()</code>
@@ -747,7 +753,10 @@ mps_secular_poly_feval_with_error (mps_context * ctx, mps_polynomial * p, cplx_t
   if (!mps_secular_feval_with_error (ctx, p, x, value, error))
     return false;
 
-  *error /= cplx_mod (value);
+  if (! cplx_eq_zero (value))
+    *error /= cplx_mod (value);
+  else
+    *error = p->degree * DBL_EPSILON;
 
   for (i = 0; i < p->degree; i++)
     {
@@ -771,7 +780,10 @@ mps_secular_poly_deval_with_error (mps_context * ctx, mps_polynomial * p, cdpe_t
     return false;
 
   cdpe_mod (rtmp, value);
-  rdpe_div_eq (error, rtmp);
+  if (! rdpe_eq_zero (rtmp))
+    rdpe_div_eq (error, rtmp);
+  else
+    rdpe_set_d (error, DBL_EPSILON * p->degree);
 
   for (i = 0; i < p->degree; i++)
     {
@@ -801,7 +813,10 @@ mps_secular_poly_meval_with_error (mps_context * ctx, mps_polynomial * p, mpc_t 
     }
 
   mpc_rmod (rtmp, value);
-  rdpe_div_eq (error, rtmp);
+  if (! rdpe_eq_zero (rtmp))
+    rdpe_div_eq (error, rtmp);
+  else
+    rdpe_set_d (error, DBL_EPSILON * p->degree);
 
   mpc_init2 (ctmp, mpc_get_prec (x));
 

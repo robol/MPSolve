@@ -22,7 +22,7 @@ int
 test_secsolve_on_pol (test_pol * pol)
 {
   return test_secsolve_on_pol_impl (pol, MPS_OUTPUT_GOAL_ISOLATE, false) &&
-    test_secsolve_on_pol_impl (pol, MPS_OUTPUT_GOAL_APPROXIMATE, false); /*  &&
+    test_secsolve_on_pol_impl (pol, MPS_OUTPUT_GOAL_APPROXIMATE, false); /* &&
     test_secsolve_on_pol_impl (pol, MPS_OUTPUT_GOAL_ISOLATE, true)       &&
     test_secsolve_on_pol_impl (pol, MPS_OUTPUT_GOAL_APPROXIMATE, true); */
 }
@@ -47,15 +47,13 @@ test_secsolve_on_pol_impl (test_pol * pol, mps_output_goal goal, mps_boolean jac
   rdpe_set_2dl (eps, 1.0, - pol->out_digits);
 
   if (!result_stream) 
-    {
-      fprintf (stderr, "Checking \033[1m%-30s\033[0m \033[31;1mno results file found!\033[0m\n", 
-               get_pol_name_from_path (pol->pol_file)); 
+    {    
+      error_test_message ("no results file found", pol->pol_file);
       return EXIT_FAILURE;
     }
   if (!input_stream)
     {
-      fprintf (stderr, "Checking \033[1m%-30s\033[0m \033[31;1mno polinomial file found!\033[0m\n", 
-               get_pol_name_from_path (pol->pol_file)); 
+      error_test_message ("no polynomial file found", pol->pol_file);
       return EXIT_FAILURE;
     }
 
@@ -68,8 +66,7 @@ test_secsolve_on_pol_impl (test_pol * pol, mps_output_goal goal, mps_boolean jac
   /* Load the polynomial that has been given to us */
   mps_parse_stream (s, input_stream);
   
-  fprintf (stderr, "Checking \033[1m%-30s\033[0m [\033[34;1mchecking\033[0m]", 
-           get_pol_name_from_path (pol->pol_file));
+  starting_test_message (pol->pol_file);
 
   mps_context_set_output_prec (s, pol->out_digits);
   mps_context_set_output_goal (s, goal);
@@ -143,6 +140,7 @@ test_secsolve_on_pol_impl (test_pol * pol, mps_output_goal goal, mps_boolean jac
       cdpe_mod (rtmp, cdtmp);
       rdpe_mul_eq (rtmp, eps);
       rdpe_set (exp_drad, rtmp);
+      rdpe_div_eq_d (min_dist, 1 + 4.0 * DBL_EPSILON);      
       
       if ((!rdpe_le (min_dist, drad[found_root]) && !rdpe_gt (drad[found_root], exp_drad)) && !mps_context_get_over_max (s))
         {
@@ -183,11 +181,9 @@ test_secsolve_on_pol_impl (test_pol * pol, mps_output_goal goal, mps_boolean jac
   mps_context_free (s);
 
   if (passed)
-    fprintf (stderr, "\rChecking \033[1m%-30s\033[0m [\033[32;1m  done  \033[0m]\n", 
-             get_pol_name_from_path (pol->pol_file));
+    success_test_message (pol->pol_file);
   else
-    fprintf (stderr, "\rChecking \033[1m%-30s\033[0m [\033[31;1m failed \033[0m]\n", 
-             get_pol_name_from_path (pol->pol_file));
+    failed_test_message (pol->pol_file);
 
   if (getenv ("MPS_VERBOSE_TEST"))
     fail_unless (passed == true,
@@ -526,16 +522,13 @@ END_TEST
 /**
  * @brief Create the secsolve test suite
  */
-  Suite * secsolve_suite (int standard)
+Suite * secsolve_suite (int standard)
 {
   Suite *s = suite_create ("secsolve");
 
   /* Create a test case for the standard MPSolve case and
    * one for the Gemignani's approach. */
   TCase *tc_secular = tcase_create ("Secular equation");
-
-  /* Add our tests */
-  tcase_add_loop_test (tc_secular, test_secsolve, 0, standard);
 
   /* Case of a_i = (-1)^(i+1) , b_i = i */
   tcase_add_test (tc_secular, test_secsolve_altern);
@@ -619,41 +612,6 @@ main (void)
 
   starting_setup ();
 
-  test_polynomials = (test_pol **) malloc (sizeof (test_pol *) * 9);
-
-  /* Tests with rand15. pol */
-  /* Standard MPSolvea approach */
-  test_polynomials[standard++] =
-    test_pol_new ("rand15", "secsolve", 15, float_phase, false);
-  test_polynomials[standard++] =
-    test_pol_new ("rand15", "secsolve", 600, float_phase, false);
-  test_polynomials[standard++] =
-    test_pol_new ("rand15", "secsolve", 15, dpe_phase, false);
-  test_polynomials[standard++] =
-    test_pol_new ("rand15", "secsolve", 600, dpe_phase, false);
-
-  /* Gemignani's approach */
-  test_polynomials[standard++] =
-    test_pol_new ("rand15", "secsolve", 15, float_phase, true);
-  test_polynomials[standard++] =
-    test_pol_new ("rand15", "secsolve", 600, float_phase, true);
-
-  /* Tests with rand120.pol */
-  test_polynomials[standard++] =
-    test_pol_new ("rand120", "secsolve", 15, float_phase, false);
-  test_polynomials[standard++] =
-    test_pol_new ("rand120", "secsolve", 15, dpe_phase, false);
-  test_polynomials[standard++] =
-    test_pol_new ("rand120", "secsolve", 15, float_phase, true);
-
-  /* /\* Tests with deg500.pol *\/ */
-  /* test_polynomials[standard++] = */
-  /*   test_pol_new ("deg500", "secsolve", 15, float_phase, false); */
-  /* test_polynomials[standard++] = */
-  /*   test_pol_new ("deg500", "secsolve", 15, dpe_phase, false); */
-  /* test_polynomials[standard++] = */
-  /*   test_pol_new ("deg500", "secsolve", 15, float_phase, true); */
-
   /* Create a new test suite for secsolve and run it */
   Suite *s = secsolve_suite (standard);
   SRunner *sr = srunner_create (s);
@@ -662,10 +620,6 @@ main (void)
   /* Get number of failed test and report */
   number_failed = srunner_ntests_failed (sr);
   srunner_free (sr);
-
-  for (standard--; standard >= 0; standard--)
-    test_pol_free (test_polynomials[standard]);
-  free (test_polynomials);
 
   return (number_failed != 0);
 }

@@ -16,7 +16,7 @@
  * @brief Evaluate a secular equation <code>sec</code> in the point <code>x</code>
  *
  * @param s The <code>mps_context</code> of the computation.
- * @param sec The secular equation to evaluate.
+ * @param p The secular equation to evaluate.
  * @param x The point in which the secular equation must be evaluated.
  * @param value The value of the secular equation in the pointer <code>x</code>.
  */
@@ -77,7 +77,7 @@ mps_secular_feval_derivative (mps_context * s, mps_polynomial * p, cplx_t x, cpl
  * estimating the error on the evaluation.
  *
  * @param s The <code>mps_context</code> of the computation.
- * @param sec The secular equation to evaluate.
+ * @param p The secular equation to evaluate.
  * @param x The point in which the secular equation must be evaluated.
  * @param value The value of the secular equation in the pointer <code>x</code>.
  * @param error The absolute error on the evaluation.
@@ -117,7 +117,7 @@ mps_secular_feval_with_error (mps_context * s, mps_polynomial * p, cplx_t x, cpl
  * @brief Evaluate a secular equation <code>sec</code> in the point <code>x</code>
  *
  * @param s The <code>mps_context</code> of the computation.
- * @param sec The secular equation to evaluate.
+ * @param p The secular equation to evaluate.
  * @param x The point in which the secular equation must be evaluated.
  * @param value The value of the secular equation in the point <code>x</code>.
  */
@@ -181,7 +181,7 @@ mps_secular_deval_derivative (mps_context * s, mps_polynomial * p, cdpe_t x, cdp
  * @brief Evaluate a secular equation <code>sec</code> in the point <code>x</code>
  *
  * @param s The <code>mps_context</code> of the computation.
- * @param sec The secular equation to evaluate.
+ * @param p The secular equation to evaluate.
  * @param x The point in which the secular equation must be evaluated.
  * @param value The value of the secular equation in the point <code>x</code>.
  * @param error A bound to the module of the relative error occurred in the computation.
@@ -223,7 +223,7 @@ mps_secular_deval_with_error (mps_context * s, mps_polynomial * p,
  * @brief Evaluate a secular equation <code>sec</code> in the point <code>x</code>.
  *
  * @param s The <code>mps_context</code> of the computation.
- * @param sec The secular equation to evaluate.
+ * @param p The secular equation to evaluate.
  * @param x The point in which the sceular equation must be evaluated.
  * @param value The value of the secular equation in the point <code>x</code>.
  */
@@ -263,7 +263,7 @@ mps_secular_meval (mps_context * s, mps_polynomial * p, mpc_t x, mpc_t value)
  * @brief Evaluate a secular equation <code>sec</code> in the point <code>x</code>.
  *
  * @param s The <code>mps_context</code> of the computation.
- * @param sec The secular equation to evaluate.
+ * @param p The secular equation to evaluate.
  * @param x The point in which the sceular equation must be evaluated.
  * @param value The value of the secular equation in the point <code>x</code>.
  * @param error A bound to the absolute value of the error introduced in the computation.

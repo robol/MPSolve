@@ -27,9 +27,6 @@
 /* Define to 1 if you have the `m' library (-lm). */
 #undef HAVE_LIBM
 
-/* Define to 1 if you have the `mpfr' library (-lmpfr). */
-#undef HAVE_LIBMPFR
-
 /* Define to 1 if you have the `tcmalloc_minimal' library
    (-ltcmalloc_minimal). */
 #undef HAVE_LIBTCMALLOC_MINIMAL
@@ -46,9 +43,6 @@
 
 /* Define to 1 if you have the `modf' function. */
 #undef HAVE_MODF
-
-/* Define to 1 if you have the <mpfr.h> header file. */
-#undef HAVE_MPFR_H
 
 /* Define to 1 if you have the `pow' function. */
 #undef HAVE_POW

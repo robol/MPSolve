@@ -1,7 +1,6 @@
 NULL = 
 
 lib_LTLIBRARIES = libmps.la
-libmps_la_LDFLAGS = -version-info 3:0:0
 includedir=${prefix}/include/mps
 include_HEADERS = \
         ${top_srcdir}/include/mps/approximation.h \
@@ -28,7 +27,9 @@ include_HEADERS = \
 
 AM_CPPFLAGS= \
         -I${top_srcdir}/include \
-	$(MPS_CFLAGS) \
+	$(LIBMPS_CFLAGS) \
+	$(GMP_CFLAGS) \
+	$(PTHREAD_CFLAGS) \
 	$(NULL)
 
 libmps_la_SOURCES = \
@@ -80,6 +81,12 @@ libmps_la_SOURCES = \
 	    user.c \
 	    $(NULL)
 
+libmps_la_LDFLAGS = \
+        -version-info 3:0:0 \
+	$(PTHREAD_CFLAGS)
+
 libmps_la_LIBADD = \
 	$(MPS_LDFLAGS) \
+	$(GMP_LIBS) \
+	$(PTHREAD_LIBS) \
 	$(NULL)

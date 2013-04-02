@@ -364,7 +364,7 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
  * \f[|b_i - \tilde b_i| < u\f]
  * so there is no need to recompute the value of \f$p(b_i)\f$.
  * @param old_mb The MP version of <code>old_b</code>, or NULL if we are not in MP. 
- * @param root_changed A vector of booleans that is <codefalse</code> on the components that
+ * @param root_changed A vector of booleans that is <code>false</code> on the components that
  * did not changed from the last regeneration. 
  */
 mps_boolean
@@ -511,6 +511,11 @@ __mps_compare_approximations (const void * approximation1, const void * approxim
   return return_value;
 }
 
+/**
+ * @brief Separate approximations that are too near with respect to the current precision. 
+ *
+ * @param ctx The current mps_context.
+ */
 static void
 mps_secular_ga_separate_approximations (mps_context * ctx)
 {

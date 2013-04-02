@@ -5,7 +5,9 @@
 #include "root.h"
 #include "mpsolveworker.h"
 #include "polynomial.h"
+#include "rootsmodel.h"
 #include <mps/mps.h>
+#include <stdio.h>
 
 namespace xmpsolve {
 
@@ -31,6 +33,14 @@ public:
     int solvePoly(Polynomial poly, mps_algorithm selected_algorithm = MPS_ALGORITHM_SECULAR_GA,
                   int required_digits = 16);
 
+    /**
+     * @brief Solve a polynomial specified by a .pol file.
+     *
+     * @return The degree of the polynomial.
+     */
+    int solvePolFile(QString selectedFile, mps_algorithm selected_algorithm = MPS_ALGORITHM_SECULAR_GA,
+                     int required_digits = 16);
+
     /** @brief Parse the string describing the polynomial
       * and solve it.
       *
@@ -52,15 +62,24 @@ public:
      */
     unsigned long int CPUTime();
 
+    /**
+     * @brief rootsModel returns a pointer to the internal rootsModel that
+     * holds the approximations computed by the algorithm.
+     * @return A pointer to the internal rootsModel.
+     */
+    RootsModel * rootsModel();
+
 private:
     MPSolveWorker m_worker;
     mps_context * m_mpsContext;
     QString m_errorMessage;
     Polynomial m_currentPoly;
+
+    RootsModel m_rootsModel;
     
 signals:
     /** @brief Signal emitted when the computation ends. */
-    void solved(QList<Root*>);
+    void solved();
     
 public slots:
     /** @brief Called when the thread solving the polynomial exits. */

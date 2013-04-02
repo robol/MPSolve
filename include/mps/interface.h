@@ -138,7 +138,7 @@ extern "C"
    * // precision, and you should use mps_context_get_roots_m() to get
    * // multiprecision approximation of the roots.
    * cplx_t * results = cplx_valloc (n);
-   * mps_context_get_roots_d (status, results, NULL);
+   * mps_context_get_roots_d (status, &results, NULL);
    *
    * // Free the data used. This will free the monomial_poly if you have
    * // not done it by yourself.
