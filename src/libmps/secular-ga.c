@@ -248,6 +248,33 @@ mps_secular_ga_mpsolve (mps_context * s)
       if (mps_secular_ga_check_stop (s))
         goto cleanup;
 
+      /* In the case where we started in DPE but the initial approximation are
+       * representable as standard floating point numbers, go back to float_phase. */
+      if (s->lastphase == dpe_phase)
+      {
+        mps_boolean really_need_dpe = false;
+        rdpe_t module;
+
+        for (i = 0; i < s->n; i++)
+        {
+          cdpe_mod (module, s->root[i]->dvalue);
+          if (rdpe_gt (module, rdpe_maxd) || rdpe_lt (module, rdpe_mind))
+            really_need_dpe = true;
+        }
+
+        if (! really_need_dpe) 
+        {
+          MPS_DEBUG_WITH_INFO (s, "Going back to float_phase because all the approximations"
+            "are representable as standard floating point numbers.");
+          s->lastphase = float_phase;
+          for (i = 0; i < s->n; i++)
+          {
+            cdpe_get_x (s->root[i]->fvalue, s->root[i]->dvalue);
+            s->root[i]->frad = DBL_MAX;
+          }
+        }
+      }
+
       /* Check if we can manage to perform the recomputation of the
        * coefficients. If in floating point, switch do DPE if it fail.
        */

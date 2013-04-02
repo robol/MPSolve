@@ -22,7 +22,7 @@ m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
 
 # Checks for needed compilers
 AC_PROG_CXX
-# AC_PROG_CC_C99
+AC_PROG_CC_C99
 AM_PROG_CC_C_O
 AC_C_INLINE
 
