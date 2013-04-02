@@ -39,11 +39,6 @@ extern "C"
 #endif
 
 #ifdef NICE_DEBUG
-  
-  /**
-   * @brief Print a debug information.
-   */
-#if __STDC_VERSION__ >= 199901L
 
   /**
    * @brief Shorthand for compiling with the MPS_DEBUG_INFO level.
@@ -60,8 +55,6 @@ extern "C"
       fprintf(s->logstr, "\n");                 \
     }                                           \
   }
-
-#endif
 
   /**
    * @brief Debug the value of a complex multiprecision
@@ -245,20 +238,8 @@ extern "C"
 #ifdef __MPS_DEBUG
 #undef __MPS_DEBUG
 #endif
-#define MPS_DEBUG {                                                     \
-    if (s->DOLOG && mps_is_a_tty(s->logstr))                            \
-      fprintf(s->logstr, "%s:%d \033[32;1m%s()\033[;0m ", __FILE__, __LINE__, __FUNCTION__); \
-    if (s->DOLOG && !mps_is_a_tty(s->logstr))                           \
-      fprintf(s->logstr, "%s:%d %s() ", __FILE__, __LINE__, __FUNCTION__); \
-    __c_impl__MPS_DEBUG                                                 \
-      }
-#define __MPS_DEBUG {                                                   \
-    if (s->DOLOG && mps_is_a_tty(s->logstr))                            \
-      fprintf(s->logstr, "%s:%d \033[32;1m%s()\033[;0m ", __FILE__, __LINE__, __FUNCTION__); \
-    if (s->DOLOG && !mps_is_a_tty(s->logstr))                           \
-      fprintf(s->logstr, "%s:%d %s() ", __FILE__, __LINE__, __FUNCTION__); \
-    __c_impl____MPS_DEBUG                                               \
-      }
+#define MPS_DEBUG __c_impl__MPS_DEBUG
+#define __MPS_DEBUG __c_impl____MPS_DEBUG
   void __c_impl__MPS_DEBUG (mps_context * s, const char *templ, ...);
   void __c_impl____MPS_DEBUG (mps_context * s, const char *templ, ...);
 #endif

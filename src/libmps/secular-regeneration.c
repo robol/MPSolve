@@ -14,6 +14,10 @@
 #include <math.h>
 #include <string.h>
 
+#ifndef log2
+#define log2(x) (log(x) / LOG2)
+#endif
+
 /**
  * @brief Update the working precision of a root, i.e. the variable
  * <code>s->root[i]->wp</code> with the given precision rounded to the 
@@ -39,10 +43,8 @@ mps_secular_ga_update_root_wp (mps_context * s, int i, long int wp, mpc_t * bmpc
   if (s->debug_level & MPS_DEBUG_MEMORY)  
     MPS_DEBUG (s, "Setting wp for root %d to %ld bits", i, s->root[i]->wp);  
 
-  // pthread_mutex_lock (&sec->ampc_mutex[i]);
   if (mpc_get_prec (sec->ampc[i]) < s->root[i]->wp)  
     mpc_set_prec (sec->ampc[i], s->root[i]->wp);  
-  // pthread_mutex_unlock (&sec->ampc_mutex[i]);
 
   mps_polynomial_raise_data (s, p, s->root[i]->wp);
   

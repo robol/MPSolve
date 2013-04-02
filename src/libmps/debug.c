@@ -43,3 +43,30 @@ mps_stop_timer (clock_t * my_timer)
   free (my_timer);
   return delta;
 }
+
+void
+__c_impl__MPS_DEBUG (mps_context * ctx, const char * format, ...)
+{
+  va_list ap;
+  va_start (ap, format);
+
+  fprintf (ctx->logstr, "DEBUG: ");
+  vfprintf (ctx->logstr, format, ap);
+  fprintf (ctx->logstr, "\n");
+
+  va_end (ap);
+}
+
+void
+__c_impl____MPS_DEBUG (mps_context * ctx, const char * format, ...)
+{
+  va_list ap;
+  va_start (ap, format);
+
+  fprintf (ctx->logstr, "DEBUG: ");
+  vfprintf (ctx->logstr, format, ap);
+
+  va_end (ap);
+}
+
+

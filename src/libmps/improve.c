@@ -15,6 +15,10 @@
 #include <math.h>
 #include <limits.h>
 
+#ifndef log2
+#define log2(x) (log(x) / LOG2)
+#endif
+
 static int 
 get_approximated_bits (mps_approximation * appr)
 {
@@ -195,7 +199,6 @@ mps_improve (mps_context * ctx)
               data->precision = current_precision;
 
               mps_thread_pool_assign (ctx, NULL, improve_root_wrapper, data);
-              // improve_root_wrapper (data);
             }
           }
 

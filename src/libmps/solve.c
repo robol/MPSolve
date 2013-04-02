@@ -245,7 +245,6 @@ mps_msrad (mps_context * s, mps_cluster * cluster, mpc_t sc, rdpe_t sr)
           if (s->debug_level & MPS_DEBUG_CLUSTER) 
             {
               MPS_DEBUG_RDPE (s, sr, "Super radius of the cluster");
-              // MPS_DEBUG_RDPE (s, rtmp, "rtmp");
             }
         }
     }

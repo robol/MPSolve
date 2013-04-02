@@ -107,13 +107,3 @@ mps_realloc (void * pointer, size_t size)
     }
   return value;
 }
-
-/**
- * @brief Allocate size bytes on the stack
- */
-void *
-mps_alloca (size_t size)
-{
-  register void *value = alloca (size);
-  return value;
-}

@@ -434,7 +434,6 @@ mps_secular_ga_mpsolve (mps_context * s)
 
        /* Check if all the roots are approximated or, if we have done more than 4 packets
         * of iterations without finding all of them, if at least we are near to the result. */
-       // if (roots_computed >= MIN (s->n, s->n + 4 - packet))
          {
            if (mps_secular_ga_regenerate_coefficients (s))
              {

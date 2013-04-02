@@ -16,6 +16,10 @@
 #include <ctype.h>
 #include <locale.h>
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #ifndef __WINDOWS
 #include <unistd.h>
 #else
@@ -538,6 +542,14 @@ mps_is_a_tty (FILE * stream)
   return _isatty (_fileno (stream));
 #endif
 }
+
+/* Prepare a implicit definition if not provided by the compiler but
+ * available as a non-conformant extension. */
+#ifndef vsnprintf
+#ifdef HAVE_VSNPRINTF
+int snprintf(char *str, size_t size, const char *format, ...);
+#endif
+#endif
 
 /*************************************************************
  *                     SUBROUTINE VAERROR                    *
