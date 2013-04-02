@@ -50,9 +50,12 @@ __c_impl__MPS_DEBUG (mps_context * ctx, const char * format, ...)
   va_list ap;
   va_start (ap, format);
 
-  fprintf (ctx->logstr, "DEBUG: ");
-  vfprintf (ctx->logstr, format, ap);
-  fprintf (ctx->logstr, "\n");
+  if (ctx->DOLOG)
+    {
+      fprintf (ctx->logstr, "DEBUG: ");
+      vfprintf (ctx->logstr, format, ap);
+      fprintf (ctx->logstr, "\n");
+    }
 
   va_end (ap);
 }
@@ -63,8 +66,11 @@ __c_impl____MPS_DEBUG (mps_context * ctx, const char * format, ...)
   va_list ap;
   va_start (ap, format);
 
-  fprintf (ctx->logstr, "DEBUG: ");
-  vfprintf (ctx->logstr, format, ap);
+  if (ctx->DOLOG)
+    {
+      fprintf (ctx->logstr, "DEBUG: ");
+      vfprintf (ctx->logstr, format, ap);
+    }
 
   va_end (ap);
 }
