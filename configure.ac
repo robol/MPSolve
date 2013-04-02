@@ -22,9 +22,12 @@ m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
 
 # Checks for needed compilers
 AC_PROG_CXX
-AC_PROG_CC
+# AC_PROG_CC_C99
 AM_PROG_CC_C_O
-AC_PROG_CC_C99
+AC_C_INLINE
+
+# We need vsnprintf for signaling error in the code. 
+AX_FUNC_SNPRINTF
 
 # Checks for header files.
 AC_CHECK_HEADERS([stdlib.h string.h unistd.h])

@@ -1166,7 +1166,6 @@ mps_frestart (mps_context * s)
       g = mps_approximation_new (s);
       cplx_set (g->fvalue, sc);
 
-      // cplx_set (g, sc);
       for (j = 0; j < s->max_newt_it; j++)
         {
           mps_fnewton (s, MPS_POLYNOMIAL (p), g, corr);
@@ -1460,7 +1459,7 @@ mps_cluster_check_detachment (mps_context * ctx, mps_clusterization * clusteriza
             {
               if (ctx->debug_level & MPS_DEBUG_CLUSTER)
                 MPS_DEBUG (ctx, 
-                  "Cluster containing root %d was successfuly detached.", k)
+                  "Cluster containing root %d was successfuly detached.", k);
 
               /* We need to stop marking this cluster as detached, that means
                * "experimental" in this context. */
@@ -1558,8 +1557,6 @@ mps_mrestart (mps_context * s)
       for (root = cluster->first; root != NULL; root = root->next)
         {                       /* looptst: */
           l = root->k;
-          // if (!s->root[l]->again && s->algorithm == MPS_ALGORITHM_STANDARD_MPSOLVE)
-          //   goto clean_detached_cluster;
 
           if (s->output_config->goal == MPS_OUTPUT_GOAL_COUNT)
             {

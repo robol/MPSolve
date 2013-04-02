@@ -37,6 +37,7 @@ libmps_la_SOURCES = \
 	    approximation.c \
 	    chebyshev.c \
 	    chebyshev-evaluation.c \
+	    chebyshev-parser.c \
 	    cluster.c \
 	    cluster-analysis.c \
 	    context.c \
@@ -52,28 +53,31 @@ libmps_la_SOURCES = \
 	    improve.c \
 	    inclusion.c \
 	    input-buffer.c \
+	    input-output.c \
 	    interface.c \
 	    jacobi-aberth.c \
 	    link.c \
 	    main.c \
 	    modify.c \
+	    monomial-parser.c \
 	    monomial-poly.c \
 	    monomial-threading.c \
 	    mpc.c \
 	    mt.c \
 	    newton.c \
+	    parser.c \
 	    polynomial.c \
+	    secular-equation.c \
 	    secular-evaluation.c \
 	    secular-ga.c \
 	    secular-iteration.c \
+	    secular-parser.c \
 	    secular-newton.c \
 	    secular-regeneration.c \
 	    secular-starting.c \
-	    secular-equation.c \
 	    solve.c \
 	    sort.c \
 	    starting.c \
-	    stio.c \
 	    test.c \
 	    threading.c \
 	    tools.c \

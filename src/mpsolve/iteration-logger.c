@@ -69,7 +69,6 @@ void
 mps_iteration_logger_set_mps_context (MpsIterationLogger * logger, mps_context * context)
 {
   logger->ctx = context;
-  // mps_iteration_logger_set_roots (logger, logger->ctx->root, mps_context_get_degree (context));
 }
 
 void

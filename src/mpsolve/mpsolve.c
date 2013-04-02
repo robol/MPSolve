@@ -269,7 +269,7 @@ main (int argc, char **argv)
           {
             FILE* logstr = fopen (opt->optvalue, "w");
             if (!logstr)
-              mps_error (s, 1, "Cannot open selected log file.");
+              mps_error (s, "Cannot open selected log file.");
             mps_context_set_log_stream (s, logstr);
           }
           break;
@@ -288,7 +288,7 @@ main (int argc, char **argv)
         case 'O':
           /* Select the desired output format */
           if (!opt->optvalue)
-            mps_error (s, 1, "An argument is needed for option 'O'");
+            mps_error (s, "An argument is needed for option 'O'");
           
           switch (*opt->optvalue)
             {
@@ -318,7 +318,7 @@ main (int argc, char **argv)
               mps_context_set_output_format (s, MPS_OUTPUT_FORMAT_COMPACT);
               break;
             default:
-              mps_error (s, 1, "The selected output format is not supported");
+              mps_error (s, "The selected output format is not supported");
               break;
             }
 
@@ -359,11 +359,11 @@ main (int argc, char **argv)
                 s->output_config->search_set = MPS_SEARCH_SET_CUSTOM;
                 break;
               default:
-                mps_error (s, 3, "Bad search set switch: ", opt->optvalue,
+                mps_error (s, "Bad search set switch: ", opt->optvalue,
                            ", use a|r|l|u|d|i|o|R|I|U");
               }
             if (strlen (opt->optvalue) != 1)
-              mps_error (s, 2, "Bad set: ", opt->optvalue);
+              mps_error (s, "Bad set: ", opt->optvalue);
             break;
 
             /* select multiplicity */
@@ -377,11 +377,11 @@ main (int argc, char **argv)
                 s->output_config->multiplicity = false;
                 break;
               default:
-                mps_error (s, 3, "Bad multiplicity switch: ", opt->optvalue,
+                mps_error (s, "Bad multiplicity switch: ", opt->optvalue,
                            ", use +|-");
               }
             if (strlen (opt->optvalue) != 3)
-              mps_error (s, 2, "Bad multiplicity option: ", opt->optvalue);
+              mps_error (s, "Bad multiplicity option: ", opt->optvalue);
             break;
 
             /* detection */
@@ -402,18 +402,18 @@ main (int argc, char **argv)
                   MPS_OUTPUT_PROPERTY_IMAGINARY;
                 break;
               default:
-                mps_error (s, 3, "Bad detection switch: ", opt->optvalue,
+                mps_error (s, "Bad detection switch: ", opt->optvalue,
                            ", use n|r|i|b");
               }
             if (strlen (opt->optvalue) != 1)
-              mps_error (s, 2, "Bad detection option: ", opt->optvalue);
+              mps_error (s, "Bad detection option: ", opt->optvalue);
             break;
 
             /* I/O streams */
           case 'R':
             s->rtstr = fopen (opt->optvalue, "r");
             if (s->rtstr == NULL)
-              mps_error (s, 2, "Cannot open roots file: ", opt->optvalue);
+              mps_error (s, "Cannot open roots file: ", opt->optvalue);
             s->resume = true;
             break;
 
@@ -428,11 +428,11 @@ main (int argc, char **argv)
                 s->chkrad = false;
                 break;
               default:
-                mps_error (s, 3, "Bad check switch: ", opt->optvalue,
+                mps_error (s, "Bad check switch: ", opt->optvalue,
                            ", use R|r");
               }
             if (strlen (opt->optvalue) != 1)
-              mps_error (s, 2, "Bad check option: ", opt->optvalue);
+              mps_error (s, "Bad check option: ", opt->optvalue);
             break;
 
             
@@ -446,7 +446,7 @@ main (int argc, char **argv)
               mps_context_select_algorithm (s, MPS_ALGORITHM_SECULAR_GA);
               break;
             default:
-              mps_error (s, 1, "The selected algorithm is not supported");
+              mps_error (s, "The selected algorithm is not supported");
               break;
             }
           break;
@@ -472,7 +472,7 @@ main (int argc, char **argv)
               mps_context_set_output_goal (s, MPS_OUTPUT_GOAL_COUNT);
               break;
             default:
-              mps_error (s, 1, "The selected goal does not exists");
+              mps_error (s, "The selected goal does not exists");
               break;
             }
           break;
@@ -520,7 +520,7 @@ main (int argc, char **argv)
                   break;
                 default:
                   sprintf (output, "Unrecognized debug option: %c", *(opt->optvalue - 1));
-                  mps_error (s, 1, output);
+                  mps_error (s, output);
                   break;
                 }
             }
@@ -590,7 +590,7 @@ main (int argc, char **argv)
 
   if (!infile)
     {
-      mps_error (s, 1, "Cannot open input file for read, aborting.");
+      mps_error (s, "Cannot open input file for read, aborting.");
       mps_print_errors (s);
       return EXIT_FAILURE;
     }
