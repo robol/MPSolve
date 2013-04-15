@@ -27,7 +27,7 @@ mps_chebyshev_poly_read_from_stream (mps_context * ctx, mps_input_buffer * buffe
 {
   int i, degree = -1;
   char * token;
-  mps_chebyshev_poly * cpoly = mps_chebyshev_poly_new (ctx, ctx->n, structure);
+  mps_chebyshev_poly * cpoly = mps_chebyshev_poly_new (ctx, ctx->n, structure);  
 
   switch (density)
     {
@@ -42,7 +42,7 @@ mps_chebyshev_poly_read_from_stream (mps_context * ctx, mps_input_buffer * buffe
                   {
                     mps_raise_parsing_error (ctx, buffer, token, 
                       "Error while reading real part of coefficient");
-                    free (token);
+                    free (token); mps_polynomial_free (ctx, MPS_POLYNOMIAL (cpoly));
                     return NULL;
                   }
                 free (token);
@@ -54,7 +54,7 @@ mps_chebyshev_poly_read_from_stream (mps_context * ctx, mps_input_buffer * buffe
                     if (!token || (mpf_set_str (mpc_Im (cpoly->mfpc[i]), token, 10) != 0)) 
                       {
                         mps_raise_parsing_error (ctx, buffer, token, "Error while reading imaginary part of coefficient");
-                        free (token);
+                        free (token); mps_polynomial_free (ctx, MPS_POLYNOMIAL (cpoly));
                         return NULL;
                       }
                     else
@@ -69,7 +69,7 @@ mps_chebyshev_poly_read_from_stream (mps_context * ctx, mps_input_buffer * buffe
                     {
                       mps_raise_parsing_error (ctx, buffer, token, 
                         "Error while reading the real part of coefficient");
-                      free (token);
+                      free (token); mps_polynomial_free (ctx, MPS_POLYNOMIAL (cpoly));
                       return NULL;
                     }
                   free (token);
@@ -82,7 +82,7 @@ mps_chebyshev_poly_read_from_stream (mps_context * ctx, mps_input_buffer * buffe
                         {
                           mps_raise_parsing_error (ctx, buffer, token, 
                             "Error while reading the imaginary part of coefficient");
-                          free (token);
+                          free (token); mps_polynomial_free (ctx, MPS_POLYNOMIAL (cpoly));
                           return NULL;
                         }
                       free (token);
@@ -117,7 +117,7 @@ mps_chebyshev_poly_read_from_stream (mps_context * ctx, mps_input_buffer * buffe
         if (!token || !sscanf (token, "%d", &degree))
           {
             mps_raise_parsing_error (ctx, buffer, token, "Cannot parse the degree of the coefficient.");
-            free (token);
+            free (token); mps_polynomial_free (ctx, MPS_POLYNOMIAL (cpoly));
             return NULL;
           }
 
@@ -130,7 +130,7 @@ mps_chebyshev_poly_read_from_stream (mps_context * ctx, mps_input_buffer * buffe
             if (!token || (mpf_set_str (mpc_Re (cpoly->mfpc[degree]), token, 10) != 0)) 
               {
                 mps_raise_parsing_error (ctx, buffer, token, "Error while reading real part of coefficient");
-                free (token);
+                free (token); mps_polynomial_free (ctx, MPS_POLYNOMIAL (cpoly));
                 return NULL;
               }
 
@@ -144,7 +144,7 @@ mps_chebyshev_poly_read_from_stream (mps_context * ctx, mps_input_buffer * buffe
                   {
                     mps_raise_parsing_error (ctx, buffer, token, 
                       "Error while reading imaginary part of coefficient %d", degree);
-                    free (token);
+                    free (token); mps_polynomial_free (ctx, MPS_POLYNOMIAL (cpoly));
                     return NULL;
                   }
 
@@ -158,7 +158,7 @@ mps_chebyshev_poly_read_from_stream (mps_context * ctx, mps_input_buffer * buffe
             if (!token || (mpq_set_str (cpoly->rational_real_coeffs[degree], token, 10)))
               {
                 mps_raise_parsing_error (ctx, buffer, token, "Error while reading the real part of coefficient %d", i);
-                free (token);
+                free (token); mps_polynomial_free (ctx, MPS_POLYNOMIAL (cpoly));
                 return NULL;
               }
 
@@ -172,7 +172,7 @@ mps_chebyshev_poly_read_from_stream (mps_context * ctx, mps_input_buffer * buffe
                   {
                     mps_raise_parsing_error (ctx, buffer, token, 
                       "Error while reading the imaginary part of coefficient %d", i);
-                    free (token);
+                    free (token); mps_polynomial_free (ctx, MPS_POLYNOMIAL (cpoly));
                     return NULL;
                   }
 
@@ -186,6 +186,7 @@ mps_chebyshev_poly_read_from_stream (mps_context * ctx, mps_input_buffer * buffe
 
       default:
         mps_error (ctx, "Only MPS_DENSITY_DENSE and MPS_DENSITY_SPARSE are supported in Chebyshev polynomials.");
+        mps_polynomial_free (ctx, MPS_POLYNOMIAL (cpoly));
         return NULL;
         break;
     }

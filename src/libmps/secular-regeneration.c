@@ -630,6 +630,7 @@ mps_secular_ga_separate_approximations (mps_context * ctx)
         }
     }
 
+  free (current_approximations);
   mpc_clear (perturbation);
 }
 

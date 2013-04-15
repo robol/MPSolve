@@ -62,6 +62,7 @@ mps_standard_mpsolve (mps_context * s)
   if (s->resume) 
     {
       mps_error (s, "Resume not supported yet");
+      mps_stop_timer (my_timer);
       return;
     }
 
@@ -80,7 +81,10 @@ mps_standard_mpsolve (mps_context * s)
 
   /* Check for errors in check data */
   if (mps_context_has_errors (s))
+  {
+    mps_stop_timer (my_timer);
     return;
+  }
 
   rdpe_set_2dl (s->eps_out, 1.0, - s->output_config->prec);
 
@@ -503,14 +507,12 @@ mps_check_data (mps_context * s, char *which_case)
           mps_error (s,
                     "The real/imaginary option has not been yet implemented for rational input");
           return;
-          s->sep = 0.0;
         }
       else
         {
           mps_error (s, "The input polynomial has neither integer nor rational "
                            "coefficients: unable to perform real/imaginary options");
           return;
-          s->sep = 0.0;
         }
     }
 

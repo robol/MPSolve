@@ -240,6 +240,7 @@ mps_secular_ga_mpsolve (mps_context * s)
 
         default:
           mps_error (s, "Unrecognized starting phase");
+          mps_stop_timer (total_clock);
           return;
       }
 
@@ -405,6 +406,7 @@ mps_secular_ga_mpsolve (mps_context * s)
       if (packet > s->max_pack)
         {
           mps_error (s, "Maximum number of iteration passed. Aborting.");
+          mps_stop_timer (total_clock);
           return;
         }
       

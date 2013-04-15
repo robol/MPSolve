@@ -9,6 +9,7 @@ RootsRenderer::RootsRenderer(QWidget *parent) :
     QWidget(parent)
 {
     m_maxImagModule = m_maxRealModule = 0.0;
+    m_model = NULL;
 }
 
 void

@@ -167,13 +167,6 @@ mps_secular_fnewton (mps_context * s, mps_polynomial * p, mps_approximation * ro
            }
   	    }
 
-      if (i == MPS_PARALLEL_SUM_FAILED)
-        {
-          root->status = MPS_ROOT_STATUS_NOT_FLOAT;
-          root->again = false;
-          return;
-        }
-
       cplx_sub_eq (corr, cplx_one);
 
       if (!cplx_eq_zero (corr))

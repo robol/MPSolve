@@ -20,7 +20,7 @@
 void
 mps_skip_comments (FILE * input_stream)
 {
-  char buf;
+  int buf;
   while ((buf = fgetc (input_stream)) == '!' || isspace (buf))
     if (buf == '!')
       /* Skip until newline */
@@ -300,6 +300,7 @@ mps_parse_stream (mps_context * s, FILE * input_stream)
               if (s->n <= 0)
               {
                 mps_error (s, "Degree must be a positive integer");
+                mps_input_buffer_free (buffer);
                 return;
               }
             }
@@ -311,6 +312,7 @@ mps_parse_stream (mps_context * s, FILE * input_stream)
               if (input_precision <= 0)
               {
                 mps_error (s, "Precision must be a positive integer");
+                mps_input_buffer_free (buffer);
                 return;
               }
             }

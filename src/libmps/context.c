@@ -249,6 +249,8 @@ mps_context_set_poly_i (mps_context * s, int *coeff, long unsigned int n)
       mpq_set_si (p->initial_mqp_r[i], coeff[i], 1U);
     }
 
+  mps_context_set_input_poly (s, MPS_POLYNOMIAL (p));
+
   return 0;
 }
 

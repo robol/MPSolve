@@ -281,7 +281,7 @@ mps_input_buffer_next_token (mps_input_buffer * buf)
           (*buf->last_token == '\0')) && 
         (token == NULL))
       {
-        if (buf->last_token == '\0')
+        if (*buf->last_token == '\0')
           break;
         token = buf->last_token;
       }

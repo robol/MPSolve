@@ -574,11 +574,16 @@ mps_error (mps_context * s, const char * format, ...)
     buffer_size += missing_characters + 1;
     s->last_error = mps_realloc (s->last_error, buffer_size);
   }
+
+  va_end (ap);
 }
 
 void
 mps_print_errors (mps_context * s)
 {
+  if (s->logstr == NULL)
+    s->logstr = stderr;
+
   if (mps_is_a_tty (s->logstr))
     mps_warn (s, "\033[31;1m!\033[0m MPSolve encountered an error:");  /* output error message */
   else

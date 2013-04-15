@@ -25,17 +25,19 @@ int
 mps_thread_get_core_number (mps_context * s)
 {
   FILE *cpuinfo = fopen ("/proc/cpuinfo", "r");
-  char buf;
+  int buf;
   int cores = 0;
   char * cores_env = NULL;
 
   if ((cores_env = getenv ("MPS_JOBS")) != NULL)
     {
-      cores = atoi (cores_env);
-      return cores;
+      /* Give reasonable bounds to the possible values of MPS_JOBS */
+      cores = MAX (1, MIN (MPS_MAX_CORES, atoi (cores_env)));
 
       if (cpuinfo) 
         fclose (cpuinfo);
+
+      return cores;
     }
 
   /* If the metafile /proc/cpuinfo is not available
@@ -248,9 +250,11 @@ void mps_thread_pool_set_concurrency_limit (mps_context * s, mps_thread_pool * p
     pool->n = concurrency_limit;
 
     i = 0;
-    for (thread = old_first; i < (pool->concurrency_limit - concurrency_limit); thread = thread->next, i++)
+    for (thread = old_first; i < (pool->concurrency_limit - concurrency_limit); i++)
     {
+      mps_thread * next = thread->next;
       mps_thread_free (s, thread);
+      thread = next;
     }
   }
   else

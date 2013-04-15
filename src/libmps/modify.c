@@ -17,7 +17,7 @@
 void
 mps_cluster_detect_properties (mps_context * ctx, mps_cluster * cluster, mps_phase phase)
 {
-  mps_root * root = root = cluster->first;
+  mps_root * root = cluster->first;
   rdpe_t log_rad;
   mps_boolean (*touch_check) (mps_context * , int, int);
 

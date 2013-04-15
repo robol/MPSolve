@@ -288,7 +288,10 @@ main (int argc, char **argv)
         case 'O':
           /* Select the desired output format */
           if (!opt->optvalue)
-            mps_error (s, "An argument is needed for option 'O'");
+            {
+              mps_error (s, "An argument is needed for option 'O'");
+              break;
+            }
           
           switch (*opt->optvalue)
             {

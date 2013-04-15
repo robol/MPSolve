@@ -23,6 +23,7 @@ extern "C"
 #define MPS_THREADING_H_
 
 #define MPS_THREAD_JOB_EXCEP -1
+#define MPS_MAX_CORES 8192
 
 #define mps_with_lock(pmutex, code) { \
   pthread_mutex_lock (&pmutex); \

@@ -4,6 +4,11 @@ namespace xmpsolve {
 
 Root::Root()
 {
+    mpc_init2  (this->value, 0);
+    mpc_set_ui (this->value, 0U, 0U);
+
+    rdpe_set (this->radius, rdpe_zero);
+    this->status = MPS_ROOT_STATUS_CLUSTERED;
 }
 
 Root::Root(mpc_t value, rdpe_t radius, mps_root_status status)

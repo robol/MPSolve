@@ -58,7 +58,10 @@ mps_secular_equation_read_from_stream (mps_context * s,
                          "Error reading some coefficients of the secular equation.\n"
                          "Please check your input file.");
               free (token);
-              return NULL;
+              
+              mps_polynomial_free (s, MPS_POLYNOMIAL (sec));
+              sec = NULL;
+              goto cleanup;
             }
           free (token);
 
@@ -75,7 +78,10 @@ mps_secular_equation_read_from_stream (mps_context * s,
                              "Error reading some coefficients of the secular equation.\n"
                              "Please check your input file.");
                   free (token);
-                  return NULL;
+              
+                  mps_polynomial_free (s, MPS_POLYNOMIAL (sec));
+                  sec = NULL;
+                  goto cleanup;
                 }
               free (token);
             }
@@ -94,7 +100,10 @@ mps_secular_equation_read_from_stream (mps_context * s,
                          "Error reading some coefficients of the secular equation.\n"
                          "Please check your input file.");
               free (token);
-              return NULL;
+              
+              mps_polynomial_free (s, MPS_POLYNOMIAL (sec));
+              sec = NULL;
+              goto cleanup;
             }
           free (token);
 
@@ -111,7 +120,10 @@ mps_secular_equation_read_from_stream (mps_context * s,
                              "Error reading some coefficients of the secular equation.\n"
                              "Please check your input file.");
                   free (token);
-                  return NULL;
+
+                  mps_polynomial_free (s, MPS_POLYNOMIAL (sec));
+                  sec = NULL;
+                  goto cleanup;
                 }
               free (token);
             }
@@ -139,8 +151,13 @@ mps_secular_equation_read_from_stream (mps_context * s,
               mps_raise_parsing_error (s, buffer, token, 
                                        "Error reading some coefficients of the secular equation.\n"
                                        "Please check your input file");
+              
+              /* Cleanup temporary variables and exit */
               free (token);
-              return NULL;
+              mps_polynomial_free (s, MPS_POLYNOMIAL (sec));
+              sec = NULL;
+
+              goto cleanup;
             }
           mpq_canonicalize (sec->initial_ampqrc[i]);
           free (token);
@@ -156,7 +173,10 @@ mps_secular_equation_read_from_stream (mps_context * s,
                                            "Error reading some coefficients of the secular equation."
                                            "Please check your input file");
                   free (token);
-                  return NULL;
+              
+                  mps_polynomial_free (s, MPS_POLYNOMIAL (sec));
+                  sec = NULL;
+                  goto cleanup;
                 }
               mpq_canonicalize (sec->initial_ampqic[i]);
               free (token);
@@ -173,7 +193,10 @@ mps_secular_equation_read_from_stream (mps_context * s,
                                        "Error reading some coefficients of the secular equation."
                                        "Please check your input file");
               free (token);
-              return NULL;
+              
+              mps_polynomial_free (s, MPS_POLYNOMIAL (sec));
+              sec = NULL;
+              goto cleanup;
             }       
           mpq_canonicalize (sec->initial_bmpqrc[i]);
           free (token);
@@ -189,7 +212,10 @@ mps_secular_equation_read_from_stream (mps_context * s,
                                            "Error reading some coefficients of the secular equation."
                                            "Please check your input file");
                   free (token);
-                  return NULL;
+              
+                  mps_polynomial_free (s, MPS_POLYNOMIAL (sec));
+                  sec = NULL;
+                  goto cleanup;
                 }           
               mpq_canonicalize (sec->initial_bmpqic[i]);
               free (token);
@@ -240,6 +266,8 @@ mps_secular_equation_read_from_stream (mps_context * s,
       sec->aafpc[i] = cplx_mod (sec->afpc[i]);
       sec->abfpc[i] = cplx_mod (sec->bfpc[i]);
     }
+
+cleanup:
 
   mpf_clear (ftmp);
 

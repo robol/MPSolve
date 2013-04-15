@@ -277,10 +277,10 @@ mps_iteration_logger_on_drawing_area_draw (GtkWidget * widget,
           {
             case mp_phase:
               mpc_get_cplx (approximations[i]->fvalue, approximations[i]->mvalue);
-
+              /* Falling through */
             case dpe_phase:
               cdpe_get_x (approximations[i]->fvalue, approximations[i]->dvalue);
-
+              /* Falling through */
             default:
               x = mps_iteration_logger_x_points_to_coords (logger, 
                 cplx_Re (approximations[i]->fvalue));

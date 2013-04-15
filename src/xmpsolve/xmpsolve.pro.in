@@ -10,8 +10,8 @@ INCLUDEPATH += @top_srcdir@/include
 LIBS += @LIBS@ @GMP_LIBS@ @top_builddir@/src/libmps/libmps.la
 QMAKE_CXX = @CXX@
 QMAKE_CC = @CC@
-QMAKE_LINK = @LD@
-QMAKE_LINK_SHLIB = @LD@
+QMAKE_LINK = @CXX@
+QMAKE_LINK_SHLIB = @CXX@
 QMAKE_CXXFLAGS += @GMP_CFLAGS@
 
 QMAKE_LIBTOOL = @top_builddir@/libtool --silent

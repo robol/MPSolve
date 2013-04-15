@@ -59,6 +59,7 @@ __mps_secular_ga_fiterate_worker (void* data_ptr)
           if (s->root[i]->status == MPS_ROOT_STATUS_NOT_FLOAT)
             {
               *data->excep = true;
+              pthread_mutex_unlock (&data->roots_mutex[i]);
               break;
             }
 

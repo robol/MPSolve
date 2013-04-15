@@ -222,7 +222,7 @@ mps_improve (mps_context * ctx)
       if (current_precision > p->prec && p->prec != 0)
         {
           ctx->over_max = true;
-          return;
+          goto cleanup;
         }
 
       /* Increase data prec max that will be useful to the end user to know
@@ -232,4 +232,8 @@ mps_improve (mps_context * ctx)
       if (ctx->debug_level & MPS_DEBUG_IMPROVEMENT)
         MPS_DEBUG (ctx, "Increasing precision to %ld", current_precision);
     }
+
+cleanup:    
+
+  free (root_conditioning);
 }

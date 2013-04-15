@@ -31,6 +31,7 @@ Monomial::Monomial(double coefficient, int exponent)
     mpq_set_si(imagRationalCoefficient, 0, 0);
 
     m_degree = exponent;
+    m_valid = true;
 
     // Canonicalize the rational number
     mpq_canonicalize(realRationalCoefficient);
@@ -41,6 +42,8 @@ Monomial::Monomial(const Monomial &other)
 {
     mpq_init(realRationalCoefficient);
     mpq_init(imagRationalCoefficient);
+
+    m_valid = other.m_valid;
 
     *this = other;
 }

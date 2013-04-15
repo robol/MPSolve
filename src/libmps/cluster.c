@@ -878,7 +878,7 @@ mps_mcluster (mps_context * s, rdpe_t * drad, int nf)
               /* for (c_item = s->clusterization->first; c_item != NULL; c_item = c_item->next) */
               { 
                 /*        mps_cluster * iter_cluster = c_item->cluster; */
-                mps_cluster * iter_cluster = iter_cluster = cluster;
+                mps_cluster * iter_cluster = cluster;
 
                   iter_root = iter_cluster->first;
                   while (iter_root)
@@ -1037,13 +1037,15 @@ mps_clusterization_reassemble_clusters (mps_context * s, mps_clusterization * c)
   cluster = s->clusterization->first;
   while (cluster != NULL)
     {
+      mps_cluster_item * next = cluster->next;
+
       if (cluster->detached)
         {
           mps_cluster_insert_root (s, cluster->detached->cluster, cluster->cluster->first->k);
           mps_clusterization_remove_cluster (s, s->clusterization, cluster);
         }
 
-      cluster = cluster->next;
+      cluster = next;
     }
 }
 
