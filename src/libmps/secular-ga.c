@@ -206,7 +206,10 @@ mps_secular_ga_mpsolve (mps_context * s)
           mps_check_data (s, &which_case);
 
           if (mps_context_has_errors (s))
-            return;
+            {
+              mps_stop_timer (total_clock);
+              return;
+            }
 
           MPS_DEBUG_WITH_INFO (s, "Check data suggests starting phase should be %s", (which_case == 'f') ? "floating point" : "DPE phase");
 

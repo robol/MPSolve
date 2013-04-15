@@ -291,7 +291,10 @@ mps_parse_stream (mps_context * s, FILE * input_stream)
             mps_parse_option_line (s, line, strlen (line));
 
           if (mps_context_has_errors (s))
-            return;
+            {
+              mps_input_buffer_free (buffer);
+              return;
+            }
 
           /* Parsing of the degree */
           if (input_option.flag == MPS_KEY_DEGREE)
