@@ -21,6 +21,7 @@ m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
 #
 
 # Checks for needed compilers
+AC_PROG_CC
 AC_PROG_CXX
 AC_PROG_CC_C99
 AM_PROG_CC_C_O
@@ -59,7 +60,7 @@ esac
 AC_MSG_RESULT([$platform_win32])
 
 # That's make detecting Windows real easy...
-if test x$platform_win32 = xyes; then
+if test "$platform_win32" = yes; then
   CFLAGS="$CFLAGS -D__WINDOWS"
 fi
 
@@ -138,12 +139,18 @@ AC_CHECK_LIB([m], [pow])
 # cricital section, but this have not be done yet. Note, however, that is still possible
 # to run MPSolve on Windows by using pthread compatilibity layer that are freely available
 # on the Internet. 
-AX_PTHREAD([], [
-  AC_MSG_ERROR([Pthread library not found. Please set PTHREAD_CFLAGS and PTHREAD_LIBS correctly for your setup])
-])
+if test x$platform_win32 = xyes; then
+  PTHREAD_CC="$CC"
+  PTHREAD_CFLAGS="$PTHREAD_CFLAGS"
+  PTHREAD_LIBS="$PTHREAD_LIBS"
+else
+  AX_PTHREAD([], [
+    AC_MSG_ERROR([Pthread library not found. Please set PTHREAD_CFLAGS and PTHREAD_LIBS correctly for your setup])
+  ])
+  CC="$PTHREAD_CC"
+fi
 
 # Set the correct PTHREAD flags and, if needed, change the compiler to one that is pthread-enabled.
-CC="$PTHREAD_CC"
 AC_SUBST(PTHREAD_CFLAGS)
 AC_SUBST(PTHREAD_LDFLAGS)
 AC_SUBST(PTHREAD_LIBS)

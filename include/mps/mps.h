@@ -515,6 +515,7 @@ typedef int mps_debug_level;
 /* FUNCTIONS */
 
   /* functions in aberth.c */
+#ifdef _MPS_PRIVATE
   void mps_faberth (mps_context * s, mps_approximation * root, cplx_t abcorr);
   void mps_daberth (mps_context * s, mps_approximation * root, cdpe_t abcorr);
   void mps_maberth (mps_context * s, mps_approximation * root, mpc_t abcorr);
@@ -526,6 +527,7 @@ typedef int mps_debug_level;
   void mps_maberth_s_wl (mps_context * s, int j, mps_cluster * cluster, mpc_t abcorr,
                          pthread_mutex_t * aberth_mutex);
   void mps_mnewtis (mps_context * s);
+#endif
 
   /* functions in approximation.c */
   mps_approximation * mps_approximation_new (mps_context * s);
