@@ -7,8 +7,6 @@
 #include <QFileDialog>
 #include "polfileeditordialog.h"
 
-#include <gmpxx.h>
-
 using namespace xmpsolve;
 
 MainWindow::MainWindow(QWidget *parent) :
