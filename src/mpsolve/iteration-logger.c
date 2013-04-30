@@ -11,6 +11,8 @@
 
 G_DEFINE_TYPE (MpsIterationLogger, mps_iteration_logger, GTK_TYPE_WINDOW);
 
+static GMutex draw_mutex;
+
 static void mps_iteration_logger_build_interface (MpsIterationLogger*);
 
 static void
@@ -19,6 +21,13 @@ mps_iteration_logger_dispose (GObject *object)
   MpsIterationLogger * logger = MPS_ITERATION_LOGGER (object);
   if (logger->timeout_source <= 0 || !g_source_remove (logger->timeout_source))
     g_warning ("Source not found");
+
+  if (logger->drawing_lock)
+  {
+    g_mutex_clear (logger->drawing_lock);
+    logger->drawing_lock = NULL;
+  }
+
   logger->exit = TRUE;
 }
 
@@ -54,6 +63,9 @@ mps_iteration_logger_init (MpsIterationLogger * logger)
 
   logger->drawing = FALSE;
 
+  logger->drawing_lock = g_new (GMutex, 1);
+  g_mutex_init (logger->drawing_lock);
+
   mps_iteration_logger_build_interface (logger);
 }
 
@@ -74,9 +86,11 @@ mps_iteration_logger_set_mps_context (MpsIterationLogger * logger, mps_context *
 void
 mps_iteration_logger_set_roots (MpsIterationLogger * logger, mps_approximation ** approximations, int n)
 {
+  g_mutex_lock (logger->drawing_lock);
   logger->approximations = approximations;
   logger->degree = n;
   logger->ctx = NULL;
+  g_mutex_unlock (logger->drawing_lock);
 }
 
 static void mps_iteration_logger_on_drawing_area_draw (GtkWidget* , cairo_t*, MpsIterationLogger * logger);
@@ -234,6 +248,8 @@ mps_iteration_logger_on_drawing_area_draw (GtkWidget * widget,
     return;
   }
 
+  g_mutex_lock (logger->drawing_lock);
+
   width = gtk_widget_get_allocated_width (widget);
   height = gtk_widget_get_allocated_height (widget);
 
@@ -348,6 +364,7 @@ mps_iteration_logger_on_drawing_area_draw (GtkWidget * widget,
     }
 
   logger->drawing = FALSE;
+  g_mutex_unlock (logger->drawing_lock);
 }
 
 static gboolean 
