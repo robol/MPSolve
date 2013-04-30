@@ -36,6 +36,8 @@ private slots:
 
     void on_editPolFileButton_clicked();
 
+    void on_polFileSolveButton_clicked();
+
 private:
     Ui::MainWindow *ui;
     PolynomialSolver m_solver;
