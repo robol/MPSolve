@@ -139,16 +139,10 @@ AC_CHECK_LIB([m], [pow])
 # cricital section, but this have not be done yet. Note, however, that is still possible
 # to run MPSolve on Windows by using pthread compatilibity layer that are freely available
 # on the Internet. 
-if test x$platform_win32 = xyes; then
-  PTHREAD_CC="$CC"
-  PTHREAD_CFLAGS="$PTHREAD_CFLAGS"
-  PTHREAD_LIBS="$PTHREAD_LIBS"
-else
   AX_PTHREAD([], [
     AC_MSG_ERROR([Pthread library not found. Please set PTHREAD_CFLAGS and PTHREAD_LIBS correctly for your setup])
   ])
   CC="$PTHREAD_CC"
-fi
 
 # Set the correct PTHREAD flags and, if needed, change the compiler to one that is pthread-enabled.
 AC_SUBST(PTHREAD_CFLAGS)
@@ -300,8 +294,18 @@ AS_IF([test x$build_ui == xyes], [
 		])
 	fi
 
+	PKG_CHECK_MODULES(QT4, [ QtCore QtGui ])
+
+	AC_SUBST(QT4_CFLAGS)
+	AC_SUBST(QT4_LIBS)
+
 	AC_CHECK_PROGS([UIC_QT4], [uic-qt4])
 	if test "x$UIC_QT4" == "x"; then
+		QT4_PROGRAMS=""
+	fi
+
+	AC_CHECK_PROGS([MOC_QT4], [moc-qt4])
+	if test "x$MOC_QT4" == "x"; then
 		QT4_PROGRAMS=""
 	fi
 
@@ -310,7 +314,7 @@ AS_IF([test x$build_ui == xyes], [
 		have_ui=no
 	fi
 ])
-AC_SUBST(QT4_PROGRAMS)
+AC_SUBST([QT4_PROGRAMS], [$QT4_PROGRAMS${EXEEXT}])
 
 #
 # ===== MPSOLVE DOCUMENTATION ======
@@ -345,7 +349,6 @@ AC_CONFIG_FILES([Makefile
     src/libmps/Makefile
     src/tests/Makefile
     src/xmpsolve/Makefile
-    src/xmpsolve/xmpsolve.pro
     src/xmpsolve/xmpsolve.desktop
     doc/Makefile
     doc/Doxyfile])

@@ -1,7 +1,5 @@
 bin_PROGRAMS = $(QT4_PROGRAMS)
-EXTRA_PROGRAMS = xmpsolve
-
-xmpsolve_SOURCES = 
+EXTRA_PROGRAMS = xmpsolve$(EXEEXT)
 
 man_MANS = ${srcdir}/xmpsolve.1
 
@@ -13,47 +11,68 @@ desktop_DATA = xmpsolve.desktop
 icondir = $(datadir)/icons
 icon_DATA = xmpsolve.png
 
-XMPSOLVE_QT_FILES = polynomialparser.cpp \
-	rootsrenderer.h \
-	polynomialsolver.cpp \
-	mainwindow.cpp \
-	polynomial.cpp \
-	monomial.h \
-	mainwindow.ui \
-	polynomial.h \
-	root.h \
-	monomial.cpp \
-	mpsolveworker.cpp \
-	root.cpp \
-	rootsrenderer.cpp \
-	polynomialparser.h \
-	mainwindow.h \
-	polynomialsolver.h \
-	mpsolveworker.h \
-	main.cpp \
-	mainwindow.ui \
-	rootsmodel.h \
-	rootsmodel.cpp \
-	polfileeditordialog.ui \
-	polfileeditordialog.cpp \
-	polfileeditordialog.h \
-	polsyntaxhighlighter.h \
-	polsyntaxhighlighter.cpp
+xmpsolve_CPPFLAGS = \
+	-I${top_srcdir}/include \
+	-I${top_builddir} \
+	$(QT4_CFLAGS)
+
+xmpsolve_LDADD = \
+	$(QT4_LIBS) \
+	${top_builddir}/src/libmps/libmps.la
 
 EXTRA_DIST = $(icon_DATA) \
 	$(desktop_DATA) \
-	xmpsolve.1 \
-	$(XMPSOLVE_QT_FILES)
+	xmpsolve.1
 
-Makefile.qmake: xmpsolve.pro
-	$(QMAKE_QT4) xmpsolve.pro
+%_moc.cpp: %.h
+	$(MOC_QT4) $< -o $@
 
-xmpsolve: Makefile.qmake
-	+make -f Makefile.qmake xmpsolve	
+ui_%.h: %.ui
+	$(UIC_QT4) $< -o $@
+
+pure_source_files = \
+	polynomialparser.cpp  \
+	polynomialsolver.cpp  \
+	mainwindow.cpp  \
+	rootsmodel.cpp  \
+	polfileeditordialog.cpp  \
+	polsyntaxhighlighter.cpp  \
+	mpsolveworker.cpp  \
+	rootsrenderer.cpp  
+
+other_source_files = \
+	main.cpp \
+	polynomial.cpp  \
+	monomial.cpp  \
+	root.cpp 
+
+ui_files = \
+	ui_mainwindow.h \
+	ui_polfileeditordialog.h 
+
+headers = \
+	rootsrenderer.h  \
+	rootsmodel.h  \
+	polfileeditordialog.h  \
+	monomial.h  \
+	polynomial.h  \
+	root.h  \
+	polynomialparser.h  \
+	polsyntaxhighlighter.h  \
+	mainwindow.h  \
+	polynomialsolver.h  \
+	mpsolveworker.h
+
+moc_files = $(pure_source_files:.cpp=_moc.cpp)
+
+xmpsolve_SOURCES = \
+	$(other_source_files) \
+	$(pure_source_files) \
+	$(moc_files)
 
 clean-local:
-	+make -f Makefile.qmake clean
+	rm -f *_moc.cpp
+	rm ui_*.h
 
-distclean-local: clean-local
-	rm -f Makefile.qmake
-	rm -f ${srcdir}/xmpsolve.pro
+BUILT_SOURCES = $(moc_files) \
+	$(ui_files)
