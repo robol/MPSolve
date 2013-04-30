@@ -34,12 +34,14 @@ void
 MainWindow::lockInterface()
 {
     ui->solveButton->setEnabled(false);
+    ui->polFileSolveButton->setEnabled(false);
 }
 
 void
 MainWindow::unlockInterface()
 {
     ui->solveButton->setEnabled(true);
+    ui->polFileSolveButton->setEnabled(true);
 }
 
 void MainWindow::on_solveButton_clicked()
@@ -72,43 +74,28 @@ MainWindow::polynomial_solved()
 
 void xmpsolve::MainWindow::on_openPolFileButton_clicked()
 {
-    if (m_selectedPolFile.isEmpty()) {
+    // If the user click on open polFile, we need to check that
+    // he has selected a valid .pol file and - if that's the
+    // case, solve the associated polynomial.
+    QString selectedFile = QFileDialog::getOpenFileName(this,
+                                                        tr("Select .pol file"),
+                                                        QString(),
+                                                        "Pol files (*.pol);;Text files (*.txt)");
+    if (! selectedFile.isEmpty())
+    {
+        QFile polFile(selectedFile);
 
+        // Clean previous polynomials, if any
+        ui->polyLineEdit->clear();
 
-        // If the user click on open polFile, we need to check that
-        // he has selected a valid .pol file and - if that's the
-        // case, solve the associated polynomial.
-        QString selectedFile = QFileDialog::getOpenFileName(this,
-                                                            tr("Select .pol file"),
-                                                            QString(),
-                                                            "Pol files (*.pol);;Text files (*.txt)");
-        if (! selectedFile.isEmpty())
-        {
-            QFile polFile(selectedFile);
+        // Select the polynomial
+        if (polFile.exists()) {
+            m_selectedPolFile = selectedFile;
+            ui->selectedFileLabel->setText(selectedFile.split("/").last());
 
-            // Clean previous polynomials, if any
-            ui->polyLineEdit->clear();
-
-            // Select the polynomial
-            if (polFile.exists()) {
-                m_selectedPolFile = selectedFile;
-                ui->selectedFileLabel->setText(selectedFile.split("/").last());
-
-                ui->selectedFileLabel->setEnabled(true);
-                ui->editPolFileButton->setEnabled(true);
-
-                ui->openPolFileButton->setText(tr("Close file"));
-            }
+            ui->selectedFileLabel->setEnabled(true);
+            ui->editPolFileButton->setEnabled(true);
         }
-    }
-    else {
-        // In the case of a selected pol file, the button will dismiss it
-        m_selectedPolFile = QString();
-
-        ui->openPolFileButton->setText(tr("Open pol file"));
-        ui->editPolFileButton->setEnabled(false);
-        ui->selectedFileLabel->setText(tr("no file selected"));
-        ui->selectedFileLabel->setEnabled(false);
     }
 }
 
