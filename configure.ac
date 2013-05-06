@@ -348,10 +348,12 @@ AC_CONFIG_FILES([Makefile
     examples/gtk/Makefile
     src/Makefile
     src/mpsolve/Makefile
+    src/mpsolve/mpsolve.1
     src/libmps/Makefile
     src/tests/Makefile
     src/xmpsolve/Makefile
     src/xmpsolve/xmpsolve.desktop
+    src/xmpsolve/xmpsolve.1
     doc/Makefile
     doc/Doxyfile])
 
