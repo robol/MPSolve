@@ -313,7 +313,9 @@ AS_IF([test x$build_ui == xyes], [
 		build_ui=no
 		have_ui=no
 	fi
+
 ])
+AM_CONDITIONAL([HAVE_UI], [test x"$QT4_PROGRAMS" != x""])
 AC_SUBST([QT4_PROGRAMS], [$QT4_PROGRAMS${EXEEXT}])
 
 #

@@ -72,7 +72,11 @@ xmpsolve_SOURCES = \
 
 clean-local:
 	rm -f *_moc.cpp
-	rm ui_*.h
+	rm -f ui_*.h
 
+if HAVE_UI
 BUILT_SOURCES = $(moc_files) \
 	$(ui_files)
+else
+BUILT_SOURCES = 
+endif
