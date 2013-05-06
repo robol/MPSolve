@@ -55,7 +55,7 @@ struct _MpsIterationLogger {
 
         gboolean exit;
 
-        GMutex *drawing_lock;
+        pthread_mutex_t *drawing_lock;
 };
 
 struct _MpsIterationLoggerClass {
