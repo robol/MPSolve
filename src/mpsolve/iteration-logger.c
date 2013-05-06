@@ -24,7 +24,7 @@ mps_iteration_logger_dispose (GObject *object)
 
   if (logger->drawing_lock)
   {
-    g_mutex_clear (logger->drawing_lock);
+    g_mutex_free (logger->drawing_lock);
     logger->drawing_lock = NULL;
   }
 
@@ -63,8 +63,7 @@ mps_iteration_logger_init (MpsIterationLogger * logger)
 
   logger->drawing = FALSE;
 
-  logger->drawing_lock = g_new (GMutex, 1);
-  g_mutex_init (logger->drawing_lock);
+  logger->drawing_lock = g_mutex_new ();
 
   mps_iteration_logger_build_interface (logger);
 }
