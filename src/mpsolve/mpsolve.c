@@ -277,7 +277,7 @@ main (int argc, char **argv)
         case 'v':
 
 #ifdef HAVE_CONFIG_H
-          printf ("MPSolve " VERSION "\n");
+          printf (PACKAGE_STRING "\n");
 #else
           printf ("MPSolve 3.0\n");
 #endif
