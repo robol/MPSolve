@@ -32,6 +32,20 @@ ui_%.h: @srcdir@/%.ui
 	$(AM_V_GEN) 
 	$(AM_V_at) $(UIC_QT4) $< -o $@
 
+# Windows resources
+if HAVE_WINDRES
+.rc.o:
+	$(AM_V_GEN)
+	$(AM_V_at) $(WINDRES) $< -o $@
+
+%.o : %.rc
+	$(AM_V_GEN)
+	(AM_V_at) $(WINDRES) $< -o $@
+
+resources = xmpsolve.rc
+
+endif
+
 pure_source_files = \
 	polynomialparser.cpp  \
 	polynomialsolver.cpp  \
@@ -69,7 +83,8 @@ moc_files = $(pure_source_files:.cpp=_moc.cpp)
 
 xmpsolve_SOURCES = \
 	$(other_source_files) \
-	$(pure_source_files)
+	$(pure_source_files) \
+	$(resources)
 
 nodist_xmpsolve_SOURCES = \
 	$(moc_files)

@@ -62,6 +62,12 @@ AC_MSG_RESULT([$platform_win32])
 # That's make detecting Windows real easy...
 if test "$platform_win32" = yes; then
   CFLAGS="$CFLAGS -D__WINDOWS"
+  LDFLAGS="$LDFLAGS -mwindows"
+  AM_CONDITIONAL([WINDOWS_BUILD], [test "$platform_win32" == "yes"])
+
+  # In this case check if we have windres compiler
+  AC_CHECK_TOOL([WINDRES], [windres])
+  AM_CONDITIONAL([HAVE_WINDRES], [test "$WINDRES" != ""])
 fi
 
 # Add GMP_CFLAGS and GMP_LIBS to CFLAGS and LDFLAGS in case they are set.
