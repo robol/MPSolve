@@ -340,7 +340,7 @@ void
 Monomial::setError(QString message)
 {
     m_errorMessage = message;
-    m_valid = FALSE;
+    m_valid = false;
 }
 
 

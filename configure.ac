@@ -309,46 +309,56 @@ AS_IF([test x$build_examples == xyes && test x$have_gtk == x1 && test x$have_cai
 # Search qmake and Qt related things, so we can build
 # MPSolve UI. Don't build the UI if the user has manually
 # disabled it. 
-QT4_PROGRAMS=
+QT_PROGRAMS=
 AS_IF([test x$build_ui == xyes], [
-	AC_CHECK_PROGS([QMAKE_QT4], [qmake-qt4 qmake])
-	if test "x$QMAKE_QT4" != "x"; then
-		# Check that this is really the qmake-qt4 command and
-		# not the Qt3 one. 
-		AC_MSG_CHECKING([if qmake is at least for Qt 4.0.0])
-		QMAKE_VERSION=`$QMAKE_QT4 -version | grep "Qt version" | cut -d ' ' -f4`
-		AC_SUBST([QMAKE_VERSION])
-		AX_COMPARE_VERSION([$QMAKE_VERSION], [ge], [4.0.0], [
-			AC_MSG_RESULT([yes])
-			QT4_PROGRAMS=xmpsolve
-		], [
-			AC_MSG_RESULT([no])
+        PKG_CHECK_MODULES(QT4, [ QtCore QtGui ],   [have_qt4=yes], [have_qt4=no])
+	PKG_CHECK_MODULES(QT5, [ Qt5Core Qt5Gui Qt5Widgets ], [have_qt5=yes], [have_qt5=no])
+
+	QT_PROGRAMS=xmpsolve${EXEEXT}
+
+	AS_IF([test "$have_qt5" == "yes"], [
+		# Check for needed programs
+		AC_CHECK_PROGS([UIC], [uic])
+		AC_CHECK_PROGS([MOC], [moc])	
+
+		QT_CFLAGS=$QT5_CFLAGS
+		QT_LDFLAGS=$QT5_LDFLAGS
+		QT_LIBS=$QT5_LIBS
+
+		AS_IF([test "$UIC" == "" || test "$MOC" == ""], [
+			have_qt5=no
 		])
-	fi
+        ], [])
+	
+	# Enable Qt4 only if Qt5 was not found, or if the required tools
+	# to build the interface are not available. 
+	AS_IF([test "$have_qt4" == "yes" && test "$have_qt5" == "no"], [
+		AS_IF([test "$have_qt4" == "yes"], [
+	                AC_CHECK_PROGS([UIC], [uic-qt4])
+	                AC_CHECK_PROGS([MOC], [moc-qt4])		
 
-	PKG_CHECK_MODULES(QT4, [ QtCore QtGui ], [have_qt=yes], [have_qt=no])
+			QT_CFLAGS=$QT4_CFLAGS
+			QT_LDFLAGS=$QT4_LDFLAGS
+			QT_LIBS=$QT4_LIBS
 
-	AC_SUBST(QT4_CFLAGS)
-	AC_SUBST(QT4_LIBS)
+			AS_IF([test "$UIC" == "" || test "$MOC" == ""], [
+				QT_PROGRAMS=""
+			])
+		], [
+		]) # End of have_qt4 == yes
+        ]) # End of have_qt5 == yes
 
-	AC_CHECK_PROGS([UIC_QT4], [uic-qt4])
-	if test "x$UIC_QT4" == "x"; then
-		QT4_PROGRAMS=""
-	fi
-
-	AC_CHECK_PROGS([MOC_QT4], [moc-qt4])
-	if test "x$MOC_QT4" == "x"; then
-		QT4_PROGRAMS=""
-	fi
-
-	if test "x$QT4_PROGRAMS" == "x"; then
-		build_ui=no
+	AS_IF([test "$QT_PROGRAMS" == ""], [
 		have_ui=no
-	fi
-
+		build_ui=no
+	])
 ])
-AM_CONDITIONAL([HAVE_UI], [test x"$QT4_PROGRAMS" != x""])
-AC_SUBST([QT4_PROGRAMS], [$QT4_PROGRAMS${EXEEXT}])
+
+AM_CONDITIONAL([HAVE_UI], [test x"$QT_PROGRAMS" != x""])
+AC_SUBST(QT_PROGRAMS)
+AC_SUBST(QT_CFLAGS)
+AC_SUBST(QT_LDFLAGS)
+AC_SUBST(QT_LIBS)
 
 #
 # ===== MPSOLVE DOCUMENTATION ======

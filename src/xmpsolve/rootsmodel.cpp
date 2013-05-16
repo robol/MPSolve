@@ -7,7 +7,11 @@ RootsModel::RootsModel(QObject *parent) :
     QAbstractListModel(parent)
 {
     length = 0;
+}
 
+QHash<int, QByteArray>
+RootsModel::roleNames() const
+{
     QHash<int, QByteArray> role_names;
 
     role_names.insert(RADIUS, "radius");
@@ -15,7 +19,7 @@ RootsModel::RootsModel(QObject *parent) :
     role_names.insert(SHORT_APPROXIMATION, "short_approximation");
     role_names.insert(ROOT, "root");
 
-    setRoleNames(role_names);
+    return role_names;
 }
 
 int
@@ -77,10 +81,13 @@ RootsModel::data(const QModelIndex &index, int role) const
 void
 RootsModel::setRoots(QList<Root *> roots)
 {
+    beginResetModel();
+
     length = 0;
     m_roots = roots;
     length = roots.length();
-    reset();
+
+    endResetModel();
 }
 
 

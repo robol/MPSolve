@@ -1,6 +1,6 @@
 if HAVE_UI
 
-bin_PROGRAMS = $(QT4_PROGRAMS)
+bin_PROGRAMS = $(QT_PROGRAMS)
 EXTRA_PROGRAMS = xmpsolve$(EXEEXT)
 
 man_MANS = ${builddir}/xmpsolve.1
@@ -18,19 +18,23 @@ xmpsolve_CPPFLAGS = \
 	-I${top_builddir} \
 	-I${builddir} \
 	-I${srcdir} \
-	$(QT4_CFLAGS)
+	-fPIC \
+	$(QT_CFLAGS)
+
+xmpsolve_LDFLAGS = \
+	$(QT_LDFLAGS)
 
 xmpsolve_LDADD = \
-	$(QT4_LIBS) \
+	$(QT_LIBS) \
 	${top_builddir}/src/libmps/libmps.la
 
 %_moc.cpp: @srcdir@/%.h
 	$(AM_V_GEN)
-	$(AM_V_at) $(MOC_QT4) $< -o $@
+	$(AM_V_at) $(MOC) $< -o $@
 
 ui_%.h: @srcdir@/%.ui
 	$(AM_V_GEN) 
-	$(AM_V_at) $(UIC_QT4) $< -o $@
+	$(AM_V_at) $(UIC) $< -o $@
 
 pure_source_files = \
 	polynomialparser.cpp  \
