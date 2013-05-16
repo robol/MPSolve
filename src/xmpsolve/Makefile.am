@@ -18,8 +18,11 @@ xmpsolve_CPPFLAGS = \
 	-I${top_builddir} \
 	-I${builddir} \
 	-I${srcdir} \
-	-fPIC \
 	$(QT_CFLAGS)
+
+if ! WINDOWS_BUILD
+xmpsolve_CPPFLAGS += -fPIC
+endif
 
 xmpsolve_LDFLAGS = \
 	$(QT_LDFLAGS)
