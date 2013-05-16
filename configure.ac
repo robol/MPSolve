@@ -150,6 +150,30 @@ AC_SUBST(PTHREAD_LDFLAGS)
 AC_SUBST(PTHREAD_LIBS)
 AC_SUBST(CC)
 
+# Check if we have support for sysconf() to get the number of processors
+AC_MSG_CHECKING([if sysconf(_SC_NPROCESSORS_ONLN) is supported])
+AC_COMPILE_IFELSE([
+    AC_LANG_SOURCE(
+    [[
+      #include <unistd.h>
+      int main() {
+        int cores = sysconf(_SC_NPROCESSORS_ONLN);
+        return 0;
+      }
+    ]]
+    )
+   ], 
+   [have_sysconf=yes], 
+   [have_sysconf=no]
+)
+
+AC_MSG_RESULT([$have_sysconf])
+AS_IF([test "$have_sysconf" == "yes"], [
+  AC_DEFINE([HAVE_SYSCONF], [1], [
+    Defined if sysconf(_SC_NPROCESSORS_ONLN) is supported]
+  )
+])
+
 #
 # ===== OPTIONAL LIBRARIES =====
 #

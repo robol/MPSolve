@@ -16,6 +16,10 @@
 #include <pthread.h>
 #include <stdio.h>
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -40,7 +44,7 @@ mps_thread_get_core_number (mps_context * s)
     }
 
   /* Test for POSIX platforms */
-#ifdef HAVE_UNISTD_H
+#ifdef HAVE_SYSCONF
   cores = sysconf (_SC_NPROCESSORS_ONLN);
 #endif
 
