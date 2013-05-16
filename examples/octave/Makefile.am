@@ -1,3 +1,5 @@
+if BUILD_OCT_FILE
+
 mps_roots.o:
 	$(MKOCTFILE) $(GMP_CFLAGS) -I${top_srcdir}/include -c -o mps_roots.o ${srcdir}/mps_roots.cc
 
@@ -7,3 +9,5 @@ EXTRA_PROGRAMS = mps_roots.oct
 
 mps_roots_oct_SOURCES = mps_roots.cc
 mps_roots_oct_LINK = $(MKOCTFILE) -o $@ -L${top_builddir}/src/libmps/.libs
+
+endif

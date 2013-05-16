@@ -1,3 +1,5 @@
+if HAVE_UI
+
 bin_PROGRAMS = $(QT4_PROGRAMS)
 EXTRA_PROGRAMS = xmpsolve$(EXEEXT)
 
@@ -81,9 +83,7 @@ EXTRA_DIST = $(icon_DATA) \
 	$(desktop_DATA) \
 	xmpsolve.1
 
-if HAVE_UI
 BUILT_SOURCES = $(moc_files) \
 	$(ui_files)
-else
-BUILT_SOURCES = 
-endif
+
+endif # HAVE_UI

@@ -216,19 +216,25 @@ AS_IF([test x$build_examples == xyes], [
 	# Detect Octave version. We are not able to build the Octave module
 	# if Octave is older than 3.0
 	AC_CHECK_PROGS([OCTAVE], [octave])
-	AC_MSG_CHECKING([if Octave is newer than 3.0])
-	OCTAVE_VERSION=`echo "disp(OCTAVE_VERSION)" | $OCTAVE -qf`	
-	AX_COMPARE_VERSION([$OCTAVE_VERSION], [ge], [3.0.0], [
-			AC_MSG_RESULT([yes])
-			
-			# If we have Octave that is sufficiently recent, we can enable the Octave module
-        	AS_IF([test "$MKOCTFILE" != ""], [enable_octave=yes OCTAVE_MODULES_PROGRAMS=mps_roots.oct])			
-		], [
-			AC_MSG_RESULT([no])
-		])
+
+	# Perform the version check only if Octave is found
+	AS_IF([test "$OCTAVE" != ""], [
+		AC_MSG_CHECKING([if Octave is newer than 3.0])
+		OCTAVE_VERSION=`echo "disp(OCTAVE_VERSION)" | $OCTAVE -qf`	
+		AX_COMPARE_VERSION([$OCTAVE_VERSION], [ge], [3.0.0], [
+				AC_MSG_RESULT([yes])
+				
+				# If we have Octave that is sufficiently recent, we can enable the Octave module
+	        	AS_IF([test "$MKOCTFILE" != ""], [enable_octave=yes OCTAVE_MODULES_PROGRAMS=mps_roots.oct])			
+			], [
+				AC_MSG_RESULT([no])
+			])
+	], [])
 
 	AC_SUBST(OCTAVE_MODULES_PROGRAMS)
 ])
+
+AM_CONDITIONAL([BUILD_OCT_FILE], [test "$enable_octave" == "yes"])
 
 # Check for the presence of "mex", the Matlab compiler
 # and if it's present, define MATLAB_MODULES_PROGRAMS
@@ -239,15 +245,17 @@ AS_IF([test x$build_examples == xyes], [
 
 	# We need to test if MEX is the matlab compiler
 	# or the polish version of the pdftex.
-	AC_MSG_CHECKING(if mex is the matlab compiler)
-	mex_is_matlab_output=`mex -help 2>&1 | grep MATLAB`
-	mex_is_matlab_retcode=$?
-	if [[ "$mex_is_matlab_retcode" != "0" ]]; then
-	  MEX=""
-	  AC_MSG_RESULT(no)
-	else
-	  AC_MSG_RESULT(yes)
-	fi
+	AS_IF([test "$MEX" != ""], [
+		AC_MSG_CHECKING(if mex is the matlab compiler)
+		mex_is_matlab_output=`mex -help 2>&1 | grep MATLAB`
+		mex_is_matlab_retcode=$?
+		if [[ "$mex_is_matlab_retcode" != "0" ]]; then
+		  MEX=""
+		  AC_MSG_RESULT(no)
+		else
+		  AC_MSG_RESULT(yes)
+		fi
+	], [])
 
 	# If we have find a valid Matlab compiler then add
 	# MATLAB to the target of compilation
@@ -294,7 +302,7 @@ AS_IF([test x$build_ui == xyes], [
 		])
 	fi
 
-	PKG_CHECK_MODULES(QT4, [ QtCore QtGui ])
+	PKG_CHECK_MODULES(QT4, [ QtCore QtGui ], [have_qt=yes], [have_qt=no])
 
 	AC_SUBST(QT4_CFLAGS)
 	AC_SUBST(QT4_LIBS)
