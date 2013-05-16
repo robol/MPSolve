@@ -24,6 +24,10 @@
 #include <unistd.h>
 #endif
 
+#ifdef __WINDOWS
+#include <windows.h>
+#endif
+
 /**
  * @brief Get number of logic cores on the local machine, or
  * 0 if that information is not available with the method
@@ -34,6 +38,10 @@ mps_thread_get_core_number (mps_context * s)
 {
   int cores = 0;
   char * cores_env = NULL;
+
+#ifdef __WINDOWS
+  SYSTEM_INFO windows_sys_info;
+#endif
 
   if ((cores_env = getenv ("MPS_JOBS")) != NULL)
     {
@@ -46,6 +54,11 @@ mps_thread_get_core_number (mps_context * s)
   /* Test for POSIX platforms */
 #ifdef HAVE_SYSCONF
   cores = sysconf (_SC_NPROCESSORS_ONLN);
+#endif
+
+#ifdef __WINDOWS
+  GetSystemInfo (&windows_sys_info);
+  cores = windows_sys_info.dwNumberOfProcessors;
 #endif
 
   if (cores != 0)
