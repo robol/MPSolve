@@ -274,25 +274,15 @@ mps_input_buffer_next_token (mps_input_buffer * buf)
   if (!buf->last_token)
     return NULL;
 
-  do {
-    /* See if we have found the starting of the token, selecting 
-    * things that are not spaces nor end NULL characters. */
-    if (!(isspace (*buf->last_token) || 
-          (*buf->last_token == '\0')) && 
-        (token == NULL))
-      {
-        if (*buf->last_token == '\0')
-          break;
-        token = buf->last_token;
-      }
-
-    /* If we have already started parsing, then increase dimension */
-    if (token)
-      token_size++;
+  /* Find the token */
+  while (*buf->last_token != '\0' && isspace(*buf->last_token))
     buf->last_token++;
 
-  } while ( ((token == NULL) || !isspace (*buf->last_token)) && 
-            (*buf->last_token != '\0') );
+  if (*buf->last_token != '\0')
+    token = buf->last_token;
+
+  while (token && *token != '\0' && !isspace(*token))
+    token++;
 
   /* Check if we have parsed something or if we need to read another line */
   if (token == NULL)
@@ -301,13 +291,22 @@ mps_input_buffer_next_token (mps_input_buffer * buf)
         return NULL;
       return mps_input_buffer_next_token (buf);
     }
+  else
+    token_size = token - buf->last_token;
 
   /* Allocate the space for the token if we have found it */
   ret = (char *) mps_malloc (sizeof (char) * (token_size + 1));
   
   /* Copy the token in ret and set the NULL character in the end */
-  strncpy (ret, token, token_size);
+  strncpy (ret, buf->last_token, token_size);
   ret[token_size] = '\0';
+
+  buf->last_token = token + 1;
+
+  /* Check that we haven't reached the end of the string. If that's the
+   * case mark it clearly in the last_stoken field. */
+  if (*token == '\0')
+    buf->last_token = '\0';
 
   return ret;
 }
