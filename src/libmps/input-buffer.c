@@ -241,7 +241,6 @@ mps_input_buffer_readline (mps_input_buffer * buf)
       if (comment)
         {
           *comment = '\0';
-          buf->line = realloc (buf->line, comment - buf->line + 1);
         }
       
     }
@@ -281,7 +280,7 @@ mps_input_buffer_next_token (mps_input_buffer * buf)
   if (*buf->last_token != '\0')
     token = buf->last_token;
 
-  while (token && *token != '\0' && !isspace(*token) && *token != '!')
+  while (token && *token != '\0' && !isspace(*token))
     token++;
 
   /* Check if we have parsed something or if we need to read another line */
@@ -305,7 +304,7 @@ mps_input_buffer_next_token (mps_input_buffer * buf)
 
   /* Check that we haven't reached the end of the string. If that's the
    * case mark it clearly in the last_stoken field. */
-  if (*token == '\0' || *token == '!')
+  if (*token == '\0')
     buf->last_token = '\0';
 
   return ret;
