@@ -51,6 +51,9 @@ mps_iteration_logger_init (MpsIterationLogger * logger)
   logger->drawing_area = NULL;
   logger->exit = FALSE;
 
+  logger->drawing_lock = mps_new (pthread_mutex_t);
+  pthread_mutex_init (logger->drawing_lock, NULL);
+
   /* Setup neutral zomming */
   logger->zooming = false;
   logger->real_center = 0.0;
@@ -58,12 +61,12 @@ mps_iteration_logger_init (MpsIterationLogger * logger)
   logger->x_scale = logger->y_scale = 1.0;
 
   logger->degree = 0;
+
+  pthread_mutex_lock(logger->drawing_lock);
   logger->approximations = NULL;
+  pthread_mutex_unlock(logger->drawing_lock);
 
   logger->drawing = FALSE;
-
-  logger->drawing_lock = mps_new (pthread_mutex_t);
-  pthread_mutex_init (logger->drawing_lock, NULL);
 
   mps_iteration_logger_build_interface (logger);
 }
