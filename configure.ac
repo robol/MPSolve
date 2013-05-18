@@ -352,8 +352,7 @@ AS_IF([test "$build_ui" == "yes"], [
 			AS_IF([test "$UIC" == "" || test "$MOC" == ""], [
 				QT_PROGRAMS=""
 			])
-		], [
-		]) # End of have_qt4 == yes
+                ]) # End of have_qt4 == yes
         ]) # End of have_qt5 == yes
 
 	AS_IF([test "$QT_PROGRAMS" == ""], [
