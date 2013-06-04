@@ -318,7 +318,7 @@ AS_IF([test x$build_examples == xyes && test x$have_gtk == x1 && test x$have_cai
 # MPSolve UI. Don't build the UI if the user has manually
 # disabled it. 
 QT_PROGRAMS=
-AS_IF([test x$build_ui == xyes], [
+AS_IF([test "$build_ui" == "yes"], [
         PKG_CHECK_MODULES(QT4, [ QtCore QtGui ],   [have_qt4=yes], [have_qt4=no])
 	PKG_CHECK_MODULES(QT5, [ Qt5Core Qt5Gui Qt5Widgets ], [have_qt5=yes], [have_qt5=no])
 
@@ -352,8 +352,7 @@ AS_IF([test x$build_ui == xyes], [
 			AS_IF([test "$UIC" == "" || test "$MOC" == ""], [
 				QT_PROGRAMS=""
 			])
-		], [
-		]) # End of have_qt4 == yes
+                ]) # End of have_qt4 == yes
         ]) # End of have_qt5 == yes
 
 	AS_IF([test "$QT_PROGRAMS" == ""], [
