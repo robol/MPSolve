@@ -121,8 +121,8 @@ extern "C"
    * mps_monomial_poly * poly = mps_monomial_poly_new (status, n);
    *
    * // Set the coefficients. We will solve x^n - 1 in here
-   * mps_monomial_poly_set_coefficients_int (status, poly, 0, -1, 0);
-   * mps_monomial_poly_set_coefficients_int (status, poly, n,  1, 0);
+   * mps_monomial_poly_set_coefficient_int (status, poly, 0, -1, 0);
+   * mps_monomial_poly_set_coefficient_int (status, poly, n,  1, 0);
    *
    * // Select some common output options, i.e. 512 bits of precision
    * // (more or less 200 digits guaranteed) and approximation goal.
