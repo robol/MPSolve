@@ -355,6 +355,10 @@ AS_IF([test "$build_ui" == "yes"], [
                 ]) # End of have_qt4 == yes
         ]) # End of have_qt5 == yes
 
+	AS_IF([test x"$have_qt4" == x"no" && test x"$have_qt5" == x"no"], [
+        	QT_PROGRAMS=""
+	])
+
 	AS_IF([test "$QT_PROGRAMS" == ""], [
 		have_ui=no
 		build_ui=no
