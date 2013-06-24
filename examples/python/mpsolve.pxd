@@ -1,12 +1,12 @@
 cdef extern from "mps/mps.h":
+
     cdef struct mps_context:
         pass
 
-
-    cdef struct mps_monomial_poly:
+    cdef struct mps_polynomial:
         pass
 
-    cdef struct mps_polynomial:
+    cdef struct mps_monomial_poly:
         pass
 
     ctypedef bint mps_boolean
@@ -26,13 +26,11 @@ cdef extern from "mps/mps.h":
     void mps_context_set_output_goal (mps_context * s, mps_output_goal goal)
     void mps_context_set_jacobi_iterations (mps_context * s, mps_boolean jacobi_iterations)
 
-    #void mps_context_set_input_poly (mps_context * s, mps_polynomial * p)
-    void mps_context_set_input_poly (mps_context * s, mps_monomial_poly * p)
+    void mps_context_set_input_poly (mps_context * s, mps_polynomial * p)
 
     ctypedef struct __cplx_struct:
         pass
 
-    #ctypedef __cplx_struct cplx_t[1]
     ctypedef complex cplx_t[1]
 
     cplx_t * cplx_valloc(int n)

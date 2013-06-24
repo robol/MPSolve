@@ -395,6 +395,7 @@ AC_CONFIG_FILES([Makefile
     examples/octave/Makefile
     examples/matlab/Makefile
     examples/gtk/Makefile
+    examples/python/setup.py
     src/Makefile
     src/mpsolve/Makefile
     src/mpsolve/mpsolve.1

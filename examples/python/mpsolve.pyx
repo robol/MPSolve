@@ -15,7 +15,7 @@ mps_context_set_output_goal (status, MPS_OUTPUT_GOAL_APPROXIMATE)
 
 # Solve the polynomial
 
-mps_context_set_input_poly (status, poly)
+mps_context_set_input_poly (status, <mps_polynomial*>poly)
 mps_mpsolve (status)
 
 

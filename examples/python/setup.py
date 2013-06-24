@@ -9,5 +9,6 @@ setup(
     ext_modules = [Extension("mpsolve",
                              sources=["mpsolve.pyx"],
                              libraries=["mps", "gmp"],
-                             include_dirs=[os.environ['SAGE_LOCAL']+'/include/mps'])]
+                             extra_link_args = [ "-L", "../.." + "/src/libmps/.libs" ],
+                             include_dirs=[ "../.." + '/include'])]
 )
