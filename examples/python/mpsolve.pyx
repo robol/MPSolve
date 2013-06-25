@@ -1,37 +1,57 @@
-cdef int n = 4
-    # Create a polynomial that will be solved
-cdef mps_context *status = mps_context_new ()
-cdef mps_monomial_poly *poly = mps_monomial_poly_new (status, n)
-# Set the coefficients. We will solve x^n - 1 in here
+cimport mpsolve
 
-mps_monomial_poly_set_coefficient_int (status, poly, 0, -1, 0)
-mps_monomial_poly_set_coefficient_int (status, poly, n,  1, 0)
+cdef class Context:
 
-# Select some common output options, i.e. 512 bits of precision
-# (more or less 200 digits guaranteed) and approximation goal.
+    cdef mps_context * _c_ctx
 
-mps_context_set_output_prec (status, 512)
-mps_context_set_output_goal (status, MPS_OUTPUT_GOAL_APPROXIMATE)
+    def __init__(self):
+        self._c_ctx = mps_context_new()
 
-# Solve the polynomial
+    def __dealloc__(self):
+        if self._c_ctx is not NULL:
+            mps_context_free(self._c_ctx)
 
-mps_context_set_input_poly (status, <mps_polynomial*>poly)
-mps_mpsolve (status)
+    def set_input_poly(self, poly):
+        mps_context_set_input_poly(self._c_ctx, <mps_polynomial*>poly)
 
+    def mpsolve(self):
+        mps_mpsolve(self._c_ctx)
 
-# Get the roots in a <code>cplx_t</code> vector. Please note that
-# this make completely useless to have asked 512 bits of output
-# precision, and you should use mps_context_get_roots_m() to get
-# multiprecision approximation of the roots.
+    def get_roots(self):
+        cdef cplx_t * results = NULL
+        mps_context_get_roots_d (self._c_ctx, &results, NULL)
 
-cdef cplx_t * results = cplx_valloc (n)
-mps_context_get_roots_d (status, &results, NULL)
+        result_list = []
+        for i in range(mps_context_get_degree(self._c_ctx)):
+            result_list.append(results[i][0] + 1j * results[i][1])
+        return result_list
 
-# Free the data used. This will free the monomial_poly if you have
-# not done it by yourself.
+    def monomial_poly_create(self, degree):
+        poly = MonomialPoly(degree)
+        poly.set_context(self._c_ctx)
+        
 
-for i in range(n):
-    print results[i][0]
+cdef class MonomialPoly:
 
-mps_context_free (status)
-cplx_vfree (results)
+    cdef mps_monomial_poly * _c_mp
+    cdef mps_context * _c_ctx
+
+    def __init__(self, degree):
+        self.degree = degree
+        self._c_mp = NULL
+        self._c_ctx = NULL
+
+    cdef set_context(self, mps_context * context):
+        self._c_ctx = context
+        self._c_mp = mps_monomial_poly_new(context, self.degree)
+
+    def __dealloc__(self):
+        pass
+        # mps_monomial_poly_free(self._c_ctx, self._c_mp)
+
+    def set_coefficient(self, n, coeff):
+        if isinstance(coeff, int):
+            mps_monomial_poly_set_coefficient_int(self._c_ctx, 
+                                                  self._c_mp, n, coeff, 0)
+        else:
+            raise RuntimeError("Coefficient type not supported")
