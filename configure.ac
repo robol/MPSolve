@@ -10,7 +10,7 @@ AC_CONFIG_MACRO_DIR([m4])
 
 LT_INIT
 
-AM_INIT_AUTOMAKE([dist-bzip2])
+AM_INIT_AUTOMAKE([dist-bzip2 -Wno-portability])
 
 m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
 
@@ -322,7 +322,13 @@ AS_IF([test "$build_ui" == "yes"], [
         PKG_CHECK_MODULES(QT4, [ QtCore QtGui ],   [have_qt4=yes], [have_qt4=no])
 	PKG_CHECK_MODULES(QT5, [ Qt5Core Qt5Gui Qt5Widgets ], [have_qt5=yes], [have_qt5=no])
 
-	QT_PROGRAMS=xmpsolve${EXEEXT}
+	AS_IF([test "$have_qt5" == "no" && test "$have_qt4" == "no"], [
+		# No hope to have the UI, just disable it. 
+		AC_MSG_NOTICE([Could not find Qt4 or Qt5, disabling the graphical UI])
+		QT_PROGRAMS=""
+	], [
+		QT_PROGRAMS=xmpsolve${EXEEXT}
+	])
 
 	AS_IF([test "$have_qt5" == "yes"], [
 		# Check for needed programs
@@ -334,6 +340,7 @@ AS_IF([test "$build_ui" == "yes"], [
 		QT_LIBS=$QT5_LIBS
 
 		AS_IF([test "$UIC" == "" || test "$MOC" == ""], [
+			AC_MSG_WARN([uic or moc were not found in your path, so Qt5 is not usable])
 			have_qt5=no
 		])
         ], [])
@@ -341,19 +348,18 @@ AS_IF([test "$build_ui" == "yes"], [
 	# Enable Qt4 only if Qt5 was not found, or if the required tools
 	# to build the interface are not available. 
 	AS_IF([test "$have_qt4" == "yes" && test "$have_qt5" == "no"], [
-		AS_IF([test "$have_qt4" == "yes"], [
-	                AC_CHECK_PROGS([UIC], [uic-qt4])
-	                AC_CHECK_PROGS([MOC], [moc-qt4])		
+                AC_CHECK_PROGS([UIC], [uic-qt4])
+                AC_CHECK_PROGS([MOC], [moc-qt4])		
 
-			QT_CFLAGS=$QT4_CFLAGS
-			QT_LDFLAGS=$QT4_LDFLAGS
-			QT_LIBS=$QT4_LIBS
+		QT_CFLAGS=$QT4_CFLAGS
+		QT_LDFLAGS=$QT4_LDFLAGS
+		QT_LIBS=$QT4_LIBS
 
-			AS_IF([test "$UIC" == "" || test "$MOC" == ""], [
-				QT_PROGRAMS=""
-			])
-                ]) # End of have_qt4 == yes
-        ]) # End of have_qt5 == yes
+		AS_IF([test "$UIC" == "" || test "$MOC" == ""], [
+			AC_MSG_WARN([uic and/or moc were not found in your path, so Qt4 is not usable])
+			QT_PROGRAMS=""
+		])
+        ]) # End of have_qt4 == yes && have_qt5 == no
 
 	AS_IF([test "$QT_PROGRAMS" == ""], [
 		have_ui=no
