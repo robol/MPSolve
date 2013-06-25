@@ -9,6 +9,6 @@ setup(
     ext_modules = [Extension("mpsolve",
                              sources=["mpsolve.pyx"],
                              libraries=["mps", "gmp"],
-                             extra_link_args = [ "-L", "../.." + "/src/libmps/.libs" ],
-                             include_dirs=[ "../.." + '/include'])]
+                             extra_link_args = [ "-L", "@top_builddir@" + "/src/libmps/.libs" ],
+                             include_dirs=[ "@top_srcdir@" + '/include'])]
 )
