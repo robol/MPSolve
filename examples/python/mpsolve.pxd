@@ -3,10 +3,10 @@ cdef extern from "mps/mps.h":
     cdef struct mps_context:
         pass
 
-    cdef struct mps_polynomial:
+    cdef struct mps_monomial_poly:
         pass
 
-    cdef struct mps_monomial_poly:
+    cdef struct mps_polynomial:
         pass
 
     ctypedef bint mps_boolean
@@ -27,6 +27,8 @@ cdef extern from "mps/mps.h":
     void mps_context_set_jacobi_iterations (mps_context * s, mps_boolean jacobi_iterations)
     int mps_context_get_degree (mps_context * s)
 
+    void mps_output(mps_context * s)
+
     void mps_context_set_input_poly (mps_context * s, mps_polynomial * p)
 
     ctypedef struct __cplx_struct:
@@ -44,5 +46,4 @@ cdef extern from "mps/mps.h":
     mps_context * mps_context_new()
 
     void mps_context_free (mps_context * s)
-
 
