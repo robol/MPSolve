@@ -146,13 +146,13 @@ extern "C"
    */
 #ifndef __WINDOWS
 #define MPS_DEBUG_CALL(s, function) if (s->DOLOG && (s->debug_level & MPS_DEBUG_FUNCTION_CALLS)) { \
-    if (isatty(s->logstr->_fileno)) {                                   \
+    if (isatty(fileno(s->logstr))) {                                   \
       __MPS_DEBUG(s, "Called \033[31;1m");                              \
     }                                                                   \
     else {                                                              \
       __MPS_DEBUG(s, "Called ");                                        \
     }                                                                   \
-    if (isatty(s->logstr->_fileno)) {                                   \
+    if (isatty(fileno(s->logstr))) {                                   \
       fprintf(s->logstr, function); fprintf(s->logstr, "()\033[0m\n");  \
     }                                                                   \
     else                                                                \
@@ -187,7 +187,7 @@ extern "C"
 #if __STDC_VERSION__ >= 199901L
 #ifndef __WINDOWS
 #define __MPS_DEBUG(s, templ...) if (s->DOLOG) {                \
-    if (isatty(s->logstr->_fileno)) {                           \
+    if (isatty(fileno(s->logstr))) {                           \
       fprintf(s->logstr, "%s:%d \033[32;1m%s()\033[;0m ",       \
               __FILE__, __LINE__, __FUNCTION__);                \
     }                                                           \
