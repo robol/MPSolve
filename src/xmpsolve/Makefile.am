@@ -73,6 +73,10 @@ ui_files = \
 	ui_mainwindow.h \
 	ui_polfileeditordialog.h 
 
+ui_sfiles = \
+	mainwindow.ui \
+	polfileeditordialog.ui
+
 headers = \
 	rootsrenderer.h  \
 	rootsmodel.h  \
@@ -103,6 +107,7 @@ CLEANFILES = \
 EXTRA_DIST = $(icon_DATA) \
 	$(headers) \
 	$(desktop_DATA) \
+	$(ui_sfiles) \
 	xmpsolve.1
 
 BUILT_SOURCES = $(moc_files) \

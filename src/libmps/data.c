@@ -43,30 +43,21 @@ mps_allocate_data (mps_context * s)
   MPS_DEBUG_THIS_CALL;
   int i;
 
-  /* s->clust = int_valloc (s->deg); */
-  /* s->punt = int_valloc (s->deg + 1); */
-  /* s->clust_detached = int_valloc (s->deg); */
-
   s->root = mps_newv (mps_approximation*, s->n);
   for (i = 0; i < s->n; i++)
     s->root[i] = mps_approximation_new (s);
 
-  /* s->status = (char (*)[3]) char_valloc (3 * s->deg); */
-  
+  /* Reset the cluster structure, so we can start without assumption
+   * on the location of the roots. */
   mps_cluster_reset (s);
 
   s->order = int_valloc (s->deg);
 
-  /* s->fppc = cplx_valloc (s->deg + 1); */
   s->fppc1 = cplx_valloc (s->deg + 1);
 
   s->mfpc1 = mpc_valloc (s->deg + 1);
   for (i = 0; i <= s->deg; i++)
     mpc_init2 (s->mfpc1[i], 0);
-
-  /* s->mfppc = mpc_valloc (s->deg + 1); */
-  /* for (i = 0; i <= s->deg; i++) */
-  /*   mpc_init2 (s->mfppc[i], 0); */
 
   s->mfppc1 = mpc_valloc (s->deg + 1);
   for (i = 0; i <= s->deg; i++)
@@ -256,9 +247,6 @@ mps_free_data (mps_context * s)
 
   mps_clusterization_free (s, s->clusterization);
   free (s->order);
-
-  /* free (s->fap); */
-  /* rdpe_vfree (s->dap); */
 
   for (i = 0; i < s->n; i++)
     mps_approximation_free (s, s->root[i]);

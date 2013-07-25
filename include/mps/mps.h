@@ -714,8 +714,8 @@ typedef int mps_debug_level;
                          const char * message, ...);
   mps_input_option mps_parse_option_line (mps_context * s, char *line, size_t length);
 
-  void mps_parse_stream (mps_context * s, FILE * input_stream);
-  void mps_parse_file   (mps_context * s, const char * path);
+  mps_polynomial * mps_parse_stream (mps_context * s, FILE * input_stream);
+  mps_polynomial * mps_parse_file   (mps_context * s, const char * path);
 
   mps_polynomial * mps_monomial_poly_read_from_stream_v2 (mps_context * s, mps_input_buffer * buffer);
   mps_monomial_poly * mps_monomial_poly_read_from_stream (mps_context * s, mps_input_buffer * buffer, 

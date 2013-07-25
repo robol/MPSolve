@@ -39,6 +39,7 @@ test_secsolve_on_pol_impl (test_pol * pol, mps_output_goal goal, mps_boolean jac
   int i, j, zero_roots = 0;
   char ch;
   rdpe_t eps;
+  mps_polynomial * poly = NULL;
 
   /* Check the roots */
   FILE* result_stream = fopen (pol->res_file, "r"); 
@@ -64,8 +65,9 @@ test_secsolve_on_pol_impl (test_pol * pol, mps_output_goal goal, mps_boolean jac
     mps_context_set_debug_level (s, MPS_DEBUG_TRACE);
 
   /* Load the polynomial that has been given to us */
-  mps_parse_stream (s, input_stream);
-  
+  poly = mps_parse_stream (s, input_stream);
+  mps_context_set_input_poly (s, poly);
+
   starting_test_message (pol->pol_file);
 
   mps_context_set_output_prec (s, pol->out_digits);
@@ -178,6 +180,7 @@ test_secsolve_on_pol_impl (test_pol * pol, mps_output_goal goal, mps_boolean jac
   free (mroot);
   free (drad);
 
+  mps_polynomial_free (s, poly);
   mps_context_free (s);
 
   if (passed)

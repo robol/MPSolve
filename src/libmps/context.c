@@ -110,9 +110,6 @@ mps_context_free (mps_context * s)
   free (s->input_config);
   free (s->output_config);
 
-  /* Check if secular equation or monomial poly need to be freed */
-  if (s->active_poly != NULL)
-    mps_polynomial_free (s, s->active_poly);
   s->active_poly = NULL;
 
   if (s->secular_equation)

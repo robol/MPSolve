@@ -40,6 +40,7 @@ static mps_boolean logger_closed = false;
 #endif
 
 mps_context * s = NULL;
+mps_polynomial * poly = NULL;
 
 #ifndef __WINDOWS
 #include <signal.h>
@@ -219,6 +220,8 @@ cleanup_context (mps_context * ctx, void * user_data)
 #endif  
 
   /* Free used data */
+  if (poly) 
+    mps_polynomial_free (ctx, poly);
   mps_context_free (ctx);
 
   s = NULL;
@@ -600,7 +603,7 @@ main (int argc, char **argv)
 
   /* Parse the input stream and if a polynomial is given as output, 
    * allocate also a secular equation to be used in regeneration */
-  mps_parse_stream (s, infile);
+  poly = mps_parse_stream (s, infile);
 
   /* Close the file if it's not stdin */
   if (argc == 2)

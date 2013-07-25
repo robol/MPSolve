@@ -207,24 +207,27 @@ mps_parse_option_line (mps_context * s, char *line, size_t length)
 }
 
 
-void
+mps_polynomial *
 mps_parse_file (mps_context * s, const char * path)
 {
   FILE * handle = fopen(path, "r");
-  if (!handle) {
-    mps_error (s, "Error while opening file: %s", path);
-  }
-  else {
-    mps_parse_stream (s, handle);
-    fclose (handle);
-  }
+  if (!handle) 
+    {
+      mps_error (s, "Error while opening file: %s", path);
+      return NULL;
+    }
+  else 
+    {
+      return mps_parse_stream (s, handle);
+      fclose (handle);
+    }
 }
 
 
 /**
  * @brief Parse a stream for input data.
  */
-void
+mps_polynomial *
 mps_parse_stream (mps_context * s, FILE * input_stream)
 {
   /* This is needed to avoid strange decimal separators */
@@ -241,6 +244,8 @@ mps_parse_stream (mps_context * s, FILE * input_stream)
   mps_density density = MPS_DENSITY_DENSE;
   mps_representation representation = MPS_REPRESENTATION_MONOMIAL;
   long int input_precision = 0;
+
+  mps_polynomial * poly = NULL;
 
   if (!input_stream)
     input_stream = s->instr;
@@ -269,18 +274,19 @@ mps_parse_stream (mps_context * s, FILE * input_stream)
 
           if (first_pass)
             {
-              mps_polynomial * new_poly = NULL;
               /* This may be the case where an old format MPSolve file has been
                * given to MPSolve, since no option has been specified, so trying
                * to parse it that way */
               MPS_DEBUG_WITH_INFO (s, "This is not a MPSolve 3.0 pol file, so trying with 2.x format");
-              new_poly = MPS_POLYNOMIAL (mps_monomial_poly_read_from_stream_v2 (s, buffer));
+              poly = MPS_POLYNOMIAL (mps_monomial_poly_read_from_stream_v2 (s, buffer));
 
-              if (new_poly)
-                mps_context_set_input_poly (s, new_poly);
-
-              mps_input_buffer_free (buffer);
-              return;
+              if (poly)
+		{
+		  mps_input_buffer_free (buffer);
+		  return poly;
+		}
+	      else
+		return NULL;
             }
           parsing_options = false;
         }
@@ -293,7 +299,7 @@ mps_parse_stream (mps_context * s, FILE * input_stream)
           if (mps_context_has_errors (s))
             {
               mps_input_buffer_free (buffer);
-              return;
+              return NULL;
             }
 
           /* Parsing of the degree */
@@ -304,7 +310,7 @@ mps_parse_stream (mps_context * s, FILE * input_stream)
               {
                 mps_error (s, "Degree must be a positive integer");
                 mps_input_buffer_free (buffer);
-                return;
+                return NULL;
               }
             }
 
@@ -316,7 +322,7 @@ mps_parse_stream (mps_context * s, FILE * input_stream)
               {
                 mps_error (s, "Precision must be a positive integer");
                 mps_input_buffer_free (buffer);
-                return;
+                return NULL;
               }
             }
 
@@ -388,7 +394,7 @@ mps_parse_stream (mps_context * s, FILE * input_stream)
     {
       mps_error (s,
                  "Degree of the polynomial must be provided via the Degree=%d configuration option.");
-      return;
+      return NULL;
     }
   else if (s->debug_level & MPS_DEBUG_IO)
     {
@@ -401,34 +407,31 @@ mps_parse_stream (mps_context * s, FILE * input_stream)
         {
           MPS_DEBUG (s, "Parsing secular equation from stream");
         }
-      s->active_poly = MPS_POLYNOMIAL (
-        mps_secular_equation_read_from_stream (s, buffer, structure, density));
+      poly = MPS_POLYNOMIAL (mps_secular_equation_read_from_stream (s, buffer, structure, density));
       break;
 
     case MPS_REPRESENTATION_CHEBYSHEV:
       if (s->debug_level & MPS_DEBUG_IO)
         MPS_DEBUG (s, "Parsing mps_chebyshev_poly from stream");
-      s->active_poly = MPS_POLYNOMIAL (
-        mps_chebyshev_poly_read_from_stream (s, buffer, structure, density));
+      poly = MPS_POLYNOMIAL (mps_chebyshev_poly_read_from_stream (s, buffer, structure, density));
       break;
 
     case MPS_REPRESENTATION_MONOMIAL:
     default:
       if (s->debug_level & MPS_DEBUG_IO)
         MPS_DEBUG (s, "Parsing mps_monomial_poly from stream");
-      s->active_poly = MPS_POLYNOMIAL (
-        mps_monomial_poly_read_from_stream (s, buffer, structure, density));
+      poly = MPS_POLYNOMIAL (mps_monomial_poly_read_from_stream (s, buffer, structure, density));
       break;
   }
 
-  if (s->active_poly)
-  {
-    mps_context_set_input_poly (s, s->active_poly);
-    MPS_POLYNOMIAL (s->active_poly)->structure = structure;
-    MPS_POLYNOMIAL (s->active_poly)->density = density;
-
-    mps_context_set_input_prec (s, input_precision);
-  }
+  if (poly)
+    {
+      MPS_POLYNOMIAL (poly)->structure = structure;
+      MPS_POLYNOMIAL (poly)->density = density;
+      mps_context_set_input_prec (s, input_precision);
+    }
 
   mps_input_buffer_free (buffer);
+
+  return poly;
 }
