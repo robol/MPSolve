@@ -7,7 +7,7 @@ import os
 setup(
     cmdclass = {'build_ext': build_ext},
     ext_modules = [Extension("mpsolve",
-                             sources=["mpsolve.pyx"],
+                             sources=[ os.path.join("@srcdir@", "mpsolve.pyx") ],
                              libraries=["mps", "gmp"],
                              extra_link_args = [ "-L", "@top_builddir@" + "/src/libmps/.libs" ],
                              include_dirs=[ "@top_srcdir@" + '/include'])]

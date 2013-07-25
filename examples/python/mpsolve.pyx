@@ -1,8 +1,6 @@
-cimport mpsolve
+from mpsolve cimport *
 
 cdef class Context:
-
-    cdef mps_context * _c_ctx
 
     def __init__(self):
         self._c_ctx = mps_context_new()
@@ -12,7 +10,11 @@ cdef class Context:
             mps_context_free(self._c_ctx)
 
     def set_input_poly(self, poly):
-        mps_context_set_input_poly(self._c_ctx, <mps_polynomial*>poly)
+        self._set_input_poly(poly)
+
+    cdef _set_input_poly(self, MonomialPoly poly):
+        mps_context_set_input_poly(self._c_ctx, <mps_polynomial*> (poly._c_mp))
+        # poly.load_into_context(self._c_ctx)
 
     def mpsolve(self):
         mps_mpsolve(self._c_ctx)
@@ -23,27 +25,30 @@ cdef class Context:
 
         result_list = []
         for i in range(mps_context_get_degree(self._c_ctx)):
-            result_list.append(results[i][0] + 1j * results[i][1])
+            result_list.append(results[i][0])
         return result_list
 
     def monomial_poly_create(self, degree):
         poly = MonomialPoly(degree)
         poly.set_context(self._c_ctx)
+        return poly
         
 
 cdef class MonomialPoly:
 
-    cdef mps_monomial_poly * _c_mp
-    cdef mps_context * _c_ctx
+    # cdef mps_monomial_poly * _c_mp
 
     def __init__(self, degree):
-        self.degree = degree
+        self._degree = degree
         self._c_mp = NULL
         self._c_ctx = NULL
 
+    cdef load_into_context(self, mps_context * context):
+        mps_context_set_input_poly(context, <mps_polynomial*> self._c_mp)
+
     cdef set_context(self, mps_context * context):
         self._c_ctx = context
-        self._c_mp = mps_monomial_poly_new(context, self.degree)
+        self._c_mp = mps_monomial_poly_new(context, self._degree)
 
     def __dealloc__(self):
         pass

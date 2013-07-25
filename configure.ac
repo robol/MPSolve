@@ -297,6 +297,41 @@ AS_IF([test x$build_examples == xyes], [
 	AC_SUBST(MATLAB_MODULES_PROGRAMS)
 ])
 
+# == CYTHON MODULE for PYTHON ==
+# Check if we can found the cython executable in the path. If found, 
+# assume that we can build cython
+AM_PATH_PYTHON([],, [:])
+AC_ARG_VAR([PYTHON_INCLUDE], [Include flags for python, bypassing python-config])
+AC_ARG_VAR([PYTHON_CONFIG], [Path to python-config])
+AS_IF([test -z "$PYTHON_INCLUDE"], [
+  AS_IF([test -z "$PYTHON_CONFIG"], [
+    AC_PATH_PROGS([PYTHON_CONFIG],
+                  [python$PYTHON_VERSION-config python-config],
+                  [no],
+                  [`dirname $PYTHON`])
+    AS_IF([test "$PYTHON_CONFIG" = no], [AC_MSG_ERROR([cannot find python-config for $PYTHON.])])
+  ])
+  AC_MSG_CHECKING([python include flags])
+  PYTHON_INCLUDE=`$PYTHON_CONFIG --includes`
+  AC_MSG_RESULT([$PYTHON_INCLUDE])
+])
+
+# Trick to get the extension of the python module right. 
+host_os=`echo "$host" | sed 's/^\([^-]*\)-\([^-]*\)-\(.*\)$/\3/'`
+py_libext=so
+case "$host_os" in
+  cygwin* | mingw* | pw32* | cegcc*)
+    py_libext=dll
+    ;;
+esac
+
+AC_CHECK_PROGS([CYTHON], [cython])
+AS_IF([test x"$MEX" != x""], [
+  PYTHON_MODULES=mpsolve.$shrext
+], [
+])
+AC_SUBST(PYTHON_MODULES)
+
 # Check for GTK libraries to enable the example that is given
 # in examples/gtk
 AS_IF([test x$build_examples == xyes && test x$have_gtk == x1 && test x$have_cairo == x1], [
@@ -400,6 +435,7 @@ AC_CONFIG_FILES([Makefile
     examples/matlab/Makefile
     examples/gtk/Makefile
     examples/python/setup.py
+    examples/python/Makefile
     src/Makefile
     src/mpsolve/Makefile
     src/mpsolve/mpsolve.1
