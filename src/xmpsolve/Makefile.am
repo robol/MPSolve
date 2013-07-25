@@ -47,7 +47,7 @@ if HAVE_WINDRES
 
 %.o : %.rc
 	$(AM_V_GEN)
-        $(AM_V_at) $(WINDRES) $< -o $@
+	$(AM_V_at) $(WINDRES) $< -o $@
 
 resources = xmpsolve.rc
 
