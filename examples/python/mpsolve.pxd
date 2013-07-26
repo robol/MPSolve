@@ -44,16 +44,17 @@ cdef extern from "mps/mps.h":
     mps_context * mps_context_new()
 
     void mps_context_free (mps_context * s)
+    void mps_polynomial_free (mps_context * s, mps_polynomial * poly)
 
 
 cdef class Context:
     cdef mps_context * _c_ctx
-    cdef _set_input_poly(self, MonomialPoly poly)
+    cdef _set_input_poly(self, Polynomial poly)
 
-cdef class MonomialPoly:
-    cdef mps_monomial_poly* _c_mp
-    cdef mps_context * _c_ctx
+cdef class Polynomial:
+    cdef mps_polynomial* _c_polynomial
+    cdef mps_context* _c_ctx
     cdef int _degree
 
-    cdef load_into_context(self, mps_context * ctx)
-    cdef set_context(self, mps_context * ctx)
+cdef class MonomialPoly(Polynomial):
+    cdef mps_monomial_poly * _c_mp
