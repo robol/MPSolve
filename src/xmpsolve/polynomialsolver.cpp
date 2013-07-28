@@ -32,15 +32,17 @@ PolynomialSolver::solvePolFile(QString selectedFile, mps_algorithm selected_algo
     m_worker.setMpsContext(m_mpsContext);
 
     // Parse the stream specified by the user
-    mps_parse_file (m_mpsContext, stringData.data());
+    mps_polynomial * poly = mps_parse_file (m_mpsContext, stringData.data());
 
-    if (mps_context_has_errors (m_mpsContext)) {
+    if (mps_context_has_errors (m_mpsContext) || !poly) {
         m_errorMessage = tr("Error while solving the given pol file: %1").
                 arg(mps_context_error_msg(m_mpsContext));
         mps_context_free (m_mpsContext);
         m_mpsContext = NULL;
         return -1;
     }
+    else
+        mps_context_set_input_poly (m_mpsContext, poly);
 
     // Select the options selected by the user
     mps_context_select_algorithm(m_mpsContext, selected_algorithm);
