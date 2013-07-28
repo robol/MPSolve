@@ -15,8 +15,14 @@ cdef class Context:
     cdef _set_input_poly(self, Polynomial poly):
         mps_context_set_input_poly(self._c_ctx, <mps_polynomial*> (poly._c_polynomial))
 
-    def mpsolve(self):
+    def mpsolve(self, poly = None):
+        if poly is not None:
+            self.set_input_poly(poly)
         mps_mpsolve(self._c_ctx)
+
+    def solve(self, poly = None):
+        self.mpsolve(poly)
+        return self.get_roots()
 
     def get_roots(self):
         cdef cplx_t * results = NULL
@@ -31,8 +37,6 @@ cdef class Polynomial:
     def __dealloc__(self):
         mps_polynomial_free(self._c_ctx, self._c_polynomial)
 
-
-
 cdef class MonomialPoly:
 
     def __cinit__(self, Context ctx, int degree):
@@ -45,5 +49,7 @@ cdef class MonomialPoly:
         if isinstance(coeff, int):
             mps_monomial_poly_set_coefficient_int(self._c_ctx, 
                                                   self._c_mp, n, coeff, 0)
+        elif isinstance(coeff, float):
+            mps_monomial_poly_set_coefficient_d(self._c_ctx, self._c_mp, n, coeff, 0)
         else:
             raise RuntimeError("Coefficient type not supported")

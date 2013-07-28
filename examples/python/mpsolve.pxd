@@ -14,6 +14,8 @@ cdef extern from "mps/mps.h":
     mps_monomial_poly *mps_monomial_poly_new(mps_context *status, int n)
     void mps_monomial_poly_set_coefficient_int (mps_context * s, mps_monomial_poly * mp, long int i,
                                                 long long real_part, long long imag_part)
+    void mps_monomial_poly_set_coefficient_d   (mps_context * s, mps_monomial_poly * mp, long int i,
+                                                double real_part, double imag_part)
 
     cdef enum mps_output_goal:
         MPS_OUTPUT_GOAL_ISOLATE
