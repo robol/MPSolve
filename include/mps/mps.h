@@ -101,6 +101,9 @@ typedef int mps_debug_level;
   /* monomial-poly.h */
   struct mps_monomial_poly;
 
+  /* monomial-matrix-poly.h */
+  struct mps_monomial_matrix_poly;
+
   /* polynomial.h */
   struct mps_polynomial;
 
@@ -146,6 +149,9 @@ typedef int mps_debug_level;
 
   /* monomial-poly.h */
   typedef struct mps_monomial_poly mps_monomial_poly;
+
+  /* monomial-matrix-poly.h */
+  typedef struct mps_monomial_matrix_poly mps_monomial_matrix_poly;
 
   /* polynomial.h */
   typedef struct mps_polynomial mps_polynomial;
@@ -494,6 +500,7 @@ typedef int mps_debug_level;
 #include <mps/input-buffer.h>
 #include <mps/context.h>
 #include <mps/monomial-poly.h>
+#include <mps/monomial-matrix-poly.h>
 #include <mps/secular-equation.h>
 #include <mps/chebyshev.h>
 #include <mps/approximation.h>
