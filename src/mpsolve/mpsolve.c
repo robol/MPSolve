@@ -604,6 +604,14 @@ main (int argc, char **argv)
   /* Parse the input stream and if a polynomial is given as output, 
    * allocate also a secular equation to be used in regeneration */
   poly = mps_parse_stream (s, infile);
+  if (!poly)
+    {
+      mps_error (s, "Error while parsing the polynomial, aborting.");
+      mps_print_errors (s);
+      return EXIT_FAILURE;
+    }
+  else
+    mps_context_set_input_poly (s, poly);
 
   /* Close the file if it's not stdin */
   if (argc == 2)
