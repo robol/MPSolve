@@ -49,8 +49,18 @@ void MainWindow::on_solveButton_clicked()
     mps_algorithm selected_algorithm = (ui->algorithmComboBox->currentIndex() == 0) ?
                 MPS_ALGORITHM_SECULAR_GA : MPS_ALGORITHM_STANDARD_MPSOLVE;
 
+    PolynomialBasis basis;
+    switch (ui->basisComboBox->currentIndex()) {
+        case 0:
+            basis = MONOMIAL;
+            break;
+         case 1:
+            basis = CHEBYSHEV;
+            break;
+    }
+
     ui->statusBar->showMessage(tr("Solving polynomial..."));
-    if (m_solver.solvePoly(ui->polyLineEdit->toPlainText(),
+    if (m_solver.solvePoly(ui->polyLineEdit->toPlainText(), basis,
                           selected_algorithm, ui->digitsSpinBox->value()) < 0)
     {
         ui->statusBar->showMessage(tr("Polynomial parsing failed"));

@@ -6,6 +6,7 @@
 #include "mpsolveworker.h"
 #include "polynomial.h"
 #include "rootsmodel.h"
+#include "monomial.h"
 #include <mps/mps.h>
 #include <stdio.h>
 
@@ -30,7 +31,8 @@ public:
       *
       * @return The degree of the polynomial.
       */
-    int solvePoly(Polynomial poly, mps_algorithm selected_algorithm = MPS_ALGORITHM_SECULAR_GA,
+    int solvePoly(Polynomial poly, PolynomialBasis basis = MONOMIAL,
+                  mps_algorithm selected_algorithm = MPS_ALGORITHM_SECULAR_GA,
                   int required_digits = 16);
 
     /**
@@ -46,7 +48,7 @@ public:
       *
       * @return The degree of the polynomial.
       */
-    int solvePoly(QString inputString, mps_algorithm = MPS_ALGORITHM_SECULAR_GA, int required_digits = 16);
+    int solvePoly(QString inputString, PolynomialBasis basis, mps_algorithm = MPS_ALGORITHM_SECULAR_GA, int required_digits = 16);
 
     /**
      * @brief errorMessage can be used to access the last error message,

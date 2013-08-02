@@ -54,7 +54,8 @@ PolynomialSolver::solvePolFile(QString selectedFile, mps_algorithm selected_algo
 }
 
 int
-PolynomialSolver::solvePoly(Polynomial poly, mps_algorithm selected_algorithm,
+PolynomialSolver::solvePoly(Polynomial poly, PolynomialBasis basis,
+                            mps_algorithm selected_algorithm,
                             int required_digits)
 {
     m_currentPoly = poly;
@@ -67,12 +68,27 @@ PolynomialSolver::solvePoly(Polynomial poly, mps_algorithm selected_algorithm,
 
     m_worker.setMpsContext(m_mpsContext);
 
-    mps_monomial_poly * monomialPoly = mps_monomial_poly_new(m_mpsContext, poly.degree());
-    for (int i = 0; i <= poly.degree(); i++) {
-        poly.monomial(i).addToMonomialPoly(m_mpsContext, monomialPoly);
+    mps_polynomial * mps_poly = NULL;
+
+    switch (basis) {
+        case MONOMIAL:
+            mps_poly = MPS_POLYNOMIAL (mps_monomial_poly_new(m_mpsContext, poly.degree()));
+            for (int i = 0; i <= poly.degree(); i++) {
+                poly.monomial(i).addToMonomialPoly(m_mpsContext,
+                                                   MPS_MONOMIAL_POLY (mps_poly));
+            }
+            break;
+
+        case CHEBYSHEV:
+            mps_poly = MPS_POLYNOMIAL (mps_chebyshev_poly_new (m_mpsContext, poly.degree (),
+                                                               MPS_STRUCTURE_COMPLEX_RATIONAL));
+            for (int i = 0; i <= poly.degree(); i++) {
+                poly.monomial(i).addToChebyshevPoly(m_mpsContext,
+                                                    MPS_CHEBYSHEV_POLY (mps_poly));
+            }
     }
 
-    mps_context_set_input_poly(m_mpsContext, MPS_POLYNOMIAL (monomialPoly));
+    mps_context_set_input_poly(m_mpsContext, mps_poly);
     mps_context_select_algorithm(m_mpsContext, selected_algorithm);
     mps_context_set_output_prec(m_mpsContext, required_digits * LOG2_10);
     mps_context_set_output_goal(m_mpsContext, MPS_OUTPUT_GOAL_APPROXIMATE);
@@ -82,7 +98,8 @@ PolynomialSolver::solvePoly(Polynomial poly, mps_algorithm selected_algorithm,
 }
 
 int
-PolynomialSolver::solvePoly(QString inputString, mps_algorithm selected_algorithm,
+PolynomialSolver::solvePoly(QString inputString, PolynomialBasis basis,
+                            mps_algorithm selected_algorithm,
                             int required_digits)
 {
     PolynomialParser parser;
@@ -91,7 +108,7 @@ PolynomialSolver::solvePoly(QString inputString, mps_algorithm selected_algorith
     Polynomial poly = parser.parse(inputString);
 
     if (poly.degree() != 0) {
-        return solvePoly(poly, selected_algorithm, required_digits);
+        return solvePoly(poly, basis, selected_algorithm, required_digits);
     }
     else {
        m_errorMessage = parser.errorMessage();

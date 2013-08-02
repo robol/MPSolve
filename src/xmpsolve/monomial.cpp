@@ -382,6 +382,13 @@ Monomial::addToMonomialPoly(mps_context *ctx, mps_monomial_poly *poly)
         realRationalCoefficient, imagRationalCoefficient);
 }
 
+void
+Monomial::addToChebyshevPoly(mps_context *ctx, mps_chebyshev_poly *poly)
+{
+    mps_chebyshev_poly_set_coefficient_q(ctx, poly, degree(),
+                                         realRationalCoefficient, imagRationalCoefficient);
+}
+
 Monomial&
 Monomial::operator=(const Monomial& rhs)
 {

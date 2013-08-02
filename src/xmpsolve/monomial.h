@@ -9,6 +9,11 @@
 
 namespace xmpsolve {
 
+enum PolynomialBasis {
+    MONOMIAL,
+    CHEBYSHEV
+};
+
 /*
  * The parsing in the Monomial class is a rough parser for the following
  * grammar:
@@ -69,6 +74,14 @@ public:
      * @param poly The poly to which the monomial should be added
      */
     void addToMonomialPoly(mps_context * ctx, mps_monomial_poly * poly);
+
+    /**
+     * @brief addToChebyshevPoly can be used to add this monomial to a polynomial
+     * represented in the Chebyshev basis.
+     * @param ctx The current mps_context
+     * @param poly A chebyshev polynomial.
+     */
+    void addToChebyshevPoly(mps_context * ctx, mps_chebyshev_poly * poly);
 
     /**
      * @brief changeSign Change the sign of the coefficient in front of

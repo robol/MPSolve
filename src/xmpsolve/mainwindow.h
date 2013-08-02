@@ -6,7 +6,7 @@
 #include "root.h"
 #include "polynomialsolver.h"
 #include "polfileeditordialog.h"
-#include<mps/mps.h>
+#include <mps/mps.h>
 
 namespace Ui {
     class MainWindow;
