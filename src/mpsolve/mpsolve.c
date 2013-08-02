@@ -263,6 +263,10 @@ main (int argc, char **argv)
   mps_opt *opt;
   mps_phase phase = no_phase;
 
+  /* This will be true if the user has explicitely selected the algorithm, 
+     otherwise we will be using our own heuristic. */
+  mps_boolean explicit_algorithm_selection = false;
+
   opt = NULL;
   while ((mps_getopts (&opt, &argc, &argv, MPSOLVE_GETOPT_STRING)))
     {
@@ -445,6 +449,8 @@ main (int argc, char **argv)
         case 'a':
           switch (*opt->optvalue)
             {
+	      explicit_algorithm_selection = true;
+
             case 'u':
               mps_context_select_algorithm (s, MPS_ALGORITHM_STANDARD_MPSOLVE);
               break;
@@ -612,6 +618,15 @@ main (int argc, char **argv)
     }
   else
     mps_context_set_input_poly (s, poly);
+
+  /* Perform some heuristic for the algorithm selection, but only if the user
+   * hasn't explicitely selected one. */
+  if (! explicit_algorithm_selection)
+    {
+      mps_context_select_algorithm (s, (MPS_IS_MONOMIAL_POLY (poly) && 
+					MPS_DENSITY_IS_SPARSE (poly->density)) ? 
+				    MPS_ALGORITHM_STANDARD_MPSOLVE : MPS_ALGORITHM_SECULAR_GA );
+    }
 
   /* Close the file if it's not stdin */
   if (argc == 2)
