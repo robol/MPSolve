@@ -41,7 +41,7 @@ cdef extern from "mps/mps.h":
 
     void mps_mpsolve (mps_context * s)
 
-    int mps_context_get_roots_d (mps_context * s, cplx_t ** roots, float **radius)
+    int mps_context_get_roots_d (mps_context * s, cplx_t ** roots, double **radius)
 
     mps_context * mps_context_new()
 
