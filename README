@@ -28,7 +28,12 @@
  Full install is needed to use MPSolve as a library in other C, 
  fortran, Matlab, ... software without further tweaking. 
 
+ The examples/ folder contains a mix of example source files that use
+ MPSolve and bindings for other programming languages such as Python,
+ Octave, Matlab (tm), ...
+
  == 2. Using the mpsolve binary ==
+
 
  The mpsolve binary is thought as a simple way to solve polynomials 
  and/or secular equation using a text file as input. A generic 
