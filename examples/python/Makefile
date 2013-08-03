@@ -1,5 +1,7 @@
 NULL = 
 
+EXTRA_DIST = example.py
+
 SOURCE_FILES = \
 	mpsolve.pyx \
 	mpsolve.pxd \
