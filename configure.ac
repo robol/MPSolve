@@ -489,6 +489,12 @@ else
 	echo "	Graphical UI:		no"
 fi
 
+if [test x"$PYTHON_MODULES" = x""]; then
+        echo "	Python module:          no"
+else
+        echo "	Python module:          yes"
+fi
+
 echo "
 Type 'make' to compile MPSolve, and then make install
 to install the binaries, the library and the headers
