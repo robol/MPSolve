@@ -300,6 +300,7 @@ AS_IF([test x$build_examples == xyes], [
 # == CYTHON MODULE for PYTHON ==
 # Check if we can found the cython executable in the path. If found, 
 # assume that we can build cython
+PYTHON_MODULES=mpsolve.la
 AM_PATH_PYTHON([],, [:])
 AC_ARG_VAR([PYTHON_INCLUDE], [Include flags for python, bypassing python-config])
 AC_ARG_VAR([PYTHON_CONFIG], [Path to python-config])
@@ -309,7 +310,10 @@ AS_IF([test -z "$PYTHON_INCLUDE"], [
                   [python$PYTHON_VERSION-config python-config],
                   [no],
                   [`dirname $PYTHON`])
-    AS_IF([test "$PYTHON_CONFIG" = no], [AC_MSG_ERROR([cannot find python-config for $PYTHON.])])
+    AS_IF([test "$PYTHON_CONFIG" = no], [
+        AC_MSG_WARN([cannot find python-config for $PYTHON.])
+        PYTHON_MODULES=
+    ])
   ])
   AC_MSG_CHECKING([python include flags])
   PYTHON_INCLUDE=`$PYTHON_CONFIG --includes`
@@ -326,8 +330,8 @@ case "$host_os" in
 esac
 
 AC_CHECK_PROGS([CYTHON], [cython])
-AS_IF([test x"$MEX" != x""], [
-  PYTHON_MODULES=mpsolve.$shrext
+AS_IF([test x"$CYTHON" == x""], [
+  PYTHON_MODULES=
 ], [
 ])
 AC_SUBST(PYTHON_MODULES)
@@ -440,7 +444,6 @@ AC_CONFIG_FILES([Makefile
     examples/octave/Makefile
     examples/matlab/Makefile
     examples/gtk/Makefile
-    examples/python/setup.py
     examples/python/Makefile
     src/Makefile
     src/mpsolve/Makefile

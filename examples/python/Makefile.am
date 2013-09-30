@@ -3,7 +3,7 @@ AM_CPPFLAGS = -I$(top_srcdir)/include $(PYTHON_INCLUDE)
 EXTRA_PYTHON = mpsolve.la
 EXTRA_DIST = mpsolve.pyx mpsolve.pxd
 
-pyexec_LTLIBRARIES = mpsolve.la
+pyexec_LTLIBRARIES = $(PYTHON_MODULES)
 
 mpsolve_la_SOURCES = $(builddir)/mpsolve.c
 mpsolve_la_LDFLAGS = $(MPSOLVE_LDFLAGS) -module -avoid-version
