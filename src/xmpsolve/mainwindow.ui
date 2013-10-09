@@ -214,8 +214,8 @@
             </item>
             <item row="2" column="1">
              <widget class="QComboBox" name="basisComboBox">
-              <property name="currentText">
-               <string>Monomial</string>
+              <property name="currentIndex">
+               <number>0</number>
               </property>
               <item>
                <property name="text">
