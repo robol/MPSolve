@@ -151,6 +151,12 @@ mps_improve (mps_context * ctx)
   rdpe_t * root_conditioning = NULL;
   ctx->operation = MPS_OPERATION_REFINEMENT;
 
+  /* We need to be able to evaluate the Newton correction in a point
+   * in order to perform the refinement. This is not necessary true
+   * for custom polynomial types, so add a check in here */
+  if (p->mnewton == NULL)
+    return;
+
   /* Set lastphase to mp */
   ctx->lastphase = mp_phase;
 
