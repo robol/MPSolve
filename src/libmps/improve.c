@@ -154,7 +154,7 @@ mps_improve (mps_context * ctx)
   /* We need to be able to evaluate the Newton correction in a point
    * in order to perform the refinement. This is not necessary true
    * for custom polynomial types, so add a check in here */
-  if (p->mnewton == NULL)
+  if (p->mnewton == NULL && p->density != MPS_DENSITY_USER)
     return;
 
   /* Set lastphase to mp */

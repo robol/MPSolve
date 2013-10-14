@@ -1,6 +1,13 @@
-TESTS = $(CHECK_PROGRAMS)
 check_PROGRAMS = $(CHECK_PROGRAMS)
-EXTRA_PROGRAMS = check_secsolve check_unisolve check_dpe test_mpsolve check_multithread check_cluster
+TESTS = check_secsolve check_unisolve check_dpe check_multithread check_cluster check_chebyshev
+EXTRA_PROGRAMS = check_secsolve check_unisolve check_dpe test_mpsolve check_multithread check_cluster check_chebyshev
+
+AM_TEST_ENVIRONMENT = \
+  SRCDIR=$(abs_srcdir) BUILDDIR=$(abs_builddir)
+
+ check_chebyshev_SOURCES = check_chebyshev.c check_implementation.c check_implementation.h
+ check_chebyshev_CFLAGS = $(CHECK_CFLAGS) $(GMP_CFLAGS) $(PTHREAD_CFLAGS) -I${top_srcdir}/include
+ check_chebyshev_LDFLAGS = ${top_builddir}/src/libmps/libmps.la -lm $(GMP_LIBS) $(CHECK_LIBS) $(PTHREAD_LIBS)
 
  check_secsolve_SOURCES = check_secsolve.c check_implementation.c check_implementation.h
  check_secsolve_CFLAGS = $(CHECK_CFLAGS) $(GMP_CFLAGS) $(PTHREAD_CFLAGS) -I${top_srcdir}/include

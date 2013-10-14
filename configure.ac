@@ -202,7 +202,7 @@ PKG_CHECK_MODULES([CHECK], [check >= 0.9.4], [have_check=yes], [have_check=no])
 
 # If check was fuond enable the tests that need to be built
 AS_IF([test "x$have_check" = "xyes"], [ 
-  CHECK_PROGRAMS="check_dpe check_secsolve check_unisolve check_multithread check_cluster"
+  CHECK_PROGRAMS="check_dpe check_secsolve check_unisolve check_multithread check_cluster check_chebyshev"
 ])
   
 AC_SUBST(CHECK_PROGRAMS)
