@@ -18,6 +18,8 @@
 #include <mps/mt.h>
 #include <stdio.h>
 #include <gmp.h>
+#include <mpfr.h>
+#include <mpf2mpfr.h>
 
 #ifdef __cplusplus
 extern "C" {

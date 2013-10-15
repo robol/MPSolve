@@ -36,6 +36,9 @@ mpc_init2 (mpc_t c, unsigned long int prec)
   prec = (prec <= 2) ? 53 : prec;
   mpf_init2 (mpc_Re (c), prec);
   mpf_init2 (mpc_Im (c), prec);
+
+  mpf_set_ui (mpc_Re (c), 0U);
+  mpf_set_ui (mpc_Im (c), 0U);
 }
 
 void
@@ -50,6 +53,12 @@ void
 mpc_set_prec (mpc_t c, unsigned long int prec)
 {
   prec = (prec <= 2) ? 53 : prec;
+
+  /* Save a temporary copy of the data */
+  mpc_t copy;
+  mpc_init2 (copy, mpc_get_prec (c));
+  mpc_set (copy, c);
+
   if (mpf_get_prec (mpc_Re (c)) < prec)
     {
       mpf_set_prec (mpc_Re (c), prec);
@@ -60,6 +69,9 @@ mpc_set_prec (mpc_t c, unsigned long int prec)
       mpf_set_prec (mpc_Re (c), prec);
       mpf_set_prec (mpc_Im (c), prec);
     }
+
+  mpc_set (c, copy);
+  mpc_clear (copy);
 }
 
 unsigned long int

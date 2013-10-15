@@ -146,6 +146,7 @@ mpf_set_2dl (mpf_t f, double d, long int l)
 void
 mpf_get_2dl (double *d, long int *l, mpf_t f)
 {
+#if USE_GMP_MPF
   mp_exp_t e;
   double t;
   int i;
@@ -159,6 +160,9 @@ mpf_get_2dl (double *d, long int *l, mpf_t f)
   /* scale mantissa to (1/2, 1] */
   *d = frexp (t, &i);
   *l = e * mp_bits_per_limb + i;
+#else
+  *d = mpfr_get_d_2exp (l, f, MPFR_RNDN);
+#endif
 }
 
 long int
@@ -299,7 +303,10 @@ mpf_vinit2 (mpf_t v[], unsigned long int size, unsigned long int prec)
   unsigned long int i;
 
   for (i = 0; i < size; i++)
-    mpf_init2 (v[i], prec);
+    {
+      mpf_init2 (v[i], prec);
+      mpf_set_ui (v[i], 0U);
+    }
 }
 
 void

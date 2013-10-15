@@ -131,13 +131,36 @@ AC_ARG_ENABLE([graphical-debugger],
 # we can continue ignoring the error. 
 #
 
-# We need the multiprecicsion GMP library. 
-AC_CHECK_LIB([gmp], [__gmpz_init2])
-AC_CHECK_HEADERS([gmp.h], [mpsolve_found_gmp_headers=yes; break;])
+# We need the multiprecision GMP library. 
+mpsolve_found_gmp_headers=yes
+AC_CHECK_LIB([gmp], [__gmpz_init2], [], [
+  mpsolve_found_gmp_headers=no
+])
+AC_CHECK_HEADERS([gmp.h], [mpsolve_found_gmp_headers=yes; break;], [
+  mpsolve_found_gmp_headers=no
+])
 
 # Raise an error if GMP is not correctly installed on this system.
 AS_IF([test "x$mpsolve_found_gmp_headers" != "xyes"],
       [AC_MSG_ERROR([Unable to find gmp headers, pleas install libgmp-dev])])
+
+# Check for the MPFR multiprecision library
+mpsolve_found_mpfr_headers=yes
+AC_CHECK_LIB([mpfr], [mpfr_init2], [], [
+  mpsolve_found_mpfr_headers=no
+])
+AC_CHECK_HEADERS([mpfr.h], [], [
+  mpsolve_found_mpfr_headers=no
+])
+AC_CHECK_HEADERS([mpf2mpfr.h], [], [
+  mpsolve_found_mpfr_headers=no
+])
+
+AS_IF([test x"$mpsolve_found_mpfr_headers" != x"yes"], [
+  MPSOLVE_CFLAGS="$MPSOLVE_CFLAGS -DUSE_GMP_MPF"
+], [
+  MPSOLVE_LFGLAGS="$MPSOLVE_LDFLAGS -lmpfr"
+])
 
 # The general C math library. 
 AC_CHECK_LIB([m], [pow])

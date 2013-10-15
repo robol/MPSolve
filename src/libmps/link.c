@@ -30,12 +30,19 @@ mpf_set_rdpe (mpf_t f, rdpe_t e)
 void
 mpf_get_rdpe (rdpe_t e, mpf_t f)
 {
+#if USE_GMP_MPF
   mp_exp_t esp;
 
   esp = f->_mp_exp;
   f->_mp_exp = 0;
   rdpe_set_2dl (e, mpf_get_d (f), esp * mp_bits_per_limb);
   f->_mp_exp = esp;
+#else
+  long int esp;
+  double d = mpfr_get_d_2exp (&esp, f, MPFR_RNDN);
+
+  rdpe_set_2dl (e, d, esp);
+#endif
 }
 
 void

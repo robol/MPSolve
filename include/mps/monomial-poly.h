@@ -10,7 +10,6 @@
 
   #include <mps/polynomial.h>
   #include <mps/mps.h>
-  #include <gmp.h>
   #include <pthread.h>
 
 #define MPS_MONOMIAL_POLY(t) ((mps_monomial_poly*) t)
