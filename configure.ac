@@ -1,5 +1,5 @@
-#                                               -*- Autoconf -*-
-# Process this file with autoconf to produce a configure script.
+#                                               -*- Autoconf -*- Process this file with autoconf 
+# to produce a configure script.
 
 AC_PREREQ([2.67])
 AC_INIT([MPSolve], [3.1.4], [robol@poisson.phc.unipi.it])
@@ -300,8 +300,8 @@ AS_IF([test x$build_examples == xyes], [
 # == CYTHON MODULE for PYTHON ==
 # Check if we can found the cython executable in the path. If found, 
 # assume that we can build cython
-PYTHON_MODULES=mpsolve.la
-AM_PATH_PYTHON([],, [:])
+PYTHON_MODULES=_mpsolve.la
+AM_PATH_PYTHON([2.4],, [:])
 AC_ARG_VAR([PYTHON_INCLUDE], [Include flags for python, bypassing python-config])
 AC_ARG_VAR([PYTHON_CONFIG], [Path to python-config])
 AS_IF([test -z "$PYTHON_INCLUDE"], [
