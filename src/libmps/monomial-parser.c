@@ -853,3 +853,4 @@ cleanup:
 
   return MPS_POLYNOMIAL (poly);
 }
+
