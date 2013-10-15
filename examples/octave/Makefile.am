@@ -1,7 +1,7 @@
 if BUILD_OCT_FILE
 
 mps_roots.o:
-	$(MKOCTFILE) $(GMP_CFLAGS) -I${top_srcdir}/include -c -o mps_roots.o ${srcdir}/mps_roots.cc
+	@$(MKOCTFILE) $(GMP_CFLAGS) -I${top_srcdir}/include -c -o mps_roots.o ${srcdir}/mps_roots.cc
 
 noinst_PROGRAMS = $(OCTAVE_MODULES_PROGRAMS)
 

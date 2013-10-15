@@ -14,10 +14,10 @@
  * @brief Parse the stream that has been loaded into buffer and that
  * describe a mps_chebyshev_poly.
  *
- * @param s The current mps_context
+ * @param ctx The current mps_context
  * @param buffer The buffer that needs to be parsed
- * @param The structure of the polynomial 
- * @param The density configuration of the polynomial.
+ * @param structure The structure of the polynomial 
+ * @param density The density configuration of the polynomial.
  *
  * @return A newly allocated mps_chebyshev_poly, or NULL if the parsing fails.
  */
