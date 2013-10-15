@@ -10,7 +10,8 @@ START_TEST (test_chebyshev_poly_80)
   mpq_t one, zero;
   int i;
 
-  mpq_inits (one, zero);
+  mpq_init (one);
+  mpq_init (zero);
 
   mpq_set_ui (one, 1U, 1U);
   mpq_set_ui (zero, 0U, 1U);
@@ -78,7 +79,8 @@ START_TEST (test_chebyshev_poly_20)
   mpq_t one, zero;
   int i;
 
-  mpq_inits (one, zero);
+  mpq_init (one);
+  mpq_init (zero);
 
   mpq_set_ui (one, 1U, 1U);
   mpq_set_ui (zero, 0U, 1U);

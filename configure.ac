@@ -338,6 +338,8 @@ AS_IF([test x"$CYTHON" == x""], [
 ])
 AC_SUBST(PYTHON_MODULES)
 
+AM_CONDITIONAL([HAVE_CYTHON], [test "$CYTHON" != ""])
+
 # Check for GTK libraries to enable the example that is given
 # in examples/gtk
 AS_IF([test x$build_examples == xyes && test x$have_gtk == x1 && test x$have_cairo == x1], [
