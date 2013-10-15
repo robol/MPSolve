@@ -30,12 +30,12 @@ START_TEST (test_chebyshev_poly_80)
   mps_context_get_roots_m (ctx, &mroots, &radii);
   for (i = 0; i < 80; i++)
     {
-      int j; 
+      int j, found_root = -1; 
       rdpe_t expected_root;
       rdpe_t diff;
       double epsilon = DBL_MAX;
 
-      rdpe_set_d (expected_root, cos ( (2.0*i+1 ) / 40 * PI ));; 
+      rdpe_set_d (expected_root, cos ( (2.0*i+1 ) / 160 * PI ));; 
 
       printf ("[Chebyshev tests] Expected root %d: (%1.20lf, 0)\n",
 	      i, rdpe_get_d (expected_root));
@@ -50,12 +50,15 @@ START_TEST (test_chebyshev_poly_80)
 
 	  residue = sqrt( pow (fabs (rdpe_get_d (diff)), 2) + pow (fabs( rdpe_get_d (cdpe_Im (ctmp))), 2) );
 	  if (residue < epsilon)
-	    epsilon = residue;
+	    {
+	      epsilon = residue;
+	      found_root = j;
+	    }
 	}
 
       printf ("[Chebyshev tests] Residue for approximation %3d: %e\n", i, epsilon);
-      /* We should fail but precise bounds for Chebyshev polynomials are not in place, yet */
-      /* fail_unless (epsilon < 4.0 * DBL_EPSILON + rdpe_get_d (radii[i]));  */
+      printf ("[Chebyshev tests] Inclusion radii: %e\n", rdpe_get_d (radii[found_root]));
+      fail_unless (epsilon < 4.0 * DBL_EPSILON + rdpe_get_d (radii[found_root]));
     }
 
   mps_polynomial_free (ctx, MPS_POLYNOMIAL (cp));
@@ -95,7 +98,7 @@ START_TEST (test_chebyshev_poly_20)
   mps_context_get_roots_m (ctx, &mroots, &radii);
   for (i = 0; i < 20; i++)
     {
-      int j; 
+      int j, found_root = -1; 
       rdpe_t expected_root;
       rdpe_t diff;
       double epsilon = DBL_MAX;
@@ -115,12 +118,15 @@ START_TEST (test_chebyshev_poly_20)
 
 	  residue = sqrt( pow (fabs (rdpe_get_d (diff)), 2) + pow (fabs( rdpe_get_d (cdpe_Im (ctmp))), 2) );
 	  if (residue < epsilon)
-	    epsilon = residue;
+	    {
+	      epsilon = residue;
+	      found_root = j;
+	    }
 	}
 
       printf ("[Chebyshev tests] Residue for approximation %3d: %e\n", i, epsilon);
-      /* We should fail but precise bounds for Chebyshev polynomials are not in place, yet */
-      /* fail_unless (epsilon < 4.0 * DBL_EPSILON + rdpe_get_d (radii[i]));  */
+      printf ("[Chebyshev tests] Inclusion radii: %e\n", rdpe_get_d (radii[found_root]));
+      fail_unless (epsilon < 4.0 * DBL_EPSILON + rdpe_get_d (radii[found_root]));
     }
 
   mps_polynomial_free (ctx, MPS_POLYNOMIAL (cp));
