@@ -22,9 +22,7 @@ int
 test_secsolve_on_pol (test_pol * pol)
 {
   return test_secsolve_on_pol_impl (pol, MPS_OUTPUT_GOAL_ISOLATE, false) &&
-    test_secsolve_on_pol_impl (pol, MPS_OUTPUT_GOAL_APPROXIMATE, false); /* &&
-    test_secsolve_on_pol_impl (pol, MPS_OUTPUT_GOAL_ISOLATE, true)       &&
-    test_secsolve_on_pol_impl (pol, MPS_OUTPUT_GOAL_APPROXIMATE, true); */
+    test_secsolve_on_pol_impl (pol, MPS_OUTPUT_GOAL_APPROXIMATE, false);
 }
 
 /**
