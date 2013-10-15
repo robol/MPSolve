@@ -4,6 +4,16 @@
 #
 # Author: Leonardo Robol <leo@robol.it>
 
+echo "
+ ****************************************
+ *** MPSolve is initializing autoconf ***
+ ***                                  ***
+ *** Please use this command only if  ***
+ *** you checked out the source from  ***
+ *** the git repository!              ***
+ ****************************************
+"
+
 if [ ! -d "m4" ]; then
   mkdir m4
 fi
