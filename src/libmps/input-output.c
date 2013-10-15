@@ -126,7 +126,6 @@ mps_outfloat (mps_context * s, mpf_t f, rdpe_t rad, long out_digit,
     }
 
   mpf_init2 (t, s->output_config->prec);
-  mpf_set_ui (t, 0U);
 
   mpf_get_rdpe (ro, f);
   if (s->output_config->format == MPS_OUTPUT_FORMAT_GNUPLOT ||

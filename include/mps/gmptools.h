@@ -16,8 +16,6 @@
 #define __GMPTOOLS_H__
 
 #include <gmp.h>
-#include <mpfr.h>
-#include <mpf2mpfr.h>
 #include <stdio.h>
 
 #ifdef __cplusplus

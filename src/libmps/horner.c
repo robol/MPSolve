@@ -49,7 +49,7 @@ mps_mhorner (mps_context * s, mps_monomial_poly * p, mpc_t x, mpc_t value)
           mpc_add_eq (value, p->mfpc[j]);
           pthread_mutex_unlock (&p->mfpc_mutex[j]);
         }
-     }
+     } 
 }
 
 /**

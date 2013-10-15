@@ -12,8 +12,6 @@
 #include <stdio.h>
 #include <pthread.h>
 #include <gmp.h>
-#include <mpfr.h>
-#include <mpf2mpfr.h>
 #include <mps/mps.h>
 
 #ifdef  __cplusplus

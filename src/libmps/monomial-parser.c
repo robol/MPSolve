@@ -275,13 +275,11 @@ mps_monomial_poly_read_from_stream_v2 (mps_context * s, mps_input_buffer * buffe
     {
       mps_error (s, "Error parsing the input file");
 
+      if (token)
+        free (token);
+
       goto cleanup;
     }
-
-  if (token)
-    free (token);
-
-
 
   /* Parse data type converting it to the new format */
   switch (data_type[0])
