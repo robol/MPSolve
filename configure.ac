@@ -300,8 +300,8 @@ AS_IF([test x$build_examples == xyes], [
 # == CYTHON MODULE for PYTHON ==
 # Check if we can found the cython executable in the path. If found, 
 # assume that we can build cython
-PYTHON_MODULES=_mpsolve.la
-AM_PATH_PYTHON([2.4],, [:])
+PYTHON_MODULES=mpsolve.la
+AM_PATH_PYTHON([2.3],,[:])
 AC_ARG_VAR([PYTHON_INCLUDE], [Include flags for python, bypassing python-config])
 AC_ARG_VAR([PYTHON_CONFIG], [Path to python-config])
 AS_IF([test -z "$PYTHON_INCLUDE"], [
@@ -319,6 +319,8 @@ AS_IF([test -z "$PYTHON_INCLUDE"], [
   PYTHON_INCLUDE=`$PYTHON_CONFIG --includes`
   AC_MSG_RESULT([$PYTHON_INCLUDE])
 ])
+
+AM_CONDITIONAL([HAVE_PYTHON], [test "$PYTHON_MODULES" == "mpsolve.la"])
 
 # Trick to get the extension of the python module right. 
 host_os=`echo "$host" | sed 's/^\([^-]*\)-\([^-]*\)-\(.*\)$/\3/'`
