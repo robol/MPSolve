@@ -458,7 +458,8 @@ AC_CONFIG_FILES([Makefile
     src/xmpsolve/xmpsolve.desktop
     src/xmpsolve/xmpsolve.1
     doc/Makefile
-    doc/Doxyfile])
+    doc/Doxyfile
+    mime/Makefile])
 
 AC_OUTPUT
 

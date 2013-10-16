@@ -89,22 +89,27 @@ void xmpsolve::MainWindow::on_openPolFileButton_clicked()
                                                         tr("Select .pol file"),
                                                         QString(),
                                                         "Pol files (*.pol);;Text files (*.txt)");
-    if (! selectedFile.isEmpty())
-    {
-        QFile polFile(selectedFile);
+    openPolFile(selectedFile);
+}
 
-        // Clean previous polynomials, if any
-        ui->polyLineEdit->clear();
+void xmpsolve::MainWindow::openPolFile(QString path)
+{
+    QFile polFile(path);
 
-        // Select the polynomial
-        if (polFile.exists()) {
-            m_selectedPolFile = selectedFile;
-            ui->selectedFileLabel->setText(selectedFile.split("/").last());
+    // Clean previous polynomials, if any
+    ui->polyLineEdit->clear();
 
-            ui->selectedFileLabel->setEnabled(true);
-            ui->editPolFileButton->setEnabled(true);
-        }
+    // Select the polynomial
+    if (polFile.exists()) {
+        m_selectedPolFile = path;
+        ui->selectedFileLabel->setText(path.split("/").last());
+
+        ui->selectedFileLabel->setEnabled(true);
+        ui->editPolFileButton->setEnabled(true);
     }
+
+    // Switch the view to the correct tab
+    ui->tabWidget->setCurrentIndex(1);
 }
 
 void xmpsolve::MainWindow::on_listRootsView_clicked(const QModelIndex &index)

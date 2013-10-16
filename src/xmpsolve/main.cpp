@@ -15,6 +15,11 @@ int main(int argc, char *argv[])
 
     MainWindow w;
     w.show();
+
+    // In case the user wants to open a .pol file, try load it
+    if (argc > 1) {
+        w.openPolFile(argv[1]);
+    }
     
     return a.exec();
 }
