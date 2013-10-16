@@ -165,3 +165,28 @@ void xmpsolve::MainWindow::on_polFileSolveButton_clicked()
         unlockInterface();
     }
 }
+
+void xmpsolve::MainWindow::on_actionOpen_pol_file_triggered()
+{
+    on_openPolFileButton_clicked();
+}
+
+
+
+void xmpsolve::MainWindow::on_actionQuit_triggered()
+{
+    QApplication::exit();
+}
+
+void xmpsolve::MainWindow::on_actionAbout_MPSolve_triggered()
+{
+    QMessageBox::about(this, tr("About ") + PACKAGE_STRING,
+                       QString("<h1>%1</h1>").arg(PACKAGE_STRING) +
+                       "MPSolve is free software released under the GNU Public License 3.<br>" +
+                       "Further documentation and a bug tracker are available at our " +
+                       "<a href=\"http://mpsolve.dm.unipi.it/mpsolve/\">website</a>. " +
+                       "<h3>Authors:</h3>" +
+                       " - Dario A. Bini &lt;<a href=\"mailto:bini@dm.unipi.it\">bini@dm.unipi.it</a>&gt;<br>" +
+                       " - Giuseppe Fiorentino &lt;<a href=\"mailto:fiorent@dm.unipi.it\">fiorent@dm.unipi.it</a>&gt;<br>" +
+                       " - Leonardo Robol &lt;<a href=\"mailto:leonardo.robol@sns.it\">leonardo.robol@sns.it</a>&gt; <br>");
+}

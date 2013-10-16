@@ -377,6 +377,7 @@ AS_IF([test "$build_ui" == "yes"], [
 		# Check for needed programs
 		AC_CHECK_PROGS([UIC], [uic])
 		AC_CHECK_PROGS([MOC], [moc])	
+		AC_CHECK_PROGS([RCC], [rcc])
 
 		QT_CFLAGS=$QT5_CFLAGS
 		QT_LDFLAGS=$QT5_LDFLAGS
@@ -392,7 +393,8 @@ AS_IF([test "$build_ui" == "yes"], [
 	# to build the interface are not available. 
 	AS_IF([test "$have_qt4" == "yes" && test "$have_qt5" == "no"], [
                 AC_CHECK_PROGS([UIC], [uic-qt4])
-                AC_CHECK_PROGS([MOC], [moc-qt4])		
+                AC_CHECK_PROGS([MOC], [moc-qt4])
+		AC_CHECK_PROGS([RCC], [rcc-qt4])
 
 		QT_CFLAGS=$QT4_CFLAGS
 		QT_LDFLAGS=$QT4_LDFLAGS

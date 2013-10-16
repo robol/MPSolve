@@ -39,6 +39,10 @@ ui_%.h: @srcdir@/%.ui
 	$(AM_V_GEN) 
 	$(AM_V_at) $(UIC) $< -o $@
 
+%_qrc.cpp: @srcdir@/%.qrc
+	$(AM_V_GEN)
+	$(AM_V_at) $(RCC) $< -o $@
+
 # Windows resources
 if HAVE_WINDRES
 .rc.o:
@@ -77,6 +81,9 @@ ui_sfiles = \
 	mainwindow.ui \
 	polfileeditordialog.ui
 
+qrc_files = \
+	resources.qrc
+
 headers = \
 	rootsrenderer.h  \
 	rootsmodel.h  \
@@ -91,18 +98,22 @@ headers = \
 	mpsolveworker.h
 
 moc_files = $(pure_source_files:.cpp=_moc.cpp)
+qrc_gen_files = $(qrc_files:.qrc=_qrc.cpp)
 
 xmpsolve_SOURCES = \
 	$(other_source_files) \
 	$(pure_source_files) \
+	$(qrc_files) \
 	$(resources)
 
 nodist_xmpsolve_SOURCES = \
-	$(moc_files)
+	$(moc_files) \
+	$(qrc_gen_files)
 
 CLEANFILES = \
 	$(moc_files) \
-	$(ui_files)
+	$(ui_files) \
+	$(qrc_gen_files) 
 
 EXTRA_DIST = $(icon_DATA) \
 	$(headers) \
@@ -111,6 +122,7 @@ EXTRA_DIST = $(icon_DATA) \
 	xmpsolve.1
 
 BUILT_SOURCES = $(moc_files) \
-	$(ui_files)
+	$(ui_files) \
+	$(qrc_gen_files) 
 
 endif # HAVE_UI

@@ -44,6 +44,12 @@ private slots:
 
     void on_polFileSolveButton_clicked();
 
+    void on_actionOpen_pol_file_triggered();
+
+    void on_actionQuit_triggered();
+
+    void on_actionAbout_MPSolve_triggered();
+
 private:
     Ui::MainWindow *ui;
     PolynomialSolver m_solver;
