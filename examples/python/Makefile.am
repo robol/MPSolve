@@ -15,4 +15,6 @@ mpsolve_la_LIBADD = $(top_builddir)/src/libmps/libmps.la
 if HAVE_CYTHON
 $(builddir)/mpsolve.c: $(srcdir)/mpsolve.pyx $(srcdir)/mpsolve.pxd
 	@$(CYTHON) -o $@ $(srcdir)/mpsolve.pyx -I$(top_srcdir)/include
+
+CLEANFILES = mpsolve.c
 endif
