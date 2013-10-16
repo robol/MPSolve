@@ -13,11 +13,12 @@ class RootsModel : public QAbstractListModel
 
 public:
 
-    enum RootsModelRoles {
+    enum Roles {
         RADIUS = Qt::UserRole + 1,
         STATUS,
         SHORT_APPROXIMATION,
-        ROOT
+        ROOT,
+        MARKED
     };
 
     explicit RootsModel(QObject *parent = 0);
@@ -27,9 +28,17 @@ public:
 
     void setRoots(QList<Root*> roots);
 
+    /**
+     * @brief markRoot can be used to highlight an approximation.
+     * @param i is the root to highlight, or -1 to clear any previous
+     * highlighting.
+     */
+    void markRoot(int i = -1);
+
 private:
     QList<Root*> m_roots;
-    int length;
+    int m_length;
+    int m_marked_root;
     
 signals:
     

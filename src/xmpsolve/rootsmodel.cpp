@@ -6,7 +6,8 @@ namespace xmpsolve {
 RootsModel::RootsModel(QObject *parent) :
     QAbstractListModel(parent)
 {
-    length = 0;
+    m_length = 0;
+    m_marked_root = -1;
 }
 
 QHash<int, QByteArray>
@@ -18,6 +19,7 @@ RootsModel::roleNames() const
     role_names.insert(STATUS, "status");
     role_names.insert(SHORT_APPROXIMATION, "short_approximation");
     role_names.insert(ROOT, "root");
+    role_names.insert(MARKED, "marked");
 
     return role_names;
 }
@@ -26,7 +28,7 @@ int
 RootsModel::rowCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
-    return length;
+    return m_length;
 }
 
 QVariant
@@ -37,7 +39,7 @@ RootsModel::data(const QModelIndex &index, int role) const
     if (role != Qt::DisplayRole && role < Qt::UserRole)
         return QVariant();
 
-    if (i < 0 || i > length)
+    if (i < 0 || i > m_length)
         return QVariant();
     else
     {
@@ -71,6 +73,9 @@ RootsModel::data(const QModelIndex &index, int role) const
             case ROOT:
                 return QVariant::fromValue((void*) m_roots[i]);
 
+            case MARKED:
+                return i == m_marked_root;
+
             default:
                 qDebug() << "Invalid role";
                 return QVariant();
@@ -83,11 +88,27 @@ RootsModel::setRoots(QList<Root *> roots)
 {
     beginResetModel();
 
-    length = 0;
+    m_length = 0;
     m_roots = roots;
-    length = roots.length();
+    m_length = roots.length();
 
     endResetModel();
+}
+
+void
+RootsModel::markRoot(int i)
+{
+    int oldMarkedRoot = m_marked_root;
+
+    if (i >= -1 && i < m_length)
+        m_marked_root = i;
+    else
+        m_marked_root = -1;
+
+    if (oldMarkedRoot != -1)
+        dataChanged(index(oldMarkedRoot), index(oldMarkedRoot));
+    if (m_marked_root != -1)
+        dataChanged(index(m_marked_root), index(m_marked_root));
 }
 
 

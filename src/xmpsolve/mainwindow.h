@@ -30,6 +30,8 @@ public slots:
      * @param path The path to the .pol file
      */
     void openPolFile(QString path);
+
+    void onlistRootsView_selectionChanged(QItemSelection, QItemSelection);
     
 private slots:
     void on_solveButton_clicked();

@@ -1,5 +1,5 @@
 <RCC>
-    <qresource prefix="/images">
+    <qresource prefix="/imagses">
         <file>xmpsolve.png</file>
     </qresource>
 </RCC>

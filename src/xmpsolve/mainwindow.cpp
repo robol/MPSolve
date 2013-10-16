@@ -21,6 +21,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->listRootsView->setModel(m_solver.rootsModel());
     ui->graphicsView->setModel(m_solver.rootsModel());
+
+    QObject::connect(ui->listRootsView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
+                     this, SLOT(onlistRootsView_selectionChanged(QItemSelection,QItemSelection)));
 }
 
 MainWindow::~MainWindow()
@@ -120,6 +123,24 @@ void xmpsolve::MainWindow::on_listRootsView_clicked(const QModelIndex &index)
                 m_solver.rootsModel()->data(index, RootsModel::RADIUS).toString());
     ui->approximationStatusLabel->setText(
                 m_solver.rootsModel()->data(index, RootsModel::STATUS).toString());
+}
+
+void xmpsolve::MainWindow::onlistRootsView_selectionChanged(QItemSelection,QItemSelection)
+{
+    QModelIndexList indexes = ui->listRootsView->selectionModel()->selection().indexes();
+
+    switch (indexes.length())
+    {
+        case 0:
+            m_solver.rootsModel()->markRoot();
+            break;
+        case 1:
+            m_solver.rootsModel()->markRoot(indexes.at(0).row());
+            break;
+        default:
+            qDebug() << "More than 1 index selected";
+            break;
+    }
 }
 
 void xmpsolve::MainWindow::on_editPolFileButton_clicked()

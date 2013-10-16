@@ -375,9 +375,9 @@ AS_IF([test "$build_ui" == "yes"], [
 
 	AS_IF([test "$have_qt5" == "yes"], [
 		# Check for needed programs
-		AC_CHECK_PROGS([UIC], [uic])
-		AC_CHECK_PROGS([MOC], [moc])	
-		AC_CHECK_PROGS([RCC], [rcc])
+		AC_CHECK_PROGS([UIC], [uic-qt5 uic])
+		AC_CHECK_PROGS([MOC], [moc-qt5 moc])	
+		AC_CHECK_PROGS([RCC], [rcc-qt5 rcc])
 
 		QT_CFLAGS=$QT5_CFLAGS
 		QT_LDFLAGS=$QT5_LDFLAGS
@@ -392,9 +392,9 @@ AS_IF([test "$build_ui" == "yes"], [
 	# Enable Qt4 only if Qt5 was not found, or if the required tools
 	# to build the interface are not available. 
 	AS_IF([test "$have_qt4" == "yes" && test "$have_qt5" == "no"], [
-                AC_CHECK_PROGS([UIC], [uic-qt4])
-                AC_CHECK_PROGS([MOC], [moc-qt4])
-		AC_CHECK_PROGS([RCC], [rcc-qt4])
+                AC_CHECK_PROGS([UIC], [uic-qt4 uic])
+                AC_CHECK_PROGS([MOC], [moc-qt4 moc])
+		AC_CHECK_PROGS([RCC], [rcc-qt4 rcc])
 
 		QT_CFLAGS=$QT4_CFLAGS
 		QT_LDFLAGS=$QT4_LDFLAGS
