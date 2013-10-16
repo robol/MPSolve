@@ -139,10 +139,12 @@ RootsRenderer::paintEvent(QPaintEvent *)
 
     drawTicks(painter);
 
-
+    // The default color for the point is red.
     painter.setBrush(QBrush("red"));
     painter.setPen(QColor(Qt::red));
 
+    // ...and we need this to keep track of the MARKED point,
+    // if it exists.
     int markedPoint = -1;
 
     for (int i = 0; i < m_roots.length(); i++)
@@ -157,6 +159,8 @@ RootsRenderer::paintEvent(QPaintEvent *)
             markedPoint = i;
     }
 
+    // If we have left out the MARKED point (and this happend only if this
+    // point exists) then draw it with green, and bigger than the others.
     if (markedPoint != -1)
     {
         QPointF p = scalePoint(m_roots[markedPoint], w, h);
