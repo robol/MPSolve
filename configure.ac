@@ -199,6 +199,7 @@ AC_CHECK_LIB([tcmalloc_minimal], [malloc])
 
 # Check for the check module, so MPSolve tests can be run. 
 PKG_CHECK_MODULES([CHECK], [check >= 0.9.4], [have_check=yes], [have_check=no])
+AM_CONDITIONAL([CHECK], [test x$have_check = xyes])
 
 # If check was fuond enable the tests that need to be built
 AS_IF([test "x$have_check" = "xyes"], [ 

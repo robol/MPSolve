@@ -924,7 +924,8 @@ mps_mstart (mps_context * s, int n, mps_cluster_item * cluster_item,
       mps_cluster_item * c_item;
       for (c_item = s->clusterization->first; c_item != NULL; c_item = c_item->next)
         {
-          if (c_item->detached && c_item->detached->cluster == cluster)
+          if (c_item->detached && c_item->detached->cluster == cluster &&
+	      cluster != NULL)
             {
               mps_root * root = c_item->cluster->first;
               i = root->k;

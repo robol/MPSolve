@@ -1,3 +1,5 @@
+if CHECK
+
 check_PROGRAMS = $(CHECK_PROGRAMS)
 TESTS = check_secsolve check_unisolve check_dpe check_multithread check_cluster check_chebyshev
 EXTRA_PROGRAMS = check_secsolve check_unisolve check_dpe test_mpsolve check_multithread check_cluster check_chebyshev
@@ -32,6 +34,8 @@ AM_TEST_ENVIRONMENT = \
  check_cluster_SOURCES = check_cluster.c check_implementation.c
  check_cluster_CFLAGS = $(CHECK_CFLAGS) $(GMP_CFLAGS) $(PTHREAD_CFLAGS) -I${top_srcdir}/include -D_MPS_PRIVATE
  check_cluster_LDFLAGS = ${top_builddir}/src/libmps/libmps.la -lm $(GMP_LIBS) $(CHECK_LIBS) $(PTHREAD_LIBS)
+
+endif
 
 EXTRA_DIST = \
 	secsolve/rand15.pol \

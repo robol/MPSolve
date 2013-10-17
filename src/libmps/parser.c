@@ -218,8 +218,9 @@ mps_parse_file (mps_context * s, const char * path)
     }
   else 
     {
-      return mps_parse_stream (s, handle);
+      mps_polynomial *poly = mps_parse_stream (s, handle);
       fclose (handle);
+      return poly;
     }
 }
 

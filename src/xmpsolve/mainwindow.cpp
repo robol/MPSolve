@@ -52,7 +52,7 @@ void MainWindow::on_solveButton_clicked()
     mps_algorithm selected_algorithm = (ui->algorithmComboBox->currentIndex() == 0) ?
                 MPS_ALGORITHM_SECULAR_GA : MPS_ALGORITHM_STANDARD_MPSOLVE;
 
-    PolynomialBasis basis;
+    PolynomialBasis basis = MONOMIAL;
     switch (ui->basisComboBox->currentIndex()) {
         case 0:
             basis = MONOMIAL;
