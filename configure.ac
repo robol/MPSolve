@@ -101,7 +101,7 @@ AC_ARG_ENABLE([debug],
 
 # Select CFLAGS based on debug enabled or not
 AS_IF([test x$enable_debug != xno], [
-	LIBMPS_CFLAGS="$LIBMPS_CFLAGS -DNICE_DEBUG"
+	LIBMPS_CFLAGS="$LIBMPS_CFLAGS -DNICE_DEBUG $CFLAGS"
 ])
 
 # Determine if examples are desired. If that's the case check for the library
@@ -437,7 +437,7 @@ fi
 AM_CONDITIONAL([HAVE_DOXYGEN], [test -n "$DOXYGEN"])
 
 LIBMPS_CFLAGS="$LIBMPS_CFLAGS -D_MPS_PRIVATE"
-LIBMPS_LDFLAGS=""
+LIBMPS_LDFLAGS=" $LDFLAGS"
 
 if test "$platform_win32" = yes; then
   LIBMPS_LDFLAGS="$LIBMPS_LDFLAGS -no-undefined -Wl,--export-all-symbols -Wl,--output-def,.libs/libmps-3.dll.def"

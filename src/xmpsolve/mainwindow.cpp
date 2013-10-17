@@ -203,7 +203,7 @@ void xmpsolve::MainWindow::on_actionAbout_MPSolve_triggered()
 {
     QMessageBox::about(this, tr("About ") + PACKAGE_STRING,
                        QString("<h1>%1</h1>").arg(PACKAGE_STRING) +
-                       "MPSolve is free software released under the GNU Public License 3.<br>" +
+                       "MPSolve is free software released under the GNU General Public License 3.<br>" +
                        "Further documentation and a bug tracker are available at our " +
                        "<a href=\"http://mpsolve.dm.unipi.it/mpsolve/\">website</a>. " +
                        "<h3>Authors:</h3>" +
