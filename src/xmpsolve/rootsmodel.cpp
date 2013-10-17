@@ -54,7 +54,6 @@ RootsModel::data(const QModelIndex &index, int role) const
                 digits = 4;
                 // fallthrough
             case Qt::DisplayRole:
-	      qDebug() << "Digits = " << digits;
 	        buffer = new char[2 * (digits + 15)];
                 if (m_roots[i]->get_imag_part() > 0)
                     gmp_sprintf (buffer, "%.*Fe + %.*Fei", digits, mpc_Re (m_roots[i]->value),
