@@ -962,7 +962,7 @@ mps_mstart (mps_context * s, int n, mps_cluster_item * cluster_item,
 
   /* Set initial approximations accordingly to the computed
    * circles  */
-  root = cluster->first;
+  root = (cluster) ? cluster->first : s->clusterization->first->cluster->first;
   for (i = 0; i < s->n_radii; i++)
     {
       mps_root * starting_root = root;

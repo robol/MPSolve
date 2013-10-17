@@ -12,6 +12,7 @@ PolynomialSolver::PolynomialSolver(QObject *parent) :
     QObject(parent)
 {
     m_mpsContext = NULL;
+    m_mpsPoly = NULL;
     m_worker.connect(&m_worker, SIGNAL(finished()),
                      this, SLOT(workerExited()));
     m_errorMessage = "";
@@ -19,6 +20,8 @@ PolynomialSolver::PolynomialSolver(QObject *parent) :
 
 PolynomialSolver::~PolynomialSolver()
 {
+    if (m_mpsPoly)
+        m_mpsPoly->free (m_mpsContext, m_mpsPoly);
     if (m_mpsContext)
         mps_context_free(m_mpsContext);
 }
@@ -62,33 +65,35 @@ PolynomialSolver::solvePoly(Polynomial poly, PolynomialBasis basis,
 
     // Regenerate a new mps_context, since as of now the same cannot be used
     // more than one time.
+    if (m_mpsPoly)
+        m_mpsPoly->free(m_mpsContext, m_mpsPoly);
     if (m_mpsContext)
         mps_context_free(m_mpsContext);
     m_mpsContext = mps_context_new();
 
     m_worker.setMpsContext(m_mpsContext);
 
-    mps_polynomial * mps_poly = NULL;
+    m_mpsPoly = NULL;
 
     switch (basis) {
         case MONOMIAL:
-            mps_poly = MPS_POLYNOMIAL (mps_monomial_poly_new(m_mpsContext, poly.degree()));
+            m_mpsPoly = MPS_POLYNOMIAL (mps_monomial_poly_new(m_mpsContext, poly.degree()));
             for (int i = 0; i <= poly.degree(); i++) {
                 poly.monomial(i).addToMonomialPoly(m_mpsContext,
-                                                   MPS_MONOMIAL_POLY (mps_poly));
+                                                   MPS_MONOMIAL_POLY (m_mpsPoly));
             }
             break;
 
         case CHEBYSHEV:
-            mps_poly = MPS_POLYNOMIAL (mps_chebyshev_poly_new (m_mpsContext, poly.degree (),
+            m_mpsPoly = MPS_POLYNOMIAL (mps_chebyshev_poly_new (m_mpsContext, poly.degree (),
                                                                MPS_STRUCTURE_COMPLEX_RATIONAL));
             for (int i = 0; i <= poly.degree(); i++) {
                 poly.monomial(i).addToChebyshevPoly(m_mpsContext,
-                                                    MPS_CHEBYSHEV_POLY (mps_poly));
+                                                    MPS_CHEBYSHEV_POLY (m_mpsPoly));
             }
     }
 
-    mps_context_set_input_poly(m_mpsContext, mps_poly);
+    mps_context_set_input_poly(m_mpsContext, m_mpsPoly);
     mps_context_select_algorithm(m_mpsContext, selected_algorithm);
     mps_context_set_output_prec(m_mpsContext, required_digits * LOG2_10);
     mps_context_set_output_goal(m_mpsContext, MPS_OUTPUT_GOAL_APPROXIMATE);

@@ -74,6 +74,7 @@ public:
 private:
     MPSolveWorker m_worker;
     mps_context * m_mpsContext;
+    mps_polynomial * m_mpsPoly;
     QString m_errorMessage;
     Polynomial m_currentPoly;
 
