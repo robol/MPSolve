@@ -1,0 +1,10 @@
+Name: MPSolve
+Version: 3.1.4
+Date: 2013-10-18
+Categories: rootfinding, polynomial
+Author: Leonardo Robol <leonardo.robol@sns.it>
+Maintainer: Leonardo Robol <leonardo.robol@sns.it>
+Title: MPSolve
+Description: A package for approximating the roots of polynomials
+ with an arbitrary number of digits. 
+License: GPL version 3 or later
