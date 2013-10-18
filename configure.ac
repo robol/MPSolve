@@ -253,7 +253,7 @@ AS_IF([test x$build_examples == xyes], [
 	# Perform the version check only if Octave is found
 	AS_IF([test "$OCTAVE" != ""], [
 		AC_MSG_CHECKING([if Octave is newer than 3.0])
-		OCTAVE_VERSION=`echo "disp(OCTAVE_VERSION)" | $OCTAVE -qf`	
+		OCTAVE_VERSION=`octave -q -H --eval "disp(OCTAVE_VERSION)"`	
 		AX_COMPARE_VERSION([$OCTAVE_VERSION], [ge], [3.0.0], [
 				AC_MSG_RESULT([yes])
 				
