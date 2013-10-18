@@ -25,10 +25,10 @@ clean-local:
 install-exec-hook:
 	mkdir -p ${octave_share_prefix}
 	mkdir -p ${octave_lib_prefix}
-	octave -q -H --eval "pkg prefix ${octave_share_prefix} ${octave_lib_prefix} ; pkg install ${builddir}/mpsolve.tar.gz"
+	octave -q -H --eval "pkg prefix ${octave_share_prefix} ${octave_lib_prefix} ; pkg install -verbose ${builddir}/mpsolve.tar.gz"
 
 uninstall-local:
-	octave -q -H --eval "pkg prefix ${octave_share_prefix} ${octave_lib_prefix} ; pkg uninstall mpsolve"
+	octave -q -H --eval "pkg prefix ${octave_share_prefix} ${octave_lib_prefix} ; pkg uninstall -verbose mpsolve"
 
 mpsolve.tar.gz: mps_roots.oct
 	test -d package || (cp -r ${srcdir}/package/ ${builddir} && chmod u+w package -R)
