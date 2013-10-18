@@ -1,3 +1,9 @@
+== 3.1.4 == 18/10/2013
+  - Fixed a lot of bugs in the parser.
+  - Improved support to Chebyshev polynomials. 
+  - Added a python interface to MPSolve. 
+  - Installation the Octave module as a package. 
+
 == 3.1.3 == 29/03/2013
   - Rewritten from scratch the improvement engine, in a way more suitable
     to be parallelized. This solve problems present in 3.1.2 and 3.1.1. 
