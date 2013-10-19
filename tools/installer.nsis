@@ -1,0 +1,132 @@
+!include "MUI2.nsh"
+!define MUI_COMPONENTSPAGE_SMALLDESC "MPSolve";
+!define MUI_INSTFILESPAGE_COLORS "AAAAFF 000000" ;
+
+Name "MPSolve"
+
+# set the name of the installer
+Outfile "SetupMPSolve.exe"
+
+# For removing Start Menu shortcut in Windows 7
+RequestExecutionLevel admin
+
+InstallDir $PROGRAMFILES\MPSolve
+
+; Registry key to check for directory (so if you install again, it will
+; overwrite the old one automatically)
+InstallDirRegKey HKLM "Software\NSIS_MPSolve" "Install_Dir"
+
+Var StartMenuFolder
+
+!insertmacro MUI_LANGUAGE "English"
+
+; Load pages
+  !insertmacro MUI_PAGE_LICENSE "/usr/share/common-licenses/GPL-3"
+  !insertmacro MUI_PAGE_COMPONENTS
+  !insertmacro MUI_PAGE_DIRECTORY
+
+  !define MUI_STARTMENUPAGE_REGISTRY_ROOT "HKCU"
+  !define MUI_STARTMENUPAGE_REGISTRY_KEY "Software\NSIS_MPSolve"
+  !define MUI_STARTMENUPAGE_REGISTRY_VALUENAME "MPSolve"
+
+  !insertmacro MUI_PAGE_STARTMENU Application $StartMenuFolder
+  !insertmacro MUI_PAGE_INSTFILES
+
+  !insertmacro MUI_UNPAGE_CONFIRM
+  !insertmacro MUI_UNPAGE_INSTFILES
+  !insertmacro MUI_UNPAGE_CONFIRM
+
+ 
+# create a default section.
+section "MPSolve"
+
+	SetOutPath $INSTDIR
+
+	; Write the installation path into the registry
+	WriteRegStr HKLM SOFTWARE\NSIS_MPSolve "Install_Dir" "$INSTDIR"
+	; Write the uninstall keys for Windows
+	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\MPSolve" "MPSolve" "MPSolve"
+	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\MPSolve" "Uninstall" '"$INSTDIR\uninstall.exe"'
+	WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\MPSolve" "NoModify" 1
+	WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\MPSolve" "NoRepair" 1
+	WriteUninstaller "uninstall.exe"
+
+	File "xmpsolve.exe"
+	File "mpsolve.exe"
+	File "libgmp-10.dll"
+	File "libgcc_s_sjlj-1.dll"
+	File "libstdc++-6.dll"
+	File "libpng15-15.dll"
+	File "QtCore4.dll"
+	File "QtGui4.dll"
+	File "pthreadGCE2.dll"
+	File "pthreadGC2.dll"
+	File "zlib1.dll"
+
+	!insertmacro MUI_STARTMENU_WRITE_BEGIN Application
+	CreateDirectory "$SMPROGRAMS\MPSolve"
+	createShortCut "$SMPROGRAMS\MPSolve\MPSolve.lnk" "$INSTDIR\xmpsolve.exe"
+	createShortCut "$SMPROGRAMS\MPSolve\Uninstall MPSolve.lnk" "$INSTDIR\uninstall.exe"
+	!insertmacro MUI_STARTMENU_WRITE_END
+
+sectionEnd
+
+; Descriptions
+  LangString "MUI_INNERTEXT_STARTMENU_CHECKBOX" ${LANG_ENGLISH} "MPSolve Start Menu checkbox"
+  LangString "MUI_INNERTEXT_STARTMENU_TOP" ${LANG_ENGLISH} "MPSolve Start Menu"
+  LangString "MUI_UNTEXT_CONFIRM_TITLE" ${LANG_ENGLISH} "Uninstall MPSolve"
+  LangString "MUI_UNTEXT_CONFIRM_SUBTITLE" ${LANG_ENGLISH} "MPSolve will be definitely removed from the PC"
+  LangString "MUI_UNTEXT_UNINSTALLING_TITLE" ${LANG_ENGLISH} "Uninstall MPSolve"
+  LangString "MUI_UNTEXT_UNINSTALLING_SUBTITLE" ${LANG_ENGLISH} "MPSolve will be definitely removed from the PC"
+  LangString "MUI_UNTEXT_FINISH_TITLE" ${LANG_ENGLIH} "Uninstall MPSolve"
+  LangString "MUI_UNTEXT_FINISH_SUBTITLE" ${LANG_ENGLISH} "MPSolve has been removed from the PC"
+  LangString "MUI_UNTEXT_ABORT_TITLE" ${LANG_ENGLISH} "Uninstall MPSolve"
+  LangString "MUI_UNTEXT_ABORT_SUBTITLE" ${LANG_ENGLISH} "MPSolve will be definitely removed from the PC"
+  LangString MUI_TEXT_LICENSE_TITLE ${LANG_ENGLISH} "License terms for MPSolve"
+  LangString MUI_TEXT_LICENSE_SUBTITLE ${LANG_ENGLISH} "Please accept the following terms to use MPSolve."
+  LangString MUI_TEXT_COMPONENTS_TITLE ${LANG_ENGLISH} "MPSolve components"
+  LangString MUI_TEXT_COMPONENTS_SUBTITLE ${LANG_ENGLISH} "Please select the components of MPSolve that you want to install on the system."
+  	LangString MUI_INNERTEXT_LICENSE_BOTTOM ${LANG_ENGLISH} "For more information ses http://fsf.org/"
+	LangString MUI_INNERTEXT_LICENSE_TOP ${LANG_ENGLISH} "MPSolve is licensed with GPL3"
+	LangString MUI_INNERTEXT_COMPONENTS_DESCRIPTION_TITLE ${LANG_ENGLISH} "Details"
+	LangString MUI_INNERTEXT_COMPONENTS_DESCRIPTION_INFO ${LANG_ENGLISH}  "Base files for the MPSolve installation"
+	LangString MUI_TEXT_DIRECTORY_TITLE ${LANG_ENGLISH}  "MPSolve installation path"
+	LangString MUI_TEXT_DIRECTORY_SUBTITLE ${LANG_ENGLISH}  "Select the directory where MPSolve will be installed"
+	LangString MUI_TEXT_STARTMENU_TITLE ${LANG_ENGLISH}  "MPSolve"
+	LangString MUI_TEXT_STARTMENU_SUBTITLE ${LANG_ENGLISH}   "Installation of the start menu entries"
+	LangString MUI_TEXT_INSTALLING_TITLE ${LANG_ENGLISH}  "MPSolve is installing on the system"
+	LangString MUI_TEXT_INSTALLING_SUBTITLE  ${LANG_ENGLISH} "Please wait while all the files are copied in place"
+	LangString MUI_TEXT_FINISH_TITLE ${LANG_ENGLISH}  "MPSolve has been installed"
+	LangString MUI_TEXT_FINISH_SUBTITLE ${LANG_ENGLISH}  "You may now start it from the Windows menu"
+	LangString MUI_TEXT_ABORT_TITLE ${LANG_ENGLISH}  "Aborting MPSolve installation"
+	LangString MUI_TEXT_ABORT_SUBTITLE ${LANG_ENGLISH}  "Installation has been interrupted"
+       
+section "uninstall"
+
+	ReadRegStr $0 HKLM "Software\NSIS_MPSolve" "Install_Dir"
+
+	; Remove registry keys
+	DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\MPSolve"
+	DeleteRegKey HKLM SOFTWARE\NSIS_MPSolve
+
+	delete $0\uninstall.exe
+	delete $0\xmpsolve.exe
+	delete $0\mpsolve.exe
+        Delete $0\libgmp-10.dll
+        Delete $0\libgcc_s_sjlj-1.dll
+        Delete $0\libstdc++-6.dll
+        Delete $0\libpng15-15.dll
+        Delete $0\QtCore4.dll
+        Delete $0\QtGui4.dll
+        Delete $0\pthreadGCE2.dll
+        Delete $0\pthreadGC2.dll
+	Delete $0\zlib1.dll
+
+	RMDir $0
+
+	delete "$SMPROGRAMS\MPSolve\Uninstall MPSolve.lnk"
+	delete "$SMPROGRAMS\MPSolve\MPSolve.lnk"
+
+	DeleteRegKey /ifempty HKCU "Software/NSIS_MPSolve"
+
+sectionEnd
