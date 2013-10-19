@@ -119,7 +119,8 @@ EXTRA_DIST = $(icon_DATA) \
 	$(headers) \
 	$(desktop_DATA) \
 	$(ui_sfiles) \
-	xmpsolve.1
+	xmpsolve.1 \
+	xmpsolve.ico
 
 BUILT_SOURCES = $(moc_files) \
 	$(ui_files) \
