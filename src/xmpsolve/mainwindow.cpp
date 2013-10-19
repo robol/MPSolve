@@ -109,6 +109,7 @@ void xmpsolve::MainWindow::openPolFile(QString path)
 
         ui->selectedFileLabel->setEnabled(true);
         ui->editPolFileButton->setEnabled(true);
+        ui->editPolFileButton->setText(tr("Edit"));
     }
 
     // Switch the view to the correct tab
@@ -145,7 +146,23 @@ void xmpsolve::MainWindow::onlistRootsView_selectionChanged(QItemSelection,QItem
 
 void xmpsolve::MainWindow::on_editPolFileButton_clicked()
 {
-    PolFileEditorDialog dialog; // = new PolFileEditorDialog();
+    PolFileEditorDialog dialog;
+
+    if (m_selectedPolFile.isEmpty()) {
+        // Create a new .pol file
+        QString selectedFile = QFileDialog::getSaveFileName(this,
+                                                            tr("New .pol file"),
+                                                            QString(),
+                                                            "Pol files (*.pol);;Text files (*.txt)");
+        if (selectedFile.isEmpty())
+            return;
+        else {
+            m_selectedPolFile = selectedFile;
+            ui->editPolFileButton->setText(tr("Edit"));
+            ui->selectedFileLabel->setText(m_selectedPolFile.split("/").last());
+        }
+    }
+
     dialog.loadPolFile(m_selectedPolFile);
 
     // Check if need to save the file.
