@@ -72,8 +72,8 @@ section "MPSolve"
 sectionEnd
 
 ; Descriptions
-  LangString "MUI_INNERTEXT_STARTMENU_CHECKBOX" ${LANG_ENGLISH} "MPSolve Start Menu checkbox"
-  LangString "MUI_INNERTEXT_STARTMENU_TOP" ${LANG_ENGLISH} "MPSolve Start Menu"
+  LangString "MUI_INNERTEXT_STARTMENU_CHECKBOX" ${LANG_ENGLISH} "Don't install a Start Menu entry for MPSolve"
+  LangString "MUI_INNERTEXT_STARTMENU_TOP" ${LANG_ENGLISH} "Select the name for the Start Menu entry for MPSolve"
   LangString "MUI_UNTEXT_CONFIRM_TITLE" ${LANG_ENGLISH} "Uninstall MPSolve"
   LangString "MUI_UNTEXT_CONFIRM_SUBTITLE" ${LANG_ENGLISH} "MPSolve will be definitely removed from the PC"
   LangString "MUI_UNTEXT_UNINSTALLING_TITLE" ${LANG_ENGLISH} "Uninstall MPSolve"
@@ -126,6 +126,7 @@ section "uninstall"
 
 	delete "$SMPROGRAMS\MPSolve\Uninstall MPSolve.lnk"
 	delete "$SMPROGRAMS\MPSolve\MPSolve.lnk"
+	RMDir "$SMPROGRAMS\MPSolve"
 
 	DeleteRegKey /ifempty HKCU "Software/NSIS_MPSolve"
 
