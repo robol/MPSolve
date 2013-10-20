@@ -42,12 +42,31 @@ public:
      */
     QString currentPolFile();
 
+    /**
+     * @brief currentEditor can be used to access the current PolFileEditor focused
+     * in the tabWidget.
+     * @return A pointer to the focused instance of PolFileEditor, or NULL if there is none.
+     */
+    PolFileEditor* currentEditor();
+
 signals:
     /**
      * @brief solvePoly is emitted when the user asks to solve a .pol file.
-     * @param path is the path to the file that the user wants to solve.
+     * @param path is the path to the content of the file that the user wants to solve.
      */
-    void solvePoly(QString path);
+    void solvePoly(QString content);
+
+public slots:
+    /**
+     * @brief onEditorFilenameChanged handle the change of filename inside
+     * and editor tab.
+     */
+    void onEditorFilenameChanged(QString);
+
+    /**
+     * @brief onEditorStateChanged handle the state changed of the editor tab.
+     */
+    void onEditorStateChanged(PolFileEditor::State);
     
 private slots:
     void on_actionOpen_pol_file_triggered();

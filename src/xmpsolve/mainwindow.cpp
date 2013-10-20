@@ -54,13 +54,20 @@ MainWindow::unlockInterface()
     ui->polFileSolveButton->setEnabled(true);
 }
 
-void MainWindow::on_solveButton_clicked()
+int MainWindow::requiredDigits()
 {
-    lockInterface();
+    return ui->digitsSpinBox->value();
+}
 
+mps_algorithm MainWindow::selectedAlgorithm()
+{
     mps_algorithm selected_algorithm = (ui->algorithmComboBox->currentIndex() == 0) ?
                 MPS_ALGORITHM_SECULAR_GA : MPS_ALGORITHM_STANDARD_MPSOLVE;
+    return selected_algorithm;
+}
 
+PolynomialBasis MainWindow::polynomialBasis()
+{
     PolynomialBasis basis = MONOMIAL;
     switch (ui->basisComboBox->currentIndex()) {
         case 0:
@@ -71,9 +78,16 @@ void MainWindow::on_solveButton_clicked()
             break;
     }
 
+    return basis;
+}
+
+void MainWindow::on_solveButton_clicked()
+{
+    lockInterface();
+
     ui->statusBar->showMessage(tr("Solving polynomial..."));
-    if (m_solver.solvePoly(ui->polyLineEdit->toPlainText(), basis,
-                          selected_algorithm, ui->digitsSpinBox->value()) < 0)
+    if (m_solver.solvePoly(ui->polyLineEdit->toPlainText(), polynomialBasis(),
+                           selectedAlgorithm(), requiredDigits()) < 0)
     {
         ui->statusBar->showMessage(tr("Polynomial parsing failed"));
         QMessageBox mbox(QMessageBox::Critical, tr("Error while parsing the polynomial"),
@@ -125,10 +139,20 @@ void xmpsolve::MainWindow::openPolFile(QString path)
     ui->tabWidget->setCurrentIndex(1);
 }
 
-void xmpsolve::MainWindow::onSolvePolFileRequested(QString path)
+void xmpsolve::MainWindow::onSolvePolFileRequested(QString content)
 {
-    openPolFile(path);
-    on_polFileSolveButton_clicked();
+    lockInterface();
+
+    if (m_solver.solvePolFileFromContent(content, selectedAlgorithm(), requiredDigits()) < 0) {
+        ui->statusBar->showMessage(tr("Polynomial parsing failed"));
+
+        QMessageBox::critical(this,
+                              tr("Error while parsing the polynomial"),
+                              tr("The parser reported the following error: ") +
+                              m_solver.errorMessage(), QMessageBox::Ok);
+
+        unlockInterface();
+    }
 
     // Grab focus so we can display the result.
     activateWindow();

@@ -22,6 +22,24 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+    /**
+     * @brief selectedAlgorithm return the algorithm currently selected by the user.
+     * @return An mps_algorithm with the value selected by the user.
+     */
+    mps_algorithm selectedAlgorithm();
+
+    /**
+     * @brief requiredDigits returns the number of accuracy digits required by the user
+     * @return A positive integer
+     */
+    int requiredDigits();
+
+    /**
+     * @brief polynomialBasis returns the polynomial basis selected by the user.
+     * @return A PolynomialBasis value.
+     */
+    PolynomialBasis polynomialBasis();
+
 public slots:
     void polynomial_solved();
 

@@ -57,6 +57,38 @@ PolynomialSolver::solvePolFile(QString selectedFile, mps_algorithm selected_algo
 }
 
 int
+PolynomialSolver::solvePolFileFromContent(QString content, mps_algorithm selected_algorithm, int required_digits)
+{
+    QByteArray stringData = content.toLatin1().data();
+
+    qDebug() << "Received pol file = " << stringData.data();
+
+    m_mpsContext = mps_context_new();
+    m_worker.setMpsContext(m_mpsContext);
+
+    // Parse the stream specified by the user
+    mps_polynomial * poly = mps_parse_string (m_mpsContext, stringData.data());
+
+    if (mps_context_has_errors (m_mpsContext) || !poly) {
+        m_errorMessage = tr("Error while solving the given pol file: %1").
+                arg(mps_context_error_msg(m_mpsContext));
+        mps_context_free (m_mpsContext);
+        m_mpsContext = NULL;
+        return -1;
+    }
+    else
+        mps_context_set_input_poly (m_mpsContext, poly);
+
+    // Select the options selected by the user
+    mps_context_select_algorithm(m_mpsContext, selected_algorithm);
+    mps_context_set_output_prec(m_mpsContext, required_digits * LOG2_10);
+    mps_context_set_output_goal(m_mpsContext, MPS_OUTPUT_GOAL_APPROXIMATE);
+
+    m_worker.start();
+    return mps_context_get_degree (m_mpsContext);
+}
+
+int
 PolynomialSolver::solvePoly(Polynomial poly, PolynomialBasis basis,
                             mps_algorithm selected_algorithm,
                             int required_digits)

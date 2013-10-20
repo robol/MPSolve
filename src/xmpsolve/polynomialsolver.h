@@ -43,6 +43,15 @@ public:
     int solvePolFile(QString selectedFile, mps_algorithm selected_algorithm = MPS_ALGORITHM_SECULAR_GA,
                      int required_digits = 16);
 
+    /**
+     * @brief solvePolFileFromContent solves  a .pol file given its ontent
+     * @param content The content of the desired .pol file
+     * @param selected_algorithm The algorithm to use.
+     * @param required_digits The number of accurate digits required.
+     * @return The degree of the polynomial.
+     */
+    int solvePolFileFromContent(QString content, mps_algorithm selected_algorithm, int required_digits);
+
     /** @brief Parse the string describing the polynomial
       * and solve it.
       *

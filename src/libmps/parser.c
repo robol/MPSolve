@@ -224,6 +224,23 @@ mps_parse_file (mps_context * s, const char * path)
     }
 }
 
+mps_polynomial *
+mps_parse_string (mps_context * s, const char * c_string)
+{
+  FILE * handle = fmemopen (c_string, strlen (c_string), "r");
+  if (!handle)
+    {
+      mps_error (s, "Error while reading string: %s", c_string);
+      return NULL;
+    }
+  else
+    {
+      mps_polynomial *poly = mps_parse_stream (s, handle);
+      fclose (handle);
+      return poly;
+    }
+}
+
 
 /**
  * @brief Parse a stream for input data.

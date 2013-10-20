@@ -723,6 +723,7 @@ typedef int mps_debug_level;
 
   mps_polynomial * mps_parse_stream (mps_context * s, FILE * input_stream);
   mps_polynomial * mps_parse_file   (mps_context * s, const char * path);
+  mps_polynomial * mps_parse_string (mps_context * s, const char * c_string);
 
   mps_polynomial * mps_monomial_poly_read_from_stream_v2 (mps_context * s, mps_input_buffer * buffer);
   mps_monomial_poly * mps_monomial_poly_read_from_stream (mps_context * s, mps_input_buffer * buffer, 
