@@ -1,3 +1,7 @@
+== 3.1.5 == Undefined
+  - Added a mps_parse_string routine. 
+  - Lot of fixes and redesign on xmpsolve. 
+
 == 3.1.4 == 19/10/2013
   - Fixed a lot of bugs in the parser.
   - Improved support to Chebyshev polynomials. 
