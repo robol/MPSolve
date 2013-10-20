@@ -190,17 +190,7 @@ void xmpsolve::MainWindow::on_editPolFileButton_clicked()
 {
     if (m_selectedPolFile.isEmpty()) {
         // Create a new .pol file
-        QString selectedFile = QFileDialog::getSaveFileName(this,
-                                                            tr("New .pol file"),
-                                                            QString(),
-                                                            "Pol files (*.pol);;Text files (*.txt)");
-        if (selectedFile.isEmpty())
-            return;
-        else {
-            m_selectedPolFile = selectedFile;
-            ui->editPolFileButton->setText(tr("Edit"));
-            ui->selectedFileLabel->setText(m_selectedPolFile.split("/").last());
-        }
+        m_selectedPolFile = "";
     }
 
     m_polFileEditorWindow.loadPolFile(m_selectedPolFile);
