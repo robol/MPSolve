@@ -73,9 +73,9 @@
          </attribute>
          <layout class="QHBoxLayout" name="horizontalLayout_6">
           <item>
-           <layout class="QVBoxLayout" name="verticalLayout" stretch="100,0,1">
+           <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,1">
             <item>
-             <layout class="QHBoxLayout" name="horizontalLayout" stretch="1,100,1,1">
+             <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0">
               <item>
                <widget class="QLabel" name="label_4">
                 <property name="sizePolicy">
@@ -332,6 +332,8 @@
      <string>File</string>
     </property>
     <addaction name="actionOpen_pol_file"/>
+    <addaction name="actionOpen_editor"/>
+    <addaction name="separator"/>
     <addaction name="actionQuit"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
@@ -357,6 +359,11 @@
   <action name="actionAbout_MPSolve">
    <property name="text">
     <string>About MPSolve</string>
+   </property>
+  </action>
+  <action name="actionOpen_editor">
+   <property name="text">
+    <string>Open editor</string>
    </property>
   </action>
  </widget>

@@ -5,7 +5,7 @@
 #include <QItemSelection>
 #include "root.h"
 #include "polynomialsolver.h"
-#include "polfileeditordialog.h"
+#include "polfileeditorwindow.h"
 #include <mps/mps.h>
 
 namespace Ui {
@@ -32,6 +32,7 @@ public slots:
     void openPolFile(QString path);
 
     void onlistRootsView_selectionChanged(QItemSelection, QItemSelection);
+    void onSolvePolFileRequested(QString path);
     
 private slots:
     void on_solveButton_clicked();
@@ -52,10 +53,13 @@ private slots:
 
     void on_actionAbout_MPSolve_triggered();
 
+    void on_actionOpen_editor_triggered();
+
 private:
     Ui::MainWindow *ui;
     PolynomialSolver m_solver;
     QString m_selectedPolFile;
+    PolFileEditorWindow m_polFileEditorWindow;
 };
 
 } // Namespace xmpsolve

@@ -5,7 +5,7 @@
 #include <QPainter>
 #include <QMessageBox>
 #include <QFileDialog>
-#include "polfileeditordialog.h"
+#include "polfileeditorwindow.h"
 
 using namespace xmpsolve;
 
@@ -22,8 +22,17 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->listRootsView->setModel(m_solver.rootsModel());
     ui->graphicsView->setModel(m_solver.rootsModel());
 
+    // We don't need the .pol file editor at this point.
+    m_polFileEditorWindow.hide();
+
+    // Synchronize the selection of the roots with the rootsView, so we can focus the currently selected
+    // root.
     QObject::connect(ui->listRootsView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
                      this, SLOT(onlistRootsView_selectionChanged(QItemSelection,QItemSelection)));
+
+    // Solve .pol files requested by the user
+    QObject::connect(&m_polFileEditorWindow, SIGNAL(solvePoly(QString)),
+                     this, SLOT(onSolvePolFileRequested(QString)));
 }
 
 MainWindow::~MainWindow()
@@ -116,6 +125,15 @@ void xmpsolve::MainWindow::openPolFile(QString path)
     ui->tabWidget->setCurrentIndex(1);
 }
 
+void xmpsolve::MainWindow::onSolvePolFileRequested(QString path)
+{
+    openPolFile(path);
+    on_polFileSolveButton_clicked();
+
+    // Grab focus so we can display the result.
+    activateWindow();
+}
+
 void xmpsolve::MainWindow::on_listRootsView_clicked(const QModelIndex &index)
 {
     ui->approximationDetailLabel->setText(
@@ -146,8 +164,6 @@ void xmpsolve::MainWindow::onlistRootsView_selectionChanged(QItemSelection,QItem
 
 void xmpsolve::MainWindow::on_editPolFileButton_clicked()
 {
-    PolFileEditorDialog dialog;
-
     if (m_selectedPolFile.isEmpty()) {
         // Create a new .pol file
         QString selectedFile = QFileDialog::getSaveFileName(this,
@@ -163,12 +179,8 @@ void xmpsolve::MainWindow::on_editPolFileButton_clicked()
         }
     }
 
-    dialog.loadPolFile(m_selectedPolFile);
-
-    // Check if need to save the file.
-    if (dialog.exec() == QDialog::Accepted) {
-        dialog.savePolFile();
-    }
+    m_polFileEditorWindow.loadPolFile(m_selectedPolFile);
+    m_polFileEditorWindow.show();
 }
 
 void xmpsolve::MainWindow::on_polFileSolveButton_clicked()
@@ -227,4 +239,10 @@ void xmpsolve::MainWindow::on_actionAbout_MPSolve_triggered()
                        " - Dario A. Bini &lt;<a href=\"mailto:bini@dm.unipi.it\">bini@dm.unipi.it</a>&gt;<br>" +
                        " - Giuseppe Fiorentino &lt;<a href=\"mailto:fiorent@dm.unipi.it\">fiorent@dm.unipi.it</a>&gt;<br>" +
                        " - Leonardo Robol &lt;<a href=\"mailto:leonardo.robol@sns.it\">leonardo.robol@sns.it</a>&gt; <br>");
+}
+
+void xmpsolve::MainWindow::on_actionOpen_editor_triggered()
+{
+    m_polFileEditorWindow.show();
+    m_polFileEditorWindow.activateWindow();
 }

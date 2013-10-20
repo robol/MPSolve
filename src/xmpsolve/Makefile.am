@@ -62,7 +62,8 @@ pure_source_files = \
 	polynomialsolver.cpp  \
 	mainwindow.cpp  \
 	rootsmodel.cpp  \
-	polfileeditordialog.cpp  \
+	polfileeditorwindow.cpp  \
+	polfileeditor.cpp \
 	polsyntaxhighlighter.cpp  \
 	mpsolveworker.cpp  \
 	rootsrenderer.cpp  
@@ -75,11 +76,13 @@ other_source_files = \
 
 ui_files = \
 	ui_mainwindow.h \
-	ui_polfileeditordialog.h 
+	ui_polfileeditor.h \
+	ui_polfileeditorwindow.h 
 
 ui_sfiles = \
 	mainwindow.ui \
-	polfileeditordialog.ui
+	polfileeditor.ui \
+	polfileeditorwindow.ui
 
 qrc_files = \
 	resources.qrc
@@ -87,7 +90,8 @@ qrc_files = \
 headers = \
 	rootsrenderer.h  \
 	rootsmodel.h  \
-	polfileeditordialog.h  \
+	polfileeditor.h \
+	polfileeditorwindow.h  \
 	monomial.h  \
 	polynomial.h  \
 	root.h  \
