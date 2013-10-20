@@ -5,6 +5,8 @@
 #include <QFileDialog>
 #include <QDebug>
 
+using namespace xmpsolve;
+
 PolFileEditor::PolFileEditor(QWidget *parent, QString path) :
     QWidget(parent),
     ui(new Ui::PolFileEditor)

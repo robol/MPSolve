@@ -6,6 +6,8 @@
 #include "ui_polfileeditorwindow.h"
 #include "mainwindow.h"
 
+using namespace xmpsolve;
+
 PolFileEditorWindow::PolFileEditorWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::PolFileEditorWindow)

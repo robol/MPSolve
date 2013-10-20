@@ -8,6 +8,8 @@ namespace Ui {
 class PolFileEditor;
 }
 
+namespace xmpsolve {
+
 class PolFileEditor : public QWidget
 {
     Q_OBJECT
@@ -65,5 +67,7 @@ private:
     State m_state;
 
 };
+
+} // End of namespace xmpsolve
 
 #endif // POLFILEEDITOR_H

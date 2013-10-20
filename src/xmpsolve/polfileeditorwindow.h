@@ -9,6 +9,8 @@ namespace Ui {
 class PolFileEditorWindow;
 }
 
+namespace xmpsolve {
+
 class PolFileEditorWindow : public QMainWindow
 {
     Q_OBJECT
@@ -90,5 +92,7 @@ private:
      */
     QMap<QString, PolFileEditor*> m_polFileEditors;
 };
+
+} // End of namespace xmpsolve
 
 #endif // POLFILEEDITORWINDOW_H

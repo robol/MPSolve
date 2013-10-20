@@ -3,6 +3,8 @@
 
 #include <QSyntaxHighlighter>
 
+namespace xmpsolve {
+
 class PolSyntaxHighlighter : public QSyntaxHighlighter
 {
     Q_OBJECT
@@ -16,5 +18,7 @@ signals:
 public slots:
     
 };
+
+} // End of namespace xmpsolve
 
 #endif // POLSYNTAXHIGHLIGHTER_H

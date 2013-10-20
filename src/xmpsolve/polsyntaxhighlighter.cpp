@@ -3,6 +3,8 @@
 #include <QTextCharFormat>
 #include <QDebug>
 
+using namespace xmpsolve;
+
 PolSyntaxHighlighter::PolSyntaxHighlighter(QObject *parent) :
     QSyntaxHighlighter(parent)
 {
