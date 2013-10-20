@@ -61,8 +61,6 @@ PolynomialSolver::solvePolFileFromContent(QString content, mps_algorithm selecte
 {
     QByteArray stringData = content.toLatin1().data();
 
-    qDebug() << "Received pol file = " << stringData.data();
-
     m_mpsContext = mps_context_new();
     m_worker.setMpsContext(m_mpsContext);
 
