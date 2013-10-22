@@ -339,6 +339,7 @@
     </property>
     <addaction name="actionOpen_pol_file"/>
     <addaction name="actionOpen_editor"/>
+    <addaction name="actionAbort_computations"/>
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
    </widget>
@@ -370,6 +371,11 @@
   <action name="actionOpen_editor">
    <property name="text">
     <string>Open editor</string>
+   </property>
+  </action>
+  <action name="actionAbort_computations">
+   <property name="text">
+    <string>Abort current computations</string>
    </property>
   </action>
  </widget>

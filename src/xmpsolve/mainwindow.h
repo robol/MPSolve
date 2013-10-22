@@ -73,6 +73,8 @@ private slots:
 
     void on_actionOpen_editor_triggered();
 
+    void on_actionAbort_computations_triggered();
+
 private:
     Ui::MainWindow *ui;
     PolynomialSolver m_solver;

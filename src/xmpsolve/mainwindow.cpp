@@ -260,3 +260,9 @@ void xmpsolve::MainWindow::on_actionOpen_editor_triggered()
     m_polFileEditorWindow.show();
     m_polFileEditorWindow.activateWindow();
 }
+
+void xmpsolve::MainWindow::on_actionAbort_computations_triggered()
+{
+    m_solver.abortComputations();
+    unlockInterface();
+}

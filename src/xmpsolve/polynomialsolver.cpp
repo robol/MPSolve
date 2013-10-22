@@ -208,6 +208,17 @@ PolynomialSolver::workerExited()
     solved();
 }
 
+void
+PolynomialSolver::abortComputations()
+{
+    m_worker.terminate();
+    m_worker.wait(2);
+
+    m_errorMessage = "MPSolve has been stopped";
+
+    errorMessage();
+}
+
 unsigned long int
 PolynomialSolver::CPUTime()
 {

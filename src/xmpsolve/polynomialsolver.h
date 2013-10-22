@@ -80,6 +80,11 @@ public:
      */
     RootsModel * rootsModel();
 
+    /**
+     * @brief abortComputations kills every current computation.
+     */
+    void abortComputations();
+
 private:
     MPSolveWorker m_worker;
     mps_context * m_mpsContext;
