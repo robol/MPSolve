@@ -25,7 +25,12 @@ public:
     };
 
     explicit PolFileEditor(QWidget *parent = 0, QString path = QString());
-    void savePolFile();
+
+    /**
+     * @brief Save the file to the given path, or to the default one if path is
+     * an empty string.
+     */
+    void savePolFile(QString path = QString());
 
     /**
      * @brief currentPolFile returns the currently opened .pol file

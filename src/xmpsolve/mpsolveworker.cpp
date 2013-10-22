@@ -18,7 +18,6 @@ MPSolveWorker::run()
     /* Actually solve the polynomial that should have been
      * set in here... */
     m_timer = mps_start_timer();
-    mps_context_set_debug_level(m_context, MPS_DEBUG_INFO);
     mps_mpsolve(m_context);
 }
 

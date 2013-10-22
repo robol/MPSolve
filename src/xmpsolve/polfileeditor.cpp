@@ -34,8 +34,11 @@ PolFileEditor::PolFileEditor(QWidget *parent, QString path) :
                      this, SLOT(onTextEditChanged(bool)));
 }
 
-void PolFileEditor::savePolFile()
+void PolFileEditor::savePolFile(QString path)
 {
+    if (! path.isEmpty ())
+        m_polFilePath = path;
+
     if (m_polFilePath.isEmpty()) {
         m_polFilePath = QFileDialog::getSaveFileName(this, "Save .pol file", "", "Pol files (*.pol)");
         filenameChanged(m_polFilePath);

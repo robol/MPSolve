@@ -81,6 +81,8 @@ private slots:
 
     void on_actionClose_editor_triggered();
 
+    void on_actionNew_triggered();
+
 private:
     Ui::PolFileEditorWindow *ui;
 
@@ -91,6 +93,19 @@ private:
      * This allows to not open more than one tab at a time for a given file.
      */
     QMap<QString, PolFileEditor*> m_polFileEditors;
+
+    /**
+     * @brief Overriden closeEvent that handle the saving of files that
+     * haven't been closed.
+     */
+    void closeEvent(QCloseEvent *);
+
+    /**
+     * @brief Close all opened tabs and prompt the user to save the unsaved ones.
+     */
+    void closeOpenedTabs();
+
+    void showEvent(QShowEvent *event);
 };
 
 } // End of namespace xmpsolve
