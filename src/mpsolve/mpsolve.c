@@ -452,10 +452,9 @@ main (int argc, char **argv)
 
             
         case 'a':
+	  explicit_algorithm_selection = true;
           switch (*opt->optvalue)
             {
-	      explicit_algorithm_selection = true;
-
             case 'u':
               mps_context_select_algorithm (s, MPS_ALGORITHM_STANDARD_MPSOLVE);
               break;
