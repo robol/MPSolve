@@ -25,6 +25,21 @@ int feenableexcept(int excepts);
 #endif
 
 /**
+ * @brief Perform some preliminary checks and setup before starting the real
+ * MPSolve loop. 
+ */
+static void
+mps_preliminary_setup (mps_context * ctx)
+{
+  /* Make sure that non thread safe polynomial implementations are handled
+   * in a safe way. */
+  if (! ctx->active_poly->thread_safe)
+    {
+      mps_thread_pool_set_concurrency_limit (ctx, NULL, 1);
+    }
+}
+
+/**
  * @brief Call the real polynomial (or secular equation, or whatever) solver
  * and do the computation.
  *
@@ -45,6 +60,8 @@ mps_mpsolve (mps_context * s)
   if (mps_context_has_errors (s))
     return;
 
+  mps_preliminary_setup (s);
+
   (*s->mpsolve_ptr) (s);
 }
 
@@ -52,7 +69,10 @@ void*
 mps_caller (mps_context * s)
 {
   if (!mps_context_has_errors (s))
-    s->mpsolve_ptr (s);
+    {
+      mps_preliminary_setup (s);
+      s->mpsolve_ptr (s);
+    }
 
   /* Call user defined callback if available */
   if (s->callback == NULL)
