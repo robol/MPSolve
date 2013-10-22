@@ -156,6 +156,9 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
   /* This variable is true if the regeneration succeeded. */
   mps_boolean success = true;
 
+  if (s->exit_required)
+    return NULL;
+
   /* mps_secular_raise_coefficient_precision (s, coeff_wp); */
 
   switch (s->lastphase)

@@ -94,6 +94,7 @@ mps_context_init (mps_context * s)
   mps_mp_set_prec (s, DBL_DIG * LOG2_10 + 1);
 
   s->initialized = false;
+  s->exit_required = false;
 }
 
 /**
@@ -123,6 +124,12 @@ mps_context_free (mps_context * s)
     fclose (s->logstr); 
    
    free (s);
+}
+
+void
+mps_context_abort (mps_context * s)
+{
+  s->exit_required = true;
 }
 
 void

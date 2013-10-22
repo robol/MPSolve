@@ -211,12 +211,7 @@ PolynomialSolver::workerExited()
 void
 PolynomialSolver::abortComputations()
 {
-    m_worker.terminate();
-    m_worker.wait(2);
-
-    m_errorMessage = "MPSolve has been stopped";
-
-    errorMessage();
+    m_worker.abortComputation();
 }
 
 unsigned long int

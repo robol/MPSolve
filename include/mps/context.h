@@ -527,6 +527,8 @@ extern "C"
     unsigned long int dpe_iteration_time;
     unsigned long int fp_iteration_time;
 
+    mps_boolean exit_required;
+
   };                 /* End of typedef struct { ... */
 
 #endif /* #ifdef _MPS_PRIVATE */
@@ -537,6 +539,7 @@ extern "C"
   void mps_context_free (mps_context * s);
 
   /* Accessor functions (setters) */
+  void mps_context_abort (mps_context * s);
   int mps_context_set_poly_d (mps_context * s, cplx_t * coeff,
                              long unsigned int n);
   void mps_context_set_input_poly (mps_context * s, mps_polynomial * p);

@@ -58,6 +58,9 @@ mps_secular_ga_check_stop (mps_context * s)
 
   int i;
 
+  if (s->exit_required)
+    return true;
+
     /* if  (!MPS_INPUT_CONFIG_IS_FP (s->secular_equation->input_structure) */
     /*   && s->lastphase != mp_phase) */
     /* return false; */
@@ -356,6 +359,13 @@ mps_secular_ga_mpsolve (mps_context * s)
       s->root[i]->approximated = false;
     }
 
+  /* Check if we need to exit */
+  if (s->exit_required)
+    {
+      mps_error (s, "Exit forced by the caller");
+      return;
+    }
+
   /* Cycle until approximated */
   do
     {
@@ -404,8 +414,15 @@ mps_secular_ga_mpsolve (mps_context * s)
 
       /* Increase the packet counter */
       packet++;
+
+      /* Check if we need to exit */
+      if (s->exit_required)
+	{
+	  mps_error (s, "Exit forced by the caller");
+	  return;
+	}
           
-      /* Check thet we haven't passed the maximum number of allowed iterations */
+      /* Check that we haven't passed the maximum number of allowed iterations */
       if (packet > s->max_pack)
         {
           mps_error (s, "Maximum number of iteration passed. Aborting.");
@@ -437,6 +454,13 @@ mps_secular_ga_mpsolve (mps_context * s)
               /* Raising precision otherwise */
               mps_secular_raise_precision (s, 2 * s->mpwp);
             }
+	   
+	   /* Check if we need to exit */
+	   if (s->exit_required)
+	     {
+	       mps_error (s, "Exit forced by the caller");
+	       return;
+	     }
 
            if (MPS_IS_MONOMIAL_POLY (s->active_poly))
              {   
@@ -451,12 +475,26 @@ mps_secular_ga_mpsolve (mps_context * s)
            else
              just_regenerated = true;
 
+	   /* Check if we need to exit */
+	   if (s->exit_required)
+	     {
+	       mps_error (s, "Exit forced by the caller");
+	       return;
+	     }
+
            /* just_regenerated = true; */
            s->best_approx = false;
 
            /* Set the packet counter to zero, we are restarting */
            packet = 0;
         }
+
+      /* Check if we need to exit */
+      if (s->exit_required)
+	{
+	  mps_error (s, "Exit forced by the caller");
+	  return;
+	}
 
       /* If we can't stop recompute coefficients in higher precision and
        * continue to iterate, unless the best approximation possible in
@@ -496,6 +534,14 @@ mps_secular_ga_mpsolve (mps_context * s)
                /* Set the packet counter to zero, we are restarting */
                packet = 0;
              }
+
+	   /* Check if we need to exit */
+	   if (s->exit_required)
+	     {
+	       mps_error (s, "Exit forced by the caller");
+	       return;
+	     }
+
          }
     }
   while (skip_check_stop || !mps_secular_ga_check_stop (s));
@@ -504,6 +550,9 @@ mps_secular_ga_mpsolve (mps_context * s)
 
   mps_copy_roots (s);
   mps_dump (s);
+
+  if (s->exit_required)
+    return;
 
   /* Finally improve the roots if approximation is required */
   if (s->output_config->goal == MPS_OUTPUT_GOAL_APPROXIMATE)

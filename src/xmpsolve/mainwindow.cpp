@@ -264,5 +264,5 @@ void xmpsolve::MainWindow::on_actionOpen_editor_triggered()
 void xmpsolve::MainWindow::on_actionAbort_computations_triggered()
 {
     m_solver.abortComputations();
-    unlockInterface();
+    ui->statusBar->showMessage(tr("Waiting for MPSolve to complete the current operation..."));
 }
