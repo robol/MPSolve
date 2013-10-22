@@ -112,76 +112,83 @@ mps_chebyshev_poly_read_from_stream (mps_context * ctx, mps_input_buffer * buffe
             mpq_set_ui (cpoly->rational_imag_coeffs[i], 0U, 1U);
           }
 
-        /* Read the degree of the coefficient */
-        token = mps_input_buffer_next_token (buffer);
-        if (!token || !sscanf (token, "%d", &degree))
-          {
-            mps_raise_parsing_error (ctx, buffer, token, "Cannot parse the degree of the coefficient.");
-            free (token); mps_polynomial_free (ctx, MPS_POLYNOMIAL (cpoly));
-            return NULL;
-          }
+	while ((token = mps_input_buffer_next_token (buffer)) != NULL)
+	  {
+	    /* Read the degree of the coefficient */
+	    if (!token || !sscanf (token, "%d", &degree))
+	      {
+		mps_raise_parsing_error (ctx, buffer, token, "Cannot parse the degree of the coefficient.");
+		free (token); mps_polynomial_free (ctx, MPS_POLYNOMIAL (cpoly));
+		return NULL;
+	      }
 
-        free (token);
+	    free (token);
 
-        if (MPS_STRUCTURE_IS_FP (structure))
-          {
-            token = mps_input_buffer_next_token (buffer);
+	    if (MPS_STRUCTURE_IS_FP (structure))
+	      {
+		token = mps_input_buffer_next_token (buffer);
 
-            if (!token || (mpf_set_str (mpc_Re (cpoly->mfpc[degree]), token, 10) != 0)) 
-              {
-                mps_raise_parsing_error (ctx, buffer, token, "Error while reading real part of coefficient");
-                free (token); mps_polynomial_free (ctx, MPS_POLYNOMIAL (cpoly));
-                return NULL;
-              }
+		if (!token || (mpf_set_str (mpc_Re (cpoly->mfpc[degree]), token, 10) != 0)) 
+		  {
+		    mps_raise_parsing_error (ctx, buffer, token, "Error while reading real part of coefficient");
+		    free (token); mps_polynomial_free (ctx, MPS_POLYNOMIAL (cpoly));
+		    return NULL;
+		  }
 
-            free (token);
+		free (token);
 
-            if (MPS_STRUCTURE_IS_COMPLEX (structure))
-              {
-                token = mps_input_buffer_next_token (buffer);
+		if (MPS_STRUCTURE_IS_COMPLEX (structure))
+		  {
+		    token = mps_input_buffer_next_token (buffer);
 
-                if (!token || (mpf_set_str (mpc_Im (cpoly->mfpc[degree]), token, 10) != 0)) 
-                  {
-                    mps_raise_parsing_error (ctx, buffer, token, 
-                      "Error while reading imaginary part of coefficient %d", degree);
-                    free (token); mps_polynomial_free (ctx, MPS_POLYNOMIAL (cpoly));
-                    return NULL;
-                  }
+		    if (!token || (mpf_set_str (mpc_Im (cpoly->mfpc[degree]), token, 10) != 0)) 
+		      {
+			mps_raise_parsing_error (ctx, buffer, token, 
+						 "Error while reading imaginary part of coefficient %d", degree);
+			free (token); mps_polynomial_free (ctx, MPS_POLYNOMIAL (cpoly));
+			return NULL;
+		      }
 
-                free (token);                
-              }
-          }
-        else
-          {
-            token = mps_input_buffer_next_token (buffer);
+		    free (token);                
+		  }
+	      }
+	    else
+	      {
+		token = mps_input_buffer_next_token (buffer);
 
-            if (!token || (mpq_set_str (cpoly->rational_real_coeffs[degree], token, 10)))
-              {
-                mps_raise_parsing_error (ctx, buffer, token, "Error while reading the real part of coefficient %d", i);
-                free (token); mps_polynomial_free (ctx, MPS_POLYNOMIAL (cpoly));
-                return NULL;
-              }
+		if (!token || (mpq_set_str (cpoly->rational_real_coeffs[degree], token, 10)))
+		  {
+		    mps_raise_parsing_error (ctx, buffer, token, "Error while reading the real part of coefficient %d", i);
+		    free (token); mps_polynomial_free (ctx, MPS_POLYNOMIAL (cpoly));
+		    return NULL;
+		  }
 
-            free (token);
+		mpf_set_q (mpc_Re (cpoly->mfpc[degree]), cpoly->rational_real_coeffs[degree]);
 
-            if (MPS_STRUCTURE_IS_COMPLEX (structure))
-              {
-                token = mps_input_buffer_next_token (buffer);
+		free (token);
 
-                if (!token || (mpq_set_str (cpoly->rational_imag_coeffs[degree], token, 10)))
-                  {
-                    mps_raise_parsing_error (ctx, buffer, token, 
-                      "Error while reading the imaginary part of coefficient %d", i);
-                    free (token); mps_polynomial_free (ctx, MPS_POLYNOMIAL (cpoly));
-                    return NULL;
-                  }
+		if (MPS_STRUCTURE_IS_COMPLEX (structure))
+		  {
+		    token = mps_input_buffer_next_token (buffer);
 
-                free (token);
-              }
-          }
+		    if (!token || (mpq_set_str (cpoly->rational_imag_coeffs[degree], token, 10)))
+		      {
+			mps_raise_parsing_error (ctx, buffer, token, 
+						 "Error while reading the imaginary part of coefficient %d", i);
+			free (token); mps_polynomial_free (ctx, MPS_POLYNOMIAL (cpoly));
+			return NULL;
+		      }
 
-        mpc_get_cdpe (cpoly->dpc[degree], cpoly->mfpc[degree]);
-        mpc_get_cplx (cpoly->fpc[degree], cpoly->mfpc[degree]);
+		    mpf_set_q (mpc_Im (cpoly->mfpc[degree]), cpoly->rational_imag_coeffs[degree]);
+
+		    free (token);
+		  }
+	      }
+
+	    mpc_get_cdpe (cpoly->dpc[degree], cpoly->mfpc[degree]);
+	    mpc_get_cplx (cpoly->fpc[degree], cpoly->mfpc[degree]);
+
+	  }
       break;
 
       default:

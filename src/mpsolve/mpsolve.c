@@ -255,6 +255,11 @@ main (int argc, char **argv)
   signal (SIGUSR1, status);
 #endif
 
+  /* Leave this value to -1 if not precision has been enforced
+   * by the user. Otherwise, override the polynomial input
+   * precision. */
+  long int input_precision = -1;
+
   mps_context_set_input_prec (s, 0);
 
   FILE *infile;
@@ -470,6 +475,7 @@ main (int argc, char **argv)
           break;
         case 'i':
           mps_context_set_input_prec (s, (atoi (opt->optvalue)));
+          input_precision = atoi (opt->optvalue);
           break;
         case 'G':
           switch (*opt->optvalue)
@@ -618,6 +624,10 @@ main (int argc, char **argv)
     }
   else
     mps_context_set_input_poly (s, poly);
+
+  /* Override input precision if needed */
+  if (input_precision >= 0)
+    mps_context_set_input_prec (s, input_precision);
 
   /* Perform some heuristic for the algorithm selection, but only if the user
    * hasn't explicitely selected one. */
