@@ -21,7 +21,8 @@
 /**
  * @brief Update the working precision of a root, i.e. the variable
  * <code>s->root[i]->wp</code> with the given precision rounded to the 
- * closer multiple of 64 (since GMP does not handle intermediate precisions).
+ * closer multiple of mp_bits_per_limb 
+ * (since GMP does not handle intermediate precisions).
  *
  * @param s The <code>mps_context</code> of the computation.
  * @param i The index of the root whose precision must be updated.
@@ -39,7 +40,7 @@ mps_secular_ga_update_root_wp (mps_context * s, int i, long int wp, mpc_t * bmpc
       wp = MIN (wp, p->prec);
     }
 
-  s->root[i]->wp = ((wp - 1) / 64 + 1) * 64;
+  s->root[i]->wp = ((wp - 1) / mp_bits_per_limb + 1) * mp_bits_per_limb;
   
   MPS_LOCK (s->data_prec_max);
   if (s->data_prec_max.value < s->root[i]->wp)
@@ -685,7 +686,7 @@ mps_secular_ga_regenerate_coefficients (mps_context * s)
       case float_phase:
         for (i = 0; i < s->n; i++)
           {
-            mpc_set_prec (s->root[i]->mvalue, 64);
+            mpc_set_prec (s->root[i]->mvalue, DBL_MANT_DIG);
             mpc_set_cplx (s->root[i]->mvalue, s->root[i]->fvalue);
           }
         break;
@@ -693,7 +694,7 @@ mps_secular_ga_regenerate_coefficients (mps_context * s)
       case dpe_phase:
         for (i = 0; i < s->n; i++)
           {
-            mpc_set_prec (s->root[i]->mvalue, 64);
+            mpc_set_prec (s->root[i]->mvalue, DBL_MANT_DIG);
             mpc_set_cdpe (s->root[i]->mvalue, s->root[i]->dvalue);
           }
         break;

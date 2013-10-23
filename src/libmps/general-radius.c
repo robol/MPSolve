@@ -76,7 +76,7 @@ mps_fradii (mps_context * s, mps_polynomial * p, double * fradii)
       {
         mpc_t lc;
         cplx_t ctmp;
-        mpc_init2 (lc, 64);
+        mpc_init2 (lc, DBL_MANT_DIG);
         mps_polynomial_get_leading_coefficient (s, p, lc);
         mpc_get_cplx (ctmp, lc);
         new_rad /= cplx_mod (ctmp);
@@ -144,7 +144,7 @@ mps_dradii (mps_context * s, mps_polynomial * p, rdpe_t * dradii)
 
       {
         mpc_t lc;
-        mpc_init2 (lc, 64);
+        mpc_init2 (lc, DBL_MANT_DIG);
         mps_polynomial_get_leading_coefficient (s, p, lc);
         mpc_rmod (rtmp, lc);
         rdpe_div_eq (new_rad, rtmp);
@@ -223,7 +223,7 @@ mps_mradii (mps_context * s, mps_polynomial * p, rdpe_t * dradii)
 
       {
         mpc_t lc;
-        mpc_init2 (lc, 64);
+        mpc_init2 (lc, DBL_MANT_DIG);
         mps_polynomial_get_leading_coefficient (s, p, lc);
         mpc_rmod (rtmp, lc);
         rdpe_div_eq (new_rad, rtmp);

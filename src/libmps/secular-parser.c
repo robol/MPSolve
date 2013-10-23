@@ -32,7 +32,7 @@ mps_secular_equation_read_from_stream (mps_context * s,
   mpf_t ftmp;
   char * token;
 
-  mpf_init2 (ftmp, 64);
+  mpf_init2 (ftmp, DBL_MANT_DIG);
 
   /* Read directly the secular equation in DPE, so we don't need
    * to have a fallback case if the coefficients are bigger than
