@@ -61,6 +61,18 @@ mps_secular_ga_check_stop (mps_context * s)
   if (s->exit_required)
     return true;
 
+  /* Check if the roots have already reached the maximum allowed precision */
+  mps_boolean reached_maximum_precision = false;
+  if (s->active_poly->prec > 0)
+    for (i = 0; i < s->n; i++)
+      reached_maximum_precision |= (s->root[i]->wp > s->active_poly->prec);
+
+  if (reached_maximum_precision)
+    {
+      mps_warn (s, "Reached input precision during computation, MPSolve will exit soon.");  
+      return true;
+    }
+
     /* if  (!MPS_INPUT_CONFIG_IS_FP (s->secular_equation->input_structure) */
     /*   && s->lastphase != mp_phase) */
     /* return false; */
@@ -452,7 +464,13 @@ mps_secular_ga_mpsolve (mps_context * s)
           else
             {
               /* Raising precision otherwise */
-              mps_secular_raise_precision (s, 2 * s->mpwp);
+	      if (2 * s->mpwp <= s->active_poly->prec)
+		mps_secular_raise_precision (s, 2 * s->mpwp);
+	      else
+		{
+		  mps_warn (s, "Reached input precision during computation, stopping");
+		  goto cleanup;
+		}
             }
 	   
 	   /* Check if we need to exit */
