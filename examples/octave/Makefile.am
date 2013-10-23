@@ -20,7 +20,7 @@ octave_share_prefix = ${DESTDIR}${datadir}/octave/packages
 octave_lib_prefix =   ${DESTDIR}${libdir}/octave/packages
 
 clean-local:
-	rm -r ${builddir}/package
+	rm -rf ${builddir}/package
 
 install-exec-hook:
 	mkdir -p ${octave_share_prefix}
