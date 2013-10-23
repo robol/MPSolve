@@ -464,7 +464,7 @@ mps_secular_ga_mpsolve (mps_context * s)
           else
             {
               /* Raising precision otherwise */
-	      if (2 * s->mpwp <= s->active_poly->prec)
+	      if ((2 * s->mpwp <= s->active_poly->prec) || (s->active_poly->prec == 0))
 		mps_secular_raise_precision (s, 2 * s->mpwp);
 	      else
 		{
