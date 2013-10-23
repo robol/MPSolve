@@ -70,31 +70,40 @@ void
 PolFileEditorWindow::closePolFile(QString path)
 {
     PolFileEditor * editor = m_polFileEditors.value(path, NULL);
-    QString filename = path.split("/").last();
 
-    if (editor != NULL) {
+    if (editor != NULL)
+        closeEditor(editor);
+}
 
-        if (editor->state() == PolFileEditor::MODIFIED) {
-            QMessageBox::StandardButton reply = QMessageBox::question(this,
-                tr("Save changes to %1 before closing?").arg(filename),
-                tr("%1 has been edited but no saved. Do you want to save it before closing it?").arg(
-                    filename),
-                QMessageBox::Yes|QMessageBox::No);
+void
+PolFileEditorWindow::closeEditor(PolFileEditor *editor)
+{
+    QString filename = editor->currentPolFile();
+    if (filename.isEmpty())
+        filename = tr("this unsaved file");
+    else
+        m_polFileEditors.remove(filename);
 
-            if (reply == QMessageBox::Yes) {
-                editor->savePolFile();
-            }
+
+    if (editor->state() == PolFileEditor::MODIFIED) {
+        QMessageBox::StandardButton reply = QMessageBox::question(this,
+            tr("Save changes to %1 before closing?").arg(filename),
+            tr("%1 has been edited but no saved. Do you want to save it before closing it?").arg(
+                filename),
+            QMessageBox::Yes|QMessageBox::No);
+
+        if (reply == QMessageBox::Yes) {
+            editor->savePolFile();
         }
-
-        int editorIndex = ui->tabWidget->indexOf(editor);
-        ui->tabWidget->removeTab(editorIndex);
-        m_polFileEditors.remove(path);
-
-        delete editor;
     }
 
+    int editorIndex = ui->tabWidget->indexOf(editor);
+    ui->tabWidget->removeTab(editorIndex);
+
+    delete editor;
+
     if (ui->tabWidget->count() == 0) {
-        loadPolFile("");
+        loadPolFile();
     }
 }
 
@@ -179,12 +188,12 @@ void PolFileEditorWindow::on_actionSolve_triggered()
 
 void PolFileEditorWindow::on_actionClose_triggered()
 {
-    closePolFile(currentPolFile());
+    closeEditor(currentEditor());
 }
 
 void PolFileEditorWindow::on_actionNew_triggered()
 {
-    ui->tabWidget->insertTab(0, new PolFileEditor(this), QIcon::fromTheme("text"), "New file");
+    loadPolFile();
 }
 
 void PolFileEditorWindow::closeOpenedTabs()

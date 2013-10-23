@@ -52,6 +52,7 @@ void PolFileEditor::savePolFile(QString path)
     }
 
     m_state = SAVED;
+    ui->plainTextEdit->document()->setModified(false);
     stateChanged(m_state);
 }
 

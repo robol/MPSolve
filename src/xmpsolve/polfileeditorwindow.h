@@ -22,8 +22,10 @@ public:
     /**
      * @brief loadPolFile loads the file specified by path or simply
      * focus the tab containing it if it's already loaded.
+     *
+     * @brief path is the path to the file
      */
-    void loadPolFile(QString path);
+    void loadPolFile(QString path = QString());
 
     /**
      * @brief savePolFile save the pol file in the currently selected tab.
@@ -35,6 +37,11 @@ public:
      * @param path is the absolute path to the file to close.
      */
     void closePolFile(QString path);
+
+    /**
+     * @brief Close the given editor.
+     */
+    void closeEditor(PolFileEditor* editor);
 
     /**
      * @brief currentPolFile returns the path to the currently focused
