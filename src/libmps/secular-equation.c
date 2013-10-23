@@ -226,6 +226,7 @@ mps_secular_equation_new_raw (mps_context * s, unsigned long int n)
   p->fnewton = mps_secular_fnewton;
   p->dnewton = mps_secular_dnewton;
   p->mnewton = mps_secular_mnewton;
+  p->prec = 0;
 
   /* Allocate floating point coefficients */
   sec->afpc = cplx_valloc (n);
