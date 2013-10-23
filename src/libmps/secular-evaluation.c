@@ -314,7 +314,11 @@ mps_secular_meval_with_error (mps_context * s, mps_polynomial * p, mpc_t x, mpc_
   mpc_sub_eq_ui (value, 1U, 0U);
   rdpe_add_eq (error, rdpe_one);
 
-  rdpe_set_2dl (rtmp, 4.0, 1 - (long int) wp);
+  if (p->prec < wp)
+    rdpe_set_2dl (rtmp, 4.0, 1 - p->prec);
+  else
+    rdpe_set_2dl (rtmp, 4.0, 1 - (long int) wp);
+
   rdpe_mul_eq (error, rtmp);
 
  cleanup:
