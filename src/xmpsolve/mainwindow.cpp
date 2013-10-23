@@ -44,14 +44,12 @@ void
 MainWindow::lockInterface()
 {
     ui->solveButton->setEnabled(false);
-    ui->polFileSolveButton->setEnabled(false);
 }
 
 void
 MainWindow::unlockInterface()
 {
     ui->solveButton->setEnabled(true);
-    ui->polFileSolveButton->setEnabled(true);
 }
 
 int MainWindow::requiredDigits()
@@ -120,23 +118,11 @@ void xmpsolve::MainWindow::on_openPolFileButton_clicked()
 
 void xmpsolve::MainWindow::openPolFile(QString path)
 {
-    QFile polFile(path);
-
-    // Clean previous polynomials, if any
-    ui->polyLineEdit->clear();
-
     // Select the polynomial
-    if (polFile.exists()) {
-        m_selectedPolFile = path;
-        ui->selectedFileLabel->setText(path.split("/").last());
+    m_polFileEditorWindow.loadPolFile(path);
 
-        ui->selectedFileLabel->setEnabled(true);
-        ui->editPolFileButton->setEnabled(true);
-        ui->editPolFileButton->setText(tr("Edit"));
-    }
-
-    // Switch the view to the correct tab
-    ui->tabWidget->setCurrentIndex(1);
+    m_polFileEditorWindow.show();
+    m_polFileEditorWindow.activateWindow();
 }
 
 void xmpsolve::MainWindow::onSolvePolFileRequested(QString content)
@@ -235,7 +221,10 @@ void xmpsolve::MainWindow::on_actionOpen_pol_file_triggered()
     on_openPolFileButton_clicked();
 }
 
-
+void xmpsolve::MainWindow::closeEvent(QCloseEvent *)
+{
+    QApplication::exit();
+}
 
 void xmpsolve::MainWindow::on_actionQuit_triggered()
 {
