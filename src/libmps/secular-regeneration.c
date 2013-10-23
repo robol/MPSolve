@@ -33,6 +33,12 @@ mps_secular_ga_update_root_wp (mps_context * s, int i, long int wp, mpc_t * bmpc
   mps_secular_equation * sec = s->secular_equation;  
   mps_polynomial * p = s->active_poly;
 
+  /* Try to not go over the input precision specified by the user */
+  if (p->prec > 0)
+    {
+      wp = MIN (wp, p->prec);
+    }
+
   s->root[i]->wp = ((wp - 1) / 64 + 1) * 64;
   
   MPS_LOCK (s->data_prec_max);
@@ -156,6 +162,9 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
   /* This variable is true if the regeneration succeeded. */
   mps_boolean success = true;
 
+  if (s->exit_required)
+    return NULL;
+
   /* mps_secular_raise_coefficient_precision (s, coeff_wp); */
 
   switch (s->lastphase)
@@ -231,9 +240,21 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
 
       if (rdpe_gt (relative_error, root_epsilon))
         {
+	  long int required_precision = 1 + s->root[i]->wp + (rdpe_Esp (relative_error) - rdpe_Esp (root_epsilon));
+
+	  MPS_DEBUG (s, "Setting precision to %ld", required_precision);
+	  MPS_DEBUG (s, "Maximum allowed precision = %ld", p->prec);
+
+	  if (required_precision > p->prec && p->prec > 0)
+	    {
+	      MPS_DEBUG_WITH_INFO (s, "Reached input precision in regeneration, aborting");
+	      success = false;
+	      goto monomial_regenerate_exit;
+	    }
+
           /* Update the working precision of the selected root with a realistic estimate of the
            * required precision to get a result exact to machine precision */
-          mps_secular_ga_update_root_wp (s, i, 1 + s->root[i]->wp + (rdpe_Esp (relative_error) - rdpe_Esp (root_epsilon)), bmpc);
+          mps_secular_ga_update_root_wp (s, i, required_precision, bmpc);
           
           /* Try to recompute the polynomial with the augmented precision and see if now relative_error matches */
           mpc_set_prec (tx, s->root[i]->wp);

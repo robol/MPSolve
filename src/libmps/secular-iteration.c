@@ -26,7 +26,7 @@ __mps_secular_ga_fiterate_worker (void* data_ptr)
   double modcorr;
   mps_thread_job job;
 
-  while (true)
+  while (true && ! s->exit_required)
     {
       job = mps_thread_job_queue_next (s, data->queue);
       i = job.i;
@@ -296,7 +296,7 @@ __mps_secular_ga_diterate_worker (void* data_ptr)
   rdpe_t modcorr;
   mps_thread_job job;
 
-  while (true)
+  while (true && ! s->exit_required)
     {
       job = mps_thread_job_queue_next (s, data->queue);
       i = job.i;
@@ -510,7 +510,7 @@ __mps_secular_ga_miterate_worker (void* data_ptr)
   mpc_init2 (mroot, s->mpwp); 
 
   /* Get a copy of the MP coefficients that is local to this thread */
-  while (true)
+  while (true && ! s->exit_required)
     {
       job = mps_thread_job_queue_next (s, data->queue);
       i = job.i;

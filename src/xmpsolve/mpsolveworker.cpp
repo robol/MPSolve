@@ -17,9 +17,14 @@ MPSolveWorker::run()
 {
     /* Actually solve the polynomial that should have been
      * set in here... */
-    clock_t *timer = mps_start_timer();
+    m_timer = mps_start_timer();
     mps_mpsolve(m_context);
-    m_time = mps_stop_timer(timer);
+}
+
+void
+MPSolveWorker::abortComputation()
+{
+    mps_context_abort(m_context);
 }
 
 unsigned long int

@@ -41,7 +41,7 @@ mps_secular_equation_read_from_stream (mps_context * s,
   MPS_POLYNOMIAL (sec)->degree = s->n;
   MPS_POLYNOMIAL (sec)->structure = structure;
   MPS_POLYNOMIAL (sec)->density = density;
-  MPS_POLYNOMIAL (sec)->prec = DBL_DIG;
+  MPS_POLYNOMIAL (sec)->prec = 0;
 
   /* Parsing of integers and floating point is done with Multiprecision */
   if (MPS_STRUCTURE_IS_FP (structure))

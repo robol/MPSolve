@@ -13,9 +13,13 @@ PolFileEditorWindow::PolFileEditorWindow(QWidget *parent) :
     ui(new Ui::PolFileEditorWindow)
 {
     ui->setupUi(this);
+}
 
-    // Create an empty tab, to start
-    loadPolFile("");
+void
+PolFileEditorWindow::showEvent(QShowEvent *event)
+{
+    if (ui->tabWidget->count() == 0)
+        loadPolFile("");
 }
 
 void
@@ -23,16 +27,6 @@ PolFileEditorWindow::loadPolFile(QString path)
 {
     PolFileEditor * editor = NULL;
     int currentIndex = 0;
-
-    // Check if we have only 1 tab open, and if it's empty. In that case, remove it
-    if (m_polFileEditors.size() == 0) {
-        PolFileEditor *editor = currentEditor();
-
-        if (editor != NULL && editor->state() == PolFileEditor::SAVED) {
-            ui->tabWidget->removeTab(0);
-            delete editor;
-        }
-    }
 
     // We have 2 possibilities here:
     // - path is a path to a file, and we open it
@@ -76,31 +70,40 @@ void
 PolFileEditorWindow::closePolFile(QString path)
 {
     PolFileEditor * editor = m_polFileEditors.value(path, NULL);
-    QString filename = path.split("/").last();
 
-    if (editor != NULL) {
+    if (editor != NULL)
+        closeEditor(editor);
+}
 
-        if (editor->state() == PolFileEditor::MODIFIED) {
-            QMessageBox::StandardButton reply = QMessageBox::question(this,
-                tr("Save changes to %1 before closing?").arg(filename),
-                tr("%1 has been edited but no saved. Do you want to save it before closing it?").arg(
-                    filename),
-                QMessageBox::Yes|QMessageBox::No);
+void
+PolFileEditorWindow::closeEditor(PolFileEditor *editor)
+{
+    QString filename = editor->currentPolFile();
+    if (filename.isEmpty())
+        filename = tr("this unsaved file");
+    else
+        m_polFileEditors.remove(filename);
 
-            if (reply == QMessageBox::Yes) {
-                editor->savePolFile();
-            }
+
+    if (editor->state() == PolFileEditor::MODIFIED) {
+        QMessageBox::StandardButton reply = QMessageBox::question(this,
+            tr("Save changes to %1 before closing?").arg(filename),
+            tr("%1 has been edited but no saved. Do you want to save it before closing it?").arg(
+                filename),
+            QMessageBox::Yes|QMessageBox::No);
+
+        if (reply == QMessageBox::Yes) {
+            editor->savePolFile();
         }
-
-        int editorIndex = ui->tabWidget->indexOf(editor);
-        ui->tabWidget->removeTab(editorIndex);
-        m_polFileEditors.remove(path);
-
-        delete editor;
     }
 
+    int editorIndex = ui->tabWidget->indexOf(editor);
+    ui->tabWidget->removeTab(editorIndex);
+
+    delete editor;
+
     if (ui->tabWidget->count() == 0) {
-        loadPolFile("");
+        loadPolFile();
     }
 }
 
@@ -185,10 +188,15 @@ void PolFileEditorWindow::on_actionSolve_triggered()
 
 void PolFileEditorWindow::on_actionClose_triggered()
 {
-    closePolFile(currentPolFile());
+    closeEditor(currentEditor());
 }
 
-void PolFileEditorWindow::on_actionClose_editor_triggered()
+void PolFileEditorWindow::on_actionNew_triggered()
+{
+    loadPolFile();
+}
+
+void PolFileEditorWindow::closeOpenedTabs()
 {
     // Close the pol files before so we can get notifications about
     // unsaved files and so.
@@ -196,5 +204,40 @@ void PolFileEditorWindow::on_actionClose_editor_triggered()
         closePolFile(editor->currentPolFile());
     }
 
+    // We need to handle the opened tabs that have not been
+    // saved yet.
+    while (ui->tabWidget->count() > 0) {
+
+        ui->tabWidget->setCurrentIndex(0);
+        PolFileEditor *editor = static_cast<PolFileEditor*>(ui->tabWidget->widget(0));
+
+        if (editor->state() == PolFileEditor::MODIFIED) {
+
+            int reply = QMessageBox::question(this, tr("Save changes to this file?"),
+                                              tr("This file has not been saved. Do you want to do it now?"),
+                                              QMessageBox::No, QMessageBox::Yes);
+            if (reply == QMessageBox::Yes) {
+                QString path = QFileDialog::getSaveFileName(this, "Save .pol file", "", "Pol files (*.pol)");
+                if (! path.isEmpty()) {
+                    editor->savePolFile(path);
+                }
+            }
+
+        }
+
+        ui->tabWidget->removeTab(0);
+        delete editor;
+    }
+}
+
+void PolFileEditorWindow::on_actionClose_editor_triggered()
+{
+    closeOpenedTabs();
+    close();
+}
+
+void PolFileEditorWindow::closeEvent(QCloseEvent *event)
+{
+    closeOpenedTabs();
     close();
 }

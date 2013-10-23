@@ -22,8 +22,10 @@ public:
     /**
      * @brief loadPolFile loads the file specified by path or simply
      * focus the tab containing it if it's already loaded.
+     *
+     * @brief path is the path to the file
      */
-    void loadPolFile(QString path);
+    void loadPolFile(QString path = QString());
 
     /**
      * @brief savePolFile save the pol file in the currently selected tab.
@@ -35,6 +37,11 @@ public:
      * @param path is the absolute path to the file to close.
      */
     void closePolFile(QString path);
+
+    /**
+     * @brief Close the given editor.
+     */
+    void closeEditor(PolFileEditor* editor);
 
     /**
      * @brief currentPolFile returns the path to the currently focused
@@ -81,6 +88,8 @@ private slots:
 
     void on_actionClose_editor_triggered();
 
+    void on_actionNew_triggered();
+
 private:
     Ui::PolFileEditorWindow *ui;
 
@@ -91,6 +100,19 @@ private:
      * This allows to not open more than one tab at a time for a given file.
      */
     QMap<QString, PolFileEditor*> m_polFileEditors;
+
+    /**
+     * @brief Overriden closeEvent that handle the saving of files that
+     * haven't been closed.
+     */
+    void closeEvent(QCloseEvent *);
+
+    /**
+     * @brief Close all opened tabs and prompt the user to save the unsaved ones.
+     */
+    void closeOpenedTabs();
+
+    void showEvent(QShowEvent *event);
 };
 
 } // End of namespace xmpsolve

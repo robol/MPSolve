@@ -77,6 +77,8 @@ improve_root (mps_context * ctx, mps_polynomial * p, mps_approximation * root, l
   mpc_rmod (corr_mod, newton_correction);
   rdpe_add_eq (root->drad, corr_mod);
 
+  MPS_DEBUG_MPC (ctx, 15, newton_correction, "Corr");
+
   mpc_rmod (corr_mod, root->mvalue);
   rdpe_set_2dl (epsilon, 1.0, 2 - precision);
 
@@ -211,7 +213,8 @@ mps_improve (mps_context * ctx)
       mps_thread_pool_wait (ctx, ctx->pool);
 
       for (i = 0; i < ctx->n; i++)
-        if (get_approximated_bits (ctx->root[i]) >= ctx->output_config->prec)
+        if (! MPS_ROOT_STATUS_IS_APPROXIMATED (ctx->root[i]->status) && 
+            get_approximated_bits (ctx->root[i]) >= ctx->output_config->prec)
           {
             ctx->root[i]->status = MPS_ROOT_STATUS_APPROXIMATED;
             approximated_roots++;

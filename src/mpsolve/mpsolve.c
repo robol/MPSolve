@@ -452,10 +452,9 @@ main (int argc, char **argv)
 
             
         case 'a':
+	  explicit_algorithm_selection = true;
           switch (*opt->optvalue)
             {
-	      explicit_algorithm_selection = true;
-
             case 'u':
               mps_context_select_algorithm (s, MPS_ALGORITHM_STANDARD_MPSOLVE);
               break;
@@ -474,8 +473,7 @@ main (int argc, char **argv)
           mps_context_set_output_prec (s, (atoi (opt->optvalue)) * LOG2_10 + 1);
           break;
         case 'i':
-          mps_context_set_input_prec (s, (atoi (opt->optvalue)));
-          input_precision = atoi (opt->optvalue);
+          input_precision = atoi (opt->optvalue) * LOG2_10;
           break;
         case 'G':
           switch (*opt->optvalue)

@@ -513,15 +513,19 @@ mps_dump_status (mps_context * s, FILE * outstr)
 void
 mps_warn (mps_context * st, char *s)
 {
+  char * exclamation_mark = "";
+  if (mps_is_a_tty (st->logstr))
+    exclamation_mark = "\033[33;1m!\033[0m";
+      
   if (st->DOWARN)
     {
       if (s[strlen (s)] == '\n')
         {
-          fprintf (stderr, "%s", s);
+          fprintf (stderr, "%s %s", exclamation_mark, s);
         }
       else
         {
-          fprintf (stderr, "%s\n", s);
+          fprintf (stderr, "%s %s\n", exclamation_mark, s);
         }
     }
 }

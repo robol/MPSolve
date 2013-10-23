@@ -75,6 +75,8 @@ private slots:
 
     void on_actionAbort_computations_triggered();
 
+    void closeEvent(QCloseEvent *);
+
 private:
     Ui::MainWindow *ui;
     PolynomialSolver m_solver;

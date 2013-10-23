@@ -31,9 +31,23 @@ public:
      */
     unsigned long int CPUTime();
 
+    /**
+      * @brief Abort the current computation.
+      */
+    void abortComputation();
+
+    /**
+     * @brief The timer used to check how long MPSolve needs to solve a polynomial.
+     */
+    clock_t* m_timer;
+
+    /**
+     * @brief The time measured with the timer.
+     */
+    unsigned long int m_time;
+
 private:
     mps_context * m_context;
-    unsigned long int m_time;
     
 signals:
     
