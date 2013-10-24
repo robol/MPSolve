@@ -166,13 +166,13 @@ mps_standard_mpsolve (mps_context * s)
   MPS_DEBUG (s, "s->input_config->prec = %ld", s->active_poly->prec);
 
   /* == 7 ==  Start MPsolve loop */
-  s->mpwp = mp_bits_per_limb / 2;
+  s->mpwp = mp_bits_per_limb;
 
   /* Poor man GMP - machine precision detection. We need that mp_bits_per_limb is contained
-   * in the interval [ .5 * DBL_MANT_DIG , DBL_MANT_DIG ]. This is probably true on most
+   * in the interval [ DBL_MANT_DIG , 2 * DBL_MANT_DIG ]. This is probably true on most
    * architectures with the instruction above, but we want to be sure. */
-  while (2 * s->mpwp < DBL_MANT_DIG)  s->mpwp <<= 1;
-  while (.5 * s->mpwp > DBL_MANT_DIG) s->mpwp >>= 1;
+  while (s->mpwp < DBL_MANT_DIG)     s->mpwp <<= 1;
+  while (s->mpwp > 2 * DBL_MANT_DIG) s->mpwp >>= 1;
 
   while (!computed && s->mpwp < s->mpwp_max && (s->active_poly->prec == 0 || s->mpwp
                                                 < s->active_poly->prec))
