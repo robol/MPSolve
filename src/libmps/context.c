@@ -95,6 +95,11 @@ mps_context_init (mps_context * s)
 
   mps_set_default_values (s);
 
+  /* Find minimum GMP supported precision */
+  mpf_init2 (test, 1);
+  s->minimum_gmp_precision = mpf_get_prec (test);
+  mpf_clear (test);
+
   /* Set standard precision */
   s->output_config->prec = (int) (0.9 * DBL_DIG * LOG2_10);
   MPS_DEBUG (s, "Setting prec_out to %ld digits", s->output_config->prec);
@@ -103,11 +108,6 @@ mps_context_init (mps_context * s)
 
   s->initialized = false;
   s->exit_required = false;
-
-  /* Find minimum GMP supported precision */
-  mpf_init2 (test, 1);
-  s->minimum_gmp_precision = mpf_get_prec (test);
-  mpf_clear (test);
 }
 
 /**
