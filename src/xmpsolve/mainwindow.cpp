@@ -104,18 +104,6 @@ MainWindow::polynomial_solved()
     unlockInterface();
 }
 
-void xmpsolve::MainWindow::on_openPolFileButton_clicked()
-{
-    // If the user click on open polFile, we need to check that
-    // he has selected a valid .pol file and - if that's the
-    // case, solve the associated polynomial.
-    QString selectedFile = QFileDialog::getOpenFileName(this,
-                                                        tr("Select .pol file"),
-                                                        QString(),
-                                                        "Pol files (*.pol);;Text files (*.txt)");
-    openPolFile(selectedFile);
-}
-
 void xmpsolve::MainWindow::openPolFile(QString path)
 {
     // Select the polynomial
@@ -172,53 +160,16 @@ void xmpsolve::MainWindow::onlistRootsView_selectionChanged(QItemSelection,QItem
     }
 }
 
-void xmpsolve::MainWindow::on_editPolFileButton_clicked()
-{
-    if (m_selectedPolFile.isEmpty()) {
-        // Create a new .pol file
-        m_selectedPolFile = "";
-    }
-
-    m_polFileEditorWindow.loadPolFile(m_selectedPolFile);
-    m_polFileEditorWindow.show();
-}
-
-void xmpsolve::MainWindow::on_polFileSolveButton_clicked()
-{
-    lockInterface();
-
-    mps_algorithm selected_algorithm = (ui->algorithmComboBox->currentIndex() == 0) ?
-                MPS_ALGORITHM_SECULAR_GA : MPS_ALGORITHM_STANDARD_MPSOLVE;
-
-    // If we have a .pol file active, solve that. In the other case, try
-    // to parse the input written by the user.
-    if (! m_selectedPolFile.isEmpty()) {
-        ui->statusBar->showMessage(tr("Solving %1...").arg(m_selectedPolFile));
-
-        if (m_solver.solvePolFile(m_selectedPolFile, selected_algorithm,
-                                  ui->digitsSpinBox->value()) < 0) {
-            ui->statusBar->showMessage(tr("Polynomial parsing failed"));
-            QMessageBox mbox(QMessageBox::Critical, tr("Error while parsing the polynomial"),
-                             tr("The parser reported the following error: ") +
-                             m_solver.errorMessage(), QMessageBox::Ok);
-            mbox.exec();
-            qDebug() << m_solver.errorMessage();
-            unlockInterface();
-        }
-    }
-    else {
-        ui->statusBar->showMessage(tr("Please select a .pol file"));
-        QMessageBox mbox(QMessageBox::Critical, tr("No .pol file selected"),
-                         tr("Please select a valid .pol file to solve."),
-                         QMessageBox::Ok);
-        mbox.exec();
-        unlockInterface();
-    }
-}
-
 void xmpsolve::MainWindow::on_actionOpen_pol_file_triggered()
 {
-    on_openPolFileButton_clicked();
+    // If the user click on open polFile, we need to check that
+    // he has selected a valid .pol file and - if that's the
+    // case, solve the associated polynomial.
+    QString selectedFile = QFileDialog::getOpenFileName(this,
+                                                        tr("Select .pol file"),
+                                                        QString(),
+                                                        "Pol files (*.pol);;Text files (*.txt)");
+    openPolFile(selectedFile);
 }
 
 void xmpsolve::MainWindow::closeEvent(QCloseEvent *)

@@ -57,13 +57,7 @@ private slots:
     void lockInterface();
     void unlockInterface();
 
-    void on_openPolFileButton_clicked();
-
     void on_listRootsView_clicked(const QModelIndex &index);
-
-    void on_editPolFileButton_clicked();
-
-    void on_polFileSolveButton_clicked();
 
     void on_actionOpen_pol_file_triggered();
 
