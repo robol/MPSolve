@@ -124,7 +124,12 @@ EXTRA_DIST = $(icon_DATA) \
 	$(desktop_DATA) \
 	$(ui_sfiles) \
 	xmpsolve.1 \
-	xmpsolve.ico
+	xmpsolve.ico \
+	icons/document-close.png \
+	icons/document-open.png \
+	icons/document-save.png \
+	icons/document-new.png \
+	icons/system-run.png 
 
 BUILT_SOURCES = $(moc_files) \
 	$(ui_files) \

@@ -65,7 +65,8 @@
   </widget>
   <action name="actionOpen_pol_file">
    <property name="icon">
-    <iconset theme="document-open"/>
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/document-open.png</normaloff>:/icons/document-open.png</iconset>
    </property>
    <property name="text">
     <string>Open</string>
@@ -73,7 +74,8 @@
   </action>
   <action name="actionSave">
    <property name="icon">
-    <iconset theme="document-save"/>
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/document-save.png</normaloff>:/icons/document-save.png</iconset>
    </property>
    <property name="text">
     <string>Save</string>
@@ -81,34 +83,46 @@
   </action>
   <action name="actionClose">
    <property name="icon">
-    <iconset theme="window-close"/>
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/document-close.png</normaloff>:/icons/document-close.png</iconset>
    </property>
    <property name="text">
     <string>Close</string>
    </property>
   </action>
   <action name="actionClose_editor">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/document-close.png</normaloff>:/icons/document-close.png</iconset>
+   </property>
    <property name="text">
     <string>Close editor</string>
    </property>
   </action>
   <action name="actionSolve">
    <property name="icon">
-    <iconset theme="system-run"/>
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/system-run.png</normaloff>:/icons/system-run.png</iconset>
    </property>
    <property name="text">
     <string>Solve</string>
    </property>
+   <property name="priority">
+    <enum>QAction::NormalPriority</enum>
+   </property>
   </action>
   <action name="actionNew">
    <property name="icon">
-    <iconset theme="document-new"/>
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/document-new.png</normaloff>:/icons/document-new.png</iconset>
    </property>
    <property name="text">
     <string>New</string>
    </property>
   </action>
  </widget>
- <resources/>
+ <resources>
+  <include location="resources.qrc"/>
+ </resources>
  <connections/>
 </ui>

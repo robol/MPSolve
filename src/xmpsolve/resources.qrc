@@ -2,4 +2,11 @@
     <qresource prefix="/images">
         <file>xmpsolve.png</file>
     </qresource>
+    <qresource prefix="/">
+        <file>icons/document-close.png</file>
+        <file>icons/document-new.png</file>
+        <file>icons/document-open.png</file>
+        <file>icons/document-save.png</file>
+        <file>icons/system-run.png</file>
+    </qresource>
 </RCC>

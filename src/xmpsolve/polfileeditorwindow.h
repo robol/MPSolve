@@ -113,6 +113,11 @@ private:
     void closeOpenedTabs();
 
     void showEvent(QShowEvent *event);
+
+    /**
+     * @brief setupIcons loads the icons needed by the Window.
+     */
+    void setupIcons();
 };
 
 } // End of namespace xmpsolve
