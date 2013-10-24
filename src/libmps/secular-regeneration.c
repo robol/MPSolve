@@ -21,7 +21,7 @@
 /**
  * @brief Update the working precision of a root, i.e. the variable
  * <code>s->root[i]->wp</code> with the given precision rounded to the 
- * closer multiple of mp_bits_per_limb 
+ * closer multiple of the result of mps_context_get_minimum_precision()
  * (since GMP does not handle intermediate precisions).
  *
  * @param s The <code>mps_context</code> of the computation.
@@ -33,6 +33,7 @@ mps_secular_ga_update_root_wp (mps_context * s, int i, long int wp, mpc_t * bmpc
 {
   mps_secular_equation * sec = s->secular_equation;  
   mps_polynomial * p = s->active_poly;
+  long int min_prec = mps_context_get_minimum_precision (s);
 
   /* Try to not go over the input precision specified by the user */
   if (p->prec > 0)
@@ -40,7 +41,7 @@ mps_secular_ga_update_root_wp (mps_context * s, int i, long int wp, mpc_t * bmpc
       wp = MIN (wp, p->prec);
     }
 
-  s->root[i]->wp = ((wp - 1) / mp_bits_per_limb + 1) * mp_bits_per_limb;
+  s->root[i]->wp = ((wp - 1) / min_prec + 1) * min_prec;
   
   MPS_LOCK (s->data_prec_max);
   if (s->data_prec_max.value < s->root[i]->wp)

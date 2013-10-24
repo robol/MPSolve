@@ -166,9 +166,9 @@ mps_standard_mpsolve (mps_context * s)
   MPS_DEBUG (s, "s->input_config->prec = %ld", s->active_poly->prec);
 
   /* == 7 ==  Start MPsolve loop */
-  s->mpwp = mp_bits_per_limb;
+  s->mpwp = mps_context_get_minimum_precision (s);
 
-  /* Poor man GMP - machine precision detection. We need that mp_bits_per_limb is contained
+  /* Poor man GMP - machine precision detection. We need that min_prec is contained
    * in the interval [ DBL_MANT_DIG , 2 * DBL_MANT_DIG ]. This is probably true on most
    * architectures with the instruction above, but we want to be sure. */
   while (s->mpwp < DBL_MANT_DIG)     s->mpwp <<= 1;

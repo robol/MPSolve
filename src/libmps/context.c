@@ -16,6 +16,12 @@
 #include <string.h>
 
 long int
+mps_context_get_minimum_precision (mps_context * s)
+{
+  return s->minimum_gmp_precision;
+}
+
+long int
 mps_context_get_data_prec_max (mps_context * s)
 {
   long int ret;
@@ -76,6 +82,8 @@ mps_context_new ()
 void
 mps_context_init (mps_context * s)
 {
+  mpf_t test;
+
   /* Set default streams */
   s->instr = stdin;
   s->outstr = stdout;
@@ -95,6 +103,11 @@ mps_context_init (mps_context * s)
 
   s->initialized = false;
   s->exit_required = false;
+
+  /* Find minimum GMP supported precision */
+  mpf_init2 (test, 1);
+  s->minimum_gmp_precision = mpf_get_prec (test);
+  mpf_clear (test);
 }
 
 /**

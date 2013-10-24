@@ -23,7 +23,9 @@
 void
 mps_mp_set_prec (mps_context * s, long int prec)
 {
-  s->mpwp = (prec / mp_bits_per_limb + 1) * mp_bits_per_limb;
+  long int min_prec = mps_context_get_minimum_precision (s);
+
+  s->mpwp = (prec / min_prec + 1) * min_prec;
   rdpe_set_2dl (s->mp_epsilon, 1.0, -s->mpwp);
 
   if (s->debug_level & MPS_DEBUG_MEMORY)
@@ -105,7 +107,7 @@ mps_allocate_data (mps_context * s)
  * @param s The <code>mps_context</code> of the computation.
  * @param prec The desired precision.
  * @return The precision set (that may be different from the one requested
- * since GMP works only with precision divisible by mp_bits_per_limb bits.
+ * since GMP works only with precision divisible by some given integer.
  */
 long int
 mps_raise_data (mps_context * s, long int prec)

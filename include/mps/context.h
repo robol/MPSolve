@@ -529,6 +529,8 @@ extern "C"
 
     mps_boolean exit_required;
 
+    long int minimum_gmp_precision;
+
   };                 /* End of typedef struct { ... */
 
 #endif /* #ifdef _MPS_PRIVATE */
@@ -553,6 +555,7 @@ extern "C"
 
   /* Accessor functions */
   long int mps_context_get_data_prec_max (mps_context * s);
+  long int mps_context_get_minimum_precision (mps_context * s);
   int mps_context_get_degree (mps_context * s);
   int mps_context_get_roots_d (mps_context * s, cplx_t ** roots, double **radius);
   int mps_context_get_roots_m (mps_context * s, mpc_t ** roots, rdpe_t ** radius);
