@@ -41,6 +41,8 @@ void PolFileEditor::savePolFile(QString path)
 
     if (m_polFilePath.isEmpty()) {
         m_polFilePath = QFileDialog::getSaveFileName(this, "Save .pol file", "", "Pol files (*.pol)");
+        if (m_polFilePath.isEmpty())
+	  return;
         filenameChanged(m_polFilePath);
     }
 
