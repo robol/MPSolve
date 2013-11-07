@@ -39,6 +39,7 @@ AC_TYPE_SIZE_T
 
 # Check for getline() function
 AC_CHECK_FUNCS(getline)
+AC_CHECK_FUNCS(fmemopen)
 
 # Checks for library functions.
 AC_FUNC_ERROR_AT_LINE

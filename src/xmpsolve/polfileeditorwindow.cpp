@@ -13,11 +13,14 @@ PolFileEditorWindow::PolFileEditorWindow(QWidget *parent) :
     ui(new Ui::PolFileEditorWindow)
 {
     ui->setupUi(this);
+    setAttribute(Qt::WA_DeleteOnClose, true);
 }
 
 void
 PolFileEditorWindow::showEvent(QShowEvent *event)
 {
+    Q_UNUSED(event);
+
     if (ui->tabWidget->count() == 0)
         loadPolFile("");
 }
@@ -238,6 +241,10 @@ void PolFileEditorWindow::on_actionClose_editor_triggered()
 
 void PolFileEditorWindow::closeEvent(QCloseEvent *event)
 {
+    Q_UNUSED(event);
+
     closeOpenedTabs();
     close();
+
+    this->destroy();
 }

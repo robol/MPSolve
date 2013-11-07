@@ -40,6 +40,17 @@ public:
      */
     PolynomialBasis polynomialBasis();
 
+    /**
+     * @brief openEditor performs the necessary steps to set up the PolFileEditorWindow
+     * and activate it.
+     *
+     * @param polFile If a non empty string is passed as argument, the file is opened
+     * in the Editor.
+     *
+     * In the case the window is already available, it just focuses it.
+     */
+    void openEditor(QString polFile = "");
+
 public slots:
     void polynomial_solved();
 
@@ -71,11 +82,13 @@ private slots:
 
     void closeEvent(QCloseEvent *);
 
+    void onPolFileEditorWindowDestroyed();
+
 private:
     Ui::MainWindow *ui;
     PolynomialSolver m_solver;
     QString m_selectedPolFile;
-    PolFileEditorWindow m_polFileEditorWindow;
+    PolFileEditorWindow *m_polFileEditorWindow;
 };
 
 } // Namespace xmpsolve

@@ -22,22 +22,49 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->listRootsView->setModel(m_solver.rootsModel());
     ui->graphicsView->setModel(m_solver.rootsModel());
 
-    // We don't need the .pol file editor at this point.
-    m_polFileEditorWindow.hide();
+    m_polFileEditorWindow = NULL;
 
     // Synchronize the selection of the roots with the rootsView, so we can focus the currently selected
     // root.
     QObject::connect(ui->listRootsView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
                      this, SLOT(onlistRootsView_selectionChanged(QItemSelection,QItemSelection)));
 
-    // Solve .pol files requested by the user
-    QObject::connect(&m_polFileEditorWindow, SIGNAL(solvePoly(QString)),
-                     this, SLOT(onSolvePolFileRequested(QString)));
 }
 
 MainWindow::~MainWindow()
 {
+    if (m_polFileEditorWindow != NULL)
+        delete m_polFileEditorWindow;
     delete ui;
+}
+
+void
+MainWindow::openEditor(QString polFile)
+{
+    if (m_polFileEditorWindow == NULL) {
+        m_polFileEditorWindow = new PolFileEditorWindow(this);
+
+        // Solve .pol files requested by the user
+        QObject::connect(m_polFileEditorWindow, SIGNAL(solvePoly(QString)),
+                         this, SLOT(onSolvePolFileRequested(QString)));
+
+        QObject::connect(m_polFileEditorWindow, SIGNAL(destroyed()),
+                         this, SLOT(onPolFileEditorWindowDestroyed()));
+    }
+
+    if (! polFile.isEmpty()) {
+        m_polFileEditorWindow->loadPolFile(polFile);
+    }
+
+    m_polFileEditorWindow->raise();
+    m_polFileEditorWindow->show();
+}
+
+void
+MainWindow::onPolFileEditorWindowDestroyed()
+{
+    m_polFileEditorWindow->deleteLater();
+    m_polFileEditorWindow = NULL;
 }
 
 void
@@ -106,11 +133,7 @@ MainWindow::polynomial_solved()
 
 void xmpsolve::MainWindow::openPolFile(QString path)
 {
-    // Select the polynomial
-    m_polFileEditorWindow.loadPolFile(path);
-
-    m_polFileEditorWindow.show();
-    m_polFileEditorWindow.activateWindow();
+    openEditor(path);
 }
 
 void xmpsolve::MainWindow::onSolvePolFileRequested(QString content)
@@ -129,7 +152,7 @@ void xmpsolve::MainWindow::onSolvePolFileRequested(QString content)
     }
 
     // Grab focus so we can display the result.
-    activateWindow();
+    raise();
 }
 
 void xmpsolve::MainWindow::on_listRootsView_clicked(const QModelIndex &index)
@@ -197,8 +220,7 @@ void xmpsolve::MainWindow::on_actionAbout_MPSolve_triggered()
 
 void xmpsolve::MainWindow::on_actionOpen_editor_triggered()
 {
-    m_polFileEditorWindow.show();
-    m_polFileEditorWindow.activateWindow();
+    openEditor();
 }
 
 void xmpsolve::MainWindow::on_actionAbort_computations_triggered()
