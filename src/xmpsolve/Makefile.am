@@ -125,6 +125,7 @@ EXTRA_DIST = $(icon_DATA) \
 	$(ui_sfiles) \
 	xmpsolve.1 \
 	xmpsolve.ico \
+	xmpsolve.pro \
 	icons/document-close.png \
 	icons/document-open.png \
 	icons/document-save.png \
