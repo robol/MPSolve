@@ -13,10 +13,19 @@
 #ifndef __MPS_POLYNOMIAL_H
 #define __MPS_POLYNOMIAL_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <mps/mps.h>
 
-/* Macro to easy casting of polynomials subclasses */
-#define MPS_POLYNOMIAL(t) ((mps_polynomial*) t)
+/* Macro that can be used to enforce a sort of type-safe casting between 
+ * mps_polynomial "subclasses". Please note that this does not guarantee
+ * type-safeness at all if you cast other types. */
+#define MPS_POLYNOMIAL_CAST(typename, t) ( (typename*) (mps_polynomial_cast(#typename, (mps_polynomial*) t)) )
+
+/* Macro to ease casting of polynomials subclasses */
+#define MPS_POLYNOMIAL(t) (MPS_POLYNOMIAL_CAST(mps_polynomial, t))
 
 /* A polynomial is completely determined by the functions that allow to operate on it. 
  * The types of these functions is defined in the following. */
@@ -210,6 +219,8 @@ mps_polynomial * mps_polynomial_new (mps_context * ctx);
 
 mps_boolean mps_polynomial_check_type (mps_polynomial * p, const char * type_name);
 
+mps_polynomial * mps_polynomial_cast (const char *type_name, mps_polynomial *p);
+
 mps_boolean mps_polynomial_feval (mps_context * ctx, mps_polynomial * p, cplx_t x, cplx_t value, double * error);
 
 mps_boolean mps_polynomial_deval (mps_context * ctx, mps_polynomial * p, cdpe_t x, cdpe_t value, rdpe_t error);
@@ -239,6 +250,10 @@ long int mps_polynomial_raise_data (mps_context * ctx, mps_polynomial * p, long 
 
 #ifdef _MPS_PRIVATE
   /* Private implementation details */
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif

@@ -407,7 +407,7 @@ mps_fsolve (mps_context * s, mps_boolean * d_after_f)
 {
   mps_boolean excep;
   int it_pack, iter, nit, oldnclust, i, j, required_zeros = s->n;
-  mps_monomial_poly *p = MPS_MONOMIAL_POLY (s->active_poly);
+  mps_polynomial *p = s->active_poly;
   double * frad = double_valloc (s->n);
 
   /* == 1 ==  Initialize variables */
@@ -424,7 +424,7 @@ mps_fsolve (mps_context * s, mps_boolean * d_after_f)
   if (s->DOLOG)
     fprintf (s->logstr, "FSOLVE: call fstart");
 
-  mps_polynomial_fstart (s, MPS_POLYNOMIAL (p));
+  mps_polynomial_fstart (s, p);
 
         /***************
          this part of code performs shift in the gravity center of the roots
@@ -606,7 +606,7 @@ mps_fpolzer (mps_context * s, int *it, mps_boolean * excep)
   int i, iter, nzeros;
   cplx_t corr, abcorr;
   double rad1, modcorr;
-  mps_monomial_poly * p = MPS_MONOMIAL_POLY (s->active_poly);
+  mps_polynomial *p = s->active_poly;
 
   /* initialize the iteration counter */
   *it = 0;
@@ -639,7 +639,7 @@ mps_fpolzer (mps_context * s, int *it, mps_boolean * excep)
             {
               (*it)++;
               rad1 = s->root[i]->frad;
-              mps_polynomial_fnewton (s, MPS_POLYNOMIAL (p), s->root[i], corr);
+              mps_polynomial_fnewton (s, p, s->root[i], corr);
               if (iter == 0 && !s->root[i]->again && s->root[i]->frad > rad1 && rad1
                   != 0)
                 s->root[i]->frad = rad1;
@@ -689,7 +689,7 @@ mps_dpolzer (mps_context * s, int *it, mps_boolean * excep)
   int iter, i, nzeros;
   rdpe_t rad1, rtmp;
   cdpe_t corr, abcorr;
-  mps_monomial_poly * p = MPS_MONOMIAL_POLY (s->active_poly);
+  mps_polynomial *p = s->active_poly;
 
   /* initialize the iteration counter */
   *it = 0;
@@ -716,7 +716,7 @@ mps_dpolzer (mps_context * s, int *it, mps_boolean * excep)
             {
               (*it)++;
               rdpe_set (rad1, s->root[i]->drad);
-              mps_polynomial_dnewton (s, MPS_POLYNOMIAL (p), s->root[i], corr);
+              mps_polynomial_dnewton (s, p, s->root[i], corr);
               if (iter == 0 && !s->root[i]->again && rdpe_gt (s->root[i]->drad, rad1)
                   && rdpe_ne (rad1, rdpe_zero))
                 rdpe_set (s->root[i]->drad, rad1);
@@ -765,7 +765,7 @@ mps_dsolve (mps_context * s, mps_boolean d_after_f)
 {
   int it_pack, iter, nit, oldnclust, i, j, required_zeros = s->n;
   mps_boolean excep;
-  mps_monomial_poly * p = MPS_MONOMIAL_POLY (s->active_poly);
+  mps_polynomial *p = s->active_poly;
   rdpe_t * drad = rdpe_valloc (s->n);
 
   if (s->DOLOG)
@@ -800,7 +800,7 @@ mps_dsolve (mps_context * s, mps_boolean d_after_f)
   if (s->DOLOG)
     fprintf (s->logstr, "   DSOLVE: call dstart con again=\n");
 
-  mps_polynomial_dstart (s, MPS_POLYNOMIAL (p));
+  mps_polynomial_dstart (s, p);
 
   /* Now adjust the status vector */
   if (d_after_f)
@@ -1235,7 +1235,7 @@ mps_mpolzer (mps_context * s, int *it, mps_boolean * excep)
   mpc_t corr, abcorr;
   rdpe_t eps, rad1, rtmp;
   cdpe_t ctmp;
-  mps_monomial_poly * p = MPS_MONOMIAL_POLY (s->active_poly);
+  mps_polynomial *p = s->active_poly;
 
   mpc_init2 (abcorr, s->mpwp);
   mpc_init2 (corr, s->mpwp);
@@ -1275,7 +1275,7 @@ mps_mpolzer (mps_context * s, int *it, mps_boolean * excep)
                   (*it)++;
                       /* sparse/dense polynomial */
                       rdpe_set (rad1, s->root[l]->drad);
-                      mps_polynomial_mnewton (s, MPS_POLYNOMIAL (p), s->root[l], corr);
+                      mps_polynomial_mnewton (s, p, s->root[l], corr);
                       if (iter == 0 && !s->root[l]->again && rdpe_gt (s->root[l]->drad,
                                                                 rad1)
                           && rdpe_ne (rad1, rdpe_zero))

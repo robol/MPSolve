@@ -285,9 +285,12 @@ void
 mps_setup (mps_context * s)
 {
   int i;
-  mps_monomial_poly *p = MPS_MONOMIAL_POLY(s->active_poly);
+  mps_monomial_poly *p = NULL; 
   mpf_t mptemp;
   mpc_t mptempc;
+
+  if (MPS_IS_MONOMIAL_POLY (s->active_poly))
+    p = MPS_MONOMIAL_POLY(s->active_poly);
 
   if (s->DOLOG)
     {
@@ -446,7 +449,7 @@ void
 mps_check_data (mps_context * s, char *which_case)
 {
   rdpe_t min_coeff, max_coeff, tmp;
-  mps_monomial_poly *p = MPS_MONOMIAL_POLY (s->active_poly);
+  mps_monomial_poly *p = NULL; 
   cdpe_t ctmp;
   int i;
 
@@ -462,6 +465,8 @@ mps_check_data (mps_context * s, char *which_case)
       *which_case = 'd';
       return;
     }
+  else
+    p = MPS_MONOMIAL_POLY (s->active_poly);
 
   /* Check consistency of input */
   if (rdpe_eq (p->dap[s->n], rdpe_zero))

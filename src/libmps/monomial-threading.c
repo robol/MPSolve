@@ -20,7 +20,7 @@ mps_thread_fpolzer_worker (void *data_ptr)
 {
   mps_thread_worker_data *data = (mps_thread_worker_data *) data_ptr;
   mps_context *s = data->s;
-  mps_monomial_poly *p = MPS_MONOMIAL_POLY (s->active_poly);
+  mps_polynomial *p = s->active_poly;
   int i, iter;
   cplx_t corr, abcorr, froot;
   double rad1, modcorr;
@@ -60,7 +60,7 @@ mps_thread_fpolzer_worker (void *data_ptr)
           cplx_set (froot, s->root[i]->fvalue);
           pthread_mutex_unlock (&data->aberth_mutex[i]);
 
-          mps_polynomial_fnewton (s, MPS_POLYNOMIAL (p), s->root[i], corr);
+          mps_polynomial_fnewton (s, p, s->root[i], corr);
           if (iter == 0 && !s->root[i]->again && s->root[i]->frad > rad1 && rad1 != 0)
             s->root[i]->frad = rad1;
           /***************************************
@@ -196,7 +196,7 @@ mps_thread_dpolzer_worker (void *data_ptr)
   /* Parse input data */
   mps_thread_worker_data *data = (mps_thread_worker_data *) data_ptr;
   mps_context *s = data->s;
-  mps_monomial_poly *p = MPS_MONOMIAL_POLY (s->active_poly);
+  mps_polynomial *p = s->active_poly;
   mps_thread_job job;
 
   while (!(*data->excep) && (*data->nzeros < data->required_zeros))
@@ -227,7 +227,7 @@ mps_thread_dpolzer_worker (void *data_ptr)
           (*data->it)++;
           rdpe_set (rad1, s->root[i]->drad);
 
-          mps_polynomial_dnewton (s, MPS_POLYNOMIAL (p), s->root[i], corr);
+          mps_polynomial_dnewton (s, p, s->root[i], corr);
           if (iter == 0 && !s->root[i]->again && rdpe_gt (s->root[i]->drad, rad1)
               && rdpe_ne (rad1, rdpe_zero))
             rdpe_set (s->root[i]->drad, rad1);
@@ -350,7 +350,7 @@ mps_thread_mpolzer_worker (void *data_ptr)
 {
   mps_thread_worker_data *data = (mps_thread_worker_data *) data_ptr;
   mps_context *s = data->s;
-  mps_monomial_poly *p = MPS_MONOMIAL_POLY (s->active_poly);
+  mps_polynomial *p = s->active_poly;
   mps_thread_job job;
   int iter, l;
   mpc_t corr, abcorr, mroot, diff;
@@ -412,7 +412,7 @@ mps_thread_mpolzer_worker (void *data_ptr)
           /* sparse/dense polynomial */
           rdpe_set (rad1, s->root[l]->drad);
 
-          mps_polynomial_mnewton (s, MPS_POLYNOMIAL (p), s->root[l], corr);
+          mps_polynomial_mnewton (s, p, s->root[l], corr);
           
           if (iter == 0 && !s->root[l]->again && rdpe_gt (s->root[l]->drad, rad1)
               && rdpe_ne (rad1, rdpe_zero))

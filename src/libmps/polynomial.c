@@ -65,6 +65,23 @@ mps_polynomial_check_type (mps_polynomial * p, const char * type_name)
   return (p->type_name && (strcmp (p->type_name, type_name) == 0));
 }
 
+mps_polynomial * 
+mps_polynomial_cast (const char *type_name, mps_polynomial *p)
+{
+  if (strcmp (type_name, "mps_polynomial") == 0)
+    return p;
+
+  if (mps_polynomial_check_type (p, type_name))
+    return p;
+  else 
+    {
+      fprintf (stderr, " ** WARNING ** Casting polynomial at %p to %s is invalid\n", 
+	       p, type_name);
+      abort();
+      return NULL;
+    }
+}
+
 mps_boolean
 mps_polynomial_feval (mps_context * ctx, mps_polynomial * p, cplx_t x, cplx_t value, double * error)
 {

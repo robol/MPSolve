@@ -9,7 +9,7 @@
 
 #include <mps/polynomial.h>
 
-#define MPS_MONOMIAL_MATRIX_POLY(t) ((mps_monomial_matrix_poly*) t)
+#define MPS_MONOMIAL_MATRIX_POLY(t) (MPS_POLYNOMIAL_CAST(mps_monomial_matrix_poly, t))
 #define MPS_IS_MONOMIAL_MATRIX_POLY(t) \
   (mps_polynomial_check_type (t, "mps_monomial_matrix_poly"))
 
@@ -91,6 +91,23 @@ extern "C"
    */
   void mps_monomial_matrix_poly_free (mps_context * ctx,
 				      mps_polynomial * poly);
+
+  /**
+   * @brief Evaluate a matrix polynomial at a point, in the sense of
+   * evaluating \f$det(P(x))\f$. 
+   *
+   * @param ctx The current mps_context
+   * @param poly The matrix polynomial to evaluate
+   * @param x The point in which the evaluation is requested
+   * @param value The value of \f$det(P(x))\f$
+   * @param error An upper bound to the absolute error that affects the result.
+   * @return true if the evaluation was successful.
+   */
+  mps_boolean mps_monomial_matrix_poly_meval (mps_context * ctx,
+					      mps_polynomial * poly,
+					      mpc_t x, 
+					      mpc_t value,
+					      rdpe_t error);
 
 #ifdef  __cplusplus
 }
