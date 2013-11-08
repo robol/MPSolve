@@ -38,9 +38,9 @@ uninstall-local:
 	echo "Octave package dir is not empty, not removing it"
 
 mpsolve.tar.gz: mps_roots.oct
-	test -d package || (cp -r ${srcdir}/package/ ${builddir} && chmod u+w package -R)
-	test -f package/COPYING || cp ${srcdir}/package/COPYING package/
-	test -f package/DESCRIPTION || cp ${srcdir}/package/DESCRIPTION package/
+	test -d package || (cp -r ${srcdir}/package-source/ ${builddir} && chmod u+w package -R)
+	test -f package/COPYING || cp ${srcdir}/package-source/COPYING package/
+	test -f package/DESCRIPTION || cp ${srcdir}/package-source/DESCRIPTION package/
 	test -d package/src || mkdir package/src
 	cp ${builddir}/mps_roots.oct ${builddir}/package/src/
 	tar czf ${builddir}/mpsolve.tar.gz ${builddir}/package
