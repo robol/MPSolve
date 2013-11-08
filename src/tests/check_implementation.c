@@ -4,7 +4,7 @@ static int
 _is_a_tty (FILE * stream)
 {
 #ifndef __WINDOWS
-  return isatty (stream->_fileno);
+  return isatty (fileno (stream));
 #else
   return _isatty (_fileno (stream));
 #endif
