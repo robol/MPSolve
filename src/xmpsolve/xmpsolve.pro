@@ -22,6 +22,8 @@ android {
     CONFIG += mobility
     MOBILITY =
 
+    # App configuration. TODO: It should be possible (in the future, not right now)
+    # to specify an icon here.
     ANDROID_PACKAGE = it.unipi.dm.mpsolve
     ANDROID_APP_NAME = MPSolve
 
