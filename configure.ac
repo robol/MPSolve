@@ -323,6 +323,7 @@ AS_IF([test -z "$PYTHON_INCLUDE"], [
 ])
 
 AM_CONDITIONAL([HAVE_PYTHON], [test "$PYTHON_MODULES" == "mpsolve.la"])
+AM_CONDITIONAL([BUILD_PYTHON_MODULE], [test "$PYTHON_MODULES" == "mpsolve.la" && test "$disable_examples" != "xyes"])
 
 # Trick to get the extension of the python module right. 
 host_os=`echo "$host" | sed 's/^\([^-]*\)-\([^-]*\)-\(.*\)$/\3/'`

@@ -22,6 +22,9 @@ android {
     CONFIG += mobility
     MOBILITY =
 
+    ANDROID_PACKAGE = it.unipi.dm.mpsolve
+    ANDROID_APP_NAME = MPSolve
+
     # Customize this to match your current setup. This way the setup points to a directory at the
     # same level of mpsolve-x.y.z.
     ANDROID_ROOT = $${PWD}/../../../android-ext

@@ -161,6 +161,11 @@ fmemclose(void *cookie)
   return 0;
 }
 
+
+/* Some prototypes */
+extern int      __sflags(const char *, int *);
+extern FILE     *__sfp(void);
+
 /* Open a memstream around buffer BUF of SIZE bytes, using MODE.
    Return the new stream, or fail with NULL.  */
 FILE *

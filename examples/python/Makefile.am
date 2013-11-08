@@ -1,3 +1,5 @@
+if BUILD_PYTHON_MODULE
+
 AM_CPPFLAGS = -I$(top_srcdir)/include $(PYTHON_INCLUDE)
 
 EXTRA_DIST = mpsolve.pyx mpsolve.pxd
@@ -17,4 +19,6 @@ $(builddir)/mpsolve.c: $(srcdir)/mpsolve.pyx $(srcdir)/mpsolve.pxd
 	@$(CYTHON) -o $@ $(srcdir)/mpsolve.pyx -I$(top_srcdir)/include
 
 CLEANFILES = mpsolve.c
+endif
+
 endif

@@ -224,6 +224,10 @@ mps_parse_file (mps_context * s, const char * path)
     }
 }
 
+#ifndef HAVE_FMEMOPEN
+extern FILE * fmemopen(void *__s, size_t __len, const char *__modes);
+#endif
+
 mps_polynomial *
 mps_parse_string (mps_context * s, const char * c_string)
 {
