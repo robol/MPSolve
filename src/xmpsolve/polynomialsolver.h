@@ -22,9 +22,13 @@ namespace xmpsolve {
 class PolynomialSolver : public QObject
 {
     Q_OBJECT
+
 public:
+
     explicit PolynomialSolver(QObject *parent = 0);
     ~PolynomialSolver();
+
+public slots:
 
     /**
       * @brief Solve a polynomial.
@@ -57,7 +61,7 @@ public:
       *
       * @return The degree of the polynomial.
       */
-    int solvePoly(QString inputString, PolynomialBasis basis, mps_algorithm = MPS_ALGORITHM_SECULAR_GA, int required_digits = 16);
+    int solvePoly(QString inputString, PolynomialBasis basis = xmpsolve::MONOMIAL, mps_algorithm = MPS_ALGORITHM_SECULAR_GA, int required_digits = 16);
 
     /**
      * @brief errorMessage can be used to access the last error message,
@@ -85,6 +89,9 @@ public:
      */
     void abortComputations();
 
+    /** @brief Called when the thread solving the polynomial exits. */
+    void workerExited();
+
 private:
     MPSolveWorker m_worker;
     mps_context * m_mpsContext;
@@ -97,10 +104,6 @@ private:
 signals:
     /** @brief Signal emitted when the computation ends. */
     void solved();
-    
-public slots:
-    /** @brief Called when the thread solving the polynomial exits. */
-    void workerExited();
     
 };
 

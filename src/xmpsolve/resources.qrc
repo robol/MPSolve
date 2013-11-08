@@ -9,4 +9,9 @@
         <file>icons/document-save.png</file>
         <file>icons/system-run.png</file>
     </qresource>
+    <qresource prefix="/qml">
+        <file>Main.qml</file>
+        <file>ApproximationList.qml</file>
+        <file>PolyInputField.qml</file>
+    </qresource>
 </RCC>

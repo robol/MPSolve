@@ -21,6 +21,8 @@ public:
      */
     void reset();
 
+public slots:
+
     /**
      * @brief parse will parse an input polynomial described by the string
      * given as input.
@@ -42,8 +44,6 @@ private:
     int m_degree;
     
 signals:
-    
-public slots:
     
 };
 

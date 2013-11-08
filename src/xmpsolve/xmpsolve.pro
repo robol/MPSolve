@@ -9,7 +9,7 @@
 TEMPLATE = app
 
 QT       += core gui
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets quick
 
 #
 # This section addresses Android specific configuration. This is a bit atypical,
@@ -60,7 +60,8 @@ HEADERS += ./mainwindow.h \
            ./rootsmodel.h \
 	   ./polsyntaxhighlighter.h \  
            ./polfileeditor.h \
-           ./polfileeditorwindow.h
+           ./polfileeditorwindow.h \
+           ./mainqmlview.h
 
 FORMS += ./mainwindow.ui \
         ./polfileeditor.ui \
@@ -78,12 +79,14 @@ SOURCES += ./main.cpp \
 	   ./rootsmodel.cpp \
 	   ./polsyntaxhighlighter.cpp \
            ./polfileeditor.cpp \
-           ./polfileeditorwindow.cpp
+           ./polfileeditorwindow.cpp \
+           ./mainqmlview.cpp
 
 RESOURCES += \
     resources.qrc
 
 OTHER_FILES += \
     android/AndroidManifest.xml
-
-ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
+    Main.qml \
+    ApproximationList.qml \
+    PolyInputField.qml

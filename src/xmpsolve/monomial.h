@@ -6,11 +6,12 @@
 #include <QString>
 #include <QSet>
 #include <QChar>
+#include <QtQml>
 
 namespace xmpsolve {
 
 enum PolynomialBasis {
-    MONOMIAL,
+    MONOMIAL = 0,
     CHEBYSHEV
 };
 
