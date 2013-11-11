@@ -68,6 +68,11 @@ mps_polynomial_check_type (mps_polynomial * p, const char * type_name)
 mps_polynomial * 
 mps_polynomial_cast (const char *type_name, mps_polynomial *p)
 {
+  /* NULL pointers are considere valid pointer of all type, in
+   * this context. */
+  if (p == NULL)
+    return p;
+
   if (strcmp (type_name, "mps_polynomial") == 0)
     return p;
 

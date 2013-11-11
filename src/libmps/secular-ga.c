@@ -574,7 +574,13 @@ mps_secular_ga_mpsolve (mps_context * s)
   mps_dump (s);
 
   if (s->exit_required)
-    return;
+    {
+#ifndef DISABLE_DEBUG
+      long total_time = mps_stop_timer (total_clock);
+      MPS_DEBUG_WITH_INFO (s, "Time used from MPSolve: %ld ms", total_time);
+#endif
+      return;
+    }
 
   /* Finally improve the roots if approximation is required */
   if (s->output_config->goal == MPS_OUTPUT_GOAL_APPROXIMATE)

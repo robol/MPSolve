@@ -32,6 +32,8 @@ PolFileEditor::PolFileEditor(QWidget *parent, QString path) :
 
     QObject::connect(ui->plainTextEdit, SIGNAL(modificationChanged(bool)),
                      this, SLOT(onTextEditChanged(bool)));
+
+    m_state = SAVED;
 }
 
 void PolFileEditor::savePolFile(QString path)

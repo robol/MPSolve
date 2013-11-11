@@ -10,6 +10,7 @@ MPSolveWorker::MPSolveWorker(mps_context * s, QObject *parent) :
     /* Set the status in the worker */
     m_context = s;
     m_time = 0;
+    m_timer = NULL;
 }
 
 void

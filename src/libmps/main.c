@@ -285,12 +285,9 @@ void
 mps_setup (mps_context * s)
 {
   int i;
-  mps_monomial_poly *p = NULL; 
+  mps_polynomial *p = s->active_poly;
   mpf_t mptemp;
   mpc_t mptempc;
-
-  if (MPS_IS_MONOMIAL_POLY (s->active_poly))
-    p = MPS_MONOMIAL_POLY(s->active_poly);
 
   if (s->DOLOG)
     {
@@ -304,16 +301,20 @@ mps_setup (mps_context * s)
     }
 
   /* setup temporary vectors */
-   if (MPS_DENSITY_IS_SPARSE (s->active_poly->density)) 
-     for (i = 0; i <= MPS_POLYNOMIAL (p)->degree; i++) 
-       { 
-         p->fap[i] = 0.0;
-         p->fpr[i] = 0.0;
-         rdpe_set (p->dap[i], rdpe_zero); 
-         cplx_set (p->fpc[i], cplx_zero); 
-         rdpe_set (p->dpr[i], rdpe_zero); 
-         cdpe_set (p->dpc[i], cdpe_zero); 
-       }
+  if (MPS_IS_MONOMIAL_POLY (p) && MPS_DENSITY_IS_SPARSE (s->active_poly->density)) 
+    {
+      mps_monomial_poly *mp = MPS_MONOMIAL_POLY (p);
+      
+      for (i = 0; i <= p->degree; i++) 
+	{ 
+	  mp->fap[i] = 0.0;
+	  mp->fpr[i] = 0.0;
+	  rdpe_set (mp->dap[i], rdpe_zero); 
+	  cplx_set (mp->fpc[i], cplx_zero); 
+	  rdpe_set (mp->dpr[i], rdpe_zero); 
+	  cdpe_set (mp->dpc[i], cdpe_zero); 
+	}
+    }
 
   /* Indexes of the first (and only) cluster start from
    * 0 and reach n */
@@ -335,100 +336,102 @@ mps_setup (mps_context * s)
   s->count[0] = s->count[1] = s->count[2] = 0;
 
   /* compute DPE approximations */
-  if (!MPS_IS_MONOMIAL_POLY (s->active_poly))
-    return;                     /* nothing to do */
-
-  /* init temporary mp variables */
-  mpf_init2 (mptemp, DBL_MANT_DIG);
-  mpc_init2 (mptempc, DBL_MANT_DIG);
-
-  /* main loop */
-  s->skip_float = false;
-  for (i = 0; i <= s->n; i++)
+  if (MPS_IS_MONOMIAL_POLY (p))
     {
+      mps_monomial_poly *mp = MPS_MONOMIAL_POLY (p);
 
-      if (MPS_DENSITY_IS_SPARSE (s->active_poly->density) && !p->spar[i])
-        continue;
+      /* init temporary mp variables */
+      mpf_init2 (mptemp, DBL_MANT_DIG);
+      mpc_init2 (mptempc, DBL_MANT_DIG);
 
-      if (MPS_STRUCTURE_IS_REAL (s->active_poly->structure))
-        {
-          if (MPS_STRUCTURE_IS_RATIONAL (s->active_poly->structure) ||
-              MPS_STRUCTURE_IS_INTEGER (s->active_poly->structure))
-            {
-              mpf_set_q (mptemp, p->initial_mqp_r[i]);
-              mpf_get_rdpe (p->dpr[i], mptemp);
-              /*#G GMP 2.0.2 bug begin */
-              if (rdpe_sgn (p->dpr[i]) != mpq_sgn (p->initial_mqp_r[i]))
-                rdpe_neg_eq (p->dpr[i]);
-              /*#G GMP bug end */
-            }
+      /* main loop */
+      s->skip_float = false;
+      for (i = 0; i <= s->n; i++)
+	{
 
-          if (MPS_STRUCTURE_IS_FP (s->active_poly->structure))
-            mpf_get_rdpe (p->dpr[i], mpc_Re (p->mfpc[i]));
+	  if (MPS_DENSITY_IS_SPARSE (s->active_poly->density) && !mp->spar[i])
+	    continue;
+
+	  if (MPS_STRUCTURE_IS_REAL (s->active_poly->structure))
+	    {
+	      if (MPS_STRUCTURE_IS_RATIONAL (s->active_poly->structure) ||
+		  MPS_STRUCTURE_IS_INTEGER (s->active_poly->structure))
+		{
+		  mpf_set_q (mptemp, mp->initial_mqp_r[i]);
+		  mpf_get_rdpe (mp->dpr[i], mptemp);
+		  /*#G GMP 2.0.2 bug begin */
+		  if (rdpe_sgn (mp->dpr[i]) != mpq_sgn (mp->initial_mqp_r[i]))
+		    rdpe_neg_eq (mp->dpr[i]);
+		  /*#G GMP bug end */
+		}
+
+	      if (MPS_STRUCTURE_IS_FP (s->active_poly->structure))
+		mpf_get_rdpe (mp->dpr[i], mpc_Re (mp->mfpc[i]));
           
-          cdpe_set_e (p->dpc[i], p->dpr[i], rdpe_zero);
+	      cdpe_set_e (mp->dpc[i], mp->dpr[i], rdpe_zero);
 
-          /* compute dap[i] and check for float phase */
-          rdpe_abs (p->dap[i], p->dpr[i]);
-          rdpe_abs (p->dap[i], p->dpr[i]);
-          if (rdpe_gt (p->dap[i], rdpe_maxd)
-              || rdpe_lt (p->dap[i], rdpe_mind))
-            s->skip_float = true;
+	      /* compute dap[i] and check for float phase */
+	      rdpe_abs (mp->dap[i], mp->dpr[i]);
+	      rdpe_abs (mp->dap[i], mp->dpr[i]);
+	      if (rdpe_gt (mp->dap[i], rdpe_maxd)
+		  || rdpe_lt (mp->dap[i], rdpe_mind))
+		s->skip_float = true;
 
-        }
-      else if (MPS_STRUCTURE_IS_COMPLEX (s->active_poly->structure))
-        {
-          if (MPS_STRUCTURE_IS_RATIONAL (s->active_poly->structure) ||
-              MPS_STRUCTURE_IS_INTEGER (s->active_poly->structure))
-            {
-              mpc_set_q (mptempc, p->initial_mqp_r[i], p->initial_mqp_i[i]);
-              mpc_get_cdpe (p->dpc[i], mptempc);
-              /*#G GMP 2.0.2 bug begin */
-              if (rdpe_sgn (cdpe_Re (p->dpc[i])) != mpq_sgn (p->initial_mqp_r[i]))
-                rdpe_neg_eq (cdpe_Re (p->dpc[i]));
-              if (rdpe_sgn (cdpe_Im (p->dpc[i])) != mpq_sgn (p->initial_mqp_i[i]))
-                rdpe_neg_eq (cdpe_Im (p->dpc[i]));
-              /*#G GMP bug end */
-            }
-          else if (MPS_STRUCTURE_IS_FP (s->active_poly->structure))
-              mpc_get_cdpe (p->dpc[i], p->mfpc[i]);
+	    }
+	  else if (MPS_STRUCTURE_IS_COMPLEX (s->active_poly->structure))
+	    {
+	      if (MPS_STRUCTURE_IS_RATIONAL (s->active_poly->structure) ||
+		  MPS_STRUCTURE_IS_INTEGER (s->active_poly->structure))
+		{
+		  mpc_set_q (mptempc, mp->initial_mqp_r[i], mp->initial_mqp_i[i]);
+		  mpc_get_cdpe (mp->dpc[i], mptempc);
+		  /*#G GMP 2.0.2 bug begin */
+		  if (rdpe_sgn (cdpe_Re (mp->dpc[i])) != mpq_sgn (mp->initial_mqp_r[i]))
+		    rdpe_neg_eq (cdpe_Re (mp->dpc[i]));
+		  if (rdpe_sgn (cdpe_Im (mp->dpc[i])) != mpq_sgn (mp->initial_mqp_i[i]))
+		    rdpe_neg_eq (cdpe_Im (mp->dpc[i]));
+		  /*#G GMP bug end */
+		}
+	      else if (MPS_STRUCTURE_IS_FP (s->active_poly->structure))
+		mpc_get_cdpe (mp->dpc[i], mp->mfpc[i]);
           
-          /* compute dap[i] */
-          cdpe_mod (p->dap[i], p->dpc[i]);
-          if (rdpe_gt (p->dap[i], rdpe_maxd)
-              || rdpe_lt (p->dap[i], rdpe_mind))
-            s->skip_float = true;
+	      /* compute dap[i] */
+	      cdpe_mod (mp->dap[i], mp->dpc[i]);
+	      if (rdpe_gt (mp->dap[i], rdpe_maxd)
+		  || rdpe_lt (mp->dap[i], rdpe_mind))
+		s->skip_float = true;
           
-        }
+	    }
+	}
+
+      /* free temporary mp variables */
+      mpf_clear (mptemp);
+      mpc_clear (mptempc);
+
+      /* adjust input data type */
+      if (MPS_STRUCTURE_IS_FP (s->active_poly->structure) && s->skip_float)
+	s->active_poly->structure = MPS_STRUCTURE_IS_REAL (s->active_poly->structure) ? 
+	  MPS_STRUCTURE_REAL_BIGFLOAT : MPS_STRUCTURE_COMPLEX_BIGFLOAT;
+
+      /* prepare floating point vectors */
+      if (!s->skip_float)
+	for (i = 0; i <= MPS_POLYNOMIAL (p)->degree; i++)
+	  {
+	    if (MPS_DENSITY_IS_SPARSE (s->active_poly->density) || !mp->spar[i])
+	      continue;
+	    if (MPS_STRUCTURE_IS_REAL (s->active_poly->structure))
+	      {
+		mp->fpr[i] = rdpe_get_d (mp->dpr[i]);
+		mp->fap[i] = fabs (mp->fpr[i]);
+		cplx_set_d (mp->fpc[i], mp->fpr[i], 0.0);
+	      }
+	    else
+	      {
+		cdpe_get_x (mp->fpc[i], mp->dpc[i]);
+		mp->fap[i] = cplx_mod (mp->fpc[i]);
+	      }
+	  }
     }
-
-  /* free temporary mp variables */
-  mpf_clear (mptemp);
-  mpc_clear (mptempc);
-
-  /* adjust input data type */
-  if (MPS_STRUCTURE_IS_FP (s->active_poly->structure) && s->skip_float)
-    s->active_poly->structure = MPS_STRUCTURE_IS_REAL (s->active_poly->structure) ? 
-      MPS_STRUCTURE_REAL_BIGFLOAT : MPS_STRUCTURE_COMPLEX_BIGFLOAT;
-
-  /* prepare floating point vectors */
-  if (!s->skip_float)
-    for (i = 0; i <= MPS_POLYNOMIAL (p)->degree; i++)
-      {
-        if (MPS_DENSITY_IS_SPARSE (s->active_poly->density) || !p->spar[i])
-          continue;
-        if (MPS_STRUCTURE_IS_REAL (s->active_poly->structure))
-          {
-            p->fpr[i] = rdpe_get_d (p->dpr[i]);
-            p->fap[i] = fabs (p->fpr[i]);
-            cplx_set_d (p->fpc[i], p->fpr[i], 0.0);
-          }
-        else
-          {
-            cdpe_get_x (p->fpc[i], p->dpc[i]);
-            p->fap[i] = cplx_mod (p->fpc[i]);
-          }
-      }
 }
 
 /**
