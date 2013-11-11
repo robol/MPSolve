@@ -276,6 +276,11 @@ mps_meval_usr (mps_context * ctx, mps_polynomial * p, mpc_t x, mpc_t value, rdpe
   mpc_t tmp;
   long int wp = mpc_get_prec (x);
 
+  /* Correct the working precision in case of a limited precision polynomial (quite unlikely
+   * in the Mandelbrot case, but still. */
+  if (p->prec > 0 && p->prec < wp)
+    wp = p->prec;
+
   if ((1 << m) <= p->degree)
     m++;
 

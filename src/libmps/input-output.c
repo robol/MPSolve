@@ -803,15 +803,24 @@ mps_error (mps_context * s, const char * format, ...)
 void
 mps_print_errors (mps_context * s)
 {
+  const char *error = s->last_error;
+  size_t length = strlen(error);
+
   if (s->logstr == NULL)
     s->logstr = stderr;
 
+  const char *exclamation_mark = "!"; 
   if (mps_is_a_tty (s->logstr))
-    mps_warn (s, "\033[31;1m!\033[0m MPSolve encountered an error:");  /* output error message */
-  else
-    mps_warn (s, "! MPSolve encountered an error:");
+    exclamation_mark = "\033[31;1m!\033[0m";
 
-  mps_warn (s, s->last_error);
+  if (error[length] == '\n')
+    {
+      fprintf (stderr, "%s %s %s", exclamation_mark, "MPSolve encountered an error:", error);
+    }
+  else
+    {
+      fprintf (stderr, "%s %s %s\n", exclamation_mark, "MPSolve encountered an error:", error);
+    }
 
   /* Dump approximations, but only if they are present */
   if (s->root && s->lastphase)

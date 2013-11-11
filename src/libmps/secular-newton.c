@@ -539,6 +539,11 @@ mps_secular_mnewton (mps_context * s, mps_polynomial * p, mps_approximation * ro
   rdpe_t asum, asum_on_apol, ax, axeps;
   mps_secular_equation *sec = MPS_SECULAR_EQUATION (p);
 
+  /* Lower the working precision in case of limited precision coefficients
+   * in the input polynomial. */
+  if (p->prec > 0 && p->prec < wp)
+    wp = p->prec;
+
   /* Init MP variables */
   mpc_init2 (x, wp);
   mpc_init2 (ctmp, wp);
@@ -575,6 +580,14 @@ mps_secular_mnewton (mps_context * s, mps_polynomial * p, mps_approximation * ro
 				      fp, sumb, asum)) >= 0)
     {
       int k;
+
+      /* Note: If we are using a limited precision polynomial mparallel sum will have computed
+       * a biased error because it will assume that the machine epsilon is 2^{- mpc_get_prec (x)}. 
+       * In that case we have to correct the estimate. */
+      if (p->prec > 0 && p->prec < mpc_get_prec (pol))
+	{
+	  rdpe_mul_eq_d (asum, 1 << (mpc_get_prec (pol) - wp));
+	}
 
       rdpe_set (asum, rdpe_zero);
       mpc_set_ui (corr, 0U, 0U);

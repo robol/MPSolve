@@ -217,6 +217,12 @@ mps_mhorner_sparse (mps_context * s, mps_monomial_poly * p, mpc_t x,
 
   pthread_mutex_lock (&p->mfpc_mutex[0]);
   wp = mpc_get_prec (p->mfpc[0]);
+
+  /* Lower the working precision in case of limited precision coefficients
+   * in the input polynomial. */
+  if (MPS_POLYNOMIAL (p)->prec > 0 && MPS_POLYNOMIAL (p)->prec < wp)
+    wp = MPS_POLYNOMIAL (p)->prec;
+
   mpc_vinit2 (mfpc2, MPS_POLYNOMIAL (p)->degree + 1, wp);
   pthread_mutex_unlock (&p->mfpc_mutex[0]);
 

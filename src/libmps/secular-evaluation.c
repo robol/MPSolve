@@ -236,6 +236,11 @@ mps_secular_meval (mps_context * s, mps_polynomial * p, mpc_t x, mpc_t value)
   unsigned int wp = mpc_get_prec (x);
   int i;
 
+  /* Lower the working precision in case of limited precision coefficients
+   * in the input polynomial. */
+  if (p->prec > 0 && p->prec < wp)
+    wp = p->prec;
+
   mpc_init2  (ctmp, wp);
   mpc_set_ui (value, 0U, 0U);
 
@@ -279,6 +284,11 @@ mps_secular_meval_with_error (mps_context * s, mps_polynomial * p, mpc_t x, mpc_
   int i;
 
   mps_boolean successful_evaluation = true;
+
+  /* Lower the working precision in case of limited precision coefficients
+   * in the input polynomial. */
+  if (p->prec > 0 && p->prec < wp)
+    wp = p->prec;
 
   if (mpc_get_prec (sec->ampc[0]) < wp)
     mps_polynomial_raise_data (s, p, wp);

@@ -308,12 +308,16 @@ mps_secular_ga_mpsolve (mps_context * s)
               if (!mps_secular_ga_regenerate_coefficients (s))
                 {
                   MPS_DEBUG_WITH_INFO (s, "Initial generation of the secular equation coefficients did not succeed");
+		  mps_error (s, "Unable to perform initial regeneration of the secular equation. \n"
+			     "This may be caused by a bug in MPSolve or an inadequate precision of the input coefficients.");
                   return;
                 }
             }
           else
             {
               MPS_DEBUG_WITH_INFO (s, "Initial generation of the secular equation coefficients did not succeed");
+	      mps_error (s, "Unable to perform initial regeneration of the secular equation. \n"
+			 "This may be caused by a bug in MPSolve or an inadequate precision of the input coefficients.");
               return;
             }
           just_regenerated = true;

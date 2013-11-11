@@ -165,7 +165,7 @@ mps_standard_mpsolve (mps_context * s)
   MPS_DEBUG (s, "s->mpwp = %ld, s->mpwp_max = %ld", s->mpwp, s->mpwp_max);
   MPS_DEBUG (s, "s->input_config->prec = %ld", s->active_poly->prec);
 
-  /* == 7 ==  Start MPsolve loop */
+  /* == 7 ==  Start MPSolve loop */
   s->mpwp = mps_context_get_minimum_precision (s);
 
   /* Poor man GMP - machine precision detection. We need that min_prec is contained
@@ -175,11 +175,11 @@ mps_standard_mpsolve (mps_context * s)
   while (s->mpwp > 2 * DBL_MANT_DIG) s->mpwp >>= 1;
 
   while (!computed && s->mpwp < s->mpwp_max && (s->active_poly->prec == 0 || s->mpwp
-                                                < s->active_poly->prec))
+                                                < 2 * s->active_poly->prec))
     {
       s->mpwp *= 2;
 
-      if (s->active_poly->prec != 0 && s->mpwp > s->active_poly->prec)
+      if (s->active_poly->prec != 0 && s->mpwp >= 2 * s->active_poly->prec)
 	{
 	  computed = false;
 	  s->over_max = true;

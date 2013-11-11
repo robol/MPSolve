@@ -14,6 +14,12 @@ mps_boolean
 mps_chebyshev_poly_meval (mps_context * ctx, mps_polynomial * poly, mpc_t x, mpc_t value, rdpe_t error)
 {
   long int wp = mpc_get_prec (x);
+
+  /* Lower the working precision in case of limited precision coefficients
+   * in the input polynomial. */
+  if (poly->prec > 0 && poly->prec < wp)
+    wp = poly->prec;
+
   mps_chebyshev_poly * cpoly = MPS_CHEBYSHEV_POLY (poly);
   int i;
 
