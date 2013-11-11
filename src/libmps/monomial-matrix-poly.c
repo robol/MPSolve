@@ -47,7 +47,5 @@ mps_boolean
 mps_monomial_matrix_poly_meval (mps_context * ctx, mps_polynomial * poly,
 				mpc_t x, mpc_t value, rdpe_t error)
 {
-  mps_monomial_matrix_poly *mpoly = MPS_MONOMIAL_MATRIX_POLY (poly);
-  
   return true;
 }
