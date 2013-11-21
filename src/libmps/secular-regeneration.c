@@ -76,7 +76,7 @@ mps_secular_ga_update_root_wp (mps_context * s, int i, long int wp, mpc_t * bmpc
 mps_boolean *
 mps_secular_ga_find_changed_roots (mps_context * s, cdpe_t * old_b, mpc_t * old_mb)
 {
-  MPS_DEBUG_THIS_CALL;
+  MPS_DEBUG_THIS_CALL (s);
 
   cdpe_t diff;
   int i;
@@ -395,7 +395,7 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
 mps_boolean
 mps_secular_ga_regenerate_coefficients_monomial (mps_context * s, cdpe_t * old_b, mpc_t * old_mb, mps_boolean * root_changed)
 {
-  MPS_DEBUG_THIS_CALL;
+  MPS_DEBUG_THIS_CALL (s);
 
   int i, j;
   mps_secular_equation * sec = s->secular_equation;
@@ -667,7 +667,7 @@ mps_secular_ga_separate_approximations (mps_context * ctx)
 mps_boolean
 mps_secular_ga_regenerate_coefficients (mps_context * s)
 {
-  MPS_DEBUG_THIS_CALL;
+  MPS_DEBUG_THIS_CALL (s);
 
   s->operation = MPS_OPERATION_REGENERATION;
 

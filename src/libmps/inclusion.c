@@ -26,7 +26,7 @@ mps_fupdate_inclusions (mps_context * s)
   mps_root * root;
   int i, nf = 2 * s->n;
 
-  MPS_DEBUG_THIS_CALL;
+  MPS_DEBUG_THIS_CALL (s);
 
   /* Scan the inclusion depending on the selected search set. */
   for (cluster_item = s->clusterization->first; cluster_item != NULL;
@@ -166,7 +166,7 @@ mps_dupdate_inclusions (mps_context * s)
   int i, nf = 2 * s->n;
   rdpe_t mod;
 
-  MPS_DEBUG_THIS_CALL;
+  MPS_DEBUG_THIS_CALL (s);
 
   /* Scan the inclusion depending on the selected search set. */
   for (cluster_item = s->clusterization->first; cluster_item != NULL;
@@ -325,7 +325,7 @@ mps_mupdate_inclusions (mps_context * s)
   cdpe_t cmod;
   rdpe_t mod;
 
-  MPS_DEBUG_THIS_CALL;
+  MPS_DEBUG_THIS_CALL (s);
 
   /* Scan the inclusion depending on the selected search set. */
   for (cluster_item = s->clusterization->first; cluster_item != NULL;

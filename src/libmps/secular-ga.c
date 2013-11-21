@@ -54,7 +54,7 @@ mps_secular_ga_update_coefficients (mps_context * s)
 mps_boolean
 mps_secular_ga_check_stop (mps_context * s)
 {
-  MPS_DEBUG_THIS_CALL;
+  MPS_DEBUG_THIS_CALL (s);
 
   int i;
 

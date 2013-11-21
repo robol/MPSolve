@@ -767,7 +767,7 @@ mps_debug_cluster_structure (mps_context * s)
 void
 mps_mcluster (mps_context * s, rdpe_t * drad, int nf)
 {
-  MPS_DEBUG_THIS_CALL;
+  MPS_DEBUG_THIS_CALL (s);
 
   s->operation = MPS_OPERATION_CLUSTER_ANALYSIS;
 
@@ -962,7 +962,7 @@ mps_mcluster (mps_context * s, rdpe_t * drad, int nf)
 void 
 mps_clusterization_detach_clusters (mps_context * s, mps_clusterization * c)
 {
-  MPS_DEBUG_THIS_CALL;
+  MPS_DEBUG_THIS_CALL (s);
 
   /* Disable this function since it is not working as it should. */
   /* The problem, now, is that more than a root could be removed from
@@ -1030,7 +1030,7 @@ mps_clusterization_detach_clusters (mps_context * s, mps_clusterization * c)
 void 
 mps_clusterization_reassemble_clusters (mps_context * s, mps_clusterization * c)
 {
-  MPS_DEBUG_THIS_CALL;
+  MPS_DEBUG_THIS_CALL (s);
 
   mps_cluster_item * cluster;
   

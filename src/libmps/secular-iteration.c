@@ -163,7 +163,7 @@ mps_secular_ga_fiterate (mps_context * s, int maxit, mps_boolean just_regenerate
 
   data = mps_newv (mps_thread_worker_data, s->n_threads);
 
-  MPS_DEBUG_THIS_CALL;
+  MPS_DEBUG_THIS_CALL (s);
 
   /* Mark the approximated roots as ready for output */
   for (i = 0; i < s->n; i++)
@@ -391,7 +391,7 @@ mps_secular_ga_diterate (mps_context * s, int maxit, mps_boolean just_regenerate
 
   data = mps_newv (mps_thread_worker_data, s->n_threads);
 
-  MPS_DEBUG_THIS_CALL;
+  MPS_DEBUG_THIS_CALL (s);
 
   s->best_approx = false;
 
@@ -647,7 +647,7 @@ mps_secular_ga_miterate (mps_context * s, int maxit, mps_boolean just_regenerate
 
   data = mps_newv (mps_thread_worker_data, s->n_threads);
 
-  MPS_DEBUG_THIS_CALL;
+  MPS_DEBUG_THIS_CALL (s);
 
   s->best_approx = false;
 

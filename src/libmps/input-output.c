@@ -564,7 +564,7 @@ mps_copy_roots (mps_context * s)
 {
   int i;
 
-  MPS_DEBUG_THIS_CALL;
+  MPS_DEBUG_THIS_CALL (s);
 
   switch (s->lastphase)
     {

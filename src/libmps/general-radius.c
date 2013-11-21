@@ -25,7 +25,7 @@
 void
 mps_fradii (mps_context * s, mps_polynomial * p, double * fradii)
 {
-  MPS_DEBUG_THIS_CALL;
+  MPS_DEBUG_THIS_CALL (s);
 
   cplx_t pol;
   double new_rad, relative_error;
@@ -99,7 +99,7 @@ mps_fradii (mps_context * s, mps_polynomial * p, double * fradii)
 void
 mps_dradii (mps_context * s, mps_polynomial * p, rdpe_t * dradii)
 {
-  MPS_DEBUG_THIS_CALL;
+  MPS_DEBUG_THIS_CALL (s);
 
   cdpe_t pol;
   rdpe_t new_rad, relative_error, rtmp;
@@ -166,7 +166,7 @@ mps_dradii (mps_context * s, mps_polynomial * p, rdpe_t * dradii)
 void
 mps_mradii (mps_context * s, mps_polynomial * p, rdpe_t * dradii)
 {
-  MPS_DEBUG_THIS_CALL;
+  MPS_DEBUG_THIS_CALL (s);
 
   mpc_t pol, mdiff;
   cdpe_t cpol, diff, cdtmp;

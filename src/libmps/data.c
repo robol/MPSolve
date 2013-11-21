@@ -42,7 +42,7 @@ mps_mp_set_prec (mps_context * s, long int prec)
 void
 mps_allocate_data (mps_context * s)
 {
-  MPS_DEBUG_THIS_CALL;
+  MPS_DEBUG_THIS_CALL (s);
   int i;
 
   s->root = mps_newv (mps_approximation*, s->n);
@@ -181,7 +181,7 @@ mps_raise_data_raw (mps_context * s, long int prec)
 void 
 mps_prepare_data (mps_context * s, long int prec)
 {
-  MPS_DEBUG_THIS_CALL;
+  MPS_DEBUG_THIS_CALL (s);
 
   pthread_mutex_lock (&s->precision_mutex);
 

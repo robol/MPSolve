@@ -291,7 +291,7 @@ mps_msrad (mps_context * s, mps_cluster * cluster, mpc_t sc, rdpe_t sr)
 mps_boolean
 mps_check_stop (mps_context * s)
 {
-  MPS_DEBUG_THIS_CALL;
+  MPS_DEBUG_THIS_CALL (s);
 
   int i;
   mps_boolean computed;

@@ -104,7 +104,7 @@ mps_fcompute_starting_radii (mps_context * s, int n, mps_cluster_item * cluster_
                              double clust_rad, double g, rdpe_t eps,
                              double fap[])
 {
-  MPS_DEBUG_THIS_CALL;
+  MPS_DEBUG_THIS_CALL (s);
   const double big = DBL_MAX, small = DBL_MIN;
   const double xbig = log (big), xsmall = log (small);
 
@@ -276,7 +276,7 @@ void
 mps_fstart (mps_context * s, int n, mps_cluster_item * cluster_item, 
             double clust_rad, double g, rdpe_t eps, double fap[])
 {
-  MPS_DEBUG_THIS_CALL;
+  MPS_DEBUG_THIS_CALL (s);
   int i, j, jj, l, nzeros = 0;
   double sigma, th, ang, r = 0;
   mps_root * it_root = NULL;
@@ -1540,7 +1540,7 @@ mps_mrestart (mps_context * s)
 
   long int starting_wp = s->mpwp;
 
-  MPS_DEBUG_THIS_CALL;
+  MPS_DEBUG_THIS_CALL (s);
 
   s->operation = MPS_OPERATION_SHIFT;
 

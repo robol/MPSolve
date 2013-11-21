@@ -166,7 +166,7 @@ mps_context_set_degree (mps_context * s, int n)
 void
 mps_context_set_input_poly (mps_context * s, mps_polynomial * p)
 {
-  MPS_DEBUG_THIS_CALL;
+  MPS_DEBUG_THIS_CALL (s);
 
   MPS_DEBUG (s, "Setting input poly");
 

@@ -19,7 +19,7 @@
 void
 mps_secular_fstart (mps_context * s, mps_secular_equation * sec)
 {
-  MPS_DEBUG_THIS_CALL;
+  MPS_DEBUG_THIS_CALL (s);
 
   int i;
   int n = MPS_POLYNOMIAL (sec)->degree;
@@ -43,7 +43,7 @@ mps_secular_fstart (mps_context * s, mps_secular_equation * sec)
 void
 mps_secular_dstart (mps_context * s, mps_secular_equation * sec)
 {
-  MPS_DEBUG_THIS_CALL;
+  MPS_DEBUG_THIS_CALL (s);
 
   int l;
   int n = MPS_POLYNOMIAL (sec)->degree;
@@ -74,7 +74,7 @@ mps_secular_dstart (mps_context * s, mps_secular_equation * sec)
 void
 mps_secular_mstart (mps_context * s, mps_secular_equation * sec)
 {
-  MPS_DEBUG_THIS_CALL;
+  MPS_DEBUG_THIS_CALL (s);
 
   int l;
   int n = MPS_POLYNOMIAL (sec)->degree;

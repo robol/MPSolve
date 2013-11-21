@@ -57,7 +57,7 @@ mps_secular_dump (mps_context * s, mps_secular_equation * sec)
 void
 mps_secular_restart (mps_context * s)
 {
-  MPS_DEBUG_THIS_CALL;
+  MPS_DEBUG_THIS_CALL (s);
 
   int i;
 
@@ -459,7 +459,7 @@ mps_secular_check_data (mps_context * s, char *which_case)
 long int
 mps_secular_raise_coefficient_precision (mps_context * s, mps_polynomial * p, long int wp)
 {
-  MPS_DEBUG_THIS_CALL;
+  MPS_DEBUG_THIS_CALL (s);
 
   int i;
   mps_secular_equation *sec = MPS_SECULAR_EQUATION (p);
@@ -533,7 +533,7 @@ mps_secular_raise_coefficient_precision (mps_context * s, mps_polynomial * p, lo
 void
 mps_secular_raise_root_precision (mps_context * s, int wp)
 {
-  MPS_DEBUG_THIS_CALL;
+  MPS_DEBUG_THIS_CALL (s);
   int i;
 
   for (i = 0; i < s->n; i++)
@@ -556,7 +556,7 @@ mps_secular_raise_root_precision (mps_context * s, int wp)
 void
 mps_secular_raise_precision (mps_context * s, int wp)
 {
-  MPS_DEBUG_THIS_CALL;
+  MPS_DEBUG_THIS_CALL (s);
 
   int i;
 
@@ -590,7 +590,7 @@ mps_secular_raise_precision (mps_context * s, int wp)
 void
 mps_secular_switch_phase (mps_context * s, mps_phase phase)
 {
-  MPS_DEBUG_THIS_CALL;
+  MPS_DEBUG_THIS_CALL (s);
 
   s->just_raised_precision = true;
 
@@ -661,7 +661,7 @@ mps_secular_switch_phase (mps_context * s, mps_phase phase)
 void
 mps_secular_set_radii (mps_context * s)
 {
-  MPS_DEBUG_THIS_CALL;
+  MPS_DEBUG_THIS_CALL (s);
 
   int i;
   mps_secular_equation *sec = (mps_secular_equation *) s->secular_equation;

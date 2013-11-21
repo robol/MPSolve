@@ -178,7 +178,7 @@ extern "C"
   }
 #endif
 
-#define MPS_DEBUG_THIS_CALL MPS_DEBUG_CALL(s, __FUNCTION__)
+#define MPS_DEBUG_THIS_CALL(ctx) MPS_DEBUG_CALL(ctx, __FUNCTION__)
 
 
   /**
