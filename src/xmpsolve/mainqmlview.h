@@ -1,7 +1,7 @@
 #ifndef XMPSOLVE_MAINQMLVIEW_H
 #define XMPSOLVE_MAINQMLVIEW_H
 
-#include <QQuickView>
+#include <QtQml/QQmlApplicationEngine>
 #include <QQmlContext>
 #include "rootsmodel.h"
 #include "rootsrenderer.h"
@@ -10,7 +10,7 @@
 
 namespace xmpsolve {
 
-class MainQmlView : public QQuickView
+class MainQmlView : public QQmlApplicationEngine
 {
     Q_OBJECT
 public:

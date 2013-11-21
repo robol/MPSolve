@@ -1,23 +1,30 @@
-import QtQuick 2.0
-import Ubuntu.Components 0.1
+import QtQuick 2.1
+import QtQuick.Controls 1.0
 
-Row {
+Column {
 
-    spacing: units.gu(1)
+    spacing: 8
 
-    TextField {
-        id: polyInput
-        placeholderText: "Insert polynomial here"
-        height: solveButton.height
-    }
+    Row {
 
-    Button {
-        id: solveButton
-        text: "Solve"
+        spacing: 16
 
-        onClicked: {
-            solver.solvePoly(polyInput.text);
+        TextField {
+            id: polyInput
+            placeholderText: "Insert a polynomial here"
+            height: solveButton.height
+            width: 250
         }
+
+        Button {
+            id: solveButton
+            text: "Solve"
+
+            onClicked: {
+                solver.solvePoly(polyInput.text);
+            }
+        }
+
     }
 
 }

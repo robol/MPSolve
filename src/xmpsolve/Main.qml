@@ -1,37 +1,34 @@
-import QtQuick 2.0
-import Ubuntu.Components 0.1
-import Ubuntu.Components.ListItems 0.1
+import QtQuick 2.1
+import QtQuick.Controls 1.0
 
-MainView {
+ApplicationWindow {
     id: root
 
-    objectName: "mainView"
-    applicationName: "MPSolve"
+    title: "MPSolve"
 
-    width: units.gu(50)
-    height: units.gu(75)
+    width: 400
+    height: 600
 
-    Page {
-        id: polyInputPage
-        title: "MPSolve"
+    visible: true
 
-        Column {
-            id: pageLayout
+    Column {
+        id: pageLayout
 
-            anchors.fill: parent
-            anchors.margins: units.gu(1)
-            spacing: units.gu(2)
+        anchors.fill: parent
+        anchors.margins: 16
+        spacing: 32
 
-            PolyInputField {}
-
-            Text { text: "Approximations computed by MPSolve: " }
-
-            ApproximationList {
-                model: rootsModel
-            }
-
-
+        Text  {
+            text: PACKAGE_STRING
+            font.pointSize: 18
         }
+
+        PolyInputField {}
+
+        ApproximationList {
+            model: rootsModel
+        }
+
 
     }
 }

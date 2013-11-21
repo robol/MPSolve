@@ -1,25 +1,51 @@
-import QtQuick 2.0
+import QtQuick 2.1
 
-ListView {
-    id: resultsView
-    delegate: approximationDelegate
-    spacing: units.gu(2)
+Column {
 
-    height: units.gu(45)
-    width: parent.width
+    /**
+     * @brief Update the description of the approximations.
+     *
+     * @param count The number of items in the list.
+     */
+    function updateText(count) {
+       if (count > 0)
+           approximationTitle.text = "List of approximations: ";
+       else
+           approximationTitle.text = "No approximations computed."
+    }
 
-    Component {
-        id: approximationDelegate
+    property alias model : resultsView.model
+    spacing: 16
 
-        Item {
-            width: parent.width
-            height: approximationItem.height
+    Text {
+        id: approximationTitle
+        text: "No approximations computed."
+    }
 
-            Text {
-                id: approximationItem
-                text: short_approximation
+    ListView {
+        id: resultsView
+        delegate: approximationDelegate
+        spacing: 12
 
-                height: units.gu(2)
+        height: 720
+        width: parent.width
+
+        onCountChanged: {
+            updateText(count)
+        }
+
+        Component {
+            id: approximationDelegate
+
+            Item {
+                width: parent.width
+                height: approximationItem.height
+
+                Text {
+                    id: approximationItem
+                    text: short_approximation
+                    height: 8
+                }
             }
         }
     }

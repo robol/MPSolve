@@ -35,7 +35,8 @@ android {
     # arithmetic support.
     QMAKE_CXXFLAGS += -I$${ANDROID_ROOT}/include \
         -include $${PWD}/../../android-ext/tarballs/mpsolve-build/config.h \
-        -DMPS_USE_BUILTIN_COMPLEX
+        -include $${PWD}/../../android-ext/tarballs/mpsolve-build/config.h \
+        -DMPS_USE_QML \
 
     # Link against locally compiled libmps and libgmp.
     LIBS += $${ANDROID_ROOT}/lib/libmps.a $${ANDROID_ROOT}/lib/libgmp.a
@@ -43,7 +44,7 @@ android {
 }
 
 !android {
-    QMAKE_CXXFLAGS += -include $${PWD}/../../_build/config.h
+    QMAKE_CXXFLAGS += -include $${PWD}/../../_build/config.h -DMPS_USE_QML
     INCLUDEPATH += $${PWD}/../../include/
     LIBS += $${PWD}/../../_build/src/libmps/.libs/libmps.so -lgmp
 }
