@@ -42,7 +42,7 @@ void
 MainWindow::openEditor(QString polFile)
 {
     if (m_polFileEditorWindow == NULL) {
-        m_polFileEditorWindow = new PolFileEditorWindow(this);
+        m_polFileEditorWindow = new PolFileEditorWindow();
 
         // Solve .pol files requested by the user
         QObject::connect(m_polFileEditorWindow, SIGNAL(solvePoly(QString)),
