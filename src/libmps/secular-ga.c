@@ -570,6 +570,12 @@ mps_secular_ga_mpsolve (mps_context * s)
 
   cleanup:
 
+  MPS_DEBUG_WITH_INFO (s, "Validating the inclusions");
+  if (s->active_poly->prec > 0)
+    {
+      mps_validate_inclusions (s);
+    }
+
   mps_copy_roots (s);
   mps_dump (s);
 

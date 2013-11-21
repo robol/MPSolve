@@ -267,7 +267,11 @@ exit_sub:
       mps_improve (s);
     }
 
-  /* == 11 ==  Restore to highest used precision */
+  /* == 11 == Check inclusions */
+  if (s->active_poly->prec > 0)
+    mps_validate_inclusions (s);
+
+  /* == 12 ==  Restore to highest used precision */
   if (s->lastphase == mp_phase)
     mps_restore_data (s);
 

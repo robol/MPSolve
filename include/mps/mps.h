@@ -709,6 +709,9 @@ typedef int mps_debug_level;
   mps_boolean mps_deval_usr (mps_context * ctx, mps_polynomial * p, cdpe_t x, cdpe_t value, rdpe_t error);
   mps_boolean mps_meval_usr (mps_context * ctx, mps_polynomial * p, mpc_t x, mpc_t value, rdpe_t error);
 
+  /* functions in validation.c */
+  void mps_validate_inclusions (mps_context * ctx);
+
   /* functions in general-starting.c */
   void mps_general_fstart (mps_context * ctx, mps_polynomial * p);
   void mps_general_dstart (mps_context * ctx, mps_polynomial * p);

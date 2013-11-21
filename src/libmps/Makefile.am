@@ -85,6 +85,7 @@ libmps_la_SOURCES = \
 	    tools.c \
 	    touch.c \
 	    user.c \
+	    validation.c \
 	    $(NULL)
 
 libmps_la_LDFLAGS = \
