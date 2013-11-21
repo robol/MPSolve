@@ -32,13 +32,6 @@ extern "C"
 #define LOG2_10  3.32192809488736234787
 #define PI       3.14159265358979323846
 
-  /* Define some fallbacks in case autoconf is not happy with the system
-   * malloc() and realloc() function. This is mainly useful when cross
-   * compiling. */
-
-  void* rpl_malloc(size_t n);
-  void* rpl_realloc(void* ptr, size_t n);
-
 /* macros */
 #define MAX(A, B)  ( (A) > (B) ? (A) : (B) )
 #define MIN(A, B)  ( (A) < (B) ? (A) : (B) )

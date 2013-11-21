@@ -20,18 +20,6 @@
 #define RAND_SOURCE "/dev/random"
 #endif
 
-void *
-rpl_malloc (size_t n)
-{
-    return malloc (n);
-}
-
-void *
-rpl_realloc (void * ptr, size_t n)
-{
-    return realloc (ptr, n);
-}
-
 /* random functions */
 void
 randomize (unsigned int seed)
