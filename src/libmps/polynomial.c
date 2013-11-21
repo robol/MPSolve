@@ -154,9 +154,10 @@ mps_polynomial_dnewton (mps_context * ctx, mps_polynomial *p,
 
 void 
 mps_polynomial_mnewton (mps_context * ctx, mps_polynomial *p, 
-                        mps_approximation * root, mpc_t corr)
+                        mps_approximation * root, mpc_t corr, 
+			long int wp)
 {
-  (*p->mnewton) (ctx, p, root, corr);
+  (*p->mnewton) (ctx, p, root, corr, wp);
 }
 
 void

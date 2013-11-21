@@ -549,7 +549,8 @@ __mps_secular_ga_miterate_worker (void* data_ptr)
           (*data->it)++;
           /* pthread_mutex_unlock (data->gs_mutex); */
 
-          mps_secular_mnewton (s, MPS_POLYNOMIAL (s->secular_equation), s->root[i], corr);
+          mps_secular_mnewton (s, MPS_POLYNOMIAL (s->secular_equation), s->root[i], 
+			       corr, mpc_get_prec (s->root[i]->mvalue));
 
           /* Apply Aberth correction */
           mps_maberth_s_wl (s, i, cluster, abcorr, data->aberth_mutex);

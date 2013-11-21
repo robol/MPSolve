@@ -93,7 +93,7 @@ typedef void (*mps_polynomial_dnewton_t) (mps_context * ctx, mps_polynomial * p,
  * @brief Function that computes \f$\frac{p}{p'}\f$ (multiprecision version)
  */
 typedef void (*mps_polynomial_mnewton_t) (mps_context * ctx, mps_polynomial * p, 
-                                          mps_approximation * root, mpc_t corr);
+                                          mps_approximation * root, mpc_t corr, long int wp);
 
 /** 
  * @brief Function that returns the leading coefficient of the polynomial. 
@@ -242,7 +242,7 @@ void mps_polynomial_dnewton (mps_context * ctx, mps_polynomial *p,
                              mps_approximation * root, cdpe_t corr);
 
 void mps_polynomial_mnewton (mps_context * ctx, mps_polynomial *p, 
-                             mps_approximation * root, mpc_t corr);
+                             mps_approximation * root, mpc_t corr, long int wp);
 
 void mps_polynomial_get_leading_coefficient (mps_context * ctx, mps_polynomial * p, mpc_t lc);
 

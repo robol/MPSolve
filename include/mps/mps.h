@@ -583,7 +583,7 @@ typedef int mps_debug_level;
   void mps_dnewton (mps_context * st, mps_polynomial * p,
                     mps_approximation * root, cdpe_t corr);
   void mps_mnewton (mps_context * st, mps_polynomial * p, 
-                    mps_approximation * root, mpc_t corr);
+                    mps_approximation * root, mpc_t corr, long int wp);
   void mps_parhorner (mps_context * st, int n, mpc_t x, mpc_t p[],
                       mps_boolean b[], mpc_t s, int n_thread);
   void mps_aparhorner (mps_context * st, int n, rdpe_t x, rdpe_t p[],
@@ -704,7 +704,7 @@ typedef int mps_debug_level;
   /* functions in user.c */
   void mps_fnewton_usr (mps_context * st, mps_polynomial * poly, mps_approximation * root, cplx_t corr);
   void mps_dnewton_usr (mps_context * st, mps_polynomial * poly, mps_approximation * root, cdpe_t corr);
-  void mps_mnewton_usr (mps_context * st, mps_polynomial * poly, mps_approximation * root, mpc_t corr);
+  void mps_mnewton_usr (mps_context * st, mps_polynomial * poly, mps_approximation * root, mpc_t corr, long int wp);
   mps_boolean mps_feval_usr (mps_context * ctx, mps_polynomial * p, cplx_t x, cplx_t value, double * error);
   mps_boolean mps_deval_usr (mps_context * ctx, mps_polynomial * p, cdpe_t x, cdpe_t value, rdpe_t error);
   mps_boolean mps_meval_usr (mps_context * ctx, mps_polynomial * p, mpc_t x, mpc_t value, rdpe_t error);

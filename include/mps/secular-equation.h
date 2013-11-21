@@ -256,7 +256,7 @@ extern "C"
   /* Routines in secular-newton.c */
   void mps_secular_fnewton (mps_context * st, mps_polynomial * p, mps_approximation * root, cplx_t corr);
   void mps_secular_dnewton (mps_context * st, mps_polynomial * p, mps_approximation * root, cdpe_t corr);
-  void mps_secular_mnewton (mps_context * st, mps_polynomial * p, mps_approximation * root, mpc_t corr);
+  void mps_secular_mnewton (mps_context * st, mps_polynomial * p, mps_approximation * root, mpc_t corr, long int wp);
 
   /* Routines in secular-regeneartion.c */
   mps_boolean * mps_secular_ga_find_changed_roots (mps_context * s, cdpe_t * old_b, mpc_t * old_mb);

@@ -530,10 +530,9 @@ mps_secular_mparallel_sum (mps_context * s, mps_approximation * root, int n, mpc
 }
 
 void
-mps_secular_mnewton (mps_context * s, mps_polynomial * p, mps_approximation * root, mpc_t corr)
+mps_secular_mnewton (mps_context * s, mps_polynomial * p, mps_approximation * root, mpc_t corr, long int wp)
 {
   int i;
-  long int wp = mpc_get_prec (root->mvalue);
   mpc_t ctmp, ctmp2, pol, fp, sumb, x;
   rdpe_t apol, acorr, rtmp, epsilon;
   rdpe_t asum, asum_on_apol, ax, axeps;

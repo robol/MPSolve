@@ -144,7 +144,7 @@ mps_dnewton_usr (mps_context * s, mps_polynomial * poly, mps_approximation * roo
  multiprecision computation
 ******************************************************/
 void
-mps_mnewton_usr (mps_context * s, mps_polynomial * poly, mps_approximation * root, mpc_t corr)
+mps_mnewton_usr (mps_context * s, mps_polynomial * poly, mps_approximation * root, mpc_t corr, long int wp)
 {
   int i, m;
   rdpe_t ap, ax, eps, temp, apeps, atmp;

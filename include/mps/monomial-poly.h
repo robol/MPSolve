@@ -174,7 +174,7 @@ extern "C"
                                   mps_approximation * root, cdpe_t corr);
 
   void mps_monomial_poly_mnewton (mps_context * ctx, mps_polynomial * p, 
-                                  mps_approximation * root, mpc_t corr);
+                                  mps_approximation * root, mpc_t corr, long int wp);
 
   void mps_monomial_poly_get_leading_coefficient (mps_context * ctx, mps_polynomial * p,
                                                   mpc_t leading_coefficient);

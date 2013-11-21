@@ -71,7 +71,8 @@ improve_root (mps_context * ctx, mps_polynomial * p, mps_approximation * root, l
   mpc_set_prec (root->mvalue, precision);
   mpc_init2 (newton_correction, precision);
 
-  mps_polynomial_mnewton (ctx, p, root, newton_correction);
+  mps_polynomial_mnewton (ctx, p, root, newton_correction, 
+			  mpc_get_prec (root->mvalue));
 
   mpc_sub_eq (root->mvalue, newton_correction);
   mpc_rmod (corr_mod, newton_correction);

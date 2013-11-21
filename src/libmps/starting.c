@@ -1706,7 +1706,8 @@ mps_mrestart (mps_context * s)
 
       for (j = 0; j < s->max_newt_it; j++)
         {                       /* loop_newt: */
-          mps_mnewton (s, MPS_POLYNOMIAL (der), g, corr);
+          mps_mnewton (s, MPS_POLYNOMIAL (der), g, corr, 
+		       mpc_get_prec (g->mvalue));
           mpc_sub_eq (g->mvalue, corr);
 
           if (s->debug_level & MPS_DEBUG_CLUSTER)

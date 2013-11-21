@@ -261,13 +261,14 @@ mps_intlog2 (int n)
  * @param poly The polynomial to evaluate, casted to a mps_polynomial.
  * @param root The approximation where the newton fraction should be evaluated.
  * @param corr The complex value of the newton correction. 
+ * @param wp   Select the working precision to use in the computation. 
  *
  * @see mps_fnewton()
  * @see mps_dnewton()
  */
 void
 mps_mnewton (mps_context * s, mps_polynomial * poly, 
-             mps_approximation * root, mpc_t corr)
+             mps_approximation * root, mpc_t corr, long int wp)
 {
   int i;
   rdpe_t ap, az, absp, temp, rnew, ep, apeps;
@@ -279,7 +280,6 @@ mps_mnewton (mps_context * s, mps_polynomial * poly,
   rdpe_t * dap = mp->dap;
   int n = poly->degree;
 
-  long int wp = mpc_get_prec (root->mvalue);
 
   /* Lower the working precision in case of limited precision coefficients
    * in the input polynomial. */

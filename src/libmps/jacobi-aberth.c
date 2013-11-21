@@ -353,7 +353,7 @@ __mps_mjacobi_aberth_step_worker (void * data_ptr)
   mpc_init2 (corr, ctx->mpwp);
   mpc_init2 (abcorr, ctx->mpwp);
 
-  mps_polynomial_mnewton (ctx, p, root, corr);
+  mps_polynomial_mnewton (ctx, p, root, corr, mpc_get_prec (root->mvalue));
 
   if (root->approximated)
     root->again = false;

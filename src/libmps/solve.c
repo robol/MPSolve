@@ -1275,7 +1275,7 @@ mps_mpolzer (mps_context * s, int *it, mps_boolean * excep)
                   (*it)++;
                       /* sparse/dense polynomial */
                       rdpe_set (rad1, s->root[l]->drad);
-                      mps_polynomial_mnewton (s, p, s->root[l], corr);
+                      mps_polynomial_mnewton (s, p, s->root[l], corr, s->mpwp);
                       if (iter == 0 && !s->root[l]->again && rdpe_gt (s->root[l]->drad,
                                                                 rad1)
                           && rdpe_ne (rad1, rdpe_zero))
