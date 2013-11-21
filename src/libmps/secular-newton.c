@@ -538,11 +538,6 @@ mps_secular_mnewton (mps_context * s, mps_polynomial * p, mps_approximation * ro
   rdpe_t asum, asum_on_apol, ax, axeps;
   mps_secular_equation *sec = MPS_SECULAR_EQUATION (p);
 
-  /* Lower the working precision in case of limited precision coefficients
-   * in the input polynomial. */
-  if (p->prec > 0 && p->prec < wp)
-    wp = p->prec;
-
   /* Init MP variables */
   mpc_init2 (x, wp);
   mpc_init2 (ctmp, wp);

@@ -280,12 +280,6 @@ mps_mnewton (mps_context * s, mps_polynomial * poly,
   rdpe_t * dap = mp->dap;
   int n = poly->degree;
 
-
-  /* Lower the working precision in case of limited precision coefficients
-   * in the input polynomial. */
-  if (poly->prec > 0 && poly->prec < wp)
-    wp = poly->prec;
-
   mpc_init2 (p, wp);
   mpc_init2 (p1, wp);
 
