@@ -90,4 +90,5 @@ OTHER_FILES += \
     android/AndroidManifest.xml
     Main.qml \
     ApproximationList.qml \
-    PolyInputField.qml
+    PolyInputField.qml \
+    RootRenderer.qml

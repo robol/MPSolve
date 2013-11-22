@@ -25,8 +25,15 @@ ApplicationWindow {
 
         PolyInputField {}
 
-        ApproximationList {
-            model: rootsModel
+        Row {
+
+            ApproximationList {
+                model: rootsModel
+            }
+
+            RootRenderer {
+            }
+
         }
 
 

@@ -16,8 +16,6 @@ using namespace xmpsolve;
 
 int main(int argc, char *argv[])
 {
-  putenv("QML_ENABLE_TEXT_IMAGE_CACHE=1");
-
 #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
     QApplication a(argc, argv);
 #else

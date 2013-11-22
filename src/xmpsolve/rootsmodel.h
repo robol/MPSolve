@@ -22,8 +22,10 @@ public:
     };
 
     explicit RootsModel(QObject *parent = 0);
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
+
+    Q_INVOKABLE int rowCount(const QModelIndex &parent = QModelIndex()) const;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+
     QHash<int, QByteArray> roleNames() const;
 
     void setRoots(QList<Root*> roots);
@@ -34,6 +36,9 @@ public:
      * highlighting.
      */
     void markRoot(int i = -1);
+
+    double getPointX(int i) { return m_roots[i]->get_real_part(); }
+    double getPointY(int i) { return m_roots[i]->get_imag_part(); }
 
 private:
     QList<Root*> m_roots;
