@@ -13,10 +13,10 @@
 
 #include <mps/mps.h>
 
-/********************************************************
-*      SUBROUTINE FCMP                                  *
-*********************************************************/
-int
+/**
+ * @brief Compare two approximations. 
+ */
+static int
 mps_fcmp (const void *a, const void *b)
 {
   double dif;
@@ -29,10 +29,12 @@ mps_fcmp (const void *a, const void *b)
   return -1;
 }
 
-/*********************************************************
-*      SUBROUTINE FSORT                                  *
-*********************************************************/
-void
+/**
+ * @brief Sort the approximations saved in the current mps_context. 
+ *
+ * @param s A pointer to the current mps_context. 
+ */
+MPS_PRIVATE void
 mps_fsort (mps_context * s)
 {
   int i;
@@ -53,19 +55,21 @@ mps_fsort (mps_context * s)
   cplx_vfree (real_parts);
 }
 
-/*********************************************************
-*      SUBROUTINE DCMP                                  *
-*********************************************************/
-int
+/**
+ * @brief DPE version mps_fcmp().
+ */
+static int
 mps_dcmp (const void *a, const void *b)
 {
   return rdpe_cmp (cdpe_Re (cdpe_Addr (a)), cdpe_Re (cdpe_Addr (b)));
 }
 
-/*********************************************************
-*      SUBROUTINE DSORT                                  *
-*********************************************************/
-void
+/**
+ * @brief Sort the approximations saved in the current mps_context. 
+ *
+ * @param s A pointer to the current mps_context. 
+ */
+MPS_PRIVATE void
 mps_dsort (mps_context * s)
 {
   cdpe_t * real_parts = cdpe_valloc (s->n);
@@ -85,19 +89,21 @@ mps_dsort (mps_context * s)
   cdpe_vfree (real_parts);
 }
 
-/*********************************************************
-*      SUBROUTINE MCMP                                  *
-*********************************************************/
-int
+/**
+ * @brief Multiprecision version of mps_fcmp().
+ */
+static int
 mps_mcmp (const void *a, const void *b)
 {
   return mpf_cmp (mpc_Re (mpc_Addr (a)), mpc_Re (mpc_Addr (b)));
 }
 
-/*********************************************************
-*      SUBROUTINE MSORT                                  *
-*********************************************************/
-void
+/**
+ * @brief Sort the approximations saved in the current mps_context. 
+ *
+ * @param s A pointer to the current mps_context. 
+ */
+MPS_PRIVATE void
 mps_msort (mps_context * s)
 {
   int i;

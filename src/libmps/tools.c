@@ -21,7 +21,7 @@
 #endif
 
 /* random functions */
-void
+MPS_PRIVATE void
 randomize (unsigned int seed)
 {
   FILE *rf = NULL;
@@ -44,7 +44,7 @@ randomize (unsigned int seed)
   srand (seed);
 }
 
-double
+MPS_PRIVATE double
 drand (void)
 {
 #ifdef RAND_VAL
@@ -55,13 +55,13 @@ drand (void)
 }
 
 /* accessing doubles */
-double
+MPS_PRIVATE double
 dbl_set_2dl (double d, long int l)
 {
   return ldexp (d, (int) l);
 }
 
-void
+MPS_PRIVATE void
 dbl_get_2dl (double *rd, long int *rl, double d)
 {
   int i;
@@ -70,7 +70,7 @@ dbl_get_2dl (double *rd, long int *rl, double d)
   *rl = i;
 }
 
-double
+MPS_PRIVATE double
 dbl_get_mant (double d)
 {
   int i;
@@ -78,7 +78,7 @@ dbl_get_mant (double d)
   return frexp (d, &i);
 }
 
-int
+MPS_PRIVATE int
 dbl_get_exp (double d)
 {
   int i;

@@ -13,7 +13,7 @@
 
 #include <mps/mps.h>
 
-void
+MPS_PRIVATE void
 mps_mhorner_sparse (mps_context * s, mps_monomial_poly * p, mpc_t x, mpc_t value);
 
 /**
@@ -26,7 +26,7 @@ mps_mhorner_sparse (mps_context * s, mps_monomial_poly * p, mpc_t x, mpc_t value
  * @param x The point where the polynomial will be evaluated.
  * @param value The multiprecision complex variable where the result will be stored.
  */
-void 
+MPS_PRIVATE void 
 mps_mhorner (mps_context * s, mps_monomial_poly * p, mpc_t x, mpc_t value)
 {
   int j;
@@ -132,7 +132,7 @@ mps_mhorner_with_error2 (mps_context * s, mps_monomial_poly * p, mpc_t x, mpc_t 
  * @param wp The working precision to use for the computation. If this value is <code>0</code> then <code>s->mpwp</code>
  * will be used.
  */
-void 
+MPS_PRIVATE void 
 mps_mhorner_with_error (mps_context * s, mps_monomial_poly * p, mpc_t x, mpc_t value, rdpe_t relative_error, long int wp)
 {
   int j, my_wp;
@@ -198,7 +198,7 @@ mps_mhorner_with_error (mps_context * s, mps_monomial_poly * p, mpc_t x, mpc_t v
  *  routine. This is used to determine a safe memory are
  *  for temporary sparsity vectors.
  */
-void
+MPS_PRIVATE void
 mps_mhorner_sparse (mps_context * s, mps_monomial_poly * p, mpc_t x,
                     mpc_t value)
 {

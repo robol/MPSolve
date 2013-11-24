@@ -210,7 +210,7 @@ cleanup_context (mps_context * ctx, void * user_data)
     /* In the other case copy the approximation in the right place
      * so the logger can display them again. */
     int i = 0;
-    mps_approximation ** approximations = mps_newv (mps_approximation*, ctx->n);
+    mps_approximation ** approximations = malloc (sizeof (mps_approximation*) * ctx->n);
 
     for (i = 0; i < ctx->n; i++)
       approximations[i] = mps_approximation_copy (ctx, ctx->root[i]);

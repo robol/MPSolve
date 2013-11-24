@@ -46,7 +46,7 @@
    necessary.  Returns the number of characters read (not including
    the null terminator), or -1 on error or EOF.  */
 
-ssize_t
+static ssize_t
 getdelim (char **lineptr, size_t *n, int delimiter, FILE *fp)
 {
   ssize_t result = 0;
@@ -123,7 +123,7 @@ getdelim (char **lineptr, size_t *n, int delimiter, FILE *fp)
   return result;
 }
 
-ssize_t
+static ssize_t
 getline (char **lineptr, size_t *n, FILE *stream)
 {
   return getdelim (lineptr, n, '\n', stream);

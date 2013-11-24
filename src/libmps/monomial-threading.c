@@ -121,7 +121,7 @@ mps_thread_fpolzer_worker (void *data_ptr)
  * @brief Drop-in replacement for the stock fpolzer routine.
  * This version adds multithread support.
  */
-void
+MPS_PRIVATE void
 mps_thread_fpolzer (mps_context * s, int *it, mps_boolean * excep, int required_zeros)
 {
   int i, nzeros = 0, n_threads = s->n_threads;
@@ -158,6 +158,7 @@ mps_thread_fpolzer (mps_context * s, int *it, mps_boolean * excep, int required_
 
   data = (mps_thread_worker_data *) mps_malloc (sizeof (mps_thread_worker_data)
                                                 * n_threads);
+
   for (i = 0; i < n_threads; i++)
     {
       data[i].it = it;
@@ -186,7 +187,7 @@ mps_thread_fpolzer (mps_context * s, int *it, mps_boolean * excep, int required_
 /**
  * @brief Multithread worker for mps_thread_dpolzer ()
  */
-void *
+static void *
 mps_thread_dpolzer_worker (void *data_ptr)
 {
   int iter, i;
@@ -283,7 +284,7 @@ mps_thread_dpolzer_worker (void *data_ptr)
 /**
  * @brief Multithread version of mps_dpolzer ().
  */
-void
+MPS_PRIVATE void
 mps_thread_dpolzer (mps_context * s, int *it, mps_boolean * excep, int required_zeros)
 {
   mps_thread_worker_data *data;
@@ -345,7 +346,7 @@ mps_thread_dpolzer (mps_context * s, int *it, mps_boolean * excep, int required_
 /**
  * @brief Worker for the mpolzer routine.
  */
-void *
+static void *
 mps_thread_mpolzer_worker (void *data_ptr)
 {
   mps_thread_worker_data *data = (mps_thread_worker_data *) data_ptr;
@@ -498,7 +499,7 @@ endfun:                        /* free local MP variables */
 /**
  * @brief Drop-in threaded replacement for the stock mpolzer.
  */
-void
+MPS_PRIVATE void
 mps_thread_mpolzer (mps_context * s, int *it, mps_boolean * excep, int required_zeros)
 {
   int i, nzeros = 0, n_threads = s->n_threads;

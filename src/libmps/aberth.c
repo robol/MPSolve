@@ -18,7 +18,7 @@
  * @brief Compute Aberth correction for j-th root, without
  * selective correction.
  */
-void
+MPS_PRIVATE void
 mps_faberth (mps_context * s, mps_approximation * root, cplx_t abcorr)
 {
   cplx_t z;
@@ -36,7 +36,7 @@ mps_faberth (mps_context * s, mps_approximation * root, cplx_t abcorr)
     }
 }
 
-void
+MPS_PRIVATE void
 mps_faberth_wl (mps_context * s, int j, cplx_t abcorr, pthread_mutex_t * aberth_mutexes)
 {
   int i;
@@ -66,7 +66,7 @@ mps_faberth_wl (mps_context * s, int j, cplx_t abcorr, pthread_mutex_t * aberth_
  * @brief Compute Aberth correction for j-th root, without
  * selective correction.
  */
-void
+MPS_PRIVATE void
 mps_daberth (mps_context * s, mps_approximation * root, cdpe_t abcorr)
 {
   int i;
@@ -87,7 +87,7 @@ mps_daberth (mps_context * s, mps_approximation * root, cdpe_t abcorr)
  * @brief Compute Aberth correction for j-th root, without
  * selective correction.
  */
-void
+MPS_PRIVATE void
 mps_maberth (mps_context * s, mps_approximation * root, mpc_t abcorr)
 {
   int i;
@@ -116,7 +116,7 @@ mps_maberth (mps_context * s, mps_approximation * root, mpc_t abcorr)
  * but only with other roots of the <code>jc</code>-th
  * cluster.
  */
-void
+MPS_PRIVATE void
 mps_faberth_s (mps_context * s, mps_approximation * ab_root, mps_cluster * cluster, cplx_t abcorr)
 {
   cplx_t z;
@@ -139,7 +139,7 @@ mps_faberth_s (mps_context * s, mps_approximation * ab_root, mps_cluster * clust
  * but only with other roots of the <code>jc</code>-th
  * cluster.
  */
-void
+MPS_PRIVATE void
 mps_daberth_s (mps_context * s, mps_approximation * ab_root, mps_cluster * cluster, cdpe_t abcorr)
 {
   mps_root * root;
@@ -162,7 +162,7 @@ mps_daberth_s (mps_context * s, mps_approximation * ab_root, mps_cluster * clust
  * but only with other roots of the <code>jc</code>-th
  * cluster.
  */
-void
+MPS_PRIVATE void
 mps_maberth_s (mps_context * s, mps_approximation * ab_root, mps_cluster * cluster, mpc_t abcorr)
 {
   mps_root * root;
@@ -187,7 +187,7 @@ mps_maberth_s (mps_context * s, mps_approximation * ab_root, mps_cluster * clust
   mpc_clear (diff);
 }
 
-void
+MPS_PRIVATE void
 mps_daberth_wl (mps_context * s, int j, cdpe_t abcorr, pthread_mutex_t * aberth_mutexes)
 {
   int i;
@@ -212,7 +212,7 @@ mps_daberth_wl (mps_context * s, int j, cdpe_t abcorr, pthread_mutex_t * aberth_
     }
 }
 
-void
+MPS_PRIVATE void
 mps_maberth_s_wl (mps_context * s, int j, mps_cluster * cluster, mpc_t abcorr,
                   pthread_mutex_t * aberth_mutexes)
 {

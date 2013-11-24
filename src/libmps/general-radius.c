@@ -22,7 +22,7 @@
  * @param p The mps_polynomial whose Gerschgorin radii should be evaluated.
  * @param fradii The array of double where the radii will be stored.
  */
-void
+MPS_PRIVATE void
 mps_fradii (mps_context * s, mps_polynomial * p, double * fradii)
 {
   MPS_DEBUG_THIS_CALL (s);
@@ -96,7 +96,7 @@ mps_fradii (mps_context * s, mps_polynomial * p, double * fradii)
  * @param p The mps_polynomial whose Gerschgorin radii should be evaluated.
  * @param dradii The array of DPE where the radii will be stored.
  */
-void
+MPS_PRIVATE void
 mps_dradii (mps_context * s, mps_polynomial * p, rdpe_t * dradii)
 {
   MPS_DEBUG_THIS_CALL (s);
@@ -163,7 +163,7 @@ mps_dradii (mps_context * s, mps_polynomial * p, rdpe_t * dradii)
  * @param p The mps_polynomial whose Gerschgorin radii should be evaluated.
  * @param dradii The array of DPE where the radii will be stored.
  */
-void
+MPS_PRIVATE void
 mps_mradii (mps_context * s, mps_polynomial * p, rdpe_t * dradii)
 {
   MPS_DEBUG_THIS_CALL (s);

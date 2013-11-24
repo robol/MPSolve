@@ -33,7 +33,7 @@
  * 0 if that information is not available with the method
  * known to this implementations.
  */
-int
+MPS_PRIVATE int
 mps_thread_get_core_number (mps_context * s)
 {
   int cores = 0;
@@ -171,7 +171,7 @@ mps_thread_job_queue_next (mps_context * s, mps_thread_job_queue * q)
   return j;
 }
 
-void *
+MPS_PRIVATE void *
 mps_thread_mainloop (void * thread_ptr)
 {
   mps_thread * thread = (mps_thread *) thread_ptr;
@@ -233,7 +233,7 @@ mps_thread_mainloop (void * thread_ptr)
 /**
  * @brief Start the thread mainloop.
  */
-void
+MPS_PRIVATE void
 mps_thread_start_mainloop (mps_context * s, mps_thread * thread)
 {
   pthread_create (thread->thread, NULL, &mps_thread_mainloop, thread);

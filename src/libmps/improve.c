@@ -144,7 +144,7 @@ improve_root_wrapper (void * data_ptr)
  *
  * @param ctx The mps_context associated with the computation.
  */
-void
+MPS_PRIVATE void
 mps_improve (mps_context * ctx)
 {
   int i;

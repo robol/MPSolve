@@ -65,21 +65,7 @@ mps_context_select_algorithm (mps_context * s, mps_algorithm algorithm)
     }
 }
 
-
-/**
- * @brief Allocate a new mps_context struct with default
- * options.
- */
-mps_context *
-mps_context_new ()
-{
-  /* Allocate the new mps_context and load default options */
-  mps_context * s = (mps_context*) mps_malloc (sizeof (mps_context));
-  mps_context_init (s);
-  return s;
-}
-
-void
+static void
 mps_context_init (mps_context * s)
 {
   mpf_t test;
@@ -109,6 +95,20 @@ mps_context_init (mps_context * s)
   s->initialized = false;
   s->exit_required = false;
 }
+
+/**
+ * @brief Allocate a new mps_context struct with default
+ * options.
+ */
+mps_context *
+mps_context_new ()
+{
+  /* Allocate the new mps_context and load default options */
+  mps_context * s = (mps_context*) mps_malloc (sizeof (mps_context));
+  mps_context_init (s);
+  return s;
+}
+
 
 /**
  * @brief Free a not more useful mps_context.

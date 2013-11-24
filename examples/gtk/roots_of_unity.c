@@ -111,7 +111,8 @@ on_polynomial_solved (mps_context * s, GtkButton * button)
   g_idle_add (update_drawing_area, NULL);
 
   gtk_widget_set_sensitive (GTK_WIDGET (button), true);
-  mps_free_data (s);
+  mps_polynomial_free (s, mps_context_get_active_poly (s));
+  mps_context_free (s);
 }
 
 void

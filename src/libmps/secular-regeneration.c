@@ -28,7 +28,7 @@
  * @param i The index of the root whose precision must be updated.
  * @param wp The precision to set.
  */
-long int
+MPS_PRIVATE long int
 mps_secular_ga_update_root_wp (mps_context * s, int i, long int wp, mpc_t * bmpc)
 {
   mps_secular_equation * sec = s->secular_equation;  
@@ -67,7 +67,7 @@ mps_secular_ga_update_root_wp (mps_context * s, int i, long int wp, mpc_t * bmpc
  * @param old_mb The vector of the old \f$b_i\f$ in <code>mpc_t</code> version. Must be set
  * to NULL if we are not in a multiprecision phase. 
  */
-mps_boolean *
+static mps_boolean *
 mps_secular_ga_find_changed_roots (mps_context * s, cdpe_t * old_b, mpc_t * old_mb)
 {
   MPS_DEBUG_THIS_CALL (s);
@@ -130,7 +130,7 @@ struct __mps_secular_ga_regenerate_coefficients_monomial_data {
   int i;
 };
 
-void *
+static void *
 __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
 {
   struct __mps_secular_ga_regenerate_coefficients_monomial_data * data = data_ptr;
@@ -378,7 +378,7 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
  * @param root_changed A vector of booleans that is <code>false</code> on the components that
  * did not changed from the last regeneration. 
  */
-mps_boolean
+static mps_boolean
 mps_secular_ga_regenerate_coefficients_monomial (mps_context * s, cdpe_t * old_b, mpc_t * old_mb, mps_boolean * root_changed)
 {
   MPS_DEBUG_THIS_CALL (s);
@@ -457,7 +457,7 @@ mps_secular_ga_regenerate_coefficients_monomial (mps_context * s, cdpe_t * old_b
  * where <code>s->lastphase == mp_phase</code> to determine if the roots have changed. Otherwise
  * it must be set to NULL.
  */
-mps_boolean
+static mps_boolean
 mps_secular_ga_regenerate_coefficients_mp (mps_context * s, cdpe_t * old_b, mpc_t * old_mb)
 {
   /* Declaration and initialization of the multprecision
@@ -650,7 +650,7 @@ mps_secular_ga_separate_approximations (mps_context * ctx)
  *
  * @param s The mps_context of the computation.
  */
-mps_boolean
+MPS_PRIVATE mps_boolean
 mps_secular_ga_regenerate_coefficients (mps_context * s)
 {
   MPS_DEBUG_THIS_CALL (s);

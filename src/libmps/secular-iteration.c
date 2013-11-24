@@ -16,7 +16,7 @@
 #include <string.h>
 
 /* Routine called to perform the floating point newton iterations. */
-void *
+static void *
 __mps_secular_ga_fiterate_worker (void* data_ptr)
 {
   mps_thread_worker_data *data = (mps_thread_worker_data *) data_ptr;
@@ -130,7 +130,7 @@ __mps_secular_ga_fiterate_worker (void* data_ptr)
  * in s->secular_equation so a raise in the precision will be triggered.
  * @return The number of approximated roots after the iteration.
  */
-int
+MPS_PRIVATE int
 mps_secular_ga_fiterate (mps_context * s, int maxit, mps_boolean just_regenerated)
 {
   int computed_roots = 0;
@@ -286,7 +286,7 @@ mps_secular_ga_fiterate (mps_context * s, int maxit, mps_boolean just_regenerate
 }
 
 /* Routine called to perform the floating point newton iterations with DPE */
-void *
+static void *
 __mps_secular_ga_diterate_worker (void* data_ptr)
 {
   mps_thread_worker_data *data = (mps_thread_worker_data *) data_ptr;
@@ -361,7 +361,7 @@ __mps_secular_ga_diterate_worker (void* data_ptr)
  * in less than 2 * (n - computed_roots) iterations that best_approx is set to true
  * in s->secular_equation so a raise in the precision will be triggered.
  */
-int
+MPS_PRIVATE int
 mps_secular_ga_diterate (mps_context * s, int maxit, mps_boolean just_regenerated)
 {
   int computed_roots = 0;
@@ -491,7 +491,7 @@ mps_secular_ga_diterate (mps_context * s, int maxit, mps_boolean just_regenerate
 }
 
 /* Routine called to perform the floating point newton iterations with MP */
-void *
+static void *
 __mps_secular_ga_miterate_worker (void* data_ptr)
 {
   mps_thread_worker_data *data = (mps_thread_worker_data *) data_ptr;
@@ -616,7 +616,7 @@ __mps_secular_ga_miterate_worker (void* data_ptr)
  * in s->secular_equation so a raise in the precision will be triggered.
  * @return The number of approximated roots after the iteration.
  */
-int
+MPS_PRIVATE int
 mps_secular_ga_miterate (mps_context * s, int maxit, mps_boolean just_regenerated)
 {
   int computed_roots = 0;

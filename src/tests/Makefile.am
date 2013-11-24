@@ -7,33 +7,37 @@ EXTRA_PROGRAMS = check_secsolve check_unisolve check_dpe test_mpsolve check_mult
 AM_TEST_ENVIRONMENT = \
   SRCDIR=$(abs_srcdir) BUILDDIR=$(abs_builddir)
 
- check_chebyshev_SOURCES = check_chebyshev.c check_implementation.c check_implementation.h
- check_chebyshev_CFLAGS = $(CHECK_CFLAGS) $(GMP_CFLAGS) $(PTHREAD_CFLAGS) -I${top_srcdir}/include
- check_chebyshev_LDFLAGS = ${top_builddir}/src/libmps/libmps.la -lm $(GMP_LIBS) $(CHECK_LIBS) $(PTHREAD_LIBS)
+COMMON_LIBS = ${top_builddir}/src/libmps/libmpsprivate.la -lm $(GMP_LIBS) $(CHECK_LIBS) $(PTHREAD_LIBS)
+COMMON_CFLAGS = $(CHECK_CFLAGS) $(GMP_CFLAGS) $(PTHREAD_CFLAGS) -I${top_srcdir}/include -D_MPS_PRIVATE
+COMMON_SOURCES = check_implementation.c check_implementation.h
 
- check_secsolve_SOURCES = check_secsolve.c check_implementation.c check_implementation.h
- check_secsolve_CFLAGS = $(CHECK_CFLAGS) $(GMP_CFLAGS) $(PTHREAD_CFLAGS) -I${top_srcdir}/include
- check_secsolve_LDFLAGS = ${top_builddir}/src/libmps/libmps.la -lm $(GMP_LIBS) $(CHECK_LIBS) $(PTHREAD_LIBS)
+ check_chebyshev_SOURCES = check_chebyshev.c $(COMMON_SOURCES)
+ check_chebyshev_CFLAGS = $(COMMON_CFLAGS)
+ check_chebyshev_LDFLAGS = $(COMMON_LIBS)
 
- check_unisolve_SOURCES = check_unisolve.c check_implementation.c check_implementation.h
- check_unisolve_CFLAGS = $(CHECK_CFLAGS) $(GMP_CFLAGS) $(PTHREAD_CFLAGS) -I${top_srcdir}/include
- check_unisolve_LDFLAGS = ${top_builddir}/src/libmps/libmps.la -lm $(GMP_LIBS) $(CHECK_LIBS) $(PTHREAD_LIBS)
+ check_secsolve_SOURCES = check_secsolve.c $(COMMON_SOURCES)
+ check_secsolve_CFLAGS = $(COMMON_CFLAGS)
+ check_secsolve_LDFLAGS = $(COMMON_LIBS)
 
- check_dpe_SOURCES = check_dpe.c check_implementation.c check_implementation.h
- check_dpe_CFLAGS = $(CHECK_CFLAGS) $(GMP_CFLAGS) $(PTHREAD_CFLAGS) -I${top_srcdir}/include
- check_dpe_LDFLAGS = ${top_builddir}/src/libmps/libmps.la -lm $(GMP_LIBS) $(CHECK_LIBS) $(PTHREAD_LIBS)
+ check_unisolve_SOURCES = check_unisolve.c $(COMMON_SOURCES)
+ check_unisolve_CFLAGS = $(COMMON_CFLAGS)
+ check_unisolve_LDFLAGS = $(COMMON_LIBS)
 
- test_mpsolve_SOURCES = test_mpsolve.c check_implementation.h check_implementation.c
- test_mpsolve_CFLAGS = ${CHECK_CFLAGS} $(GMP_CFLAGS) $(PTHREAD_CFLAGS) -I${top_srcdir}/include
- test_mpsolve_LDFLAGS = ${top_builddir}/src/libmps/libmps.la -lm $(GMP_LIBS) $(PTHREAD_LIBS)
+ check_dpe_SOURCES = check_dpe.c $(COMMON_SOURCES)
+ check_dpe_CFLAGS = $(COMMON_CFLAGS)
+ check_dpe_LDFLAGS = $(COMMON_LIBS)
 
- check_multithread_SOURCES = check_multithread.c
- check_multithread_CFLAGS = $(CHECK_CFLAGS) $(GMP_CFLAGS) $(PTHREAD_CFLAGS) -I${top_srcdir}/include -D_MPS_PRIVATE
- check_multithread_LDFLAGS = ${top_builddir}/src/libmps/libmps.la -lm $(GMP_LIBS) $(CHECK_LIBS) $(PTHREAD_LIBS)
+ test_mpsolve_SOURCES = test_mpsolve.c $(COMMON_SOURCES)
+ test_mpsolve_CFLAGS = $(COMMON_CFLAGS)
+ test_mpsolve_LDFLAGS = $(COMMON_LIBS)
 
- check_cluster_SOURCES = check_cluster.c check_implementation.c
- check_cluster_CFLAGS = $(CHECK_CFLAGS) $(GMP_CFLAGS) $(PTHREAD_CFLAGS) -I${top_srcdir}/include -D_MPS_PRIVATE
- check_cluster_LDFLAGS = ${top_builddir}/src/libmps/libmps.la -lm $(GMP_LIBS) $(CHECK_LIBS) $(PTHREAD_LIBS)
+ check_multithread_SOURCES = check_multithread.c $(COMMON_SOURCES)
+ check_multithread_CFLAGS = $(COMMON_CFLAGS)
+ check_multithread_LDFLAGS = $(COMMON_LIBS)
+
+ check_cluster_SOURCES = check_cluster.c $(COMMON_SOURCES)
+ check_cluster_CFLAGS = $(COMMON_CFLAGS)
+ check_cluster_LDFLAGS = $(COMMON_LIBS)
 
 endif
 

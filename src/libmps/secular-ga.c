@@ -21,7 +21,7 @@
  * 
  * @param s The mps_context of the computation.
  */
-void
+MPS_PRIVATE void
 mps_secular_ga_update_coefficients (mps_context * s)
 {
   int i;
@@ -51,7 +51,7 @@ mps_secular_ga_update_coefficients (mps_context * s)
  *
  * @param s The mps_context of the computation.
  */
-mps_boolean
+MPS_PRIVATE mps_boolean
 mps_secular_ga_check_stop (mps_context * s)
 {
   MPS_DEBUG_THIS_CALL (s);
@@ -109,7 +109,7 @@ mps_secular_ga_check_stop (mps_context * s)
  *
  * @param s The mps_context of the computation.
  */
-void 
+MPS_PRIVATE void 
 mps_secular_ga_mpsolve (mps_context * s)
 {
   int roots_computed = 0;

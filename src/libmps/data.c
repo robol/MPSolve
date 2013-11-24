@@ -20,7 +20,7 @@
  * @param s The <code>mps_context</code> of the computation.
  * @param prec The precision that is desired for the next MP computations. 
  */
-void
+MPS_PRIVATE void
 mps_mp_set_prec (mps_context * s, long int prec)
 {
   long int min_prec = mps_context_get_minimum_precision (s);
@@ -39,7 +39,7 @@ mps_mp_set_prec (mps_context * s, long int prec)
  *
  * @param s The <code>mps_context</code> of the computation.
  */
-void
+MPS_PRIVATE void
 mps_allocate_data (mps_context * s)
 {
   MPS_DEBUG_THIS_CALL (s);
@@ -109,7 +109,7 @@ mps_allocate_data (mps_context * s)
  * @return The precision set (that may be different from the one requested
  * since GMP works only with precision divisible by some given integer.
  */
-long int
+MPS_PRIVATE long int
 mps_raise_data (mps_context * s, long int prec)
 {
   int k;
@@ -136,7 +136,7 @@ mps_raise_data (mps_context * s, long int prec)
  * @param s The <code>mps_context</code> of the computation.
  * @param prec The desired precision.
  */
-void
+MPS_PRIVATE void
 mps_raise_data_raw (mps_context * s, long int prec)
 {
   int k;
@@ -178,7 +178,7 @@ mps_raise_data_raw (mps_context * s, long int prec)
  * @param prec The precision that should be set and to which the data should
  * be adjusted.
  */
-void 
+MPS_PRIVATE void 
 mps_prepare_data (mps_context * s, long int prec)
 {
   MPS_DEBUG_THIS_CALL (s);
@@ -209,7 +209,7 @@ mps_prepare_data (mps_context * s, long int prec)
  *
  * @param s The <code>mps_context</code> of the computation.
  */
-void
+MPS_PRIVATE void
 mps_restore_data (mps_context * s)
 {
   MPS_LOCK (s->data_prec_max);
@@ -230,7 +230,7 @@ mps_restore_data (mps_context * s)
  *
  * @param s The <code>mps_context</code> of the computation.
  */
-void
+MPS_PRIVATE void
 mps_free_data (mps_context * s)
 {
   int i;

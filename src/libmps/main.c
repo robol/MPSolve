@@ -37,7 +37,7 @@
  *   - Call msolve with the current precision
  * - check for termination
  */
-void
+MPS_PRIVATE void
 mps_standard_mpsolve (mps_context * s)
 {
   int i, nzc;
@@ -276,7 +276,7 @@ exit_sub:
 /**
   * @brief Setup vectors and variables
   */
-void
+MPS_PRIVATE void
 mps_setup (mps_context * s)
 {
   int i;
@@ -443,7 +443,7 @@ mps_setup (mps_context * s)
  * @param s The <code>mps_context</code> associated with the current computation.
  * @param which_case the address of the variable which_case;
  */
-void
+MPS_PRIVATE void
 mps_check_data (mps_context * s, char *which_case)
 {
   rdpe_t min_coeff, max_coeff, tmp;
@@ -581,10 +581,11 @@ mps_check_data (mps_context * s, char *which_case)
     *which_case = 'd';
 }
 
-/*********************************************************
- *      SUBROUTINE COMPUTE_SEP                            *
- *********************************************************/
-void
+/**
+ * @brief Compute the minimum distance that can separate two roots of the input
+ * polynomial. 
+ */
+MPS_PRIVATE void
 mps_compute_sep (mps_context * s)
 {
   s->sep = s->n * s->lmax_coeff;

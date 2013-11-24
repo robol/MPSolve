@@ -32,7 +32,7 @@
  * @param root The approximation where the newton fraction should be evaluated.
  * @param corr The complex value of the newton correction. 
  */
-void
+MPS_PRIVATE void
 mps_fnewton (mps_context * s, mps_polynomial * poly, mps_approximation * root, 
              cplx_t corr)
 {
@@ -125,7 +125,6 @@ mps_fnewton (mps_context * s, mps_polynomial * poly, mps_approximation * root,
           *radius *= n / cplx_mod (den);
           *radius *= az;
         }
-
     }
 }
 
@@ -152,7 +151,7 @@ mps_fnewton (mps_context * s, mps_polynomial * poly, mps_approximation * root,
  *
  * @see mps_fnewton()
  */
-void
+MPS_PRIVATE void
 mps_dnewton (mps_context * s, mps_polynomial * poly, mps_approximation * root, 
              cdpe_t corr)
 {
@@ -225,10 +224,12 @@ mps_dnewton (mps_context * s, mps_polynomial * poly, mps_approximation * root,
   rdpe_add_eq (root->drad, rtmp);
 }
 
-/****************************************************
-*          FUNCTION INTLOG2                         *
-****************************************************/
-int
+/**
+ * @brief Logarithm in base 2 of n. 
+ *
+ * @param n The number of which the logarithm must be taken. 
+ */
+MPS_PRIVATE int
 mps_intlog2 (int n)
 {
   int k;
@@ -266,7 +267,7 @@ mps_intlog2 (int n)
  * @see mps_fnewton()
  * @see mps_dnewton()
  */
-void
+MPS_PRIVATE void
 mps_mnewton (mps_context * s, mps_polynomial * poly, 
              mps_approximation * root, mpc_t corr, long int wp)
 {

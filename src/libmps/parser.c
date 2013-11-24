@@ -17,7 +17,7 @@
 #include <ctype.h>
 #include <locale.h>
 
-void
+MPS_PRIVATE void
 mps_skip_comments (FILE * input_stream)
 {
   int buf;
@@ -28,7 +28,7 @@ mps_skip_comments (FILE * input_stream)
   ungetc (buf, input_stream);
 }
 
-void
+MPS_PRIVATE void
 mps_raise_parsing_error (mps_context * s, mps_input_buffer * buffer, 
                          const char * token, 
                          const char * message, ...)
@@ -50,7 +50,7 @@ mps_raise_parsing_error (mps_context * s, mps_input_buffer * buffer,
  * @brief Check if the string given is equal to the option
  * identified by the given string
  */
-mps_boolean
+MPS_PRIVATE mps_boolean
 mps_is_option (mps_context * s, const char *option_string1,
                const char *option_string2)
 {
@@ -97,7 +97,7 @@ mps_is_option (mps_context * s, const char *option_string1,
  *
  * Valid options, recognized at the moment being are:
  */
-mps_input_option
+MPS_PRIVATE mps_input_option
 mps_parse_option_line (mps_context * s, char *line, size_t length)
 {
   char *first_comment;
@@ -205,7 +205,6 @@ mps_parse_option_line (mps_context * s, char *line, size_t length)
   free (option);
   return input_option;
 }
-
 
 mps_polynomial *
 mps_parse_file (mps_context * s, const char * path)

@@ -66,7 +66,7 @@ __mps_fjacobi_aberth_step_worker (void * data_ptr)
  *        updated with the new values when the function returns. 
  * @param nit Number of iterations performed in the packet. 
  */
-mps_boolean
+static mps_boolean
 mps_fjacobi_aberth_step (mps_context * ctx, mps_polynomial * p, int * nit)
 {
   mps_boolean again = false;
@@ -123,7 +123,7 @@ mps_fjacobi_aberth_step (mps_context * ctx, mps_polynomial * p, int * nit)
  *
  * @return The number of approximated roots. 
  */
-int
+MPS_PRIVATE int
 mps_faberth_packet (mps_context * ctx, mps_polynomial * p, mps_boolean just_regenerated)
 {
   int iterations = 0, i = 0, approximated_roots = 0, packet = 0, root_neighborhood_roots = 0;
@@ -221,7 +221,7 @@ __mps_djacobi_aberth_step_worker (void * data_ptr)
  * @param approximations The starting approximations for the method. They will be
  *        updated with the new values when the function returns. 
  */
-mps_boolean
+static mps_boolean
 mps_djacobi_aberth_step (mps_context * ctx, mps_polynomial * p, int * nit)
 {
   cdpe_t * daberth_corrections = NULL;
@@ -279,7 +279,7 @@ mps_djacobi_aberth_step (mps_context * ctx, mps_polynomial * p, int * nit)
  * @param p The polynomial whose roots should be approximated.
  * @param just regenrated true if this packet is the first following a regeneration.
  */
-int
+MPS_PRIVATE int
 mps_daberth_packet (mps_context * ctx, mps_polynomial * p, mps_boolean just_regenerated)
 {
   int iterations = 0, i = 0, approximated_roots = 0, packet = 0, root_neighborhood_roots = 0;
@@ -388,7 +388,7 @@ __mps_mjacobi_aberth_step_worker (void * data_ptr)
  * @param approximations The starting approximations for the method. They will be
  *        updated with the new values when the function returns. 
  */
-mps_boolean
+static mps_boolean
 mps_mjacobi_aberth_step (mps_context * ctx, mps_polynomial * p, int * nit)
 {
   mpc_t * maberth_corrections = NULL;
@@ -449,7 +449,7 @@ mps_mjacobi_aberth_step (mps_context * ctx, mps_polynomial * p, int * nit)
  * @param p The polynomial whose roots should be approximated.
  * @param just regenrated true if this packet is the first following a regeneration.
  */
-int
+MPS_PRIVATE int
 mps_maberth_packet (mps_context * ctx, mps_polynomial * p, mps_boolean just_regenerated)
 {
   int iterations = 0, i = 0, approximated_roots = 0, packet = 0, root_neighborhood_roots = 0;

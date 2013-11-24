@@ -26,7 +26,7 @@
 
 #include <mps/mps.h>
 
-const double TOLER = 0.4;       /* slope tolerace */
+static const double TOLER = 0.4;       /* slope tolerace */
 
 /**
  * @brief find max lo<j<=i : h[j]
@@ -36,7 +36,7 @@ const double TOLER = 0.4;       /* slope tolerace */
  * the convex hull of the points
  * \f[ \{ (k, a_k) \ | \ k \in \{ lo, \dots, i \} \} \f]
  */
-int
+static int
 mps_left (mps_context * s, int i, int lo)
 {
   if (i == lo)
@@ -80,7 +80,7 @@ mps_right (mps_context * s, int i, int up)
  * @param ir index of the last point
  * @param a  array with the points
  */
-mps_boolean
+static mps_boolean
 mps_fctest (mps_context * s, int il, int i, int ir, double a[])
 {
   double s1, s2;
@@ -104,7 +104,7 @@ mps_fctest (mps_context * s, int il, int i, int ir, double a[])
  * @param up last index of the points in the second convex hull
  * @param a array of points
  */
-void
+static void
 mps_fmerge (mps_context * s, int lo, int i, int up, double a[])
 {
   int il, ir, ill, irr;
@@ -158,7 +158,7 @@ mps_fmerge (mps_context * s, int lo, int i, int up, double a[])
  * @param a vector of points whose convex hull must be computed.
  * @param n size of the vector <code>a</code>.
  */
-void
+MPS_PRIVATE void
 mps_fconvex (mps_context * s, int n, double a[])
 {
   int m, c;

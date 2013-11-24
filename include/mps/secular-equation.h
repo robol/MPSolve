@@ -259,14 +259,6 @@ extern "C"
   void mps_secular_mnewton (mps_context * st, mps_polynomial * p, mps_approximation * root, mpc_t corr, long int wp);
 
   /* Routines in secular-regeneartion.c */
-  mps_boolean * mps_secular_ga_find_changed_roots (mps_context * s, cdpe_t * old_b, mpc_t * old_mb);
-
-  mps_boolean mps_secular_ga_regenerate_coefficients_mp (mps_context * s, cdpe_t * old_b, mpc_t * old_mb);
-
-  mps_boolean mps_secular_ga_regenerate_coefficients_monomial (mps_context * s, cdpe_t * old_b, mpc_t * old_mb, mps_boolean * root_changed);
-
-  mps_boolean mps_secular_ga_regenerate_coefficients_secular (mps_context * s, cdpe_t * old_b, mpc_t * old_mb, mps_boolean * root_changed);
-
   mps_boolean mps_secular_ga_regenerate_coefficients (mps_context * s);
 
   /* Routines in secular.c */

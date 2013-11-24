@@ -14,10 +14,12 @@
 #include <mps/mps.h>
 
 
-/********************************************************
-*      SUBROUTINE INCLUSION                             *
-*********************************************************/
-mps_boolean
+/**
+ * @brief Check the validity of the inclusions disks. 
+ *
+ * @param s A pointer to the current mps_context. 
+ */
+MPS_PRIVATE mps_boolean
 mps_inclusion (mps_context * s)
 {
   int i, j, k, oldnclust;

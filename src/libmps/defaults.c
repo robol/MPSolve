@@ -16,7 +16,7 @@
 #include <mps/mps.h>
 #include <string.h>
 
-void
+MPS_PRIVATE void
 mps_set_default_values (mps_context * s)
 {
   /* flags */

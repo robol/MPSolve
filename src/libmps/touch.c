@@ -35,7 +35,7 @@
  * @return false if the disc <code>i</code> and <code>j</code>
  *   are newton-isolated.
  */
-mps_boolean
+MPS_PRIVATE mps_boolean
 mps_ftouchnwt (mps_context * s, double * frad, int n, int i, int j)
 {
   cplx_t ctmp;
@@ -71,7 +71,7 @@ mps_ftouchnwt (mps_context * s, double * frad, int n, int i, int j)
  * @return false if the disc <code>i</code> and <code>j</code>
  *   are newton-isolated.
  */
-mps_boolean
+MPS_PRIVATE mps_boolean
 mps_dtouchnwt (mps_context * s, rdpe_t * drad, int n, int i, int j)
 {
   cdpe_t ctmp;
@@ -106,7 +106,7 @@ mps_dtouchnwt (mps_context * s, rdpe_t * drad, int n, int i, int j)
  * @return false if the disc <code>i</code> and <code>j</code>
  *   are newton-isolated.
  */
-mps_boolean
+MPS_PRIVATE mps_boolean
 mps_mtouchnwt (mps_context * s, rdpe_t * drad, int n, int i, int j)
 {
   mpc_t mtmp;
@@ -131,12 +131,14 @@ mps_mtouchnwt (mps_context * s, rdpe_t * drad, int n, int i, int j)
   return rdpe_ge (dtmp1, dtmp2);
 }
 
-/************************************************************
-*              FUNCTION FTOUCHREAL                          *
-*************************************************************
- true if the disk intersects the real axis, false otherwise
-************************************************************/
-mps_boolean
+/**
+ * @brief Return true if the disk intersects the real axis, false otherwise (floating point version).
+ * 
+ * @param s A pointer to the current mps_context.
+ * @param n The degree of the polynomial. 
+ * @param i The index of the root to check
+ */
+MPS_PRIVATE mps_boolean
 mps_ftouchreal (mps_context * s, int n, int i)
 {
   if (s->root[i]->frad >= DBL_MAX / n)
@@ -145,10 +147,14 @@ mps_ftouchreal (mps_context * s, int n, int i)
   return n * s->root[i]->frad >= fabs (cplx_Im (s->root[i]->fvalue));
 }
 
-/************************************************************
-*              FUNCTION DTOUCHREAL                          *
-************************************************************/
-mps_boolean
+/**
+ * @brief Return true if the disk intersects the real axis, false otherwise (DPE version).
+ * 
+ * @param s A pointer to the current mps_context.
+ * @param n The degree of the polynomial. 
+ * @param i The index of the root to check
+ */
+MPS_PRIVATE mps_boolean
 mps_dtouchreal (mps_context * s, int n, int i)
 {
   rdpe_t tmp1, tmp2;
@@ -158,10 +164,14 @@ mps_dtouchreal (mps_context * s, int n, int i)
   return rdpe_ge (tmp1, tmp2);
 }
 
-/************************************************************
-*              FUNCTION MTOUCHREAL                          *
-************************************************************/
-mps_boolean
+/**
+ * @brief Return true if the disk intersects the real axis, false otherwise (MP version).
+ * 
+ * @param s A pointer to the current mps_context.
+ * @param n The degree of the polynomial. 
+ * @param i The index of the root to check
+ */
+MPS_PRIVATE mps_boolean
 mps_mtouchreal (mps_context * s, int n, int i)
 {
   rdpe_t tmp1, tmp2;
@@ -173,12 +183,14 @@ mps_mtouchreal (mps_context * s, int n, int i)
   return rdpe_ge (tmp1, tmp2);
 }
 
-/************************************************************
-*              FUNCTION  FTOUCHIMAG                         *
-*************************************************************
- true iff the disk intersects the imaginary axis 
-************************************************************/
-mps_boolean
+/**
+ * @brief Return true if the disk intersects the imaginary axis, false otherwise (floating point version).
+ * 
+ * @param s A pointer to the current mps_context.
+ * @param n The degree of the polynomial. 
+ * @param i The index of the root to check
+ */
+MPS_PRIVATE mps_boolean
 mps_ftouchimag (mps_context * s, int n, int i)
 {
   if (s->root[i]->frad >= DBL_MAX / n)
@@ -187,10 +199,14 @@ mps_ftouchimag (mps_context * s, int n, int i)
   return n * s->root[i]->frad >= fabs (cplx_Re (s->root[i]->fvalue));
 }
 
-/************************************************************
-*              FUNCTION  DTOUCHIMAG                         *
-************************************************************/
-mps_boolean
+/**
+ * @brief Return true if the disk intersects the imaginary axis, false otherwise (DPE version).
+ * 
+ * @param s A pointer to the current mps_context.
+ * @param n The degree of the polynomial. 
+ * @param i The index of the root to check
+ */
+MPS_PRIVATE mps_boolean
 mps_dtouchimag (mps_context * s, int n, int i)
 {
   rdpe_t tmp1, tmp2;
@@ -200,10 +216,14 @@ mps_dtouchimag (mps_context * s, int n, int i)
   return rdpe_ge (tmp1, tmp2);
 }
 
-/************************************************************
-*              FUNCTION  MTOUCHIMAG                         *
-************************************************************/
-mps_boolean
+/**
+ * @brief Return true if the disk intersects the imaginary axis, false otherwise (MP version).
+ * 
+ * @param s A pointer to the current mps_context.
+ * @param n The degree of the polynomial. 
+ * @param i The index of the root to check
+ */
+MPS_PRIVATE mps_boolean
 mps_mtouchimag (mps_context * s, int n, int i)
 {
   rdpe_t tmp1, tmp2;
@@ -215,13 +235,14 @@ mps_mtouchimag (mps_context * s, int n, int i)
   return rdpe_ge (tmp1, tmp2);
 }
 
-/************************************************************
-*              FUNCTION  FTOUCHUNIT                         *
-*************************************************************
- true if the disk intersects the unit circle, false otherwise
-  (n*drad[i]+1 >= |froot[i]|) && (n*drad[i]+|froot[i]| >= 1)
-*************************************************************/
-mps_boolean
+/**
+ * @brief Return true if the disk intersects the unitary circle, false otherwise (floating point version).
+ * 
+ * @param s A pointer to the current mps_context.
+ * @param n The degree of the polynomial. 
+ * @param i The index of the root to check
+ */
+MPS_PRIVATE mps_boolean
 mps_ftouchunit (mps_context * s, int n, int i)
 {
   double ab, rad;
@@ -234,10 +255,14 @@ mps_ftouchunit (mps_context * s, int n, int i)
   return (rad + 1 >= ab) && (rad + ab >= 1);
 }
 
-/************************************************************
-*              FUNCTION  DTOUCHUNIT                         *
-************************************************************/
-mps_boolean
+/**
+ * @brief Return true if the disk intersects the unitary circle, false otherwise (DPE version).
+ * 
+ * @param s A pointer to the current mps_context.
+ * @param n The degree of the polynomial. 
+ * @param i The index of the root to check
+ */
+MPS_PRIVATE mps_boolean
 mps_dtouchunit (mps_context * s, int n, int i)
 {
   rdpe_t ab, rad, tmp;
@@ -251,10 +276,14 @@ mps_dtouchunit (mps_context * s, int n, int i)
   return rdpe_ge (tmp, rdpe_one);
 }
 
-/************************************************************
-*              FUNCTION  MTOUCHUNIT                         *
-************************************************************/
-mps_boolean
+/**
+ * @brief Return true if the disk intersects the unitary circle, false otherwise (MP version).
+ * 
+ * @param s A pointer to the current mps_context.
+ * @param n The degree of the polynomial. 
+ * @param i The index of the root to check
+ */
+MPS_PRIVATE mps_boolean
 mps_mtouchunit (mps_context * s, int n, int i)
 {
   mpf_t mab;

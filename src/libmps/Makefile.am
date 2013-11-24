@@ -1,7 +1,9 @@
 NULL = 
 
 lib_LTLIBRARIES = libmps.la
+
 includedir=${prefix}/include/mps
+
 include_HEADERS = \
         ${top_srcdir}/include/mps/approximation.h \
         ${top_srcdir}/include/mps/tools.h \
@@ -77,6 +79,7 @@ libmps_la_SOURCES = \
 	    secular-newton.c \
 	    secular-regeneration.c \
 	    secular-starting.c \
+	    shift.c \
 	    solve.c \
 	    sort.c \
 	    starting.c \
@@ -97,3 +100,26 @@ libmps_la_LIBADD = \
 	$(GMP_LIBS) \
 	$(PTHREAD_LIBS) \
 	$(NULL)
+
+#
+# In case we need to run the test-suite compile a second version
+# of the mps library with all the routines made public, and so, testable :)
+#
+if CHECK
+
+noinst_LTLIBRARIES = libmpsprivate.la 	
+
+libmpsprivate_la_LDFLAGS = \
+	$(PTHREAD_CFLAGS)
+
+libmpsprivate_la_SOURCES = \
+	$(libmps_la_SOURCES)
+
+
+libmpsprivate_la_LIBADD = \
+	$(libmps_la_LIBADD)
+
+libmpsprivate_la_CFLAGS = \
+	-DMPS_PUBLISH_PRIVATE_METHODS=1
+
+endif

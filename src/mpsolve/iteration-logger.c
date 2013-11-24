@@ -51,7 +51,7 @@ mps_iteration_logger_init (MpsIterationLogger * logger)
   logger->drawing_area = NULL;
   logger->exit = FALSE;
 
-  logger->drawing_lock = mps_new (pthread_mutex_t);
+  logger->drawing_lock = malloc (sizeof (pthread_mutex_t));
   pthread_mutex_init (logger->drawing_lock, NULL);
 
   /* Setup neutral zomming */

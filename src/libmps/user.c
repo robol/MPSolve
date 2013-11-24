@@ -33,16 +33,18 @@ obtained by means of a rounding error analysis of (1).
 #include <math.h>
 #include <mps/mps.h>
 
-/******************************************************
-*              SUBROUTINE FNEWTON_USR                 *   
-******************************************************* 
-* user-defined program for the computation of p, p',  *
-* and ap corr = p/p1, rad = n*(ABS(p)+ap)/ABS(p'),    *
-* again = ABS(p)>ap.                                  *
-* This sample computes the 'Mandelbrot polynomial by  *
-* means of the relation: p=1+x*p**2, starting with p=1*
-******************************************************/
-void
+/**
+ * @brief User-defined program for the computation of \f$p\f$, \f$p'\f$. 
+ *
+ * @param s The current mps_context
+ * @param poly The mps_polynomial being solved. 
+ * @param root The approximation whose Newton correction shall be computed. 
+ * @param corr The output value where the newton correction will be stored. 
+ *
+ * This sample computes the 'Mandelbrot polynomial by  
+ * means of the relation: p=1+x*p**2, starting with p=1
+ */
+MPS_PRIVATE void
 mps_fnewton_usr (mps_context * s, mps_polynomial * poly, mps_approximation * root, cplx_t corr)
 {
   cplx_t p, pp, pt, tmp;
@@ -83,12 +85,18 @@ mps_fnewton_usr (mps_context * s, mps_polynomial * poly, mps_approximation * roo
   *rad = s->n * (cplx_mod (p) + 3 * ap * eps) / cplx_mod (pp);
 }
 
-/******************************************************
-*              SUBROUTINE DNEWTON_USR                 *   
-******************************************************* 
- DPE computation
-******************************************************/
-void
+/**
+ * @brief User-defined program for the computation of \f$p\f$, \f$p'\f$. 
+ *
+ * @param s The current mps_context
+ * @param poly The mps_polynomial being solved. 
+ * @param root The approximation whose Newton correction shall be computed. 
+ * @param corr The output value where the newton correction will be stored. 
+ *
+ * This sample computes the 'Mandelbrot polynomial by  
+ * means of the relation: p=1+x*p**2, starting with p=1
+ */
+MPS_PRIVATE void
 mps_dnewton_usr (mps_context * s, mps_polynomial * poly, mps_approximation * root, cdpe_t corr)
 {
   cdpe_t p, pp, pt, tmp;
@@ -138,12 +146,18 @@ mps_dnewton_usr (mps_context * s, mps_polynomial * poly, mps_approximation * roo
     rdpe_mul (root->drad, ax, eps);
 }
 
-/******************************************************
-*              SUBROUTINE MNEWTON_USR                 *   
-******************************************************* 
- multiprecision computation
-******************************************************/
-void
+/**
+ * @brief User-defined program for the computation of \f$p\f$, \f$p'\f$. 
+ *
+ * @param s The current mps_context
+ * @param poly The mps_polynomial being solved. 
+ * @param root The approximation whose Newton correction shall be computed. 
+ * @param corr The output value where the newton correction will be stored. 
+ *
+ * This sample computes the 'Mandelbrot polynomial by  
+ * means of the relation: p=1+x*p**2, starting with p=1
+ */
+MPS_PRIVATE void
 mps_mnewton_usr (mps_context * s, mps_polynomial * poly, mps_approximation * root, mpc_t corr, long int wp)
 {
   int i, m;

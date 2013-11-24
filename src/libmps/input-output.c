@@ -168,7 +168,7 @@ extern FILE     *__sfp(void);
 
 /* Open a memstream around buffer BUF of SIZE bytes, using MODE.
    Return the new stream, or fail with NULL.  */
-FILE *
+static FILE *
 fmemopen(void *buf, size_t size, const char *mode)
 {
   FILE *fp;
@@ -247,9 +247,14 @@ fmemopen(void *buf, size_t size, const char *mode)
 
 #endif
 
-/*********************************************************
-*      SUBROUTINE READROOTS                              *
-*********************************************************/
+/**
+ * @brief Read the approximations from the file opened in the 
+ * rtstr member of the mps_context. 
+ *
+ * @param s A pointer to the current mps_context. 
+ *
+ * NOTE: This function is not used anywhere in the code, atm. 
+ */
 void
 mps_readroots (mps_context * s)
 {
@@ -271,9 +276,12 @@ mps_readroots (mps_context * s)
     mpc_inp_str_u (s->root[i]->mvalue, s->rtstr, 10);
 }
 
-/*********************************************************
-*      SUBROUTINE COUNTROOTS                             *
-*********************************************************/
+/**
+ * @brief Count the roots that are included in the search set, excluded
+ * form it, or have an undetermined inclusion state. 
+ *
+ * @param s A pointer to the current mps_context. 
+ */
 void
 mps_countroots (mps_context * s)
 {
@@ -304,9 +312,13 @@ mps_countroots (mps_context * s)
     s->count[0] += s->zero_roots;
 }
 
-/*********************************************************
-*      SUBROUTINE OUTCOUNT                               *
-*********************************************************/
+/**
+ * @brief Print a summary of the count of the roots that can be obtained
+ * through a call to mps_countroots() to the outstr member of the 
+ * current mps_context. 
+ *
+ * @param s A pointer to the current mps_context. 
+ */
 void
 mps_outcount (mps_context * s)
 {
@@ -323,10 +335,18 @@ mps_outcount (mps_context * s)
     }
 }
 
-/*********************************************************
-*      SUBROUTINE OUTFLOAT                               *
-*********************************************************/
-void
+/**
+ * @brief Print a float to stdout (or whatever the output stream is 
+ * atm) respecting the given options, and only with the significant
+ * digits. 
+ *
+ * @param s A pointer to the current mps_context. 
+ * @param f The float approximation that should be printed. 
+ * @param rad The current inclusion radius for that approximation.
+ * @param out_digit The number of output digits required. 
+ * @param sign The sign of the approximation. 
+ */
+MPS_PRIVATE void
 mps_outfloat (mps_context * s, mpf_t f, rdpe_t rad, long out_digit,
               mps_boolean sign)
 {
@@ -379,10 +399,15 @@ mps_outfloat (mps_context * s, mpf_t f, rdpe_t rad, long out_digit,
   mpf_clear (t);
 }
 
-/*********************************************************
-*      SUBROUTINE OUTROOT                                *
-*********************************************************/
-void
+/**
+ * @brief Print an approximation to stdout (or whatever the output
+ * stream currently selected in the mps_context is). 
+ *
+ * @param s A pointer to the current mps_context. 
+ * @param i The index of the approxiomation that shall be printed. 
+ * @param num The number of zero roots. 
+ */
+MPS_PRIVATE void
 mps_outroot (mps_context * s, int i, int num)
 {
   long out_digit;
@@ -498,9 +523,12 @@ mps_outroot (mps_context * s, int i, int num)
     }
 }
 
-/*********************************************************
-*      SUBROUTINE OUTPUT                                 *
-*********************************************************/
+/**
+ * @brief Print the approximations to stdout (or whatever the output
+ * stream currently selected in the mps_context is). 
+ *
+ * @param s A pointer to the current mps_context. 
+ */
 void
 mps_output (mps_context * s)
 {
@@ -556,10 +584,12 @@ mps_output (mps_context * s)
     }
 }
 
-/*********************************************************
-*      SUBROUTINE COPY_ROOTS                             *
-*********************************************************/
-void
+/**
+ * @brief Update the MP version of the roots to the latest and greatest approximations. 
+ * 
+ * @param s A pointer to the current mps_context. 
+ */
+MPS_PRIVATE void
 mps_copy_roots (mps_context * s)
 {
   int i;
@@ -601,9 +631,14 @@ mps_copy_roots (mps_context * s)
     }
 }
 
-/*************************************************************
- *                     SUBROUTINE DUMP                       *
- *************************************************************/
+/**
+ * @brief Dump all the current approximation to the logstr selected
+ * in the current mps_context. 
+ *
+ * @param s A pointer to the current mps_context. 
+ *
+ * This function is tipically used when encountering some errors. 
+ */
 void
 mps_dump (mps_context * s)
 {
@@ -673,7 +708,7 @@ mps_dump (mps_context * s)
  * @param outstr The output stream where the cluster structure
  *  will be dumped.
  */
-void
+MPS_PRIVATE void
 mps_dump_cluster_structure (mps_context * s, FILE * outstr)
 {
   fprintf (outstr,
@@ -712,7 +747,7 @@ mps_dump_cluster_structure (mps_context * s, FILE * outstr)
 /**
  * @brief Dump status of all the root approximations
  */
-void
+MPS_PRIVATE void
 mps_dump_status (mps_context * s, FILE * outstr)
 {
   int i;
@@ -726,9 +761,10 @@ mps_dump_status (mps_context * s, FILE * outstr)
     }
 }
 
-/*************************************************************
- *                     SUBROUTINE WARN                       *
- *************************************************************/
+/**
+ * @brief Print a warning to the user. 
+ * @param s A pointer to the current mps_context. 
+ */
 void
 mps_warn (mps_context * st, char *s)
 {
@@ -755,7 +791,7 @@ mps_warn (mps_context * st, char *s)
  *
  * @param stream the stream to check
  */
-mps_boolean
+MPS_PRIVATE mps_boolean
 mps_is_a_tty (FILE * stream)
 {
 #ifndef __WINDOWS
@@ -773,9 +809,12 @@ int snprintf(char *str, size_t size, const char *format, ...);
 #endif
 #endif
 
-/*************************************************************
- *                     SUBROUTINE VAERROR                    *
- *************************************************************/
+/**
+ * @brief Record an error happened during the computation. 
+ * This will set the internal status error to on, and the actual
+ * errors will printed with the first call to mps_print_errors(). 
+ * @param s A pointer to the current mps_context. 
+ */
 void
 mps_error (mps_context * s, const char * format, ...)
 {
@@ -800,6 +839,13 @@ mps_error (mps_context * s, const char * format, ...)
   va_end (ap);
 }
 
+/**
+ * @brief Print all the errors that have been recorded up to now. 
+ * This function should be called only if mps_context_has_errors()
+ * returns true. 
+ *
+ * @param s A pointer to the current mps_context. 
+ */
 void
 mps_print_errors (mps_context * s)
 {

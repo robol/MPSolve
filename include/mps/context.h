@@ -537,7 +537,6 @@ extern "C"
 
   /* Allocator, deallocator, constructors.. */
   mps_context * mps_context_new (void);
-  void mps_context_init (mps_context * s);
   void mps_context_free (mps_context * s);
 
   /* Accessor functions (setters) */

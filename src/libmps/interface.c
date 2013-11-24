@@ -36,14 +36,14 @@ void *realloc (void * ptr, size_t n);
 /* Allocate an N-byte block of memory from the heap.
    If N is zero, allocate a 1-byte block.  */
    
-void* rpl_malloc (size_t n)
+MPS_PRIVATE void* rpl_malloc (size_t n)
 {
  if (n == 0)
     n = 1;
  return malloc (n);
 }
 
-void* rpl_realloc (void *ptr, size_t n)
+MPS_PRIVATE void* rpl_realloc (void *ptr, size_t n)
 {
   if (n == 0)
     n = 1;
@@ -91,7 +91,7 @@ mps_mpsolve (mps_context * s)
   (*s->mpsolve_ptr) (s);
 }
 
-void*
+static void*
 mps_caller (mps_context * s)
 {
   if (!mps_context_has_errors (s))
@@ -126,7 +126,7 @@ mps_mpsolve_async (mps_context * s, mps_callback callback, void * user_data)
 /**
  * @brief Allocator for memory to be used in mpsolve.
  */
-void *
+MPS_PRIVATE void *
 mps_malloc (size_t size)
 {
   /* fprintf (stderr, "Allocating %lu bytes of memory\n", size); */
@@ -142,7 +142,7 @@ mps_malloc (size_t size)
 /**
  * @brief Reallocator for memory used in MPSolve.
  */
-void *
+MPS_PRIVATE void *
 mps_realloc (void * pointer, size_t size)
 {
   register void *value = realloc (pointer, size);

@@ -60,9 +60,9 @@ START_TEST (cluster_isolation)
   s->root[0]->frad = s->root[1]->frad = s->root[2]->frad = 5.0;
 
   // Compute the gerschgorin radii of inclusions
-  double * gerschgorin_radii = mps_newv (double, 3);
-  mps_fradii (s, s->active_poly, gerschgorin_radii);
+  double * gerschgorin_radii = mps_malloc (sizeof (double*) * 3);
 
+  mps_fradii (s, s->active_poly, gerschgorin_radii);
   mps_fcluster (s, gerschgorin_radii, 2.0 * s->n);
 
   // Check that we have two clusters and that are the

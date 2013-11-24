@@ -14,7 +14,7 @@
 #include <mps/mps.h>
 #include <math.h>
 
-void
+MPS_PRIVATE void
 mps_cluster_detect_properties (mps_context * ctx, mps_cluster * cluster, mps_phase phase)
 {
   mps_root * root = cluster->first;
@@ -123,7 +123,7 @@ mps_cluster_detect_properties (mps_context * ctx, mps_cluster * cluster, mps_pha
  * If detect both then detect both imaginary and
  * real roots
  */
-void
+MPS_PRIVATE void
 mps_fmodify (mps_context * s, mps_boolean track_new_cluster)
 {
   s->operation = MPS_OPERATION_CLUSTER_ANALYSIS;
@@ -218,7 +218,7 @@ mps_fmodify (mps_context * s, mps_boolean track_new_cluster)
  *
  * @see mps_fmodify()
  */
-void
+MPS_PRIVATE void
 mps_dmodify (mps_context * s, mps_boolean track_new_cluster)
 {
   s->operation = MPS_OPERATION_CLUSTER_ANALYSIS;
@@ -309,7 +309,7 @@ mps_dmodify (mps_context * s, mps_boolean track_new_cluster)
  *
  * @see mps_fmodify()
  */
-void
+MPS_PRIVATE void
 mps_mmodify (mps_context * s, mps_boolean track_new_cluster)
 {
   s->operation = MPS_OPERATION_CLUSTER_ANALYSIS;

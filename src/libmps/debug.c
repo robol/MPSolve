@@ -44,7 +44,53 @@ mps_stop_timer (clock_t * my_timer)
   return delta;
 }
 
-void
+MPS_PRIVATE void
+mps_debug_cluster_structure (mps_context * s)
+{
+  mps_cluster_item * cluster_item;
+  mps_cluster * cluster;
+  mps_root * root;
+  mps_boolean isolated_roots = false;
+
+  if (!(s->debug_level & MPS_DEBUG_CLUSTER)) 
+    return; 
+
+  for (cluster_item = s->clusterization->first; cluster_item != NULL; cluster_item = cluster_item->next)
+    {
+      cluster = cluster_item->cluster;
+
+      /* Detect that there are isolated roots, so they will be listed
+       * after. */
+      if (cluster->n == 1)
+        {
+          isolated_roots = true;
+          continue;
+        }
+
+      __MPS_DEBUG (s, "Found cluster of %ld roots: ", 
+                   cluster->n); 
+
+      for (root = cluster->first; root != NULL; root = root->next)
+        {
+          fprintf (s->logstr, "%ld ", root->k);
+        }
+      fprintf (s->logstr, "\n");
+    }
+
+  if (isolated_roots)
+    {
+      __MPS_DEBUG (s, "Isolated roots: ");
+      for (cluster_item = s->clusterization->first; cluster_item != NULL; cluster_item = cluster_item->next)
+        {
+          cluster = cluster_item->cluster;
+          if (cluster->n == 1)
+            fprintf (s->logstr, "%ld ", cluster->first->k);
+        }
+      fprintf (s->logstr, "\n");
+    }
+}
+
+MPS_PRIVATE void
 __c_impl__MPS_DEBUG (mps_context * ctx, const char * format, ...)
 {
   va_list ap;
@@ -60,7 +106,7 @@ __c_impl__MPS_DEBUG (mps_context * ctx, const char * format, ...)
   va_end (ap);
 }
 
-void
+MPS_PRIVATE void
 __c_impl____MPS_DEBUG (mps_context * ctx, const char * format, ...)
 {
   va_list ap;

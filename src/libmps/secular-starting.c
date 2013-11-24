@@ -16,6 +16,12 @@
 
 #define pi2 6.283184
 
+/**
+ * @brief Compute some sensible starting points for the given secular equation (floating point version).
+ *
+ * @param s The current mps_context.
+ * @param sec The secular equation for which the starting points shall be computed.
+ */
 void
 mps_secular_fstart (mps_context * s, mps_secular_equation * sec)
 {
@@ -40,6 +46,12 @@ mps_secular_fstart (mps_context * s, mps_secular_equation * sec)
     }
 }
 
+/**
+ * @brief Compute some sensible starting points for the given secular equation (DPE version).
+ *
+ * @param s The current mps_context.
+ * @param sec The secular equation for which the starting points shall be computed.
+ */
 void
 mps_secular_dstart (mps_context * s, mps_secular_equation * sec)
 {
@@ -71,6 +83,12 @@ mps_secular_dstart (mps_context * s, mps_secular_equation * sec)
     }
 }
 
+/**
+ * @brief Compute some sensible starting points for the given secular equation (MP version).
+ *
+ * @param s The current mps_context.
+ * @param sec The secular equation for which the starting points shall be computed.
+ */
 void
 mps_secular_mstart (mps_context * s, mps_secular_equation * sec)
 {

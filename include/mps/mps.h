@@ -1,13 +1,12 @@
-/***********************************************************
- **       Multiprecision Polynomial Solver (MPSolve)       **
- **                 Version 2.2, May 2001                  **
- **                                                        **
- **                      Written by                        **
- **       Dario Andrea Bini and Giuseppe Fiorentino        **
- **       (bini@dm.unipi.it)  (fiorent@dm.unipi.it)        **
- **                                                        **
- ** (C) 2001, Dipartimento di Matematica, FRISCO LTR 21024 **
- ***********************************************************/
+/*
+ * This file is part of MPSolve 3.0
+ *
+ * Copyright (C) 2001-2013, Dipartimento di Matematica "L. Tonelli", Pisa.
+ * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
+ *
+ * Authors: 
+ *   Leonardo Robol <robol@mail.dm.unipi.it>
+ */
 
 /**
  * @file
@@ -32,6 +31,16 @@
 
 #ifdef __MPS_MATLAB_MODE
 #define __MPS_NOT_DEFINE_BOOL
+#endif
+
+#ifdef HAVE_HIDDEN_VISIBILITY_ATTRIBUTE
+  #ifdef MPS_PUBLISH_PRIVATE_METHODS
+    #define MPS_PRIVATE
+  #else
+    #define MPS_PRIVATE __attribute__((visibility("hidden")))
+  #endif
+#else
+  #define MPS_PRIVATE
 #endif
 
 /* String type used for some hacks */
@@ -647,8 +656,6 @@ typedef int mps_debug_level;
   void mps_mupdate_inclusions (mps_context * s);
   
   /* functions in starting.c */
-  double mps_maximize_distance (mps_context * s, double last_sigma,
-                                mps_cluster_item * cluster, int n);
   void mps_fstart (mps_context * s, int n, mps_cluster_item * cluster, double clust_rad,
                    double g, rdpe_t eps_out, double fap[]);
   void mps_dstart (mps_context * s, int n, mps_cluster_item * cluster, rdpe_t clust_rad,

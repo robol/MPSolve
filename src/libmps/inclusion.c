@@ -18,7 +18,7 @@
  * @brief Check if the target set has been reached or not, and update
  * the field s->root_inclusion[i] for every root.
  */
-void
+MPS_PRIVATE void
 mps_fupdate_inclusions (mps_context * s)
 {
   mps_cluster_item * cluster_item;
@@ -157,7 +157,7 @@ mps_fupdate_inclusions (mps_context * s)
  * @brief Check if the target set has been reached or not, and update
  * the field s->root[i]->inclusion for every root.
  */
-void
+MPS_PRIVATE void
 mps_dupdate_inclusions (mps_context * s)
 {
   mps_cluster_item * cluster_item;
@@ -315,7 +315,7 @@ mps_dupdate_inclusions (mps_context * s)
  * @brief Check if the target set has been reached or not, and update
  * the field s->root[i]->inclusion for every root.
  */
-void
+MPS_PRIVATE void
 mps_mupdate_inclusions (mps_context * s)
 {
   mps_cluster_item * cluster_item;

@@ -72,7 +72,6 @@ fi
 AM_CONDITIONAL([WINDOWS_BUILD], [test "$platform_win32" == "yes"])
 AM_CONDITIONAL([HAVE_WINDRES], [test "$WINDRES" != ""])
 
-
 # Add GMP_CFLAGS and GMP_LIBS to CFLAGS and LDFLAGS in case they are set.
 CFLAGS="$GMP_CFLAGS $CFLAGS"
 LDFLAGS="$GMP_LIBS $LDFLAGS"
@@ -81,6 +80,29 @@ AC_SUBST(GMP_CFLAGS)
 AC_SUBST(GMP_LIBS)
 
 LIBMPS_CFLAGS="-D_REENTRANT -Wstrict-prototypes -Wall $CFLAGS"
+
+#
+# ===== CHECK FOR VISIBLITY SUPPORT =====
+#
+
+AC_CACHE_CHECK([for __attribute__((visibility("hidden")))],
+    ac_cv_hidden_visibility_attribute, [
+    echo 'int __attribute__ ((visibility ("hidden"))) foo (void) { return 1; }' > conftest.c
+    ac_cv_hidden_visibility_attribute=no
+    if AC_TRY_COMMAND(${CC-cc} -Werror -S conftest.c -o conftest.s 1>&AS_MESSAGE_LOG_FD);
+    then
+        if grep '\.hidden.*foo' conftest.s >/dev/null;
+        then
+            ac_cv_hidden_visibility_attribute=yes
+        fi
+    fi
+    rm -f conftest.*
+    ])
+if test $ac_cv_hidden_visibility_attribute = yes;
+then
+    AC_DEFINE(HAVE_HIDDEN_VISIBILITY_ATTRIBUTE, 1,
+          [Define if __attribute__((visibility("hidden"))) is supported.])
+fi
 
 #
 # ===== OPTION PARSING =====
