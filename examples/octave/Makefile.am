@@ -9,10 +9,9 @@ noinst_DATA = mpsolve.tar.gz
 EXTRA_PROGRAMS = mps_roots.oct
 
 EXTRA_DIST = \
-	package \
-	package/DESCRIPTION \
-	package/COPYING \
-	package/src
+	package-source \
+	package-source/DESCRIPTION \
+	package-source/COPYING
 
 CLEANFILES = mpsolve.tar.gz
 
