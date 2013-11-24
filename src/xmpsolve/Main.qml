@@ -1,5 +1,6 @@
 import QtQuick 2.1
 import QtQuick.Controls 1.0
+import QtQuick.Layouts 1.0
 import MPSolve 1.0
 
 ApplicationWindow {
@@ -28,21 +29,26 @@ ApplicationWindow {
 
         Row {
 
+            width: parent.width
+            height: parent.height - 150
+
             id: viewApproximationRow
             spacing: 12
 
             ApproximationList {
                 id: approximationList
                 model: rootsModel
+                clip: true
 
                 width: 200
+                height: parent.height
             }
 
             QQuickRootsRenderer {
                 model: rootsModel
 
-                width: 450
-                height: 450
+                width: parent.width - 212
+                height: parent.height
             }
 
         }

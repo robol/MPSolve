@@ -1,30 +1,27 @@
 import QtQuick 2.1
 import QtQuick.Controls 1.0
 
-Column {
+Row {
 
-    spacing: 8
+    spacing: 16
+    width: parent.width
+    height: 32
 
-    Row {
+    TextField {
+        id: polyInput
+        placeholderText: "Insert a polynomial here"
+        height: solveButton.height
+        width: parent.width - 100
+    }
 
-        spacing: 16
+    Button {
+        id: solveButton
+        text: "Solve"
+        width: 84
 
-        TextField {
-            id: polyInput
-            placeholderText: "Insert a polynomial here"
-            height: solveButton.height
-            width: 500
+        onClicked: {
+            solver.solvePoly(polyInput.text);
         }
-
-        Button {
-            id: solveButton
-            text: "Solve"
-
-            onClicked: {
-                solver.solvePoly(polyInput.text);
-            }
-        }
-
     }
 
 }
