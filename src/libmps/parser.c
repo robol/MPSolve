@@ -433,20 +433,20 @@ mps_parse_stream (mps_context * s, FILE * input_stream)
         {
           MPS_DEBUG (s, "Parsing secular equation from stream");
         }
-      poly = MPS_POLYNOMIAL (mps_secular_equation_read_from_stream (s, buffer, structure, density));
+      poly = MPS_POLYNOMIAL (mps_secular_equation_read_from_stream (s, buffer, structure, density, input_precision));
       break;
 
     case MPS_REPRESENTATION_CHEBYSHEV:
       if (s->debug_level & MPS_DEBUG_IO)
         MPS_DEBUG (s, "Parsing mps_chebyshev_poly from stream");
-      poly = MPS_POLYNOMIAL (mps_chebyshev_poly_read_from_stream (s, buffer, structure, density));
+      poly = MPS_POLYNOMIAL (mps_chebyshev_poly_read_from_stream (s, buffer, structure, density, input_precision));
       break;
 
     case MPS_REPRESENTATION_MONOMIAL:
     default:
       if (s->debug_level & MPS_DEBUG_IO)
         MPS_DEBUG (s, "Parsing mps_monomial_poly from stream");
-      poly = MPS_POLYNOMIAL (mps_monomial_poly_read_from_stream (s, buffer, structure, density));
+      poly = MPS_POLYNOMIAL (mps_monomial_poly_read_from_stream (s, buffer, structure, density, input_precision));
       break;
   }
 

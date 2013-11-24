@@ -448,7 +448,6 @@ mps_check_data (mps_context * s, char *which_case)
 {
   rdpe_t min_coeff, max_coeff, tmp;
   mps_monomial_poly *p = NULL; 
-  cdpe_t ctmp;
   int i;
 
   /* case of user-defined polynomial */
@@ -473,6 +472,8 @@ mps_check_data (mps_context * s, char *which_case)
       do
         (s->n)--;
       while (rdpe_eq (p->dap[s->n], rdpe_zero));
+
+      MPS_POLYNOMIAL (p)->degree = s->n;
     }
 
   /* Compute min_coeff */
@@ -556,26 +557,24 @@ mps_check_data (mps_context * s, char *which_case)
       mpc_init2 (m_min_coeff, mpc_get_prec (p->mfpc[0]));
       mpc_set_cdpe (m_min_coeff, c_min_coeff);
 
-      /* min_coeff = sqrt(dhuge*dtiny/(min_coeff*max_coeff)) */
-      for (i = 0; i <= s->n; i++)
-        {
-          /* Multiply the MP leading coefficient */
-          mpc_mul_eq (p->mfpc[i], m_min_coeff);
-
-          rdpe_mul (tmp, p->dap[i], min_coeff);
-          p->fap[i] = rdpe_get_d (tmp);
-          if (MPS_STRUCTURE_IS_COMPLEX (s->active_poly->structure))
-            {
-              cdpe_mul_e (ctmp, p->dpc[i], min_coeff);
-              cdpe_get_x (p->fpc[i], ctmp);
-            }
-          else
-            {
-              /* fpr(i)=dpr(i)*min_coeff !! DARIO riattiva dopo impl. caso reale */
-              cdpe_mul_e (ctmp, p->dpc[i], min_coeff);
-              cdpe_get_x (p->fpc[i], ctmp);
-            }
-        }
+      /* min_coeff = sqrt(dhuge*dtiny/(min_coeff*max_coeff)) 
+       * NOTE: This is enabled for floating point polynomials only 
+       * for the moment, but it may work nicely also for other representations. */
+      if (MPS_STRUCTURE_IS_FP (MPS_POLYNOMIAL (p)->structure))
+	{
+	  for (i = 0; i <= s->n; i++)
+	    {
+	      /* Multiply the MP leading coefficient */
+	      mpc_mul_eq (p->mfpc[i], m_min_coeff);
+	      
+	      rdpe_mul (tmp, p->dap[i], min_coeff);
+	      rdpe_set (p->dap[i], tmp);
+	      p->fap[i] = rdpe_get_d (tmp);
+	      
+	      mpc_get_cdpe (p->dpc[i], p->mfpc[i]);
+	      cdpe_get_x (p->fpc[i], p->dpc[i]);
+	    }
+	}
 
         mpc_clear (m_min_coeff);
     }

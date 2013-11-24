@@ -20,6 +20,7 @@
  * @param buffer The buffer that needs to be parsed
  * @param The structure of the polynomial 
  * @param The density configuration of the polynomial.
+ * @param The input precision of the coefficients, if specified, 0 otherwise
  *
  * @return A newly allocated mps_polynomial, or NULL if the parsing fails.
  */
@@ -27,14 +28,15 @@ mps_monomial_poly *
 mps_monomial_poly_read_from_stream (mps_context * s,
                                     mps_input_buffer * buffer, 
                                     mps_structure structure,
-                                    mps_density density)
+                                    mps_density density,
+				    long int precision)
 {
   mps_monomial_poly * poly;
   int i;
   mpf_t ftmp;
   char * token;
 
-  mpf_init (ftmp);
+  mpf_init2 (ftmp, precision);
 
   /* Allocate space for the polynomial, since we need this even
    * if we are trying to solve the associated secular_equation */
@@ -354,6 +356,13 @@ mps_monomial_poly_read_from_stream_v2 (mps_context * s, mps_input_buffer * buffe
   else 
     prec *= LOG2_10;
   free (token);
+
+  /* In case the precision is not infinite, set the corresponding precision
+   * of the floating point types. */
+  if (prec > 0)
+    {
+      mpf_set_prec (ftmp, prec);
+    }
 
   token = mps_input_buffer_next_token (buffer);
   if (!token || !sscanf (token, "%d", &s->n))

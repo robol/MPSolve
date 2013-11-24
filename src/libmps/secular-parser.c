@@ -18,6 +18,7 @@
  * @param buffer The buffer that needs to be parsed
  * @param The structure of the secular equation 
  * @param The density configuration of the secular equation
+ * @param The input precision of the coefficients, if specified, 0 otherwise
  *
  * @return A newly allocated mps_secular_equation, or NULL if the parsing fails.
  */
@@ -25,14 +26,15 @@ mps_secular_equation *
 mps_secular_equation_read_from_stream (mps_context * s,
                                        mps_input_buffer * buffer,
                                        mps_structure structure,
-                                       mps_density density)
+                                       mps_density density, 
+				       long int precision)
 {
   mps_secular_equation *sec;
   int i;
   mpf_t ftmp;
   char * token;
 
-  mpf_init2 (ftmp, DBL_MANT_DIG);
+  mpf_init2 (ftmp, precision);
 
   /* Read directly the secular equation in DPE, so we don't need
    * to have a fallback case if the coefficients are bigger than

@@ -18,16 +18,25 @@
  * @param buffer The buffer that needs to be parsed
  * @param structure The structure of the polynomial 
  * @param density The density configuration of the polynomial.
+ * @param The input precision of the coefficients, if specified, 0 otherwise
  *
  * @return A newly allocated mps_chebyshev_poly, or NULL if the parsing fails.
  */
 mps_chebyshev_poly *
 mps_chebyshev_poly_read_from_stream (mps_context * ctx, mps_input_buffer * buffer, 
-  mps_structure structure, mps_density density)
+				     mps_structure structure, mps_density density, 
+				     long int precision)
 {
   int i, degree = -1;
   char * token;
   mps_chebyshev_poly * cpoly = mps_chebyshev_poly_new (ctx, ctx->n, structure);  
+
+  /* Raise the precision if needed to parse the input coefficients */
+  if (precision > 0)
+    {
+      for (i = 0; i < ctx->n; i++)
+	mpc_set_prec (cpoly->mfpc[i], precision);
+    }
 
   switch (density)
     {

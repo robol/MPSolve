@@ -729,12 +729,18 @@ typedef int mps_debug_level;
   mps_polynomial * mps_parse_string (mps_context * s, const char * c_string);
 
   mps_polynomial * mps_monomial_poly_read_from_stream_v2 (mps_context * s, mps_input_buffer * buffer);
+
   mps_monomial_poly * mps_monomial_poly_read_from_stream (mps_context * s, mps_input_buffer * buffer, 
-    mps_structure structure, mps_density density);
+							  mps_structure structure, mps_density density, 
+							  long int precision);
+
   mps_chebyshev_poly * mps_chebyshev_poly_read_from_stream (mps_context * ctx, mps_input_buffer * buffer,
-    mps_structure structure, mps_density density);
+							    mps_structure structure, mps_density density,
+							    long int precision);
+
   mps_secular_equation * mps_secular_equation_read_from_stream (mps_context * ctx, mps_input_buffer * buffer,
-    mps_structure structure, mps_density density);
+								mps_structure structure, mps_density density, 
+								long int precision);
 
   /* Functions in horner.c */
   void mps_fhorner (mps_context * s, mps_monomial_poly * p, cplx_t x, cplx_t value);
