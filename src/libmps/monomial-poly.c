@@ -191,6 +191,8 @@ mps_monomial_poly_raise_precision (mps_context * s, mps_polynomial * p, long int
         {
           mpf_set_q (mpc_Re (raising_mfpc[k]), mp->initial_mqp_r[k]);
           mpf_set_q (mpc_Im (raising_mfpc[k]), mp->initial_mqp_i[k]);
+	  mpc_rmod (mp->dap[k], raising_mfpc[k]);
+	  mp->fap[k] = rdpe_get_d (mp->dap[k]);
         }
     }
   else

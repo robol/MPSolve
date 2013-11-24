@@ -559,8 +559,7 @@ mps_check_data (mps_context * s, char *which_case)
 
       /* min_coeff = sqrt(dhuge*dtiny/(min_coeff*max_coeff)) 
        * NOTE: This is enabled for floating point polynomials only 
-       * for the moment, but it may work nicely also for other representations. */
-      if (MPS_STRUCTURE_IS_FP (MPS_POLYNOMIAL (p)->structure))
+       * for the moment, but it may work nicely also for other representations. */            
 	{
 	  for (i = 0; i <= s->n; i++)
 	    {
