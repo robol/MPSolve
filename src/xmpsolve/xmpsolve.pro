@@ -35,8 +35,7 @@ android {
     # arithmetic support.
     QMAKE_CXXFLAGS += -I$${ANDROID_ROOT}/include \
         -include $${PWD}/../../android-ext/tarballs/mpsolve-build/config.h \
-        -include $${PWD}/../../android-ext/tarballs/mpsolve-build/config.h \
-        -DMPS_USE_QML \
+        -DMPS_USE_QML
 
     # Link against locally compiled libmps and libgmp.
     LIBS += $${ANDROID_ROOT}/lib/libmps.a $${ANDROID_ROOT}/lib/libgmp.a
@@ -91,7 +90,9 @@ RESOURCES += \
     resources.qrc
 
 OTHER_FILES += \
-    android/AndroidManifest.xml
+    android/AndroidManifest.xml \
     Main.qml \
     ApproximationList.qml \
     PolyInputField.qml
+
+ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
