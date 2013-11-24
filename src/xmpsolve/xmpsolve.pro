@@ -82,3 +82,8 @@ SOURCES += ./main.cpp \
 
 RESOURCES += \
     resources.qrc
+
+OTHER_FILES += \
+    android/AndroidManifest.xml
+
+ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
