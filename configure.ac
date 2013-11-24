@@ -2,7 +2,7 @@
 # to produce a configure script.
 
 AC_PREREQ([2.65])
-AC_INIT([MPSolve], [3.1.4], [robol@poisson.phc.unipi.it])
+AC_INIT([MPSolve], [3.1.5], [robol@poisson.phc.unipi.it])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS([config.h])
 
