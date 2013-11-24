@@ -13,6 +13,5 @@
         <file>Main.qml</file>
         <file>ApproximationList.qml</file>
         <file>PolyInputField.qml</file>
-        <file>RootRenderer.qml</file>
     </qresource>
 </RCC>

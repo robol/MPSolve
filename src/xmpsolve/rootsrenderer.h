@@ -7,31 +7,20 @@
 
 namespace xmpsolve {
 
-class RootsRenderer : public QWidget
+class RootsRenderer
 {
-    Q_OBJECT
+
 public:
-    explicit RootsRenderer(QWidget *parent = 0);
+    explicit RootsRenderer();
+    void handlePaintEvent(QPainter& painter, int w, int h, QPaintEvent *);
 
-    /**
-     * @brief setRoots can be used to set the roots that the RootsRenderer
-     * shall renderer.
-     * @param model The roots model that should be displayed.
-     */
-    void setModel(RootsModel * model);
-    
-signals:
-    
-public slots:
-    void paintEvent(QPaintEvent *);
+protected:
 
-private slots:
     /**
      * @brief reloadRoots reloads the roots from the model.
      */
     void reloadRoots();
 
-private:
     /**
      * @brief scalePoint is used internally to scale, flip and translate a point
      * in a such a way that is plotted properly on the coordinate system on the screen.
@@ -46,7 +35,7 @@ private:
     /**
      * @brief drawTicks is used internally to draw ticks on the axis.
      */
-    void drawTicks(QPainter& painter);
+    void drawTicks(QPainter& painter, double w, double h);
 
     /**
      * @brief Points that should be displayed.
@@ -66,7 +55,7 @@ private:
     /**
      * @brief m_model is the model containing the roots that should be displayed.
      */
-    RootsModel * m_model;
+    RootsModel* m_model;
     
 };
 

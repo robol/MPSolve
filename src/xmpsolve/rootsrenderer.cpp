@@ -6,23 +6,10 @@
 
 namespace xmpsolve {
 
-RootsRenderer::RootsRenderer(QWidget *parent) :
-    QWidget(parent)
+RootsRenderer::RootsRenderer()
 {
     m_maxImagModule = m_maxRealModule = 0.0;
     m_model = NULL;
-}
-
-void
-RootsRenderer::setModel(RootsModel *model)
-{
-    m_model = model;
-    reloadRoots();
-
-    // Grab data changes and model resets.
-    m_model->connect(m_model, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
-                     this, SLOT(reloadRoots()));
-    m_model->connect(m_model, SIGNAL(modelReset()), this, SLOT(reloadRoots()));
 }
 
 void
@@ -42,8 +29,6 @@ RootsRenderer::reloadRoots()
 
         m_roots.append(QPointF(root->get_real_part(), root->get_imag_part()));
     }
-
-    update();
 }
 
 QPointF
@@ -61,11 +46,8 @@ RootsRenderer::scalePoint(QPointF point, int width, int height)
 }
 
 void
-RootsRenderer::drawTicks(QPainter& painter)
+RootsRenderer::drawTicks(QPainter& painter, double w, double h)
 {
-    double w = width();
-    double h = height();
-
     double maxModule = qMax(m_maxImagModule, m_maxRealModule);
 
     if (maxModule == 0.0 || m_roots.length() == 0)
@@ -79,7 +61,7 @@ RootsRenderer::drawTicks(QPainter& painter)
         tick_distance /= 3.0;
 
     // Set a small enough font so numbers don't overlap.
-    painter.setFont(QFont(font().family(), 9));
+    // painter.setFont(QFont(font().family(), 9));
     painter.setPen(QColor(Qt::gray));
 
     for(int i = -10; i <= 10; i++) {
@@ -114,13 +96,9 @@ RootsRenderer::drawTicks(QPainter& painter)
 }
 
 void
-RootsRenderer::paintEvent(QPaintEvent *)
+RootsRenderer::handlePaintEvent(QPainter& painter, int w, int h, QPaintEvent *)
 {
-    QPainter painter(this);
     double axis_margin = 6;
-
-    double w = width();
-    double h = height();
 
     // Draw the background
     painter.setBrush(QColor::fromRgb(255, 255, 255));
@@ -137,7 +115,7 @@ RootsRenderer::paintEvent(QPaintEvent *)
     painter.drawLine(QPointF(w/2, axis_margin), QPointF(w/2 + 4, 8 + axis_margin));
     painter.drawLine(QPointF(w/2, axis_margin), QPointF(w/2 - 4, 8 + axis_margin));
 
-    drawTicks(painter);
+    drawTicks(painter, w, h);
 
     // The default color for the point is red.
     painter.setBrush(QBrush("red"));

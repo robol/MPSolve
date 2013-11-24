@@ -3,7 +3,7 @@
 #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
 #include <QtGui/QApplication>
 #else
-#include <QtGui/QGuiApplication>
+#include <QApplication>
 #include <QtQml/QQmlApplicationEngine>
 #endif
 #include "mainwindow.h"
@@ -16,11 +16,7 @@ using namespace xmpsolve;
 
 int main(int argc, char *argv[])
 {
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
     QApplication a(argc, argv);
-#else
-    QGuiApplication a(argc, argv);
-#endif
 
 #ifdef MPS_USE_QML
     MainQmlView w;

@@ -62,11 +62,13 @@ HEADERS += ./mainwindow.h \
 	   ./polsyntaxhighlighter.h \  
            ./polfileeditor.h \
            ./polfileeditorwindow.h \
-           ./mainqmlview.h
+           ./mainqmlview.h \
+    	   ./qrootsrenderer.h \
+           ./qquickrootsrenderer.h
 
 FORMS += ./mainwindow.ui \
-        ./polfileeditor.ui \
-        ./polfileeditorwindow.ui
+         ./polfileeditor.ui \
+         ./polfileeditorwindow.ui
 
 SOURCES += ./main.cpp \
            ./mainwindow.cpp \
@@ -81,7 +83,9 @@ SOURCES += ./main.cpp \
 	   ./polsyntaxhighlighter.cpp \
            ./polfileeditor.cpp \
            ./polfileeditorwindow.cpp \
-           ./mainqmlview.cpp
+           ./mainqmlview.cpp \
+           ./qrootsrenderer.cpp \
+           ./qquickrootsrenderer.cpp
 
 RESOURCES += \
     resources.qrc
@@ -90,5 +94,4 @@ OTHER_FILES += \
     android/AndroidManifest.xml
     Main.qml \
     ApproximationList.qml \
-    PolyInputField.qml \
-    RootRenderer.qml
+    PolyInputField.qml

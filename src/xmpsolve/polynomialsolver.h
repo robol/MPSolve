@@ -82,7 +82,7 @@ public slots:
      * holds the approximations computed by the algorithm.
      * @return A pointer to the internal rootsModel.
      */
-    RootsModel * rootsModel();
+    RootsModel* rootsModel();
 
     /**
      * @brief abortComputations kills every current computation.

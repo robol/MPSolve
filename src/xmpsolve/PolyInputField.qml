@@ -13,7 +13,7 @@ Column {
             id: polyInput
             placeholderText: "Insert a polynomial here"
             height: solveButton.height
-            width: 250
+            width: 500
         }
 
         Button {

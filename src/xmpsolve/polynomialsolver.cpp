@@ -220,8 +220,7 @@ PolynomialSolver::CPUTime()
     return m_worker.CPUTime();
 }
 
-RootsModel *
-PolynomialSolver::rootsModel()
+RootsModel *PolynomialSolver::rootsModel()
 {
     return &m_rootsModel;
 }

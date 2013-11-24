@@ -1,4 +1,5 @@
 #include "mainqmlview.h"
+#include "qquickrootsrenderer.h"
 #include <QQmlEngine>
 #include <QtQml>
 
@@ -9,8 +10,15 @@ MainQmlView::MainQmlView()
     m_rootContext = rootContext();
     m_model = m_solver.rootsModel();
     inflateObjects();
+    loadTypes();
 
     load(QUrl("qrc:/qml/Main.qml"));
+}
+
+void
+MainQmlView::loadTypes()
+{
+    qmlRegisterType<QQuickRootsRenderer>("MPSolve", 1, 0, "QQuickRootsRenderer");
 }
 
 void

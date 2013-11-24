@@ -50,6 +50,8 @@ private:
      */
     void inflateObjects();
 
+    void loadTypes();
+
 signals:
 
 public slots:

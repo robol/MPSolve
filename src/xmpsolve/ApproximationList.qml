@@ -26,8 +26,9 @@ Column {
         id: resultsView
         delegate: approximationDelegate
         spacing: 12
+        clip: true
 
-        height: 720
+        height: 420
         width: parent.width
 
         onCountChanged: {
