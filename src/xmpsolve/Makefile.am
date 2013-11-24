@@ -130,7 +130,12 @@ EXTRA_DIST = $(icon_DATA) \
 	icons/document-open.png \
 	icons/document-save.png \
 	icons/document-new.png \
-	icons/system-run.png 
+	icons/system-run.png \
+	android/AndroidManifest.xml \
+	android/res/drawable-mdpi/icon.png \
+	android/res/drawable-hdpi/icon.png \
+	android/res/drawable-ldpi/icon.png
+	
 
 BUILT_SOURCES = $(moc_files) \
 	$(ui_files) \
