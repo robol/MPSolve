@@ -1,5 +1,8 @@
 /* config.h.in.  Generated from configure.ac by autoheader.  */
 
+/* Defined if MPSolve is built without debugging support */
+#undef DISABLE_DEBUG
+
 /* Defined if CAIRO is available */
 #undef HAVE_CAIRO
 
@@ -37,10 +40,6 @@
    (-ltcmalloc_minimal). */
 #undef HAVE_LIBTCMALLOC_MINIMAL
 
-/* Define to 1 if your system has a GNU libc compatible `malloc' function, and
-   to 0 otherwise. */
-#undef HAVE_MALLOC
-
 /* Define to 1 if you have the <memory.h> header file. */
 #undef HAVE_MEMORY_H
 
@@ -58,10 +57,6 @@
 
 /* Have PTHREAD_PRIO_INHERIT. */
 #undef HAVE_PTHREAD_PRIO_INHERIT
-
-/* Define to 1 if your system has a GNU libc compatible `realloc' function,
-   and to 0 otherwise. */
-#undef HAVE_REALLOC
 
 /* Define to 1 if you have the `snprintf' function. */
 #undef HAVE_SNPRINTF
@@ -151,12 +146,6 @@
 #ifndef __cplusplus
 #undef inline
 #endif
-
-/* Define to rpl_malloc if the replacement function should be used. */
-#undef malloc
-
-/* Define to rpl_realloc if the replacement function should be used. */
-#undef realloc
 
 /* Define to `unsigned int' if <sys/types.h> does not define. */
 #undef size_t
