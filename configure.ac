@@ -125,6 +125,9 @@ AC_ARG_ENABLE([debug],
 # Select CFLAGS based on debug enabled or not
 AS_IF([test x$enable_debug != xno], [
 	LIBMPS_CFLAGS="$LIBMPS_CFLAGS -DNICE_DEBUG $CFLAGS"
+], [ 
+	LIBMPS_CFLAGS="$LIBMPS_CFLAGS -DDISABLE_DEBUG $CFLAGS"
+	AC_DEFINE([DISABLE_DEBUG], 1, [Defined if MPSolve is built without debugging support])
 ])
 
 # Determine if examples are desired. If that's the case check for the library
@@ -241,7 +244,10 @@ PKG_CHECK_MODULES([GTK], [gtk+-3.0], [], [
     ])
 ])
 
-AC_DEFINE([HAVE_GTK], $have_gtk, [Defined if GTK is available])
+AS_IF([test x$have_gtk = x1], [
+	    AC_DEFINE([HAVE_GTK], $have_gtk, [Defined if GTK is available])
+])
+
 AC_SUBST(GTK_CFLAGS)
 AC_SUBST(GTK_LIBS)
 
@@ -249,7 +255,10 @@ AC_SUBST(GTK_LIBS)
 # in GTK3 but is not to be taken for granted in GTK2. 
 PKG_CHECK_MODULES([CAIRO], [cairo], [have_cairo="1"], [have_cairo="0"])
 
-AC_DEFINE([HAVE_CAIRO], $have_cairo, [Defined if CAIRO is available])
+AS_IF([test x$have_cairo = x1], [
+	    AC_DEFINE([HAVE_CAIRO], 1, [Defined if CAIRO is available])
+])
+
 AC_SUBST(CAIRO_CFLAGS)
 AC_SUBST(CAIRO_LIBS)
 

@@ -206,7 +206,9 @@ mps_secular_ga_mpsolve (mps_context * s)
 
           if (mps_context_has_errors (s))
             {
+#ifndef DISABLE_DEBUG
               mps_stop_timer (total_clock);
+#endif
               return;
             }
 
@@ -242,7 +244,9 @@ mps_secular_ga_mpsolve (mps_context * s)
 
         default:
           mps_error (s, "Unrecognized starting phase");
+#ifndef DISABLE_DEBUG
           mps_stop_timer (total_clock);
+#endif
           return;
       }
 
@@ -426,7 +430,9 @@ mps_secular_ga_mpsolve (mps_context * s)
       if (packet > s->max_pack)
         {
           mps_error (s, "Maximum number of iteration passed. Aborting.");
+#ifndef DISABLE_DEBUG
           mps_stop_timer (total_clock);
+#endif
           return;
         }
       
@@ -569,13 +575,18 @@ mps_secular_ga_mpsolve (mps_context * s)
   /* Finally improve the roots if approximation is required */
   if (s->output_config->goal == MPS_OUTPUT_GOAL_APPROXIMATE)
     {
+#ifndef DISABLE_DEBUG
       clock_t *my_timer = mps_start_timer ();
+#endif
       mps_improve (s);
+
+#ifndef DISABLE_DEBUG
       unsigned int improve_time = mps_stop_timer (my_timer);
       if (s->debug_level & MPS_DEBUG_TIMINGS)
         {
           MPS_DEBUG (s, "mps_improve took %u ms", improve_time);
         }
+#endif
     }
 
   /* Debug total time taken but only if debug is enabled */

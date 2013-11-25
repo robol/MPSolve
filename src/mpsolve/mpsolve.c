@@ -169,7 +169,8 @@ usage (mps_context * s, const char *program)
            "             -d[domains] to activate the desired debug domains. \n"
 #if HAVE_GRAPHICAL_DEBUGGER           
            " -x          Enable graphic visualization of convergence\n"
-#endif            
+#endif
+#ifndef DISABLE_DEBUG
           " -d[domains] Activate debug on selected domains, that can be one of:\n"
            "               t: trace\n"
            "               a: approximation\n"
@@ -182,6 +183,7 @@ usage (mps_context * s, const char *program)
            "               p: debug stop condition and development of iteration packets\n"
            "               r: regeneration\n"
            "               Example: -dfi for function calls and improvement\n"
+#endif
            " -v          Print the version and exit\n"
            "\n",
            program, program);
@@ -492,6 +494,8 @@ main (int argc, char **argv)
               break;
             }
           break;
+
+#ifndef DISABLE_DEBUG
         case 'd':
           mps_context_add_debug_domain (s, MPS_DEBUG_INFO);
           
@@ -541,6 +545,7 @@ main (int argc, char **argv)
                 }
             }
           break;
+#endif
 
 #if HAVE_GRAPHICAL_DEBUGGER
         case 'x':

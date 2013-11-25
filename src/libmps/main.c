@@ -43,7 +43,10 @@ mps_standard_mpsolve (mps_context * s)
   int i, nzc;
   char which_case;
   mps_boolean d_after_f, computed;
+
+#ifndef DISABLE_DEBUG
   clock_t *my_timer = mps_start_timer ();
+#endif
 
   mps_allocate_data (s);
 
@@ -62,7 +65,9 @@ mps_standard_mpsolve (mps_context * s)
   if (s->resume) 
     {
       mps_error (s, "Resume not supported yet");
+#ifndef DISABLE_DEBUG
       mps_stop_timer (my_timer);
+#endif
       return;
     }
 
@@ -82,7 +87,9 @@ mps_standard_mpsolve (mps_context * s)
   /* Check for errors in check data */
   if (mps_context_has_errors (s))
   {
+#ifndef DISABLE_DEBUG
     mps_stop_timer (my_timer);
+#endif
     return;
   }
 
@@ -266,8 +273,10 @@ exit_sub:
   if (s->lastphase == mp_phase)
     mps_restore_data (s);
 
+#ifndef DISABLE_DEBUG
   long total_time = mps_stop_timer (my_timer);
   MPS_DEBUG (s, "Total time using MPSolve: %lu ms", total_time);
+#endif
 
   /* Finally copy the roots ready for output */
   mps_copy_roots (s);
