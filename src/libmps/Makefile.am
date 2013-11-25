@@ -107,7 +107,7 @@ libmps_la_LIBADD = \
 #
 if CHECK
 
-noinst_LTLIBRARIES = libmpsprivate.la 	
+check_LTLIBRARIES = libmpsprivate.la 	
 
 libmpsprivate_la_LDFLAGS = \
 	$(PTHREAD_CFLAGS)
