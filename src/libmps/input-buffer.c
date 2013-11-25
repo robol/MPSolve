@@ -206,7 +206,7 @@ int
 mps_input_buffer_readline (mps_input_buffer * buf)
 {
   int read_chars = 0;
-  size_t length;
+  size_t length = 0;
   int new_pos;
 
   /* Move the old line in the buffer, if it's not NULL */
