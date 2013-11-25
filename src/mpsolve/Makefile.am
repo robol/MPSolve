@@ -9,6 +9,7 @@ EXTRA_DIST = mpsolve.1
 mpsolve_CFLAGS = \
         -I${top_srcdir}/include \
 	-I. \
+	-I${top_builddir}/include \
 	$(GMP_CFLAGS) \
 	$(GTK_CFLAGS) \
 	$(PTHREAD_CFLAGS) \
