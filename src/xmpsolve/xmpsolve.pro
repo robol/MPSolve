@@ -27,8 +27,8 @@ android {
     ANDROID_PACKAGE = it.unipi.dm.mpsolve
     ANDROID_APP_NAME = MPSolve
 
-    # Customize this to match your current setup. This way the setup points to a directory at the
-    # same level of mpsolve-x.y.z.
+    # Customize this to match your current setup. This way the setup points to a directory inside
+    # mpsolve-x.y.z. This setup can be obtained with the script in tools/android-build-libmps.sh
     ANDROID_ROOT = $${PWD}/../../android-ext
 
     # We need -DMPS_USE_BUILTIN_COMPLEX since Android uses tiny bionic without complex
