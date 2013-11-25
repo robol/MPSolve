@@ -33,23 +33,6 @@ int feenableexcept(int excepts);
 void *malloc (size_t n);
 void *realloc (void * ptr, size_t n);
 
-/* Allocate an N-byte block of memory from the heap.
-   If N is zero, allocate a 1-byte block.  */
-   
-MPS_PRIVATE void* rpl_malloc (size_t n)
-{
- if (n == 0)
-    n = 1;
- return malloc (n);
-}
-
-MPS_PRIVATE void* rpl_realloc (void *ptr, size_t n)
-{
-  if (n == 0)
-    n = 1;
-  return realloc (ptr, n);
-}
-
 /**
  * @brief Perform some preliminary checks and setup before starting the real
  * MPSolve loop. 

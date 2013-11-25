@@ -168,7 +168,7 @@ extern FILE     *__sfp(void);
 
 /* Open a memstream around buffer BUF of SIZE bytes, using MODE.
    Return the new stream, or fail with NULL.  */
-static FILE *
+MPS_PRIVATE FILE *
 fmemopen(void *buf, size_t size, const char *mode)
 {
   FILE *fp;

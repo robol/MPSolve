@@ -43,8 +43,6 @@ AC_CHECK_FUNCS(fmemopen)
 
 # Checks for library functions.
 AC_FUNC_ERROR_AT_LINE
-AC_FUNC_MALLOC
-AC_FUNC_REALLOC
 AC_CHECK_FUNCS([memset modf pow sqrt strchr])
 
 # Check if we are building on Windows, so we can add additional
