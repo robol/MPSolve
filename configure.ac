@@ -30,6 +30,14 @@ AC_C_INLINE
 # We need vsnprintf for signaling error in the code. 
 AX_FUNC_SNPRINTF
 
+# Check for complex type support
+AC_CHECK_HEADER([complex.h], [
+  AC_SUBST([MPS_USE_BUILTIN_COMPLEX], [0])
+], [
+  COMPLEX_CFLAGS="-DMPS_USE_BUILTIN_COMPLEX"
+  AC_SUBST([MPS_USE_BUILTIN_COMPLEX], [1])
+])
+
 # Checks for header files.
 AC_CHECK_HEADERS([stdlib.h string.h unistd.h])
 
@@ -77,7 +85,7 @@ LDFLAGS="$GMP_LIBS $LDFLAGS"
 AC_SUBST(GMP_CFLAGS)
 AC_SUBST(GMP_LIBS)
 
-LIBMPS_CFLAGS="-D_REENTRANT -Wstrict-prototypes -Wall $CFLAGS"
+LIBMPS_CFLAGS="-D_REENTRANT -Wstrict-prototypes -Wall $CFLAGS $COMPLEX_CFLAGS"
 
 #
 # ===== CHECK FOR VISIBLITY SUPPORT =====
@@ -483,6 +491,7 @@ AC_CONFIG_FILES([Makefile
     examples/matlab/Makefile
     examples/gtk/Makefile
     examples/python/Makefile
+    include/mps/mt.h
     src/Makefile
     src/mpsolve/Makefile
     src/mpsolve/mpsolve.1

@@ -11,7 +11,7 @@
 /**
  * @file
  * @brief Library with extended types in C.
- * 
+ *
  * It contains complex types based on double and
  * DPE types (Double Plus Exponent) in real and
  * complex versions.
@@ -19,6 +19,14 @@
 
 #ifndef __MT_H__
 #define __MT_H__
+
+/*
+ * This equality is set at compile time in a way that if the system doesn't have
+ * complex.h support we can supply with our implementation. 
+ */
+#if @MPS_USE_BUILTIN_COMPLEX@ == 1
+  #define MPS_USE_BUILTIN_COMPLEX
+#endif
 
 #include <stdio.h>
 

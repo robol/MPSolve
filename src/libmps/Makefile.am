@@ -17,7 +17,7 @@ include_HEADERS = \
 	${top_srcdir}/include/mps/cluster.h \
         ${top_srcdir}/include/mps/debug.h \
 	${top_srcdir}/include/mps/mt-types.h \
-        ${top_srcdir}/include/mps/mt.h \
+        ${top_builddir}/include/mps/mt.h \
         ${top_srcdir}/include/mps/link.h \
         ${top_srcdir}/include/mps/mps.h \
         ${top_srcdir}/include/mps/rursolve.h \
