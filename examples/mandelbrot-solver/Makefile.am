@@ -16,3 +16,6 @@ mandelbrot_solver_CFLAGS = \
 mandelbrot_solver_LDADD = \
 	${top_builddir}/src/libmps/libmps.la \
 	$(GMP_LIBS)
+
+EXTRA_DIST = \
+	mandelbrot-poly.h 
