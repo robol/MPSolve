@@ -492,6 +492,7 @@ AC_CONFIG_FILES([Makefile
     examples/gtk/Makefile
     examples/python/Makefile
     examples/mandelbrot-solver/Makefile
+    examples/mandelbrot-solver/mandelbrot-solver.1
     include/mps/mt.h
     src/Makefile
     src/mpsolve/Makefile

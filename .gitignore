@@ -4,7 +4,7 @@
 *.a
 .cproject
 .project
-*.in
+Makefile.in
 *.log
 aclocal.m4
 autom4te.cache/
