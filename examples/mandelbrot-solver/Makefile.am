@@ -1,7 +1,8 @@
-noinst_PROGRAMS = mandelbrot-solver
+bin_PROGRAMS = mandelbrot-solver
 
 mandelbrot_solver_SOURCES = \
 	mandelbrot-evaluation.c \
+	mandelbrot-poly.c \
 	mandelbrot-newton.c \
 	mandelbrot-solver.c \
 	mandelbrot-starting.c

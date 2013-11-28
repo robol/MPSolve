@@ -1,3 +1,13 @@
+/*
+ * This file is part of MPSolve 3.0
+ *
+ * Copyright (C) 2001-2013, Dipartimento di Matematica "L. Tonelli", Pisa.
+ * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
+ *
+ * Authors: 
+ *   Leonardo Robol <robol@mail.dm.unipi.it>
+ */
+
 #include "mandelbrot-poly.h"
 
 void 
@@ -40,7 +50,7 @@ mps_mandelbrot_poly_dstart (mps_context *ctx, mps_polynomial *p)
       cdpe_set (ctx->root[ctx->n - 1]->dvalue, cdpe_one);
 
       cplx_vfree (roots);
-      mps_polynomial_free (new_ctx, MPS_POLYNOMIAL (new_mp));
+      mps_mandelbrot_poly_free (new_ctx, MPS_POLYNOMIAL (new_mp));
       mps_context_free (new_ctx);
     }
 }
@@ -85,7 +95,7 @@ mps_mandelbrot_poly_fstart (mps_context *ctx, mps_polynomial *p)
       cplx_set (ctx->root[ctx->n - 1]->fvalue, cplx_one);
 
       cplx_vfree (roots);
-      mps_polynomial_free (new_ctx, MPS_POLYNOMIAL (new_mp));
+      mps_mandelbrot_poly_free (new_ctx, MPS_POLYNOMIAL (new_mp));
       mps_context_free (new_ctx);
     }
 }
