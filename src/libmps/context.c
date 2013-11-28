@@ -422,6 +422,12 @@ void
 mps_context_set_output_format (mps_context * s, mps_output_format format)
 {
   s->output_config->format = format;
+
+  /* Special handling of GNUPLOT format */
+  if (format == MPS_OUTPUT_FORMAT_GNUPLOT_FULL)
+    {
+      s->gnuplot_format = "xyerrorbars";
+    }
 }
 
 /**

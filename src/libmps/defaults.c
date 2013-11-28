@@ -117,7 +117,10 @@ mps_set_default_values (mps_context * s)
   s->over_max = false;
 
   s->bmpc = NULL;
-  s->gnuplot_format = NULL;
+
+  /* Set a sensible gnuplot_format by default so the user won't see (null) in the 
+   * output. */
+  s->gnuplot_format = "points";
   
   s->self_thread_pool = NULL;
 }
