@@ -491,6 +491,7 @@ AC_CONFIG_FILES([Makefile
     examples/matlab/Makefile
     examples/gtk/Makefile
     examples/python/Makefile
+    examples/mandelbrot-solver/Makefile
     include/mps/mt.h
     src/Makefile
     src/mpsolve/Makefile

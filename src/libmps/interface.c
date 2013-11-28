@@ -109,7 +109,7 @@ mps_mpsolve_async (mps_context * s, mps_callback callback, void * user_data)
 /**
  * @brief Allocator for memory to be used in mpsolve.
  */
-MPS_PRIVATE void *
+void *
 mps_malloc (size_t size)
 {
   /* fprintf (stderr, "Allocating %lu bytes of memory\n", size); */
@@ -125,7 +125,7 @@ mps_malloc (size_t size)
 /**
  * @brief Reallocator for memory used in MPSolve.
  */
-MPS_PRIVATE void *
+void *
 mps_realloc (void * pointer, size_t size)
 {
   register void *value = realloc (pointer, size);

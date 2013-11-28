@@ -44,7 +44,7 @@ obtained by means of a rounding error analysis of (1).
  * This sample computes the 'Mandelbrot polynomial by  
  * means of the relation: p=1+x*p**2, starting with p=1
  */
-MPS_PRIVATE void
+void
 mps_fnewton_usr (mps_context * s, mps_polynomial * poly, mps_approximation * root, cplx_t corr)
 {
   cplx_t p, pp, pt, tmp;

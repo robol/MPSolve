@@ -2,4 +2,5 @@ SUBDIRS = \
 	octave \
 	matlab \
 	python \
-	gtk 
+	gtk \
+	mandelbrot-solver
