@@ -1,5 +1,4 @@
-#                                               -*- Autoconf -*- Process this file with autoconf 
-# to produce a configure script.
+# -*- Autoconf -*- Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.65])
 AC_INIT([MPSolve], [3.1.5], [robol@poisson.phc.unipi.it])
@@ -14,101 +13,6 @@ AM_INIT_AUTOMAKE([dist-bzip2 -Wno-portability])
 
 m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
 
-#
-# ===== GENERAL SECTION =====
-#
-# This section contains checks for compilers, basic headers files, ...
-#
-
-# Checks for needed compilers
-AC_PROG_CC
-AC_PROG_CXX
-AC_PROG_CC_C99
-AM_PROG_CC_C_O
-AC_C_INLINE
-
-# We need vsnprintf for signaling error in the code. 
-AX_FUNC_SNPRINTF
-
-# Check for complex type support
-AC_CHECK_HEADER([complex.h], [
-  AC_SUBST([MPS_USE_BUILTIN_COMPLEX], [0])
-], [
-  COMPLEX_CFLAGS="-DMPS_USE_BUILTIN_COMPLEX"
-  AC_SUBST([MPS_USE_BUILTIN_COMPLEX], [1])
-])
-
-# Checks for header files.
-AC_CHECK_HEADERS([stdlib.h string.h unistd.h])
-
-# Checks for typedefs, structures, and compiler characteristics.
-AC_HEADER_STDBOOL
-AC_TYPE_SIZE_T
-
-# Check for getline() function
-AC_CHECK_FUNCS(getline)
-AC_CHECK_FUNCS(fmemopen)
-
-# Checks for library functions.
-AC_FUNC_ERROR_AT_LINE
-AC_CHECK_FUNCS([memset modf pow sqrt strchr])
-
-# Check if we are building on Windows, so we can add additional
-# hacks to make MPSolve work there. 
-AC_MSG_CHECKING([for Win32 platform])
-case "$host" in
-  *-*-mingw*|*-*-cygwin*)
-    platform_win32=yes
-    ;;
-  *)
-    platform_win32=no
-    ;;
-esac
-AC_MSG_RESULT([$platform_win32])
-
-# That's make detecting Windows real easy...
-if test "$platform_win32" = yes; then
-  CFLAGS="$CFLAGS -D__WINDOWS"
-  LDFLAGS="$LDFLAGS -mwindows"
-
-  # In this case check if we have windres compiler
-  AC_CHECK_TOOL([WINDRES], [windres])
-fi
-
-AM_CONDITIONAL([WINDOWS_BUILD], [test "$platform_win32" == "yes"])
-AM_CONDITIONAL([HAVE_WINDRES], [test "$WINDRES" != ""])
-
-# Add GMP_CFLAGS and GMP_LIBS to CFLAGS and LDFLAGS in case they are set.
-CFLAGS="$GMP_CFLAGS $CFLAGS"
-LDFLAGS="$GMP_LIBS $LDFLAGS"
-
-AC_SUBST(GMP_CFLAGS)
-AC_SUBST(GMP_LIBS)
-
-LIBMPS_CFLAGS="-D_REENTRANT -Wstrict-prototypes -Wall $CFLAGS $COMPLEX_CFLAGS"
-
-#
-# ===== CHECK FOR VISIBLITY SUPPORT =====
-#
-
-AC_CACHE_CHECK([for __attribute__((visibility("hidden")))],
-    ac_cv_hidden_visibility_attribute, [
-    echo 'int __attribute__ ((visibility ("hidden"))) foo (void) { return 1; }' > conftest.c
-    ac_cv_hidden_visibility_attribute=no
-    if AC_TRY_COMMAND(${CC-cc} -Werror -S conftest.c -o conftest.s 1>&AS_MESSAGE_LOG_FD);
-    then
-        if grep '\.hidden.*foo' conftest.s >/dev/null;
-        then
-            ac_cv_hidden_visibility_attribute=yes
-        fi
-    fi
-    rm -f conftest.*
-    ])
-if test $ac_cv_hidden_visibility_attribute = yes;
-then
-    AC_DEFINE(HAVE_HIDDEN_VISIBILITY_ATTRIBUTE, 1,
-          [Define if __attribute__((visibility("hidden"))) is supported.])
-fi
 
 #
 # ===== OPTION PARSING =====
@@ -155,122 +59,320 @@ AC_ARG_ENABLE([graphical-debugger],
     [build_graphical_debugger=$enableval have_graphical_debugger=$enableval],
     [build_graphical_debugger=yes have_graphical_debugger=yes])
 
-# 
-# ===== REQUIRED LIBRARIES =====
+
 #
-# This section checks for the libraries that are needed to build MPSolve. These are
-# required libraries and if these are not found on the system there's no chance that
-# we can continue ignoring the error. 
+# ==== LIBRARY DETECTION ==== 
+#
+# All these sections handle library detection and understanding the system characteristics. 
 #
 
-# We need the multiprecicsion GMP library. 
-AC_CHECK_LIB([gmp], [__gmpz_init2])
-AC_CHECK_HEADERS([gmp.h], [mpsolve_found_gmp_headers=yes; break;])
 
-# Raise an error if GMP is not correctly installed on this system.
-AS_IF([test "x$mpsolve_found_gmp_headers" != "xyes"],
+##
+## Section 0) This section contains checks for compilers, basic headers files, ...
+#
+
+  # Checks for needed compilers: 
+  AC_PROG_CC
+  AC_PROG_CXX
+  #   AC_PROG_CC_C99
+  AM_PROG_CC_C_O
+  AC_C_INLINE
+
+  # Checks for typedefs, structures, and compiler characteristics.
+  AC_HEADER_STDBOOL
+  AC_TYPE_SIZE_T
+
+  # Checks for basic library functions. Without these there will be no hope 
+  # of compiling MPSolve. 
+  AC_FUNC_ERROR_AT_LINE
+  AC_CHECK_FUNCS([memset modf pow sqrt strchr])
+
+  ## Subsection 0.1) Check if we are building on Windows and tune the CFLAGS accordingly
+
+    # Check if we are building on Windows, so we can add additional
+    # hacks to make MPSolve work there. 
+    AC_MSG_CHECKING([for Win32 platform])
+     case "$host" in
+       *-*-mingw*|*-*-cygwin*)
+         platform_win32=yes
+       ;;
+       *)
+         platform_win32=no
+       ;;
+     esac
+    AC_MSG_RESULT([$platform_win32])  
+
+    # This makes detecting Windows real easy...
+    if test "$platform_win32" = yes; then
+      CFLAGS="$CFLAGS -D__WINDOWS"
+      LDFLAGS="$LDFLAGS -mwindows" 
+
+      # In this case check if we have windres compiler
+      AC_CHECK_TOOL([WINDRES], [windres])
+    fi
+
+    AM_CONDITIONAL([WINDOWS_BUILD], [test "$platform_win32" == "yes"])
+    AM_CONDITIONAL([HAVE_WINDRES], [test "$WINDRES" != ""])
+
+  ## Subsection 0.2) Check for the support of the visibily attribute. If this is supported
+  ## we can make a lot of routines "private", protecting misuse of libmps and shortening
+  ## load times. 
+
+    AC_CACHE_CHECK([for __attribute__((visibility("hidden")))],
+      ac_cv_hidden_visibility_attribute, [
+      echo 'int __attribute__ ((visibility ("hidden"))) foo (void) { return 1; }' > conftest.c
+      ac_cv_hidden_visibility_attribute=no
+      if AC_TRY_COMMAND(${CC-cc} -Werror -S conftest.c -o conftest.s 1>&AS_MESSAGE_LOG_FD);
+      then
+          if grep '\.hidden.*foo' conftest.s >/dev/null;
+          then
+              ac_cv_hidden_visibility_attribute=yes
+          fi
+      fi
+      rm -f conftest.*
+      ])
+
+    if test $ac_cv_hidden_visibility_attribute = yes;
+    then
+      AC_DEFINE(HAVE_HIDDEN_VISIBILITY_ATTRIBUTE, 1,
+            [Define if __attribute__((visibility("hidden"))) is supported.])
+    fi
+
+
+  ## Subsection 0.3) Multithread support. 
+
+    AX_PTHREAD([], [
+      AC_MSG_ERROR([Pthread library not found. Please set PTHREAD_CFLAGS and PTHREAD_LIBS correctly for your setup])
+    ])
+    CC="$PTHREAD_CC"
+
+    # Set the correct PTHREAD flags and, if needed, change the compiler to one that is pthread-enabled.
+    AC_SUBST(PTHREAD_CFLAGS)
+    AC_SUBST(PTHREAD_LDFLAGS)
+    AC_SUBST(PTHREAD_LIBS)
+    AC_SUBST(CC)
+
+  ## Subsection 0.3) Check for a way to get the number of cores installed on the system. 
+    AC_MSG_CHECKING([if sysconf(_SC_NPROCESSORS_ONLN) is supported])
+    AC_COMPILE_IFELSE([
+        AC_LANG_SOURCE(
+        [[
+          #include <unistd.h>
+           int main() {
+             int cores = sysconf(_SC_NPROCESSORS_ONLN);
+             return 0;
+           }
+        ]]
+        )
+      ], 
+      [have_sysconf=yes], 
+      [have_sysconf=no]
+    )
+
+    AC_MSG_RESULT([$have_sysconf])
+    AS_IF([test "$have_sysconf" == "yes"], [
+      AC_DEFINE([HAVE_SYSCONF], [1], [
+        Defined if sysconf(_SC_NPROCESSORS_ONLN) is supported]
+      )
+    ])
+
+
+  ## Subsection 0.4) Check for a custom malloc implementation with threading support and a good
+  ## caching algorithm. 
+    AC_CHECK_LIB([tcmalloc_minimal], [malloc])
+
+
+
+
+## 
+## Section 1) Input/Output routines
+##
+
+  # The function vsnprintf() is used in input-output.c 
+  # to handle the mps_error() outputs in a proper way. 
+  AX_FUNC_SNPRINTF
+
+  # Checks for basic header files that should be present on
+  # the system. 
+  AC_CHECK_HEADERS([stdlib.h string.h unistd.h])
+
+  # getline is used to parse the input files. 
+  AC_CHECK_FUNCS(getline)
+
+  # fmemopen is used to open memory as a FILE*, so we can re-use
+  # the input-buffer implementation to parse strings. 
+  AC_CHECK_FUNCS(fmemopen)
+
+
+
+
+##
+## Section 2) Mathematical routines and libaries
+##
+
+  # If available, the <complex.h> header will be used since
+  # it will probably provide a better (and faster) implementation
+  # of floating point complex arithmetic. 
+  AC_CHECK_HEADER([complex.h], [
+    AC_SUBST([MPS_USE_BUILTIN_COMPLEX], [0])
+  ], [
+    COMPLEX_CFLAGS="-DMPS_USE_BUILTIN_COMPLEX"
+    AC_SUBST([MPS_USE_BUILTIN_COMPLEX], [1])
+  ])
+
+  # The general C math library. 
+  AC_CHECK_LIB([m], [pow])
+
+  ## Subsection 2.1) Check for GMP
+
+    # Add GMP_CFLAGS and GMP_LIBS to CFLAGS and LDFLAGS in case they are set.
+    # This is an easy way for the user to override system libgmp or to provide
+    # its location if it's not installed system-wide. 
+    CFLAGS="$GMP_CFLAGS $CFLAGS"
+    LDFLAGS="$GMP_LIBS $LDFLAGS"
+
+    AC_SUBST(GMP_CFLAGS)
+    AC_SUBST(GMP_LIBS)
+
+    LIBMPS_CFLAGS="-D_REENTRANT -Wstrict-prototypes -Wall $CFLAGS $COMPLEX_CFLAGS"
+
+    AC_CHECK_LIB([gmp], [__gmpz_init2])
+    AC_CHECK_HEADERS([gmp.h], [mpsolve_found_gmp_headers=yes; break;])
+
+    # Raise an error if GMP is not correctly installed on this system.
+    AS_IF([test "x$mpsolve_found_gmp_headers" != "xyes"],
       [AC_MSG_ERROR([Unable to find gmp headers, pleas install libgmp-dev])])
 
-# The general C math library. 
-AC_CHECK_LIB([m], [pow])
 
-# At the moment MPSolve cannot be built without the pthread library for POSIX threads.
-# In principle it should be possible to use an abstraction layer to support also Windows
-# cricital section, but this have not be done yet. Note, however, that is still possible
-# to run MPSolve on Windows by using pthread compatilibity layer that are freely available
-# on the Internet. 
-  AX_PTHREAD([], [
-    AC_MSG_ERROR([Pthread library not found. Please set PTHREAD_CFLAGS and PTHREAD_LIBS correctly for your setup])
+
+
+##
+## Section 3) Check support: try to find all the necessary headers and libraries
+## that are needed to run the test cases. This way MPSolve will be checked by the
+## make check command. 
+##
+
+  # Check for the check module, so MPSolve tests can be run.
+  PKG_CHECK_MODULES([CHECK], [check >= 0.9.4], [have_check=yes], [have_check=no])
+  AM_CONDITIONAL([CHECK], [test x$have_check = xyes])
+
+  # If check was fuond enable the tests that need to be built
+  AS_IF([test "x$have_check" = "xyes"], [ 
+    CHECK_PROGRAMS="check_dpe check_secsolve check_unisolve check_multithread check_cluster check_chebyshev"
   ])
-  CC="$PTHREAD_CC"
-
-# Set the correct PTHREAD flags and, if needed, change the compiler to one that is pthread-enabled.
-AC_SUBST(PTHREAD_CFLAGS)
-AC_SUBST(PTHREAD_LDFLAGS)
-AC_SUBST(PTHREAD_LIBS)
-AC_SUBST(CC)
-
-# Check if we have support for sysconf() to get the number of processors
-AC_MSG_CHECKING([if sysconf(_SC_NPROCESSORS_ONLN) is supported])
-AC_COMPILE_IFELSE([
-    AC_LANG_SOURCE(
-    [[
-      #include <unistd.h>
-      int main() {
-        int cores = sysconf(_SC_NPROCESSORS_ONLN);
-        return 0;
-      }
-    ]]
-    )
-   ], 
-   [have_sysconf=yes], 
-   [have_sysconf=no]
-)
-
-AC_MSG_RESULT([$have_sysconf])
-AS_IF([test "$have_sysconf" == "yes"], [
-  AC_DEFINE([HAVE_SYSCONF], [1], [
-    Defined if sysconf(_SC_NPROCESSORS_ONLN) is supported]
-  )
-])
-
-#
-# ===== OPTIONAL LIBRARIES =====
-#
-# This category contain libraries that can be used by MPSolve (to add features or be
-# more efficient) but are not strictly required to build the software. 
-
-# Check for the MPFR multiprecision floating point library. This could be, in principle,
-# an alternative to GMP mpf_t type. This is still not implemented in MPSolve, though. 
-# AC_CHECK_LIB([mpfr], [mpfr_neg])
-# AC_CHECK_HEADERS([mpfr.h])
-
-# This is a custom malloc implementation with thread-caching capabilities. Using this library
-# will make MPSolve much faster. 
-AC_CHECK_LIB([tcmalloc_minimal], [malloc])
-
-# Check for the check module, so MPSolve tests can be run. 
-PKG_CHECK_MODULES([CHECK], [check >= 0.9.4], [have_check=yes], [have_check=no])
-AM_CONDITIONAL([CHECK], [test x$have_check = xyes])
-
-# If check was fuond enable the tests that need to be built
-AS_IF([test "x$have_check" = "xyes"], [ 
-  CHECK_PROGRAMS="check_dpe check_secsolve check_unisolve check_multithread check_cluster check_chebyshev"
-])
   
-AC_SUBST(CHECK_PROGRAMS)
-AC_SUBST(CHECK_CFLAGS)
-AC_SUBST(CHECK_LIBS)
+  AC_SUBST(CHECK_PROGRAMS)
+  AC_SUBST(CHECK_CFLAGS)
+  AC_SUBST(CHECK_LIBS)
 
-# Check for the GTK libraries on this system. We can use both GTK 2.0 and GTK 3.0
-have_gtk="1"
-PKG_CHECK_MODULES([GTK], [gtk+-3.0], [], [
-    PKG_CHECK_MODULES([GTK], [gtk+-2.0], [], [
-        have_gtk="0"
+
+
+##
+## Section 4) Graphical toolkits: MPSolve has some parts that can be optionally compiled if 
+## the appropriate GUI toolkits are present. 
+##
+
+  ## Subsection 4.1) GTK support for mpsolve -x (live approximation tracking) 
+
+    # Check for the GTK libraries on this system. We can use both GTK 2.0 and GTK 3.0
+    have_gtk="1"
+    PKG_CHECK_MODULES([GTK], [gtk+-3.0], [], [
+        PKG_CHECK_MODULES([GTK], [gtk+-2.0], [], [
+            have_gtk="0"
+        ])
     ])
+
+    AS_IF([test x$have_gtk = x1], [
+        AC_DEFINE([HAVE_GTK], $have_gtk, [Defined if GTK is available])
+    ])
+
+    AC_SUBST(GTK_CFLAGS)
+    AC_SUBST(GTK_LIBS)
+
+    # Check that we have also the cairo graphic library. This will be already bundled
+    # in GTK3 but is not to be taken for granted in GTK2. 
+    PKG_CHECK_MODULES([CAIRO], [cairo], [have_cairo="1"], [have_cairo="0"])
+
+    AS_IF([test x$have_cairo = x1], [
+       AC_DEFINE([HAVE_CAIRO], 1, [Defined if CAIRO is available])
+    ])
+
+    AC_SUBST(CAIRO_CFLAGS)
+    AC_SUBST(CAIRO_LIBS)
+
+    AS_IF([test x$have_gtk == x1 && test x$have_graphical_debugger == xyes && test x$have_cairo == x1], [
+        AC_DEFINE([HAVE_GRAPHICAL_DEBUGGER], 1, [Defined if the graphical debugger should be bundled in MPSolve])
+    ])
+
+##
+## Section 5) XMPsolve: the MPSolve graphical user interface. 
+##
+
+  # Search qmake and Qt related things, so we can build
+  # MPSolve UI. Don't build the UI if the user has manually
+  # disabled it. 
+  QT_PROGRAMS=
+  AS_IF([test "$build_ui" == "yes"], [
+          PKG_CHECK_MODULES(QT4, [ QtCore QtGui ],   [have_qt4=yes], [have_qt4=no])
+          PKG_CHECK_MODULES(QT5, [ Qt5Core Qt5Gui Qt5Widgets ], [have_qt5=yes], [have_qt5=no])
+
+          AS_IF([test "$have_qt5" == "no" && test "$have_qt4" == "no"], [
+	        # No hope to have the UI, just disable it. 
+                AC_MSG_NOTICE([Could not find Qt4 or Qt5, disabling the graphical UI])
+               QT_PROGRAMS=""
+          ], [
+	       QT_PROGRAMS=xmpsolve${EXEEXT}
+          ])
+
+          AS_IF([test "$have_qt5" == "yes"], [
+	        # Check for needed programs
+                AC_CHECK_PROGS([UIC], [uic-qt5 uic])
+                AC_CHECK_PROGS([MOC], [moc-qt5 moc])	
+                AC_CHECK_PROGS([RCC], [rcc-qt5 rcc])
+
+                QT_CFLAGS=$QT5_CFLAGS
+                QT_LDFLAGS=$QT5_LDFLAGS
+                QT_LIBS=$QT5_LIBS
+
+                AS_IF([test "$UIC" == "" || test "$MOC" == ""], [
+                        AC_MSG_WARN([uic or moc were not found in your path, so Qt5 is not usable])
+                        have_qt5=no
+                      ])
+                ], [])
+	
+          # Enable Qt4 only if Qt5 was not found, or if the required tools
+	  # to build the interface are not available. 
+	  AS_IF([test "$have_qt4" == "yes" && test "$have_qt5" == "no"], [
+                  AC_CHECK_PROGS([UIC], [uic-qt4 uic])
+                  AC_CHECK_PROGS([MOC], [moc-qt4 moc])
+                  AC_CHECK_PROGS([RCC], [rcc-qt4 rcc])
+
+                  QT_CFLAGS=$QT4_CFLAGS
+                  QT_LDFLAGS=$QT4_LDFLAGS
+                  QT_LIBS=$QT4_LIBS
+
+                  AS_IF([test "$UIC" == "" || test "$MOC" == ""], [
+                    AC_MSG_WARN([uic and/or moc were not found in your path, so Qt4 is not usable])
+                      QT_PROGRAMS=""
+                  ])
+          ]) # End of have_qt4 == yes && have_qt5 == no
+
+          AS_IF([test x"$have_qt4" == x"no" && test x"$have_qt5" == x"no"], [
+            QT_PROGRAMS=""
+	  ])
+
+	  AS_IF([test "$QT_PROGRAMS" == ""], [
+            have_ui=no
+            build_ui=no
+	  ])
 ])
 
-AS_IF([test x$have_gtk = x1], [
-	    AC_DEFINE([HAVE_GTK], $have_gtk, [Defined if GTK is available])
-])
+AM_CONDITIONAL([HAVE_UI], [test x"$QT_PROGRAMS" != x""])
+AC_SUBST(QT_PROGRAMS)
+AC_SUBST(QT_CFLAGS)
+AC_SUBST(QT_LDFLAGS)
+AC_SUBST(QT_LIBS)
 
-AC_SUBST(GTK_CFLAGS)
-AC_SUBST(GTK_LIBS)
-
-# Check that we have also the cairo graphic library. This will be already bundled
-# in GTK3 but is not to be taken for granted in GTK2. 
-PKG_CHECK_MODULES([CAIRO], [cairo], [have_cairo="1"], [have_cairo="0"])
-
-AS_IF([test x$have_cairo = x1], [
-	    AC_DEFINE([HAVE_CAIRO], 1, [Defined if CAIRO is available])
-])
-
-AC_SUBST(CAIRO_CFLAGS)
-AC_SUBST(CAIRO_LIBS)
-
-AS_IF([test x$have_gtk == x1 && test x$have_graphical_debugger == xyes && test x$have_cairo == x1], [
-  AC_DEFINE([HAVE_GRAPHICAL_DEBUGGER], 1, [Defined if the graphical debugger should be bundled in MPSolve])
-])
 
 #
 # ===== EXAMPLES ======
@@ -352,11 +454,13 @@ AS_IF([test -z "$PYTHON_INCLUDE"], [
     AS_IF([test "$PYTHON_CONFIG" = no], [
         AC_MSG_WARN([cannot find python-config for $PYTHON.])
         PYTHON_MODULES=
+    ], [
+        AC_MSG_CHECKING([python include flags])
+        PYTHON_INCLUDE=`$PYTHON_CONFIG --includes`
+        AC_MSG_RESULT([$PYTHON_INCLUDE])
     ])
   ])
-  AC_MSG_CHECKING([python include flags])
-  PYTHON_INCLUDE=`$PYTHON_CONFIG --includes`
-  AC_MSG_RESULT([$PYTHON_INCLUDE])
+
 ])
 
 AM_CONDITIONAL([HAVE_PYTHON], [test "$PYTHON_MODULES" == "mpsolve.la"])
@@ -390,77 +494,6 @@ AS_IF([test x$build_examples == xyes && test x$have_gtk == x1 && test x$have_cai
 	AC_SUBST([GTK_FOUND])
 	AC_SUBST([ROOTS_OF_UNITY_PROGRAMS])
 ])
-
-#
-# ===== MPSOLVE GRAPHICAL INTERFACE =====
-#
-# Check for Qt to build the MPSolve GUI. 
-#
-
-# Search qmake and Qt related things, so we can build
-# MPSolve UI. Don't build the UI if the user has manually
-# disabled it. 
-QT_PROGRAMS=
-AS_IF([test "$build_ui" == "yes"], [
-        PKG_CHECK_MODULES(QT4, [ QtCore QtGui ],   [have_qt4=yes], [have_qt4=no])
-	PKG_CHECK_MODULES(QT5, [ Qt5Core Qt5Gui Qt5Widgets ], [have_qt5=yes], [have_qt5=no])
-
-	AS_IF([test "$have_qt5" == "no" && test "$have_qt4" == "no"], [
-		# No hope to have the UI, just disable it. 
-		AC_MSG_NOTICE([Could not find Qt4 or Qt5, disabling the graphical UI])
-		QT_PROGRAMS=""
-	], [
-		QT_PROGRAMS=xmpsolve${EXEEXT}
-	])
-
-	AS_IF([test "$have_qt5" == "yes"], [
-		# Check for needed programs
-		AC_CHECK_PROGS([UIC], [uic-qt5 uic])
-		AC_CHECK_PROGS([MOC], [moc-qt5 moc])	
-		AC_CHECK_PROGS([RCC], [rcc-qt5 rcc])
-
-		QT_CFLAGS=$QT5_CFLAGS
-		QT_LDFLAGS=$QT5_LDFLAGS
-		QT_LIBS=$QT5_LIBS
-
-		AS_IF([test "$UIC" == "" || test "$MOC" == ""], [
-			AC_MSG_WARN([uic or moc were not found in your path, so Qt5 is not usable])
-			have_qt5=no
-		])
-        ], [])
-	
-	# Enable Qt4 only if Qt5 was not found, or if the required tools
-	# to build the interface are not available. 
-	AS_IF([test "$have_qt4" == "yes" && test "$have_qt5" == "no"], [
-                AC_CHECK_PROGS([UIC], [uic-qt4 uic])
-                AC_CHECK_PROGS([MOC], [moc-qt4 moc])
-		AC_CHECK_PROGS([RCC], [rcc-qt4 rcc])
-
-		QT_CFLAGS=$QT4_CFLAGS
-		QT_LDFLAGS=$QT4_LDFLAGS
-		QT_LIBS=$QT4_LIBS
-
-		AS_IF([test "$UIC" == "" || test "$MOC" == ""], [
-			AC_MSG_WARN([uic and/or moc were not found in your path, so Qt4 is not usable])
-			QT_PROGRAMS=""
-		])
-        ]) # End of have_qt4 == yes && have_qt5 == no
-
-	AS_IF([test x"$have_qt4" == x"no" && test x"$have_qt5" == x"no"], [
-        	QT_PROGRAMS=""
-	])
-
-	AS_IF([test "$QT_PROGRAMS" == ""], [
-		have_ui=no
-		build_ui=no
-	])
-])
-
-AM_CONDITIONAL([HAVE_UI], [test x"$QT_PROGRAMS" != x""])
-AC_SUBST(QT_PROGRAMS)
-AC_SUBST(QT_CFLAGS)
-AC_SUBST(QT_LDFLAGS)
-AC_SUBST(QT_LIBS)
 
 #
 # ===== MPSOLVE DOCUMENTATION ======
@@ -521,7 +554,7 @@ MPSolve configuration:
 
 # Check Octave module
 if [test x$enable_octave = xyes]; then
-        echo "	Octave module:		$enable_octave (generates examples/octave/$OCTAVE_MODULES_PROGRAMS)"
+        echo "	Octave module:		$enable_octave (generates examples/octave/mpsolve.tar.gz)"
 else
         echo "	Octave module:		no"
 fi

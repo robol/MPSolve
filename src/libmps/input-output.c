@@ -11,6 +11,7 @@
  */
 
 #include <stdarg.h>
+#include <stdio.h>
 #include <string.h>
 #include <mps/mps.h>
 #include <ctype.h>

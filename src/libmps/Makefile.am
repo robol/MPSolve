@@ -30,6 +30,7 @@ include_HEADERS = \
 
 AM_CPPFLAGS= \
         -I${top_srcdir}/include \
+        -I${top_builddir}/include \
 	$(LIBMPS_CFLAGS) \
 	$(GMP_CFLAGS) \
 	$(PTHREAD_CFLAGS) \

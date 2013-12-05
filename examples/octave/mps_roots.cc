@@ -6,8 +6,8 @@
 
 DEFUN_DLD(mps_roots, args, nargout,
 "-*- texinfo -*- \n\
-@deftypefn {Loadable Function} {@var{x} =} mps_roots(@var{v})\n\
-@deftypefnx {Loadable Function} {@var{x} =} mps_roots(@var{v}, @var{alg})\n\
+@deftypefn {Loadable Function} {@var{x} =} mps_roots (@var{v})\n\
+@deftypefnx {Loadable Function} {@var{x} =} mps_roots (@var{v}, @var{alg})\n\
 @cindex root finding of a polynomial\n\
 Compute the roots of the polynomial p(z) given by\n\n\
 @tex\n\

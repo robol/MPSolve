@@ -43,4 +43,6 @@ int main (int argc, char ** argv)
   printf ("\n => Trying to stop all the threads..."); 
   mps_thread_pool_free (s, pool); 
   printf ("done\n"); 
+
+  return EXIT_SUCCESS; 
 }
