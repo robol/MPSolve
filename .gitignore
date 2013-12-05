@@ -2,8 +2,6 @@
 *~
 *.so
 *.a
-.cproject
-.project
 Makefile.in
 *.log
 aclocal.m4
