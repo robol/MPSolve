@@ -74,7 +74,7 @@ AC_ARG_ENABLE([graphical-debugger],
   # Checks for needed compilers: 
   AC_PROG_CC
   AC_PROG_CXX
-  #   AC_PROG_CC_C99
+  AC_PROG_CC_C99
   AM_PROG_CC_C_O
   AC_C_INLINE
 
@@ -436,6 +436,8 @@ AS_IF([test x$build_examples == xyes], [
 	AS_IF([test "$MEX" != ""], [enable_matlab=yes
 	  MATLAB_MODULES_PROGRAMS=mps_roots])
 	AC_SUBST(MATLAB_MODULES_PROGRAMS)
+
+	AM_CONDITIONAL([BUILD_MATLAB_TOOLBOX], [test "$enable_matlab" == "yes"])
 ])
 
 # == CYTHON MODULE for PYTHON ==

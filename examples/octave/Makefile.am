@@ -37,12 +37,13 @@ uninstall-local:
 	echo "Octave package dir is not empty, not removing it"
 
 mpsolve.tar.gz: mps_roots.oct
-	test -d package || (cp -r ${srcdir}/package-source ${builddir}/package && chmod u+w package -R)
-	test -f package/COPYING || cp ${srcdir}/package-source/COPYING package/
-	test -f package/DESCRIPTION || cp ${srcdir}/package-source/DESCRIPTION package/
-	test -d package/src || mkdir package/src
-	cp ${builddir}/mps_roots.oct ${builddir}/package/src/
-	tar czf ${builddir}/mpsolve.tar.gz ${builddir}/package
+	$(AM_V_GEN)
+	$(AM_V_at) test -d package || (cp -r ${srcdir}/package-source ${builddir}/package && chmod u+w package -R)
+	$(AM_V_at) test -f package/COPYING || cp ${srcdir}/package-source/COPYING package/
+	$(AM_V_at) test -f package/DESCRIPTION || cp ${srcdir}/package-source/DESCRIPTION package/
+	$(AM_V_at) test -d package/src || mkdir package/src
+	$(AM_V_at) cp ${builddir}/mps_roots.oct ${builddir}/package/src/
+	$(AM_V_at) tar czf ${builddir}/mpsolve.tar.gz ${builddir}/package
 
 mps_roots_oct_SOURCES = mps_roots.cc
 mps_roots_oct_LINK = $(MKOCTFILE) -o $@ -L${top_builddir}/src/libmps/.libs -lmps 
