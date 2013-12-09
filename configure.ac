@@ -398,13 +398,11 @@ AS_IF([test x$build_examples == xyes], [
 				AC_MSG_RESULT([yes])
 				
 				# If we have Octave that is sufficiently recent, we can enable the Octave module
-	        	AS_IF([test "$MKOCTFILE" != ""], [enable_octave=yes OCTAVE_MODULES_PROGRAMS=mps_roots.oct])			
+	        	AS_IF([test "$MKOCTFILE" != ""], [enable_octave=yes])			
 			], [
 				AC_MSG_RESULT([no])
 			])
 	], [])
-
-	AC_SUBST(OCTAVE_MODULES_PROGRAMS)
 ])
 
 AM_CONDITIONAL([BUILD_OCT_FILE], [test "$enable_octave" == "yes"])
