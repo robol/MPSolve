@@ -574,23 +574,18 @@ mps_secular_ga_mpsolve (mps_context * s)
   /* Finally improve the roots if approximation is required */
   if (s->output_config->goal == MPS_OUTPUT_GOAL_APPROXIMATE)
     {
-#ifndef DISABLE_DEBUG
+#ifdef NICE_DEBUG
       clock_t *my_timer = mps_start_timer ();
 #endif
       mps_improve (s);
 
-#ifndef DISABLE_DEBUG
-      unsigned int improve_time = mps_stop_timer (my_timer);
-      if (s->debug_level & MPS_DEBUG_TIMINGS)
-        {
-          MPS_DEBUG (s, "mps_improve took %u ms", improve_time);
-        }
+#ifdef NICE_DEBUG
+      MPS_DEBUG (s, "mps_improve took %u ms", mps_stop_timer (my_timer));
 #endif
     }
 
   /* Debug total time taken but only if debug is enabled */
 #ifndef DISABLE_DEBUG
-  long total_time = mps_stop_timer (total_clock);
   if (s->debug_level & MPS_DEBUG_TIMINGS)
     {
       MPS_DEBUG (s, "Time used for regeneration: %ld ms",
@@ -602,7 +597,7 @@ mps_secular_ga_mpsolve (mps_context * s)
       MPS_DEBUG (s, "Time used in multiprecision iterations: %ld ms",
                  s->mp_iteration_time);
       MPS_DEBUG (s, "Total time using MPSolve: %ld ms",
-                 total_time);
+                 mps_stop_timer (total_clock));
     }
 #endif
 
