@@ -3,10 +3,8 @@ if BUILD_OCT_FILE
 mps_roots.o:
 	$(MKOCTFILE) $(GMP_CFLAGS) -I${top_srcdir}/include -c -o mps_roots.o ${srcdir}/mps_roots.cc
 
-noinst_PROGRAMS = $(OCTAVE_MODULES_PROGRAMS)
+noinst_PROGRAMS = mps_roots.oct
 noinst_DATA = mpsolve.tar.gz
-
-EXTRA_PROGRAMS = mps_roots.oct
 
 EXTRA_DIST = \
 	package-source \

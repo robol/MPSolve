@@ -274,8 +274,7 @@ exit_sub:
     mps_restore_data (s);
 
 #ifndef DISABLE_DEBUG
-  long total_time = mps_stop_timer (my_timer);
-  MPS_DEBUG (s, "Total time using MPSolve: %lu ms", total_time);
+  MPS_DEBUG (s, "Total time using MPSolve: %lu ms", mps_stop_timer (my_timer));
 #endif
 
   /* Finally copy the roots ready for output */
