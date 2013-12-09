@@ -1,5 +1,15 @@
-#ifndef MPS_ROOT_H_
-#define MPS_ROOT_H_
+/*
+ * This file is part of MPSolve 3.0
+ *
+ * Copyright (C) 2001-2013, Dipartimento di Matematica "L. Tonelli", Pisa.
+ * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
+ *
+ * Authors: 
+ *   Leonardo Robol <robol@mail.dm.unipi.it>
+ */
+
+#ifndef MPS_APPROXIMATION_H_
+#define MPS_APPROXIMATION_H_
 
 #ifdef __cplusplus
 extern "C" {

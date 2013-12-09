@@ -1,5 +1,15 @@
-#ifndef __MPS_MONOMIAL_MATRIX_POLY_H
-#define __MPS_MONOMIAL_MATRIX_POLY_H
+/*
+ * This file is part of MPSolve 3.0
+ *
+ * Copyright (C) 2001-2013, Dipartimento di Matematica "L. Tonelli", Pisa.
+ * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
+ *
+ * Authors: 
+ *   Leonardo Robol <robol@mail.dm.unipi.it>
+ */
+
+#ifndef MPS_MONOMIAL_MATRIX_POLY_H_
+#define MPS_MONOMIAL_MATRIX_POLY_H_
 
 /**
  * @file
@@ -17,6 +27,8 @@
 extern "C"
 {
 #endif
+
+#define MPS_MONOMIAL_MATRIX_POLY_HESSENBERG 0x0001
 
 #ifdef _MPS_PRIVATE
 
@@ -56,7 +68,16 @@ extern "C"
      * NOTE: At this stage, this is the only type of data that is kept
      * for the matrix polynomial. 
      */
-    double * P;
+    cplx_t * P;
+
+    /**
+     * @brief Additional properties of this polynomial. Examples are: 
+     * MPS_MONOMIAL_MATRIX_POLY_HESSENBERG, ...
+     * 
+     * @seealso mps_monomial_matrix_poly_add_flag(), 
+     * @seealso mps_monomial_matrix_poly_clear_flags(). 
+     */
+    int flags; 
 
   };
 
@@ -91,6 +112,42 @@ extern "C"
    */
   void mps_monomial_matrix_poly_free (mps_context * ctx,
 				      mps_polynomial * poly);
+
+  /**
+   * @brief Add some flags (some properties) to this matrix polynomial. 
+   *
+   * @param ctx The current mps_context
+   * @param mpoly The matrix polynomial. 
+   * @param flag The flags to add. 
+   */
+  void mps_monomial_matrix_poly_add_flags (mps_context * ctx, 
+					   mps_monomial_matrix_poly * mpoly, 
+					   int flag); 
+
+  /**
+   * @brief Clear some flags (properties) of this matrix polynomial. 
+   *
+   * @param ctx The current mps_context
+   * @param mpoly The matrix polynomial. 
+   * @param flag The flags to clear. 
+   */
+  void mps_monomial_matrix_poly_clear_flags (mps_context * ctx, 
+					     mps_monomial_matrix_poly * mpoly, 
+					     int flag); 
+
+  /**
+   * @brief Set the coefficient of degree i of the matrix polynomial. 
+   *
+   * @param ctx The current mps_context 
+   * @param mpoly The mps_monomial_matrix_poly where the coefficients should be
+   * set. 
+   * @param i The degree of the coeffient to set. 
+   * @param matrix A pointer to the first element of the matrix stored in row-major order. 
+   */ 
+  void mps_monomial_matrix_poly_set_coefficient_d (mps_context * ctx, 
+						   mps_monomial_matrix_poly *mpoly, 
+						   int i, 
+						   cplx_t * matrix); 
 
   /**
    * @brief Evaluate a matrix polynomial at a point, in the sense of

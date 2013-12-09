@@ -1,9 +1,6 @@
 if BUILD_OCT_FILE
 
-mps_roots.o:
-	$(MKOCTFILE) $(GMP_CFLAGS) -I${top_srcdir}/include -c -o mps_roots.o ${srcdir}/mps_roots.cc
-
-noinst_PROGRAMS = mps_roots.oct
+noinst_PROGRAMS = mps_roots.oct mps_polyeig_impl.oct
 noinst_DATA = mpsolve.tar.gz
 
 EXTRA_DIST = \
@@ -34,16 +31,29 @@ uninstall-local:
 	( rmdir ${DESTDIR}/${datadir}/octave/packages && rm -rf ${DESTDIR}/${datadir}/octave ) || \
 	echo "Octave package dir is not empty, not removing it"
 
-mpsolve.tar.gz: mps_roots.oct
+mpsolve.tar.gz: mps_roots.oct mps_polyeig_impl.oct mps_polyeig.m
 	$(AM_V_GEN)
 	$(AM_V_at) test -d package || (cp -r ${srcdir}/package-source ${builddir}/package && chmod u+w package -R)
 	$(AM_V_at) test -f package/COPYING || cp ${srcdir}/package-source/COPYING package/
 	$(AM_V_at) test -f package/DESCRIPTION || cp ${srcdir}/package-source/DESCRIPTION package/
 	$(AM_V_at) test -d package/src || mkdir package/src
 	$(AM_V_at) cp ${builddir}/mps_roots.oct ${builddir}/package/src/
+	$(AM_V_at) cp ${builddir}/mps_polyeig_impl.oct ${builddir}/package/src/
+	$(AM_V_at) cp ${srcdir}/mps_polyeig.m ${builddir}/package/src/
 	$(AM_V_at) tar czf ${builddir}/mpsolve.tar.gz ${builddir}/package
 
-mps_roots_oct_SOURCES = mps_roots.cc
-mps_roots_oct_LINK = $(MKOCTFILE) -o $@ -L${top_builddir}/src/libmps/.libs -lmps 
+MKOCTFILE_LD = $(MKOCTFILE) -o $@ -L${top_builddir}/src/libmps/.libs -lmps
+
+AM_CPPFLAGS = -fPIC 
+
+mps_roots_oct_SOURCES = mps_roots.cc octave_support.cpp
+mps_polyeig_impl_oct_SOURCES = mps_polyeig_impl.cc octave_support.cpp
+
+mps_roots_oct_LINK = $(MKOCTFILE_LD)
+mps_polyeig_impl_oct_LINK = $(MKOCTFILE_LD) 
+
+mps_%.o: ${srcdir}/mps_%.cc 
+	@if $(AM_V_P); then set -x; else echo "  CC       $@"; fi;
+	$(AM_V_at) $(MKOCTFILE) $(GMP_CFLAGS) -I${top_srcdir}/include -I${top_builddir}/include -c -o $@ $<
 
 endif

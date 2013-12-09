@@ -10,8 +10,8 @@
  *   Leonardo Robol <robol@mail.dm.unipi.it>
  */
 
-#ifndef __MPS_POLYNOMIAL_H
-#define __MPS_POLYNOMIAL_H
+#ifndef MPS_POLYNOMIAL_H_
+#define MPS_POLYNOMIAL_H_
 
 #ifdef __cplusplus
 extern "C" {

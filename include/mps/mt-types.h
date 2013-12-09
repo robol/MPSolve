@@ -1,3 +1,13 @@
+/*
+ * This file is part of MPSolve 3.0
+ *
+ * Copyright (C) 2001-2013, Dipartimento di Matematica "L. Tonelli", Pisa.
+ * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
+ *
+ * Authors: 
+ *   Leonardo Robol <robol@mail.dm.unipi.it>
+ */
+
 #include <pthread.h>
 #include <mps/mps.h>
 
@@ -7,8 +17,8 @@
  * with the macro MPS_LOCK() and MPS_UNLOCK().
  */
 
-#ifndef __MPS_MT_TYPES
-#define __MPS_MT_TYPES
+#ifndef MPS_MT_TYPES_
+#define MPS_MT_TYPES_
 
 #define MPS_LOCK(x) (pthread_mutex_lock (&(x).mutex));
     

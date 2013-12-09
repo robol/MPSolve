@@ -1,8 +1,11 @@
-/* 
- * File:   secular.h
- * Author: leonardo
+/*
+ * This file is part of MPSolve 3.0
  *
- * Created on 29 aprile 2011, 16.26
+ * Copyright (C) 2001-2013, Dipartimento di Matematica "L. Tonelli", Pisa.
+ * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
+ *
+ * Authors: 
+ *   Leonardo Robol <robol@mail.dm.unipi.it>
  */
 
 /**
@@ -10,8 +13,8 @@
  * @brief Header file for secular-related routines.
  */
 
-#ifndef SECULAR_H
-#define  SECULAR_H
+#ifndef MPS_SECULAR_H_
+#define MPS_SECULAR_H_
 
 #include <mps/mps.h>
 #include <float.h>

@@ -1,8 +1,11 @@
-/* 
- * File:   debug.h
- * Author: leonardo
+/*
+ * This file is part of MPSolve 3.0
  *
- * Created on 23 aprile 2011, 11.00
+ * Copyright (C) 2001-2013, Dipartimento di Matematica "L. Tonelli", Pisa.
+ * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
+ *
+ * Authors: 
+ *   Leonardo Robol <robol@mail.dm.unipi.it>
  */
 
 /**
@@ -11,8 +14,8 @@
  * autodetect if the output stream is or not a tty to select the best output method.
  */
 
-#ifndef MPS_DEBUG_H
-#define  MPS_DEBUG_H
+#ifndef  MPS_DEBUG_H_
+#define  MPS_DEBUG_H_
 
 #ifndef __WINDOWS
 #include <unistd.h>
