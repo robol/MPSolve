@@ -1,5 +1,9 @@
 if BUILD_OCT_FILE
 
+pkg_verbose = $(pkg_verbose_@AM_V@)
+pkg_verbose_ = $(pkg_verbose_@AM_DEFAULT_V@)
+pkg_verbose_0 = @echo "  MKOCT    $@";
+
 noinst_PROGRAMS = mps_roots.oct mps_polyeig_impl.oct
 noinst_DATA = mpsolve.tar.gz
 
@@ -53,7 +57,6 @@ mps_roots_oct_LINK = $(MKOCTFILE_LD)
 mps_polyeig_impl_oct_LINK = $(MKOCTFILE_LD) 
 
 mps_%.o: ${srcdir}/mps_%.cc 
-	@if $(AM_V_P); then set -x; else echo "  CC       $@"; fi;
-	$(AM_V_at) $(MKOCTFILE) $(GMP_CFLAGS) -I${top_srcdir}/include -I${top_builddir}/include -c -o $@ $<
+	$(pkg_verbose)$(MKOCTFILE) $(GMP_CFLAGS) -I${top_srcdir}/include -I${top_builddir}/include -c -o $@ $<
 
 endif
