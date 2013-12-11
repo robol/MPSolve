@@ -580,7 +580,7 @@ mps_secular_ga_mpsolve (mps_context * s)
       mps_improve (s);
 
 #ifdef NICE_DEBUG
-      MPS_DEBUG (s, "mps_improve took %u ms", mps_stop_timer (my_timer));
+      MPS_DEBUG (s, "mps_improve took %lu ms", mps_stop_timer (my_timer));
 #endif
     }
 

@@ -234,7 +234,7 @@ AC_ARG_ENABLE([graphical-debugger],
     AC_SUBST(GMP_CFLAGS)
     AC_SUBST(GMP_LIBS)
 
-    LIBMPS_CFLAGS="-D_REENTRANT -Wstrict-prototypes -Wall $CFLAGS $COMPLEX_CFLAGS"
+    LIBMPS_CFLAGS="-D_REENTRANT -Wstrict-prototypes -Wall $CFLAGS $COMPLEX_CFLAGS $LIBMPS_CFLAGS"
 
     AC_CHECK_LIB([gmp], [__gmpz_init2])
     AC_CHECK_HEADERS([gmp.h], [mpsolve_found_gmp_headers=yes; break;])
@@ -258,7 +258,7 @@ AC_ARG_ENABLE([graphical-debugger],
 
   # If check was fuond enable the tests that need to be built
   AS_IF([test "x$have_check" = "xyes"], [ 
-    CHECK_PROGRAMS="check_dpe check_secsolve check_unisolve check_multithread check_cluster check_chebyshev"
+    CHECK_PROGRAMS="check_matrix check_dpe check_secsolve check_unisolve check_multithread check_cluster check_chebyshev"
   ])
   
   AC_SUBST(CHECK_PROGRAMS)

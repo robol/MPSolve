@@ -16,7 +16,8 @@ mps_monomial_matrix_poly_new (mps_context * ctx, int degree, int m, mps_boolean 
 {
   mps_monomial_matrix_poly * poly = mps_new (mps_monomial_matrix_poly);
 
-  MPS_POLYNOMIAL (poly)->degree = degree;
+  MPS_POLYNOMIAL (poly)->degree = degree * m;
+  mps_polynomial_init (ctx, MPS_POLYNOMIAL (poly));
 
   /* Matrix polynomial specific fields */
   poly->monic = monic;
@@ -25,12 +26,15 @@ mps_monomial_matrix_poly_new (mps_context * ctx, int degree, int m, mps_boolean 
   /* Allocation of the necessary memory to hold all the matrices. */
   poly->P = mps_malloc (sizeof (cplx_t) * poly->m * poly->m * 
 			(degree + 1));
+  
+  MPS_POLYNOMIAL (poly)->type_name = "mps_monomial_matrix_poly";
+  MPS_POLYNOMIAL (poly)->thread_safe = false;
 
   /* Setup the overloaded methods for our matrix polynomial */
   MPS_POLYNOMIAL (poly)->free = mps_monomial_matrix_poly_free;
-  
-  mps_polynomial_init (ctx, MPS_POLYNOMIAL (poly));
-  MPS_POLYNOMIAL (poly)->type_name = "mps_monomial_matrix_poly";
+  MPS_POLYNOMIAL (poly)->raise_data = mps_monomial_matrix_poly_raise_data;
+  MPS_POLYNOMIAL (poly)->meval = mps_monomial_matrix_poly_meval;
+
   
   return poly;
 }
@@ -90,8 +94,28 @@ mps_monomial_matrix_poly_meval (mps_context * ctx, mps_polynomial * poly,
      * available in place of this non-Hessenberg matrix polynomial. */
   }
 
-  /* Otherwise just proceed with Horner and our recursive implementation. */  
+  cplx_t lambda, det; 
+  rdpe_t epsilon; 
 
+  rdpe_set_2dl (epsilon, 1.0, - mpc_get_prec (value)); 
+  
+  mpc_get_cplx (lambda, x); 
+
+  /* Otherwise just proceed with Horner and our recursive implementation. */  
+  /* TODO: We are performing a floating point evaluation here, just for simplicity. */
+  mps_fhessenberg_shifted_determinant (ctx, mpoly->P, lambda, mpoly->m, det); 
+  mpc_set_cplx (value, det); 
+
+  rdpe_set_d (error, cplx_mod (det) * mpoly->m * 10.0); 
+  rdpe_mul_eq (error, epsilon);
 
   return true;
+}
+
+long int 
+mps_monomial_matrix_poly_raise_data (mps_context * ctx, 
+				     mps_polynomial * p, 
+				     long int wp)
+{
+  /* NOOP for now */
 }

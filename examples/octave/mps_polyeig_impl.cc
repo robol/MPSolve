@@ -13,10 +13,13 @@ DEFUN_DLD(mps_polyeig_impl, args, nargout,
 {
   int nargin = args.length ();
   int degree = nargin - 2; 
+  cplx_t *roots = NULL; 
   
   /* Create a mps_monomial_matrix_poly */
   mps_context *ctx = mps_context_new (); 
   mps_monomial_matrix_poly *mp = mps_monomial_matrix_poly_new (ctx, degree, args(0).rows(), true); 
+
+  ComplexColumnVector res(degree * args(0).rows ());
 
   int rows, columns; 
   for (int i = 0; i <= degree; i++) {
@@ -43,11 +46,23 @@ DEFUN_DLD(mps_polyeig_impl, args, nargout,
     mps_monomial_matrix_poly_add_flags (ctx, mp, MPS_MONOMIAL_MATRIX_POLY_HESSENBERG); 
   }
 
+  // mps_context_add_debug_domain (ctx, MPS_DEBUG_TRACE);
+
+  mps_context_set_input_poly (ctx, MPS_POLYNOMIAL (mp)); 
+  mps_context_select_algorithm (ctx, MPS_ALGORITHM_SECULAR_GA); 
+  mps_mpsolve (ctx); 
+
+  mps_context_get_roots_d (ctx, &roots, NULL); 
+  for (int i = 0; i < mps_context_get_degree (ctx); i++) {
+    res(i) = Complex (cplx_Re(roots[i]), cplx_Im(roots[i]));
+  }
+
+  cplx_vfree (roots);
 
  cleanup:
   mps_monomial_matrix_poly_free (ctx, MPS_POLYNOMIAL (mp)); 
   mps_context_free (ctx); 
 
   /* This means nothing implemented right now */
-  return octave_value (1.0);
+  return octave_value (res);
 }

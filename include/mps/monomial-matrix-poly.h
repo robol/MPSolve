@@ -166,6 +166,11 @@ extern "C"
 					      mpc_t value,
 					      rdpe_t error);
 
+  long int
+  mps_monomial_matrix_poly_raise_data (mps_context * ctx, 
+				       mps_polynomial * p, 
+				       long int wp); 
+
 #ifdef  __cplusplus
 }
 #endif

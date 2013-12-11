@@ -41,7 +41,7 @@ function LAMBDA = mps_polyeig(varargin)
   % 1) If the degree is 1 and we have that the linear term is well
   % conditioned transform the problem in a standard eigenvalue
   % problem. 
-  if (degree == 1 && cond (varargin{1}) <= 50)
+  if (degree == 1 && cond (varargin{1}) <= 1e4 * max(size(P{1})))
     P{1} = P{2} \ P{1}; 
     P{2} = eye (size (P{1})); 
 
@@ -49,8 +49,8 @@ function LAMBDA = mps_polyeig(varargin)
     P{degree+2} = 'h'; 
 
     % Take the problem in Hessenberg form. 
-    [Q,P{1}] = hess(P{1});
-    LAMBDA = mps_polyeig_impl (P{:});
+    [Q,H] = hess(P{1});
+    LAMBDA = mps_polyeig_impl (H, eye(size(H)), 'h') ; 
 
   else
     LAMBDA = mps_polyeig_impl (varargin{:});

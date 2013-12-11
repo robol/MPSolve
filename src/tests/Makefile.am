@@ -1,8 +1,8 @@
 if CHECK
 
 check_PROGRAMS = $(CHECK_PROGRAMS)
-TESTS = check_secsolve check_unisolve check_dpe check_multithread check_cluster check_chebyshev
-EXTRA_PROGRAMS = check_secsolve check_unisolve check_dpe test_mpsolve check_multithread check_cluster check_chebyshev
+TESTS = check_matrix check_dpe check_multithread check_cluster check_chebyshev check_secsolve check_unisolve 
+EXTRA_PROGRAMS = check_secsolve check_unisolve check_dpe test_mpsolve check_multithread check_cluster check_chebyshev check_matrix
 
 AM_TEST_ENVIRONMENT = \
   SRCDIR=$(abs_srcdir) BUILDDIR=$(abs_builddir)
@@ -14,6 +14,10 @@ COMMON_SOURCES = check_implementation.c check_implementation.h
  check_chebyshev_SOURCES = check_chebyshev.c $(COMMON_SOURCES)
  check_chebyshev_CFLAGS = $(COMMON_CFLAGS)
  check_chebyshev_LDFLAGS = $(COMMON_LIBS)
+
+ check_matrix_SOURCES = check_matrix.c $(COMMON_SOURCES) 
+ check_matrix_CFLAGS = $(COMMON_CFLAGS)
+ check_matrix_LDFLAGS = $(COMMON_LIBS) 
 
  check_secsolve_SOURCES = check_secsolve.c $(COMMON_SOURCES)
  check_secsolve_CFLAGS = $(COMMON_CFLAGS)

@@ -53,6 +53,7 @@ libmps_la_SOURCES = \
 	    general-starting.c \
 	    getopts.c \
 	    gmptools.c \
+	    hessenberg-determinant.c \
 	    horner.c \
 	    improve.c \
 	    inclusion.c \
