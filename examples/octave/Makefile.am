@@ -11,6 +11,7 @@ EXTRA_DIST = \
 	package-source \
 	package-source/DESCRIPTION \
 	package-source/COPYING \
+	mps_polyeig.m \
 	octave_support.h
 
 CLEANFILES = mpsolve.tar.gz
