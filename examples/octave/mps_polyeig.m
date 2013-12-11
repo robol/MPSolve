@@ -1,20 +1,22 @@
 %% -*- texinfo -*-
-%% @deftypefn {Function File} {@var{LAMBDA} =} mps_polyeig (@var{P0}, @var{P1}, ..., @var{Pn}, @var{alg} = 's')\n\
-%% @cindex root finding of a matrix polynomial\n\
-%% Compute the eigenvalues of the matrix polynomial p(z) given by\n\n\
-%% @tex\n\
-%% $$\n p(z) = P_0 + zP_1 + \\ldots + + z^{n}P_n \n $$ \n\
-%% @end tex\n\
-%% @ifnottex\n\
-%% @example\n\
-%%         p(z) = P_0 + zP_1 + ... + z^nP_n \n\
-%% @end example\n\
-%% @end ifnottex\n\n\
-%% and return a vector with the generalized eigenvalues.\n\n\
-%% The optional variable @var{alg} can be set to \"s\" or \"u\" to select \
-%% the secular algorithm or the standard MPSolve algorithm. The default value \
-%% is \"s\"\
-%% @end deftypefn")
+%% @deftypefn {Function File} {@var{LAMBDA} =} mps_polyeig (@var{P0}, @var{P1}, ..., @var{Pn}, @var{alg} = 's')
+%% @cindex root finding of a matrix polynomial
+%% Compute the eigenvalues of the matrix polynomial p(z) given by
+%% @tex
+%% $$
+%%  p(z) = P_0 + zP_1 + \\ldots + + z^{n}P_n 
+%% $$ 
+%% @end tex
+%% @ifnottex
+%% @example
+%%         p(z) = P_0 + zP_1 + ... + z^nP_n 
+%% @end example
+%% @end ifnottex
+%% and return a vector with the generalized eigenvalues.
+%% The optional variable @var{alg} can be set to \"s\" or \"u\" to select 
+%% the secular algorithm or the standard MPSolve algorithm. The default value 
+%% is "s"
+%% @end deftypefn
 function LAMBDA = mps_polyeig(varargin)
   degree = length (varargin) - 1; 
 

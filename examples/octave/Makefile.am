@@ -8,9 +8,7 @@ noinst_PROGRAMS = mps_roots.oct mps_polyeig_impl.oct
 noinst_DATA = mpsolve.tar.gz
 
 EXTRA_DIST = \
-	package-source \
-	package-source/DESCRIPTION \
-	package-source/COPYING \
+	DESCRIPTION \
 	mps_polyeig.m \
 	octave_support.h
 
@@ -39,9 +37,9 @@ uninstall-local:
 
 mpsolve.tar.gz: mps_roots.oct mps_polyeig_impl.oct mps_polyeig.m
 	$(AM_V_GEN)
-	$(AM_V_at) test -d package || (cp -r ${srcdir}/package-source ${builddir}/package && chmod u+w package -R)
-	$(AM_V_at) test -f package/COPYING || cp ${srcdir}/package-source/COPYING package/
-	$(AM_V_at) test -f package/DESCRIPTION || cp ${srcdir}/package-source/DESCRIPTION package/
+	$(AM_V_at) test -d package || mkdir package
+	$(AM_V_at) test -f package/COPYING || cp ${top_srcdir}/COPYING package/
+	$(AM_V_at) test -f package/DESCRIPTION || cp ${srcdir}/DESCRIPTION package/
 	$(AM_V_at) test -d package/src || mkdir package/src
 	$(AM_V_at) cp ${builddir}/mps_roots.oct ${builddir}/package/src/
 	$(AM_V_at) cp ${builddir}/mps_polyeig_impl.oct ${builddir}/package/src/
