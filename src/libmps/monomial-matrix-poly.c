@@ -118,4 +118,5 @@ mps_monomial_matrix_poly_raise_data (mps_context * ctx,
 				     long int wp)
 {
   /* NOOP for now */
+  return wp; 
 }
