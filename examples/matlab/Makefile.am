@@ -8,6 +8,9 @@ noinst_PROGRAMS = $(MATLAB_MODULES_PROGRAMS)
 noinst_DATA = mpsolve-toolbox.tar.gz
 
 EXTRA_PROGRAMS = mps_roots
+
+EXTRA_DIST = mps_roots.m
+
 clean-local:
 	rm -f mps_roots.mex*
 	rm -rf mpsolve-toolbox/ 
