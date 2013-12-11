@@ -10,7 +10,8 @@ noinst_DATA = mpsolve.tar.gz
 EXTRA_DIST = \
 	package-source \
 	package-source/DESCRIPTION \
-	package-source/COPYING
+	package-source/COPYING \
+	octave_support.h
 
 CLEANFILES = mpsolve.tar.gz
 
