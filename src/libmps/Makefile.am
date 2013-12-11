@@ -19,6 +19,7 @@ include_HEADERS = \
 	${top_srcdir}/include/mps/mt-types.h \
         ${top_builddir}/include/mps/mt.h \
         ${top_srcdir}/include/mps/link.h \
+	${top_srcdir}/include/mps/matrix.h \
         ${top_srcdir}/include/mps/mps.h \
         ${top_srcdir}/include/mps/rursolve.h \
         ${top_srcdir}/include/mps/secular-equation.h \

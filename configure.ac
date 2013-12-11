@@ -34,9 +34,9 @@ AC_ARG_ENABLE([debug],
 
 # Select CFLAGS based on debug enabled or not
 AS_IF([test x$enable_debug != xno], [
-	LIBMPS_CFLAGS="$LIBMPS_CFLAGS -DNICE_DEBUG $CFLAGS"
+	LIBMPS_CFLAGS="$LIBMPS_CFLAGS -DNICE_DEBUG"
 ], [ 
-	LIBMPS_CFLAGS="$LIBMPS_CFLAGS -DDISABLE_DEBUG $CFLAGS"
+	LIBMPS_CFLAGS="$LIBMPS_CFLAGS -DDISABLE_DEBUG"
 	AC_DEFINE([DISABLE_DEBUG], 1, [Defined if MPSolve is built without debugging support])
 ])
 

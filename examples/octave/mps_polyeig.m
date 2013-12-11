@@ -52,7 +52,7 @@ function LAMBDA = mps_polyeig(varargin)
 
     % Take the problem in Hessenberg form. 
     [Q,H] = hess(P{1});
-    LAMBDA = mps_polyeig_impl (H, eye(size(H)), 'h') ; 
+    LAMBDA = mps_polyeig_impl (H, eye(size(H)), 'h');
 
   else
     LAMBDA = mps_polyeig_impl (varargin{:});

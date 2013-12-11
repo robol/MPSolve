@@ -513,6 +513,7 @@ typedef int mps_debug_level;
 #include <mps/secular-equation.h>
 #include <mps/chebyshev.h>
 #include <mps/approximation.h>
+#include <mps/matrix.h>
 
 /* Interface should be a subset of core, so what is defined
  * there should be included here. */
@@ -576,6 +577,8 @@ typedef int mps_debug_level;
   /* functions in hessenberg-determinant.c */
     void mps_fhessenberg_determinant (mps_context * ctx, cplx_t * hessenberg_matrix, size_t n, cplx_t output); 
     void mps_fhessenberg_shifted_determinant (mps_context * ctx, cplx_t * hessenberg_matrix, const cplx_t shift, size_t n, cplx_t output); 
+    void mps_mhessenberg_determinant (mps_context * ctx, mpc_t * hessenberg_matrix, size_t n, mpc_t output); 
+    void mps_mhessenberg_shifted_determinant (mps_context * ctx, mpc_t * hessenberg_matrix, mpc_t shift, size_t n, mpc_t output); 
 #endif
 
   /* functions in improve.c */

@@ -61,6 +61,13 @@ extern "C"
      * polynomial. 
      */
     int m;
+
+    /**
+     * @brief Degree of the matrix polynomial. Please note that this values if different
+     * from the degree value in the polynomial structure, since that is the degree of the
+     * scalar polynomial, and this is the degree of the matrix one. 
+     */
+    int degree; 
     
     /**
      * @brief The double version of the polynomial coefficients.
@@ -69,6 +76,11 @@ extern "C"
      * for the matrix polynomial. 
      */
     cplx_t * P;
+
+    /**
+     * @brief The multiprecision version of the polynomial coefficients. 
+     */
+    mpc_t * mP; 
 
     /**
      * @brief Additional properties of this polynomial. Examples are: 
@@ -166,6 +178,18 @@ extern "C"
 					      mpc_t value,
 					      rdpe_t error);
 
+  /**
+   * @brief Raise the working precision of this monomial matrix polynomal
+   * to the required numnber of bits. 
+   *
+   * @param ctx The current mps_context. 
+   * @param p The polynomial whose working precision should be set. 
+   * @param wp The bits of desired working precision. 
+   * @return The precision set in the polynomial. Note that this value 
+   * may be higher than wp due to the fact that, in general, not all
+   * the precisions are available on the system and the first higher precision
+   * of the value required will be used. 
+   */
   long int
   mps_monomial_matrix_poly_raise_data (mps_context * ctx, 
 				       mps_polynomial * p, 

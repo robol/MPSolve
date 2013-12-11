@@ -22,10 +22,13 @@ mps_monomial_matrix_poly_new (mps_context * ctx, int degree, int m, mps_boolean 
   /* Matrix polynomial specific fields */
   poly->monic = monic;
   poly->m = m;
+  poly->degree = degree; 
 
   /* Allocation of the necessary memory to hold all the matrices. */
-  poly->P = mps_malloc (sizeof (cplx_t) * poly->m * poly->m * 
-			(degree + 1));
+  poly->P = mps_newv (cplx_t, poly->m * poly->m * (degree + 1));
+  poly->mP = mps_newv (mpc_t, poly->m * poly->m * (degree + 1)); 
+
+  mpc_vinit2 (poly->mP, poly->m * poly->m * (degree + 1), ctx->mpwp); 
   
   MPS_POLYNOMIAL (poly)->type_name = "mps_monomial_matrix_poly";
   MPS_POLYNOMIAL (poly)->thread_safe = false;
@@ -45,6 +48,10 @@ mps_monomial_matrix_poly_free (mps_context * ctx, mps_polynomial * poly)
   mps_monomial_matrix_poly * mpoly = MPS_MONOMIAL_MATRIX_POLY (poly);
 
   free (mpoly->P);
+
+  mpc_vclear (mpoly->mP, mpoly->m * (poly->degree + mpoly->m)); 
+  free (mpoly->mP); 
+
   free (poly);
 }
 
@@ -71,6 +78,7 @@ void mps_monomial_matrix_poly_set_coefficient_d (mps_context * ctx,
 {
   mps_polynomial *poly = MPS_POLYNOMIAL (mpoly); 
   int degree = poly->degree; 
+  int j; 
 
   if (i < 0 || i > degree) {
     mps_error (ctx, "Degree of the coefficient is out of bounds"); 
@@ -81,6 +89,9 @@ void mps_monomial_matrix_poly_set_coefficient_d (mps_context * ctx,
    * row-major order in here. */
   cplx_t *ptr = mpoly->P + (mpoly->m * mpoly->m) * i;
   memcpy (ptr, matrix, sizeof (cplx_t) * (mpoly->m * mpoly->m)); 
+
+  for (j = 0; j < mpoly->m * mpoly->m; j++)
+    mpc_set_cplx (mpoly->mP[j], mpoly->P[j]); 
 }
 
 mps_boolean
@@ -94,20 +105,21 @@ mps_monomial_matrix_poly_meval (mps_context * ctx, mps_polynomial * poly,
      * available in place of this non-Hessenberg matrix polynomial. */
   }
 
-  cplx_t lambda, det; 
-  rdpe_t epsilon; 
+  /* TODO: This is not thread safe - at all! Insert a double buffer strategy 
+   * in here, as for the case of mps_monomial_poly. */
+  if (mpc_get_prec (mpoly->mP[0]) < mpc_get_prec (value))
+    mps_monomial_matrix_poly_raise_data (ctx, poly, mpc_get_prec (value)); 
 
+  rdpe_t epsilon; 
   rdpe_set_2dl (epsilon, 1.0, - mpc_get_prec (value)); 
-  
-  mpc_get_cplx (lambda, x); 
 
   /* Otherwise just proceed with Horner and our recursive implementation. */  
   /* TODO: We are performing a floating point evaluation here, just for simplicity. */
-  mps_fhessenberg_shifted_determinant (ctx, mpoly->P, lambda, mpoly->m, det); 
-  mpc_set_cplx (value, det); 
+  mps_mhessenberg_shifted_determinant (ctx, mpoly->mP, x, mpoly->m, value); 
 
-  rdpe_set_d (error, cplx_mod (det) * mpoly->m * 10.0); 
-  rdpe_mul_eq (error, epsilon);
+  mpc_rmod (error, value); 
+  rdpe_mul_eq (error, epsilon); 
+  rdpe_mul_eq_d (error, mpoly->m * mpoly->m * 10000.0); 
 
   return true;
 }
@@ -117,6 +129,15 @@ mps_monomial_matrix_poly_raise_data (mps_context * ctx,
 				     mps_polynomial * p, 
 				     long int wp)
 {
-  /* NOOP for now */
-  return wp; 
+  int i; 
+  mps_monomial_matrix_poly *mpoly = MPS_MONOMIAL_MATRIX_POLY (p); 
+  size_t n_elems = (mpoly->degree + 1) * (mpoly->m * mpoly->m); 
+
+  for (i = 0; i < n_elems; i++)
+    {
+      mpc_set_prec (mpoly->mP[i], wp); 
+      mpc_set_cplx (mpoly->mP[i], mpoly->P[i]); 
+    }
+
+  return mpc_get_prec (mpoly->mP[0]);
 }
