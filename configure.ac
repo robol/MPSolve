@@ -561,7 +561,7 @@ fi
 
 # Check MATLAB (TM) module
 if [test x$enable_matlab = xyes]; then
-        echo "	MATLAB (tm) module:	$enable_matlab (generates examples/matlab/$MATLAB_MODULES_PROGRAMS.mex)"
+        echo "	MATLAB (tm) module:	$enable_matlab (generates examples/matlab/mpsolve-toolbox.tar.gz)"
 else
         echo "	MATLAB (tm) module:	no"
 fi
