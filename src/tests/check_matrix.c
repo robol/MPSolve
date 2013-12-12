@@ -18,7 +18,7 @@ START_TEST (determinant_mhessenberg_example1)
    * Its determinant should be*/ 
   mpc_t *hessenberg_matrix = mps_newv (mpc_t, 64); 
   mpc_t det, t; 
-  rdpe_t diff, mod; 
+  rdpe_t diff, mod, error; 
   int i, j; 
 
   mpc_vinit2 (hessenberg_matrix, 64, DBL_MANT_DIG); 
@@ -33,7 +33,7 @@ START_TEST (determinant_mhessenberg_example1)
 	mpc_set_d (hessenberg_matrix[i*8 + j], sin(1.0 * (i+1)) * cos(1.0 * (j+1)) + 1e-3 * (i+1) * (j+1), 0.0); 
       }
 
-  mps_mhessenberg_determinant (ctx, hessenberg_matrix, 8, det); 
+  mps_mhessenberg_determinant (ctx, hessenberg_matrix, 8, det, error); 
   
   mpc_vclear (hessenberg_matrix, 64); 
   free (hessenberg_matrix); 
@@ -44,7 +44,8 @@ START_TEST (determinant_mhessenberg_example1)
   mpc_rmod (diff, det); 
   mpc_rmod (mod, t); 
 	  
-  fail_unless (rdpe_get_d (diff) < rdpe_get_d (mod) * 10.0 * 8 * DBL_EPSILON, 
+  fail_unless (rdpe_get_d (diff) < rdpe_get_d (mod) * 10.0 * 8 * DBL_EPSILON ||
+	       rdpe_lt (diff, error), 
 	       "The error on determinant_hessenberg_example1 is bigger than n * DBL_EPSILON"); 
 
   mps_context_free (ctx); 
@@ -162,9 +163,9 @@ START_TEST (determinant_shifted_mhessenberg_example1)
 
   for (i = 0; i < 2; i++)
     {
-      rdpe_t diff, mod; 
+      rdpe_t diff, mod, error; 
 
-      mps_mhessenberg_shifted_determinant (ctx, hessenberg_matrix, shifts[i], 8, det); 
+      mps_mhessenberg_shifted_determinant (ctx, hessenberg_matrix, shifts[i], 8, det, error); 
       mpc_sub_eq (det, results[i]); 
 
       mpc_rmod (diff, det); 
@@ -172,7 +173,8 @@ START_TEST (determinant_shifted_mhessenberg_example1)
 
       printf ("%d: ", i); mpc_out_str_2 (stdout, 10, 15, 15, det); printf ("\n"); 
 
-      fail_unless (rdpe_get_d (diff) < rdpe_get_d (mod) * 10.0 * 8 * DBL_EPSILON, 
+      fail_unless (rdpe_get_d (diff) < rdpe_get_d (mod) * 10.0 * 8 * DBL_EPSILON || 
+		   rdpe_lt (diff, error), 
 		   "The error on shifted Hessenberg determinant example1 is bigger than n * DBL_EPSILON"); 
     }
 

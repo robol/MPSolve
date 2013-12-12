@@ -22,6 +22,7 @@ DEFUN_DLD(mps_polyeig_impl, args, nargout,
   ComplexColumnVector res(degree * args(0).rows ());
 
   int rows, columns; 
+
   for (int i = 0; i <= degree; i++) {
     ComplexMatrix coeff = args(i).complex_matrix_value ().transpose (); 
 
@@ -42,11 +43,12 @@ DEFUN_DLD(mps_polyeig_impl, args, nargout,
   }
 
   /* If we have an Hessenberg matrix poly we can set the relative flags */
-  if (args(degree+1).string_value () == std::string("h")) {
+  if (args(degree+1).string_value ().find ('h') != std::string::npos) {
     mps_monomial_matrix_poly_add_flags (ctx, mp, MPS_MONOMIAL_MATRIX_POLY_HESSENBERG); 
   }
 
-  // mps_context_add_debug_domain (ctx, MPS_DEBUG_TRACE);
+  if (args(degree+1).string_value ().find ('d') != std::string::npos)
+    mps_context_add_debug_domain (ctx, MPS_DEBUG_INFO);
 
   mps_context_set_input_poly (ctx, MPS_POLYNOMIAL (mp)); 
   mps_context_select_algorithm (ctx, MPS_ALGORITHM_SECULAR_GA); 

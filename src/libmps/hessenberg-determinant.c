@@ -73,14 +73,18 @@ mps_fhessenberg_shifted_determinant (mps_context * ctx, cplx_t * hessenberg_matr
  * @param hessenberg_matrix The hessenberg matrix whose determinant should be computed. 
  * @param n The size of the matrix. 
  * @param output The storage for the result. 
+ * @param error A bound on the error. 
  */
 MPS_PRIVATE void
-mps_mhessenberg_determinant (mps_context * ctx, mpc_t * hessenberg_matrix, size_t n, mpc_t output)
+mps_mhessenberg_determinant (mps_context * ctx, mpc_t * hessenberg_matrix, size_t n, mpc_t output, rdpe_t error)
 {
-  mpc_t zero; 
+  mpc_t zero;
+
   mpc_init2 (zero, mpc_get_prec (output)); 
   mpc_set_ui (zero, 0U, 0U); 
-  mps_mhessenberg_shifted_determinant (ctx, hessenberg_matrix, zero, n, output); 
+
+  mps_mhessenberg_shifted_determinant (ctx, hessenberg_matrix, zero, n, output, error);
+
   mpc_clear (zero); 
 }
 
@@ -94,9 +98,10 @@ mps_mhessenberg_determinant (mps_context * ctx, mpc_t * hessenberg_matrix, size_
  * @param shift The value of \f$\lambda\f$. 
  * @param n The size of the matrix. 
  * @param output The storage for the result. 
+ * @param error A bound on the error. 
  */
 MPS_PRIVATE void
-mps_mhessenberg_shifted_determinant (mps_context * ctx, mpc_t * hessenberg_matrix, mpc_t shift, size_t n, mpc_t output)
+mps_mhessenberg_shifted_determinant (mps_context * ctx, mpc_t * hessenberg_matrix, mpc_t shift, size_t n, mpc_t output, rdpe_t error)
 {
   mpc_t *matrix = mps_newv (mpc_t, n * n); 
   size_t local_n = n; 
@@ -104,11 +109,15 @@ mps_mhessenberg_shifted_determinant (mps_context * ctx, mpc_t * hessenberg_matri
   mps_boolean shifted = ! mpc_eq_zero (shift); 
   int i, j; 
   mpc_t t, s;
+  rdpe_t max, mod, epsilon; 
 
   /* Init the elements in the matrix */
   mpc_init2 (t, wp); 
   mpc_init2 (s, wp); 
   mpc_vinit2 (matrix, n * n, wp); 
+
+  rdpe_set_2dl (epsilon, 1.0, 1 - wp);
+  rdpe_set (error, rdpe_one); 
 
   /* Make a copy of the original matrix and subtract the shift, if any*/
   for (i = 0; i < n; i++)
@@ -128,6 +137,7 @@ mps_mhessenberg_shifted_determinant (mps_context * ctx, mpc_t * hessenberg_matri
   
   while (local_n-- > 1) {
     /* Recursively compress the last two cols of the matrix */
+    rdpe_set (max, rdpe_zero); 
 
     for (i = 0; i < local_n; i++) 
       {
@@ -136,10 +146,21 @@ mps_mhessenberg_shifted_determinant (mps_context * ctx, mpc_t * hessenberg_matri
 	mpc_mul (t, MPS_MATRIX_ELEM (matrix, i, local_n, n), 
 		 MPS_MATRIX_ELEM (matrix, local_n, local_n - 1, n)); 
 	mpc_sub (MPS_MATRIX_ELEM (matrix, i, local_n - 1, n), s, t); 
+
+	mpc_rmod (mod, MPS_MATRIX_ELEM (matrix, i, local_n - 1, n)); 
+
+	if (rdpe_gt (mod, max))
+	  rdpe_set (max, mod); 
       }
+
+    rdpe_mul_eq (max, epsilon);
+    rdpe_add_eq (max, rdpe_one);
+
+    rdpe_mul_eq (error, max);
   }
 
   mpc_set (output, *matrix);
+
   mpc_vclear (matrix, n * n); 
   free (matrix); 
 

@@ -110,16 +110,9 @@ mps_monomial_matrix_poly_meval (mps_context * ctx, mps_polynomial * poly,
   if (mpc_get_prec (mpoly->mP[0]) < mpc_get_prec (value))
     mps_monomial_matrix_poly_raise_data (ctx, poly, mpc_get_prec (value)); 
 
-  rdpe_t epsilon; 
-  rdpe_set_2dl (epsilon, 1.0, - mpc_get_prec (value)); 
-
   /* Otherwise just proceed with Horner and our recursive implementation. */  
   /* TODO: We are performing a floating point evaluation here, just for simplicity. */
-  mps_mhessenberg_shifted_determinant (ctx, mpoly->mP, x, mpoly->m, value); 
-
-  mpc_rmod (error, value); 
-  rdpe_mul_eq (error, epsilon); 
-  rdpe_mul_eq_d (error, mpoly->m * mpoly->m * 10000.0); 
+  mps_mhessenberg_shifted_determinant (ctx, mpoly->mP, x, mpoly->m, value, error); 
 
   return true;
 }
@@ -136,7 +129,6 @@ mps_monomial_matrix_poly_raise_data (mps_context * ctx,
   for (i = 0; i < n_elems; i++)
     {
       mpc_set_prec (mpoly->mP[i], wp); 
-      mpc_set_cplx (mpoly->mP[i], mpoly->P[i]); 
     }
 
   return mpc_get_prec (mpoly->mP[0]);
