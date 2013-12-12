@@ -109,7 +109,10 @@ mps_mhessenberg_shifted_determinant (mps_context * ctx, mpc_t * hessenberg_matri
   mps_boolean shifted = ! mpc_eq_zero (shift); 
   int i, j; 
   mpc_t t, s;
-  rdpe_t max, mod, epsilon; 
+  rdpe_t mod, epsilon; 
+
+  rdpe_t *verrors = mps_newv (rdpe_t, n); 
+  memset (verrors, 0, sizeof (rdpe_t) * n); 
 
   /* Init the elements in the matrix */
   mpc_init2 (t, wp); 
@@ -137,27 +140,43 @@ mps_mhessenberg_shifted_determinant (mps_context * ctx, mpc_t * hessenberg_matri
   
   while (local_n-- > 1) {
     /* Recursively compress the last two cols of the matrix */
-    rdpe_set (max, rdpe_zero); 
+    rdpe_t err_a_bottom, err_b_bottom, tmp; 
+
+    mpc_rmod (err_a_bottom, MPS_MATRIX_ELEM (matrix, local_n, local_n - 1, n)); 
+    mpc_rmod (err_b_bottom, MPS_MATRIX_ELEM (matrix, local_n, local_n, n));
+
+    rdpe_mul (tmp, err_b_bottom, epsilon); 
+    rdpe_add_eq (verrors[local_n], tmp); 
 
     for (i = 0; i < local_n; i++) 
       {
+	rdpe_t err_a, err_b; 
+
+	mpc_rmod (err_a, MPS_MATRIX_ELEM (matrix, i, local_n - 1, n)); 
+	mpc_rmod (err_b, MPS_MATRIX_ELEM (matrix, i, local_n, n)); 
+
+	rdpe_mul_eq (err_a, verrors[local_n]);
+	
+	rdpe_mul_eq (err_b, epsilon); 
+	rdpe_add_eq (err_b, verrors[i]); 
+	rdpe_mul_eq (err_b, err_a_bottom); 
+
 	mpc_mul (s, MPS_MATRIX_ELEM (matrix, i, local_n - 1, n), 
 		 MPS_MATRIX_ELEM (matrix, local_n, local_n, n)); 
 	mpc_mul (t, MPS_MATRIX_ELEM (matrix, i, local_n, n), 
 		 MPS_MATRIX_ELEM (matrix, local_n, local_n - 1, n)); 
 	mpc_sub (MPS_MATRIX_ELEM (matrix, i, local_n - 1, n), s, t); 
 
-	mpc_rmod (mod, MPS_MATRIX_ELEM (matrix, i, local_n - 1, n)); 
+	mpc_rmod (mod, MPS_MATRIX_ELEM (matrix, i, local_n - 1, n));
+	rdpe_mul_eq (mod, epsilon); 
 
-	if (rdpe_gt (mod, max))
-	  rdpe_set (max, mod); 
+	rdpe_add_eq (verrors[i], mod); 
+	rdpe_add_eq (verrors[i], err_a); 
+	rdpe_add_eq (verrors[i], err_b); 
       }
-
-    rdpe_mul_eq (max, epsilon);
-    rdpe_add_eq (max, rdpe_one);
-
-    rdpe_mul_eq (error, max);
   }
+
+  rdpe_set (error, verrors[0]); 
 
   mpc_set (output, *matrix);
 
