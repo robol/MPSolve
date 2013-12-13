@@ -48,7 +48,7 @@ DEFUN_DLD(mps_polyeig_impl, args, nargout,
   }
 
   if (args(degree+1).string_value ().find ('d') != std::string::npos || true)
-    mps_context_add_debug_domain (ctx, MPS_DEBUG_INFO);
+    mps_context_add_debug_domain (ctx, MPS_DEBUG_INFO | MPS_DEBUG_TIMINGS);
 
   mps_context_set_input_poly (ctx, MPS_POLYNOMIAL (mp)); 
   mps_context_select_algorithm (ctx, MPS_ALGORITHM_SECULAR_GA); 

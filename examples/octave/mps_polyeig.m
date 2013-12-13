@@ -43,7 +43,7 @@ function LAMBDA = mps_polyeig(varargin)
   % 1) If the degree is 1 and we have that the linear term is well
   % conditioned transform the problem in a standard eigenvalue
   % problem. 
-  if (degree == 1 && cond (varargin{1}) <= 1e4 * max(size(P{1})))
+  if (degree == 1 && cond (varargin{1}) <= 1e4 * max(size(P{2})))
     P{1} = P{2} \ P{1}; 
     P{2} = eye (size (P{1})); 
 
