@@ -69,6 +69,7 @@ adjust_mps_tls_precision (mps_tls *ptr, long int precision_needed)
 
   for (i = 0; i < MPS_MPF_TEMP_SIZE; i++)
     mpf_set_prec (ptr->data[i], precision_needed); 
+
   ptr->precision = precision_needed; 
 }
 
@@ -88,7 +89,7 @@ init (long int precision_needed)
     {
       ptr = create_new_mps_tls (precision_needed); 
     }
-  else if (ptr->precision < precision_needed)
+  else if (ptr->precision < precision_needed || precision_needed < .25 * ptr->precision)
     {
       adjust_mps_tls_precision (ptr, precision_needed); 
     }
@@ -433,10 +434,10 @@ mpc_mul (mpc_t rc, mpc_t c1, mpc_t c2)
 
   s1 = init (mpf_get_prec (mpc_Re (rc))); 
   s2 = s1 + 1; 
-  s3 = s2 + 1; 
+  s3 = s2 + 1;
 
-  mpf_sub (*s1, mpc_Re (c1), mpc_Im (c1)); 
-  mpf_add (*s2, mpc_Re (c2), mpc_Im (c2)); 
+  mpf_sub (*s1, mpc_Re (c1), mpc_Im (c1));
+  mpf_add (*s2, mpc_Re (c2), mpc_Im (c2));
   mpf_mul (*s1, *s1, *s2);
   mpf_mul (*s2, mpc_Re (c1), mpc_Im (c2));
   mpf_mul (*s3, mpc_Im (c1), mpc_Re (c2));
