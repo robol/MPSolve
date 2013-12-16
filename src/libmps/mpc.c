@@ -16,6 +16,130 @@
 #include <mps/mt.h>
 #include <mps/tools.h>
 
+#define MPS_MPF_TEMP_SIZE 10
+
+struct mps_tls {
+  pthread_t thread; 
+  mpf_t *data; 
+  long int precision; 
+  struct mps_tls *next; 
+}; 
+
+typedef struct mps_tls mps_tls; 
+
+static mps_tls* mps_tls_first = NULL; 
+static mps_tls* mps_tls_last  = NULL;
+
+static pthread_mutex_t init_mutex = PTHREAD_MUTEX_INITIALIZER; 
+
+static pthread_key_t key; 
+
+void 
+mps_mpc_cache_cleanup (void * pointer)
+{
+  pthread_t self = pthread_self ();
+  mps_tls *ptr = NULL; 
+  mps_tls *old_ptr = NULL; 
+  int i; 
+  
+  for (ptr = mps_tls_first; ptr != NULL; old_ptr = ptr,  ptr = ptr->next)
+    {
+      if (pthread_equal (ptr->thread, self))
+	{
+	  pthread_mutex_lock (&init_mutex); 
+
+	  if (old_ptr)
+	    old_ptr->next = ptr->next; 
+	  else
+	    mps_tls_first = ptr->next; 
+
+	  if (ptr == mps_tls_last)
+	    mps_tls_last = old_ptr; 
+
+	  for (i = 0; i < MPS_MPF_TEMP_SIZE; i++)
+	    mpf_clear (ptr->data[i]);
+	  
+	  free (ptr); 	  
+
+	  pthread_mutex_unlock (&init_mutex); 
+	}
+    }
+}
+
+static mps_tls *
+create_new_mps_tls (pthread_t calling_thread, long int precision_needed)
+{
+  mps_tls *ptr; 
+  int i; 
+  
+  ptr = mps_new (mps_tls); 
+  ptr->thread = calling_thread; 
+  ptr->data = mps_newv (mpf_t, 10); 
+  ptr->next = NULL;
+  ptr->precision = precision_needed; 
+  
+  pthread_mutex_lock (&init_mutex); 
+  
+  if (mps_tls_first == NULL)
+    {
+      mps_tls_first = ptr; 
+      mps_tls_last = ptr; 
+    }
+  else if (mps_tls_last)
+    mps_tls_last->next = ptr; 
+  
+  mps_tls_last = ptr; 
+  
+  for (i = 0; i < MPS_MPF_TEMP_SIZE; i++)
+    mpf_init2 (ptr->data[i], precision_needed); 
+
+  /* Set up a destructor for this data in case the thread exists */
+  pthread_key_create (&key, mps_mpc_cache_cleanup); 
+  pthread_setspecific (key, ptr);
+  
+  pthread_mutex_unlock (&init_mutex); 
+
+  return ptr; 
+}
+
+static void 
+adjust_mps_tls_precision (mps_tls *ptr, long int precision_needed)
+{
+  int i;
+
+  for (i = 0; i < MPS_MPF_TEMP_SIZE; i++)
+    mpf_set_prec (ptr->data[i], precision_needed); 
+  ptr->precision = precision_needed; 
+}
+
+static mpf_t* 
+init (long int precision_needed)
+{
+  /* Try to find the thread-local storage for the current
+   * thread or create it if it doesn't exists yet. */
+  pthread_t calling_thread = pthread_self (); 
+  mps_tls *ptr; 
+
+  for (ptr = mps_tls_first; ptr != NULL; ptr = ptr->next)
+    {
+      if (pthread_equal (ptr->thread, calling_thread))
+	break;
+    }
+
+  /* This means that we have to create a new entry */
+  if (ptr == NULL) 
+    {
+      ptr = create_new_mps_tls (calling_thread, precision_needed); 
+    }
+  else if (ptr->precision < precision_needed)
+    {
+      adjust_mps_tls_precision (ptr, precision_needed); 
+    }
+
+  return ptr->data; 
+}
+
+
 /***********************************************************
 **              functions for mpc_t                       **
 ***********************************************************/
@@ -198,14 +322,11 @@ mpc_neg (mpc_t rc, mpc_t c)
 void
 mpc_smod (mpf_t f, mpc_t c)
 {
-  mpf_t t;
-  mpf_init2 (t, mpf_get_prec (f));
+  mpf_t *t = init (mpf_get_prec (f));
 
   mpf_mul (f, mpc_Re (c), mpc_Re (c));
-  mpf_mul (t, mpc_Im (c), mpc_Im (c));
-  mpf_add (f, f, t);
-
-  mpf_clear (t);
+  mpf_mul (*t, mpc_Im (c), mpc_Im (c));
+  mpf_add (f, f, *t);
 }
 
 void
@@ -219,15 +340,12 @@ mpc_rmod (rdpe_t r, mpc_t c)
 void
 mpc_mod (mpf_t f, mpc_t c)
 {
-  mpf_t t;
-  mpf_init2 (t, mpf_get_prec (f));
+  mpf_t *t = init (mpf_get_prec (f));
 
   mpf_mul (f, mpc_Re (c), mpc_Re (c));
-  mpf_mul (t, mpc_Im (c), mpc_Im (c));
-  mpf_add (f, f, t);
+  mpf_mul (*t, mpc_Im (c), mpc_Im (c));
+  mpf_add (f, f, *t);
   mpf_sqrt (f, f);
-
-  mpf_clear (t);
 }
 
 void
@@ -240,60 +358,48 @@ mpc_con (mpc_t rc, mpc_t c)
 void
 mpc_inv (mpc_t rc, mpc_t c)
 {
-  mpf_t f;
-  mpf_init2 (f, mpf_get_prec (mpc_Re (rc)));
+  mpf_t *f = init (mpf_get_prec (mpc_Re (rc))) + 4;
 
-  mpc_smod (f, c);
+  mpc_smod (*f, c);
   mpc_con (rc, c);
-  mpf_div (mpc_Re (rc), mpc_Re (rc), f);
-  mpf_div (mpc_Im (rc), mpc_Im (rc), f);
-
-  mpf_clear (f);
+  mpf_div (mpc_Re (rc), mpc_Re (rc), *f);
+  mpf_div (mpc_Im (rc), mpc_Im (rc), *f);
 }
 
 void
 mpc_inv2 (mpc_t rc, mpc_t c)
 {
-  mpf_t f;
-  mpf_init2 (f, mpf_get_prec (mpc_Re (rc)));
+  mpf_t *f = init (mpf_get_prec (mpc_Re (rc)));
 
-  mpc_smod (f, c);
-  mpf_ui_div (f, 1L, f);
+  mpc_smod (*f, c);
+  mpf_ui_div (*f, 1L, *f);
   mpc_con (rc, c);
-  mpf_mul (mpc_Re (rc), mpc_Re (rc), f);
-  mpf_mul (mpc_Im (rc), mpc_Im (rc), f);
-
-  mpf_clear (f);
+  mpf_mul (mpc_Re (rc), mpc_Re (rc), *f);
+  mpf_mul (mpc_Im (rc), mpc_Im (rc), *f);
 }
 
 void
 mpc_sqr (mpc_t rc, mpc_t c)
 {
-  mpf_t f;
-  mpf_init2 (f, mpf_get_prec (mpc_Re (rc)));
+  mpf_t *f = init (mpf_get_prec (mpc_Re (rc)));
 
-  mpf_mul (f, mpc_Re (c), mpc_Im (c));
+  mpf_mul (*f, mpc_Re (c), mpc_Im (c));
   mpf_mul (mpc_Re (rc), mpc_Re (c), mpc_Re (c));
   mpf_mul (mpc_Im (rc), mpc_Im (c), mpc_Im (c));
 
   mpf_sub (mpc_Re (rc), mpc_Re (rc), mpc_Im (rc));
-  mpf_mul_2exp (mpc_Im (rc), f, 1);
-
-  mpf_clear (f);
+  mpf_mul_2exp (mpc_Im (rc), *f, 1);
 }
 
 void
 mpc_rot (mpc_t rc, mpc_t c)
 {
-  mpf_t f;
-  mpf_init2 (f, mpf_get_prec (mpc_Re (rc)));
+  mpf_t *f = init (mpf_get_prec (mpc_Re (rc)));
 
-  mpf_set (f, mpc_Re (c));
+  mpf_set (*f, mpc_Re (c));
   mpf_set (mpc_Re (rc), mpc_Im (c));
-  mpf_set (mpc_Im (rc), f);
+  mpf_set (mpc_Im (rc), *f);
   mpf_neg (mpc_Re (rc), mpc_Re (rc));
-
-  mpf_clear (f);
 }
 
 void
@@ -366,28 +472,22 @@ mpc_ui_sub (mpc_t rc, unsigned long int r, unsigned long int i, mpc_t c)
 void
 mpc_mul (mpc_t rc, mpc_t c1, mpc_t c2)
 {
-  mpf_t s1, s2, s3;
-  unsigned long int i;
+  mpf_t *s1, *s2, *s3;
 
-  i = mpf_get_prec (mpc_Re (rc));
-  mpf_init2 (s1, i);
-  mpf_init2 (s2, i);
-  mpf_init2 (s3, i);
+  s1 = init (mpf_get_prec (mpc_Re (rc))); 
+  s2 = s1 + 1; 
+  s3 = s2 + 1; 
 
-  mpf_set (s1, mpc_Re (c1));
-  mpf_sub (s1, s1, mpc_Im (c1));
-  mpf_set (s2, mpc_Re (c2));
-  mpf_add (s2, s2, mpc_Im (c2));
-  mpf_mul (s1, s1, s2);
-  mpf_mul (s2, mpc_Re (c1), mpc_Im (c2));
-  mpf_mul (s3, mpc_Im (c1), mpc_Re (c2));
-  mpf_sub (mpc_Re (rc), s1, s2);
-  mpf_add (mpc_Re (rc), mpc_Re (rc), s3);
-  mpf_add (mpc_Im (rc), s2, s3);
-
-  mpf_clear (s3);
-  mpf_clear (s2);
-  mpf_clear (s1);
+  mpf_set (*s1, mpc_Re (c1));
+  mpf_sub (*s1, *s1, mpc_Im (c1));
+  mpf_set (*s2, mpc_Re (c2));
+  mpf_add (*s2, *s2, mpc_Im (c2));
+  mpf_mul (*s1, *s1, *s2);
+  mpf_mul (*s2, mpc_Re (c1), mpc_Im (c2));
+  mpf_mul (*s3, mpc_Im (c1), mpc_Re (c2));
+  mpf_sub (mpc_Re (rc), *s1, *s2);
+  mpf_add (mpc_Re (rc), mpc_Re (rc), *s3);
+  mpf_add (mpc_Im (rc), *s2, *s3);
 }
 
 void
@@ -414,13 +514,11 @@ mpc_mul_2exp (mpc_t rc, mpc_t c, unsigned long int i)
 void
 mpc_div (mpc_t rc, mpc_t c1, mpc_t c2)
 {
-  mpc_t t;
-  mpc_init2 (t, mpf_get_prec (mpc_Re (rc)));
+  /* Find a good offset so that we don't pollute mul and inv registers */
+  mpc_t *t = (mpc_t *) init (mpf_get_prec (mpc_Re (rc))) + 3;
 
-  mpc_inv (t, c2);
-  mpc_mul (rc, c1, t);
-
-  mpc_clear (t);
+  mpc_inv (*t, c2);
+  mpc_mul (rc, c1, *t);
 }
 
 void

@@ -40,6 +40,21 @@ AS_IF([test x$enable_debug != xno], [
 	AC_DEFINE([DISABLE_DEBUG], 1, [Defined if MPSolve is built without debugging support])
 ])
 
+# Check if we are building in debug-mode. If that's the case disable the hard-to-debug
+# optimization flag of the compiler. 
+AC_ARG_ENABLE([debug-build],
+         AS_HELP_STRING([--enable-debug-build], 
+             [Build mpsolve with debug symbols and disable all the optimizations of the compiler]), 
+             [enable_debug_build=$enableval], [enable_debug_build=no]
+	 )         
+
+AS_IF([test x$enable_debug_build == xno], [
+          LIBMPS_CFLAGS="$LIBMPS_CFLAGS -O2 -fomit-frame-pointer"
+      ], [
+          LIBMPS_CFLAGS="$LIBMPS_CFLAGS -O0 -g"
+      ]
+)
+
 # Determine if examples are desired. If that's the case check for the library
 # that are installed on the system and see which examples can be added. 
 AC_ARG_ENABLE([examples],
@@ -242,8 +257,6 @@ AC_ARG_ENABLE([graphical-debugger],
     # Raise an error if GMP is not correctly installed on this system.
     AS_IF([test "x$mpsolve_found_gmp_headers" != "xyes"],
       [AC_MSG_ERROR([Unable to find gmp headers, pleas install libgmp-dev])])
-
-
 
 
 ##
