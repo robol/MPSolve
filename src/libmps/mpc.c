@@ -27,77 +27,37 @@ struct mps_tls {
 
 typedef struct mps_tls mps_tls; 
 
-static mps_tls* mps_tls_first = NULL; 
-static mps_tls* mps_tls_last  = NULL;
-
-static pthread_mutex_t init_mutex = PTHREAD_MUTEX_INITIALIZER; 
-
+static mps_boolean key_created = false; 
 static pthread_key_t key; 
 
 void 
 mps_mpc_cache_cleanup (void * pointer)
 {
-  pthread_t self = pthread_self ();
-  mps_tls *ptr = NULL; 
-  mps_tls *old_ptr = NULL; 
+  mps_tls *ptr = pointer; 
   int i; 
-  
-  for (ptr = mps_tls_first; ptr != NULL; old_ptr = ptr,  ptr = ptr->next)
-    {
-      if (pthread_equal (ptr->thread, self))
-	{
-	  pthread_mutex_lock (&init_mutex); 
 
-	  if (old_ptr)
-	    old_ptr->next = ptr->next; 
-	  else
-	    mps_tls_first = ptr->next; 
-
-	  if (ptr == mps_tls_last)
-	    mps_tls_last = old_ptr; 
-
-	  for (i = 0; i < MPS_MPF_TEMP_SIZE; i++)
-	    mpf_clear (ptr->data[i]);
+  for (i = 0; i < MPS_MPF_TEMP_SIZE; i++)
+    mpf_clear (ptr->data[i]);
 	  
-	  free (ptr); 	  
-
-	  pthread_mutex_unlock (&init_mutex); 
-	}
-    }
+  free (ptr); 	  
 }
 
 static mps_tls *
-create_new_mps_tls (pthread_t calling_thread, long int precision_needed)
+create_new_mps_tls (long int precision_needed)
 {
-  mps_tls *ptr; 
-  int i; 
+  mps_tls *ptr;
+  int i;
   
   ptr = mps_new (mps_tls); 
-  ptr->thread = calling_thread; 
-  ptr->data = mps_newv (mpf_t, 10); 
-  ptr->next = NULL;
+
+  ptr->data = mps_newv (mpf_t, MPS_MPF_TEMP_SIZE); 
   ptr->precision = precision_needed; 
-  
-  pthread_mutex_lock (&init_mutex); 
-  
-  if (mps_tls_first == NULL)
-    {
-      mps_tls_first = ptr; 
-      mps_tls_last = ptr; 
-    }
-  else if (mps_tls_last)
-    mps_tls_last->next = ptr; 
-  
-  mps_tls_last = ptr; 
   
   for (i = 0; i < MPS_MPF_TEMP_SIZE; i++)
     mpf_init2 (ptr->data[i], precision_needed); 
 
   /* Set up a destructor for this data in case the thread exists */
-  pthread_key_create (&key, mps_mpc_cache_cleanup); 
   pthread_setspecific (key, ptr);
-  
-  pthread_mutex_unlock (&init_mutex); 
 
   return ptr; 
 }
@@ -115,21 +75,18 @@ adjust_mps_tls_precision (mps_tls *ptr, long int precision_needed)
 static mpf_t* 
 init (long int precision_needed)
 {
-  /* Try to find the thread-local storage for the current
-   * thread or create it if it doesn't exists yet. */
-  pthread_t calling_thread = pthread_self (); 
-  mps_tls *ptr; 
-
-  for (ptr = mps_tls_first; ptr != NULL; ptr = ptr->next)
+  if (! key_created)
     {
-      if (pthread_equal (ptr->thread, calling_thread))
-	break;
+      pthread_key_create (&key, mps_mpc_cache_cleanup); 
+      key_created = true;
     }
+
+  mps_tls *ptr = pthread_getspecific (key); 
 
   /* This means that we have to create a new entry */
   if (ptr == NULL) 
     {
-      ptr = create_new_mps_tls (calling_thread, precision_needed); 
+      ptr = create_new_mps_tls (precision_needed); 
     }
   else if (ptr->precision < precision_needed)
     {
