@@ -327,7 +327,7 @@ AC_ARG_ENABLE([graphical-debugger],
   QT_PROGRAMS=
   AS_IF([test "$build_ui" == "yes"], [
           PKG_CHECK_MODULES(QT4, [ QtCore QtGui ],   [have_qt4=yes], [have_qt4=no])
-          PKG_CHECK_MODULES(QT5, [ Qt5Core Qt5Gui Qt5Widgets ], [have_qt5=yes], [have_qt5=no])
+          PKG_CHECK_MODULES(QT5, [ Qt5Core Qt5Gui Qt5Widgets Qt5Qml Qt5Quick ], [have_qt5=yes], [have_qt5=no])
 
           AS_IF([test "$have_qt5" == "no" && test "$have_qt4" == "no"], [
 	        # No hope to have the UI, just disable it. 
@@ -447,9 +447,10 @@ AS_IF([test x$build_examples == xyes], [
 	AS_IF([test "$MEX" != ""], [enable_matlab=yes
 	  MATLAB_MODULES_PROGRAMS=mps_roots])
 	AC_SUBST(MATLAB_MODULES_PROGRAMS)
-
-	AM_CONDITIONAL([BUILD_MATLAB_TOOLBOX], [test "$enable_matlab" == "yes"])
 ])
+
+AM_CONDITIONAL([BUILD_MATLAB_TOOLBOX], [test "$enable_matlab" == "yes"])
+
 
 # == CYTHON MODULE for PYTHON ==
 # Check if we can found the cython executable in the path. If found, 

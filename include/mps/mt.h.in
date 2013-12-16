@@ -25,7 +25,9 @@
  * complex.h support we can supply with our implementation. 
  */
 #if @MPS_USE_BUILTIN_COMPLEX@ == 1
-  #define MPS_USE_BUILTIN_COMPLEX
+  #ifndef MPS_USE_BUILTIN_COMPLEX
+    #define MPS_USE_BUILTIN_COMPLEX
+  #endif
 #endif
 
 #include <stdio.h>
