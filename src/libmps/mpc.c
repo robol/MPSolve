@@ -56,7 +56,7 @@ create_new_mps_tls (long int precision_needed)
   for (i = 0; i < MPS_MPF_TEMP_SIZE; i++)
     mpf_init2 (ptr->data[i], precision_needed); 
 
-  /* Set up a destructor for this data in case the thread exists */
+  /* Set up a destructor for this data in case the thread exits */
   pthread_setspecific (key, ptr);
 
   return ptr; 
@@ -435,10 +435,8 @@ mpc_mul (mpc_t rc, mpc_t c1, mpc_t c2)
   s2 = s1 + 1; 
   s3 = s2 + 1; 
 
-  mpf_set (*s1, mpc_Re (c1));
-  mpf_sub (*s1, *s1, mpc_Im (c1));
-  mpf_set (*s2, mpc_Re (c2));
-  mpf_add (*s2, *s2, mpc_Im (c2));
+  mpf_sub (*s1, mpc_Re (c1), mpc_Im (c1)); 
+  mpf_add (*s2, mpc_Re (c2), mpc_Im (c2)); 
   mpf_mul (*s1, *s1, *s2);
   mpf_mul (*s2, mpc_Re (c1), mpc_Im (c2));
   mpf_mul (*s3, mpc_Im (c1), mpc_Re (c2));
