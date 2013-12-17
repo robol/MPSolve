@@ -83,6 +83,24 @@ extern "C"
     mpc_t * mP; 
 
     /**
+     * @brief The rational version of the polynomial coefficients. 
+     * This is used only if the structure of the monomial matrix poly
+     * is MPS_STRUCTURE_*_INTEGER OR MPS_STRUCTURE_*_RATIONAL. 
+     *
+     * This array holds the real part of the coefficients. 
+     */
+    mpq_t * mpqPr; 
+
+    /**
+     * @brief The rational version of the polynomial coefficients. 
+     * This is used only if the structure of the monomial matrix poly
+     * is MPS_STRUCTURE_*_INTEGER OR MPS_STRUCTURE_*_RATIONAL. 
+     *
+     * This array holds the real part of the coefficients. 
+     */
+    mpq_t * mpqPi; 
+
+    /**
      * @brief Additional properties of this polynomial. Examples are: 
      * MPS_MONOMIAL_MATRIX_POLY_HESSENBERG, ...
      * 
@@ -160,6 +178,24 @@ extern "C"
 						   mps_monomial_matrix_poly *mpoly, 
 						   int i, 
 						   cplx_t * matrix); 
+
+  /**
+   * @brief Set the coefficient of degree i of the matrix polynomial. 
+   *
+   * @param ctx The current mps_context 
+   * @param mpoly The mps_monomial_matrix_poly where the coefficients should be
+   * set. 
+   * @param i The degree of the coeffient to set. 
+   * @param matrix_r A pointer to the first element of the matrix of the real parts
+   * of the coefficients, stored in row-major order
+   * @param matrix_i A pointer to the first element of the matrix of the imaginary parts
+   * of the coefficients, stored in row-major order
+   */ 
+  void mps_monomial_matrix_poly_set_coefficient_q (mps_context * ctx, 
+						   mps_monomial_matrix_poly *mpoly, 
+						   int i, 
+						   mpq_t * matrix_r, 
+						   mpq_t * matrix_i);
 
   /**
    * @brief Evaluate a matrix polynomial at a point, in the sense of

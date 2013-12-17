@@ -189,6 +189,54 @@ START_TEST (determinant_shifted_mhessenberg_example1)
 }
 END_TEST
 
+START_TEST (rational_matrix_creation)
+{
+  int degree = 6; 
+  int size = 14; 
+  int i, j, k; 
+
+  mps_context * ctx = mps_context_new (); 
+  mps_monomial_matrix_poly *mp = mps_monomial_matrix_poly_new (ctx, 6, 14, false); 
+
+  /* Set the coefficients in the matrices */ 
+  for (k = 0; k <= degree; k++)
+    {
+      mpq_t *mr, *mi; 
+
+      mr = mps_newv (mpq_t, size * size); 
+      mi = mps_newv (mpq_t, size * size); 
+
+      mpq_vinit (mr, size * size); 
+      mpq_vinit (mi, size * size); 
+
+      for (i = 0; i < size; i++)
+	{
+	  for (j = 0; j < size; j++)
+	    {
+	      mpq_set_si (MPS_MATRIX_ELEM (mr, i, j, size), 
+			  i - j, i + j + 1); 
+	      mpq_canonicalize (MPS_MATRIX_ELEM (mr, i, j, size)); 
+
+	      mpq_set_si (MPS_MATRIX_ELEM (mi, i, j, size),
+			  2*i + 3*j + 5, i + 2*j + 1); 
+	      mpq_canonicalize (MPS_MATRIX_ELEM (mi, i, j, size)); 
+	    }
+	}
+      
+      mps_monomial_matrix_poly_set_coefficient_q (ctx, mp, k, mr, mi); 
+
+      mpq_vclear (mr, size * size); 
+      mpq_vclear (mi, size * size); 
+
+      free (mr); 
+      free (mi); 
+    }
+
+  mps_monomial_matrix_poly_free (ctx, MPS_POLYNOMIAL (mp)); 
+  mps_context_free (ctx); 
+}
+END_TEST
+
 int 
 main (void) 
 {
@@ -202,6 +250,7 @@ main (void)
 
   // Basic operation
   tcase_add_test (tc_basics, basics_allocate_destroy); 
+  tcase_add_test (tc_basics, rational_matrix_creation); 
 
   // Add tests of the deteminant
   tcase_add_test (tc_determinant, determinant_hessenberg_example1); 
@@ -209,6 +258,7 @@ main (void)
   tcase_add_test (tc_determinant, determinant_mhessenberg_example1); 
   tcase_add_test (tc_determinant, determinant_shifted_mhessenberg_example1); 
 
+  suite_add_tcase (s, tc_basics); 
   suite_add_tcase (s, tc_determinant);
 
   SRunner *sr = srunner_create (s);
