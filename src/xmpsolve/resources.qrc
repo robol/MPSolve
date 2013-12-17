@@ -1,6 +1,7 @@
 <RCC>
     <qresource prefix="/images">
         <file>xmpsolve.png</file>
+        <file>loading.png</file>
     </qresource>
     <qresource prefix="/">
         <file>icons/document-close.png</file>
@@ -15,5 +16,7 @@
         <file>PolyInputField.qml</file>
         <file>SwitchableApproximationView.qml</file>
         <file>CombinedApproximationView.qml</file>
+        <file>MainView.qml</file>
+        <file>LoadingIndicator.qml</file>
     </qresource>
 </RCC>

@@ -3,6 +3,8 @@ import QtQuick.Controls 1.0
 
 Row {
 
+    signal solveRequested(string polyText);
+
     spacing: 16
     width: parent.width
     height: 32
@@ -20,7 +22,7 @@ Row {
         width: 84
 
         onClicked: {
-            solver.solvePoly(polyInput.text);
+            solveRequested(polyInput.text);
         }
     }
 
