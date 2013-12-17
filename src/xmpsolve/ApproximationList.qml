@@ -8,10 +8,14 @@ Column {
      * @param count The number of items in the list.
      */
     function updateText(count) {
-       if (count > 0)
+       if (count > 0) {
            approximationTitle.text = "List of approximations: ";
-       else
+           approximationTitle.font.pointSize = "14";
+       }
+       else {
            approximationTitle.text = "No approximations computed.\nInsert a polynomial to see some data here!"
+           approximationTitle.font.pointSize = "10";
+       }
     }
 
     property alias model : resultsView.model
@@ -41,10 +45,22 @@ Column {
                 width: parent.width
                 height: approximationItem.height
 
-                Text {
-                    id: approximationItem
-                    text: short_approximation
-                    height: 8
+                Row {
+                    spacing: 6
+
+                    Text {
+                        id: approximationItem
+                        text: short_approximation
+                        height: 8
+                        width: resultsView.width - 150
+                    }
+
+                    Text {
+                        text: "Radius: " + radius
+                        height: 8
+                        width: 64
+                    }
+
                 }
             }
         }
