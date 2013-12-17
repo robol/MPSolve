@@ -12,13 +12,11 @@ ApplicationWindow {
     visible: true
     color: "#cacafa"
 
-    // Hook up connections to the solver, so we can handle the spinning
-    // bar and other small thinkgs.
+    // Hook up connections to the solver, so we can handle the spinning bar.
     Connections {
         target: solver
 
         onSolved: {
-            loadingIndicator.visible = false;
             mainStack.push(mainView);
         }
     }
@@ -32,7 +30,6 @@ ApplicationWindow {
 
             onSolveRequested: {
                 mainStack.push(loadingIndicator);
-                mainView.visible = false;
                 solver.solvePoly(polyText);
             }
         }

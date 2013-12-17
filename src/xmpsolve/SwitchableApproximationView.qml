@@ -4,6 +4,19 @@ import MPSolve 1.0
 
 Column {
 
+    function toggleView() {
+        switch (stackView.state) {
+            case 0:
+                stackView.push(approximationList)
+                break;
+            case 1:
+                stackView.push(rootsRenderer);
+                break;
+        }
+
+        stackView.state = (stackView.state + 1) % 2;
+    }
+
     spacing: 16
 
     StackView {
@@ -30,18 +43,7 @@ Column {
         width: parent.width
         height: 32
 
-        onClicked: {
-            switch (stackView.state) {
-                case 0:
-                    stackView.push(approximationList)
-                    break;
-                case 1:
-                    stackView.push(rootsRenderer);
-                    break;
-            }
-
-            stackView.state = (stackView.state + 1) % 2;
-        }
+        onClicked: toggleView()
     }
 
 }

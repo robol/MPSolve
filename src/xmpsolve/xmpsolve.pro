@@ -8,8 +8,16 @@
 
 TEMPLATE = app
 
+CONFIG += mps_qml
+# CONFIG += mps_widgets
+
 QT       += core gui
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets quick
+mps_widgets {
+    greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+}
+mps_qml {
+    greaterThan(QT_MAJOR_VERSION, 4) QT += quick
+}
 
 #
 # This section addresses Android specific configuration. This is a bit atypical,
@@ -34,8 +42,7 @@ android {
     # We need -DMPS_USE_BUILTIN_COMPLEX since Android uses tiny bionic without complex
     # arithmetic support.
     QMAKE_CXXFLAGS += -I$${ANDROID_ROOT}/include \
-        -include $${PWD}/../../android-ext/tarballs/mpsolve-build/config.h \
-        -DMPS_USE_QML
+        -include $${PWD}/../../android-ext/tarballs/mpsolve-build/config.h
 
     # Link against locally compiled libmps and libgmp.
     LIBS += $${ANDROID_ROOT}/lib/libmps.a $${ANDROID_ROOT}/lib/libgmp.a
@@ -43,14 +50,13 @@ android {
 }
 
 !android {
-    QMAKE_CXXFLAGS += -include $${PWD}/../../_build/config.h -DMPS_USE_QML
+    QMAKE_CXXFLAGS += -include $${PWD}/../../_build/config.h
     INCLUDEPATH += $${PWD}/../../include/
     LIBS += $${PWD}/../../_build/src/libmps/.libs/libmps.so -lgmp
 }
 
 # Input
-HEADERS += ./mainwindow.h \
-           ./mpsolveworker.h \
+HEADERS += ./mpsolveworker.h \
            ./polynomialsolver.h \
            ./root.h \
            ./rootsrenderer.h \
@@ -58,33 +64,18 @@ HEADERS += ./mainwindow.h \
 	   ./monomial.h \
 	   ./polynomial.h \
            ./rootsmodel.h \
-	   ./polsyntaxhighlighter.h \  
-           ./polfileeditor.h \
-           ./polfileeditorwindow.h \
-           ./mainqmlview.h \
-    	   ./qrootsrenderer.h \
-           ./qquickrootsrenderer.h
-
-FORMS += ./mainwindow.ui \
-         ./polfileeditor.ui \
-         ./polfileeditorwindow.ui
+           ./polsyntaxhighlighter.h
 
 SOURCES += ./main.cpp \
-           ./mainwindow.cpp \
            ./mpsolveworker.cpp \
            ./polynomialsolver.cpp \
            ./root.cpp \
            ./rootsrenderer.cpp \
            ./polynomialparser.cpp \
            ./monomial.cpp \
-	   ./polynomial.cpp \
-	   ./rootsmodel.cpp \
-	   ./polsyntaxhighlighter.cpp \
-           ./polfileeditor.cpp \
-           ./polfileeditorwindow.cpp \
-           ./mainqmlview.cpp \
-           ./qrootsrenderer.cpp \
-           ./qquickrootsrenderer.cpp
+           ./polynomial.cpp \
+           ./rootsmodel.cpp \
+           ./polsyntaxhighlighter.cpp
 
 RESOURCES += \
     resources.qrc
@@ -100,3 +91,32 @@ OTHER_FILES += \
     LoadingIndicator.qml
 
 ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
+
+# QtWidgets configuration
+mps_widgets {
+    HEADERS += mainwindow.h \
+               polfileeditor.h \
+               polfileeditorwindow.h \
+               qrootsrenderer.h
+
+    FORMS += ./mainwindow.ui \
+             ./polfileeditor.ui \
+             ./polfileeditorwindow.ui
+
+    SOURCES += mainwindow.cpp \
+           ./polfileeditor.cpp \
+           ./polfileeditorwindow.cpp \
+           ./qrootsrenderer.cpp
+
+}
+
+# QtQuick configuration
+mps_qml {
+    QMAKE_CXXFLAGS += -DMPS_USE_QML
+
+    HEADERS += qquickrootsrenderer.h  \
+               mainqmlview.h
+
+    SOURCES += ./mainqmlview.cpp \
+           ./qquickrootsrenderer.cpp
+}
