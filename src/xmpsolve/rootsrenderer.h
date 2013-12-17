@@ -1,9 +1,10 @@
 #ifndef xmpsolve_ROOTSRENDERER_H
 #define xmpsolve_ROOTSRENDERER_H
 
-#include <QWidget>
 #include "root.h"
 #include "rootsmodel.h"
+#include <QPainter>
+#include <QPaintEvent>
 
 namespace xmpsolve {
 

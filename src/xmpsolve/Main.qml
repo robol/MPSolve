@@ -8,7 +8,7 @@ ApplicationWindow {
 
     title: "MPSolve"
 
-    width: 700
+    width: 480
     height: 600
 
     visible: true
@@ -18,7 +18,7 @@ ApplicationWindow {
 
         anchors.fill: parent
         anchors.margins: 16
-        spacing: 32
+        spacing: 16
 
         Text  {
             text: PACKAGE_STRING
@@ -27,32 +27,14 @@ ApplicationWindow {
 
         PolyInputField {}
 
-        Row {
-
+        SwitchableApproximationView {
             width: parent.width
-            height: parent.height - 150
-
-            id: viewApproximationRow
-            spacing: 12
-
-            ApproximationList {
-                id: approximationList
-                model: rootsModel
-                clip: true
-
-                width: 200
-                height: parent.height
-            }
-
-            QQuickRootsRenderer {
-                model: rootsModel
-
-                width: parent.width - 212
-                height: parent.height
-            }
-
+            height: root.height - 175
         }
 
-
     }
+
+
+
+
 }

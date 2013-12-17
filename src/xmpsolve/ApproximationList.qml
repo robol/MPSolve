@@ -11,7 +11,7 @@ Column {
        if (count > 0)
            approximationTitle.text = "List of approximations: ";
        else
-           approximationTitle.text = "No approximations computed."
+           approximationTitle.text = "No approximations computed.\nInsert a polynomial to see some data here!"
     }
 
     property alias model : resultsView.model
@@ -19,7 +19,6 @@ Column {
 
     Text {
         id: approximationTitle
-        text: "No approximations computed."
     }
 
     ListView {

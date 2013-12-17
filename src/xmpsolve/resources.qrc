@@ -13,5 +13,6 @@
         <file>Main.qml</file>
         <file>ApproximationList.qml</file>
         <file>PolyInputField.qml</file>
+        <file>SwitchableApproximationView.qml</file>
     </qresource>
 </RCC>

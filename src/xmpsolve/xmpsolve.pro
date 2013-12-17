@@ -93,6 +93,7 @@ OTHER_FILES += \
     android/AndroidManifest.xml \
     Main.qml \
     ApproximationList.qml \
-    PolyInputField.qml
+    PolyInputField.qml \
+    SwitchableApproximationView.qml
 
 ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android

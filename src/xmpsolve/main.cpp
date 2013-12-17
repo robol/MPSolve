@@ -3,20 +3,21 @@
 #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
 #include <QtGui/QApplication>
 #else
-#include <QApplication>
+#include <QtGui/QGuiApplication>
 #include <QtQml/QQmlApplicationEngine>
 #endif
-#include "mainwindow.h"
 
 #ifdef MPS_USE_QML
 #include "mainqmlview.h"
+#else
+#include "mainwindow.h"
 #endif
 
 using namespace xmpsolve;
 
 int main(int argc, char *argv[])
 {
-    QApplication a(argc, argv);
+    QGuiApplication a(argc, argv);
 
 #ifdef MPS_USE_QML
     MainQmlView w;

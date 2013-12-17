@@ -60,7 +60,7 @@ step "Downloading a copy of libgmp"
 cd $SRCDIR/android-ext
 mkdir tarballs && cd tarballs
 
-( wget -q http://ftp.gmplib.org/gmp/gmp-$GMP_VERSION.tar.bz2 && \
+( wget  ftp://ftp.gmplib.org/pub/gmp-$GMP_VERSION/gmp-$GMP_VERSION.tar.bz2 && \
 tar xf gmp-$GMP_VERSION.tar.bz2 && cd gmp-$GMP_VERSION )|| \
 	die "Cannot download GMP. Check your Internet connectivity"
 
