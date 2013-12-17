@@ -14,5 +14,6 @@
         <file>ApproximationList.qml</file>
         <file>PolyInputField.qml</file>
         <file>SwitchableApproximationView.qml</file>
+        <file>CombinedApproximationView.qml</file>
     </qresource>
 </RCC>

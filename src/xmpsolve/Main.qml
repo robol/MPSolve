@@ -1,7 +1,6 @@
 import QtQuick 2.1
 import QtQuick.Controls 1.0
 import QtQuick.Layouts 1.0
-import MPSolve 1.0
 
 ApplicationWindow {
     id: root
@@ -17,21 +16,31 @@ ApplicationWindow {
         id: pageLayout
 
         anchors.fill: parent
+
         anchors.margins: 16
         spacing: 16
 
         Text  {
             text: PACKAGE_STRING
-            font.pointSize: 18
+            font.pointSize: 16
         }
 
         PolyInputField {}
 
+        // Phone view: activated only if root.width < 600
         SwitchableApproximationView {
+            id: switchableView
             width: parent.width
             height: root.height - 175
+            visible: (root.width < 600)
         }
 
+        // Tablet view: activated only if root.width >= 600
+        CombinedApproximationView {
+            width: root.width
+            height: root.height - 140
+            visible: (root.width >= 600)
+        }
     }
 
 

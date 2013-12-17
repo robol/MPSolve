@@ -94,6 +94,7 @@ OTHER_FILES += \
     Main.qml \
     ApproximationList.qml \
     PolyInputField.qml \
-    SwitchableApproximationView.qml
+    SwitchableApproximationView.qml \
+    CombinedApproximationView.qml
 
 ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
