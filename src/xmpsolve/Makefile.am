@@ -145,6 +145,8 @@ EXTRA_DIST = $(icon_DATA) \
 	$(headers) \
 	$(desktop_DATA) \
 	$(ui_sfiles) \
+	$(qml_headers) \
+	$(desktop_headers) \
 	xmpsolve.1 \
 	xmpsolve.ico \
 	xmpsolve.pro \
