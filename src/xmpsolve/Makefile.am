@@ -156,7 +156,15 @@ EXTRA_DIST = $(icon_DATA) \
 	android/AndroidManifest.xml \
 	android/res/drawable-mdpi/icon.png \
 	android/res/drawable-hdpi/icon.png \
-	android/res/drawable-ldpi/icon.png
+	android/res/drawable-ldpi/icon.png \
+	Main.qml \
+	LoadingIndicator.qml \
+	MainView.qml \
+	ApproximationList.qml \
+	PolyInputField.qml \
+	CombinedApproximationView.qml \
+	SwitchableApproximationView.qml \
+	loading.png 
 	
 
 BUILT_SOURCES = $(moc_files) \
