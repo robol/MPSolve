@@ -19,7 +19,7 @@
  * @param n The size of the matrix. 
  * @param output The storage for the result. 
  */
-MPS_PRIVATE void
+void
 mps_fhessenberg_determinant (mps_context * ctx, cplx_t * hessenberg_matrix, size_t n, cplx_t output)
 {
   mps_fhessenberg_shifted_determinant (ctx, hessenberg_matrix, cplx_zero, n, output); 

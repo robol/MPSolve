@@ -3,6 +3,10 @@
 #include <octave/error.h>
 #include <mps/mps.h>
 
+#ifndef _MPS_PRIVATE
+#define _MPS_PRIVATE
+#endif
+
 
 DEFUN_DLD(mps_roots, args, nargout,
 "-*- texinfo -*- \n\

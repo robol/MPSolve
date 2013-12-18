@@ -573,8 +573,9 @@ typedef int mps_debug_level;
   long int mps_raise_data (mps_context * s, long int prec);
   void mps_raise_data_raw (mps_context * s, long int prec);
 
-#ifdef _MPS_PRIVATE
+
   /* functions in hessenberg-determinant.c */
+#ifdef _MPS_PRIVATE
     void mps_fhessenberg_determinant (mps_context * ctx, cplx_t * hessenberg_matrix, size_t n, cplx_t output); 
     void mps_fhessenberg_shifted_determinant (mps_context * ctx, cplx_t * hessenberg_matrix, const cplx_t shift, size_t n, cplx_t output); 
     void mps_mhessenberg_determinant (mps_context * ctx, mpc_t * hessenberg_matrix, size_t n, 
