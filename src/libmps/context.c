@@ -141,6 +141,17 @@ mps_context_new ()
 void
 mps_context_free (mps_context * s)
 {
+  /* Close input and output streams if they're not stdin, stdout and
+   * stderr. For the case in which this context will re-used, set them
+   * to their default values. */
+  if (s->instr != stdin && s->instr != NULL)
+	fclose (s->instr);
+  if (s->logstr != stderr && s->logstr != stdout && s->logstr != NULL)
+	fclose (s->logstr);
+
+  s->instr = stdin;
+  s->logstr = stderr;
+
   pthread_mutex_lock (&context_factory_mutex);
   if (context_factory_size < MPS_CONTEXT_FACTORY_MAXIMUM_SIZE)
   {
@@ -164,13 +175,6 @@ mps_context_free (mps_context * s)
 
   if (s->secular_equation)
     mps_secular_equation_free (s, MPS_POLYNOMIAL (s->secular_equation));
-
-  /* Close input and output streams if they're not stdin, stdout and
-   * stderr */
-  if (s->instr != stdin && s->instr != NULL)
-    fclose (s->instr);
-  if (s->logstr != stderr && s->logstr != stdout && s->logstr != NULL) 
-    fclose (s->logstr);
    
    free (s);
 }
