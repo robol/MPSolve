@@ -60,13 +60,19 @@ endif
 pure_source_files = \
 	polynomialparser.cpp  \
 	polynomialsolver.cpp  \
-	mainwindow.cpp  \
 	rootsmodel.cpp  \
-	polfileeditorwindow.cpp  \
-	polfileeditor.cpp \
 	polsyntaxhighlighter.cpp  \
-	mpsolveworker.cpp  \
+	mpsolveworker.cpp
+
+desktop_pure_source_files = \
+	mainwindow.cpp \
+	polfileeditorwindow.cpp \
+	polfileeditor.cpp \
 	qrootsrenderer.cpp
+
+qml_pure_source_files = \
+	qquickrootsrenderer.cpp \
+	mainqmlview.cpp 
 
 other_source_files = \
 	main.cpp \
@@ -91,17 +97,31 @@ qrc_files = \
 headers = \
 	rootsrenderer.h  \
 	rootsmodel.h  \
-	polfileeditor.h \
-	polfileeditorwindow.h  \
 	monomial.h  \
 	polynomial.h  \
 	root.h  \
 	polynomialparser.h  \
 	polsyntaxhighlighter.h  \
-	qrootsrenderer.h \
-	mainwindow.h  \
 	polynomialsolver.h  \
 	mpsolveworker.h
+
+desktop_headers = \
+	polfileeditor.h \
+	polfileeditorwindow.h \
+	mainwindow.h \
+	qrootsrenderer.h 
+
+qml_headers = \
+	mainqmlview.h \
+	qquickrootsrenderer.h 
+
+if BUILD_QML_UI
+pure_source_files += $(qml_pure_source_files)
+headers += $(qml_headers)
+else
+pure_source_files += $(desktop_pure_source_files)
+headers += $(desktop_headers)
+endif
 
 moc_files = $(pure_source_files:.cpp=_moc.cpp)
 qrc_gen_files = $(qrc_files:.qrc=_qrc.cpp)
@@ -140,7 +160,10 @@ EXTRA_DIST = $(icon_DATA) \
 	
 
 BUILT_SOURCES = $(moc_files) \
-	$(ui_files) \
 	$(qrc_gen_files) 
+
+if ! BUILD_QML_UI
+BUILT_SOURCES += $(ui_files)
+endif
 
 endif # HAVE_UI

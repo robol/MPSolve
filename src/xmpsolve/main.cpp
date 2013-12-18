@@ -3,7 +3,11 @@
 #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
 #include <QtGui/QApplication>
 #else
+#ifdef MPS_USE_QML
 #include <QtGui/QGuiApplication>
+#else
+#include <QtWidgets/QApplication>
+#endif
 #endif
 
 #ifdef MPS_USE_QML
@@ -17,7 +21,11 @@ using namespace xmpsolve;
 
 int main(int argc, char *argv[])
 {
+#ifdef MPS_USE_QML
     QGuiApplication a(argc, argv);
+#else
+    QApplication a(argc, argv);
+#endif
 
 #ifdef MPS_USE_QML
     MainQmlView w;

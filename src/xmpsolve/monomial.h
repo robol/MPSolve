@@ -6,7 +6,6 @@
 #include <QString>
 #include <QSet>
 #include <QChar>
-#include <QtQml>
 
 namespace xmpsolve {
 

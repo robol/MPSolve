@@ -55,6 +55,14 @@ AS_IF([test x$enable_debug_build == xno], [
       ]
 )
 
+# Check if the user wants to build the QML UI
+AC_ARG_ENABLE([qml-ui],
+	AS_HELP_STRING([--enable-qml-ui], 
+		[Build xmpsolve with the Qml UI]), 
+	[enable_qml_ui=$enableval], [enable_qml_ui=no]
+	)
+AM_CONDITIONAL([BUILD_QML_UI], [test "x$enable_qml_ui" != "xno"])
+
 # Determine if examples are desired. If that's the case check for the library
 # that are installed on the system and see which examples can be added. 
 AC_ARG_ENABLE([examples],
@@ -321,13 +329,22 @@ AC_ARG_ENABLE([graphical-debugger],
   # disabled it. 
   QT_PROGRAMS=
   AS_IF([test "$build_ui" == "yes"], [
+
+	# The case QML is simpler since we have to require Qt5. Otherwise try to 
+	# test for both Qt4 and Qt5, and choose the best. 
+	AS_IF([test x$enable_qml_ui = xyes], [ 
+		have_qt4=no
+		PKG_CHECK_MODULES(QT5, [ Qt5Core Qt5Gui Qt5Qml Qt5Quick ], [have_qt5=yes], [have_qt5=no])
+		QT5_CFLAGS="$QT5_CFLAGS -DMPS_USE_QML"
+	], [
           PKG_CHECK_MODULES(QT4, [ QtCore QtGui ],   [have_qt4=yes], [have_qt4=no])
-          PKG_CHECK_MODULES(QT5, [ Qt5Core Qt5Gui Qt5Widgets Qt5Qml ], [have_qt5=yes], [have_qt5=no])
+          PKG_CHECK_MODULES(QT5, [ Qt5Core Qt5Gui Qt5Widgets ], [have_qt5=yes], [have_qt5=no])
+	]) 
 
           AS_IF([test "$have_qt5" == "no" && test "$have_qt4" == "no"], [
 	        # No hope to have the UI, just disable it. 
                 AC_MSG_NOTICE([Could not find Qt4 or Qt5, disabling the graphical UI])
-               QT_PROGRAMS=""
+                QT_PROGRAMS=""
           ], [
 	       QT_PROGRAMS=xmpsolve${EXEEXT}
           ])
