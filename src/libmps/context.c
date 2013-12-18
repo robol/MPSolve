@@ -15,6 +15,12 @@
 #include <mps/mps.h>
 #include <string.h>
 
+static mps_context ** context_factory = NULL;
+static int context_factory_size = 0;
+static pthread_mutex_t context_factory_mutex = PTHREAD_MUTEX_INITIALIZER;
+
+#define MPS_CONTEXT_FACTORY_MAXIMUM_SIZE 10
+
 long int
 mps_context_get_minimum_precision (mps_context * s)
 {
@@ -103,10 +109,27 @@ mps_context_init (mps_context * s)
 mps_context *
 mps_context_new ()
 {
+  mps_context * ctx = NULL;
+
+  /* Try to get a low cost context from the factory */
+  pthread_mutex_lock (&context_factory_mutex);
+  if (context_factory_size > 0)
+  {
+	  /* Pop out a context */
+	  ctx = context_factory[--context_factory_size];
+	  context_factory = mps_realloc (context_factory,
+			  sizeof (mps_context*) * context_factory_size);
+  }
+  pthread_mutex_unlock (&context_factory_mutex);
+
   /* Allocate the new mps_context and load default options */
-  mps_context * s = (mps_context*) mps_malloc (sizeof (mps_context));
-  mps_context_init (s);
-  return s;
+  if (! ctx)
+  {
+	  ctx = (mps_context*) mps_malloc (sizeof (mps_context));
+	  mps_context_init (ctx);
+  }
+
+  return ctx;
 }
 
 
@@ -118,8 +141,21 @@ mps_context_new ()
 void
 mps_context_free (mps_context * s)
 {
+  pthread_mutex_lock (&context_factory_mutex);
+  if (context_factory_size < MPS_CONTEXT_FACTORY_MAXIMUM_SIZE)
+  {
+	  context_factory = mps_realloc (context_factory,
+			  sizeof (mps_context*) * (context_factory_size + 1));
+	  context_factory[context_factory_size++] = s;
+	  pthread_mutex_unlock (&context_factory_mutex);
+	  return;
+  }
+  pthread_mutex_unlock (&context_factory_mutex);
+
   if (s->initialized)
     mps_free_data (s);
+
+  mps_thread_pool_free (s, s->pool);
 
   free (s->input_config);
   free (s->output_config);
@@ -134,7 +170,7 @@ mps_context_free (mps_context * s)
   if (s->instr != stdin && s->instr != NULL)
     fclose (s->instr);
   if (s->logstr != stderr && s->logstr != stdout && s->logstr != NULL) 
-    fclose (s->logstr); 
+    fclose (s->logstr);
    
    free (s);
 }
@@ -145,9 +181,117 @@ mps_context_abort (mps_context * s)
   s->exit_required = true;
 }
 
+static void
+mps_context_shrink (mps_context * s, int n)
+{
+	int i;
+
+	for (i = n; i < s->n; i++)
+	{
+		mps_approximation_free (s, s->root[i]);
+	}
+	s->root = mps_realloc (s->root, sizeof (mps_approximation*) * n);
+
+	s->order = mps_realloc (s->order, sizeof (int) * n);
+
+	s->fppc1 = mps_realloc (s->fppc1, sizeof (cplx_t) * (n + 1));
+
+	for (i = n + 1; i <= s->n; i++)
+	  mpc_clear (s->mfpc1[i]);
+
+	s->mfpc1 = mps_realloc (s->mfpc1, sizeof (mpc_t) * (n + 1));
+
+	for (i = n + 1; i <= s->n; i++)
+	  mpc_clear (s->mfppc1[i]);
+
+	s->mfppc1 = mps_realloc (s->mfppc1, sizeof (mpc_t) * (n+1));
+
+	/* temporary vectors */
+	s->spar1 = mps_realloc (s->spar1, sizeof (mps_boolean) * (n+2));
+	s->h = mps_realloc (s->h, sizeof (mps_boolean) * (n+2));
+	s->again_old = mps_realloc (s->again_old, sizeof (mps_boolean) * (n));
+
+	s->fap1 = mps_realloc (s->fap1, sizeof (double) * (n + 1));
+	s->fap2 = mps_realloc (s->fap2, sizeof (double) * (n + 1));
+
+	s->dap1 = mps_realloc (s->dap1, sizeof (rdpe_t) * (n + 1));
+	s->dpc1 = mps_realloc (s->dpc1, sizeof (cdpe_t) * (n + 1));
+	s->dpc2 = mps_realloc (s->dpc2, sizeof (cdpe_t) * (n + 1));
+
+	s->fradii = mps_realloc (s->fradii, sizeof (double) * (n + 1));
+	s->partitioning = mps_realloc (s->partitioning, sizeof (int) * (n + 2));
+	s->dradii = mps_realloc (s->dradii, sizeof (rdpe_t) * (n + 1));
+
+    /* Setting some default here, that were not settable because we didn't know
+	 * the degree of the polynomial */
+	for (i = 0; i < s->n; i++)
+	  s->root[i]->wp = DBL_DIG * LOG2_10;
+}
+
+static void
+mps_context_expand (mps_context * s, int n)
+{
+	int i;
+
+	printf ("Shrinking\n");
+
+	s->root = mps_realloc (s->root, sizeof (mps_approximation*) * n);
+	for (i = s->n; i < n; i++)
+	{
+		s->root[i] = mps_approximation_new (s);
+	}
+
+	s->order = mps_realloc (s->order, sizeof (int) * n);
+
+	s->fppc1 = mps_realloc (s->fppc1, sizeof (cplx_t) * (n + 1));
+	s->mfpc1 = mps_realloc (s->mfpc1, sizeof (mpc_t) * (n + 1));
+
+	for (i = s->n + 1; i <= n; i++)
+	  mpc_init2 (s->mfpc1[i], 0);
+
+	s->mfppc1 = mps_realloc (s->mfppc1, sizeof (mpc_t) * (n+1));
+	for (i = s->n + 1; i <= n; i++)
+	  mpc_init2 (s->mfppc1[i], 0);
+
+	/* temporary vectors */
+	s->spar1 = mps_realloc (s->spar1, sizeof (mps_boolean) * (n+2));
+	s->h = mps_realloc (s->h, sizeof (mps_boolean) * (n+2));
+	s->again_old = mps_realloc (s->again_old, sizeof (mps_boolean) * (n));
+
+	s->fap1 = mps_realloc (s->fap1, sizeof (double) * (n + 1));
+	s->fap2 = mps_realloc (s->fap2, sizeof (double) * (n + 1));
+
+	s->dap1 = mps_realloc (s->dap1, sizeof (rdpe_t) * (n + 1));
+	s->dpc1 = mps_realloc (s->dpc1, sizeof (cdpe_t) * (n + 1));
+	s->dpc2 = mps_realloc (s->dpc2, sizeof (cdpe_t) * (n + 1));
+
+	s->fradii = mps_realloc (s->fradii, sizeof (double) * (n + 1));
+	s->partitioning = mps_realloc (s->partitioning, sizeof (int) * (n + 2));
+	s->dradii = mps_realloc (s->dradii, sizeof (rdpe_t) * (n + 1));
+
+    /* Setting some default here, that were not settable because we didn't know
+	 * the degree of the polynomial */
+	for (i = 0; i < s->n; i++)
+	  s->root[i]->wp = DBL_DIG * LOG2_10;
+}
+
+void
+mps_context_resize (mps_context * s, int n)
+{
+	/* We're excluding the case n == s->n that, clearly, doesn't
+	 * need operations at all. */
+	if (n > s->n)
+		mps_context_expand (s, n);
+	if (n < s->n)
+		mps_context_shrink (s, n);
+}
+
 void
 mps_context_set_degree (mps_context * s, int n)
 {
+  if (s->initialized)
+	  mps_context_resize (s, n);
+
   s->deg = s->n = n;
   
   /* Check if the numer of thread is greater of the number of roots,

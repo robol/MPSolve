@@ -451,11 +451,6 @@ extern "C"
      */
     mps_boolean *again_old;
 
-    int *clust_aux;             /* auxiliary vector                    */
-    int *punt_aux;              /* auxiliary vector                    */
-    int *punt_out;              /* auxiliary vector                    */
-    int *clust_out;             /* auxiliary vector                    */
-
     /**
      * @brief The number of circles with initial approximations.
      */

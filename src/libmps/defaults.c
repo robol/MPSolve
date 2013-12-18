@@ -71,11 +71,6 @@ mps_set_default_values (mps_context * s)
 
   s->h = NULL;                  /* needed for convex hull computations */
   s->again_old = NULL;          /* temp flag vector: true where more   */
-  /* iterations must be performed        */
-  s->clust_aux = NULL;          /* auxiliary vectors ...               */
-  s->punt_aux = NULL;
-  s->punt_out = NULL;
-  s->clust_out = NULL;
 
   s->random_seed = 0;
   s->newtis = 0;
