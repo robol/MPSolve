@@ -322,7 +322,7 @@ AC_ARG_ENABLE([graphical-debugger],
   QT_PROGRAMS=
   AS_IF([test "$build_ui" == "yes"], [
           PKG_CHECK_MODULES(QT4, [ QtCore QtGui ],   [have_qt4=yes], [have_qt4=no])
-          PKG_CHECK_MODULES(QT5, [ Qt5Core Qt5Gui Qt5Widgets Qt5Qml Qt5Quick ], [have_qt5=yes], [have_qt5=no])
+          PKG_CHECK_MODULES(QT5, [ Qt5Core Qt5Gui Qt5Widgets Qt5Qml ], [have_qt5=yes], [have_qt5=no])
 
           AS_IF([test "$have_qt5" == "no" && test "$have_qt4" == "no"], [
 	        # No hope to have the UI, just disable it. 

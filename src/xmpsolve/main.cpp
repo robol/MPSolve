@@ -4,10 +4,10 @@
 #include <QtGui/QApplication>
 #else
 #include <QtGui/QGuiApplication>
-#include <QtQml/QQmlApplicationEngine>
 #endif
 
 #ifdef MPS_USE_QML
+#include <QtQml/QQmlApplicationEngine>
 #include "mainqmlview.h"
 #else
 #include "mainwindow.h"
