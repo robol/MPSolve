@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
 #else
     MainWindow w;
 
-    // In case the user wants to open a .pol file, try load it
+    // In case the user wants to open a .pol file, try to load it
     if (argc > 1) {
         w.openPolFile(argv[1]);
     }

@@ -66,12 +66,13 @@ pure_source_files = \
 	polfileeditor.cpp \
 	polsyntaxhighlighter.cpp  \
 	mpsolveworker.cpp  \
-	rootsrenderer.cpp  
+	qrootsrenderer.cpp
 
 other_source_files = \
 	main.cpp \
 	polynomial.cpp  \
 	monomial.cpp  \
+	rootsrenderer.cpp \
 	root.cpp 
 
 ui_files = \
@@ -97,6 +98,7 @@ headers = \
 	root.h  \
 	polynomialparser.h  \
 	polsyntaxhighlighter.h  \
+	qrootsrenderer.h \
 	mainwindow.h  \
 	polynomialsolver.h  \
 	mpsolveworker.h
