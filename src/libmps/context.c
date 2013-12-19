@@ -313,10 +313,10 @@ void
 mps_context_set_degree (mps_context * s, int n)
 {
   if (s->initialized)
-	  mps_context_resize (s, n);
+    mps_context_resize (s, n);
 
   s->deg = s->n = n;
-  
+
   /* Check if the numer of thread is greater of the number of roots,
      and in that case decrease it */
   if (s->n_threads > s->deg)
@@ -342,7 +342,7 @@ mps_context_set_input_poly (mps_context * s, mps_polynomial * p)
     mps_error (s, "Polynomial degree should be positive");
     return;
   }
-  
+
   int i;
   s->active_poly = p;
   s->n = p->degree;
