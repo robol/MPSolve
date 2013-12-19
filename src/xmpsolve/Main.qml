@@ -29,6 +29,10 @@ ApplicationWindow {
             id: mainView
 
             onSolveRequested: {
+                // HACK: Close the keyboard before solving otherwise
+                // refresh won't work.
+                Qt.inputMethod.hide();
+
                 mainStack.push(loadingIndicator);
                 solver.solvePoly(polyText);
             }

@@ -117,8 +117,15 @@ mps_context_new ()
   {
 	  /* Pop out a context */
 	  ctx = context_factory[--context_factory_size];
-	  context_factory = mps_realloc (context_factory,
-			  sizeof (mps_context*) * context_factory_size);
+
+          if (context_factory_size)
+              context_factory = mps_realloc (context_factory,
+                                             sizeof (mps_context*) * context_factory_size);
+          else 
+            {
+              free (context_factory); 
+              context_factory = NULL; 
+            }
   }
   pthread_mutex_unlock (&context_factory_mutex);
 

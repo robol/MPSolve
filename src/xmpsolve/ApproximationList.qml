@@ -28,7 +28,7 @@ Column {
     ListView {
         id: resultsView
         delegate: approximationDelegate
-        spacing: 12
+        spacing: 6
         clip: true
 
         height: 420
@@ -41,26 +41,43 @@ Column {
         Component {
             id: approximationDelegate
 
-            Item {
-                width: parent.width
-                height: approximationItem.height
+            Rectangle {
 
-                Row {
+                width: parent.width
+                height: 48
+                color: "#4d4"
+                opacity: .9
+                radius: 6
+
+                Column {
+
                     spacing: 6
+
+                    anchors.margins: 6
+                    anchors.fill: parent
 
                     Text {
                         id: approximationItem
                         text: short_approximation
-                        height: 8
-                        width: resultsView.width - 150
+                        height: 14
+                        font.pointSize: 11
                     }
 
                     Text {
-                        text: "Radius: " + radius
-                        height: 8
-                        width: 64
+                        text: "Inclusion radius: " + radius + ", Status: " + status
+                        font.pointSize: 9
+                        color: "#444"
+                        height: 14
                     }
 
+                }
+
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: {
+                        rootsModel.markRoot(index);
+                        switchableView.toggleView();
+                    }
                 }
             }
         }

@@ -35,7 +35,7 @@ public:
      * @param i is the root to highlight, or -1 to clear any previous
      * highlighting.
      */
-    void markRoot(int i = -1);
+    Q_INVOKABLE void markRoot(int i = -1);
 
     double getPointX(int i) { return m_roots[i]->get_real_part(); }
     double getPointY(int i) { return m_roots[i]->get_imag_part(); }

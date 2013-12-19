@@ -336,6 +336,8 @@ AC_ARG_ENABLE([graphical-debugger],
 		have_qt4=no
 		PKG_CHECK_MODULES(QT5, [ Qt5Core Qt5Gui Qt5Qml Qt5Quick >= 5.1 ], [have_qt5=yes], [have_qt5=no])
 		QT5_CFLAGS="$QT5_CFLAGS -DMPS_USE_QML"
+
+		AS_IF([test x$have_qt5 = xno], [AC_MSG_ERROR([Qt >= 5.1 is needed to enable the QML UI.])])
 	], [
           PKG_CHECK_MODULES(QT4, [ QtCore QtGui ],   [have_qt4=yes], [have_qt4=no])
           PKG_CHECK_MODULES(QT5, [ Qt5Core Qt5Gui Qt5Widgets ], [have_qt5=yes], [have_qt5=no])
