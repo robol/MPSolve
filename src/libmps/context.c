@@ -159,6 +159,18 @@ mps_context_free (mps_context * s)
   s->instr = stdin;
   s->logstr = stderr;
 
+  /* There's no need to resize bmpc since they will be allocated on demand.
+   * We free them here to correct bad assumptions on the size of this
+   * vector. */
+  free (s->bmpc);
+  s->bmpc = NULL;
+
+  /* If a secular equation is present in the old context we should free it
+   * now so it will be reallocated on the first call to the algorithm. */
+  if (s->secular_equation)
+    mps_secular_equation_free (s, MPS_POLYNOMIAL (s->secular_equation));
+  s->secular_equation = NULL;
+
   pthread_mutex_lock (&context_factory_mutex);
   if (context_factory_size < MPS_CONTEXT_FACTORY_MAXIMUM_SIZE)
   {

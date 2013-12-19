@@ -257,7 +257,7 @@ AC_ARG_ENABLE([graphical-debugger],
     AC_SUBST(GMP_CFLAGS)
     AC_SUBST(GMP_LIBS)
 
-    LIBMPS_CFLAGS="-D_REENTRANT -Wstrict-prototypes -Wall $CFLAGS $COMPLEX_CFLAGS $LIBMPS_CFLAGS"
+    LIBMPS_CFLAGS="-D_REENTRANT -Wstrict-prototypes -Wall $COMPLEX_CFLAGS $LIBMPS_CFLAGS"
 
     AC_CHECK_LIB([gmp], [__gmpz_init2])
     AC_CHECK_HEADERS([gmp.h], [mpsolve_found_gmp_headers=yes; break;])
