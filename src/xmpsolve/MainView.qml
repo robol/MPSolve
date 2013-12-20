@@ -28,6 +28,11 @@ Item {
             }
         }
 
+        onWidthChanged: {
+            console.log ("Width changed");
+            top.update();
+        }
+
         // Phone view: activated only if root.width < root.height
         SwitchableApproximationView {
             id: switchableView

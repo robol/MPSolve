@@ -37,12 +37,13 @@ android {
 
     # Customize this to match your current setup. This way the setup points to a directory inside
     # mpsolve-x.y.z. This setup can be obtained with the script in tools/android-build-libmps.sh
-    ANDROID_ROOT = $${PWD}/../../android-ext
+    ANDROID_ROOT = $${PWD}/../../android-ext-x86-4.8
+    ANDROID_ROOT = $${PWD}/../../android-ext-arm-linux-androideabi-4.6
 
     # We need -DMPS_USE_BUILTIN_COMPLEX since Android uses tiny bionic without complex
     # arithmetic support.
     QMAKE_CXXFLAGS += -I$${ANDROID_ROOT}/include \
-        -include $${PWD}/../../android-ext/tarballs/mpsolve-build/config.h
+        -include $${ANDROID_ROOT}/tarballs/mpsolve-build/config.h
 
     # Link against locally compiled libmps and libgmp.
     LIBS += $${ANDROID_ROOT}/lib/libmps.a $${ANDROID_ROOT}/lib/libgmp.a

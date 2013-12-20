@@ -64,7 +64,7 @@ Column {
                     }
 
                     Text {
-                        text: "Inclusion radius: " + radius + ", Status: " + status
+                        text: "Inclusion radius: " + inclusion_radius + ", Status: " + status
                         font.pointSize: 9
                         color: "#444"
                         height: 14

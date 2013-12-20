@@ -15,7 +15,7 @@ RootsModel::roleNames() const
 {
     QHash<int, QByteArray> role_names;
 
-    role_names.insert(RADIUS, "radius");
+    role_names.insert(RADIUS, "inclusion_radius");
     role_names.insert(STATUS, "status");
     role_names.insert(SHORT_APPROXIMATION, "short_approximation");
     role_names.insert(ROOT, "root");
