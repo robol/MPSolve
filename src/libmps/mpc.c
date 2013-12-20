@@ -27,7 +27,7 @@ struct mps_tls {
 
 typedef struct mps_tls mps_tls; 
 
-static mps_boolean key_created = false; 
+static pthread_once_t once_key_created = PTHREAD_ONCE_INIT;
 static pthread_key_t key; 
 
 static void 
@@ -73,16 +73,17 @@ adjust_mps_tls_precision (mps_tls *ptr, long int precision_needed)
   ptr->precision = precision_needed; 
 }
 
-static mpf_t* 
+static void
+create_key (void)
+{
+  pthread_key_create (&key, mps_mpc_cache_cleanup);
+}
+
+static mpf_t*
 init (long int precision_needed)
 {
-  if (! key_created)
-    {
-      pthread_key_create (&key, mps_mpc_cache_cleanup); 
-      key_created = true;
-    }
-
-  mps_tls *ptr = pthread_getspecific (key); 
+  pthread_once (&once_key_created, create_key);
+  mps_tls *ptr = pthread_getspecific (key);
 
   /* This means that we have to create a new entry */
   if (ptr == NULL) 
@@ -327,7 +328,7 @@ mpc_inv (mpc_t rc, mpc_t c)
 void
 mpc_inv2 (mpc_t rc, mpc_t c)
 {
-  mpf_t *f = init (mpf_get_prec (mpc_Re (rc)));
+  mpf_t *f = init (mpf_get_prec (mpc_Re (rc))) + 5;
 
   mpc_smod (*f, c);
   mpf_ui_div (*f, 1L, *f);
@@ -471,10 +472,12 @@ void
 mpc_div (mpc_t rc, mpc_t c1, mpc_t c2)
 {
   /* Find a good offset so that we don't pollute mul and inv registers */
-  mpc_t *t = (mpc_t *) init (mpf_get_prec (mpc_Re (rc))) + 3;
+  mpc_t t;
+  mpc_init2 (t, mpf_get_prec (mpc_Re (rc)));
 
-  mpc_inv (*t, c2);
-  mpc_mul (rc, c1, *t);
+  mpc_inv (t, c2);
+  mpc_mul (rc, c1, t);
+  mpc_clear (t);
 }
 
 void
