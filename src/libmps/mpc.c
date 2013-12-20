@@ -16,7 +16,7 @@
 #include <mps/mt.h>
 #include <mps/tools.h>
 
-#define MPS_MPF_TEMP_SIZE 10
+#define MPS_MPF_TEMP_SIZE 6
 
 struct mps_tls {
   pthread_t thread; 
@@ -30,7 +30,7 @@ typedef struct mps_tls mps_tls;
 static mps_boolean key_created = false; 
 static pthread_key_t key; 
 
-void 
+static void 
 mps_mpc_cache_cleanup (void * pointer)
 {
   mps_tls *ptr = pointer; 
@@ -316,7 +316,7 @@ mpc_con (mpc_t rc, mpc_t c)
 void
 mpc_inv (mpc_t rc, mpc_t c)
 {
-  mpf_t *f = init (mpf_get_prec (mpc_Re (rc))) + 4;
+  mpf_t *f = init (mpf_get_prec (mpc_Re (rc))) + 5;
 
   mpc_smod (*f, c);
   mpc_con (rc, c);
