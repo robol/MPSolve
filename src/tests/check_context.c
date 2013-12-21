@@ -90,7 +90,7 @@ main (void)
 
   starting_setup ();
 
-  Suite *s = suite_create ("Matrices");
+  Suite *s = suite_create ("Context");
   TCase *tc_basics = tcase_create ("Basic operations");
 
   // Basic operation

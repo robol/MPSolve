@@ -1,9 +1,10 @@
 if CHECK
  
 
-check_PROGRAMS = check_context check_matrix check_dpe check_multithread check_cluster check_chebyshev check_secsolve check_unisolve
+check_PROGRAMS = check_context check_mpc check_matrix check_dpe check_multithread check_cluster \
+	check_chebyshev check_secsolve check_unisolve	
+
 TESTS = $(check_PROGRAMS)  
-# EXTRA_PROGRAMS = check_secsolve check_unisolve check_dpe test_mpsolve check_multithread check_cluster check_chebyshev check_matrix
 
 AM_TEST_ENVIRONMENT = \
   SRCDIR=$(abs_srcdir) BUILDDIR=$(abs_builddir)
@@ -12,9 +13,13 @@ COMMON_LIBS = ${top_builddir}/src/libmps/libmpsprivate.la -lm $(GMP_LIBS) $(CHEC
 COMMON_CFLAGS = $(CHECK_CFLAGS) $(GMP_CFLAGS) $(PTHREAD_CFLAGS) -I${top_srcdir}/include -D_MPS_PRIVATE
 COMMON_SOURCES = check_implementation.c check_implementation.h
 
-check_context_SOURCES = check_context.c $(COMMON_SOURCES)
-check_context_CFLAGS = $(COMMON_CFLAGS)
-check_context_LDFLAGS = $(COMMON_LIBS) 
+ check_mpc_SOURCES = check_mpc.c $(COMMON_SOURCES)
+ check_mpc_CFLAGS = $(COMMON_CFLAGS)
+ check_mpc_LDFLAGS = $(COMMON_LIBS) 
+
+ check_context_SOURCES = check_context.c $(COMMON_SOURCES)
+ check_context_CFLAGS = $(COMMON_CFLAGS)
+ check_context_LDFLAGS = $(COMMON_LIBS) 
 
  check_chebyshev_SOURCES = check_chebyshev.c $(COMMON_SOURCES)
  check_chebyshev_CFLAGS = $(COMMON_CFLAGS)
