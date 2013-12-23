@@ -616,6 +616,7 @@ main (void)
   /* Create a new test suite for secsolve and run it */
   Suite *s = secsolve_suite (standard);
   SRunner *sr = srunner_create (s);
+
   srunner_run_all (sr, CK_NORMAL);
 
   /* Get number of failed test and report */
