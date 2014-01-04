@@ -2,7 +2,7 @@ if CHECK
  
 
 check_PROGRAMS = check_context check_mpc check_matrix check_dpe check_multithread check_cluster \
-	check_chebyshev check_secsolve check_unisolve	
+	check_chebyshev check_parser check_secsolve check_unisolve	
 
 TESTS = $(check_PROGRAMS)  
 
@@ -10,8 +10,12 @@ AM_TEST_ENVIRONMENT = \
   SRCDIR=$(abs_srcdir) BUILDDIR=$(abs_builddir)
 
 COMMON_LIBS = ${top_builddir}/src/libmps/libmpsprivate.la -lm $(GMP_LIBS) $(CHECK_LIBS) $(PTHREAD_LIBS)
-COMMON_CFLAGS = $(CHECK_CFLAGS) $(GMP_CFLAGS) $(PTHREAD_CFLAGS) -I${top_srcdir}/include -D_MPS_PRIVATE
+COMMON_CFLAGS = $(CHECK_CFLAGS) $(GMP_CFLAGS) $(PTHREAD_CFLAGS) -I${top_srcdir}/include -D_MPS_PRIVATE -g -O0
 COMMON_SOURCES = check_implementation.c check_implementation.h
+
+ check_parser_SOURCES = check_parser.c $(COMMON_SOURCES)
+ check_parser_CFLAGS = $(COMMON_CFLAGS)
+ check_parser_LDFLAGS = $(COMMON_LIBS) 
 
  check_mpc_SOURCES = check_mpc.c $(COMMON_SOURCES)
  check_mpc_CFLAGS = $(COMMON_CFLAGS)

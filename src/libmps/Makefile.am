@@ -58,6 +58,7 @@ libmps_la_SOURCES = \
 	    horner.c \
 	    improve.c \
 	    inclusion.c \
+	    inline-poly-parser.c \
 	    input-buffer.c \
 	    input-output.c \
 	    interface.c \
@@ -117,7 +118,6 @@ libmpsprivate_la_LDFLAGS = \
 
 libmpsprivate_la_SOURCES = \
 	$(libmps_la_SOURCES)
-
 
 libmpsprivate_la_LIBADD = \
 	$(libmps_la_LIBADD)

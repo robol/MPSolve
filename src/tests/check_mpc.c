@@ -72,13 +72,11 @@ START_TEST (basics_multiplication)
 
 	fail_unless (cplx_mod (x) < cplx_mod (y) * 8.0 * DBL_EPSILON, 
 		     "Floating point errors in complex multiplications"); 
-      }
-  
+      }  
 
       mpc_clear (a); 
       mpc_clear (b); 
       mpc_clear (c); 
-
     }
 }
 END_TEST
@@ -93,7 +91,7 @@ main (void)
   Suite *s = suite_create ("Multiprecision arithmetic");
   TCase *tc_basics = tcase_create ("Simple arithmetic");
 
-  // Basic operation
+  // Basic operations
   tcase_add_test (tc_basics, basics_addition); 
   tcase_add_test (tc_basics, basics_multiplication); 
 
