@@ -44,10 +44,19 @@ extern "C"
 #ifdef NICE_DEBUG
 
   /**
-   * @brief Shorthand for compiling with the MPS_DEBUG_INFO level.
+   * @brief Shorthand for debugging with the MPS_DEBUG_INFO level.
    */
 #define MPS_DEBUG_WITH_INFO(s, templ...) {      \
     if (s->debug_level & MPS_DEBUG_INFO) {      \
+      MPS_DEBUG(s, templ);                      \
+    }                                           \
+}
+
+  /**
+   * @brief Shorthand for debugging with the MPS_DEBUG_IO level.
+   */
+#define MPS_DEBUG_WITH_IO(s, templ...) {      \
+    if (s->debug_level & MPS_DEBUG_IO) {      \
       MPS_DEBUG(s, templ);                      \
     }                                           \
 }

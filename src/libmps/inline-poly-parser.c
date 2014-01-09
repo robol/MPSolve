@@ -15,9 +15,10 @@
 #include <ctype.h>
 
 /* Internal states of the parser */
-#define PARSING_SIGN 1
+#define PARSING_SIGN        1
 #define PARSING_COEFFICIENT 2
-#define PARSING_EXPONENT 3
+#define PARSING_EXPONENT    3
+#define PARSER_ERROR        4
 
 static char * find_fp_separator (mps_context  * ctx, char * line)
 {
@@ -60,6 +61,15 @@ static char * build_equivalent_rational_string (mps_context * ctx, char * line, 
   int i;
   char * sep = find_fp_separator (ctx, line);
 
+  /* If we have floating point input and also a rational 
+   * separator raise an error. */
+  if ( ( sep || strstr (line, "e") || strstr (line, "E") ) 
+       && (strstr (line, "/") != NULL))
+    {
+      mps_error (ctx, "Cannot mix floating point and rational format.");
+      return NULL;
+    }
+
   /* This an over estimate of the length of the _real_ token that we 
    * have to parse but, given that we use mps_input_buffer to perform
    * the tokenization of the input, it will not hopefully be a "big"
@@ -72,8 +82,6 @@ static char * build_equivalent_rational_string (mps_context * ctx, char * line, 
   mps_boolean dot_found = false;
 
   *exponent = 0;
-
-  printf ("Building equivalent rational string for %s\n", line);
 
   if (sep == NULL)
     strcpy (copy, line);
@@ -107,7 +115,6 @@ static char * build_equivalent_rational_string (mps_context * ctx, char * line, 
 	}
 
       /* TODO: Add the denominator part */
-      printf ("Denominator digits are %ld\n", denominator);
       if (denominator)
 	{
 	  *copy_ptr++ = '/';
@@ -156,10 +163,14 @@ parse_real_coefficient (mps_context * ctx, char * line, mpq_t coefficient)
       mpq_set_str (ten, "10", 10);
       
       char * coeff_line = build_equivalent_rational_string (ctx, line, &exponent); 
-      offset = mpq_set_str (coefficient, coeff_line, 10);
 
-      printf ("Built equivalent rational string: %s\n", coeff_line);
-      printf ("Associated floating point exponent: %ld\n", exponent);
+      if (! coeff_line)
+	{
+	  mps_error (ctx, "Cannot parse token: %s", line);
+	  return NULL;
+	}
+
+      offset = mpq_set_str (coefficient, coeff_line, 10);
 
       mpq_canonicalize (coefficient);
 
@@ -198,6 +209,8 @@ parse_complex_coefficient (mps_context * ctx, char *line, mpq_t coefficient_real
 static char *
 parse_exponent (mps_context * ctx, char * line, int * degree)
 {
+  MPS_DEBUG_WITH_IO (ctx, "Parsing exponent: %s", line);
+
   if (isspace (*line))
     {
       *degree = 0;
@@ -212,7 +225,7 @@ parse_exponent (mps_context * ctx, char * line, int * degree)
     *degree = -1;
     line++;
 
-    if (isspace (*line))
+    if (isspace(*line) || *line == '+' || *line == '-')
       *degree = 1; 
     else
       {	
@@ -302,11 +315,14 @@ update_poly_coefficients (mps_context * ctx,
   mpq_set ((*coefficients_real)[degree], coefficient_real);
   mpq_set ((*coefficients_imag)[degree], coefficient_imag);
 
-  printf ("Updated coefficient of degree %d: ", degree);
-  mpq_out_str (stdout, 10, (*coefficients_real)[degree]);
-  printf (" + ");
-  mpq_out_str (stdout, 10, (*coefficients_imag)[degree]);
-  printf ("i \n");
+  if (ctx->debug_level & MPS_DEBUG_IO) 
+    {
+      __MPS_DEBUG (ctx, "Updated coefficient of degree %d: ", degree);
+      mpq_out_str (ctx->logstr, 10, (*coefficients_real)[degree]);
+      fprintf (ctx->logstr, " + ");
+      mpq_out_str (ctx->logstr, 10, (*coefficients_imag)[degree]);
+      fprintf (ctx->logstr, "i \n");
+    }
 
 }
 
@@ -348,15 +364,20 @@ mps_parse_inline_poly (mps_context *ctx, FILE * stream)
    */
   while (token)
     {
-      /* printf ("Current token = %s\n", token); */
+      /* MPS_DEBUG_WITH_IO (ctx, "Current token = %s\n", token); */
 
       switch (state)
 	{
+
+	case PARSER_ERROR:
+	  goto cleanup;
+	  break;
+
 	case PARSING_SIGN:
 	  token = parse_sign (ctx, token, &sign);
 	  state = PARSING_COEFFICIENT;
 	  
-	  printf ("Switching sign to %d\n", sign);
+	  MPS_DEBUG_WITH_IO (ctx, "Switching sign to %d", sign);
 
 	  if (*token == '\0')
 	    state = PARSING_SIGN;
@@ -371,6 +392,13 @@ mps_parse_inline_poly (mps_context *ctx, FILE * stream)
 	  else
 	    {
 	      token = parse_real_coefficient (ctx, token, current_coefficient_real);
+
+	      if (!token)
+		{
+		  state = PARSER_ERROR;
+		  goto cleanup;
+		}
+
 	      mpq_set_ui (current_coefficient_imag, 0U, 1U);
 	    }
 
@@ -395,7 +423,7 @@ mps_parse_inline_poly (mps_context *ctx, FILE * stream)
 					degree, current_coefficient_real, 
 					current_coefficient_imag);
 	      
-	      printf ("Parsed coefficient of degree %d\n", degree);
+	      MPS_DEBUG_WITH_IO (ctx, "Parsed coefficient of degree %d", degree);
 	    }
 
 	  break;
@@ -417,7 +445,7 @@ mps_parse_inline_poly (mps_context *ctx, FILE * stream)
 				    degree, current_coefficient_real, 
 				    current_coefficient_imag);
 	     
-	  printf ("Parsed coefficient of degree %d\n", degree);
+	  MPS_DEBUG_WITH_IO (ctx, "Parsed coefficient of degree %d", degree);
 	  degree = 0;
 	  break;
 	}
@@ -426,11 +454,9 @@ mps_parse_inline_poly (mps_context *ctx, FILE * stream)
 	token = mps_input_buffer_next_token (buffer);
     }
 
-  printf ("Polynomial degree = %d\n", poly_degree);
-  printf ("Polynomial: ");
+  MPS_DEBUG_WITH_IO (ctx, "Polynomial degree = %d", poly_degree);
 
   poly = MPS_POLYNOMIAL (mps_monomial_poly_new (ctx, poly_degree));
-  printf ("Poly = %p\n", poly);
 
   for (i = 0; i <= poly_degree; i++)
     {

@@ -250,12 +250,10 @@ mps_monomial_poly_set_coefficient_q (mps_context * s, mps_monomial_poly * mp, lo
           MPS_POLYNOMIAL(mp)->structure == MPS_STRUCTURE_REAL_INTEGER); 
 
   /* Set the coefficients first */
-  mpq_out_str (stdout, 10, real_part); fflush(stdout); printf ("\n");
   mpq_set (mp->initial_mqp_r[i], real_part);
   mpq_set (mp->initial_mqp_i[i], imag_part);
 
   /* Then update the other coefficients */
-  mpq_out_str (stdout, 10, real_part); fflush(stdout); printf ("\n\n");
   mpf_set_q (mpc_Re (mp->mfpc[i]), real_part);
   mpf_set_q (mpc_Im (mp->mfpc[i]), imag_part);
 

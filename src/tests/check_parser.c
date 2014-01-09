@@ -2,10 +2,16 @@
 #include <check.h>
 #include "check_implementation.h"
 
+#define ALLOCATE_CONTEXT \
+  mps_context * ctx = mps_context_new();	\
+  mps_context_add_debug_domain (ctx, MPS_DEBUG_IO); \
+  mps_context_set_log_stream (ctx, stdout);
+  
 
 START_TEST (inline_simple1)
 {
-  mps_context * ctx = mps_context_new ();
+  ALLOCATE_CONTEXT
+
   mps_monomial_poly * poly = MPS_MONOMIAL_POLY (
     mps_parse_inline_poly_from_string (ctx, "x^4 - 1"));
 
@@ -39,7 +45,7 @@ END_TEST
 
 START_TEST (inline_simple2)
 {
-  mps_context * ctx = mps_context_new ();
+  ALLOCATE_CONTEXT
   mps_monomial_poly * poly = MPS_MONOMIAL_POLY (
     mps_parse_inline_poly_from_string (ctx, "100/100x^4 - 14/14"));
 
@@ -73,7 +79,7 @@ END_TEST
 
 START_TEST (inline_simple3)
 {
-  mps_context * ctx = mps_context_new ();
+  ALLOCATE_CONTEXT
   mps_monomial_poly * poly = MPS_MONOMIAL_POLY (
     mps_parse_inline_poly_from_string (ctx, "1.00x^4 - 1.23"));
 
@@ -107,7 +113,7 @@ END_TEST
 
 START_TEST (inline_simple4)
 {
-  mps_context * ctx = mps_context_new ();
+  ALLOCATE_CONTEXT
   mps_monomial_poly * poly = MPS_MONOMIAL_POLY (
     mps_parse_inline_poly_from_string (ctx, "1.00x^4 - 1.23e2"));
 
@@ -141,7 +147,7 @@ END_TEST
 
 START_TEST (inline_simple5)
 {
-  mps_context * ctx = mps_context_new ();
+  ALLOCATE_CONTEXT
   mps_monomial_poly * poly = MPS_MONOMIAL_POLY (
     mps_parse_inline_poly_from_string (ctx, "1.04x^4 - 1.23e-2"));
 
@@ -173,6 +179,46 @@ START_TEST (inline_simple5)
 }
 END_TEST
 
+START_TEST (inline_linear1)
+{
+  ALLOCATE_CONTEXT
+  mps_monomial_poly * poly = MPS_MONOMIAL_POLY (
+    mps_parse_inline_poly_from_string (ctx, "x-6"));
+
+  /* Verify the parsing */
+  fail_unless (poly != NULL, "Cannot parse x-6 correctly");
+  
+  fail_unless (mpq_cmp_si (poly->initial_mqp_r[0], -6, 1) == 0,
+	       "Coefficient of degree 0 has been parsed incorrectly");
+  fail_unless (mpq_cmp_si (poly->initial_mqp_i[0], 0, 1) == 0, 
+	       "Coefficient of degree 0 has been parsed incorrectly");
+  fail_unless (mpq_cmp_si (poly->initial_mqp_r[1], 1, 1) == 0, 
+	       "Coefficient of degree 1 has been parsed incorrectly");
+  fail_unless (mpq_cmp_si (poly->initial_mqp_i[1], 0, 1) == 0, 
+	       "Coefficient of degree 1 has been parsed incorrectly");
+
+  mps_context_free (ctx); 
+}
+END_TEST
+
+START_TEST (malformed_input1)
+{
+  ALLOCATE_CONTEXT
+  mps_monomial_poly * poly = MPS_MONOMIAL_POLY (
+    mps_parse_inline_poly_from_string (ctx, " 1.0/6x^4 - 2"));
+
+  fail_unless ( (poly == NULL) && 
+		 mps_context_has_errors (ctx), 
+		"Error not raised on invalid polynomial" );
+
+  MPS_DEBUG (ctx, "Error obtained parsing 1.0/6x^4 - 2: %s", 
+	     mps_context_error_msg (ctx));
+
+  mps_context_free (ctx);
+	       
+}
+END_TEST
+
 int
 main (void)
 {
@@ -189,6 +235,12 @@ main (void)
   tcase_add_test (tc_inline, inline_simple3);
   tcase_add_test (tc_inline, inline_simple4);
   tcase_add_test (tc_inline, inline_simple5);
+
+  /* Check for some simple extreme cases */
+  tcase_add_test (tc_inline, inline_linear1);
+
+  /* Check for correct error raising */
+  tcase_add_test (tc_inline, malformed_input1);
 
   suite_add_tcase (s, tc_inline);
 

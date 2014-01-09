@@ -216,7 +216,6 @@ MPS_PRIVATE void
 mps_maberth_s_wl (mps_context * s, int j, mps_cluster * cluster, mpc_t abcorr,
                   pthread_mutex_t * aberth_mutexes)
 {
-  int k;
   mps_root * root;
   cdpe_t z, temp;
   mpc_t diff, mroot;
@@ -231,6 +230,7 @@ mps_maberth_s_wl (mps_context * s, int j, mps_cluster * cluster, mpc_t abcorr,
   cdpe_set (temp, cdpe_zero);
   for (root = cluster->first; root != NULL; root = root->next)
     {
+      int k;
       k = root->k;
       if (k == j)
         continue;
