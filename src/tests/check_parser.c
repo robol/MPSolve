@@ -211,13 +211,70 @@ START_TEST (malformed_input1)
 		 mps_context_has_errors (ctx), 
 		"Error not raised on invalid polynomial" );
 
-  MPS_DEBUG (ctx, "Error obtained parsing 1.0/6x^4 - 2: %s", 
-	     mps_context_error_msg (ctx));
+  printf ("TEST:malformed_input1 :: Error obtained parsing 1.0/6x^4 - 2: %s\n", 
+	  mps_context_error_msg (ctx));
 
-  mps_context_free (ctx);
-	       
+  mps_context_free (ctx);	       
 }
 END_TEST
+
+START_TEST (malformed_input2)
+{
+  ALLOCATE_CONTEXT
+  mps_monomial_poly * poly = MPS_MONOMIAL_POLY (
+    mps_parse_inline_poly_from_string (ctx, " 1e4/12.3x^4 - 2"));
+
+  fail_unless ( (poly == NULL) && 
+		 mps_context_has_errors (ctx), 
+		"Error not raised on invalid polynomial" );
+
+  printf ("TEST:malformed_input1 :: Error obtained parsing 1e4/12.3x^4 - 2: %s\n", 
+	  mps_context_error_msg (ctx));
+
+  mps_context_free (ctx);	       
+}
+END_TEST
+
+START_TEST (wellformed_input1)
+{
+  int i;
+
+  ALLOCATE_CONTEXT
+  mps_monomial_poly * poly = MPS_MONOMIAL_POLY (
+    mps_parse_inline_poly_from_string (ctx, " 6/4x^9 - 2e4"));
+
+  if (mps_context_has_errors (ctx))
+    printf ("TEST:malformed_input1 :: Error obtained parsing 6/4x^9 - 2e4: %s\n", 
+	    mps_context_error_msg (ctx));
+
+  fail_unless ( (poly != NULL) && 
+		 ! mps_context_has_errors (ctx), 
+		"Error raised on valid polynomial" );
+
+  fail_unless (mpq_cmp_si (poly->initial_mqp_r[0], -20000, 1) == 0,
+	       "Coefficient of degree 0 has been parsed incorrectly");
+  fail_unless (mpq_cmp_si (poly->initial_mqp_i[0], 0, 1) == 0, 
+	       "Coefficient of degree 0 has been parsed incorrectly");
+
+  /* Check the middle ones */
+  for (i = 1; i <= 8; i++)
+    {
+      fail_unless (mpq_cmp_si (poly->initial_mqp_r[i], 0, 2) == 0, 
+		   "Coefficient of degree %d has been parsed incorrectly", i);
+      fail_unless (mpq_cmp_si (poly->initial_mqp_i[i], 0, 1) == 0, 
+		   "Coefficient of degree %d has been parsed incorrectly", i);
+
+    }
+
+  fail_unless (mpq_cmp_si (poly->initial_mqp_r[9], 3, 2) == 0, 
+	       "Coefficient of degree 9 has been parsed incorrectly");
+  fail_unless (mpq_cmp_si (poly->initial_mqp_i[9], 0, 1) == 0, 
+	       "Coefficient of degree 9 has been parsed incorrectly");
+
+  mps_context_free (ctx);	       
+}
+END_TEST
+
 
 int
 main (void)
@@ -241,6 +298,8 @@ main (void)
 
   /* Check for correct error raising */
   tcase_add_test (tc_inline, malformed_input1);
+  tcase_add_test (tc_inline, malformed_input2);
+  tcase_add_test (tc_inline, wellformed_input1);
 
   suite_add_tcase (s, tc_inline);
 

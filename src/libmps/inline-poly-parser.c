@@ -66,7 +66,6 @@ static char * build_equivalent_rational_string (mps_context * ctx, char * line, 
   if ( ( sep || strstr (line, "e") || strstr (line, "E") ) 
        && (strstr (line, "/") != NULL))
     {
-      mps_error (ctx, "Cannot mix floating point and rational format.");
       return NULL;
     }
 
@@ -83,9 +82,6 @@ static char * build_equivalent_rational_string (mps_context * ctx, char * line, 
 
   *exponent = 0;
 
-  if (sep == NULL)
-    strcpy (copy, line);
-  else
     {
       while (line_ptr < line_end)
 	{
