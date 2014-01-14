@@ -17,7 +17,33 @@ GMP_VERSION="5.1.3"
 ANDROID_ARCH="arm-linux-androideabi-4.8"
 # ANDROID_ARCH="x86-4.8"
 
-if [ "$1" != "" ]; then
+if [ "$1" = "" ]; then
+  # Make the user choose architecture he/she wants: 
+  echo "> Select the desired architecture: "
+  echo " 1. x86-4.8"
+  echo " 2. arm-linux-androideabi-4.8"
+  echo " 3. mipsel-linux-android-4.8"
+  echo ""
+  echo -n "> Choice: "
+  read ANS
+
+  case $ANS in
+   1)
+     ANDROID_ARCH="x86-4.8"
+     ;;
+   2)
+     ANDROID_ARCH="arm-linux-androideabi-4.8"
+     ;;
+   3)
+     ANDROID_ARCH="mipsel-linux-android-4.8"
+     ;;
+   *)
+     echo "Invalid choice, aborting"
+     exit 1
+     ;;
+  esac
+
+else
   ANDROID_ARCH="$1"
 fi
 
