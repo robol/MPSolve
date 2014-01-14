@@ -32,6 +32,10 @@ if [ "$ANDROID_ARCH" == "arm-linux-androideabi-4.8" ]; then
   ANDROID_BUILD_ARCH="arm-linux-androideabi"
 fi
 
+if [ "$ANDROID_ARCH" == "mipsel-linux-android-4.8" ]; then
+  ANDROID_BUILD_ARCH="mipsel-linux-android"
+fi
+
 echo " *** Android build system for libmps *** "
 echo " "
 echo " > Building for architecture $ANDROID_ARCH in $ANDROID_BUILD_DIR"
