@@ -553,12 +553,25 @@ mps_context_get_roots_m (mps_context * s, mpc_t ** roots, rdpe_t ** radius)
 mps_approximation **
 mps_context_get_approximations (mps_context * ctx)
 {
-  mps_approximation ** approximations = mps_newv (mps_approximation*, ctx->n);
+  mps_approximation ** approximations = mps_newv (mps_approximation*, ctx->n + ctx->zero_roots);
   int i; 
 
   for (i = 0; i < ctx->n; i++)
     {
       approximations[i] = mps_approximation_copy (ctx, ctx->root[i]);
+    }
+
+  for (i = ctx->n; i < ctx->n + ctx->zero_roots; i++) 
+    {
+      approximations[i] = mps_approximation_new (ctx);
+      approximations[i]->status = MPS_ROOT_STATUS_APPROXIMATED;
+      
+      mpc_set_ui (approximations[i]->mvalue, 0U, 0U);
+      cdpe_set   (approximations[i]->dvalue, cdpe_zero);
+      cplx_set   (approximations[i]->fvalue, cplx_zero);
+
+      rdpe_set (approximations[i]->drad, rdpe_zero);
+      approximations[i]->frad = 0.0;
     }
 
   return approximations;

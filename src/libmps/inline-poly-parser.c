@@ -100,7 +100,7 @@ static char * build_equivalent_rational_string (mps_context * ctx, char * line, 
 	      break;
 	    }
 
-	  if (*line_ptr == 'x')
+	  if (*line_ptr == 'x' || *line_ptr == '+' || *line_ptr == '-')
 	    break;
       
 	  if (*line_ptr == '.')
@@ -216,7 +216,7 @@ parse_exponent (mps_context * ctx, char * line, int * degree)
 {
   MPS_DEBUG_WITH_IO (ctx, "Parsing exponent: %s", line);
 
-  if (isspace (*line))
+  if (isspace (*line) || *line == '+' || *line == '-' || *line == '\0')
     {
       *degree = 0;
       return line;

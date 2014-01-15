@@ -309,6 +309,36 @@ START_TEST (inline_simple9)
 }
 END_TEST
 
+START_TEST (inline_simple10)
+{
+  ALLOCATE_CONTEXT
+
+  mps_monomial_poly * poly = MPS_MONOMIAL_POLY (
+    mps_parse_inline_poly_from_string (ctx, "x^2+7+x"));
+
+  fprintf (stderr, "\n\nTEST:inline_simple10 Starting test \n");
+
+  /* Verify the parsing */
+  fail_unless (poly != NULL, "Cannot parse x^2+7+x correctly");
+  
+  fail_unless (mpq_cmp_si (poly->initial_mqp_r[0], 7, 1) == 0,
+	       "Coefficient of degree 0 has been parsed incorrectly");
+  fail_unless (mpq_cmp_si (poly->initial_mqp_i[0], 0, 1) == 0, 
+	       "Coefficient of degree 0 has been parsed incorrectly");
+  fail_unless (mpq_cmp_si (poly->initial_mqp_r[1], 1, 1) == 0, 
+	       "Coefficient of degree 1 has been parsed incorrectly");
+  fail_unless (mpq_cmp_si (poly->initial_mqp_i[1], 0, 1) == 0, 
+	       "Coefficient of degree 1 has been parsed incorrectly");
+  fail_unless (mpq_cmp_si (poly->initial_mqp_r[2], 1, 1) == 0, 
+	       "Coefficient of degree 2 has been parsed incorrectly");
+  fail_unless (mpq_cmp_si (poly->initial_mqp_i[2], 0, 1) == 0, 
+	       "Coefficient of degree 2 has been parsed incorrectly");
+
+  mps_context_free (ctx); 
+}
+END_TEST
+
+
 START_TEST (inline_cancellation1)
 {
   ALLOCATE_CONTEXT
@@ -482,6 +512,7 @@ main (void)
   tcase_add_test (tc_inline, inline_simple7);
   tcase_add_test (tc_inline, inline_simple8);
   tcase_add_test (tc_inline, inline_simple9);
+  tcase_add_test (tc_inline, inline_simple10);
 
   /* Check for correct add and sum of exponents */
   tcase_add_test (tc_inline, inline_cancellation1);
