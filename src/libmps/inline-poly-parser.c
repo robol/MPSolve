@@ -20,6 +20,12 @@
 #define PARSING_EXPONENT    3
 #define PARSER_ERROR        4
 
+#ifndef HAVE_FMEMOPEN
+  /* Forward declaration. Implementation of this function, in case is not provided by the
+   * system, is located in input-output.c */
+  FILE * fmemopen(void *buf, size_t size, const char *mode);;
+#endif
+
 static char * find_fp_separator (mps_context  * ctx, char * line)
 {
   while (! isspace (*line))
