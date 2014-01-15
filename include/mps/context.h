@@ -567,6 +567,7 @@ extern "C"
   mps_root_status mps_context_get_root_status (mps_context * ctx, int i);
   mps_boolean mps_context_get_over_max (mps_context * s);
   mps_polynomial * mps_context_get_active_poly (mps_context * ctx);
+  mps_approximation** mps_context_get_approximations (mps_context * ctx);
 
   /* I/O options and flags */
   void mps_context_set_input_prec (mps_context * s, long int prec);

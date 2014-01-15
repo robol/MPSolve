@@ -51,3 +51,109 @@ mps_approximation_copy (mps_context * ctx, mps_approximation * original)
   new->inclusion = original->inclusion;
   return new;
 }
+
+/* Public accessor functions */
+void 
+mps_approximation_get_fvalue (mps_context * ctx, mps_approximation * approximation, cplx_t output)
+{
+  cplx_set (output, approximation->fvalue);
+}
+
+void 
+mps_approximation_get_dvalue (mps_context * ctx, mps_approximation * approximation, cdpe_t output)
+{
+  cdpe_set (output, approximation->dvalue);
+}
+
+void
+mps_approximation_get_mvalue (mps_context * ctx, mps_approximation * approximation, mpc_t output)
+{
+  mpc_set_prec (output, mpc_get_prec (approximation->mvalue));
+  mpc_set (output, approximation->mvalue);
+}
+
+double
+mps_approximation_get_frad (mps_context * ctx, mps_approximation * approximation)
+{
+  return approximation->frad;
+}
+
+void 
+mps_approximation_get_drad (mps_context * ctx, mps_approximation * approximation, rdpe_t output)
+{
+  rdpe_set (output, approximation->drad);
+}
+
+mps_root_status 
+mps_approximation_get_status (mps_context * ctx, mps_approximation * approximation)
+{
+  return approximation->status;
+}
+
+mps_root_attrs 
+mps_approximation_get_attrs (mps_context * ctx, mps_approximation * approximation)
+{
+  return approximation->attrs;
+}
+
+mps_root_inclusion 
+mps_approximaiton_get_inclusion (mps_context * ctx, mps_approximation * approximation)
+{
+  return approximation->inclusion;
+}
+
+/* Public setters functions */
+void 
+mps_approximation_set_fvalue (mps_context * ctx, mps_approximation * approximation, cplx_t value)
+{
+  cplx_set (approximation->fvalue, value);
+}
+
+void 
+mps_approximation_set_dvalue (mps_context * ctx, mps_approximation * approximation, cdpe_t value)
+{
+  cdpe_set (approximation->dvalue, value);
+}
+
+void 
+mps_approximation_set_mvalue (mps_context * ctx, mps_approximation * approximation, mpc_t value)
+{
+  /* Ensure that we have a sufficient precision to store value correctly */
+  if (mpc_get_prec (value) > approximation->wp)
+    {
+      mpc_set_prec (approximation->mvalue, mpc_get_prec (value));
+      approximation->wp = mpc_get_prec (approximation->mvalue);
+    }
+
+  mpc_set (approximation->mvalue, value);
+}
+
+void
+mps_approximation_set_frad (mps_context * ctx, mps_approximation * approximation, double frad)
+{
+  approximation->frad = frad;
+}
+
+void
+mps_approximation_set_drad (mps_context * ctx, mps_approximation * approximation, rdpe_t drad)
+{
+  rdpe_set (approximation->drad, drad);
+}
+
+void 
+mps_approximation_set_status (mps_context * ctx, mps_approximation * approximation, mps_root_status status)
+{
+  approximation->status = status;
+}
+
+void 
+mps_approximation_set_attrs (mps_context * ctx, mps_approximation * approximation,  mps_root_attrs attrs)
+{
+  approximation->attrs = attrs;
+}
+
+void 
+mps_approximation_set_inclusion (mps_context * ctx, mps_approximation * approximation, mps_root_inclusion inclusion)
+{
+  approximation->inclusion = inclusion;
+}

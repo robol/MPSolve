@@ -537,6 +537,35 @@ mps_context_get_roots_m (mps_context * s, mpc_t ** roots, rdpe_t ** radius)
   return 0;
 }
 
+/**
+ * @brief Retrieve a pointer to the current approximations in the context. 
+ *
+ * @param ctx The current mps_context. 
+ * @return A vector of n mps_approximation pointer, 
+ * where n is the degree of the current polynomial 
+ * that can be retrieve with mps_context_get_degree(). 
+ *
+ * Note that the value returned is a copy of the original approximations, so
+ * it should be freed when not needed anymore. 
+ *
+ * Also note that mps_approximation_free() need the context where the approximations
+ * were created to proceed, so you should free those approximaitions _before_
+ * freeing the context. 
+ */
+mps_approximation **
+mps_context_get_approximations (mps_context * ctx)
+{
+  mps_approximation ** approximations = mps_newv (mps_approximation*, ctx->n);
+  int i; 
+
+  for (i = 0; i < ctx->n; i++)
+    {
+      approximations[i] = mps_approximation_copy (ctx, ctx->root[i]);
+    }
+
+  return approximations;
+}
+
 
 /**
  * @brief Set the output precision for the roots. 
