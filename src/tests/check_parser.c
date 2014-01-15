@@ -316,9 +316,7 @@ END_TEST
 
 START_TEST (inline_total_cancellation)
 {
-  ALLOCATE_CONTEXT 
-
-    fprintf (stderr, " ****************** \n\n");
+  ALLOCATE_CONTEXT
 
   mps_monomial_poly *poly = MPS_MONOMIAL_POLY (
     mps_parse_inline_poly_from_string (ctx, "56/8 - x^4 + x^2 + x^4 - 2x^2 - 28/4 + x^2"));			 
