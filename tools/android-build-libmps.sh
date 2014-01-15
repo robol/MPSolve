@@ -23,6 +23,7 @@ if [ "$1" = "" ]; then
   echo " 1. x86-4.8"
   echo " 2. arm-linux-androideabi-4.8"
   echo " 3. mipsel-linux-android-4.8"
+  echo " 4. All the above"
   echo ""
   echo -n "> Choice: "
   read ANS
@@ -36,6 +37,12 @@ if [ "$1" = "" ]; then
      ;;
    3)
      ANDROID_ARCH="mipsel-linux-android-4.8"
+     ;;
+   4)
+     # Call the script with all the possible values
+     $0 "x86-4.8" || exit 2
+     $0 "arm-linux-androideabi-4.8" || exit 3
+     $0 "mipsel-linux-android-4.8" || exit 4
      ;;
    *)
      echo "Invalid choice, aborting"
@@ -64,7 +71,7 @@ fi
 
 echo " *** Android build system for libmps *** "
 echo " "
-echo " > Building for architecture $ANDROID_ARCH in $ANDROID_BUILD_DIR"
+echo "> Building for architecture $ANDROID_ARCH in $ANDROID_BUILD_DIR"
 echo ""
 
 function step {
@@ -83,17 +90,9 @@ SRCDIR=$(echo $SCRIPTPATH | sed "s-/tools\$--" )
 
 step "Checking if you already have an $ANDROID_BUILD_DIR dir"
 
-if [ -d "$SRCDIR/$ANDROID_BUILD_DIR" ]; then
-  echo    ""
-  echo    "> You appear to have $ANDROID_BUILD_DIR. Do you wish to continue anyway overwriting"
-  echo -n "> your current installation? [y/n]: "
-  read ANS
-  if [ "$ANS" != "y" ]; then
-    echo "Aborting."
-    exit 0
-  else
-    rm -r $SRCDIR/$ANDROID_BUILD_DIR
-  fi
+if [ -d "$SRCDIR/$ANDROID_BUILD_DIR/tarballs" ]; then
+    # Always remove MPSolve
+    rm -rf $SRCDIR/$ANDROID_BUILD_DIR/tarballs/
 fi
 
 step "Copying the Android toolchain in place"
