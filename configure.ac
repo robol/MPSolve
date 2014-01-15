@@ -88,6 +88,12 @@ AC_ARG_ENABLE([graphical-debugger],
     [build_graphical_debugger=$enableval have_graphical_debugger=$enableval],
     [build_graphical_debugger=yes have_graphical_debugger=yes])
 
+# Determine if the user wants to build the documentation
+AC_ARG_ENABLE([documentation], 
+    AS_HELP_STRING([--disable-documentation], [Don't build Doxygen documentation]), 
+    [build_doc=$enableval hvae_doc=$enableval],
+    [build_doc=yes have_doc=yes])
+
 
 #
 # ==== LIBRARY DETECTION ==== 
@@ -535,12 +541,16 @@ AS_IF([test x$build_examples == xyes && test x$have_gtk == x1 && test x$have_cai
 # Check that we have doxygen on this sytem. If that's the case, build the documentation for
 # MPSolve. 
 
-AC_CHECK_PROGS([DOXYGEN], [doxygen])
+AS_IF([test x$build_doc == xyes], [
+  AC_CHECK_PROGS([DOXYGEN], [doxygen])
 
-if [test -z "$DOXYGEN"]; then
-  AC_MSG_WARN([Doxygen not found, documentation will not be generated])
-fi
+  if [test -z "$DOXYGEN"]; then
+    AC_MSG_WARN([Doxygen not found, documentation will not be generated])
+  fi
+])
+
 AM_CONDITIONAL([HAVE_DOXYGEN], [test -n "$DOXYGEN"])
+
 
 LIBMPS_CFLAGS="$LIBMPS_CFLAGS -D_MPS_PRIVATE"
 LIBMPS_LDFLAGS=" $LDFLAGS"

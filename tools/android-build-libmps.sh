@@ -106,26 +106,36 @@ $ANDROID_NDK_ROOT/build/tools/make-standalone-toolchain.sh --toolchain=$ANDROID_
 export PATH="$SRCDIR/$ANDROID_BUILD_DIR/bin:$PATH"
 export PKG_CONFIG_LIBDIR="$SRCDIR/$ANDROID_BUILD_DIR/lib/pkgconfig"
 
-step "Downloading a copy of libgmp"
-
 cd $SRCDIR/$ANDROID_BUILD_DIR
 mkdir tarballs && cd tarballs
 
-( wget  ftp://ftp.gmplib.org/pub/gmp-$GMP_VERSION/gmp-$GMP_VERSION.tar.bz2 && \
-tar xf gmp-$GMP_VERSION.tar.bz2 && cd gmp-$GMP_VERSION )|| \
-	die "Cannot download GMP. Check your Internet connectivity"
+if [ ! -r "$SRCDIR/$ANDROID_BUILD_DIR/lib/libgmp.a" ]; then
 
-step "Building GMP for Android"
+  step "Downloading a copy of libgmp"
 
-( cd $SRCDIR/$ANDROID_BUILD_DIR/tarballs/gmp-$GMP_VERSION && \
-	./configure --host=$ANDROID_BUILD_ARCH --prefix=$SRCDIR/$ANDROID_BUILD_DIR && make -j4 && make install ) ||
- 	die "Cannot build and install GMP, aborting."
+
+  ( wget  ftp://ftp.gmplib.org/pub/gmp-$GMP_VERSION/gmp-$GMP_VERSION.tar.bz2 && \
+  tar xf gmp-$GMP_VERSION.tar.bz2 && cd gmp-$GMP_VERSION )|| \
+      	die "Cannot download GMP. Check your Internet connectivity"
+
+  step "Building GMP for Android"
+
+  ( cd $SRCDIR/$ANDROID_BUILD_DIR/tarballs/gmp-$GMP_VERSION && \
+        	./configure --host=$ANDROID_BUILD_ARCH --prefix=$SRCDIR/$ANDROID_BUILD_DIR && make -j4 && make install ) ||
+ 	    die "Cannot build and install GMP, aborting."
+
+else
+
+  step "Skipping GMP build, already present. Remove $SRCDIR/$ANDROID_BUILD_DIR/lib/libgmp.a to perform this step"
+
+fi
 
 step "Building a copy of libmps"
 
 ( mkdir mpsolve-build && cd mpsolve-build && \
   $SRCDIR/configure --host=$ANDROID_BUILD_ARCH --prefix=$SRCDIR/$ANDROID_BUILD_DIR --disable-examples \
-	--disable-ui CFLAGS="-DMPS_USE_BUILTIN_COMPLEX" GMP_CFLAGS="-I$SRCDIR/$ANDROID_BUILD_DIR/include" \
+	--disable-ui --disable-documentation \
+        CFLAGS="-DMPS_USE_BUILTIN_COMPLEX" GMP_CFLAGS="-I$SRCDIR/$ANDROID_BUILD_DIR/include" \
 	GMP_LIBS="-L$SRCDIR/$ANDROID_BUILD_DIR/lib -lgmp" && make -j4 && make install ) || \
 	die "Cannot build MPSolve for Android, aborting."
 
