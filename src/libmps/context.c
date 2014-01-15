@@ -48,8 +48,6 @@ mps_context_get_degree (mps_context * s)
  *
  * Valid values for this field are
  * - MPS_ALGORITHM_STANDARD_MPSOLVE for the standard MPSolve algorithm;
- * - MPS_ALGORITHM_SECULAR_MPSOLVE  for the standard MPSolve algorithm
- *   applied to secular equations;
  * - MPS_ALGORITHM_SECULAR_GA for the algorithm based on coefficient regeneration
  *   applied to secular equations;
  */

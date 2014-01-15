@@ -18,7 +18,8 @@
 #define PARSING_SIGN        1
 #define PARSING_COEFFICIENT 2
 #define PARSING_EXPONENT    3
-#define PARSER_ERROR        4
+#define PARSING_ERROR        4
+#define PARSING_RESET        5
 
 #ifndef HAVE_FMEMOPEN
   /* Forward declaration. Implementation of this function, in case is not provided by the
@@ -28,7 +29,7 @@
 
 static char * find_fp_separator (mps_context  * ctx, char * line)
 {
-  while (! isspace (*line))
+  while (! isspace (*line) && *line != '\0')
     {
       if (*line == '.')
 	return line; 
@@ -187,8 +188,10 @@ parse_real_coefficient (mps_context * ctx, char * line, mpq_t coefficient)
 	  mps_error (ctx, "Cannot parse the coefficient: %s", line);
 	}
 
+      /* Consume the rest of the coefficient */
       while (isdigit (*line) || *line == '.' || *line == '/' || *line == 'e'
-	     || *line == 'E')
+	     || *line == 'E' || 
+	     ( (*line == '-' || *line == '+') && (*(line - 1) == 'e' || *(line - 1) == 'E')))
 	line++;
 
       mpq_clear (ten);
@@ -245,7 +248,7 @@ parse_exponent (mps_context * ctx, char * line, int * degree)
 	    if (errno != 0)
 	      {
 		mps_error (ctx, "Failed to parse the exponent: %c", *line);
-		return NULL; 
+		return NULL;
 	      }
 
 	    line = newline;
@@ -257,12 +260,17 @@ parse_exponent (mps_context * ctx, char * line, int * degree)
 }
 
 static char *
-parse_sign (mps_context * ctx, char * line, int * sign)
+parse_sign (mps_context * ctx, char * line, int * sign, mps_boolean *sign_found)
 {
   while (isspace (*line) || *line == '-' || *line == '+')
     {     
       if (*line == '-')
 	*sign *= -1; 
+
+      if (*line == '-' || *line == '+')
+	{
+	  *sign_found = true;
+	}
       
       line++;
     }
@@ -392,6 +400,7 @@ mps_parse_inline_poly (mps_context *ctx, FILE * stream)
   mpq_init (current_coefficient_imag);
   
   char * token = mps_input_buffer_next_token (buffer);
+  mps_boolean sign_found = true;
 
   /* Start by assuming that we have a list of monomials. Every monomial
    * is of the form [+|-] C x[^K], where
@@ -406,18 +415,28 @@ mps_parse_inline_poly (mps_context *ctx, FILE * stream)
       switch (state)
 	{
 
-	case PARSER_ERROR:
+	case PARSING_ERROR:
 	  goto cleanup;
 	  break;
 
 	case PARSING_SIGN:
-	  token = parse_sign (ctx, token, &sign);
-	  state = PARSING_COEFFICIENT;
+	  token = parse_sign (ctx, token, &sign, &sign_found);
 	  
 	  MPS_DEBUG_WITH_IO (ctx, "Switching sign to %d", sign);
 
+	  /* Continuining parsing sign */
 	  if (*token == '\0')
 	    state = PARSING_SIGN;
+	  else
+	    {
+	      if (! sign_found)
+		{
+		  mps_error (ctx, "Missing sign between coefficients");
+		  goto cleanup;
+		}
+
+	      state = PARSING_COEFFICIENT;
+	    }
 
 	  break;
 	  
@@ -432,7 +451,7 @@ mps_parse_inline_poly (mps_context *ctx, FILE * stream)
 
 	      if (!token)
 		{
-		  state = PARSER_ERROR;
+		  state = PARSING_ERROR;
 		  goto cleanup;
 		}
 
@@ -461,7 +480,7 @@ mps_parse_inline_poly (mps_context *ctx, FILE * stream)
 					current_coefficient_imag);
 	      
 	      MPS_DEBUG_WITH_IO (ctx, "Parsed coefficient of degree %d", degree);
-	      state = PARSING_SIGN;
+	      state = PARSING_RESET;
 	      sign = 1;
 	    }
 
@@ -469,8 +488,7 @@ mps_parse_inline_poly (mps_context *ctx, FILE * stream)
 	    
 	case PARSING_EXPONENT:
 	  token = parse_exponent (ctx, token, &degree);
-	  state = PARSING_SIGN;
-	  sign = 1;
+	  state = PARSING_RESET;
 
 	  if (degree < 0)
 	    {
@@ -485,7 +503,15 @@ mps_parse_inline_poly (mps_context *ctx, FILE * stream)
 				    current_coefficient_imag);
 	     
 	  MPS_DEBUG_WITH_IO (ctx, "Parsed coefficient of degree %d", degree);
-	  degree = 0;
+	  break;
+
+	case PARSING_RESET:
+	  sign = 1;
+	  sign_found = false;
+	  degree = -1;
+
+	  state = PARSING_SIGN;
+
 	  break;
 	}
 
