@@ -227,7 +227,7 @@ parse_exponent (mps_context * ctx, char * line, int * degree)
     *degree = -1;
     line++;
 
-    if (isspace(*line) || *line == '+' || *line == '-')
+    if (isspace(*line) || *line == '+' || *line == '-' || *line == '\0')
       *degree = 1; 
     else
       {	
@@ -309,13 +309,25 @@ update_poly_coefficients (mps_context * ctx,
 	{
 	  mpq_init ((*coefficients_real)[i]);
 	  mpq_init ((*coefficients_imag)[i]);
+
+	  mpq_set_ui ((*coefficients_real)[i], 0U, 1U);
+	  mpq_set_ui ((*coefficients_imag)[i], 0U, 1U);
 	}
 
       *poly_degree = degree;
     }
 
-  mpq_set ((*coefficients_real)[degree], coefficient_real);
-  mpq_set ((*coefficients_imag)[degree], coefficient_imag);
+  mpq_add ((*coefficients_real)[degree],  
+  	   (*coefficients_real)[degree],  
+  	   coefficient_real); 
+
+  mpq_add ((*coefficients_imag)[degree],  
+  	   (*coefficients_imag)[degree],  
+  	   coefficient_imag); 
+
+
+  /* mpq_set ((*coefficients_real)[degree], coefficient_real); */
+  /* mpq_set ((*coefficients_imag)[degree], coefficient_imag); */
 
   if (ctx->debug_level & MPS_DEBUG_IO) 
     {
@@ -426,6 +438,8 @@ mps_parse_inline_poly (mps_context *ctx, FILE * stream)
 					current_coefficient_imag);
 	      
 	      MPS_DEBUG_WITH_IO (ctx, "Parsed coefficient of degree %d", degree);
+	      state = PARSING_SIGN;
+	      sign = 1;
 	    }
 
 	  break;

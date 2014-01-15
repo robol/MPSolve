@@ -179,6 +179,141 @@ START_TEST (inline_simple5)
 }
 END_TEST
 
+START_TEST (inline_simple6)
+{
+  ALLOCATE_CONTEXT
+
+  mps_monomial_poly * poly = MPS_MONOMIAL_POLY (
+    mps_parse_inline_poly_from_string (ctx, "x^2 - x"));
+
+  /* Verify the parsing */
+  fail_unless (poly != NULL, "Cannot parse x^2 - x correctly");
+  
+  fail_unless (mpq_cmp_si (poly->initial_mqp_r[0], 0, 1) == 0,
+	       "Coefficient of degree 0 has been parsed incorrectly");
+  fail_unless (mpq_cmp_si (poly->initial_mqp_i[0], 0, 1) == 0, 
+	       "Coefficient of degree 0 has been parsed incorrectly");
+  fail_unless (mpq_cmp_si (poly->initial_mqp_r[1], -1, 1) == 0, 
+	       "Coefficient of degree 1 has been parsed incorrectly");
+  fail_unless (mpq_cmp_si (poly->initial_mqp_i[1], 0, 1) == 0, 
+	       "Coefficient of degree 1 has been parsed incorrectly");
+  fail_unless (mpq_cmp_si (poly->initial_mqp_r[2], 1, 1) == 0, 
+	       "Coefficient of degree 2 has been parsed incorrectly");
+  fail_unless (mpq_cmp_si (poly->initial_mqp_i[2], 0, 1) == 0, 
+	       "Coefficient of degree 2 has been parsed incorrectly");
+
+  mps_context_free (ctx); 
+}
+END_TEST
+
+START_TEST (inline_simple7)
+{
+  ALLOCATE_CONTEXT
+
+  mps_monomial_poly * poly = MPS_MONOMIAL_POLY (
+    mps_parse_inline_poly_from_string (ctx, "x^2 - 6/7"));
+
+  /* Verify the parsing */
+  fail_unless (poly != NULL, "Cannot parse x^2 - x correctly");
+  
+  fail_unless (mpq_cmp_si (poly->initial_mqp_r[0], -6, 7) == 0,
+	       "Coefficient of degree 0 has been parsed incorrectly");
+  fail_unless (mpq_cmp_si (poly->initial_mqp_i[0], 0, 1) == 0, 
+	       "Coefficient of degree 0 has been parsed incorrectly");
+  fail_unless (mpq_cmp_si (poly->initial_mqp_r[1], 0, 1) == 0, 
+	       "Coefficient of degree 1 has been parsed incorrectly");
+  fail_unless (mpq_cmp_si (poly->initial_mqp_i[1], 0, 1) == 0, 
+	       "Coefficient of degree 1 has been parsed incorrectly");
+  fail_unless (mpq_cmp_si (poly->initial_mqp_r[2], 1, 1) == 0, 
+	       "Coefficient of degree 2 has been parsed incorrectly");
+  fail_unless (mpq_cmp_si (poly->initial_mqp_i[2], 0, 1) == 0, 
+	       "Coefficient of degree 2 has been parsed incorrectly");
+
+  mps_context_free (ctx); 
+}
+END_TEST
+
+START_TEST (inline_simple8)
+{
+  ALLOCATE_CONTEXT
+
+  mps_monomial_poly * poly = MPS_MONOMIAL_POLY (
+    mps_parse_inline_poly_from_string (ctx, "2342/12x^2 - 6/7 +x"));
+
+  /* Verify the parsing */
+  fail_unless (poly != NULL, "Cannot parse x^2 - x correctly");
+  
+  fail_unless (mpq_cmp_si (poly->initial_mqp_r[0], -6, 7) == 0,
+	       "Coefficient of degree 0 has been parsed incorrectly");
+  fail_unless (mpq_cmp_si (poly->initial_mqp_i[0], 0, 1) == 0, 
+	       "Coefficient of degree 0 has been parsed incorrectly");
+  fail_unless (mpq_cmp_si (poly->initial_mqp_r[1], 1, 1) == 0, 
+	       "Coefficient of degree 1 has been parsed incorrectly");
+  fail_unless (mpq_cmp_si (poly->initial_mqp_i[1], 0, 1) == 0, 
+	       "Coefficient of degree 1 has been parsed incorrectly");
+  fail_unless (mpq_cmp_si (poly->initial_mqp_r[2], 2342, 12) == 0, 
+	       "Coefficient of degree 2 has been parsed incorrectly");
+  fail_unless (mpq_cmp_si (poly->initial_mqp_i[2], 0, 1) == 0, 
+	       "Coefficient of degree 2 has been parsed incorrectly");
+
+  mps_context_free (ctx); 
+}
+END_TEST
+
+START_TEST (inline_simple9)
+{
+  ALLOCATE_CONTEXT
+
+  mps_monomial_poly * poly = MPS_MONOMIAL_POLY (
+    mps_parse_inline_poly_from_string (ctx, "-6/7 + x^2"));
+
+  /* Verify the parsing */
+  fail_unless (poly != NULL, "Cannot parse x^2 - x correctly");
+  
+  fail_unless (mpq_cmp_si (poly->initial_mqp_r[0], -6, 7) == 0,
+	       "Coefficient of degree 0 has been parsed incorrectly");
+  fail_unless (mpq_cmp_si (poly->initial_mqp_i[0], 0, 1) == 0, 
+	       "Coefficient of degree 0 has been parsed incorrectly");
+  fail_unless (mpq_cmp_si (poly->initial_mqp_r[1], 0, 1) == 0, 
+	       "Coefficient of degree 1 has been parsed incorrectly");
+  fail_unless (mpq_cmp_si (poly->initial_mqp_i[1], 0, 1) == 0, 
+	       "Coefficient of degree 1 has been parsed incorrectly");
+  fail_unless (mpq_cmp_si (poly->initial_mqp_r[2], 1, 1) == 0, 
+	       "Coefficient of degree 2 has been parsed incorrectly");
+  fail_unless (mpq_cmp_si (poly->initial_mqp_i[2], 0, 1) == 0, 
+	       "Coefficient of degree 2 has been parsed incorrectly");
+
+  mps_context_free (ctx); 
+}
+END_TEST
+
+START_TEST (inline_cancellation1)
+{
+  ALLOCATE_CONTEXT
+
+  mps_monomial_poly * poly = MPS_MONOMIAL_POLY (
+    mps_parse_inline_poly_from_string (ctx, "-6/7 + x^2 + 12/14"));
+
+  /* Verify the parsing */
+  fail_unless (poly != NULL, "Cannot parse x^2 - x correctly");
+  
+  fail_unless (mpq_cmp_si (poly->initial_mqp_r[0], 0, 1) == 0,
+	       "Coefficient of degree 0 has been parsed incorrectly");
+  fail_unless (mpq_cmp_si (poly->initial_mqp_i[0], 0, 1) == 0, 
+	       "Coefficient of degree 0 has been parsed incorrectly");
+  fail_unless (mpq_cmp_si (poly->initial_mqp_r[1], 0, 1) == 0, 
+	       "Coefficient of degree 1 has been parsed incorrectly");
+  fail_unless (mpq_cmp_si (poly->initial_mqp_i[1], 0, 1) == 0, 
+	       "Coefficient of degree 1 has been parsed incorrectly");
+  fail_unless (mpq_cmp_si (poly->initial_mqp_r[2], 1, 1) == 0, 
+	       "Coefficient of degree 2 has been parsed incorrectly");
+  fail_unless (mpq_cmp_si (poly->initial_mqp_i[2], 0, 1) == 0, 
+	       "Coefficient of degree 2 has been parsed incorrectly");
+
+  mps_context_free (ctx); 
+}
+END_TEST
+
 START_TEST (inline_linear1)
 {
   ALLOCATE_CONTEXT
@@ -292,6 +427,13 @@ main (void)
   tcase_add_test (tc_inline, inline_simple3);
   tcase_add_test (tc_inline, inline_simple4);
   tcase_add_test (tc_inline, inline_simple5);
+  tcase_add_test (tc_inline, inline_simple6);
+  tcase_add_test (tc_inline, inline_simple7);
+  tcase_add_test (tc_inline, inline_simple8);
+  tcase_add_test (tc_inline, inline_simple9);
+
+  /* Check for correct add and sum of exponents */
+  tcase_add_test (tc_inline, inline_cancellation1);
 
   /* Check for some simple extreme cases */
   tcase_add_test (tc_inline, inline_linear1);
