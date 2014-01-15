@@ -317,17 +317,15 @@ update_poly_coefficients (mps_context * ctx,
       *poly_degree = degree;
     }
 
+  /* Update the coefficients. We need to "add" instead of "set" since more 
+   * coefficients of the same degree could be specified more times. */
   mpq_add ((*coefficients_real)[degree],  
   	   (*coefficients_real)[degree],  
   	   coefficient_real); 
 
   mpq_add ((*coefficients_imag)[degree],  
   	   (*coefficients_imag)[degree],  
-  	   coefficient_imag); 
-
-
-  /* mpq_set ((*coefficients_real)[degree], coefficient_real); */
-  /* mpq_set ((*coefficients_imag)[degree], coefficient_imag); */
+  	   coefficient_imag);
 
   if (ctx->debug_level & MPS_DEBUG_IO) 
     {
@@ -338,6 +336,31 @@ update_poly_coefficients (mps_context * ctx,
       fprintf (ctx->logstr, "i \n");
     }
 
+  /* In case the leading coefficient has been canceled out by this 
+   * operation, lower the degree of the polynomial. */
+  while ((*poly_degree >= 0) &&
+	 (mpq_cmp_ui ((*coefficients_real)[*poly_degree], 0U, 1U) == 0) &&
+	 (mpq_cmp_ui ((*coefficients_imag)[*poly_degree], 0U, 1U) == 0)) 
+    {
+      mpq_clear ((*coefficients_real)[*poly_degree]);
+      mpq_clear ((*coefficients_imag)[*poly_degree]);
+
+      *coefficients_real = mps_realloc (*coefficients_real, sizeof (mpq_t) * (*poly_degree));
+      *coefficients_imag = mps_realloc (*coefficients_imag, sizeof (mpq_t) * (*poly_degree)); 
+
+      (*poly_degree)--;      
+    }
+
+  /* Note that there is a small catch in the instructions above: since *poly_degree could
+   * go to 0, we may have that *coefficient_real and *coefficient_imag are freed. In that
+   * case we shall set the pointers to NULL since it's not guaranteed that realloc will do
+   * it. */
+  if (*poly_degree == -1)
+    {
+      *coefficients_real = *coefficients_imag = NULL;
+    }
+
+  MPS_DEBUG_WITH_IO (ctx, "The polynomial degree is now = %d", *poly_degree);
 }
 
 /**
@@ -469,6 +492,9 @@ mps_parse_inline_poly (mps_context *ctx, FILE * stream)
       if (!token || *token == '\0')
 	token = mps_input_buffer_next_token (buffer);
     }
+
+  if (poly_degree < 0)
+    goto cleanup;
 
   MPS_DEBUG_WITH_IO (ctx, "Polynomial degree = %d", poly_degree);
 

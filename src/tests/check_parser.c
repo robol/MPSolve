@@ -314,6 +314,21 @@ START_TEST (inline_cancellation1)
 }
 END_TEST
 
+START_TEST (inline_total_cancellation)
+{
+  ALLOCATE_CONTEXT 
+
+    fprintf (stderr, " ****************** \n\n");
+
+  mps_monomial_poly *poly = MPS_MONOMIAL_POLY (
+    mps_parse_inline_poly_from_string (ctx, "56/8 - x^4 + x^2 + x^4 - 2x^2 - 28/4 + x^2"));			 
+
+  fail_unless (poly == NULL, "Not raising error on empty polynomial");
+
+  mps_context_free (ctx);
+}
+END_TEST
+
 START_TEST (inline_linear1)
 {
   ALLOCATE_CONTEXT
@@ -434,6 +449,7 @@ main (void)
 
   /* Check for correct add and sum of exponents */
   tcase_add_test (tc_inline, inline_cancellation1);
+  tcase_add_test (tc_inline, inline_total_cancellation);
 
   /* Check for some simple extreme cases */
   tcase_add_test (tc_inline, inline_linear1);

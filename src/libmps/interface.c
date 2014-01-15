@@ -129,7 +129,7 @@ void *
 mps_realloc (void * pointer, size_t size)
 {
   register void *value = realloc (pointer, size);
-  if (value == 0)
+  if (value == 0 && size > 0)
     {
       fprintf (stderr, "virtual memory exhausted");
       abort ();
