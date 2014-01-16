@@ -19,18 +19,18 @@
 
   whilst, if you have checked out the git repository directly
   you have to use the script autogen.sh first, and then the
-  usual configure.sh, make, make install sequece. 
+  usual configure, make, make install sequence. 
 
  The last command is optional and install mpsolve system-wide. You can simply
  use the mpsolve executable built in its directory by launching 
  ./src/mpsolve/mpsolve from the source directory.
 
  Full install is needed to use MPSolve as a library in other C, 
- fortran, Matlab, ... software without further tweaking. 
+ FORTRAN, Matlab, ... software without further tweaking. 
 
  The examples/ folder contains a mix of example source files that use
  MPSolve and bindings for other programming languages such as Python,
- Octave, Matlab (tm), ...
+ Octave, Matlab (TM), ...
 
  == 2. Using the mpsolve binary ==
 
