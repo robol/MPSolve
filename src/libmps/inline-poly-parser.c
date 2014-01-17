@@ -68,24 +68,38 @@ static char * build_equivalent_rational_string (mps_context * ctx, char * line, 
   int i;
   char * sep = find_fp_separator (ctx, line);
 
-  /* If we have floating point input and also a rational 
-   * separator raise an error. */
-  if ( ( sep || strstr (line, "e") || strstr (line, "E") ) 
-       && (strstr (line, "/") != NULL))
-    {
-      return NULL;
-    }
-
   /* This an over estimate of the length of the _real_ token that we 
    * have to parse but, given that we use mps_input_buffer to perform
    * the tokenization of the input, it will not hopefully be a "big"
    * over-estimate. */
+  line = strdup (line);
   char * copy = mps_newv (char, 2 * strlen (line) + 5);
   char * copy_ptr = copy; 
   char * line_ptr = line;
   char * line_end = line + strlen (line);
   long int denominator = 0;
   mps_boolean dot_found = false;
+
+  /* Scan the string and truncate it if necessary */
+  while (line_ptr++ < line_end) 
+    {
+      if ( (*line_ptr == '+' || *line_ptr == '-') && 
+	   ( *(line_ptr - 1) != 'e' && *(line_ptr - 1) != 'E'))
+	*line_ptr = '\0';
+    }
+  line_ptr = line;
+
+  /* If we have floating point input and also a rational 
+   * separator raise an error. */
+  if ( ( sep || strstr (line, "e") || strstr (line, "E") ) 
+       && (strstr (line, "/") != NULL))
+    {
+      free (line);
+      free (copy);
+      return NULL;
+    }
+
+
 
   *exponent = 0;
 
@@ -142,6 +156,8 @@ static char * build_equivalent_rational_string (mps_context * ctx, char * line, 
 	  break;
 	}
     }
+
+  free (line);
   
   return copy;
 }
@@ -410,7 +426,7 @@ mps_parse_inline_poly (mps_context *ctx, FILE * stream)
    */
   while (token)
     {
-      /* MPS_DEBUG_WITH_IO (ctx, "Current token = %s\n", token); */
+      MPS_DEBUG_WITH_IO (ctx, "Current token = %s", token);
 
       switch (state)
 	{

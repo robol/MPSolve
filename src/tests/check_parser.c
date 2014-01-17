@@ -284,10 +284,10 @@ START_TEST (inline_simple9)
 {
   ALLOCATE_CONTEXT
 
+  fprintf (stderr, "\n\nTEST:inline_simple9 Starting test \n");
   mps_monomial_poly * poly = MPS_MONOMIAL_POLY (
     mps_parse_inline_poly_from_string (ctx, "-6/7 + x^2"));
 
-  fprintf (stderr, "\n\nTEST:inline_simple9 Starting test \n");
 
   /* Verify the parsing */
   fail_unless (poly != NULL, "Cannot parse x^2 - x correctly");
@@ -313,10 +313,10 @@ START_TEST (inline_simple10)
 {
   ALLOCATE_CONTEXT
 
+  fprintf (stderr, "\n\nTEST:inline_simple10 Starting test \n");
   mps_monomial_poly * poly = MPS_MONOMIAL_POLY (
     mps_parse_inline_poly_from_string (ctx, "x^2+7+x"));
 
-  fprintf (stderr, "\n\nTEST:inline_simple10 Starting test \n");
 
   /* Verify the parsing */
   fail_unless (poly != NULL, "Cannot parse x^2+7+x correctly");
@@ -338,6 +338,48 @@ START_TEST (inline_simple10)
 }
 END_TEST
 
+START_TEST (inline_simple11)
+{
+  ALLOCATE_CONTEXT
+  int i;
+
+  fprintf (stderr, "\n\nTEST:inline_simple11 Starting test \n");
+  mps_monomial_poly * poly = MPS_MONOMIAL_POLY (
+    mps_parse_inline_poly_from_string (ctx, "x^70+2e4x^10+6/7"));
+
+
+  /* Verify the parsing */
+  fail_unless (poly != NULL, "Cannot parse x^70+2e4x^10+6/7 correctly: %s", 
+	       mps_context_error_msg (ctx));
+  
+  fail_unless (mpq_cmp_si (poly->initial_mqp_r[0], 6, 7) == 0,
+	       "Coefficient of degree 0 has been parsed incorrectly");
+  fail_unless (mpq_cmp_si (poly->initial_mqp_i[0], 0, 1) == 0, 
+	       "Coefficient of degree 0 has been parsed incorrectly");
+  fail_unless (mpq_cmp_si (poly->initial_mqp_r[10], 20000, 1) == 0, 
+	       "Coefficient of degree 1 has been parsed incorrectly");
+  fail_unless (mpq_cmp_si (poly->initial_mqp_i[10], 0, 1) == 0, 
+	       "Coefficient of degree 1 has been parsed incorrectly");
+  fail_unless (mpq_cmp_si (poly->initial_mqp_r[70], 1, 1) == 0, 
+	       "Coefficient of degree 2 has been parsed incorrectly");
+  fail_unless (mpq_cmp_si (poly->initial_mqp_i[70], 0, 1) == 0, 
+	       "Coefficient of degree 2 has been parsed incorrectly");
+
+  for (i = 1; i <= 69; i++)
+    {
+      if (i != 10)
+	{
+	  fail_unless (mpq_cmp_si (poly->initial_mqp_r[i], 0, 1) == 0, 
+		       "Coefficient of degree %d has been parsed incorrectly", i);
+	  fail_unless (mpq_cmp_si (poly->initial_mqp_i[i], 0, 1) == 0, 
+		       "Coefficient of degree %d has been parsed incorrectly", i);
+	}
+    }
+
+
+  mps_context_free (ctx); 
+}
+END_TEST
 
 START_TEST (inline_cancellation1)
 {
@@ -475,7 +517,7 @@ START_TEST (wellformed_input1)
   /* Check the middle ones */
   for (i = 1; i <= 8; i++)
     {
-      fail_unless (mpq_cmp_si (poly->initial_mqp_r[i], 0, 2) == 0, 
+      fail_unless (mpq_cmp_si (poly->initial_mqp_r[i], 0, 1) == 0, 
 		   "Coefficient of degree %d has been parsed incorrectly", i);
       fail_unless (mpq_cmp_si (poly->initial_mqp_i[i], 0, 1) == 0, 
 		   "Coefficient of degree %d has been parsed incorrectly", i);
@@ -512,7 +554,8 @@ main (void)
   tcase_add_test (tc_inline, inline_simple7);
   tcase_add_test (tc_inline, inline_simple8);
   tcase_add_test (tc_inline, inline_simple9);
-  tcase_add_test (tc_inline, inline_simple10);
+  tcase_add_test (tc_inline, inline_simple10); 
+  tcase_add_test (tc_inline, inline_simple11); 
 
   /* Check for correct add and sum of exponents */
   tcase_add_test (tc_inline, inline_cancellation1);
