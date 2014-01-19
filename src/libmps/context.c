@@ -559,6 +559,11 @@ mps_context_get_approximations (mps_context * ctx)
   for (i = 0; i < ctx->n; i++)
     {
       approximations[i] = mps_approximation_copy (ctx, ctx->root[i]);
+
+      /* Copy relevant data from the multiprecision values */
+      mpc_get_cdpe (approximations[i]->dvalue, approximations[i]->mvalue);
+      mpc_get_cplx (approximations[i]->fvalue, approximations[i]->mvalue);
+      approximations[i]->frad = rdpe_get_d (approximations[i]->drad);
     }
 
   for (i = ctx->n; i < ctx->n + ctx->zero_roots; i++) 
