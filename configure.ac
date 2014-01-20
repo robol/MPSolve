@@ -13,13 +13,6 @@ AM_INIT_AUTOMAKE([dist-bzip2 -Wno-portability])
 
 m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
 
-CFLAGS=""
-CXXFLAGS=""
-
-AC_SUBST(CFLAGS)
-AC_SUBST(CXXFLAGS)
-
-
 #
 # ===== OPTION PARSING =====
 #
@@ -93,6 +86,15 @@ AC_ARG_ENABLE([documentation],
     AS_HELP_STRING([--disable-documentation], [Don't build Doxygen documentation]), 
     [build_doc=$enableval hvae_doc=$enableval],
     [build_doc=yes have_doc=yes])
+
+# Determine if the user wants to build on ARM using hard floating point
+AC_ARG_ENABLE([vfpv3],
+    AS_HELP_STRING([--enable-vfpv3], [Build with FPU support for ARM using VFPv3-instructions]), 
+    [build_hard_float=$enableval], [build_hard_float=no])
+
+AS_IF([test x$build_hard_float = xyes], [
+  CFLAGS="-mfloat-abi=softfp -mfpu=vfpv3-d16"
+])
 
 
 #
