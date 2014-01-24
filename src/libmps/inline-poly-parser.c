@@ -222,9 +222,56 @@ static char *
 parse_complex_coefficient (mps_context * ctx, char *line, mpq_t coefficient_real,
 			   mpq_t coefficient_imag)
 {
-  /* TODO: Implement this */
-  abort ();
-  return line;
+  /* Here we break the coefficients in the real and imaginary part and
+   * we call parse_real_coefficient() for both. */
+
+  /* Detect the pieces that are required for the syntax of the complex
+   * coefficients, i.e., the starting (, the comma, and the closing bracket. */
+  char * starting_bracket = strchr (line, '(');
+  char * comma = strchr (line, ',');
+  char * ending_bracket = strchr (line, ')'); 
+
+  mps_boolean success = false; 
+
+  /* Sanity checks here */
+  if (starting_bracket == NULL) 
+    {
+      mps_error (ctx, "Cannot find starting bracket for the complex coefficient");
+      return NULL; 
+    }
+
+  if (ending_bracket == NULL)
+    {
+      mps_error (ctx, "Cannot find the closing bracket for the complex coefficient");
+      return NULL; 
+    }
+
+  if (comma == NULL || comma > ending_bracket || comma < starting_bracket)
+    {
+      mps_error (ctx, "Missing or misplaced comma in the complex coefficient");
+      return NULL;
+    }
+
+  char *real_part = strndup (starting_bracket + 1, comma - starting_bracket - 1);
+  char *imag_part = strndup (comma + 1, ending_bracket - comma - 1);
+
+  MPS_DEBUG_WITH_IO (ctx, "Extracted real part: %s", real_part);
+  MPS_DEBUG_WITH_IO (ctx, "Extract imaginary part: %s", imag_part);
+
+  if (parse_real_coefficient (ctx, real_part, coefficient_real) == NULL) 
+    goto cleanup;
+
+  if (parse_real_coefficient (ctx, imag_part, coefficient_imag) == NULL)
+    goto cleanup;
+
+  success = true;
+  
+ cleanup:
+
+  free (real_part);
+  free (imag_part); 
+
+  return (success) ? ending_bracket + 1 : NULL;
 }
 
 static char *
@@ -459,18 +506,27 @@ mps_parse_inline_poly (mps_context *ctx, FILE * stream)
 	case PARSING_COEFFICIENT:
 	  /* We have to distinguish the real from the complex case */
 	  if (*token == '(')
-	    token = parse_complex_coefficient (ctx, token, current_coefficient_real,
-					       current_coefficient_imag);
+	    {
+	      /* We need to make sure that we have a sufficiently long token so that
+	       * all the complex coefficient is here. */
+	      while (strchr (token, ')') == NULL)
+		{
+		  char * new_token = mps_input_buffer_next_token (buffer); 
+		  
+		  token = mps_realloc (token, strlen (token) + strlen (new_token) - 1); 
+		  strcat (token, new_token); 
+
+		  free (new_token);
+		}
+
+	      MPS_DEBUG_WITH_IO (ctx, "Complex coefficient = %s", token);
+
+	      token = parse_complex_coefficient (ctx, token, current_coefficient_real,
+						 current_coefficient_imag);
+	    }
 	  else
 	    {
 	      token = parse_real_coefficient (ctx, token, current_coefficient_real);
-
-	      if (!token)
-		{
-		  state = PARSING_ERROR;
-		  goto cleanup;
-		}
-
 	      mpq_set_ui (current_coefficient_imag, 0U, 1U);
 	    }
 
@@ -478,6 +534,12 @@ mps_parse_inline_poly (mps_context *ctx, FILE * stream)
 	    {
 	      mpq_neg (current_coefficient_real, current_coefficient_real);
 	      mpq_neg (current_coefficient_imag, current_coefficient_imag);
+	    }
+
+	  if (! token)
+	    {
+	      state = PARSING_ERROR;
+	      goto cleanup; 
 	    }
 
 	  if (*token != '\0')

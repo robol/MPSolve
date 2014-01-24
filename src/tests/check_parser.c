@@ -533,6 +533,51 @@ START_TEST (wellformed_input1)
 }
 END_TEST
 
+START_TEST (test_complex1)
+{
+  ALLOCATE_CONTEXT
+  fprintf (stderr, "\n\nTEST:test_complex1Starting test \n");
+
+  mps_monomial_poly *poly = MPS_MONOMIAL_POLY (
+      mps_parse_inline_poly_from_string (ctx, 
+					 "x^4 - (2e3, 6/7)x^9 + 5"));
+
+  if (mps_context_has_errors (ctx))
+    printf ("Error = %s\n", mps_context_error_msg (ctx));
+
+  fail_unless (poly != NULL,
+	       "Cannot parse polynomial: x^4 - (2e3, 6/7)x^9 + 5");    
+
+  /* Check that the coefficients have been parsed correctly */
+  fail_unless (mpq_cmp_si (poly->initial_mqp_r[0], 5, 1) == 0, 
+	       "Real coefficient of degree %d has been parsed incorrectly", 0); 
+  fail_unless (mpq_cmp_si (poly->initial_mqp_i[0], 0, 1) == 0, 
+	       "Imaginary coefficient of degree %d has been parsed incorrectly", 0); 
+  fail_unless (mpq_cmp_si (poly->initial_mqp_r[4], 1, 1) == 0, 
+	       "Real coefficient of degree %d has been parsed incorrectly", 4); 
+  fail_unless (mpq_cmp_si (poly->initial_mqp_i[4], 0, 1) == 0, 
+	       "Imaginary coefficient of degree %d has been parsed incorrectly", 4); 
+  fail_unless (mpq_cmp_si (poly->initial_mqp_r[9], -2000, 1) == 0, 
+	       "Real coefficient of degree %d has been parsed incorrectly", 9); 
+  fail_unless (mpq_cmp_si (poly->initial_mqp_i[9], -6, 7) == 0, 
+	       "Imaginary coefficient of degree %d has been parsed incorrectly", 9); 
+
+  int zero_coefficients[] = { 1, 2, 3, 5, 6, 7, 8 };
+  int i; 
+  
+  for (i = 0; i < 7; i++)
+    {
+      fail_unless (mpq_cmp_si (poly->initial_mqp_r[zero_coefficients[i]], 0, 1) == 0, 
+		   "Real coefficient of degree %d has been parsed incorrectly", i); 
+      fail_unless (mpq_cmp_si (poly->initial_mqp_i[zero_coefficients[i]], 0, 1) == 0, 
+		   "Imaginary coefficient of degree %d has been parsed incorrectly", i); 
+    }
+	       
+
+  mps_context_free (ctx);
+}
+END_TEST
+
 
 int
 main (void)
@@ -568,6 +613,9 @@ main (void)
   tcase_add_test (tc_inline, malformed_input1);
   tcase_add_test (tc_inline, malformed_input2);
   tcase_add_test (tc_inline, wellformed_input1);
+
+  /* Tests for complex coefficients parsing */
+  tcase_add_test (tc_inline, test_complex1); 
 
   suite_add_tcase (s, tc_inline);
 
