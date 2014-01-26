@@ -1,21 +1,12 @@
-/************************************************************
- **                                                        **
- **             __  __ ___  ___      _                     **
- **            |  \/  | _ \/ __| ___| |_ _____             **
- **            | |\/| |  _/\__ \/ _ \ \ V / -_)            **
- **            |_|  |_|_|  |___/\___/_|\_/\___|            **
- **                                                        **
- **       Multiprecision Polynomial Solver (MPSolve)       **
- **                 Version 2.9, April 2011                **
- **                                                        **
- **                      Written by                        **
- **                                                        **
- **     Dario Andrea Bini       <bini@dm.unipi.it>         **
- **     Giuseppe Fiorentino     <fiorent@dm.unipi.it>      **
- **     Leonardo Robol          <robol@mail.dm.unipi.it>   **
- **                                                        **
- **           (C) 2011, Dipartimento di Matematica         **
- ***********************************************************/
+/*
+ * This file is part of MPSolve 3.1.5
+ * 
+ * Copyright (C) 2001-2014, Dipartimento di Matematica "L. Tonelli", Pisa.
+ * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
+ *
+ * Authors: 
+ *   Leonardo Robol <robol@mail.dm.unipi.it>
+ */
 
 #define _MPS_PRIVATE
 #include <mps/mps.h>
@@ -296,7 +287,7 @@ main (int argc, char **argv)
 #ifdef HAVE_CONFIG_H
           printf (PACKAGE_STRING "\n");
 #else
-          printf ("MPSolve 3.0\n");
+          printf ("MPSolve 3.1.5\n");
 #endif
 
           mps_context_free (s);
