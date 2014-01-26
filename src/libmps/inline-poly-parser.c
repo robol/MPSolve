@@ -21,6 +21,8 @@
 #define PARSING_ERROR        4
 #define PARSING_RESET        5
 
+static char * parse_sign (mps_context * ctx, char * line, int * sign, mps_boolean *sign_found);
+
 #ifndef HAVE_FMEMOPEN
   /* Forward declaration. Implementation of this function, in case is not provided by the
    * system, is located in input-output.c */
@@ -63,7 +65,7 @@ parse_fp_exponent (mps_context * ctx, char * exponent_start)
   return response;
 }
 
-static char * build_equivalent_rational_string (mps_context * ctx, char * line, long int * exponent)
+static char * build_equivalent_rational_string (mps_context * ctx, char * line, long int * exponent, int * sign)
 {
   int i;
   char * sep = find_fp_separator (ctx, line);
@@ -72,13 +74,19 @@ static char * build_equivalent_rational_string (mps_context * ctx, char * line, 
    * have to parse but, given that we use mps_input_buffer to perform
    * the tokenization of the input, it will not hopefully be a "big"
    * over-estimate. */
-  line = strdup (line);
+  char * allocated_line = strdup (line);
   char * copy = mps_newv (char, 2 * strlen (line) + 5);
   char * copy_ptr = copy; 
-  char * line_ptr = line;
-  char * line_end = line + strlen (line);
+  char * line_ptr = allocated_line;
+  char * line_end = allocated_line + strlen (line);
   long int denominator = 0;
   mps_boolean dot_found = false;
+  mps_boolean sign_found = false;
+
+  line = allocated_line;
+
+  /* Note that a string could have a prepended sign */
+  line = parse_sign (ctx, line, sign, &sign_found);
 
   /* Scan the string and truncate it if necessary */
   while (line_ptr++ < line_end) 
@@ -87,19 +95,19 @@ static char * build_equivalent_rational_string (mps_context * ctx, char * line, 
 	   ( *(line_ptr - 1) != 'e' && *(line_ptr - 1) != 'E'))
 	*line_ptr = '\0';
     }
+
   line_ptr = line;
+  line_end = line_ptr + strlen (line);
 
   /* If we have floating point input and also a rational 
    * separator raise an error. */
-  if ( ( sep || strstr (line, "e") || strstr (line, "E") ) 
-       && (strstr (line, "/") != NULL))
+  if ( ( sep || strchr (line, 'e') || strchr (line, 'E') ) 
+       && (strchr (line, '/') != NULL))
     {
       free (line);
       free (copy);
       return NULL;
     }
-
-
 
   *exponent = 0;
 
@@ -157,7 +165,7 @@ static char * build_equivalent_rational_string (mps_context * ctx, char * line, 
 	}
     }
 
-  free (line);
+  free (allocated_line);
   
   return copy;
 }
@@ -168,6 +176,8 @@ parse_real_coefficient (mps_context * ctx, char * line, mpq_t coefficient)
   size_t offset = 0; 
   long int exponent; 
   int i;
+  int sign = 1;
+  const char * starting_line = line;
 
   if (*line == 'x')
     {
@@ -181,7 +191,8 @@ parse_real_coefficient (mps_context * ctx, char * line, mpq_t coefficient)
       mpq_init (ten);
       mpq_set_str (ten, "10", 10);
       
-      char * coeff_line = build_equivalent_rational_string (ctx, line, &exponent); 
+      char * coeff_line = build_equivalent_rational_string (ctx, line, &exponent, &sign); 
+      MPS_DEBUG_WITH_IO (ctx, "Transformed %s into %s", line, coeff_line);
 
       if (! coeff_line)
 	{
@@ -190,8 +201,10 @@ parse_real_coefficient (mps_context * ctx, char * line, mpq_t coefficient)
 	}
 
       offset = mpq_set_str (coefficient, coeff_line, 10);
-
       mpq_canonicalize (coefficient);
+
+      if (sign == -1)
+	mpq_neg (coefficient, coefficient);
 
       for (i = 0; i < exponent; i++)
 	mpq_mul (coefficient, coefficient, ten);
@@ -207,8 +220,17 @@ parse_real_coefficient (mps_context * ctx, char * line, mpq_t coefficient)
       /* Consume the rest of the coefficient */
       while (isdigit (*line) || *line == '.' || *line == '/' || *line == 'e'
 	     || *line == 'E' || 
-	     ( (*line == '-' || *line == '+') && (*(line - 1) == 'e' || *(line - 1) == 'E')))
-	line++;
+	       (   
+	 	 (*line == '-' || *line == '+') && 
+		 (
+		   (line > starting_line) && 
+		   (*(line - 1) == 'e' || *(line - 1) == 'E')
+		 )
+	       )
+	     )
+	{
+	  line++;
+	}
 
       mpq_clear (ten);
 
@@ -256,7 +278,7 @@ parse_complex_coefficient (mps_context * ctx, char *line, mpq_t coefficient_real
   char *imag_part = strndup (comma + 1, ending_bracket - comma - 1);
 
   MPS_DEBUG_WITH_IO (ctx, "Extracted real part: %s", real_part);
-  MPS_DEBUG_WITH_IO (ctx, "Extract imaginary part: %s", imag_part);
+  MPS_DEBUG_WITH_IO (ctx, "Extracted imaginary part: %s", imag_part);
 
   if (parse_real_coefficient (ctx, real_part, coefficient_real) == NULL) 
     goto cleanup;
@@ -269,7 +291,7 @@ parse_complex_coefficient (mps_context * ctx, char *line, mpq_t coefficient_real
  cleanup:
 
   free (real_part);
-  free (imag_part); 
+  free (imag_part);
 
   return (success) ? ending_bracket + 1 : NULL;
 }
@@ -277,8 +299,6 @@ parse_complex_coefficient (mps_context * ctx, char *line, mpq_t coefficient_real
 static char *
 parse_exponent (mps_context * ctx, char * line, int * degree)
 {
-  MPS_DEBUG_WITH_IO (ctx, "Parsing exponent: %s", line);
-
   if (isspace (*line) || *line == '+' || *line == '-' || *line == '\0')
     {
       *degree = 0;
@@ -405,7 +425,7 @@ update_poly_coefficients (mps_context * ctx,
       fprintf (ctx->logstr, " + ");
       mpq_out_str (ctx->logstr, 10, (*coefficients_imag)[degree]);
       fprintf (ctx->logstr, "i \n");
-    }
+   }
 
   /* In case the leading coefficient has been canceled out by this 
    * operation, lower the degree of the polynomial. */
@@ -473,8 +493,6 @@ mps_parse_inline_poly (mps_context *ctx, FILE * stream)
    */
   while (token)
     {
-      MPS_DEBUG_WITH_IO (ctx, "Current token = %s", token);
-
       switch (state)
 	{
 
@@ -513,7 +531,7 @@ mps_parse_inline_poly (mps_context *ctx, FILE * stream)
 		{
 		  char * new_token = mps_input_buffer_next_token (buffer); 
 		  
-		  token = mps_realloc (token, strlen (token) + strlen (new_token) - 1); 
+		  token = mps_realloc (token, strlen (token) + strlen (new_token) + 1); 
 		  strcat (token, new_token); 
 
 		  free (new_token);

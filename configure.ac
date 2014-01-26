@@ -50,7 +50,12 @@ AC_ARG_ENABLE([debug-build],
 AS_IF([test x$enable_debug_build == xno], [
           LIBMPS_CFLAGS="$LIBMPS_CFLAGS -O2 -fomit-frame-pointer"
       ], [
+	  CFLAGS=""
+	  CXXFLAGS=""
           LIBMPS_CFLAGS="$LIBMPS_CFLAGS -O0 -g"
+
+	AC_SUBST(CFLAGS)
+	AC_SUBST(CXXFLAGS)
       ]
 )
 

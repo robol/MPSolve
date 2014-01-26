@@ -113,6 +113,15 @@ if CHECK
 
 check_LTLIBRARIES = libmpsprivate.la 	
 
+libmpsprivate_la_CPPFLAGS = \
+        -I${top_srcdir}/include \
+        -I${top_builddir}/include \
+	$(LIBMPS_CFLAGS) \
+	$(GMP_CFLAGS) \
+	$(PTHREAD_CFLAGS) \
+	$(NULL)
+	
+
 libmpsprivate_la_LDFLAGS = \
 	$(PTHREAD_CFLAGS)
 

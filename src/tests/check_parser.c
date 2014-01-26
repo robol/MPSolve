@@ -550,17 +550,17 @@ START_TEST (test_complex1)
 
   /* Check that the coefficients have been parsed correctly */
   fail_unless (mpq_cmp_si (poly->initial_mqp_r[0], 5, 1) == 0, 
-	       "Real coefficient of degree %d has been parsed incorrectly", 0); 
+	       "The part of the coefficient of degree %d has been parsed incorrectly", 0); 
   fail_unless (mpq_cmp_si (poly->initial_mqp_i[0], 0, 1) == 0, 
-	       "Imaginary coefficient of degree %d has been parsed incorrectly", 0); 
+	       "The imaginary part of the coefficient of degree %d has been parsed incorrectly", 0); 
   fail_unless (mpq_cmp_si (poly->initial_mqp_r[4], 1, 1) == 0, 
-	       "Real coefficient of degree %d has been parsed incorrectly", 4); 
+	       "The real part of the coefficient of degree %d has been parsed incorrectly", 4); 
   fail_unless (mpq_cmp_si (poly->initial_mqp_i[4], 0, 1) == 0, 
-	       "Imaginary coefficient of degree %d has been parsed incorrectly", 4); 
+	       "The imaginary part of the coefficient of degree %d has been parsed incorrectly", 4); 
   fail_unless (mpq_cmp_si (poly->initial_mqp_r[9], -2000, 1) == 0, 
-	       "Real coefficient of degree %d has been parsed incorrectly", 9); 
+	       "The real part of the coefficient of degree %d has been parsed incorrectly", 9); 
   fail_unless (mpq_cmp_si (poly->initial_mqp_i[9], -6, 7) == 0, 
-	       "Imaginary coefficient of degree %d has been parsed incorrectly", 9); 
+	       "The imaginary part of the coefficient of degree %d has been parsed incorrectly", 9); 
 
   int zero_coefficients[] = { 1, 2, 3, 5, 6, 7, 8 };
   int i; 
@@ -568,9 +568,57 @@ START_TEST (test_complex1)
   for (i = 0; i < 7; i++)
     {
       fail_unless (mpq_cmp_si (poly->initial_mqp_r[zero_coefficients[i]], 0, 1) == 0, 
-		   "Real coefficient of degree %d has been parsed incorrectly", i); 
+		   "The real part of the coefficient of degree %d has been parsed incorrectly", 
+		   zero_coefficients[i]); 
       fail_unless (mpq_cmp_si (poly->initial_mqp_i[zero_coefficients[i]], 0, 1) == 0, 
-		   "Imaginary coefficient of degree %d has been parsed incorrectly", i); 
+		   "The imaginary part of the coefficient of degree %d has been parsed incorrectly", 
+		   zero_coefficients[i]); 
+    }
+	       
+
+  mps_context_free (ctx);
+}
+END_TEST
+
+START_TEST (test_complex2)
+{
+  ALLOCATE_CONTEXT
+  fprintf (stderr, "\n\nTEST:test_complex2Starting test \n");
+
+  mps_monomial_poly *poly = MPS_MONOMIAL_POLY (
+      mps_parse_inline_poly_from_string (ctx, 
+					 "(1.2, -12/67)x^42 - (2e-3, 1)x^9 + (5,6/9)"));
+
+  if (mps_context_has_errors (ctx))
+    printf ("Error = %s\n", mps_context_error_msg (ctx));
+
+  fail_unless (poly != NULL,
+	       "Cannot parse polynomial: (1.2, -12/67) x^42 - (2e-3, 1) x^9 + (5,6/9)");    
+
+  /* Check that the coefficients have been parsed correctly */
+  fail_unless (mpq_cmp_si (poly->initial_mqp_r[0], 5, 1) == 0, 
+	       "The part of the coefficient of degree %d has been parsed incorrectly", 0); 
+  fail_unless (mpq_cmp_si (poly->initial_mqp_i[0], 6, 9) == 0, 
+	       "The imaginary part of the coefficient of degree %d has been parsed incorrectly", 0); 
+  fail_unless (mpq_cmp_si (poly->initial_mqp_r[9], -2, 1000) == 0, 
+	       "The real part of the coefficient of degree %d has been parsed incorrectly", 9); 
+  fail_unless (mpq_cmp_si (poly->initial_mqp_i[9], -1, 1) == 0, 
+	       "The imaginary part of the coefficient of degree %d has been parsed incorrectly", 9); 
+  fail_unless (mpq_cmp_si (poly->initial_mqp_r[42], 12, 10) == 0, 
+	       "The real part of the coefficient of degree %d has been parsed incorrectly", 42); 
+  fail_unless (mpq_cmp_si (poly->initial_mqp_i[42], -12, 67) == 0, 
+	       "The imaginary part of the coefficient of degree %d has been parsed incorrectly", 42); 
+
+  int i;   
+  for (i = 1; i < 42; i++)
+    {
+      if ( i != 9 )
+	{
+	  fail_unless (mpq_cmp_si (poly->initial_mqp_r[i], 0, 1) == 0, 
+		       "The real part of the coefficient of degree %d has been parsed incorrectly", i); 
+	  fail_unless (mpq_cmp_si (poly->initial_mqp_i[i], 0, 1) == 0, 
+		       "The imaginary part of the coefficient of degree %d has been parsed incorrectly", i); 
+	}
     }
 	       
 
@@ -616,6 +664,7 @@ main (void)
 
   /* Tests for complex coefficients parsing */
   tcase_add_test (tc_inline, test_complex1); 
+  tcase_add_test (tc_inline, test_complex2);
 
   suite_add_tcase (s, tc_inline);
 

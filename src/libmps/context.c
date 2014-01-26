@@ -553,8 +553,17 @@ mps_context_get_roots_m (mps_context * s, mpc_t ** roots, rdpe_t ** radius)
 mps_approximation **
 mps_context_get_approximations (mps_context * ctx)
 {
-  mps_approximation ** approximations = mps_newv (mps_approximation*, ctx->n + ctx->zero_roots);
-  int i; 
+  mps_approximation ** approximations = NULL; 
+  int i;
+
+  if (! ctx->root) 
+    {
+      /* This means that an error occurred in the previous computation and the 
+       * polynomial has not been solved (or mps_mpsolve has not been called at all). */
+      return NULL; 
+    }
+  else
+    approximations = mps_newv (mps_approximation*, ctx->n + ctx->zero_roots);
 
   for (i = 0; i < ctx->n; i++)
     {
