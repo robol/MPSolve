@@ -2,7 +2,7 @@
 .SH NAME
 MPSolve \- A multiprecision polynomial rootfinder
 .SH DESCRIPTION
-mpsolve [\-a alg] [\-b] [\-G goal] [\-o digits] [\-i digits] [\-j n] [\-t type] [\-S set] [\-D detect] [\-O format] [\-l filename] [\-x] [\-d] [\-v] [infile]
+mpsolve [\-a alg] [\-b] [\-G goal] [\-o digits] [\-i digits] [\-j n] [\-t type] [\-S set] [\-D detect] [\-O format] [\-l filename] [\-x] [\-d] [\-v] [infile | -p poly]
 .SH OPTIONS
 .TP
 \fB\-a\fR alg
@@ -113,6 +113,11 @@ p: debug stop condition and development of iteration packets
 .br
 r: regeneration
 Example: \fB\-dfi\fR for function calls and improvement
+.TP
+\fB\-p poly\fR
+Solve the polynomial specified on the command line.
+.IP
+For example: mpsolve \fB-p\fR "x^4-6x^9+6/7x + 5"
 .TP
 \fB\-v\fR
 Print the version and exit

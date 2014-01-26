@@ -26,9 +26,9 @@
 #endif
 
 #if HAVE_GRAPHICAL_DEBUGGER
-#define MPSOLVE_GETOPT_STRING "a:G:D:d::xt:o:O:j:S:O:i:vl:b"
+#define MPSOLVE_GETOPT_STRING "a:G:D:d::xt:o:O:j:S:O:i:vl:bp:"
 #else
-#define MPSOLVE_GETOPT_STRING "a:G:D:d::t:o:O:j:S:O:i:vl:b"
+#define MPSOLVE_GETOPT_STRING "a:G:D:d::t:o:O:j:S:O:i:vl:bp:"
 #endif
 
 #if HAVE_GRAPHICAL_DEBUGGER
@@ -123,7 +123,7 @@ void
 usage (mps_context * s, const char *program)
 {
   fprintf (stdout,
-           "%s [-a alg] [-b] [-G goal] [-o digits] [-i digits] [-j n] [-t type] [-S set] [-D detect] [-O format] [-l filename] "
+           "%s [-a alg] [-b] [-G goal] [-o digits] [-i digits] [-j n] [-t type] [-S set] [-D detect] [-O format] [-l] [filename | -p poly] "
 #if HAVE_GRAPHICAL_DEBUGGER
           "[-x] "           
 #endif
@@ -184,9 +184,11 @@ usage (mps_context * s, const char *program)
            "               r: regeneration\n"
            "               Example: -dfi for function calls and improvement\n"
 #endif
+	   " -p poly     Solve the polynomial specified on the command line. \n"
+           "               Example: %s -p \"x^4-6x^9+6/7x + 5\" \n"
            " -v          Print the version and exit\n"
            "\n",
-           program, program);
+           program, program, program);
 
   exit (EXIT_FAILURE);
 }
@@ -261,6 +263,7 @@ main (int argc, char **argv)
    * by the user. Otherwise, override the polynomial input
    * precision. */
   long int input_precision = -1;
+  char * inline_poly = NULL;
 
   mps_context_set_input_prec (s, 0);
 
@@ -495,6 +498,10 @@ main (int argc, char **argv)
             }
           break;
 
+        case 'p':
+          inline_poly = strdup (opt->optvalue);
+          break;
+
 #ifndef DISABLE_DEBUG
         case 'd':
           mps_context_add_debug_domain (s, MPS_DEBUG_INFO);
@@ -604,21 +611,30 @@ main (int argc, char **argv)
     usage (s, argv[0]);
 
   /* If no file is provided use standard input */
-  if (argc == 1)
-    infile = stdin;
-  else
-    infile = fopen (argv[1], "r");
-
-  if (!infile)
+  if (inline_poly)
     {
-      mps_error (s, "Cannot open input file for read, aborting.");
-      mps_print_errors (s);
-      return EXIT_FAILURE;
+      poly = mps_parse_inline_poly_from_string (s, inline_poly);
+      free (inline_poly);
     }
+  else
+    {
+      if (argc == 1)
+        infile = stdin;
+      else
+        infile = fopen (argv[1], "r");
 
-  /* Parse the input stream and if a polynomial is given as output, 
-   * allocate also a secular equation to be used in regeneration */
-  poly = mps_parse_stream (s, infile);
+      if (!infile)
+        {
+          mps_error (s, "Cannot open input file for read, aborting.");
+          mps_print_errors (s);
+          return EXIT_FAILURE;
+        }
+
+      /* Parse the input stream and if a polynomial is given as output, 
+       * allocate also a secular equation to be used in regeneration */
+       poly = mps_parse_stream (s, infile);
+     }
+
   if (!poly)
     {
       mps_error (s, "Error while parsing the polynomial, aborting.");
