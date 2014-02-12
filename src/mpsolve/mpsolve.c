@@ -649,7 +649,7 @@ main (int argc, char **argv)
     }
 
   /* Close the file if it's not stdin */
-  if (argc == 2)
+  if (argc == 2 && ! inline_poly)
     fclose (infile);
 
   /* Select the starting phase according to user input */
