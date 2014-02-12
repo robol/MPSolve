@@ -189,7 +189,7 @@ parse_real_coefficient (mps_context * ctx, char * line, mpq_t coefficient)
       mpq_t ten;
       
       mpq_init (ten);
-      mpq_set_str (ten, "10", 10);
+      mpq_set_si (ten, 10, 1);
       
       char * coeff_line = build_equivalent_rational_string (ctx, line, &exponent, &sign); 
       MPS_DEBUG_WITH_IO (ctx, "Transformed %s into %s", line, coeff_line);
@@ -251,7 +251,7 @@ parse_complex_coefficient (mps_context * ctx, char *line, mpq_t coefficient_real
    * coefficients, i.e., the starting (, the comma, and the closing bracket. */
   char * starting_bracket = strchr (line, '(');
   char * comma = strchr (line, ',');
-  char * ending_bracket = strchr (line, ')'); 
+  char * closing_bracket = strchr (line, ')'); 
 
   mps_boolean success = false; 
 
@@ -262,20 +262,20 @@ parse_complex_coefficient (mps_context * ctx, char *line, mpq_t coefficient_real
       return NULL; 
     }
 
-  if (ending_bracket == NULL)
+  if (closing_bracket == NULL)
     {
       mps_error (ctx, "Cannot find the closing bracket for the complex coefficient");
       return NULL; 
     }
 
-  if (comma == NULL || comma > ending_bracket || comma < starting_bracket)
+  if (comma == NULL || comma > closing_bracket || comma < starting_bracket)
     {
       mps_error (ctx, "Missing or misplaced comma in the complex coefficient");
       return NULL;
     }
 
   char *real_part = strndup (starting_bracket + 1, comma - starting_bracket - 1);
-  char *imag_part = strndup (comma + 1, ending_bracket - comma - 1);
+  char *imag_part = strndup (comma + 1, closing_bracket - comma - 1);
 
   MPS_DEBUG_WITH_IO (ctx, "Extracted real part: %s", real_part);
   MPS_DEBUG_WITH_IO (ctx, "Extracted imaginary part: %s", imag_part);
@@ -293,12 +293,14 @@ parse_complex_coefficient (mps_context * ctx, char *line, mpq_t coefficient_real
   free (real_part);
   free (imag_part);
 
-  return (success) ? ending_bracket + 1 : NULL;
+  return (success) ? closing_bracket + 1 : NULL;
 }
 
 static char *
 parse_exponent (mps_context * ctx, char * line, int * degree)
 {
+  MPS_DEBUG_WITH_IO (ctx, "Exponent = %s", line);
+
   if (isspace (*line) || *line == '+' || *line == '-' || *line == '\0')
     {
       *degree = 0;
@@ -318,7 +320,7 @@ parse_exponent (mps_context * ctx, char * line, int * degree)
     else
       {	
 	if (*line != '^')
-	  {
+          {
 	    mps_error (ctx, "Unrecognized token after x: %c", *line);
 	    return NULL;
 	  }
@@ -485,6 +487,11 @@ mps_parse_inline_poly (mps_context *ctx, FILE * stream)
   char * token = mps_input_buffer_next_token (buffer);
   mps_boolean sign_found = true;
 
+  /* We use original_token to track the token received 
+   * by mps_input_buffer_next_token() and free it when
+   * it's not needed anymore. */
+  char * original_token = token;
+
   /* Start by assuming that we have a list of monomials. Every monomial
    * is of the form [+|-] C x[^K], where
    *
@@ -492,7 +499,7 @@ mps_parse_inline_poly (mps_context *ctx, FILE * stream)
    * K is the exponent, must be a positive integer. 
    */
   while (token)
-    {
+    {      
       switch (state)
 	{
 
@@ -532,6 +539,7 @@ mps_parse_inline_poly (mps_context *ctx, FILE * stream)
 		  char * new_token = mps_input_buffer_next_token (buffer); 
 		  
 		  token = mps_realloc (token, strlen (token) + strlen (new_token) + 1); 
+		  original_token = token;
 		  strcat (token, new_token); 
 
 		  free (new_token);
@@ -611,8 +619,10 @@ mps_parse_inline_poly (mps_context *ctx, FILE * stream)
 	  break;
 	}
 
-      if (!token || *token == '\0')
-	token = mps_input_buffer_next_token (buffer);
+      if (!token || *token == '\0') {
+	free (original_token);
+	original_token = token = mps_input_buffer_next_token (buffer);
+      }
     }
 
   if (poly_degree < 0)
@@ -630,6 +640,8 @@ mps_parse_inline_poly (mps_context *ctx, FILE * stream)
     }
 
  cleanup:
+
+  free (original_token);
   
   mps_input_buffer_free (buffer);
   mpq_clear (current_coefficient_real);
