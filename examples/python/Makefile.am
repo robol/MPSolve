@@ -10,12 +10,12 @@ else
   pyexec_LTLIBRARIES =
 endif
 
-nodist_mpsolve_la_SOURCES = $(builddir)/mpsolve.c
+nodist_mpsolve_la_SOURCES = mpsolve.c
 mpsolve_la_LDFLAGS = $(AM_LDFLAGS) $(MPSOLVE_LDFLAGS) -avoid-version -module
 mpsolve_la_LIBADD = $(top_builddir)/src/libmps/libmps.la
 
 if HAVE_CYTHON
-$(builddir)/mpsolve.c: $(srcdir)/mpsolve.pyx $(srcdir)/mpsolve.pxd
+mpsolve.c: $(srcdir)/mpsolve.pyx $(srcdir)/mpsolve.pxd
 	@$(CYTHON) -o $@ $(srcdir)/mpsolve.pyx -I$(top_srcdir)/include
 
 CLEANFILES = mpsolve.c
