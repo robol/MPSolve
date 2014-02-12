@@ -302,7 +302,7 @@ mps_parse_stream (mps_context * s, FILE * input_stream)
               /* This may be the case where an old format MPSolve file has been
                * given to MPSolve, since no option has been specified, so trying
                * to parse it that way */
-              MPS_DEBUG_WITH_INFO (s, "This is not a MPSolve 3.1.5 pol file, so trying with 2.x format");
+              MPS_DEBUG_WITH_INFO (s, "This is not a MPSolve 3 pol file, so trying with 2.x format");
               poly = MPS_POLYNOMIAL (mps_monomial_poly_read_from_stream_v2 (s, buffer));
 
               if (poly)
