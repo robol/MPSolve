@@ -21,4 +21,6 @@ mpsolve.c: $(srcdir)/mpsolve.pyx $(srcdir)/mpsolve.pxd
 CLEANFILES = mpsolve.c
 endif
 
+SUBDIRS = tests 
+
 endif
