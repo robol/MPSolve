@@ -514,6 +514,7 @@ typedef int mps_debug_level;
 #include <mps/chebyshev.h>
 #include <mps/approximation.h>
 #include <mps/matrix.h>
+#include <mps/utils.h>
 
 /* Interface should be a subset of core, so what is defined
  * there should be included here. */
@@ -552,6 +553,7 @@ typedef int mps_debug_level;
   mps_approximation * mps_approximation_copy (mps_context * ctx, mps_approximation * original);
 
   /* functions in cluster.c */
+#ifdef _MPS_PRIVATE
   void mps_cluster_reset (mps_context * s);
   void mps_fcluster (mps_context * s, double * frad, int nf);
   void mps_dcluster (mps_context * s, rdpe_t * drad, int nf);
@@ -572,6 +574,7 @@ typedef int mps_debug_level;
   void mps_free_data (mps_context * s);
   long int mps_raise_data (mps_context * s, long int prec);
   void mps_raise_data_raw (mps_context * s, long int prec);
+#endif
 
 
   /* functions in hessenberg-determinant.c */
@@ -585,17 +588,24 @@ typedef int mps_debug_level;
 #endif
 
   /* functions in improve.c */
+#ifdef _MPS_PRIVATE
   void mps_improve (mps_context * s);
+#endif
 
   /* functions in jacobi-aberth.c */
+#ifdef _MPS_PRIVATE
   int mps_faberth_packet (mps_context * ctx, mps_polynomial * p, mps_boolean just_regenerated);
   int mps_daberth_packet (mps_context * ctx, mps_polynomial * p, mps_boolean just_regenerated);
   int mps_maberth_packet (mps_context * ctx, mps_polynomial * p, mps_boolean just_regenerated);
+#endif
   
   /* functions in main.c */
+#ifdef _MPS_PRIVATE
   void mps_setup (mps_context * s);
   void mps_check_data (mps_context * s, char *which_case);
   void mps_compute_sep (mps_context * s);
+#endif
+
   void mps_standard_mpsolve (mps_context * s);
 
   /* functions in newton.c */
@@ -772,6 +782,11 @@ typedef int mps_debug_level;
   void mps_mhorner (mps_context * s, mps_monomial_poly * p, mpc_t x, mpc_t value);
   void mps_mhorner_with_error (mps_context * s, mps_monomial_poly * p, mpc_t x, mpc_t value, rdpe_t relative_error, long int wp);
   void mps_mhorner_with_error2 (mps_context * s, mps_monomial_poly * p, mpc_t x, mpc_t value, rdpe_t relative_error, long int wp);
+
+    /* Functions in utils.c */
+    char * build_equivalent_rational_string (mps_context * ctx, const char * line, 
+					     long int * exponent, int * sign);
+
 
 #ifdef __cplusplus
   }

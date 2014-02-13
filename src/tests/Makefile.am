@@ -2,7 +2,7 @@ if CHECK
  
 
 check_PROGRAMS = check_context check_mpc check_matrix check_dpe check_multithread check_cluster \
-	check_chebyshev check_parser check_secsolve check_unisolve	
+	check_chebyshev check_parser check_utils check_secsolve check_unisolve	
 
 TESTS = $(check_PROGRAMS)  
 
@@ -16,6 +16,10 @@ COMMON_SOURCES = check_implementation.c check_implementation.h
  check_parser_SOURCES = check_parser.c $(COMMON_SOURCES)
  check_parser_CFLAGS = $(COMMON_CFLAGS)
  check_parser_LDFLAGS = $(COMMON_LIBS) 
+
+ check_utils_SOURCES = check_utils.c $(COMMON_SOURCES)
+ check_utils_CFLAGS = $(COMMON_CFLAGS)
+ check_utils_LDFLAGS = $(COMMON_LIBS) 
 
  check_mpc_SOURCES = check_mpc.c $(COMMON_SOURCES)
  check_mpc_CFLAGS = $(COMMON_CFLAGS)

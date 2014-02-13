@@ -65,25 +65,28 @@ parse_fp_exponent (mps_context * ctx, char * exponent_start)
   return response;
 }
 
-static char * build_equivalent_rational_string (mps_context * ctx, char * line, long int * exponent, int * sign)
+MPS_PRIVATE 
+char * build_equivalent_rational_string (mps_context * ctx, const char * orig_line, long int * exponent, int * sign)
 {
   int i;
-  char * sep = find_fp_separator (ctx, line);
+  char * line = NULL;
 
   /* This an over estimate of the length of the _real_ token that we 
    * have to parse but, given that we use mps_input_buffer to perform
    * the tokenization of the input, it will not hopefully be a "big"
    * over-estimate. */
-  char * allocated_line = strdup (line);
-  char * copy = mps_newv (char, 2 * strlen (line) + 5);
+  char * allocated_line = strdup (orig_line);
+  char * copy = mps_newv (char, 2 * strlen (orig_line) + 5);
   char * copy_ptr = copy; 
   char * line_ptr = allocated_line;
-  char * line_end = allocated_line + strlen (line);
+  char * line_end = allocated_line + strlen (orig_line);
   long int denominator = 0;
   mps_boolean dot_found = false;
   mps_boolean sign_found = false;
 
   line = allocated_line;
+
+  char * sep = find_fp_separator (ctx, line);
 
   /* Note that a string could have a prepended sign */
   line = parse_sign (ctx, line, sign, &sign_found);

@@ -27,6 +27,7 @@ include_HEADERS = \
 	${top_srcdir}/include/mps/context.h \
 	${top_srcdir}/include/mps/options.h \
 	${top_srcdir}/include/mps/polynomial.h \
+	${top_srcdir}/include/mps/utils.h \
 	$(NULL)
 
 AM_CPPFLAGS= \
@@ -92,6 +93,7 @@ libmps_la_SOURCES = \
 	    tools.c \
 	    touch.c \
 	    user.c \
+	    utils.c \
 	    validation.c \
 	    $(NULL)
 
