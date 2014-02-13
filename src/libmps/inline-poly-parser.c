@@ -540,6 +540,12 @@ mps_parse_inline_poly (mps_context *ctx, FILE * stream)
 	      while (strchr (token, ')') == NULL)
 		{
 		  char * new_token = mps_input_buffer_next_token (buffer); 
+
+		  if (! new_token) 
+		    {
+		      mps_error (ctx, "Cannot find closing bracket for complex coefficient");
+		      goto cleanup;
+		    }
 		  
 		  token = mps_realloc (token, strlen (token) + strlen (new_token) + 1); 
 		  original_token = token;
