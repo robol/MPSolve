@@ -27,12 +27,19 @@ cdef class Context:
             mps_context_free(self._c_ctx)
 
     def set_input_poly(self, poly):
+        """Select the polynomial that should be solved when mpsolve() is called.
+        Note that each Context can only solve one polynomial at a time."""
         self._set_input_poly(poly)
 
     cdef _set_input_poly(self, Polynomial poly):
         mps_context_set_input_poly(self._c_ctx, <mps_polynomial*> (poly._c_polynomial))
 
     def mpsolve(self, poly = None, algorithm = MPS_ALGORITHM_SECULAR_GA):
+        """Calling this method will trigger the solution of the polynomial
+        previously loaded by a call to set_input_poly, or to the one passed
+        as second argument to this function. 
+        
+        An optional third argument specify the desired algorithm. """
         if poly is not None:
             self.set_input_poly(poly)
 
@@ -45,10 +52,16 @@ cdef class Context:
         mps_mpsolve(self._c_ctx)
 
     def solve(self, poly = None, algorithm = MPS_ALGORITHM_SECULAR_GA):
+        """Simple shorthand for the combination of set_input_poly() and mpsolve(). 
+        This function directly returns the approximations that could otherwise be
+        obtained by a call to the get_roots() method. """
         self.mpsolve(poly)
         return self.get_roots()
 
     def get_roots(self):
+        """Returns  the approximations obtained by MPSolve after a call to the mpsolve
+        method. Consider using the convienience solve() method, that is usually more
+        convenient."""
         cdef cplx_t * results = NULL
         mps_context_get_roots_d (self._c_ctx, &results, NULL)
 
