@@ -1,7 +1,7 @@
 if HAVE_UI
 
 bin_PROGRAMS = $(QT_PROGRAMS)
-EXTRA_PROGRAMS = xmpsolve$(EXEEXT)
+EXTRA_PROGRAMS = xmpsolve
 
 man_MANS = ${builddir}/xmpsolve.1
 
