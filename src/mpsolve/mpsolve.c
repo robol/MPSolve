@@ -142,6 +142,8 @@ usage (mps_context * s, const char *program)
            "               r: right half-plane { x | Re(x) > 0 } \n"
            "               i: inside the unit circle: { x | |x| < 1 } \n"
            "               o: outside the unit circle { x | |x| > 1 } \n"
+	   "               R: real axis { x | Im(x) = 0 } \n"
+	   "               I: imaginary axis { x | Re(x) = 0 }\n"
            " -D detect   Detect properties of the roots:\n"
            "               r: real roots\n"
            "               i: imaginary roots\n"

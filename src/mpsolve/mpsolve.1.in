@@ -53,6 +53,10 @@ r: right half\-plane { x | Re(x) > 0 }
 i: inside the unit circle: { x | |x| < 1 }
 .br
 o: outside the unit circle { x | |x| > 1 }
+.br
+R: real axis { x | Im(x) = 0 }
+.br
+I: imaginary axis { x | Re(x) = 0 }
 .TP
 \fB\-D\fR detect
 Detect properties of the roots:
