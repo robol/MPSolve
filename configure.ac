@@ -485,10 +485,8 @@ AS_IF([test x$build_examples == xyes], [
 AM_CONDITIONAL([BUILD_MATLAB_TOOLBOX], [test "$enable_matlab" == "yes"])
 
 
-# == CYTHON MODULE for PYTHON ==
-# Check if we can found the cython executable in the path. If found, 
-# assume that we can build cython
-PYTHON_MODULES=mpsolve.la
+# == PYTHON MODULE ==
+have_python=yes
 AM_PATH_PYTHON([2.3],,[:])
 AC_ARG_VAR([PYTHON_INCLUDE], [Include flags for python, bypassing python-config])
 AC_ARG_VAR([PYTHON_CONFIG], [Path to python-config])
@@ -500,18 +498,24 @@ AS_IF([test -z "$PYTHON_INCLUDE"], [
                   [`dirname $PYTHON`])
     AS_IF([test "$PYTHON_CONFIG" = no], [
         AC_MSG_WARN([cannot find python-config for $PYTHON.])
-        PYTHON_MODULES=
+	have_python=no
     ], [
         AC_MSG_CHECKING([python include flags])
         PYTHON_INCLUDE=`$PYTHON_CONFIG --includes`
         AC_MSG_RESULT([$PYTHON_INCLUDE])
+	
+	AX_PYTHON_MODULE([ctypes])
+
+	AS_IF([test "$HAVE_PYMOD_CTYPES" = "no"], [
+		    have_python=no
+	])
     ])
   ])
 
 ])
 
-AM_CONDITIONAL([HAVE_PYTHON], [test "$PYTHON_MODULES" == "mpsolve.la"])
-AM_CONDITIONAL([BUILD_PYTHON_MODULE], [test "$PYTHON_MODULES" == "mpsolve.la" && test "$disable_examples" != "xyes"])
+AM_CONDITIONAL([HAVE_PYTHON], [test "$have_python" == "yes"])
+AM_CONDITIONAL([BUILD_PYTHON_MODULE], [test "$have_python" == "yes" && test "$disable_examples" != "xyes"])
 
 # Trick to get the extension of the python module right. 
 host_os=`echo "$host" | sed 's/^\([^-]*\)-\([^-]*\)-\(.*\)$/\3/'`
@@ -521,15 +525,6 @@ case "$host_os" in
     py_libext=dll
     ;;
 esac
-
-AC_CHECK_PROGS([CYTHON], [cython])
-AS_IF([test x"$CYTHON" == x""], [
-  PYTHON_MODULES=
-], [
-])
-AC_SUBST(PYTHON_MODULES)
-
-AM_CONDITIONAL([HAVE_CYTHON], [test "$CYTHON" != ""])
 
 # Check for GTK libraries to enable the example that is given
 # in examples/gtk
@@ -624,11 +619,8 @@ else
 	echo "	Graphical UI:		no"
 fi
 
-if [test x"$PYTHON_MODULES" = x""]; then
-        echo "	Python module:          no"
-else
-        echo "	Python module:          yes"
-fi
+        echo "	Python module:          $HAVE_PYTHON"
+
 
 echo "
 Type 'make' to compile MPSolve, and then make install

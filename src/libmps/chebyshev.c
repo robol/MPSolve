@@ -174,3 +174,17 @@ mps_chebyshev_poly_set_coefficient_q (mps_context * ctx, mps_chebyshev_poly * po
   mpf_set_q (mpc_Re (cpoly->mfpc[i]), real_part);
   mpf_set_q (mpc_Im (cpoly->mfpc[i]), imag_part);
 }
+
+void 
+mps_chebyshev_poly_set_coefficient_i (mps_context * ctx, mps_chebyshev_poly * poly,
+				      int i, long int real_coeff, long int imag_coeff)
+{
+  mps_chebyshev_poly * cpoly = MPS_CHEBYSHEV_POLY (poly);
+  
+  mpq_set_si (cpoly->rational_real_coeffs[i], real_coeff, 1L); 
+  mpq_set_si (cpoly->rational_imag_coeffs[i], imag_coeff, 1L);
+
+  mpf_set_q (mpc_Re (cpoly->mfpc[i]), cpoly->rational_real_coeffs[i]);
+  mpf_set_q (mpc_Im (cpoly->mfpc[i]), cpoly->rational_imag_coeffs[i]);
+}
+

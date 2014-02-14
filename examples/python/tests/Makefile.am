@@ -4,6 +4,6 @@ TESTS = simple_polynomial.py algorithms.py
 # the locally built module is always preferred to the system one. 
 AM_TESTS_ENVIRONMENT = \
 	export LD_LIBRARY_PATH=${top_builddir}/src/libmps/.libs; \
-	export PYTHONPATH=${top_builddir}/examples/python/.libs;
+	export PYTHONPATH=${top_srcdir}/examples/python/;
 	
 EXTRA_DIST = simple_polynomial.py algorithms.py

@@ -94,6 +94,21 @@ extern "C" {
  void mps_chebyshev_poly_set_coefficient_f (mps_context * ctx, mps_chebyshev_poly * poly,
         int i, mpc_t coeff);
 
+ /**
+  * @brief Set the coefficient of the i-th element of the Chebyshev base. 
+  *
+  * This function takes an integer value as input. 
+  *
+  * @param ctx The current mps_context
+  * @param poly The Chebyshev polynomial whose coefficient should be set. 
+  * @param i The degree of the coefficient to set. 
+  * @param real_coeff The real part of the new coefficient. 
+  * @param imag_coeff The imaginary part of the new coefficient.
+  */
+  void mps_chebyshev_poly_set_coefficient_i (mps_context * ctx, mps_chebyshev_poly * poly,
+					     int i, long int real_coeff, long int imag_coeff);
+     
+
 
 #ifdef __cplusplus
 }
