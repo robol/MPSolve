@@ -19,7 +19,6 @@ m4/ltsugar.m4
 m4/ltversion.m4
 m4/lt~obsolete.m4
 missing
-test-driver
 conta_righe.sh
 src/xmpsolve/xmpsolve.pro.user
 android-ext
