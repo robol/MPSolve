@@ -97,7 +97,7 @@ mps_utils_build_equivalent_rational_string (mps_context * ctx,
 	  /* Move the denominator se we have space to fill the numerator 
 	   * with zeros. */
 	  memmove (ptr + exponent, ptr, 
-		   length - (ptr - equivalent_rational_string));
+		   length - (ptr - equivalent_rational_string) + 1);
 	}
       else
 	{
