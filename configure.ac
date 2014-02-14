@@ -619,7 +619,7 @@ else
 	echo "	Graphical UI:		no"
 fi
 
-        echo "	Python module:          $HAVE_PYTHON"
+        echo "	Python module:          $have_python"
 
 
 echo "
