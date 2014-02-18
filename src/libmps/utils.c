@@ -38,7 +38,7 @@ mps_utils_strip_string (mps_context * ctx,
     end--;
 
   *(end + 1) = '\0';
-  start = mps_realloc (start, end - start + 1);
+  start = mps_realloc (start, end - start + 2);
 
   return start;
 }
@@ -50,6 +50,9 @@ mps_utils_build_equivalent_rational_string (mps_context * ctx,
   int sign = 1;
   long int exponent = 0;
   char * ptr = NULL;
+
+  if (input == NULL)
+    return strdup ("0");
 
   ptr = 
     build_equivalent_rational_string (ctx, input, 
@@ -109,7 +112,7 @@ mps_utils_build_equivalent_rational_string (mps_context * ctx,
 
       memset (ptr, '0', exponent);
     }
-  else 
+  else if (exponent < 0)
     {
       size_t length = strlen (equivalent_rational_string);
       char * slash = strchr (equivalent_rational_string, '/'); 

@@ -163,6 +163,17 @@ extern "C"
                                               mpc_t coeff);
   void mps_monomial_poly_set_coefficient_int (mps_context * s, mps_monomial_poly * mp, long int i,
                                               long long real_part, long long imag_part);
+
+  void mps_monomial_poly_set_coefficient_s (mps_context * s, mps_monomial_poly * p, 
+					    int i, const char * real_coeff,
+					    const char * imag_coeff); 
+
+  void mps_monomial_poly_get_coefficient_d (mps_context * s, mps_monomial_poly * p,
+					    int i, cplx_t output);
+
+  void mps_monomial_poly_get_coefficient_q (mps_context * s, mps_monomial_poly * p,
+					    int i, mpq_t real_output, mpq_t imag_output);
+
   mps_monomial_poly * mps_monomial_poly_derive (mps_context * s, mps_monomial_poly * p, int k, long int wp);
 
   mps_boolean mps_monomial_poly_feval (mps_context * ctx, mps_polynomial *p, cplx_t x, cplx_t value, double * error);

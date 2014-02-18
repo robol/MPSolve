@@ -223,6 +223,9 @@ main (void)
   int number_failed, n = 0, i;
   int digits[] = { 15, 100 };
 
+  if (getenv("MPS_SIMPLE_TESTS_ONLY") != NULL)
+    return EXIT_SUCCESS;
+
   starting_setup ();
 
   test_polynomials = (test_pol **) malloc (sizeof (test_pol *) * 46);

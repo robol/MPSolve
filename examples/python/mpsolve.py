@@ -136,14 +136,7 @@ class MonomialPoly(Polynomial):
         elif isinstance(coeff, float):
             _mps.mps_monomial_poly_set_coefficient_d(self._ctx._c_ctx, mp, n, coeff, 0)
         elif isinstance(coeff, str):
-            # We expect the user to specify the input as string in case of rational
-            # input. 
-            eq = _mps.mps_utils_build_equivalent_rational_string (self._ctx._c_ctx, 
-                                                                    coeff)
-            mpq_set_str (qcoeff, eq, 10)
-            _mps.mps_monomial_poly_set_coefficient_q (self._ctx._c_ctx, 
-                                                      mp, n, qcoeff, qzero)
-
+            _mps.mps_monomial_poly_set_coefficient_s(self._ctx._c_ctx, mp, n, coeff, None);
         else:
             raise RuntimeError("Coefficient type not supported")
 

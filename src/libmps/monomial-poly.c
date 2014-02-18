@@ -415,6 +415,97 @@ mps_monomial_poly_set_coefficient_f (mps_context * s, mps_monomial_poly * p, lon
     mpc_mul_ui (p->mfppc[i-1], p->mfppc[i], i);
 }
 
+/**
+ * @brief Set the \f$i\f$-th coefficient of the polynomial. 
+ *
+ * @param s The current mps_context.
+ * @param p The polynomial whose coefficient should be set. 
+ * @param i The degree of the coefficient to set. 
+ * @param real_coeff A string representing the real part of the coefficient 
+ * that should be set, or NULL as an alias for \f$0\f$.
+ * @param imag_coeff A string representing the imaginary part of the coefficient
+ * that should be set, or NULL as an alias for \f$0\f$. 
+ */
+void
+mps_monomial_poly_set_coefficient_s (mps_context * s, mps_monomial_poly * p, 
+				     int i, const char * real_coeff,
+				     const char * imag_coeff)
+{
+  char * eq_real = mps_utils_build_equivalent_rational_string (s, real_coeff);
+  char * eq_imag = mps_utils_build_equivalent_rational_string (s, imag_coeff);
+
+  mpq_t tmp_real, tmp_imag;
+  mpq_init (tmp_real); 
+  mpq_init (tmp_imag);
+
+  if (eq_real != NULL)
+    mpq_set_str (tmp_real, eq_real, 10); 
+  else
+    mps_warn (s, "Invalid input for mps_monomial_set_coefficient_s: %s", real_coeff);
+
+  if (eq_imag != NULL)
+    mpq_set_str (tmp_imag, eq_imag, 10);
+  else
+    mps_warn (s, "Invalid input for mps_monomial_set_coefficient_s: %s", imag_coeff);
+
+  mps_monomial_poly_set_coefficient_q (s, p, i, tmp_real, tmp_imag);
+
+  mpq_clear (tmp_real);
+  mpq_clear (tmp_imag);
+
+  free (eq_real);
+  free (eq_imag);
+}
+
+/**
+ * @brief Get a double version of the \f$i\f$-th coefficient of the polynomial. 
+ *
+ * @param s The current mps_context.
+ * @param p The polynomial of which you want to know the coefficient. 
+ * @param i The degree of the coefficient to obtain.
+ * @param output A cplx_t where the result will be stored.
+ */
+void mps_monomial_poly_get_coefficient_d (mps_context * s, mps_monomial_poly * p,
+					  int i, cplx_t output)
+{
+  if (i >= 0 && i <= MPS_POLYNOMIAL (p)->degree)
+    cplx_set (output, p->fpc[i]);
+  else
+    cplx_set (output, cplx_zero);
+}
+
+/**
+ * @brief Get a rational version of the \f$i\f$-th coefficient of the polynomial. 
+ *
+ * @param s The current mps_context.
+ * @param p The polynomial of which you want to know the coefficient. 
+ * @param i The degree of the coefficient to obtain.
+ * @param output A mpq_t where the result will be stored.
+ */
+void mps_monomial_poly_get_coefficient_q (mps_context * s, mps_monomial_poly * p,
+					  int i, mpq_t real_output, mpq_t imag_output)
+{
+  mps_polynomial *poly = MPS_POLYNOMIAL (p);
+
+  if ( (!MPS_STRUCTURE_IS_RATIONAL (poly->structure)) && 
+       (!MPS_STRUCTURE_IS_INTEGER  (poly->structure)) )
+    {
+      mps_error (s, "Cannot extract rational coefficients from a floating point polynomial");
+      return;
+    }
+
+  if (i >= 0 && i <= poly->degree)
+    {
+      mpq_set (real_output, p->initial_mqp_r[i]); 
+      mpq_set (imag_output, p->initial_mqp_i[i]);
+    }
+  else
+    {
+      mpq_set_si (real_output, 0, 1);
+      mpq_set_si (imag_output, 0, 1);
+    }
+}
+
 /** 
  * @brief Get the k-th derivative of p with floating point coefficients 
  * approximated with the precision wp. 

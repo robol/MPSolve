@@ -159,6 +159,9 @@ main (void)
   SRunner *sr = srunner_create (cs);
   int number_failed;
 
+  if (getenv ("MPS_SIMPLE_TESTS_ONLY") != NULL)
+    return EXIT_SUCCESS;
+
   srunner_run_all (sr, CK_NORMAL);
 
   /* Get number of failed test and report */
