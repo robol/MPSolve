@@ -764,26 +764,37 @@ mps_dump_status (mps_context * s, FILE * outstr)
 
 /**
  * @brief Print a warning to the user. 
- * @param s A pointer to the current mps_context. 
+ *
+ * @param st The current mps_context
+ * @param format The printf-like format for the data to print
  */
 void
-mps_warn (mps_context * st, char *s)
+mps_warn (mps_context * st, char *format, ...)
 {
   char * exclamation_mark = "";
+
+  va_list ap;
+  va_start (ap, format);
+
   if (mps_is_a_tty (st->logstr))
     exclamation_mark = "\033[33;1m!\033[0m";
       
   if (st->DOWARN)
     {
-      if (s[strlen (s)] == '\n')
+      if (format[strlen (format)] == '\n')
         {
-          fprintf (stderr, "%s %s", exclamation_mark, s);
+          fprintf (stderr, "%s ", exclamation_mark);
+	  vfprintf (stderr, format, ap);
         }
       else
         {
-          fprintf (stderr, "%s %s\n", exclamation_mark, s);
+          fprintf (stderr, "%s ", exclamation_mark);
+	  vfprintf (stderr, format, ap);
+	  fprintf (stderr, "\n");
         }
     }
+
+  va_end (ap);
 }
 
 /**
