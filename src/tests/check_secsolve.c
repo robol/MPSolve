@@ -611,6 +611,9 @@ main (void)
 {
   int number_failed, standard = 0;
 
+  if (getenv("MPS_SIMPLE_TESTS_ONLY") != NULL)
+    return EXIT_SUCCESS;
+
   starting_setup ();
 
   /* Create a new test suite for secsolve and run it */
