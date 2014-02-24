@@ -4,7 +4,7 @@
  * Copyright (C) 2001-2014, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
- * Authors: 
+ * Authors:
  *   Dario Andrea Bini <bini@dm.unipi.it>
  *   Giuseppe Fiorentino <fiorent@dm.unipi.it>
  *   Leonardo Robol <robol@mail.dm.unipi.it>
@@ -18,7 +18,7 @@
 void *
 mps_thread_fpolzer_worker (void *data_ptr)
 {
-  mps_thread_worker_data *data = (mps_thread_worker_data *) data_ptr;
+  mps_thread_worker_data *data = (mps_thread_worker_data*)data_ptr;
   mps_context *s = data->s;
   mps_polynomial *p = s->active_poly;
   int i, iter;
@@ -71,11 +71,11 @@ mps_thread_fpolzer_worker (void *data_ptr)
                derivative is too small.
                In this case the previous radius bound, obtained by
                means of Rouche' is more reliable and strict
-          **************************************/
+           **************************************/
 
           if (s->root[i]->again
               /* the correction is performed only if iter!=1 or rad(i)!=rad1 */
-             || iter != 0 || s->root[i]->frad != rad1)
+              || iter != 0 || s->root[i]->frad != rad1)
             {
               mps_faberth (s, s->root[i], abcorr);
 
@@ -111,7 +111,6 @@ mps_thread_fpolzer_worker (void *data_ptr)
         }
 
       pthread_mutex_unlock (&data->roots_mutex[i]);
-
     }
 
   return NULL;
@@ -128,9 +127,9 @@ mps_thread_fpolzer (mps_context * s, int *it, mps_boolean * excep, int required_
 
   mps_thread_worker_data *data;
   pthread_mutex_t *aberth_mutex =
-    (pthread_mutex_t *) mps_malloc (sizeof (pthread_mutex_t) * s->n);
+    (pthread_mutex_t*)mps_malloc (sizeof(pthread_mutex_t) * s->n);
   pthread_mutex_t *roots_mutex =
-    (pthread_mutex_t *) mps_malloc (sizeof (pthread_mutex_t) * s->n);
+    (pthread_mutex_t*)mps_malloc (sizeof(pthread_mutex_t) * s->n);
 
   for (i = 0; i < s->n; i++)
     {
@@ -156,8 +155,8 @@ mps_thread_fpolzer (mps_context * s, int *it, mps_boolean * excep, int required_
       return;
     }
 
-  data = (mps_thread_worker_data *) mps_malloc (sizeof (mps_thread_worker_data)
-                                                * n_threads);
+  data = (mps_thread_worker_data*)mps_malloc (sizeof(mps_thread_worker_data)
+                                              * n_threads);
 
   for (i = 0; i < n_threads; i++)
     {
@@ -172,7 +171,7 @@ mps_thread_fpolzer (mps_context * s, int *it, mps_boolean * excep, int required_
       data[i].queue = queue;
       data[i].required_zeros = required_zeros;
       /* pthread_create (&threads[i], NULL, &mps_thread_fpolzer_worker, */
-                      /* data + i); */
+      /* data + i); */
       mps_thread_pool_assign (s, s->pool, mps_thread_fpolzer_worker, data + i);
     }
 
@@ -195,7 +194,7 @@ mps_thread_dpolzer_worker (void *data_ptr)
   cdpe_t corr, abcorr;
 
   /* Parse input data */
-  mps_thread_worker_data *data = (mps_thread_worker_data *) data_ptr;
+  mps_thread_worker_data *data = (mps_thread_worker_data*)data_ptr;
   mps_context *s = data->s;
   mps_polynomial *p = s->active_poly;
   mps_thread_job job;
@@ -233,12 +232,12 @@ mps_thread_dpolzer_worker (void *data_ptr)
               && rdpe_ne (rad1, rdpe_zero))
             rdpe_set (s->root[i]->drad, rad1);
           /************************************************
-           The above condition is needed to manage with the case where
-           at the first iteration the starting point is already in the
-           root neighbourhood and the actually computed radius is too
-           big since the value of the first derivative is too small.
-           In this case the previous radius bound, obtained by means of
-           Rouche' is more reliable and strict
+             The above condition is needed to manage with the case where
+             at the first iteration the starting point is already in the
+             root neighbourhood and the actually computed radius is too
+             big since the value of the first derivative is too small.
+             In this case the previous radius bound, obtained by means of
+             Rouche' is more reliable and strict
            **********************************************/
 
           if (s->root[i]->again
@@ -306,12 +305,12 @@ mps_thread_dpolzer (mps_context * s, int *it, mps_boolean * excep, int required_
   mps_thread_job_queue *queue = mps_thread_job_queue_new (s);
 
   /* Allocate space for thread data */
-  data = (mps_thread_worker_data *) mps_malloc (sizeof (mps_thread_worker_data)
-                                            * s->n_threads);
+  data = (mps_thread_worker_data*)mps_malloc (sizeof(mps_thread_worker_data)
+                                              * s->n_threads);
 
   /* Allocate mutexes and init them */
-  aberth_mutex = (pthread_mutex_t *) mps_malloc (sizeof (pthread_mutex_t) * s->n);
-  roots_mutex = (pthread_mutex_t *) mps_malloc (sizeof (pthread_mutex_t) * s->n);
+  aberth_mutex = (pthread_mutex_t*)mps_malloc (sizeof(pthread_mutex_t) * s->n);
+  roots_mutex = (pthread_mutex_t*)mps_malloc (sizeof(pthread_mutex_t) * s->n);
   for (i = 0; i < s->n; i++)
     {
       pthread_mutex_init (&aberth_mutex[i], NULL);
@@ -349,7 +348,7 @@ mps_thread_dpolzer (mps_context * s, int *it, mps_boolean * excep, int required_
 static void *
 mps_thread_mpolzer_worker (void *data_ptr)
 {
-  mps_thread_worker_data *data = (mps_thread_worker_data *) data_ptr;
+  mps_thread_worker_data *data = (mps_thread_worker_data*)data_ptr;
   mps_context *s = data->s;
   mps_polynomial *p = s->active_poly;
   mps_thread_job job;
@@ -363,7 +362,7 @@ mps_thread_mpolzer_worker (void *data_ptr)
   mpc_init2 (mroot, s->mpwp);
   mpc_init2 (diff, s->mpwp);
 
-  rdpe_mul_d (eps, s->mp_epsilon, (double) 4 * s->n);
+  rdpe_mul_d (eps, s->mp_epsilon, (double)4 * s->n);
 
   /* Continue to iterate while exception condition has not
    * been reached and there more roots to approximate   */
@@ -414,20 +413,20 @@ mps_thread_mpolzer_worker (void *data_ptr)
           rdpe_set (rad1, s->root[l]->drad);
 
           mps_polynomial_mnewton (s, p, s->root[l], corr, s->mpwp);
-          
+
           if (iter == 0 && !s->root[l]->again && rdpe_gt (s->root[l]->drad, rad1)
               && rdpe_ne (rad1, rdpe_zero))
             rdpe_set (s->root[l]->drad, rad1);
 
           /************************************************
-          The above condition is needed to cope with the case
-          where at the first iteration the starting point is
-          already in the root neighbourhood and the actually
-          computed radius is too big since the value of the
-          first derivative is too small.
-          In this case the previous radius bound, obtained by
-          means of Rouche' is more reliable and strict
-          ***********************************************/
+             The above condition is needed to cope with the case
+             where at the first iteration the starting point is
+             already in the root neighbourhood and the actually
+             computed radius is too big since the value of the
+             first derivative is too small.
+             In this case the previous radius bound, obtained by
+             means of Rouche' is more reliable and strict
+           ***********************************************/
 
           if (s->root[l]->again
               /* the correction is performed only if iter!=1 or rad[l]!=rad1 */
@@ -473,9 +472,8 @@ mps_thread_mpolzer_worker (void *data_ptr)
                   goto endfun;
                 }
             }
-
         }
-      
+
       pthread_mutex_unlock (&data->roots_mutex[l]);
 
       /* MPS_DEBUG_MPC (s, 15, s->root[l]->mvalue, "s->mroot[%d]", l); */
@@ -517,10 +515,10 @@ mps_thread_mpolzer (mps_context * s, int *it, mps_boolean * excep, int required_
     }
 
   /* Lower the number of threads if there are a lot of approximated roots */
-  if (s->n_threads > (s->n - nzeros))    
-    n_threads = s->n - nzeros;    
-  else    
-    n_threads = s->n_threads;  
+  if (s->n_threads > (s->n - nzeros))
+    n_threads = s->n - nzeros;
+  else
+    n_threads = s->n_threads;
 
   MPS_DEBUG_WITH_INFO (s, "Spawning %d worker", n_threads);
 
@@ -528,9 +526,9 @@ mps_thread_mpolzer (mps_context * s, int *it, mps_boolean * excep, int required_
 
   /* Allocate and the init mutexes needed by the routine */
   pthread_mutex_t *roots_mutex =
-    (pthread_mutex_t *) mps_malloc (sizeof (pthread_mutex_t) * s->n);
+    (pthread_mutex_t*)mps_malloc (sizeof(pthread_mutex_t) * s->n);
   pthread_mutex_t *aberth_mutex =
-    (pthread_mutex_t *) mps_malloc (sizeof (pthread_mutex_t) * s->n);
+    (pthread_mutex_t*)mps_malloc (sizeof(pthread_mutex_t) * s->n);
   pthread_mutex_t global_aberth_mutex = PTHREAD_MUTEX_INITIALIZER;
 
   for (i = 0; i < s->n; i++)
@@ -542,8 +540,8 @@ mps_thread_mpolzer (mps_context * s, int *it, mps_boolean * excep, int required_
   /* Create a new work queue */
   mps_thread_job_queue *queue = mps_thread_job_queue_new (s);
 
-  data = (mps_thread_worker_data *) mps_malloc (sizeof (mps_thread_worker_data)
-                                                * n_threads);
+  data = (mps_thread_worker_data*)mps_malloc (sizeof(mps_thread_worker_data)
+                                              * n_threads);
 
   /* Set data to be passed to every thread and actually spawn the threads. */
   for (i = 0; i < n_threads; i++)

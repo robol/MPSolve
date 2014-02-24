@@ -4,7 +4,7 @@
  * Copyright (C) 2001-2014, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
- * Authors: 
+ * Authors:
  *   Dario Andrea Bini <bini@dm.unipi.it>
  *   Giuseppe Fiorentino <fiorent@dm.unipi.it>
  *   Leonardo Robol <robol@mail.dm.unipi.it>
@@ -33,7 +33,7 @@ randomize (unsigned int seed)
       rf = fopen (RAND_SOURCE, "rb");
       if (rf != NULL)
         {
-          read_bytes = fread (&seed, sizeof (int), 1, rf);
+          read_bytes = fread (&seed, sizeof(int), 1, rf);
           if (read_bytes != 1)
             {
               fprintf (stderr, "Error while acquiring random seed!\n");
@@ -50,7 +50,7 @@ drand (void)
 #ifdef RAND_VAL
   return RAND_VAL;
 #else
-  return (double) rand () / RAND_MAX;
+  return (double)rand () / RAND_MAX;
 #endif
 }
 
@@ -58,7 +58,7 @@ drand (void)
 MPS_PRIVATE double
 dbl_set_2dl (double d, long int l)
 {
-  return ldexp (d, (int) l);
+  return ldexp (d, (int)l);
 }
 
 MPS_PRIVATE void

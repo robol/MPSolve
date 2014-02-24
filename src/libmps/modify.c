@@ -4,7 +4,7 @@
  * Copyright (C) 2001-2014, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
- * Authors: 
+ * Authors:
  *   Dario Andrea Bini <bini@dm.unipi.it>
  *   Giuseppe Fiorentino <fiorent@dm.unipi.it>
  *   Leonardo Robol <robol@mail.dm.unipi.it>
@@ -19,25 +19,29 @@ mps_cluster_detect_properties (mps_context * ctx, mps_cluster * cluster, mps_pha
 {
   mps_root * root = cluster->first;
   rdpe_t log_rad;
-  mps_boolean (*touch_check) (mps_context * , int, int);
+
+  mps_boolean (*touch_check)(mps_context *, int, int);
 
   if (ctx->output_config->root_properties & MPS_OUTPUT_PROPERTY_REAL)
     {
       /* Select the correct touch routine for us */
       switch (phase)
-      {
+        {
         case float_phase:
           touch_check = mps_ftouchreal;
           break;
+
         case dpe_phase:
           touch_check = mps_dtouchreal;
           break;
+
         case mp_phase:
           touch_check = mps_mtouchreal;
           break;
+
         default:
           return;
-      }
+        }
 
       /* For the moment we handle only the case of isolated roots. */
       if (cluster->n == 1)
@@ -55,28 +59,31 @@ mps_cluster_detect_properties (mps_context * ctx, mps_cluster * cluster, mps_pha
           if (touch_real_axis && rdpe_log (log_rad) < ctx->sep - ctx->n * ctx->lmax_coeff)
             ctx->root[root->k]->attrs = MPS_ROOT_ATTRS_REAL;
         }
-     }
+    }
 
   if (ctx->output_config->root_properties & MPS_OUTPUT_PROPERTY_IMAGINARY)
     {
       /* Select the correct touch routine for us */
       switch (phase)
         {
-          case float_phase:
-            touch_check = mps_ftouchimag;
-            break;
-          case dpe_phase:
-            touch_check = mps_dtouchimag;
-            break;
-          case mp_phase:
-            touch_check = mps_mtouchimag;
-            break;
-          default:
-            return;
+        case float_phase:
+          touch_check = mps_ftouchimag;
+          break;
+
+        case dpe_phase:
+          touch_check = mps_dtouchimag;
+          break;
+
+        case mp_phase:
+          touch_check = mps_mtouchimag;
+          break;
+
+        default:
+          return;
         }
-      
+
       for (root = cluster->first; root != NULL; root = root->next)
-        {        
+        {
           if (phase == float_phase)
             rdpe_set_d (log_rad, ctx->root[root->k]->frad);
           else
@@ -100,19 +107,19 @@ mps_cluster_detect_properties (mps_context * ctx, mps_cluster * cluster, mps_pha
  * The subroutine is used also for marking the new cluster
  * that have been detected between two consecutive packets
  * of Aberth's iteration.
- * 
+ *
  * -# The subroutine changes into 'C' the components of
  * status[:1) corresponding to old clusters, keeping
  * status[:,1)='c' for the new formed clusters.
  * In this way applying restart selects new starting
  * approximations only for the new detected clusters.
  *
- * -# For the components for which 
+ * -# For the components for which
  * status[:,1]!='C', 'f', 'x' performs the following
  * analysis:
  * If the cluster has mult=1 mark it with status[:1)='i'
  * if is also approximated mark it with status(:1)='a'
- * Check if c*u and i*u (i.e., uncertain set) can 
+ * Check if c*u and i*u (i.e., uncertain set) can
  * be made certain according to goal[1]
  *
  * -# Perform the same with options, that is,
@@ -155,7 +162,7 @@ mps_fmodify (mps_context * s, mps_boolean track_new_cluster)
       cluster = c_item->cluster;
 
       mps_cluster_detect_properties (s, cluster, float_phase);
-      
+
       /* Pick the first root in the cluster */
       root = cluster->first;
       l = root->k;
@@ -188,7 +195,7 @@ mps_fmodify (mps_context * s, mps_boolean track_new_cluster)
           /* If track_new_cluster is false then we may directly set here the
            * approximation status of the roots. */
           if (!track_new_cluster)
-            {     
+            {
               s->root[l]->status = MPS_ROOT_STATUS_CLUSTERED;
             }
 
@@ -249,7 +256,7 @@ mps_dmodify (mps_context * s, mps_boolean track_new_cluster)
       cluster = c_item->cluster;
 
       mps_cluster_detect_properties (s, cluster, dpe_phase);
-      
+
       /* Pick the first root in the cluster */
       root = cluster->first;
       l = root->k;
@@ -283,7 +290,7 @@ mps_dmodify (mps_context * s, mps_boolean track_new_cluster)
           rdpe_set (tmpr, s->root[l]->drad);
           cdpe_mod (tmpr2, s->root[l]->dvalue);
           rdpe_div_eq (tmpr, tmpr2);
-          if (rdpe_le (tmpr, s->eps_out)) 
+          if (rdpe_le (tmpr, s->eps_out))
             {
               s->root[l]->status = MPS_ROOT_STATUS_APPROXIMATED_IN_CLUSTER;
             }
@@ -301,7 +308,7 @@ mps_dmodify (mps_context * s, mps_boolean track_new_cluster)
 
 /**
  * @brief The multiprecision version of the routine
- * <code>mps_fmodify()</code>. 
+ * <code>mps_fmodify()</code>.
  *
  * @param s The mps_context associated to the current computation.
  * @param track_new_cluster true if old clusters should be marked
@@ -338,7 +345,7 @@ mps_mmodify (mps_context * s, mps_boolean track_new_cluster)
       cluster = c_item->cluster;
 
       mps_cluster_detect_properties (s, cluster, mp_phase);
-      
+
       /* Pick the first root in the cluster */
       root = cluster->first;
       l = root->k;
@@ -373,8 +380,8 @@ mps_mmodify (mps_context * s, mps_boolean track_new_cluster)
           mpc_get_cdpe (cdtmp, s->root[l]->mvalue);
           cdpe_mod (tmpr2, cdtmp);
           rdpe_div_eq (tmpr, tmpr2);
-          if (rdpe_le (tmpr, s->eps_out)) 
-            s->root[l]->status = MPS_ROOT_STATUS_APPROXIMATED_IN_CLUSTER; 
+          if (rdpe_le (tmpr, s->eps_out))
+            s->root[l]->status = MPS_ROOT_STATUS_APPROXIMATED_IN_CLUSTER;
 
           root = root->next;
         }

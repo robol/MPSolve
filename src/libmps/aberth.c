@@ -4,7 +4,7 @@
  * Copyright (C) 2001-2014, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
- * Authors: 
+ * Authors:
  *   Dario Andrea Bini <bini@dm.unipi.it>
  *   Giuseppe Fiorentino <fiorent@dm.unipi.it>
  *   Leonardo Robol <robol@mail.dm.unipi.it>
@@ -219,7 +219,7 @@ mps_maberth_s_wl (mps_context * s, int j, mps_cluster * cluster, mpc_t abcorr,
   mps_root * root;
   cdpe_t z, temp;
   mpc_t diff, mroot;
-  
+
   mpc_init2 (mroot, s->mpwp);
   mpc_init2 (diff, s->mpwp);
 
@@ -240,7 +240,7 @@ mps_maberth_s_wl (mps_context * s, int j, mps_cluster * cluster, mpc_t abcorr,
       pthread_mutex_unlock (&aberth_mutexes[k]);
       mpc_get_cdpe (z, diff);
 
-      if (cdpe_eq_zero(z))
+      if (cdpe_eq_zero (z))
         continue;
 
       cdpe_inv_eq (z);

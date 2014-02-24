@@ -4,7 +4,7 @@
  * Copyright (C) 2001-2014, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
- * Authors: 
+ * Authors:
  *   Dario Andrea Bini <bini@dm.unipi.it>
  *   Giuseppe Fiorentino <fiorent@dm.unipi.it>
  *   Leonardo Robol <robol@mail.dm.unipi.it>
@@ -14,11 +14,11 @@
 
 /**
  * @brief Parse the stream that has been loaded into buffer and that
- * describe a mps_monomial_poly. 
+ * describe a mps_monomial_poly.
  *
  * @param s The current mps_context
  * @param buffer The buffer that needs to be parsed
- * @param The structure of the polynomial 
+ * @param The structure of the polynomial
  * @param The density configuration of the polynomial.
  * @param The input precision of the coefficients, if specified, 0 otherwise
  *
@@ -26,10 +26,10 @@
  */
 mps_monomial_poly *
 mps_monomial_poly_read_from_stream (mps_context * s,
-                                    mps_input_buffer * buffer, 
+                                    mps_input_buffer * buffer,
                                     mps_structure structure,
                                     mps_density density,
-				    long int precision)
+                                    long int precision)
 {
   mps_monomial_poly * poly;
   int i;
@@ -95,7 +95,7 @@ mps_monomial_poly_read_from_stream (mps_context * s,
                 }
               mpq_canonicalize (poly->initial_mqp_r[i]);
               free (token);
-      
+
               if (MPS_STRUCTURE_IS_COMPLEX (structure))
                 {
                   token = mps_input_buffer_next_token (buffer);
@@ -123,31 +123,31 @@ mps_monomial_poly_read_from_stream (mps_context * s,
        * any coefficient */
       for (i = 0; i <= s->n; ++i)
         poly->spar[i] = false;
-      
+
       while ((token = mps_input_buffer_next_token (buffer)))
         {
           /* Read the index from the buffer */
           if (!sscanf (token, "%d", &i))
-          {
-            mps_raise_parsing_error (s, buffer, token, "Error while parsing the degree of a monomial");
-            free (token); mps_polynomial_free (s, MPS_POLYNOMIAL (poly));
-            return NULL;
-          }
+            {
+              mps_raise_parsing_error (s, buffer, token, "Error while parsing the degree of a monomial");
+              free (token); mps_polynomial_free (s, MPS_POLYNOMIAL (poly));
+              return NULL;
+            }
 
-          if (i < 0 || i > s->n) 
+          if (i < 0 || i > s->n)
             {
               mps_raise_parsing_error (s, buffer, token, "Degree of coefficient out of bounds");
               free (token); mps_polynomial_free (s, MPS_POLYNOMIAL (poly));
               return NULL;
             }
 
-          if (poly->spar[i]) 
+          if (poly->spar[i])
             {
-              mps_raise_parsing_error (s, buffer, token, "A monomial of the same degree has been inserted twice"); 
+              mps_raise_parsing_error (s, buffer, token, "A monomial of the same degree has been inserted twice");
               free (token); mps_polynomial_free (s, MPS_POLYNOMIAL (poly));
               return NULL;
             }
-          else 
+          else
             poly->spar[i] = true;
           free (token);
 
@@ -161,7 +161,7 @@ mps_monomial_poly_read_from_stream (mps_context * s,
                   return NULL;
                 }
               free (token);
-          
+
               if (MPS_STRUCTURE_IS_COMPLEX (structure))
                 {
                   token = mps_input_buffer_next_token (buffer);
@@ -179,7 +179,6 @@ mps_monomial_poly_read_from_stream (mps_context * s,
           else if (MPS_STRUCTURE_IS_RATIONAL (structure) ||
                    MPS_STRUCTURE_IS_INTEGER (structure))
             {
-
               token = mps_input_buffer_next_token (buffer);
               if (!token || (mpq_set_str (poly->initial_mqp_r[i], token, 10) != 0))
                 {
@@ -189,7 +188,7 @@ mps_monomial_poly_read_from_stream (mps_context * s,
                 }
               mpq_canonicalize (poly->initial_mqp_r[i]);
               free (token);
-      
+
               if (MPS_STRUCTURE_IS_COMPLEX (structure))
                 {
                   token = mps_input_buffer_next_token (buffer);
@@ -225,13 +224,13 @@ mps_monomial_poly_read_from_stream (mps_context * s,
           poly->fap[i] = rdpe_get_d (poly->dap[i]);
 
           if (i > 0)
-            mpc_mul_ui (poly->mfppc[i-1], poly->mfppc[i], i);
+            mpc_mul_ui (poly->mfppc[i - 1], poly->mfppc[i], i);
         }
       else
         {
           cplx_set (poly->fpc[i], cplx_zero);
           cdpe_set (poly->dpc[i], cdpe_zero);
-          
+
           rdpe_set (poly->dap[i], rdpe_zero);
           poly->fap[i] = 0.0f;
         }
@@ -244,11 +243,11 @@ mps_monomial_poly_read_from_stream (mps_context * s,
 /**
  * @brief Parse the stream that has been loaded into buffer and that
  * describe a mps_monomial_poly. This function parse polynomials described
- * in the format of MPSolve 2.2. 
+ * in the format of MPSolve 2.2.
  *
  * @param s The current mps_context
  * @param buffer The buffer that needs to be parsed
- * @param The structure of the polynomial 
+ * @param The structure of the polynomial
  * @param The density configuration of the polynomial.
  *
  * @return A newly allocated mps_polynomial, or NULL if the parsing fails.
@@ -269,7 +268,7 @@ mps_monomial_poly_read_from_stream_v2 (mps_context * s, mps_input_buffer * buffe
 
   mpq_init (qtmp);
   mpf_init (ftmp);
-  
+
   /* Here we have the data_type in the input_buffer, since the first line has been read, or at least
    * that should be the case. */
   token = mps_input_buffer_next_token (buffer);
@@ -289,12 +288,15 @@ mps_monomial_poly_read_from_stream_v2 (mps_context * s, mps_input_buffer * buffe
     case 's':
       density = MPS_DENSITY_SPARSE;
       break;
+
     case 'd':
       density = MPS_DENSITY_DENSE;
       break;
+
     case 'u':
       density = MPS_DENSITY_USER;
       break;
+
     default:
       mps_error (s, "Found unsupported data_type in input file");
       goto cleanup;
@@ -306,9 +308,11 @@ mps_monomial_poly_read_from_stream_v2 (mps_context * s, mps_input_buffer * buffe
     case 'r':
       structure = MPS_STRUCTURE_REAL_FP;
       break;
+
     case 'c':
       structure = MPS_STRUCTURE_COMPLEX_FP;
       break;
+
     default:
       mps_error (s, "Found unsupported data_structure in input file");
       goto cleanup;
@@ -323,18 +327,21 @@ mps_monomial_poly_read_from_stream_v2 (mps_context * s, mps_input_buffer * buffe
       else if (MPS_STRUCTURE_IS_COMPLEX (structure))
         structure = MPS_STRUCTURE_COMPLEX_RATIONAL;
       break;
+
     case 'i':
       if (MPS_STRUCTURE_IS_REAL (structure))
         structure = MPS_STRUCTURE_REAL_INTEGER;
       else if (MPS_STRUCTURE_IS_COMPLEX (structure))
         structure = MPS_STRUCTURE_COMPLEX_INTEGER;
       break;
+
     case 'f':
       if (MPS_STRUCTURE_IS_REAL (structure))
         structure = MPS_STRUCTURE_REAL_FP;
       else if (MPS_STRUCTURE_IS_COMPLEX (structure))
         structure = MPS_STRUCTURE_COMPLEX_FP;
-      break;      
+      break;
+
     default:
       mps_error (s, "Found unsupported data structure in input file");
       goto cleanup;
@@ -353,7 +360,7 @@ mps_monomial_poly_read_from_stream_v2 (mps_context * s, mps_input_buffer * buffe
 
       goto cleanup;
     }
-  else 
+  else
     prec *= LOG2_10;
   free (token);
 
@@ -414,7 +421,7 @@ mps_monomial_poly_read_from_stream_v2 (mps_context * s, mps_input_buffer * buffe
 
   /* We still do not support sparse input */
   for (i = 0; i <= s->n; ++i)
-      poly->spar[i] = true;
+    poly->spar[i] = true;
 
   /* Dense parsing */
   if (MPS_DENSITY_IS_DENSE (density))
@@ -451,7 +458,8 @@ mps_monomial_poly_read_from_stream_v2 (mps_context * s, mps_input_buffer * buffe
                       mps_polynomial_free (s, MPS_POLYNOMIAL (poly));
                       poly = NULL;
 
-                      goto cleanup;                    }
+                      goto cleanup;
+                    }
                 }
               else
                 mpf_set_ui (mpc_Im (poly->mfpc[i]), 0U);
@@ -465,7 +473,7 @@ mps_monomial_poly_read_from_stream_v2 (mps_context * s, mps_input_buffer * buffe
               if (!token || (mpq_set_str (poly->initial_mqp_r[i], token, 10) != 0))
                 {
                   mps_raise_parsing_error (s, buffer, token, "Error parsing coefficients of the polynomial");
-                  
+
                   /* Cleanup temporary variables and exit */
                   if (token)
                     free (token);
@@ -476,14 +484,14 @@ mps_monomial_poly_read_from_stream_v2 (mps_context * s, mps_input_buffer * buffe
                 }
               mpq_canonicalize (poly->initial_mqp_r[i]);
               free (token);
-      
+
               if (MPS_STRUCTURE_IS_COMPLEX (structure))
                 {
                   token = mps_input_buffer_next_token (buffer);
                   if (!token || (mpq_set_str (poly->initial_mqp_i[i], token, 10) != 0))
                     {
                       mps_raise_parsing_error (s, buffer, token, "Error parsing coefficients of the polynomial");
-                      
+
                       /* Cleanup temporary variables and exit */
                       if (token)
                         free (token);
@@ -587,7 +595,7 @@ mps_monomial_poly_read_from_stream_v2 (mps_context * s, mps_input_buffer * buffe
                 }
               else
                 mpq_set_ui (poly->initial_mqp_i[i], 0U, 0U);
-            }     
+            }
         }
     } /* closes if (MPS_INPUT_CONFIG_IS_DENSE (s->input_config)) */
   else if (MPS_DENSITY_IS_SPARSE (density))
@@ -619,10 +627,10 @@ mps_monomial_poly_read_from_stream_v2 (mps_context * s, mps_input_buffer * buffe
               goto cleanup;
             }
 
-          if (i < 0 || i > s->n) 
+          if (i < 0 || i > s->n)
             {
               mps_raise_parsing_error (s, buffer, token, "Degree of coefficient out of bounds");
-              
+
               /* Cleanup temporary variables and exit */
               if (token)
                 free (token);
@@ -635,7 +643,7 @@ mps_monomial_poly_read_from_stream_v2 (mps_context * s, mps_input_buffer * buffe
           if (poly->spar[i])
             {
               mps_raise_parsing_error (s, buffer, token, "A monomial of the same degree has been inserted twice");
-              
+
               /* Cleanup temporary variables and exit */
               if (token)
                 free (token);
@@ -664,7 +672,7 @@ mps_monomial_poly_read_from_stream_v2 (mps_context * s, mps_input_buffer * buffe
                   goto cleanup;
                 }
               free (token);
-          
+
               if (MPS_STRUCTURE_IS_COMPLEX (structure))
                 {
                   token = mps_input_buffer_next_token (buffer);
@@ -691,7 +699,7 @@ mps_monomial_poly_read_from_stream_v2 (mps_context * s, mps_input_buffer * buffe
               if (!token || (mpq_set_str (poly->initial_mqp_r[i], token, 10) != 0))
                 {
                   mps_raise_parsing_error (s, buffer, token, "Error parsing coefficients of the polynomial");
-                  
+
                   /* Cleanup temporary variables and exit */
                   if (token)
                     free (token);
@@ -702,7 +710,7 @@ mps_monomial_poly_read_from_stream_v2 (mps_context * s, mps_input_buffer * buffe
                 }
               mpq_canonicalize (poly->initial_mqp_r[i]);
               free (token);
-      
+
               if (MPS_STRUCTURE_IS_COMPLEX (structure))
                 {
                   token = mps_input_buffer_next_token (buffer);
@@ -752,7 +760,7 @@ mps_monomial_poly_read_from_stream_v2 (mps_context * s, mps_input_buffer * buffe
               if (!token || (mpq_set_str (qtmp, token, 10)) != 0)
                 {
                   mps_raise_parsing_error (s, buffer, token, "Error parsing the denominator of a coefficient");
-                  
+
                   /* Cleanup temporary variables and exit */
                   if (token)
                     free (token);
@@ -773,7 +781,7 @@ mps_monomial_poly_read_from_stream_v2 (mps_context * s, mps_input_buffer * buffe
                   if (!token || (mpq_set_str (qtmp, token, 10)) != 0)
                     {
                       mps_raise_parsing_error (s, buffer, token, "Error parsing the numerator of a coefficient");
-                          
+
                       /* Cleanup temporary variables and exit */
                       if (token)
                         free (token);
@@ -790,7 +798,7 @@ mps_monomial_poly_read_from_stream_v2 (mps_context * s, mps_input_buffer * buffe
                   if (!token || (mpq_set_str (qtmp, token, 10)) != 0)
                     {
                       mps_raise_parsing_error (s, buffer, token, "Error parsing the denominator of a coefficient");
-                          
+
                       /* Cleanup temporary variables and exit */
                       if (token)
                         free (token);
@@ -815,12 +823,12 @@ mps_monomial_poly_read_from_stream_v2 (mps_context * s, mps_input_buffer * buffe
     {
       if (poly->spar[i])
         {
-           if (MPS_STRUCTURE_IS_INTEGER (structure) || 
-               MPS_STRUCTURE_IS_RATIONAL (structure)) 
-             { 
-               mpf_set_q (mpc_Re (poly->mfpc[i]), poly->initial_mqp_r[i]); 
-               mpf_set_q (mpc_Im (poly->mfpc[i]), poly->initial_mqp_i[i]); 
-             }
+          if (MPS_STRUCTURE_IS_INTEGER (structure) ||
+              MPS_STRUCTURE_IS_RATIONAL (structure))
+            {
+              mpf_set_q (mpc_Re (poly->mfpc[i]), poly->initial_mqp_r[i]);
+              mpf_set_q (mpc_Im (poly->mfpc[i]), poly->initial_mqp_i[i]);
+            }
 
           mpc_get_cplx (poly->fpc[i], poly->mfpc[i]);
           mpc_get_cdpe (poly->dpc[i], poly->mfpc[i]);
@@ -833,7 +841,7 @@ mps_monomial_poly_read_from_stream_v2 (mps_context * s, mps_input_buffer * buffe
             mpf_set (poly->mfpr[i], mpc_Re (poly->mfpc[i]));
 
           if (i > 0)
-            mpc_mul_ui (poly->mfppc[i-1], poly->mfppc[i], i);
+            mpc_mul_ui (poly->mfppc[i - 1], poly->mfppc[i], i);
 
           if (s->debug_level & MPS_DEBUG_IO)
             {
@@ -844,7 +852,7 @@ mps_monomial_poly_read_from_stream_v2 (mps_context * s, mps_input_buffer * buffe
         {
           cplx_set (poly->fpc[i], cplx_zero);
           cdpe_set (poly->dpc[i], cdpe_zero);
-          
+
           rdpe_set (poly->dap[i], rdpe_zero);
           poly->fap[i] = 0.0f;
 
@@ -855,7 +863,7 @@ mps_monomial_poly_read_from_stream_v2 (mps_context * s, mps_input_buffer * buffe
 
   MPS_POLYNOMIAL (poly)->prec = prec;
 
-cleanup:  
+cleanup:
 
   mpf_clear (ftmp);
   mpq_clear (qtmp);

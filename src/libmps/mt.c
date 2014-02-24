@@ -4,7 +4,7 @@
  * Copyright (C) 2001-2014, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
- * Authors: 
+ * Authors:
  *   Dario Andrea Bini <bini@dm.unipi.it>
  *   Giuseppe Fiorentino <fiorent@dm.unipi.it>
  *   Leonardo Robol <robol@mail.dm.unipi.it>
@@ -61,9 +61,9 @@
 #ifdef MPS_USE_BUILTIN_COMPLEX
 
 /* base constants */
-const cplx_t cplx_zero = { {0.0, 0.0} };
-const cplx_t cplx_one = { {1.0, 0.0} };
-const cplx_t cplx_i = { {0.0, 1.0} };
+const cplx_t cplx_zero = { { 0.0, 0.0 } };
+const cplx_t cplx_one = { { 1.0, 0.0 } };
+const cplx_t cplx_i = { { 0.0, 1.0 } };
 
 void
 cplx_d (cplx_t temp_cplx, double r, double i)
@@ -114,7 +114,7 @@ char *
 cplx_get_str (char *s, const cplx_t x)
 /* output to string as (re , im) */
 {
-  if (s == NULL && (s = (char *) mps_malloc (DEF_STR_SIZE)) == NULL)
+  if (s == NULL && (s = (char*)mps_malloc (DEF_STR_SIZE)) == NULL)
     return NULL;
   sprintf (s, CPLX_OUT_FMT, cplx_Re (x), cplx_Im (x));
   return s;
@@ -235,7 +235,7 @@ cplx_add (cplx_t rx, const cplx_t x1, const cplx_t x2)
  * @brief Substract from <code>x1</code> the value
  * stored in <code>x2</code> and store the result
  * in <code>rx</code>.
- * 
+ *
  * @param rx The place where the result will be stored.
  * @param x1 The left operand of the subtraction.
  * @param x2 The right operand of the subtraction.
@@ -286,7 +286,7 @@ cplx_mul_d (cplx_t rx, const cplx_t x, double d)
  */
 void
 cplx_div (cplx_t rx, const cplx_t x1, const cplx_t x2)
-  /* rx = x1 / x2 */
+/* rx = x1 / x2 */
 {
   cplx_t ctmp;
 
@@ -353,7 +353,7 @@ cplx_con_eq (cplx_t x)
 
 void
 cplx_inv_eq (cplx_t x)
-  /* rx = 1 / x */
+/* rx = 1 / x */
 {
   double d1, d2;
 
@@ -449,7 +449,7 @@ cplx_mul_eq_d (cplx_t x, double d)
 
 void
 cplx_div_eq (cplx_t rx, const cplx_t x)
-  /* rx = x1 / x2 */
+/* rx = x1 / x2 */
 {
   cplx_t ctmp;
 
@@ -535,13 +535,14 @@ cplx_check_fpe (cplx_t c)
 /* Check if the components are NaN or Inf */
 {
   int fp = 0;
+
   if (isnan (cplx_Re (c)))
     fp += 1;
   if (isnan (cplx_Im (c)))
     fp += (1 << 1);
   if (isinf (cplx_Re (c)))
     fp += (1 << 2);
-  if (isinf (cplx_Im(c)))
+  if (isinf (cplx_Im (c)))
     fp += (1 << 3);
   return fp;
 }
@@ -571,6 +572,7 @@ cplx_inp_str_u (cplx_t x, FILE * f)
 /* input from file as (re, im) */
 {
   double real, imag;
+
   if (f == NULL)
     f = stdin;
   int ret = fscanf (f, CPLX_INP_UFMT, &real, &imag);
@@ -583,6 +585,7 @@ cplx_inp_str (cplx_t x, FILE * f)
 /* input from file as (re, im) */
 {
   double real, imag;
+
   if (f == NULL)
     f = stdin;
   int ret = fscanf (f, CPLX_INP_FMT, &real, &imag);
@@ -596,21 +599,21 @@ cplx_inp_str (cplx_t x, FILE * f)
 
 /* normalize: mant(e) in [1/2, 1) */
 #define rdpe_Norm(E) \
-{ \
-  int i; \
-  rdpe_Mnt(E) = frexp(rdpe_Mnt(E), &i); \
-  if (rdpe_Mnt(E) == 0.0) rdpe_Esp(E) = 0L; \
-  else rdpe_Esp(E) += i; \
-}
+  { \
+    int i; \
+    rdpe_Mnt (E) = frexp (rdpe_Mnt (E), &i); \
+    if (rdpe_Mnt (E) == 0.0) rdpe_Esp (E) = 0L; \
+    else rdpe_Esp (E) += i; \
+  }
 
 /* constants */
-const rdpe_t rdpe_zero = { {0.0, 0L} };
-const rdpe_t rdpe_one = { {0.5, 1L} };
-const rdpe_t RDPE_MAX = { {0.5, LONG_MAX} };
-const rdpe_t RDPE_MIN = { {0.5, LONG_MIN} };
-const rdpe_t rdpe_maxd = { {0.5, DBL_MAX_EXP} };
-const rdpe_t rdpe_mind = { {0.5, DBL_MIN_EXP} };
-const rdpe_t RDPE_BIG = { {0.5, LONG_MAX >> 10 } };
+const rdpe_t rdpe_zero = { { 0.0, 0L } };
+const rdpe_t rdpe_one = { { 0.5, 1L } };
+const rdpe_t RDPE_MAX = { { 0.5, LONG_MAX } };
+const rdpe_t RDPE_MIN = { { 0.5, LONG_MIN } };
+const rdpe_t rdpe_maxd = { { 0.5, DBL_MAX_EXP } };
+const rdpe_t rdpe_mind = { { 0.5, DBL_MIN_EXP } };
+const rdpe_t RDPE_BIG = { { 0.5, LONG_MAX >> 10 } };
 
 void
 rdpe_d (rdpe_t temp_rdpe, double d)
@@ -665,7 +668,7 @@ rdpe_set_dl (rdpe_t e, double d, long int l)
       rdpe_Mnt (e) = log (-d) / LOG_2 + l * LOG2_10;
       rdpe_Mnt (e) = -pow (2.0, modf (rdpe_Mnt (e), &x));
     }
-  rdpe_Esp (e) = (long int) x;
+  rdpe_Esp (e) = (long int)x;
   rdpe_Norm (e);
 }
 
@@ -712,13 +715,13 @@ rdpe_get_dl (double *d, long int *l, const rdpe_t e)
     {
       *d = log10 (rdpe_Mnt (e)) + rdpe_Esp (e) * LOG10_2;
       *d = pow (10.0, modf (*d, &x));
-      *l = (long int) x;
+      *l = (long int)x;
     }
   else
     {                           /* rdpe_Mnt(e) > 0 */
       *d = log10 (-rdpe_Mnt (e)) + rdpe_Esp (e) * LOG10_2;
       *d = -pow (10.0, modf (*d, &x));
-      *l = (long int) x;
+      *l = (long int)x;
     }
 }
 
@@ -733,7 +736,7 @@ rdpe_get_2dl (double *d, long int *l, const rdpe_t e)
 double
 rdpe_get_d (const rdpe_t e)
 {
-  return ldexp (rdpe_Mnt (e), (int) rdpe_Esp (e));
+  return ldexp (rdpe_Mnt (e), (int)rdpe_Esp (e));
 }
 
 char *
@@ -743,7 +746,7 @@ rdpe_get_str (char *s, const rdpe_t e)
   double d;
   long int l;
 
-  if (s == NULL && (s = (char *) mps_malloc (DEF_STR_SIZE)) == NULL)
+  if (s == NULL && (s = (char*)mps_malloc (DEF_STR_SIZE)) == NULL)
     return NULL;
   rdpe_get_dl (&d, &l, e);
   sprintf (s, RDPE_OUT_FMT, d, l);
@@ -862,6 +865,7 @@ rdpe_mul_d (rdpe_t re, const rdpe_t e, double d)
 /* re = e * d */
 {
   int esp;
+
   frexp (d, &esp);
   if (rdpe_Esp (e) >= 0 && (esp >= LONG_MAX - rdpe_Esp (e)))
     {
@@ -954,13 +958,13 @@ rdpe_add (rdpe_t re, const rdpe_t e1, const rdpe_t e2)
     }
   else if (delta > 0)
     {
-      rdpe_Mnt (re) = rdpe_Mnt (e1) + ldexp (rdpe_Mnt (e2), (int) -delta);
+      rdpe_Mnt (re) = rdpe_Mnt (e1) + ldexp (rdpe_Mnt (e2), (int)-delta);
       rdpe_Esp (re) = rdpe_Esp (e1);
       rdpe_Norm (re);
     }
   else
     {                           /* delta < 0 */
-      rdpe_Mnt (re) = ldexp (rdpe_Mnt (e1), (int) delta) + rdpe_Mnt (e2);
+      rdpe_Mnt (re) = ldexp (rdpe_Mnt (e1), (int)delta) + rdpe_Mnt (e2);
       rdpe_Esp (re) = rdpe_Esp (e2);
       rdpe_Norm (re);
     }
@@ -1001,13 +1005,13 @@ rdpe_sub (rdpe_t re, const rdpe_t e1, const rdpe_t e2)
     }
   else if (delta > 0)
     {
-      rdpe_Mnt (re) = rdpe_Mnt (e1) - ldexp (rdpe_Mnt (e2), (int) -delta);
+      rdpe_Mnt (re) = rdpe_Mnt (e1) - ldexp (rdpe_Mnt (e2), (int)-delta);
       rdpe_Esp (re) = rdpe_Esp (e1);
       rdpe_Norm (re);
     }
   else
     {                           /* delta < 0 */
-      rdpe_Mnt (re) = ldexp (rdpe_Mnt (e1), (int) delta) - rdpe_Mnt (e2);
+      rdpe_Mnt (re) = ldexp (rdpe_Mnt (e1), (int)delta) - rdpe_Mnt (e2);
       rdpe_Esp (re) = rdpe_Esp (e2);
       rdpe_Norm (re);
     }
@@ -1041,7 +1045,7 @@ rdpe_pow_d (rdpe_t re, const rdpe_t e, double d)
 
   a = d * (log (rdpe_Mnt (e)) / LOG_2 + rdpe_Esp (e));
   f = modf (a, &i);
-  rdpe_set_2dl (re, exp (f * LOG_2), (long) i);
+  rdpe_set_2dl (re, exp (f * LOG_2), (long)i);
 }
 
 void
@@ -1052,7 +1056,7 @@ rdpe_pow_d2 (rdpe_t re, const rdpe_t e, double d)
 
   a = pow (rdpe_Mnt (e), d);
   a *= pow (2.0, modf (rdpe_Esp (e) * d, &i));
-  rdpe_set_2dl (re, a, (long) i);
+  rdpe_set_2dl (re, a, (long)i);
 }
 
 void
@@ -1165,7 +1169,8 @@ rdpe_exp_eq (rdpe_t e)
 void
 rdpe_mul_eq (rdpe_t re, const rdpe_t e)
 /* re = re * e */
-{;
+{
+  ;
   if (rdpe_Esp (re) >= 0 && (rdpe_Esp (e) >= LONG_MAX - rdpe_Esp (re)))
     {
       rdpe_set (re, RDPE_MAX);
@@ -1186,6 +1191,7 @@ rdpe_mul_eq_d (rdpe_t e, double d)
 /* e = e * d */
 {
   int esp;
+
   frexp (d, &esp);
   if (rdpe_Esp (e) >= 0 && (esp >= LONG_MAX - rdpe_Esp (e)))
     {
@@ -1258,12 +1264,12 @@ rdpe_add_eq (rdpe_t re, const rdpe_t e)
     }
   else if (delta > 0)
     {
-      rdpe_Mnt (re) += ldexp (rdpe_Mnt (e), (int) -delta);
+      rdpe_Mnt (re) += ldexp (rdpe_Mnt (e), (int)-delta);
       rdpe_Norm (re);
     }
   else
     {                           /* delta < 0 */
-      rdpe_Mnt (re) = ldexp (rdpe_Mnt (re), (int) delta) + rdpe_Mnt (e);
+      rdpe_Mnt (re) = ldexp (rdpe_Mnt (re), (int)delta) + rdpe_Mnt (e);
       rdpe_Esp (re) = rdpe_Esp (e);
       rdpe_Norm (re);
     }
@@ -1299,12 +1305,12 @@ rdpe_sub_eq (rdpe_t re, const rdpe_t e)
     }
   else if (delta > 0)
     {
-      rdpe_Mnt (re) -= ldexp (rdpe_Mnt (e), (int) -delta);
+      rdpe_Mnt (re) -= ldexp (rdpe_Mnt (e), (int)-delta);
       rdpe_Norm (re);
     }
   else
     {                           /* delta < 0 */
-      rdpe_Mnt (re) = ldexp (rdpe_Mnt (re), (int) delta) - rdpe_Mnt (e);
+      rdpe_Mnt (re) = ldexp (rdpe_Mnt (re), (int)delta) - rdpe_Mnt (e);
       rdpe_Esp (re) = rdpe_Esp (e);
       rdpe_Norm (re);
     }
@@ -1338,7 +1344,7 @@ rdpe_pow_eq_d (rdpe_t e, double d)
 
   a = d * (log (rdpe_Mnt (e)) / LOG_2 + rdpe_Esp (e));
   f = modf (a, &i);
-  rdpe_set_2dl (e, exp (f * LOG_2), (long) i);
+  rdpe_set_2dl (e, exp (f * LOG_2), (long)i);
 }
 
 void
@@ -1371,7 +1377,7 @@ rdpe_fac_ui (rdpe_t e, register unsigned long int n)
   rdpe_Move (e, rdpe_one);
   while (n > 1)
     {
-      rdpe_mul_eq_d (e, (double) n);
+      rdpe_mul_eq_d (e, (double)n);
       n--;
     }
 }
@@ -1431,17 +1437,17 @@ rdpe_lt (const rdpe_t e1, const rdpe_t e2)
   rdpe_t t;
 
   if (rdpe_Mnt (e1) > 0 && rdpe_Mnt (e2) < 0)
-      return 1;
+    return 1;
   if (rdpe_Mnt (e1) < 0 && rdpe_Mnt (e1) > 0)
-      return 0;
+    return 0;
 
   /* This check works only if the numbers are non zero */
   if (rdpe_Mnt (e1) != 0 && rdpe_Mnt (e2) != 0)
     {
       if (rdpe_Esp (e1) > rdpe_Esp (e2))
-          return 0;
-      if (rdpe_Esp (e2) > rdpe_Esp (e1)) 
-          return 1; 
+        return 0;
+      if (rdpe_Esp (e2) > rdpe_Esp (e1))
+        return 1;
     }
 
   rdpe_sub (t, e1, e2);
@@ -1462,9 +1468,9 @@ rdpe_le (const rdpe_t e1, const rdpe_t e2)
   /* This check works only if the numbers are non zero */
   if (rdpe_Mnt (e1) != 0 && rdpe_Mnt (e2) != 0)
     {
-      if (rdpe_Esp (e1) > rdpe_Esp (e2)) 
+      if (rdpe_Esp (e1) > rdpe_Esp (e2))
         return 0;
-      if (rdpe_Esp (e2) > rdpe_Esp (e1)) 
+      if (rdpe_Esp (e2) > rdpe_Esp (e1))
         return 1;
     }
 
@@ -1485,11 +1491,11 @@ rdpe_gt (const rdpe_t e1, const rdpe_t e2)
 
   /* This check works only if both DPE are non zero */
   if (rdpe_Mnt (e1) != 0 && rdpe_Mnt (e2) != 0)
-    {       
-      if (rdpe_Esp (e1) > rdpe_Esp (e2)) 
-        return 1; 
-      if (rdpe_Esp (e2) > rdpe_Esp (e1)) 
-        return 0; 
+    {
+      if (rdpe_Esp (e1) > rdpe_Esp (e2))
+        return 1;
+      if (rdpe_Esp (e2) > rdpe_Esp (e1))
+        return 0;
     }
 
   rdpe_sub (t, e1, e2);
@@ -1509,11 +1515,11 @@ rdpe_ge (const rdpe_t e1, const rdpe_t e2)
 
   /* This check works only if both DPE are non zero */
   if (rdpe_Mnt (e1) != 0 && rdpe_Mnt (e2) != 0)
-    {       
-      if (rdpe_Esp (e1) > rdpe_Esp (e2)) 
-        return 1; 
-      if (rdpe_Esp (e2) > rdpe_Esp (e1)) 
-        return 0; 
+    {
+      if (rdpe_Esp (e1) > rdpe_Esp (e2))
+        return 1;
+      if (rdpe_Esp (e2) > rdpe_Esp (e1))
+        return 0;
     }
 
   rdpe_sub (t, e1, e2);
@@ -1618,7 +1624,7 @@ rdpe_vinit (rdpe_t v[], long size)
     rdpe_Move (v[i], rdpe_zero);
 }
 
-void 
+void
 gdpe_add (gdpe_t res, gdpe_t g1, gdpe_t g2)
 {
   rdpe_add (gdpe_Val (res), gdpe_Val (g1), gdpe_Val (g2));
@@ -1626,7 +1632,7 @@ gdpe_add (gdpe_t res, gdpe_t g1, gdpe_t g2)
   gdpe_update_rel_from_abs (res);
 }
 
-void 
+void
 gdpe_sub (gdpe_t res, gdpe_t g1, gdpe_t g2)
 {
   rdpe_sub (gdpe_Val (res), gdpe_Val (g1), gdpe_Val (g2));
@@ -1634,7 +1640,7 @@ gdpe_sub (gdpe_t res, gdpe_t g1, gdpe_t g2)
   gdpe_update_rel_from_abs (res);
 }
 
-void 
+void
 gdpe_mul (gdpe_t res, gdpe_t g1, gdpe_t g2)
 {
   rdpe_mul (gdpe_Val (res), gdpe_Val (g1), gdpe_Val (g2));
@@ -1648,7 +1654,7 @@ gdpe_mul (gdpe_t res, gdpe_t g1, gdpe_t g2)
   gdpe_update_abs_from_rel (res);
 }
 
-void 
+void
 gdpe_div (gdpe_t res, gdpe_t g1, gdpe_t g2)
 {
   rdpe_div (gdpe_Val (res), gdpe_Val (g1), gdpe_Val (g2));
@@ -1669,12 +1675,12 @@ gdpe_div (gdpe_t res, gdpe_t g1, gdpe_t g2)
 
 /* normalize both parts: mantissa in [1/2, 1) */
 
-#define cdpe_Norm(C)  rdpe_Norm(cdpe_Re(C)); rdpe_Norm(cdpe_Im(C));
+#define cdpe_Norm(C)  rdpe_Norm (cdpe_Re (C)); rdpe_Norm (cdpe_Im (C));
 
 /* base constants */
-const cdpe_t cdpe_zero = { {{{0.0, 0L}}, {{0.0, 0L}}} };
-const cdpe_t cdpe_one = { {{{0.5, 1L}}, {{0.0, 0L}}} };
-const cdpe_t cdpe_i = { {{{0.0, 0L}}, {{0.5, 1L}}} };
+const cdpe_t cdpe_zero = { { { { 0.0, 0L } }, { { 0.0, 0L } } } };
+const cdpe_t cdpe_one = { { { { 0.5, 1L } }, { { 0.0, 0L } } } };
+const cdpe_t cdpe_i = { { { { 0.0, 0L } }, { { 0.5, 1L } } } };
 
 void
 cdpe_d (cdpe_t temp_cdpe, double r, double i)
@@ -1783,8 +1789,8 @@ cdpe_set_str (cdpe_t c, const char *s)
 /* set from string as (re , im) */
 {
   if (sscanf
-      (s, CDPE_INP_FMT, &rdpe_Mnt (cdpe_Re (c)), &rdpe_Esp (cdpe_Re (c)),
-       &rdpe_Mnt (cdpe_Im (c)), &rdpe_Esp (cdpe_Im (c))) != 4)
+        (s, CDPE_INP_FMT, &rdpe_Mnt (cdpe_Re (c)), &rdpe_Esp (cdpe_Re (c)),
+        &rdpe_Mnt (cdpe_Im (c)), &rdpe_Esp (cdpe_Im (c))) != 4)
     return 0;
   rdpe_set_dl (cdpe_Re (c), rdpe_Mnt (cdpe_Re (c)), rdpe_Esp (cdpe_Re (c)));
   rdpe_set_dl (cdpe_Im (c), rdpe_Mnt (cdpe_Im (c)), rdpe_Esp (cdpe_Im (c)));
@@ -1803,17 +1809,17 @@ void
 cdpe_get_x (cplx_t x, const cdpe_t c)
 /* e = im(c) */
 {
-  cplx_set_d (x, 
-              ldexp (rdpe_Mnt (cdpe_Re (c)), (int) rdpe_Esp (cdpe_Re (c))),
-              ldexp (rdpe_Mnt (cdpe_Im (c)), (int) rdpe_Esp (cdpe_Im (c))));
+  cplx_set_d (x,
+              ldexp (rdpe_Mnt (cdpe_Re (c)), (int)rdpe_Esp (cdpe_Re (c))),
+              ldexp (rdpe_Mnt (cdpe_Im (c)), (int)rdpe_Esp (cdpe_Im (c))));
 }
 
 void
 cdpe_get_d (double *dr, double *di, const cdpe_t c)
 /* *dr = re(c), *di = im(c) */
 {
-  *dr = ldexp (rdpe_Mnt (cdpe_Re (c)), (int) rdpe_Esp (cdpe_Re (c)));
-  *di = ldexp (rdpe_Mnt (cdpe_Im (c)), (int) rdpe_Esp (cdpe_Im (c)));
+  *dr = ldexp (rdpe_Mnt (cdpe_Re (c)), (int)rdpe_Esp (cdpe_Re (c)));
+  *di = ldexp (rdpe_Mnt (cdpe_Im (c)), (int)rdpe_Esp (cdpe_Im (c)));
 }
 
 char *
@@ -1823,7 +1829,7 @@ cdpe_get_str (char *s, const cdpe_t c)
   double dr, di;
   long int lr, li;
 
-  if (s == NULL && (s = (char *) mps_malloc (DEF_STR_SIZE)) == NULL)
+  if (s == NULL && (s = (char*)mps_malloc (DEF_STR_SIZE)) == NULL)
     return NULL;
   rdpe_get_dl (&dr, &lr, cdpe_Re (c));
   rdpe_get_dl (&di, &li, cdpe_Im (c));
@@ -2295,7 +2301,7 @@ cdpe_eq_zero (const cdpe_t c)
 /* c == 0 */
 {
   return rdpe_Mnt (cdpe_Re (c)) == 0.0 && rdpe_Esp (cdpe_Re (c)) == 0 &&
-    rdpe_Mnt (cdpe_Im (c)) == 0.0 && rdpe_Esp (cdpe_Im (c)) == 0;
+         rdpe_Mnt (cdpe_Im (c)) == 0.0 && rdpe_Esp (cdpe_Im (c)) == 0;
 }
 
 int
@@ -2303,9 +2309,9 @@ cdpe_eq (const cdpe_t c1, const cdpe_t c2)
 /* c1 == c2 */
 {
   return rdpe_Mnt (cdpe_Re (c1)) == rdpe_Mnt (cdpe_Re (c2)) &&
-    rdpe_Esp (cdpe_Re (c1)) == rdpe_Esp (cdpe_Re (c2)) &&
-    rdpe_Mnt (cdpe_Im (c1)) == rdpe_Mnt (cdpe_Im (c2)) &&
-    rdpe_Esp (cdpe_Im (c1)) == rdpe_Esp (cdpe_Im (c2));
+         rdpe_Esp (cdpe_Re (c1)) == rdpe_Esp (cdpe_Re (c2)) &&
+         rdpe_Mnt (cdpe_Im (c1)) == rdpe_Mnt (cdpe_Im (c2)) &&
+         rdpe_Esp (cdpe_Im (c1)) == rdpe_Esp (cdpe_Im (c2));
 }
 
 int
@@ -2313,9 +2319,9 @@ cdpe_ne (const cdpe_t c1, const cdpe_t c2)
 /* c1 != c2 */
 {
   return rdpe_Mnt (cdpe_Re (c1)) != rdpe_Mnt (cdpe_Re (c2)) ||
-    rdpe_Esp (cdpe_Re (c1)) != rdpe_Esp (cdpe_Re (c2)) ||
-    rdpe_Mnt (cdpe_Im (c1)) != rdpe_Mnt (cdpe_Im (c2)) ||
-    rdpe_Esp (cdpe_Im (c1)) != rdpe_Esp (cdpe_Im (c2));
+         rdpe_Esp (cdpe_Re (c1)) != rdpe_Esp (cdpe_Re (c2)) ||
+         rdpe_Mnt (cdpe_Im (c1)) != rdpe_Mnt (cdpe_Im (c2)) ||
+         rdpe_Esp (cdpe_Im (c1)) != rdpe_Esp (cdpe_Im (c2));
 }
 
 /*------------  I/O functions  ---------------------------*/

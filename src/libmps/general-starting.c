@@ -4,7 +4,7 @@
  * Copyright (C) 2001-2014, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
- * Authors: 
+ * Authors:
  *   Dario Andrea Bini <bini@dm.unipi.it>
  *   Giuseppe Fiorentino <fiorent@dm.unipi.it>
  *   Leonardo Robol <robol@mail.dm.unipi.it>
@@ -62,7 +62,7 @@ mps_general_dstart (mps_context * ctx, mps_polynomial * p)
     }
 }
 
-void 
+void
 mps_general_mstart (mps_context * ctx, mps_polynomial * p)
 {
   int i;

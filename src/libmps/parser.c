@@ -4,7 +4,7 @@
  * Copyright (C) 2001-2014, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
- * Authors: 
+ * Authors:
  *   Leonardo Robol <robol@mail.dm.unipi.it>
  */
 
@@ -21,16 +21,18 @@ MPS_PRIVATE void
 mps_skip_comments (FILE * input_stream)
 {
   int buf;
+
   while ((buf = fgetc (input_stream)) == '!' || isspace (buf))
     if (buf == '!')
       /* Skip until newline */
-      while (fgetc (input_stream) != '\n');
+      while (fgetc (input_stream) != '\n')
+        ;
   ungetc (buf, input_stream);
 }
 
 MPS_PRIVATE void
-mps_raise_parsing_error (mps_context * s, mps_input_buffer * buffer, 
-                         const char * token, 
+mps_raise_parsing_error (mps_context * s, mps_input_buffer * buffer,
+                         const char * token,
                          const char * message, ...)
 {
   if (!token)
@@ -39,7 +41,7 @@ mps_raise_parsing_error (mps_context * s, mps_input_buffer * buffer,
       return;
     }
 
-  char * output = (char *) mps_malloc (sizeof (char) * (strlen (token) + 256));
+  char * output = (char*)mps_malloc (sizeof(char) * (strlen (token) + 256));
   sprintf (output, "Parsing error on line %ld near the token: %s", buffer->line_number, token);
 
   mps_error (s, output, message);
@@ -108,15 +110,15 @@ mps_parse_option_line (mps_context * s, char *line, size_t length)
   size_t real_length;
 
   if (length > 255)
-  {
-    mps_error (s,
-               "Maximum line length exceeded (length > 255 while parsing)");
-    return input_option;
-  }
+    {
+      mps_error (s,
+                 "Maximum line length exceeded (length > 255 while parsing)");
+      return input_option;
+    }
 
   /* Check if there are comments in this line */
   if ((first_comment = strchr (line, '!')) != NULL)
-    real_length = (first_comment - line) / sizeof (char);
+    real_length = (first_comment - line) / sizeof(char);
   else
     real_length = length;
 
@@ -129,7 +131,8 @@ mps_parse_option_line (mps_context * s, char *line, size_t length)
     }
   option = c_ptr;
   c_ptr = strchr (option, ';');
-  while (isspace (*--c_ptr) && real_length--);
+  while (isspace (*--c_ptr) && real_length--)
+    ;
 
   /* Now we have the option that is pointed by option and is
    * real_length characters long */
@@ -186,7 +189,7 @@ mps_parse_option_line (mps_context * s, char *line, size_t length)
       /* Make a copy of the option to parse it without
        * equal sign and anything after it */
       c_ptr = option;
-      option = (char *) mps_malloc (sizeof (char) * (strlen (option) + 1));
+      option = (char*)mps_malloc (sizeof(char) * (strlen (option) + 1));
       strcpy (option, c_ptr);
       *strchr (option, '=') = '\0';
     }
@@ -197,9 +200,9 @@ mps_parse_option_line (mps_context * s, char *line, size_t length)
     input_option.flag = MPS_KEY_PRECISION;
 
   if (input_option.flag == MPS_FLAG_UNDEFINED)
-  {
-    mps_error (s, "Unrecognized option: %s", option);
-  }
+    {
+      mps_error (s, "Unrecognized option: %s", option);
+    }
 
   /* Free the copy of the option */
   free (option);
@@ -209,13 +212,14 @@ mps_parse_option_line (mps_context * s, char *line, size_t length)
 mps_polynomial *
 mps_parse_file (mps_context * s, const char * path)
 {
-  FILE * handle = fopen(path, "r");
-  if (!handle) 
+  FILE * handle = fopen (path, "r");
+
+  if (!handle)
     {
       mps_error (s, "Error while opening file: %s", path);
       return NULL;
     }
-  else 
+  else
     {
       mps_polynomial *poly = mps_parse_stream (s, handle);
       fclose (handle);
@@ -224,7 +228,7 @@ mps_parse_file (mps_context * s, const char * path)
 }
 
 #ifndef HAVE_FMEMOPEN
-extern FILE * fmemopen(void *__s, size_t __len, const char *__modes);
+extern FILE * fmemopen (void *__s, size_t __len, const char *__modes);
 #endif
 
 mps_polynomial *
@@ -233,6 +237,7 @@ mps_parse_string (mps_context * s, const char * c_string)
   char * input_copy = strdup (c_string);
 
   FILE * handle = fmemopen (input_copy, strlen (c_string), "r");
+
   if (!handle)
     {
       mps_error (s, "Error while reading string: %s", c_string);
@@ -256,7 +261,7 @@ mps_polynomial *
 mps_parse_stream (mps_context * s, FILE * input_stream)
 {
   /* This is needed to avoid strange decimal separators */
-  setlocale(LC_NUMERIC, "C");
+  setlocale (LC_NUMERIC, "C");
 
   mps_boolean parsing_options = true;
   mps_input_buffer *buffer;
@@ -306,12 +311,12 @@ mps_parse_stream (mps_context * s, FILE * input_stream)
               poly = MPS_POLYNOMIAL (mps_monomial_poly_read_from_stream_v2 (s, buffer));
 
               if (poly)
-		{
-		  mps_input_buffer_free (buffer);
-		  return poly;
-		}
-	      else
-		return NULL;
+                {
+                  mps_input_buffer_free (buffer);
+                  return poly;
+                }
+              else
+                return NULL;
             }
           parsing_options = false;
         }
@@ -332,11 +337,11 @@ mps_parse_stream (mps_context * s, FILE * input_stream)
             {
               s->n = atoi (input_option.value);
               if (s->n <= 0)
-              {
-                mps_error (s, "Degree must be a positive integer");
-                mps_input_buffer_free (buffer);
-                return NULL;
-              }
+                {
+                  mps_error (s, "Degree must be a positive integer");
+                  mps_input_buffer_free (buffer);
+                  return NULL;
+                }
             }
 
           /* Parsing precision of input coefficients */
@@ -344,11 +349,11 @@ mps_parse_stream (mps_context * s, FILE * input_stream)
             {
               input_precision = atoi (input_option.value) * LOG2_10;
               if (input_precision <= 0)
-              {
-                mps_error (s, "Precision must be a positive integer");
-                mps_input_buffer_free (buffer);
-                return NULL;
-              }
+                {
+                  mps_error (s, "Precision must be a positive integer");
+                  mps_input_buffer_free (buffer);
+                  return NULL;
+                }
             }
 
           /* Parsing of representations */
@@ -363,7 +368,7 @@ mps_parse_stream (mps_context * s, FILE * input_stream)
           else if (input_option.flag == MPS_FLAG_SPARSE)
             density = MPS_DENSITY_SPARSE;
           else if (input_option.flag == MPS_FLAG_DENSE)
-            density = MPS_DENSITY_DENSE;              
+            density = MPS_DENSITY_DENSE;
 
           /* Parsing of algebraic structure of the input */
           else if (input_option.flag == MPS_FLAG_REAL)
@@ -411,11 +416,10 @@ mps_parse_stream (mps_context * s, FILE * input_stream)
                 structure = MPS_STRUCTURE_COMPLEX_FP;
             }
         }
-
     }
 
   /* Since the Degree is a required parameter, we ask that it is provided. */
-  if (s->n == -1) 
+  if (s->n == -1)
     {
       mps_error (s,
                  "Degree of the polynomial must be provided via the Degree=%d configuration option.");
@@ -426,7 +430,8 @@ mps_parse_stream (mps_context * s, FILE * input_stream)
       MPS_DEBUG (s, "Degree: %d", s->n);
     }
 
-  switch (representation) {
+  switch (representation)
+    {
     case MPS_REPRESENTATION_SECULAR:
       if (s->debug_level & MPS_DEBUG_IO)
         {
@@ -447,7 +452,7 @@ mps_parse_stream (mps_context * s, FILE * input_stream)
         MPS_DEBUG (s, "Parsing mps_monomial_poly from stream");
       poly = MPS_POLYNOMIAL (mps_monomial_poly_read_from_stream (s, buffer, structure, density, input_precision));
       break;
-  }
+    }
 
   if (poly)
     {

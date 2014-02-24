@@ -11,7 +11,7 @@
 
 /**
  * @file
- * @brief Deprecated polynomial solver on which MPSolve is based. 
+ * @brief Deprecated polynomial solver on which MPSolve is based.
  */
 
 #ifndef MPS_RURSOLVE_H
@@ -24,17 +24,17 @@ extern "C"
 
 #include <mps/core.h>
 
-  extern mpz_t *mpdemo;         /* imaginary part of the integer input coeff. */
+extern mpz_t *mpdemo;           /* imaginary part of the integer input coeff. */
 
 /* functions in main.c */
-  void mps_rursolve (mps_context * s);
+void mps_rursolve (mps_context * s);
 
 /* functions in hor.c */
-  void mps_horner (mps_context * s, mpc_t y, int *dprec, int *iprec, int deg,
-                   int i);
-  void mps_refine (mps_context * s, int i, long prec);
-  void mps_ruroutroot (mps_context * s, mpc_t root, char status, long prec,
-                       long out_prec);
+void mps_horner (mps_context * s, mpc_t y, int *dprec, int *iprec, int deg,
+                 int i);
+void mps_refine (mps_context * s, int i, long prec);
+void mps_ruroutroot (mps_context * s, mpc_t root, char status, long prec,
+                     long out_prec);
 
 
 /*

@@ -4,7 +4,7 @@
  * Copyright (C) 2001-2012, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
- * Authors: 
+ * Authors:
  *   Dario Andrea Bini <bini@dm.unipi.it>
  *   Giuseppe Fiorentino <fiorent@dm.unipi.it>
  *   Leonardo Robol <robol@mail.dm.unipi.it>
@@ -16,13 +16,14 @@
 #include <limits.h>
 
 #ifndef log2
-#define log2(x) (log(x) / LOG2)
+#define log2(x) (log (x) / LOG2)
 #endif
 
-static int 
+static int
 get_approximated_bits (mps_approximation * appr)
 {
   rdpe_t module;
+
   mpc_rmod (module, appr->mvalue);
 
   return (rdpe_log (module) - rdpe_log (appr->drad)) / LOG2 - 1;
@@ -45,13 +46,13 @@ evaluate_root_conditioning (mps_context * ctx, mps_polynomial * p, mps_approxima
       mpc_rmod (module, value);
 
       /* Get the relative error of this evaluation */
-      if (! rdpe_eq_zero (module))
+      if (!rdpe_eq_zero (module))
         rdpe_div_eq (error, module);
       else
         rdpe_set_d (error, DBL_EPSILON * p->degree);
 
       /* log2(error) + wp - log(n) is a good estimate of log(k) */
-      rdpe_set_d (root_conditioning[i], rdpe_log (error) / LOG2 + appr[i]->wp - log2(n));
+      rdpe_set_d (root_conditioning[i], rdpe_log (error) / LOG2 + appr[i]->wp - log2 (n));
       rdpe_exp_eq (root_conditioning[i]);
 
       rdpe_div_eq (root_conditioning[i], appr[i]->drad);
@@ -71,8 +72,8 @@ improve_root (mps_context * ctx, mps_polynomial * p, mps_approximation * root, l
   mpc_set_prec (root->mvalue, precision);
   mpc_init2 (newton_correction, precision);
 
-  mps_polynomial_mnewton (ctx, p, root, newton_correction, 
-			  mpc_get_prec (root->mvalue));
+  mps_polynomial_mnewton (ctx, p, root, newton_correction,
+                          mpc_get_prec (root->mvalue));
 
   mpc_sub_eq (root->mvalue, newton_correction);
   mpc_rmod (corr_mod, newton_correction);
@@ -99,7 +100,8 @@ typedef struct {
 static void *
 improve_root_wrapper (void * data_ptr)
 {
-  __improve_root_data *data = (__improve_root_data*) data_ptr;
+  __improve_root_data *data = (__improve_root_data*)data_ptr;
+
   improve_root (data->ctx, data->p, data->root, data->precision);
   free (data);
   return NULL;
@@ -120,23 +122,23 @@ improve_root_wrapper (void * data_ptr)
  *   t = \min_j |z_i-z_j|-r_j
  * \f]
  * Then compute the number of digits needed for the j-th
- * iteration i.e., if \f$cond\f$ is the conditioning of the root: 
+ * iteration i.e., if \f$cond\f$ is the conditioning of the root:
  * \f[
  *   d_j = \log(\frac{e_j}{|x|}) + cond
  * \f]
- * where 
- * \f[ 
+ * where
+ * \f[
  *   \log(\frac{e_j}{|x|}) = (f+g){2j} \qquad
  *   cond = \log(\frac{rad}{\epsilon})
- * \f] 
+ * \f]
  * and
- * \f[ 
+ * \f[
  *   cond \approx \lVert p \rVert (1+ \frac{|x_i|}{a_n \prod_{j \neq i} |x_i-x_j|}
  * \f]
  * and
- * \f[ 
+ * \f[
  *   cond \approx \frac{r_i}{\epsilon |x_i|}
- * \f] 
+ * \f]
  * for user-defined polynomials.
  *
  * <code>s->mpwp</code> denotes the number of bits of the current working
@@ -152,6 +154,7 @@ mps_improve (mps_context * ctx)
   int approximated_roots = 0;
   mps_polynomial * p = ctx->active_poly;
   rdpe_t * root_conditioning = NULL;
+
   ctx->operation = MPS_OPERATION_REFINEMENT;
 
   /* We need to be able to evaluate the Newton correction in a point
@@ -193,28 +196,28 @@ mps_improve (mps_context * ctx)
       for (i = 0; i < ctx->n; i++)
         if (ctx->root[i]->status == MPS_ROOT_STATUS_ISOLATED)
           {
-            /* Evaluate the necessary precision to iterate on this root. 
-             * If the the current polynomial precision is enough, iterate on it. 
+            /* Evaluate the necessary precision to iterate on this root.
+             * If the the current polynomial precision is enough, iterate on it.
              * Otherwise, let it for the next round. */
-            long int necessary_precision = get_approximated_bits (ctx->root[i]) + log2(ctx->n) + 
-              rdpe_log(root_conditioning[i]) / LOG2;
+            long int necessary_precision = get_approximated_bits (ctx->root[i]) + log2 (ctx->n) +
+                                           rdpe_log (root_conditioning[i]) / LOG2;
 
             if (necessary_precision < current_precision)
-            {
-              __improve_root_data * data = mps_new (__improve_root_data);
-              data->ctx = ctx;
-              data->p = p;
-              data->root = ctx->root[i];
-              data->precision = current_precision;
+              {
+                __improve_root_data * data = mps_new (__improve_root_data);
+                data->ctx = ctx;
+                data->p = p;
+                data->root = ctx->root[i];
+                data->precision = current_precision;
 
-              mps_thread_pool_assign (ctx, NULL, improve_root_wrapper, data);
-            }
+                mps_thread_pool_assign (ctx, NULL, improve_root_wrapper, data);
+              }
           }
 
       mps_thread_pool_wait (ctx, ctx->pool);
 
       for (i = 0; i < ctx->n; i++)
-        if (! MPS_ROOT_STATUS_IS_APPROXIMATED (ctx->root[i]->status) && 
+        if (!MPS_ROOT_STATUS_IS_APPROXIMATED (ctx->root[i]->status) &&
             get_approximated_bits (ctx->root[i]) >= ctx->output_config->prec)
           {
             ctx->root[i]->status = MPS_ROOT_STATUS_APPROXIMATED;
@@ -243,7 +246,7 @@ mps_improve (mps_context * ctx)
         MPS_DEBUG (ctx, "Increasing precision to %ld", current_precision);
     }
 
-cleanup:    
+cleanup:
 
   free (root_conditioning);
 }

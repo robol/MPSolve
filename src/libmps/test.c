@@ -4,7 +4,7 @@
  * Copyright (C) 2001-2014, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
- * Authors: 
+ * Authors:
  *   Dario Andrea Bini <bini@dm.unipi.it>
  *   Giuseppe Fiorentino <fiorent@dm.unipi.it>
  *   Leonardo Robol <robol@mail.dm.unipi.it>
@@ -15,9 +15,9 @@
 
 
 /**
- * @brief Check the validity of the inclusions disks. 
+ * @brief Check the validity of the inclusions disks.
  *
- * @param s A pointer to the current mps_context. 
+ * @param s A pointer to the current mps_context.
  */
 MPS_PRIVATE mps_boolean
 mps_inclusion (mps_context * s)
@@ -58,13 +58,12 @@ mps_inclusion (mps_context * s)
     rdpe_set (s->dap1[i], s->root[i]->drad);
 
   mpc_init2 (p, s->mpwp);
-  rdpe_mul_d (ep, s->mp_epsilon, (double) (s->n * 4));
+  rdpe_mul_d (ep, s->mp_epsilon, (double)(s->n * 4));
 
   mpc_init2 (tmp, s->mpwp);
 
   for (i = 0; i < s->n; i++)
     {
-
       /* compute denominator */
       rdpe_set (rad, rdpe_one);
       for (j = 0; j < s->n; j++)
@@ -83,12 +82,11 @@ mps_inclusion (mps_context * s)
       if (MPS_DENSITY_IS_SPARSE (s->active_poly->density))
         {                       /* case of sparse polynomial */
           /* compute p(mroot[i]) */
-	  mps_polynomial_meval (s, MPS_POLYNOMIAL (poly), s->root[i]->mvalue, p, ap);
-	  rdpe_div_eq (ap, s->mp_epsilon);
+          mps_polynomial_meval (s, MPS_POLYNOMIAL (poly), s->root[i]->mvalue, p, ap);
+          rdpe_div_eq (ap, s->mp_epsilon);
         }
       else
         {                       /*  dense polynomial */
-
           /* commpute p(mroot[i]) and p'(mroot[i]) */
           mpc_set (p, poly->mfpc[s->n]);
           for (k = s->n - 1; k > 0; k--)
@@ -115,7 +113,7 @@ mps_inclusion (mps_context * s)
       cdpe_mod (difr, difc);
       rdpe_mul (apeps, ap, ep);
       rdpe_add_eq (apeps, difr);
-      rdpe_mul_eq_d (apeps, (double) s->n);
+      rdpe_mul_eq_d (apeps, (double)s->n);
 
       /* compute ratio */
       rdpe_div (s->root[i]->drad, apeps, rad);

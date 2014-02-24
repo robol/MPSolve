@@ -4,7 +4,7 @@
  * Copyright (C) 2001-2014, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
- * Authors: 
+ * Authors:
  *   Leonardo Robol <robol@mail.dm.unipi.it>
  */
 
@@ -28,7 +28,7 @@ extern "C" {
  */
 struct mps_root {
   /**
-   * @brief Index of the root that is considered. 
+   * @brief Index of the root that is considered.
    */
   long int k;
 
@@ -73,7 +73,7 @@ struct mps_cluster_item {
    * cluster.
    */
   mps_cluster_item * next;
-  
+
   /**
    * @brief Previous cluster in the clusterizaion or NULL if there is no
    * such cluster.
@@ -104,9 +104,9 @@ struct mps_clusterization {
 #endif /* #ifdef _MPS_PRIVATE */
 
 /*********************************************************************************
- *                                   FUNCTIONS                                   *
- *********************************************************************************/
- 
+*                                   FUNCTIONS                                   *
+*********************************************************************************/
+
 /* Functions for mps_cluster */
 mps_cluster * mps_cluster_empty (mps_context * s);
 mps_cluster * mps_cluster_with_root (mps_context * s, long int root_index);

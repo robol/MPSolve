@@ -4,7 +4,7 @@
  * Copyright (C) 2001-2014, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
- * Authors: 
+ * Authors:
  *   Dario Andrea Bini <bini@dm.unipi.it>
  *   Giuseppe Fiorentino <fiorent@dm.unipi.it>
  *   Leonardo Robol <robol@mail.dm.unipi.it>
@@ -21,7 +21,7 @@
 
 #ifdef MPS_CATCH_FPE
 #include <fenv.h>
-int feenableexcept(int excepts);
+int feenableexcept (int excepts);
 #endif
 
 #if HAVE_CONFIG_H
@@ -35,14 +35,14 @@ void *realloc (void * ptr, size_t n);
 
 /**
  * @brief Perform some preliminary checks and setup before starting the real
- * MPSolve loop. 
+ * MPSolve loop.
  */
 static void
 mps_preliminary_setup (mps_context * ctx)
 {
   /* Make sure that non thread safe polynomial implementations are handled
    * in a safe way. */
-  if (! ctx->active_poly->thread_safe)
+  if (!ctx->active_poly->thread_safe)
     {
       mps_thread_pool_set_concurrency_limit (ctx, NULL, 1);
     }
@@ -63,7 +63,7 @@ void
 mps_mpsolve (mps_context * s)
 {
 #ifdef MPS_CATCH_FPE
-  feenableexcept (FE_INVALID|FE_DIVBYZERO|FE_OVERFLOW); 
+  feenableexcept (FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW);
 #endif
 
   if (mps_context_has_errors (s))
@@ -71,7 +71,7 @@ mps_mpsolve (mps_context * s)
 
   mps_preliminary_setup (s);
 
-  (*s->mpsolve_ptr) (s);
+  (*s->mpsolve_ptr)(s);
 }
 
 static void*
@@ -87,14 +87,14 @@ mps_caller (mps_context * s)
   if (s->callback == NULL)
     return NULL;
   else
-    return (*s->callback) (s, s->user_data);
+    return (*s->callback)(s, s->user_data);
 }
 
 void
 mps_mpsolve_async (mps_context * s, mps_callback callback, void * user_data)
 {
 #ifdef MPS_CATCH_FPE
-  feenableexcept (FE_INVALID|FE_DIVBYZERO|FE_OVERFLOW); 
+  feenableexcept (FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW);
 #endif
 
   /* Set up callbacks */
@@ -103,7 +103,7 @@ mps_mpsolve_async (mps_context * s, mps_callback callback, void * user_data)
 
   mps_thread_pool * private_pool = mps_thread_pool_new (s, 1);
   s->self_thread_pool = private_pool;
-  mps_thread_pool_assign (s, private_pool, (mps_thread_work) mps_caller, s);
+  mps_thread_pool_assign (s, private_pool, (mps_thread_work)mps_caller, s);
 }
 
 /**
@@ -114,6 +114,7 @@ mps_malloc (size_t size)
 {
   /* fprintf (stderr, "Allocating %lu bytes of memory\n", size); */
   register void *value = malloc (size);
+
   if (value == 0)
     {
       fprintf (stderr, "virtual memory exhausted");
@@ -129,6 +130,7 @@ void *
 mps_realloc (void * pointer, size_t size)
 {
   register void *value = realloc (pointer, size);
+
   if (value == 0 && size > 0)
     {
       fprintf (stderr, "virtual memory exhausted");

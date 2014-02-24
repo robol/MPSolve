@@ -4,7 +4,7 @@
  * Copyright (C) 2001-2014, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
- * Authors: 
+ * Authors:
  *   Dario Andrea Bini <bini@dm.unipi.it>
  *   Giuseppe Fiorentino <fiorent@dm.unipi.it>
  *   Leonardo Robol <robol@mail.dm.unipi.it>
@@ -27,6 +27,7 @@ mps_cluster *
 mps_cluster_empty (mps_context * s)
 {
   mps_cluster * cluster = mps_new (mps_cluster);
+
   cluster->first = NULL;
   cluster->n = 0;
   return cluster;
@@ -38,10 +39,11 @@ mps_cluster_empty (mps_context * s)
  * @param s The <code>mps_context</code> of the current computation.
  * @param root_index The root that must be in the cluster.
  */
-mps_cluster * 
+mps_cluster *
 mps_cluster_with_root (mps_context * s, long int root_index)
 {
   mps_cluster * cluster = mps_new (mps_cluster);
+
   cluster->first = mps_new (mps_root);
   cluster->n = 1;
 
@@ -54,12 +56,12 @@ mps_cluster_with_root (mps_context * s, long int root_index)
 
 /**
  * @brief Free a previously allocated cluster with all the roots in
- * it. 
+ * it.
  *
  * @param s The <code>mps_context</code> of the current computation.
  * @param cluster The cluster to free.
  */
-void 
+void
 mps_cluster_free (mps_context * s, mps_cluster * cluster)
 {
   mps_root * root = cluster->first;
@@ -84,8 +86,8 @@ mps_cluster_free (mps_context * s, mps_cluster * cluster)
  * @param root_index The index of the root to insert.
  */
 mps_root *
-mps_cluster_insert_root (mps_context * s, 
-                         mps_cluster  * cluster, 
+mps_cluster_insert_root (mps_context * s,
+                         mps_cluster  * cluster,
                          long int root_index)
 {
   mps_root * root = mps_new (mps_root);
@@ -115,7 +117,7 @@ mps_cluster_insert_root (mps_context * s,
  * Please note the the root specified must be in the cluster, otherwise
  * an assertion error or segmentation fault will be triggered.
  */
-void 
+void
 mps_cluster_remove_root (mps_context * s, mps_cluster * cluster, mps_root * root)
 {
   /* Iterate over the cluster to find the root searched */
@@ -139,8 +141,8 @@ mps_cluster_remove_root (mps_context * s, mps_cluster * cluster, mps_root * root
 
 /**
  * @brief Join two cluster in one big cluster containing the roots of
- * both. Please note that the cluster must not overlap. 
- * 
+ * both. Please note that the cluster must not overlap.
+ *
  * @param s The <code>mps_context</code> of the current computation.
  * @param cluster_a The first cluster
  * @param cluster_b The second cluster
@@ -170,7 +172,7 @@ mps_cluster_join (mps_context * s, mps_cluster * cluster_a, mps_cluster * cluste
   while (root->next != NULL)
     root = root->next;
   root->next = big_cluster->first;
-  
+
   new_cluster->first = small_cluster->first;
   new_cluster->n = small_cluster->n + big_cluster->n;
 
@@ -186,6 +188,7 @@ mps_clusterization *
 mps_clusterization_empty (mps_context * s)
 {
   mps_clusterization * c = mps_new (mps_clusterization);
+
   c->n = 0;
   c->first = NULL;
   return c;
@@ -212,7 +215,7 @@ mps_clusterization_insert_cluster (mps_context * s, mps_clusterization * c, mps_
 
   /* The first cluster is the one we're inserting */
   c->first = item;
-  
+
   /* The previous item of before was NULL, now should be the cluster that
    * we are inserting. */
   if (item->next)
@@ -252,7 +255,7 @@ mps_clusterization_pop_cluster (mps_context * s, mps_clusterization * c, mps_clu
  * @param c The clusterization from where the cluster_item should be removed.
  * @param cluster_item The cluster item to remove.
  */
-void 
+void
 mps_clusterization_remove_cluster (mps_context * s, mps_clusterization * c, mps_cluster_item * cluster_item)
 {
   mps_clusterization_pop_cluster (s, c, cluster_item);
@@ -270,7 +273,7 @@ mps_clusterization_free (mps_context * s, mps_clusterization * c)
 {
   mps_cluster_item * item = c->first;
   mps_cluster_item * next_item;
-  
+
   while (item != NULL)
     {
       mps_cluster_free (s, item->cluster);
@@ -292,12 +295,12 @@ mps_clusterization_free (mps_context * s, mps_clusterization * c)
 void
 mps_cluster_reset (mps_context * s)
 {
-  /* Reset cluster status of the roots */ 
+  /* Reset cluster status of the roots */
   int i;
   mps_cluster * cluster;
 
-  for (i = 0; i < s->n; i++) 
-    { 
+  for (i = 0; i < s->n; i++)
+    {
       s->root[i]->status = MPS_ROOT_STATUS_CLUSTERED;
       s->root[i]->attrs = MPS_ROOT_ATTRS_NONE;
       s->root[i]->inclusion = MPS_ROOT_INCLUSION_UNKNOWN;
@@ -315,7 +318,7 @@ mps_cluster_reset (mps_context * s)
   mps_clusterization_insert_cluster (s, s->clusterization, cluster);
 }
 
-void 
+void
 mps_clusterization_detach_clusters (mps_context * s, mps_clusterization * c)
 {
   MPS_DEBUG_THIS_CALL (s);
@@ -329,11 +332,11 @@ mps_clusterization_detach_clusters (mps_context * s, mps_clusterization * c)
   mps_cluster_item * item;
   rdpe_t rtmp;
   int k;
-  
+
   for (item = c->first; item != NULL; item = item->next)
     {
       mps_root * root;
-      
+
       /* Skip isolated clusters */
       if (item->cluster->n == 1)
         continue;
@@ -346,14 +349,14 @@ mps_clusterization_detach_clusters (mps_context * s, mps_clusterization * c)
           mpc_rmod (rtmp, s->root[k]->mvalue);
 
           /* We need a complex condition here since the heuristic used to determine if a root
-           * is a simple root in a cluster is based on Newton radii. 
+           * is a simple root in a cluster is based on Newton radii.
            * These have different behavious based on the algorithm that has been selected, so
            * we introduce here two different guesses that work in each one. */
-          if (((s->algorithm == MPS_ALGORITHM_STANDARD_MPSOLVE) && 
-                ((rdpe_Esp (rtmp) - rdpe_Esp (s->root[k]->drad) > s->mpwp / sqrt(item->cluster->n) + 1) ||
+          if (((s->algorithm == MPS_ALGORITHM_STANDARD_MPSOLVE) &&
+               ((rdpe_Esp (rtmp) - rdpe_Esp (s->root[k]->drad) > s->mpwp / sqrt (item->cluster->n) + 1) ||
                 (s->root[k]->status == MPS_ROOT_STATUS_APPROXIMATED_IN_CLUSTER))) ||
               ((s->algorithm == MPS_ALGORITHM_SECULAR_GA) &&
-                (rdpe_Esp (rtmp) - rdpe_Esp (s->root[k]->drad) > s->mpwp - 4)))
+               (rdpe_Esp (rtmp) - rdpe_Esp (s->root[k]->drad) > s->mpwp - 4)))
             {
               if (s->debug_level & MPS_DEBUG_CLUSTER)
                 {
@@ -366,8 +369,8 @@ mps_clusterization_detach_clusters (mps_context * s, mps_clusterization * c)
               root = next_root;
 
               /* Insert the cluster in the clusterization */
-              mps_cluster_item * new_item = mps_clusterization_insert_cluster (s, 
-                                                                               s->clusterization, 
+              mps_cluster_item * new_item = mps_clusterization_insert_cluster (s,
+                                                                               s->clusterization,
                                                                                detached_cluster);
               /* Set the new item as detached from the old one */
               new_item->detached = item;
@@ -383,13 +386,13 @@ mps_clusterization_detach_clusters (mps_context * s, mps_clusterization * c)
 }
 
 
-void 
+void
 mps_clusterization_reassemble_clusters (mps_context * s, mps_clusterization * c)
 {
   MPS_DEBUG_THIS_CALL (s);
 
   mps_cluster_item * cluster;
-  
+
   cluster = s->clusterization->first;
   while (cluster != NULL)
     {

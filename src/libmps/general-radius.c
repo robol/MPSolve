@@ -4,7 +4,7 @@
  * Copyright (C) 2001-2014, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
- * Authors: 
+ * Authors:
  *   Dario Andrea Bini <bini@dm.unipi.it>
  *   Giuseppe Fiorentino <fiorent@dm.unipi.it>
  *   Leonardo Robol <robol@mail.dm.unipi.it>
@@ -15,7 +15,7 @@
 #include <math.h>
 
 /**
- * @brief Compute the floating point inclusion radius according to the 
+ * @brief Compute the floating point inclusion radius according to the
  * polynomial representation.
  *
  * @param s The <code>mps_context</code> of the computation.
@@ -31,7 +31,7 @@ mps_fradii (mps_context * s, mps_polynomial * p, double * fradii)
   double new_rad, relative_error;
   int i, j;
 
-  if (!p->feval) 
+  if (!p->feval)
     {
       for (i = 0; i < s->n; i++)
         fradii[i] = s->root[i]->frad;
@@ -41,7 +41,7 @@ mps_fradii (mps_context * s, mps_polynomial * p, double * fradii)
   for (i = 0; i < s->n; i++)
     {
       cplx_t diff;
-      
+
       /* Compute the value of the polynomial in this point */
       mps_polynomial_feval (s, p, s->root[i]->fvalue, pol, &relative_error);
 
@@ -62,7 +62,7 @@ mps_fradii (mps_context * s, mps_polynomial * p, double * fradii)
             continue;
 
           cplx_sub (diff, s->root[i]->fvalue, s->root[j]->fvalue);
-              
+
           /* Check for floating point exceptions in here */
           if (cplx_eq_zero (diff))
             {
@@ -83,13 +83,13 @@ mps_fradii (mps_context * s, mps_polynomial * p, double * fradii)
         mpc_clear (lc);
       }
 
-      fradii[i] = new_rad + cplx_mod (s->root[i]->fvalue) * DBL_EPSILON * 2.0 
-        + DBL_MIN;
+      fradii[i] = new_rad + cplx_mod (s->root[i]->fvalue) * DBL_EPSILON * 2.0
+                  + DBL_MIN;
     }
 }
 
 /**
- * @brief Compute the DPE inclusion radius according to the 
+ * @brief Compute the DPE inclusion radius according to the
  * polynomial representation.
  *
  * @param s The <code>mps_context</code> of the computation.
@@ -105,7 +105,7 @@ mps_dradii (mps_context * s, mps_polynomial * p, rdpe_t * dradii)
   rdpe_t new_rad, relative_error, rtmp;
   int i, j;
 
-  if (!p->deval) 
+  if (!p->deval)
     {
       for (i = 0; i < s->n; i++)
         rdpe_set (dradii[i], s->root[i]->drad);
@@ -130,7 +130,7 @@ mps_dradii (mps_context * s, mps_polynomial * p, rdpe_t * dradii)
             continue;
 
           cdpe_sub (diff, s->root[i]->dvalue, s->root[j]->dvalue);
-              
+
           /* Check for floating point exceptions in here */
           if (cdpe_eq_zero (diff))
             {
@@ -156,7 +156,7 @@ mps_dradii (mps_context * s, mps_polynomial * p, rdpe_t * dradii)
 }
 
 /**
- * @brief Compute the Multiprecision inclusion radius according to the 
+ * @brief Compute the Multiprecision inclusion radius according to the
  * polynomial representation.
  *
  * @param s The <code>mps_context</code> of the computation.
@@ -173,7 +173,7 @@ mps_mradii (mps_context * s, mps_polynomial * p, rdpe_t * dradii)
   rdpe_t new_rad, relative_error, rtmp;
   int i, j;
 
-  if (!p->meval) 
+  if (!p->meval)
     {
       for (i = 0; i < s->n; i++)
         rdpe_set (dradii[i], s->root[i]->drad);
@@ -206,7 +206,7 @@ mps_mradii (mps_context * s, mps_polynomial * p, rdpe_t * dradii)
 
           mpc_sub (mdiff, s->root[i]->mvalue, s->root[j]->mvalue);
           mpc_get_cdpe (diff, mdiff);
-              
+
           /* Check for floating point exceptions in here */
           if (mpc_eq_zero (mdiff))
             {
@@ -218,7 +218,7 @@ mps_mradii (mps_context * s, mps_polynomial * p, rdpe_t * dradii)
           rdpe_div_eq (new_rad, rtmp);
         }
 
-      rdpe_mul_eq_d (new_rad, 1 + 2 * s->n * sqrt(2) * DBL_EPSILON);
+      rdpe_mul_eq_d (new_rad, 1 + 2 * s->n * sqrt (2) * DBL_EPSILON);
       rdpe_mul_eq_d (new_rad, p->degree);
 
       {
@@ -233,7 +233,7 @@ mps_mradii (mps_context * s, mps_polynomial * p, rdpe_t * dradii)
       rdpe_set (dradii[i], new_rad);
     }
 
- mradius_cleanup:
+mradius_cleanup:
 
   mpc_clear (pol);
   mpc_clear (mdiff);

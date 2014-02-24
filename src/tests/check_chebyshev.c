@@ -31,31 +31,31 @@ START_TEST (test_chebyshev_poly_80)
   mps_context_get_roots_m (ctx, &mroots, &radii);
   for (i = 0; i < 80; i++)
     {
-      int j, found_root = -1; 
+      int j, found_root = -1;
       rdpe_t expected_root;
       rdpe_t diff;
       double epsilon = DBL_MAX;
 
-      rdpe_set_d (expected_root, cos ( (2.0*i+1 ) / 160 * PI ));; 
+      rdpe_set_d (expected_root, cos ((2.0 * i + 1) / 160 * PI));;
 
       printf ("[Chebyshev tests] Expected root %d: (%1.20lf, 0)\n",
-	      i, rdpe_get_d (expected_root));
+              i, rdpe_get_d (expected_root));
 
       for (j = 0; j < 80; j++)
-	{
-	  cdpe_t ctmp; 
-	  double residue;
+        {
+          cdpe_t ctmp;
+          double residue;
 
-	  mpc_get_cdpe (ctmp, mroots[j]);
-	  rdpe_sub (diff, expected_root, cdpe_Re (ctmp));
+          mpc_get_cdpe (ctmp, mroots[j]);
+          rdpe_sub (diff, expected_root, cdpe_Re (ctmp));
 
-	  residue = sqrt( pow (fabs (rdpe_get_d (diff)), 2) + pow (fabs( rdpe_get_d (cdpe_Im (ctmp))), 2) );
-	  if (residue < epsilon)
-	    {
-	      epsilon = residue;
-	      found_root = j;
-	    }
-	}
+          residue = sqrt (pow (fabs (rdpe_get_d (diff)), 2) + pow (fabs (rdpe_get_d (cdpe_Im (ctmp))), 2));
+          if (residue < epsilon)
+            {
+              epsilon = residue;
+              found_root = j;
+            }
+        }
 
       printf ("[Chebyshev tests] Residue for approximation %3d: %e\n", i, epsilon);
       printf ("[Chebyshev tests] Inclusion radii: %e\n", rdpe_get_d (radii[found_root]));
@@ -100,31 +100,31 @@ START_TEST (test_chebyshev_poly_20)
   mps_context_get_roots_m (ctx, &mroots, &radii);
   for (i = 0; i < 20; i++)
     {
-      int j, found_root = -1; 
+      int j, found_root = -1;
       rdpe_t expected_root;
       rdpe_t diff;
       double epsilon = DBL_MAX;
 
-      rdpe_set_d (expected_root, cos ( (2.0*i+1 ) / 40 * PI ));; 
+      rdpe_set_d (expected_root, cos ((2.0 * i + 1) / 40 * PI));;
 
       printf ("[Chebyshev tests] Expected root %d: (%1.20lf, 0)\n",
-	      i, rdpe_get_d (expected_root));
+              i, rdpe_get_d (expected_root));
 
       for (j = 0; j < 20; j++)
-	{
-	  cdpe_t ctmp; 
-	  double residue;
+        {
+          cdpe_t ctmp;
+          double residue;
 
-	  mpc_get_cdpe (ctmp, mroots[j]);
-	  rdpe_sub (diff, expected_root, cdpe_Re (ctmp));
+          mpc_get_cdpe (ctmp, mroots[j]);
+          rdpe_sub (diff, expected_root, cdpe_Re (ctmp));
 
-	  residue = sqrt( pow (fabs (rdpe_get_d (diff)), 2) + pow (fabs( rdpe_get_d (cdpe_Im (ctmp))), 2) );
-	  if (residue < epsilon)
-	    {
-	      epsilon = residue;
-	      found_root = j;
-	    }
-	}
+          residue = sqrt (pow (fabs (rdpe_get_d (diff)), 2) + pow (fabs (rdpe_get_d (cdpe_Im (ctmp))), 2));
+          if (residue < epsilon)
+            {
+              epsilon = residue;
+              found_root = j;
+            }
+        }
 
       printf ("[Chebyshev tests] Residue for approximation %3d: %e\n", i, epsilon);
       printf ("[Chebyshev tests] Inclusion radii: %e\n", rdpe_get_d (radii[found_root]));
@@ -145,6 +145,7 @@ chebyshev_suite (void)
   Suite *s = suite_create ("chebyshev");
 
   TCase *tcase_t = tcase_create ("Solution of Chebyshev polynomials");
+
   tcase_add_test (tcase_t, test_chebyshev_poly_20);
   tcase_add_test (tcase_t, test_chebyshev_poly_80);
 
@@ -152,7 +153,7 @@ chebyshev_suite (void)
   return s;
 }
 
-int 
+int
 main (void)
 {
   Suite *cs = chebyshev_suite ();
@@ -168,5 +169,5 @@ main (void)
   number_failed = srunner_ntests_failed (sr);
   srunner_free (sr);
 
-  return (number_failed != 0);
+  return(number_failed != 0);
 }

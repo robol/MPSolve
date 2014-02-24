@@ -4,7 +4,7 @@
  * Copyright (C) 2001-2014, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
- * Authors: 
+ * Authors:
  *   Dario Andrea Bini <bini@dm.unipi.it>
  *   Giuseppe Fiorentino <fiorent@dm.unipi.it>
  *   Leonardo Robol <robol@mail.dm.unipi.it>
@@ -12,36 +12,36 @@
 
 
 /********************************************************
-This file contains a sample of a user-defined polynomial.
-In this sample the (Mandelbrot) polynomial is defined by
-the relation 
+   This file contains a sample of a user-defined polynomial.
+   In this sample the (Mandelbrot) polynomial is defined by
+   the relation
     p_{i+1}(x)=x*p_i(x)^2+1 where p_0(x)=1,        (1)
-and its derivative by 
+   and its derivative by
     p'_{i+1}(x)=p_i(x)^2+x*2*p_i(x)*p'_i(x).
-The degree is 1, 3, 7, 15, 31,... (2^i-1).
-The three programs below compute the values of p_i(x) and
-p'_i(x), by means of the above formulae in the float version,
-dpe version and mp version. 
-The programs compute also the auxiliary variable apeps needed
-for testing the stop condition apeps>|p|,  and for computing
-the error bound rad (radius of the inclusion disk).
-The formulae for the computation of apeps and rad are
-obtained by means of a rounding error analysis of (1).
-**********************************************************/
+   The degree is 1, 3, 7, 15, 31,... (2^i-1).
+   The three programs below compute the values of p_i(x) and
+   p'_i(x), by means of the above formulae in the float version,
+   dpe version and mp version.
+   The programs compute also the auxiliary variable apeps needed
+   for testing the stop condition apeps>|p|,  and for computing
+   the error bound rad (radius of the inclusion disk).
+   The formulae for the computation of apeps and rad are
+   obtained by means of a rounding error analysis of (1).
+ **********************************************************/
 
 #include <float.h>
 #include <math.h>
 #include <mps/mps.h>
 
 /**
- * @brief User-defined program for the computation of \f$p\f$, \f$p'\f$. 
+ * @brief User-defined program for the computation of \f$p\f$, \f$p'\f$.
  *
  * @param s The current mps_context
- * @param poly The mps_polynomial being solved. 
- * @param root The approximation whose Newton correction shall be computed. 
- * @param corr The output value where the newton correction will be stored. 
+ * @param poly The mps_polynomial being solved.
+ * @param root The approximation whose Newton correction shall be computed.
+ * @param corr The output value where the newton correction will be stored.
  *
- * This sample computes the 'Mandelbrot polynomial by  
+ * This sample computes the 'Mandelbrot polynomial by
  * means of the relation: p=1+x*p**2, starting with p=1
  */
 void
@@ -52,11 +52,12 @@ mps_fnewton_usr (mps_context * s, mps_polynomial * poly, mps_approximation * roo
   int i, m;
 
   cplx_t x;
+
   cplx_set (x, root->fvalue);
   double * rad = &root->frad;
   mps_boolean * again = &root->again;
 
-  m = (int) (log (s->n + 1.0) / LOG2);
+  m = (int)(log (s->n + 1.0) / LOG2);
   if ((1 << m) <= s->n)
     m++;
   eps = (DBL_EPSILON * 4.0) * s->n;
@@ -86,14 +87,14 @@ mps_fnewton_usr (mps_context * s, mps_polynomial * poly, mps_approximation * roo
 }
 
 /**
- * @brief User-defined program for the computation of \f$p\f$, \f$p'\f$. 
+ * @brief User-defined program for the computation of \f$p\f$, \f$p'\f$.
  *
  * @param s The current mps_context
- * @param poly The mps_polynomial being solved. 
- * @param root The approximation whose Newton correction shall be computed. 
- * @param corr The output value where the newton correction will be stored. 
+ * @param poly The mps_polynomial being solved.
+ * @param root The approximation whose Newton correction shall be computed.
+ * @param corr The output value where the newton correction will be stored.
  *
- * This sample computes the 'Mandelbrot polynomial by  
+ * This sample computes the 'Mandelbrot polynomial by
  * means of the relation: p=1+x*p**2, starting with p=1
  */
 MPS_PRIVATE void
@@ -106,11 +107,11 @@ mps_dnewton_usr (mps_context * s, mps_polynomial * poly, mps_approximation * roo
 
   cdpe_set (x, root->dvalue);
 
-  m = (int) (log (s->n + 1.0) / LOG2);
+  m = (int)(log (s->n + 1.0) / LOG2);
   if ((1 << m) <= s->n)
     m++;
   rdpe_set_d (eps, DBL_EPSILON);
-  rdpe_mul_eq_d (eps, (double) 4 * s->n);
+  rdpe_mul_eq_d (eps, (double)4 * s->n);
   cdpe_mod (ax, x);
 
   cdpe_set (p, cdpe_one);
@@ -139,7 +140,7 @@ mps_dnewton_usr (mps_context * s, mps_polynomial * poly, mps_approximation * roo
   root->again = rdpe_gt (temp, apeps);
 
   rdpe_add (root->drad, temp, apeps);
-  rdpe_mul_eq_d (root->drad, (double) s->n);
+  rdpe_mul_eq_d (root->drad, (double)s->n);
   cdpe_mod (temp, pp);
   rdpe_div_eq (root->drad, temp);
   if (rdpe_eq (root->drad, rdpe_zero))
@@ -147,14 +148,14 @@ mps_dnewton_usr (mps_context * s, mps_polynomial * poly, mps_approximation * roo
 }
 
 /**
- * @brief User-defined program for the computation of \f$p\f$, \f$p'\f$. 
+ * @brief User-defined program for the computation of \f$p\f$, \f$p'\f$.
  *
  * @param s The current mps_context
- * @param poly The mps_polynomial being solved. 
- * @param root The approximation whose Newton correction shall be computed. 
- * @param corr The output value where the newton correction will be stored. 
+ * @param poly The mps_polynomial being solved.
+ * @param root The approximation whose Newton correction shall be computed.
+ * @param corr The output value where the newton correction will be stored.
  *
- * This sample computes the 'Mandelbrot polynomial by  
+ * This sample computes the 'Mandelbrot polynomial by
  * means of the relation: p=1+x*p**2, starting with p=1
  */
 MPS_PRIVATE void
@@ -170,11 +171,11 @@ mps_mnewton_usr (mps_context * s, mps_polynomial * poly, mps_approximation * roo
   mpc_init2 (pt, s->mpwp);
   mpc_init2 (tmp, s->mpwp);
 
-  m = (int) (log (s->n + 1.0) / LOG2);
+  m = (int)(log (s->n + 1.0) / LOG2);
   if ((1 << m) <= s->n)
     m++;
   rdpe_set (eps, s->mp_epsilon);
-  rdpe_mul_eq_d (eps, (double) 4 * s->n);
+  rdpe_mul_eq_d (eps, (double)4 * s->n);
   mpc_get_cdpe (ctmp, root->mvalue);
   cdpe_mod (ax, ctmp);
 
@@ -206,7 +207,7 @@ mps_mnewton_usr (mps_context * s, mps_polynomial * poly, mps_approximation * roo
   root->again = rdpe_gt (temp, apeps);
 
   rdpe_add (root->drad, temp, apeps);
-  rdpe_mul_eq_d (root->drad, (double) s->n);
+  rdpe_mul_eq_d (root->drad, (double)s->n);
   mpc_get_cdpe (ctmp, pp);
   cdpe_mod (temp, ctmp);
   rdpe_div_eq (root->drad, temp);
@@ -223,7 +224,7 @@ mps_boolean
 mps_feval_usr (mps_context * ctx, mps_polynomial * p, cplx_t x, cplx_t value, double * error)
 {
   int i;
-  int m = (int) (log (p->degree + 1.0) / LOG2);
+  int m = (int)(log (p->degree + 1.0) / LOG2);
   double ax = cplx_mod (x);
   cplx_t tmp;
 
@@ -255,7 +256,7 @@ mps_boolean
 mps_deval_usr (mps_context * ctx, mps_polynomial * p, cdpe_t x, cdpe_t value, rdpe_t error)
 {
   int i;
-  int m = (int) (log (p->degree + 1.0) / LOG2);
+  int m = (int)(log (p->degree + 1.0) / LOG2);
   rdpe_t ax, rtmp;
   cdpe_t tmp;
 
@@ -285,7 +286,7 @@ mps_boolean
 mps_meval_usr (mps_context * ctx, mps_polynomial * p, mpc_t x, mpc_t value, rdpe_t error)
 {
   int i;
-  int m = (int) (log (p->degree + 1.0) / LOG2);
+  int m = (int)(log (p->degree + 1.0) / LOG2);
   rdpe_t ax, rtmp;
   mpc_t tmp;
   long int wp = mpc_get_prec (x);

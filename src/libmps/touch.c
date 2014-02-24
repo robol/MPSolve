@@ -4,7 +4,7 @@
  * Copyright (C) 2001-2014, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
- * Authors: 
+ * Authors:
  *   Dario Andrea Bini <bini@dm.unipi.it>
  *   Giuseppe Fiorentino <fiorent@dm.unipi.it>
  *   Leonardo Robol <robol@mail.dm.unipi.it>
@@ -31,7 +31,7 @@
  * @param n See above.
  * @param i the first root.
  * @param j the second root.
- * @param frad The inclusion radii precomputed by some other routines. 
+ * @param frad The inclusion radii precomputed by some other routines.
  * @return false if the disc <code>i</code> and <code>j</code>
  *   are newton-isolated.
  */
@@ -64,7 +64,7 @@ mps_ftouchnwt (mps_context * s, double * frad, int n, int i, int j)
  *
  * @param s mps_context struct.
  * @param drad The inclusion radii that should be used to perform
- * cluster analysis. 
+ * cluster analysis.
  * @param n See above.
  * @param i the first root.
  * @param j the second root.
@@ -78,8 +78,8 @@ mps_dtouchnwt (mps_context * s, rdpe_t * drad, int n, int i, int j)
   rdpe_t dtmp1, dtmp2;
 
   rdpe_add (dtmp1, drad[i], drad[j]);
-      
-  rdpe_mul_eq_d (dtmp1, (double) n);
+
+  rdpe_mul_eq_d (dtmp1, (double)n);
   cdpe_sub (ctmp, s->root[i]->dvalue, s->root[j]->dvalue);
   cdpe_mod (dtmp2, ctmp);
   return rdpe_ge (dtmp1, dtmp2);
@@ -121,7 +121,7 @@ mps_mtouchnwt (mps_context * s, rdpe_t * drad, int n, int i, int j)
   /*     rdpe_Esp (dtmp1) < rdpe_Esp (s->root[j]->drad)) */
   /*     return true; */
 
-  rdpe_mul_eq_d (dtmp1, (double) n);
+  rdpe_mul_eq_d (dtmp1, (double)n);
   mpc_sub (mtmp, s->root[i]->mvalue, s->root[j]->mvalue);
   mpc_get_cdpe (ctmp, mtmp);
   cdpe_mod (dtmp2, ctmp);
@@ -133,9 +133,9 @@ mps_mtouchnwt (mps_context * s, rdpe_t * drad, int n, int i, int j)
 
 /**
  * @brief Return true if the disk intersects the real axis, false otherwise (floating point version).
- * 
+ *
  * @param s A pointer to the current mps_context.
- * @param n The degree of the polynomial. 
+ * @param n The degree of the polynomial.
  * @param i The index of the root to check
  */
 MPS_PRIVATE mps_boolean
@@ -149,9 +149,9 @@ mps_ftouchreal (mps_context * s, int n, int i)
 
 /**
  * @brief Return true if the disk intersects the real axis, false otherwise (DPE version).
- * 
+ *
  * @param s A pointer to the current mps_context.
- * @param n The degree of the polynomial. 
+ * @param n The degree of the polynomial.
  * @param i The index of the root to check
  */
 MPS_PRIVATE mps_boolean
@@ -159,16 +159,16 @@ mps_dtouchreal (mps_context * s, int n, int i)
 {
   rdpe_t tmp1, tmp2;
 
-  rdpe_mul_d (tmp1, s->root[i]->drad, (double) n);
+  rdpe_mul_d (tmp1, s->root[i]->drad, (double)n);
   rdpe_abs (tmp2, cdpe_Im (s->root[i]->dvalue));
   return rdpe_ge (tmp1, tmp2);
 }
 
 /**
  * @brief Return true if the disk intersects the real axis, false otherwise (MP version).
- * 
+ *
  * @param s A pointer to the current mps_context.
- * @param n The degree of the polynomial. 
+ * @param n The degree of the polynomial.
  * @param i The index of the root to check
  */
 MPS_PRIVATE mps_boolean
@@ -176,7 +176,7 @@ mps_mtouchreal (mps_context * s, int n, int i)
 {
   rdpe_t tmp1, tmp2;
 
-  rdpe_mul_d (tmp1, s->root[i]->drad, (double) n);
+  rdpe_mul_d (tmp1, s->root[i]->drad, (double)n);
   mpf_get_rdpe (tmp2, mpc_Im (s->root[i]->mvalue));
   rdpe_abs_eq (tmp2);
 
@@ -185,9 +185,9 @@ mps_mtouchreal (mps_context * s, int n, int i)
 
 /**
  * @brief Return true if the disk intersects the imaginary axis, false otherwise (floating point version).
- * 
+ *
  * @param s A pointer to the current mps_context.
- * @param n The degree of the polynomial. 
+ * @param n The degree of the polynomial.
  * @param i The index of the root to check
  */
 MPS_PRIVATE mps_boolean
@@ -201,9 +201,9 @@ mps_ftouchimag (mps_context * s, int n, int i)
 
 /**
  * @brief Return true if the disk intersects the imaginary axis, false otherwise (DPE version).
- * 
+ *
  * @param s A pointer to the current mps_context.
- * @param n The degree of the polynomial. 
+ * @param n The degree of the polynomial.
  * @param i The index of the root to check
  */
 MPS_PRIVATE mps_boolean
@@ -211,16 +211,16 @@ mps_dtouchimag (mps_context * s, int n, int i)
 {
   rdpe_t tmp1, tmp2;
 
-  rdpe_mul_d (tmp1, s->root[i]->drad, (double) n);
+  rdpe_mul_d (tmp1, s->root[i]->drad, (double)n);
   rdpe_abs (tmp2, cdpe_Re (s->root[i]->dvalue));
   return rdpe_ge (tmp1, tmp2);
 }
 
 /**
  * @brief Return true if the disk intersects the imaginary axis, false otherwise (MP version).
- * 
+ *
  * @param s A pointer to the current mps_context.
- * @param n The degree of the polynomial. 
+ * @param n The degree of the polynomial.
  * @param i The index of the root to check
  */
 MPS_PRIVATE mps_boolean
@@ -228,7 +228,7 @@ mps_mtouchimag (mps_context * s, int n, int i)
 {
   rdpe_t tmp1, tmp2;
 
-  rdpe_mul_d (tmp1, s->root[i]->drad, (double) n);
+  rdpe_mul_d (tmp1, s->root[i]->drad, (double)n);
   mpf_get_rdpe (tmp2, mpc_Re (s->root[i]->mvalue));
   rdpe_abs_eq (tmp2);
 
@@ -237,9 +237,9 @@ mps_mtouchimag (mps_context * s, int n, int i)
 
 /**
  * @brief Return true if the disk intersects the unitary circle, false otherwise (floating point version).
- * 
+ *
  * @param s A pointer to the current mps_context.
- * @param n The degree of the polynomial. 
+ * @param n The degree of the polynomial.
  * @param i The index of the root to check
  */
 MPS_PRIVATE mps_boolean
@@ -257,9 +257,9 @@ mps_ftouchunit (mps_context * s, int n, int i)
 
 /**
  * @brief Return true if the disk intersects the unitary circle, false otherwise (DPE version).
- * 
+ *
  * @param s A pointer to the current mps_context.
- * @param n The degree of the polynomial. 
+ * @param n The degree of the polynomial.
  * @param i The index of the root to check
  */
 MPS_PRIVATE mps_boolean
@@ -268,7 +268,7 @@ mps_dtouchunit (mps_context * s, int n, int i)
   rdpe_t ab, rad, tmp;
 
   cdpe_mod (ab, s->root[i]->dvalue);
-  rdpe_mul_d (rad, s->root[i]->drad, (double) n);
+  rdpe_mul_d (rad, s->root[i]->drad, (double)n);
   rdpe_add_d (tmp, rad, 1.0);
   if (rdpe_lt (tmp, ab))
     return false;
@@ -278,9 +278,9 @@ mps_dtouchunit (mps_context * s, int n, int i)
 
 /**
  * @brief Return true if the disk intersects the unitary circle, false otherwise (MP version).
- * 
+ *
  * @param s A pointer to the current mps_context.
- * @param n The degree of the polynomial. 
+ * @param n The degree of the polynomial.
  * @param i The index of the root to check
  */
 MPS_PRIVATE mps_boolean
@@ -297,7 +297,7 @@ mps_mtouchunit (mps_context * s, int n, int i)
 
   mpf_clear (mab);
 
-  rdpe_mul_d (rad, s->root[i]->drad, (double) n);
+  rdpe_mul_d (rad, s->root[i]->drad, (double)n);
 
   if (rdpe_lt (rad, ab))
     return false;

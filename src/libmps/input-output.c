@@ -4,7 +4,7 @@
  * Copyright (C) 2001-2014, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
- * Authors: 
+ * Authors:
  *   Dario Andrea Bini <bini@dm.unipi.it>
  *   Giuseppe Fiorentino <fiorent@dm.unipi.it>
  *   Leonardo Robol <robol@mail.dm.unipi.it>
@@ -52,9 +52,10 @@ typedef struct fmemcookie {
 /* Read up to non-zero N bytes into BUF from stream described by
    COOKIE; return number of bytes read (0 on EOF).  */
 static int
-fmemread(void *cookie, char *buf, int n)
+fmemread (void *cookie, char *buf, int n)
 {
-  fmemcookie *c = (fmemcookie *) cookie;
+  fmemcookie *c = (fmemcookie*)cookie;
+
   /* Can't read beyond current size, but EOF condition is not an error.  */
   if (c->pos > c->eof)
     return 0;
@@ -68,13 +69,14 @@ fmemread(void *cookie, char *buf, int n)
 /* Write up to non-zero N bytes of BUF into the stream described by COOKIE,
    returning the number of bytes written or EOF on failure.  */
 static int
-fmemwrite(void *cookie, const char *buf, int n)
+fmemwrite (void *cookie, const char *buf, int n)
 {
-  fmemcookie *c = (fmemcookie *) cookie;
+  fmemcookie *c = (fmemcookie*)cookie;
   int adjust = 0; /* true if at EOF, but still need to write NUL.  */
 
   /* Append always seeks to eof; otherwise, if we have previously done
      a seek beyond eof, ensure all intermediate bytes are NUL.  */
+
   if (c->append)
     c->pos = c->eof;
   else if (c->pos > c->eof)
@@ -119,10 +121,10 @@ fmemwrite(void *cookie, const char *buf, int n)
 /* Seek to position POS relative to WHENCE within stream described by
    COOKIE; return resulting position or fail with EOF.  */
 static fpos_t
-fmemseek(void *cookie, fpos_t pos, int whence)
+fmemseek (void *cookie, fpos_t pos, int whence)
 {
-  fmemcookie *c = (fmemcookie *) cookie;
-  off_t offset = (off_t) pos;
+  fmemcookie *c = (fmemcookie*)cookie;
+  off_t offset = (off_t)pos;
 
   if (whence == SEEK_CUR)
     offset += c->pos;
@@ -150,27 +152,28 @@ fmemseek(void *cookie, fpos_t pos, int whence)
           c->buf[c->pos] = '\0';
         }
     }
-  return (fpos_t) offset;
+  return (fpos_t)offset;
 }
 
 /* Reclaim resources used by stream described by COOKIE.  */
 static int
-fmemclose(void *cookie)
+fmemclose (void *cookie)
 {
-  fmemcookie *c = (fmemcookie *) cookie;
+  fmemcookie *c = (fmemcookie*)cookie;
+
   free (c->storage);
   return 0;
 }
 
 
 /* Some prototypes */
-extern int      __sflags(const char *, int *);
-extern FILE     *__sfp(void);
+extern int      __sflags (const char *, int *);
+extern FILE     *__sfp (void);
 
 /* Open a memstream around buffer BUF of SIZE bytes, using MODE.
    Return the new stream, or fail with NULL.  */
 MPS_PRIVATE FILE *
-fmemopen(void *buf, size_t size, const char *mode)
+fmemopen (void *buf, size_t size, const char *mode)
 {
   FILE *fp;
   fmemcookie *c;
@@ -183,9 +186,9 @@ fmemopen(void *buf, size_t size, const char *mode)
     {
       return NULL;
     }
-  if ((fp = (FILE *) __sfp ()) == NULL)
+  if ((fp = (FILE*)__sfp ()) == NULL)
     return NULL;
-  if ((c = (fmemcookie *) malloc (sizeof *c + (buf ? 0 : size))) == NULL)
+  if ((c = (fmemcookie*)malloc (sizeof *c + (buf ? 0 : size))) == NULL)
     {
       fp->_flags = 0;           /* release */
 
@@ -201,37 +204,40 @@ fmemopen(void *buf, size_t size, const char *mode)
   if (!buf)
     {
       /* r+/w+/a+, and no buf: file starts empty.  */
-      c->buf = (char *) (c + 1);
-      *(char *) buf = '\0';
+      c->buf = (char*)(c + 1);
+      *(char*)buf = '\0';
       c->pos = c->eof = 0;
       c->append = (flags & __SAPP) != 0;
     }
   else
     {
-      c->buf = (char *) buf;
+      c->buf = (char*)buf;
       switch (*mode)
         {
         case 'a':
           /* a/a+ and buf: position and size at first NUL.  */
           buf = memchr (c->buf, '\0', size);
-          c->eof = c->pos = buf ? (char *) buf - c->buf : size;
+          c->eof = c->pos = buf ? (char*)buf - c->buf : size;
           if (!buf && c->writeonly)
             /* a: guarantee a NUL within size even if no writes.  */
             c->buf[size - 1] = '\0';
           c->append = 1;
           break;
+
         case 'r':
           /* r/r+ and buf: read at beginning, full size available.  */
           c->pos = c->append = 0;
           c->eof = size;
           break;
+
         case 'w':
           /* w/w+ and buf: write at beginning, truncate to empty.  */
           c->pos = c->append = c->eof = 0;
           *c->buf = '\0';
           break;
+
         default:
-          abort();
+          abort ();
         }
     }
 
@@ -249,12 +255,12 @@ fmemopen(void *buf, size_t size, const char *mode)
 #endif
 
 /**
- * @brief Read the approximations from the file opened in the 
- * rtstr member of the mps_context. 
+ * @brief Read the approximations from the file opened in the
+ * rtstr member of the mps_context.
  *
- * @param s A pointer to the current mps_context. 
+ * @param s A pointer to the current mps_context.
  *
- * NOTE: This function is not used anywhere in the code, atm. 
+ * NOTE: This function is not used anywhere in the code, atm.
  */
 void
 mps_readroots (mps_context * s)
@@ -279,9 +285,9 @@ mps_readroots (mps_context * s)
 
 /**
  * @brief Count the roots that are included in the search set, excluded
- * form it, or have an undetermined inclusion state. 
+ * form it, or have an undetermined inclusion state.
  *
- * @param s A pointer to the current mps_context. 
+ * @param s A pointer to the current mps_context.
  */
 void
 mps_countroots (mps_context * s)
@@ -299,9 +305,11 @@ mps_countroots (mps_context * s)
       case MPS_ROOT_INCLUSION_IN:
         s->count[0]++;
         break;
+
       case MPS_ROOT_INCLUSION_OUT:
         s->count[1]++;
         break;
+
       default:
         s->count[2]++;
         break;
@@ -315,10 +323,10 @@ mps_countroots (mps_context * s)
 
 /**
  * @brief Print a summary of the count of the roots that can be obtained
- * through a call to mps_countroots() to the outstr member of the 
- * current mps_context. 
+ * through a call to mps_countroots() to the outstr member of the
+ * current mps_context.
  *
- * @param s A pointer to the current mps_context. 
+ * @param s A pointer to the current mps_context.
  */
 void
 mps_outcount (mps_context * s)
@@ -337,15 +345,15 @@ mps_outcount (mps_context * s)
 }
 
 /**
- * @brief Print a float to stdout (or whatever the output stream is 
+ * @brief Print a float to stdout (or whatever the output stream is
  * atm) respecting the given options, and only with the significant
- * digits. 
+ * digits.
  *
- * @param s A pointer to the current mps_context. 
- * @param f The float approximation that should be printed. 
+ * @param s A pointer to the current mps_context.
+ * @param f The float approximation that should be printed.
  * @param rad The current inclusion radius for that approximation.
- * @param out_digit The number of output digits required. 
- * @param sign The sign of the approximation. 
+ * @param out_digit The number of output digits required.
+ * @param sign The sign of the approximation.
  */
 MPS_PRIVATE void
 mps_outfloat (mps_context * s, mpf_t f, rdpe_t rad, long out_digit,
@@ -378,7 +386,7 @@ mps_outfloat (mps_context * s, mpf_t f, rdpe_t rad, long out_digit,
         rdpe_div (r, rad, ro);
       else
         rdpe_set_d (r, 1.0e-10);
-      digit = (long) (-rdpe_log10 (r) - 0.5);
+      digit = (long)(-rdpe_log10 (r) - 0.5);
       if (digit <= 0)
         {
           rdpe_get_dl (&d, &l, ro);
@@ -386,7 +394,7 @@ mps_outfloat (mps_context * s, mpf_t f, rdpe_t rad, long out_digit,
         }
       else
         {
-          true_digit = (long) (LOG10_2 * mpf_get_prec (f));
+          true_digit = (long)(LOG10_2 * mpf_get_prec (f));
           true_digit = MIN (digit, true_digit);
           true_digit = MIN (true_digit, out_digit);
           if (sign)
@@ -402,18 +410,18 @@ mps_outfloat (mps_context * s, mpf_t f, rdpe_t rad, long out_digit,
 
 /**
  * @brief Print an approximation to stdout (or whatever the output
- * stream currently selected in the mps_context is). 
+ * stream currently selected in the mps_context is).
  *
- * @param s A pointer to the current mps_context. 
- * @param i The index of the approxiomation that shall be printed. 
- * @param num The number of zero roots. 
+ * @param s A pointer to the current mps_context.
+ * @param i The index of the approxiomation that shall be printed.
+ * @param num The number of zero roots.
  */
 MPS_PRIVATE void
 mps_outroot (mps_context * s, int i, int num)
 {
   long out_digit;
 
-  out_digit = (long) (LOG10_2 * s->output_config->prec) + 10;
+  out_digit = (long)(LOG10_2 * s->output_config->prec) + 10;
 
   /* print format header */
   switch (s->output_config->format)
@@ -422,9 +430,11 @@ mps_outroot (mps_context * s, int i, int num)
     case MPS_OUTPUT_FORMAT_FULL:
       fprintf (s->outstr, "(");
       break;
+
     case MPS_OUTPUT_FORMAT_VERBOSE:
       fprintf (s->outstr, "Root(%d) = ", num);
       break;
+
     default:
       break;
     }
@@ -441,20 +451,24 @@ mps_outroot (mps_context * s, int i, int num)
     case MPS_OUTPUT_FORMAT_BARE:
       fprintf (s->outstr, " ");
       break;
+
     case MPS_OUTPUT_FORMAT_GNUPLOT:
     case MPS_OUTPUT_FORMAT_GNUPLOT_FULL:
       fprintf (s->outstr, "\t");
       break;
+
     case MPS_OUTPUT_FORMAT_COMPACT:
     case MPS_OUTPUT_FORMAT_FULL:
       fprintf (s->outstr, ", ");
       break;
+
     case MPS_OUTPUT_FORMAT_VERBOSE:
       if (i == ISZERO || mpf_sgn (mpc_Im (s->root[i]->mvalue)) >= 0)
         fprintf (s->outstr, " + I * ");
       else
         fprintf (s->outstr, " - I * ");
       break;
+
     default:
       break;
     }
@@ -481,12 +495,13 @@ mps_outroot (mps_context * s, int i, int num)
     case MPS_OUTPUT_FORMAT_COMPACT:
       fprintf (s->outstr, ")");
       break;
+
     case MPS_OUTPUT_FORMAT_FULL:
       fprintf (s->outstr, ")\n");
       if (i != ISZERO)
         {
           rdpe_outln_str (s->outstr, s->root[i]->drad);
-          fprintf (s->outstr, "Status: %s, %s, %s\n", 
+          fprintf (s->outstr, "Status: %s, %s, %s\n",
                    MPS_ROOT_STATUS_TO_STRING (s->root[i]->status),
                    MPS_ROOT_ATTRS_TO_STRING (s->root[i]->attrs),
                    MPS_ROOT_INCLUSION_TO_STRING (s->root[i]->inclusion));
@@ -494,6 +509,7 @@ mps_outroot (mps_context * s, int i, int num)
       else
         fprintf (s->outstr, " 0\n ---\n");
       break;
+
     default:
       break;
     }
@@ -512,8 +528,8 @@ mps_outroot (mps_context * s, int i, int num)
           fprintf (s->logstr, "  Radius = ");
           rdpe_outln_str (s->logstr, s->root[i]->drad);
           fprintf (s->logstr, "  Prec = %ld\n",
-                   (long) (mpc_get_prec (s->root[i]->mvalue) / LOG2_10));
-          fprintf (s->logstr, "  Approximation = %s\n", 
+                   (long)(mpc_get_prec (s->root[i]->mvalue) / LOG2_10));
+          fprintf (s->logstr, "  Approximation = %s\n",
                    MPS_ROOT_STATUS_TO_STRING (s->root[i]->status));
           fprintf (s->logstr, "  Attributes = %s\n",
                    MPS_ROOT_ATTRS_TO_STRING (s->root[i]->attrs));
@@ -526,9 +542,9 @@ mps_outroot (mps_context * s, int i, int num)
 
 /**
  * @brief Print the approximations to stdout (or whatever the output
- * stream currently selected in the mps_context is). 
+ * stream currently selected in the mps_context is).
  *
- * @param s A pointer to the current mps_context. 
+ * @param s A pointer to the current mps_context.
  */
 void
 mps_output (mps_context * s)
@@ -538,7 +554,7 @@ mps_output (mps_context * s)
   if (s->DOLOG)
     fprintf (s->logstr, "--------------------\n");
 
-  if (s->output_config->format != MPS_OUTPUT_FORMAT_GNUPLOT && 
+  if (s->output_config->format != MPS_OUTPUT_FORMAT_GNUPLOT &&
       s->output_config->format != MPS_OUTPUT_FORMAT_GNUPLOT_FULL)
     {
       if (s->over_max)
@@ -548,7 +564,7 @@ mps_output (mps_context * s)
         }
     }
 
-  /* Start with plotting instructions in the case of 
+  /* Start with plotting instructions in the case of
    * MPS_OUTPUT_GNUPLOT_FULL, so the output can be
    * piped directly to gnuplot */
   if (s->output_config->format == MPS_OUTPUT_FORMAT_GNUPLOT_FULL)
@@ -566,7 +582,7 @@ mps_output (mps_context * s)
     {
       if (s->output_config->search_set != MPS_SEARCH_SET_UNITARY_DISC_COMPL)
         for (i = 0; i < s->zero_roots; i++)
-            mps_outroot (s, ISZERO, num++);
+          mps_outroot (s, ISZERO, num++);
       for (ind = 0; ind < s->n; ind++)
         {
           i = s->order[ind];
@@ -586,9 +602,9 @@ mps_output (mps_context * s)
 }
 
 /**
- * @brief Update the MP version of the roots to the latest and greatest approximations. 
- * 
- * @param s A pointer to the current mps_context. 
+ * @brief Update the MP version of the roots to the latest and greatest approximations.
+ *
+ * @param s A pointer to the current mps_context.
  */
 MPS_PRIVATE void
 mps_copy_roots (mps_context * s)
@@ -628,17 +644,16 @@ mps_copy_roots (mps_context * s)
       if (s->DOSORT)
         mps_msort (s);
       break;
-
     }
 }
 
 /**
  * @brief Dump all the current approximation to the logstr selected
- * in the current mps_context. 
+ * in the current mps_context.
  *
- * @param s A pointer to the current mps_context. 
+ * @param s A pointer to the current mps_context.
  *
- * This function is tipically used when encountering some errors. 
+ * This function is tipically used when encountering some errors.
  */
 void
 mps_dump (mps_context * s)
@@ -752,18 +767,19 @@ MPS_PRIVATE void
 mps_dump_status (mps_context * s, FILE * outstr)
 {
   int i;
+
   MPS_DEBUG (s, "              Approximation              Attributes       Inclusion");
   for (i = 0; i < s->n; i++)
     {
       MPS_DEBUG (s, "Status  %4d: %-25s  %-15s  %-15s", i,
                  MPS_ROOT_STATUS_TO_STRING (s->root[i]->status),
-                 MPS_ROOT_ATTRS_TO_STRING  (s->root[i]->attrs), 
+                 MPS_ROOT_ATTRS_TO_STRING (s->root[i]->attrs),
                  MPS_ROOT_INCLUSION_TO_STRING (s->root[i]->inclusion));
     }
 }
 
 /**
- * @brief Print a warning to the user. 
+ * @brief Print a warning to the user.
  *
  * @param st The current mps_context
  * @param format The printf-like format for the data to print
@@ -774,23 +790,24 @@ mps_warn (mps_context * st, char *format, ...)
   char * exclamation_mark = "";
 
   va_list ap;
+
   va_start (ap, format);
 
   if (mps_is_a_tty (st->logstr))
     exclamation_mark = "\033[33;1m!\033[0m";
-      
+
   if (st->DOWARN)
     {
       if (format[strlen (format)] == '\n')
         {
           fprintf (stderr, "%s ", exclamation_mark);
-	  vfprintf (stderr, format, ap);
+          vfprintf (stderr, format, ap);
         }
       else
         {
           fprintf (stderr, "%s ", exclamation_mark);
-	  vfprintf (stderr, format, ap);
-	  fprintf (stderr, "\n");
+          vfprintf (stderr, format, ap);
+          fprintf (stderr, "\n");
         }
     }
 
@@ -807,7 +824,7 @@ MPS_PRIVATE mps_boolean
 mps_is_a_tty (FILE * stream)
 {
 #ifndef __WINDOWS
-  return isatty (fileno(stream));
+  return isatty (fileno (stream));
 #else
   return _isatty (_fileno (stream));
 #endif
@@ -817,15 +834,15 @@ mps_is_a_tty (FILE * stream)
  * available as a non-conformant extension. */
 #ifndef vsnprintf
 #ifdef HAVE_VSNPRINTF
-int snprintf(char *str, size_t size, const char *format, ...);
+int snprintf (char *str, size_t size, const char *format, ...);
 #endif
 #endif
 
 /**
- * @brief Record an error happened during the computation. 
+ * @brief Record an error happened during the computation.
  * This will set the internal status error to on, and the actual
- * errors will printed with the first call to mps_print_errors(). 
- * @param s A pointer to the current mps_context. 
+ * errors will printed with the first call to mps_print_errors().
+ * @param s A pointer to the current mps_context.
  */
 void
 mps_error (mps_context * s, const char * format, ...)
@@ -843,31 +860,31 @@ mps_error (mps_context * s, const char * format, ...)
   /* Measure space needed for the string, if our initial guess for the space neede
    * is not enough */
   while ((missing_characters = vsnprintf (s->last_error, buffer_size, format, ap)) > buffer_size)
-  {
-    buffer_size += missing_characters + 1;
-    s->last_error = mps_realloc (s->last_error, buffer_size);
-  }
+    {
+      buffer_size += missing_characters + 1;
+      s->last_error = mps_realloc (s->last_error, buffer_size);
+    }
 
   va_end (ap);
 }
 
 /**
- * @brief Print all the errors that have been recorded up to now. 
+ * @brief Print all the errors that have been recorded up to now.
  * This function should be called only if mps_context_has_errors()
- * returns true. 
+ * returns true.
  *
- * @param s A pointer to the current mps_context. 
+ * @param s A pointer to the current mps_context.
  */
 void
 mps_print_errors (mps_context * s)
 {
   const char *error = s->last_error;
-  size_t length = strlen(error);
+  size_t length = strlen (error);
 
   if (s->logstr == NULL)
     s->logstr = stderr;
 
-  const char *exclamation_mark = "!"; 
+  const char *exclamation_mark = "!";
   if (mps_is_a_tty (s->logstr))
     exclamation_mark = "\033[31;1m!\033[0m";
 

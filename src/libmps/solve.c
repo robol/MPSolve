@@ -4,7 +4,7 @@
  * Copyright (C) 2001-2014, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
- * Authors: 
+ * Authors:
  *   Dario Andrea Bini <bini@dm.unipi.it>
  *   Giuseppe Fiorentino <fiorent@dm.unipi.it>
  *   Leonardo Robol <robol@mail.dm.unipi.it>
@@ -16,14 +16,14 @@
 #include <float.h>
 
 /**
- * @brief Set <code>again[i]</code> to <code>true</code> or to <code>false</code> 
+ * @brief Set <code>again[i]</code> to <code>true</code> or to <code>false</code>
  * according to the values of <code>status</code> and <code>inclusion</code>
  *  in the mps_approximation and the current <code>goal</code>.
  *
  * More precisely:
  *
- * - If goal is <code>MPS_OUTPUT_GOAL_COUNT</code>: <code>true</code> only 
- *   if inclusion is <code>MPS_ROOT_INCLUSION_UNKNOWN</code> and status is not 
+ * - If goal is <code>MPS_OUTPUT_GOAL_COUNT</code>: <code>true</code> only
+ *   if inclusion is <code>MPS_ROOT_INCLUSION_UNKNOWN</code> and status is not
  *   <code>MPS_ROOT_STATUS_APPROXIMATED</code>, <code>MPS_ROOT_STATUS_APPROXIMATED_IN_CLUSTER</code>
  *   or <code>MPS_ROOT_STATUS_NOT_FLOAT</code>.
  *
@@ -40,41 +40,40 @@ mps_update (mps_context * s)
     s->root[i]->again = false;
   switch (s->output_config->goal)
     {
-
     case MPS_OUTPUT_GOAL_COUNT:                  /*  count */
       for (i = 0; i < s->n; i++)
         {
           if (s->root[i]->inclusion == MPS_ROOT_INCLUSION_UNKNOWN)
-            if (!MPS_ROOT_STATUS_IS_APPROXIMATED (s->root[i]->status) && 
+            if (!MPS_ROOT_STATUS_IS_APPROXIMATED (s->root[i]->status) &&
                 s->root[i]->status != MPS_ROOT_STATUS_NOT_DPE)
               s->root[i]->again = true;
-          
-          if (s->output_config->multiplicity && 
+
+          if (s->output_config->multiplicity &&
               s->root[i]->status == MPS_ROOT_STATUS_CLUSTERED &&
               s->root[i]->inclusion != MPS_ROOT_INCLUSION_OUT)
             s->root[i]->again = true;
 
-            if (s->output_config->root_properties &&
-                (s->root[i]->attrs == MPS_ROOT_ATTRS_NONE &&
-                 (s->root[i]->inclusion != MPS_ROOT_INCLUSION_UNKNOWN ||
-                  (!MPS_ROOT_STATUS_IS_APPROXIMATED (s->root[i]->status) && 
+          if (s->output_config->root_properties &&
+              (s->root[i]->attrs == MPS_ROOT_ATTRS_NONE &&
+               (s->root[i]->inclusion != MPS_ROOT_INCLUSION_UNKNOWN ||
+                  (!MPS_ROOT_STATUS_IS_APPROXIMATED (s->root[i]->status) &&
                    s->root[i]->status != MPS_ROOT_STATUS_NOT_DPE))))
-              s->root[i]->again = true;
+            s->root[i]->again = true;
         }
       break;
-          
+
     case MPS_OUTPUT_GOAL_ISOLATE:                  /* isolate */
       for (i = 0; i < s->n; i++)
         {
           if (s->root[i]->inclusion == MPS_ROOT_INCLUSION_UNKNOWN ||
-              (s->root[i]->status == MPS_ROOT_STATUS_CLUSTERED && 
+              (s->root[i]->status == MPS_ROOT_STATUS_CLUSTERED &&
                s->root[i]->inclusion == MPS_ROOT_INCLUSION_IN))
             if (!MPS_ROOT_STATUS_IS_APPROXIMATED (s->root[i]->status) &&
                 (s->root[i]->status != MPS_ROOT_STATUS_ISOLATED ||
                  s->root[i]->inclusion != MPS_ROOT_INCLUSION_IN))
               s->root[i]->again = true;
 
-          if (s->output_config->multiplicity && 
+          if (s->output_config->multiplicity &&
               s->root[i]->status == MPS_ROOT_STATUS_CLUSTERED &&
               s->root[i]->inclusion != MPS_ROOT_INCLUSION_OUT)
             s->root[i]->again = true;
@@ -106,7 +105,7 @@ mps_update (mps_context * s)
 
           if (s->output_config->root_properties)
             {
-              if (s->root[i]->attrs == MPS_ROOT_ATTRS_NONE && 
+              if (s->root[i]->attrs == MPS_ROOT_ATTRS_NONE &&
                   MPS_ROOT_STATUS_IS_APPROXIMATED (s->root[i]->status))
                 s->root[i]->again = true;
             }
@@ -117,7 +116,7 @@ mps_update (mps_context * s)
 
 /**
  * @brief Compute super center and super radius
- * 
+ *
  * This routines the super radius of the <code>i</code>-th cluster,
  * i.e. the radius of the inclusion disc for the whole cluster
  *
@@ -239,10 +238,10 @@ mps_msrad (mps_context * s, mps_cluster * cluster, mpc_t sc, rdpe_t sr)
       cdpe_mod (rtmp, cdtmp);
       rdpe_add_eq (rtmp, s->root[l]->drad);
       if (rdpe_lt (sr, rtmp))
-          rdpe_set (sr, rtmp);
+        rdpe_set (sr, rtmp);
       else
         {
-          if (s->debug_level & MPS_DEBUG_CLUSTER) 
+          if (s->debug_level & MPS_DEBUG_CLUSTER)
             {
               MPS_DEBUG_RDPE (s, sr, "Super radius of the cluster");
             }
@@ -260,32 +259,32 @@ mps_msrad (mps_context * s, mps_cluster * cluster, mpc_t sc, rdpe_t sr)
  * @brief Check if the roots are computed with the required
  * precision.
  *
- * Set <code>computed</code> to <code>true</code> 
+ * Set <code>computed</code> to <code>true</code>
  * if the stop condition is satisfied,
  * otherwise set <code>computed</code> to <code>false</code>.
  *
- * The stop condition is obtained from the vector <code>status</code> 
+ * The stop condition is obtained from the vector <code>status</code>
  * as follows:
  *
  * If the <code>goal</code> is count stop if
- *  -  <code>**u</code> does not exist, except for 
+ *  -  <code>**u</code> does not exist, except for
  *     <code>a*u</code>, <code>o*u</code>, <code>f*u</code>
  *  - Mult. and does not exist <code>c**</code>
- *  - Real. and does not exist <code>*u*</code>, except for <code>au*</code>, 
+ *  - Real. and does not exist <code>*u*</code>, except for <code>au*</code>,
  *    <code>ou*</code>;
- *  - Imag  and does not exist <code>*v*</code>, except for 
+ *  - Imag  and does not exist <code>*v*</code>, except for
  *    <code>av*</code>, <code>ov*</code>;
  *
  * If the <code>goal</code> is isolate or approximate stop if:
- * - <code>**u</code> does not exist, except for  <code>a*u</code>, 
+ * - <code>**u</code> does not exist, except for  <code>a*u</code>,
  *   <code>o*u</code>, <code>f*u</code>
  *   and if <code>c*i</code> does not exist;
  * - Mult. and does not exist <code>c*i</code>, <code>o*i</code>
- * - Real. and does not exist <code>*ui</code>, except for <code>aui</code>, 
+ * - Real. and does not exist <code>*ui</code>, except for <code>aui</code>,
  *   <code>oui</code>;
- * - Imag  and does not exist <code>*vi</code>, 
+ * - Imag  and does not exist <code>*vi</code>,
  *   except for <code>avi</code>, <code>ovi</code>;
- * 
+ *
  * @see status
  */
 MPS_PRIVATE mps_boolean
@@ -306,7 +305,7 @@ mps_check_stop (mps_context * s)
               s->root[i]->inclusion == MPS_ROOT_INCLUSION_UNKNOWN)
             return computed;
 
-          if (s->output_config->multiplicity && 
+          if (s->output_config->multiplicity &&
               s->root[i]->status == MPS_ROOT_STATUS_CLUSTERED &&
               s->root[i]->inclusion != MPS_ROOT_INCLUSION_OUT)
             return computed;
@@ -314,7 +313,7 @@ mps_check_stop (mps_context * s)
           if (s->output_config->root_properties &&
               s->root[i]->attrs == MPS_ROOT_ATTRS_NONE &&
               s->root[i]->inclusion != MPS_ROOT_INCLUSION_OUT &&
-              !MPS_ROOT_STATUS_IS_APPROXIMATED (s->root[i]->status) && 
+              !MPS_ROOT_STATUS_IS_APPROXIMATED (s->root[i]->status) &&
               s->root[i]->status != MPS_ROOT_STATUS_MULTIPLE)
             return computed;
         }
@@ -353,7 +352,7 @@ mps_check_stop (mps_context * s)
             }
 
           if (s->output_config->root_properties &&
-              s->root[i]->attrs == MPS_ROOT_ATTRS_NONE && 
+              s->root[i]->attrs == MPS_ROOT_ATTRS_NONE &&
               s->root[i]->inclusion != MPS_ROOT_INCLUSION_OUT &&
               !MPS_ROOT_STATUS_IS_APPROXIMATED (s->root[i]->status) &&
               s->root[i]->status != MPS_ROOT_STATUS_MULTIPLE)
@@ -384,23 +383,23 @@ mps_check_stop (mps_context * s)
  *    More precisely, each packet performs max_it iterations on all the
  *    components where again is true. At each iteration check if the
  *    current approximation is in the root neighbourhood; in this case
- *    set 'again' to false.  
+ *    set 'again' to false.
  * -# If at the end of the general packet all the approximations
  *    are inside the root neighbourhood, i.e., 'again' is false in all
  *    the components then return.
  *    else, perform cluster analysis, select new starting approximations
- *    update the vector 'statu', update the vector 'again' that selects 
- *    the components on which to iterate, according to the goal, and 
- *    repeat until the max number of allowed packets is reached. 
+ *    update the vector 'statu', update the vector 'again' that selects
+ *    the components on which to iterate, according to the goal, and
+ *    repeat until the max number of allowed packets is reached.
  *    In the latter case output FAILURE.
  *
- * The local variable <code>again</code> controls the iteration: i.e., 
- *   <code>again[i]=true</code> means iterate on the <code>i</code>-th 
+ * The local variable <code>again</code> controls the iteration: i.e.,
+ *   <code>again[i]=true</code> means iterate on the <code>i</code>-th
  *   component
  *
  * @param s The <code>mps_context</code> associated with the current computation.
  * @param d_after_f this variable is <code>true</code> if dpe
- * are needed after the floating point pass. 
+ * are needed after the floating point pass.
  */
 MPS_PRIVATE void
 mps_fsolve (mps_context * s, mps_boolean * d_after_f)
@@ -426,11 +425,11 @@ mps_fsolve (mps_context * s, mps_boolean * d_after_f)
 
   mps_polynomial_fstart (s, p);
 
-        /***************
-         this part of code performs shift in the gravity center of the roots
-         In order to use it, uncomment the part below and comment the
-         instruction above. Dangerous for overflow.
-         ************/
+  /***************
+     this part of code performs shift in the gravity center of the roots
+     In order to use it, uncomment the part below and comment the
+     instruction above. Dangerous for overflow.
+   ************/
   /*
      {
      cplx_t ft;
@@ -457,8 +456,7 @@ mps_fsolve (mps_context * s, mps_boolean * d_after_f)
     fprintf (s->logstr, "   FSOLVE:  call fpolzer\n");
   for (iter = 0; iter < s->max_pack; iter++)
     {                           /* floop: */
-
-       /* mps_fpolzer(s, &nit, &excep);   */
+      /* mps_fpolzer(s, &nit, &excep);   */
       mps_thread_fpolzer (s, &nit, &excep, required_zeros--);
       it_pack += nit;
 
@@ -580,24 +578,24 @@ mps_fsolve (mps_context * s, mps_boolean * d_after_f)
     }
 
 
- fsolve_final_cleanup:
+fsolve_final_cleanup:
   double_vfree (frad);
 }
 
 /**
- * @brief This routine applies <code>nit</code> iterations of 
+ * @brief This routine applies <code>nit</code> iterations of
  * Aberth's method.
- * 
+ *
  * The method is applied to
- * the <code>i</code>-th component of the approximations for which 
+ * the <code>i</code>-th component of the approximations for which
  * <code>again[i]</code>
- * is <code>true</code>. Set <code>again[i]=false</code> if the <code>i</code>-th 
+ * is <code>true</code>. Set <code>again[i]=false</code> if the <code>i</code>-th
  * approximation is in
  * the root neighbourhood. Stop if <code>again[i]=false</code> for any <code>i</code>.
  *
  * @param s The <code>mps_context</code> associated with the current computation.
- * @param it Index of the component on which the iteration is needed. 
- * @param excep This variable is set to <code>true</code> if after <code>nit</code> 
+ * @param it Index of the component on which the iteration is needed.
+ * @param excep This variable is set to <code>true</code> if after <code>nit</code>
  * iterations some approximation is still out of the root neighbourhood.
  */
 MPS_PRIVATE void
@@ -626,7 +624,6 @@ mps_fpolzer (mps_context * s, int *it, mps_boolean * excep)
 
   for (iter = 0; iter < s->max_it; iter++)
     {                           /* do_iter : DO iter=1,nit */
-
       if (s->DOLOG)
         {
           fprintf (s->logstr, "FPOLZER: iteration %d\n", iter);
@@ -644,13 +641,13 @@ mps_fpolzer (mps_context * s, int *it, mps_boolean * excep)
                   != 0)
                 s->root[i]->frad = rad1;
               /***************************************
-               The above condition is needed to cope with the case
-               where at the first iteration the starting point
-               is already in the root neighbourhood and the actually
-               computed radius is too big since the value of the first
-               derivative is too small.
-               In this case the previous radius bound, obtained by
-               means of Rouche' is more reliable and strict
+                 The above condition is needed to cope with the case
+                 where at the first iteration the starting point
+                 is already in the root neighbourhood and the actually
+                 computed radius is too big since the value of the first
+                 derivative is too small.
+                 In this case the previous radius bound, obtained by
+                 means of Rouche' is more reliable and strict
                **************************************/
 
               if (s->root[i]->again ||
@@ -673,7 +670,6 @@ mps_fpolzer (mps_context * s, int *it, mps_boolean * excep)
                   if (nzeros == s->n)
                     return;
                 }
-
             }
         }
     }
@@ -708,10 +704,8 @@ mps_dpolzer (mps_context * s, int *it, mps_boolean * excep)
     fprintf (s->logstr, "DPOLZER: starts aberth\n");
   for (iter = 0; iter < s->max_it; iter++)
     {                           /* do_iter: */
-
       for (i = 0; i < s->n; i++)
         {                       /* do_index: */
-
           if (s->root[i]->again)
             {
               (*it)++;
@@ -720,14 +714,14 @@ mps_dpolzer (mps_context * s, int *it, mps_boolean * excep)
               if (iter == 0 && !s->root[i]->again && rdpe_gt (s->root[i]->drad, rad1)
                   && rdpe_ne (rad1, rdpe_zero))
                 rdpe_set (s->root[i]->drad, rad1);
-                                /************************************************
-                                 The above condition is needed to manage with the case where
-                                 at the first iteration the starting point is already in the
-                                 root neighbourhood and the actually computed radius is too
-                                 big since the value of the first derivative is too small.
-                                 In this case the previous radius bound, obtained by means of
-                                 Rouche' is more reliable and strict
-                                 **********************************************/
+              /************************************************
+                 The above condition is needed to manage with the case where
+                 at the first iteration the starting point is already in the
+                 root neighbourhood and the actually computed radius is too
+                 big since the value of the first derivative is too small.
+                 In this case the previous radius bound, obtained by means of
+                 Rouche' is more reliable and strict
+               **********************************************/
 
               if (s->root[i]->again ||
                   /* the correction is performed only if iter!=1 or rad(i)!=rad1 */
@@ -750,7 +744,6 @@ mps_dpolzer (mps_context * s, int *it, mps_boolean * excep)
                   if (nzeros == s->n)
                     return;
                 }
-
             }
         }
     }
@@ -817,8 +810,7 @@ mps_dsolve (mps_context * s, mps_boolean d_after_f)
 
   for (iter = 0; iter < s->max_pack; iter++)
     {                           /* dloop : DO iter=1,s->max_pack */
-
-       /* mps_dpolzer(s, &nit, &excep);  */
+      /* mps_dpolzer(s, &nit, &excep);  */
       mps_thread_dpolzer (s, &nit, &excep, required_zeros--);
       it_pack += nit;
 
@@ -920,14 +912,14 @@ mps_dsolve (mps_context * s, mps_boolean d_after_f)
     if (s->root[j]->status == MPS_ROOT_STATUS_NEW_CLUSTERED)
       s->root[j]->status = MPS_ROOT_STATUS_CLUSTERED;
 
- dsolve_final_cleanup:
+dsolve_final_cleanup:
   rdpe_vfree (drad);
 }
 
 /**
  * @brief Multiprecision version of <code>fsolve()</code>.
  */
-MPS_PRIVATE void 
+MPS_PRIVATE void
 mps_msolve (mps_context * s)
 {
   int iter, nit, oldnclust, i, j, it_pack, required_zeros = s->n;
@@ -973,8 +965,8 @@ mps_msolve (mps_context * s)
       goto msolve_final_cleanup;
     }
   nzc = 0;
-  if (s->output_config->search_set == MPS_SEARCH_SET_COMPLEX_PLANE && 
-      !s->output_config->multiplicity && 
+  if (s->output_config->search_set == MPS_SEARCH_SET_COMPLEX_PLANE &&
+      !s->output_config->multiplicity &&
       !s->output_config->root_properties)
     for (i = 0; i < s->n; i++)
       if (MPS_ROOT_STATUS_IS_COMPUTED (s->root[i]->status))
@@ -1017,12 +1009,12 @@ mps_msolve (mps_context * s)
       if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
         mps_dump (s);
 
-        if (s->DOLOG)
-          fprintf (s->logstr, "  MSOLVE: Packet %d: iterations= %d\n", iter, nit);
+      if (s->DOLOG)
+        fprintf (s->logstr, "  MSOLVE: Packet %d: iterations= %d\n", iter, nit);
 
       it_pack += nit;
       nzc = 0;
-      if (s->output_config->search_set == MPS_SEARCH_SET_COMPLEX_PLANE && 
+      if (s->output_config->search_set == MPS_SEARCH_SET_COMPLEX_PLANE &&
           !s->output_config->multiplicity &&
           !s->output_config->root_properties)  /* DARIO APRILE 98 */
         for (i = 0; i < s->n; i++)
@@ -1044,7 +1036,7 @@ mps_msolve (mps_context * s)
             {
               MPS_DEBUG (s, "Dumping status");
               for (j = 0; j < s->n; j++)
-                MPS_DEBUG (s, " %4d: %s", j, 
+                MPS_DEBUG (s, " %4d: %s", j,
                            MPS_ROOT_STATUS_TO_STRING (s->root[j]->status));
             }
 
@@ -1075,7 +1067,7 @@ mps_msolve (mps_context * s)
                      s->newtis_old, s->newtis, oldnclust, s->clusterization->n);
 
           if (oldnclust == s->clusterization->n && !(s->newtis == 1 && s->newtis_old == 0))
-            /*#             if(&& iter != 0) AGO99 */
+          /*#             if(&& iter != 0) AGO99 */
             {
               /*#D !newtis */
               if (s->DOLOG)
@@ -1096,7 +1088,7 @@ mps_msolve (mps_context * s)
                 {
                   MPS_DEBUG (s, "Dumping status");
                   for (j = 0; j < s->n; j++)
-                    MPS_DEBUG (s, " %4d: %s", j, 
+                    MPS_DEBUG (s, " %4d: %s", j,
                                MPS_ROOT_STATUS_TO_STRING (s->root[j]->status));
                 }
               /* If the polynomial is not given in terms of its coeff. then
@@ -1153,7 +1145,7 @@ mps_msolve (mps_context * s)
                 }
 
               nzc = 0;
-              if (s->output_config->search_set == MPS_SEARCH_SET_COMPLEX_PLANE && 
+              if (s->output_config->search_set == MPS_SEARCH_SET_COMPLEX_PLANE &&
                   s->output_config->multiplicity &&
                   !s->output_config->root_properties)
                 for (i = 0; i < s->n; i++)
@@ -1221,7 +1213,7 @@ mps_msolve (mps_context * s)
       fprintf (s->logstr, "\n");
     }
 
- msolve_final_cleanup:
+msolve_final_cleanup:
   rdpe_vfree (drad);
 }
 
@@ -1240,7 +1232,7 @@ mps_mpolzer (mps_context * s, int *it, mps_boolean * excep)
   mpc_init2 (abcorr, s->mpwp);
   mpc_init2 (corr, s->mpwp);
 
-  rdpe_mul_d (eps, s->mp_epsilon, (double) 4 * s->n);
+  rdpe_mul_d (eps, s->mp_epsilon, (double)4 * s->n);
 
   /* initialize the iteration counter */
   *it = 0;
@@ -1273,23 +1265,23 @@ mps_mpolzer (mps_context * s, int *it, mps_boolean * excep)
               if (s->root[l]->again)
                 {
                   (*it)++;
-                      /* sparse/dense polynomial */
-                      rdpe_set (rad1, s->root[l]->drad);
-                      mps_polynomial_mnewton (s, p, s->root[l], corr, s->mpwp);
-                      if (iter == 0 && !s->root[l]->again && rdpe_gt (s->root[l]->drad,
-                                                                rad1)
-                          && rdpe_ne (rad1, rdpe_zero))
-                        rdpe_set (s->root[l]->drad, rad1);
+                  /* sparse/dense polynomial */
+                  rdpe_set (rad1, s->root[l]->drad);
+                  mps_polynomial_mnewton (s, p, s->root[l], corr, s->mpwp);
+                  if (iter == 0 && !s->root[l]->again && rdpe_gt (s->root[l]->drad,
+                                                                  rad1)
+                      && rdpe_ne (rad1, rdpe_zero))
+                    rdpe_set (s->root[l]->drad, rad1);
 
-                                                /************************************************
-                                                 The above condition is needed to cope with the case
-                                                 where at the first iteration the starting point is
-                                                 already in the root neighbourhood and the actually
-                                                 computed radius is too big since the value of the
-                                                 first derivative is too small.
-                                                 In this case the previous radius bound, obtained by
-                                                 means of Rouche' is more reliable and strict
-                                                 ***********************************************/
+                  /************************************************
+                     The above condition is needed to cope with the case
+                     where at the first iteration the starting point is
+                     already in the root neighbourhood and the actually
+                     computed radius is too big since the value of the
+                     first derivative is too small.
+                     In this case the previous radius bound, obtained by
+                     means of Rouche' is more reliable and strict
+                   ***********************************************/
 
                   if (s->root[l]->again ||
                       /* the correction is performed only if iter!=1 or rad[l]!=rad1 */
@@ -1317,7 +1309,6 @@ mps_mpolzer (mps_context * s, int *it, mps_boolean * excep)
 
                   MPS_DEBUG_MPC (s, 15, s->root[l]->mvalue, "s->mroot[%d]", l);
                   MPS_DEBUG_RDPE (s, s->root[l]->drad, "s->drad[%d]", l);
-
                 }
             }
         }

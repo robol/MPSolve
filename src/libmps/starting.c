@@ -4,7 +4,7 @@
  * Copyright (C) 2001-2014, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
- * Authors: 
+ * Authors:
  *   Dario Andrea Bini <bini@dm.unipi.it>
  *   Giuseppe Fiorentino <fiorent@dm.unipi.it>
  *   Leonardo Robol <robol@mail.dm.unipi.it>
@@ -32,13 +32,13 @@ static int
 mps_gcd (int a, int b)
 {
   int temp;
+
   do
     {
       temp = b;
       b = a % b;
       a = temp;
-    }
-  while (b != 0);
+    } while (b != 0);
   return a;
 }
 
@@ -54,7 +54,7 @@ mps_gcd (int a, int b)
  * @param last_sigma the last value of sigma.
  * @param cluster_item The element of the <code>mps_clusterization</code> of which
  * we are computing the starting points, or NULL if we are computing the starting
- * points for all the approximations. 
+ * points for all the approximations.
  * @param n the number of roots in the cluster.
  * @return the shift advised for the starting approximation in the annulus.
  */
@@ -111,13 +111,13 @@ mps_fcompute_starting_radii (mps_context * s, int n, mps_cluster_item * cluster_
   nzeros = 0;
   r = 0.0;
 
-    /**********************************************
-      check for possible null entries in the trailing
-      coefficients only in the case where the polynomial
-      has been shifted in g, replace null coefficients
-      with small numbers according to the working precision
-      and to the number of null coefficients
-     **********************************************/
+  /**********************************************
+     check for possible null entries in the trailing
+     coefficients only in the case where the polynomial
+     has been shifted in g, replace null coefficients
+     with small numbers according to the working precision
+     and to the number of null coefficients
+  **********************************************/
   if (g != 0.0)
     {
       for (i = 0; i <= n; i++)
@@ -236,7 +236,6 @@ mps_fcompute_starting_radii (mps_context * s, int n, mps_cluster_item * cluster_
       /* Set new s->n_radii and new partitioning */
       s->n_radii = s->n_radii - offset;
       s->partitioning[s->n_radii] = n;
-
     }
 }
 
@@ -258,7 +257,7 @@ mps_fcompute_starting_radii (mps_context * s, int n, mps_cluster_item * cluster_
  * @param n number of roots in the cluster.
  * @param cluster_item The element of the <code>mps_clusterization</code> of which
  * we are computing the starting points, or NULL if we are computing the starting
- * points for all the approximations. 
+ * points for all the approximations.
  * @param clust_rad radius of cluster.
  * @param g gravity center of the cluster.
  * @param eps a double that represent the maximum value
@@ -269,7 +268,7 @@ mps_fcompute_starting_radii (mps_context * s, int n, mps_cluster_item * cluster_
  * @see status
  */
 MPS_PRIVATE void
-mps_fstart (mps_context * s, int n, mps_cluster_item * cluster_item, 
+mps_fstart (mps_context * s, int n, mps_cluster_item * cluster_item,
             double clust_rad, double g, rdpe_t eps, double fap[])
 {
   MPS_DEBUG_THIS_CALL (s);
@@ -334,10 +333,10 @@ mps_fstart (mps_context * s, int n, mps_cluster_item * cluster_item,
                                sigma),
                       r * sin (ang * jj + th * s->partitioning[i + 1] +
                                sigma));
-      	  if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
-      	    {
-      	      MPS_DEBUG_CPLX (s, s->root[l]->fvalue, "s->froot[%d]", l);
-      	    }
+          if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
+            {
+              MPS_DEBUG_CPLX (s, s->root[l]->fvalue, "s->froot[%d]", l);
+            }
 
           if (it_root)
             it_root = it_root->next;
@@ -350,14 +349,14 @@ mps_fstart (mps_context * s, int n, mps_cluster_item * cluster_item,
         {
           rdpe_mul_d (tmp, eps, g);
           if (r * nzeros <= rdpe_get_d (tmp))
-      	    {
-      	      for (root = cluster->first; root != NULL; root = root->next)
-          		  {
-            		  l = root->k;
-            		  s->root[l]->status = MPS_ROOT_STATUS_APPROXIMATED_IN_CLUSTER;
-            		  s->root[l]->frad = r * nzeros;
-          		  }
-      	    }
+            {
+              for (root = cluster->first; root != NULL; root = root->next)
+                {
+                  l = root->k;
+                  s->root[l]->status = MPS_ROOT_STATUS_APPROXIMATED_IN_CLUSTER;
+                  s->root[l]->frad = r * nzeros;
+                }
+            }
         }
     }
 }
@@ -379,12 +378,11 @@ mps_fstart (mps_context * s, int n, mps_cluster_item * cluster_item,
  * @see mps_dstart()
  */
 MPS_PRIVATE void
-mps_dcompute_starting_radii (mps_context * s, int n, 
+mps_dcompute_starting_radii (mps_context * s, int n,
                              mps_cluster_item * cluster_item,
                              rdpe_t clust_rad, rdpe_t g, rdpe_t eps,
                              rdpe_t dap[])
 {
-
   /* Compute big and small values */
   double xbig, xsmall;
 
@@ -424,7 +422,7 @@ mps_dcompute_starting_radii (mps_context * s, int n,
     temp = -2.0 * (LONG_MAX * LOG2);
   for (i = 0; i <= n; i++)
     if (rdpe_ne (dap[i], rdpe_zero))
-        s->fap2[i] = rdpe_log (dap[i]);
+      s->fap2[i] = rdpe_log (dap[i]);
     else
       s->fap2[i] = temp;
 
@@ -549,14 +547,14 @@ mps_dcompute_starting_radii (mps_context * s, int n,
  * @param s mps_context struct pointer.
  * @param n number of root in the cluster to consider
  * @param cluster_item The item of the mps_clusterization containing the cluster
- * that we are analyzing. 
+ * that we are analyzing.
  * @param clust_rad radius of the cluster.
  * @param g new center in which the the polynomial will be shifted.
  * @param eps maximum radius considered small enough to be negligible.
  * @param dap[] moduli of the coefficients as <code>dpe</code> numbers.
  */
 MPS_PRIVATE void
-mps_dstart (mps_context * s, int n, mps_cluster_item * cluster_item, 
+mps_dstart (mps_context * s, int n, mps_cluster_item * cluster_item,
             rdpe_t clust_rad, rdpe_t g, rdpe_t eps, rdpe_t dap[])
 {
   int l = 0, i, j, jj, nzeros = 0;
@@ -619,14 +617,14 @@ mps_dstart (mps_context * s, int n, mps_cluster_item * cluster_item,
       rdpe_set (r, s->dradii[i]);
 
       if (cluster_item)
-      	root = cluster->first;
+        root = cluster->first;
 
       for (j = s->partitioning[i]; j < s->partitioning[i + 1]; j++)
         {
           if (cluster_item)
             {
               l = root->k;
-	            root = root->next;
+              root = root->next;
             }
           else
             l = j;
@@ -670,7 +668,6 @@ mps_dstart (mps_context * s, int n, mps_cluster_item * cluster_item,
             {
               MPS_DEBUG_CDPE (s, s->root[l]->dvalue, "s->droot[%d]", l);
             }
-
         }
 
       /* If the new radius of the cluster is relatively small, then
@@ -678,7 +675,7 @@ mps_dstart (mps_context * s, int n, mps_cluster_item * cluster_item,
       if (cluster_item)
         {
           rdpe_mul (tmp, g, eps);
-          rdpe_mul_d (tmp1, r, (double) nzeros);
+          rdpe_mul_d (tmp1, r, (double)nzeros);
           if (rdpe_lt (tmp1, tmp))
             {
               for (root = cluster->first; root != NULL; root = root->next)
@@ -689,9 +686,7 @@ mps_dstart (mps_context * s, int n, mps_cluster_item * cluster_item,
                 }
             }
         }
-        
     }
-
 }
 
 /**
@@ -713,7 +708,6 @@ MPS_PRIVATE void
 mps_mcompute_starting_radii (mps_context * s, int n, mps_cluster_item * cluster_item,
                              rdpe_t clust_rad, rdpe_t g, rdpe_t dap[])
 {
-
   int i, offset, iold, nzeros, j, k;
   rdpe_t big, small, tmp;
   double xbig, xsmall, temp;
@@ -856,7 +850,7 @@ mps_mcompute_starting_radii (mps_context * s, int n, mps_cluster_item * cluster_
  * @see mps_fstart()
  */
 MPS_PRIVATE void
-mps_mstart (mps_context * s, int n, mps_cluster_item * cluster_item, 
+mps_mstart (mps_context * s, int n, mps_cluster_item * cluster_item,
             rdpe_t clust_rad,
             rdpe_t g, rdpe_t dap[], mpc_t gg)
 {
@@ -921,12 +915,12 @@ mps_mstart (mps_context * s, int n, mps_cluster_item * cluster_item,
       for (c_item = s->clusterization->first; c_item != NULL; c_item = c_item->next)
         {
           if (c_item->detached && c_item->detached->cluster == cluster &&
-	      cluster != NULL)
+              cluster != NULL)
             {
               mps_root * root = c_item->cluster->first;
               i = root->k;
 
-             /* Check if the root touches the cluster */
+              /* Check if the root touches the cluster */
               mpc_sub (mtmp, s->root[i]->mvalue, gg);
               mpc_get_cdpe (ctmp, mtmp);
               cdpe_mod (rtmp2, ctmp);
@@ -996,7 +990,7 @@ mps_mstart (mps_context * s, int n, mps_cluster_item * cluster_item,
        * set the status component equal to 'o' (output)
        * and set the corresponding radius */
       rdpe_set (rtmp1, s->dradii[i]);
-      rdpe_mul_eq_d (rtmp1, (double) nzeros);
+      rdpe_mul_eq_d (rtmp1, (double)nzeros);
       if (rdpe_lt (rtmp1, clust_rad) && s->algorithm == MPS_ALGORITHM_SECULAR_GA)
         rdpe_set (rtmp1, clust_rad);
       rdpe_set (rtmp2, g);
@@ -1009,7 +1003,7 @@ mps_mstart (mps_context * s, int n, mps_cluster_item * cluster_item,
             {
               l = root2->k;
               s->root[l]->status = MPS_ROOT_STATUS_APPROXIMATED_IN_CLUSTER;
-              rdpe_mul_d (s->root[l]->drad, rtmp1, (double) nzeros); 
+              rdpe_mul_d (s->root[l]->drad, rtmp1, (double)nzeros);
               root2 = root2->next;
             }
         }
@@ -1024,13 +1018,13 @@ mps_mstart (mps_context * s, int n, mps_cluster_item * cluster_item,
  * ones where shift in the gravity center must be done.
  * Then computes the gravity center g, performs the shift of
  * the variable and compute new starting approximations in the
- * cluster (floating point version). 
- * 
- * @param s A pointer to the current mps_context. 
- * 
+ * cluster (floating point version).
+ *
+ * @param s A pointer to the current mps_context.
+ *
  * Shift in g is perfomed if the approximation is included in the search set
- * or its inclusion status has not been determined yet. 
- * 
+ * or its inclusion status has not been determined yet.
+ *
  * To compute g, first compute the weighted mean (super center sc)
  * of the approximations in the cluster, where the weight are the
  * radii, then compute the radius (super radius sr) of the disk
@@ -1087,9 +1081,9 @@ mps_frestart (mps_context * s)
                   break;
                 }
             }
-          else if ((s->root[l]->status == MPS_ROOT_STATUS_CLUSTERED && 
+          else if ((s->root[l]->status == MPS_ROOT_STATUS_CLUSTERED &&
                     s->root[l]->inclusion == MPS_ROOT_INCLUSION_UNKNOWN)
-                   || (s->root[l]->status == MPS_ROOT_STATUS_CLUSTERED && 
+                   || (s->root[l]->status == MPS_ROOT_STATUS_CLUSTERED &&
                        s->root[l]->inclusion == MPS_ROOT_INCLUSION_IN))
             {
               tst = false;
@@ -1150,7 +1144,7 @@ mps_frestart (mps_context * s)
       for (j = 1; j < cluster->n; j++)
         {
           for (k = 0; k <= MPS_POLYNOMIAL (p)->degree - j; k++)
-            cplx_mul_d (p->fppc[k], p->fppc[k + 1], (double) (k + 1));
+            cplx_mul_d (p->fppc[k], p->fppc[k + 1], (double)(k + 1));
         }
       for (j = 0; j < MPS_POLYNOMIAL (p)->degree - cluster->n + 2; j++)
         s->fap1[j] = cplx_mod (p->fppc[j]);
@@ -1206,7 +1200,7 @@ mps_frestart (mps_context * s)
             s->root[l]->frad = rtmp;
         }
 
-    loop1:
+loop1:
       if (g)
         {
           mps_approximation_free (s, g);
@@ -1221,13 +1215,13 @@ mps_frestart (mps_context * s)
  * ones where shift in the gravity center must be done.
  * Then computes the gravity center g, performs the shift of
  * the variable and compute new starting approximations in the
- * cluster (DPE version). 
- * 
- * @param s A pointer to the current mps_context. 
- * 
+ * cluster (DPE version).
+ *
+ * @param s A pointer to the current mps_context.
+ *
  * Shift in g is perfomed if the approximation is included in the search set
- * or its inclusion status has not been determined yet. 
- * 
+ * or its inclusion status has not been determined yet.
+ *
  * To compute g, first compute the weighted mean (super center sc)
  * of the approximations in the cluster, where the weight are the
  * radii, then compute the radius (super radius sr) of the disk
@@ -1281,9 +1275,9 @@ mps_drestart (mps_context * s)
                   break;
                 }
             }
-          else if ((s->root[l]->status == MPS_ROOT_STATUS_CLUSTERED && 
+          else if ((s->root[l]->status == MPS_ROOT_STATUS_CLUSTERED &&
                     s->root[l]->inclusion == MPS_ROOT_INCLUSION_UNKNOWN) ||
-                   (s->root[l]->status == MPS_ROOT_STATUS_CLUSTERED && 
+                   (s->root[l]->status == MPS_ROOT_STATUS_CLUSTERED &&
                     s->root[l]->inclusion == MPS_ROOT_INCLUSION_IN))
             {
               tst = false;
@@ -1318,9 +1312,9 @@ mps_drestart (mps_context * s)
 
       for (c_item2 = s->clusterization->first; c_item2 != NULL; c_item2 = c_item2->next)
         if (c_item2 != c_item)
-            {
-              cluster2 = c_item2->cluster;
-              for (root = cluster2->first; root != NULL; root = root->next)
+          {
+            cluster2 = c_item2->cluster;
+            for (root = cluster2->first; root != NULL; root = root->next)
               {
                 cdpe_sub (ctmp, sc, s->root[root->k]->dvalue);
                 cdpe_mod (rtmp, ctmp);
@@ -1343,7 +1337,7 @@ mps_drestart (mps_context * s)
       for (j = 1; j < cluster->n; j++)
         {
           for (k = 0; k <= s->n - j; k++)
-            cdpe_mul_d (s->dpc2[k], s->dpc2[k + 1], (double) (k + 1));
+            cdpe_mul_d (s->dpc2[k], s->dpc2[k + 1], (double)(k + 1));
         }
       for (j = 0; j < s->n - cluster->n + 2; j++)
         cdpe_mod (s->dap1[j], s->dpc2[j]);
@@ -1388,13 +1382,13 @@ mps_drestart (mps_context * s)
           /* Choose as new incl. radius 2*multiplicity*(radius of the circle) */
           cdpe_mod (s->root[l]->drad, s->root[l]->dvalue);
           rdpe_mul_eq_d (s->root[l]->drad,
-                         (double) (2 * cluster->n));
+                         (double)(2 * cluster->n));
           cdpe_add_eq (s->root[l]->dvalue, g->dvalue);
           if (rdpe_lt (s->root[l]->drad, rtmp))
             rdpe_set (s->root[l]->drad, rtmp);
         }
 
-    loop1:
+loop1:
       if (g)
         {
           mps_approximation_free (s, g);
@@ -1406,17 +1400,17 @@ mps_drestart (mps_context * s)
 
 /**
  * @brief Walk through the clusterization to find clusters that were detached
- * from the given one. Check if they were detached correctly according to the 
+ * from the given one. Check if they were detached correctly according to the
  * new inclusion radii computed by mps_mrestart().
  *
  * @param ctx The context in which MPSolve is running.
  * @param clusterization The clusterization where clusters should be looked up
  * @param cluster_item The item containing the cluster from which the other clusters
- * may have been detached. 
+ * may have been detached.
  */
 static void
-mps_cluster_check_detachment (mps_context * ctx, mps_clusterization * clusterization, 
-    mps_cluster_item * cluster_item)
+mps_cluster_check_detachment (mps_context * ctx, mps_clusterization * clusterization,
+                              mps_cluster_item * cluster_item)
 {
   MPS_DEBUG_CALL (ctx, "mps_cluster_check_detachment");
 
@@ -1444,19 +1438,19 @@ mps_cluster_check_detachment (mps_context * ctx, mps_clusterization * clusteriza
             {
               mps_cluster_item * next = item->next;
               if (ctx->debug_level & MPS_DEBUG_CLUSTER)
-                MPS_DEBUG (ctx, 
-                  "Cluster containing root %d has not been correctly detached, reattaching.", k);
+                MPS_DEBUG (ctx,
+                           "Cluster containing root %d has not been correctly detached, reattaching.", k);
 
               mps_cluster_insert_root (ctx, cluster, k);
               mps_clusterization_remove_cluster (ctx, clusterization, item);
 
               item = next;
             }
-          else 
+          else
             {
               if (ctx->debug_level & MPS_DEBUG_CLUSTER)
-                MPS_DEBUG (ctx, 
-                  "Cluster containing root %d was successfuly detached.", k);
+                MPS_DEBUG (ctx,
+                           "Cluster containing root %d was successfuly detached.", k);
 
               /* We need to stop marking this cluster as detached, that means
                * "experimental" in this context. */
@@ -1471,7 +1465,7 @@ mps_cluster_check_detachment (mps_context * ctx, mps_clusterization * clusteriza
 
 static void
 mps_cluster_reattach_all_detached_clusters (mps_context * ctx, mps_clusterization * clusterization,
-    mps_cluster_item * cluster_item)
+                                            mps_cluster_item * cluster_item)
 {
   MPS_DEBUG_CALL (ctx, "mps_cluster_reattach_all_detached_clusters");
 
@@ -1481,24 +1475,24 @@ mps_cluster_reattach_all_detached_clusters (mps_context * ctx, mps_clusterizatio
   /* Find cluster that have been detached from this and
    * attach them. */
   for (item = clusterization->first; item != NULL; )
-  {
-    /* Pre-cache the next cluster item se we don't ruin the 
-     * loop if we need to free the current one. */
-    mps_cluster *d_cluster = item->cluster;
-    mps_cluster_item * next = item->next;
-
-    if (item->detached == cluster_item)
     {
-      if (ctx->debug_level & MPS_DEBUG_CLUSTER)
-        MPS_DEBUG (ctx, 
-          "Reattaching root %ld to its original cluster", d_cluster->first->k);
+      /* Pre-cache the next cluster item se we don't ruin the
+       * loop if we need to free the current one. */
+      mps_cluster *d_cluster = item->cluster;
+      mps_cluster_item * next = item->next;
 
-      mps_cluster_insert_root (ctx, cluster, d_cluster->first->k);
-      mps_clusterization_remove_cluster (ctx, clusterization, item);
+      if (item->detached == cluster_item)
+        {
+          if (ctx->debug_level & MPS_DEBUG_CLUSTER)
+            MPS_DEBUG (ctx,
+                       "Reattaching root %ld to its original cluster", d_cluster->first->k);
+
+          mps_cluster_insert_root (ctx, cluster, d_cluster->first->k);
+          mps_clusterization_remove_cluster (ctx, clusterization, item);
+        }
+
+      item = next;
     }
-
-    item = next;
-  }
 }
 
 /**
@@ -1506,13 +1500,13 @@ mps_cluster_reattach_all_detached_clusters (mps_context * ctx, mps_clusterizatio
  * ones where shift in the gravity center must be done.
  * Then computes the gravity center g, performs the shift of
  * the variable and compute new starting approximations in the
- * cluster (MP version). 
- * 
- * @param s A pointer to the current mps_context. 
- * 
+ * cluster (MP version).
+ *
+ * @param s A pointer to the current mps_context.
+ *
  * Shift in g is perfomed if the approximation is included in the search set
- * or its inclusion status has not been determined yet. 
- * 
+ * or its inclusion status has not been determined yet.
+ *
  * To compute g, first compute the weighted mean (super center sc)
  * of the approximations in the cluster, where the weight are the
  * radii, then compute the radius (super radius sr) of the disk
@@ -1567,7 +1561,7 @@ mps_mrestart (mps_context * s)
     k = MAX (k, c_item->cluster->n);
 
   for (c_item = s->clusterization->first; c_item != NULL; c_item = c_item->next)
-    {                     
+    {
       /* loop1: */
       cluster = c_item->cluster;
 
@@ -1588,9 +1582,9 @@ mps_mrestart (mps_context * s)
                   break;
                 }
             }
-          else if ((s->root[l]->status == MPS_ROOT_STATUS_CLUSTERED && 
+          else if ((s->root[l]->status == MPS_ROOT_STATUS_CLUSTERED &&
                     s->root[l]->inclusion == MPS_ROOT_INCLUSION_UNKNOWN) ||
-                   (s->root[l]->status == MPS_ROOT_STATUS_CLUSTERED && 
+                   (s->root[l]->status == MPS_ROOT_STATUS_CLUSTERED &&
                     s->root[l]->inclusion == MPS_ROOT_INCLUSION_IN))
             {
               tst = false;
@@ -1605,8 +1599,8 @@ mps_mrestart (mps_context * s)
       mps_msrad (s, cluster, sc, sr);
 
       /* MPS_DEBUG (s, "Clust = %d", i); */
-      MPS_DEBUG_MPC (s, 10, sc, "Super center"); 
-      MPS_DEBUG_RDPE (s, sr, "Super radius"); 
+      MPS_DEBUG_MPC (s, 10, sc, "Super center");
+      MPS_DEBUG_RDPE (s, sr, "Super radius");
 
       /* Check the relative width of the cluster
        * If it is greater than 1 do not shift
@@ -1669,7 +1663,7 @@ mps_mrestart (mps_context * s)
       mps_debug_cluster_structure (s);
 
       /* Create the approximation used to find the derivative zero */
-      g = mps_approximation_new (s); 
+      g = mps_approximation_new (s);
       mpc_set (g->mvalue, sc);
 
       /* Compute the coefficients of the derivative of p(x) having order
@@ -1708,14 +1702,14 @@ mps_mrestart (mps_context * s)
 
       for (j = 0; j < s->max_newt_it; j++)
         {                       /* loop_newt: */
-          mps_mnewton (s, MPS_POLYNOMIAL (der), g, corr, 
-		       mpc_get_prec (g->mvalue));
+          mps_mnewton (s, MPS_POLYNOMIAL (der), g, corr,
+                       mpc_get_prec (g->mvalue));
           mpc_sub_eq (g->mvalue, corr);
 
           if (s->debug_level & MPS_DEBUG_CLUSTER)
             {
               MPS_DEBUG_RDPE (s, g->drad, "Radius of the cluster");
-              MPS_DEBUG_MPC  (s, 100, g->mvalue, "Iteration %d on the derivative", j);
+              MPS_DEBUG_MPC (s, 100, g->mvalue, "Iteration %d on the derivative", j);
             }
 
           mpc_rmod (ag, g->mvalue);
@@ -1773,8 +1767,8 @@ mps_mrestart (mps_context * s)
           rdpe_mul_eq (rtmp, rtmp1);
           rdpe_mul_eq_d (rtmp, 2);
 
-          MPS_DEBUG_RDPE(s, rtmp, "rtmp");
-          MPS_DEBUG_RDPE(s, rtmp1, "rtmp1");
+          MPS_DEBUG_RDPE (s, rtmp, "rtmp");
+          MPS_DEBUG_RDPE (s, rtmp1, "rtmp1");
 
           for (root = cluster->first; root != NULL; root = root->next)
             {
@@ -1782,9 +1776,9 @@ mps_mrestart (mps_context * s)
               mpc_set_cdpe (s->root[l]->mvalue, s->root[l]->dvalue);
               mpc_add_eq (s->root[l]->mvalue, g->mvalue);
               cdpe_mod (rtmp1, s->root[l]->dvalue);
-              rdpe_mul_d (s->root[l]->drad, rtmp1, 
-                          2.0 * cluster->n); 
-              if (rdpe_lt (s->root[l]->drad, rtmp)) 
+              rdpe_mul_d (s->root[l]->drad, rtmp1,
+                          2.0 * cluster->n);
+              if (rdpe_lt (s->root[l]->drad, rtmp))
                 rdpe_set (s->root[l]->drad, rtmp);
 
               if (s->debug_level & MPS_DEBUG_CLUSTER)
@@ -1807,7 +1801,7 @@ mps_mrestart (mps_context * s)
           goto clean_detached_cluster;
         }
 
-    clean_detached_cluster:
+clean_detached_cluster:
       mps_cluster_reattach_all_detached_clusters (s, s->clusterization, c_item);
 
       if (g != NULL)
@@ -1827,9 +1821,9 @@ mps_mrestart (mps_context * s)
 /**
  * @brief Check if the clusters are Newton isolated, in a way that we can
  * apply the shift in the gravity center without problems deriving from
- * other roots. 
- * 
- * @param s A pointer to the current mps_context. 
+ * other roots.
+ *
+ * @param s A pointer to the current mps_context.
  */
 MPS_PRIVATE void
 mps_mnewtis (mps_context * s)
@@ -1882,9 +1876,9 @@ mps_mnewtis (mps_context * s)
                   break;
                 }
             }
-          else if ((s->root[l]->status == MPS_ROOT_STATUS_CLUSTERED && 
+          else if ((s->root[l]->status == MPS_ROOT_STATUS_CLUSTERED &&
                     s->root[l]->inclusion == MPS_ROOT_INCLUSION_UNKNOWN) ||
-                   (s->root[l]->status == MPS_ROOT_STATUS_CLUSTERED && 
+                   (s->root[l]->status == MPS_ROOT_STATUS_CLUSTERED &&
                     s->root[l]->inclusion == MPS_ROOT_INCLUSION_IN))
             {
               tst = false;
@@ -1944,7 +1938,7 @@ mps_mnewtis (mps_context * s)
       mps_cluster_item * c_item2;
       mps_cluster * cluster2;
       rdpe_set (rtmp2, rdpe_zero);
-      
+
       for (c_item2 = s->clusterization->first; c_item2 != NULL; c_item2 = c_item2->next)
         {
           if (c_item2 != c_item)
@@ -1975,7 +1969,7 @@ mps_mnewtis (mps_context * s)
         }
       s->newtis = 1;
 
-    loop1:
+loop1:
       ;
     }
 

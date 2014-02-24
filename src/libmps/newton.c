@@ -4,7 +4,7 @@
  * Copyright (C) 2001-2014, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
- * Authors: 
+ * Authors:
  *   Dario Andrea Bini <bini@dm.unipi.it>
  *   Giuseppe Fiorentino <fiorent@dm.unipi.it>
  *   Leonardo Robol <robol@mail.dm.unipi.it>
@@ -30,10 +30,10 @@
  * @param s The mps_context struct pointer.
  * @param poly The polynomial to evaluate, casted to a mps_polynomial.
  * @param root The approximation where the newton fraction should be evaluated.
- * @param corr The complex value of the newton correction. 
+ * @param corr The complex value of the newton correction.
  */
 MPS_PRIVATE void
-mps_fnewton (mps_context * s, mps_polynomial * poly, mps_approximation * root, 
+mps_fnewton (mps_context * s, mps_polynomial * poly, mps_approximation * root,
              cplx_t corr)
 {
   int i;
@@ -46,6 +46,7 @@ mps_fnewton (mps_context * s, mps_polynomial * poly, mps_approximation * root,
   int n = poly->degree;
 
   cplx_t z;
+
   cplx_set (z, root->fvalue);
   double * radius = &root->frad;
   mps_boolean * cont = &root->again;
@@ -99,7 +100,7 @@ mps_fnewton (mps_context * s, mps_polynomial * poly, mps_approximation * root,
       absp = cplx_mod (p);
       *cont = (absp > ap * eps);
 
-      cplx_mul_d (den, p, (double) n);
+      cplx_mul_d (den, p, (double)n);
       cplx_mul (ppsp, p1, zi);
       cplx_sub_eq (den, ppsp);
       cplx_mul_eq (den, zi);
@@ -114,7 +115,7 @@ mps_fnewton (mps_context * s, mps_polynomial * poly, mps_approximation * root,
         {
           cplx_mul (ppsp, p, z);
           cplx_div_eq (ppsp, p1);
-          cplx_mul_d (den, ppsp, (double) n);
+          cplx_mul_d (den, ppsp, (double)n);
           cplx_sub_eq (den, cplx_one);
           cplx_div (corr, ppsp, den);
           cplx_mul_eq (corr, z);
@@ -146,13 +147,13 @@ mps_fnewton (mps_context * s, mps_polynomial * poly, mps_approximation * root,
  * @param s The mps_context struct pointer.
  * @param poly The polynomial to evaluate, casted to a mps_polynomial.
  * @param root The approximation where the newton fraction should be evaluated.
- * @param corr The complex value of the newton correction. 
+ * @param corr The complex value of the newton correction.
  *
  *
  * @see mps_fnewton()
  */
 MPS_PRIVATE void
-mps_dnewton (mps_context * s, mps_polynomial * poly, mps_approximation * root, 
+mps_dnewton (mps_context * s, mps_polynomial * poly, mps_approximation * root,
              cdpe_t corr)
 {
   int i;
@@ -212,10 +213,10 @@ mps_dnewton (mps_context * s, mps_polynomial * poly, mps_approximation * root,
 
   rdpe_div_eq (rnew, rtmp);
   if (*cont)
-    rdpe_mul_d (root->drad, rnew, (double) n);
+    rdpe_mul_d (root->drad, rnew, (double)n);
   else
     {
-      rdpe_mul_eq_d (rnew, (double) (n + 1));
+      rdpe_mul_eq_d (rnew, (double)(n + 1));
       if (rdpe_lt (rnew, root->drad))
         rdpe_set (root->drad, rnew);
     }
@@ -225,15 +226,16 @@ mps_dnewton (mps_context * s, mps_polynomial * poly, mps_approximation * root,
 }
 
 /**
- * @brief Logarithm in base 2 of n. 
+ * @brief Logarithm in base 2 of n.
  *
- * @param n The number of which the logarithm must be taken. 
+ * @param n The number of which the logarithm must be taken.
  */
 MPS_PRIVATE int
 mps_intlog2 (int n)
 {
   int k;
-  k = (int) (log (n) / LOG2);
+
+  k = (int)(log (n) / LOG2);
   if (1 << k < n)
     k++;
   return k;
@@ -261,14 +263,14 @@ mps_intlog2 (int n)
  * @param s The mps_context struct pointer.
  * @param poly The polynomial to evaluate, casted to a mps_polynomial.
  * @param root The approximation where the newton fraction should be evaluated.
- * @param corr The complex value of the newton correction. 
- * @param wp   Select the working precision to use in the computation. 
+ * @param corr The complex value of the newton correction.
+ * @param wp   Select the working precision to use in the computation.
  *
  * @see mps_fnewton()
  * @see mps_dnewton()
  */
 MPS_PRIVATE void
-mps_mnewton (mps_context * s, mps_polynomial * poly, 
+mps_mnewton (mps_context * s, mps_polynomial * poly,
              mps_approximation * root, mpc_t corr, long int wp)
 {
   int i;
@@ -286,10 +288,10 @@ mps_mnewton (mps_context * s, mps_polynomial * poly,
 
   rdpe_set_2dl (ep, 1.0, 2 - wp);
   rdpe_mul_eq_d (ep, n);
-  
+
   if (MPS_DENSITY_IS_SPARSE (poly->density))
     {
-      /* That's a dirty trick to setup a hackish derivative that 
+      /* That's a dirty trick to setup a hackish derivative that
        * points to the same internal fields of the polynomial, shifted
        * by one. */
       mps_monomial_poly derivative;
@@ -303,7 +305,7 @@ mps_mnewton (mps_context * s, mps_polynomial * poly,
       derivative.mfpc = mpc_valloc (n);
       mpc_vinit2 (derivative.mfpc, n, wp);
       for (i = 0; i < n; i++)
-        mpc_mul_ui (derivative.mfpc[i], mp->mfpc[i+1], i+1);
+        mpc_mul_ui (derivative.mfpc[i], mp->mfpc[i + 1], i + 1);
 
       MPS_POLYNOMIAL (&derivative)->meval = mps_monomial_poly_meval;
       MPS_POLYNOMIAL (&derivative)->raise_data = mps_monomial_poly_raise_precision;
@@ -366,7 +368,7 @@ mps_mnewton (mps_context * s, mps_polynomial * poly,
           goto exit_sub;
         }
       rdpe_div (root->drad, apeps, temp);
-      rdpe_mul_eq_d (root->drad, (double) n + 1);
+      rdpe_mul_eq_d (root->drad, (double)n + 1);
       goto exit_sub;
     }
   mpc_get_cdpe (temp1, p);
@@ -379,10 +381,10 @@ mps_mnewton (mps_context * s, mps_polynomial * poly,
   rdpe_add (rnew, absp, apeps);
   rdpe_div_eq (rnew, temp);
   if (root->again)
-    rdpe_mul_d (root->drad, rnew, (double) n);
+    rdpe_mul_d (root->drad, rnew, (double)n);
   else
     {
-      rdpe_mul_d (root->drad, rnew, (double) (n + 1));
+      rdpe_mul_d (root->drad, rnew, (double)(n + 1));
     }
 
 exit_sub:

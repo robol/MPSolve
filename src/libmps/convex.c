@@ -4,7 +4,7 @@
  * Copyright (C) 2001-2014, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
- * Authors: 
+ * Authors:
  *   Dario Andrea Bini <bini@dm.unipi.it>
  *   Giuseppe Fiorentino <fiorent@dm.unipi.it>
  *   Leonardo Robol <robol@mail.dm.unipi.it>
@@ -15,7 +15,7 @@
  * Routines for the computation of convex hulls.
  *
  * More specifically, the routine <code>fconvex</code> is the one
- * that is intentended to be used and, given a vector of double 
+ * that is intentended to be used and, given a vector of double
  * <code>a</code>, computes the convex hull of the set
  * \f[ \mathcal{S} = \{ (i, a_i) \ | \ i \in \{ 1, \dots, n\} \} \f]
  *
@@ -68,12 +68,12 @@ mps_right (mps_context * s, int i, int up)
 
 /**
  * @brief convexity test of the points \f$ \{ (il, a_{il}), (i, a_i), (ir, a_{ir})\}\f$.
- * 
- * Check if the points in the given set are "enough convex", i.e. if 
- * the set is \f$ \{ P_1, P_2, P_3 \} \f$ check if the slope 
+ *
+ * Check if the points in the given set are "enough convex", i.e. if
+ * the set is \f$ \{ P_1, P_2, P_3 \} \f$ check if the slope
  * of the line from \f$P_1\f$ to \f$P_2\f$ is at least <code>TOLER</code>
- * less than the slope of the line joining \f$P_2\f$ and \f$P_3\f$. 
- * 
+ * less than the slope of the line joining \f$P_2\f$ and \f$P_3\f$.
+ *
  * @param s The <code>mps_context</code> associated with the current computation.
  * @param il index of the first point
  * @param i  index of the middle point
@@ -90,7 +90,7 @@ mps_fctest (mps_context * s, int il, int i, int ir, double a[])
   /*#rimosso giugno 2000
      return (s1 - s2 > (i-il)*(ir-i)*TOLER);
    */
-  return (s1 - s2 > TOLER);
+  return(s1 - s2 > TOLER);
 }
 
 /**
@@ -143,8 +143,7 @@ mps_fmerge (mps_context * s, int lo, int i, int up, double a[])
           s->h[ir] = false;
           ir = irr;
         }
-    }
-  while (!(tstl && tstr));
+    } while (!(tstl && tstr));
 }
 
 /**

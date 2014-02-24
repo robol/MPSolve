@@ -4,7 +4,7 @@
  * Copyright (C) 2001-2014, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
- * Authors: 
+ * Authors:
  *   Dario Andrea Bini <bini@dm.unipi.it>
  *   Giuseppe Fiorentino <fiorent@dm.unipi.it>
  *   Leonardo Robol <robol@mail.dm.unipi.it>
@@ -44,7 +44,7 @@ mps_set_default_values (mps_context * s)
 
   /* Set number of threads to 1.5 * number_of_cores, if this is
    * computable. Set it to 12 otherwise.                     */
-  s->n_threads = (int) 1.5 * mps_thread_get_core_number (s);
+  s->n_threads = (int)1.5 * mps_thread_get_core_number (s);
   if (!s->n_threads)
     s->n_threads = 12;
 
@@ -113,9 +113,9 @@ mps_set_default_values (mps_context * s)
 
   s->bmpc = NULL;
 
-  /* Set a sensible gnuplot_format by default so the user won't see (null) in the 
+  /* Set a sensible gnuplot_format by default so the user won't see (null) in the
    * output. */
   s->gnuplot_format = "points";
-  
+
   s->self_thread_pool = NULL;
 }

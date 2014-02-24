@@ -4,7 +4,7 @@
  * Copyright (C) 2001-2014, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
- * Authors: 
+ * Authors:
  *   Dario Andrea Bini <bini@dm.unipi.it>
  *   Giuseppe Fiorentino <fiorent@dm.unipi.it>
  *   Leonardo Robol <robol@mail.dm.unipi.it>
@@ -26,7 +26,7 @@ mps_mhorner_sparse (mps_context * s, mps_monomial_poly * p, mpc_t x, mpc_t value
  * @param x The point where the polynomial will be evaluated.
  * @param value The multiprecision complex variable where the result will be stored.
  */
-MPS_PRIVATE void 
+MPS_PRIVATE void
 mps_mhorner (mps_context * s, mps_monomial_poly * p, mpc_t x, mpc_t value)
 {
   int j;
@@ -35,8 +35,8 @@ mps_mhorner (mps_context * s, mps_monomial_poly * p, mpc_t x, mpc_t value)
     {
       mps_mhorner_sparse (s, p, x, value);
     }
-  else  
-    { 
+  else
+    {
       mps_with_lock (p->mfpc_mutex[MPS_POLYNOMIAL (p)->degree],
                      mpc_set (value, p->mfpc[MPS_POLYNOMIAL (p)->degree]);
                      );
@@ -44,17 +44,17 @@ mps_mhorner (mps_context * s, mps_monomial_poly * p, mpc_t x, mpc_t value)
       for (j = MPS_POLYNOMIAL (p)->degree - 1; j >= 0; j--)
         {
           mpc_mul_eq (value, x);
-          
+
           pthread_mutex_lock (&p->mfpc_mutex[j]);
           mpc_add_eq (value, p->mfpc[j]);
           pthread_mutex_unlock (&p->mfpc_mutex[j]);
         }
-     } 
+    }
 }
 
 /**
  * @brief Compute the value of the polynomial <code>p</code> in the point <code>x</code>
- * and save it in <code>value</code>. 
+ * and save it in <code>value</code>.
  *
  * A upper bound to the relative error of the evaluation will be stored in <code>relative_error</code>.
  * The error is computed using the formula
@@ -62,7 +62,7 @@ mps_mhorner (mps_context * s, mps_monomial_poly * p, mpc_t x, mpc_t value)
  *  n \frac{ap(|x|)}{|p(x)|} u
  * \f]
  * where \f$ap(x)\f$ is the polynomial with the coefficients equal to the moduli of the coefficients
- * of \f$p(x)\f$. 
+ * of \f$p(x)\f$.
  *
  * @param s The <code>mps_context</code> of the computation.
  * @param p The <code>monomial_poly</code> to evaluate.
@@ -93,10 +93,10 @@ mps_mhorner_with_error2 (mps_context * s, mps_monomial_poly * p, mpc_t x, mpc_t 
 
   /* Set 4 * machine precision in u */
   rdpe_set_2dl (u, 1.0, 2 - wp);
-  
+
   /* Compute the polynomial using horner */
   mps_mhorner (s, p, x, value);
-  
+
   /* Compute ap(|x|) using horner */
   mpc_get_cdpe (cx, x);
   cdpe_mod (ax, cx);
@@ -120,7 +120,7 @@ mps_mhorner_with_error2 (mps_context * s, mps_monomial_poly * p, mpc_t x, mpc_t 
 
 /**
  * @brief Compute the value of the polynomial <code>p</code> in the point <code>x</code>
- * and save it in <code>value</code>. 
+ * and save it in <code>value</code>.
  *
  * A upper bound to the relative error of the evaluation will be stored in <code>relative_error</code>.
  *
@@ -132,7 +132,7 @@ mps_mhorner_with_error2 (mps_context * s, mps_monomial_poly * p, mpc_t x, mpc_t 
  * @param wp The working precision to use for the computation. If this value is <code>0</code> then <code>s->mpwp</code>
  * will be used.
  */
-MPS_PRIVATE void 
+MPS_PRIVATE void
 mps_mhorner_with_error (mps_context * s, mps_monomial_poly * p, mpc_t x, mpc_t value, rdpe_t relative_error, long int wp)
 {
   int j, my_wp;
@@ -148,8 +148,8 @@ mps_mhorner_with_error (mps_context * s, mps_monomial_poly * p, mpc_t x, mpc_t v
     my_wp = wp;
 
   /* Set up precision related variables */
-  rdpe_set_2dl (my_eps, 0.5, - my_wp);
-  
+  rdpe_set_2dl (my_eps, 0.5, -my_wp);
+
   /* Init multiprecision temporary values */
   mpc_init2 (ss, my_wp);
 
@@ -305,7 +305,7 @@ mps_dhorner (mps_context * s, mps_monomial_poly * p, cdpe_t x, cdpe_t value)
 
 /**
  * @brief Evaluate the polynomial p in the point x, and give also a bound to the
- * relative error occured in the computation. 
+ * relative error occured in the computation.
  *
  * @param s The <code>mps_context</code> of the computation.
  * @param p The <code>mps_monomial_poly</code> to evaluate.
@@ -320,7 +320,7 @@ mps_dhorner_with_error (mps_context * s, mps_monomial_poly * p, cdpe_t x, cdpe_t
   int j;
 
   mps_dhorner (s, p, x, value);
-  
+
   cdpe_mod (ax, x);
   rdpe_set (error, p->dap[MPS_POLYNOMIAL (p)->degree]);
   for (j = MPS_POLYNOMIAL (p)->degree - 1; j >= 0; j--)
@@ -355,13 +355,13 @@ mps_fhorner (mps_context * s, mps_monomial_poly * p, cplx_t x, cplx_t value)
 
 /**
  * @brief Evaluate the polynomial p in the point x, and give also a bound to the
- * relative error occured in the computation. 
+ * relative error occured in the computation.
  *
  * @param s The <code>mps_context</code> of the computation.
  * @param p The <code>mps_monomial_poly</code> to evaluate.
  * @param x The point where the polynomial will be evaluated.
  * @param error A pointer to the location when an upper bound to the computation
- * error will be stored. 
+ * error will be stored.
  * @param value The value computed by the function.
  */
 void

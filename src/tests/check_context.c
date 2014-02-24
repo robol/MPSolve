@@ -4,82 +4,83 @@
 
 START_TEST (basics_allocate_context)
 {
-	mps_context * ctx = mps_context_new ();
-	mps_context_free (ctx);
+  mps_context * ctx = mps_context_new ();
+
+  mps_context_free (ctx);
 }
 END_TEST
 
 START_TEST (basics_context_reuse_without_free)
 {
-	mps_context * ctx = mps_context_new ();
+  mps_context * ctx = mps_context_new ();
 
-	/* Start with a simple polynomial of degree 2 */
-	mps_monomial_poly *poly = mps_monomial_poly_new (ctx, 2);
+  /* Start with a simple polynomial of degree 2 */
+  mps_monomial_poly *poly = mps_monomial_poly_new (ctx, 2);
 
-	mps_monomial_poly_set_coefficient_d (ctx, poly, 0, -1, 0.0);
-	mps_monomial_poly_set_coefficient_d (ctx, poly, 2, 1, 0.0);
+  mps_monomial_poly_set_coefficient_d (ctx, poly, 0, -1, 0.0);
+  mps_monomial_poly_set_coefficient_d (ctx, poly, 2, 1, 0.0);
 
-	mps_context_set_input_poly (ctx, MPS_POLYNOMIAL (poly));
-	mps_mpsolve (ctx);
+  mps_context_set_input_poly (ctx, MPS_POLYNOMIAL (poly));
+  mps_mpsolve (ctx);
 
-	/* Then try to load a polynomial with a higher degree */
-	poly = mps_monomial_poly_new (ctx, 10);
-	mps_monomial_poly_set_coefficient_d (ctx, poly, 0, -1, 0.0);
-	mps_monomial_poly_set_coefficient_d (ctx, poly, 10, 1, 0.0);
+  /* Then try to load a polynomial with a higher degree */
+  poly = mps_monomial_poly_new (ctx, 10);
+  mps_monomial_poly_set_coefficient_d (ctx, poly, 0, -1, 0.0);
+  mps_monomial_poly_set_coefficient_d (ctx, poly, 10, 1, 0.0);
 
-	mps_context_set_input_poly (ctx, MPS_POLYNOMIAL (poly));
-	mps_mpsolve (ctx);
-	mps_monomial_poly_free (ctx, MPS_POLYNOMIAL (poly));
+  mps_context_set_input_poly (ctx, MPS_POLYNOMIAL (poly));
+  mps_mpsolve (ctx);
+  mps_monomial_poly_free (ctx, MPS_POLYNOMIAL (poly));
 }
 END_TEST
 
 START_TEST (basics_context_reuse_expand)
 {
-	mps_context * ctx = mps_context_new ();
+  mps_context * ctx = mps_context_new ();
 
-	/* Start with a simple polynomial of degree 2 */
-	mps_monomial_poly *poly = mps_monomial_poly_new (ctx, 2);
+  /* Start with a simple polynomial of degree 2 */
+  mps_monomial_poly *poly = mps_monomial_poly_new (ctx, 2);
 
-	mps_monomial_poly_set_coefficient_d (ctx, poly, 0, -1, 0.0);
-	mps_monomial_poly_set_coefficient_d (ctx, poly, 2, 1, 0.0);
+  mps_monomial_poly_set_coefficient_d (ctx, poly, 0, -1, 0.0);
+  mps_monomial_poly_set_coefficient_d (ctx, poly, 2, 1, 0.0);
 
-	mps_context_set_input_poly (ctx, MPS_POLYNOMIAL (poly));
-	mps_mpsolve (ctx);
-	mps_monomial_poly_free (ctx, MPS_POLYNOMIAL (poly));
+  mps_context_set_input_poly (ctx, MPS_POLYNOMIAL (poly));
+  mps_mpsolve (ctx);
+  mps_monomial_poly_free (ctx, MPS_POLYNOMIAL (poly));
 
-	/* Then try to load a polynomial with a higher degree */
-	poly = mps_monomial_poly_new (ctx, 10);
-	mps_monomial_poly_set_coefficient_d (ctx, poly, 0, -1, 0.0);
-	mps_monomial_poly_set_coefficient_d (ctx, poly, 10, 1, 0.0);
+  /* Then try to load a polynomial with a higher degree */
+  poly = mps_monomial_poly_new (ctx, 10);
+  mps_monomial_poly_set_coefficient_d (ctx, poly, 0, -1, 0.0);
+  mps_monomial_poly_set_coefficient_d (ctx, poly, 10, 1, 0.0);
 
-	mps_context_set_input_poly (ctx, MPS_POLYNOMIAL (poly));
-	mps_mpsolve (ctx);
-	mps_monomial_poly_free (ctx, MPS_POLYNOMIAL (poly));
+  mps_context_set_input_poly (ctx, MPS_POLYNOMIAL (poly));
+  mps_mpsolve (ctx);
+  mps_monomial_poly_free (ctx, MPS_POLYNOMIAL (poly));
 }
 END_TEST
 
 START_TEST (basics_context_reuse_shrink)
 {
-	mps_context * ctx = mps_context_new ();
+  mps_context * ctx = mps_context_new ();
 
-	/* Start with a simple polynomial of degree 10 */
-	mps_monomial_poly *poly = mps_monomial_poly_new (ctx, 10);
+  /* Start with a simple polynomial of degree 10 */
+  mps_monomial_poly *poly = mps_monomial_poly_new (ctx, 10);
 
-	mps_monomial_poly_set_coefficient_d (ctx, poly, 0, -1, 0.0);
-	mps_monomial_poly_set_coefficient_d (ctx, poly, 10, 1, 0.0);
+  mps_monomial_poly_set_coefficient_d (ctx, poly, 0, -1, 0.0);
+  mps_monomial_poly_set_coefficient_d (ctx, poly, 10, 1, 0.0);
 
-	mps_context_set_input_poly (ctx, MPS_POLYNOMIAL (poly));
-	mps_mpsolve (ctx);
-	mps_monomial_poly_free (ctx, MPS_POLYNOMIAL (poly));
+  mps_context_set_input_poly (ctx, MPS_POLYNOMIAL (poly));
+  mps_mpsolve (ctx);
+  mps_monomial_poly_free (ctx, MPS_POLYNOMIAL (poly));
 
-	/* Then try to load a polynomial with a smaller degree */
-	poly = mps_monomial_poly_new (ctx, 2);
-	mps_monomial_poly_set_coefficient_d (ctx, poly, 0, -1, 0.0);
-	mps_monomial_poly_set_coefficient_d (ctx, poly, 2, 1, 0.0);
+  /* Then try to load a polynomial with a smaller degree */
+  poly = mps_monomial_poly_new (ctx, 2);
+  mps_monomial_poly_set_coefficient_d (ctx, poly, 0, -1, 0.0);
+  mps_monomial_poly_set_coefficient_d (ctx, poly, 2, 1, 0.0);
 
-	mps_context_set_input_poly (ctx, MPS_POLYNOMIAL (poly));
-	mps_mpsolve (ctx);
-	mps_monomial_poly_free (ctx, MPS_POLYNOMIAL (poly));
+  mps_context_set_input_poly (ctx, MPS_POLYNOMIAL (poly));
+  mps_mpsolve (ctx);
+  mps_monomial_poly_free (ctx, MPS_POLYNOMIAL (poly));
 }
 END_TEST
 
@@ -106,5 +107,5 @@ main (void)
   number_failed = srunner_ntests_failed (sr);
   srunner_free (sr);
 
-  return (number_failed != 0);
+  return(number_failed != 0);
 }

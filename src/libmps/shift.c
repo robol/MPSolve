@@ -4,7 +4,7 @@
  * Copyright (C) 2001-2014, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
- * Authors: 
+ * Authors:
  *   Giuseppe Fiorentino <fiorent@dm.unipi.it>
  *   Leonardo Robol <robol@mail.dm.unipi.it>
  */
@@ -26,17 +26,17 @@ mps_raisetemp (mps_context * s, unsigned long int digits)
 /**
  * @brief This routine computes the first \f$m+1\f$ coefficients of the shifted
  * polynomial \f$p(x+g)\f$, by performing \f$m+1\f$ Horner divisions.
- * This if the floating point version of this function. 
- * 
- * @param s The current mps_context. 
- * @param m The size of the cluster. 
- * @param mps_cluster_item A pointer to the cluster that shall be shifted. 
- * @param clust_rad A bound for the radius of the cluster. 
- * @param g The gravity center of the cluster. 
- * @parma eps The current value of epsilon that should be used as a treshold. 
+ * This if the floating point version of this function.
+ *
+ * @param s The current mps_context.
+ * @param m The size of the cluster.
+ * @param mps_cluster_item A pointer to the cluster that shall be shifted.
+ * @param clust_rad A bound for the radius of the cluster.
+ * @param g The gravity center of the cluster.
+ * @parma eps The current value of epsilon that should be used as a treshold.
  *
  * Then it computes the new starting approximations for the
- * cluster selected by applying mps_fstart() and by updating the approximations. 
+ * cluster selected by applying mps_fstart() and by updating the approximations.
  */
 MPS_PRIVATE void
 mps_fshift (mps_context * s, int m, mps_cluster_item * cluster_item, double clust_rad,
@@ -75,17 +75,17 @@ mps_fshift (mps_context * s, int m, mps_cluster_item * cluster_item, double clus
 /**
  * @brief This routine computes the first \f$m+1\f$ coefficients of the shifted
  * polynomial \f$p(x+g)\f$, by performing \f$m+1\f$ Horner divisions.
- * This if the DPE version of this function. 
- * 
- * @param s The current mps_context. 
- * @param m The size of the cluster. 
- * @param mps_cluster_item A pointer to the cluster that shall be shifted. 
- * @param clust_rad A bound for the radius of the cluster. 
- * @param g The gravity center of the cluster. 
- * @parma eps The current value of epsilon that should be used as a treshold. 
+ * This if the DPE version of this function.
+ *
+ * @param s The current mps_context.
+ * @param m The size of the cluster.
+ * @param mps_cluster_item A pointer to the cluster that shall be shifted.
+ * @param clust_rad A bound for the radius of the cluster.
+ * @param g The gravity center of the cluster.
+ * @parma eps The current value of epsilon that should be used as a treshold.
  *
  * Then it computes the new starting approximations for the
- * cluster selected by applying mps_fstart() and by updating the approximations. 
+ * cluster selected by applying mps_fstart() and by updating the approximations.
  */
 MPS_PRIVATE void
 mps_dshift (mps_context * s, int m, mps_cluster_item * cluster_item, rdpe_t clust_rad,
@@ -121,17 +121,17 @@ mps_dshift (mps_context * s, int m, mps_cluster_item * cluster_item, rdpe_t clus
 /**
  * @brief This routine computes the first \f$m+1\f$ coefficients of the shifted
  * polynomial \f$p(x+g)\f$, by performing \f$m+1\f$ Horner divisions.
- * This if the MP version of this function. 
- * 
- * @param s The current mps_context. 
- * @param m The size of the cluster. 
- * @param mps_cluster_item A pointer to the cluster that shall be shifted. 
- * @param clust_rad A bound for the radius of the cluster. 
- * @param g The gravity center of the cluster. 
- * @parma eps The current value of epsilon that should be used as a treshold. 
+ * This if the MP version of this function.
+ *
+ * @param s The current mps_context.
+ * @param m The size of the cluster.
+ * @param mps_cluster_item A pointer to the cluster that shall be shifted.
+ * @param clust_rad A bound for the radius of the cluster.
+ * @param g The gravity center of the cluster.
+ * @parma eps The current value of epsilon that should be used as a treshold.
  *
  * Then it computes the new starting approximations for the
- * cluster selected by applying mps_fstart() and by updating the approximations. 
+ * cluster selected by applying mps_fstart() and by updating the approximations.
  */
 MPS_PRIVATE void
 mps_mshift (mps_context * s, int m, mps_cluster_item * cluster_item, rdpe_t clust_rad, mpc_t g)
@@ -142,6 +142,7 @@ mps_mshift (mps_context * s, int m, mps_cluster_item * cluster_item, rdpe_t clus
   cdpe_t abd;
   mpc_t t;
   mps_monomial_poly *p = MPS_MONOMIAL_POLY (s->active_poly);
+
   /* mps_cluster * cluster = cluster_item->cluster;   */
 
   mpc_init2 (t, s->mpwp);
@@ -164,7 +165,7 @@ mps_mshift (mps_context * s, int m, mps_cluster_item * cluster_item, rdpe_t clus
   /* store the current working precision mpnw into mpnw_tmp */
   mpwp_temp = s->mpwp;
   mpwp_max = m * s->mpwp;
-  
+
   do
     {                           /* loop */
       mpc_set (t, s->mfpc1[MPS_POLYNOMIAL (p)->degree]);
@@ -175,7 +176,7 @@ mps_mshift (mps_context * s, int m, mps_cluster_item * cluster_item, rdpe_t clus
           mpc_get_cdpe (abd, p->mfpc[j]);
           cdpe_mod (abp, abd);
           rdpe_mul_eq (ap, ag);
-          rdpe_mul_eq_d (abp, (double) j);
+          rdpe_mul_eq_d (abp, (double)j);
           rdpe_add_eq (ap, abp);
           mpc_mul_eq (t, g);
           mpc_add_eq (t, s->mfpc1[j]);
@@ -201,16 +202,15 @@ mps_mshift (mps_context * s, int m, mps_cluster_item * cluster_item, rdpe_t clus
 
           rdpe_set_2dl (mp_ep, 1.0, 1 - mpwp_temp);
           mps_raisetemp (s, mpwp_temp);
-          mpc_set_prec (t, (unsigned long int) mpwp_temp);
-          mpc_set_prec (g, (unsigned long int) mpwp_temp);
+          mpc_set_prec (t, (unsigned long int)mpwp_temp);
+          mpc_set_prec (g, (unsigned long int)mpwp_temp);
           if (mpwp_max < mpwp_temp)
             mpwp_max = mpwp_temp;
 
           for (j = 0; j <= s->n; j++)
             mpc_set (s->mfpc1[j], p->mfpc[j]);
         }
-    }
-  while (rdpe_lt (as, ap) && (k <= m)); /* loop */
+    } while (rdpe_lt (as, ap) && (k <= m)); /* loop */
 
   mps_raisetemp (s, 1 * mpwp_temp);
 
@@ -229,7 +229,6 @@ mps_mshift (mps_context * s, int m, mps_cluster_item * cluster_item, rdpe_t clus
           mpc_set (s->mfpc1[j], t);
         }
       mpc_set (s->mfppc1[i], t);
-
     }
   /*
      raisetemp_raw(mpwp);
@@ -242,8 +241,8 @@ mps_mshift (mps_context * s, int m, mps_cluster_item * cluster_item, rdpe_t clus
   /* mpc_set_prec (t, (unsigned long int) 2 * mpwp_max); */
   /* mpc_set_prec (g, (unsigned long int) 2 * mpwp_max); */
   mps_raisetemp (s, 2 * mpwp_temp);
-  mpc_set_prec (t, (unsigned long int) s->mpwp);
-  mpc_set_prec (g, (unsigned long int) s->mpwp);
+  mpc_set_prec (t, (unsigned long int)s->mpwp);
+  mpc_set_prec (g, (unsigned long int)s->mpwp);
 
   if (rdpe_lt (as, ap))
     {
@@ -262,7 +261,7 @@ mps_mshift (mps_context * s, int m, mps_cluster_item * cluster_item, rdpe_t clus
   /* Debug the coefficients of the shifted polynomial */
   if (s->debug_level & MPS_DEBUG_CLUSTER)
     for (i = 0; i <= m; i++)
-      MPS_DEBUG_MPC (s, mpc_get_prec (s->mfppc1[i]), s->mfppc1[i], 
+      MPS_DEBUG_MPC (s, mpc_get_prec (s->mfppc1[i]), s->mfppc1[i],
                      "P(x + g), coefficient of degree %d", i);
 
   mps_mstart (s, m, cluster_item, clust_rad, ag, s->dap1, g);

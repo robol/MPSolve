@@ -4,7 +4,7 @@
  * Copyright (C) 2001-2014, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
- * Authors: 
+ * Authors:
  *   Dario Andrea Bini <bini@dm.unipi.it>
  *   Giuseppe Fiorentino <fiorent@dm.unipi.it>
  *   Leonardo Robol <robol@mail.dm.unipi.it>
@@ -26,9 +26,9 @@ mps_secular_feval (mps_context * s, mps_polynomial * p, cplx_t x, cplx_t value)
   mps_secular_equation * sec = MPS_SECULAR_EQUATION (p);
   cplx_t ctmp;
   int i;
-  
+
   cplx_set (value, cplx_zero);
-  
+
   for (i = 0; i < s->n; i++)
     {
       cplx_sub (ctmp, x, sec->bfpc[i]);
@@ -73,7 +73,7 @@ mps_secular_feval_derivative (mps_context * s, mps_polynomial * p, cplx_t x, cpl
 }
 
 /**
- * @brief Evaluate a secular equation <code>sec</code> in the point <code>x</code>, 
+ * @brief Evaluate a secular equation <code>sec</code> in the point <code>x</code>,
  * estimating the error on the evaluation.
  *
  * @param s The <code>mps_context</code> of the computation.
@@ -89,10 +89,10 @@ mps_secular_feval_with_error (mps_context * s, mps_polynomial * p, cplx_t x, cpl
   mps_secular_equation * sec = MPS_SECULAR_EQUATION (p);
   cplx_t ctmp;
   int i;
-  
+
   *error = 0.0f;
   cplx_set (value, cplx_zero);
-  
+
   for (i = 0; i < s->n; i++)
     {
       cplx_sub (ctmp, x, sec->bfpc[i]);
@@ -149,7 +149,7 @@ mps_secular_deval (mps_context * s, mps_polynomial * p, cdpe_t x, cdpe_t value)
 mps_boolean
 mps_secular_deval_derivative (mps_context * s, mps_polynomial * p, cdpe_t x, cdpe_t value)
 {
-  mps_secular_equation *sec= MPS_SECULAR_EQUATION (p);
+  mps_secular_equation *sec = MPS_SECULAR_EQUATION (p);
   cdpe_t ctmp;
   int i;
 
@@ -241,7 +241,7 @@ mps_secular_meval (mps_context * s, mps_polynomial * p, mpc_t x, mpc_t value)
   if (p->prec > 0 && p->prec < wp)
     wp = p->prec;
 
-  mpc_init2  (ctmp, wp);
+  mpc_init2 (ctmp, wp);
   mpc_set_ui (value, 0U, 0U);
 
   for (i = 0; i < s->n; ++i)
@@ -256,10 +256,10 @@ mps_secular_meval (mps_context * s, mps_polynomial * p, mpc_t x, mpc_t value)
       mpc_div (ctmp, sec->ampc[i], ctmp);
       mpc_add_eq (value, ctmp);
     }
-  
+
   mpc_sub_eq_ui (value, 1U, 0U);
 
- cleanup:
+cleanup:
   mpc_clear (ctmp);
   return success;
 }
@@ -293,7 +293,7 @@ mps_secular_meval_with_error (mps_context * s, mps_polynomial * p, mpc_t x, mpc_
   if (mpc_get_prec (sec->ampc[0]) < wp)
     mps_polynomial_raise_data (s, p, wp);
 
-  mpc_init2  (ctmp, wp);
+  mpc_init2 (ctmp, wp);
   mpc_set_ui (value, 0U, 0U);
   mpc_set_prec (value, wp);
 
@@ -315,24 +315,24 @@ mps_secular_meval_with_error (mps_context * s, mps_polynomial * p, mpc_t x, mpc_
       mpc_div (ctmp, sec->ampc[i], ctmp);
       mpc_add_eq (value, ctmp);
 
-      mpc_get_cdpe (cdtmp, ctmp); 
-      cdpe_mod (rtmp, cdtmp); 
-      rdpe_mul_eq_d (rtmp, i + 2); 
+      mpc_get_cdpe (cdtmp, ctmp);
+      cdpe_mod (rtmp, cdtmp);
+      rdpe_mul_eq_d (rtmp, i + 2);
       rdpe_add_eq (error, rtmp);
     }
-  
+
   mpc_sub_eq_ui (value, 1U, 0U);
   rdpe_add_eq (error, rdpe_one);
 
   if (p->prec < wp)
     rdpe_set_2dl (rtmp, 4.0, 1 - p->prec);
   else
-    rdpe_set_2dl (rtmp, 4.0, 1 - (long int) wp);
+    rdpe_set_2dl (rtmp, 4.0, 1 - (long int)wp);
 
   rdpe_mul_eq (error, rtmp);
 
- cleanup:
-  
+cleanup:
+
   mpc_clear (ctmp);
 
   return successful_evaluation;

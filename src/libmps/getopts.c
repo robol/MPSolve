@@ -4,7 +4,7 @@
  * Copyright (C) 2001-2014, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
- * Authors: 
+ * Authors:
  *   Dario Andrea Bini <bini@dm.unipi.it>
  *   Giuseppe Fiorentino <fiorent@dm.unipi.it>
  *   Leonardo Robol <robol@mail.dm.unipi.it>
@@ -60,7 +60,7 @@ mps_getopts (mps_opt ** opt_ptr, int *argc_ptr, char ***argv_ptr,
 
   if ((*opt_ptr) == NULL)
     {
-      (*opt_ptr) = (mps_opt *) mps_malloc (sizeof (mps_opt));
+      (*opt_ptr) = (mps_opt*)mps_malloc (sizeof(mps_opt));
     }
 
   opt = *opt_ptr;

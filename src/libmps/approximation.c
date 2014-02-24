@@ -4,7 +4,7 @@
  * Copyright (C) 2001-2014, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
- * Authors: 
+ * Authors:
  *   Dario Andrea Bini <bini@dm.unipi.it>
  *   Giuseppe Fiorentino <fiorent@dm.unipi.it>
  *   Leonardo Robol <robol@mail.dm.unipi.it>
@@ -17,12 +17,13 @@ mps_approximation *
 mps_approximation_new (mps_context * s)
 {
   mps_approximation * appr = mps_new (mps_approximation);
+
   mpc_init2 (appr->mvalue, s->mpwp);
   appr->again = true;
   appr->approximated = false;
 
   appr->status = MPS_ROOT_STATUS_CLUSTERED;
-  appr->attrs  = MPS_ROOT_ATTRS_NONE;
+  appr->attrs = MPS_ROOT_ATTRS_NONE;
   appr->inclusion = MPS_ROOT_INCLUSION_UNKNOWN;
 
   return appr;
@@ -39,6 +40,7 @@ mps_approximation *
 mps_approximation_copy (mps_context * ctx, mps_approximation * original)
 {
   mps_approximation *new = mps_approximation_new (ctx);
+
   mpc_set_prec (new->mvalue, mpc_get_prec (original->mvalue));
   mpc_set (new->mvalue, original->mvalue);
   rdpe_set (new->drad, original->drad);
@@ -53,13 +55,13 @@ mps_approximation_copy (mps_context * ctx, mps_approximation * original)
 }
 
 /* Public accessor functions */
-void 
+void
 mps_approximation_get_fvalue (mps_context * ctx, mps_approximation * approximation, cplx_t output)
 {
   cplx_set (output, approximation->fvalue);
 }
 
-void 
+void
 mps_approximation_get_dvalue (mps_context * ctx, mps_approximation * approximation, cdpe_t output)
 {
   cdpe_set (output, approximation->dvalue);
@@ -78,44 +80,44 @@ mps_approximation_get_frad (mps_context * ctx, mps_approximation * approximation
   return approximation->frad;
 }
 
-void 
+void
 mps_approximation_get_drad (mps_context * ctx, mps_approximation * approximation, rdpe_t output)
 {
   rdpe_set (output, approximation->drad);
 }
 
-mps_root_status 
+mps_root_status
 mps_approximation_get_status (mps_context * ctx, mps_approximation * approximation)
 {
   return approximation->status;
 }
 
-mps_root_attrs 
+mps_root_attrs
 mps_approximation_get_attrs (mps_context * ctx, mps_approximation * approximation)
 {
   return approximation->attrs;
 }
 
-mps_root_inclusion 
+mps_root_inclusion
 mps_approximaiton_get_inclusion (mps_context * ctx, mps_approximation * approximation)
 {
   return approximation->inclusion;
 }
 
 /* Public setters functions */
-void 
+void
 mps_approximation_set_fvalue (mps_context * ctx, mps_approximation * approximation, cplx_t value)
 {
   cplx_set (approximation->fvalue, value);
 }
 
-void 
+void
 mps_approximation_set_dvalue (mps_context * ctx, mps_approximation * approximation, cdpe_t value)
 {
   cdpe_set (approximation->dvalue, value);
 }
 
-void 
+void
 mps_approximation_set_mvalue (mps_context * ctx, mps_approximation * approximation, mpc_t value)
 {
   /* Ensure that we have a sufficient precision to store value correctly */
@@ -140,19 +142,19 @@ mps_approximation_set_drad (mps_context * ctx, mps_approximation * approximation
   rdpe_set (approximation->drad, drad);
 }
 
-void 
+void
 mps_approximation_set_status (mps_context * ctx, mps_approximation * approximation, mps_root_status status)
 {
   approximation->status = status;
 }
 
-void 
-mps_approximation_set_attrs (mps_context * ctx, mps_approximation * approximation,  mps_root_attrs attrs)
+void
+mps_approximation_set_attrs (mps_context * ctx, mps_approximation * approximation, mps_root_attrs attrs)
 {
   approximation->attrs = attrs;
 }
 
-void 
+void
 mps_approximation_set_inclusion (mps_context * ctx, mps_approximation * approximation, mps_root_inclusion inclusion)
 {
   approximation->inclusion = inclusion;

@@ -4,7 +4,7 @@
  * Copyright (C) 2001-2014, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
- * Authors: 
+ * Authors:
  *   Dario Andrea Bini <bini@dm.unipi.it>
  *   Giuseppe Fiorentino <fiorent@dm.unipi.it>
  *   Leonardo Robol <robol@mail.dm.unipi.it>
@@ -31,13 +31,14 @@ long int
 mps_context_get_data_prec_max (mps_context * s)
 {
   long int ret;
+
   MPS_LOCK (s->data_prec_max);
   ret = s->data_prec_max.value;
   MPS_UNLOCK (s->data_prec_max);
   return ret;
 }
 
-int 
+int
 mps_context_get_degree (mps_context * s)
 {
   return s->n;
@@ -53,7 +54,7 @@ mps_context_get_degree (mps_context * s)
  */
 void
 mps_context_select_algorithm (mps_context * s, mps_algorithm algorithm)
-{  
+{
   /* First set algorithm in the mps_context */
   s->algorithm = algorithm;
 
@@ -80,8 +81,8 @@ mps_context_init (mps_context * s)
   s->logstr = stdout;
 
   /* Allocate space for the configurations */
-  s->input_config  = (mps_input_configuration  *) mps_malloc (sizeof (mps_input_configuration));
-  s->output_config = (mps_output_configuration *) mps_malloc (sizeof (mps_output_configuration));
+  s->input_config = (mps_input_configuration*)mps_malloc (sizeof(mps_input_configuration));
+  s->output_config = (mps_output_configuration*)mps_malloc (sizeof(mps_output_configuration));
 
   mps_set_default_values (s);
 
@@ -91,7 +92,7 @@ mps_context_init (mps_context * s)
   mpf_clear (test);
 
   /* Set standard precision */
-  s->output_config->prec = (int) (0.9 * DBL_DIG * LOG2_10);
+  s->output_config->prec = (int)(0.9 * DBL_DIG * LOG2_10);
   MPS_DEBUG (s, "Setting prec_out to %ld digits", s->output_config->prec);
 
   mps_mp_set_prec (s, DBL_DIG * LOG2_10 + 1);
@@ -112,27 +113,27 @@ mps_context_new ()
   /* Try to get a low cost context from the factory */
   pthread_mutex_lock (&context_factory_mutex);
   if (context_factory_size > 0)
-  {
-	  /* Pop out a context */
-	  ctx = context_factory[--context_factory_size];
+    {
+      /* Pop out a context */
+      ctx = context_factory[--context_factory_size];
 
-          if (context_factory_size)
-              context_factory = mps_realloc (context_factory,
-                                             sizeof (mps_context*) * context_factory_size);
-          else 
-            {
-              free (context_factory); 
-              context_factory = NULL; 
-            }
-  }
+      if (context_factory_size)
+        context_factory = mps_realloc (context_factory,
+                                       sizeof(mps_context*) * context_factory_size);
+      else
+        {
+          free (context_factory);
+          context_factory = NULL;
+        }
+    }
   pthread_mutex_unlock (&context_factory_mutex);
 
   /* Allocate the new mps_context and load default options */
-  if (! ctx)
-  {
-	  ctx = (mps_context*) mps_malloc (sizeof (mps_context));
-	  mps_context_init (ctx);
-  }
+  if (!ctx)
+    {
+      ctx = (mps_context*)mps_malloc (sizeof(mps_context));
+      mps_context_init (ctx);
+    }
 
   return ctx;
 }
@@ -150,9 +151,9 @@ mps_context_free (mps_context * s)
    * stderr. For the case in which this context will re-used, set them
    * to their default values. */
   if (s->instr != stdin && s->instr != NULL)
-	fclose (s->instr);
+    fclose (s->instr);
   if (s->logstr != stderr && s->logstr != stdout && s->logstr != NULL)
-	fclose (s->logstr);
+    fclose (s->logstr);
 
   s->instr = stdin;
   s->logstr = stderr;
@@ -171,13 +172,13 @@ mps_context_free (mps_context * s)
 
   pthread_mutex_lock (&context_factory_mutex);
   if (context_factory_size < MPS_CONTEXT_FACTORY_MAXIMUM_SIZE)
-  {
-	  context_factory = mps_realloc (context_factory,
-			  sizeof (mps_context*) * (context_factory_size + 1));
-	  context_factory[context_factory_size++] = s;
-	  pthread_mutex_unlock (&context_factory_mutex);
-	  return;
-  }
+    {
+      context_factory = mps_realloc (context_factory,
+                                     sizeof(mps_context*) * (context_factory_size + 1));
+      context_factory[context_factory_size++] = s;
+      pthread_mutex_unlock (&context_factory_mutex);
+      return;
+    }
   pthread_mutex_unlock (&context_factory_mutex);
 
   if (s->initialized)
@@ -192,8 +193,8 @@ mps_context_free (mps_context * s)
 
   if (s->secular_equation)
     mps_secular_equation_free (s, MPS_POLYNOMIAL (s->secular_equation));
-   
-   free (s);
+
+  free (s);
 }
 
 void
@@ -205,106 +206,106 @@ mps_context_abort (mps_context * s)
 static void
 mps_context_shrink (mps_context * s, int n)
 {
-	int i;
+  int i;
 
-	for (i = n; i < s->n; i++)
-	{
-		mps_approximation_free (s, s->root[i]);
-	}
-	s->root = mps_realloc (s->root, sizeof (mps_approximation*) * n);
+  for (i = n; i < s->n; i++)
+    {
+      mps_approximation_free (s, s->root[i]);
+    }
+  s->root = mps_realloc (s->root, sizeof(mps_approximation*) * n);
 
-	s->order = mps_realloc (s->order, sizeof (int) * n);
+  s->order = mps_realloc (s->order, sizeof(int) * n);
 
-	s->fppc1 = mps_realloc (s->fppc1, sizeof (cplx_t) * (n + 1));
+  s->fppc1 = mps_realloc (s->fppc1, sizeof(cplx_t) * (n + 1));
 
-	for (i = n + 1; i <= s->n; i++)
-	  mpc_clear (s->mfpc1[i]);
+  for (i = n + 1; i <= s->n; i++)
+    mpc_clear (s->mfpc1[i]);
 
-	s->mfpc1 = mps_realloc (s->mfpc1, sizeof (mpc_t) * (n + 1));
+  s->mfpc1 = mps_realloc (s->mfpc1, sizeof(mpc_t) * (n + 1));
 
-	for (i = n + 1; i <= s->n; i++)
-	  mpc_clear (s->mfppc1[i]);
+  for (i = n + 1; i <= s->n; i++)
+    mpc_clear (s->mfppc1[i]);
 
-	s->mfppc1 = mps_realloc (s->mfppc1, sizeof (mpc_t) * (n+1));
+  s->mfppc1 = mps_realloc (s->mfppc1, sizeof(mpc_t) * (n + 1));
 
-	/* temporary vectors */
-	s->spar1 = mps_realloc (s->spar1, sizeof (mps_boolean) * (n+2));
-	s->h = mps_realloc (s->h, sizeof (mps_boolean) * (n+2));
-	s->again_old = mps_realloc (s->again_old, sizeof (mps_boolean) * (n));
+  /* temporary vectors */
+  s->spar1 = mps_realloc (s->spar1, sizeof(mps_boolean) * (n + 2));
+  s->h = mps_realloc (s->h, sizeof(mps_boolean) * (n + 2));
+  s->again_old = mps_realloc (s->again_old, sizeof(mps_boolean) * (n));
 
-	s->fap1 = mps_realloc (s->fap1, sizeof (double) * (n + 1));
-	s->fap2 = mps_realloc (s->fap2, sizeof (double) * (n + 1));
+  s->fap1 = mps_realloc (s->fap1, sizeof(double) * (n + 1));
+  s->fap2 = mps_realloc (s->fap2, sizeof(double) * (n + 1));
 
-	s->dap1 = mps_realloc (s->dap1, sizeof (rdpe_t) * (n + 1));
-	s->dpc1 = mps_realloc (s->dpc1, sizeof (cdpe_t) * (n + 1));
-	s->dpc2 = mps_realloc (s->dpc2, sizeof (cdpe_t) * (n + 1));
+  s->dap1 = mps_realloc (s->dap1, sizeof(rdpe_t) * (n + 1));
+  s->dpc1 = mps_realloc (s->dpc1, sizeof(cdpe_t) * (n + 1));
+  s->dpc2 = mps_realloc (s->dpc2, sizeof(cdpe_t) * (n + 1));
 
-	s->fradii = mps_realloc (s->fradii, sizeof (double) * (n + 1));
-	s->partitioning = mps_realloc (s->partitioning, sizeof (int) * (n + 2));
-	s->dradii = mps_realloc (s->dradii, sizeof (rdpe_t) * (n + 1));
+  s->fradii = mps_realloc (s->fradii, sizeof(double) * (n + 1));
+  s->partitioning = mps_realloc (s->partitioning, sizeof(int) * (n + 2));
+  s->dradii = mps_realloc (s->dradii, sizeof(rdpe_t) * (n + 1));
 
-    /* Setting some default here, that were not settable because we didn't know
-	 * the degree of the polynomial */
-	for (i = 0; i < s->n; i++)
-	  s->root[i]->wp = DBL_DIG * LOG2_10;
+  /* Setting some default here, that were not settable because we didn't know
+   * the degree of the polynomial */
+  for (i = 0; i < s->n; i++)
+    s->root[i]->wp = DBL_DIG * LOG2_10;
 }
 
 static void
 mps_context_expand (mps_context * s, int n)
 {
-	int i;
+  int i;
 
-	printf ("Shrinking\n");
+  printf ("Shrinking\n");
 
-	s->root = mps_realloc (s->root, sizeof (mps_approximation*) * n);
-	for (i = s->n; i < n; i++)
-	{
-		s->root[i] = mps_approximation_new (s);
-	}
+  s->root = mps_realloc (s->root, sizeof(mps_approximation*) * n);
+  for (i = s->n; i < n; i++)
+    {
+      s->root[i] = mps_approximation_new (s);
+    }
 
-	s->order = mps_realloc (s->order, sizeof (int) * n);
+  s->order = mps_realloc (s->order, sizeof(int) * n);
 
-	s->fppc1 = mps_realloc (s->fppc1, sizeof (cplx_t) * (n + 1));
-	s->mfpc1 = mps_realloc (s->mfpc1, sizeof (mpc_t) * (n + 1));
+  s->fppc1 = mps_realloc (s->fppc1, sizeof(cplx_t) * (n + 1));
+  s->mfpc1 = mps_realloc (s->mfpc1, sizeof(mpc_t) * (n + 1));
 
-	for (i = s->n + 1; i <= n; i++)
-	  mpc_init2 (s->mfpc1[i], 0);
+  for (i = s->n + 1; i <= n; i++)
+    mpc_init2 (s->mfpc1[i], 0);
 
-	s->mfppc1 = mps_realloc (s->mfppc1, sizeof (mpc_t) * (n+1));
-	for (i = s->n + 1; i <= n; i++)
-	  mpc_init2 (s->mfppc1[i], 0);
+  s->mfppc1 = mps_realloc (s->mfppc1, sizeof(mpc_t) * (n + 1));
+  for (i = s->n + 1; i <= n; i++)
+    mpc_init2 (s->mfppc1[i], 0);
 
-	/* temporary vectors */
-	s->spar1 = mps_realloc (s->spar1, sizeof (mps_boolean) * (n+2));
-	s->h = mps_realloc (s->h, sizeof (mps_boolean) * (n+2));
-	s->again_old = mps_realloc (s->again_old, sizeof (mps_boolean) * (n));
+  /* temporary vectors */
+  s->spar1 = mps_realloc (s->spar1, sizeof(mps_boolean) * (n + 2));
+  s->h = mps_realloc (s->h, sizeof(mps_boolean) * (n + 2));
+  s->again_old = mps_realloc (s->again_old, sizeof(mps_boolean) * (n));
 
-	s->fap1 = mps_realloc (s->fap1, sizeof (double) * (n + 1));
-	s->fap2 = mps_realloc (s->fap2, sizeof (double) * (n + 1));
+  s->fap1 = mps_realloc (s->fap1, sizeof(double) * (n + 1));
+  s->fap2 = mps_realloc (s->fap2, sizeof(double) * (n + 1));
 
-	s->dap1 = mps_realloc (s->dap1, sizeof (rdpe_t) * (n + 1));
-	s->dpc1 = mps_realloc (s->dpc1, sizeof (cdpe_t) * (n + 1));
-	s->dpc2 = mps_realloc (s->dpc2, sizeof (cdpe_t) * (n + 1));
+  s->dap1 = mps_realloc (s->dap1, sizeof(rdpe_t) * (n + 1));
+  s->dpc1 = mps_realloc (s->dpc1, sizeof(cdpe_t) * (n + 1));
+  s->dpc2 = mps_realloc (s->dpc2, sizeof(cdpe_t) * (n + 1));
 
-	s->fradii = mps_realloc (s->fradii, sizeof (double) * (n + 1));
-	s->partitioning = mps_realloc (s->partitioning, sizeof (int) * (n + 2));
-	s->dradii = mps_realloc (s->dradii, sizeof (rdpe_t) * (n + 1));
+  s->fradii = mps_realloc (s->fradii, sizeof(double) * (n + 1));
+  s->partitioning = mps_realloc (s->partitioning, sizeof(int) * (n + 2));
+  s->dradii = mps_realloc (s->dradii, sizeof(rdpe_t) * (n + 1));
 
-    /* Setting some default here, that were not settable because we didn't know
-	 * the degree of the polynomial */
-	for (i = 0; i < s->n; i++)
-	  s->root[i]->wp = DBL_DIG * LOG2_10;
+  /* Setting some default here, that were not settable because we didn't know
+   * the degree of the polynomial */
+  for (i = 0; i < s->n; i++)
+    s->root[i]->wp = DBL_DIG * LOG2_10;
 }
 
 void
 mps_context_resize (mps_context * s, int n)
 {
-	/* We're excluding the case n == s->n that, clearly, doesn't
-	 * need operations at all. */
-	if (n > s->n)
-		mps_context_expand (s, n);
-	if (n < s->n)
-		mps_context_shrink (s, n);
+  /* We're excluding the case n == s->n that, clearly, doesn't
+   * need operations at all. */
+  if (n > s->n)
+    mps_context_expand (s, n);
+  if (n < s->n)
+    mps_context_shrink (s, n);
 }
 
 void
@@ -322,7 +323,7 @@ mps_context_set_degree (mps_context * s, int n)
 }
 
 /**
- * @brief Set the monomial poly p as the input polynomial for 
+ * @brief Set the monomial poly p as the input polynomial for
  * the current equation.
  *
  * @param s The mps_context to set the monomial_poly into.
@@ -336,10 +337,10 @@ mps_context_set_input_poly (mps_context * s, mps_polynomial * p)
   MPS_DEBUG (s, "Setting input poly");
 
   if (p->degree < 0)
-  {
-    mps_error (s, "Polynomial degree should be positive");
-    return;
-  }
+    {
+      mps_error (s, "Polynomial degree should be positive");
+      return;
+    }
 
   int i;
   s->active_poly = p;
@@ -363,13 +364,13 @@ mps_context_set_input_poly (mps_context * s, mps_polynomial * p)
        * the again vector is all of true values */
       p->density = MPS_DENSITY_DENSE;
       for (i = 0; i <= MPS_POLYNOMIAL (mp)->degree; ++i)
-       {
-         if (!mp->spar[i])
-           {
-             p->density = MPS_DENSITY_SPARSE;
-             break;
-           }
-       }
+        {
+          if (!mp->spar[i])
+            {
+              p->density = MPS_DENSITY_SPARSE;
+              break;
+            }
+        }
     }
 
   mps_context_set_degree (s, p->degree);
@@ -388,7 +389,6 @@ mps_context_set_input_poly (mps_context * s, mps_polynomial * p)
 int
 mps_context_set_poly_d (mps_context * s, cplx_t * coeff, long unsigned int n)
 {
-
   int i;
 
   /* Allocate space for a polynomial of degree n */
@@ -402,7 +402,7 @@ mps_context_set_poly_d (mps_context * s, cplx_t * coeff, long unsigned int n)
     }
 
   mps_context_set_input_poly (s, MPS_POLYNOMIAL (p));
-  
+
   return 0;
 }
 
@@ -419,7 +419,6 @@ mps_context_set_poly_d (mps_context * s, cplx_t * coeff, long unsigned int n)
 int
 mps_context_set_poly_i (mps_context * s, int *coeff, long unsigned int n)
 {
-
   int i;
 
   /* Allocate data in mps_context to hold the polynomial of degree n */
@@ -442,13 +441,13 @@ mps_context_set_poly_i (mps_context * s, int *coeff, long unsigned int n)
  * to the i-th inclusion radius.
  *
  * @param s The current mps_context.
- * @param roots A pointer to an array of cplx_t variables. if *roots == NULL, 
+ * @param roots A pointer to an array of cplx_t variables. if *roots == NULL,
  * MPSolve will take care of allocating these for you. You are in charge to free
- * them when you don't need them anymore. 
+ * them when you don't need them anymore.
  *
  * @param radius A pointer to an array of double where MPSolve should store the
- * inclusion radii. If *radius == NULL MPSolve will allocate those radii for you. 
- * If radius == NULL no radii will be returned. 
+ * inclusion radii. If *radius == NULL MPSolve will allocate those radii for you.
+ * If radius == NULL no radii will be returned.
  */
 int
 mps_context_get_roots_d (mps_context * s, cplx_t ** roots, double **radius)
@@ -494,13 +493,13 @@ mps_context_get_roots_d (mps_context * s, cplx_t ** roots, double **radius)
 /**
  * @brief Get the roots computed as multiprecision complex numbers.
  *
- * @param roots A pointer to an array of mpc_t variables. if *roots == NULL, 
+ * @param roots A pointer to an array of mpc_t variables. if *roots == NULL,
  * MPSolve will take care of allocate and init those for you. You are in charge to free
- * and clear them when you don't need them anymore. 
+ * and clear them when you don't need them anymore.
  *
  * @param radius A pointer to an array of rdpe_t where MPSolve should store the
- * inclusion radii. If *radius == NULL MPSolve will allocate those radii for you. 
- * If radius == NULL no radii will be returned. 
+ * inclusion radii. If *radius == NULL MPSolve will allocate those radii for you.
+ * If radius == NULL no radii will be returned.
  */
 int
 mps_context_get_roots_m (mps_context * s, mpc_t ** roots, rdpe_t ** radius)
@@ -521,7 +520,7 @@ mps_context_get_roots_m (mps_context * s, mpc_t ** roots, rdpe_t ** radius)
   {
     mpc_t * local_roots = *roots;
     rdpe_t * local_radius = radius ? *radius : NULL;
-    
+
     for (i = 0; i < s->n; i++)
       {
         mpc_set_prec (local_roots[i], mpc_get_prec (s->root[i]->mvalue));
@@ -536,34 +535,34 @@ mps_context_get_roots_m (mps_context * s, mpc_t ** roots, rdpe_t ** radius)
 }
 
 /**
- * @brief Retrieve a pointer to the current approximations in the context. 
+ * @brief Retrieve a pointer to the current approximations in the context.
  *
- * @param ctx The current mps_context. 
- * @return A vector of n mps_approximation pointer, 
- * where n is the degree of the current polynomial 
- * that can be retrieve with mps_context_get_degree(). 
+ * @param ctx The current mps_context.
+ * @return A vector of n mps_approximation pointer,
+ * where n is the degree of the current polynomial
+ * that can be retrieve with mps_context_get_degree().
  *
  * Note that the value returned is a copy of the original approximations, so
- * it should be freed when not needed anymore. 
+ * it should be freed when not needed anymore.
  *
  * Also note that mps_approximation_free() need the context where the approximations
  * were created to proceed, so you should free those approximaitions _before_
- * freeing the context. 
+ * freeing the context.
  */
 mps_approximation **
 mps_context_get_approximations (mps_context * ctx)
 {
-  mps_approximation ** approximations = NULL; 
+  mps_approximation ** approximations = NULL;
   int i;
 
-  if (! ctx->root) 
+  if (!ctx->root)
     {
-      /* This means that an error occurred in the previous computation and the 
+      /* This means that an error occurred in the previous computation and the
        * polynomial has not been solved (or mps_mpsolve has not been called at all). */
-      return NULL; 
+      return NULL;
     }
   else
-    approximations = mps_newv (mps_approximation*, ctx->n + ctx->zero_roots);
+    approximations = mps_newv (mps_approximation *, ctx->n + ctx->zero_roots);
 
   for (i = 0; i < ctx->n; i++)
     {
@@ -575,14 +574,14 @@ mps_context_get_approximations (mps_context * ctx)
       approximations[i]->frad = rdpe_get_d (approximations[i]->drad);
     }
 
-  for (i = ctx->n; i < ctx->n + ctx->zero_roots; i++) 
+  for (i = ctx->n; i < ctx->n + ctx->zero_roots; i++)
     {
       approximations[i] = mps_approximation_new (ctx);
       approximations[i]->status = MPS_ROOT_STATUS_APPROXIMATED;
-      
+
       mpc_set_ui (approximations[i]->mvalue, 0U, 0U);
-      cdpe_set   (approximations[i]->dvalue, cdpe_zero);
-      cplx_set   (approximations[i]->fvalue, cplx_zero);
+      cdpe_set (approximations[i]->dvalue, cdpe_zero);
+      cplx_set (approximations[i]->fvalue, cplx_zero);
 
       rdpe_set (approximations[i]->drad, rdpe_zero);
       approximations[i]->frad = 0.0;
@@ -593,22 +592,22 @@ mps_context_get_approximations (mps_context * ctx)
 
 
 /**
- * @brief Set the output precision for the roots. 
- * 
- * This has differente meaning based on the output goal. 
+ * @brief Set the output precision for the roots.
+ *
+ * This has differente meaning based on the output goal.
  * If the goal is <code>MPS_OUTPUT_GOAL_ISOLATE</code>, this
- * is the maximum precision used to try to isolate the roots, 
+ * is the maximum precision used to try to isolate the roots,
  * but roots won't be approximated at this precision if they
  * are isolated with less precision.
  *
- * If the goal is <code>MPS_OUTPUT_GOAL_APPROXIMATE</code>, 
+ * If the goal is <code>MPS_OUTPUT_GOAL_APPROXIMATE</code>,
  * this is the minimum precision required for the roots in
  * output.
  *
  * @param s The <code>mps_context</code> of the computation.
  * @param prec The desired output precision.
  */
-void 
+void
 mps_context_set_output_prec (mps_context * s, long int prec)
 {
   s->output_config->prec = prec;
@@ -616,8 +615,8 @@ mps_context_set_output_prec (mps_context * s, long int prec)
 }
 
 /**
- * @brief Set the bits of precision of the input coefficients. 
- * 
+ * @brief Set the bits of precision of the input coefficients.
+ *
  * This has meaning only for fp coefficients, and the special
  * value 0 means infinite precision.
  *
@@ -634,12 +633,12 @@ mps_context_set_input_prec (mps_context * s, long int prec)
 
 /**
  * @brief Set the desired output format that will be used when
- * calling mps_output(). 
+ * calling mps_output().
  *
  * @param s The <code>mps_context</code> of the current computation.
  * @param format The format chosen for the output.
  */
-void 
+void
 mps_context_set_output_format (mps_context * s, mps_output_format format)
 {
   s->output_config->format = format;
@@ -657,7 +656,7 @@ mps_context_set_output_format (mps_context * s, mps_output_format format)
  * @param s The <code>mps_context</code> of the computation.
  * @param goal The goal that will be reached before stopping.
  */
-void 
+void
 mps_context_set_output_goal (mps_context * s, mps_output_goal goal)
 {
   s->output_config->goal = goal;
@@ -667,12 +666,12 @@ mps_context_set_output_goal (mps_context * s, mps_output_goal goal)
  * @brief Set the value of the jacobi iterations switch in the MPSolve context.
  *
  * If jacobi_iterations is true then the Ehrlich-Aberth iterations will be carried
- * out in a Jacobi fashion, otherwise Gauss-Seidel style will be employed. 
+ * out in a Jacobi fashion, otherwise Gauss-Seidel style will be employed.
  *
  * @param s The mps_context where the value will be set
  * @param jacobi_iterations The desired value for the jacobi_iterations switch.
  */
-void 
+void
 mps_context_set_jacobi_iterations (mps_context * s, mps_boolean jacobi_iterations)
 {
   s->jacobi_iterations = jacobi_iterations;
@@ -685,7 +684,7 @@ mps_context_set_jacobi_iterations (mps_context * s, mps_boolean jacobi_iteration
  * @param s The <code>mps_context</code> of the current computation.
  * @param level The debug_level to set.
  */
-void 
+void
 mps_context_set_debug_level (mps_context * s, mps_debug_level level)
 {
   s->debug_level = level;
@@ -704,19 +703,19 @@ mps_context_set_debug_level (mps_context * s, mps_debug_level level)
  * @param s The <code>mps_context</code> of the current computation.
  * @param level The domain to add to the already set debug_level.
  */
-void 
+void
 mps_context_add_debug_domain (mps_context * s, mps_debug_level level)
 {
   mps_context_set_debug_level (s, s->debug_level | level);
 }
 
 /**
- * @brief Get a pointer to the input config stored in the 
+ * @brief Get a pointer to the input config stored in the
  * given mps_context.
  *
  * @param s The <code>mps_context</code> of the current computation.
  */
-mps_input_configuration * 
+mps_input_configuration *
 mps_context_get_input_config (mps_context * s)
 {
   return s->input_config;
@@ -728,7 +727,7 @@ mps_context_get_input_config (mps_context * s)
  *
  * @param s The <code>mps_context</code> of the current computation.
  */
-mps_output_configuration * 
+mps_output_configuration *
 mps_context_get_output_config (mps_context * s)
 {
   return s->output_config;
@@ -739,7 +738,7 @@ mps_context_get_output_config (mps_context * s)
  * @brief Set logstr as the default output for logging.
  *
  * @param s The <code>mps_context</code> of the current computation.
- * @param logstr The desired stream to be used for logging. 
+ * @param logstr The desired stream to be used for logging.
  */
 void
 mps_context_set_log_stream (mps_context * s, FILE * logstr)
@@ -754,7 +753,7 @@ mps_context_set_log_stream (mps_context * s, FILE * logstr)
  * @param phase The phase which should be chosen at the start of the
  * computation.
  */
-void 
+void
 mps_context_set_starting_phase (mps_context * s, mps_phase phase)
 {
   s->input_config->starting_phase = phase;
@@ -766,7 +765,7 @@ mps_context_set_starting_phase (mps_context * s, mps_phase phase)
  *
  * @param s The <code>mps_context</code> of the current computation.
  */
-int 
+int
 mps_context_get_zero_roots (mps_context * s)
 {
   return s->zero_roots;
@@ -780,7 +779,7 @@ mps_context_get_zero_roots (mps_context * s)
  *
  * @param s The <code>mps_context</code> of the current computation.
  */
-mps_boolean 
+mps_boolean
 mps_context_get_over_max (mps_context * s)
 {
   return s->over_max;
@@ -799,7 +798,7 @@ mps_boolean mps_context_has_errors (mps_context * s)
 
 /**
  * @brief Return a copy of the string describing the error msg, or
- * NULL if no error has been encountered. 
+ * NULL if no error has been encountered.
  *
  * This char array should be freed by the user.
  *
@@ -814,26 +813,26 @@ char * mps_context_error_msg (mps_context * s)
 }
 
 /**
- * @brief Retrieve a pointer to the active polynomial being solved. 
+ * @brief Retrieve a pointer to the active polynomial being solved.
  *
- * @return A pointer to the requested active polynomial. 
+ * @return A pointer to the requested active polynomial.
  */
-mps_polynomial* 
+mps_polynomial*
 mps_context_get_active_poly (mps_context * ctx)
 {
   return ctx->active_poly;
 }
 
 /**
- * @brief Retrieve the status of the root in position i. 
- * 
+ * @brief Retrieve the status of the root in position i.
+ *
  * This method can be used to obtain more insight on the status of
  * the approximations previously obtained by a call to mps_context_get_roots_m()
  * or mps_context_get_roots_d().
  *
- * @return A copy to the mps_root_status of the approximation. 
+ * @return A copy to the mps_root_status of the approximation.
  */
-mps_root_status 
+mps_root_status
 mps_context_get_root_status (mps_context * ctx, int i)
 {
   return ctx->root[i]->status;

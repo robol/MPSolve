@@ -4,7 +4,7 @@
  * Copyright (C) 2001-2014, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
- * Authors: 
+ * Authors:
  *   Dario Andrea Bini <bini@dm.unipi.it>
  *   Giuseppe Fiorentino <fiorent@dm.unipi.it>
  *   Leonardo Robol <robol@mail.dm.unipi.it>
@@ -18,7 +18,7 @@
  * @brief Globally set the current precision of mp variables
  *
  * @param s The <code>mps_context</code> of the computation.
- * @param prec The precision that is desired for the next MP computations. 
+ * @param prec The precision that is desired for the next MP computations.
  */
 MPS_PRIVATE void
 mps_mp_set_prec (mps_context * s, long int prec)
@@ -45,7 +45,7 @@ mps_allocate_data (mps_context * s)
   MPS_DEBUG_THIS_CALL (s);
   int i;
 
-  s->root = mps_newv (mps_approximation*, s->n);
+  s->root = mps_newv (mps_approximation *, s->n);
   for (i = 0; i < s->n; i++)
     s->root[i] = mps_approximation_new (s);
 
@@ -83,7 +83,7 @@ mps_allocate_data (mps_context * s)
 
   /* Setting some default here, that were not settable because we didn't know
    * the degree of the polynomial */
-  for (i = 0; i < s->n; i++) 
+  for (i = 0; i < s->n; i++)
     s->root[i]->wp = DBL_DIG * LOG2_10;
 
   /* Init the mutex that need it */
@@ -125,7 +125,7 @@ mps_raise_data (mps_context * s, long int prec)
 
 /**
  * @brief The same of <code>mps_raise_data()</code> but using
- * raw routines of GMP, that will not change allocations. 
+ * raw routines of GMP, that will not change allocations.
  *
  * @param s The <code>mps_context</code> of the computation.
  * @param prec The desired precision.
@@ -172,7 +172,7 @@ mps_raise_data_raw (mps_context * s, long int prec)
  * @param prec The precision that should be set and to which the data should
  * be adjusted.
  */
-MPS_PRIVATE void 
+MPS_PRIVATE void
 mps_prepare_data (mps_context * s, long int prec)
 {
   MPS_DEBUG_THIS_CALL (s);
@@ -188,7 +188,7 @@ mps_prepare_data (mps_context * s, long int prec)
     {
       s->data_prec_max.value = mps_raise_data (s, prec);
     }
-  else 
+  else
     {
       mps_polynomial_raise_data (s, s->active_poly, prec);
     }

@@ -4,7 +4,7 @@
  * Copyright (C) 2001-2014, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
- * Authors: 
+ * Authors:
  *   Leonardo Robol <robol@mail.dm.unipi.it>
  */
 
@@ -39,7 +39,7 @@ mps_chebyshev_poly_meval (mps_context * ctx, mps_polynomial * poly, mpc_t x, mpc
 
   mpc_set (value, cpoly->mfpc[0]);
   mpc_set_ui (t0, 1U, 0U);
-  if (poly->degree == 0) 
+  if (poly->degree == 0)
     {
       return true;
     }
@@ -51,7 +51,7 @@ mps_chebyshev_poly_meval (mps_context * ctx, mps_polynomial * poly, mpc_t x, mpc
   mpc_rmod (rtmp, ctmp);
   rdpe_add_eq (error, rtmp);
 
-  for (i = 2; i <= poly->degree; i++) 
+  for (i = 2; i <= poly->degree; i++)
     {
       mpc_mul (ctmp, x, t1);
       mpc_mul_eq_ui (ctmp, 2U);

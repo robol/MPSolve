@@ -9,7 +9,7 @@
 START_TEST (test_rdpe_comparison)
 {
   rdpe_t a, b;
-  
+
   rdpe_set (a, rdpe_one);
   rdpe_set (b, RDPE_MAX);
 
@@ -21,7 +21,7 @@ END_TEST
 START_TEST (test_rdpe_sum_overflow)
 {
   rdpe_t a, b, c;
-  
+
   rdpe_set (a, RDPE_MAX);
   rdpe_set (b, RDPE_MAX);
 
@@ -29,14 +29,13 @@ START_TEST (test_rdpe_sum_overflow)
 
   fail_if (rdpe_lt (c, a),
            "Overflow: RDPE_MAX + RDPE_MAX < RDPE_MAX");
-  
 }
 END_TEST
 
 START_TEST (test_rdpe_mul_overflow)
 {
   rdpe_t a, b, c;
-  
+
   rdpe_set_2dl (a, 0.5, LONG_MAX - 5);
   rdpe_mul_eq_d (a, 10000000.0f);
 
@@ -59,10 +58,9 @@ START_TEST (test_rdpe_mul_overflow)
 
   rdpe_set_2dl (a, 0.5, LONG_MAX - 5);
   rdpe_mul_d (c, a, 1000000000.0f);
-  
+
   fail_if (!rdpe_eq (c, RDPE_MAX),
            "Overflow in rdpe_mul_d: log2 (2^%ld * 1000000000.0) = %ld", LONG_MAX - 6, rdpe_Esp (a));
-
 }
 END_TEST
 
@@ -78,7 +76,7 @@ dpe_suite (void)
   tcase_add_test (tc_rdpe, test_rdpe_comparison);
   tcase_add_test (tc_rdpe, test_rdpe_sum_overflow);
   tcase_add_test (tc_rdpe, test_rdpe_mul_overflow);
-  
+
   suite_add_tcase (s, tc_rdpe);
   return s;
 }
@@ -89,7 +87,7 @@ main (void)
   int number_failed;
 
   starting_setup ();
-  
+
   Suite * s = dpe_suite ();
   SRunner * sr = srunner_create (s);
 
@@ -98,5 +96,5 @@ main (void)
   number_failed = srunner_ntests_failed (sr);
   srunner_free (sr);
 
-  return (number_failed != 0);
+  return(number_failed != 0);
 }

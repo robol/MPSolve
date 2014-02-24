@@ -4,7 +4,7 @@
  * Copyright (C) 2001-2014, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
- * Authors: 
+ * Authors:
  *   Dario Andrea Bini <bini@dm.unipi.it>
  *   Giuseppe Fiorentino <fiorent@dm.unipi.it>
  *   Leonardo Robol <robol@mail.dm.unipi.it>
@@ -19,27 +19,27 @@
 #define MPS_MPF_TEMP_SIZE 6
 
 struct mps_tls {
-  pthread_t thread; 
-  mpf_t *data; 
-  long int precision; 
-  struct mps_tls *next; 
-}; 
+  pthread_t thread;
+  mpf_t *data;
+  long int precision;
+  struct mps_tls *next;
+};
 
-typedef struct mps_tls mps_tls; 
+typedef struct mps_tls mps_tls;
 
 static pthread_once_t once_key_created = PTHREAD_ONCE_INIT;
-static pthread_key_t key; 
+static pthread_key_t key;
 
-static void 
+static void
 mps_mpc_cache_cleanup (void * pointer)
 {
-  mps_tls *ptr = pointer; 
-  int i; 
+  mps_tls *ptr = pointer;
+  int i;
 
   for (i = 0; i < MPS_MPF_TEMP_SIZE; i++)
     mpf_clear (ptr->data[i]);
-	  
-  free (ptr); 	  
+
+  free (ptr);
 }
 
 static mps_tls *
@@ -47,30 +47,30 @@ create_new_mps_tls (long int precision_needed)
 {
   mps_tls *ptr;
   int i;
-  
-  ptr = mps_new (mps_tls); 
 
-  ptr->data = mps_newv (mpf_t, MPS_MPF_TEMP_SIZE); 
-  ptr->precision = precision_needed; 
-  
+  ptr = mps_new (mps_tls);
+
+  ptr->data = mps_newv (mpf_t, MPS_MPF_TEMP_SIZE);
+  ptr->precision = precision_needed;
+
   for (i = 0; i < MPS_MPF_TEMP_SIZE; i++)
-    mpf_init2 (ptr->data[i], precision_needed); 
+    mpf_init2 (ptr->data[i], precision_needed);
 
   /* Set up a destructor for this data in case the thread exits */
   pthread_setspecific (key, ptr);
 
-  return ptr; 
+  return ptr;
 }
 
-static void 
+static void
 adjust_mps_tls_precision (mps_tls *ptr, long int precision_needed)
 {
   int i;
 
   for (i = 0; i < MPS_MPF_TEMP_SIZE; i++)
-    mpf_set_prec (ptr->data[i], precision_needed); 
+    mpf_set_prec (ptr->data[i], precision_needed);
 
-  ptr->precision = precision_needed; 
+  ptr->precision = precision_needed;
 }
 
 static void
@@ -86,16 +86,16 @@ init (long int precision_needed)
   mps_tls *ptr = pthread_getspecific (key);
 
   /* This means that we have to create a new entry */
-  if (ptr == NULL) 
+  if (ptr == NULL)
     {
-      ptr = create_new_mps_tls (precision_needed); 
+      ptr = create_new_mps_tls (precision_needed);
     }
   else if (ptr->precision < precision_needed || precision_needed < .25 * ptr->precision)
     {
-      adjust_mps_tls_precision (ptr, precision_needed); 
+      adjust_mps_tls_precision (ptr, precision_needed);
     }
 
-  return ptr->data; 
+  return ptr->data;
 }
 
 
@@ -292,6 +292,7 @@ void
 mpc_rmod (rdpe_t r, mpc_t c)
 {
   cdpe_t cdtmp;
+
   mpc_get_cdpe (cdtmp, c);
   cdpe_mod (r, cdtmp);
 }
@@ -365,6 +366,7 @@ void
 mpc_flip (mpc_t rc, mpc_t c)
 {
   mpf_t f;
+
   mpf_init2 (f, mpf_get_prec (mpc_Re (rc)));
 
   mpf_set (f, mpc_Re (c));
@@ -433,8 +435,8 @@ mpc_mul (mpc_t rc, mpc_t c1, mpc_t c2)
 {
   mpf_t *s1, *s2, *s3;
 
-  s1 = init (mpf_get_prec (mpc_Re (rc))); 
-  s2 = s1 + 1; 
+  s1 = init (mpf_get_prec (mpc_Re (rc)));
+  s2 = s1 + 1;
   s3 = s2 + 1;
 
   mpf_sub (*s1, mpc_Re (c1), mpc_Im (c1));
@@ -473,6 +475,7 @@ mpc_div (mpc_t rc, mpc_t c1, mpc_t c2)
 {
   /* Find a good offset so that we don't pollute mul and inv registers */
   mpc_t t;
+
   mpc_init2 (t, mpf_get_prec (mpc_Re (rc)));
 
   mpc_inv (t, c2);
@@ -491,6 +494,7 @@ void
 mpc_f_div (mpc_t rc, mpf_t f, mpc_t c)
 {
   mpc_t t;
+
   mpc_init2 (t, mpf_get_prec (mpc_Re (rc)));
 
   mpc_inv (t, c);
@@ -525,6 +529,7 @@ mpc_pow_si (mpc_t rc, mpc_t c, register signed long int i)
 /* rc = c^i, i integer */
 {
   mpc_t t;
+
   mpc_init2 (t, mpf_get_prec (mpc_Re (rc)));
 
   mpc_set (t, c);

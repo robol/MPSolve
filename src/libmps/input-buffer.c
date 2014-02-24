@@ -4,7 +4,7 @@
  * Copyright (C) 2001-2014, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
- * Authors: 
+ * Authors:
  *   Dario Andrea Bini <bini@dm.unipi.it>
  *   Giuseppe Fiorentino <fiorent@dm.unipi.it>
  *   Leonardo Robol <robol@mail.dm.unipi.it>
@@ -23,21 +23,21 @@
 #include <errno.h>
 
 #ifndef SIZE_MAX
-# define SIZE_MAX ((size_t) -1)
+# define SIZE_MAX ((size_t)-1)
 #endif
 
 #ifndef SSIZE_MAX
-# define SSIZE_MAX ((ssize_t) (SIZE_MAX / 2))
+# define SSIZE_MAX ((ssize_t)(SIZE_MAX / 2))
 #endif
 
 #if !HAVE_FLOCKFILE
 # undef flockfile
-# define flockfile(x) ((void) 0)
+# define flockfile(x) ((void)0)
 #endif
 
 #if !HAVE_FUNLOCKFILE
 # undef funlockfile
-# define funlockfile(x) ((void) 0)
+# define funlockfile(x) ((void)0)
 #endif
 
 /* Read up to (and including) a DELIMITER from FP into *LINEPTR (and
@@ -63,7 +63,7 @@ getdelim (char **lineptr, size_t *n, int delimiter, FILE *fp)
   if (*lineptr == NULL || *n == 0)
     {
       *n = 120;
-      *lineptr = (char *) malloc (*n);
+      *lineptr = (char*)malloc (*n);
       if (*lineptr == NULL)
         {
           result = -1;
@@ -71,7 +71,7 @@ getdelim (char **lineptr, size_t *n, int delimiter, FILE *fp)
         }
     }
 
-  for (;;)
+  for (;; )
     {
       int i;
 
@@ -86,7 +86,7 @@ getdelim (char **lineptr, size_t *n, int delimiter, FILE *fp)
       if (cur_len + 1 >= *n)
         {
           size_t needed_max =
-            SSIZE_MAX < SIZE_MAX ? (size_t) SSIZE_MAX + 1 : SIZE_MAX;
+            SSIZE_MAX < SIZE_MAX ? (size_t)SSIZE_MAX + 1 : SIZE_MAX;
           size_t needed = 2 * *n + 1;   /* Be generous. */
           char *new_lineptr;
 
@@ -98,7 +98,7 @@ getdelim (char **lineptr, size_t *n, int delimiter, FILE *fp)
               goto unlock_return;
             }
 
-          new_lineptr = (char *) realloc (*lineptr, needed);
+          new_lineptr = (char*)realloc (*lineptr, needed);
           if (new_lineptr == NULL)
             {
               result = -1;
@@ -118,7 +118,7 @@ getdelim (char **lineptr, size_t *n, int delimiter, FILE *fp)
   (*lineptr)[cur_len] = '\0';
   result = cur_len ? cur_len : result;
 
- unlock_return:
+unlock_return:
   funlockfile (fp);
   return result;
 }
@@ -139,7 +139,8 @@ mps_input_buffer_new (FILE * stream)
 {
   mps_input_buffer *buf;
   int i;
-  buf = (mps_input_buffer *) mps_malloc (sizeof (mps_input_buffer));
+
+  buf = (mps_input_buffer*)mps_malloc (sizeof(mps_input_buffer));
 
   buf->last_token = NULL;
 
@@ -152,9 +153,9 @@ mps_input_buffer_new (FILE * stream)
   buf->history_size = MPS_INPUT_BUFFER_HISTORY_DEFAULT_SIZE;
 
   /* Allocate space for the lines kept in history */
-  buf->history = (char **) mps_malloc (sizeof (char *) * buf->history_size);
+  buf->history = (char**)mps_malloc (sizeof(char *) * buf->history_size);
   for (i = 0; i < buf->history_size; ++i)
-      buf->history[i] = NULL;
+    buf->history[i] = NULL;
   buf->last = 0;
 
   return buf;
@@ -168,6 +169,7 @@ void
 mps_input_buffer_free (mps_input_buffer * buffer)
 {
   int i;
+
   if (buffer->line)
     free (buffer->line);
 
@@ -214,12 +216,12 @@ mps_input_buffer_readline (mps_input_buffer * buf)
     {
       new_pos = (buf->last - 1 + buf->history_size) % buf->history_size;
       length = strlen (buf->line);
-      
+
       /* Check if the line that is going to be overwritten
        * has something in it, and if that's the case, free it */
       if (buf->history[new_pos] != NULL)
-          free (buf->history[new_pos]);
-      
+        free (buf->history[new_pos]);
+
       /* Push the old line in history */
       buf->history[new_pos] = buf->line;
       buf->last = new_pos;
@@ -234,7 +236,7 @@ mps_input_buffer_readline (mps_input_buffer * buf)
   if (read_chars > 0)
     buf->last_token = buf->line;
 
-  if (buf->line && read_chars > 0) 
+  if (buf->line && read_chars > 0)
     {
       buf->line_number++;
       char * comment = strstr (buf->line, "!");
@@ -242,15 +244,14 @@ mps_input_buffer_readline (mps_input_buffer * buf)
         {
           *comment = '\0';
         }
-      
     }
-  
+
   return read_chars;
 }
 
 /**
  * @brief This function returns the next token that is in the buffer
- * but hasn't been read yet. 
+ * but hasn't been read yet.
  *
  * It will automagically read new lines if the one in the buffer does
  * not contains anything useful, and return NULL if the stream finish.
@@ -274,13 +275,13 @@ mps_input_buffer_next_token (mps_input_buffer * buf)
     return NULL;
 
   /* Find the token */
-  while (*buf->last_token != '\0' && isspace(*buf->last_token))
+  while (*buf->last_token != '\0' && isspace (*buf->last_token))
     buf->last_token++;
 
   if (*buf->last_token != '\0')
     token = buf->last_token;
 
-  while (token && *token != '\0' && !isspace(*token))
+  while (token && *token != '\0' && !isspace (*token))
     token++;
 
   /* Check if we have parsed something or if we need to read another line */
@@ -294,8 +295,8 @@ mps_input_buffer_next_token (mps_input_buffer * buf)
     token_size = token - buf->last_token;
 
   /* Allocate the space for the token if we have found it */
-  ret = (char *) mps_malloc (sizeof (char) * (token_size + 1));
-  
+  ret = (char*)mps_malloc (sizeof(char) * (token_size + 1));
+
   /* Copy the token in ret and set the NULL character in the end */
   strncpy (ret, buf->last_token, token_size);
   ret[token_size] = '\0';

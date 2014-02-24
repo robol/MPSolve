@@ -4,7 +4,7 @@
  * Copyright (C) 2001-2014, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
- * Authors: 
+ * Authors:
  *   Dario Andrea Bini <bini@dm.unipi.it>
  *   Giuseppe Fiorentino <fiorent@dm.unipi.it>
  *   Leonardo Robol <robol@mail.dm.unipi.it>
@@ -247,6 +247,7 @@ mpf_pow_ui (mpf_t r, mpf_t f, register unsigned long int i)
 /* r = f^i */
 {
   mpf_t t;
+
   mpf_init2 (t, mpf_get_prec (r));
 
   mpf_set (t, f);

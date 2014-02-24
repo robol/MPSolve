@@ -4,7 +4,7 @@
  * Copyright (C) 2001-2014, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
- * Authors: 
+ * Authors:
  *   Dario Andrea Bini <bini@dm.unipi.it>
  *   Giuseppe Fiorentino <fiorent@dm.unipi.it>
  *   Leonardo Robol <robol@mail.dm.unipi.it>
@@ -19,14 +19,14 @@
 static void *
 __mps_secular_ga_fiterate_worker (void* data_ptr)
 {
-  mps_thread_worker_data *data = (mps_thread_worker_data *) data_ptr;
+  mps_thread_worker_data *data = (mps_thread_worker_data*)data_ptr;
   mps_context *s = data->s;
   int i;
   cplx_t corr, abcorr;
   double modcorr;
   mps_thread_job job;
 
-  while (true && ! s->exit_required)
+  while (true && !s->exit_required)
     {
       job = mps_thread_job_queue_next (s, data->queue);
       i = job.i;
@@ -66,7 +66,7 @@ __mps_secular_ga_fiterate_worker (void* data_ptr)
           /* Apply Aberth correction */
           mps_faberth_wl (s, i, abcorr, data->aberth_mutex);
 
-          if (isnan (cplx_Re (abcorr)) || isnan (cplx_Im (abcorr))) 
+          if (isnan (cplx_Re (abcorr)) || isnan (cplx_Im (abcorr)))
             {
               s->root[i]->again = false;
               pthread_mutex_unlock (&data->roots_mutex[i]);
@@ -89,7 +89,7 @@ __mps_secular_ga_fiterate_worker (void* data_ptr)
               if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
                 MPS_DEBUG (s, "Root %d again was set to false on iteration %d by thread %d", i, *data->it, data->thread);
 
-#if defined( __GCC__)
+#if defined(__GCC__)
               __sync_add_and_fetch (data->nzeros, 1);
 #else
               pthread_mutex_lock (data->gs_mutex);
@@ -97,7 +97,7 @@ __mps_secular_ga_fiterate_worker (void* data_ptr)
               pthread_mutex_unlock (data->gs_mutex);
 #endif
             }
-          else 
+          else
             {
               pthread_mutex_lock (&data->aberth_mutex[i]);
               cplx_sub_eq (s->root[i]->fvalue, abcorr);
@@ -107,13 +107,12 @@ __mps_secular_ga_fiterate_worker (void* data_ptr)
               modcorr = cplx_mod (abcorr);
               s->root[i]->frad += modcorr;
             }
-
         }
 
       pthread_mutex_unlock (&data->roots_mutex[i]);
     }
 
- cleanup:
+cleanup:
 
   return NULL;
 }
@@ -149,9 +148,9 @@ mps_secular_ga_fiterate (mps_context * s, int maxit, mps_boolean just_regenerate
 
   mps_thread_worker_data *data;
   pthread_mutex_t *aberth_mutex =
-    (pthread_mutex_t *) mps_malloc (sizeof (pthread_mutex_t) * s->n);
+    (pthread_mutex_t*)mps_malloc (sizeof(pthread_mutex_t) * s->n);
   pthread_mutex_t *roots_mutex =
-    (pthread_mutex_t *) mps_malloc (sizeof (pthread_mutex_t) * s->n);
+    (pthread_mutex_t*)mps_malloc (sizeof(pthread_mutex_t) * s->n);
 
   pthread_mutex_t gs_mutex = PTHREAD_MUTEX_INITIALIZER;
 
@@ -206,7 +205,7 @@ mps_secular_ga_fiterate (mps_context * s, int maxit, mps_boolean just_regenerate
       data[i].gs_mutex = &gs_mutex;
       data[i].excep = &excep;
 
-      mps_thread_pool_assign (s, s->pool,  
+      mps_thread_pool_assign (s, s->pool,
                               __mps_secular_ga_fiterate_worker, data + i);
     }
 
@@ -217,25 +216,25 @@ mps_secular_ga_fiterate (mps_context * s, int maxit, mps_boolean just_regenerate
                        nit);
 
   if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
-      mps_dump (s);
+    mps_dump (s);
 
   /* Check if we need to get higher precision for the roots */
-   s->best_approx = true; 
-   for (i = 0; i < s->n; i++) 
-     { 
-       if (!s->root[i]->approximated) 
-        s->best_approx = false; 
-       if (s->root[i]->approximated) 
-        approximated_roots++; 
-       if (!s->root[i]->again) 
-        root_neighborhood_roots++; 
-     } 
+  s->best_approx = true;
+  for (i = 0; i < s->n; i++)
+    {
+      if (!s->root[i]->approximated)
+        s->best_approx = false;
+      if (s->root[i]->approximated)
+        approximated_roots++;
+      if (!s->root[i]->again)
+        root_neighborhood_roots++;
+    }
 
   if (just_regenerated && (nit <= it_threshold))
     s->best_approx = true;
 
-  MPS_DEBUG_WITH_INFO(s, "%d roots are approximated with the current precision", approximated_roots);
-  MPS_DEBUG_WITH_INFO (s,"%d roots are in the root neighborhood", root_neighborhood_roots);
+  MPS_DEBUG_WITH_INFO (s, "%d roots are approximated with the current precision", approximated_roots);
+  MPS_DEBUG_WITH_INFO (s, "%d roots are in the root neighborhood", root_neighborhood_roots);
   MPS_DEBUG_WITH_INFO (s, "%d roots have reached a stop condition", computed_roots);
 
   if (excep)
@@ -261,7 +260,7 @@ mps_secular_ga_fiterate (mps_context * s, int maxit, mps_boolean just_regenerate
   if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
     {
       __MPS_DEBUG (s, "Again vector = ");
-      for(i = 0; i < s->n; i++)
+      for (i = 0; i < s->n; i++)
         {
           fprintf (s->logstr, "%d ", s->root[i]->again);
         }
@@ -289,14 +288,14 @@ mps_secular_ga_fiterate (mps_context * s, int maxit, mps_boolean just_regenerate
 static void *
 __mps_secular_ga_diterate_worker (void* data_ptr)
 {
-  mps_thread_worker_data *data = (mps_thread_worker_data *) data_ptr;
+  mps_thread_worker_data *data = (mps_thread_worker_data*)data_ptr;
   mps_context *s = data->s;
   int i;
   cdpe_t corr, abcorr, droot;
   rdpe_t modcorr;
   mps_thread_job job;
 
-  while (true && ! s->exit_required)
+  while (true && !s->exit_required)
     {
       job = mps_thread_job_queue_next (s, data->queue);
       i = job.i;
@@ -325,12 +324,12 @@ __mps_secular_ga_diterate_worker (void* data_ptr)
 
           cdpe_sub_eq (droot, abcorr);
 
-	       /* Correct the radius */
-         if (s->root[i]->again)
-           {
-	           cdpe_mod (modcorr, abcorr);
-	           rdpe_add_eq (s->root[i]->drad, modcorr);
-           }
+          /* Correct the radius */
+          if (s->root[i]->again)
+            {
+              cdpe_mod (modcorr, abcorr);
+              rdpe_add_eq (s->root[i]->drad, modcorr);
+            }
 
           if (!s->root[i]->again || s->root[i]->approximated)
             {
@@ -379,9 +378,9 @@ mps_secular_ga_diterate (mps_context * s, int maxit, mps_boolean just_regenerate
 
   mps_thread_worker_data *data;
   pthread_mutex_t *aberth_mutex =
-    (pthread_mutex_t *) mps_malloc (sizeof (pthread_mutex_t) * s->n);
+    (pthread_mutex_t*)mps_malloc (sizeof(pthread_mutex_t) * s->n);
   pthread_mutex_t *roots_mutex =
-    (pthread_mutex_t *) mps_malloc (sizeof (pthread_mutex_t) * s->n);
+    (pthread_mutex_t*)mps_malloc (sizeof(pthread_mutex_t) * s->n);
 
   for (i = 0; i < s->n; i++)
     {
@@ -432,7 +431,7 @@ mps_secular_ga_diterate (mps_context * s, int maxit, mps_boolean just_regenerate
       data[i].roots_mutex = roots_mutex;
       data[i].queue = queue;
 
-      mps_thread_pool_assign (s, s->pool, __mps_secular_ga_diterate_worker, data + i); 
+      mps_thread_pool_assign (s, s->pool, __mps_secular_ga_diterate_worker, data + i);
     }
 
   mps_thread_pool_wait (s, s->pool);
@@ -442,7 +441,7 @@ mps_secular_ga_diterate (mps_context * s, int maxit, mps_boolean just_regenerate
                        nit);
 
   if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
-      mps_dump (s);
+    mps_dump (s);
 
   /* Check if we need to get higher precision for the roots */
   s->best_approx = true;
@@ -459,8 +458,8 @@ mps_secular_ga_diterate (mps_context * s, int maxit, mps_boolean just_regenerate
   if (just_regenerated && (nit <= it_threshold))
     s->best_approx = true;
 
-  MPS_DEBUG_WITH_INFO(s, "%d roots are approximated with the current precision", approximated_roots);
-  MPS_DEBUG_WITH_INFO (s,"%d roots are in the root neighborhood", root_neighborhood_roots);
+  MPS_DEBUG_WITH_INFO (s, "%d roots are approximated with the current precision", approximated_roots);
+  MPS_DEBUG_WITH_INFO (s, "%d roots are in the root neighborhood", root_neighborhood_roots);
   MPS_DEBUG_WITH_INFO (s, "%d roots have reached a stop condition", computed_roots);
 
   /* These lines are used to debug the again vector, but are not useful
@@ -468,7 +467,7 @@ mps_secular_ga_diterate (mps_context * s, int maxit, mps_boolean just_regenerate
   if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
     {
       __MPS_DEBUG (s, "Again vector = ");
-      for(i = 0; i < s->n; i++)
+      for (i = 0; i < s->n; i++)
         {
           fprintf (s->logstr, "%d ", s->root[i]->again);
         }
@@ -494,12 +493,12 @@ mps_secular_ga_diterate (mps_context * s, int maxit, mps_boolean just_regenerate
 static void *
 __mps_secular_ga_miterate_worker (void* data_ptr)
 {
-  mps_thread_worker_data *data = (mps_thread_worker_data *) data_ptr;
+  mps_thread_worker_data *data = (mps_thread_worker_data*)data_ptr;
   mps_context *s = data->s;
   /* mps_secular_equation *sec = s->secular_equation; */
   int i;
   mpc_t corr, abcorr;
-  mpc_t mroot; 
+  mpc_t mroot;
   rdpe_t modcorr;
   mps_thread_job job;
 
@@ -507,10 +506,10 @@ __mps_secular_ga_miterate_worker (void* data_ptr)
 
   mpc_init2 (corr, s->mpwp);
   mpc_init2 (abcorr, s->mpwp);
-  mpc_init2 (mroot, s->mpwp); 
+  mpc_init2 (mroot, s->mpwp);
 
   /* Get a copy of the MP coefficients that is local to this thread */
-  while (true && ! s->exit_required)
+  while (true && !s->exit_required)
     {
       job = mps_thread_job_queue_next (s, data->queue);
       i = job.i;
@@ -533,9 +532,9 @@ __mps_secular_ga_miterate_worker (void* data_ptr)
       if (s->root[i]->again && !s->root[i]->approximated)
         {
           /* Lock this roots to make sure that we are the only one working on it */
-          pthread_mutex_lock (&data->aberth_mutex[i]); 
-          mpc_set (mroot, s->root[i]->mvalue); 
-          pthread_mutex_unlock (&data->aberth_mutex[i]); 
+          pthread_mutex_lock (&data->aberth_mutex[i]);
+          mpc_set (mroot, s->root[i]->mvalue);
+          pthread_mutex_unlock (&data->aberth_mutex[i]);
 
           /* Check if, while we were waiting, excep condition has been reached,
            * or all the zeros has been approximated.                         */
@@ -549,22 +548,22 @@ __mps_secular_ga_miterate_worker (void* data_ptr)
           (*data->it)++;
           /* pthread_mutex_unlock (data->gs_mutex); */
 
-          mps_secular_mnewton (s, MPS_POLYNOMIAL (s->secular_equation), s->root[i], 
-			       corr, mpc_get_prec (s->root[i]->mvalue));
+          mps_secular_mnewton (s, MPS_POLYNOMIAL (s->secular_equation), s->root[i],
+                               corr, mpc_get_prec (s->root[i]->mvalue));
 
           /* Apply Aberth correction */
           mps_maberth_s_wl (s, i, cluster, abcorr, data->aberth_mutex);
           mpc_mul_eq (abcorr, corr);
-          mpc_ui_sub (abcorr, 1U, 0U, abcorr); 
-          
-          if (!mpc_eq_zero (abcorr)) 
+          mpc_ui_sub (abcorr, 1U, 0U, abcorr);
+
+          if (!mpc_eq_zero (abcorr))
             {
-              mpc_div (abcorr, corr, abcorr); 
+              mpc_div (abcorr, corr, abcorr);
 
               pthread_mutex_lock (&data->aberth_mutex[i]);
-              mpc_sub_eq (mroot, abcorr); 
+              mpc_sub_eq (mroot, abcorr);
               pthread_mutex_unlock (&data->aberth_mutex[i]);
-            } 
+            }
           else
             s->root[i]->again = true;
 
@@ -576,12 +575,12 @@ __mps_secular_ga_miterate_worker (void* data_ptr)
 
               (*data->nzeros)++;
             }
-          else 
+          else
             {
-              pthread_mutex_lock (&data->aberth_mutex[i]); 
-              mpc_set (s->root[i]->mvalue, mroot); 
-              pthread_mutex_unlock (&data->aberth_mutex[i]); 
-           
+              pthread_mutex_lock (&data->aberth_mutex[i]);
+              mpc_set (s->root[i]->mvalue, mroot);
+              pthread_mutex_unlock (&data->aberth_mutex[i]);
+
               /* Correct the radius */
               mpc_rmod (modcorr, abcorr);
               rdpe_add_eq (s->root[i]->drad, modcorr);
@@ -595,7 +594,7 @@ __mps_secular_ga_miterate_worker (void* data_ptr)
       pthread_mutex_unlock (&data->roots_mutex[i]);
     }
 
- cleanup:
+cleanup:
   mpc_clear (mroot);
   mpc_clear (abcorr);
   mpc_clear (corr);
@@ -609,7 +608,7 @@ __mps_secular_ga_miterate_worker (void* data_ptr)
  * CDPE
  *
  * @param s the pointer to the mps_context struct.
- * @param maxit Maximum number of iteration to perform. 
+ * @param maxit Maximum number of iteration to perform.
  * @param just_regenerated true if this is the first iteration after a coefficient
  * regeneration. If just_regenerated is true and the iteration packet is completed
  * in less than 2 * (n - computed_roots) iterations that best_approx is set to true
@@ -634,11 +633,11 @@ mps_secular_ga_miterate (mps_context * s, int maxit, mps_boolean just_regenerate
 
   mps_thread_worker_data *data;
   pthread_mutex_t *aberth_mutex =
-    (pthread_mutex_t *) mps_malloc (sizeof (pthread_mutex_t) * s->n);
+    (pthread_mutex_t*)mps_malloc (sizeof(pthread_mutex_t) * s->n);
   pthread_mutex_t *roots_mutex =
-    (pthread_mutex_t *) mps_malloc (sizeof (pthread_mutex_t) * s->n);
+    (pthread_mutex_t*)mps_malloc (sizeof(pthread_mutex_t) * s->n);
 
-  pthread_mutex_t gs_mutex=PTHREAD_MUTEX_INITIALIZER;
+  pthread_mutex_t gs_mutex = PTHREAD_MUTEX_INITIALIZER;
 
   for (i = 0; i < s->n; i++)
     {
@@ -688,7 +687,7 @@ mps_secular_ga_miterate (mps_context * s, int maxit, mps_boolean just_regenerate
       data[i].queue = queue;
       data[i].gs_mutex = &gs_mutex;
 
-      mps_thread_pool_assign (s, s->pool, __mps_secular_ga_miterate_worker, data + i); 
+      mps_thread_pool_assign (s, s->pool, __mps_secular_ga_miterate_worker, data + i);
     }
 
   mps_thread_pool_wait (s, s->pool);
@@ -698,7 +697,7 @@ mps_secular_ga_miterate (mps_context * s, int maxit, mps_boolean just_regenerate
                        nit);
 
   if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
-      mps_dump (s);
+    mps_dump (s);
 
   /* Check if we need to get higher precision for the roots */
   s->best_approx = true;
@@ -715,8 +714,8 @@ mps_secular_ga_miterate (mps_context * s, int maxit, mps_boolean just_regenerate
   if (just_regenerated && (nit <= it_threshold))
     s->best_approx = true;
 
-  MPS_DEBUG_WITH_INFO(s, "%d roots are approximated with the current precision", approximated_roots);
-  MPS_DEBUG_WITH_INFO (s,"%d roots are in the root neighborhood", root_neighborhood_roots);
+  MPS_DEBUG_WITH_INFO (s, "%d roots are approximated with the current precision", approximated_roots);
+  MPS_DEBUG_WITH_INFO (s, "%d roots are in the root neighborhood", root_neighborhood_roots);
   MPS_DEBUG_WITH_INFO (s, "%d roots have reached a stop condition", computed_roots);
 
   /* These lines are used to debug the again vector, but are not useful
@@ -724,7 +723,7 @@ mps_secular_ga_miterate (mps_context * s, int maxit, mps_boolean just_regenerate
   if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
     {
       __MPS_DEBUG (s, "Again vector = ");
-      for(i = 0; i < s->n; i++)
+      for (i = 0; i < s->n; i++)
         {
           fprintf (s->logstr, "%d ", s->root[i]->again);
         }

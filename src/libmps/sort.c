@@ -4,7 +4,7 @@
  * Copyright (C) 2001-2014, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
- * Authors: 
+ * Authors:
  *   Dario Andrea Bini <bini@dm.unipi.it>
  *   Giuseppe Fiorentino <fiorent@dm.unipi.it>
  *   Leonardo Robol <robol@mail.dm.unipi.it>
@@ -14,7 +14,7 @@
 #include <mps/mps.h>
 
 /**
- * @brief Compare two approximations. 
+ * @brief Compare two approximations.
  */
 static int
 mps_fcmp (const void *a, const void *b)
@@ -30,9 +30,9 @@ mps_fcmp (const void *a, const void *b)
 }
 
 /**
- * @brief Sort the approximations saved in the current mps_context. 
+ * @brief Sort the approximations saved in the current mps_context.
  *
- * @param s A pointer to the current mps_context. 
+ * @param s A pointer to the current mps_context.
  */
 MPS_PRIVATE void
 mps_fsort (mps_context * s)
@@ -47,10 +47,10 @@ mps_fsort (mps_context * s)
                   i);
     }
 
-  qsort (real_parts, s->n, sizeof (cplx_t), mps_fcmp);
+  qsort (real_parts, s->n, sizeof(cplx_t), mps_fcmp);
 
   for (i = 0; i < s->n; i++)
-    s->order[i] = (int) cplx_Im (real_parts[i]);
+    s->order[i] = (int)cplx_Im (real_parts[i]);
 
   cplx_vfree (real_parts);
 }
@@ -65,9 +65,9 @@ mps_dcmp (const void *a, const void *b)
 }
 
 /**
- * @brief Sort the approximations saved in the current mps_context. 
+ * @brief Sort the approximations saved in the current mps_context.
  *
- * @param s A pointer to the current mps_context. 
+ * @param s A pointer to the current mps_context.
  */
 MPS_PRIVATE void
 mps_dsort (mps_context * s)
@@ -81,10 +81,10 @@ mps_dsort (mps_context * s)
       rdpe_set_d (cdpe_Im (real_parts[i]), i);
     }
 
-  qsort (real_parts, s->n, sizeof (cdpe_t), mps_dcmp);
+  qsort (real_parts, s->n, sizeof(cdpe_t), mps_dcmp);
 
   for (i = 0; i < s->n; i++)
-    s->order[i] = (int) rdpe_get_d (cdpe_Im (real_parts[i]));
+    s->order[i] = (int)rdpe_get_d (cdpe_Im (real_parts[i]));
 
   cdpe_vfree (real_parts);
 }
@@ -99,15 +99,16 @@ mps_mcmp (const void *a, const void *b)
 }
 
 /**
- * @brief Sort the approximations saved in the current mps_context. 
+ * @brief Sort the approximations saved in the current mps_context.
  *
- * @param s A pointer to the current mps_context. 
+ * @param s A pointer to the current mps_context.
  */
 MPS_PRIVATE void
 mps_msort (mps_context * s)
 {
   int i;
   mpc_t * real_parts = mpc_valloc (s->n);
+
   mpc_vinit2 (real_parts, s->n, s->mpwp);
 
   for (i = 0; i < s->n; i++)
@@ -116,10 +117,10 @@ mps_msort (mps_context * s)
       mpf_set_ui (mpc_Im (real_parts[i]), i);
     }
 
-  qsort (real_parts, s->n, sizeof (mpc_t), mps_mcmp);
+  qsort (real_parts, s->n, sizeof(mpc_t), mps_mcmp);
 
   for (i = 0; i < s->n; i++)
-    s->order[i] = (int) mpf_get_d (mpc_Im (real_parts[i]));
+    s->order[i] = (int)mpf_get_d (mpc_Im (real_parts[i]));
 
   mpc_vclear (real_parts, s->n);
   mpc_vfree (real_parts);

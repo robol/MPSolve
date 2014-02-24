@@ -4,7 +4,7 @@
  * Copyright (C) 2001-2014, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
- * Authors: 
+ * Authors:
  *   Dario Andrea Bini <bini@dm.unipi.it>
  *   Giuseppe Fiorentino <fiorent@dm.unipi.it>
  *   Leonardo Robol <robol@mail.dm.unipi.it>
@@ -35,7 +35,7 @@ mps_secular_fstart (mps_context * s, mps_secular_equation * sec)
       if (!MPS_ROOT_STATUS_IS_COMPUTED (s->root[i]->status))
         {
           cplx_set_d (s->root[i]->fvalue, cos (i * n) * DBL_EPSILON * 4.0 * cplx_mod (sec->bfpc[i]),
-            sin (i * n) * DBL_EPSILON * 4.0 * cplx_mod (sec->bfpc[i]));
+                      sin (i * n) * DBL_EPSILON * 4.0 * cplx_mod (sec->bfpc[i]));
 
           s->root[i]->frad += cplx_mod (s->root[i]->fvalue);
           cplx_add_eq (s->root[i]->fvalue, sec->bfpc[i]);
@@ -63,7 +63,7 @@ mps_secular_dstart (mps_context * s, mps_secular_equation * sec)
   for (l = 0; l < MPS_POLYNOMIAL (sec)->degree; l++)
     {
       if (!MPS_ROOT_STATUS_IS_COMPUTED (s->root[l]->status))
-        {          
+        {
           rdpe_t bmod;
 
           cdpe_mod (bmod, sec->bdpc[l]);
@@ -74,7 +74,7 @@ mps_secular_dstart (mps_context * s, mps_secular_equation * sec)
 
           rdpe_add_eq (s->root[l]->drad, bmod);
           cdpe_add_eq (s->root[l]->dvalue, sec->bdpc[l]);
-          
+
           if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
             {
               MPS_DEBUG_CDPE (s, s->root[l]->dvalue, "s->droot[%d]", l);
@@ -100,7 +100,7 @@ mps_secular_mstart (mps_context * s, mps_secular_equation * sec)
   for (l = 0; l < MPS_POLYNOMIAL (sec)->degree; l++)
     {
       if (!MPS_ROOT_STATUS_IS_COMPUTED (s->root[l]->status))
-        {          
+        {
           rdpe_t bmod;
           cdpe_t ctmp;
 
@@ -115,6 +115,6 @@ mps_secular_mstart (mps_context * s, mps_secular_equation * sec)
           rdpe_add_eq (s->root[l]->drad, bmod);
 
           mpc_add_eq (s->root[l]->mvalue, sec->bmpc[l]);
-        }         
+        }
     }
 }

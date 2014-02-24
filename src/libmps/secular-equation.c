@@ -4,7 +4,7 @@
  * Copyright (C) 2001-2014, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
- * Authors: 
+ * Authors:
  *   Dario Andrea Bini <bini@dm.unipi.it>
  *   Giuseppe Fiorentino <fiorent@dm.unipi.it>
  *   Leonardo Robol <robol@mail.dm.unipi.it>
@@ -24,6 +24,7 @@ void
 mps_secular_dump (mps_context * s, mps_secular_equation * sec)
 {
   int i;
+
   MPS_DEBUG (s, "Dumping secular equation:");
 
   switch (s->lastphase)
@@ -35,6 +36,7 @@ mps_secular_dump (mps_context * s, mps_secular_equation * sec)
           MPS_DEBUG_CPLX (s, sec->bfpc[i], "sec->bfpc[%d]", i);
         }
       break;
+
     case dpe_phase:
       for (i = 0; i < MPS_POLYNOMIAL (sec)->degree; i++)
         {
@@ -42,6 +44,7 @@ mps_secular_dump (mps_context * s, mps_secular_equation * sec)
           MPS_DEBUG_CDPE (s, sec->bdpc[i], "sec->bdpc[%d]", i);
         }
       break;
+
     case mp_phase:
       for (i = 0; i < s->n; ++i)
         {
@@ -49,6 +52,7 @@ mps_secular_dump (mps_context * s, mps_secular_equation * sec)
           MPS_DEBUG_MPC (s, 20, sec->bmpc[i], "sec->bmpc[%d]", i);
         }
       break;
+
     default:
       break;
     }
@@ -67,10 +71,12 @@ mps_secular_restart (mps_context * s)
       for (i = 0; i < s->n; i++)
         mpc_set_cplx (s->root[i]->mvalue, s->root[i]->fvalue);
       break;
+
     case dpe_phase:
       for (i = 0; i < s->n; i++)
         mpc_set_cdpe (s->root[i]->mvalue, s->root[i]->dvalue);
       break;
+
     default:
       break;
     }
@@ -92,7 +98,7 @@ mps_secular_restart (mps_context * s)
  * will not be touched by this routine, so you should check
  * that they are set according to <code>MPS_POLYNOMIAL (sec)->degree</code> if deflation
  * takes place.
- * 
+ *
  * @see <code>mps_context_set_degree ()</code>
  *
  * @param s The mps_context of the computation
@@ -188,7 +194,6 @@ mps_secular_deflate (mps_context * s, mps_secular_equation * sec)
           mpc_get_cdpe (sec->adpc[i], sec->ampc[i]);
           mpc_get_cdpe (sec->bdpc[i], sec->bmpc[i]);
         }
-
     }
 
   MPS_DEBUG (s, "Secular equation deflated to degree %d", MPS_POLYNOMIAL (sec)->degree);
@@ -207,7 +212,7 @@ mps_secular_equation_new_raw (mps_context * s, unsigned long int n)
 {
   int i;
   mps_secular_equation *sec =
-    (mps_secular_equation *) mps_malloc (sizeof (mps_secular_equation));
+    (mps_secular_equation*)mps_malloc (sizeof(mps_secular_equation));
 
   mps_polynomial_init (s, MPS_POLYNOMIAL (sec));
 
@@ -287,13 +292,13 @@ mps_secular_equation_new_raw (mps_context * s, unsigned long int n)
     }
 
   pthread_mutex_init (&sec->precision_mutex, NULL);
-  
+
   return sec;
 }
 
 /**
  * @brief Create a new secular equation struct
- * 
+ *
  * @param s The mps_context of the computation.
  * @param afpc The floating point complex numerator coefficients.
  * @param bfpc The floating point complex denominator coefficients.
@@ -398,17 +403,18 @@ mps_secular_equation_free (mps_context *ctx, mps_polynomial * p)
  *
  * The evalutation will be done in floating point and this routine
  * is used only for debugging purpose.
- * 
+ *
  * @param s The mps_context of the computation.
  * @param x The point in which the secular equation will be evaluated.
- * @param sec_ev The result of the evalutation (output variable). 
+ * @param sec_ev The result of the evalutation (output variable).
  */
 void
 mps_secular_evaluate (mps_context * s, cplx_t x, cplx_t sec_ev)
 {
   cplx_t ctmp;
   int i;
-  mps_secular_equation *sec = (mps_secular_equation *) s->secular_equation;
+  mps_secular_equation *sec = (mps_secular_equation*)s->secular_equation;
+
   cplx_set (sec_ev, cplx_zero);
 
   for (i = 0; i < s->n; i++)
@@ -434,7 +440,7 @@ mps_secular_evaluate (mps_context * s, cplx_t x, cplx_t sec_ev)
  *
  * @param s The current mps_context.
  * @param which_case Pointer to a char that will be set to 'f' or 'd' depending
-*  on the chosen start phase. 
+ *  on the chosen start phase.
  */
 void
 mps_secular_check_data (mps_context * s, char *which_case)
@@ -523,7 +529,7 @@ mps_secular_raise_coefficient_precision (mps_context * s, mps_polynomial * p, lo
 /**
  * @brief Raise precision of the roots (not the coefficients nor the
  * system) to <code>wp</code> bits.
- * 
+ *
  * @param s The mps_context of the computation.
  * @param wp The bits of precision to which the roots will be set.
  *
@@ -595,7 +601,7 @@ mps_secular_switch_phase (mps_context * s, mps_phase phase)
   s->just_raised_precision = true;
 
   int i = 0;
-  mps_secular_equation *sec = (mps_secular_equation *) s->secular_equation;
+  mps_secular_equation *sec = (mps_secular_equation*)s->secular_equation;
 
   if (phase == mp_phase)
     {
@@ -634,7 +640,6 @@ mps_secular_switch_phase (mps_context * s, mps_phase phase)
 
         default:
           break;
-
         }
 
       /* Set lastphase to mp_phase */
@@ -664,7 +669,7 @@ mps_secular_set_radii (mps_context * s)
   MPS_DEBUG_THIS_CALL (s);
 
   int i;
-  mps_secular_equation *sec = (mps_secular_equation *) s->secular_equation;
+  mps_secular_equation *sec = (mps_secular_equation*)s->secular_equation;
 
   /* DPE and multiprecision implementation */
   rdpe_t rad, rad_eps, rtmp;
@@ -676,7 +681,7 @@ mps_secular_set_radii (mps_context * s)
 
   if (s->lastphase == mp_phase)
     rdpe_set (rad_eps, s->mp_epsilon);
-  else 
+  else
     rdpe_set_d (rad_eps, DBL_EPSILON);
 
   rdpe_mul_eq_d (rad_eps, s->n * 4);
@@ -690,7 +695,7 @@ mps_secular_set_radii (mps_context * s)
 
       rdpe_mul_eq (rad, rad_eps);
 
-      rdpe_mul_eq_d (rad, (double) s->n);
+      rdpe_mul_eq_d (rad, (double)s->n);
 
       rdpe_set (drad[i], rad);
 
@@ -706,31 +711,31 @@ mps_secular_set_radii (mps_context * s)
   switch (s->lastphase)
     {
     case float_phase:
-       { 
-         for (i = 0; i < s->n; i++) 
-           { 
-             rdpe_set_d (s->root[i]->drad, s->root[i]->frad); 
-             mpc_set_d  (s->root[i]->mvalue, cplx_Re (s->root[i]->fvalue),  
-                         cplx_Im (s->root[i]->fvalue)); 
-           } 
-         
-         mps_mcluster (s, drad, 2.0 * s->n);  
-         mps_fmodify (s, false);  
+    {
+      for (i = 0; i < s->n; i++)
+        {
+          rdpe_set_d (s->root[i]->drad, s->root[i]->frad);
+          mpc_set_d (s->root[i]->mvalue, cplx_Re (s->root[i]->fvalue),
+                     cplx_Im (s->root[i]->fvalue));
+        }
 
-         for (i = 0; i < s->n; i++)
-           {
-             s->root[i]->frad = rdpe_get_d (s->root[i]->drad); 
-             if (s->root[i]->frad == 0.0)
-               s->root[i]->frad += cplx_mod (s->root[i]->fvalue) * DBL_EPSILON;
-           }
-       }
-       break;
+      mps_mcluster (s, drad, 2.0 * s->n);
+      mps_fmodify (s, false);
+
+      for (i = 0; i < s->n; i++)
+        {
+          s->root[i]->frad = rdpe_get_d (s->root[i]->drad);
+          if (s->root[i]->frad == 0.0)
+            s->root[i]->frad += cplx_mod (s->root[i]->fvalue) * DBL_EPSILON;
+        }
+    }
+    break;
 
     case dpe_phase:
       mps_mcluster (s, drad, 2.0 * s->n);
       mps_dmodify (s, false);
       break;
-      
+
     case mp_phase:
       mps_mcluster (s, drad, 2.0 * s->n);
       mps_mmodify (s, false);
@@ -739,22 +744,23 @@ mps_secular_set_radii (mps_context * s)
     default:
       break;
     }
-      
+
   rdpe_vfree (drad);
 
   mpc_clear (mtmp);
 }
 
-mps_boolean 
+mps_boolean
 mps_secular_poly_feval_with_error (mps_context * ctx, mps_polynomial * p, cplx_t x, cplx_t value, double * error)
 {
   cplx_t ctmp;
   int i;
   mps_secular_equation *sec = MPS_SECULAR_EQUATION (p);
+
   if (!mps_secular_feval_with_error (ctx, p, x, value, error))
     return false;
 
-  if (! cplx_eq_zero (value))
+  if (!cplx_eq_zero (value))
     *error /= cplx_mod (value);
   else
     *error = p->degree * DBL_EPSILON;
@@ -770,18 +776,19 @@ mps_secular_poly_feval_with_error (mps_context * ctx, mps_polynomial * p, cplx_t
   return true;
 }
 
-mps_boolean 
+mps_boolean
 mps_secular_poly_deval_with_error (mps_context * ctx, mps_polynomial * p, cdpe_t x, cdpe_t value, rdpe_t error)
 {
   cdpe_t ctmp;
   rdpe_t rtmp;
   int i;
   mps_secular_equation *sec = MPS_SECULAR_EQUATION (p);
+
   if (!mps_secular_deval_with_error (ctx, p, x, value, error))
     return false;
 
   cdpe_mod (rtmp, value);
-  if (! rdpe_eq_zero (rtmp))
+  if (!rdpe_eq_zero (rtmp))
     rdpe_div_eq (error, rtmp);
   else
     rdpe_set_d (error, DBL_EPSILON * p->degree);
@@ -800,7 +807,7 @@ mps_secular_poly_deval_with_error (mps_context * ctx, mps_polynomial * p, cdpe_t
   return true;
 }
 
-mps_boolean 
+mps_boolean
 mps_secular_poly_meval_with_error (mps_context * ctx, mps_polynomial * p, mpc_t x, mpc_t value, rdpe_t error)
 {
   mpc_t ctmp;
@@ -814,7 +821,7 @@ mps_secular_poly_meval_with_error (mps_context * ctx, mps_polynomial * p, mpc_t 
     }
 
   mpc_rmod (rtmp, value);
-  if (! rdpe_eq_zero (rtmp))
+  if (!rdpe_eq_zero (rtmp))
     rdpe_div_eq (error, rtmp);
   else
     rdpe_set_d (error, DBL_EPSILON * p->degree);
@@ -838,19 +845,19 @@ mps_secular_poly_meval_with_error (mps_context * ctx, mps_polynomial * p, mpc_t 
   return true;
 }
 
-void 
+void
 mps_secular_poly_fstart (mps_context * ctx, mps_polynomial * p)
 {
   mps_secular_fstart (ctx, MPS_SECULAR_EQUATION (p));
 }
 
-void 
+void
 mps_secular_poly_dstart (mps_context * ctx, mps_polynomial * p)
 {
   mps_secular_dstart (ctx, MPS_SECULAR_EQUATION (p));
 }
 
-void 
+void
 mps_secular_poly_mstart (mps_context * ctx, mps_polynomial * p)
 {
   mps_secular_mstart (ctx, MPS_SECULAR_EQUATION (p));
