@@ -76,6 +76,7 @@ libmps_la_SOURCES = \
 	    newton.c \
 	    parser.c \
 	    polynomial.c \
+	    recursive-starting.c \
 	    secular-equation.c \
 	    secular-evaluation.c \
 	    secular-ga.c \
@@ -122,7 +123,6 @@ libmpsprivate_la_CPPFLAGS = \
 	$(GMP_CFLAGS) \
 	$(PTHREAD_CFLAGS) \
 	$(NULL)
-	
 
 libmpsprivate_la_LDFLAGS = \
 	$(PTHREAD_CFLAGS)
