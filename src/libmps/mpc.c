@@ -11,10 +11,7 @@
  */
 
 #include <stdlib.h>
-#include <mps/mpc.h>
-#include <mps/gmptools.h>
-#include <mps/mt.h>
-#include <mps/tools.h>
+#include <mps/mps.h>
 
 #define MPS_MPF_TEMP_SIZE 6
 
