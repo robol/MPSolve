@@ -21,8 +21,12 @@
 void
 mps_recursive_fstart (mps_context * ctx, mps_polynomial * poly)
 {
-  // Note: this function may take a long time to finish, since it will 
-  // recursively solve polynomials of lower degree. 
+  mps_monomial_poly * mp = MPS_MONOMIAL_POLY (poly);
+
+  /* Compute the starting radii by the Newton polygon. This function will store the result in
+   * ctx->partitioning and ctx->n_radii. We need some refactoring to make sure that the results
+   * will be stored locally and we will be able to recursively apply this strategy. */
+  mps_fcompute_starting_radii (ctx, poly->degree, NULL, 0.0, 0.0, ctx->eps_out, mp->fap);
 }
 
 /**

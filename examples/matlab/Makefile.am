@@ -20,11 +20,13 @@ mps_roots_SOURCES = mps_roots.c
 mps_roots_LINK = $(MEX) -output $@ -L${top_builddir}/src/libmps/.libs \
 	-lmps -lm -lgmp > /dev/null
 
-mpsolve-toolbox.tar.gz: mps_roots
+mpsolve-toolbox.tar.gz: mps_roots mps_roots.m
+	$(eval TEMP_DIR := $(shell mktemp -d tmp.XXXX))
 	$(AM_V_GEN)
-	$(AM_V_at) mkdir -p mpsolve-toolbox
-	$(AM_V_at) cp mps_roots.mex* mpsolve-toolbox/ 
-	$(AM_V_at) cp ${srcdir}/mps_roots.m mpsolve-toolbox/ 
-	$(AM_V_at) tar czf mpsolve-toolbox.tar.gz mpsolve-toolbox/
+	$(AM_V_at) mkdir -p $(TEMP_DIR)/mpsolve-toolbox
+	$(AM_V_at) cp mps_roots.mex* $(TEMP_DIR)/mpsolve-toolbox/ 
+	$(AM_V_at) cp ${srcdir}/mps_roots.m $(TEMP_DIR)/mpsolve-toolbox/ 
+	$(AM_V_at) cd $(TEMP_DIR) && tar czf ${builddir}/mpsolve-toolbox.tar.gz mpsolve-toolbox/
+	$(AM_V_at) rm -rf $(TEMP_DIR)
 
 endif

@@ -8,12 +8,16 @@
  *   Leonardo Robol <robol@mail.dm.unipi.it>
  */
 
+/**
+ * @file
+ *
+ * @brief Representation of a single approximation.
+ */
+
 #ifndef MPS_APPROXIMATION_H_
 #define MPS_APPROXIMATION_H_
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+MPS_BEGIN_DECLS
 
 #ifdef _MPS_PRIVATE
 
@@ -47,6 +51,12 @@ struct mps_approximation {
 
 #endif
 
+/* Creation and deletion of approximations. */
+mps_approximation * mps_approximation_new (mps_context * s);
+void mps_approximation_free (mps_context * s, mps_approximation * appr);
+mps_approximation * mps_approximation_copy (mps_context * ctx, mps_approximation * original);
+
+
 /* Public accessor functions */
 void mps_approximation_get_fvalue (mps_context * ctx, mps_approximation * approximation, cplx_t output);
 void mps_approximation_get_dvalue (mps_context * ctx, mps_approximation * approximation, cdpe_t output);
@@ -67,10 +77,6 @@ void mps_approximation_set_status (mps_context * ctx, mps_approximation * approx
 void mps_approximation_set_attrs (mps_context * ctx, mps_approximation * approximation, mps_root_attrs attrs);
 void mps_approximation_set_inclusion (mps_context * ctx, mps_approximation * approximation, mps_root_inclusion inclusion);
 
-
-
-#ifdef __cplusplus
-}
-#endif
+MPS_END_DECLS
 
 #endif /* #ifndef MPS_ROOT_H */

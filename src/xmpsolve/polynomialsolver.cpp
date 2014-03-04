@@ -6,6 +6,8 @@
 #include <QRegExp>
 #include <QStringList>
 
+static double LOG2_10 = log(2) / log(10);
+
 using namespace xmpsolve;
 
 PolynomialSolver::PolynomialSolver(QObject *parent) :

@@ -18,9 +18,7 @@
 
 #include <mps/mps.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+MPS_BEGIN_DECLS
 
 /**
  * @brief Struct holding the options passed on the command
@@ -95,7 +93,6 @@ const static short int mps_dense_representations[] = { 1, 0, 0 };
 #define MPS_DENSITY_IS_SPARSE(x)   (mps_sparse_representations[(x)])
 #define MPS_DENSITY_IS_DENSE(x)    (mps_dense_representations[(x)])
 
-#ifdef _MPS_PRIVATE
 /**
  * @brief Configuration for an input stream; this struct
  * contains the information on how the input stream should
@@ -111,15 +108,12 @@ struct mps_input_configuration {
    */
   mps_phase starting_phase;
 };
-#endif /* #ifdef _MPS_PRIVATE */
-
 
 /* Properties of the root */
 #define MPS_OUTPUT_PROPERTY_NONE      (0x00)
 #define MPS_OUTPUT_PROPERTY_REAL      (0x01)
 #define MPS_OUTPUT_PROPERTY_IMAGINARY (0x01 << 1)
 
-#ifdef _MPS_PRIVATE
 /**
  * @brief Configuration for the output.
  *
@@ -175,11 +169,13 @@ struct mps_output_configuration {
    */
   mps_output_format format;
 };
-#endif /* ifdef _MPS_PRIVATE */
+
+/* Function in getopts.c */
+void mps_parse_opts (mps_context * s, int argc, char *argv[]);
+mps_boolean mps_getopts (mps_opt ** opt, int *argc_ptr, char ***argv_ptr,
+                         const char *opt_format);
 
 
-#ifdef __cplusplus
-}
-#endif
+MPS_END_DECLS
 
 #endif /* Header end */

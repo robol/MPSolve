@@ -23,14 +23,14 @@ clean-local:
 install-exec-hook:
 	mkdir -p ${octave_share_prefix}
 	mkdir -p ${octave_lib_prefix}
-	LD_LIBRARY_PATH=${top_builddir}/src/libmps/.libs \ 
+	LD_LIBRARY_PATH=${top_builddir}/src/libmps/.libs \
 	    ${OCTAVE} -q -H --eval "pkg prefix ${octave_share_prefix} ${octave_lib_prefix}; \
 	    pkg global_list ${DESTDIR}/${datadir}/octave/octave_packages; \
 	    pkg install -verbose -nodeps \
 	    ${builddir}/mpsolve.tar.gz"
 
 uninstall-local:
-	LD_LIBRARY_PATH=${top_builddir}/src/libmps/.libs \ 
+	LD_LIBRARY_PATH=${top_builddir}/src/libmps/.libs \
 	    ${OCTAVE} -q -H --eval "pkg prefix ${octave_share_prefix} ${octave_lib_prefix}; \
 	    pkg global_list ${DESTDIR}/${datadir}/octave/octave_packages; \
 	    pkg uninstall -verbose mpsolve"

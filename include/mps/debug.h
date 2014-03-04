@@ -27,10 +27,7 @@
 #include <gmp.h>
 #include <time.h>
 
-#ifdef  __cplusplus
-extern "C"
-{
-#endif
+MPS_BEGIN_DECLS
 
 /* Timer functions */
 clock_t * mps_start_timer (void);
@@ -324,8 +321,6 @@ void __c_impl____MPS_DEBUG (mps_context * s, const char *templ, ...);
       debug_instruction;                                                  \
   }
 
-#ifdef  __cplusplus
-}
-#endif
+MPS_END_DECLS
 
 #endif                          /* DEBUG_H */

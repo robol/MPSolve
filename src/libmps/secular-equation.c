@@ -10,7 +10,6 @@
  *   Leonardo Robol <robol@mail.dm.unipi.it>
  */
 
-
 #include <mps/mps.h>
 
 /**

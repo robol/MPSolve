@@ -11,20 +11,21 @@
 #ifndef _MPS_UTILS_H
 #define _MPS_UTILS_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+MPS_BEGIN_DECLS
 
 #include <mps/mps.h>
 
+/* This function is currently implemented in parser.c for historical reasons. */
+char * build_equivalent_rational_string (mps_context * ctx, const char * line,
+                                         long int * exponent, int * sign);
 
 char * mps_utils_strip_string (mps_context * ctx, const char * input);
 char * mps_utils_build_equivalent_rational_string (mps_context * ctx,
                                                    const char * input);
 
+/* functions in newton.c */
+int mps_intlog2 (int n);
 
-#ifdef __cplusplus
-}
-#endif
+MPS_END_DECLS
 
 #endif

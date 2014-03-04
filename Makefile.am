@@ -3,6 +3,7 @@ ACLOCAL_AMFLAGS=-I m4
 NULL = 
 
 SUBDIRS= \
+	include \
 	src \
 	examples \
 	doc \

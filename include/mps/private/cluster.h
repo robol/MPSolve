@@ -10,19 +10,20 @@
 
 /**
  * @file
- * @brief Data structures for cluster analysis.
+ *
+ * @brief Data structures for cluster analysis and some accessors and
+ * internal functions. 
  */
 
 #ifndef MPS_CLUSTER_H_
 #define MPS_CLUSTER_H_
 
+#define MPS_ALL_CLUSTERS -1
+
 #include <mps/mps.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+MPS_BEGIN_DECLS
 
-#ifdef _MPS_PRIVATE
 /**
  * @brief This struct represent a root inside of a <code>mps_cluster</code>.
  */
@@ -101,11 +102,17 @@ struct mps_clusterization {
    */
   mps_cluster_item * first;
 };
-#endif /* #ifdef _MPS_PRIVATE */
 
 /*********************************************************************************
 *                                   FUNCTIONS                                   *
 *********************************************************************************/
+
+void mps_cluster_reset (mps_context * s);
+void mps_fcluster (mps_context * s, double * frad, int nf);
+void mps_dcluster (mps_context * s, rdpe_t * drad, int nf);
+void mps_mcluster (mps_context * s, rdpe_t * drad, int nf);
+void mps_debug_cluster_structure (mps_context * s);
+void mps_cluster_analysis (mps_context * ctx, mps_polynomial * p);
 
 /* Functions for mps_cluster */
 mps_cluster * mps_cluster_empty (mps_context * s);
@@ -124,8 +131,8 @@ void mps_clusterization_free (mps_context * s, mps_clusterization * c);
 void mps_clusterization_detach_clusters (mps_context * s, mps_clusterization * c);
 void mps_clusterization_reassemble_clusters (mps_context * s, mps_clusterization * c);
 
-#ifdef __cplusplus
-}
-#endif
+void mps_cluster_detach (mps_context * s, mps_cluster * cluster);
 
-#endif
+MPS_END_DECLS
+
+#endif /* endif MPS_CLUSTER_H_ */

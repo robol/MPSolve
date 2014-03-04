@@ -20,10 +20,7 @@
 #ifndef MPS_TOOLS_H_
 #define MPS_TOOLS_H_
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif
+MPS_BEGIN_DECLS
 
 /* consts */
 #define LOG2     0.69314718055994530941
@@ -76,13 +73,6 @@ void double_vinit (double v[], unsigned long int size);
 #define double_vclear(V, N)             double_vinit (V, N)
 #define double_vfree(V)                 free (V)
 
-/*
- * End of extern "C" {
- *   ...
- * }
- */
-#ifdef __cplusplus
-}
-#endif
+MPS_END_DECLS
 
 #endif

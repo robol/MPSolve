@@ -19,10 +19,7 @@
 #include <mps/mps.h>
 #include <float.h>
 
-#ifdef  __cplusplus
-extern "C"
-{
-#endif
+MPS_BEGIN_DECLS
 
 #define MPS_SECULAR_EQUATION(t) (MPS_POLYNOMIAL_CAST (mps_secular_equation, t))
 #define MPS_IS_SECULAR_EQUATION(t) (mps_polynomial_check_type (t, "mps_secular_equation"))
@@ -291,8 +288,6 @@ int mps_secular_ga_miterate (mps_context * s, int maxit, mps_boolean just_regene
 /* Routines in secular-ga.c */
 mps_boolean mps_secular_ga_check_stop (mps_context * s);
 
-void mps_secular_ga_mpsolve (mps_context * s);
-
 void mps_secular_ga_update_coefficients (mps_context * s);
 
 /* Interface functions in secular.c */
@@ -320,8 +315,11 @@ void mps_secular_poly_dstart (mps_context * ctx, mps_polynomial * p);
 
 void mps_secular_poly_mstart (mps_context * ctx, mps_polynomial * p);
 
-#ifdef  __cplusplus
-}
-#endif
+mps_secular_equation * mps_secular_equation_read_from_stream (mps_context * ctx, mps_input_buffer * buffer,
+                                                              mps_structure structure, mps_density density,
+                                                              long int precision);
+
+
+MPS_END_DECLS
 
 #endif                          /* SECULAR_H */

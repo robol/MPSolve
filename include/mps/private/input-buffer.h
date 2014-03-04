@@ -16,12 +16,8 @@
  * @brief Implementation of a buffer for parsing input file for MPSolve.
  */
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif
+MPS_BEGIN_DECLS
 
-#ifdef _MPS_PRIVATE
 /**
  * @brief Default size of the buffer of old lines in the input
  * buffer instances.
@@ -91,8 +87,6 @@ struct mps_input_buffer {
   char * last_token;
 };
 
-#endif /* #ifdef _MPS_PRIVATE */
-
 /* Function prototypes */
 mps_input_buffer *mps_input_buffer_new (FILE * stream);
 int mps_input_buffer_readline (mps_input_buffer * buf);
@@ -101,8 +95,6 @@ void mps_input_buffer_set_history_size (mps_input_buffer * buf, size_t size);
 mps_boolean mps_input_buffer_eof (mps_input_buffer * buf);
 char * mps_input_buffer_next_token (mps_input_buffer * buf);
 
-#ifdef __cplusplus
-}
-#endif /* Cplusplus */
+MPS_END_DECLS
 
 #endif /* ifndef MPS_INPUT_BUFFER_H */

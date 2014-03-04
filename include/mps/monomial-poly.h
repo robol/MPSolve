@@ -26,10 +26,7 @@
 #define MPS_MONOMIAL_POLY(t) (MPS_POLYNOMIAL_CAST (mps_monomial_poly, t))
 #define MPS_IS_MONOMIAL_POLY(t) (mps_polynomial_check_type (t, "mps_monomial_poly"))
 
-#ifdef  __cplusplus
-extern "C"
-{
-#endif
+MPS_BEGIN_DECLS
 
 #ifdef _MPS_PRIVATE
 
@@ -200,9 +197,10 @@ void mps_monomial_poly_get_leading_coefficient (mps_context * ctx, mps_polynomia
 
 void mps_monomial_poly_deflate (mps_context * ctx, mps_polynomial * p);
 
+mps_monomial_poly * mps_monomial_poly_read_from_stream (mps_context * s, mps_input_buffer * buffer,
+                                                        mps_structure structure, mps_density density,
+                                                        long int precision);
 
-#ifdef  __cplusplus
-}
-#endif
+MPS_END_DECLS
 
 #endif

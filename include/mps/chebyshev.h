@@ -11,9 +11,7 @@
 #ifndef MPS_CHEBYSHEV_H_
 #define MPS_CHEBYSHEV_H_
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+MPS_BEGIN_DECLS
 
  #define MPS_CHEBYSHEV_POLY_TYPE_NAME "mps_chebyshev_poly"
  #define MPS_CHEBYSHEV_POLY(t) ((mps_chebyshev_poly*)t)
@@ -107,9 +105,11 @@ void mps_chebyshev_poly_set_coefficient_i (mps_context * ctx, mps_chebyshev_poly
                                            int i, long int real_coeff, long int imag_coeff);
 
 
+mps_chebyshev_poly * mps_chebyshev_poly_read_from_stream (mps_context * ctx, mps_input_buffer * buffer,
+                                                          mps_structure structure, mps_density density,
+                                                          long int precision);
 
-#ifdef __cplusplus
-}
-#endif
+
+MPS_END_DECLS
 
 #endif

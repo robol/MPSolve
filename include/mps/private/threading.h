@@ -17,10 +17,7 @@
 #include <semaphore.h>
 #include <mps/mps.h>
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif
+MPS_BEGIN_DECLS
 
 #ifndef MPS_THREADING_H_
 #define MPS_THREADING_H_
@@ -39,7 +36,6 @@ extern "C"
  */
 typedef void * (*mps_thread_work)(void *);
 
-#ifdef _MPS_PRIVATE
 /**
  * @brief A new job for <code>mps_thread_fsolve()</code>,
  * <code>mps_thread_dsolve()</code> or <code>mps_thread_msolve()</code>.
@@ -345,7 +341,6 @@ struct mps_thread_pool {
   pthread_cond_t work_completed_cond;
   int busy_counter;
 };
-#endif /* #ifdef _MPS_PRIVATE */
 
 /* EXPORTED ROUTINES */
 
@@ -406,9 +401,6 @@ int mps_thread_get_id (mps_context * s, mps_thread_pool * pool);
  */
 #define mps_thread_get_dap2(s, n_thread) (s->dap2 + (s->deg + 2) * (n_thread))
 
-
-#ifdef __cplusplus
-}
-#endif
+MPS_END_DECLS
 
 #endif                          /* MPS_THREADING_H_ */

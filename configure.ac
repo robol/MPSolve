@@ -565,6 +565,9 @@ AC_SUBST(LIBMPS_LDFLAGS)
 AC_SUBST(LIBMPS_CFLAGS)
 
 AC_CONFIG_FILES([Makefile
+    include/Makefile
+    include/mps/Makefile
+    include/mps/private/Makefile
     examples/Makefile
     examples/octave/Makefile
     examples/matlab/Makefile
