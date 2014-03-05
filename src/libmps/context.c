@@ -250,8 +250,6 @@ mps_context_expand (mps_context * s, int n)
 {
   int i;
 
-  printf ("Shrinking\n");
-
   s->root = mps_realloc (s->root, sizeof(mps_approximation*) * n);
   for (i = s->n; i < n; i++)
     {
