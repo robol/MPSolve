@@ -25,6 +25,7 @@
  */
 
 #include <mps/mps.h>
+#include <string.h>
 
 static const double TOLER = 0.4;       /* slope tolerace */
 
@@ -37,12 +38,12 @@ static const double TOLER = 0.4;       /* slope tolerace */
  * \f[ \{ (k, a_k) \ | \ k \in \{ lo, \dots, i \} \} \f]
  */
 static int
-mps_left (mps_context * s, int i, int lo)
+mps_left (mps_context * s, int i, int lo, int * h)
 {
   if (i == lo)
     return lo;
   for (i--; i > lo; i--)
-    if (s->h[i])
+    if (h[i])
       break;
   return i;
 }
@@ -56,12 +57,12 @@ mps_left (mps_context * s, int i, int lo)
  * \f[ \{ (k, a_k) \ | \ k \in \{ i, \dots, up \} \} \f]
  */
 int
-mps_right (mps_context * s, int i, int up)
+mps_right (mps_context * s, int i, int up, int * h)
 {
   if (i == up)
     return up;
   for (i++; i < up; i++)
-    if (s->h[i])
+    if (h[i])
       break;
   return i;
 }
@@ -105,42 +106,42 @@ mps_fctest (mps_context * s, int il, int i, int ir, double a[])
  * @param a array of points
  */
 static void
-mps_fmerge (mps_context * s, int lo, int i, int up, double a[])
+mps_fmerge (mps_context * s, int lo, int i, int up, double a[], int * h)
 {
   int il, ir, ill, irr;
   mps_boolean tstl, tstr;
 
   ill = lo;
   irr = up;
-  il = mps_left (s, i, lo);
-  ir = mps_right (s, i, up);
+  il = mps_left (s, i, lo, h);
+  ir = mps_right (s, i, up, h);
   if (mps_fctest (s, il, i, ir, a))
     return;
-  s->h[i] = false;
+  h[i] = false;
   do
     {
       if (il == lo)
         tstl = true;
       else
         {
-          ill = mps_left (s, il, lo);
+          ill = mps_left (s, il, lo, h);
           tstl = mps_fctest (s, ill, il, ir, a);
         }
       if (ir == up)
         tstr = true;
       else
         {
-          irr = mps_right (s, ir, up);
+          irr = mps_right (s, ir, up, h);
           tstr = mps_fctest (s, il, ir, irr, a);
         }
       if (!tstl)
         {
-          s->h[il] = false;
+          h[il] = false;
           il = ill;
         }
       if (!tstr)
         {
-          s->h[ir] = false;
+          h[ir] = false;
           ir = irr;
         }
     } while (!(tstl && tstr));
@@ -156,16 +157,122 @@ mps_fmerge (mps_context * s, int lo, int i, int up, double a[])
  * @param s The <code>mps_context</code> associated with the current computation.
  * @param a vector of points whose convex hull must be computed.
  * @param n size of the vector <code>a</code>.
+ *
+ * @return h An integer array that is 1 only in the positions corresponding to
+ * selected vertexes. 
  */
-MPS_PRIVATE void
+MPS_PRIVATE int *
 mps_fconvex (mps_context * s, int n, double a[])
 {
   int m, c;
-
-  for (m = 0; m <= s->n; m++)
-    s->h[m] = true;
+  
+  int * h = mps_newv (int, (s->n + 1));
+  memset (h, 1, sizeof (int) * (s->n + 1));
 
   for (m = 1; m < s->n; m <<= 1)
     for (c = m; c < s->n; c += 2 * m)
-      mps_fmerge (s, c - m, c, MIN (s->n, c + m), a);
+      mps_fmerge (s, c - m, c, MIN (s->n, c + m), a, h);
+
+  return h;
 }
+
+MPS_PRIVATE mps_vertex *
+mps_vertex_copy (mps_context * ctx, mps_vertex * source)
+{
+  mps_vertex * copy = mps_new (mps_vertex);
+  memcpy (copy, source, sizeof (mps_vertex));
+  return copy;
+}
+
+
+MPS_PRIVATE mps_linear_hypograph * 
+mps_linear_hypograph_new (mps_context * ctx)
+{
+  mps_linear_hypograph * sl =  mps_new (mps_linear_hypograph);
+
+  sl->first = sl->last = NULL;
+  sl->n = 0;
+
+  return sl;
+}
+
+MPS_PRIVATE void
+mps_linear_hypograph_free (mps_context * ctx, mps_linear_hypograph * sl)
+{
+  free (sl);
+}
+
+MPS_PRIVATE void 
+mps_linear_hypograph_append_node (mps_context * ctx, mps_linear_hypograph * sl, 
+				 mps_vertex * node)
+{
+  if (sl->last)
+    {
+      node->previous = sl->last;
+      sl->last->next = node;
+      sl->last = node;
+    }
+  else
+    {
+      node->previous = NULL;
+      sl->last = sl->first = node;
+    }
+
+  node->next = NULL;
+}
+
+MPS_PRIVATE void
+mps_linear_hypograph_remove_node (mps_context * ctx, mps_linear_hypograph * sl, 
+				 mps_vertex * node)
+{
+  mps_vertex * previous = node->previous;
+  mps_vertex * next = node->next;
+
+  if (previous)
+    previous->next = next;
+
+  if (next)
+    next->previous = previous;
+
+  if (node == sl->first)
+    sl->first = next;
+
+  if (node == sl->last)
+    sl->last = previous;
+}
+
+MPS_PRIVATE mps_linear_hypograph * 
+mps_linear_hypograph_concat (mps_context * ctx, mps_linear_hypograph * sl1,
+			    mps_linear_hypograph * sl2)
+{
+  sl1->last->next = sl2->first;
+  sl1->last = sl2->last;
+  sl2->first->previous = sl1->last;
+
+  return sl1;
+}
+
+MPS_PRIVATE mps_linear_hypograph *
+mps_linear_hypograph_detach_tail (mps_context * ctx, mps_linear_hypograph * sl, 
+				 mps_vertex * node)
+{
+  mps_linear_hypograph * sl_tail = mps_linear_hypograph_new (ctx);
+  mps_vertex * new_first = mps_vertex_copy (ctx, node);
+
+  sl_tail->last = sl->last;
+  sl_tail->first = new_first;
+  new_first->previous = NULL;
+  
+  node->next = NULL;
+  sl->last = node;
+
+  return sl_tail;
+}
+
+MPS_PRIVATE mps_linear_hypograph *
+mps_convex_hull (mps_context * s, mps_linear_hypograph * l)
+{
+  return NULL;
+}
+
+

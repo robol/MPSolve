@@ -69,7 +69,6 @@ mps_set_default_values (mps_context * s)
   s->fap2 = NULL;               /* temp. log of the coeffs as double   */
   s->dap1 = NULL;               /* temp moduli of the coeffs as dpe    */
 
-  s->h = NULL;                  /* needed for convex hull computations */
   s->again_old = NULL;          /* temp flag vector: true where more   */
 
   s->random_seed = 0;

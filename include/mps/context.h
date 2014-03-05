@@ -433,16 +433,6 @@ struct mps_context {
   rdpe_t *dap1;
 
   /**
-   * @brief Vector needed for convex hull computation.
-   *
-   * It is <code>true</code> in position \f$j\f$ if
-   * the point \f$(j, log(x_j))\f$ is a vertex of the convex
-   * hull computed by <code>fconvex()</code> and the other functions in
-   * <code>mps_cnvx.c</code>
-   */
-  mps_boolean *h;
-
-  /**
    * @brief Temporary vector containing the old value of
    * <code>again</code>.
    *
@@ -450,30 +440,7 @@ struct mps_context {
    */
   mps_boolean *again_old;
 
-  /**
-   * @brief The number of circles with initial approximations.
-   */
-  int n_radii;
-
-  /**
-   * @brief This variable is used to store the radii of the
-   * circles with initial approximations.
-   */
-  double *fradii;
-
-  /**
-   * @brief This variable is used to store the radii of the
-   * circles with initial approximations.
-   */
-  rdpe_t *dradii;
-
-  /**
-   * @brief This variable is used to store the partitioning
-   * done when disposing initial approximations.
-   */
-  int *partitioning;
-
-  /* SECTION -- Algorihtmm selection */
+  /* SECTION -- Algorihtm selection */
 
   /**
    * @brief This is used in the program to switch behavious based

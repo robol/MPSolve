@@ -19,12 +19,62 @@
 
 #include <mps/mps.h>
 
-void mps_fconvex (mps_context * s, int n, double a[]);
+/**
+ * @brief Generic vertex of a linear hypograph. 
+ */
+struct mps_vertex {
 
-void mps_fcompute_starting_radii (mps_context * s, int n, mps_cluster_item * cluster_item,
-				  double clust_rad, double g, rdpe_t eps,
-				  double fap[]);
+  /** 
+   * @brief The x coordinate of the vertex. 
+   */
+  int x;
 
+  /**
+   * @brief The y coordinate of the vertex. 
+   */
+  double y;
+
+  /**
+   * @brief A pointer to the next vertex in the hypograph, or 
+   * NULL if this is the last vertex or a detached one. 
+   */
+  struct mps_vertex * next; 
+
+  /**
+   * @brief A pointer to the previous vertex in the hypograph, 
+   * or NULL if this is the first vertex or a detached one. 
+   */
+  struct mps_vertex * previous;
+
+};
+
+typedef struct mps_vertex mps_vertex;
+
+/**
+ * @brief A set described as hypograph of a piecewise linear function. 
+ *
+ * The explicit description of the set is given by a set of vertexes of the
+ * type \f$(i, y_i)\f$ where \f$i\f$ is a positive integer. 
+ */
+struct mps_linear_hypograph {
+
+  int n;
+
+  mps_vertex * last; 
+
+  mps_vertex * first; 
+
+};
+
+typedef struct mps_linear_hypograph mps_linear_hypograph;
+
+mps_linear_hypograph * mps_convex_hull (mps_context * s, mps_linear_hypograph * l);
+
+int * mps_fconvex (mps_context * s, int n, double a[]);
+
+mps_linear_hypograph * mps_linear_hypograph_new (mps_context * ctx);
+
+void mps_linear_hypograph_free (mps_context * ctx, mps_linear_hypograph * l);
 
 #endif /* endif MPS_CONVEX_H_ */
 

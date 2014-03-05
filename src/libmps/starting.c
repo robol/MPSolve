@@ -93,19 +93,30 @@ mps_maximize_distance (mps_context * s, double last_sigma,
  * @param eps out epsilon.
  * @param fap[] Array with the moduli of the coefficients.
  *
+ * @return A mps_starting_configuration containing the necessary information
+ * to dispose the initial approximations on the circles. 
+ *
  * @see mps_fstart()
  */
-MPS_PRIVATE void
+MPS_PRIVATE mps_starting_configuration
 mps_fcompute_starting_radii (mps_context * s, int n, mps_cluster_item * cluster_item,
                              double clust_rad, double g, rdpe_t eps,
                              double fap[])
 {
   MPS_DEBUG_THIS_CALL (s);
+  
   const double big = DBL_MAX, small = DBL_MIN;
   const double xbig = log (big), xsmall = log (small);
 
   int i, j, k, nzeros, iold, ni, offset;
   double temp, r;
+
+  mps_starting_configuration c = {
+    .n_radii = 0,
+    .partitioning = NULL,
+    .fradii = NULL,
+    .dradii = NULL
+  };
 
   ni = 0;
   nzeros = 0;
@@ -143,15 +154,24 @@ mps_fcompute_starting_radii (mps_context * s, int n, mps_cluster_item * cluster_
     }
 
   /* Compute convex hull */
-  mps_fconvex (s, n, s->fap2);
+  int * h = mps_fconvex (s, n, s->fap2);
+
+  j = 0;
+  for (i = 1; i <= n; i++)
+    if (h[i])
+      j++;
+
+  c.fradii = mps_newv (double, j + 2);
+  c.partitioning = mps_newv (int, j + 2);
 
   /* compute the radii of the circles containing starting approximations  */
-  s->n_radii = 0;
-  s->partitioning[0] = 0;
+  c.n_radii = 0;
+  c.partitioning[0] = 0;
+
   for (i = 1; i <= n; i++)
-    if (s->h[i])
+    if (h[i])
       {
-        iold = s->partitioning[s->n_radii];
+        iold = c.partitioning[c.n_radii];
         nzeros = i - iold;
         temp = (s->fap2[iold] - s->fap2[i]) / nzeros;
 
@@ -175,28 +195,28 @@ mps_fcompute_starting_radii (mps_context * s, int n, mps_cluster_item * cluster_
         if (clust_rad != 0 && r > clust_rad)
           r = clust_rad;
 
-        s->fradii[s->n_radii] = r;
-        s->partitioning[++s->n_radii] = i;
+        c.fradii[c.n_radii] = r;
+        c.partitioning[++c.n_radii] = i;
       }
 
   /* Close partitioning */
-  s->partitioning[s->n_radii] = n;
+  c.partitioning[c.n_radii] = n;
 
   /* Compact radius that are too near */
-  for (i = 0; i < s->n_radii; i++)
+  for (i = 0; i < c.n_radii; i++)
     {
       /* Scan next radii to see if they are near the
        * i-th that we are considering now  */
-      for (j = i + 1; j < s->n_radii; j++)
+      for (j = i + 1; j < c.n_radii; j++)
         {
           /* Get an estimate of the distance between approximations that would
            * be obtained collapsing the circles. It's a little understimated
            * but this is due to the fact that changing approximation is only
            * a fallback, and not the preferred action to perform. */
-          if (fabs ((s->fradii[j] - s->fradii[i])) >
-              MIN (s->fradii[j],
-                   s->fradii[i]) * PI / (s->partitioning[j + 1] -
-                                         s->partitioning[i]))
+          if (fabs ((c.fradii[j] - c.fradii[i])) >
+              MIN (c.fradii[j],
+                   c.fradii[i]) * PI / (c.partitioning[j + 1] -
+                                         c.partitioning[i]))
             {
               break;
             }
@@ -217,26 +237,30 @@ mps_fcompute_starting_radii (mps_context * s, int n, mps_cluster_item * cluster_
 
       /* We shall now compact circles between i and j, so
        * we start computing the mean of the radius */
-      s->fradii[i] *= (s->partitioning[i + 1] - s->partitioning[i]);
+      c.fradii[i] *= (c.partitioning[i + 1] - c.partitioning[i]);
       for (k = i + 1; k <= j; k++)
         {
-          s->fradii[i] +=
-            s->fradii[k] * (s->partitioning[k + 1] - s->partitioning[k]);
+          c.fradii[i] +=
+            c.fradii[k] * (c.partitioning[k + 1] - c.partitioning[k]);
         }
 
-      s->fradii[i] /= s->partitioning[j + 1] - s->partitioning[i];
+      c.fradii[i] /= c.partitioning[j + 1] - c.partitioning[i];
 
       /* Move other circles backward */
-      for (k = j + 1; k < s->n_radii; k++)
+      for (k = j + 1; k < c.n_radii; k++)
         {
-          s->fradii[k - offset] = s->fradii[k];
-          s->partitioning[k - offset] = s->partitioning[k];
+          c.fradii[k - offset] = c.fradii[k];
+          c.partitioning[k - offset] = c.partitioning[k];
         }
 
-      /* Set new s->n_radii and new partitioning */
-      s->n_radii = s->n_radii - offset;
-      s->partitioning[s->n_radii] = n;
+      /* Set new c.n_radii and new partitioning */
+      c.n_radii = c.n_radii - offset;
+      c.partitioning[c.n_radii] = n;
     }
+
+  free (h);
+
+  return c;
 }
 
 /**
@@ -302,25 +326,26 @@ mps_fstart (mps_context * s, int n, mps_cluster_item * cluster_item,
   th = pi2 / n;
 
   /* In the general case apply the Rouche-based criterion */
-  mps_fcompute_starting_radii (s, n, cluster_item, clust_rad, g, eps, fap);
+  mps_starting_configuration c = 
+    mps_fcompute_starting_radii (s, n, cluster_item, clust_rad, g, eps, fap);
 
   if (g != 0.0 && cluster != NULL)
     it_root = cluster->first;
 
-  for (i = 0; i < s->n_radii; i++)
+  for (i = 0; i < c.n_radii; i++)
     {
-      nzeros = s->partitioning[i + 1] - s->partitioning[i];
+      nzeros = c.partitioning[i + 1] - c.partitioning[i];
       ang = pi2 / nzeros;
-      r = s->fradii[i];
+      r = c.fradii[i];
 
-      for (j = s->partitioning[i]; j < s->partitioning[i + 1]; j++)
+      for (j = c.partitioning[i]; j < c.partitioning[i + 1]; j++)
         {
           if (g != 0.0 && it_root)
             l = it_root->k;
           else
             l = j;
 
-          jj = j - s->partitioning[i];
+          jj = j - c.partitioning[i];
 
           /* if the radius reaches extreme values then set the component
            * of status, corresponding to approximation which fall out the
@@ -329,9 +354,9 @@ mps_fstart (mps_context * s, int n, mps_cluster_item * cluster_item,
             /* if ((r == small) || (r == big)) DARIO Giugno 23 */
             s->root[l]->status = MPS_ROOT_STATUS_NOT_FLOAT;
           cplx_set_d (s->root[l]->fvalue,
-                      r * cos (ang * jj + th * s->partitioning[i + 1] +
+                      r * cos (ang * jj + th * c.partitioning[i + 1] +
                                sigma),
-                      r * sin (ang * jj + th * s->partitioning[i + 1] +
+                      r * sin (ang * jj + th * c.partitioning[i + 1] +
                                sigma));
           if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
             {
@@ -359,6 +384,8 @@ mps_fstart (mps_context * s, int n, mps_cluster_item * cluster_item,
             }
         }
     }
+
+  mps_starting_configuration_clear (s, &c);
 }
 
 /**
@@ -377,7 +404,7 @@ mps_fstart (mps_context * s, int n, mps_cluster_item * cluster_item,
  *
  * @see mps_dstart()
  */
-MPS_PRIVATE void
+MPS_PRIVATE mps_starting_configuration
 mps_dcompute_starting_radii (mps_context * s, int n,
                              mps_cluster_item * cluster_item,
                              rdpe_t clust_rad, rdpe_t g, rdpe_t eps,
@@ -392,6 +419,13 @@ mps_dcompute_starting_radii (mps_context * s, int n,
 
   xbig = LONG_MAX;
   xsmall = LONG_MIN;
+
+  mps_starting_configuration c = {
+    .n_radii = 0,
+    .partitioning = NULL,
+    .fradii = NULL,
+    .dradii = NULL
+  };
 
   ni = 0;
   nzeros = 0;
@@ -427,15 +461,24 @@ mps_dcompute_starting_radii (mps_context * s, int n,
       s->fap2[i] = temp;
 
   /* compute the convex hull */
-  mps_fconvex (s, n, s->fap2);
+  int * h = mps_fconvex (s, n, s->fap2);
+
+  /* Count the number of vertexes in the convex hull. */
+  j = 0;
+  for (i = 1; i <= n; i++)
+    if (h[i])
+      j++;
+
+  c.dradii = mps_newv (rdpe_t, j + 2);
+  c.partitioning = mps_newv (int, j + 2);
 
   /* compute the radii of the circles containing starting approximations  */
-  s->n_radii = 0;
-  s->partitioning[0] = 0;
+  c.n_radii = 0;
+  c.partitioning[0] = 0;
   for (i = 1; i <= n; i++)
-    if (s->h[i])
+    if (h[i])
       {
-        iold = s->partitioning[s->n_radii];
+        iold = c.partitioning[c.n_radii];
         nzeros = i - iold;
         temp = (s->fap2[iold] - s->fap2[i]) / nzeros;
 
@@ -459,32 +502,32 @@ mps_dcompute_starting_radii (mps_context * s, int n,
         if (rdpe_ne (clust_rad, rdpe_zero) && rdpe_gt (r, clust_rad))
           rdpe_set (r, clust_rad);
 
-        rdpe_set (s->dradii[s->n_radii], r);
-        s->partitioning[++s->n_radii] = i;
+        rdpe_set (c.dradii[c.n_radii], r);
+        c.partitioning[++c.n_radii] = i;
       }
 
   /* Close partitioning */
-  s->partitioning[s->n_radii] = n;
+  c.partitioning[c.n_radii] = n;
 
   /* Compact radius that are too near */
-  for (i = 0; i < s->n_radii; i++)
+  for (i = 0; i < c.n_radii; i++)
     {
       /* Scan next radii to see if they are near the
        * i-th that we are considering now  */
-      for (j = i + 1; j < s->n_radii; j++)
+      for (j = i + 1; j < c.n_radii; j++)
         {
           /* Get an estimate of the distance between approximations that would
            * be obtained collapsing the circles. It's a little understimated
            * but this is due to the fact that changing approximation is only
            * a fallback, and not the preferred action to perform. */
-          rdpe_sub (tmp, s->dradii[j], s->dradii[i]);
+          rdpe_sub (tmp, c.dradii[j], c.dradii[i]);
           rdpe_abs_eq (tmp);
-          if (rdpe_lt (s->dradii[i], s->dradii[j]))
-            rdpe_div_eq (tmp, s->dradii[i]);
+          if (rdpe_lt (c.dradii[i], c.dradii[j]))
+            rdpe_div_eq (tmp, c.dradii[i]);
           else
-            rdpe_div_eq (tmp, s->dradii[j]);
+            rdpe_div_eq (tmp, c.dradii[j]);
           rdpe_div_eq_d (tmp, PI);
-          rdpe_mul_eq_d (tmp, s->partitioning[j + 1] - s->partitioning[i]);
+          rdpe_mul_eq_d (tmp, c.partitioning[j + 1] - c.partitioning[i]);
           if (rdpe_gt (tmp, rdpe_one))
             {
               break;
@@ -506,29 +549,32 @@ mps_dcompute_starting_radii (mps_context * s, int n,
 
       /* We shall now compact circles between i and j, so
        * we start computing the mean of the radius */
-      rdpe_mul_eq_d (s->dradii[i],
-                     s->partitioning[i + 1] - s->partitioning[i]);
+      rdpe_mul_eq_d (c.dradii[i],
+                     c.partitioning[i + 1] - c.partitioning[i]);
       for (k = i + 1; k <= j; k++)
         {
-          rdpe_mul_d (tmp, s->dradii[k],
-                      s->partitioning[k + 1] - s->partitioning[k]);
-          rdpe_add_eq (s->dradii[i], tmp);
+          rdpe_mul_d (tmp, c.dradii[k],
+                      c.partitioning[k + 1] - c.partitioning[k]);
+          rdpe_add_eq (c.dradii[i], tmp);
         }
 
-      rdpe_div_eq_d (s->dradii[i],
-                     s->partitioning[j + 1] - s->partitioning[i]);
+      rdpe_div_eq_d (c.dradii[i],
+                     c.partitioning[j + 1] - c.partitioning[i]);
 
       /* Move other circles backward */
-      for (k = j + 1; k < s->n_radii; k++)
+      for (k = j + 1; k < c.n_radii; k++)
         {
-          rdpe_set (s->dradii[k - offset], s->dradii[k]);
-          s->partitioning[k - offset] = s->partitioning[k];
+          rdpe_set (c.dradii[k - offset], c.dradii[k]);
+          c.partitioning[k - offset] = c.partitioning[k];
         }
 
-      /* Set new s->n_radii and new partitioning */
-      s->n_radii = s->n_radii - offset;
-      s->partitioning[s->n_radii] = n;
+      /* Set new c.n_radii and new partitioning */
+      c.n_radii = c.n_radii - offset;
+      c.partitioning[c.n_radii] = n;
     }
+
+  free (h);
+  return c;
 }
 
 /**
@@ -593,7 +639,7 @@ mps_dstart (mps_context * s, int n, mps_cluster_item * cluster_item,
         {
           cdpe_set_d (s->root[i]->dvalue, cos (ang * i + sigma),
                       sin (ang * i + sigma));
-        }
+        }     
       return;
     }
 
@@ -607,19 +653,21 @@ mps_dstart (mps_context * s, int n, mps_cluster_item * cluster_item,
     }
 
   /* Compute starting radii with the Rouche based criterion */
-  mps_dcompute_starting_radii (s, n, cluster_item, clust_rad, g, eps, dap);
+  mps_starting_configuration c = 
+    mps_dcompute_starting_radii (s, n, cluster_item, clust_rad, g, eps, dap);
+
   th = pi2 / n;
 
-  for (i = 0; i < s->n_radii; i++)
+  for (i = 0; i < c.n_radii; i++)
     {
-      nzeros = s->partitioning[i + 1] - s->partitioning[i];
+      nzeros = c.partitioning[i + 1] - c.partitioning[i];
       ang = pi2 / nzeros;
-      rdpe_set (r, s->dradii[i]);
+      rdpe_set (r, c.dradii[i]);
 
       if (cluster_item)
         root = cluster->first;
 
-      for (j = s->partitioning[i]; j < s->partitioning[i + 1]; j++)
+      for (j = c.partitioning[i]; j < c.partitioning[i + 1]; j++)
         {
           if (cluster_item)
             {
@@ -630,7 +678,7 @@ mps_dstart (mps_context * s, int n, mps_cluster_item * cluster_item,
             l = j;
 
 
-          jj = j - s->partitioning[i];
+          jj = j - c.partitioning[i];
 
           /* If dpe_after_float (i.e., flag is true) recompute the starting
            * values of only the approximations falling out of the range */
@@ -639,9 +687,9 @@ mps_dstart (mps_context * s, int n, mps_cluster_item * cluster_item,
               if (s->root[l]->status == MPS_ROOT_STATUS_NOT_FLOAT)
                 {
                   cdpe_set_d (s->root[l]->dvalue,
-                              cos (ang * jj + th * s->partitioning[i + 1] +
+                              cos (ang * jj + th * c.partitioning[i + 1] +
                                    sigma),
-                              sin (ang * jj + th * s->partitioning[i + 1] +
+                              sin (ang * jj + th * c.partitioning[i + 1] +
                                    sigma));
                   cdpe_mul_eq_e (s->root[l]->dvalue, r);
                   s->root[l]->status = MPS_ROOT_STATUS_CLUSTERED;
@@ -654,9 +702,9 @@ mps_dstart (mps_context * s, int n, mps_cluster_item * cluster_item,
             {
               /* else compute all the initial approximations */
               cdpe_set_d (s->root[l]->dvalue,
-                          cos (ang * jj + th * s->partitioning[i + 1] +
+                          cos (ang * jj + th * c.partitioning[i + 1] +
                                sigma),
-                          sin (ang * jj + th * s->partitioning[i + 1] +
+                          sin (ang * jj + th * c.partitioning[i + 1] +
                                sigma));
               cdpe_mul_eq_e (s->root[l]->dvalue, r);
               /*#G 27/4/98 if (rdpe_eq(r, big) || rdpe_eq(r, small)) */
@@ -687,6 +735,8 @@ mps_dstart (mps_context * s, int n, mps_cluster_item * cluster_item,
             }
         }
     }
+
+  mps_starting_configuration_clear (s, &c);
 }
 
 /**
@@ -704,7 +754,7 @@ mps_dstart (mps_context * s, int n, mps_cluster_item * cluster_item,
  *
  * @see mps_mstart()
  */
-MPS_PRIVATE void
+MPS_PRIVATE mps_starting_configuration
 mps_mcompute_starting_radii (mps_context * s, int n, mps_cluster_item * cluster_item,
                              rdpe_t clust_rad, rdpe_t g, rdpe_t dap[])
 {
@@ -717,6 +767,13 @@ mps_mcompute_starting_radii (mps_context * s, int n, mps_cluster_item * cluster_
   rdpe_set (small, RDPE_MIN);
   rdpe_set (big, RDPE_MAX);
 
+  mps_starting_configuration c = {
+    .n_radii = 0,
+    .partitioning = NULL,
+    .fradii = NULL,
+    .dradii = NULL
+  };
+
   if (rdpe_eq (dap[0], rdpe_zero))
     s->fap2[0] = -s->mpwp * LOG2;
 
@@ -728,30 +785,39 @@ mps_mcompute_starting_radii (mps_context * s, int n, mps_cluster_item * cluster_
       s->fap2[i] = s->fap2[0];
 
   /* compute the convex hull */
-  mps_fconvex (s, n, s->fap2);
+  int * h = mps_fconvex (s, n, s->fap2);
+
+  /* Count the number of vertexes in the convex hull. */
+  j = 0;
+  for (i = 1; i <= n; i++)
+    if (h[i])
+      j++;
+
+  c.dradii = mps_newv (rdpe_t, j + 2);
+  c.partitioning = mps_newv (int, j + 2);
 
   /* Scan all the vertices of the convex hull */
-  s->partitioning[0] = 0;
-  s->n_radii = 0;
+  c.partitioning[0] = 0;
+  c.n_radii = 0;
   for (i = 1; i <= n; i++)
     {
-      if (s->h[i])
+      if (h[i])
         {
-          iold = s->partitioning[s->n_radii];
+          iold = c.partitioning[c.n_radii];
           nzeros = i - iold;
           temp = (s->fap2[iold] - s->fap2[i]) / nzeros;
           /* if the radius is too small or too big to be represented as dpe,
            * output a warning message */
           if (temp < xsmall)
             {
-              rdpe_set (s->dradii[s->n_radii], small);
+              rdpe_set (c.dradii[c.n_radii], small);
               MPS_DEBUG (s, "Warning: Some zeros are too small to be\n"
                          "represented as cdpe, they are replaced by\n"
                          "small numbers and the status is set to 'F'.");
             }
           if (temp > xbig)
             {
-              rdpe_set (s->dradii[s->n_radii], big);
+              rdpe_set (c.dradii[c.n_radii], big);
               MPS_DEBUG (s, "Warning: Some zeros are too big to be\n"
                          "represented as cdpe, they are replaced by\n"
                          "big numbers and the status is set to 'F'.");
@@ -760,46 +826,47 @@ mps_mcompute_starting_radii (mps_context * s, int n, mps_cluster_item * cluster_
           /* if the radius is representable as dpe, compute it */
           if (temp <= xbig && temp >= xsmall)
             {
-              rdpe_set_d (s->dradii[s->n_radii], temp);
-              rdpe_exp_eq (s->dradii[s->n_radii]);
+              rdpe_set_d (c.dradii[c.n_radii], temp);
+              rdpe_exp_eq (c.dradii[c.n_radii]);
             }
 
           /* if the radius is greater than the radius of the cluster
            * set the radius equal to the radius of the cluster */
-          if (rdpe_gt (s->dradii[s->n_radii], clust_rad))
-            rdpe_set (s->dradii[s->n_radii], clust_rad);
+          if (rdpe_gt (c.dradii[c.n_radii], clust_rad))
+            rdpe_set (c.dradii[c.n_radii], clust_rad);
 
-          MPS_DEBUG_RDPE (s, s->dradii[s->n_radii], "s->dradii[%d]", s->n_radii);
+          MPS_DEBUG_RDPE (s, c.dradii[c.n_radii], "c.dradii[%d]", c.n_radii);
 
           /* Close partitioning and start a new one */
-          s->partitioning[++s->n_radii] = i;
+          c.partitioning[++c.n_radii] = i;
         }
     }
 
   /* Set last point of the partitioning */
-  s->partitioning[s->n_radii] = n;
+  c.partitioning[c.n_radii] = n;
 
   /* Compact radius that are too near, but not if we are shifting. */
   if (rdpe_ne (g, rdpe_zero))
-    return;
-  for (i = 0; i < s->n_radii; i++)
+    return c;
+
+  for (i = 0; i < c.n_radii; i++)
     {
       /* Scan next radii to see if they are near the
        * i-th that we are considering now  */
-      for (j = i + 1; j < s->n_radii; j++)
+      for (j = i + 1; j < c.n_radii; j++)
         {
           /* Get an estimate of the distance between approximations that would
            * be obtained collapsing the circles. It's a little understimated
            * but this is due to the fact that changing approximation is only
            * a fallback, and not the preferred action to perform. */
-          rdpe_sub (tmp, s->dradii[j], s->dradii[i]);
+          rdpe_sub (tmp, c.dradii[j], c.dradii[i]);
           rdpe_abs_eq (tmp);
-          if (rdpe_lt (s->dradii[i], s->dradii[j]))
-            rdpe_div_eq (tmp, s->dradii[i]);
+          if (rdpe_lt (c.dradii[i], c.dradii[j]))
+            rdpe_div_eq (tmp, c.dradii[i]);
           else
-            rdpe_div_eq (tmp, s->dradii[j]);
+            rdpe_div_eq (tmp, c.dradii[j]);
           rdpe_div_eq_d (tmp, PI);
-          rdpe_mul_eq_d (tmp, s->partitioning[j + 1] - s->partitioning[i]);
+          rdpe_mul_eq_d (tmp, c.partitioning[j + 1] - c.partitioning[i]);
           if (rdpe_gt (tmp, rdpe_one))
             {
               break;
@@ -820,29 +887,32 @@ mps_mcompute_starting_radii (mps_context * s, int n, mps_cluster_item * cluster_
 
       /* We shall now compact circles between i and j, so
        * we start computing the mean of the radius */
-      rdpe_mul_eq_d (s->dradii[i],
-                     s->partitioning[i + 1] - s->partitioning[i]);
+      rdpe_mul_eq_d (c.dradii[i],
+                     c.partitioning[i + 1] - c.partitioning[i]);
       for (k = i + 1; k <= j; k++)
         {
-          rdpe_mul_d (tmp, s->dradii[j],
-                      s->partitioning[k + 1] - s->partitioning[k]);
-          rdpe_add_eq (s->dradii[i], tmp);
+          rdpe_mul_d (tmp, c.dradii[j],
+                      c.partitioning[k + 1] - c.partitioning[k]);
+          rdpe_add_eq (c.dradii[i], tmp);
         }
 
-      rdpe_div_eq_d (s->dradii[i],
-                     s->partitioning[j + 1] - s->partitioning[i]);
+      rdpe_div_eq_d (c.dradii[i],
+                     c.partitioning[j + 1] - c.partitioning[i]);
 
       /* Move other circles backward */
-      for (k = j + 1; k < s->n_radii; k++)
+      for (k = j + 1; k < c.n_radii; k++)
         {
-          rdpe_set (s->dradii[k - offset], s->dradii[k]);
-          s->partitioning[k - offset] = s->partitioning[k];
+          rdpe_set (c.dradii[k - offset], c.dradii[k]);
+          c.partitioning[k - offset] = c.partitioning[k];
         }
 
-      /* Set new s->n_radii and new partitioning */
-      s->n_radii = s->n_radii - offset;
-      s->partitioning[s->n_radii] = n;
+      /* Set new c.n_radii and new partitioning */
+      c.n_radii = c.n_radii - offset;
+      c.partitioning[c.n_radii] = n;
     }
+
+  free (h);
+  return c;
 }
 
 /**
@@ -889,13 +959,16 @@ mps_mstart (mps_context * s, int n, mps_cluster_item * cluster_item,
 
   nzeros = 0;
 
+  mps_starting_configuration c = MPS_STARTING_CONFIGURATION_INIT;
+
   /* Continue to cycle while clusters are _real clusters_,
    * because until now we have detached roots that were not
    * certainly outside of the cluster. */
   while (need_recomputing)
     {
       /* In the general case apply the Rouche-based criterion */
-      mps_mcompute_starting_radii (s, n, cluster_item, clust_rad, g, dap);
+      mps_starting_configuration_clear (s, &c);
+      c = mps_mcompute_starting_radii  (s, n, cluster_item, clust_rad, g, dap);
 
       /* We need to check that the points that we have kept out of
        * the cluster are really out of the clusters. */
@@ -903,11 +976,11 @@ mps_mstart (mps_context * s, int n, mps_cluster_item * cluster_item,
 
       /* Find the maximum radii */
       rdpe_set (rtmp1, rdpe_zero);
-      for (i = 0; i < s->n_radii; i++)
+      for (i = 0; i < c.n_radii; i++)
         {
-          if (rdpe_lt (rtmp1, s->dradii[i]))
+          if (rdpe_lt (rtmp1, c.dradii[i]))
             {
-              rdpe_set (rtmp1, s->dradii[i]);
+              rdpe_set (rtmp1, c.dradii[i]);
             }
         }
 
@@ -953,16 +1026,16 @@ mps_mstart (mps_context * s, int n, mps_cluster_item * cluster_item,
   /* Set initial approximations accordingly to the computed
    * circles  */
   root = (cluster) ? cluster->first : s->clusterization->first->cluster->first;
-  for (i = 0; i < s->n_radii; i++)
+  for (i = 0; i < c.n_radii; i++)
     {
       mps_root * starting_root = root;
 
-      nzeros = s->partitioning[i + 1] - s->partitioning[i];
+      nzeros = c.partitioning[i + 1] - c.partitioning[i];
       ang = pi2 / nzeros;
-      iold = s->partitioning[i];
+      iold = c.partitioning[i];
 
       /* Compute the initial approximations */
-      for (j = iold; j < s->partitioning[i + 1]; j++)
+      for (j = iold; j < c.partitioning[i + 1]; j++)
         {
           jj = j - iold;
 
@@ -972,12 +1045,12 @@ mps_mstart (mps_context * s, int n, mps_cluster_item * cluster_item,
           l = root->k;
 
           cdpe_set_d (ctmp,
-                      cos (ang * jj + th * s->partitioning[i + 1] + sigma),
-                      sin (ang * jj + th * s->partitioning[i + 1] + sigma));
-          cdpe_mul_eq_e (ctmp, s->dradii[i]);
+                      cos (ang * jj + th * c.partitioning[i + 1] + sigma),
+                      sin (ang * jj + th * c.partitioning[i + 1] + sigma));
+          cdpe_mul_eq_e (ctmp, c.dradii[i]);
           cdpe_set (s->root[l]->dvalue, ctmp);
 
-          if (rdpe_eq (s->dradii[i], big) || rdpe_eq (s->dradii[i], small))
+          if (rdpe_eq (c.dradii[i], big) || rdpe_eq (c.dradii[i], small))
             {
               s->root[l]->status = MPS_ROOT_STATUS_NOT_DPE;
             }
@@ -989,7 +1062,7 @@ mps_mstart (mps_context * s, int n, mps_cluster_item * cluster_item,
       /* If the new radius of the cluster is relatively small, then
        * set the status component equal to 'o' (output)
        * and set the corresponding radius */
-      rdpe_set (rtmp1, s->dradii[i]);
+      rdpe_set (rtmp1, c.dradii[i]);
       rdpe_mul_eq_d (rtmp1, (double)nzeros);
       if (rdpe_lt (rtmp1, clust_rad) && s->algorithm == MPS_ALGORITHM_SECULAR_GA)
         rdpe_set (rtmp1, clust_rad);
@@ -999,7 +1072,7 @@ mps_mstart (mps_context * s, int n, mps_cluster_item * cluster_item,
       if (rdpe_le (rtmp1, rtmp2))
         {
           mps_root * root2 = starting_root;
-          for (j = s->partitioning[i]; j < s->partitioning[i + 1]; j++)
+          for (j = c.partitioning[i]; j < c.partitioning[i + 1]; j++)
             {
               l = root2->k;
               s->root[l]->status = MPS_ROOT_STATUS_APPROXIMATED_IN_CLUSTER;
@@ -1007,10 +1080,11 @@ mps_mstart (mps_context * s, int n, mps_cluster_item * cluster_item,
               root2 = root2->next;
             }
         }
-      rdpe_set (clust_rad, s->dradii[i]);
+      rdpe_set (clust_rad, c.dradii[i]);
     }
 
   mpc_clear (mtmp);
+  mps_starting_configuration_clear (s, &c);
 }
 
 /**

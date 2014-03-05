@@ -104,6 +104,7 @@
 #include <mps/private/solve.h>
 #include <mps/private/sort.h>
 #include <mps/private/starting.h>
+#include <mps/private/starting-configuration.h>
 #include <mps/private/threading.h>
 #include <mps/private/tools.h>
 #include <mps/private/touch.h>

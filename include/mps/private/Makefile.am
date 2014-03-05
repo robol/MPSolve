@@ -20,6 +20,7 @@ EXTRA_DIST = \
 	solve.h \
 	sort.h \
 	starting.h \
+	starting-configuration.h \
 	threading.h \
 	tools.h \
 	touch.h \

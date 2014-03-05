@@ -230,7 +230,6 @@ mps_context_shrink (mps_context * s, int n)
 
   /* temporary vectors */
   s->spar1 = mps_realloc (s->spar1, sizeof(mps_boolean) * (n + 2));
-  s->h = mps_realloc (s->h, sizeof(mps_boolean) * (n + 2));
   s->again_old = mps_realloc (s->again_old, sizeof(mps_boolean) * (n));
 
   s->fap1 = mps_realloc (s->fap1, sizeof(double) * (n + 1));
@@ -239,10 +238,6 @@ mps_context_shrink (mps_context * s, int n)
   s->dap1 = mps_realloc (s->dap1, sizeof(rdpe_t) * (n + 1));
   s->dpc1 = mps_realloc (s->dpc1, sizeof(cdpe_t) * (n + 1));
   s->dpc2 = mps_realloc (s->dpc2, sizeof(cdpe_t) * (n + 1));
-
-  s->fradii = mps_realloc (s->fradii, sizeof(double) * (n + 1));
-  s->partitioning = mps_realloc (s->partitioning, sizeof(int) * (n + 2));
-  s->dradii = mps_realloc (s->dradii, sizeof(rdpe_t) * (n + 1));
 
   /* Setting some default here, that were not settable because we didn't know
    * the degree of the polynomial */
@@ -277,7 +272,6 @@ mps_context_expand (mps_context * s, int n)
 
   /* temporary vectors */
   s->spar1 = mps_realloc (s->spar1, sizeof(mps_boolean) * (n + 2));
-  s->h = mps_realloc (s->h, sizeof(mps_boolean) * (n + 2));
   s->again_old = mps_realloc (s->again_old, sizeof(mps_boolean) * (n));
 
   s->fap1 = mps_realloc (s->fap1, sizeof(double) * (n + 1));
@@ -286,10 +280,6 @@ mps_context_expand (mps_context * s, int n)
   s->dap1 = mps_realloc (s->dap1, sizeof(rdpe_t) * (n + 1));
   s->dpc1 = mps_realloc (s->dpc1, sizeof(cdpe_t) * (n + 1));
   s->dpc2 = mps_realloc (s->dpc2, sizeof(cdpe_t) * (n + 1));
-
-  s->fradii = mps_realloc (s->fradii, sizeof(double) * (n + 1));
-  s->partitioning = mps_realloc (s->partitioning, sizeof(int) * (n + 2));
-  s->dradii = mps_realloc (s->dradii, sizeof(rdpe_t) * (n + 1));
 
   /* Setting some default here, that were not settable because we didn't know
    * the degree of the polynomial */

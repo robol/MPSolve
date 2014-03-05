@@ -67,7 +67,6 @@ mps_allocate_data (mps_context * s)
 
   /* temporary vectors */
   s->spar1 = mps_boolean_valloc (s->deg + 2);
-  s->h = mps_boolean_valloc (s->deg + 2);
   s->again_old = mps_boolean_valloc (s->deg);
 
   s->fap1 = double_valloc (s->deg + 1);
@@ -76,10 +75,6 @@ mps_allocate_data (mps_context * s)
   s->dap1 = rdpe_valloc (s->deg + 1);
   s->dpc1 = cdpe_valloc (s->deg + 1);
   s->dpc2 = cdpe_valloc (s->deg + 1);
-
-  s->fradii = double_valloc (s->deg + 1);
-  s->partitioning = int_valloc (s->deg + 2);
-  s->dradii = rdpe_valloc (s->deg + 1);
 
   /* Setting some default here, that were not settable because we didn't know
    * the degree of the polynomial */
@@ -262,7 +257,6 @@ mps_free_data (mps_context * s)
 
   /* free temporary vectors */
   free (s->spar1);
-  free (s->h);
   free (s->again_old);
 
   free (s->fap1);
@@ -271,8 +265,4 @@ mps_free_data (mps_context * s)
   rdpe_vfree (s->dap1);
   cdpe_vfree (s->dpc1);
   cdpe_vfree (s->dpc2);
-
-  free (s->partitioning);
-  free (s->fradii);
-  rdpe_vfree (s->dradii);
 }
