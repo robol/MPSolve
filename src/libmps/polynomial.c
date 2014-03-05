@@ -110,7 +110,17 @@ void
 mps_polynomial_fstart (mps_context * ctx, mps_polynomial * p)
 {
   ctx->operation = MPS_OPERATION_STARTING_POINTS_FP;
-  (*p->fstart)(ctx, p);
+
+  /* Switch the starting strategy based on the selection in ctx->starting_strategy */
+  switch (ctx->starting_strategy)
+    {
+    case MPS_STARTING_STRATEGY_DEFAULT:
+      (*p->fstart)(ctx, p);
+      break;
+    case MPS_STARTING_STRATEGY_RECURSIVE:
+      mps_recursive_fstart (ctx, p);
+      break;
+    }
 }
 
 void

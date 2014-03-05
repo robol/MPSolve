@@ -41,6 +41,10 @@ void mps_general_fstart (mps_context * ctx, mps_polynomial * p);
 void mps_general_dstart (mps_context * ctx, mps_polynomial * p);
 void mps_general_mstart (mps_context * ctx, mps_polynomial * p);
 
+/* functions in recursive-starting.c */
+void mps_recursive_fstart (mps_context * ctx, mps_polynomial * poly);
+void mps_recursive_dstart (mps_context * ctx, mps_polynomial * poly);
+void mps_recursive_mstart (mps_context * ctx, mps_polynomial * poly);
 
 MPS_END_DECLS
 

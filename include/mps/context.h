@@ -449,6 +449,11 @@ struct mps_context {
   mps_algorithm algorithm;
 
   /**
+   * @brief Strategy used to dispose the starting approximations. 
+   */
+  mps_starting_strategy starting_strategy;
+
+  /**
    * @brief Routine that performs the loop needed to coordinate
    * root finding. It has to be called to do the hard work.
    */
@@ -542,6 +547,7 @@ void mps_context_set_output_goal (mps_context * s, mps_output_goal goal);
 void mps_context_set_starting_phase (mps_context * s, mps_phase phase);
 void mps_context_set_log_stream (mps_context * s, FILE * logstr);
 void mps_context_set_jacobi_iterations (mps_context * s, mps_boolean jacobi_iterations);
+void mps_context_select_starting_strategy (mps_context * s, mps_starting_strategy strategy);
 
 /* Debugging */
 void mps_context_set_debug_level (mps_context * s, mps_debug_level level);

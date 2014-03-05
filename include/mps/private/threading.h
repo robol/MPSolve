@@ -361,6 +361,8 @@ void mps_thread_pool_insert_new_thread (mps_context * s, mps_thread_pool * pool)
 
 void mps_thread_pool_wait (mps_context * s, mps_thread_pool * pool);
 
+mps_thread_pool * mps_thread_pool_get_system_pool (mps_context * s);
+
 mps_thread_pool * mps_thread_pool_new (mps_context * s, int n_threads);
 
 void mps_thread_pool_free (mps_context * s, mps_thread_pool * pool);

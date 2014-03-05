@@ -162,6 +162,7 @@ typedef enum mps_output_format mps_output_format;
 typedef enum mps_output_goal mps_output_goal;
 typedef enum mps_search_set mps_search_set;
 typedef enum mps_phase mps_phase;
+typedef enum mps_starting_strategy mps_starting_strategy;
 
 typedef struct mps_input_configuration mps_input_configuration;
 typedef struct mps_output_configuration mps_output_configuration;
@@ -458,6 +459,14 @@ enum mps_representation {
   MPS_REPRESENTATION_SECULAR,
   MPS_REPRESENTATION_MONOMIAL,
   MPS_REPRESENTATION_CHEBYSHEV
+};
+
+/**
+ * @brief Strategy used to select the starting approximations. 
+ */
+enum mps_starting_strategy {
+  MPS_STARTING_STRATEGY_DEFAULT,
+  MPS_STARTING_STRATEGY_RECURSIVE
 };
 
 #endif /* endif MPS_TYPES_H_ */

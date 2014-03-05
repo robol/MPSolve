@@ -70,6 +70,15 @@ mps_context_select_algorithm (mps_context * s, mps_algorithm algorithm)
     }
 }
 
+/**
+ * @brief Select the starting strategy used to dispose the initial approximations. 
+ */
+void
+mps_context_select_starting_strategy (mps_context * s, mps_starting_strategy strategy)
+{
+  s->starting_strategy = strategy;
+}
+
 static void
 mps_context_init (mps_context * s)
 {
@@ -171,6 +180,7 @@ mps_context_free (mps_context * s)
   s->secular_equation = NULL;
 
   pthread_mutex_lock (&context_factory_mutex);
+
   if (context_factory_size < MPS_CONTEXT_FACTORY_MAXIMUM_SIZE)
     {
       context_factory = mps_realloc (context_factory,
@@ -300,14 +310,25 @@ void
 mps_context_set_degree (mps_context * s, int n)
 {
   if (s->initialized)
-    mps_context_resize (s, n);
+    {
+      mps_context_resize (s, n);
+
+      if (s->secular_equation != NULL)
+	{
+	  mps_secular_equation_free (s, MPS_POLYNOMIAL (s->secular_equation));
+	  s->secular_equation = NULL;
+	}
+    }
 
   s->deg = s->n = n;
 
   /* Check if the numer of thread is greater of the number of roots,
      and in that case decrease it */
   if (s->n_threads > s->deg)
-    mps_thread_pool_set_concurrency_limit (s, s->pool, s->deg);
+    {
+      MPS_DEBUG_WITH_INFO (s, "Adjusting concurrency limit to %d", s->deg);
+      mps_thread_pool_set_concurrency_limit (s, s->pool, s->deg);
+    }
 }
 
 /**
@@ -347,6 +368,8 @@ mps_context_set_input_poly (mps_context * s, mps_polynomial * p)
       mps_monomial_poly_deflate (s, p);
       s->zero_roots = s->n - p->degree;
       s->n = p->degree;
+
+      MPS_DEBUG_WITH_INFO (s, "Degree = %d", p->degree);
 
       /* Check if the input polynomial is sparse or not. We can simply check if
        * the again vector is all of true values */

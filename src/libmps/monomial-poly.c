@@ -682,7 +682,7 @@ void mps_monomial_poly_deflate (mps_context * ctx, mps_polynomial * poly)
   /* count number of zero roots (undeflated input polynomial) */
   int zero_roots = 0;
 
-  while (rdpe_eq (p->dap[zero_roots], rdpe_zero))
+  while (rdpe_eq (p->dap[zero_roots], rdpe_zero) && zero_roots < poly->degree)
     zero_roots++;
 
   /* shift down input vectors */

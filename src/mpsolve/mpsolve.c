@@ -17,9 +17,9 @@
 #endif
 
 #if HAVE_GRAPHICAL_DEBUGGER
-#define MPSOLVE_GETOPT_STRING "a:G:D:d::xt:o:O:j:S:O:i:vl:bp:"
+#define MPSOLVE_GETOPT_STRING "a:G:D:d::xt:o:O:j:S:O:i:vl:bp:r"
 #else
-#define MPSOLVE_GETOPT_STRING "a:G:D:d::t:o:O:j:S:O:i:vl:bp:"
+#define MPSOLVE_GETOPT_STRING "a:G:D:d::t:o:O:j:S:O:i:vl:bp:r"
 #endif
 
 #if HAVE_GRAPHICAL_DEBUGGER
@@ -114,7 +114,7 @@ void
 usage (mps_context * s, const char *program)
 {
   fprintf (stdout,
-           "%s [-a alg] [-b] [-G goal] [-o digits] [-i digits] [-j n] [-t type] [-S set] [-D detect] [-O format] [-l] [filename | -p poly] "
+           "%s [-a alg] [-b] [-G goal] [-o digits] [-i digits] [-j n] [-t type] [-S set] [-D detect] [-O format] [-l] [-r] [filename | -p poly] "
 #if HAVE_GRAPHICAL_DEBUGGER
           "[-x] "           
 #endif
@@ -179,6 +179,9 @@ usage (mps_context * s, const char *program)
 #endif
 	   " -p poly     Solve the polynomial specified on the command line. \n"
            "               Example: %s -p \"x^4-6x^9+6/7x + 5\" \n"
+	   " -r          Use a recursive strategy to dispose the initial approximations.\n"
+	   "             This option is available only for monomial polynomials. \n"
+	   "             Note: this option is considered experimental.\n"
            " -v          Print the version and exit\n"
            "\n",
            program, program, program);
@@ -294,6 +297,10 @@ main (int argc, char **argv)
 
           mps_context_free (s);
           exit (EXIT_SUCCESS);
+
+	case 'r':
+	  mps_context_select_starting_strategy (s, MPS_STARTING_STRATEGY_RECURSIVE);
+	  break;
 
         case 'O':
           /* Select the desired output format */

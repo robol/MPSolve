@@ -96,6 +96,7 @@ mps_set_default_values (mps_context * s)
   /* Setup for the default algorithm */
   s->mpsolve_ptr = MPS_MPSOLVE_PTR (mps_standard_mpsolve);
   s->algorithm = MPS_ALGORITHM_STANDARD_MPSOLVE;
+  s->starting_strategy = MPS_STARTING_STRATEGY_DEFAULT;
 
   /* Allocate the thread_pool used in computations. */
   s->pool = mps_thread_pool_new (s, 0);

@@ -29,6 +29,18 @@
 #endif
 
 /**
+ * @brief This is the default shared thread pool that contexts of MPSolve use. 
+ * It's shared here to improve the performance of more contexts using it. 
+ */
+static mps_thread_pool * system_thread_pool = NULL;
+
+/**
+ * @brief This lock is used when trying to detect if the thread pool
+ * has already been allocated or not. 
+ */
+static pthread_mutex_t system_thread_pool_lock = PTHREAD_MUTEX_INITIALIZER;
+
+/**
  * @brief Get number of logic cores on the local machine, or
  * 0 if that information is not available with the method
  * known to this implementations.
@@ -399,6 +411,23 @@ mps_thread_pool_insert_new_thread (mps_context * s, mps_thread_pool * pool)
   thread->next = pool->first;
   pool->first = thread;
   pool->n++;
+}
+
+/**
+ * @brief Obtain a pointer to the default shared thread pool on
+ * this system. 
+ */
+mps_thread_pool * 
+mps_thread_pool_get_system_pool (mps_context * s)
+{
+  pthread_mutex_lock (&system_thread_pool_lock);
+
+  if (system_thread_pool == NULL)
+    system_thread_pool = mps_thread_pool_new (s, 0);
+
+  pthread_mutex_unlock (&system_thread_pool_lock);
+
+  return system_thread_pool;
 }
 
 /**
