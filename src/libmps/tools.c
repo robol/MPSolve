@@ -14,7 +14,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
-#include <mps/tools.h>
+#include <mps/mps.h>
 
 #ifndef RAND_SOURCE
 #define RAND_SOURCE "/dev/random"
