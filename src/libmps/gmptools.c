@@ -13,7 +13,7 @@
 
 #include <stdlib.h>
 #include <math.h>
-#include <mps/gmptools.h>
+#include <mps/mps.h>
 
 /**********************************************
 *                  MPZ_T                      *

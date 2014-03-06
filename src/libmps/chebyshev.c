@@ -9,7 +9,6 @@
  */
 
 #include <mps/mps.h>
-#include <mps/chebyshev.h>
 
 void mps_chebyshev_poly_free (mps_context *, mps_polynomial *);
 long int mps_chebyshev_poly_raise_data (mps_context * ctx, mps_polynomial * poly, long int wp);

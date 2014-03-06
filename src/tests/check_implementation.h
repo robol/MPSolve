@@ -17,11 +17,8 @@ extern "C"
 #endif
 
 #include <check.h>
-#include <mps/interface.h>
-#include <mps/secular-equation.h>
+#include <mps/mps.h>
 #include <gmp.h>
-#include <mps/mpc.h>
-#include <mps/gmptools.h>
 #include <stdlib.h>
 
 /**
