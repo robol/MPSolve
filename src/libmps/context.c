@@ -173,12 +173,6 @@ mps_context_free (mps_context * s)
   free (s->bmpc);
   s->bmpc = NULL;
 
-  /* If a secular equation is present in the old context we should free it
-   * now so it will be reallocated on the first call to the algorithm. */
-  if (s->secular_equation)
-    mps_secular_equation_free (s, MPS_POLYNOMIAL (s->secular_equation));
-  s->secular_equation = NULL;
-
   pthread_mutex_lock (&context_factory_mutex);
 
   if (context_factory_size < MPS_CONTEXT_FACTORY_MAXIMUM_SIZE)
@@ -329,6 +323,13 @@ mps_context_set_degree (mps_context * s, int n)
       MPS_DEBUG_WITH_INFO (s, "Adjusting concurrency limit to %d", s->deg);
       mps_thread_pool_set_concurrency_limit (s, s->pool, s->deg);
     }
+  
+  /* If a secular equation is present in the old context we should free it
+   * now so it will be reallocated on the first call to the algorithm. */
+  if (s->secular_equation && MPS_POLYNOMIAL (s->secular_equation)->degree < n)
+    mps_secular_equation_free (s, MPS_POLYNOMIAL (s->secular_equation));
+  s->secular_equation = NULL;
+
 }
 
 /**

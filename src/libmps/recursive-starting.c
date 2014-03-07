@@ -11,6 +11,49 @@
 #include <mps/mps.h>
 
 /**
+ * @brief Create the monomial poly obtained by mp given by the coefficients
+ * between degree \f$i\f$ and \f$j\f$. The resulting polynomial will have
+ * degree \f$j - i\f$. 
+ *
+ * @param ctx The current mps_context. 
+ * @param mp  The original monomial poly that should be sliced. 
+ * @param i   The lower degree from which the coefficients should be copied. 
+ * @param j   The higher degree from which the coefficients should be copied. 
+ *
+ * @return A newly allocated mps_monomial_poly.
+ */
+static mps_monomial_poly *
+mps_slice_polynomial (mps_context * ctx, mps_monomial_poly * mp, 
+		      int i, int j)
+{
+  /* Perform basic sanity checks on the indices. */
+  if (j < i)
+    return NULL;
+
+  mps_monomial_poly * sliced_poly = mps_monomial_poly_new (ctx, j - i);
+  int k;
+  
+  if (MPS_STRUCTURE_IS_RATIONAL (MPS_POLYNOMIAL (mp)->structure))
+    {
+      for (k = i; k <= j; k++)
+	{
+	  mps_monomial_poly_set_coefficient_q (ctx, sliced_poly, k - i, 
+					       mp->initial_mqp_r[k], 
+					       mp->initial_mqp_i[k]);
+	}
+    }
+  else
+    {
+      for (k = i; k <= j; k++)
+	{
+	  mps_monomial_poly_set_coefficient_f (ctx, sliced_poly, k - i, mp->mfpc[k]);
+	}      
+    }
+
+  return sliced_poly;
+}
+
+/**
  * @brief Select appropriate starting point for the approximation of the roots
  * of the given polynomial by applying a divide-and-conquer strategy described
  * in {TODO: Reference missing}. 
@@ -23,8 +66,11 @@ mps_recursive_fstart (mps_context * ctx, mps_polynomial * poly)
 {
   MPS_DEBUG_THIS_CALL (ctx);
 
+#ifndef DISABLE_DEBUG
+  clock_t * recursive_start_timer = mps_start_timer();
+#endif
+
   int i;
-  mpq_t tmp_r, tmp_i;
 
   if (! MPS_IS_MONOMIAL_POLY (poly))
     {
@@ -36,7 +82,7 @@ mps_recursive_fstart (mps_context * ctx, mps_polynomial * poly)
       return;
     }
 
-  if (poly->degree < 200)
+  if (poly->degree < 50)
     {
       (*poly->fstart)(ctx, poly);
       return;
@@ -64,41 +110,21 @@ mps_recursive_fstart (mps_context * ctx, mps_polynomial * poly)
   /* Split in two polynomials */
   mps_context * rctx = mps_context_new ();
   
-  mps_monomial_poly *left = mps_monomial_poly_new (rctx, middle);
-  mps_monomial_poly *right = mps_monomial_poly_new (rctx, poly->degree - middle);
+  mps_monomial_poly * left = mps_slice_polynomial (rctx, mp, 0, middle);
+  mps_monomial_poly * right = mps_slice_polynomial (rctx, mp, middle, poly->degree);
 
   /* Copy some configuration from the originating context */
   mps_context_add_debug_domain (rctx, ctx->debug_level);
   mps_context_select_algorithm (rctx, ctx->algorithm);
-  mps_context_select_starting_strategy (rctx, MPS_STARTING_STRATEGY_RECURSIVE);
+  // mps_context_select_starting_strategy (rctx, MPS_STARTING_STRATEGY_RECURSIVE);
+  
+  /* In every case we don't really need a high precision to find
+   * good approximations. Here we're going for 16 bits of precision, 
+   * but more reasoning could be put in this choice in the future. */
+  mps_context_set_output_prec (rctx, 16);
 
   MPS_DEBUG_WITH_INFO (ctx, "Divided the polynomial into two polynomials of degree %d and %d", 
 		       middle, poly->degree - middle);
-
-  mpq_init (tmp_r);
-  mpq_init (tmp_i);
-
-  /* Fill in the first polynomial */
-  for (i = 0; i <= middle; i++)
-    {
-      mps_monomial_poly_set_coefficient_q (rctx, left, i, 
-					   mp->initial_mqp_r[i],
-					   mp->initial_mqp_i[i]);
-    }
-
-  mpq_neg (tmp_r, mp->initial_mqp_r[middle]);
-  mpq_neg (tmp_i, mp->initial_mqp_i[middle]);
-  mps_monomial_poly_set_coefficient_q (rctx, right, 0, tmp_r, tmp_i);
-
-  for (i = middle + 1; i <= poly->degree; i++)
-    {
-      mps_monomial_poly_set_coefficient_q (rctx, right, i - middle, 
-					   mp->initial_mqp_r[i],
-					   mp->initial_mqp_i[i]);
-    }
-  
-  mpq_clear (tmp_r);
-  mpq_clear (tmp_i);
 
   /* Recursively solve both polynomials. */
   mps_context_set_input_poly (rctx, MPS_POLYNOMIAL (left));
@@ -110,7 +136,6 @@ mps_recursive_fstart (mps_context * ctx, mps_polynomial * poly)
   mps_approximation ** right_approximations = mps_context_get_approximations (rctx);
 
   /* Use these approximations as starting points for the original polynomial. */
-  mps_context_set_input_poly (ctx, poly);
   for (i = 0; i < poly->degree; i++)
     {
       mps_approximation * appr = (i < middle) ? left_approximations[i] : 
@@ -128,7 +153,12 @@ mps_recursive_fstart (mps_context * ctx, mps_polynomial * poly)
 
   mps_starting_configuration_clear (ctx, &c);
 
-  MPS_DEBUG_WITH_INFO (ctx, "Completed recursive repositioning of polynomials");
+#ifndef DISABLE_DEBUG  
+  long int total_time = mps_stop_timer (recursive_start_timer);
+  if (ctx->debug_level & MPS_DEBUG_TIMINGS)
+    MPS_DEBUG (ctx, "Used %ld ms for the recursive starting strategy", 
+	       total_time);
+#endif
 }
 
 /**

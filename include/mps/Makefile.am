@@ -2,7 +2,9 @@ NULL =
 
 SUBDIRS = private
 
-include_HEADERS = \
+libmps_headersdir = ${includedir}/mps
+
+libmps_headers_HEADERS = \
         ${top_builddir}/include/mps/mt.h \
 	approximation.h \
         chebyshev.h \
