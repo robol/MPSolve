@@ -73,16 +73,16 @@ is \"s\"\
     }
 
     ComplexMatrix parsed_args;
-    if (rows > 1) {
+    if (rows > 1) 
         parsed_args = args(0).complex_matrix_value().transpose();
-    } else
+    else
         parsed_args = args(0).complex_matrix_value();
 
     /* This is the vector of che coefficients of the polynomial */
-    ComplexColumnVector v(parsed_args);
+    ComplexColumnVector v = args(0).complex_vector_value();
 
     /* Get its dimension */
-    octave_idx_type n = cols;
+    octave_idx_type n = rows < cols ? cols : rows;
 
     /* Create vector of the roots */
     ComplexColumnVector res(n - 1);
