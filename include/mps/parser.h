@@ -8,10 +8,10 @@
  *   Leonardo Robol <robol@mail.dm.unipi.it>
  */
 
- /**
-  * @file
-  * @brief Generic parsers for common polynomial types. 
-  */
+/**
+ * @file
+ * @brief Generic parsers for common polynomial types.
+ */
 
 #ifndef MPS_PARSER_H_
 #define MPS_PARSER_H_

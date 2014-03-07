@@ -9,8 +9,8 @@
  */
 
 /**
- * @file 
- * 
+ * @file
+ *
  * @brief Implementation of determinant computation for Hessenberg matrices.
  */
 

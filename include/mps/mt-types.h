@@ -20,7 +20,7 @@
 #ifndef MPS_MT_TYPES_
 #define MPS_MT_TYPES_
 
-#define MPS_LOCK(x) (pthread_mutex_lock (&(x).mutex));
+#define MPS_LOCK(x) (pthread_mutex_lock (&(x).mutex))
 
 #define MPS_UNLOCK(x) (pthread_mutex_unlock (&(x).mutex))
 

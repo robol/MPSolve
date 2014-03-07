@@ -8,10 +8,10 @@
  *   Leonardo Robol <robol@mail.dm.unipi.it>
  */
 
- /**
-  * @file
-  * @brief
-  */
+/**
+ * @file
+ * @brief
+ */
 
 #ifndef MPS_MANDELBROT_USER_H_
 #define MPS_MANDELBROT_USER_H_

@@ -8,10 +8,10 @@
  *   Leonardo Robol <robol@mail.dm.unipi.it>
  */
 
- /**
-  * @file
-  * @brief General routines ported from MPSolve 2.2
-  */
+/**
+ * @file
+ * @brief General routines ported from MPSolve 2.2
+ */
 
 #ifndef MPS_SOLVE_H_
 #define MPS_SOLVE_H_

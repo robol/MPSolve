@@ -4,13 +4,13 @@
  * Copyright (C) 2001-2014, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
- * Authors: 
+ * Authors:
  *   Leonardo Robol <leonardo.robol@sns.it>
  */
 
 /**
  * @file
- * @brief Implementation of radius computation. 
+ * @brief Implementation of radius computation.
  */
 
 #ifndef MPS_RADII_H_

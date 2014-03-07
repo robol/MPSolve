@@ -9,10 +9,10 @@
  */
 
 /**
- * @file 
- * 
- * @brief Implementation of the routines that handle the management of data inside 
- * mps_context objects. 
+ * @file
+ *
+ * @brief Implementation of the routines that handle the management of data inside
+ * mps_context objects.
  */
 
 #ifndef MPS_DATA_H_

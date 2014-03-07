@@ -12,7 +12,7 @@
  * @file
  *
  * @brief This file contains the entry points of the various algorithms implemented in
- * MPSolve. 
+ * MPSolve.
  */
 
 #ifndef MPS_ALGORITHMS_H_
@@ -20,7 +20,7 @@
 
 MPS_BEGIN_DECLS
 
-/* This is the standard MPSolve algorithm used also in MPSolve 2.2 
+/* This is the standard MPSolve algorithm used also in MPSolve 2.2
  * The version implemented here is modified to use the new framework. */
 void mps_standard_mpsolve (mps_context * s);
 

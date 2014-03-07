@@ -8,10 +8,10 @@
  *   Leonardo Robol <robol@mail.dm.unipi.it>
  */
 
- /**
-  * @file
-  * @brief Evaluation of secular equations. 
-  */
+/**
+ * @file
+ * @brief Evaluation of secular equations.
+ */
 
 #include <mps/mps.h>
 
@@ -22,15 +22,15 @@ MPS_BEGIN_DECLS
 
 /* Functions in secular-evaluation.c */
 mps_boolean mps_secular_feval (mps_context * s, mps_polynomial * p, cplx_t x, cplx_t value);
-mps_boolean mps_secular_feval_with_error (mps_context * s, mps_polynomial * p, 
-					  cplx_t x, cplx_t value, double * error);
+mps_boolean mps_secular_feval_with_error (mps_context * s, mps_polynomial * p,
+                                          cplx_t x, cplx_t value, double * error);
 mps_boolean mps_secular_deval (mps_context * s, mps_polynomial * p, cdpe_t x, cdpe_t value);
 mps_boolean mps_secular_deval_derivative (mps_context * s, mps_polynomial * p, cdpe_t x, cdpe_t value);
-mps_boolean mps_secular_deval_with_error (mps_context * s, mps_polynomial * p, 
-					  cdpe_t x, cdpe_t value, rdpe_t error);
+mps_boolean mps_secular_deval_with_error (mps_context * s, mps_polynomial * p,
+                                          cdpe_t x, cdpe_t value, rdpe_t error);
 mps_boolean mps_secular_meval (mps_context * s, mps_polynomial * p, mpc_t x, mpc_t value);
-mps_boolean mps_secular_meval_with_error (mps_context * s, mps_polynomial * p, 
-					  mpc_t x, mpc_t value, rdpe_t error);
+mps_boolean mps_secular_meval_with_error (mps_context * s, mps_polynomial * p,
+                                          mpc_t x, mpc_t value, rdpe_t error);
 mps_boolean mps_secular_feval_derivative (mps_context * s, mps_polynomial * p, cplx_t x, cplx_t value);
 
 MPS_END_DECLS

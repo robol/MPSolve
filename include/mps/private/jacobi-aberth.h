@@ -9,8 +9,8 @@
  */
 
 /**
- * @file 
- * 
+ * @file
+ *
  * @brief Implementation of the iterations using Jacobi-style updates.
  */
 

@@ -9,12 +9,12 @@
  */
 
 /**
- * @file 
- * 
- * Implementation of the routines that compute the Aberth correction starting from the
- * Newton's one. 
+ * @file
  *
- * @brief Implementation of Aberth correction computation. 
+ * Implementation of the routines that compute the Aberth correction starting from the
+ * Newton's one.
+ *
+ * @brief Implementation of Aberth correction computation.
  */
 
 #ifndef MPS_ABERTH_H_

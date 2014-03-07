@@ -9,9 +9,9 @@
  */
 
 /**
- * @file 
- * 
- * @brief Refining of isolated approximations by means of Newton method. 
+ * @file
+ *
+ * @brief Refining of isolated approximations by means of Newton method.
  */
 
 #ifndef MPS_IMPROVE_H_

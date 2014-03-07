@@ -462,7 +462,7 @@ enum mps_representation {
 };
 
 /**
- * @brief Strategy used to select the starting approximations. 
+ * @brief Strategy used to select the starting approximations.
  */
 enum mps_starting_strategy {
   MPS_STARTING_STRATEGY_DEFAULT,

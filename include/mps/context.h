@@ -449,7 +449,7 @@ struct mps_context {
   mps_algorithm algorithm;
 
   /**
-   * @brief Strategy used to dispose the starting approximations. 
+   * @brief Strategy used to dispose the starting approximations.
    */
   mps_starting_strategy starting_strategy;
 

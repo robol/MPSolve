@@ -12,7 +12,7 @@
  * @file
  *
  * @brief Data structures for cluster analysis and some accessors and
- * internal functions. 
+ * internal functions.
  */
 
 #ifndef MPS_CLUSTER_H_

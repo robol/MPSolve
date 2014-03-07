@@ -8,10 +8,10 @@
  *   Leonardo Robol <robol@mail.dm.unipi.it>
  */
 
- /**
-  * @file
-  * @brief Generic input-output functions inside MPSolve. 
-  */
+/**
+ * @file
+ * @brief Generic input-output functions inside MPSolve.
+ */
 
 #ifndef MPS_INPUT_OUTPUT_H_
 #define MPS_INPUT_OUTPUT_H_

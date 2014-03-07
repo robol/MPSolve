@@ -55,7 +55,7 @@
 #include <config.h>
 #endif
 
-/* This header should be included first since it contains all the forward 
+/* This header should be included first since it contains all the forward
  * declaration that must be available in the others. */
 #include <mps/types.h>
 

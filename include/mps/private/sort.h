@@ -4,13 +4,13 @@
  * Copyright (C) 2001-2014, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
- * Authors: 
+ * Authors:
  *   Leonardo Robol <leonardo.robol@sns.it>
  */
 
 /**
  * @file
- * @brief Implementation of sorting routines for MPSolve. 
+ * @brief Implementation of sorting routines for MPSolve.
  */
 
 #ifndef MPS_SORT_H_

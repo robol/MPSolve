@@ -8,10 +8,10 @@
  *   Leonardo Robol <robol@mail.dm.unipi.it>
  */
 
- /**
-  * @file
-  * @brief Routines that check the emptyness of the intersection of several sets. 
-  */
+/**
+ * @file
+ * @brief Routines that check the emptyness of the intersection of several sets.
+ */
 
 #ifndef MPS_TOUCH_H_
 #define MPS_TOUCH_H_

@@ -8,11 +8,11 @@
  *   Leonardo Robol <robol@mail.dm.unipi.it>
  */
 
- /**
-  * @file
-  * @brief Selection of starting points and shifting of the polynomials
-  * to zoom in the clusters. 
-  */
+/**
+ * @file
+ * @brief Selection of starting points and shifting of the polynomials
+ * to zoom in the clusters.
+ */
 
 #ifndef MPS_STARTING_H_
 #define MPS_STARTING_H_
