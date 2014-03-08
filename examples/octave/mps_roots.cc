@@ -79,7 +79,7 @@ is \"s\"\
         parsed_args = args(0).complex_matrix_value();
 
     /* This is the vector of che coefficients of the polynomial */
-    ComplexColumnVector v = args(0).complex_vector_value();
+    ComplexColumnVector v = args(0).complex_column_vector_value();
 
     /* Get its dimension */
     octave_idx_type n = rows < cols ? cols : rows;
@@ -97,7 +97,8 @@ is \"s\"\
       int64NDArray real_coeffs = args(0).real().int64_array_value();
       int64NDArray imag_coeffs = args(0).imag().int64_array_value();
       for (int i = 0; i < n; i++)
-	mps_monomial_poly_set_coefficient_int (s, p, (n - i - 1), (int64_t) (real_coeffs(i)), (int64_t) (imag_coeffs(i)));
+	mps_monomial_poly_set_coefficient_int (s, p, (n - i - 1), (int64_t) (real_coeffs(i)), 
+					       (int64_t) (imag_coeffs(i)));
    }
     else {
       for(int i = 0; i < n; i++) {
