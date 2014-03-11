@@ -5,12 +5,20 @@
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
  * Authors:
- *   Dario Andrea Bini <bini@dm.unipi.it>
- *   Giuseppe Fiorentino <fiorent@dm.unipi.it>
  *   Leonardo Robol <robol@mail.dm.unipi.it>
  */
 
-#include <mps/secular-poly.h>
-#include <mps/mps.h>
+ /**
+  * @file 
+  * @brief This file holds the C++ interfaces for MPSolve. 
+  */
 
+#ifndef MPS_MPSXX_H_
+#define MPS_MPSXX_H_
+
+#include <mps/mps.h>
+#include <mps/c++/polynomial.h>
+#include <mps/c++/nroots-polynomial.h>
+
+#endif /* MPS_MPSXX_H_ */
 

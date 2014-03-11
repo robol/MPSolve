@@ -137,8 +137,3 @@ echo ":copy-in-global-log: $gcopy" >> $trs_file
 # time-stamp-time-zone: "UTC"
 # time-stamp-end: "; # UTC"
 # End:
-
-if test $estatus != 0
-then
-    sed -e "s/^/$log_file:\t/" $log_file # but a cat is fine too
-fi

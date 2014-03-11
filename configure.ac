@@ -9,7 +9,7 @@ AC_CONFIG_MACRO_DIR([m4])
 
 LT_INIT
 
-AM_INIT_AUTOMAKE([dist-bzip2 -Wno-portability])
+AM_INIT_AUTOMAKE([dist-bzip2 -Wno-portability subdir-objects])
 
 m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
 
@@ -255,7 +255,24 @@ AS_IF([test x$build_hard_float = xyes], [
   # If available, the <complex.h> header will be used since
   # it will probably provide a better (and faster) implementation
   # of floating point complex arithmetic. 
-  AC_CHECK_HEADER([complex.h], [
+  AC_MSG_CHECKING([if C99 complex.h is supported from the C++ compiler])
+  AC_COMPILE_IFELSE([
+    AC_LANG_SOURCE([[
+      extern "C" {
+        #include <complex.h>
+      }
+
+      int main() {
+        _Complex double a;
+        return 0;
+      }
+    ]])],
+    [have_complex_h=yes], 
+    [have_complex_h=no]
+  )
+  AC_MSG_RESULT([$have_complex_h])
+
+  AS_IF([test x$have_complex_h == xyes],  [
     AC_SUBST([MPS_USE_BUILTIN_COMPLEX], [0])
   ], [
     COMPLEX_CFLAGS="-DMPS_USE_BUILTIN_COMPLEX"
@@ -276,7 +293,7 @@ AS_IF([test x$build_hard_float = xyes], [
     AC_SUBST(GMP_CFLAGS)
     AC_SUBST(GMP_LIBS)
 
-    LIBMPS_CFLAGS="-D_REENTRANT -Wstrict-prototypes -Wall $COMPLEX_CFLAGS $LIBMPS_CFLAGS"
+    LIBMPS_CFLAGS="-D_REENTRANT -Wall $COMPLEX_CFLAGS $LIBMPS_CFLAGS"
 
     AC_CHECK_LIB([gmp], [__gmpz_init2])
     AC_CHECK_HEADERS([gmp.h], [mpsolve_found_gmp_headers=yes; break;])
@@ -568,6 +585,7 @@ AC_CONFIG_FILES([Makefile
     include/Makefile
     include/mps/Makefile
     include/mps/private/Makefile
+    include/mps/c++/Makefile
     examples/Makefile
     examples/octave/Makefile
     examples/matlab/Makefile

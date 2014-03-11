@@ -1,6 +1,6 @@
 NULL = 
 
-SUBDIRS = private
+SUBDIRS = private c++
 
 libmps_headersdir = ${includedir}/mps
 
@@ -18,6 +18,7 @@ libmps_headers_HEADERS = \
         monomial-poly.h \
         mpc.h \
         mps.h \
+	mpsxx.h \
         mt-types.h \
 	parser.h \
         polynomial.h \

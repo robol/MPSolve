@@ -8,6 +8,9 @@
  *   Leonardo Robol <robol@mail.dm.unipi.it>
  */
 
+/* This is required for old glibc */
+#define _GNU_SOURCE
+
 #include <mps/mps.h>
 #include <string.h>
 #include <stdlib.h>
