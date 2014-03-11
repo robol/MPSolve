@@ -96,6 +96,7 @@
 #include <mps/private/improve.h>
 #include <mps/private/input-buffer.h>
 #include <mps/private/input-output.h>
+#include <mps/private/list.h>
 #include <mps/private/mandelbrot-user.h>
 #include <mps/private/newton.h>
 #include <mps/private/options.h>

@@ -98,6 +98,12 @@ struct mps_approximation;
 /* options.h */
 struct mps_opt;
 struct mps_input_option;
+struct mps_command_line_option;
+struct mps_command_line_option_configuration;
+
+/* list.h */
+struct mps_list_element;
+struct mps_list;
 
 struct mps_input_configuration;
 struct mps_output_configuration;
@@ -147,6 +153,12 @@ typedef struct mps_approximation mps_approximation;
 /* options.h */
 typedef struct mps_opt mps_opt;
 typedef struct mps_input_option mps_input_option;
+typedef struct mps_command_line_option mps_command_line_option;
+typedef struct mps_command_line_option_configuration mps_command_line_option_configuration;
+
+/* list.h */
+typedef struct mps_list_element mps_list_element;
+typedef struct mps_list mps_list;
 
 typedef enum mps_root_status mps_root_status;
 typedef enum mps_root_inclusion mps_root_inclusion;

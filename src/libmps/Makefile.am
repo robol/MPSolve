@@ -39,6 +39,8 @@ libmps_la_SOURCES = \
 	    interface.c \
 	    jacobi-aberth.c \
 	    link.c \
+	    list.c \
+	    list-element.c \
 	    main.c \
 	    modify.c \
 	    monomial-parser.c \

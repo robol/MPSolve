@@ -12,6 +12,7 @@ EXTRA_DIST = \
 	improve.h \
 	input-buffer.h \
 	input-output.h \
+	list.h \
 	options.h \
 	mandelbrot-user.h \
 	newton.h \
