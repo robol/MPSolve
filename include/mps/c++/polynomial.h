@@ -20,7 +20,7 @@
 
 namespace mps {
 
-  class Polynomial : mps_polynomial {
+  class Polynomial : public mps_polynomial {
 
   public:
     /**
@@ -28,9 +28,9 @@ namespace mps {
      * struct to reflect the actual content of the C++ implementation that may have been
      * provided in extension to this class. 
      */
-    Polynomial ();
+    explicit Polynomial (mps_context * ctx, const char * type_name = "mps_polynomial");
 
-    ~Polynomial ();
+    virtual ~Polynomial ();
 
     /**
      * @brief Public accessor to the degree of the Polynomial. 
@@ -89,12 +89,47 @@ namespace mps {
      * Note that this might be a no-op on polynomials that are defined implicitly or
      * without the need for explicit coefficients. 
      */
-    long int raise_data (mps_context * ctx, long int wp);
+    virtual long int raise_data_wp (mps_context * ctx, long int wp);
+
+    virtual void start_fp  (mps_context * ctx);
+    virtual void start_dpe (mps_context * ctx);
+    virtual void start_mp  (mps_context * ctx);
+
+    virtual void get_leading_coefficient (mps_context * ctx, mpc_t lc);
+
+    virtual void newton (mps_context * ctx, mps_approximation * a, cplx_t x) = 0;
+    virtual void newton (mps_context * ctx, mps_approximation * a, cdpe_t x) = 0;
+    virtual void newton (mps_context * ctx, mps_approximation * a, mpc_t x, long int wp) = 0;
     
   public:
-    static mps_boolean feval_wrapper (mps_context * ctx, mps_polynomial *p, cplx_t x, cplx_t value, double * error);
-    static mps_boolean deval_wrapper (mps_context * ctx, mps_polynomial *p, cdpe_t x, cdpe_t value, rdpe_t error);
-    static mps_boolean meval_wrapper (mps_context * ctx, mps_polynomial *p, mpc_t x, mpc_t value, rdpe_t error);
+    static mps_boolean feval_wrapper (mps_context * ctx, mps_polynomial *p, 
+				      cplx_t x, cplx_t value, double * error);
+
+    static mps_boolean deval_wrapper (mps_context * ctx, mps_polynomial *p, 
+				      cdpe_t x, cdpe_t value, rdpe_t error);
+
+    static mps_boolean meval_wrapper (mps_context * ctx, mps_polynomial *p, 
+				      mpc_t x, mpc_t value, rdpe_t error);
+
+    static void free_wrapper (mps_context * ctx, mps_polynomial * p);
+    
+    static long int raise_data_wrapper (mps_context * ctx, mps_polynomial * p, 
+					long int wp);
+
+    static void fstart_wrapper (mps_context * ctx, mps_polynomial * p);
+    static void dstart_wrapper (mps_context * ctx, mps_polynomial * p);
+    static void mstart_wrapper (mps_context * ctx, mps_polynomial * p);
+
+    static void fnewton_wrapper (mps_context * ctx, mps_polynomial * p, 
+				 mps_approximation * a, cplx_t x);
+    static void dnewton_wrapper (mps_context * ctx, mps_polynomial * p,
+				 mps_approximation * a, cdpe_t x);
+    static void mnewton_wrapper (mps_context * ctx, mps_polynomial * p, 
+				 mps_approximation * a, mpc_t x, 
+				 long int wp);
+
+    static void get_leading_coefficient_wrapper (mps_context * ctx, mps_polynomial * p,
+						 mpc_t leading_coefficient);
     
 
   };
