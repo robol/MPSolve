@@ -12,11 +12,6 @@ AM_CPPFLAGS= \
 	$(PTHREAD_CFLAGS) \
 	$(NULL)
 
-EXTRA_DIST = \
-	system/abstract-file-stream.h \
-	system/memory-file-stream.h \
-	$(NULL)
-
 libmps_la_CXXSOURCES = \
 	c++/nroots-polynomial.cpp \
 	c++/polynomial.cpp \
