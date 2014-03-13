@@ -12,6 +12,11 @@ AM_CPPFLAGS= \
 	$(PTHREAD_CFLAGS) \
 	$(NULL)
 
+EXTRA_DIST = \
+	system/abstract-file-stream.h \
+	system/memory-file-stream.h \
+	$(NULL)
+
 libmps_la_CXXSOURCES = \
 	c++/nroots-polynomial.cpp \
 	c++/polynomial.cpp \
@@ -70,8 +75,12 @@ libmps_la_SOURCES = \
 	secular/secular-newton.c \
 	secular/secular-parser.c \
 	secular/secular-starting.c \
+	system/abstract-input-stream.cpp \
+	system/file-input-stream.cpp \
+	system/memory-file-stream.cpp \
 	system/data.c \
 	system/debug.c \
+	system/getline.c \
 	system/getopts.c \
 	system/input-buffer.c \
 	system/input-output.c \

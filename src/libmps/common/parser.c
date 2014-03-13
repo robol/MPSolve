@@ -227,38 +227,11 @@ mps_parse_file (mps_context * s, const char * path)
     }
 }
 
-#ifndef HAVE_FMEMOPEN
-extern FILE * fmemopen (void *__s, size_t __len, const char *__modes);
-#endif
-
-mps_polynomial *
-mps_parse_string (mps_context * s, const char * c_string)
-{
-  char * input_copy = strdup (c_string);
-
-  FILE * handle = fmemopen (input_copy, strlen (c_string), "r");
-
-  if (!handle)
-    {
-      mps_error (s, "Error while reading string: %s", c_string);
-      free (input_copy);
-      return NULL;
-    }
-  else
-    {
-      mps_polynomial *poly = mps_parse_stream (s, handle);
-      fclose (handle);
-      free (input_copy);
-      return poly;
-    }
-}
-
-
 /**
  * @brief Parse a stream for input data.
  */
-mps_polynomial *
-mps_parse_stream (mps_context * s, FILE * input_stream)
+MPS_PRIVATE mps_polynomial *
+mps_parse_abstract_stream (mps_context * s, mps_abstract_input_stream * stream)
 {
   /* This is needed to avoid strange decimal separators */
   setlocale (LC_NUMERIC, "C");
@@ -277,19 +250,13 @@ mps_parse_stream (mps_context * s, FILE * input_stream)
 
   mps_polynomial * poly = NULL;
 
-  if (!input_stream)
-    input_stream = s->instr;
-
   /* Create a buffered line reader for the input stream
    * that has been assigned to us */
-  buffer = mps_input_buffer_new (input_stream);
+  buffer = mps_input_buffer_new (stream);
 
   /* Set values for required options so we can identify
    * their omission */
   s->n = -1;
-
-  /* Skip initial comments in the stream */
-  mps_skip_comments (input_stream);
 
   while (parsing_options)
     {
@@ -465,3 +432,33 @@ mps_parse_stream (mps_context * s, FILE * input_stream)
 
   return poly;
 }
+
+mps_polynomial *
+mps_parse_stream (mps_context * s, FILE * input_stream)
+{
+  if (! input_stream)
+    input_stream = s->instr;
+
+  mps_skip_comments (input_stream);
+
+  mps_file_input_stream * stream = mps_file_input_stream_new (input_stream);
+  mps_polynomial * p = mps_parse_abstract_stream (s, (mps_abstract_input_stream*) stream);
+  mps_file_input_stream_free (stream);
+
+  return p;
+}
+
+mps_polynomial *
+mps_parse_string (mps_context * s, const char * c_string)
+{
+  char * input_copy = strdup (c_string);
+
+  mps_memory_file_stream * stream = mps_memory_file_stream_new (input_copy);
+  mps_polynomial * poly = mps_parse_abstract_stream (s, (mps_abstract_input_stream*) stream);
+
+  mps_memory_file_stream_free (stream);
+  free (input_copy);
+  
+  return poly;
+}
+

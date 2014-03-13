@@ -18,6 +18,8 @@
 
 #include <mps/mpsxx.h>
 
+#ifdef __cplusplus
+
 namespace mps {
 
   class Polynomial : public mps_polynomial {
@@ -135,6 +137,8 @@ namespace mps {
   };
 
 }
+
+#endif
 
 #endif /* MPS_POLYNOMIALXX_H_ */
 

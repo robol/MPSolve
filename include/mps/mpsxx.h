@@ -20,5 +20,11 @@
 #include <mps/c++/polynomial.h>
 #include <mps/c++/nroots-polynomial.h>
 
+#ifdef _MPS_PRIVATE
+#include <mps/private/system/abstract-input-stream.h>
+#include <mps/private/system/memory-file-stream.h>
+#include <mps/private/system/file-input-stream.h>
+#endif
+
 #endif /* MPS_MPSXX_H_ */
 

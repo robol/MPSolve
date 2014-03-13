@@ -1,0 +1,75 @@
+/*
+ * This file is part of MPSolve 3.1.5
+ *
+ * Copyright (C) 2001-2014, Dipartimento di Matematica "L. Tonelli", Pisa.
+ * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
+ *
+ * Authors:
+ *   Leonardo Robol <robol@mail.dm.unipi.it>
+ */
+
+/**
+ * @file
+ * @brief Abstract input stream used to parse files.
+ *
+ * The implementation is C++ but C API is provided. 
+ */
+
+#ifndef MPS_ABSTRACT_INPUT_STREAM_H_
+#define MPS_ABSTRACT_INPUT_STREAM_H_
+
+/* C compatibility layer */
+MPS_BEGIN_DECLS
+  struct mps_abstract_input_stream;
+
+  /**
+   * @brief C wrapper around {@linke AbstractInputStream}. 
+   */
+  typedef struct mps_abstract_input_stream mps_abstract_input_stream;
+
+  /**
+   * @brief Wrapper around {@link AbstractInputStream::readline()}. 
+   */
+  size_t mps_abstract_input_stream_readline (mps_abstract_input_stream * stream, 
+					     char ** buffer, size_t * length);
+
+  /**
+   * @brief Wrapper around {@link AbstractInputStream::eof()}. 
+   */
+  mps_boolean mps_abstract_input_stream_eof (mps_abstract_input_stream * stream);
+
+MPS_END_DECLS
+  
+/* The following is C++ only */
+#ifdef __cplusplus
+
+namespace mps {
+
+  class AbstractInputStream {
+
+  public:
+
+    virtual ~AbstractInputStream() = 0;
+
+    /**
+     * @brief Return a new line of the stream or NULL if we are at
+     * the end. 
+     *
+     * @return A pointer to a newly allocated line or NULL. 
+     */
+    virtual size_t readline (char ** buffer, size_t * length) = 0;
+
+    /**
+     * @brief Check if we are at the end of the stream. 
+     *
+     * @return true if we are at the end of the stream. 
+     */
+    virtual bool eof () = 0;
+
+  };
+
+}
+
+#endif /* __cplusplus */
+
+#endif /* MPS_ABSTRACT_INPUT_STREAM_H_ */

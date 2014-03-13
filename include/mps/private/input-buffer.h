@@ -11,6 +11,8 @@
 #ifndef MPS_INPUT_BUFFER_H_
 #define MPS_INPUT_BUFFER_H_
 
+#include <mps/private/system/abstract-input-stream.h>
+
 /**
  * @file
  * @brief Implementation of a buffer for parsing input file for MPSolve.
@@ -33,7 +35,7 @@ struct mps_input_buffer {
    * @brief Stream associated with the
    * mps_input_buffer
    */
-  FILE *stream;
+  mps_abstract_input_stream *stream;
 
   /**
    * @brief Pointer the last line read in the
@@ -88,7 +90,7 @@ struct mps_input_buffer {
 };
 
 /* Function prototypes */
-mps_input_buffer *mps_input_buffer_new (FILE * stream);
+mps_input_buffer *mps_input_buffer_new (mps_abstract_input_stream * stream);
 int mps_input_buffer_readline (mps_input_buffer * buf);
 void mps_input_buffer_free (mps_input_buffer * buf);
 void mps_input_buffer_set_history_size (mps_input_buffer * buf, size_t size);

@@ -251,12 +251,6 @@ AC_ARG_ENABLE([tcmalloc],
   # getline is used to parse the input files. 
   AC_CHECK_FUNCS(getline)
 
-  # fmemopen is used to open memory as a FILE*, so we can re-use
-  # the input-buffer implementation to parse strings. 
-  AC_CHECK_FUNCS(fmemopen)
-
-
-
 
 ##
 ## Section 2) Mathematical routines and libaries

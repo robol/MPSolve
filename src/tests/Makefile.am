@@ -9,9 +9,9 @@ TESTS = $(check_PROGRAMS)
 AM_TEST_ENVIRONMENT = \
   SRCDIR=$(abs_srcdir) BUILDDIR=$(abs_builddir)
 
-COMMON_LIBS = ${top_builddir}/src/libmps/libmpsprivate.la -lm $(GMP_LIBS) $(CHECK_LIBS) $(PTHREAD_LIBS)
+COMMON_LIBS = -lm $(GMP_LIBS) $(CHECK_LIBS) $(PTHREAD_LIBS) ${top_builddir}/src/libmps/libmpsprivate.la 
 COMMON_CFLAGS = $(CHECK_CFLAGS) $(GMP_CFLAGS) $(PTHREAD_CFLAGS) -I${top_srcdir}/include -D_MPS_PRIVATE -g -O0
-COMMON_SOURCES = check_implementation.c check_implementation.h
+COMMON_SOURCES = check_implementation.cpp check_implementation.h
 
  check_list_SOURCES = check_list.c $(COMMON_SOURCES)
  check_list_CFLAGS = $(COMMON_CFLAGS)

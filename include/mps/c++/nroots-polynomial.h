@@ -16,6 +16,8 @@
 #ifndef MPS_NROOTS_POLYNOMIAL_H_
 #define MPS_NROOTS_POLYNOMIAL_H_
 
+#ifdef __cplusplus
+
 #include <mps/mpsxx.h>
 
 namespace mps {
@@ -49,6 +51,8 @@ namespace mps {
   };
 
 }
+
+#endif
 
 
 #endif /* MPS_NROOTS_POLYNOMIAL_H_ */

@@ -36,7 +36,6 @@ mps_polynomial * poly = NULL;
 #ifndef __WINDOWS
 #include <signal.h>
 
-
 void
 status (int signal)
 {

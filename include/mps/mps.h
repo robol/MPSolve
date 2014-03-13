@@ -85,6 +85,16 @@
 /* Private inclusions. Please note that these header files may not be distributed with
  * MPSolve, so it's safe to use them only for internal functions. */
 #ifdef _MPS_PRIVATE
+
+#ifndef getline
+MPS_BEGIN_DECLS
+ssize_t getline (char **lineptr, size_t *n, FILE *stream);
+MPS_END_DECLS
+#endif
+
+#include <mps/private/system/abstract-input-stream.h>
+#include <mps/private/system/file-input-stream.h>
+#include <mps/private/system/memory-file-stream.h>
 #include <mps/private/aberth.h>
 #include <mps/private/algorithms.h>
 #include <mps/private/cluster.h>

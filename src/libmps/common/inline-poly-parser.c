@@ -370,28 +370,6 @@ parse_sign (mps_context * ctx, char * line, int * sign, mps_boolean *sign_found)
   return line;
 }
 
-mps_polynomial *
-mps_parse_inline_poly_from_string (mps_context * ctx, const char * input)
-{
-  char * input_copy = strdup (input);
-  FILE * handle = fmemopen (input_copy, strlen (input), "r");
-
-  if (!handle)
-    {
-      mps_error (ctx, "Error while reading string: %s", input);
-      free (input_copy);
-      return NULL;
-    }
-  else
-    {
-      mps_polynomial *poly = mps_parse_inline_poly (ctx, handle);
-
-      fclose (handle);
-      free (input_copy);
-      return poly;
-    }
-}
-
 static void
 update_poly_coefficients (mps_context * ctx,
                           mpq_t ** coefficients_real, mpq_t ** coefficients_imag,
@@ -471,8 +449,8 @@ update_poly_coefficients (mps_context * ctx,
  * @param stream The input stream that shall be used to read the input
  * polynomial.
  */
-mps_polynomial *
-mps_parse_inline_poly (mps_context *ctx, FILE * stream)
+MPS_PRIVATE mps_polynomial *
+mps_parse_inline_poly_from_stream (mps_context *ctx, mps_abstract_input_stream * stream)
 {
   mps_input_buffer * buffer = mps_input_buffer_new (stream);
   int poly_degree = -1;
@@ -660,5 +638,43 @@ cleanup:
   mpq_clear (current_coefficient_real);
   mpq_clear (current_coefficient_imag);
 
+  return poly;
+}
+
+/**
+ * @brief Parse a polynomial described the "usual" way, i.e., written
+ * as a_k x^k + a_{k-1} x^{k-1} + ... + a_0.
+ *
+ * @param ctx The current mps_context.
+ * @param handle A FILE* handle from which the polynomial should be read. 
+ */
+MPS_PRIVATE mps_polynomial *
+mps_parse_inline_poly (mps_context *ctx, FILE * handle)
+{
+  mps_file_input_stream * stream = mps_file_input_stream_new (handle);
+  mps_polynomial * p = mps_parse_inline_poly_from_stream (ctx, (mps_abstract_input_stream*) stream);
+  mps_file_input_stream_free (stream);
+
+  return p;
+}
+
+/**
+ * @brief Parse a polynomial described the "usual" way, i.e., written
+ * as a_k x^k + a_{k-1} x^{k-1} + ... + a_0.
+ *
+ * @param ctx The current mps_context.
+ * @param handle A string from which the polynomial should be read. 
+ */
+mps_polynomial *
+mps_parse_inline_poly_from_string (mps_context * ctx, const char * input)
+{
+  char * input_copy = strdup (input);
+
+  mps_memory_file_stream * stream = mps_memory_file_stream_new (input_copy);
+  mps_polynomial * poly = mps_parse_inline_poly_from_stream (ctx, (mps_abstract_input_stream*) stream);
+
+  mps_memory_file_stream_free (stream);
+  free (input_copy);
+  
   return poly;
 }
