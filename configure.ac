@@ -101,6 +101,14 @@ AS_IF([test x$build_hard_float = xyes], [
   CFLAGS="-mfloat-abi=softfp -mfpu=vfpv3-d16"
 ])
 
+# Check if the user wants to use the standard system malloc even if tcmalloc
+# is installed. 
+AC_ARG_ENABLE([tcmalloc],
+        AS_HELP_STRING([--disable-tcmalloc], [Disable the use of the thread caching malloc]),
+        [enable_tcmalloc=$enableval have_tcmalloc=$enableval],
+        [enable_tcmalloc=yes have_tcmalloc=yes])
+
+
 
 #
 # ==== LIBRARY DETECTION ==== 
@@ -221,7 +229,9 @@ AS_IF([test x$build_hard_float = xyes], [
 
   ## Subsection 0.4) Check for a custom malloc implementation with threading support and a good
   ## caching algorithm. 
-    AC_CHECK_LIB([tcmalloc_minimal], [malloc])
+    AS_IF([test "$have_tcmalloc" == "yes"], [
+      AC_CHECK_LIB([tcmalloc_minimal], [malloc])
+    ])
 
 
 
