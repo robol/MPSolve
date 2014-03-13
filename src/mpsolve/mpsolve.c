@@ -261,8 +261,6 @@ main (int argc, char **argv)
   long int input_precision = -1;
   char * inline_poly = NULL;
 
-  mps_context_set_input_prec (s, 0);
-
   FILE *infile;
 
   /* Parse options */
@@ -646,7 +644,7 @@ main (int argc, char **argv)
 
   /* Override input precision if needed */
   if (input_precision >= 0)
-    mps_context_set_input_prec (s, input_precision);
+    mps_polynomial_set_input_prec (s, poly, input_precision);
 
   /* Perform some heuristic for the algorithm selection, but only if the user
    * hasn't explicitely selected one. */

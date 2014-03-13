@@ -247,6 +247,8 @@ void mps_polynomial_get_leading_coefficient (mps_context * ctx, mps_polynomial *
 
 long int mps_polynomial_raise_data (mps_context * ctx, mps_polynomial * p, long int wp);
 
+void mps_polynomial_set_input_prec (mps_context * ctx, mps_polynomial * p, long int prec);
+
 #ifdef _MPS_PRIVATE
 /* Private implementation details */
 #endif

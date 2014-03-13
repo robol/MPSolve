@@ -177,3 +177,10 @@ mps_polynomial_get_leading_coefficient (mps_context * ctx, mps_polynomial * p,
 {
   (*p->get_leading_coefficient)(ctx, p, leading_coefficient);
 }
+
+void
+mps_polynomial_set_input_prec (mps_context * ctx, mps_polynomial * p, 
+			       long int prec)
+{
+  p->prec = prec;
+}

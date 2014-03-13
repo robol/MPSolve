@@ -236,6 +236,15 @@ mps_free_data (mps_context * s)
       s->bmpc = NULL;
     }
 
+  /* Release our reference to any active polynomial without
+   * freeing it, since that is responsability of the user. 
+   *
+   * Note: This is really important since this context may be
+   * recycled at a later time, and having a pointer to a possibly
+   * not-anymore-valid polynomial will cause a lot of issues. */
+  if (s->active_poly)
+    s->active_poly = NULL;
+
   mps_clusterization_free (s, s->clusterization);
   free (s->order);
 

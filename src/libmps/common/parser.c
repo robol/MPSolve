@@ -458,11 +458,10 @@ mps_parse_stream (mps_context * s, FILE * input_stream)
     {
       MPS_POLYNOMIAL (poly)->structure = structure;
       MPS_POLYNOMIAL (poly)->density = density;
-      mps_context_set_input_prec (s, input_precision);
+      mps_polynomial_set_input_prec (s, MPS_POLYNOMIAL (poly), input_precision);
     }
 
   mps_input_buffer_free (buffer);
 
   return poly;
 }
-

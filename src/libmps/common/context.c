@@ -640,7 +640,8 @@ mps_context_set_input_prec (mps_context * s, long int prec)
 {
   if (!s->active_poly)
     return;
-  s->active_poly->prec = prec;
+  else
+    mps_polynomial_set_input_prec (s, s->active_poly, prec);
 }
 
 /**
