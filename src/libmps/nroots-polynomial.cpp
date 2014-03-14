@@ -8,7 +8,7 @@
  *   Leonardo Robol <robol@mail.dm.unipi.it>
  */
 
-#include <mps/mpsxx.h>
+#include <mps/mps.h>
 
 using namespace mps;
 

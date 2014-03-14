@@ -8,9 +8,8 @@
  *   Leonardo Robol <robol@mail.dm.unipi.it>
  */
 
-#include <mps/mpsxx.h>
+#include <mps/mps.h>
 #include <cstring>
-#include <mps/private/system/memory-file-stream.h>
 
 using namespace mps;
 
@@ -49,7 +48,7 @@ MemoryFileStream::readline(char ** buffer, size_t * length)
       *length = 1024;
     }
 
-  mInputStream.getline(*buffer, *length);
+  mInputStream.getline(*buffer, *length - 1);
 
   /* Try to increase the size of the buffer until we can read the string. */
   while ( (mInputStream.fail() && ! (mInputStream.eof() || mInputStream.bad())) && 
@@ -58,7 +57,7 @@ MemoryFileStream::readline(char ** buffer, size_t * length)
       *length *= 2;
       *buffer = (char*) mps_realloc (*buffer, sizeof (char) * *length);
 
-      mInputStream.getline (*buffer, *length);
+      mInputStream.getline (*buffer, *length - 1);
     }
 
   return (mInputStream.fail()) ? -1 : strlen (*buffer) + 1;

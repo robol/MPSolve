@@ -18,7 +18,7 @@
 
 #ifdef __cplusplus
 
-#include <mps/mpsxx.h>
+#include <mps/mps.h>
 
 namespace mps {
 

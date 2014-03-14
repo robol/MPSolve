@@ -74,6 +74,7 @@
 #include <mps/monomial-matrix-poly.h>
 #include <mps/monomial-poly.h>
 #include <mps/secular-equation.h>
+#include <mps/nroots-polynomial.h>
 
 /* Public interface functions for MPSolve */
 #include <mps/approximation.h>
@@ -91,7 +92,6 @@ MPS_BEGIN_DECLS
 ssize_t getline (char **lineptr, size_t *n, FILE *stream);
 MPS_END_DECLS
 #endif
-
 #include <mps/private/system/abstract-input-stream.h>
 #include <mps/private/system/file-input-stream.h>
 #include <mps/private/system/memory-file-stream.h>

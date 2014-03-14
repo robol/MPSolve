@@ -1,6 +1,6 @@
 NULL = 
 
-SUBDIRS = private c++
+SUBDIRS = private
 
 libmps_headersdir = ${includedir}/mps
 
@@ -18,11 +18,11 @@ libmps_headers_HEADERS = \
         monomial-poly.h \
         mpc.h \
         mps.h \
-	mpsxx.h \
         mt-types.h \
+	nroots-polynomial.h \
 	parser.h \
         polynomial.h \
         secular-equation.h \
 	types.h \
 	$(NULL)
-	
+

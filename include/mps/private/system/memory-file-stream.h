@@ -31,7 +31,7 @@ MPS_END_DECLS
 #include <iostream>
 #include <sstream>
 
-#include <mps/mpsxx.h>
+#include <mps/mps.h>
 
 namespace mps {
 
@@ -54,7 +54,6 @@ namespace mps {
 }
 
 #endif
-
 
 #endif /* MPS_MEMORY_FILE_STREAM_H_ */
 

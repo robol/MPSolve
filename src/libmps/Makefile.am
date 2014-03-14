@@ -13,8 +13,8 @@ AM_CPPFLAGS= \
 	$(NULL)
 
 libmps_la_CXXSOURCES = \
-	c++/nroots-polynomial.cpp \
-	c++/polynomial.cpp \
+	nroots-polynomial.cpp \
+	polynomialxx.cpp \
 	$(NULL)
 
 libmps_la_SOURCES = \
