@@ -280,8 +280,8 @@ parse_complex_coefficient (mps_context * ctx, char *line, mpq_t coefficient_real
       return NULL;
     }
 
-  char *real_part = strndup (starting_bracket + 1, comma - starting_bracket - 1);
-  char *imag_part = strndup (comma + 1, closing_bracket - comma - 1);
+  char *real_part = mps_strndup (starting_bracket + 1, comma - starting_bracket - 1);
+  char *imag_part = mps_strndup (comma + 1, closing_bracket - comma - 1);
 
   MPS_DEBUG_WITH_IO (ctx, "Extracted real part: %s", real_part);
   MPS_DEBUG_WITH_IO (ctx, "Extracted imaginary part: %s", imag_part);

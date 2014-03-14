@@ -34,8 +34,4 @@ mps_strndup (const char * source, size_t n)
   return dest;
 }
 
-#else
-
-#define mps_strndup strndup
-
 #endif

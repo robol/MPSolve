@@ -27,7 +27,11 @@ char * mps_utils_build_equivalent_rational_string (mps_context * ctx,
 int mps_intlog2 (int n);
 
 /* function in strndup.c */
+#ifndef HAVE_STRNDUP
 char * mps_strndup (const char * source, size_t n);
+#else
+#define mps_strndup strndup
+#endif
 
 MPS_END_DECLS
 
