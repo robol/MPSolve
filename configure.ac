@@ -251,6 +251,10 @@ AC_ARG_ENABLE([tcmalloc],
   # getline is used to parse the input files. 
   AC_CHECK_FUNCS(getline)
 
+  # strndup is used in the source, but we provide a fallback
+  # implementation if it's not available in the system. 
+  AC_CHECK_FUNCS(strndup)
+
 
 ##
 ## Section 2) Mathematical routines and libaries

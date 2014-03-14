@@ -26,6 +26,9 @@ char * mps_utils_build_equivalent_rational_string (mps_context * ctx,
 /* functions in newton.c */
 int mps_intlog2 (int n);
 
+/* function in strndup.c */
+char * mps_strndup (const char * source, size_t n);
+
 MPS_END_DECLS
 
 #endif

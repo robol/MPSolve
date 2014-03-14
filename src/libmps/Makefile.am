@@ -12,11 +12,6 @@ AM_CPPFLAGS= \
 	$(PTHREAD_CFLAGS) \
 	$(NULL)
 
-libmps_la_CXXSOURCES = \
-	nroots-polynomial.cpp \
-	polynomialxx.cpp \
-	$(NULL)
-
 libmps_la_SOURCES = \
 	chebyshev/chebyshev-evaluation.c \
 	chebyshev/chebyshev-parser.c \
@@ -36,12 +31,15 @@ libmps_la_SOURCES = \
 	common/list-element.c \
 	common/list.c \
 	common/modify.c \
+	common/nroots-polynomial.cpp \
 	common/parser.c \
 	common/polynomial.c \
+	common/polynomialxx.cpp \
 	common/recursive-starting.c \
 	common/sort.c \
 	common/starting-configuration.c \
 	common/starting.c \
+        common/strndup.c \
 	common/test.c \
 	common/tools.c \
 	common/touch.c \
@@ -82,7 +80,6 @@ libmps_la_SOURCES = \
 	system/threading.c \
 	unisolve/main.c \
 	unisolve/solve.c \
-	$(libmps_la_CXXSOURCES) \
 	$(NULL)
 
 libmps_la_LDFLAGS = \
