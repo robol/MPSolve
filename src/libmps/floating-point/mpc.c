@@ -143,7 +143,7 @@ mpc_set_prec (mpc_t c, unsigned long int prec)
 }
 
 unsigned long int
-mpc_get_prec (mpc_t c)
+mpc_get_prec (const mpc_t c)
 {
   return mpf_get_prec (mpc_Re (c));
 }
@@ -168,7 +168,7 @@ mpc_swap (mpc_t c1, mpc_t c2)
 }
 
 void
-mpc_set (mpc_t rc, mpc_t c)
+mpc_set (mpc_t rc, const mpc_t c)
 {
   mpf_set (mpc_Re (rc), mpc_Re (c));
   mpf_set (mpc_Im (rc), mpc_Im (c));

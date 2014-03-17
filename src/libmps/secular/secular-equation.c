@@ -845,19 +845,19 @@ mps_secular_poly_meval_with_error (mps_context * ctx, mps_polynomial * p, mpc_t 
 }
 
 void
-mps_secular_poly_fstart (mps_context * ctx, mps_polynomial * p)
+mps_secular_poly_fstart (mps_context * ctx, mps_polynomial * p, mps_approximation ** approximations)
 {
-  mps_secular_fstart (ctx, MPS_SECULAR_EQUATION (p));
+  mps_secular_fstart (ctx, MPS_SECULAR_EQUATION (p), approximations);
 }
 
 void
-mps_secular_poly_dstart (mps_context * ctx, mps_polynomial * p)
+mps_secular_poly_dstart (mps_context * ctx, mps_polynomial * p, mps_approximation ** approximations)
 {
-  mps_secular_dstart (ctx, MPS_SECULAR_EQUATION (p));
+  mps_secular_dstart (ctx, MPS_SECULAR_EQUATION (p), approximations);
 }
 
 void
-mps_secular_poly_mstart (mps_context * ctx, mps_polynomial * p)
+mps_secular_poly_mstart (mps_context * ctx, mps_polynomial * p, mps_approximation ** approximations)
 {
-  mps_secular_mstart (ctx, MPS_SECULAR_EQUATION (p));
+  mps_secular_mstart (ctx, MPS_SECULAR_EQUATION (p), approximations);
 }

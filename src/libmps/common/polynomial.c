@@ -107,7 +107,7 @@ mps_polynomial_meval (mps_context * ctx, mps_polynomial * p, mpc_t x, mpc_t valu
 }
 
 void
-mps_polynomial_fstart (mps_context * ctx, mps_polynomial * p)
+mps_polynomial_fstart (mps_context * ctx, mps_polynomial * p, mps_approximation ** approximations)
 {
   ctx->operation = MPS_OPERATION_STARTING_POINTS_FP;
 
@@ -115,26 +115,26 @@ mps_polynomial_fstart (mps_context * ctx, mps_polynomial * p)
   switch (ctx->starting_strategy)
     {
     case MPS_STARTING_STRATEGY_DEFAULT:
-      (*p->fstart)(ctx, p);
+      (*p->fstart)(ctx, p, approximations);
       break;
     case MPS_STARTING_STRATEGY_RECURSIVE:
-      mps_recursive_fstart (ctx, p);
+      mps_recursive_fstart (ctx, p, approximations);
       break;
     }
 }
 
 void
-mps_polynomial_dstart (mps_context * ctx, mps_polynomial * p)
+mps_polynomial_dstart (mps_context * ctx, mps_polynomial * p, mps_approximation ** approximations)
 {
   ctx->operation = MPS_OPERATION_STARTING_POINTS_DPE;
-  (*p->dstart)(ctx, p);
+  (*p->dstart)(ctx, p, approximations);
 }
 
 void
-mps_polynomial_mstart (mps_context * ctx, mps_polynomial * p)
+mps_polynomial_mstart (mps_context * ctx, mps_polynomial * p, mps_approximation ** approximations)
 {
   ctx->operation = MPS_OPERATION_STARTING_POINTS_MP;
-  (*p->mstart)(ctx, p);
+  (*p->mstart)(ctx, p, approximations);
 }
 
 void

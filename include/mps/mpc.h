@@ -55,11 +55,11 @@ void mpc_init2 (mpc_t c, unsigned long int prec);
 void mpc_clear (mpc_t c);
 
 void mpc_set_prec (mpc_t c, unsigned long int prec);
-unsigned long int mpc_get_prec (mpc_t c);
+unsigned long int mpc_get_prec (const mpc_t c);
 void mpc_set_prec_raw (mpc_t c, unsigned long int prec);
 
 /* initializers */
-void mpc_set (mpc_t rc, mpc_t c);
+void mpc_set (mpc_t rc, const mpc_t c);
 void mpc_set_ui (mpc_t c, unsigned long int ir, unsigned long int ii);
 void mpc_set_si (mpc_t c, signed long int ir, signed long int ii);
 void mpc_set_d (mpc_t c, double dr, double di);

@@ -229,7 +229,7 @@ mps_secular_ga_mpsolve (mps_context * s)
       switch (s->lastphase)
         {
         case float_phase:
-          mps_polynomial_fstart (s, p);
+          mps_polynomial_fstart (s, p, s->root);
 
           if (p->fnewton)
             mps_faberth_packet (s, p, false);
@@ -237,7 +237,7 @@ mps_secular_ga_mpsolve (mps_context * s)
           break;
 
         case dpe_phase:
-          mps_polynomial_dstart (s, p);
+          mps_polynomial_dstart (s, p, s->root);
 
           if (p->dnewton)
             mps_daberth_packet (s, p, false);
@@ -292,7 +292,7 @@ mps_secular_ga_mpsolve (mps_context * s)
             {
               MPS_DEBUG (s, "Switching to DPE phase since initial regeneration of the coefficients did not succeed.");
               s->lastphase = dpe_phase;
-              mps_polynomial_dstart (s, p);
+              mps_polynomial_dstart (s, p, s->root);
 
               if (!mps_secular_ga_regenerate_coefficients (s))
                 {
@@ -342,15 +342,15 @@ mps_secular_ga_mpsolve (mps_context * s)
       switch (s->lastphase)
         {
         case  float_phase:
-          mps_secular_fstart (s, sec);
+          mps_secular_fstart (s, sec, s->root);
           break;
 
         case dpe_phase:
-          mps_secular_dstart (s, sec);
+          mps_secular_dstart (s, sec, s->root);
           break;
 
         case mp_phase:
-          mps_secular_mstart (s, sec);
+          mps_secular_mstart (s, sec, s->root);
           break;
 
         default:

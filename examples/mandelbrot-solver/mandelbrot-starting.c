@@ -11,13 +11,14 @@
 #include "mandelbrot-poly.h"
 
 void 
-mps_mandelbrot_poly_dstart (mps_context *ctx, mps_polynomial *p)
+mps_mandelbrot_poly_dstart (mps_context *ctx, mps_polynomial *p, mps_approximation ** approximations)
 {
   mps_mandelbrot_poly *mp = MPS_MANDELBROT_POLY (p);
+  int n = mps_context_get_degree (ctx);
 
   if (mp->level <= 4)
     {
-      mps_general_dstart (ctx, p);
+      mps_general_dstart (ctx, p, approximations);
     }
   else
     {
@@ -37,17 +38,20 @@ mps_mandelbrot_poly_dstart (mps_context *ctx, mps_polynomial *p)
 
       mps_context_get_roots_d (new_ctx, &roots, NULL);
 
-      for (i = 0; i < ctx->n; i++)
+      for (i = 0; i < n; i++)
 	{
+	  cdpe_t starting_point;
 	  int j = i / 2;
 
-	  cdpe_set_x (ctx->root[i]->dvalue, roots[j]);
+	  cdpe_set_x (starting_point, roots[j]);
 
 	  if (i % 2 == 0)
-	    cdpe_mul_eq (ctx->root[i]->dvalue, rot);
+	    cdpe_mul_eq (starting_point, rot);
+
+	  mps_approximation_set_dvalue (ctx, approximations[i], starting_point);
 	}
 
-      cdpe_set (ctx->root[ctx->n - 1]->dvalue, cdpe_one);
+      mps_approximation_set_dvalue (ctx, approximations[n - 1], cdpe_one);
 
       cplx_vfree (roots);
       mps_mandelbrot_poly_free (new_ctx, MPS_POLYNOMIAL (new_mp));
@@ -56,13 +60,14 @@ mps_mandelbrot_poly_dstart (mps_context *ctx, mps_polynomial *p)
 }
 
 void
-mps_mandelbrot_poly_fstart (mps_context *ctx, mps_polynomial *p)
+mps_mandelbrot_poly_fstart (mps_context *ctx, mps_polynomial *p, mps_approximation ** approximations)
 {
   mps_mandelbrot_poly *mp = MPS_MANDELBROT_POLY (p);
+  int n = mps_context_get_degree (ctx);
 
   if (mp->level <= 5)
     {
-      mps_general_fstart (ctx, p);
+      mps_general_fstart (ctx, p, approximations);
     }
   else
     {
@@ -81,18 +86,20 @@ mps_mandelbrot_poly_fstart (mps_context *ctx, mps_polynomial *p)
 
       mps_context_get_roots_d (new_ctx, &roots, NULL);
 
-      for (i = 0; i < ctx->n; i++)
+      for (i = 0; i < n; i++)
 	{
+	  cplx_t starting_point;
 	  int j = i / 2;
-	  cplx_set (ctx->root[i]->fvalue, roots[j]);
+	  cplx_set (starting_point, roots[j]);
 
 	  if (i % 2 == 0)
-	    cplx_mul_eq (ctx->root[i]->fvalue, rot);
+	    cplx_mul_eq (starting_point, rot);
 
-	  ctx->root[i]->frad = DBL_MAX;
+	  mps_approximation_set_fvalue (ctx, approximations[i], starting_point);
+	  mps_approximation_set_frad (ctx, approximations[i], DBL_MAX);
 	}
 
-      cplx_set (ctx->root[ctx->n - 1]->fvalue, cplx_one);
+      mps_approximation_set_fvalue (ctx, approximations[i], cplx_one);
 
       cplx_vfree (roots);
       mps_mandelbrot_poly_free (new_ctx, MPS_POLYNOMIAL (new_mp));

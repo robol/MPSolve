@@ -62,7 +62,7 @@ mps_slice_polynomial (mps_context * ctx, mps_monomial_poly * mp,
  * @param poly The polynomial whose roots should be approximated.
  */
 void
-mps_recursive_fstart (mps_context * ctx, mps_polynomial * poly)
+mps_recursive_fstart (mps_context * ctx, mps_polynomial * poly, mps_approximation ** approximations)
 {
   MPS_DEBUG_THIS_CALL (ctx);
 
@@ -78,13 +78,13 @@ mps_recursive_fstart (mps_context * ctx, mps_polynomial * poly)
 			   "input is not a monomial poly");
 
       mps_context_select_starting_strategy (ctx, MPS_STARTING_STRATEGY_DEFAULT);
-      mps_polynomial_fstart (ctx, poly);
+      mps_polynomial_fstart (ctx, poly, approximations);
       return;
     }
 
   if (poly->degree < 50)
     {
-      (*poly->fstart)(ctx, poly);
+      (*poly->fstart)(ctx, poly, approximations);
       return;
     }
 
@@ -140,7 +140,7 @@ mps_recursive_fstart (mps_context * ctx, mps_polynomial * poly)
     {
       mps_approximation * appr = (i < middle) ? left_approximations[i] : 
 	right_approximations[i - middle];
-      cplx_set (ctx->root[i]->fvalue, appr->fvalue);      
+      cplx_set (approximations[i]->fvalue, appr->fvalue);      
       free (appr);
     }
 
@@ -170,7 +170,7 @@ mps_recursive_fstart (mps_context * ctx, mps_polynomial * poly)
  * @param poly The polynomial whose roots should be approximated.
  */
 void
-mps_recursive_dstart (mps_context * ctx, mps_polynomial * poly)
+mps_recursive_dstart (mps_context * ctx, mps_polynomial * poly, mps_approximation ** approximations)
 {
   
 }
@@ -184,7 +184,7 @@ mps_recursive_dstart (mps_context * ctx, mps_polynomial * poly)
  * @param poly The polynomial whose roots should be approximated.
  */
 void
-mps_recursive_mstart (mps_context * ctx, mps_polynomial * poly)
+mps_recursive_mstart (mps_context * ctx, mps_polynomial * poly, mps_approximation ** approximations)
 {
   
 }

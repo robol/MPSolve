@@ -62,21 +62,21 @@ typedef long int (*mps_polynomial_raise_data_t)(mps_context * ctx, mps_polynomia
  *
  * This is the floating point implementation.
  */
-typedef void (*mps_polynomial_fstart_t)(mps_context * ctx, mps_polynomial * p);
+typedef void (*mps_polynomial_fstart_t)(mps_context * ctx, mps_polynomial * p, mps_approximation ** approximations);
 
 /**
  * @brief Function used to determine useful starting approximation.
  *
  * This is the CDPE implementation.
  */
-typedef void (*mps_polynomial_dstart_t)(mps_context * ctx, mps_polynomial * p);
+typedef void (*mps_polynomial_dstart_t)(mps_context * ctx, mps_polynomial * p, mps_approximation ** approximations);
 
 /**
  * @brief Function used to determine useful starting approximation.
  *
  * This is the MP implementation.
  */
-typedef void (*mps_polynomial_mstart_t)(mps_context * ctx, mps_polynomial * p);
+typedef void (*mps_polynomial_mstart_t)(mps_context * ctx, mps_polynomial * p, mps_approximation ** approximations);
 
 /**
  * @brief Function that computes \f$\frac{p}{p'}\f$ (floating point version)
@@ -226,11 +226,11 @@ mps_boolean mps_polynomial_deval (mps_context * ctx, mps_polynomial * p, cdpe_t 
 
 mps_boolean mps_polynomial_meval (mps_context * ctx, mps_polynomial * p, mpc_t x, mpc_t value, rdpe_t error);
 
-void mps_polynomial_fstart (mps_context * ctx, mps_polynomial * p);
+void mps_polynomial_fstart (mps_context * ctx, mps_polynomial * p, mps_approximation ** approximations);
 
-void mps_polynomial_dstart (mps_context * ctx, mps_polynomial * p);
+void mps_polynomial_dstart (mps_context * ctx, mps_polynomial * p, mps_approximation ** approximations);
 
-void mps_polynomial_mstart (mps_context * ctx, mps_polynomial * p);
+void mps_polynomial_mstart (mps_context * ctx, mps_polynomial * p, mps_approximation ** approximations);
 
 void mps_polynomial_free (mps_context * ctx, mps_polynomial * p);
 
@@ -248,6 +248,11 @@ void mps_polynomial_get_leading_coefficient (mps_context * ctx, mps_polynomial *
 long int mps_polynomial_raise_data (mps_context * ctx, mps_polynomial * p, long int wp);
 
 void mps_polynomial_set_input_prec (mps_context * ctx, mps_polynomial * p, long int prec);
+
+/* functions in general-starting.c */
+void mps_general_fstart (mps_context * ctx, mps_polynomial * p, mps_approximation ** approximations);
+void mps_general_dstart (mps_context * ctx, mps_polynomial * p, mps_approximation ** approximations);
+void mps_general_mstart (mps_context * ctx, mps_polynomial * p, mps_approximation ** approximations);
 
 #ifdef _MPS_PRIVATE
 /* Private implementation details */
@@ -337,9 +342,9 @@ namespace mps {
      */
     virtual long int raise_data_wp (mps_context * ctx, long int wp);
 
-    virtual void start_fp  (mps_context * ctx);
-    virtual void start_dpe (mps_context * ctx);
-    virtual void start_mp  (mps_context * ctx);
+    virtual void start_fp  (mps_context * ctx, mps_approximation ** approximations);
+    virtual void start_dpe (mps_context * ctx, mps_approximation ** approximations);
+    virtual void start_mp  (mps_context * ctx, mps_approximation ** approximations);
 
     virtual void get_leading_coefficient (mps_context * ctx, mpc_t lc);
 
@@ -362,9 +367,9 @@ namespace mps {
     static long int raise_data_wrapper (mps_context * ctx, mps_polynomial * p, 
 					long int wp);
 
-    static void fstart_wrapper (mps_context * ctx, mps_polynomial * p);
-    static void dstart_wrapper (mps_context * ctx, mps_polynomial * p);
-    static void mstart_wrapper (mps_context * ctx, mps_polynomial * p);
+    static void fstart_wrapper (mps_context * ctx, mps_polynomial * p, mps_approximation ** approximations);
+    static void dstart_wrapper (mps_context * ctx, mps_polynomial * p, mps_approximation ** approximations);
+    static void mstart_wrapper (mps_context * ctx, mps_polynomial * p, mps_approximation ** approximations);
 
     static void fnewton_wrapper (mps_context * ctx, mps_polynomial * p, 
 				 mps_approximation * a, cplx_t x);

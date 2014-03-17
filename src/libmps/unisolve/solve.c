@@ -423,7 +423,7 @@ mps_fsolve (mps_context * s, mps_boolean * d_after_f)
   if (s->DOLOG)
     fprintf (s->logstr, "FSOLVE: call fstart");
 
-  mps_polynomial_fstart (s, p);
+  mps_polynomial_fstart (s, p, s->root);
 
   /***************
      this part of code performs shift in the gravity center of the roots
@@ -793,7 +793,7 @@ mps_dsolve (mps_context * s, mps_boolean d_after_f)
   if (s->DOLOG)
     fprintf (s->logstr, "   DSOLVE: call dstart con again=\n");
 
-  mps_polynomial_dstart (s, p);
+  mps_polynomial_dstart (s, p, s->root);
 
   /* Now adjust the status vector */
   if (d_after_f)

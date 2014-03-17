@@ -50,21 +50,21 @@ Polynomial::~Polynomial()
 }
 
 void
-Polynomial::start_fp (mps_context * ctx)
+Polynomial::start_fp (mps_context * ctx, mps_approximation ** approximations)
 {
-  mps_general_fstart (ctx, static_cast<mps_polynomial*> (this));
+  mps_general_fstart (ctx, static_cast<mps_polynomial*> (this), approximations);
 }
 
 void
-Polynomial::start_dpe (mps_context * ctx)
+Polynomial::start_dpe (mps_context * ctx, mps_approximation ** approximations)
 {
-  mps_general_dstart (ctx, static_cast<mps_polynomial*> (this));
+  mps_general_dstart (ctx, static_cast<mps_polynomial*> (this), approximations);
 }
 
 void
-Polynomial::start_mp (mps_context * ctx)
+Polynomial::start_mp (mps_context * ctx, mps_approximation ** approximations)
 {
-  mps_general_mstart (ctx, static_cast<mps_polynomial*> (this));
+  mps_general_mstart (ctx, static_cast<mps_polynomial*> (this), approximations);
 }
 
 void
@@ -113,24 +113,24 @@ Polynomial::raise_data_wrapper (mps_context * ctx, mps_polynomial * p,
 }
 
 void
-Polynomial::fstart_wrapper (mps_context * ctx, mps_polynomial * p)
+Polynomial::fstart_wrapper (mps_context * ctx, mps_polynomial * p, mps_approximation ** approximations)
 {
   Polynomial *thisP = static_cast<Polynomial*> (p);
-  thisP->start_fp (ctx);
+  thisP->start_fp (ctx, approximations);
 }
 
 void 
-Polynomial::dstart_wrapper (mps_context * ctx, mps_polynomial * p)
+Polynomial::dstart_wrapper (mps_context * ctx, mps_polynomial * p, mps_approximation ** approximations)
 {
   Polynomial *thisP = static_cast<Polynomial*> (p);
-  thisP->start_dpe (ctx);
+  thisP->start_dpe (ctx, approximations);
 }
 
 void
-Polynomial::mstart_wrapper (mps_context * ctx, mps_polynomial * p)
+Polynomial::mstart_wrapper (mps_context * ctx, mps_polynomial * p, mps_approximation ** approximations)
 {
   Polynomial *thisP = static_cast<Polynomial*> (p);
-  thisP->start_mp (ctx);
+  thisP->start_mp (ctx, approximations);
 }
 
 void

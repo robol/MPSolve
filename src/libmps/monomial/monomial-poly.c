@@ -616,7 +616,7 @@ mps_monomial_poly_meval (mps_context * ctx, mps_polynomial *p, mpc_t x, mpc_t va
 }
 
 void
-mps_monomial_poly_fstart (mps_context * ctx, mps_polynomial * p)
+mps_monomial_poly_fstart (mps_context * ctx, mps_polynomial * p, mps_approximation ** approximations)
 {
   mps_monomial_poly *mp = MPS_MONOMIAL_POLY (p);
 
@@ -624,7 +624,7 @@ mps_monomial_poly_fstart (mps_context * ctx, mps_polynomial * p)
 }
 
 void
-mps_monomial_poly_dstart (mps_context * ctx, mps_polynomial * p)
+mps_monomial_poly_dstart (mps_context * ctx, mps_polynomial * p, mps_approximation ** approximations)
 {
   mps_monomial_poly *mp = MPS_MONOMIAL_POLY (p);
 
@@ -634,7 +634,7 @@ mps_monomial_poly_dstart (mps_context * ctx, mps_polynomial * p)
 }
 
 void
-mps_monomial_poly_mstart (mps_context * ctx, mps_polynomial * p)
+mps_monomial_poly_mstart (mps_context * ctx, mps_polynomial * p, mps_approximation ** approximations)
 {
   mps_monomial_poly *mp = MPS_MONOMIAL_POLY (p);
   mpc_t gg;

@@ -66,16 +66,18 @@ void mps_approximation_get_drad (mps_context * ctx, mps_approximation * approxim
 mps_root_status mps_approximation_get_status (mps_context * ctx, mps_approximation * approximation);
 mps_root_attrs mps_approximation_get_attrs (mps_context * ctx, mps_approximation * approximation);
 mps_root_inclusion mps_approximaiton_get_inclusion (mps_context * ctx, mps_approximation * approximation);
+mps_boolean mps_approximation_get_again (mps_context * ctx, mps_approximation * approximation);
 
 /* Public setters functions */
-void mps_approximation_set_fvalue (mps_context * ctx, mps_approximation * approximation, cplx_t value);
-void mps_approximation_set_dvalue (mps_context * ctx, mps_approximation * approximation, cdpe_t value);
-void mps_approximation_set_mvalue (mps_context * ctx, mps_approximation * approximation, mpc_t value);
-void mps_approximation_set_frad (mps_context * ctx, mps_approximation * approximation, double frad);
-void mps_approximation_set_drad (mps_context * ctx, mps_approximation * approximation, rdpe_t drad);
-void mps_approximation_set_status (mps_context * ctx, mps_approximation * approximation, mps_root_status status);
-void mps_approximation_set_attrs (mps_context * ctx, mps_approximation * approximation, mps_root_attrs attrs);
-void mps_approximation_set_inclusion (mps_context * ctx, mps_approximation * approximation, mps_root_inclusion inclusion);
+void mps_approximation_set_fvalue (mps_context * ctx, mps_approximation * approximation, const cplx_t value);
+void mps_approximation_set_dvalue (mps_context * ctx, mps_approximation * approximation, const cdpe_t value);
+void mps_approximation_set_mvalue (mps_context * ctx, mps_approximation * approximation, const mpc_t value);
+void mps_approximation_set_frad (mps_context * ctx, mps_approximation * approximation, const double frad);
+void mps_approximation_set_drad (mps_context * ctx, mps_approximation * approximation, const rdpe_t drad);
+void mps_approximation_set_status (mps_context * ctx, mps_approximation * approximation, const mps_root_status status);
+void mps_approximation_set_attrs (mps_context * ctx, mps_approximation * approximation, const mps_root_attrs attrs);
+void mps_approximation_set_inclusion (mps_context * ctx, mps_approximation * approximation, const mps_root_inclusion inclusion);
+void mps_approximation_set_again (mps_context * ctx, mps_approximation * approximation, const mps_boolean again);
 
 MPS_END_DECLS
 

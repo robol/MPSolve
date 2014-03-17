@@ -36,15 +36,10 @@ void mps_dshift (mps_context * s, int m, mps_cluster_item * cluster, rdpe_t clus
 void mps_mshift (mps_context * s, int m, mps_cluster_item * cluster, rdpe_t clust_rad,
                  mpc_t g);
 
-/* functions in general-starting.c */
-void mps_general_fstart (mps_context * ctx, mps_polynomial * p);
-void mps_general_dstart (mps_context * ctx, mps_polynomial * p);
-void mps_general_mstart (mps_context * ctx, mps_polynomial * p);
-
 /* functions in recursive-starting.c */
-void mps_recursive_fstart (mps_context * ctx, mps_polynomial * poly);
-void mps_recursive_dstart (mps_context * ctx, mps_polynomial * poly);
-void mps_recursive_mstart (mps_context * ctx, mps_polynomial * poly);
+void mps_recursive_fstart (mps_context * ctx, mps_polynomial * poly, mps_approximation ** approximations);
+void mps_recursive_dstart (mps_context * ctx, mps_polynomial * poly, mps_approximation ** approximations);
+void mps_recursive_mstart (mps_context * ctx, mps_polynomial * poly, mps_approximation ** approximations);
 
 MPS_END_DECLS
 

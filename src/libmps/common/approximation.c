@@ -104,21 +104,27 @@ mps_approximaiton_get_inclusion (mps_context * ctx, mps_approximation * approxim
   return approximation->inclusion;
 }
 
+mps_boolean
+mps_approximation_get_again (mps_context * ctx, mps_approximation * approximation)
+{
+  return approximation->again;
+}
+
 /* Public setters functions */
 void
-mps_approximation_set_fvalue (mps_context * ctx, mps_approximation * approximation, cplx_t value)
+mps_approximation_set_fvalue (mps_context * ctx, mps_approximation * approximation, const cplx_t value)
 {
   cplx_set (approximation->fvalue, value);
 }
 
 void
-mps_approximation_set_dvalue (mps_context * ctx, mps_approximation * approximation, cdpe_t value)
+mps_approximation_set_dvalue (mps_context * ctx, mps_approximation * approximation, const cdpe_t value)
 {
   cdpe_set (approximation->dvalue, value);
 }
 
 void
-mps_approximation_set_mvalue (mps_context * ctx, mps_approximation * approximation, mpc_t value)
+mps_approximation_set_mvalue (mps_context * ctx, mps_approximation * approximation, const mpc_t value)
 {
   /* Ensure that we have a sufficient precision to store value correctly */
   if (mpc_get_prec (value) > approximation->wp)
@@ -131,31 +137,37 @@ mps_approximation_set_mvalue (mps_context * ctx, mps_approximation * approximati
 }
 
 void
-mps_approximation_set_frad (mps_context * ctx, mps_approximation * approximation, double frad)
+mps_approximation_set_frad (mps_context * ctx, mps_approximation * approximation, const double frad)
 {
   approximation->frad = frad;
 }
 
 void
-mps_approximation_set_drad (mps_context * ctx, mps_approximation * approximation, rdpe_t drad)
+mps_approximation_set_drad (mps_context * ctx, mps_approximation * approximation, const rdpe_t drad)
 {
   rdpe_set (approximation->drad, drad);
 }
 
 void
-mps_approximation_set_status (mps_context * ctx, mps_approximation * approximation, mps_root_status status)
+mps_approximation_set_status (mps_context * ctx, mps_approximation * approximation, const mps_root_status status)
 {
   approximation->status = status;
 }
 
 void
-mps_approximation_set_attrs (mps_context * ctx, mps_approximation * approximation, mps_root_attrs attrs)
+mps_approximation_set_attrs (mps_context * ctx, mps_approximation * approximation, const mps_root_attrs attrs)
 {
   approximation->attrs = attrs;
 }
 
 void
-mps_approximation_set_inclusion (mps_context * ctx, mps_approximation * approximation, mps_root_inclusion inclusion)
+mps_approximation_set_inclusion (mps_context * ctx, mps_approximation * approximation, const mps_root_inclusion inclusion)
 {
   approximation->inclusion = inclusion;
+}
+
+void
+mps_approximation_set_again (mps_context * ctx, mps_approximation * approximation, const mps_boolean again)
+{
+  approximation->again = again;
 }

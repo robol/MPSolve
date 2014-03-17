@@ -177,11 +177,11 @@ mps_boolean mps_monomial_poly_deval (mps_context * ctx, mps_polynomial *p, cdpe_
 
 mps_boolean mps_monomial_poly_meval (mps_context * ctx, mps_polynomial *p, mpc_t x, mpc_t value, rdpe_t error);
 
-void mps_monomial_poly_fstart (mps_context * ctx, mps_polynomial * p);
+void mps_monomial_poly_fstart (mps_context * ctx, mps_polynomial * p, mps_approximation ** approximations);
 
-void mps_monomial_poly_dstart (mps_context * ctx, mps_polynomial * p);
+void mps_monomial_poly_dstart (mps_context * ctx, mps_polynomial * p, mps_approximation ** approximations);
 
-void mps_monomial_poly_mstart (mps_context * ctx, mps_polynomial * p);
+void mps_monomial_poly_mstart (mps_context * ctx, mps_polynomial * p, mps_approximation ** approximations);
 
 void mps_monomial_poly_fnewton (mps_context * ctx, mps_polynomial * p,
                                 mps_approximation * root, cplx_t corr);

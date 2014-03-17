@@ -274,9 +274,9 @@ void mps_secular_raise_precision (mps_context * s, int wp);
 void mps_secular_raise_root_precision (mps_context * s, int wp);
 
 /* Routines in secular-starting.c */
-void mps_secular_fstart (mps_context * s, mps_secular_equation * sec);
-void mps_secular_dstart (mps_context * s, mps_secular_equation * sec);
-void mps_secular_mstart (mps_context * s, mps_secular_equation * sec);
+void mps_secular_fstart (mps_context * s, mps_secular_equation * sec, mps_approximation ** approximations);
+void mps_secular_dstart (mps_context * s, mps_secular_equation * sec, mps_approximation ** approximations);
+void mps_secular_mstart (mps_context * s, mps_secular_equation * sec, mps_approximation ** approximations);
 
 /* Routines in secular-iteration.c */
 int mps_secular_ga_fiterate (mps_context * s, int maxit, mps_boolean just_regenerated);
@@ -309,11 +309,11 @@ mps_boolean mps_secular_poly_deval_with_error (mps_context * ctx, mps_polynomial
 
 mps_boolean mps_secular_poly_meval_with_error (mps_context * ctx, mps_polynomial * p, mpc_t x, mpc_t value, rdpe_t error);
 
-void mps_secular_poly_fstart (mps_context * ctx, mps_polynomial * p);
+void mps_secular_poly_fstart (mps_context * ctx, mps_polynomial * p, mps_approximation ** approximations);
 
-void mps_secular_poly_dstart (mps_context * ctx, mps_polynomial * p);
+void mps_secular_poly_dstart (mps_context * ctx, mps_polynomial * p, mps_approximation ** approximations);
 
-void mps_secular_poly_mstart (mps_context * ctx, mps_polynomial * p);
+void mps_secular_poly_mstart (mps_context * ctx, mps_polynomial * p, mps_approximation ** approximations);
 
 mps_secular_equation * mps_secular_equation_read_from_stream (mps_context * ctx, mps_input_buffer * buffer,
                                                               mps_structure structure, mps_density density,

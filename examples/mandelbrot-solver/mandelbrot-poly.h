@@ -23,8 +23,8 @@ typedef struct mps_mandelbrot_poly mps_mandelbrot_poly;
 mps_mandelbrot_poly *mps_mandelbrot_poly_new (mps_context * ctx, int level);
 void mps_mandelbrot_poly_free (mps_context * ctx, mps_polynomial *p);
 
-void mps_mandelbrot_poly_fstart (mps_context *ctx, mps_polynomial *p);
-void mps_mandelbrot_poly_dstart (mps_context *ctx, mps_polynomial *p);
+void mps_mandelbrot_poly_fstart (mps_context *ctx, mps_polynomial *p, mps_approximation ** approximations);
+void mps_mandelbrot_poly_dstart (mps_context *ctx, mps_polynomial *p, mps_approximation ** approximations);
 
 void mps_mandelbrot_poly_fnewton (mps_context * s, mps_polynomial * poly, mps_approximation * root, cplx_t corr);
 void mps_mandelbrot_poly_dnewton (mps_context * s, mps_polynomial * poly, mps_approximation * root, cdpe_t corr);
