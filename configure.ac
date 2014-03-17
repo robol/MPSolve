@@ -191,6 +191,7 @@ AC_ARG_ENABLE([tcmalloc],
 
 
   ## Subsection 0.3) Multithread support. 
+    
 
     AX_PTHREAD([], [
       AC_MSG_ERROR([Pthread library not found. Please set PTHREAD_CFLAGS and PTHREAD_LIBS correctly for your setup])
@@ -623,6 +624,7 @@ echo "
 MPSolve configuration:
 
         Source location:	${srcdir}
+	Pthread CFLAGS:		${PTHREAD_CFLAGS}
         C compiler:		${CC}
 	CFLAGS:			${LIBMPS_CFLAGS}
         LDFLAGS:                ${LIBMPS_LDFLAGS}
