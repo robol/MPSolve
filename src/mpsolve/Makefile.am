@@ -26,6 +26,5 @@ mpsolve_LDFLAGS =
 mpsolve_LDADD = \
 	${top_builddir}/src/libmps/libmps.la \
 	$(GMP_LIBS) \
-	$(MPSOLVE_LIBS) \
 	$(GTK_LIBS)
 

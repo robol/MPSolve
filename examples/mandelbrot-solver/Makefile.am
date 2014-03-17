@@ -9,9 +9,7 @@ mandelbrot_solver_SOURCES = \
 
 mandelbrot_solver_CFLAGS = \
 	-I${top_srcdir}/include \
-	-I${top_builddir}/include \
-	$(GMP_CFLAGS)	 \
-	$(LIBMPS_CFLAGS)  
+	-I${top_builddir}/include
 
 mandelbrot_solver_LDADD = \
 	${top_builddir}/src/libmps/libmps.la \
