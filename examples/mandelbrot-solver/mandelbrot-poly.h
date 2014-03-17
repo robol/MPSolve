@@ -4,7 +4,7 @@
  * Copyright (C) 2001-2013, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
- * Authors: 
+ * Authors:
  *   Leonardo Robol <robol@mail.dm.unipi.it>
  */
 
@@ -13,10 +13,10 @@
 #define MPS_MANDELBROT_POLY(t) (MPS_POLYNOMIAL_CAST (mps_mandelbrot_poly, t))
 #define MPS_IS_MANDELBROT_POLY(t) (mps_polynomial_check_type (t, "mps_mandelbrot_poly"))
 
-struct mps_mandelbrot_poly { 
+struct mps_mandelbrot_poly {
   mps_polynomial p;
-  int level; 
-}; 
+  int level;
+};
 
 typedef struct mps_mandelbrot_poly mps_mandelbrot_poly;
 

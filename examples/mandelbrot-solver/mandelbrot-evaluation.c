@@ -4,11 +4,14 @@
  * Copyright (C) 2001-2013, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
- * Authors: 
+ * Authors:
  *   Leonardo Robol <robol@mail.dm.unipi.it>
  */
 
 #include "mandelbrot-poly.h"
+#include <float.h>
+
+#define LOG2 0.301029995666
 
 mps_boolean
 mps_mandelbrot_poly_feval (mps_context * ctx, mps_polynomial * p, cplx_t x, cplx_t value, double * error)
