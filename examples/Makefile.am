@@ -1,4 +1,5 @@
 SUBDIRS = \
+	fortran \
 	octave \
 	matlab \
 	python \

@@ -122,6 +122,7 @@ AC_ARG_ENABLE([tcmalloc],
 #
 
   # Checks for needed compilers: 
+  AC_PROG_FC
   AC_PROG_CC
   AC_PROG_CXX
   AC_PROG_CC_C99
@@ -594,6 +595,7 @@ AC_CONFIG_FILES([Makefile
     include/mps/Makefile
     include/mps/private/Makefile
     examples/Makefile
+    examples/fortran/Makefile
     examples/octave/Makefile
     examples/matlab/Makefile
     examples/gtk/Makefile

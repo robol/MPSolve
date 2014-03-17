@@ -28,7 +28,7 @@ PROGRAM roots_of_unity
 
 	! Set coefficients of x^n - 1
 	coeff = 0
-	coeff(1) = -3
+	coeff(1) = -1
 	coeff(n + 1) = 1
 
 	! Call MPSolve routine

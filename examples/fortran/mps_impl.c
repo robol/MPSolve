@@ -25,7 +25,7 @@ mps_roots_impl_ (cplx_t * coeff, cplx_t * roots, int *n)
 
   for (i = 0; i <= *n; i++)
     mps_monomial_poly_set_coefficient_d (s, p, i, cplx_Re (coeff[i]), cplx_Im (coeff[i]));
-  mps_context_set_input_poly (s, p);
+  mps_context_set_input_poly (s, MPS_POLYNOMIAL (p));
 
   /* Set the output precision to DBL_EPSILON and the default goal
    * to approximate. Try to find all the possible digits representable 
@@ -35,6 +35,6 @@ mps_roots_impl_ (cplx_t * coeff, cplx_t * roots, int *n)
 
   mps_mpsolve (s);
 
-  mps_context_get_roots_d (s, roots, NULL);
+  mps_context_get_roots_d (s, &roots, NULL);
   mps_context_free (s);
 }
