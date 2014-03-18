@@ -40,7 +40,7 @@ int main (int argc, char * argv[]) {
       mps_approximation_get_fvalue (ctx, apprs[i], value);
       printf (" "); cplx_out_str (stdout, value); printf ("\n");
 
-      mps_approximation_free (apprs[i]);
+      mps_approximation_free (ctx, apprs[i]);
     }
   free (apprs);
 
