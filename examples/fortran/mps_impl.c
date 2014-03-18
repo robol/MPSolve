@@ -16,7 +16,7 @@
  * arguments of the fortran routine.
  */
 void
-mps_roots_impl_ (cplx_t * coeff, cplx_t * roots, int *n)
+mps_roots_ (int * n, cplx_t * coeff, cplx_t * roots)
 {
   /* Create a new mps_context and a new polynomial */
   mps_context *s = mps_context_new ();

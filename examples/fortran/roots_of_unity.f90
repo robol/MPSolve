@@ -6,12 +6,8 @@
 ! Compile this file with gfortran linking the module
 ! mps, libmps, libgmp, libpthread and libm
 !
-! f95 -o roots_of_unity roots_of_unity.f90 mps.f90 mps_impl.c \
-!	-lmps -lm -lgmp -lpthread 
 !
 PROGRAM roots_of_unity
-	! Use MPS module
-	USE MPS
 
 	! Double precision
 	INTEGER, PARAMETER :: dp = KIND(0.d0)

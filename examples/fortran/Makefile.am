@@ -4,14 +4,14 @@
 lib_LTLIBRARIES = libmps-fortran.la
 libmps_fortran_la_FCFLAGS  = -I${top_srcdir}/include -I${top_builddir}/include
 libmps_fortran_la_CFLAGS  = -I${top_srcdir}/include -I${top_builddir}/include
-libmps_fortran_la_SOURCES = mps.f90 mps_impl.c
+libmps_fortran_la_SOURCES = mps_impl.c
 libmps_fortran_la_LIBADD = ${top_builddir}/src/libmps/libmps.la
 libmps_fortran_la_LDFLAGS = \
-	-version-info 0:0:0
+	-version-info 0:1:0
 
-include_HEADERS = mps.mod
+# include_HEADERS = mps.mod
 
-CLEANFILES = *.mod
+# CLEANFILES = *.mod
 
 #
 # Simple example to check if the library works OK
