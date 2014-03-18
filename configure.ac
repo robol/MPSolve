@@ -193,7 +193,7 @@ AC_ARG_ENABLE([tcmalloc],
   ## Subsection 0.3) Multithread support. 
     
 
-    AX_PTHREAD([], [
+    ACX_PTHREAD([], [
       AC_MSG_ERROR([Pthread library not found. Please set PTHREAD_CFLAGS and PTHREAD_LIBS correctly for your setup])
     ])
     CC="$PTHREAD_CC"

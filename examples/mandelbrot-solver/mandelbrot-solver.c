@@ -33,7 +33,16 @@ int main (int argc, char * argv[]) {
   mps_context_set_starting_phase (ctx, float_phase);
   mps_mpsolve (ctx);
 
-  mps_output (ctx);
+  mps_approximation ** apprs = mps_context_get_approximations (ctx);
+  for (int i = 0; i < mps_context_get_degree (ctx); i++)
+    {
+      cplx_t value;
+      mps_approximation_get_fvalue (ctx, apprs[i], value);
+      printf (" "); cplx_out_str (stdout, value); printf ("\n");
+
+      mps_approximation_free (apprs[i]);
+    }
+  free (apprs);
 
   mps_mandelbrot_poly_free (ctx, MPS_POLYNOMIAL (mp));
   mps_context_free (ctx);
