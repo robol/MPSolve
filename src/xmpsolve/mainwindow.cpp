@@ -228,3 +228,8 @@ void xmpsolve::MainWindow::on_actionAbort_computations_triggered()
     m_solver.abortComputations();
     ui->statusBar->showMessage(tr("Waiting for MPSolve to complete the current operation..."));
 }
+
+void xmpsolve::MainWindow::on_openPolFileButton_clicked()
+{
+    on_actionOpen_pol_file_triggered();
+}

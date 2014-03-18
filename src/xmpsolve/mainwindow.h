@@ -84,6 +84,8 @@ private slots:
 
     void onPolFileEditorWindowDestroyed();
 
+    void on_openPolFileButton_clicked();
+
 private:
     Ui::MainWindow *ui;
     PolynomialSolver m_solver;

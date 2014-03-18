@@ -8,8 +8,8 @@
 
 TEMPLATE = app
 
-CONFIG += mps_qml
-# CONFIG += mps_widgets
+# CONFIG += mps_qml
+CONFIG += mps_widgets
 
 QT       += core gui
 mps_widgets {
