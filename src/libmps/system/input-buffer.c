@@ -117,21 +117,25 @@ mps_input_buffer_readline (mps_input_buffer * buf)
 
   /* Read a new line. On the first step buf->line is NULL
    * so a new space is allocated in there, that will be
-   * reused on the subsequent calls. */
-  read_chars = mps_abstract_input_stream_readline (buf->stream, &buf->line, &length);
+   * reused on the subsequent calls. If trimming the comment
+   * results in an empty line, read a new one. */
+  do {
+    read_chars = mps_abstract_input_stream_readline (buf->stream, &buf->line, &length);
 
-  if (read_chars > 0)
-    buf->last_token = buf->line;
+    if (read_chars > 0)
+      buf->last_token = buf->line;
 
-  if (buf->line && read_chars > 0)
-    {
-      buf->line_number++;
-      char * comment = strstr (buf->line, "!");
-      if (comment)
-        {
-          *comment = '\0';
-        }
-    }
+    if (buf->line && read_chars > 0)
+      {
+	buf->line_number++;
+	char * comment = strstr (buf->line, "!");
+	if (comment)
+	  {
+	    *comment = '\0';
+	    read_chars = (comment - buf->line);
+	  }
+      }    
+  } while (read_chars == 0 && buf->line != NULL); 
 
   return read_chars;
 }
