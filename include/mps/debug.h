@@ -231,6 +231,7 @@ unsigned long int mps_stop_timer (clock_t * my_timer);
 #define MPS_DEBUG_MCLUSTER_ROOTS(args ...)
 #define MPS_DEBUG_THIS_CALL(ctx)
 #define MPS_DEBUG_WITH_INFO(args ...)
+#define MPS_DEBUG_WITH_IO(args ...)
 #define __MPS_DEBUG(args ...)
 #endif
 

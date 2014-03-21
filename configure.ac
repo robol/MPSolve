@@ -47,15 +47,10 @@ AC_ARG_ENABLE([debug-build],
              [enable_debug_build=$enableval], [enable_debug_build=no]
 	 )         
 
-AS_IF([test x$enable_debug_build == xno], [
-          LIBMPS_CFLAGS="$LIBMPS_CFLAGS -O2 -fomit-frame-pointer"
-      ], [
+AS_IF([test x$enable_debug_build == xno], [], [
 	  CFLAGS=""
 	  CXXFLAGS=""
           LIBMPS_CFLAGS="$LIBMPS_CFLAGS -O0 -g"
-
-	AC_SUBST(CFLAGS)
-	AC_SUBST(CXXFLAGS)
       ]
 )
 
@@ -128,6 +123,11 @@ AC_ARG_ENABLE([tcmalloc],
   AC_PROG_CC_C99
   AM_PROG_CC_C_O
   AC_C_INLINE
+
+  # Check for some compiler options that provide significant optimizations
+  AX_CHECK_COMPILE_FLAG([-fcx-limited-range],   [ LIBMPS_CFLAGS="$LIBMPS_CFLAGS -fcx-limited-range" ])
+  AX_CHECK_COMPILE_FLAG([-fno-math-errno],      [ LIBMPS_CFLAGS="$LIBMPS_CFLAGS -fno-math-errno" ])
+  AX_CHECK_COMPILE_FLAG([-fomit-frame-pointer], [ LIBMPS_CFLAGS="$LIBMPS_CFLAGS -fomit-frame-pointer" ])
 
   # Checks for typedefs, structures, and compiler characteristics.
   AC_HEADER_STDBOOL
