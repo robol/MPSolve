@@ -262,7 +262,7 @@ mps_parse_abstract_stream (mps_context * s, mps_abstract_input_stream * stream)
     {
       mps_input_buffer_readline (buffer);
       line = buffer->line;
-      if (strchr (line, ';') == NULL || mps_input_buffer_eof (buffer))
+      if (line == NULL || strchr (line, ';') == NULL)
         {
           if (s->debug_level & MPS_DEBUG_IO)
             {

@@ -535,7 +535,7 @@ END_TEST
 START_TEST (test_complex1)
 {
   ALLOCATE_CONTEXT
-  fprintf (stderr, "\n\nTEST:test_complex1Starting test \n");
+  fprintf (stderr, "\n\nTEST:test_complex1 Starting test \n");
 
   mps_monomial_poly *poly = MPS_MONOMIAL_POLY (
     mps_parse_inline_poly_from_string (ctx,
@@ -582,7 +582,7 @@ END_TEST
 START_TEST (test_complex2)
 {
   ALLOCATE_CONTEXT
-  fprintf (stderr, "\n\nTEST:test_complex2Starting test \n");
+  fprintf (stderr, "\n\nTEST:test_complex2 Starting test \n");
 
   mps_monomial_poly *poly = MPS_MONOMIAL_POLY (
     mps_parse_inline_poly_from_string (ctx,
@@ -625,6 +625,29 @@ START_TEST (test_complex2)
 }
 END_TEST
 
+START_TEST (multiline_pol_file1)
+{
+  ALLOCATE_CONTEXT
+  fprintf (stderr, "\n\nTEST:multiline_pol_file1 Starting test \n");
+
+  const char * pol_file = "Degree=20;\n"
+    "Integer;\n"
+    "Real;\n"
+    "Monomial;\n"
+    "Sparse;\n\n"
+    "20 1\n"
+    "0 -1\n";
+
+  mps_polynomial * poly = mps_parse_string (ctx, pol_file);
+
+  fail_unless (poly != NULL && ! mps_context_has_errors (ctx), 
+	       "Cannot parse the following polynomial file directly from memory: %s", 
+	       pol_file);	      
+
+  mps_context_free (ctx);
+}
+END_TEST
+
 
 int
 main (void)
@@ -635,6 +658,7 @@ main (void)
 
   Suite *s = suite_create ("Parsers");
   TCase *tc_inline = tcase_create ("Inline parser");
+  TCase *tc_memory_parser = tcase_create ("Memory parser");
 
   /* Check inline parsing of polynomials */
   tcase_add_test (tc_inline, inline_simple1);
@@ -666,6 +690,11 @@ main (void)
   tcase_add_test (tc_inline, test_complex2);
 
   suite_add_tcase (s, tc_inline);
+
+  /* Memory parser */
+  tcase_add_test (tc_memory_parser, multiline_pol_file1);
+  
+  suite_add_tcase (s, tc_memory_parser);
 
   SRunner *sr = srunner_create (s);
   srunner_run_all (sr, CK_NORMAL);

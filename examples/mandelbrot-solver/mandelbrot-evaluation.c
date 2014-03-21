@@ -9,8 +9,8 @@
  */
 
 #include "mandelbrot-poly.h"
-#include <float.h>
 
+#include <float.h>
 #define LOG2 0.301029995666
 
 mps_boolean

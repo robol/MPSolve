@@ -8,8 +8,8 @@
 
 TEMPLATE = app
 
-# CONFIG += mps_qml
-CONFIG += mps_widgets
+CONFIG += mps_qml
+# CONFIG += mps_widgets
 
 QT       += core gui
 mps_widgets {
@@ -37,8 +37,10 @@ android {
 
     # Customize this to match your current setup. This way the setup points to a directory inside
     # mpsolve-x.y.z. This setup can be obtained with the script in tools/android-build-libmps.sh
-    ANDROID_ROOT = $${PWD}/../../android-ext-x86-4.8
-    ANDROID_ROOT = $${PWD}/../../android-ext-arm-linux-androideabi-4.6
+    ANDROID_ROOT = $${PWD}/../../android-ext-x86
+    ANDROID_ROOT = $${PWD}/../../android-ext-armeabi
+    ANDROID_ROOT = $${PWD}/../../android-ext-armeabi-v7a
+    ANDROID_ROOT = $${PWD}/../../android-ext-mips
 
     # We need -DMPS_USE_BUILTIN_COMPLEX since Android uses tiny bionic without complex
     # arithmetic support.
