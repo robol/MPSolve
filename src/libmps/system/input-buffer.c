@@ -7,7 +7,7 @@
  * Authors:
  *   Dario Andrea Bini <bini@dm.unipi.it>
  *   Giuseppe Fiorentino <fiorent@dm.unipi.it>
- *   Leonardo Robol <robol@mail.dm.unipi.it>
+ *   Leonardo Robol <leonardo.robol@sns.it>
  */
 
 #define _GNU_SOURCE

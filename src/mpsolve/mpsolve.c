@@ -5,7 +5,7 @@
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
  * Authors: 
- *   Leonardo Robol <robol@mail.dm.unipi.it>
+ *   Leonardo Robol <leonardo.robol@sns.it>
  */
 
 #define _MPS_PRIVATE

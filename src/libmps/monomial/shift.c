@@ -6,7 +6,7 @@
  *
  * Authors:
  *   Giuseppe Fiorentino <fiorent@dm.unipi.it>
- *   Leonardo Robol <robol@mail.dm.unipi.it>
+ *   Leonardo Robol <leonardo.robol@sns.it>
  */
 
 #include <mps/mps.h>
