@@ -10,12 +10,14 @@
 
 #include <mps/mps.h>
 
+/*! @cond PRIVATE */
 struct __mps_fjacobi_aberth_step_data {
   mps_context * ctx;
   mps_polynomial * p;
   mps_approximation * root;
   cplx_t * correction;
 };
+/*! @endcond */
 
 static void *
 __mps_fjacobi_aberth_step_worker (void * data_ptr)
@@ -174,12 +176,14 @@ mps_faberth_packet (mps_context * ctx, mps_polynomial * p, mps_boolean just_rege
   return root_neighborhood_roots;
 }
 
+/*! @cond PRIVATE */
 struct __mps_djacobi_aberth_step_data {
   mps_context * ctx;
   mps_polynomial * p;
   mps_approximation * root;
   cdpe_t * aberth_correction;
 };
+/*! @endcond */
 
 static void *
 __mps_djacobi_aberth_step_worker (void * data_ptr)
@@ -329,14 +333,14 @@ mps_daberth_packet (mps_context * ctx, mps_polynomial * p, mps_boolean just_rege
   return root_neighborhood_roots;
 }
 
-
-
+/*! @cond PRIVATE */
 struct __mps_mjacobi_aberth_step_data {
   mps_context * ctx;
   mps_polynomial * p;
   mps_approximation * root;
   mpc_t * aberth_correction;
 };
+/*! @endcond */
 
 static void *
 __mps_mjacobi_aberth_step_worker (void * data_ptr)

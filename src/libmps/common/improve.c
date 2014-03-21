@@ -90,12 +90,14 @@ improve_root (mps_context * ctx, mps_polynomial * p, mps_approximation * root, l
   mpc_clear (newton_correction);
 }
 
+/*! @cond PRIVATE */
 typedef struct {
   mps_context * ctx;
   mps_polynomial * p;
   mps_approximation * root;
   long int precision;
 } __improve_root_data;
+/*! @endcond */
 
 static void *
 improve_root_wrapper (void * data_ptr)

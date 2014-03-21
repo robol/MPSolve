@@ -575,6 +575,9 @@ AS_IF([test x$build_doc == xyes], [
 
   if [test -z "$DOXYGEN"]; then
     AC_MSG_WARN([Doxygen not found, documentation will not be generated])
+  else
+    AC_CHECK_PROGS([DOT], [dot])
+    AC_SUBST(HAVE_DOT)
   fi
 ])
 

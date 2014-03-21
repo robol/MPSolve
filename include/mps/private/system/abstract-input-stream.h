@@ -20,10 +20,14 @@
 
 /* C compatibility layer */
 MPS_BEGIN_DECLS
+  /**
+   * @brief This is a C wrapper around the C++ implementation of
+   * {@link AbstractInputStream}. 
+   */
   struct mps_abstract_input_stream;
 
   /**
-   * @brief C wrapper around {@linke AbstractInputStream}. 
+   * @brief C wrapper around {@link AbstractInputStream}. 
    */
   typedef struct mps_abstract_input_stream mps_abstract_input_stream;
 
@@ -45,6 +49,12 @@ MPS_END_DECLS
 
 namespace mps {
 
+  /**
+   * @brief Abstract class that represent a generic input stream that can
+   * be used by MPSolve to read polynomial files and/or descriptions. 
+   *
+   * @seealso {@link MemoryFileStream}, {@link FileInputStream}
+   */
   class AbstractInputStream {
 
   public:

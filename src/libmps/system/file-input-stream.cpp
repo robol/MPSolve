@@ -19,17 +19,6 @@ extern "C"
     return reinterpret_cast<mps_file_input_stream*>( new FileInputStream(source) );
   }
 
-  size_t mps_file_input_stream_readline (mps_file_input_stream * stream, 
-					 char ** buffer, size_t * length)
-  {
-    return reinterpret_cast<FileInputStream*>(stream)->readline(buffer, length);
-  }
-
-  mps_boolean mps_file_input_stream_eof (mps_file_input_stream * stream)
-  {
-    return reinterpret_cast<FileInputStream*>(stream)->eof();
-  }
-
   void 
   mps_file_input_stream_free (mps_file_input_stream * stream)
   {

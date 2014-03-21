@@ -119,6 +119,7 @@ mps_secular_ga_find_changed_roots (mps_context * s, cdpe_t * old_b, mpc_t * old_
   return root_changed;
 }
 
+/*! @cond PRIVATE */
 struct __mps_secular_ga_regenerate_coefficients_monomial_data {
   mps_context * s;
   cdpe_t * old_b;
@@ -129,6 +130,7 @@ struct __mps_secular_ga_regenerate_coefficients_monomial_data {
   mps_boolean * success;
   int i;
 };
+/*! @endcond */
 
 static void *
 __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)

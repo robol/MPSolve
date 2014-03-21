@@ -18,10 +18,29 @@
 
 MPS_BEGIN_DECLS
 
+  /**
+   * @brief C wrapper around {@link MemoryFileStream}.
+   */
   struct mps_memory_file_stream;
+
+  /**
+   * @brief C wrapper around {@link MemoryFileStream}. 
+   */
   typedef struct mps_memory_file_stream mps_memory_file_stream;
 
+  /**
+   * @brief Allocate a new {@link MemoryFileStream} that will output
+   * the data pointed by source. 
+   *
+   * @param source The data that will be provided by the mps_memory_file_stream. 
+   */
   mps_memory_file_stream * mps_memory_file_stream_new (const char * source);
+
+  /**
+   * @brief Release the resources holded by a {@link MemoryFileStream}. 
+   *
+   * @param stream The {@link MemoryFileStream} to release. 
+   */
   void mps_memory_file_stream_free (mps_memory_file_stream * stream);
 
 MPS_END_DECLS
@@ -35,15 +54,44 @@ MPS_END_DECLS
 
 namespace mps {
 
+  /**
+   * @brief The MemoryFileStream class provides an implementation of
+   * the abstract class {@link AbstractInputStream} that will stream
+   * the data contained in the area stored in memory. 
+   */
   class MemoryFileStream : AbstractInputStream {
 
   public: 
 
+    /**
+     * @brief Allocate a new MemoryFileStream that wil provide that data
+     * stored by the given pointer. 
+     *
+     * @param source A pointer to the data that should be provided 
+     * by this instance. 
+     */
     MemoryFileStream(const char * source);
+
     ~MemoryFileStream();
 
+    /**
+     * @brief Implementation of the readline() method of the
+     * {@link AbstractInputStream} parent. 
+     *
+     * @param buffer A pointer to the buffer where the line will be stored. 
+     * @param length A pointer where the length of the allocated buffer at
+     * the end will be saved. 
+     *
+     * @return The number of characters that have been stored in
+     * buffer. 
+     */
     size_t readline(char ** buffer, size_t * length);
 
+    /**
+     * @brief Implementation of the eof() method of {@link AbstractInputStream}. 
+     *
+     * @return true if the source stream has reached the end. 
+     */
     bool eof ();
 
   private:

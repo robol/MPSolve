@@ -27,9 +27,11 @@ extern "C" {
 **              definition of types                       **
 ***********************************************************/
 
+/*! @cond PRIVATE */
 typedef struct {
   mpf_t r, i;
 } __mpc_struct;
+/*! @endcond */
 
 typedef __mpc_struct mpc_t[1];
 

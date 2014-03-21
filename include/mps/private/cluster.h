@@ -61,7 +61,7 @@ struct mps_cluster {
 };
 
 /**
- * @brief Cluster hold in a mps_clusterization.
+ * @brief Cluster held in a mps_clusterization.
  */
 struct mps_cluster_item {
   /**

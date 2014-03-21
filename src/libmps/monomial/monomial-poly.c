@@ -482,7 +482,8 @@ void mps_monomial_poly_get_coefficient_d (mps_context * s, mps_monomial_poly * p
  * @param s The current mps_context.
  * @param p The polynomial of which you want to know the coefficient.
  * @param i The degree of the coefficient to obtain.
- * @param output A mpq_t where the result will be stored.
+ * @param real_output A mpq_t where the real part of the result will be stored.
+ * @param imag_output A mpq_t where the imaginary part of the result will be stored.
  */
 void mps_monomial_poly_get_coefficient_q (mps_context * s, mps_monomial_poly * p,
                                           int i, mpq_t real_output, mpq_t imag_output)
