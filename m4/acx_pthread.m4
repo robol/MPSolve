@@ -4,7 +4,7 @@
 #    http://svn.0pointer.de/viewvc/trunk/common/acx_pthread.m4?root=avahi
 #
 # We've rewritten the inconsistency check code (from avahi), to work
-# more broadly.  In particular, it no longer assumes ld accepts -zdefs.
+# more broadly.  In particular, it no longer assumes ld accepts defs.
 # This caused a restructing of the code, but the functionality has only
 # changed a little.
 
@@ -256,7 +256,7 @@ if test "x$acx_pthread_ok" = xyes; then
 	# FIXME: -fPIC is required for -shared on many architectures,
 	# so we specify it here, but the right way would probably be to
 	# properly detect whether it is actually required.
-	CFLAGS="-shared -fPIC -Wl,-z,defs $CFLAGS $PTHREAD_CFLAGS"
+	CFLAGS="-shared -fPIC $CFLAGS $PTHREAD_CFLAGS"
 	LIBS="$PTHREAD_LIBS $LIBS"
 	CC="$PTHREAD_CC"
 	
