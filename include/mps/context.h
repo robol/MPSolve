@@ -179,6 +179,10 @@ struct mps_context {
    */
   FILE *logstr;
 
+  /**
+   * @brief Stream used to resume an interrupted computation or to load
+   * the approximations from a custom file. 
+   */
   FILE *rtstr;
 
   /*

@@ -41,6 +41,11 @@ void mps_recursive_fstart (mps_context * ctx, mps_polynomial * poly, mps_approxi
 void mps_recursive_dstart (mps_context * ctx, mps_polynomial * poly, mps_approximation ** approximations);
 void mps_recursive_mstart (mps_context * ctx, mps_polynomial * poly, mps_approximation ** approximations);
 
+/* functions in file-starting.c */
+void mps_file_fstart (mps_context * ctx, mps_polynomial * poly, mps_approximation ** approximations);
+void mps_file_dstart (mps_context * ctx, mps_polynomial * poly, mps_approximation ** approximations);
+void mps_file_mstart (mps_context * ctx, mps_polynomial * poly, mps_approximation ** approximations);
+
 MPS_END_DECLS
 
 #endif /* MPS_STARTING_H_ */

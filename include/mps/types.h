@@ -478,7 +478,8 @@ enum mps_representation {
  */
 enum mps_starting_strategy {
   MPS_STARTING_STRATEGY_DEFAULT,
-  MPS_STARTING_STRATEGY_RECURSIVE
+  MPS_STARTING_STRATEGY_RECURSIVE,
+  MPS_STARTING_STRATEGY_FILE
 };
 
 #endif /* endif MPS_TYPES_H_ */

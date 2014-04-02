@@ -17,9 +17,9 @@
 #endif
 
 #if HAVE_GRAPHICAL_DEBUGGER
-#define MPSOLVE_GETOPT_STRING "a:G:D:d::xt:o:O:j:S:O:i:vl:bp:r"
+#define MPSOLVE_GETOPT_STRING "a:G:D:d::xt:o:O:j:S:O:i:vl:bp:rs:"
 #else
-#define MPSOLVE_GETOPT_STRING "a:G:D:d::t:o:O:j:S:O:i:vl:bp:r"
+#define MPSOLVE_GETOPT_STRING "a:G:D:d::t:o:O:j:S:O:i:vl:bp:rs:"
 #endif
 
 #if HAVE_GRAPHICAL_DEBUGGER
@@ -181,6 +181,8 @@ usage (mps_context * s, const char *program)
 	   " -r          Use a recursive strategy to dispose the initial approximations.\n"
 	   "             This option is available only for monomial polynomials. \n"
 	   "             Note: this option is considered experimental.\n"
+	   " -s file     Read the starting approximations from the given file, instead\n"
+	   "             of relying on the internal algorithm of MPSolve.\n"
            " -v          Print the version and exit\n"
            "\n",
            program, program, program);
@@ -556,6 +558,27 @@ main (int argc, char **argv)
           graphic_debug = true;
           break;
 #endif          
+
+	case 's':
+	  if (opt->optvalue == NULL)
+	    {
+	      mps_error (s, "You need to specify a valid file with -s");
+	      break;
+	    }
+	  else
+	    {
+	      s->rtstr = fopen (opt->optvalue, "r");
+	      if (! s->rtstr)
+		{
+		  mps_error (s, "Cannot open the given file: %s", opt->optvalue);
+		  break;
+		}
+	      else
+		{
+		  mps_context_select_starting_strategy (s, MPS_STARTING_STRATEGY_FILE);
+		}
+	    }
+	  break;
 
         case 't':
           switch (opt->optvalue[0])

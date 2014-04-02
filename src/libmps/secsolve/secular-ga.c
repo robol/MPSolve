@@ -104,6 +104,8 @@ mps_secular_ga_check_stop (mps_context * s)
   return true;
 }
 
+#define EXIT_ON_ERRORS(ctx) if (mps_context_has_errors (ctx)) { goto cleanup; }
+
 /**
  * @brief MPSolve main function for the secular equation solving
  * using Gemignani's approach.
@@ -163,7 +165,6 @@ mps_secular_ga_mpsolve (mps_context * s)
 
   /* Manually set FILE* pointer for streams.
    * More refined options will be added later. */
-  s->outstr = s->rtstr = stdout;
   packet = 0;
 
   /* Set the maximum possible radius even in DPE, since
@@ -230,6 +231,7 @@ mps_secular_ga_mpsolve (mps_context * s)
         {
         case float_phase:
           mps_polynomial_fstart (s, p, s->root);
+	  EXIT_ON_ERRORS (s);
 
           if (p->fnewton)
             mps_faberth_packet (s, p, false);
@@ -238,6 +240,7 @@ mps_secular_ga_mpsolve (mps_context * s)
 
         case dpe_phase:
           mps_polynomial_dstart (s, p, s->root);
+	  EXIT_ON_ERRORS (s);
 
           if (p->dnewton)
             mps_daberth_packet (s, p, false);
@@ -250,6 +253,8 @@ mps_secular_ga_mpsolve (mps_context * s)
 #endif
           return;
         }
+
+      EXIT_ON_ERRORS(s);
 
       mps_cluster_analysis (s, p);
 
@@ -357,6 +362,8 @@ mps_secular_ga_mpsolve (mps_context * s)
           break;
         }
     }
+
+  EXIT_ON_ERRORS (s);
 
   for (i = 0; i < s->n; i++)
     {
@@ -553,14 +560,22 @@ mps_secular_ga_mpsolve (mps_context * s)
 
 cleanup:
 
-  MPS_DEBUG_WITH_INFO (s, "Validating the inclusions");
-  if (s->active_poly->prec > 0)
+  if (mps_context_has_errors (s))
     {
-      mps_validate_inclusions (s);
+      MPS_DEBUG_WITH_INFO (s, "Returning since some errors have been detected");
+      s->exit_required = true;
     }
+  else
+    {
+      MPS_DEBUG_WITH_INFO (s, "Validating the inclusions");
+      if (s->active_poly->prec > 0)
+	{
+	  mps_validate_inclusions (s);
+	}
 
-  mps_copy_roots (s);
-  mps_dump (s);
+      mps_copy_roots (s);
+      mps_dump (s);
+    }
 
   if (s->exit_required)
     {

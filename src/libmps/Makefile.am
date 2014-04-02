@@ -23,6 +23,7 @@ libmps_la_SOURCES = \
 	common/context.c \
 	common/convex.c \
 	common/defaults.c \
+	common/file-starting.c \
 	common/improve.c \
 	common/inclusion.c \
 	common/inline-poly-parser.c \

@@ -120,6 +120,11 @@ mps_polynomial_fstart (mps_context * ctx, mps_polynomial * p, mps_approximation 
     case MPS_STARTING_STRATEGY_RECURSIVE:
       mps_recursive_fstart (ctx, p, approximations);
       break;
+    case MPS_STARTING_STRATEGY_FILE:
+      mps_file_fstart (ctx, p, approximations);
+      /* The FILE starting strategy is one-shot only. */
+      mps_context_select_starting_strategy (ctx, MPS_STARTING_STRATEGY_DEFAULT);
+      break;
     }
 }
 
@@ -127,14 +132,44 @@ void
 mps_polynomial_dstart (mps_context * ctx, mps_polynomial * p, mps_approximation ** approximations)
 {
   ctx->operation = MPS_OPERATION_STARTING_POINTS_DPE;
-  (*p->dstart)(ctx, p, approximations);
+
+  /* Switch the starting strategy based on the selection in ctx->starting_strategy */
+  switch (ctx->starting_strategy)
+    {
+    case MPS_STARTING_STRATEGY_DEFAULT:
+      (*p->dstart)(ctx, p, approximations);
+      break;
+    case MPS_STARTING_STRATEGY_RECURSIVE:
+      mps_recursive_dstart (ctx, p, approximations);
+      break;
+    case MPS_STARTING_STRATEGY_FILE:
+      mps_file_dstart (ctx, p, approximations);
+      /* The FILE starting strategy is one-shot only. */
+      mps_context_select_starting_strategy (ctx, MPS_STARTING_STRATEGY_DEFAULT);
+      break;
+    }
 }
 
 void
 mps_polynomial_mstart (mps_context * ctx, mps_polynomial * p, mps_approximation ** approximations)
 {
   ctx->operation = MPS_OPERATION_STARTING_POINTS_MP;
-  (*p->mstart)(ctx, p, approximations);
+
+  /* Switch the starting strategy based on the selection in ctx->starting_strategy */
+  switch (ctx->starting_strategy)
+    {
+    case MPS_STARTING_STRATEGY_DEFAULT:
+      (*p->mstart)(ctx, p, approximations);
+      break;
+    case MPS_STARTING_STRATEGY_RECURSIVE:
+      mps_recursive_mstart (ctx, p, approximations);
+      break;
+    case MPS_STARTING_STRATEGY_FILE:
+      mps_file_mstart (ctx, p, approximations);
+      /* The FILE starting strategy is one-shot only. */
+      mps_context_select_starting_strategy (ctx, MPS_STARTING_STRATEGY_DEFAULT);
+      break;
+    }
 }
 
 void
