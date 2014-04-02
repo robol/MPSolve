@@ -21,17 +21,17 @@
 MPS_BEGIN_DECLS
 
 /**
- * @brief This struct holds a configuration for a command line option. 
- * This is a step towards a more flexible implementation of the option parser, 
- * compared to the traditional getopts() call. 
+ * @brief This struct holds a configuration for a command line option.
+ * This is a step towards a more flexible implementation of the option parser,
+ * compared to the traditional getopts() call.
  */
 struct mps_command_line_option {
   /**
-   * @brief This is the character that is recognized as starting the 
-   * option specification on the command line. 
+   * @brief This is the character that is recognized as starting the
+   * option specification on the command line.
    *
-   * This value may be '\0' if only the long format is provided for this 
-   * option. 
+   * This value may be '\0' if only the long format is provided for this
+   * option.
    */
   char format;
 
@@ -39,33 +39,33 @@ struct mps_command_line_option {
    * @brief This value is true if an argument may be specified for the option.
    *
    * The argument may or may not be mandatory, according to the mandatory field
-   * of this struct. 
+   * of this struct.
    */
   mps_boolean argument;
 
   /**
-   * @brief If this value is true then the argument for the option is mandatory. 
-   * Note that this value should be true only if argument is true. 
+   * @brief If this value is true then the argument for the option is mandatory.
+   * Note that this value should be true only if argument is true.
    */
   mps_boolean mandatory;
 
   /**
    * @brief An optional long format for the option, or NULL if no long format is
-   * specified. 
+   * specified.
    */
   char * long_format;
 };
 
 /**
- * @brief Configuration for a command line parser. 
+ * @brief Configuration for a command line parser.
  *
  * This struct essentialy holds a list of mps_command_line_option structs
- * that describe the options that should be parsed at command line. 
+ * that describe the options that should be parsed at command line.
  */
 struct mps_command_line_option_configuration {
   /**
    * @brief A list of mps_command_option instances that have been provided
-   * for this parser configuration. 
+   * for this parser configuration.
    */
   mps_list * command_options;
 };

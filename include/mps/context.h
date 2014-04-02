@@ -181,7 +181,7 @@ struct mps_context {
 
   /**
    * @brief Stream used to resume an interrupted computation or to load
-   * the approximations from a custom file. 
+   * the approximations from a custom file.
    */
   FILE *rtstr;
 

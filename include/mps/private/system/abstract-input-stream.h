@@ -12,7 +12,7 @@
  * @file
  * @brief Abstract input stream used to parse files.
  *
- * The implementation is C++ but C API is provided. 
+ * The implementation is C++ but C API is provided.
  */
 
 #ifndef MPS_ABSTRACT_INPUT_STREAM_H_
@@ -20,64 +20,60 @@
 
 /* C compatibility layer */
 MPS_BEGIN_DECLS
-  /**
-   * @brief This is a C wrapper around the C++ implementation of
-   * {@link AbstractInputStream}. 
-   */
-  struct mps_abstract_input_stream;
+/**
+ * @brief This is a C wrapper around the C++ implementation of
+ * {@link AbstractInputStream}.
+ */
+struct mps_abstract_input_stream;
 
-  /**
-   * @brief C wrapper around {@link AbstractInputStream}. 
-   */
-  typedef struct mps_abstract_input_stream mps_abstract_input_stream;
+/**
+ * @brief C wrapper around {@link AbstractInputStream}.
+ */
+typedef struct mps_abstract_input_stream mps_abstract_input_stream;
 
-  /**
-   * @brief Wrapper around {@link AbstractInputStream::readline()}. 
-   */
-  size_t mps_abstract_input_stream_readline (mps_abstract_input_stream * stream, 
-					     char ** buffer, size_t * length);
+/**
+ * @brief Wrapper around {@link AbstractInputStream::readline()}.
+ */
+size_t mps_abstract_input_stream_readline (mps_abstract_input_stream * stream,
+                                           char ** buffer, size_t * length);
 
-  /**
-   * @brief Wrapper around {@link AbstractInputStream::eof()}. 
-   */
-  mps_boolean mps_abstract_input_stream_eof (mps_abstract_input_stream * stream);
+/**
+ * @brief Wrapper around {@link AbstractInputStream::eof()}.
+ */
+mps_boolean mps_abstract_input_stream_eof (mps_abstract_input_stream * stream);
 
 MPS_END_DECLS
-  
+
 /* The following is C++ only */
 #ifdef __cplusplus
 
 namespace mps {
-
   /**
    * @brief Abstract class that represent a generic input stream that can
-   * be used by MPSolve to read polynomial files and/or descriptions. 
+   * be used by MPSolve to read polynomial files and/or descriptions.
    *
    * @seealso {@link MemoryFileStream}, {@link FileInputStream}
    */
   class AbstractInputStream {
-
-  public:
+public:
 
     virtual ~AbstractInputStream() = 0;
 
     /**
      * @brief Return a new line of the stream or NULL if we are at
-     * the end. 
+     * the end.
      *
-     * @return A pointer to a newly allocated line or NULL. 
+     * @return A pointer to a newly allocated line or NULL.
      */
     virtual size_t readline (char ** buffer, size_t * length) = 0;
 
     /**
-     * @brief Check if we are at the end of the stream. 
+     * @brief Check if we are at the end of the stream.
      *
-     * @return true if we are at the end of the stream. 
+     * @return true if we are at the end of the stream.
      */
     virtual bool eof () = 0;
-
   };
-
 }
 
 #endif /* __cplusplus */
