@@ -93,7 +93,7 @@ AC_ARG_ENABLE([vfpv3],
     [build_hard_float=$enableval], [build_hard_float=no])
 
 AS_IF([test x$build_hard_float = xyes], [
-  CFLAGS="-mfloat-abi=softfp -mfpu=vfpv3-d16"
+  CFLAGS="$CFLAGS -mfloat-abi=softfp -mfpu=vfpv3-d16"
 ])
 
 # Check if the user wants to use the standard system malloc even if tcmalloc
@@ -631,6 +631,7 @@ MPSolve configuration:
         C compiler:		${CC}
 	CFLAGS:			${LIBMPS_CFLAGS}
         LDFLAGS:                ${LIBMPS_LDFLAGS}
+	Additional CFLAGS:	${CFLAGS}
         Debug enabled:		$enable_debug
         Check enabled:		$have_check"
 
