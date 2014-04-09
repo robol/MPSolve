@@ -186,7 +186,9 @@ mps_secular_ga_fiterate (mps_context * s, int maxit, mps_boolean just_regenerate
         computed_roots++;
     }
 
-  MPS_DEBUG_WITH_INFO (s, "%d roots are already approximated at the start of the packet", computed_roots);
+  MPS_DEBUG_WITH_INFO (s, "%d roots %s already approximated at the start of the packet", 
+		       computed_roots,
+		       (computed_roots == 1) ? "is" : "are");
 
   it_threshold = s->n - computed_roots;
 
@@ -416,7 +418,9 @@ mps_secular_ga_diterate (mps_context * s, int maxit, mps_boolean just_regenerate
 
   it_threshold = (s->n - computed_roots);
 
-  MPS_DEBUG_WITH_INFO (s, "%d roots are already approximated at the start of the packet", computed_roots);
+  MPS_DEBUG_WITH_INFO (s, "%d roots %s already approximated at the start of the packet", 
+		       computed_roots,
+		       (computed_roots == 1) ? "is" : "are");
 
   mps_thread_job_queue *queue = mps_thread_job_queue_new (s);
 
@@ -461,18 +465,6 @@ mps_secular_ga_diterate (mps_context * s, int maxit, mps_boolean just_regenerate
   MPS_DEBUG_WITH_INFO (s, "%d roots are approximated with the current precision", approximated_roots);
   MPS_DEBUG_WITH_INFO (s, "%d roots are in the root neighborhood", root_neighborhood_roots);
   MPS_DEBUG_WITH_INFO (s, "%d roots have reached a stop condition", computed_roots);
-
-  /* These lines are used to debug the again vector, but are not useful
-   * at the moment being */
-  if (s->debug_level & MPS_DEBUG_APPROXIMATIONS)
-    {
-      __MPS_DEBUG (s, "Again vector = ");
-      for (i = 0; i < s->n; i++)
-        {
-          fprintf (s->logstr, "%d ", s->root[i]->again);
-        }
-      fprintf (s->logstr, "\n");
-    }
 
   /* Clock the routine */
 #ifndef DISABLE_DEBUG

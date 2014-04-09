@@ -50,7 +50,7 @@
  *   \f$\frac{a_i}{(x - b_i)}\f$ will be saved
  * @return If the returned value is a positive integer it is the index of the \f$b_i\f$ term
  *   that is equal to \f$x\f$, suggesting that the alternate evaluation algorithm must be used.
- *   If it is MPS_PARALLEL_SUM_FAILED then a floting point was encountered in the computation,
+ *   If it is MPS_PARALLEL_SUM_FAILED then a floating point exception was encountered in the computation,
  *   while MPS_PARALLEL_SUM_SUCCESS indicates that the evaluation was successful.
  */
 int
