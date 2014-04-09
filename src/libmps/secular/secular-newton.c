@@ -221,9 +221,9 @@ mps_secular_fnewton (mps_context * s, mps_polynomial * p, mps_approximation * ro
   else if (acorr < MPS_SQRT2 * ax * DBL_EPSILON)
     {
       if (s->debug_level & MPS_DEBUG_PACKETS)
-        MPS_DEBUG (s, "Setting approximated to true on root for small Newton correction");
+        MPS_DEBUG (s, "Setting again to false on root for small Newton correction");
+
       root->again = false;
-      root->approximated = true;
     }
 
   if (!cplx_eq_zero (corr) && root->again)
@@ -414,9 +414,8 @@ mps_secular_dnewton (mps_context * s, mps_polynomial * p, mps_approximation * ro
       if (rdpe_lt (acorr, rtmp2))
         {
           if (s->debug_level & MPS_DEBUG_PACKETS)
-            MPS_DEBUG (s, "Setting approximated to true on root for small Newton correction");
+            MPS_DEBUG (s, "Setting again to false on root for small Newton correction");
           root->again = false;
-          root->approximated = true;
         }
     }
 
@@ -657,9 +656,8 @@ mps_secular_mnewton (mps_context * s, mps_polynomial * p, mps_approximation * ro
   else if (rdpe_lt (acorr, axeps))
     {
       if (s->debug_level & MPS_DEBUG_PACKETS)
-        MPS_DEBUG (s, "Setting approximated to true on root for small Newton correction");
+        MPS_DEBUG (s, "Setting again to false on root for small Newton correction");
       root->again = false;
-      root->approximated = true;
     }
 
   if (!mpc_eq_zero (corr) && root->again)
