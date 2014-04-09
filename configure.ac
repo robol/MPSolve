@@ -297,8 +297,15 @@ AC_ARG_ENABLE([tcmalloc],
     # Add GMP_CFLAGS and GMP_LIBS to CFLAGS and LDFLAGS in case they are set.
     # This is an easy way for the user to override system libgmp or to provide
     # its location if it's not installed system-wide. 
-    CFLAGS="$GMP_CFLAGS $CFLAGS"
-    LDFLAGS="$GMP_LIBS $LDFLAGS"
+    AS_IF([test -z $GMP_CFLAGS], [], [
+      CFLAGS="$GMP_CFLAGS $CFLAGS"
+    ])
+    AS_IF([test -z $GMP_LDFLAGS], [], [
+      LDFLAGS="$GMP_LDFLAGS $LDFLAGS"
+    ])
+    AS_IF([test -z $GMP_LIBS], [], [
+      LDFLAGS="$GMP_LIBS $LDFLAGS"
+    ])
 
     AC_SUBST(GMP_CFLAGS)
     AC_SUBST(GMP_LIBS)
