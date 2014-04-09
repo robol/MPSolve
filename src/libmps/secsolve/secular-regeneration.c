@@ -241,8 +241,8 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
       if (rdpe_gt (relative_error, root_epsilon))
         {
           long int required_precision = 1 + s->root[i]->wp + (rdpe_Esp (relative_error) - rdpe_Esp (root_epsilon));
-
-          MPS_DEBUG (s, "Setting precision to %ld", required_precision);
+	  if (s->debug_level & MPS_DEBUG_MEMORY)
+	    MPS_DEBUG (s, "Setting precision to %ld", required_precision);
 
           /* Update the working precision of the selected root with a realistic estimate of the
            * required precision to get a result exact to machine precision */
