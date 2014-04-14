@@ -30,7 +30,7 @@ mps_mandelbrot_poly_dstart (mps_context *ctx, mps_polynomial *p, mps_approximati
 
       mps_context * new_ctx = mps_context_new ();
       mps_mandelbrot_poly *new_mp = mps_mandelbrot_poly_new (new_ctx, mp->level - 1);
-      
+
       mps_context_set_input_poly (new_ctx, MPS_POLYNOMIAL (new_mp));
       mps_context_select_algorithm (new_ctx, MPS_ALGORITHM_SECULAR_GA);
       mps_context_set_starting_phase (new_ctx, float_phase);
@@ -38,7 +38,7 @@ mps_mandelbrot_poly_dstart (mps_context *ctx, mps_polynomial *p, mps_approximati
 
       mps_context_get_roots_d (new_ctx, &roots, NULL);
 
-      for (i = 0; i < n; i++)
+      for (i = 0; i < n - 1; i++)
 	{
 	  cdpe_t starting_point;
 	  int j = i / 2;
@@ -79,14 +79,14 @@ mps_mandelbrot_poly_fstart (mps_context *ctx, mps_polynomial *p, mps_approximati
 
       mps_context * new_ctx = mps_context_new ();
       mps_mandelbrot_poly *new_mp = mps_mandelbrot_poly_new (new_ctx, mp->level - 1);
-      
+
       mps_context_set_input_poly (new_ctx, MPS_POLYNOMIAL (new_mp));
       mps_context_select_algorithm (new_ctx, MPS_ALGORITHM_SECULAR_GA);
       mps_mpsolve (new_ctx);
 
       mps_context_get_roots_d (new_ctx, &roots, NULL);
 
-      for (i = 0; i < n; i++)
+      for (i = 0; i < n - 1; i++)
 	{
 	  cplx_t starting_point;
 	  int j = i / 2;

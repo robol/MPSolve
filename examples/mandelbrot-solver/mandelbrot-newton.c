@@ -4,7 +4,7 @@
  * Copyright (C) 2001-2013, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
- * Authors: 
+ * Authors:
  *   Leonardo Robol <robol@mail.dm.unipi.it>
  */
 
@@ -12,7 +12,7 @@
 
 #include <float.h>
 
-#define LOG2 0.301029995666
+#define LOG2     0.69314718055994530941
 
 /**
  * @param root The approximation whose Newton correction shall be computed. 

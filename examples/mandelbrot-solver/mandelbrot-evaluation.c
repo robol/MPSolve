@@ -11,7 +11,7 @@
 #include "mandelbrot-poly.h"
 
 #include <float.h>
-#define LOG2 0.301029995666
+#define LOG2     0.69314718055994530941
 
 mps_boolean
 mps_mandelbrot_poly_feval (mps_context * ctx, mps_polynomial * p, cplx_t x, cplx_t value, double * error)
