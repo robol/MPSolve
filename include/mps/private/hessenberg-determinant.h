@@ -22,7 +22,13 @@
 MPS_BEGIN_DECLS
 
 void mps_fhessenberg_determinant (mps_context * ctx, cplx_t * hessenberg_matrix, size_t n, cplx_t output);
-void mps_fhessenberg_shifted_determinant (mps_context * ctx, cplx_t * hessenberg_matrix, const cplx_t shift, size_t n, cplx_t output);
+void mps_fhessenberg_shifted_determinant (mps_context * ctx, cplx_t * hessenberg_matrix, 
+					  const cplx_t shift, size_t n, cplx_t output);
+
+void mps_dhessenberg_determinant (mps_context * ctx, cdpe_t * hessenberg_matrix, size_t n, cdpe_t output);
+void mps_dhessenberg_shifted_determinant (mps_context * ctx, cdpe_t * hessenberg_matrix, const cdpe_t shift,
+                                          size_t n, cdpe_t output);
+
 void mps_mhessenberg_determinant (mps_context * ctx, mpc_t * hessenberg_matrix, size_t n,
                                   mpc_t output, rdpe_t error);
 void mps_mhessenberg_shifted_determinant (mps_context * ctx, mpc_t * hessenberg_matrix, mpc_t shift,

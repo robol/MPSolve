@@ -36,7 +36,8 @@ mps_fhessenberg_determinant (mps_context * ctx, cplx_t * hessenberg_matrix, size
  * @param output The storage for the result.
  */
 MPS_PRIVATE void
-mps_fhessenberg_shifted_determinant (mps_context * ctx, cplx_t * hessenberg_matrix, const cplx_t shift, size_t n, cplx_t output)
+mps_fhessenberg_shifted_determinant (mps_context * ctx, cplx_t * hessenberg_matrix, const cplx_t shift, 
+				     size_t n, cplx_t output)
 {
   cplx_t *matrix = mps_newv (cplx_t, n * n);
   size_t local_n = n;
@@ -67,6 +68,65 @@ mps_fhessenberg_shifted_determinant (mps_context * ctx, cplx_t * hessenberg_matr
   cplx_set (output, *matrix);
   free (matrix);
 }
+
+/**
+ * @brief This is the full implementation of the recursive determinant computation.
+ *
+ * @param ctx The current mps_context
+ * @param hessenberg_matrix The hessenberg matrix whose determinant should be computed.
+ * @param n The size of the matrix.
+ * @param output The storage for the result.
+ */
+void
+mps_dhessenberg_determinant (mps_context * ctx, cdpe_t * hessenberg_matrix, size_t n, cdpe_t output)
+{
+  mps_dhessenberg_shifted_determinant (ctx, hessenberg_matrix, cdpe_zero, n, output);
+}
+
+/**
+ * @brief This is the full implementation of the recursive determinant computation of the
+ * Hessnberg - \lambda I matrix.
+ *
+ * @param ctx The current mps_context
+ * @param hessenberg_matrix The hessenberg matrix whose determinant should be computed.
+ * @param shift The value of \f$\lambda\f$.
+ * @param n The size of the matrix.
+ * @param output The storage for the result.
+ */
+MPS_PRIVATE void
+mps_dhessenberg_shifted_determinant (mps_context * ctx, cdpe_t * hessenberg_matrix, const cdpe_t shift, 
+				     size_t n, cdpe_t output)
+{
+  cdpe_t *matrix = mps_newv (cdpe_t, n * n);
+  size_t local_n = n;
+  int i;
+
+  /* Make a copy of the original matrix */
+  memcpy (matrix, hessenberg_matrix, n * n * sizeof(cdpe_t));
+
+  if (!cdpe_eq_zero (shift))
+    {
+      for (i = 0; i < n; i++)
+        cdpe_sub_eq (matrix[i * n + i], shift);
+    }
+
+  while (local_n-- > 1)
+    {
+      /* Compress the last two cols of the matrix */
+      cdpe_t t, s;
+
+      for (i = 0; i < local_n; i++)
+        {
+          cdpe_mul (s, matrix[i * n + local_n - 1], matrix[(local_n) * n + local_n]);
+          cdpe_mul (t, matrix[i * n + local_n], matrix[(local_n) * n + local_n - 1]);
+          cdpe_sub (matrix[i * n + local_n - 1], s, t);
+        }
+    }
+
+  cdpe_set (output, *matrix);
+  free (matrix);
+}
+
 
 /**
  * @brief This is the full implementation of the recursive determinant computation.
