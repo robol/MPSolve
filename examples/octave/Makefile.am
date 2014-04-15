@@ -4,7 +4,7 @@ pkg_verbose = $(pkg_verbose_@AM_V@)
 pkg_verbose_ = $(pkg_verbose_@AM_DEFAULT_V@)
 pkg_verbose_0 = @echo "  MKOCT    $@";
 
-noinst_PROGRAMS = mps_roots.oct mps_polyeig_impl.oct mps_det.oct
+noinst_PROGRAMS = mps_roots.oct mps_polyeig_impl.oct mps_det.oct mps_secular.oct
 noinst_DATA = mpsolve.tar.gz
 
 EXTRA_DIST = \
@@ -61,6 +61,9 @@ mps_polyeig_impl_oct_LINK = $(MKOCTFILE_LD)
 
 mps_det_oct_SOURCES = mps_det.cc
 mps_det_oct_LINK = $(MKOCTFILE_LD) 
+
+mps_secular_oct_SOURCES = mps_secular.cc
+mps_secular_oct_LINK = $(MKOCTFILE_LD)
 
 mps_%.o: ${srcdir}/mps_%.cc 
 	$(pkg_verbose)$(MKOCTFILE) $(GMP_CFLAGS) -I${top_srcdir}/include -I${top_builddir}/include -c -o $@ $<

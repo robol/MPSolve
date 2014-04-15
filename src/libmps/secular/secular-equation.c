@@ -322,9 +322,6 @@ mps_secular_equation_new (mps_context * s, cplx_t * afpc, cplx_t * bfpc,
       cplx_set (sec->bfpc[i], bfpc[i]);
     }
 
-  MPS_POLYNOMIAL (sec)->degree = n;
-  mps_secular_deflate (s, sec);
-
   for (i = 0; i < MPS_POLYNOMIAL (sec)->degree; i++)
     {
       cdpe_init (sec->adpc[i]);
