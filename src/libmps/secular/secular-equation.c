@@ -335,6 +335,8 @@ mps_secular_equation_new (mps_context * s, cplx_t * afpc, cplx_t * bfpc,
       mpc_set_cplx (sec->bmpc[i], sec->bfpc[i]);
     }
 
+  MPS_POLYNOMIAL (sec)->structure = MPS_STRUCTURE_COMPLEX_FP;
+
   return sec;
 }
 
