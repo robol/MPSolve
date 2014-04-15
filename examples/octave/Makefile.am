@@ -37,7 +37,7 @@ uninstall-local:
 	( rmdir ${DESTDIR}/${datadir}/octave/packages && rm -rf ${DESTDIR}/${datadir}/octave ) || \
 	echo "Octave package dir is not empty, not removing it"
 
-mpsolve.tar.gz: $(noinst_PROGRAMS) 
+mpsolve.tar.gz: $(noinst_PROGRAMS) $(noinst_PROGRAMS:oct:cc)
 	$(AM_V_GEN)
 	$(AM_V_at) test -d package || mkdir package
 	$(AM_V_at) test -f package/COPYING || cp ${top_srcdir}/COPYING package/
@@ -47,6 +47,7 @@ mpsolve.tar.gz: $(noinst_PROGRAMS)
 	$(AM_V_at) cp ${builddir}/mps_polyeig_impl.oct ${builddir}/package/src/
 	$(AM_V_at) cp ${builddir}/mps_det.oct ${builddir}/package/src/
 	$(AM_V_at) cp ${srcdir}/mps_polyeig.m ${builddir}/package/src/
+	$(AM_V_at) cp ${builddir}/mps_secular.oct ${builddir}/package/src/
 	$(AM_V_at) tar czf ${builddir}/mpsolve.tar.gz ${builddir}/package
 
 MKOCTFILE_LD = $(MKOCTFILE) -o $@ -L${top_builddir}/src/libmps/.libs -lmps
