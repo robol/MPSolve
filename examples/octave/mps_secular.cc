@@ -46,15 +46,15 @@ values are 's' for secsolve and 'u' for unisolve.\n\
 	}
     }
 
-  // if (! (args(1).is_complex_matrix() && args(0).is_complex_matrix()))
-  //   {
-  //     octave_stdout << "Warning: A and B must be complex vectors." << std::endl;
-  //     print_usage();
-  //     return octave_value_list();
-  //   }
+  if (! (args(1).is_matrix_type() && args(0).is_matrix_type()))
+    {
+      octave_stdout << "Warning: A and B must be complex vectors." << std::endl;
+      print_usage();
+      return octave_value_list();
+    }
 
-  ComplexColumnVector a = args(0).complex_vector_value();
-  ComplexColumnVector b = args(1).complex_vector_value();
+  ComplexColumnVector a = args(0).complex_column_vector_value();
+  ComplexColumnVector b = args(1).complex_column_vector_value();
 
   int n = a.length();
 
