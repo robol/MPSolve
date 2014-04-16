@@ -84,7 +84,9 @@ START_TEST (determinant_shifted_hessenberg_example1)
 
   for (i = 0; i < 2; i++)
     {
-      mps_fhessenberg_shifted_determinant (ctx, hessenberg_matrix, shifts[i], 8, det);
+      long int exp;
+      mps_fhessenberg_shifted_determinant (ctx, hessenberg_matrix, shifts[i], 8, det, &exp);
+      cplx_mul_eq_d (det, pow(2.0, exp));
       cplx_sub_eq (det, results[i]);
 
       fail_unless (cplx_mod (det) < cplx_mod (results[i]) * 10.0 * 8 * DBL_EPSILON,
@@ -104,6 +106,7 @@ START_TEST (determinant_hessenberg_example1)
   cplx_t *hessenberg_matrix = mps_newv (cplx_t, 64);
   cplx_t det, t;
   int i, j;
+  long int exp;
 
   mps_context *ctx = mps_context_new ();
 
@@ -113,10 +116,11 @@ START_TEST (determinant_hessenberg_example1)
         cplx_set_d (hessenberg_matrix[i * 8 + j], sin (1.0 * (i + 1)) * cos (1.0 * (j + 1)) + 1e-3 * (i + 1) * (j + 1), 0.0);
       }
 
-  mps_fhessenberg_determinant (ctx, hessenberg_matrix, 8, det);
+  mps_fhessenberg_determinant (ctx, hessenberg_matrix, 8, det, &exp);
 
   free (hessenberg_matrix);
 
+  cplx_mul_eq_d (det, pow(2.0, exp));
   cplx_set_d (t, 6.14427105181099e-06, 0.0);
   cplx_sub_eq (det, t);
 
