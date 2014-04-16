@@ -4,7 +4,7 @@ pkg_verbose = $(pkg_verbose_@AM_V@)
 pkg_verbose_ = $(pkg_verbose_@AM_DEFAULT_V@)
 pkg_verbose_0 = @echo "  MKOCT    $@";
 
-noinst_PROGRAMS = mps_roots.oct mps_polyeig_impl.oct mps_det.oct mps_secular.oct
+noinst_PROGRAMS = mps_roots.oct mps_polyeig_impl.oct mps_det.oct mps_secular.oct mps_regenerate.oct
 noinst_DATA = mpsolve.tar.gz
 
 EXTRA_DIST = \
@@ -48,6 +48,7 @@ mpsolve.tar.gz: $(noinst_PROGRAMS) $(noinst_PROGRAMS:oct:cc)
 	$(AM_V_at) cp ${builddir}/mps_det.oct ${builddir}/package/src/
 	$(AM_V_at) cp ${srcdir}/mps_polyeig.m ${builddir}/package/src/
 	$(AM_V_at) cp ${builddir}/mps_secular.oct ${builddir}/package/src/
+	$(AM_V_at) cp ${builddir}/mps_regenerate.oct ${builddir}/package/src/
 	$(AM_V_at) tar czf ${builddir}/mpsolve.tar.gz ${builddir}/package
 
 MKOCTFILE_LD = $(MKOCTFILE) -o $@ -L${top_builddir}/src/libmps/.libs -lmps
@@ -65,6 +66,9 @@ mps_det_oct_LINK = $(MKOCTFILE_LD)
 
 mps_secular_oct_SOURCES = mps_secular.cc
 mps_secular_oct_LINK = $(MKOCTFILE_LD)
+
+mps_regenerate_oct_SOURCES = mps_regenerate.cc
+mps_regenerate_oct_LINK = $(MKOCTFILE_LD)
 
 mps_%.o: ${srcdir}/mps_%.cc 
 	$(pkg_verbose)$(MKOCTFILE) $(GMP_CFLAGS) -I${top_srcdir}/include -I${top_builddir}/include -c -o $@ $<

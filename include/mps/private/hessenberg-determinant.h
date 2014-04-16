@@ -21,9 +21,11 @@
 
 MPS_BEGIN_DECLS
 
-void mps_fhessenberg_determinant (mps_context * ctx, cplx_t * hessenberg_matrix, size_t n, cplx_t output);
+void mps_fhessenberg_determinant (mps_context * ctx, cplx_t * hessenberg_matrix, size_t n, cplx_t output,
+				  long int * exponent);
 void mps_fhessenberg_shifted_determinant (mps_context * ctx, cplx_t * hessenberg_matrix, 
-					  const cplx_t shift, size_t n, cplx_t output);
+					  const cplx_t shift, size_t n, cplx_t output, 
+					  long int * exponent);
 
 void mps_dhessenberg_determinant (mps_context * ctx, cdpe_t * hessenberg_matrix, size_t n, cdpe_t output);
 void mps_dhessenberg_shifted_determinant (mps_context * ctx, cdpe_t * hessenberg_matrix, const cdpe_t shift,

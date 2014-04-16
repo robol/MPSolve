@@ -9,26 +9,38 @@
 
 DEFUN_DLD(mps_det, args, nargout,
 "-*- texinfo -*- \n\
-@deftypefn {Loadable Function} {@var{x} =} mps_det (@var{A}, @var{mode} = 'f')\n\
+@deftypefn {Loadable Function} {@var{x} =} mps_det (@var{A}, @var{mode} = 'f', @var{shift} = 0)\n\
 Compute the determinant of @var{A} assuming it is a Hessenberg matrix. \n\
 The value of @var{mode} can be one of 'f' or 'd'. 'f' is the default and implies\n\
-that standard floating point will be use, while 'd' will instruct MPSolve to perform\n\
+that standard floating point will be used, while 'd' will instruct MPSolve to perform\n\
 the computation in DPE to ensure that no over/underflow is encountered. \n\
+If @var{shift} != 0 then the determinant of A - @var{shift}*I will be computed.\n\
 @end deftypefn")
 {
     int nargin = args.length();
     octave_value_list retval;
     const char* params;
     cplx_t det;
+    cplx_t shift;
     mps_boolean use_dpe = false;
+    long int exp;
 
-    if (nargin > 2) {
+    if (nargin > 3) {
         print_usage ();
         return retval;
     }
 
-    if (nargin == 2 && args(1).string_value() == std::string("d"))
+    if (nargin >= 2 && args(1).string_value() == std::string("d"))
       use_dpe = true;
+
+    if (nargin >= 3)
+      {
+	Complex s = args(2).complex_value();
+	cplx_t* y = (cplx_t*) &s;
+	cplx_set (shift, *reinterpret_cast<cplx_t*>(&s));
+      }
+    else
+      cplx_set (shift, cplx_zero);
 
     ComplexMatrix A = args(0).complex_matrix_value();
 
@@ -40,9 +52,16 @@ the computation in DPE to ensure that no over/underflow is encountered. \n\
     mps_context * ctx = mps_context_new ();
 
     if (! use_dpe)
-      mps_fhessenberg_determinant (ctx,
-				   (cplx_t*) A.transpose().fortran_vec(),
-				   A.rows (), det);
+      {
+	cplx_t mult;
+	cdpe_t ctmp;
+	mps_fhessenberg_shifted_determinant (ctx,
+					     (cplx_t*) A.transpose().fortran_vec(),
+					     shift, A.rows (), det, &exp);
+	cdpe_set_2dl (ctmp, 1.0, exp, 0.0, 1);
+	cdpe_get_x (mult, ctmp);
+	cplx_mul_eq (det, mult);
+      }
     else
       {
 	int i, j;

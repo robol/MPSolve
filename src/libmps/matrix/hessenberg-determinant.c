@@ -20,9 +20,10 @@
  * @param output The storage for the result.
  */
 void
-mps_fhessenberg_determinant (mps_context * ctx, cplx_t * hessenberg_matrix, size_t n, cplx_t output)
+mps_fhessenberg_determinant (mps_context * ctx, cplx_t * hessenberg_matrix, size_t n, cplx_t output, 
+			     long int * exponent)
 {
-  mps_fhessenberg_shifted_determinant (ctx, hessenberg_matrix, cplx_zero, n, output);
+  mps_fhessenberg_shifted_determinant (ctx, hessenberg_matrix, cplx_zero, n, output, exponent);
 }
 
 /**
@@ -35,38 +36,67 @@ mps_fhessenberg_determinant (mps_context * ctx, cplx_t * hessenberg_matrix, size
  * @param n The size of the matrix.
  * @param output The storage for the result.
  */
-MPS_PRIVATE void
+void
 mps_fhessenberg_shifted_determinant (mps_context * ctx, cplx_t * hessenberg_matrix, const cplx_t shift, 
-				     size_t n, cplx_t output)
+				     size_t n, cplx_t output, long int *acc_exponent)
 {
-  cplx_t *matrix = mps_newv (cplx_t, n * n);
+  cplx_t *vec = mps_newv (cplx_t, n);
   size_t local_n = n;
-  int i;
+  int i, j;
+  *acc_exponent = 0;
 
-  /* Make a copy of the original matrix */
-  memcpy (matrix, hessenberg_matrix, n * n * sizeof(cplx_t));
-
-  if (!cplx_eq_zero (shift))
+  /* Copy the last column in vec */
+  for (i = 0; i < n; i++)
     {
-      for (i = 0; i < n; i++)
-        cplx_sub_eq (matrix[i * n + i], shift);
+      cplx_set (vec[i], MPS_MATRIX_ELEM (hessenberg_matrix, i, n - 1, n));
     }
+  cplx_sub_eq (vec[n-1], shift);
 
   while (local_n-- > 1)
     {
       /* Compress the last two cols of the matrix */
       cplx_t t, s;
 
-      for (i = 0; i < local_n; i++)
+      for (i = 0; i < local_n - 1; i++)
         {
-          cplx_mul (s, matrix[i * n + local_n - 1], matrix[(local_n) * n + local_n]);
-          cplx_mul (t, matrix[i * n + local_n], matrix[(local_n) * n + local_n - 1]);
-          cplx_sub (matrix[i * n + local_n - 1], s, t);
+          cplx_mul (s, MPS_MATRIX_ELEM (hessenberg_matrix, i, local_n - 1, n), 
+		    vec[local_n]);
+          cplx_mul (t, vec[i], MPS_MATRIX_ELEM (hessenberg_matrix, local_n, local_n - 1, n));
+          cplx_sub (vec[i], s, t);
         }
+
+      /* The last step require the extra accounting for the shifted case. */
+      cplx_sub (s, MPS_MATRIX_ELEM (hessenberg_matrix, local_n - 1, local_n - 1, n), shift);
+      cplx_mul_eq (s, vec[local_n]);
+      cplx_mul (t, vec[local_n-1], MPS_MATRIX_ELEM (hessenberg_matrix, local_n, local_n - 1, n));
+      cplx_sub (vec[local_n - 1], s, t);
+
+      if (i % 50 == 0)
+	{
+	  int exponent;
+	  double max = 0.0;
+
+	  for (j = 0; j < local_n; j++)
+	    {
+	      double m = cplx_mod (vec[j]);
+	      if (m > max)
+		max = m;
+	    }
+
+	  frexp (max, &exponent);
+	  max = pow(2.0, exponent);
+	  
+	  for (j = 0; j < local_n; j++)
+	    {
+	      cplx_div_eq_d (vec[j], max);
+	    }
+
+	  *acc_exponent += exponent;
+	}
     }
 
-  cplx_set (output, *matrix);
-  free (matrix);
+  cplx_set (output, *vec);
+  free (vec);
 }
 
 /**
@@ -85,7 +115,7 @@ mps_dhessenberg_determinant (mps_context * ctx, cdpe_t * hessenberg_matrix, size
 
 /**
  * @brief This is the full implementation of the recursive determinant computation of the
- * Hessnberg - \lambda I matrix.
+ * Hessenberg - \lambda I matrix.
  *
  * @param ctx The current mps_context
  * @param hessenberg_matrix The hessenberg matrix whose determinant should be computed.
@@ -97,34 +127,39 @@ MPS_PRIVATE void
 mps_dhessenberg_shifted_determinant (mps_context * ctx, cdpe_t * hessenberg_matrix, const cdpe_t shift, 
 				     size_t n, cdpe_t output)
 {
-  cdpe_t *matrix = mps_newv (cdpe_t, n * n);
+  cdpe_t *vec = mps_newv (cdpe_t, n);
   size_t local_n = n;
   int i;
 
-  /* Make a copy of the original matrix */
-  memcpy (matrix, hessenberg_matrix, n * n * sizeof(cdpe_t));
-
-  if (!cdpe_eq_zero (shift))
+  /* Copy the last column in vec */
+  for (i = 0; i < n; i++)
     {
-      for (i = 0; i < n; i++)
-        cdpe_sub_eq (matrix[i * n + i], shift);
+      cdpe_set (vec[i], MPS_MATRIX_ELEM (hessenberg_matrix, i, n - 1, n));
     }
+  cdpe_sub_eq (vec[n], shift);
 
   while (local_n-- > 1)
     {
       /* Compress the last two cols of the matrix */
       cdpe_t t, s;
 
-      for (i = 0; i < local_n; i++)
+      for (i = 0; i < local_n - 1; i++)
         {
-          cdpe_mul (s, matrix[i * n + local_n - 1], matrix[(local_n) * n + local_n]);
-          cdpe_mul (t, matrix[i * n + local_n], matrix[(local_n) * n + local_n - 1]);
-          cdpe_sub (matrix[i * n + local_n - 1], s, t);
+          cdpe_mul (s, MPS_MATRIX_ELEM (hessenberg_matrix, i, local_n - 1, n), 
+		    vec[local_n]);
+          cdpe_mul (t, vec[i], MPS_MATRIX_ELEM (hessenberg_matrix, local_n, local_n - 1, n));
+          cdpe_sub (vec[i], s, t);
         }
+
+      /* The last step require the extra accounting for the shifted case. */
+      cdpe_sub (s, MPS_MATRIX_ELEM (hessenberg_matrix, local_n - 1, local_n - 1, n), shift);
+      cdpe_mul_eq (s, vec[local_n]);
+      cdpe_mul (t, vec[local_n-1], MPS_MATRIX_ELEM (hessenberg_matrix, local_n, local_n - 1, n));
+      cdpe_sub (vec[local_n - 1], s, t);
     }
 
-  cdpe_set (output, *matrix);
-  free (matrix);
+  cdpe_set (output, *vec);
+  free (vec);
 }
 
 
