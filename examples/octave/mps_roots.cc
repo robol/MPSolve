@@ -20,6 +20,18 @@ extern "C" {
 	mps_approximation_set_fvalue (ctx, apprs[i], starting_points_vec[i]);
       }
   }
+
+  void _custom_dpe_start_function (mps_context * ctx, mps_polynomial * p, mps_approximation ** apprs)
+  {
+    int i, n = mps_context_get_degree (ctx);
+
+    for (i = 0; i < n; i++)
+      {
+	cdpe_t t;
+	cdpe_set_x (t, starting_points_vec[i]);
+	mps_approximation_set_dvalue (ctx, apprs[i], t);
+      }
+  }
 }
 
 
@@ -148,6 +160,7 @@ fields: \n\n\
       {
 	mps_polynomial * poly = MPS_POLYNOMIAL (p);
 	poly->fstart = _custom_start_function;
+	poly->dstart = _custom_dpe_start_function;
       }
 
     if (args(0).is_int64_type()) {
