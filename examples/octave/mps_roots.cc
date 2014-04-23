@@ -63,8 +63,8 @@ fields: \n\n\
     int nargin = args.length();
     octave_value_list retval;
     const char* params;
-    ComplexColumnVector starting_points;
     bool customStartFunction = false;
+    Array<Complex> starting_points;
 
     mps_algorithm algorithm = MPS_ALGORITHM_SECULAR_GA;
 
