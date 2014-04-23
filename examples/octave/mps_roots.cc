@@ -77,10 +77,10 @@ fields: \n\n\
       std::string algorithm_s;
 
 #if OCTAVE_MAJOR_VERSION == 3 && OCTAVE_MINOR_VERSION < 4
-#define _GETFIELD(x,f) (x).getfield(f)(0)
+#define _GETFIELD(x,f) (x).contents(f)(0)
       Octave_map smap;
 #else
-#define _GETFIELD(x,f) (x).contents(f)(0)
+#define _GETFIELD(x,f) (x).getfield(f)(0)
       octave_map smap;
 #endif
 
