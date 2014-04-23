@@ -76,7 +76,7 @@ fields: \n\n\
     if (nargin == 2) {
       std::string algorithm_s;
 
-#if OCTAVE_MAJOR_VERSION == 3 && OCTAVE_MINOR_VERSION < 4
+#if OCTAVE_MAJOR_VERSION == 3 && OCTAVE_MINOR_VERSION < 4 || !defined(OCTAVE_MAJOR_VERSION)
 #define _GETFIELD(x,f) (x).contents(f)(0)
       Octave_map smap;
 #else
