@@ -75,7 +75,14 @@ fields: \n\n\
 
     if (nargin == 2) {
       std::string algorithm_s;
+
+#if OCTAVE_MAJOR_VERSION == 3 && OCTAVE_MINOR_VERSION < 4
+#define _GETFIELD(x,f) (x).getfield(f)(0)
+      Octave_map smap;
+#else
+#define _GETFIELD(x,f) (x).contents(f)(0)
       octave_map smap;
+#endif
 
       /* If the string conversion triggers an error try to recover
        * a struct. */
@@ -98,7 +105,7 @@ fields: \n\n\
       /* Parse the arguments that are stored in the struct */
       if (smap.contains ("algorithm"))
 	{
-	  algorithm_s = smap.getfield ("algorithm")(0).string_value();
+	  algorithm_s = _GETFIELD(smap, "algorithm").string_value();
 
 	  if (algorithm_s != std::string("s") && algorithm_s != std::string("u"))
 	    {
@@ -111,7 +118,7 @@ fields: \n\n\
 
       if (smap.contains ("starting_points"))
 	{
-	  starting_points = smap.getfield ("starting_points")(0).complex_vector_value();
+	  starting_points = _GETFIELD(smap, "starting_points").complex_vector_value();
 	  customStartFunction = true;
 	  starting_points_vec = (cplx_t*) starting_points.fortran_vec();
 	}
