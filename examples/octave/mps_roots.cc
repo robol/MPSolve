@@ -75,12 +75,12 @@ fields: \n\n\
 
     if (nargin == 2) {
       std::string algorithm_s;
-      octave_scalar_map smap;
+      octave_map smap;
 
       /* If the string conversion triggers an error try to recover
        * a struct. */
       if (args(1).is_map())
-	smap = args(1).scalar_map_value();
+	smap = args(1).map_value();
       else
 	{
 	  if (! args(1).is_string())
@@ -89,13 +89,16 @@ fields: \n\n\
 	      return retval;
 	    }
 
-	  smap.assign ("algorithm", args(1).string_value());
+	  Cell a(1,1);
+	  a(0) = args(1);
+
+	  smap.assign ("algorithm", a);
 	}
 
       /* Parse the arguments that are stored in the struct */
       if (smap.contains ("algorithm"))
 	{
-	  algorithm_s = smap.getfield ("algorithm").string_value();
+	  algorithm_s = smap.getfield ("algorithm")(0).string_value();
 
 	  if (algorithm_s != std::string("s") && algorithm_s != std::string("u"))
 	    {
@@ -108,7 +111,7 @@ fields: \n\n\
 
       if (smap.contains ("starting_points"))
 	{
-	  starting_points = smap.getfield ("starting_points").complex_vector_value();
+	  starting_points = smap.getfield ("starting_points")(0).complex_vector_value();
 	  customStartFunction = true;
 	  starting_points_vec = (cplx_t*) starting_points.fortran_vec();
 	}
@@ -161,6 +164,12 @@ fields: \n\n\
 	mps_polynomial * poly = MPS_POLYNOMIAL (p);
 	poly->fstart = _custom_start_function;
 	poly->dstart = _custom_dpe_start_function;
+
+	if (starting_points.length() != n -1)
+	  {
+	    octave_stdout << "Warning: The length of the starting points should be equal to the degree" << std::endl;
+	    return retval;
+	  }
       }
 
     if (args(0).is_int64_type()) {
