@@ -76,6 +76,13 @@ fields: \n\n\
     if (nargin == 2) {
       std::string algorithm_s;
 
+      /* There's a need to workaround some difference between Octave vesions. Before 3.4
+       * octave_map wasn't available but Octave_map was. On the other hand, Octave_map has been
+       * deprecated in recent versions, so we can't use it without triggering some warnings. 
+       * Here is the solution, by masking the calls and definitions with some simple macros. 
+       *
+       * Also note that, apparently, some older version of Octave didn't have the
+       * OCTAVE_*_VERSION values in the headers. */
 #if OCTAVE_MAJOR_VERSION == 3 && OCTAVE_MINOR_VERSION < 4 || !defined(OCTAVE_MAJOR_VERSION)
 #define _GETFIELD(x,f) (x).contents(f)(0)
       Octave_map smap;
