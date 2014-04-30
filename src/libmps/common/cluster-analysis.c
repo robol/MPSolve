@@ -512,6 +512,9 @@ mps_mcluster (mps_context * s, rdpe_t * drad, int nf)
             }
           /* s->root_status[i] = MPS_ROOT_STATUS_NEWTON_ISOLATED; */
         }
+
+      if (! newton_isolation)
+	break;
     }
 
   rdpe_vfree (newton_radii);

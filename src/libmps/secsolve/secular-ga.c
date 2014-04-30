@@ -574,8 +574,9 @@ cleanup:
 	}
 
       mps_copy_roots (s);
-      mps_dump (s);
     }
+
+  MPS_DEBUG_WITH_INFO (s, "MPSolve reached the final stage, preparing for exiting.");
 
   if (s->exit_required)
     {
