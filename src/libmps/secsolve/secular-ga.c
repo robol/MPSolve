@@ -464,7 +464,7 @@ mps_secular_ga_mpsolve (mps_context * s)
 	   * to the exit stage. */
 	  if (s->avoid_multiprecision)
 	    {
-	      MPS_DEBUG_WITH_INFO (s, "Multiprecision has been manually disabled, skipping to the exit stage");
+	      MPS_DEBUG_WITH_INFO (s, "Multiprecision has been manually disabled, jumping to the exit stage");
 	      goto cleanup;
 	    }
 
@@ -594,7 +594,7 @@ cleanup:
       return;
     }
 
-  /* Finally improve the roots if approximation is required */
+  /* Eventually improve the roots if approximation is required */
   if (s->output_config->goal == MPS_OUTPUT_GOAL_APPROXIMATE)
     {
 #ifdef NICE_DEBUG
