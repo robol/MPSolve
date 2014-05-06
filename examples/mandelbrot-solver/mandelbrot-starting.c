@@ -9,6 +9,10 @@
  */
 
 #include "mandelbrot-poly.h"
+#include <stdlib.h>
+#include <string.h>
+
+extern char * starting_file;
 
 void 
 mps_mandelbrot_poly_dstart (mps_context *ctx, mps_polynomial *p, mps_approximation ** approximations)
@@ -66,7 +70,10 @@ mps_mandelbrot_poly_fstart (mps_context *ctx, mps_polynomial *p, mps_approximati
   mps_mandelbrot_poly *mp = MPS_MANDELBROT_POLY (p);
   int n = mps_context_get_degree (ctx);
 
-  if (mp->level <= 7)
+  mps_context * new_ctx = NULL;
+  mps_mandelbrot_poly * new_mp = NULL;
+
+  if (mp->level <= 7 && ! starting_file)
     {
       mps_general_fstart (ctx, p, approximations);
     }
@@ -81,16 +88,43 @@ mps_mandelbrot_poly_fstart (mps_context *ctx, mps_polynomial *p, mps_approximati
       cplx_set_d (rot_up, 1 + pow (.5, eps), -4.0 * DBL_EPSILON);
       cplx_set_d (rot_down, 1 + pow (.5, eps), 4.0 * DBL_EPSILON);
 
-      mps_context * new_ctx = mps_context_new ();
-      mps_mandelbrot_poly *new_mp = mps_mandelbrot_poly_new (new_ctx, mp->level - 1);
+      if (starting_file != NULL)
+	{
+	  char * line = NULL;
+	  size_t length = 0;
+	  char *p1, *p2;
+	  FILE * input = fopen (starting_file, "r");
 
-      mps_context_set_input_poly (new_ctx, MPS_POLYNOMIAL (new_mp));
-      mps_context_select_algorithm (new_ctx, MPS_ALGORITHM_SECULAR_GA);
-      mps_context_set_starting_phase (new_ctx, float_phase);
-      mps_context_set_avoid_multiprecision (ctx, true);
-      mps_mpsolve (new_ctx);
+	  for (i = 0; i < pow (2, mp->level - 1) - 1; i++)
+	    {
+	      if (getline (&line, &length, input) == -1)
+		{
+		  fprintf (stderr, "Failure to read a line\n");
+		  return;
+		}
 
-      mps_context_get_roots_d (new_ctx, &roots, NULL);
+	      p1 = strstr (line, "(");
+	      p2 = strstr (line, ",");
+	      *p2 = ' ';
+
+	      cplx_set_d (roots[i], strtod (p1 + 1, NULL), strtod (p2 + 1, NULL));
+	    }
+
+	  starting_file = NULL;
+	}
+      else
+	{
+	  new_ctx = mps_context_new ();
+	  new_mp = mps_mandelbrot_poly_new (new_ctx, mp->level - 1);
+
+	  mps_context_set_input_poly (new_ctx, MPS_POLYNOMIAL (new_mp));
+	  mps_context_select_algorithm (new_ctx, MPS_ALGORITHM_SECULAR_GA);
+	  mps_context_set_starting_phase (new_ctx, float_phase);
+	  mps_context_set_avoid_multiprecision (ctx, true);
+	  mps_mpsolve (new_ctx);
+	  
+	  mps_context_get_roots_d (new_ctx, &roots, NULL);
+	}
 
       for (i = 0; i < n - 1; i++)
 	{
@@ -116,7 +150,11 @@ mps_mandelbrot_poly_fstart (mps_context *ctx, mps_polynomial *p, mps_approximati
 	mps_approximation_set_fvalue (ctx, approximations[i], cplx_one);
 
       cplx_vfree (roots);
-      mps_mandelbrot_poly_free (new_ctx, MPS_POLYNOMIAL (new_mp));
-      mps_context_free (new_ctx);
+
+      if (new_ctx)
+	{
+	  mps_mandelbrot_poly_free (new_ctx, MPS_POLYNOMIAL (new_mp));
+	  mps_context_free (new_ctx);
+	}
     }
 }

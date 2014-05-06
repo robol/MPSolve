@@ -1,19 +1,23 @@
 #include <stdio.h>
 #include "mandelbrot-poly.h"
 
+char * starting_file = NULL;
+
 int main (int argc, char * argv[]) {
 
   /* Create a new mps_context that will be used to solve a Mandelbrot polynomial
    * of the selected degree. */
   mps_context * ctx = mps_context_new ();
 
-  if (argc != 2)
+  if (argc > 3 || argc < 2)
     {
       fprintf (stderr, 
-	       "Usage: %s n \n"
+	       "Usage: %s n [starting_file] \n"
 	       "\n"
 	       "Parameters: \n"
-	       " - n is the level of the Mandelbrot polynomial to solve\n\n", 
+	       " - n is the level of the Mandelbrot polynomial to solve\n\n"
+	       " - starting_file is an optional file with the approximations that shall be \n"
+	       "                 use as starting points.\n", 
 	       argv[0]);
       return EXIT_FAILURE;
     }
@@ -25,6 +29,9 @@ int main (int argc, char * argv[]) {
       fprintf (stderr, "Please specify a positive integer as Mandelbrot level.\n");
       return EXIT_FAILURE;
     }
+
+  if (argc == 3)
+    starting_file = argv[2];
 
   mps_mandelbrot_poly *mp = mps_mandelbrot_poly_new (ctx, n);
 
