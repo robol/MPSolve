@@ -118,4 +118,5 @@ mps_set_default_values (mps_context * s)
   s->gnuplot_format = "points";
 
   s->self_thread_pool = NULL;
+  s->avoid_multiprecision = false;
 }

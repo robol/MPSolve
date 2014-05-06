@@ -850,3 +850,20 @@ mps_context_get_root_status (mps_context * ctx, int i)
 {
   return ctx->root[i]->status;
 }
+
+/**
+ * @brief Set the internal flag "avoid_multiprecision" to the specified value. 
+ *
+ * If avoid_multiprecision is true MPSolve will not enter a multiprecision stage
+ * thus making impossible the computation of more digits than the one that are
+ * representable in standard floating point. 
+ *
+ * This may be a useful flag to approximate roots of very ill-conditioned polynomials
+ * of high degree when no strict isolation is required. In this case it's possible to 
+ * obtain very good approximations that are not Newton-isolated but are still satisfactory. 
+ */
+void
+mps_context_set_avoid_multiprecision (mps_context * s, mps_boolean avoid_multiprecision)
+{
+  s->avoid_multiprecision = avoid_multiprecision;
+}

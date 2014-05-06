@@ -31,6 +31,7 @@ int main (int argc, char * argv[]) {
   mps_context_set_input_poly (ctx, MPS_POLYNOMIAL (mp));
   mps_context_select_algorithm (ctx, MPS_ALGORITHM_SECULAR_GA);
   mps_context_set_starting_phase (ctx, float_phase);
+  mps_context_set_avoid_multiprecision (ctx, true);
   mps_mpsolve (ctx);
 
   mps_approximation ** apprs = mps_context_get_approximations (ctx);

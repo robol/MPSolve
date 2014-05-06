@@ -34,6 +34,7 @@ mps_mandelbrot_poly_dstart (mps_context *ctx, mps_polynomial *p, mps_approximati
       mps_context_set_input_poly (new_ctx, MPS_POLYNOMIAL (new_mp));
       mps_context_select_algorithm (new_ctx, MPS_ALGORITHM_SECULAR_GA);
       mps_context_set_starting_phase (new_ctx, float_phase);
+      mps_context_set_avoid_multiprecision (ctx, true);
       mps_mpsolve (new_ctx);
 
       mps_context_get_roots_d (new_ctx, &roots, NULL);
@@ -85,7 +86,7 @@ mps_mandelbrot_poly_fstart (mps_context *ctx, mps_polynomial *p, mps_approximati
 
       mps_context_set_input_poly (new_ctx, MPS_POLYNOMIAL (new_mp));
       mps_context_select_algorithm (new_ctx, MPS_ALGORITHM_SECULAR_GA);
-      mps_context_set_output_prec (new_ctx, 16);
+      mps_context_set_avoid_multiprecision (ctx, true);
       mps_mpsolve (new_ctx);
 
       mps_context_get_roots_d (new_ctx, &roots, NULL);

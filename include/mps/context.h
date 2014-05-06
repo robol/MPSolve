@@ -510,6 +510,15 @@ struct mps_context {
   mps_boolean exit_required;
 
   long int minimum_gmp_precision;
+
+  /**
+   * @brief In case this field is set to true MPSolve will avoid a multiprecision
+   * phase, and exit instead. 
+   *
+   * Note that this may imply that not all the required digits/isolation condition
+   * may have been computed. 
+   */
+  mps_boolean avoid_multiprecision;
 };                   /* End of typedef struct { ... */
 
 #endif /* #ifdef _MPS_PRIVATE */
@@ -552,6 +561,7 @@ void mps_context_set_starting_phase (mps_context * s, mps_phase phase);
 void mps_context_set_log_stream (mps_context * s, FILE * logstr);
 void mps_context_set_jacobi_iterations (mps_context * s, mps_boolean jacobi_iterations);
 void mps_context_select_starting_strategy (mps_context * s, mps_starting_strategy strategy);
+void mps_context_set_avoid_multiprecision (mps_context * s, mps_boolean avoid_multiprecision);
 
 /* Debugging */
 void mps_context_set_debug_level (mps_context * s, mps_debug_level level);
