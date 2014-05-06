@@ -460,6 +460,14 @@ mps_secular_ga_mpsolve (mps_context * s)
         {
           skip_check_stop = false;
 
+	  /* If the user wants to avoid multiprecision we should go directly 
+	   * to the exit stage. */
+	  if (s->avoid_multiprecision)
+	    {
+	      MPS_DEBUG_WITH_INFO (s, "Multiprecision has been manually disabled, skipping to the exit stage");
+	      goto cleanup;
+	    }
+
           /* Going to multiprecision if we're not there yet */
           if (s->lastphase != mp_phase)
             mps_secular_switch_phase (s, mp_phase);
