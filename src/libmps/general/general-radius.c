@@ -43,6 +43,7 @@ _mps_fradii_worker (void * data_ptr)
     {
       s->root[i]->status = MPS_ROOT_STATUS_NOT_FLOAT;
       fradii[i] = DBL_MAX;
+      free (data);
       return NULL;
     }
 
