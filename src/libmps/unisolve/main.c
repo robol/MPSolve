@@ -267,8 +267,12 @@ exit_sub:
     }
 
   /* == 11 == Check inclusions */
-  if (s->active_poly->prec > 0)
-    mps_validate_inclusions (s);
+  /* This step is disabled since it cause problems with the lar* kind of polynomials. 
+   * To be re-enabled a careful check of the necessary precision to avoid NULL DERIVATIVE
+   * warnings should be implemented. 
+   * if (s->active_poly->prec > 0)
+   *   mps_validate_inclusions (s);
+   */
 
   /* == 12 ==  Restore to highest used precision */
   if (s->lastphase == mp_phase)
