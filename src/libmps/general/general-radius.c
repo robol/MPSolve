@@ -14,6 +14,76 @@
 #include <mps/mps.h>
 #include <math.h>
 
+typedef struct {
+  mps_context * ctx;
+  mps_polynomial * p;
+  double * fradii;
+  int i;
+} _mps_fradii_worker_data;
+
+static void *
+_mps_fradii_worker (void * data_ptr)
+{
+  _mps_fradii_worker_data * data = (_mps_fradii_worker_data*) data_ptr;
+  int i = data->i;
+  double * fradii = data->fradii;
+  mps_context * s = data->ctx;
+  mps_polynomial * p = data->p; 
+
+  cplx_t pol, diff;
+  double new_rad, relative_error;
+  int j;
+
+
+  /* Compute the value of the polynomial in this point */
+  mps_polynomial_feval (s, p, s->root[i]->fvalue, pol, &relative_error);
+  
+  /* If we got a floating point exception, we need to switch to DPE on this component */
+  if (cplx_check_fpe (pol))
+    {
+      s->root[i]->status = MPS_ROOT_STATUS_NOT_FLOAT;
+      fradii[i] = DBL_MAX;
+      return NULL;
+    }
+
+  new_rad = cplx_mod (pol) + relative_error + cplx_mod (s->root[i]->fvalue) * 4.0 * DBL_EPSILON;
+  new_rad *= s->n;
+  
+  for (j = 0; j < s->n; j++)
+    {
+      if (i == j)
+	continue;
+      
+      cplx_sub (diff, s->root[i]->fvalue, s->root[j]->fvalue);
+      
+      /* Check for floating point exceptions in here */
+      if (cplx_eq_zero (diff))
+	{
+	  new_rad = DBL_MAX;
+	  break;
+	}
+      
+      new_rad /= cplx_mod (diff);
+    }
+  
+  {
+    mpc_t lc;
+    cplx_t ctmp;
+    mpc_init2 (lc, DBL_MANT_DIG);
+    mps_polynomial_get_leading_coefficient (s, p, lc);
+    mpc_get_cplx (ctmp, lc);
+    new_rad /= cplx_mod (ctmp);
+    mpc_clear (lc);
+  }
+  
+  fradii[i] = new_rad + cplx_mod (s->root[i]->fvalue) * DBL_EPSILON * 2.0
+    + DBL_MIN;
+  
+  free (data);
+
+  return NULL;
+}
+
 /**
  * @brief Compute the floating point inclusion radius according to the
  * polynomial representation.
@@ -26,10 +96,7 @@ MPS_PRIVATE void
 mps_fradii (mps_context * s, mps_polynomial * p, double * fradii)
 {
   MPS_DEBUG_THIS_CALL (s);
-
-  cplx_t pol;
-  double new_rad, relative_error;
-  int i, j;
+  int i;
 
   if (!p->feval)
     {
@@ -40,52 +107,17 @@ mps_fradii (mps_context * s, mps_polynomial * p, double * fradii)
 
   for (i = 0; i < s->n; i++)
     {
-      cplx_t diff;
+      _mps_fradii_worker_data * data = mps_new (_mps_fradii_worker_data);
+      
+      data->ctx = s;
+      data->p = p;
+      data->i = i;
+      data->fradii = fradii;
 
-      /* Compute the value of the polynomial in this point */
-      mps_polynomial_feval (s, p, s->root[i]->fvalue, pol, &relative_error);
-
-      /* If we got a floating point exception, we need to switch to DPE on this component */
-      if (cplx_check_fpe (pol))
-        {
-          s->root[i]->status = MPS_ROOT_STATUS_NOT_FLOAT;
-          fradii[i] = DBL_MAX;
-          continue;
-        }
-
-      new_rad = cplx_mod (pol) + relative_error + cplx_mod (s->root[i]->fvalue) * 4.0 * DBL_EPSILON;
-      new_rad *= s->n;
-
-      for (j = 0; j < s->n; j++)
-        {
-          if (i == j)
-            continue;
-
-          cplx_sub (diff, s->root[i]->fvalue, s->root[j]->fvalue);
-
-          /* Check for floating point exceptions in here */
-          if (cplx_eq_zero (diff))
-            {
-              new_rad = DBL_MAX;
-              break;
-            }
-
-          new_rad /= cplx_mod (diff);
-        }
-
-      {
-        mpc_t lc;
-        cplx_t ctmp;
-        mpc_init2 (lc, DBL_MANT_DIG);
-        mps_polynomial_get_leading_coefficient (s, p, lc);
-        mpc_get_cplx (ctmp, lc);
-        new_rad /= cplx_mod (ctmp);
-        mpc_clear (lc);
-      }
-
-      fradii[i] = new_rad + cplx_mod (s->root[i]->fvalue) * DBL_EPSILON * 2.0
-                  + DBL_MIN;
+      mps_thread_pool_assign (s, s->pool, _mps_fradii_worker, data);
     }
+
+  mps_thread_pool_wait (s, s->pool);
 }
 
 /**
