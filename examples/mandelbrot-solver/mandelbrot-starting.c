@@ -83,10 +83,12 @@ mps_mandelbrot_poly_fstart (mps_context *ctx, mps_polynomial *p, mps_approximati
       cplx_t *roots = cplx_valloc (p->degree / 2);
       cplx_t rot_up, rot_down;
 
-      int eps = (mp->level > DBL_DIG) ? mp->level : DBL_DIG + 1;
+      double eps = 1e-1 / p->degree;
+      if (eps < 4.0 * DBL_EPSILON)
+         eps = 4.0 * DBL_EPSILON;
 
-      cplx_set_d (rot_up, 1 + pow (.5, eps), -4.0 * DBL_EPSILON);
-      cplx_set_d (rot_down, 1 + pow (.5, eps), 4.0 * DBL_EPSILON);
+      cplx_set_d (rot_up, 1 + eps, 1e4 * DBL_EPSILON);
+      cplx_set_d (rot_down, 1 + eps, DBL_EPSILON);
 
       if (starting_file != NULL)
 	{
@@ -122,7 +124,6 @@ mps_mandelbrot_poly_fstart (mps_context *ctx, mps_polynomial *p, mps_approximati
 	  mps_context_set_starting_phase (new_ctx, float_phase);
 	  mps_context_set_avoid_multiprecision (ctx, true);
 	  mps_mpsolve (new_ctx);
-	  
 	  mps_context_get_roots_d (new_ctx, &roots, NULL);
 	}
 
@@ -134,8 +135,6 @@ mps_mandelbrot_poly_fstart (mps_context *ctx, mps_polynomial *p, mps_approximati
 
 	  if (i % 2 == 0)
 	    cplx_mul_eq (starting_point, (cplx_Im (roots[j]) > 0) ? rot_up : rot_down);
-	  else
-	    cplx_div_eq (starting_point, (cplx_Im (roots[j]) > 0) ? rot_up : rot_down);
 
 	  mps_approximation_set_fvalue (ctx, approximations[i], starting_point);
 	  mps_approximation_set_frad (ctx, approximations[i], DBL_MAX);
