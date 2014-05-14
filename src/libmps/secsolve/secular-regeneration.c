@@ -598,10 +598,8 @@ mps_secular_ga_separate_approximations (mps_context * ctx)
 
                   /* Correct the approximation radius to account the change that we have made
                    * to the approximation. */
-                  if (ctx->lastphase != float_phase)
-                    rdpe_add_eq (current_approximations[cluster_base + j]->drad, cdpe_Re (mod));
-                  else
-                    current_approximations[cluster_base + j]->frad += rdpe_get_d (cdpe_Re (mod));
+                  rdpe_add_eq (current_approximations[cluster_base + j]->drad, cdpe_Re (mod));
+                  current_approximations[cluster_base + j]->frad += rdpe_get_d (cdpe_Re (mod));
 
                   if (ctx->debug_level & MPS_DEBUG_REGENERATION)
                     {

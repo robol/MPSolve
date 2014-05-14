@@ -58,6 +58,12 @@ struct mps_cluster {
    * @brief Pointer to the first root in the cluster.
    */
   mps_root * first;
+  
+  /**
+   * @brief Internal mutex used to perform operations in a thread-safe
+   * way. 
+   */
+  pthread_mutex_t lock;
 };
 
 /**

@@ -28,6 +28,8 @@ mps_cluster_empty (mps_context * s)
 
   cluster->first = NULL;
   cluster->n = 0;
+  pthread_mutex_init (&cluster->lock, NULL);
+
   return cluster;
 }
 
@@ -48,6 +50,8 @@ mps_cluster_with_root (mps_context * s, long int root_index)
   cluster->first->k = root_index;
   cluster->first->next = NULL;
   cluster->first->prev = NULL;
+
+  pthread_mutex_init (&cluster->lock, NULL);
 
   return cluster;
 }
@@ -92,9 +96,9 @@ mps_cluster_insert_root (mps_context * s,
 
   /* Inserting root in the starting of the cluster */
   root->k = root_index;
-  root->next = cluster->first;
   root->prev = NULL;
 
+  root->next = cluster->first;
   cluster->n++;
 
   if (cluster->first)
@@ -118,7 +122,6 @@ mps_cluster_insert_root (mps_context * s,
 void
 mps_cluster_remove_root (mps_context * s, mps_cluster * cluster, mps_root * root)
 {
-  /* Iterate over the cluster to find the root searched */
   mps_root * prev_root = root->prev;
   mps_root * next_root = root->next;
 

@@ -459,7 +459,6 @@ mps_thread_mpolzer_worker (void *data_ptr)
 
               /* Go with others aberth iterations */
               pthread_mutex_unlock (data->global_aberth_mutex);
-              sched_yield ();
             }
 
           /* check for new approximated roots */

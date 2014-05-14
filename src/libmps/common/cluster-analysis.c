@@ -9,6 +9,7 @@
  */
 
 #include <mps/mps.h>
+#include <string.h>
 
 MPS_PRIVATE void
 mps_cluster_analysis (mps_context * ctx, mps_polynomial * p)
@@ -447,6 +448,79 @@ mps_dcluster (mps_context * s, rdpe_t * drad, int nf)
     }
 }
 
+struct _mps_cluster_worker_data {
+  mps_context * ctx;
+  mps_cluster * cluster;
+  int * analyzed_roots;
+  int base_root;
+  int start_root;
+  int end_root;
+  rdpe_t * drad;
+  int nf;
+  pthread_mutex_t * block_mutex;
+  mps_cluster ** original_clusters;
+};
+
+void *
+_mps_mcluster_worker (void * data_ptr)
+{
+  struct _mps_cluster_worker_data *data = (struct _mps_cluster_worker_data*) data_ptr;
+  int i, n = 0;
+  mps_root * first = NULL;
+  mps_root * last = NULL;
+  mps_cluster * c = data->original_clusters[data->base_root];
+
+  for (i = data->start_root; i < data->end_root; i++)
+    {
+      if (! data->analyzed_roots[i] && (data->original_clusters[i] == c))
+	{
+	  if (mps_mtouchnwt (data->ctx, data->drad, data->nf, data->base_root, i))
+	    {
+              if (! data->analyzed_roots[i])
+                {
+                  data->analyzed_roots[i] = true;
+
+                  if (first == NULL)
+                    {
+                      last = first = mps_new (mps_root);
+                      last->next = first->next = last->prev = first->prev = NULL;
+                      last->k = i;
+                    }
+                  else
+                    {
+                      mps_root * new_root = mps_new (mps_root);
+                      new_root->next = first;
+                      first->prev = new_root;
+                      first = new_root;
+                      new_root->prev = NULL;
+                      new_root->k = i;
+                    }
+
+                  n++;
+                }
+	    }
+	}
+    }
+
+  if (n > 0)
+    {
+      pthread_mutex_lock (&data->cluster->lock);
+
+      last->next = data->cluster->first;
+      data->cluster->first->prev = last;
+      data->cluster->first = first;
+      data->cluster->n += n;
+
+      pthread_mutex_unlock (&data->cluster->lock);
+    }
+
+  pthread_mutex_unlock (data->block_mutex);
+
+  free (data);
+
+  return NULL;
+}
+
 /**
  * @brief Perform cluster analysis to each existing cluster by
  * applying <code>mps_xcluster</code> to each existing cluster.
@@ -488,8 +562,6 @@ mps_mcluster (mps_context * s, rdpe_t * drad, int nf)
       mps_debug_cluster_structure (s);
     }
 
-  int analyzed_roots = 0;
-
   /* Do a first check of clusterization using the newton
    * radii. These are not valid to perform cluster analysis in
    * general, but can be used if they provide *COMPLETE* Newton
@@ -519,108 +591,128 @@ mps_mcluster (mps_context * s, rdpe_t * drad, int nf)
 
   rdpe_vfree (newton_radii);
 
-  /* If newton isolation is not reached with Newton use Gerschgorin */
-  {
-    /* if (MPS_INPUT_CONFIG_IS_USER (s->input_config))  */
-    /*        {  */
-    /*          mps_clusterization_free (s, new_clusterization);  */
-    /*          return;  */
-    /*        } */
+  /* Perform parallel analysis of the Gerschgorin disks. */
+  int analyzed_roots = 0;
+  int * already_analyzed_roots = mps_newv (int, s->n);
+  mps_cluster ** original_clusters = mps_newv (mps_cluster*, s->n);
+  mps_root * root = NULL;
 
-    item = s->clusterization->first;
-    while (item != NULL)
-      {
-        mps_cluster * cluster = item->cluster;
-        mps_cluster_item * next_item = item->next;
+  memset (already_analyzed_roots, 0, sizeof (int) * s->n);
 
-        /* Keep isolated cluster isolated, moving them in the new clusterization. */
-        if (cluster->n == 1)
-          {
-            mps_clusterization_insert_cluster (s, new_clusterization,
-                                               mps_cluster_with_root (s, cluster->first->k));
-            mps_clusterization_remove_cluster (s, s->clusterization, item);
-            analyzed_roots++;
-          }
+  int block_size = 128;
+  int block_number = (s->n - 1) / block_size + 1;
+  pthread_mutex_t * block_mutexes = mps_newv (pthread_mutex_t, block_number);
 
-        item = next_item;
-      }
+  for (j = 0; j < block_number; j++)
+    pthread_mutex_init (&block_mutexes[j], NULL);
 
-    /* Now do cluster analysis with the rest of the clusters. */
-    item = s->clusterization->first;
-    while (analyzed_roots < s->n)
-      {
-        /* Create a new cluster to be inserted in the cluster analysis */
-        mps_root * base_root;
-        mps_cluster * cluster = item->cluster;
-        mps_cluster * new_cluster = mps_cluster_empty (s);
+  item = s->clusterization->first;
+  while (item)
+    {
+      mps_cluster * c = item->cluster;
+      mps_root * root = c->first;
+      while (root)
+        {
+          original_clusters[root->k] = c;
+          root = root->next;
+        }
+      item = item->next;
+    }
 
-        while (cluster->n == 0)
-          {
-            item = item->next;
-            cluster = item->cluster;
-          }
+  while (analyzed_roots < s->n)
+    {
+      int j;
 
-        base_root = mps_cluster_insert_root (s, new_cluster, cluster->first->k);
-        analyzed_roots++;
-        mps_cluster_remove_root (s, cluster, cluster->first);
+      /* Find the first not analyzed root */
+      j = 0;
+      while (already_analyzed_roots[j])
+	j++;
+      // fprintf (stderr, "New base root = %d\n", j);
 
-        /* Check if this root touches others root, and if new roots were added to the
-         * cluster repeat the checks. */
-        while (base_root)
-          {
-            /* mps_cluster_item * c_item; */
-            mps_root * iter_root;
+      if (j > s->n)
+	break;
 
-            /* for (c_item = s->clusterization->first; c_item != NULL; c_item = c_item->next) */
-            {
-              /*        mps_cluster * iter_cluster = c_item->cluster; */
-              mps_cluster * iter_cluster = cluster;
+      item = mps_clusterization_insert_cluster (s, new_clusterization, mps_cluster_with_root (s, j));
+      root = item->cluster->first;
 
-              iter_root = iter_cluster->first;
-              while (iter_root)
-                {
-                  if (mps_mtouchnwt (s, drad, nf, base_root->k, iter_root->k))
-                    {
-                      mps_root * next_root = iter_root->next;
-                      mps_cluster_insert_root (s, new_cluster, iter_root->k);
-                      mps_cluster_remove_root (s, iter_cluster, iter_root);
-                      analyzed_roots++;
-                      iter_root = next_root;
-                    }
-                  else
-                    iter_root = iter_root->next;
-                }
-            }
+      already_analyzed_roots[j] = true;
 
-            base_root = base_root->prev;
-          }
+      do
+	{
+	  /* We need to check which other approximation touches our current base root
+	   * and add it to our cluster. */
+	  for (j = 0; j < block_number; j++)
+	    {
+	      struct _mps_cluster_worker_data * data = mps_new 
+		(struct _mps_cluster_worker_data);
 
-        /* Now insert the cluster in the new clusterization */
-        mps_clusterization_insert_cluster (s, new_clusterization, new_cluster);
+	      data->ctx = s;
+	      data->cluster = item->cluster;
+	      data->base_root = root->k;
+	      data->start_root = j * block_size;
+	      data->end_root = MIN ((j+1) * block_size, s->n);
+	      data->analyzed_roots = already_analyzed_roots;
+	      data->drad = drad;
+	      data->nf = nf;
+              data->block_mutex = &block_mutexes[j];
+              data->original_clusters = original_clusters;
 
-        /* Check if the new cluster is isolated and, in that case, set the gerschgorin
-         * radius as inclusion radius if it's more conveniente than the old one.
-         * In general the Gerschgorin radius cannot be used as inclusion radius, because
-         * it may touch another radius and so it may be empty. */
-        if (new_cluster->n == 1)
-          {
-            int k = new_cluster->first->k;
-            cdpe_t c;
-            rdpe_t new_rad;
+	      pthread_mutex_lock (data->block_mutex);
+	      mps_thread_pool_assign (s, s->pool, _mps_mcluster_worker, data);
+	    }
 
-            /* Check if the computed radius is more convenient than the old one.
-               If that's the case, apply it as inclusion radius */
-            mpc_get_cdpe (c, s->root[k]->mvalue);
-            cdpe_mod (new_rad, c);
-            rdpe_mul_eq (new_rad, s->mp_epsilon);
-            rdpe_mul_eq_d (new_rad, 4.0f);
-            rdpe_add_eq (new_rad, drad[k]);
+          sched_yield();
 
-            if (rdpe_lt (new_rad, s->root[k]->drad))
-              rdpe_set (s->root[k]->drad, new_rad);
-          }
-      }
-  }
+	  /* This is a cheap way of getting the next root in the cluster. 
+	   * If it's already present (root->prev != NULL) just use it, otherwise
+	   * lock the mutexes that the clusters hold while analyzing a single
+	   * block. Getting lock implies that the cluster will be already
+	   * extended, thus root->prev != NULL unless there were no other
+	   * approximations inside the cluster in that block. In that case, try the
+	   * next until they are all analyzed. */
+	  for (j = 0; root->prev == NULL && j < block_number; j++)
+	    {
+	      pthread_mutex_lock (&block_mutexes[j]);
+	      pthread_mutex_unlock (&block_mutexes[j]);
+	    }
+
+	  analyzed_roots++;
+
+	} while ((root = root->prev) != NULL);
+    }
+
+  free (block_mutexes);
+  free (already_analyzed_roots);
+  free (original_clusters);
+  mps_clusterization_free (s, s->clusterization);
+  s->clusterization = new_clusterization;
+
+  for (item = s->clusterization->first; item != NULL; item = item->next)
+    {
+      mps_cluster * new_cluster = item->cluster;      
+
+      /* Check if the new cluster is isolated and, in that case, set the gerschgorin
+       * radius as inclusion radius if it's more conveniente than the old one.
+       * In general the Gerschgorin radius cannot be used as inclusion radius, because
+       * it may touch another radius and so it may be empty. */
+      if (new_cluster->n == 1)
+	{
+	  int k = new_cluster->first->k;
+	  cdpe_t c;
+	  rdpe_t new_rad;
+	  
+	  /* Check if the computed radius is more convenient than the old one.
+	     If that's the case, apply it as inclusion radius */
+	  mpc_get_cdpe (c, s->root[k]->mvalue);
+	  cdpe_mod (new_rad, c);
+	  rdpe_mul_eq (new_rad, s->mp_epsilon);
+	  rdpe_mul_eq_d (new_rad, 4.0f);
+	  rdpe_add_eq (new_rad, drad[k]);
+
+	  if (rdpe_lt (new_rad, s->root[k]->drad))
+	    rdpe_set (s->root[k]->drad, new_rad);
+	}
+    }
 
   if (newton_isolation)
     {
@@ -635,12 +727,9 @@ mps_mcluster (mps_context * s, rdpe_t * drad, int nf)
           mps_clusterization_insert_cluster (s, new_clusterization,
                                              mps_cluster_with_root (s, i));
         }
+
+      s->clusterization = new_clusterization;
     }
-
-  /* Set the new clusterizaition in the mps_context */
-  mps_clusterization_free (s, s->clusterization);
-  s->clusterization = new_clusterization;
-
 
   if (s->debug_level & MPS_DEBUG_CLUSTER)
     {
