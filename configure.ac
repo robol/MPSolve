@@ -512,7 +512,7 @@ AS_IF([test x$build_examples == xyes], [
 	# MATLAB to the target of compilation
 	enable_matlab=no
 	AS_IF([test "$MEX" != ""], [enable_matlab=yes
-	  MATLAB_MODULES_PROGRAMS=mps_roots])
+	  MATLAB_MODULES_PROGRAMS="mps_roots_string mps_roots_double"])
 	AC_SUBST(MATLAB_MODULES_PROGRAMS)
 ])
 

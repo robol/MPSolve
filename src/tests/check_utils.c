@@ -119,6 +119,33 @@ START_TEST (test_equivalent_rational_conversion3)
 }
 END_TEST
 
+START_TEST (test_equivalent_rational_conversion4)
+{
+  mps_context * ctx = mps_context_new ();
+  mpq_t t1, t2;
+
+  mpq_init (t1);
+  mpq_init (t2);
+
+  mpq_set_si (t1, -8, 1);
+  const char * test4 = "-8";
+  char * test4_eq = mps_utils_build_equivalent_rational_string (ctx, test4);
+  printf ("TEST_EQUIVALENT_RATIONAL_CONVERSION: Converted -8 to %s\n", test4_eq);
+
+  mpq_set_str (t2, test4_eq, 10);
+
+  fail_unless ((test4_eq != NULL) && mpq_equal (t1, t2),
+               "Failed to convert \"-8\" to \"-8/1\"");
+
+  free (test4_eq);
+
+  mpq_clear (t1);
+  mpq_clear (t2);
+
+  mps_context_free (ctx);
+}
+END_TEST
+
 int
 main (void)
 {
@@ -133,6 +160,7 @@ main (void)
   tcase_add_test (tc_strings, test_equivalent_rational_conversion);
   tcase_add_test (tc_strings, test_equivalent_rational_conversion2);
   tcase_add_test (tc_strings, test_equivalent_rational_conversion3);
+  tcase_add_test (tc_strings, test_equivalent_rational_conversion4);
 
   suite_add_tcase (s, tc_strings);
 

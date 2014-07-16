@@ -1,32 +1,42 @@
 if BUILD_MATLAB_TOOLBOX
 
-mps_roots.o:
+mps_roots_double.o: mps_roots_double.c 
 	@$(MEX) -I${top_srcdir}/include -D__MPS_MATLAB_MODE \
-	-c ${srcdir}/mps_roots.c > /dev/null 
+	-c ${srcdir}/mps_roots_double.c > /dev/null 
+
+mps_roots_string.o: mps_roots_string.c 
+	@$(MEX) -I${top_srcdir}/include -D__MPS_MATLAB_MODE \
+	-c ${srcdir}/mps_roots_string.c > /dev/null
 
 noinst_PROGRAMS = $(MATLAB_MODULES_PROGRAMS)
 noinst_DATA = mpsolve-toolbox.tar.gz
 
-EXTRA_PROGRAMS = mps_roots
+EXTRA_PROGRAMS = mps_roots_double mps_roots_string
 
 EXTRA_DIST = mps_roots.m
 
 clean-local:
-	rm -f mps_roots.mex*
+	rm -f mps_roots_double.mex* mps_roots_string.mex*
 	rm -rf mpsolve-toolbox/ 
 	rm -f mpsolve-toolbox.tar.gz
 
-mps_roots_SOURCES = mps_roots.c
-mps_roots_LINK = $(MEX) -output $@ -L${top_builddir}/src/libmps/.libs \
-	-lmps -lm -lgmp > /dev/null
+mps_roots_double_SOURCES = mps_roots_double.c
+mps_roots_double_LINK = $(MEX) -output $@ -L${top_builddir}/src/libmps/.libs \
+	-lmps -lm -lgmp -Wl,-R. > /dev/null
 
-mpsolve-toolbox.tar.gz: mps_roots mps_roots.m
+mps_roots_string_SOURCES = mps_roots_string.c
+mps_roots_string_LINK = $(MEX) -output $@ -L${top_builddir}/src/libmps/.libs \
+	-lmps -lm -lgmp -Wl,-R. > /dev/null
+
+mpsolve-toolbox.tar.gz: mps_roots_double mps_roots_string mps_roots.m
 	$(eval TEMP_DIR := $(shell mktemp -d tmp.XXXX))
 	$(AM_V_GEN)
 	$(AM_V_at) mkdir -p $(TEMP_DIR)/mpsolve-toolbox
-	$(AM_V_at) cp mps_roots.mex* $(TEMP_DIR)/mpsolve-toolbox/ 
+	$(AM_V_at) cp mps_roots*.mex* $(TEMP_DIR)/mpsolve-toolbox/
+	$(AM_V_at) cp ${top_builddir}/src/libmps/.libs/libmps.* $(TEMP_DIR)/mpsolve-toolbox/
 	$(AM_V_at) cp ${srcdir}/mps_roots.m $(TEMP_DIR)/mpsolve-toolbox/ 
 	$(AM_V_at) cd $(TEMP_DIR) && tar czf ${builddir}/mpsolve-toolbox.tar.gz mpsolve-toolbox/
+	$(AM_V_at) mv $(TEMP_DIR)/mpsolve-toolbox.tar.gz ${builddir}/
 	$(AM_V_at) rm -rf $(TEMP_DIR)
 
 endif

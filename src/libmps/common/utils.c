@@ -81,9 +81,9 @@ mps_utils_build_equivalent_rational_string (mps_context * ctx,
 
           equivalent_rational_string = mps_realloc
                                          (equivalent_rational_string,
-                                         length + 1);
+                                         length + 2);
           memmove (equivalent_rational_string + 1,
-                   equivalent_rational_string, length);
+                   equivalent_rational_string, length + 1);
           *equivalent_rational_string = '-';
         }
     }
