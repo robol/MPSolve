@@ -1,4 +1,5 @@
 #include "mex.h"
+#include "mps_option_parser.h"
 #include <mps/mps.h>
 #include <stdio.h>
 
@@ -13,6 +14,8 @@ mexFunction (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
   int i, n;
   double *real_res, *imag_res; 
   mxArray *roots;
+
+  _mps_matlab_options options = mps_parse_matlab_options ( (nrhs > 1) ? prhs[1] : NULL );
 
   dims = mxGetDimensions (prhs[0]);
   n = dims[1];
@@ -39,6 +42,10 @@ mexFunction (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
 
   /* Uncomment this to enable debug on the MPSolve operations */
   /* mps_context_add_debug_domain (ctx, MPS_DEBUG_TRACE); */
+
+  mps_context_select_algorithm (ctx, options.algorithm);
+  mps_context_set_output_prec (ctx, options.digits / log10(2));
+  mps_context_set_output_goal (ctx, options.goal);
 
   mps_mpsolve (ctx);
 
