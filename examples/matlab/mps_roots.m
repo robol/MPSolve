@@ -31,5 +31,32 @@ function x = mps_roots(v, alg)
     end
     
     x = mps_roots_string (vv, alg);
+
+    % In case a cell output was returned, transform it in vpa
+    if iscell (x)
+       II = vpa(1i);
+       y = cell(1, size(x,1));
+       
+       for i = 1 : size(x,1)
+	 rp = strcat(x{i,1}, 'e', int2str (x{i,2}(1)));
+	 ip = strcat(x{i,3}, 'e', int2str (x{i,4}(1)));
+
+	 if rp(1) == '-'
+	    rp = strcat('-0.', rp(2:end));
+	 else
+	     rp = strcat ('0.', rp);
+	 end
+
+	 if ip(1) == '-'
+	    ip = strcat('-0.', ip(2:end));
+	 else
+	     ip = strcat ('0.', ip);
+	 end
+
+	 y{i} = vpa(rp) + II * vpa(ip);
+       end
+
+       x = y;
+    end
   end
 end
