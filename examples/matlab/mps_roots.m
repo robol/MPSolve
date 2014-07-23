@@ -16,19 +16,28 @@ function x = mps_roots(v, alg)
      alg = 's';
   end
 
-  if isnumeric(v(1))
+  if (isfield (alg, 'digits') && digits() < alg.digits)
+     warning('Raising the number of digits of VPA to match the requested output digits');
+     digits(alg.digits)
+  end
+
+  if isnumeric(v(1)) && ~(isfield(alg,'digits') && (alg.digits > 16))
     x = mps_roots_double (v, alg);
   else
     is_vpa = strcmp (class(v(1)), 'sym');
     
     % If the input is given in VPAs, convert them to string.
+    vv = cell(1,length (v));
     if is_vpa
-      vv = cell(1,length (v));
       for i = 1 : length (v)
         vv{i} = char(v(i));
       end
-      v = vv;
+    else
+      for i = 1 : length (v)
+	vv{i} = num2str (v(i));
+      end
     end
+    v = vv;
     
     x = mps_roots_string (vv, alg);
 
