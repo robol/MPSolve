@@ -39,7 +39,9 @@ function x = mps_roots(v, alg)
     end
     v = vv;
     
-    x = mps_roots_string (vv, alg);
+    % FIXME: mps_roots_strings takes the coefficients in the wrong
+    % order. 
+    x = mps_roots_string (vv(end:-1:1), alg);
 
     % In case a cell output was returned, transform it in vpa
     if iscell (x)
