@@ -44,7 +44,7 @@ function x = mps_roots(v, alg)
     % In case a cell output was returned, transform it in vpa
     if iscell (x)
        II = vpa(1i);
-       y = cell(1, size(x,1));
+       y = vpa(zeros(1,size(x,1)));
        
        for i = 1 : size(x,1)
 	 rp = strcat(x{i,1}, 'e', int2str (x{i,2}(1)));
@@ -62,7 +62,7 @@ function x = mps_roots(v, alg)
 	     ip = strcat ('0.', ip);
 	 end
 
-	 y{i} = vpa(rp) + II * vpa(ip);
+	 y(i) = vpa(rp) + II * vpa(ip);
        end
 
        x = y;
