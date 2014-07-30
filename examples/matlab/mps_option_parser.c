@@ -10,6 +10,9 @@ mps_parse_matlab_options (const mxArray * optionStruct)
     16
   };
 
+  if (!optionStruct)
+    return options;
+
   if (mxIsChar (optionStruct))
     {
       mxChar * value = mxGetChars (optionStruct);
@@ -79,10 +82,10 @@ mps_parse_matlab_options (const mxArray * optionStruct)
 	    }
 	  else
 	    {
-	      char * buffer = malloc (sizeof (char) * (strlen ("The property '' is invalid\n") + strlen ((char*) optionName) + 1));
+	      char * buffer = mxMalloc (sizeof (char) * (strlen ("The property '' is invalid\n") + strlen ((char*) optionName) + 1));
 	      sprintf (buffer, "The property '%s' is invalid\n", optionName);
 	      mexErrMsgTxt (buffer);
-	      free (buffer);
+	      mxFree (buffer);
 	    }
 	}
     }
