@@ -595,6 +595,9 @@ cleanup:
 #endif
     }
 
+  /* Recheck the inclusions before exiting. */
+  mps_mupdate_inclusions (s);
+
   /* Debug total time taken but only if debug is enabled */
 #ifndef DISABLE_DEBUG
   if (s->debug_level & MPS_DEBUG_TIMINGS)
