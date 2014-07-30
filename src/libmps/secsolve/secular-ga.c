@@ -122,18 +122,6 @@ mps_secular_ga_mpsolve (mps_context * s)
   mps_boolean just_regenerated = false;
   mps_secular_equation *sec = mps_secular_equation_from_status (s);
 
-  if (s->output_config->search_set != MPS_SEARCH_SET_COMPLEX_PLANE)
-    {
-      mps_error (s, "The restricted search set is not supported using the algorithm MPS_ALGORITHM_SECULAR_GA.");
-      return;
-    }
-
-  if (s->output_config->root_properties != MPS_OUTPUT_PROPERTY_NONE)
-    {
-      mps_error (s, "The root properties detection is not supported using the algorithm MPS_ALGORITHM_SECULAR_GA.");
-      return;
-    }
-
   /* Check if the secular equation is allocated or if only the
    * polynomial is present. In the last case, allocate an empty
    * secular equation to hold the data during the computation. */
