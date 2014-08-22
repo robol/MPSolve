@@ -7,7 +7,8 @@ mps_parse_matlab_options (const mxArray * optionStruct)
   _mps_matlab_options options = {
     MPS_ALGORITHM_SECULAR_GA,
     MPS_OUTPUT_GOAL_APPROXIMATE,
-    16
+    16,
+    false
   };
 
   if (!optionStruct)
@@ -78,6 +79,15 @@ mps_parse_matlab_options (const mxArray * optionStruct)
 		    options.goal = MPS_OUTPUT_GOAL_APPROXIMATE;
 		  else
 		    mexErrMsgTxt ("Please specify only 'a' or 'i' as value for the goal property\n");		    
+		}
+	    }
+	  else if (strcmp (optionName, "radius") == 0)
+	    {
+	      if (! mxIsLogicalScalar (field))
+		mexErrMsgTxt ("Please specify 'true' or 'false' as a value for the radius property\n");
+	      else
+		{
+		  options.radius = *mxGetLogicals (field);
 		}
 	    }
 	  else

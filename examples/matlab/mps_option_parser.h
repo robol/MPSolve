@@ -5,6 +5,7 @@ typedef struct {
   mps_algorithm algorithm;
   mps_output_goal goal;
   int digits;
+  mps_boolean radius;
 } _mps_matlab_options;
 
 _mps_matlab_options mps_parse_matlab_options (const mxArray * optionStruct);

@@ -6,7 +6,7 @@
 %% Author: Leonardo Robol <leonardo.robol@sns.it>
 %% Copyright: 2011-2013 Leonardo Robol <leonardo.robol@sns.it>
 %% License: GPLv3 or higher
-function x = mps_roots(v, alg)
+function [x,r] = mps_roots(v, alg)
     
   if min(size(v)) ~= 1 || strcmp(class(v(1)), 'string')
     error('The input must be a 1D vector');
@@ -16,13 +16,25 @@ function x = mps_roots(v, alg)
      alg = 's';
   end
 
+  if nargout > 1
+    r = zeros(length(v)-1,1);
+
+    if (~ (isfield (alg, 'radius') && alg.radius))
+      warning('You need to specify the "radius" option to obtain the inclusion radius as output');
+    end
+  end
+
   if (isfield (alg, 'digits') && digits() < alg.digits)
      warning('Raising the number of digits of VPA to match the requested output digits');
      digits(alg.digits)
   end
 
   if isnumeric(v(1)) && ~(isfield(alg,'digits') && (alg.digits > 16))
-    x = mps_roots_double (v, alg);
+    if (isfield (alg, 'radius') && alg.radius)
+      [x,r] = mps_roots_double (v, alg);
+    else
+      x = mps_roots_double (v, alg);
+    end
   else
     is_vpa = strcmp (class(v(1)), 'sym');
     
