@@ -100,6 +100,8 @@ mexFunction (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
   /* Free used data */
   cplx_vfree (results);
   free (radius);
+
+  mps_monomial_poly_free (s, MPS_POLYNOMIAL (mp));
   mps_context_free (s);
 
   /* Return the roots */
