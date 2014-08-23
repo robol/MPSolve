@@ -12,7 +12,7 @@ mexFunction (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
   mps_monomial_poly * mp;
   cplx_t * results = NULL;
   int i, n;
-  double *real_res, *imag_res; 
+  double *real_res, *imag_res;
   mxArray *roots;
 
   _mps_matlab_options options = mps_parse_matlab_options ( (nrhs > 1) ? prhs[1] : NULL );
