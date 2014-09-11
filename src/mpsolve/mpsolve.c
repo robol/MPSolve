@@ -17,9 +17,9 @@
 #endif
 
 #if HAVE_GRAPHICAL_DEBUGGER
-#define MPSOLVE_GETOPT_STRING "a:G:D:d::xt:o:O:j:S:O:i:vl:bp:rs:"
+#define MPSOLVE_GETOPT_STRING "a:G:D:d::xt:o:O:j:S:O:i:vl:bp:rs:c"
 #else
-#define MPSOLVE_GETOPT_STRING "a:G:D:d::t:o:O:j:S:O:i:vl:bp:rs:"
+#define MPSOLVE_GETOPT_STRING "a:G:D:d::t:o:O:j:S:O:i:vl:bp:rs:c"
 #endif
 
 #if HAVE_GRAPHICAL_DEBUGGER
@@ -113,7 +113,8 @@ void
 usage (mps_context * s, const char *program)
 {
   fprintf (stdout,
-           "%s [-a alg] [-b] [-G goal] [-o digits] [-i digits] [-j n] [-t type] [-S set] [-D detect] [-O format] [-l] [-r] [filename | -p poly] "
+           "%s [-a alg] [-b] -c [-G goal] [-o digits] [-i digits] [-j n] [-t type] [-S set] \n"
+"  [-D detect] [-O format] [-l] [-r] [filename | -p poly] "
 #if HAVE_GRAPHICAL_DEBUGGER
           "[-x] "           
 #endif
@@ -125,6 +126,7 @@ usage (mps_context * s, const char *program)
            "              s: Secular algorithm, using regeneration of increasingly better-conditioned\n"
            "                 secular equations with the same roots of the polynomial\n"
            " -b          Perform Aberth iterations in Jacobi-style instead of Gauss-Seidel\n"
+	   " -c          Enable crude approximation mode. Fast but not always effective\n"
            " -G goal     Select the goal to reach. Possible values are:\n"
            "              a: Approximate the roots\n"
            "              i: Isolate the roots\n"
@@ -473,6 +475,9 @@ main (int argc, char **argv)
         case 'b':
           mps_context_set_jacobi_iterations (s, true);
           break;
+	case 'c':
+	  mps_context_set_crude_approximation_mode (s, true);
+	  break;
         case 'o':
           mps_context_set_output_prec (s, (atoi (opt->optvalue)) * LOG2_10 + 1);
           break;

@@ -243,6 +243,9 @@ mps_secular_ga_mpsolve (mps_context * s)
         }
 
       EXIT_ON_ERRORS(s);
+      
+      if (s->crude_approximation_mode)
+	goto cleanup;
 
       mps_cluster_analysis (s, p);
 

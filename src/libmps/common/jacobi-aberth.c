@@ -55,7 +55,11 @@ __mps_fjacobi_aberth_step_worker (void * data_ptr)
       cplx_set (*data->correction, corr);
     }
 
-  free (data);
+  /* In case of a unique element in the thread pool
+   * the function call system has been optimized out. */
+  if (ctx->pool->n > 1)
+    free (data);
+
   return NULL;
 }
 
@@ -80,21 +84,34 @@ mps_fjacobi_aberth_step (mps_context * ctx, mps_polynomial * p, int * nit)
     {
       if (ctx->root[i]->again)
         {
-          struct __mps_fjacobi_aberth_step_data * data = mps_new (struct __mps_fjacobi_aberth_step_data);
+	  /* In case of a unique element in the thread pool
+	   * the function call system has been optimized out. */
+	  if (ctx->pool->n > 1)
+	    {
+	      struct __mps_fjacobi_aberth_step_data * data = mps_new (struct __mps_fjacobi_aberth_step_data);
 
-          data->ctx = ctx;
-          data->p = p;
-          data->root = ctx->root[i];
-          data->correction = &corrections[i];
+	      data->ctx = ctx;
+	      data->p = p;
+	      data->root = ctx->root[i];
+	      data->correction = &corrections[i];
 
-          /* The worker is in charge of freeing the data that we have allocated
-           * here, so we can't ignore this issue in the main thread. */
-          mps_thread_pool_assign (ctx, ctx->pool,
-                                  __mps_fjacobi_aberth_step_worker, data);
+	      /* The worker is in charge of freeing the data that we have allocated
+	       * here, so we can't ignore this issue in the main thread. */
+	      mps_thread_pool_assign (ctx, ctx->pool,
+				      __mps_fjacobi_aberth_step_worker, data);
+	    }
+	  else
+	    {
+	      struct __mps_fjacobi_aberth_step_data data = {
+		ctx, p, ctx->root[i], &corrections[i]
+	      };
 
-          if (nit)
-            (*nit)++;
-        }
+	      __mps_fjacobi_aberth_step_worker (&data);
+	    }
+
+	  if (nit)
+	    (*nit)++;
+	}
     }
 
   mps_thread_pool_wait (ctx, ctx->pool);

@@ -119,4 +119,5 @@ mps_set_default_values (mps_context * s)
 
   s->self_thread_pool = NULL;
   s->avoid_multiprecision = false;
+  s->crude_approximation_mode = false;
 }

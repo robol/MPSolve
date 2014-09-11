@@ -2,7 +2,7 @@
 .SH NAME
 MPSolve \- A multiprecision polynomial rootfinder
 .SH DESCRIPTION
-mpsolve [\-a alg] [\-b] [\-G goal] [\-o digits] [\-i digits] [\-j n] [\-t type] [\-S set] [\-D detect] [\-O format] [\-l filename] [\-x] [\-d] [\-v] [\-r] [infile | -p poly]
+mpsolve [\-a alg] [\-b] [\-c] [\-G goal] [\-o digits] [\-i digits] [\-j n] [\-t type] [\-S set] [\-D detect] [\-O format] [\-l filename] [\-x] [\-d] [\-v] [\-r] [infile | -p poly]
 .SH OPTIONS
 .TP
 \fB\-a\fR alg
@@ -16,6 +16,9 @@ secular equations with the same roots of the polynomial
 .TP
 \fB\-b\fR
 Perform Aberth iterations in Jacobi\-style instead of Gauss\-Seidel
+.TP
+\fB\-c\fR
+Enable crude approximation mode
 .TP
 \fB\-G\fR goal
 Select the goal to reach. Possible values are:

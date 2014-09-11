@@ -867,3 +867,17 @@ mps_context_set_avoid_multiprecision (mps_context * s, mps_boolean avoid_multipr
 {
   s->avoid_multiprecision = avoid_multiprecision;
 }
+
+/**
+ * @brief Enable the "crude" only approximation mode of MPSolve. 
+ *
+ * If this mode is activated MPSolve will only perform a basic Aberth iteration
+ * in floating point and then exit. Note that the output result will still be
+ * guaranteed but in general it will not be possible to reach arbitrary precision
+ * and the results may be quite far from the roots for bad conditioned polynomials. 
+ */
+void
+mps_context_set_crude_approximation_mode (mps_context * s, mps_boolean crude_approximation_mode)
+{
+  s->crude_approximation_mode = crude_approximation_mode;
+}
