@@ -707,5 +707,8 @@ void mps_monomial_poly_deflate (mps_context * ctx, mps_polynomial * poly)
         }
     }
 
+  /* FIXME: We need to reallocate the correct storage for the 
+   * polynomial. */
+
   poly->degree -= zero_roots;
 }
