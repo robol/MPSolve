@@ -29,7 +29,7 @@ mps_strndup (const char * source, size_t n)
     n = length;
 
   dest = mps_newv (char, n + 1);
-  memcpy (dest, source, n);
+  memmove (dest, source, n);
 
   return dest;
 }

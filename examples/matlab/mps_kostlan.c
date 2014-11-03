@@ -20,8 +20,8 @@ mexFunction (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
   mpq_t zero;
   mpq_t c, p;
 
-  mxArray * roots = NULL;
-  double * real_res, *imag_res = NULL;
+  mxArray * roots = NULL, *radii = NULL;
+  double * real_res = NULL, *imag_res = NULL;
   cplx_t * results = NULL;
 
   _mps_matlab_options options = mps_parse_matlab_options ( (nrhs > 1) ? prhs[1] : NULL );
@@ -36,8 +36,8 @@ mexFunction (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
   mpq_set_si (c, 1, 1);
 
   mpc_t d, f;
-  mpc_init2 (d, n * 16);
-  mpc_init2 (f, n * 16);
+  mpc_init2 (d, 16 * n);
+  mpc_init2 (f, 16 * n);
   mpc_set_ui (d, 1U, 0U);
 
   mpf_set_q (mpc_Re (d), c);
@@ -66,6 +66,8 @@ mexFunction (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
 	  mpf_set_d (mpc_Re (f), random_perturbation);
 	  mpf_mul_eq (mpc_Re (d), mpc_Re (f));
 	}
+      /* This can be used as a crude debug for the computed coefficients */
+      /* printf("Coeff: %f\n", pow(mpf_get_d (mpc_Re (d)), 2)); */
 
       mps_monomial_poly_set_coefficient_f (ctx, mp, n - i, d);
       mpz_set (b, a);
@@ -88,13 +90,18 @@ mexFunction (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
 
   mps_mpsolve (ctx);
 
+  double * _radii = NULL;
+
   /* Only output the roots as floating point numbers if the
    * requested precision is less than 16 digits. */
   if (options.digits <= DBL_DIG + 1)
     {
-      mps_context_get_roots_d (ctx, &results, NULL);
+      mps_context_get_roots_d (ctx, &results, &_radii);
 
       roots = mxCreateDoubleMatrix (n, 1, mxCOMPLEX);
+      radii = mxCreateDoubleMatrix (n, 1, mxREAL);
+      double * radii_ptr = mxGetPr(radii);
+
       real_res = mxGetPr (roots);
       imag_res = mxGetPi (roots);
 
@@ -102,20 +109,26 @@ mexFunction (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
 	{
 	  real_res[i] = cplx_Re (results[i]);
 	  imag_res[i] = cplx_Im (results[i]);
+
+	  radii_ptr[i] = _radii[i];
 	}
 
       /* Free used data */
       cplx_vfree (results);
+      cplx_vfree (_radii);
     }
   else
     {
       mpc_t * mresults = NULL;
+      rdpe_t * _radii = NULL;
       char * buffer_r, * buffer_i;
       int ndim = 2, dims[] = { n, 4 };
 
       roots = mxCreateCellArray(ndim, dims);
+      radii = mxCreateDoubleMatrix (n, 1, mxREAL);
+      double * radii_ptr = mxGetPr(radii);
 
-      mps_context_get_roots_m (ctx, &mresults, NULL);
+      mps_context_get_roots_m (ctx, &mresults, &_radii);
       
       for (i = 0; i < n; i++)
 	{
@@ -150,13 +163,17 @@ mexFunction (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
 	  
 	  free (buffer_r);
 	  free (buffer_i);
+
+	  radii_ptr[i] = rdpe_get_d (_radii[i]);
 	}
       
+      free (_radii);
       free (mresults);
     }
 
   /* Return the roots */
   plhs[0] = roots;
+  plhs[1] = radii;
 
   mps_monomial_poly_free (ctx, MPS_POLYNOMIAL (mp));
   mps_context_free (ctx);

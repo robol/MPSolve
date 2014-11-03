@@ -180,7 +180,7 @@ MPS_PRIVATE mps_vertex *
 mps_vertex_copy (mps_context * ctx, mps_vertex * source)
 {
   mps_vertex * copy = mps_new (mps_vertex);
-  memcpy (copy, source, sizeof (mps_vertex));
+  memmove (copy, source, sizeof (mps_vertex));
   return copy;
 }
 

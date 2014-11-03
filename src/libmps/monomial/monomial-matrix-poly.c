@@ -111,7 +111,7 @@ mps_monomial_matrix_poly_set_coefficient_d (mps_context * ctx,
   /* Copy the data in the coefficients. Please note that we are assuming
    * row-major order in here. */
   cplx_t *ptr = mpoly->P + (mpoly->m * mpoly->m) * i;
-  memcpy (ptr, matrix, sizeof(cplx_t) * (mpoly->m * mpoly->m));
+  memmove (ptr, matrix, sizeof(cplx_t) * (mpoly->m * mpoly->m));
 
   for (j = 0; j < mpoly->m * mpoly->m; j++)
     {
