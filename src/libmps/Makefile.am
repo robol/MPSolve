@@ -4,8 +4,6 @@ lib_LTLIBRARIES = libmps.la
 
 includedir=${prefix}/include/mps
 
-AM_YFLAGS = -d 
-
 AM_CPPFLAGS= \
         -I${top_srcdir}/include \
         -I${top_builddir}/include \
@@ -49,8 +47,6 @@ libmps_la_SOURCES = \
 	common/user.c \
 	common/utils.c \
 	common/validation.c \
-	formal/formal-monomial.cpp \
-	formal/formal-polynomial.cpp \
 	floating-point/gmptools.c \
 	floating-point/link.c \
 	floating-point/mpc.c \
@@ -63,10 +59,8 @@ libmps_la_SOURCES = \
 	monomial/monomial-parser.c \
 	monomial/monomial-poly.c \
 	monomial/monomial-threading.c \
-	monomial/yacc-parser.y \
 	monomial/newton.c \
 	monomial/shift.c \
-	monomial/tokenizer.l \
 	secsolve/secular-ga.c \
 	secsolve/secular-iteration.c \
 	secsolve/secular-regeneration.c \

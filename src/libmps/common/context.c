@@ -19,7 +19,7 @@ static mps_context ** context_factory = NULL;
 static int context_factory_size = 0;
 static pthread_mutex_t context_factory_mutex = PTHREAD_MUTEX_INITIALIZER;
 
-#define MPS_CONTEXT_FACTORY_MAXIMUM_SIZE 1
+#define MPS_CONTEXT_FACTORY_MAXIMUM_SIZE 0
 
 long int
 mps_context_get_minimum_precision (mps_context * s)
@@ -121,7 +121,6 @@ mps_context_new ()
 
   /* Try to get a low cost context from the factory */
   pthread_mutex_lock (&context_factory_mutex);
-
   if (context_factory_size > 0)
     {
       /* Pop out a context */
@@ -141,7 +140,7 @@ mps_context_new ()
   /* Allocate the new mps_context and load default options */
   if (!ctx)
     {
-      ctx = (mps_context*) mps_malloc (sizeof(mps_context));
+      ctx = (mps_context*)mps_malloc (sizeof(mps_context));
       mps_context_init (ctx);
     }
 
@@ -357,7 +356,6 @@ mps_context_set_input_poly (mps_context * s, mps_polynomial * p)
     }
 
   int i;
-
   s->active_poly = p;
 
   if (!p->thread_safe)

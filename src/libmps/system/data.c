@@ -45,9 +45,6 @@ mps_allocate_data (mps_context * s)
   MPS_DEBUG_THIS_CALL (s);
   int i;
 
-  if (s->initialized)
-    return;
-
   s->root = mps_newv (mps_approximation *, s->n);
   for (i = 0; i < s->n; i++)
     s->root[i] = mps_approximation_new (s);

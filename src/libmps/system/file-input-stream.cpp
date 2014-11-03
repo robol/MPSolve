@@ -43,12 +43,6 @@ FileInputStream::eof ()
   return feof (mSource);
 }
 
-char
-FileInputStream::getchar ()
-{
-  return fgetc (mSource);
-}
-
 FileInputStream::~FileInputStream()
 {
 }
