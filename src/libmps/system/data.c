@@ -246,9 +246,11 @@ mps_free_data (mps_context * s)
    * recycled at a later time, and having a pointer to a possibly
    * not-anymore-valid polynomial will cause a lot of issues. */
   if (s->active_poly)
-    s->active_poly = NULL;
+     s->active_poly = NULL;
 
   mps_clusterization_free (s, s->clusterization);
+  s->clusterization = NULL;
+
   free (s->order);
 
   for (i = 0; i < s->n; i++)

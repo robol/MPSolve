@@ -246,7 +246,7 @@ mps_context_shrink (mps_context * s, int n)
 
   /* Setting some default here, that were not settable because we didn't know
    * the degree of the polynomial */
-  for (i = 0; i < s->n; i++)
+  for (i = 0; i < n; i++)
     s->root[i]->wp = DBL_DIG * LOG2_10;
 }
 
@@ -254,6 +254,7 @@ static void
 mps_context_expand (mps_context * s, int n)
 {
   int i;
+  long int previous_prec = mpc_get_prec (s->mfpc1[0]);
 
   s->root = mps_realloc (s->root, sizeof(mps_approximation*) * n);
   for (i = s->n; i < n; i++)
@@ -266,12 +267,12 @@ mps_context_expand (mps_context * s, int n)
   s->fppc1 = mps_realloc (s->fppc1, sizeof(cplx_t) * (n + 1));
   s->mfpc1 = mps_realloc (s->mfpc1, sizeof(mpc_t) * (n + 1));
 
-  for (i = s->n + 1; i <= n; i++)
-    mpc_init2 (s->mfpc1[i], 0);
+  for (i = s->n + 1; i < n + 1; i++)
+    mpc_init2 (s->mfpc1[i], previous_prec);
 
   s->mfppc1 = mps_realloc (s->mfppc1, sizeof(mpc_t) * (n + 1));
   for (i = s->n + 1; i <= n; i++)
-    mpc_init2 (s->mfppc1[i], 0);
+    mpc_init2 (s->mfppc1[i], previous_prec);
 
   /* temporary vectors */
   s->spar1 = mps_realloc (s->spar1, sizeof(mps_boolean) * (n + 2));
@@ -286,7 +287,7 @@ mps_context_expand (mps_context * s, int n)
 
   /* Setting some default here, that were not settable because we didn't know
    * the degree of the polynomial */
-  for (i = 0; i < s->n; i++)
+  for (i = 0; i < n; i++)
     s->root[i]->wp = DBL_DIG * LOG2_10;
 }
 
@@ -299,6 +300,8 @@ mps_context_resize (mps_context * s, int n)
     mps_context_expand (s, n);
   if (n < s->n)
     mps_context_shrink (s, n);
+
+  mps_cluster_reset (s);
 }
 
 void
@@ -356,7 +359,6 @@ mps_context_set_input_poly (mps_context * s, mps_polynomial * p)
   int i;
 
   s->active_poly = p;
-  s->n = p->degree;
 
   if (!p->thread_safe)
     mps_thread_pool_set_concurrency_limit (s, s->pool, 1);
@@ -365,12 +367,12 @@ mps_context_set_input_poly (mps_context * s, mps_polynomial * p)
    * a user polynomial */
   if (MPS_IS_MONOMIAL_POLY (p))
     {
+      int original_degree = p->degree;
       mps_monomial_poly *mp = MPS_MONOMIAL_POLY (p);
 
       /* Deflate the polynomial if necessary */
       mps_monomial_poly_deflate (s, p);
-      s->zero_roots = s->n - p->degree;
-      s->n = p->degree;
+      s->zero_roots = original_degree - p->degree;
 
       MPS_DEBUG_WITH_INFO (s, "Degree = %d", p->degree);
 
