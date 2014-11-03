@@ -122,6 +122,8 @@ AC_ARG_ENABLE([tcmalloc],
   AC_PROG_CXX
   AC_PROG_CC_C99
   AM_PROG_CC_C_O
+  AC_PROG_YACC
+  AC_PROG_LEX
   AC_C_INLINE
 
   # Check for some compiler options that provide significant optimizations

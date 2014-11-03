@@ -73,6 +73,11 @@ public:
      * @return true if we are at the end of the stream.
      */
     virtual bool eof () = 0;
+
+    /**
+     * @brief Read a single character from the stream. 
+     */
+    virtual char getchar() = 0;
   };
 }
 

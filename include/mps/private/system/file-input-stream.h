@@ -84,6 +84,11 @@ public:
      */
     bool eof ();
 
+    /**
+     * @brief Read a single character from the stream;
+     */
+    char getchar ();
+
 private:
     FILE * mSource;
   };

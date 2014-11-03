@@ -25,6 +25,11 @@ extern "C"
     mps_boolean eof = reinterpret_cast<AbstractInputStream*>(stream)->eof (); 
     return eof;
   }
+
+  char mps_abstract_input_stream_getchar (mps_abstract_input_stream * stream)
+  {
+    return reinterpret_cast<AbstractInputStream*>(stream)->getchar ();
+  }
 }
 
 AbstractInputStream::~AbstractInputStream()

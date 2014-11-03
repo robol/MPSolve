@@ -69,4 +69,12 @@ MemoryFileStream::eof()
   return mInputStream.eof();
 }
 
+char
+MemoryFileStream::getchar ()
+{
+  char c = mInputStream.get();
+  if (mInputStream.eof())
+    return EOF;
+  return c;
+}
 

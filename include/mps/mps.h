@@ -92,6 +92,8 @@ MPS_BEGIN_DECLS
 ssize_t getline (char **lineptr, size_t *n, FILE *stream);
 MPS_END_DECLS
 #endif
+#include <mps/private/formal/formal-monomial.h>
+#include <mps/private/formal/formal-polynomial.h>
 #include <mps/private/system/abstract-input-stream.h>
 #include <mps/private/system/file-input-stream.h>
 #include <mps/private/system/memory-file-stream.h>
