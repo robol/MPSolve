@@ -302,6 +302,12 @@ mps_thread_pool_assign (mps_context * s, mps_thread_pool * pool,
   if (!pool)
     pool = s->pool;
 
+  if (pool->n == 1)
+    {
+      (*work)(args);
+      return;
+    }
+
   /* Insert the job in the queue */
   pthread_mutex_lock (&pool->queue_changed_mutex);
 

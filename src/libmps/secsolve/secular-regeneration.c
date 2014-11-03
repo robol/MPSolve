@@ -138,13 +138,13 @@ __mps_secular_ga_regenerate_coefficients_monomial_worker (void * data_ptr)
   struct __mps_secular_ga_regenerate_coefficients_monomial_data * data = data_ptr;
 
   mps_context * s = data->s;
-  mpc_t * old_mb = data->old_mb;
-  mpc_t * bmpc = data->bmpc;
+  mpc_t * restrict old_mb = data->old_mb;
+  mpc_t * restrict bmpc = data->bmpc;
   mps_boolean * root_changed = data->root_changed;
 
   /* Pointers to the secular equation and the monomial_poly */
-  mps_secular_equation * sec = s->secular_equation;
-  mps_polynomial * p = s->active_poly;
+  mps_secular_equation * restrict sec = s->secular_equation;
+  mps_polynomial * restrict p = s->active_poly;
   int i = data->i, j;
 
   /* Multiprecision variables */

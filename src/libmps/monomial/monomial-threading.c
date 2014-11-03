@@ -213,14 +213,16 @@ mps_thread_dpolzer_worker (void *data_ptr)
         }
 
       /* Make sure that we are the only one iterating on this root */
-      pthread_mutex_lock (&data->roots_mutex[i]);
+      if (s->pool->n > 1)
+	pthread_mutex_lock (&data->roots_mutex[i]);
 
       if (s->root[i]->again)
         {
           /* Check if, while we were waiting, excep condition has been reached */
           if (*data->excep || !s->root[i]->again || (*data->nzeros > data->required_zeros))
             {
-              pthread_mutex_unlock (&data->roots_mutex[i]);
+	      if (s->pool->n > 1)
+		pthread_mutex_unlock (&data->roots_mutex[i]);
               return 0;
             }
 
@@ -269,12 +271,15 @@ mps_thread_dpolzer_worker (void *data_ptr)
               (*data->nzeros)++;
               if ((*data->nzeros) >= data->required_zeros)
                 {
-                  pthread_mutex_unlock (&data->roots_mutex[i]);
+		  if (s->pool->n > 1)
+		    pthread_mutex_unlock (&data->roots_mutex[i]);
                   return 0;
                 }
             }
         }
-      pthread_mutex_unlock (&data->roots_mutex[i]);
+
+      if (s->pool->n > 1)
+	pthread_mutex_unlock (&data->roots_mutex[i]);
     }
 
   return NULL;
@@ -313,8 +318,11 @@ mps_thread_dpolzer (mps_context * s, int *it, mps_boolean * excep, int required_
   roots_mutex = (pthread_mutex_t*)mps_malloc (sizeof(pthread_mutex_t) * s->n);
   for (i = 0; i < s->n; i++)
     {
-      pthread_mutex_init (&aberth_mutex[i], NULL);
-      pthread_mutex_init (&roots_mutex[i], NULL);
+      if (s->pool->n > 1)
+	{
+	  pthread_mutex_init (&aberth_mutex[i], NULL);
+	  pthread_mutex_init (&roots_mutex[i], NULL);
+	}
     }
 
   /* Start spawning thread */
@@ -387,7 +395,8 @@ mps_thread_mpolzer_worker (void *data_ptr)
        * working on this root. Parallel computation on the same
        * root is not useful, since we would be performing the
        * same computations.                                  */
-      pthread_mutex_lock (&data->roots_mutex[l]);
+      if (s->pool->n > 1)
+	pthread_mutex_lock (&data->roots_mutex[l]);
 
       /* MPS_DEBUG (s, "Iterating on root %d, iter %d", l, job.iter); */
 
@@ -397,7 +406,8 @@ mps_thread_mpolzer_worker (void *data_ptr)
            * or all the zeros has been approximated.                         */
           if (*data->excep || (*data->nzeros) >= data->required_zeros)
             {
-              pthread_mutex_unlock (&data->roots_mutex[l]);
+	      if (s->pool->n > 1)
+		pthread_mutex_unlock (&data->roots_mutex[l]);
               goto endfun;
             }
 
@@ -405,9 +415,11 @@ mps_thread_mpolzer_worker (void *data_ptr)
           (*data->it)++;
 
           /* Copy locally the root to work on */
-          pthread_mutex_lock (&data->aberth_mutex[l]);
+	  if (s->pool->n > 1)
+	    pthread_mutex_lock (&data->aberth_mutex[l]);
           mpc_set (mroot, s->root[l]->mvalue);
-          pthread_mutex_unlock (&data->aberth_mutex[l]);
+	  if (s->pool->n > 1)
+	    pthread_mutex_unlock (&data->aberth_mutex[l]);
 
           /* sparse/dense polynomial */
           rdpe_set (rad1, s->root[l]->drad);
@@ -434,8 +446,9 @@ mps_thread_mpolzer_worker (void *data_ptr)
               || rdpe_ne (s->root[l]->drad, rad1))
             {
               /* Global lock to aberth step to reach a real Gauss-Seidel iteration */
-              pthread_mutex_lock (data->global_aberth_mutex);
-
+	      if (s->pool->n > 1)
+		pthread_mutex_lock (data->global_aberth_mutex);
+	      
               /* Compute Aberth correction with locks so we can lock the
                * roots while reading them.                          */
               mps_maberth_s_wl (s, l, job.cluster_item->cluster, abcorr,
@@ -453,12 +466,15 @@ mps_thread_mpolzer_worker (void *data_ptr)
 
               /* Lock aberth_mutex and copy the computed root back
                * to its place                                   */
-              pthread_mutex_lock (&data->aberth_mutex[l]);
+	      if (s->pool->n > 1)
+		pthread_mutex_lock (&data->aberth_mutex[l]);
               mpc_set (s->root[l]->mvalue, mroot);
-              pthread_mutex_unlock (&data->aberth_mutex[l]);
+	      if (s->pool->n > 1)
+		pthread_mutex_unlock (&data->aberth_mutex[l]);
 
               /* Go with others aberth iterations */
-              pthread_mutex_unlock (data->global_aberth_mutex);
+	      if (s->pool->n > 1)
+		pthread_mutex_unlock (data->global_aberth_mutex);
             }
 
           /* check for new approximated roots */
@@ -467,13 +483,15 @@ mps_thread_mpolzer_worker (void *data_ptr)
               (*data->nzeros)++;
               if ((*data->nzeros) >= data->required_zeros)
                 {
-                  pthread_mutex_unlock (&data->roots_mutex[l]);
+		  if (s->pool->n > 1)
+		    pthread_mutex_unlock (&data->roots_mutex[l]);
                   goto endfun;
                 }
             }
         }
 
-      pthread_mutex_unlock (&data->roots_mutex[l]);
+      if (s->pool->n > 1)
+	pthread_mutex_unlock (&data->roots_mutex[l]);
 
       /* MPS_DEBUG_MPC (s, 15, s->root[l]->mvalue, "s->mroot[%d]", l); */
       /* MPS_DEBUG_RDPE (s, s->root[l]->drad, "s->drad[%d]", l); */
