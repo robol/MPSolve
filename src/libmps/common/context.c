@@ -16,10 +16,10 @@
 #include <string.h>
 
 static mps_context ** context_factory = NULL;
-static int context_factory_size = 1;
+static int context_factory_size = 0;
 static pthread_mutex_t context_factory_mutex = PTHREAD_MUTEX_INITIALIZER;
 
-#define MPS_CONTEXT_FACTORY_MAXIMUM_SIZE 0
+#define MPS_CONTEXT_FACTORY_MAXIMUM_SIZE 1
 
 long int
 mps_context_get_minimum_precision (mps_context * s)
