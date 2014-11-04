@@ -1,6 +1,7 @@
 if CHECK
 
 check_PROGRAMS = check_convex check_context check_mpc check_matrix check_dpe \
+	check_formal \
 	check_multithread check_cluster check_chebyshev check_parser check_utils \
 	check_monomial_poly check_list check_secsolve check_unisolve
 
@@ -9,9 +10,14 @@ TESTS = $(check_PROGRAMS)
 AM_TEST_ENVIRONMENT = \
   SRCDIR=$(abs_srcdir) BUILDDIR=$(abs_builddir)
 
-COMMON_LIBS = -lm $(GMP_LIBS) $(CHECK_LIBS) $(PTHREAD_LIBS) ${top_builddir}/src/libmps/libmpsprivate.la 
+COMMON_LIBS = -lm $(GMP_LIBS) $(CHECK_LIBS) $(PTHREAD_LIBS) ${top_builddir}/src/libmps/libmpsprivate.la -lgmpxx
 COMMON_CFLAGS = $(CHECK_CFLAGS) $(GMP_CFLAGS) $(PTHREAD_CFLAGS) -I${top_srcdir}/include -D_MPS_PRIVATE -g -O0
 COMMON_SOURCES = check_implementation.c check_implementation.h dummy.cpp
+
+ check_formal_SOURCES = check_formal.cpp $(COMMON_SOURCES)
+ check_formal_CFLAGS = $(COMMON_CFLAGS)
+ check_formal_CPPFLAGS = $(COMMON_CFLAGS)
+ check_formal_LDFLAGS = $(COMMON_LIBS) 
 
  check_list_SOURCES = check_list.c $(COMMON_SOURCES)
  check_list_CFLAGS = $(COMMON_CFLAGS)

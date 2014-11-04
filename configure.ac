@@ -313,6 +313,7 @@ AC_ARG_ENABLE([tcmalloc],
     LIBMPS_CFLAGS="-D_REENTRANT -Wall $COMPLEX_CFLAGS $LIBMPS_CFLAGS"
 
     AC_CHECK_LIB([gmp], [__gmpz_init2])
+    AC_CHECK_LIB([gmpxx], [main])
     AC_CHECK_HEADERS([gmp.h], [mpsolve_found_gmp_headers=yes; break;])
 
     # Raise an error if GMP is not correctly installed on this system.

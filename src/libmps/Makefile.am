@@ -47,6 +47,8 @@ libmps_la_SOURCES = \
 	common/user.c \
 	common/utils.c \
 	common/validation.c \
+	formal/formal-monomial.cpp \
+	formal/formal-polynomial.cpp \
 	floating-point/gmptools.c \
 	floating-point/link.c \
 	floating-point/mpc.c \

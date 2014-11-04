@@ -120,6 +120,8 @@ MPS_END_DECLS
 #include <mps/private/tools.h>
 #include <mps/private/touch.h>
 #include <mps/private/utils.h>
+#include <mps/private/formal/formal-monomial.h>
+#include <mps/private/formal/formal-polynomial.h>
 #endif
 
 #endif                          /* ndef MPSCORE_H */

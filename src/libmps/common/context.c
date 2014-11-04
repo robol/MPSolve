@@ -212,22 +212,23 @@ mps_context_shrink (mps_context * s, int n)
 {
   int i;
 
-  for (i = n; i < s->n; i++)
+  for (i = n; i < s->n - s->zero_roots; i++)
     {
       mps_approximation_free (s, s->root[i]);
     }
+
   s->root = mps_realloc (s->root, sizeof(mps_approximation*) * n);
 
   s->order = mps_realloc (s->order, sizeof(int) * n);
 
   s->fppc1 = mps_realloc (s->fppc1, sizeof(cplx_t) * (n + 1));
 
-  for (i = n + 1; i <= s->n; i++)
+  for (i = n + 1; i <= s->n - s->zero_roots; i++)
     mpc_clear (s->mfpc1[i]);
 
   s->mfpc1 = mps_realloc (s->mfpc1, sizeof(mpc_t) * (n + 1));
 
-  for (i = n + 1; i <= s->n; i++)
+  for (i = n + 1; i <= s->n- s->zero_roots; i++)
     mpc_clear (s->mfppc1[i]);
 
   s->mfppc1 = mps_realloc (s->mfppc1, sizeof(mpc_t) * (n + 1));
@@ -256,7 +257,7 @@ mps_context_expand (mps_context * s, int n)
   long int previous_prec = mpc_get_prec (s->mfpc1[0]);
 
   s->root = mps_realloc (s->root, sizeof(mps_approximation*) * n);
-  for (i = s->n; i < n; i++)
+  for (i = s->n - s->zero_roots; i < n; i++)
     {
       s->root[i] = mps_approximation_new (s);
     }
@@ -266,11 +267,11 @@ mps_context_expand (mps_context * s, int n)
   s->fppc1 = mps_realloc (s->fppc1, sizeof(cplx_t) * (n + 1));
   s->mfpc1 = mps_realloc (s->mfpc1, sizeof(mpc_t) * (n + 1));
 
-  for (i = s->n + 1; i < n + 1; i++)
+  for (i = s->n + 1 - s->zero_roots; i < n + 1; i++)
     mpc_init2 (s->mfpc1[i], previous_prec);
 
   s->mfppc1 = mps_realloc (s->mfppc1, sizeof(mpc_t) * (n + 1));
-  for (i = s->n + 1; i <= n; i++)
+  for (i = s->n + 1- s->zero_roots; i <= n; i++)
     mpc_init2 (s->mfppc1[i], previous_prec);
 
   /* temporary vectors */
@@ -294,13 +295,11 @@ void
 mps_context_resize (mps_context * s, int n)
 {
   /* We're excluding the case n == s->n that, clearly, doesn't
-   * need operations at all. */
+   * need any operation at all. */
   if (n > s->n)
     mps_context_expand (s, n);
   if (n < s->n)
     mps_context_shrink (s, n);
-
-  mps_cluster_reset (s);
 }
 
 void
@@ -308,13 +307,13 @@ mps_context_set_degree (mps_context * s, int n)
 {
   if (s->initialized)
     {
-      mps_context_resize (s, n);
-
       if (s->secular_equation != NULL)
 	{
 	  mps_secular_equation_free (s, MPS_POLYNOMIAL (s->secular_equation));
 	  s->secular_equation = NULL;
 	}
+
+      mps_context_resize (s, n);
     }
 
   s->deg = s->n = n;
