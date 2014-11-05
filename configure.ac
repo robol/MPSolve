@@ -104,7 +104,6 @@ AC_ARG_ENABLE([tcmalloc],
         [enable_tcmalloc=yes have_tcmalloc=yes])
 
 
-
 #
 # ==== LIBRARY DETECTION ==== 
 #
