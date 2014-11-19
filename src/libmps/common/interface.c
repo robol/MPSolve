@@ -101,7 +101,7 @@ mps_mpsolve_async (mps_context * s, mps_callback callback, void * user_data)
   s->callback = callback;
   s->user_data = user_data;
 
-  mps_thread_pool * private_pool = mps_thread_pool_new (s, 1);
+  mps_thread_pool * private_pool = mps_thread_pool_new (s, 2);
   s->self_thread_pool = private_pool;
   mps_thread_pool_assign (s, private_pool, (mps_thread_work)mps_caller, s);
 }
