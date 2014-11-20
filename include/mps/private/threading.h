@@ -340,6 +340,17 @@ struct mps_thread_pool {
   pthread_mutex_t work_completed_mutex;
   pthread_cond_t work_completed_cond;
   int busy_counter;
+  
+  /**
+   * @brief When this vaulue is set to true every call to mps_assign_job
+   * returns immediately. 
+   *
+   * When it is set to false the calls to mps_thread_pool_assign() when the number
+   * of thread is set to 1 will immediately perform the work, instead
+   * of delegating it to a background thread. This is done to ensure reasonable
+   * performance for the cases where only 1 CPU is available on the PC. 
+   */
+  mps_boolean strict_async;
 };
 
 /* EXPORTED ROUTINES */
@@ -362,6 +373,8 @@ void mps_thread_pool_insert_new_thread (mps_context * s, mps_thread_pool * pool)
 void mps_thread_pool_wait (mps_context * s, mps_thread_pool * pool);
 
 mps_thread_pool * mps_thread_pool_get_system_pool (mps_context * s);
+
+void mps_thread_pool_set_strict_async (mps_thread_pool * pool, mps_boolean strict_async);
 
 mps_thread_pool * mps_thread_pool_new (mps_context * s, int n_threads);
 

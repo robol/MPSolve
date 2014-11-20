@@ -302,7 +302,7 @@ mps_thread_pool_assign (mps_context * s, mps_thread_pool * pool,
   if (!pool)
     pool = s->pool;
 
-  if (pool->n == 1)
+  if (pool->n == 1 && !pool->strict_async)
     {
       (*work)(args);
       return;
@@ -437,6 +437,20 @@ mps_thread_pool_get_system_pool (mps_context * s)
 }
 
 /**
+ * @brief Set the value of the internal field strict_async of the pool.
+ *
+ * This is used to control the optimizations performed in the case where 
+ * the number of threads is 1. In case strict_async is set to true (that is
+ * currently the default value) every call to mps_thread_pool_assign() will not return
+ * immediately but instead complete the job. 
+ */
+void
+mps_thread_pool_set_strict_async (mps_thread_pool * pool, mps_boolean strict_async)
+{
+  pool->strict_async = strict_async;
+}
+
+/**
  * @brief Allocate a new thread pool and return a pointer to it,
  * with a number of threads suitable for this system.
  */
@@ -463,6 +477,7 @@ mps_thread_pool_new (mps_context * s, int n_threads)
   pthread_cond_init (&pool->work_completed_cond, NULL);
 
   pool->busy_counter = 0;
+  pool->strict_async = false;
 
   for (i = 0; i < threads; i++)
     mps_thread_pool_insert_new_thread (s, pool);
