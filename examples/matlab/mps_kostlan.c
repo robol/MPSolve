@@ -9,7 +9,7 @@ mexFunction (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
   int n, i;
 
   if (nrhs < 1)
-    mxErrMsgTxt ("Please select the value of n\n");
+    mexErrMsgTxt ("Please select the value of n\n");
 
   n = *mxGetPr(prhs[0]);
 

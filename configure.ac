@@ -498,7 +498,7 @@ AS_IF([test x$build_examples == xyes], [
 	# or the polish version of the pdftex.
 	AS_IF([test "$MEX" != ""], [
 		AC_MSG_CHECKING(if mex is the matlab compiler)
-		mex_is_matlab_output=`$MEX -help 2>&1 | grep MATLAB`
+		mex_is_matlab_output=`$MEX -help 2>&1 | grep "MATLAB\|mkoctfile"`
 		mex_is_matlab_retcode=$?
 		if [[ "$mex_is_matlab_retcode" != "0" ]]; then
 		  MEX=""
@@ -514,6 +514,9 @@ AS_IF([test x$build_examples == xyes], [
 	AS_IF([test "$MEX" != ""], [enable_matlab=yes
 	  MATLAB_MODULES_PROGRAMS="mps_roots_string mps_roots_double"])
 	AC_SUBST(MATLAB_MODULES_PROGRAMS)
+
+	AS_IF([test "$MEXOPTS" == ""], [MEXOPTS="-cxx -D__MPS_MATLAB_MODE=1 "], [])
+	AC_SUBST(MEXOPTS)
 ])
 
 AM_CONDITIONAL([BUILD_MATLAB_TOOLBOX], [test "$enable_matlab" == "yes"])

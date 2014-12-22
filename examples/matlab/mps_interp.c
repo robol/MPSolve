@@ -10,7 +10,7 @@ mexFunction (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
   int n, i;
 
   if (nrhs < 2)
-    mxErrMsgTxt ("Please select the value of n and alpha\n");
+    mexErrMsgTxt ("Please select the value of n and alpha\n");
 
   n = *mxGetPr(prhs[0]);
   double dalpha = *mxGetPr(prhs[1]);
