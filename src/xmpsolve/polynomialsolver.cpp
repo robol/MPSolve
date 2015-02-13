@@ -6,7 +6,7 @@
 #include <QRegExp>
 #include <QStringList>
 
-static double LOG2_10 = log(2) / log(10);
+static double LOG2_10 = log(10) / log(2);
 
 using namespace xmpsolve;
 
@@ -29,7 +29,8 @@ PolynomialSolver::~PolynomialSolver()
 }
 
 int
-PolynomialSolver::solvePolFile(QString selectedFile, mps_algorithm selected_algorithm, int required_digits)
+PolynomialSolver::solvePolFile(QString selectedFile, mps_algorithm selected_algorithm, int required_digits,
+                               mps_output_goal goal)
 {
     QByteArray stringData = selectedFile.toLatin1().data();
 
@@ -52,14 +53,15 @@ PolynomialSolver::solvePolFile(QString selectedFile, mps_algorithm selected_algo
     // Select the options selected by the user
     mps_context_select_algorithm(m_mpsContext, selected_algorithm);
     mps_context_set_output_prec(m_mpsContext, required_digits * LOG2_10);
-    mps_context_set_output_goal(m_mpsContext, MPS_OUTPUT_GOAL_APPROXIMATE);
+    mps_context_set_output_goal(m_mpsContext, goal);
 
     m_worker.start();
     return mps_context_get_degree (m_mpsContext);
 }
 
 int
-PolynomialSolver::solvePolFileFromContent(QString content, mps_algorithm selected_algorithm, int required_digits)
+PolynomialSolver::solvePolFileFromContent(QString content, mps_algorithm selected_algorithm, int required_digits,
+                                          mps_output_goal goal)
 {
     QByteArray stringData = content.toLatin1().data();
 
@@ -82,7 +84,7 @@ PolynomialSolver::solvePolFileFromContent(QString content, mps_algorithm selecte
     // Select the options selected by the user
     mps_context_select_algorithm(m_mpsContext, selected_algorithm);
     mps_context_set_output_prec(m_mpsContext, required_digits * LOG2_10);
-    mps_context_set_output_goal(m_mpsContext, MPS_OUTPUT_GOAL_APPROXIMATE);
+    mps_context_set_output_goal(m_mpsContext, goal);
 
     m_worker.start();
     return mps_context_get_degree (m_mpsContext);
@@ -91,7 +93,7 @@ PolynomialSolver::solvePolFileFromContent(QString content, mps_algorithm selecte
 int
 PolynomialSolver::solvePoly(Polynomial poly, PolynomialBasis basis,
                             mps_algorithm selected_algorithm,
-                            int required_digits)
+                            int required_digits, mps_output_goal goal)
 {
     m_currentPoly = poly;
 
@@ -128,7 +130,7 @@ PolynomialSolver::solvePoly(Polynomial poly, PolynomialBasis basis,
     mps_context_set_input_poly(m_mpsContext, m_mpsPoly);
     mps_context_select_algorithm(m_mpsContext, selected_algorithm);
     mps_context_set_output_prec(m_mpsContext, required_digits * LOG2_10);
-    mps_context_set_output_goal(m_mpsContext, MPS_OUTPUT_GOAL_APPROXIMATE);
+    mps_context_set_output_goal(m_mpsContext, goal);
 
     m_worker.start();
     return mps_context_get_degree (m_mpsContext);
@@ -137,7 +139,7 @@ PolynomialSolver::solvePoly(Polynomial poly, PolynomialBasis basis,
 int
 PolynomialSolver::solvePoly(QString inputString, PolynomialBasis basis,
                             mps_algorithm selected_algorithm,
-                            int required_digits)
+                            int required_digits, mps_output_goal goal)
 {
     PolynomialParser parser;
 
@@ -145,7 +147,7 @@ PolynomialSolver::solvePoly(QString inputString, PolynomialBasis basis,
     Polynomial poly = parser.parse(inputString);
 
     if (poly.degree() != 0) {
-        return solvePoly(poly, basis, selected_algorithm, required_digits);
+        return solvePoly(poly, basis, selected_algorithm, required_digits, goal);
     }
     else {
        m_errorMessage = parser.errorMessage();
@@ -173,10 +175,8 @@ PolynomialSolver::workerExited()
     QList<Root*> roots;
 
     /* Prepare some space to save the roots */
-    mpc_t * results = new mpc_t[n];
-    rdpe_t * radii = new rdpe_t[n];
-
-    mpc_vinit2 (results, n, 53);
+    mpc_t * results = NULL;
+    rdpe_t * radii  = NULL;
 
     mps_context_get_roots_m(m_mpsContext, &results, &radii);
 
@@ -199,8 +199,11 @@ PolynomialSolver::workerExited()
     }
 
     mpc_vclear (results, n);
-    delete [] results;
-    delete [] radii;
+
+    if (results != NULL)
+      free (results);
+    if (radii != NULL)
+      free (radii);
 
     // Update the internal model with the approximations
     m_rootsModel.setRoots(roots);

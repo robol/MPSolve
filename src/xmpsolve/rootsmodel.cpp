@@ -1,7 +1,7 @@
 #include "rootsmodel.h"
 #include <QDebug>
 
-static double LOG2_10 = log(2) / log(10);
+static double LOG2_10 = log(10) / log(2);
 
 namespace xmpsolve {
 

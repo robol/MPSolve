@@ -37,7 +37,7 @@ public slots:
       */
     int solvePoly(Polynomial poly, PolynomialBasis basis = MONOMIAL,
                   mps_algorithm selected_algorithm = MPS_ALGORITHM_SECULAR_GA,
-                  int required_digits = 16);
+                  int required_digits = 16, mps_output_goal goal = MPS_OUTPUT_GOAL_APPROXIMATE);
 
     /**
      * @brief Solve a polynomial specified by a .pol file.
@@ -45,7 +45,7 @@ public slots:
      * @return The degree of the polynomial.
      */
     int solvePolFile(QString selectedFile, mps_algorithm selected_algorithm = MPS_ALGORITHM_SECULAR_GA,
-                     int required_digits = 16);
+                     int required_digits = 16, mps_output_goal goal = MPS_OUTPUT_GOAL_APPROXIMATE);
 
     /**
      * @brief solvePolFileFromContent solves  a .pol file given its ontent
@@ -54,14 +54,20 @@ public slots:
      * @param required_digits The number of accurate digits required.
      * @return The degree of the polynomial.
      */
-    int solvePolFileFromContent(QString content, mps_algorithm selected_algorithm, int required_digits);
+    int solvePolFileFromContent(QString content,
+                                mps_algorithm selected_algorithm,
+                                int required_digits,
+                                mps_output_goal goal = MPS_OUTPUT_GOAL_APPROXIMATE);
 
     /** @brief Parse the string describing the polynomial
       * and solve it.
       *
       * @return The degree of the polynomial.
       */
-    int solvePoly(QString inputString, PolynomialBasis basis = xmpsolve::MONOMIAL, mps_algorithm = MPS_ALGORITHM_SECULAR_GA, int required_digits = 16);
+    int solvePoly(QString inputString, PolynomialBasis basis = xmpsolve::MONOMIAL,
+                  mps_algorithm = MPS_ALGORITHM_SECULAR_GA,
+                  int required_digits = 16,
+                  mps_output_goal goal = MPS_OUTPUT_GOAL_APPROXIMATE);
 
     /**
      * @brief errorMessage can be used to access the last error message,
