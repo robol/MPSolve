@@ -1,6 +1,8 @@
 MPSOLVE 3.1.5
 =============
 
+[![Build Status](https://travis-ci.org/robol/MPSolve.svg?branch=master)](https://travis-ci.org/robol/MPSolve)
+
  MPSolve is a C package to solve polynomials and secular equations. It released under the terms
  of the GNU General public license as it specified in the COPYING file inside the source directory.
 
