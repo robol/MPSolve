@@ -3,3 +3,6 @@ compiler:
   - gcc
   - clang
 script: ./configure && make && make check
+before_install:
+  - sudo apt-get update -qq
+  - sudo apt-get install -y libgmp-dev libtcmalloc-minimal0 check
