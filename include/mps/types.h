@@ -117,6 +117,9 @@ struct mps_thread_pool;
 struct mps_thread_pool_queue;
 struct mps_thread_pool_queue_item;
 
+/* regeneration-driver.h */
+struct mps_regeneration_driver;
+
 #else
 
 /* Forward declarations of the type used in the headers, so they can be
@@ -187,6 +190,9 @@ typedef struct mps_thread mps_thread;
 typedef struct mps_thread_pool mps_thread_pool;
 typedef struct mps_thread_pool_queue mps_thread_pool_queue;
 typedef struct mps_thread_pool_queue_item mps_thread_pool_queue_item;
+
+/* regeneration-driver.h */
+typedef struct mps_regeneration_driver mps_regeneration_driver;
 
 #endif
 

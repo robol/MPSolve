@@ -440,7 +440,7 @@ mps_secular_ga_regenerate_coefficients_monomial (mps_context * s, cdpe_t * old_b
  * where <code>s->lastphase == mp_phase</code> to determine if the roots have changed. Otherwise
  * it must be set to NULL.
  */
-static mps_boolean
+mps_boolean
 mps_secular_ga_regenerate_coefficients_mp (mps_context * s, cdpe_t * old_b, mpc_t * old_mb)
 {
   /* Declaration and initialization of the multprecision
@@ -638,14 +638,11 @@ mps_secular_ga_regenerate_coefficients (mps_context * s)
 
   s->operation = MPS_OPERATION_REGENERATION;
 
-  cplx_t *old_b, *old_a;
-  cdpe_t *old_db, *old_da;
-  mpc_t *old_ma, *old_mb;
   mps_secular_equation *sec;
   int i;
   mps_boolean successful_regeneration = true;
 
-  sec = (mps_secular_equation*)s->secular_equation;
+  sec = (mps_secular_equation*) s->secular_equation;
 
   MPS_DEBUG_WITH_INFO (s, "Regenerating coefficients");
 
@@ -673,195 +670,31 @@ mps_secular_ga_regenerate_coefficients (mps_context * s)
 
   mps_secular_ga_separate_approximations (s);
 
-  old_mb = mpc_valloc (s->n);
-  for (i = 0; i < s->n; i++)
-    mpc_init2 (old_mb[i], s->root[i]->wp);
-
   /* Start timer and add execution time to the total counter */
 #ifndef DISABLE_DEBUG
   clock_t *my_clock = mps_start_timer ();
 #endif
+
+  mps_regeneration_driver * driver = s->regeneration_driver;
 
   switch (s->lastphase)
     {
     /* If we are in the float phase regenerate coefficients
      * starting from floating point */
     case float_phase:
-
-      s->mpwp = MPS_SECULAR_EQUIVALENT_FP_PRECISION;
-
-      /* Allocate old_a and old_b */
-      old_a = cplx_valloc (s->n);
-      old_b = cplx_valloc (s->n);
-      old_db = cdpe_valloc (s->n);
-
-      /* Copy the old coefficients, and set the new
-       * b_i with the current roots approximations. */
-      for (i = 0; i < s->n; i++)
-        {
-          cplx_set (old_a[i], sec->afpc[i]);
-          cplx_set (old_b[i], sec->bfpc[i]);
-          cdpe_set_x (old_db[i], old_b[i]);
-          mpc_set_cplx (old_mb[i], old_b[i]);
-          mpc_set_prec (sec->bmpc[i], s->mpwp);
-          mpc_set (sec->bmpc[i], s->root[i]->mvalue);
-        }
-
-      /* Regeneration */
-      if (!(successful_regeneration = mps_secular_ga_regenerate_coefficients_mp (s, old_db, old_mb)))
-        {
-          for (i = 0; i < s->n; i++)
-            {
-              cplx_set (sec->afpc[i], old_a[i]);
-              cplx_set (sec->bfpc[i], old_b[i]);
-            }
-        }
-      else
-        {
-          mps_secular_ga_update_coefficients (s);
-          for (i = 0; i < s->n; i++)
-            {
-              /* We may risk that NaN or inf have been introduced because of huge
-               * coefficients computed, so let's check it and in the case of failure
-               * switch to DPE. */
-              if (cplx_check_fpe (sec->afpc[i]) || cplx_check_fpe (sec->bfpc[i]) ||
-                  (cplx_mod (sec->afpc[i]) > 1.0e300) ||
-                  (cplx_mod (sec->bfpc[i]) > 1.0e300))
-                {
-                  successful_regeneration = false;
-                  if (s->debug_level & MPS_DEBUG_REGENERATION)
-                    MPS_DEBUG (s, "Found floating point exception in regenerated coefficients, reusing old ones.");
-
-                  for (i = 0; i < s->n; i++)
-                    {
-                      cplx_set (sec->afpc[i], old_a[i]);
-                      cplx_set (sec->bfpc[i], old_b[i]);
-                    }
-                  break;
-                }
-
-              if (s->debug_level & MPS_DEBUG_REGENERATION)
-                {
-                  MPS_DEBUG_CPLX (s, sec->afpc[i], "sec->afpc[%d]", i);
-                  MPS_DEBUG_CPLX (s, sec->bfpc[i], "sec->bfpc[%d]", i);
-                }
-
-              mpc_set_cplx (s->root[i]->mvalue, s->root[i]->fvalue);
-            }
-        }
-
-      cplx_vfree (old_a);
-      cplx_vfree (old_b);
-      cdpe_vfree (old_db);
-
+      driver->update_fsecular_equation (s, s->active_poly, s->root, sec);
       mps_secular_set_radii (s);
-
       break;
 
     /* If this is the DPE phase regenerate DPE coefficients */
     case dpe_phase:
-
-      s->mpwp = MPS_SECULAR_EQUIVALENT_FP_PRECISION;
-
-      /* Allocate old_a and old_b */
-      old_da = cdpe_valloc (s->n);
-      old_db = cdpe_valloc (s->n);
-
-      /* Copy the old coefficients, and set the new
-       * b_i with the current roots approximations. */
-      for (i = 0; i < s->n; i++)
-        {
-          cdpe_set (old_da[i], sec->adpc[i]);
-          cdpe_set (old_db[i], sec->bdpc[i]);
-          mpc_get_cdpe (sec->bdpc[i], s->root[i]->mvalue);
-          mpc_set_cdpe (old_mb[i], old_db[i]);
-          mpc_set_prec (sec->bmpc[i], s->mpwp);
-          mpc_set (sec->bmpc[i], s->root[i]->mvalue);
-        }
-
-      /* Regeneration */
-      if (!(successful_regeneration = mps_secular_ga_regenerate_coefficients_mp (s, old_db, old_mb)))
-        {
-          MPS_DEBUG (s, "Regeneration failed");
-          for (i = 0; i < s->n; i++)
-            {
-              cdpe_set (sec->adpc[i], old_da[i]);
-              cdpe_set (sec->bdpc[i], old_db[i]);
-              mpc_set_cdpe (old_mb[i], old_db[i]);
-              mpc_set_cdpe (sec->ampc[i], old_da[i]);
-              mpc_set_cdpe (sec->bmpc[i], old_db[i]);
-            }
-
-          mps_secular_ga_update_coefficients (s);
-          break;
-        }
-      else
-        {
-          mps_secular_ga_update_coefficients (s);
-          for (i = 0; i < s->n; i++)
-            mpc_set_cdpe (s->root[i]->mvalue, s->root[i]->dvalue);
-          mps_secular_set_radii (s);
-        }
-
-      if (s->debug_level & MPS_DEBUG_REGENERATION)
-        {
-          for (i = 0; i < s->n; i++)
-            {
-              MPS_DEBUG_CDPE (s, sec->bdpc[i], "sec->bdpc[%d]", i);
-              MPS_DEBUG_CDPE (s, sec->adpc[i], "sec->adpc[%d]", i);
-            }
-        }
-
-      /* Free data */
-      cdpe_vfree (old_da);
-      cdpe_vfree (old_db);
-
+      driver->update_dsecular_equation (s, s->active_poly, s->root, sec);
+      mps_secular_set_radii (s);
       break;
 
     case mp_phase:
-
-      /* Allocate old_a and old_b */
-      old_ma = mpc_valloc (s->n);
-      old_db = cdpe_valloc (s->n);
-
-      mpc_vinit2 (old_ma, s->n, s->mpwp);
-
-      /* Copy the old coefficients, and set the new
-       * b_i with the current roots approximations. */
-      for (i = 0; i < s->n; i++)
-        {
-          mpc_set (old_ma[i], sec->ampc[i]);
-          mpc_set (old_mb[i], sec->bmpc[i]);
-          mpc_set_prec (sec->bmpc[i], mpc_get_prec (s->root[i]->mvalue));
-          mpc_set (sec->bmpc[i], s->root[i]->mvalue);
-          mpc_get_cdpe (old_db[i], old_mb[i]);
-        }
-
-      /* Regeneration */
-      if ((successful_regeneration = mps_secular_ga_regenerate_coefficients_mp (s, old_db, old_mb)))
-        {
-          mps_secular_ga_update_coefficients (s);
-          /* Finally set radius according to new computed a_i coefficients,
-           * if they are convenient   */
-          mps_secular_set_radii (s);
-        }
-      else
-        MPS_DEBUG (s, "Regeneration failed");
-
-      if (s->debug_level & MPS_DEBUG_REGENERATION)
-        {
-          MPS_DEBUG (s, "Dumping regenerated coefficients");
-          for (i = 0; i < s->n; i++)
-            {
-              MPS_DEBUG_MPC (s, s->mpwp, sec->ampc[i], "ampc[%d]", i);
-              MPS_DEBUG_MPC (s, s->mpwp, sec->bmpc[i], "bmpc[%d]", i);
-            }
-        }
-
-      mpc_vclear (old_ma, s->n);
-      mpc_vfree (old_ma);
-      rdpe_vfree (old_db);
-
+      driver->update_msecular_equation (s, s->active_poly, s->root, sec);
+      mps_secular_set_radii (s);
       break;
 
     default:
@@ -879,9 +712,6 @@ mps_secular_ga_regenerate_coefficients (mps_context * s)
       for (i = 0; i < s->n; i++)
         s->root[i]->again = true;
     }
-
-  mpc_vclear (old_mb, s->n);
-  mpc_vfree (old_mb);
 
   return successful_regeneration;
 }

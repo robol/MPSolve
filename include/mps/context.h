@@ -530,6 +530,13 @@ struct mps_context {
    */
   mps_boolean crude_approximation_mode;
 
+  /**
+   * @brief This is a pointer to the regeneration driver that performs the standard regeneration
+   * step. MPSolve provides a default implementation of this can be overloaded by
+   * the user. 
+   */
+  mps_regeneration_driver *regeneration_driver;
+
 };                   /* End of typedef struct { ... */
 
 #endif /* #ifdef _MPS_PRIVATE */

@@ -75,6 +75,7 @@
 #include <mps/monomial-poly.h>
 #include <mps/secular-equation.h>
 #include <mps/nroots-polynomial.h>
+#include <mps/regeneration-driver.h>
 
 /* Public interface functions for MPSolve */
 #include <mps/approximation.h>
@@ -122,6 +123,7 @@ MPS_END_DECLS
 #include <mps/private/utils.h>
 #include <mps/private/formal/formal-monomial.h>
 #include <mps/private/formal/formal-polynomial.h>
+#include <mps/private/secular-regeneration.h>
 #endif
 
 #endif                          /* ndef MPSCORE_H */

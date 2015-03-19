@@ -37,7 +37,7 @@ uninstall-local:
 	( rmdir ${DESTDIR}/${datadir}/octave/packages && rm -rf ${DESTDIR}/${datadir}/octave ) || \
 	echo "Octave package dir is not empty, not removing it"
 
-mpsolve.tar.gz: $(noinst_PROGRAMS) $(noinst_PROGRAMS:oct:cc)
+mpsolve.tar.gz: $(noinst_PROGRAMS) $(noinst_PROGRAMS:oct:cc) $(EXTRA_DIST)
 	$(AM_V_GEN)
 	$(AM_V_at) test -d package || mkdir package
 	$(AM_V_at) test -f package/COPYING || cp ${top_srcdir}/COPYING package/

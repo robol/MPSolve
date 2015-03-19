@@ -47,7 +47,7 @@ DEFUN_DLD(mps_polyeig_impl, args, nargout,
     mps_monomial_matrix_poly_add_flags (ctx, mp, MPS_MONOMIAL_MATRIX_POLY_HESSENBERG); 
   }
 
-  if (args(degree+1).string_value ().find ('d') != std::string::npos || true)
+  if (args(degree+1).string_value ().find ('d') != std::string::npos)
     mps_context_add_debug_domain (ctx, MPS_DEBUG_INFO | MPS_DEBUG_TIMINGS);
 
   mps_context_set_input_poly (ctx, MPS_POLYNOMIAL (mp)); 

@@ -66,6 +66,7 @@ libmps_la_SOURCES = \
 	secsolve/secular-ga.c \
 	secsolve/secular-iteration.c \
 	secsolve/secular-regeneration.c \
+	secsolve/standard-regeneration-driver.c \
 	secular/secular-equation.c \
 	secular/secular-evaluation.c \
 	secular/secular-newton.c \
