@@ -49,32 +49,10 @@ struct mps_regeneration_driver {
    * @brief Optional function that is called by the mps_regeneration_driver_free()
    * method. It is intended for custom regeneration driver that needs to free
    * additional data before having the function destroyed. 
-   *
-   * Note that the regeneration_driver get destroyed with the context. If you don't
-   * need to free data or if you want it to survive the lifecycle of the context, set
-   * this pointer to NULL. 
    */
   void (*free)(mps_context * ctx, mps_regeneration_driver * rd);
 
 };
-
-mps_boolean
-mps_standard_regeneration_driver_update_fsecular_equation (mps_context * s, 
-							   mps_polynomial * p, 
-							   mps_approximation ** approximations, 
-							   mps_secular_equation * sec);
-
-mps_boolean
-mps_standard_regeneration_driver_update_dsecular_equation (mps_context * s, 
-							   mps_polynomial * p, 
-							   mps_approximation ** approximations, 
-							   mps_secular_equation * sec);
-
-mps_boolean
-mps_standard_regeneration_driver_update_msecular_equation (mps_context * s, 
-							   mps_polynomial * p, 
-							   mps_approximation ** approximations, 
-							   mps_secular_equation * sec);
 
 mps_regeneration_driver *
 mps_regeneration_driver_new_standard (mps_context * ctx);

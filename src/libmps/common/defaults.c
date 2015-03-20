@@ -121,5 +121,10 @@ mps_set_default_values (mps_context * s)
   s->avoid_multiprecision = false;
   s->crude_approximation_mode = false;
 
+  /* Get a standard regeneration driver to use for MPSolve. Note that this functions
+   * does not actually allocate anything, but simply provides a pointer to the internal
+   * MPSolve implementation of the standard regeneration_driver. This instance must
+   * not be freed, since it is statically declared inside 
+   * secsolve/standard-regeneration-driver.c */   
   s->regeneration_driver = mps_regeneration_driver_new_standard (s);
 }

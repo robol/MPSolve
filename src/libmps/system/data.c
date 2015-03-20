@@ -276,7 +276,4 @@ mps_free_data (mps_context * s)
   rdpe_vfree (s->dap1);
   cdpe_vfree (s->dpc1);
   cdpe_vfree (s->dpc2);
-
-  if (s->regeneration_driver)
-    mps_regeneration_driver_free (s, s->regeneration_driver);
 }

@@ -581,6 +581,7 @@ void mps_context_set_jacobi_iterations (mps_context * s, mps_boolean jacobi_iter
 void mps_context_select_starting_strategy (mps_context * s, mps_starting_strategy strategy);
 void mps_context_set_avoid_multiprecision (mps_context * s, mps_boolean avoid_multiprecision);
 void mps_context_set_crude_approximation_mode (mps_context * s, mps_boolean crude_approximation_mode);
+void mps_context_set_regeneration_driver (mps_context * s, mps_regeneration_driver * rd);
 
 /* Debugging */
 void mps_context_set_debug_level (mps_context * s, mps_debug_level level);

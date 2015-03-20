@@ -882,3 +882,25 @@ mps_context_set_crude_approximation_mode (mps_context * s, mps_boolean crude_app
 {
   s->crude_approximation_mode = crude_approximation_mode;
 }
+
+/**
+ * @brief Select the regeneration driver implementation to use. 
+ *
+ * The user of the library can change the default regeneration driver by providing
+ * a custom implementation of mps_regeneration_driver and calling this function. 
+ *
+ * The custom implementation is obtained by hooking the function pointers defined
+ * in mps_regeneration_driver to custom routines that update a secular equation
+ * given new nodes. 
+ *
+ * As usual, three routines for every data type supported by MPSolve must be provided. 
+ *
+ * @param s The context where the change will have effect. 
+ * @param rd The custom regeneration driver. Optionally this field may be NULL to restore
+ * the default implementation. 
+ */
+void 
+mps_context_set_regeneration_driver (mps_context * s, mps_regeneration_driver * rd)
+{
+  s->regeneration_driver = rd;
+}

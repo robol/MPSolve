@@ -10,7 +10,7 @@
 
 #include <mps/mps.h>
 
-mps_boolean
+MPS_PRIVATE mps_boolean
 mps_standard_regeneration_driver_update_fsecular_equation (mps_context * s, 
 							   mps_polynomial * p, 
 							   mps_approximation ** approximations, 
@@ -94,7 +94,7 @@ mps_standard_regeneration_driver_update_fsecular_equation (mps_context * s,
   return successful_regeneration;
 }
 
-mps_boolean
+MPS_PRIVATE mps_boolean
 mps_standard_regeneration_driver_update_dsecular_equation (mps_context * s, 
 							   mps_polynomial * p, 
 							   mps_approximation ** approximations, 
@@ -174,7 +174,7 @@ mps_standard_regeneration_driver_update_dsecular_equation (mps_context * s,
   return successful_regeneration;
 }
 
-mps_boolean
+MPS_PRIVATE mps_boolean
 mps_standard_regeneration_driver_update_msecular_equation (mps_context * s, 
 						       mps_polynomial * p,
 						       mps_approximation ** approximations, 
@@ -232,17 +232,17 @@ mps_standard_regeneration_driver_update_msecular_equation (mps_context * s,
   return successful_regeneration;
 }
 
+static mps_regeneration_driver _mps_standard_regeneration_driver_instance = { 
+  mps_standard_regeneration_driver_update_fsecular_equation, 
+  mps_standard_regeneration_driver_update_dsecular_equation,
+  mps_standard_regeneration_driver_update_msecular_equation,
+  NULL
+};
+
 mps_regeneration_driver *
 mps_regeneration_driver_new_standard (mps_context * ctx)
 {
-  mps_regeneration_driver * rd = mps_new (mps_regeneration_driver);
-  
-  rd->update_fsecular_equation = mps_standard_regeneration_driver_update_fsecular_equation;
-  rd->update_dsecular_equation = mps_standard_regeneration_driver_update_dsecular_equation;
-  rd->update_msecular_equation = mps_standard_regeneration_driver_update_msecular_equation;
-  rd->free = NULL;
-
-  return rd;
+  return &_mps_standard_regeneration_driver_instance;
 }
 
 void
