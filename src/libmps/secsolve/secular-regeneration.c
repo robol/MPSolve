@@ -683,23 +683,22 @@ mps_secular_ga_regenerate_coefficients (mps_context * s)
      * starting from floating point */
     case float_phase:
       driver->update_fsecular_equation (s, s->active_poly, s->root, sec);
-      mps_secular_set_radii (s);
       break;
 
     /* If this is the DPE phase regenerate DPE coefficients */
     case dpe_phase:
       driver->update_dsecular_equation (s, s->active_poly, s->root, sec);
-      mps_secular_set_radii (s);
       break;
 
     case mp_phase:
       driver->update_msecular_equation (s, s->active_poly, s->root, sec);
-      mps_secular_set_radii (s);
       break;
 
     default:
       break;
     }                           /* End of switch (s->lastphase) */
+
+  mps_secular_set_radii (s);
 
   /* Sum execution time to the total counter */
 #ifndef DISABLE_DEBUG
