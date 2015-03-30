@@ -386,9 +386,6 @@ mps_context_set_input_poly (mps_context * s, mps_polynomial * p)
         }
     }
 
-  if (s->initialized)
-    mps_context_resize (s, p->degree);
-
   mps_context_set_degree (s, p->degree);
 }
 
