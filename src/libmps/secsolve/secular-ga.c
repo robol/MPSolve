@@ -122,6 +122,11 @@ mps_secular_ga_mpsolve (mps_context * s)
   mps_boolean just_regenerated = false;
   mps_secular_equation *sec = mps_secular_equation_from_status (s);
 
+  /* Deflate polynomial before starting, in case it's possible */
+  MPS_DEBUG_WITH_INFO (s, "Checking if the input polynomial needs to be deflated");
+  if (MPS_IS_MONOMIAL_POLY (s->active_poly))
+    mps_monomial_poly_deflate (s, s->active_poly);
+
   /* Check if the secular equation is allocated or if only the
    * polynomial is present. In the last case, allocate an empty
    * secular equation to hold the data during the computation. */
