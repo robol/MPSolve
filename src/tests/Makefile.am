@@ -10,70 +10,86 @@ TESTS = $(check_PROGRAMS)
 AM_TEST_ENVIRONMENT = \
   SRCDIR=$(abs_srcdir) BUILDDIR=$(abs_builddir)
 
-COMMON_LIBS = -lm $(GMP_LIBS) $(CHECK_LIBS) $(PTHREAD_LIBS) ${top_builddir}/src/libmps/libmpsprivate.la -lgmpxx
+COMMON_LIBS = -lm $(GMP_LIBS) $(CHECK_LIBS) $(PTHREAD_LIBS) -lgmpxx
 COMMON_CFLAGS = $(CHECK_CFLAGS) $(GMP_CFLAGS) $(PTHREAD_CFLAGS) -I${top_srcdir}/include -D_MPS_PRIVATE -g -O0
 COMMON_SOURCES = check_implementation.c check_implementation.h dummy.cpp
+COMMON_LDADD = ${top_builddir}/src/libmps/libmpsprivate.la
 
  check_formal_SOURCES = check_formal.cpp $(COMMON_SOURCES)
  check_formal_CFLAGS = $(COMMON_CFLAGS)
  check_formal_CPPFLAGS = $(COMMON_CFLAGS)
  check_formal_LDFLAGS = $(COMMON_LIBS) 
+ check_formal_LDADD = $(COMMON_LDADD)
 
  check_list_SOURCES = check_list.c $(COMMON_SOURCES)
  check_list_CFLAGS = $(COMMON_CFLAGS)
  check_list_LDFLAGS = $(COMMON_LIBS) 
+ check_list_LDADD = $(COMMON_LDADD)
 
  check_convex_SOURCES = check_convex.c $(COMMON_SOURCES)
  check_convex_CFLAGS = $(COMMON_CFLAGS)
  check_convex_LDFLAGS = $(COMMON_LIBS) 
+ check_convex_LDADD = $(COMMON_LDADD)
 
  check_parser_SOURCES = check_parser.c $(COMMON_SOURCES)
  check_parser_CFLAGS = $(COMMON_CFLAGS)
  check_parser_LDFLAGS = $(COMMON_LIBS) 
+ check_parser_LDADD = $(COMMON_LDADD)
 
  check_monomial_poly_SOURCES = check_monomial_poly.c $(COMMON_SOURCES)
  check_monomial_poly_CFLAGS = $(COMMON_CFLAGS)
  check_monomial_poly_LDFLAGS = $(COMMON_LIBS) 
+ check_monomial_poly_LDADD = $(COMMON_LDADD)
 
  check_utils_SOURCES = check_utils.c $(COMMON_SOURCES)
  check_utils_CFLAGS = $(COMMON_CFLAGS)
  check_utils_LDFLAGS = $(COMMON_LIBS) 
+ check_utils_LDADD = $(COMMON_LDADD)
 
  check_mpc_SOURCES = check_mpc.c $(COMMON_SOURCES)
  check_mpc_CFLAGS = $(COMMON_CFLAGS)
  check_mpc_LDFLAGS = $(COMMON_LIBS) 
+ check_mpc_LDADD = $(COMMON_LDADD)
 
  check_context_SOURCES = check_context.c $(COMMON_SOURCES)
  check_context_CFLAGS = $(COMMON_CFLAGS)
  check_context_LDFLAGS = $(COMMON_LIBS) 
+ check_context_LDADD = $(COMMON_LDADD)
 
  check_chebyshev_SOURCES = check_chebyshev.c $(COMMON_SOURCES)
  check_chebyshev_CFLAGS = $(COMMON_CFLAGS)
  check_chebyshev_LDFLAGS = $(COMMON_LIBS)
+ check_chebyshev_LDADD = $(COMMON_LDADD)
 
  check_matrix_SOURCES = check_matrix.c $(COMMON_SOURCES) 
  check_matrix_CFLAGS = $(COMMON_CFLAGS)
  check_matrix_LDFLAGS = $(COMMON_LIBS) 
+ check_matrix_LDADD = $(COMMON_LDADD)
 
  check_secsolve_SOURCES = check_secsolve.c $(COMMON_SOURCES)
  check_secsolve_CFLAGS = $(COMMON_CFLAGS)
  check_secsolve_LDFLAGS = $(COMMON_LIBS)
+ check_secsolve_LDADD = $(COMMON_LDADD)
 
  check_unisolve_SOURCES = check_unisolve.c $(COMMON_SOURCES)
  check_unisolve_CFLAGS = $(COMMON_CFLAGS)
  check_unisolve_LDFLAGS = $(COMMON_LIBS)
+ check_unisolve_LDADD = $(COMMON_LDADD)
 
  check_dpe_SOURCES = check_dpe.c $(COMMON_SOURCES)
  check_dpe_CFLAGS = $(COMMON_CFLAGS)
  check_dpe_LDFLAGS = $(COMMON_LIBS)
+ check_dpe_LDADD = $(COMMON_LDADD)
 
  check_multithread_SOURCES = check_multithread.c $(COMMON_SOURCES)
  check_multithread_CFLAGS = $(COMMON_CFLAGS)
  check_multithread_LDFLAGS = $(COMMON_LIBS)
+ check_multithread_LDADD = $(COMMON_LDADD)
 
  check_cluster_SOURCES = check_cluster.c $(COMMON_SOURCES)
  check_cluster_CFLAGS = $(COMMON_CFLAGS)
  check_cluster_LDFLAGS = $(COMMON_LIBS)
+ check_cluster_LDADD = $(COMMON_LDADD)
 
 endif
 
