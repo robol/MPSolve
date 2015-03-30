@@ -28,6 +28,7 @@ mps_standard_regeneration_driver_update_fsecular_equation (mps_context * s,
   old_mb = mpc_valloc (s->n);
   for (i = 0; i < s->n; i++)
     mpc_init2 (old_mb[i], approximations[i]->wp);  
+
   old_a = cplx_valloc (s->n);
   old_b = cplx_valloc (s->n);
   old_db = cdpe_valloc (s->n);
@@ -90,6 +91,9 @@ mps_standard_regeneration_driver_update_fsecular_equation (mps_context * s,
   cplx_vfree (old_a);
   cplx_vfree (old_b);
   cdpe_vfree (old_db);  
+
+  mpc_vclear (old_mb, s->n);
+  mpc_vfree (old_mb);  
 
   return successful_regeneration;
 }
