@@ -45,24 +45,40 @@ RootsModel::data(const QModelIndex &index, int role) const
         return QVariant();
     else
     {
-        rdpe_t root_module;
-        mpc_rmod (root_module, m_roots.at(i)->value);
-        int digits = (rdpe_Esp (root_module) - rdpe_Esp (m_roots.at(i)->radius)) / LOG2_10 + 1;
+	cdpe_t croot;
+	mpc_get_cdpe (croot, m_roots.at(i)->value);
+	int real_digits = (rdpe_Esp (cdpe_Re (croot)) - rdpe_Esp (m_roots.at(i)->radius)) / LOG2_10 + 1;
+	int imag_digits = (rdpe_Esp (cdpe_Im (croot)) - rdpe_Esp (m_roots.at(i)->radius)) / LOG2_10 + 1;
         char * buffer = NULL;
+
+        imag_digits = (imag_digits < 0) ? 0 : imag_digits;
+        real_digits = (real_digits < 0) ? 0 : real_digits;
 
         switch (role)
         {
             case SHORT_APPROXIMATION:
-                digits = 4;
-                // fallthrough
+                real_digits = (real_digits < 4) ? real_digits : 4;
+                imag_digits = (imag_digits < 4) ? imag_digits : 4;
+	        // fallthrough
             case Qt::DisplayRole:
-	        buffer = new char[2 * (digits + 15)];
-                if (m_roots[i]->get_imag_part() > 0)
-                    gmp_sprintf (buffer, "%.*Fe + %.*Fei", digits, mpc_Re (m_roots[i]->value),
-                                 digits, mpc_Im (m_roots[i]->value));
-                else
-                    gmp_sprintf (buffer, "%.*Fe %.*Fei", digits, mpc_Re (m_roots[i]->value),
-                                 digits, mpc_Im (m_roots[i]->value));
+	        buffer = new char[real_digits + imag_digits + 15];
+
+		if (imag_digits <= 0 && real_digits <= 0)
+		  gmp_sprintf (buffer, "0.0");
+		else if (imag_digits <= 0)
+		  gmp_sprintf (buffer, "%.*Fe", real_digits, mpc_Re (m_roots[i]->value));
+		else if (real_digits <= 0)
+		  gmp_sprintf (buffer, "%.*Fei", imag_digits, mpc_Im (m_roots[i]->value));
+		else 
+		  {
+		    if (m_roots[i]->get_imag_part() > 0)
+		      gmp_sprintf (buffer, "%.*Fe + %.*Fei", real_digits, mpc_Re (m_roots[i]->value),
+				   imag_digits, mpc_Im (m_roots[i]->value));
+		    else
+		      gmp_sprintf (buffer, "%.*Fe %.*Fei", real_digits, mpc_Re (m_roots[i]->value),
+				   imag_digits, mpc_Im (m_roots[i]->value));
+		  }
+
                 return QString(buffer);
                 break;
 
