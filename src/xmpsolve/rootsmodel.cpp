@@ -1,4 +1,5 @@
 #include "rootsmodel.h"
+#include <iostream>
 #include <QDebug>
 
 static double LOG2_10 = log(10) / log(2);
@@ -61,7 +62,7 @@ RootsModel::data(const QModelIndex &index, int role) const
                 imag_digits = (imag_digits < 4) ? imag_digits : 4;
 	        // fallthrough
             case Qt::DisplayRole:
-	        buffer = new char[real_digits + imag_digits + 15];
+	        buffer = new char[real_digits + imag_digits + 20];
 
 		if (imag_digits <= 0 && real_digits <= 0)
 		  gmp_sprintf (buffer, "0.0");
