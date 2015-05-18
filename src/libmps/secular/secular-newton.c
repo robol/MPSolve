@@ -661,7 +661,7 @@ mps_secular_mnewton (mps_context * s, mps_polynomial * p, mps_approximation * ro
       root->again = false;
     }
 
-  if (!mpc_eq_zero (corr) && root->again)
+  if (root->again || mpc_eq_zero (corr))
     {
       rdpe_t new_rad;
       rdpe_t rad_epsilon;
@@ -679,6 +679,7 @@ mps_secular_mnewton (mps_context * s, mps_polynomial * p, mps_approximation * ro
     }
 
 mnewton_cleanup:
+
   mpc_clear (ctmp);
   mpc_clear (ctmp2);
   mpc_clear (pol);

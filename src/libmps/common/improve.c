@@ -79,7 +79,8 @@ improve_root (mps_context * ctx, mps_polynomial * p, mps_approximation * root, l
   mpc_rmod (corr_mod, newton_correction);
   rdpe_add_eq (root->drad, corr_mod);
 
-  MPS_DEBUG_MPC (ctx, 15, newton_correction, "Corr");
+  if (ctx->debug_level & MPS_DEBUG_IMPROVEMENT)
+    MPS_DEBUG_MPC (ctx, 15, newton_correction, "Newton correction");
 
   mpc_rmod (corr_mod, root->mvalue);
   rdpe_set_2dl (epsilon, 1.0, 2 - precision);
