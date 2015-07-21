@@ -22,6 +22,7 @@ libmps_headers_HEADERS = \
 	nroots-polynomial.h \
 	parser.h \
         polynomial.h \
+	regeneration-driver.h \
         secular-equation.h \
 	types.h \
 	$(NULL)
