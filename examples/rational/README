@@ -1,0 +1,10 @@
+This example shows how to build a custom polynomial in order to solve
+a rational equation like the one reported here [1]. 
+
+Note that the implementation is partial, since only some multiprecision
+function have been implemented and so only the secular algorithm can
+be used for the solution. 
+
+[1]: http://mathoverflow.net/questions/120545/compute-roots-of-sum-i-c-i-a-i-b-i-xp
+
+
