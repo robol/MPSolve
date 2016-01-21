@@ -6,7 +6,8 @@ roots_of_unity_SOURCES = roots_of_unity.c
 roots_of_unity_CFLAGS = \
 	$(GTK_CFLAGS) \
 	$(CAIRO_CFLAGS) \
-	-I$(top_srcdir)/include
+	-I$(top_srcdir)/include \
+	-I${top_builddir}/include
 
 roots_of_unity_LDFLAGS = \
     $(CAIRO_LIBS) \
