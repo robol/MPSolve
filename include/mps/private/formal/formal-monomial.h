@@ -84,12 +84,6 @@ namespace mps {
       long mDegree;
     };
 
-    /**
-     * @brief A const value with a zeroMonomial that may be used to return const references
-     * for methods that need to provide a base case. 
-     */
-    static const Monomial zeroMonomial("0", 0);
-
   }
 }
 

@@ -171,7 +171,8 @@ char * build_equivalent_rational_string (mps_context * ctx, const char * orig_li
         }
     }
 
-  free (allocated_line);
+  if (allocated_line)
+    free (allocated_line);
 
   return copy;
 }

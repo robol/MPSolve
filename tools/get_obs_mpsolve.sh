@@ -10,12 +10,12 @@ cd windows-mpsolve
 
 cp ../download-mingw-rpm.py .
 
-./download-mingw-rpm.py --no-clean --deps mingw32-libqt4 mingw32-libgmp mingw32-pthreads
+./download-mingw-rpm.py --no-clean --deps mingw32-libqt4 mingw32-libgmp10 mingw32-winpthreads mingw32-libpng
 ./download-mingw-rpm.py --no-deps --no-clean -p home:lrobol mpsolve
 
 mv  usr/i686-w64-mingw32/sys-root/mingw/bin MPSolve
-rm -r usr/
-rm -r cache/
+# rm -r usr/
+# rm -r cache/
 
 cd MPSolve
 

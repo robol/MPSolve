@@ -2,6 +2,7 @@ if BUILD_MATLAB_TOOLBOX
 
 %.o: %.c
 	@$(MEX) $(MEXOPTS) $(GMP_CFLAGS) -I${top_srcdir}/include -g \
+	-I${top_builddir}/include \
 	-c $< > /dev/null
 
 noinst_PROGRAMS = $(MATLAB_MODULES_PROGRAMS)
@@ -12,7 +13,7 @@ EXTRA_PROGRAMS = mps_roots_double mps_roots_string mps_kostlan mps_interp
 EXTRA_DIST = mps_roots.m load_mpsolve.m
 
 clean-local:
-	rm -f mps_roots_double.mex* mps_roots_string.mex*
+	rm -f mps_roots_double.mex* mps_roots_string.mex* mps_koslan.mex* mps_interp.mex*
 	rm -rf mpsolve-toolbox/ 
 	rm -f mpsolve-toolbox.tar.gz
 

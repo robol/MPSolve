@@ -12,13 +12,13 @@ Polynomial::Polynomial()
 
 Polynomial::Polynomial(Monomial m)
 {
-  mMonomials.resize(m.degree() + 1, zeroMonomial);
+  mMonomials.resize(m.degree() + 1, Monomial("0", 0));
   mMonomials[m.degree()] = m;
 }
 
 Polynomial::Polynomial(const Polynomial& rhs)
 {
-  mMonomials.resize(rhs.degree() + 1, zeroMonomial);
+  mMonomials.resize(rhs.degree() + 1, Monomial("0", 0));
   for (int i = 0; i <= rhs.degree(); i++)
     {
       mMonomials[i] = rhs[i];

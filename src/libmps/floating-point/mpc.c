@@ -684,11 +684,11 @@ mpc_inp_str (mpc_t c, FILE * f, int base)
   if (fscanf (f, "(") < 0)
     return 0;
   if (!mpf_inp_str (mpc_Re (c), f, base))
-    return 0;
+    return 0; 
   if (fscanf (f, ", ") < 0)
     return 0;
-  if (!mpf_inp_str (mpc_Im (c), f, base))
-    return 0;
+  if (!mpf_inp_str (mpc_Im (c), f, base)) 
+    return 0; 
   if (fscanf (f, ")") < 0)
     return 0;
   else

@@ -18,6 +18,7 @@ EXTRA_DIST = \
 	newton.h \
 	radii.h \
 	secular-evaluation.h \
+	secular-regeneration.h \
 	solve.h \
 	sort.h \
 	starting.h \
@@ -26,6 +27,8 @@ EXTRA_DIST = \
 	tools.h \
 	touch.h \
 	utils.h \
+	formal/formal-monomial.h \
+	formal/formal-polynomial.h \
 	system/abstract-input-stream.h \
 	system/file-input-stream.h \
 	system/memory-file-stream.h \

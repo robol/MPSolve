@@ -4,4 +4,5 @@ SUBDIRS = \
 	matlab \
 	python \
 	gtk \
-	mandelbrot-solver
+	mandelbrot-solver \
+	quadratic-solver

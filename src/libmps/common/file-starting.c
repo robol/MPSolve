@@ -29,7 +29,7 @@ mps_load_approximations (mps_context * ctx, int n, FILE * input,
 
   for (i = 0; i < n; i++)
     {
-      mps_approximation * appr = approximations[i];
+      mps_approximation * appr = approximations[i];      
 
       if (mpc_inp_str (appr->mvalue, input, 10) == 0)
 	{
