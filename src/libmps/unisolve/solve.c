@@ -460,6 +460,25 @@ mps_fsolve (mps_context * s, mps_boolean * d_after_f)
       mps_thread_fpolzer (s, &nit, &excep, required_zeros--);
       it_pack += nit;
 
+      /* This flag will be set in case any floating point
+       * exception happens during this phase. In this case, we are
+       * required to switch to the DPE phase. */
+      if (s->skip_float)
+	{
+	  *d_after_f = true;
+	  s->skip_float = false;
+
+	  /* Fake that all the roots are not representable in floating point. 
+	   * In this way the following routines will take care of reinitializing the
+	   * itearation completely. */
+	  for (i = 0; i < s->n; i++)
+	    {
+	      s->root[i]->status = MPS_ROOT_STATUS_NOT_FLOAT;
+	    }
+
+	  goto fsolve_final_cleanup;
+	}
+
       if (s->DOLOG)
         fprintf (s->logstr, "Packet %d  iterations= %d\n", iter, nit);
 
@@ -791,7 +810,7 @@ mps_dsolve (mps_context * s, mps_boolean d_after_f)
 
   /* Choose starting approximations */
   if (s->DOLOG)
-    fprintf (s->logstr, "   DSOLVE: call dstart con again=\n");
+    fprintf (s->logstr, "   DSOLVE: call dstart with again=\n");
 
   mps_polynomial_dstart (s, p, s->root);
 

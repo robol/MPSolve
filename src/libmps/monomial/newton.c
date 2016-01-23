@@ -380,12 +380,17 @@ mps_mnewton (mps_context * s, mps_polynomial * poly,
 
   rdpe_add (rnew, absp, apeps);
   rdpe_div_eq (rnew, temp);
+
   if (root->again)
     rdpe_mul_d (root->drad, rnew, (double)n);
   else
     {
       rdpe_mul_d (root->drad, rnew, (double)(n + 1));
     }
+
+  mpc_rmod (az, root->mvalue);
+  rdpe_mul_eq (az, ep);
+  rdpe_add_eq (root->drad, az);
 
 exit_sub:
   mpc_clear (p1);

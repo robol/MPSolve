@@ -184,7 +184,8 @@ mps_improve (mps_context * ctx)
       if (ctx->root[i]->wp < current_precision)
         current_precision = ctx->root[i]->wp;
 
-      if (MPS_ROOT_STATUS_IS_APPROXIMATED (ctx->root[i]->status))
+      if (MPS_ROOT_STATUS_IS_APPROXIMATED (ctx->root[i]->status) ||
+	  ctx->root[i]->inclusion == MPS_ROOT_INCLUSION_OUT)
         approximated_roots++;
     }
 
@@ -197,7 +198,8 @@ mps_improve (mps_context * ctx)
       MPS_DEBUG (ctx, "Step of improvement");
 
       for (i = 0; i < ctx->n; i++)
-        if (ctx->root[i]->status == MPS_ROOT_STATUS_ISOLATED)
+        if (ctx->root[i]->status == MPS_ROOT_STATUS_ISOLATED && 
+	    ctx->root[i]->inclusion != MPS_ROOT_INCLUSION_OUT)
           {
             /* Evaluate the necessary precision to iterate on this root.
              * If the the current polynomial precision is enough, iterate on it.

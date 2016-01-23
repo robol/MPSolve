@@ -61,6 +61,16 @@ mps_thread_fpolzer_worker (void *data_ptr)
           pthread_mutex_unlock (&data->aberth_mutex[i]);
 
           mps_polynomial_fnewton (s, p, s->root[i], corr);
+
+	  if (cplx_check_fpe (corr))
+	    {
+	      /* If we get a floating point exception we need to switch to DPE
+	       * arithmetic. */
+	      s->root[i]->frad = rad1;
+	      s->skip_float = true;
+	      s->root[i]->again = false;
+	    }
+
           if (iter == 0 && !s->root[i]->again && s->root[i]->frad > rad1 && rad1 != 0)
             s->root[i]->frad = rad1;
           /***************************************
@@ -256,8 +266,6 @@ mps_thread_dpolzer_worker (void *data_ptr)
                   s->lastphase = dpe_phase;
                   cdpe_set_d (abcorr, DBL_EPSILON, 0);
                 }
-
-              MPS_DEBUG_RDPE (s, s->root[i]->drad, "drad");
 
               cdpe_div (abcorr, corr, abcorr);
               cdpe_sub_eq (s->root[i]->dvalue, abcorr);

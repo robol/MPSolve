@@ -34,6 +34,11 @@ _mps_fradii_worker (void * data_ptr)
   double new_rad, relative_error;
   int j;
 
+  mpc_t lc;
+  cplx_t ctmp;
+
+  mpc_init2 (lc, DBL_MANT_DIG);
+  mps_polynomial_get_leading_coefficient (s, p, lc);
 
   /* Compute the value of the polynomial in this point */
   mps_polynomial_feval (s, p, s->root[i]->fvalue, pol, &relative_error);
@@ -66,20 +71,54 @@ _mps_fradii_worker (void * data_ptr)
       
       new_rad /= cplx_mod (diff);
     }
-  
-  {
-    mpc_t lc;
-    cplx_t ctmp;
-    mpc_init2 (lc, DBL_MANT_DIG);
-    mps_polynomial_get_leading_coefficient (s, p, lc);
-    mpc_get_cplx (ctmp, lc);
-    new_rad /= cplx_mod (ctmp);
-    mpc_clear (lc);
-  }
-  
-  fradii[i] = new_rad + cplx_mod (s->root[i]->fvalue) * DBL_EPSILON * 2.0
+
+  /* Check for possible underflows. In case they happen, perform the
+   * computation using DPE arithmetic.*/
+  if (new_rad == 0.0) 
+    {
+      rdpe_t radius, rtmp;
+      cdpe_t cdtmp;
+
+      new_rad = cplx_mod (pol) + relative_error + cplx_mod (s->root[i]->fvalue) * 4.0 * DBL_EPSILON;
+      new_rad *= s->n;
+      
+      rdpe_set_d (radius, new_rad);
+
+      for (j = 0; j < s->n; j++)
+	{
+	  if (i == j)
+	    continue;
+      
+	  cplx_sub (diff, s->root[i]->fvalue, s->root[j]->fvalue);
+      
+	  /* Check for floating point exceptions in here */
+	  if (cplx_eq_zero (diff))
+	    {
+	      rdpe_set (radius, RDPE_MAX);
+	      break;
+	    }
+
+	  rdpe_div_eq_d (radius, cplx_mod (diff));
+	}
+
+      mpc_get_cdpe (cdtmp, lc);
+      cdpe_mod     (rtmp,  cdtmp);
+
+      rdpe_div_eq (radius, rtmp);
+      new_rad = rdpe_get_d (radius);
+    }
+  else
+    {
+      mpc_get_cplx (ctmp, lc);
+      new_rad /= cplx_mod (ctmp);
+    }
+    
+  fradii[i] = p->degree * new_rad * 
+    (1 + p->degree * DBL_EPSILON * 2.0 * sqrt(2)) + 
+    cplx_mod (s->root[i]->fvalue) * DBL_EPSILON * 2.0
     + DBL_MIN;
-  
+
+  mpc_clear (lc);
   free (data);
 
   return NULL;

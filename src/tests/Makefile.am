@@ -11,8 +11,7 @@ AM_TEST_ENVIRONMENT = \
   SRCDIR=$(abs_srcdir) BUILDDIR=$(abs_builddir)
 
 COMMON_LIBS = -lm $(GMP_LIBS) $(CHECK_LIBS) $(PTHREAD_LIBS) -lgmpxx
-COMMON_CFLAGS = $(CHECK_CFLAGS) $(GMP_CFLAGS) $(PTHREAD_CFLAGS) -I${top_srcdir}/include \ 
-	-I${top_builddir}/include -D_MPS_PRIVATE -g -O0
+COMMON_CFLAGS = $(CHECK_CFLAGS) $(GMP_CFLAGS) $(PTHREAD_CFLAGS) -I${top_builddir}/include -I${top_srcdir}/include -D_MPS_PRIVATE -g -O0
 COMMON_SOURCES = check_implementation.c check_implementation.h dummy.cpp
 COMMON_LDADD = ${top_builddir}/src/libmps/libmpsprivate.la
 
