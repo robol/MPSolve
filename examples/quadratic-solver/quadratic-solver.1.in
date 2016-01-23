@@ -1,0 +1,22 @@
+.TH MPSOLVE "1" "March 2013" "@PACKAGE_STRING@" "User Commands"
+.SH NAME
+MPSolve \- A multiprecision polynomial rootfinder
+.SH DESCRIPTION
+quadratic-solver n
+.SH OPTIONS
+.TP
+\fBn\fR
+Select the level of the Quadratic polynomial to solve. The degree of the polynomial
+will be 2^n-1. 
+.SH "SEE ALSO"
+The full documentation for
+.B MPSolve
+is maintained as a Texinfo manual.  If the
+.B info
+and
+.B MPSolve
+programs are properly installed at your site, the command
+.IP
+.B info MPSolve
+.PP
+should give you access to the complete manual.
