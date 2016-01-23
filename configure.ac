@@ -618,6 +618,7 @@ AC_CONFIG_FILES([Makefile
     examples/mandelbrot-solver/Makefile
     examples/mandelbrot-solver/mandelbrot-solver.1
     examples/quadratic-solver/Makefile
+    examples/quadratic-solver/quadratic-solver.1
     include/mps/mt.h
     src/Makefile
     src/mpsolve/Makefile
