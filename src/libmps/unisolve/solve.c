@@ -460,6 +460,16 @@ mps_fsolve (mps_context * s, mps_boolean * d_after_f)
       mps_thread_fpolzer (s, &nit, &excep, required_zeros--);
       it_pack += nit;
 
+      /* This flag will be set in case any floating point
+       * exception happens during this phase. In this case, we are
+       * required to switch to the DPE phase. */
+      if (s->skip_float)
+	{
+	  *d_after_f = true;
+	  s->skip_float = false;
+	  goto fsolve_final_cleanup;
+	}
+
       if (s->DOLOG)
         fprintf (s->logstr, "Packet %d  iterations= %d\n", iter, nit);
 
