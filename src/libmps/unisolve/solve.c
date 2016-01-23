@@ -467,6 +467,15 @@ mps_fsolve (mps_context * s, mps_boolean * d_after_f)
 	{
 	  *d_after_f = true;
 	  s->skip_float = false;
+
+	  /* Fake that all the roots are not representable in floating point. 
+	   * In this way the following routines will take care of reinitializing the
+	   * itearation completely. */
+	  for (i = 0; i < s->n; i++)
+	    {
+	      s->root[i]->status = MPS_ROOT_STATUS_NOT_FLOAT;
+	    }
+
 	  goto fsolve_final_cleanup;
 	}
 
@@ -801,7 +810,7 @@ mps_dsolve (mps_context * s, mps_boolean d_after_f)
 
   /* Choose starting approximations */
   if (s->DOLOG)
-    fprintf (s->logstr, "   DSOLVE: call dstart con again=\n");
+    fprintf (s->logstr, "   DSOLVE: call dstart with again=\n");
 
   mps_polynomial_dstart (s, p, s->root);
 

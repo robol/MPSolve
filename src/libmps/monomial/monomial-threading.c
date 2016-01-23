@@ -267,8 +267,6 @@ mps_thread_dpolzer_worker (void *data_ptr)
                   cdpe_set_d (abcorr, DBL_EPSILON, 0);
                 }
 
-              MPS_DEBUG_RDPE (s, s->root[i]->drad, "drad");
-
               cdpe_div (abcorr, corr, abcorr);
               cdpe_sub_eq (s->root[i]->dvalue, abcorr);
               cdpe_mod (rtmp, abcorr);
