@@ -15,6 +15,22 @@
 #include <math.h>
 #include <string.h>
 
+MPS_PRIVATE mps_boolean
+mps_context_has_floating_point_exceptions (mps_context * ctx)
+{
+  int i;
+
+  for (i = 0; i < ctx->n; i++)
+    if (cplx_check_fpe (ctx->root[i]->fvalue) ||
+	isnan (ctx->root[i]->frad) ||
+	isinf (ctx->root[i]->frad))
+      {
+	return true;
+      }
+
+  return false;
+}
+
 /**
  * @brief Update all the coefficients of the secular equation, and their
  * moduli, using the recomputed one stored in the multiprecision version.
@@ -217,6 +233,8 @@ mps_secular_ga_mpsolve (mps_context * s)
       else
         s->lastphase = s->input_config->starting_phase;
 
+    preliminary_aberth_packet:
+
       MPS_DEBUG_WITH_INFO (s, "Computing starting points and performing first Aberth packet");
 
       /* Perform a packet of Aberth iterations */
@@ -228,6 +246,24 @@ mps_secular_ga_mpsolve (mps_context * s)
 
           if (p->fnewton)
             mps_faberth_packet (s, p, false);
+
+	  /* Check for floating point exceptions. In case we had some
+	   * at a certain point it is necessary to restart the algorithm
+	   * in DPE. */
+	  if (mps_context_has_floating_point_exceptions (s))
+	    {
+	      /* The cluster reset is needed because at this point
+	       * we cannot trust the information stored in the cluster
+	       * analysis, and it is not convenient to do a usual phase
+	       * transition anyway: we just restart from scratch. */
+	      mps_cluster_reset (s);
+
+	      MPS_DEBUG_WITH_INFO (s, "Aberth has failed due to floating point exceptions");
+	      MPS_DEBUG_WITH_INFO (s, "The iteration will be restarted using DPE");
+
+	      s->lastphase = dpe_phase;
+	      goto preliminary_aberth_packet;
+	    }
 
           break;
 
