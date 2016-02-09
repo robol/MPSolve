@@ -9,7 +9,6 @@
 #include <mps/mps.h>
 #include <math.h>
 #include <pthread.h>
-#include <float.h>
 
 G_DEFINE_TYPE (MpsIterationLogger, mps_iteration_logger, GTK_TYPE_WINDOW);
 
