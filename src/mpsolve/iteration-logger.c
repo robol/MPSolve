@@ -103,6 +103,7 @@ mps_iteration_logger_on_expose_event (GtkWidget * widget, GdkEvent * event, MpsI
 {
   cairo_t * cr = gdk_cairo_create (widget->window);
   mps_iteration_logger_on_drawing_area_draw (widget, cr, logger);
+  cairo_destroy (cr);
 }
 #endif
 
