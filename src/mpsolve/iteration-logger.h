@@ -56,6 +56,9 @@ struct _MpsIterationLogger {
         gboolean exit;
 
         pthread_mutex_t *drawing_lock;
+        
+        /* True until the first draw operation is performed. */
+        gboolean first_draw;
 };
 
 struct _MpsIterationLoggerClass {
@@ -79,6 +82,13 @@ void mps_iteration_logger_set_mps_context (MpsIterationLogger * logger, mps_cont
  * @brief Assign to the iteration logger a set of static roots to be displayed.
  */
 void mps_iteration_logger_set_roots (MpsIterationLogger * logger, mps_approximation ** approximations, int degree);
+
+/**
+ * @brief Set the zoom level of the MpsIterationLogger. 
+ */
+void mps_iteration_logger_set_zoom (MpsIterationLogger * logger, 
+				    double x_scale, 
+				    double y_scale);
 
 
 #endif

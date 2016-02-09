@@ -9,6 +9,7 @@
 #include <mps/mps.h>
 #include <math.h>
 #include <pthread.h>
+#include <float.h>
 
 G_DEFINE_TYPE (MpsIterationLogger, mps_iteration_logger, GTK_TYPE_WINDOW);
 
@@ -59,6 +60,7 @@ mps_iteration_logger_init (MpsIterationLogger * logger)
   logger->real_center = 0.0;
   logger->imag_center = 0.0;
   logger->x_scale = logger->y_scale = 1.0;
+  logger->first_draw = true;
 
   logger->degree = 0;
 
@@ -238,6 +240,73 @@ mps_iteration_logger_draw_y_ticks (MpsIterationLogger * logger, cairo_t * cr)
   }
 }
 
+static gboolean
+mps_iteration_logger_adjust_scale_on_first_draw (MpsIterationLogger * logger)
+{
+  int i;
+
+  if (logger->ctx)
+    {
+      double x_min = INFINITY;
+      double x_max = -INFINITY;
+      double y_min = INFINITY;
+      double y_max = -INFINITY;
+      
+      logger->real_center = 0.0;
+      logger->imag_center = 0.0;
+      logger->x_scale = 0.0;
+      logger->y_scale = 0.0;
+
+      for (i = 0; i < logger->ctx->n; i++)
+	{
+	  double real_part, imag_part;
+	  cplx_t x;
+
+	  switch (logger->ctx->lastphase)
+	    {
+	    case float_phase:
+	      cplx_set (x, logger->ctx->root[i]->fvalue);
+	      break;
+
+	    case dpe_phase:
+	      cdpe_get_x (x, logger->ctx->root[i]->dvalue);
+	      break;
+
+	    case mp_phase:
+	      mpc_get_cplx (x, logger->ctx->root[i]->mvalue);
+	      break;
+
+	    case no_phase:
+	      logger->x_scale = 1.0;
+	      logger->y_scale = 1.0;
+	      return false;
+	    }
+
+	  real_part = cplx_Re (x);
+	  imag_part = cplx_Im (x);	      
+
+	  if (real_part < x_min)
+	    x_min = real_part;
+	  if (real_part > x_max)
+	    x_max = real_part;
+
+	  if (imag_part < y_min)
+	    y_min = imag_part;
+	  if (imag_part > y_max)
+	    y_max = imag_part;
+	}
+
+      logger->x_scale = x_max - x_min;
+      logger->y_scale = y_max - y_min;
+      logger->real_center = (x_max + x_min) / 2.0;
+      logger->imag_center = (y_max + y_min) / 2.0;
+    }
+  else
+    return false;
+
+  return true;
+}
+
 static void
 mps_iteration_logger_on_drawing_area_draw (GtkWidget * widget,
                                            cairo_t * cr, MpsIterationLogger * logger)
@@ -252,6 +321,12 @@ mps_iteration_logger_on_drawing_area_draw (GtkWidget * widget,
   }
 
   pthread_mutex_lock (logger->drawing_lock);
+
+  /* If this is the first time we draw something determine an appropriate scaling */     
+  if (logger->ctx && logger->first_draw)
+    {
+      logger->first_draw = !mps_iteration_logger_adjust_scale_on_first_draw (logger);
+    }
 
   width = gtk_widget_get_allocated_width (widget);
   height = gtk_widget_get_allocated_height (widget);
@@ -425,10 +500,10 @@ mps_iteration_logger_on_da_button_press (GtkWidget *widget, GdkEventButton * eve
 static void
 mps_iteration_logger_reset_zoom (MpsIterationLogger * logger)
 {
+  pthread_mutex_lock (logger->drawing_lock);
   logger->zooming = FALSE;
-  logger->real_center = 0.0;
-  logger->imag_center = 0.0;
-  logger->x_scale = logger->y_scale = 1.0;
+  mps_iteration_logger_adjust_scale_on_first_draw (logger);
+  pthread_mutex_unlock (logger->drawing_lock);
 }
 
 static void
@@ -436,6 +511,17 @@ mps_iteration_logger_on_reset_zoom_clicked (GtkWidget * button, gpointer user_da
 {
   MpsIterationLogger * logger = MPS_ITERATION_LOGGER (user_data);
   mps_iteration_logger_reset_zoom (logger);
+}
+
+void
+mps_iteration_logger_set_zoom (MpsIterationLogger * logger, 
+			       double x_scale, 
+			       double y_scale)
+{
+  pthread_mutex_lock (logger->drawing_lock);
+  logger->x_scale = x_scale;
+  logger->y_scale = y_scale;
+  pthread_mutex_unlock (logger->drawing_lock);
 }
 
 static void
