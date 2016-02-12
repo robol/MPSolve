@@ -492,21 +492,23 @@ AM_CONDITIONAL([BUILD_OCT_FILE], [test "$enable_octave" == "yes"])
 # to be mps_roots.mexglx if we are on a 32 bit pc
 # and mps_roots.mexglxa64 if we are on a 64 bit machine.
 AS_IF([test x$build_examples == xyes], [
-	AC_CHECK_PROGS([MEX], [mex])
 
-	# We need to test if MEX is the matlab compiler
-	# or the polish version of the pdftex.
-	AS_IF([test "$MEX" != ""], [
-		AC_MSG_CHECKING(if mex is the matlab compiler)
-		mex_is_matlab_output=`$MEX -help 2>&1 | grep "MATLAB\|mkoctfile"`
-		mex_is_matlab_retcode=$?
-		if [[ "$mex_is_matlab_retcode" != "0" ]]; then
-		  MEX=""
-		  AC_MSG_RESULT(no)
-		else
-		  AC_MSG_RESULT(yes)
-		fi
-	], [])
+	# The following very involved check is needed since mex is also the name
+	# of the polish TeX compiler. If both are in path we need to test all the
+	# possibilities until we found the _real_ mex compiler. 
+	AC_CACHE_CHECK([for a valid mex compiler], [ac_cv_path_MEX], 
+	AC_PATH_PROGS_FEATURE_CHECK([MEX], [mex], 
+	[[mex_is_matlab_output=`$ac_path_MEX -help 2>&1 | grep "MATLAB\|mkoctfile"`
+	  mex_is_matlab_retcode=$?
+	  if [[ "$mex_is_matlab_retcode" != "0" ]]; then
+	    MEX=""
+          else
+            ac_cv_path_MEX=$ac_path_MEX
+	    MEX=$ac_path_MEX
+          fi]]))
+
+	# Set the MEX compiler if that has been found
+	MEX=$ac_cv_path_MEX
 
 	# If we have find a valid Matlab compiler then add
 	# MATLAB to the target of compilation
