@@ -509,6 +509,7 @@ AS_IF([test x$build_examples == xyes], [
 
 	# Set the MEX compiler if that has been found
 	MEX=$ac_cv_path_MEX
+	AC_SUBST(MEX)
 
 	# If we have find a valid Matlab compiler then add
 	# MATLAB to the target of compilation
