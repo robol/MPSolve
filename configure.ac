@@ -498,18 +498,20 @@ AS_IF([test x$build_examples == xyes], [
 	# possibilities until we found the _real_ mex compiler. 
 	AC_CACHE_CHECK([for a valid mex compiler], [ac_cv_path_MEX], 
 	AC_PATH_PROGS_FEATURE_CHECK([MEX], [mex], 
-	[[mex_is_matlab_output=`$ac_path_MEX -help 2>&1 | grep "MATLAB\|mkoctfile"`
+	[[
+          mex_is_matlab_output=`$ac_path_MEX -help 2>&1 | grep "MATLAB\|mkoctfile"`
 	  mex_is_matlab_retcode=$?
 	  if [[ "$mex_is_matlab_retcode" != "0" ]]; then
 	    MEX=""
           else
             ac_cv_path_MEX=$ac_path_MEX
 	    MEX=$ac_path_MEX
-          fi]]))
+          fi
+          ]]))
 
 	# Set the MEX compiler if that has been found
 	MEX=$ac_cv_path_MEX
-	AC_SUBST(MEX)
+	AC_SUBST(MEX)	
 
 	# If we have find a valid Matlab compiler then add
 	# MATLAB to the target of compilation
@@ -518,8 +520,31 @@ AS_IF([test x$build_examples == xyes], [
 	  MATLAB_MODULES_PROGRAMS="mps_roots_string mps_roots_double"])
 	AC_SUBST(MATLAB_MODULES_PROGRAMS)
 
-	AS_IF([test "$MEXOPTS" == ""], [MEXOPTS="-cxx -D__MPS_MATLAB_MODE=1 "], [])
+	# If we have found the MATLAB compiler, check how the 
+	# -output option has to specified. 
+	AS_IF([test "$MEX" != ""], [
+	AC_CACHE_CHECK([for the correct way to give -output to the mex compiler], 
+		[ac_cv_MEX_OUTPUT_FLAG], [
+            mex_is_matlab_output=`$MEX -help 2>&1 | grep "MATLAB\|mkoctfile"`
+            echo $mex_is_matlab_output | grep mkoctfile > /dev/null
+            if [[ $? -eq 0 ]]; then
+              ac_cv_MEX_OUTPUT_FLAG="-o"
+            else
+              ac_cv_MEX_OUTPUT_FLAG="-output"
+            fi
+	])])
+
+	MEX_OUTPUT_FLAG=$ac_cv_MEX_OUTPUT_FLAG
+	AC_SUBST(MEX_OUTPUT_FLAG)
+
+	# If this is the MATLAB mex compiler (and not the GNU/Octave one)
+	# we will need to enable also some other flags. 
+	AS_IF([test "$MEX_OUTPUT_FLAG" == "-output"], [MEXOPTS="-cxx -D__MPS_MATLAB_MODE=1 "], [])
 	AC_SUBST(MEXOPTS)
+
+
+
+		
 ])
 
 AM_CONDITIONAL([BUILD_MATLAB_TOOLBOX], [test "$enable_matlab" == "yes"])
