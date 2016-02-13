@@ -2,7 +2,7 @@ language: c
 compiler: 
   - gcc
   - clang
-script: ./autogen.sh && ./configure MEX=mkoctfile MEXOPTS="--mex" && make && make check
+script: ./autogen.sh && ./configure MEX=mkoctfile MEXOPTS="--mex" && make V=1 && make check V=1
 before_install:
   - sudo apt-get update -qq
   - sudo apt-get install -y libgmp-dev libtcmalloc-minimal0 check octave3.2-headers
