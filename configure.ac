@@ -539,12 +539,18 @@ AS_IF([test x$build_examples == xyes], [
 
 	# If this is the MATLAB mex compiler (and not the GNU/Octave one)
 	# we will need to enable also some other flags. 
-	AS_IF([test "$MEX_OUTPUT_FLAG" == "-output"], [MEXOPTS="-cxx -D__MPS_MATLAB_MODE=1 "], [])
+	AS_IF([test "$MEX_OUTPUT_FLAG" == "-output"], [
+            MEXOPTS="-cxx -D__MPS_MATLAB_MODE=1 "
+            MEX_OUTPUT_SUFFIX=""
+	    MEX_LDFLAGS_PREFIX="LDFLAGS="
+        ], [
+            MEX_OUTPUT_SUFFIX=".mex"
+	    MEX_LDFLAGS_PREFIX=""
+        ])
+
 	AC_SUBST(MEXOPTS)
-
-
-
-		
+	AC_SUBST(MEX_OUTPUT_SUFFIX)		
+	AC_SUBST(MEX_LDFLAGS_PREFIX)
 ])
 
 AM_CONDITIONAL([BUILD_MATLAB_TOOLBOX], [test "$enable_matlab" == "yes"])

@@ -17,8 +17,9 @@ clean-local:
 	rm -rf mpsolve-toolbox/ 
 	rm -f mpsolve-toolbox.tar.gz
 
-MPS_LINK_COMMAND = $(MEX) $(MEXOPTS) $(MEX_OUTPUT_FLAG) $@ -L${top_builddir}/src/libmps/.libs \
-	$(GMP_LIBS) -lmps -lm -lgmp -Wl,-R. > /dev/null
+MPS_LINK_COMMAND = $(MEX) $(MEXOPTS) $(MEX_OUTPUT_FLAG) $@$(MEX_OUTPUT_SUFFIX) \
+        -L${top_builddir}/src/libmps/.libs \
+	$(GMP_LIBS) -lmps -lm -lgmp $(MEX_LDFLAGS_PREFIX)-Wl,-R. > /dev/null
 
 mps_kostlan_SOURCES = mps_kostlan.c mps_option_parser.c mps_option_parser.h
 mps_kostlan_LINK = ${MPS_LINK_COMMAND}

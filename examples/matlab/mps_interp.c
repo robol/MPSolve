@@ -135,25 +135,30 @@ mexFunction (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
 
 	  mpc_clear (mresults[i]);
 
-	  mxSetCell (roots, 
-		     mxCalcSingleSubscript(roots, 2, (int[]) { i, 0 }), 
+	  int i0[] = { i, 0 };
+          int i1[] = { i, 1 };
+	  int i2[] = { i, 2 };
+	  int i3[] = { i, 3 };
+
+	  mxSetCell (roots,
+		     mxCalcSingleSubscript(roots, 2, i0),
 		     mxCreateString(buffer_r));
 
 	  mxArray * rexpM = mxCreateDoubleMatrix (1, 1, mxREAL);
 	  mxGetPr(rexpM)[0] = rexp;
 	  mxSetCell (roots,
-		     mxCalcSingleSubscript(roots, 2, (int[]) { i, 1}),
+		     mxCalcSingleSubscript(roots, 2, i1),
 		     rexpM);
 
 	  mxSetCell (roots, 
-		     mxCalcSingleSubscript(roots, 2, (int[]) { i, 2 }),
+		     mxCalcSingleSubscript(roots, 2, i2),
 		     mxCreateString(buffer_i));
 
 	  mxArray * iexpM = mxCreateDoubleMatrix (1, 1, mxREAL);
 	  mxGetPr(iexpM)[0] = iexp;
 
 	  mxSetCell (roots, 
-		     mxCalcSingleSubscript(roots, 2, (int[]) {i, 3}),
+		     mxCalcSingleSubscript(roots, 2, i3),
 		     iexpM);
 	  
 	  free (buffer_r);
