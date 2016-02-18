@@ -192,7 +192,7 @@ extern "C"
 /* relational operators */
 #define cplx_eq_zero(x) (*x == 0.0)
 #define cplx_eq(x,y) (*x == *y)
-#define cplx_ne(x,y) (*x != éy)
+#define cplx_ne(x,y) (*x != *y)
 
 /* I/O functions */
   int cplx_out_str_u (FILE * f, const cplx_t x);
