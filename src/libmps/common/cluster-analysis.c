@@ -710,7 +710,10 @@ mps_mcluster (mps_context * s, rdpe_t * drad, int nf)
 	  rdpe_add_eq (new_rad, drad[k]);
 
 	  if (rdpe_lt (new_rad, s->root[k]->drad))
-	    rdpe_set (s->root[k]->drad, new_rad);
+            {
+	      rdpe_set (s->root[k]->drad, new_rad);
+              s->root[k]->frad = rdpe_get_d (s->root[k]->drad);
+            }
 	}
     }
 
