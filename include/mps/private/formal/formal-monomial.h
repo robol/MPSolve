@@ -28,11 +28,20 @@ typedef struct mps_formal_monomial mps_formal_monomial;
 
 mps_formal_monomial * mps_formal_monomial_new_with_string (const char *, long);
 
+mps_formal_monomial * mps_formal_monomial_new_with_strings (const char * real, const char * imag, 
+							    long degree);
+
 void mps_formal_monomial_free (mps_formal_monomial*);
 
 void mps_formal_monomial_print (mps_formal_monomial*);
 
 mps_formal_monomial * mps_formal_monomial_neg (mps_formal_monomial * m);
+
+mps_formal_monomial * mps_formal_monomial_mul_eq (mps_formal_monomial * m, 
+						  mps_formal_monomial * other);
+
+mps_formal_monomial * mps_formal_monomial_mul (mps_formal_monomial * m,
+					       mps_formal_monomial * other);
 
 MPS_END_DECLS
 
@@ -60,10 +69,22 @@ namespace mps {
       Monomial(const char * coeff_string, long degree);
 
       /**
+       * @brief Create a monomial starting from a string representing the
+       * coefficient and an integer representing the degree. 
+       */
+      Monomial(const char * real_part, const char * imag_part, long degree);
+
+      /**
        * @brief Create a monomial with the given coefficient and of the specified
        * degree. 
        */
       Monomial(const mpq_class coeff, long degree);
+
+      /**
+       * @brief Create a monomial with the given coefficient and of the specified
+       * degree. 
+       */
+      Monomial(const mpq_class real, const mpq_class imag, long degree);
 
       /**
        * @brief Copy constructor. 
@@ -78,21 +99,49 @@ namespace mps {
       const long degree() const { return mDegree; }
 
       /**
-       * @brief Access the GMP coefficient stored inside the Monomial.
+       * @brief Access the real GMP coefficient stored inside the Monomial.
        */
-      const mpq_class coefficient() const { return mCoeff; }
+      const mpq_class coefficientReal() const { return mCoeffR; }
+      
+      /**
+       * @brief Access the imaginary GMP coefficient stored inside the Monomial.
+       */
+      const mpq_class coefficientImag() const { return mCoeffI; }
 
       /**
        * @brief Check if this is the zero monomial. 
        */
       bool isZero() const;
 
+      /**
+       * @brief Check whether the monomial has a real coefficient. 
+       */
+      bool isReal() const;
+
+      /**
+       * @brief Check whether the monomial has a real coefficient. 
+       */
+      bool isImag() const;
+
       Monomial operator-();
+
+      /**
+       * @brief Multiply two monomials together. 
+       */
+      Monomial& operator*=(const Monomial& other);
+
+      /**
+       * @brief Multiply two monomials together. 
+       */
+      Monomial operator*(const Monomial& other) const;
 
       friend std::ostream& operator<<(std::ostream& os, const Monomial& l);
 
     private:
-      mpq_class mCoeff;
+      mpq_class mCoeffR;
+
+      mpq_class mCoeffI;
+
       long mDegree;
     };
 

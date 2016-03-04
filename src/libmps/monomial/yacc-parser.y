@@ -3,6 +3,7 @@
 %parse-param { void * data }
 %lex-param { void * scanner }
 %lex-param { void * data }
+%debug
 
 %{
 
@@ -40,7 +41,10 @@
 
 %}
 
-%token RATIONAL FLOATING_POINT MONOMIAL PLUS MINUS
+%token RATIONAL FLOATING_POINT MONOMIAL PLUS MINUS IMAGINARY_UNIT TIMES LEFT_BRACKET RIGHT_BRACKET
+%left PLUS MINUS
+%left TIMES
+%right IMAGINARY_UNIT
 
 %%
 
@@ -54,35 +58,33 @@ polynomial: monomial
 	      printf ("Created polynomial: "); mps_formal_polynomial_print ($$); printf ("\n");
 #endif
 	    }
-	    | polynomial PLUS monomial
+            | LEFT_BRACKET polynomial RIGHT_BRACKET
+            {
+              $$ = $2;
+            }
+            | polynomial TIMES polynomial
 	    {
-#ifdef MPS_PARSER_DEBUG
-	      printf ("Extending polynomial: "); mps_formal_polynomial_print ($1);
-	      printf (" with "); mps_formal_monomial_print ((mps_formal_monomial*) $3); printf ("\n");
-#endif
+	      $$ = mps_formal_polynomial_mul_eq ($1, $3);
+	      mps_formal_polynomial_free ($3);
 
-	      $$ = mps_formal_polynomial_sum_eq ($1, (mps_formal_monomial*) $3);
-	      mps_formal_monomial_free ((mps_formal_monomial *) $3);
+	      ((_mps_yacc_parser_data *) data)->p = $$;
 
 #ifdef MPS_PARSER_DEBUG
-	      printf ("Extended polynomial: "); mps_formal_polynomial_print ($$); printf ("\n");
-	      printf ("Polynomial: %p\n", $$);
+	      printf ("Multiplied polynomials:"); mps_formal_polynomial_print ($$);
+	      printf ("\n");
 #endif
 	    }
-	    | polynomial MINUS monomial
+            | polynomial PLUS polynomial
+            {
+              $$ = mps_formal_polynomial_sum_eq_p ($1, $3);
+	      mps_formal_polynomial_free ($3);
+	      ((_mps_yacc_parser_data *) data)->p = $$;
+            }
+            | polynomial MINUS polynomial
 	    {
-#ifdef MPS_PARSER_DEBUG
-	      printf ("Extending polynomial: "); mps_formal_polynomial_print ($1); printf (" with -"); 
-	      mps_formal_monomial_print ((mps_formal_monomial*) $3); printf ("\n");
-#endif
-
-	      $$ = mps_formal_polynomial_sub_eq ($1, (mps_formal_monomial*) $3);
-	      mps_formal_monomial_free ((mps_formal_monomial *) $3);
-
-#ifdef MPS_PARSER_DEBUG
-	      printf ("Extended polynomial: "); mps_formal_polynomial_print ($$); printf ("\n");	      
-	      printf ("Polynomial: %p\n", $$);
-#endif
+              $$ = mps_formal_polynomial_sub_eq_p ($1, $3);
+	      mps_formal_polynomial_free ($3);
+	      ((_mps_yacc_parser_data *) data)->p = $$;
 	    }
 
 monomial: MINUS monomial
@@ -96,7 +98,7 @@ monomial: MINUS monomial
               mps_formal_monomial_free ((mps_formal_monomial*) $2);
             }
 
-monomial: RATIONAL
+number: RATIONAL
 	  {
 #ifdef MPS_PARSER_DEBUG
 	    printf ("Rational coefficient: %s\n", (const char *) $1);
@@ -113,7 +115,21 @@ monomial: RATIONAL
 	    free ($1);
 	    $$ = (mps_formal_polynomial *) m; 
 	  }
-	  | MONOMIAL 
+          | number IMAGINARY_UNIT
+          {
+            #ifdef MPS_PARSER_DEBUG
+	    printf ("Imaginary rule\n");
+	    printf ("Number: "); mps_formal_monomial_print ((mps_formal_monomial *) $1); printf (" i\n");
+            #endif
+
+	    mps_formal_monomial * imunit = mps_formal_monomial_new_with_strings ("0", "1", 0);
+            $$ = (mps_formal_polynomial *) mps_formal_monomial_mul_eq (imunit, 
+								       (mps_formal_monomial*) $1);
+	    mps_formal_monomial_free ((mps_formal_monomial*) $1);
+          }
+
+
+monomial: MONOMIAL 
 	  {
 #ifdef MPS_PARSER_DEBUG
  	    printf ("Simple monomial: %s\n", (const char *) $1);
@@ -124,32 +140,22 @@ monomial: RATIONAL
 	    $$ = (mps_formal_polynomial*) mps_formal_monomial_new_with_string ("1", degree);
 	    free ($1);
 	  }
-	  | RATIONAL MONOMIAL
+	  | number MONOMIAL
 	  {
 #ifdef MPS_PARSER_DEBUG
-	    printf ("Coefficient: %s, Basis element: %s\n", (const char*) $1, (const char*) $2);
+	    printf ("Number: "); mps_formal_monomial_print ((mps_formal_monomial *) $1); 
+	    printf (" Monomial: %s\n", (const char *) $2); 
 #endif
-
 	    const char * exp = strchr ((const char *) $2, '^');
 	    long degree = (exp == NULL) ? 1 : atoi (exp + 1);
-	    $$ = (mps_formal_polynomial*) mps_formal_monomial_new_with_string ((const char *) $1, degree);
+	    mps_formal_monomial * m = mps_formal_monomial_new_with_string ("1", degree);
 
-	    free ($1);
-	    free ($2);
+	    $$ = (mps_formal_polynomial*) mps_formal_monomial_mul_eq ((mps_formal_monomial *) $1, m);
+	    mps_formal_monomial_free ((mps_formal_monomial *) m);
 	  }
-	  | FLOATING_POINT MONOMIAL
+          | number 
 	  {
-#ifdef MPS_PARSER_DEBUG
-	    printf ("Coefficient: %s %s\n", (const char *) $1, (const char*) $2);
-#endif
-
-	    const char * exp = strchr ((const char *) $2, '^');
-	    long degree = (exp == NULL) ? 1 : atoi (exp + 1);
-	    $$ = (mps_formal_polynomial*) mps_formal_monomial_new_with_string ((const char *) $1, degree);
-
-	    free ($1);
-	    free ($2);
+	    $$ = $1;
 	  }
-
 
 %%

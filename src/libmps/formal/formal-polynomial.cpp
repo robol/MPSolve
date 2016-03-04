@@ -31,6 +31,24 @@ extern "C" {
     return reinterpret_cast<mps_formal_polynomial*> (poly);
   }
 
+  mps_formal_polynomial * 
+  mps_formal_polynomial_sum_eq_p (mps_formal_polynomial * p, 
+				  mps_formal_polynomial * m)
+  {
+    Polynomial * poly = reinterpret_cast<Polynomial*> (p);
+    *poly += *reinterpret_cast<Polynomial*> (m);
+    return reinterpret_cast<mps_formal_polynomial*> (poly);
+  }
+
+  mps_formal_polynomial *
+  mps_formal_polynomial_sub_eq_p (mps_formal_polynomial * p, 
+				  mps_formal_polynomial * m)
+  {
+    Polynomial * poly = reinterpret_cast<Polynomial*> (p);
+    *poly -= *reinterpret_cast<Polynomial*> (m);
+    return reinterpret_cast<mps_formal_polynomial*> (poly);
+  }
+
   mps_monomial_poly * 
   mps_formal_polynomial_create_monomial_poly (mps_formal_polynomial * p,
 					      mps_context * ctx)
@@ -38,16 +56,42 @@ extern "C" {
     return reinterpret_cast<Polynomial*> (p)->createMonomialPoly (ctx);
   }
 
+  mps_formal_polynomial * 
+  mps_formal_polynomial_mul_eq (mps_formal_polynomial * p, 
+				mps_formal_polynomial * q)
+  {
+    Polynomial * poly = reinterpret_cast<Polynomial*> (p);
+    *poly *= *reinterpret_cast<Polynomial*>(q);
+    return reinterpret_cast<mps_formal_polynomial*> (poly);
+  }
+
+  mps_formal_polynomial *
+  mps_formal_polynomial_mul (mps_formal_polynomial * p,
+			     mps_formal_polynomial * q)
+  {
+    Polynomial * poly = new Polynomial(*reinterpret_cast<Polynomial*>(p) * 
+				       *reinterpret_cast<Polynomial*>(q));
+    return reinterpret_cast<mps_formal_polynomial*> (poly);
+  }
+
   void
   mps_formal_polynomial_print (mps_formal_polynomial * p)
   {
     std::cout << *reinterpret_cast<Polynomial*> (p);
+  }
+
+  void
+  mps_formal_polynomial_free (mps_formal_polynomial * p)
+  {
+    delete reinterpret_cast<Polynomial*> (p);
   }
   
 }
 
 Polynomial::Polynomial()
 {
+  mMonomials.resize(1);
+  mMonomials[0] = Monomial("0", 0);
 }
 
 Polynomial::Polynomial(Monomial m)
@@ -85,7 +129,7 @@ Polynomial::operator-=(const Monomial& m)
 }
 
 Polynomial
-Polynomial::operator-(const Monomial& m)
+Polynomial::operator-(const Monomial& m) const
 {
   Polynomial out = *this;
   out -= m;
@@ -105,7 +149,8 @@ Polynomial::operator+=(const Monomial& m)
 	}
       else
 	{
-	  mMonomials[m.degree()] = Monomial(currentMonomial.coefficient() + m.coefficient(), 
+	  mMonomials[m.degree()] = Monomial(currentMonomial.coefficientReal() + m.coefficientReal(), 
+					    currentMonomial.coefficientImag() + m.coefficientImag(),
 					    m.degree());
 	}
     }
@@ -125,11 +170,75 @@ Polynomial::operator+=(const Monomial& m)
 }
 
 Polynomial
-Polynomial::operator+(const Monomial& m)
+Polynomial::operator+(const Monomial& m) const
 {
   Polynomial out = *this;
   out += m;
   return out;
+}
+
+Polynomial&
+Polynomial::operator+=(const Polynomial& p)
+{
+  for (int i = 0; i<= p.degree(); i++)
+    *this += p[i];
+  return *this;
+}
+
+Polynomial
+Polynomial::operator+(const Polynomial& p) const
+{
+  Polynomial result = *this;
+  result += p;
+  return result;
+}
+
+Polynomial&
+Polynomial::operator-=(const Polynomial& p)
+{
+  for (int i = 0; i<= p.degree(); i++)
+    *this -= p[i];
+  return *this;
+}
+
+Polynomial
+Polynomial::operator-(const Polynomial& p) const
+{
+  Polynomial result = *this;
+  result -= p;
+  return result;
+}
+
+Polynomial&
+Polynomial::operator*=(const Polynomial& other)
+{
+  Polynomial self = *this * other;
+
+  mMonomials.resize(self.degree() + 1, Monomial("0", 0));
+  for (int i = 0; i <= self.degree(); i++)
+    {
+      mMonomials[i] = self[i];
+    }
+
+  return *this;
+}
+
+Polynomial
+Polynomial::operator*(const Polynomial& other) const
+{
+  Polynomial result;
+
+  for (int i = 0; i <= degree() + other.degree(); i++)
+    {
+      for (int j = MAX(0, i - degree()); 
+	   j <= MIN(other.degree(), i);
+	   j++)
+	{
+	  result += mMonomials[i-j] * other.mMonomials[j];	  
+	}
+    }  
+
+  return result;
 }
 
 Polynomial::~Polynomial()
@@ -162,15 +271,22 @@ mps::formal::operator<<(std::ostream& os, const mps::formal::Polynomial& p)
 
       if (!c.isZero())
 	{
-	  if (c.coefficient() >= 0)
+	  if (c.isReal() || c.isImag())
 	    {
-	      os << " + " ;
-	      os << c;
+	      if (c.coefficientReal() >= 0 && c.coefficientImag() >= 0)
+		{
+		  os << " + " ;
+		  os << c;
+		}
+	      else
+		{
+		  os << " - ";
+		  os << -c;
+		}
 	    }
 	  else
 	    {
-	      os << " - ";
-	      os << -c;
+	      os << " + " << c;
 	    }
 	}
     }
@@ -182,20 +298,20 @@ mps_monomial_poly *
 Polynomial::createMonomialPoly (mps_context * ctx) const
 {
   mps_monomial_poly * mp = mps_monomial_poly_new (ctx, degree());
-  mpq_t zero, c;
+  mpq_t cr, ci;
 
-  mpq_init (zero);
-  mpq_init (c);
-  mpq_set_ui (zero, 0U, 1U);
+  mpq_init (cr);
+  mpq_init (ci);
   
   for (int i = 0; i <= degree(); i++)
     {
-      mpq_set (c, mMonomials[i].coefficient().get_mpq_t());
-      mps_monomial_poly_set_coefficient_q (ctx, mp, i, c, zero);
+      mpq_set (cr, mMonomials[i].coefficientReal().get_mpq_t());
+      mpq_set (ci, mMonomials[i].coefficientImag().get_mpq_t());
+      mps_monomial_poly_set_coefficient_q (ctx, mp, i, cr, ci);
     }
 
-  mpq_clear (c);
-  mpq_clear (zero);
+  mpq_clear (cr);
+  mpq_clear (ci);
 
   return mp;
 }

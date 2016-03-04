@@ -48,8 +48,8 @@ AC_ARG_ENABLE([debug-build],
 	 )         
 
 AS_IF([test x$enable_debug_build == xno], [], [
-	  CFLAGS=""
-	  CXXFLAGS=""
+	  # CFLAGS=""
+	  # CXXFLAGS=""
           LIBMPS_CFLAGS="$LIBMPS_CFLAGS -O0 -g"
       ]
 )

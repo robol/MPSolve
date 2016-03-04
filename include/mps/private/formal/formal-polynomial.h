@@ -34,10 +34,24 @@ mps_formal_polynomial * mps_formal_polynomial_sum_eq (mps_formal_polynomial * p,
 mps_formal_polynomial * mps_formal_polynomial_sub_eq (mps_formal_polynomial * p, 
 						      mps_formal_monomial * m);
 
+mps_formal_polynomial * mps_formal_polynomial_sum_eq_p (mps_formal_polynomial * p, 
+							mps_formal_polynomial * m);
+
+mps_formal_polynomial * mps_formal_polynomial_sub_eq_p (mps_formal_polynomial * p, 
+							mps_formal_polynomial * m);
+
 mps_monomial_poly * mps_formal_polynomial_create_monomial_poly (mps_formal_polynomial * p,
 								mps_context * ctx);
 
+mps_formal_polynomial * mps_formal_polynomial_mul (mps_formal_polynomial * p,
+						   mps_formal_polynomial * q);
+
+mps_formal_polynomial * mps_formal_polynomial_mul_eq (mps_formal_polynomial * p,
+						      mps_formal_polynomial * q);
+
 void mps_formal_polynomial_print (mps_formal_polynomial * p);
+
+void mps_formal_polynomial_free (mps_formal_polynomial * p);
 
 MPS_END_DECLS
 
@@ -81,7 +95,27 @@ namespace mps {
       /**
        * @brief Sum two Monomials. 
        */
-      Polynomial operator+(const Monomial& m);
+      Polynomial operator+(const Monomial& m) const;
+
+      /**
+       * @brief Add a new Polynomial in an existing Polynomial.
+       */
+      Polynomial& operator+=(const Polynomial& p);
+
+      /**
+       * @brief Sum two Polynomials. 
+       */
+      Polynomial operator+(const Polynomial& p) const;
+
+      /**
+       * @brief Subtract a new Polynomial from an existing Polynomial.
+       */
+      Polynomial& operator-=(const Polynomial& p);
+
+      /**
+       * @brief Subtract two Polynomials. 
+       */
+      Polynomial operator-(const Polynomial& p) const;
 
       /**
        * @brief Subtract a new Monomial in an existing Polynomial.
@@ -91,7 +125,17 @@ namespace mps {
       /**
        * @brief Subtract two Monomials. 
        */
-      Polynomial operator-(const Monomial& m);
+      Polynomial operator-(const Monomial& m) const;
+
+      /**
+       * @brief Multiply two polynomials together. 
+       */
+      Polynomial& operator*=(const Polynomial& other);
+
+      /**
+       * @brief Multiply two polynomials together. 
+       */
+      Polynomial operator*(const Polynomial& other) const;
 
       ~Polynomial();
 
