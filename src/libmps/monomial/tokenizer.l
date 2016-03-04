@@ -61,7 +61,7 @@ mps_monomial_yacc_parser (mps_context * ctx, mps_abstract_input_stream * stream)
 %%
 
 [0-9]+(\/[0-9]+)?		*yylval = (mps_formal_polynomial*) strdup (yytext); return RATIONAL; 
-[0-9]+(.[0-9]*)?([eE][0-9]+)?	*yylval = (mps_formal_polynomial*) strdup (yytext); return FLOATING_POINT;
+[0-9]+(\.[0-9]*)?([eE][0-9]+)?	*yylval = (mps_formal_polynomial*) strdup (yytext); return FLOATING_POINT;
 \*?[a-zA-Z](^[0-9]+)?		*yylval = (mps_formal_polynomial*) strdup (yytext); return MONOMIAL;
 \+				return PLUS;
 \-				return MINUS;

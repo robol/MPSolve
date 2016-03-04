@@ -127,7 +127,7 @@ monomial: RATIONAL
 	  | RATIONAL MONOMIAL
 	  {
 #ifdef MPS_PARSER_DEBUG
-	    printf ("Coefficient: %s %s\n", (const char*) $1, (const char*) $2);
+	    printf ("Coefficient: %s, Basis element: %s\n", (const char*) $1, (const char*) $2);
 #endif
 
 	    const char * exp = strchr ((const char *) $2, '^');
