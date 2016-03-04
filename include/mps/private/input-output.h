@@ -39,6 +39,8 @@ mps_input_option mps_parse_option_line (mps_context * s, char *line, size_t leng
 
 mps_polynomial * mps_monomial_poly_read_from_stream_v2 (mps_context * s, mps_input_buffer * buffer);
 
+mps_polynomial * mps_monomial_yacc_parser (mps_context * ctx, mps_abstract_input_stream * stream);
+
 
 MPS_END_DECLS
 

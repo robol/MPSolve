@@ -22,6 +22,18 @@
 
 MPS_BEGIN_DECLS
 
+struct mps_formal_monomial;
+
+typedef struct mps_formal_monomial mps_formal_monomial;
+
+mps_formal_monomial * mps_formal_monomial_new_with_string (const char *, long);
+
+void mps_formal_monomial_free (mps_formal_monomial*);
+
+void mps_formal_monomial_print (mps_formal_monomial*);
+
+mps_formal_monomial * mps_formal_monomial_neg (mps_formal_monomial * m);
+
 MPS_END_DECLS
 
 #ifdef __cplusplus
@@ -86,7 +98,6 @@ namespace mps {
 
   }
 }
-
 
 #endif /* ifdef __cplusplus */
 

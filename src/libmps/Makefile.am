@@ -12,6 +12,9 @@ AM_CPPFLAGS= \
 	$(PTHREAD_CFLAGS) \
 	$(NULL)
 
+BUILT_SOURCES = monomial/yacc-parser.h
+AM_YFLAGS = -d
+
 libmps_la_SOURCES = \
 	chebyshev/chebyshev-evaluation.c \
 	chebyshev/chebyshev-parser.c \
@@ -62,6 +65,8 @@ libmps_la_SOURCES = \
 	monomial/monomial-poly.c \
 	monomial/monomial-threading.c \
 	monomial/newton.c \
+	monomial/yacc-parser.y \
+	monomial/tokenizer.l \
 	monomial/shift.c \
 	secsolve/secular-ga.c \
 	secsolve/secular-iteration.c \

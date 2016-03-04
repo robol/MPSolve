@@ -22,6 +22,23 @@
 
 MPS_BEGIN_DECLS
 
+struct mps_formal_polynomial;
+
+typedef struct mps_formal_polynomial mps_formal_polynomial;
+
+mps_formal_polynomial * mps_formal_polynomial_new_with_monomial (mps_formal_monomial *);
+
+mps_formal_polynomial * mps_formal_polynomial_sum_eq (mps_formal_polynomial * p, 
+						      mps_formal_monomial * m);
+
+mps_formal_polynomial * mps_formal_polynomial_sub_eq (mps_formal_polynomial * p, 
+						      mps_formal_monomial * m);
+
+mps_monomial_poly * mps_formal_polynomial_create_monomial_poly (mps_formal_polynomial * p,
+								mps_context * ctx);
+
+void mps_formal_polynomial_print (mps_formal_polynomial * p);
+
 MPS_END_DECLS
 
 #ifdef __cplusplus
@@ -66,6 +83,16 @@ namespace mps {
        */
       Polynomial operator+(const Monomial& m);
 
+      /**
+       * @brief Subtract a new Monomial in an existing Polynomial.
+       */
+      Polynomial& operator-=(const Monomial& m);
+
+      /**
+       * @brief Subtract two Monomials. 
+       */
+      Polynomial operator-(const Monomial& m);
+
       ~Polynomial();
 
       /**
@@ -73,6 +100,11 @@ namespace mps {
        * have -1 degree. 
        */
       long degree() const;
+
+      /**
+       * @brief Create a representation of this polynomial as a mps_monomial_poly. 
+       */
+      mps_monomial_poly * createMonomialPoly (mps_context * ctx) const;
 
     private:
       std::vector<Monomial> mMonomials;

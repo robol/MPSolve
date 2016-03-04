@@ -42,6 +42,11 @@ size_t mps_abstract_input_stream_readline (mps_abstract_input_stream * stream,
  */
 mps_boolean mps_abstract_input_stream_eof (mps_abstract_input_stream * stream);
 
+/**
+ * @brief Wrapper around {@link AbstractInputStream::getchar()}. 
+ */
+int mps_abstract_input_stream_getchar (mps_abstract_input_stream * stream);
+
 MPS_END_DECLS
 
 /* The following is C++ only */
@@ -73,6 +78,13 @@ public:
      * @return true if we are at the end of the stream.
      */
     virtual bool eof () = 0;
+
+    /**
+     * @brief Obtain a single character. 
+     *
+     * @return A new character read from the stream. 
+     */
+    virtual int getchar () = 0;
   };
 }
 

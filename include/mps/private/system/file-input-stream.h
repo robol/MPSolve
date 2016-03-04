@@ -84,6 +84,13 @@ public:
      */
     bool eof ();
 
+    /**
+     * @brief Obtain a single character. 
+     *
+     * @return A new character read from the stream. 
+     */
+    int getchar ();
+
 private:
     FILE * mSource;
   };

@@ -3,6 +3,36 @@
 
 using namespace mps::formal;
 
+extern "C" {
+
+mps_formal_monomial * 
+mps_formal_monomial_new_with_string (const char * coeff_string, long degree)
+{
+  Monomial * m = new Monomial (coeff_string, degree);
+  return reinterpret_cast<mps_formal_monomial*> (m);
+}
+
+void
+mps_formal_monomial_free (mps_formal_monomial* m)
+{
+  delete reinterpret_cast<Monomial*> (m);
+}
+
+  void
+  mps_formal_monomial_print (mps_formal_monomial * m)
+  {
+    std::cout << *reinterpret_cast<Monomial*> (m);
+  }
+
+  mps_formal_monomial *
+  mps_formal_monomial_neg (mps_formal_monomial * m)
+  {
+    Monomial *m2 = new Monomial (- *reinterpret_cast<Monomial*> (m));
+    return reinterpret_cast<mps_formal_monomial*> (m2);
+  }
+
+}
+
 Monomial::Monomial()
 {
   mCoeff = 1;
@@ -21,6 +51,7 @@ Monomial::Monomial(const char * coeff_string, long degree)
 Monomial::Monomial(const mpq_class coeff, long degree)
 {
   mCoeff = coeff;
+  mCoeff.canonicalize();
   mDegree = degree;
 }
 
@@ -64,3 +95,4 @@ mps::formal::operator<<(std::ostream& os, const mps::formal::Monomial& m)
 
   return os;
 }
+
