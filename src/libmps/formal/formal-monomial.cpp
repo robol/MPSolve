@@ -147,8 +147,11 @@ Monomial::operator-()
 Monomial& 
 Monomial::operator*=(const Monomial& other)
 {
-  mCoeffR = mCoeffR * other.mCoeffR - mCoeffI * other.mCoeffI;
+  mpq_class tmp;
+
+  tmp = mCoeffR * other.mCoeffR - mCoeffI * other.mCoeffI;
   mCoeffI = mCoeffI * other.mCoeffR + mCoeffR * other.mCoeffI;
+  mCoeffR = tmp;
   mDegree += other.mDegree;
 
   return *this;
