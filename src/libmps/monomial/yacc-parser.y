@@ -1,7 +1,6 @@
 %pure-parser
-%parse-param { void * scanner }
-%lex-param { void * scanner }
-%param { void * data }
+%parse-param { void * scanner } { void * data }
+%lex-param { void * scanner }   { void * data }
 
 %{
 
