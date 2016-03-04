@@ -7,11 +7,11 @@
 START_TEST (monomial_creation)
 {
   mps::formal::Monomial one("1", 0);
-  fail_unless (one.coefficient() == 1,
+  fail_unless (one.coefficientReal() == 1,
 	       "Monomial(\"1\", 0) != 1");
 
   mps::formal::Monomial exp1("1.01e2", 12);
-  fail_unless ((exp1.coefficient() == 101) && 
+  fail_unless ((exp1.coefficientReal() == 101) && 
 	       (exp1.degree() == 12),
 	       "Monomial(\"1.01e2\",12) != 101x^12");
 	       
@@ -29,9 +29,9 @@ START_TEST (monomial_sum)
 
   fail_unless (p.degree() == 1, 
 	       "deg(2x + 1) != 1");
-  fail_unless (p[0].coefficient() == 1,
+  fail_unless (p[0].coefficientReal() == 1,
 	       "2x+1 has constant term different from 1");
-  fail_unless (p[1].coefficient() == 2,
+  fail_unless (p[1].coefficientReal() == 2,
 	       "2x+1 has leading coefficient different from 2");
 }
 END_TEST
