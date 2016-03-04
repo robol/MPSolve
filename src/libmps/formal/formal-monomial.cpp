@@ -169,13 +169,15 @@ Monomial::operator*(const Monomial& other) const
 std::ostream&
 mps::formal::operator<<(std::ostream& os, const mps::formal::Monomial& m)
 {
+  mpq_class mmCoeffI = - m.mCoeffI;
+
   if (m.isReal())
     os << m.mCoeffR;
   else if (m.mCoeffR == 0)
     os << m.mCoeffI << "i";
   else 
     os << "(" << m.mCoeffR << (m.mCoeffI > 0 ? "+" : "-")
-       << (m.mCoeffI > 0 ? m.mCoeffI : -m.mCoeffI) << "i)";
+       << (m.mCoeffI > 0 ? m.mCoeffI : mmCoeffI) << "i)";
 
   switch (m.degree())
     {
