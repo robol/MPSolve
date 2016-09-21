@@ -165,9 +165,8 @@ Monomial::operator*(const Monomial& other) const
   return result;
 }
 
-
 std::ostream&
-operator<<(std::ostream& os, const mps::formal::Monomial& m)
+mps::formal::operator<<(std::ostream& os, const mps::formal::Monomial& m)
 {
   mpq_class mmCoeffI = - m.coefficientImag();
 

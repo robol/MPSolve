@@ -135,6 +135,12 @@ namespace mps {
        */
       Monomial operator*(const Monomial& other) const;
 
+      /**
+       * @brief Print a monomial to a stream. 
+       */
+      friend std::ostream& operator<<(std::ostream& os, const Monomial& l);
+
+
     private:
       mpq_class mCoeffR;
       mpq_class mCoeffI;
@@ -144,11 +150,6 @@ namespace mps {
 
   }
 }
-
-/**
- * @brief Print a monomial to a stream. 
- */
-std::ostream& operator<<(std::ostream& os, const mps::formal::Monomial& l);
 
 #endif /* ifdef __cplusplus */
 

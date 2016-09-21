@@ -7,7 +7,8 @@ libmps_fortran_la_CFLAGS  = -I${top_srcdir}/include -I${top_builddir}/include
 libmps_fortran_la_SOURCES = mps_impl.c
 libmps_fortran_la_LIBADD = ${top_builddir}/src/libmps/libmps.la
 libmps_fortran_la_LDFLAGS = \
-	-version-info 0:1:0
+	-version-info 0:1:0 \
+	-no-undefined 
 
 # include_HEADERS = mps.mod
 
