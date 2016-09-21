@@ -21,9 +21,9 @@ xmpsolve_CPPFLAGS = \
 	-I${srcdir} \
 	$(QT_CFLAGS)
 
-if ! WINDOWS_BUILD
+# if ! WINDOWS_BUILD
 xmpsolve_CPPFLAGS += -fPIC
-endif
+# endif
 
 xmpsolve_LDFLAGS = \
 	$(QT_LDFLAGS)
@@ -168,7 +168,7 @@ EXTRA_DIST = $(icon_DATA) \
 	CombinedApproximationView.qml \
 	SwitchableApproximationView.qml \
 	loading.png 
-	
+
 
 BUILT_SOURCES = $(moc_files) \
 	$(qrc_gen_files) 

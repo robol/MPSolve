@@ -135,11 +135,8 @@ namespace mps {
        */
       Monomial operator*(const Monomial& other) const;
 
-      friend std::ostream& operator<<(std::ostream& os, const Monomial& l);
-
     private:
       mpq_class mCoeffR;
-
       mpq_class mCoeffI;
 
       long mDegree;
@@ -147,6 +144,11 @@ namespace mps {
 
   }
 }
+
+/**
+ * @brief Print a monomial to a stream. 
+ */
+std::ostream& operator<<(std::ostream& os, const mps::formal::Monomial& l);
 
 #endif /* ifdef __cplusplus */
 

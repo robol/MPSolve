@@ -7,7 +7,7 @@ AC_CONFIG_HEADERS([config.h])
 
 AC_CONFIG_MACRO_DIR([m4])
 
-LT_INIT
+LT_INIT([win32-dll shared])
 
 AM_INIT_AUTOMAKE([dist-bzip2 -Wno-portability subdir-objects])
 

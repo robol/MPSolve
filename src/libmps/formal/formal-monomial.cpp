@@ -167,17 +167,17 @@ Monomial::operator*(const Monomial& other) const
 
 
 std::ostream&
-mps::formal::operator<<(std::ostream& os, const mps::formal::Monomial& m)
+operator<<(std::ostream& os, const mps::formal::Monomial& m)
 {
-  mpq_class mmCoeffI = - m.mCoeffI;
+  mpq_class mmCoeffI = - m.coefficientImag();
 
   if (m.isReal())
-    os << m.mCoeffR;
-  else if (m.mCoeffR == 0)
-    os << m.mCoeffI << "i";
+    os << m.coefficientReal();
+  else if (m.coefficientReal() == 0)
+    os << m.coefficientImag() << "i";
   else 
-    os << "(" << m.mCoeffR << (m.mCoeffI > 0 ? "+" : "-")
-       << (m.mCoeffI > 0 ? m.mCoeffI : mmCoeffI) << "i)";
+    os << "(" << m.coefficientReal() << (m.coefficientImag() > 0 ? "+" : "-")
+       << (m.coefficientImag() > 0 ? m.coefficientImag() : m.coefficientImag()) << "i)";
 
   switch (m.degree())
     {
@@ -187,7 +187,7 @@ mps::formal::operator<<(std::ostream& os, const mps::formal::Monomial& m)
       os << "x";
       break;
     default:
-      os << "x^" << m.mDegree;
+      os << "x^" << m.degree();
       break;
     }
 

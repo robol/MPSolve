@@ -28,3 +28,4 @@ mpsolve_LDADD = \
 	$(GMP_LIBS) \
 	$(GTK_LIBS)
 
+nodist_EXTRA_mpsolve_SOURCES = dummy.cxx

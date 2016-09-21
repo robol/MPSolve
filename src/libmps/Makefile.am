@@ -93,6 +93,7 @@ libmps_la_SOURCES = \
 
 libmps_la_LDFLAGS = \
         -version-info 3:1:0 \
+	-no-undefined \
 	$(PTHREAD_CFLAGS)
 
 libmps_la_LIBADD = \
@@ -118,7 +119,8 @@ libmpsprivate_la_CPPFLAGS = \
 	$(NULL)
 
 libmpsprivate_la_LDFLAGS = \
-	$(PTHREAD_CFLAGS)
+	$(PTHREAD_CFLAGS) \
+	-no-undefined
 
 libmpsprivate_la_SOURCES = \
 	$(libmps_la_SOURCES)
