@@ -31,7 +31,7 @@ mexFunction (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
       cellArray = mxGetCell (prhs[0], i);
       size = mxGetN (cellArray);
 
-      chars = malloc (sizeof (char) * (size + 1));
+      chars = (char *) malloc (sizeof (char) * (size + 1));
       mxGetString (cellArray, chars, size + 1);
 
       mps_monomial_poly_set_coefficient_s (ctx, mp, i, chars, NULL);   
@@ -81,6 +81,7 @@ mexFunction (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
       for (i = 0; i < n - 1; i++)
 	{
 	  mp_exp_t rexp, iexp;
+          int indices[] = { i, 0 };
 
 	  buffer_r = buffer_i = NULL;
 	  buffer_r = mpf_get_str (buffer_r, &rexp, 10, 0, mpc_Re (mresults[i]));
@@ -88,31 +89,35 @@ mexFunction (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
 
 	  mpc_clear (mresults[i]);
 
-	  mxSetCell (roots, 
-		     mxCalcSingleSubscript(roots, 2, (int[]) { i, 0 }), 
+          indices[1] = 0;
+	  mxSetCell (roots,
+		     mxCalcSingleSubscript(roots, 2, indices),
 		     mxCreateString(buffer_r));
 
 	  mxArray * rexpM = mxCreateDoubleMatrix (1, 1, mxREAL);
 	  mxGetPr(rexpM)[0] = rexp;
+          indices[1] = 1;
 	  mxSetCell (roots,
-		     mxCalcSingleSubscript(roots, 2, (int[]) { i, 1}),
+		     mxCalcSingleSubscript(roots, 2, indices),
 		     rexpM);
 
-	  mxSetCell (roots, 
-		     mxCalcSingleSubscript(roots, 2, (int[]) { i, 2 }),
+          indices[1] = 2;
+	  mxSetCell (roots,
+		     mxCalcSingleSubscript(roots, 2, indices),
 		     mxCreateString(buffer_i));
 
 	  mxArray * iexpM = mxCreateDoubleMatrix (1, 1, mxREAL);
 	  mxGetPr(iexpM)[0] = iexp;
 
-	  mxSetCell (roots, 
-		     mxCalcSingleSubscript(roots, 2, (int[]) {i, 3}),
+          indices[1] = 3;
+	  mxSetCell (roots,
+		     mxCalcSingleSubscript(roots, 2, indices),
 		     iexpM);
-	  
+
 	  free (buffer_r);
 	  free (buffer_i);
 	}
-      
+
       free (mresults);
     }
 
