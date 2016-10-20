@@ -319,7 +319,14 @@ AC_ARG_ENABLE([tcmalloc],
 
     # Raise an error if GMP is not correctly installed on this system.
     AS_IF([test "x$mpsolve_found_gmp_headers" != "xyes"],
-      [AC_MSG_ERROR([Unable to find gmp headers, pleas install libgmp-dev])])
+      [AC_MSG_ERROR([Unable to find gmp headers, please install libgmp-dev])])
+
+    # Check for MPFR
+    AC_CHECK_LIB([mpfr], [mpfr_init])
+    AC_CHECK_HEADERS([mpfr.h], [mpsolve_found_mpfr_headers=yes; break;])
+
+    AS_IF([test "x$mpsolve_found_mpfr_headers" != "xyes"],
+      [AC_MSG_ERROR([Please install MPFR headers])])
 
 
 ##
