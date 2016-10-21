@@ -19,7 +19,8 @@ clean-local:
 
 MPS_LINK_COMMAND = $(MEX) $(MEXOPTS) $(MEX_OUTPUT_FLAG) $@$(MEX_OUTPUT_SUFFIX) \
         -L${top_builddir}/src/libmps/.libs \
-	$(GMP_LIBS) -lm -lgmp -lmps $(MEX_LDFLAGS_PREFIX)-Wl,-R'\$$ORIGIN' > /dev/null
+	$(GMP_LIBS) -lm -lgmp -lmps \
+	$(MEX_LDFLAGS_PREFIX)'-Wl,-R\\\$$ORIGIN -shared' > /dev/null
 
 mps_kostlan_SOURCES = mps_kostlan.c mps_option_parser.c mps_option_parser.h
 mps_kostlan_LINK = ${MPS_LINK_COMMAND}
