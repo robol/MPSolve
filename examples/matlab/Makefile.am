@@ -8,7 +8,11 @@ if BUILD_MATLAB_TOOLBOX
 noinst_PROGRAMS = $(MATLAB_MODULES_PROGRAMS)
 noinst_DATA = mpsolve-toolbox.tar.gz
 
-EXTRA_PROGRAMS = mps_roots_double mps_roots_string mps_kostlan mps_interp
+EXTRA_PROGRAMS = mps_roots_double mps_roots_string mps_kostlan
+
+if HAVE_MPFR
+EXTRA_PROGRAMS += mps_interp
+endif
 
 EXTRA_DIST = mps_roots.m
 
@@ -20,13 +24,17 @@ clean-local:
 MPS_LINK_COMMAND = $(MEX) $(MEXOPTS) $(MEX_OUTPUT_FLAG) $@$(MEX_OUTPUT_SUFFIX) \
         -L${top_builddir}/src/libmps/.libs \
 	$(GMP_LIBS) -lm -lgmp -lmps \
-	$(MEX_LDFLAGS_PREFIX)'-Wl,-R\\\$$ORIGIN -shared' > /dev/null
+	$(MEX_LDFLAGS_PREFIX)"-Wl,-R'\$$ORIGIN' -shared" > /dev/null
 
 mps_kostlan_SOURCES = mps_kostlan.c mps_option_parser.c mps_option_parser.h
 mps_kostlan_LINK = ${MPS_LINK_COMMAND}
 
+if HAVE_MPFR
+# mps_interp is only available when MPFR is installed on the system. 
 mps_interp_SOURCES = mps_interp.c mps_option_parser.c mps_option_parser.h
 mps_interp_LINK = ${MPS_LINK_COMMAND} -lmpfr
+MPS_INTERP_BINARY=mps_interp
+endif
 
 mps_roots_double_SOURCES = mps_roots_double.c mps_option_parser.c mps_option_parser.h
 mps_roots_double_LINK = ${MPS_LINK_COMMAND} 
@@ -34,7 +42,7 @@ mps_roots_double_LINK = ${MPS_LINK_COMMAND}
 mps_roots_string_SOURCES = mps_roots_string.c mps_option_parser.c mps_option_parser.h
 mps_roots_string_LINK = ${MPS_LINK_COMMAND}
 
-mpsolve-toolbox.tar.gz: mps_roots_double mps_roots_string mps_kostlan mps_interp mps_roots.m ${top_builddir}/src/libmps/.libs/libmps.so.3
+mpsolve-toolbox.tar.gz: mps_roots_double mps_roots_string mps_kostlan ${MPS_INTERP_BINARY} mps_roots.m ${top_builddir}/src/libmps/.libs/libmps.so.3
 	$(eval TEMP_DIR := $(shell mktemp -d tmp.XXXX))
 	$(AM_V_GEN)
 	$(AM_V_at) mkdir -p $(TEMP_DIR)/mpsolve-toolbox/private

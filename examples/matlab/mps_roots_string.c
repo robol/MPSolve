@@ -51,7 +51,7 @@ mexFunction (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
 
   /* Only output the roots as floating point numbers if the
    * requested precision is less than 16 digits. */
-  if (options.digits <= DBL_DIG)
+  if (options.digits <= DBL_DIG * log10(2))
     {
       mps_context_get_roots_d (ctx, &results, NULL);
 

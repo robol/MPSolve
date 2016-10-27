@@ -62,6 +62,13 @@ AC_ARG_ENABLE([qml-ui],
 	)
 AM_CONDITIONAL([BUILD_QML_UI], [test "x$enable_qml_ui" != "xno"])
 
+# Determine if we want to have MPFR or not. The default is to enable it if
+# it is available. 
+AC_ARG_ENABLE([mpfr],
+	AS_HELP_STRING([--enable-mpfr], [Enable MPFR support (default when available)]),
+	[has_mpfr=$enableval have_mpfr=$enableval],
+	[has_mpfr=yes have_mpfr=yes])
+
 # Determine if examples are desired. If that's the case check for the library
 # that are installed on the system and see which examples can be added. 
 AC_ARG_ENABLE([examples],
@@ -322,12 +329,15 @@ AC_ARG_ENABLE([tcmalloc],
       [AC_MSG_ERROR([Unable to find gmp headers, please install libgmp-dev])])
 
     # Check for MPFR
-    AC_CHECK_LIB([mpfr], [mpfr_init])
-    AC_CHECK_HEADERS([mpfr.h], [mpsolve_found_mpfr_headers=yes; break;])
+    AS_IF([test x$have_mpfr == xyes], [
+      AC_CHECK_LIB([mpfr], [mpfr_init])
+      AC_CHECK_HEADERS([mpfr.h], [mpsolve_found_mpfr_headers=yes; break;])
 
-    AS_IF([test "x$mpsolve_found_mpfr_headers" != "xyes"],
-      [AC_MSG_ERROR([Please install MPFR headers])])
+      AS_IF([test "x$mpsolve_found_mpfr_headers" != "xyes"],
+        [have_mpfr=no ; has_mpfr = no; AC_MSG_WARN([Disabling MPFR since it is not found on the system])])
+    ])
 
+    AM_CONDITIONAL([HAVE_MPFR], [test x$have_mpfr = xyes])
 
 ##
 ## Section 3) Check support: try to find all the necessary headers and libraries

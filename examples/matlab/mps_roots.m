@@ -1,11 +1,29 @@
-%% MPS_ROOTS function that approximate the roots of a polynomial specified
-%% by the vector v using MPSolve and the algorithm specified by alg. 
-%% alg can be 's' or 'u', depending if the algorithm MPS_ALGORITHM_SECULAR_GA or
-%% the algorithm MPS_ALGORITHM_SECULAR_UNISOLVE are desired. 
-%%
-%% Author: Leonardo Robol <leonardo.robol@sns.it>
-%% Copyright: 2011-2013 Leonardo Robol <leonardo.robol@sns.it>
-%% License: GPLv3 or higher
+%%MPS_ROOTS Approximate the roots of a scalar polynomial
+%
+% Y = MPS_ROOTS(V) approximate the roots of the scalar polynomial
+% 
+%               V(1) * X^N + ... + V(2) * X + V(1).
+%
+%     The approximations are computed using MPSolve. When V is a
+%     vector of VPA, the computation is carried out in higher
+%     precision arithmetic. 
+%
+% [Y, R] = MPS_ROOTS(V) additionally computes inclusion radii for the
+%     roots stored in the vector Y.
+%
+% [Y, R] = MPS_ROOTS(V, ALG) allows to select additional options for
+%     MPSolve. ALG has to be a structure of the form:
+%
+%     ALG = struct ( ...
+%       'radius', true / false, % true if the inclusion radii are needed.
+%       'digits', N % Number of guaranteed digits required.
+%       'algorithm', 'a' or 's' % Algorithm to use
+%       'goal', 'i', or 'a' % Isolate or Approximate
+%     )
+%
+% Author: Leonardo Robol <leonardo.robol@cs.kuleuven.be>
+% Copyright: 2011-2016 Leonardo Robol <leonardo.robol@cs.kuleuven.be>
+% License: GPLv3 or higher
 function [x,r] = mps_roots(v, alg)
     
   if min(size(v)) ~= 1 || strcmp(class(v(1)), 'string')
@@ -24,9 +42,13 @@ function [x,r] = mps_roots(v, alg)
     end
   end
 
-  if (isfield (alg, 'digits') && digits() < alg.digits)
-     warning('Raising the number of digits of VPA to match the requested output digits');
-     digits(alg.digits)
+  if (isfield (alg, 'digits') && (digits() < alg.digits || ~strcmp(class(v(1)), 'sym')))
+    warning('Raising the number of digits of VPA to match the requested output digits');
+    digits(alg.digits)
+    
+    if ~strcmp(class(v(1)), 'sym')
+      v = vpa(v, alg.digits);
+    end
   end
 
   if isnumeric(v(1)) && ~(isfield(alg,'digits') && (alg.digits > 16))
@@ -83,7 +105,7 @@ function [x,r] = mps_roots(v, alg)
 	 y(i) = vpa(rp) + II * vpa(ip);
        end
 
-       x = y;
+       x = y.';
     end
   end
 end
