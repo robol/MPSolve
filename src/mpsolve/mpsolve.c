@@ -638,7 +638,6 @@ main (int argc, char **argv)
   /* If no file is provided use standard input */
   if (inline_poly)
     {
-      // poly = mps_parse_inline_poly_from_string (s, inline_poly);
       mps_abstract_input_stream * stream = 
        (mps_abstract_input_stream *) mps_memory_file_stream_new (inline_poly);
       poly = mps_monomial_yacc_parser (s, stream);

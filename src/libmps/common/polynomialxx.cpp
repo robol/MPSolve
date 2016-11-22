@@ -9,33 +9,54 @@
  */
 
 #include <mps/mps.h>
+#include <mps/private/system/memory-file-stream.h>
 
 using namespace mps;
+
+static void
+setup_vtable (mps_context * ctx, Polynomial * self, const char * type_name)
+{
+  self->type_name = type_name;
+
+  /* Hooking up our wrappers to the actual function pointer of 
+   * the mps_polynomial struct. Self make possible to transparently
+   * use self object as a custom polynomial type in MPSolve's sense. */
+  self->feval = &Polynomial::feval_wrapper;
+  self->deval = &Polynomial::deval_wrapper;
+  self->meval = &Polynomial::meval_wrapper;
+
+  self->fstart = &Polynomial::fstart_wrapper;
+  self->dstart = &Polynomial::dstart_wrapper;
+  self->mstart = &Polynomial::mstart_wrapper;
+
+  self->raise_data = &Polynomial::raise_data_wrapper;
+  self->free = &Polynomial::free_wrapper;
+
+  self->fnewton = &Polynomial::fnewton_wrapper;
+  self->dnewton = &Polynomial::dnewton_wrapper;
+  self->mnewton = &Polynomial::mnewton_wrapper;
+}
+
+Polynomial*
+Polynomial::fromStream (mps_context * ctx, mps::AbstractInputStream * stream)
+{
+  mps_polynomial * poly = mps_monomial_yacc_parser (ctx, reinterpret_cast<mps_abstract_input_stream *> (stream));  
+  return (Polynomial*) (poly);
+}
+
+Polynomial *
+Polynomial::fromString (mps_context * ctx, const char * inputString)
+{
+  MemoryFileStream stream(inputString);
+  return Polynomial::fromStream(ctx, &stream);
+}
+
 
 Polynomial::Polynomial (mps_context * ctx, const char * type_name)
 {
   mps_polynomial * self = static_cast<mps_polynomial*> (this);
   mps_polynomial_init (ctx, self);
-
-  this->type_name = type_name;
-
-  /* Hooking up our wrappers to the actual function pointer of 
-   * the mps_polynomial struct. This make possible to transparently
-   * use this object as a custom polynomial type in MPSolve's sense. */
-  this->feval = &Polynomial::feval_wrapper;
-  this->deval = &Polynomial::deval_wrapper;
-  this->meval = &Polynomial::meval_wrapper;
-
-  this->fstart = &Polynomial::fstart_wrapper;
-  this->dstart = &Polynomial::dstart_wrapper;
-  this->mstart = &Polynomial::mstart_wrapper;
-
-  this->raise_data = &Polynomial::raise_data_wrapper;
-  this->free = &Polynomial::free_wrapper;
-
-  this->fnewton = &Polynomial::fnewton_wrapper;
-  this->dnewton = &Polynomial::dnewton_wrapper;
-  this->mnewton = &Polynomial::mnewton_wrapper;
+  setup_vtable (ctx, reinterpret_cast<Polynomial*> (self), "monomial");
 }
 
 long int

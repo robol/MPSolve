@@ -58,7 +58,7 @@ namespace mps {
    * the abstract class {@link AbstractInputStream} that will stream
    * the data contained in the area stored in memory.
    */
-  class MemoryFileStream : AbstractInputStream {
+  class MemoryFileStream : public AbstractInputStream {
 public:
 
     /**

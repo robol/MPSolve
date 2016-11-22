@@ -1,10 +1,11 @@
 #include "polynomialsolver.h"
 #include "mpsolveworker.h"
 #include "root.h"
-#include "polynomialparser.h"
 #include <QDebug>
 #include <QRegExp>
 #include <QStringList>
+
+#include <QDebug>
 
 static double LOG2_10 = log(10) / log(2);
 
@@ -14,7 +15,7 @@ PolynomialSolver::PolynomialSolver(QObject *parent) :
     QObject(parent)
 {
     m_mpsContext = NULL;
-    m_mpsPoly = NULL;
+    m_currentPoly = NULL;
     m_worker.connect(&m_worker, SIGNAL(finished()),
                      this, SLOT(workerExited()));
     m_errorMessage = "";
@@ -22,10 +23,10 @@ PolynomialSolver::PolynomialSolver(QObject *parent) :
 
 PolynomialSolver::~PolynomialSolver()
 {
-    if (m_mpsPoly)
-        m_mpsPoly->free (m_mpsContext, m_mpsPoly);
+    if (m_currentPoly)
+      mps_polynomial_free (m_mpsContext, m_currentPoly);
     if (m_mpsContext)
-        mps_context_free(m_mpsContext);
+      mps_context_free(m_mpsContext);
 }
 
 int
@@ -91,46 +92,21 @@ PolynomialSolver::solvePolFileFromContent(QString content, mps_algorithm selecte
 }
 
 int
-PolynomialSolver::solvePoly(Polynomial poly, PolynomialBasis basis,
+PolynomialSolver::solvePoly(mps_polynomial * poly, PolynomialBasis basis,
                             mps_algorithm selected_algorithm,
                             int required_digits, mps_output_goal goal)
 {
     m_currentPoly = poly;
-
-    // Regenerate a new mps_context, since as of now the same cannot be used
-    // more than one time.
-    if (m_mpsPoly)
-        m_mpsPoly->free(m_mpsContext, m_mpsPoly);
-    if (m_mpsContext)
-        mps_context_free(m_mpsContext);
-    m_mpsContext = mps_context_new();
-
-    m_worker.setMpsContext(m_mpsContext);
-
-    m_mpsPoly = NULL;
-
-    switch (basis) {
-        case MONOMIAL:
-            m_mpsPoly = MPS_POLYNOMIAL (mps_monomial_poly_new(m_mpsContext, poly.degree()));
-            for (int i = 0; i <= poly.degree(); i++) {
-                poly.monomial(i).addToMonomialPoly(m_mpsContext,
-                                                   MPS_MONOMIAL_POLY (m_mpsPoly));
-            }
-            break;
-
-        case CHEBYSHEV:
-            m_mpsPoly = MPS_POLYNOMIAL (mps_chebyshev_poly_new (m_mpsContext, poly.degree (),
-                                                               MPS_STRUCTURE_COMPLEX_RATIONAL));
-            for (int i = 0; i <= poly.degree(); i++) {
-                poly.monomial(i).addToChebyshevPoly(m_mpsContext,
-                                                    MPS_CHEBYSHEV_POLY (m_mpsPoly));
-            }
-    }
-
-    mps_context_set_input_poly(m_mpsContext, m_mpsPoly);
+    
+    mps_context_set_input_poly(m_mpsContext, MPS_POLYNOMIAL (m_currentPoly));
     mps_context_select_algorithm(m_mpsContext, selected_algorithm);
     mps_context_set_output_prec(m_mpsContext, required_digits * LOG2_10);
     mps_context_set_output_goal(m_mpsContext, goal);
+
+    // One might want to uncomment this for debugging purposes. 
+    // mps_context_add_debug_domain (m_mpsContext, MPS_DEBUG_TRACE);
+    
+    m_worker.setMpsContext (m_mpsContext);
 
     m_worker.start();
     return mps_context_get_degree (m_mpsContext);
@@ -141,23 +117,27 @@ PolynomialSolver::solvePoly(QString inputString, PolynomialBasis basis,
                             mps_algorithm selected_algorithm,
                             int required_digits, mps_output_goal goal)
 {
-    PolynomialParser parser;
+  if (! m_mpsContext)
+    m_mpsContext = mps_context_new();
 
-    // Parse the input string that the user has given.
-    Polynomial poly = parser.parse(inputString);
+  QByteArray inputStringData = inputString.toLatin1();
+  mps_polynomial * poly = (mps_polynomial *) mps::Polynomial::fromString (m_mpsContext, inputStringData.data());
 
-    if (poly.degree() != 0) {
-        return solvePoly(poly, basis, selected_algorithm, required_digits, goal);
+  if (poly && poly->degree != 0) {
+    return solvePoly(poly, basis, selected_algorithm, required_digits, goal);
+  }
+  else {
+    mps_context_free (m_mpsContext);
+    m_mpsContext = NULL;
+    
+    m_errorMessage = tr("Error parsing the polynomial");
+    
+    if (m_errorMessage == QString("") || poly->degree == 0) {
+      m_errorMessage = tr("Constant polynomials have no roots");
     }
-    else {
-       m_errorMessage = parser.errorMessage();
-
-       if (m_errorMessage == QString("")) {
-           m_errorMessage = tr("Constant polynomials have no roots");
-       }
-
-       return -1;
-    }
+    
+    return -1;
+  }
 }
 
 QString

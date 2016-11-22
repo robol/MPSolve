@@ -4,7 +4,6 @@
 #include <QObject>
 #include "root.h"
 #include "mpsolveworker.h"
-#include "polynomial.h"
 #include "rootsmodel.h"
 #include "monomial.h"
 #include <mps/mps.h>
@@ -35,9 +34,9 @@ public slots:
       *
       * @return The degree of the polynomial.
       */
-    int solvePoly(Polynomial poly, PolynomialBasis basis = MONOMIAL,
-                  mps_algorithm selected_algorithm = MPS_ALGORITHM_SECULAR_GA,
-                  int required_digits = 16, mps_output_goal goal = MPS_OUTPUT_GOAL_APPROXIMATE);
+  int solvePoly(mps_polynomial * poly, PolynomialBasis basis = MONOMIAL,
+		mps_algorithm selected_algorithm = MPS_ALGORITHM_SECULAR_GA,
+		int required_digits = 16, mps_output_goal goal = MPS_OUTPUT_GOAL_APPROXIMATE);
 
     /**
      * @brief Solve a polynomial specified by a .pol file.
@@ -101,9 +100,8 @@ public slots:
 private:
     MPSolveWorker m_worker;
     mps_context * m_mpsContext;
-    mps_polynomial * m_mpsPoly;
+    mps_polynomial * m_currentPoly;    
     QString m_errorMessage;
-    Polynomial m_currentPoly;
 
     RootsModel m_rootsModel;
     

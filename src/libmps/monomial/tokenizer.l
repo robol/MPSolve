@@ -56,8 +56,11 @@ mps_monomial_yacc_parser (mps_context * ctx, mps_abstract_input_stream * stream)
   printf ("\n");
 #endif
 
-  if (! mps_context_has_errors (ctx))
-    return MPS_POLYNOMIAL (mps_formal_polynomial_create_monomial_poly (data.p, ctx));
+  if (! mps_context_has_errors (ctx)) {    
+    mps_polynomial * p = MPS_POLYNOMIAL (mps_formal_polynomial_create_monomial_poly (data.p, ctx));
+    mps_polynomial_raise_data (ctx, p, DBL_MANT_DIG);
+    return p;
+  }
   else
     return NULL;
 }

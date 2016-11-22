@@ -13,11 +13,13 @@
 #ifndef MPS_POLYNOMIAL_H_
 #define MPS_POLYNOMIAL_H_
 
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 #include <mps/mps.h>
+#include <mps/private/system/abstract-input-stream.h>
 
 /* Macro that can be used to enforce a sort of type-safe casting between
  * mps_polynomial "subclasses". Please note that this does not guarantee
@@ -271,6 +273,13 @@ void mps_general_mstart (mps_context * ctx, mps_polynomial * p, mps_approximatio
 
 namespace mps {
   class Polynomial : public mps_polynomial {
+    
+private:
+    /**
+     * @brief Construct a polynomial from its human-readable description. 
+     */
+    static Polynomial * fromStream (mps_context * ctx, mps::AbstractInputStream * stream);
+    
 public:
     /**
      * @brief This constructor has the main role of adjusting the fake vtable in the C
@@ -278,6 +287,11 @@ public:
      * provided in extension to this class.
      */
     explicit Polynomial (mps_context * ctx, const char * type_name = "mps_polynomial");
+
+    /**
+     * @brief Parse a polynomial from a C-style string. 
+     */
+    static Polynomial * fromString (mps_context * ctx, const char * inputString);
 
     virtual ~Polynomial ();
 

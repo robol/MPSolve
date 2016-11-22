@@ -24,7 +24,7 @@
       <item>
        <widget class="QTabWidget" name="tabWidget">
         <property name="currentIndex">
-         <number>1</number>
+         <number>0</number>
         </property>
         <widget class="QWidget" name="tab">
          <attribute name="title">
@@ -277,12 +277,12 @@
      <x>0</x>
      <y>0</y>
      <width>721</width>
-     <height>25</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
     <property name="title">
-     <string>File</string>
+     <string>&amp;File</string>
     </property>
     <addaction name="actionOpen_pol_file"/>
     <addaction name="actionOpen_editor"/>
@@ -292,7 +292,7 @@
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
-     <string>Help</string>
+     <string>&amp;Help</string>
     </property>
     <addaction name="actionAbout_MPSolve"/>
    </widget>
@@ -302,27 +302,27 @@
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionOpen_pol_file">
    <property name="text">
-    <string>Open .pol file</string>
+    <string>&amp;Open .pol file</string>
    </property>
   </action>
   <action name="actionQuit">
    <property name="text">
-    <string>Quit</string>
+    <string>&amp;Quit</string>
    </property>
   </action>
   <action name="actionAbout_MPSolve">
    <property name="text">
-    <string>About MPSolve</string>
+    <string>&amp;About MPSolve</string>
    </property>
   </action>
   <action name="actionOpen_editor">
    <property name="text">
-    <string>Open editor</string>
+    <string>Open &amp;editor</string>
    </property>
   </action>
   <action name="actionAbort_computations">
    <property name="text">
-    <string>Abort current computations</string>
+    <string>&amp;Abort current computations</string>
    </property>
   </action>
  </widget>

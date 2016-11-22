@@ -172,6 +172,8 @@ mps_secular_ga_mpsolve (mps_context * s)
    * to allow initializitation to be performed. */
   s->deg = s->n = s->active_poly->degree;
 
+  MPS_DEBUG (s, "Degree = %d", s->deg);
+
   /* Manually set FILE* pointer for streams.
    * More refined options will be added later. */
   packet = 0;

@@ -16,8 +16,7 @@ MPSolveWorker::MPSolveWorker(mps_context * s, QObject *parent) :
 void
 MPSolveWorker::run()
 {
-    /* Actually solve the polynomial that should have been
-     * set in here... */
+    /* Actually solve the polynomial that should have been set in here... */
     m_timer = mps_start_timer();
     mps_mpsolve(m_context);
 }

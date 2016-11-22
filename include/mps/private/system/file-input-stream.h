@@ -50,7 +50,7 @@ MPS_END_DECLS
 #ifdef __cplusplus
 
 namespace mps {
-  class FileInputStream : AbstractInputStream {
+  class FileInputStream : public AbstractInputStream {
 public:
 
     /**

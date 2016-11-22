@@ -24,11 +24,12 @@ MainWindow::MainWindow(QWidget *parent) :
 
     m_polFileEditorWindow = NULL;
 
-    // Synchronize the selection of the roots with the rootsView, so we can focus the currently selected
-    // root.
-    QObject::connect(ui->listRootsView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-                     this, SLOT(onlistRootsView_selectionChanged(QItemSelection,QItemSelection)));
-
+    // Synchronize the selection of the roots with the rootsView, so we can
+    // focus the currently selected root.
+    QObject::connect(ui->listRootsView->selectionModel(),
+		     SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
+                     this,
+		     SLOT(onlistRootsView_selectionChanged(QItemSelection,QItemSelection)));
 }
 
 MainWindow::~MainWindow()

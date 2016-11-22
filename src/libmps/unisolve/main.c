@@ -464,7 +464,7 @@ mps_check_data (mps_context * s, char *which_case)
   int i;
 
   /* case of user-defined polynomial */
-  if (!MPS_IS_MONOMIAL_POLY (s->active_poly))
+  if (! MPS_IS_MONOMIAL_POLY (s->active_poly))
     {
       if (s->output_config->multiplicity)
         mps_error (s,

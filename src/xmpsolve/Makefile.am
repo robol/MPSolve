@@ -59,7 +59,6 @@ resources = xmpsolve.rc
 endif
 
 pure_source_files = \
-	polynomialparser.cpp  \
 	polynomialsolver.cpp  \
 	rootsmodel.cpp  \
 	polsyntaxhighlighter.cpp  \
@@ -77,8 +76,6 @@ qml_pure_source_files = \
 
 other_source_files = \
 	main.cpp \
-	polynomial.cpp  \
-	monomial.cpp  \
 	rootsrenderer.cpp \
 	root.cpp 
 
@@ -101,7 +98,6 @@ headers = \
 	monomial.h  \
 	polynomial.h  \
 	root.h  \
-	polynomialparser.h  \
 	polsyntaxhighlighter.h  \
 	polynomialsolver.h  \
 	mpsolveworker.h
