@@ -93,10 +93,9 @@ qrc_files = \
 	resources.qrc
 
 headers = \
+	monomial.h \
 	rootsrenderer.h  \
 	rootsmodel.h  \
-	monomial.h  \
-	polynomial.h  \
 	root.h  \
 	polsyntaxhighlighter.h  \
 	polynomialsolver.h  \
@@ -106,7 +105,7 @@ desktop_headers = \
 	polfileeditor.h \
 	polfileeditorwindow.h \
 	mainwindow.h \
-	qrootsrenderer.h 
+	qrootsrenderer.h
 
 qml_headers = \
 	mainqmlview.h \
