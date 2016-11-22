@@ -28,7 +28,6 @@ MainQmlView::inflateObjects()
 
     ctx->setContextProperty("rootsModel", m_model);
     ctx->setContextProperty("solver", &m_solver);
-    ctx->setContextProperty("parser", &m_parser);
 
     // Set some other cosmetic values
     ctx->setContextProperty("PACKAGE_STRING", PACKAGE_STRING);

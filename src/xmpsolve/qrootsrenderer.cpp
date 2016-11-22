@@ -29,7 +29,8 @@ QRootsRenderer::reloadRootsWrapper()
 void
 QRootsRenderer::paintEvent(QPaintEvent *event)
 {
-    QPainter painter(this);
+    QPainter painter(this);    
+    painter.setRenderHint(QPainter::Antialiasing, true);
     handlePaintEvent(painter, width(), height(), event);
 }
 

@@ -144,7 +144,8 @@ RootsRenderer::handlePaintEvent(QPainter& painter, int w, int h, QPaintEvent *)
         QPointF p = scalePoint(m_roots[markedPoint], w, h);
         painter.setBrush(QBrush("green"));
         painter.setBrush(QColor(Qt::green));
-        painter.drawEllipse(p, 5, 5);
+        painter.setPen(QColor(Qt::green));
+        painter.drawEllipse(p, 3, 3);
     }
 }
 

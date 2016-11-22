@@ -6,7 +6,6 @@
 #include "rootsmodel.h"
 #include "rootsrenderer.h"
 #include "polynomialsolver.h"
-#include "polynomialparser.h"
 
 namespace xmpsolve {
 
@@ -28,12 +27,6 @@ private:
      * to perform the computations.
      */
     PolynomialSolver m_solver;
-
-    /**
-     * @brief m_parser is a parse for polynomials that transforms strings into Polynomial
-     * instances. Those can then be fed into m_solver.
-     */
-    PolynomialParser m_parser;
 
     /**
      * @brief m_rootContext is the root Context of the current QQmlEngine

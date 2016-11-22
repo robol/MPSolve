@@ -53,9 +53,9 @@ android {
 }
 
 !android {
-    QMAKE_CXXFLAGS += -include $${PWD}/../../_build/config.h
-    INCLUDEPATH += $${PWD}/../../include/
-    LIBS += $${PWD}/../../_build/src/libmps/.libs/libmps.so -lgmp
+    QMAKE_CXXFLAGS += -include $${PWD}/../../build/config.h
+    INCLUDEPATH += $${PWD}/../../include/ $${PWD}/../../build/include/
+    LIBS += $${PWD}/../../build/src/libmps/.libs/libmps.so -lgmp
 }
 
 # Input
@@ -63,9 +63,7 @@ HEADERS += ./mpsolveworker.h \
            ./polynomialsolver.h \
            ./root.h \
            ./rootsrenderer.h \
-	   ./polynomialparser.h \
-	   ./monomial.h \
-	   ./polynomial.h \
+           ./monomial.h \
            ./rootsmodel.h \
            ./polsyntaxhighlighter.h
 
@@ -74,9 +72,6 @@ SOURCES += ./main.cpp \
            ./polynomialsolver.cpp \
            ./root.cpp \
            ./rootsrenderer.cpp \
-           ./polynomialparser.cpp \
-           ./monomial.cpp \
-           ./polynomial.cpp \
            ./rootsmodel.cpp \
            ./polsyntaxhighlighter.cpp
 
