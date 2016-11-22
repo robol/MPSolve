@@ -123,16 +123,16 @@ PolynomialSolver::solvePoly(QString inputString, PolynomialBasis basis,
   QByteArray inputStringData = inputString.toLatin1();
   mps_polynomial * poly = (mps_polynomial *) mps::Polynomial::fromString (m_mpsContext, inputStringData.data());
 
-  if (poly && poly->degree != 0) {
+  if (poly && (! mps_context_has_errors(m_mpsContext)) && poly->degree != 0) {
     return solvePoly(poly, basis, selected_algorithm, required_digits, goal);
   }
   else {
     mps_context_free (m_mpsContext);
     m_mpsContext = NULL;
     
-    m_errorMessage = tr("Error parsing the polynomial");
+    m_errorMessage = tr("There is a syntax error in the specified the polynomial");
     
-    if (m_errorMessage == QString("") || poly->degree == 0) {
+    if (poly && poly->degree == 0) {
       m_errorMessage = tr("Constant polynomials have no roots");
     }
     

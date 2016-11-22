@@ -107,7 +107,7 @@ mps_utils_build_equivalent_rational_string (mps_context * ctx,
         {
           /* Set the pointer to the end of the string, that will be filled
            * with zeros. */
-          ptr = equivalent_rational_string + length - 1;
+          ptr = equivalent_rational_string + length;
           *(ptr + exponent) = '\0';
         }
 
@@ -118,14 +118,16 @@ mps_utils_build_equivalent_rational_string (mps_context * ctx,
       size_t length = strlen (equivalent_rational_string);
       char * slash = strchr (equivalent_rational_string, '/');
 
-      length = length - exponent + ((slash == NULL) ? 1 : 0);
+      length = length - exponent + ((slash == NULL) ? 2 : 0);
 
       equivalent_rational_string = mps_realloc
                                      (equivalent_rational_string, length);
 
       char * ptr = equivalent_rational_string + strlen (equivalent_rational_string);
-      if (slash == NULL)
+      if (slash == NULL) {
         *ptr++ = '/';
+        *ptr++ = '1';
+      }
 
       memset (ptr, '0', (size_t)(-exponent));
       *(ptr - exponent) = '\0';

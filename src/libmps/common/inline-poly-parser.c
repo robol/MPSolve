@@ -146,7 +146,7 @@ char * build_equivalent_rational_string (mps_context * ctx, const char * orig_li
       }
 
     /* TODO: Add the denominator part */
-    if (denominator)
+    if (denominator > 0)
       {
         *copy_ptr++ = '/';
         *copy_ptr++ = '1';
