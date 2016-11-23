@@ -56,6 +56,7 @@ fi
      ;;
    6)
      ANDROID_ARCH="mips64"
+     ADDITIONAL_GMP_OPTIONS="--disable-assembly"
      ANDROID_BUILD_DIR="android-ext-mips64"
      ;;
    7)
@@ -79,12 +80,24 @@ if [ "$ANDROID_ARCH" == "x86" ]; then
   ANDROID_BUILD_ARCH="i686-linux-android"
 fi
 
+if [ "$ANDROID_ARCH" == "x86_64" ]; then
+  ANDROID_BUILD_ARCH="x86_64-linux-android"
+fi
+
+if [ "$ANDROID_ARCH" == "arm64" ]; then
+  ANDROID_BUILD_ARCH="aarch64-linux-android"
+fi
+
 if [ "$ANDROID_ARCH" == "arm" ]; then
   ANDROID_BUILD_ARCH="arm-linux-androideabi"
 fi
 
 if [ "$ANDROID_ARCH" == "mips" ]; then
   ANDROID_BUILD_ARCH="mipsel-linux-android"
+fi
+
+if [ "$ANDROID_ARCH" == "mips64" ]; then
+  ANDROID_BUILD_ARCH="mips64el-linux-android"
 fi
 
 echo "> Android build system for libmps starting"
@@ -141,7 +154,10 @@ if [ ! -r "$SRCDIR/$ANDROID_BUILD_DIR/lib/libgmp.a" ]; then
   step "Building GMP for Android"
 
   ( cd $SRCDIR/$ANDROID_BUILD_DIR/tarballs/gmp-$GMP_VERSION && \
-        	./configure --enable-cxx --host=$ANDROID_BUILD_ARCH --prefix=$SRCDIR/$ANDROID_BUILD_DIR && make -j4 && make install ) ||
+        	./configure --enable-cxx --host=$ANDROID_BUILD_ARCH \
+                            --prefix=$SRCDIR/$ANDROID_BUILD_DIR \
+                              $ADDITIONAL_GMP_OPTIONS \
+                              && make -j4 && make install ) ||
  	    die "Cannot build and install GMP, aborting."
 
 else

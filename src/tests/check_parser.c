@@ -410,21 +410,6 @@ START_TEST (inline_cancellation1)
 }
 END_TEST
 
-START_TEST (inline_total_cancellation)
-{
-  ALLOCATE_CONTEXT
-
-  fprintf (stderr, "\n\nTEST:inline_total_cancellation Starting test \n");
-
-  mps_monomial_poly *poly = MPS_MONOMIAL_POLY (
-    mps_parse_inline_poly_from_string (ctx, "56/8 - x^4 + x^2 + x^4 - 2x^2 - 28/4 + x^2"));
-
-  fail_unless (poly == NULL, "Not raising error on empty polynomial");
-
-  mps_context_free (ctx);
-}
-END_TEST
-
 START_TEST (inline_linear1)
 {
   ALLOCATE_CONTEXT
@@ -539,13 +524,13 @@ START_TEST (test_complex1)
 
   mps_monomial_poly *poly = MPS_MONOMIAL_POLY (
     mps_parse_inline_poly_from_string (ctx,
-                                       "x^4 - (2e3, 6/7)x^9 + 5"));
+                                       "x^4 - (2e3 + 6/7i)*x^9 + 5"));
 
   if (mps_context_has_errors (ctx))
     printf ("Error = %s\n", mps_context_error_msg (ctx));
 
   fail_unless (poly != NULL,
-               "Cannot parse polynomial: x^4 - (2e3, 6/7)x^9 + 5");
+               "Cannot parse polynomial: x^4 - (2e3 + 6/7i)*x^9 + 5");
 
   /* Check that the coefficients have been parsed correctly */
   fail_unless (mpq_cmp_si (poly->initial_mqp_r[0], 5, 1) == 0,
@@ -586,13 +571,13 @@ START_TEST (test_complex2)
 
   mps_monomial_poly *poly = MPS_MONOMIAL_POLY (
     mps_parse_inline_poly_from_string (ctx,
-                                       "(1.2, -12/67)x^42 - (2e-3, 1)x^9 + (5,6/9)"));
+                                       "(1.2  -12/67i)*x^42 - (2e-3 + 1i)*x^9 + (5 + 6/9i)"));
 
   if (mps_context_has_errors (ctx))
     printf ("Error = %s\n", mps_context_error_msg (ctx));
 
   fail_unless (poly != NULL,
-               "Cannot parse polynomial: (1.2, -12/67) x^42 - (2e-3, 1) x^9 + (5,6/9)");
+               "Cannot parse polynomial: (1.2  -12/67i)*x^42 - (2e-3 + 1i) * x^9 + (5 + 6/9i)");
 
   /* Check that the coefficients have been parsed correctly */
   fail_unless (mpq_cmp_si (poly->initial_mqp_r[0], 5, 1) == 0,
@@ -675,7 +660,6 @@ main (void)
 
   /* Check for correct add and sum of exponents */
   tcase_add_test (tc_inline, inline_cancellation1);
-  tcase_add_test (tc_inline, inline_total_cancellation);
 
   /* Check for some simple extreme cases */
   tcase_add_test (tc_inline, inline_linear1);

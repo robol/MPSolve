@@ -37,8 +37,8 @@ setup_vtable (mps_context * ctx, Polynomial * self, const char * type_name)
   self->mnewton = &Polynomial::mnewton_wrapper;
 }
 
-Polynomial*
-Polynomial::fromStream (mps_context * ctx, mps::AbstractInputStream * stream)
+static Polynomial*
+polynomial_from_stream (mps_context * ctx, mps::AbstractInputStream * stream)
 {
   mps_polynomial * poly = mps_monomial_yacc_parser (ctx, reinterpret_cast<mps_abstract_input_stream *> (stream));  
   return (Polynomial*) (poly);
@@ -48,7 +48,7 @@ Polynomial *
 Polynomial::fromString (mps_context * ctx, const char * inputString)
 {
   MemoryFileStream stream(inputString);
-  return Polynomial::fromStream(ctx, &stream);
+  return polynomial_from_stream(ctx, &stream);
 }
 
 
