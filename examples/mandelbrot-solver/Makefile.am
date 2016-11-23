@@ -1,3 +1,5 @@
+if BUILD_EXAMPLES
+
 bin_PROGRAMS = mandelbrot-solver
 
 mandelbrot_solver_SOURCES = \
@@ -19,3 +21,6 @@ man_MANS = ${builddir}/mandelbrot-solver.1
 
 EXTRA_DIST = \
 	mandelbrot-poly.h 
+
+
+endif

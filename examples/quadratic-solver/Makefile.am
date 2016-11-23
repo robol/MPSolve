@@ -1,3 +1,5 @@
+if BUILD_EXAMPLES
+
 bin_PROGRAMS = quadratic-solver
 
 quadratic_solver_SOURCES = \
@@ -19,3 +21,5 @@ man_MANS = ${builddir}/quadratic-solver.1
 
 EXTRA_DIST = \
 	quadratic-poly.h 
+
+endif

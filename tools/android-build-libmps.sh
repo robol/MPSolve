@@ -13,17 +13,19 @@
 # Author: Leonardo Robol <leonardo.robol@sns.it>
 # Date: 24 November 2013
 
-GMP_VERSION="5.1.3"
+GMP_VERSION="6.1.1"
 ADDITIONAL_OPTIONS=""
 
 if [ "$1" = "" ]; then
-  # Make the user choose architecture he/she wants: 
+  # Make the user choose architecture he/she wants:
   echo "> Select the desired architecture: "
   echo " 1. x86"
-  echo " 2. armeabi"
-  echo " 3. armeabi-v7a"
-  echo " 4. mips"
-  echo " 5. All the above"
+  echo " 2. x86_64"
+  echo " 3. arm"
+  echo " 4. arm64"
+  echo " 5. mips"
+  echo " 6. mips64"
+  echo " 7. All the above"
   echo ""
   echo -n "> Choice: "
   read ANS
@@ -33,28 +35,37 @@ fi
 
   case $ANS in
    1)
-     ANDROID_ARCH="x86-4.8"
+     ANDROID_ARCH="x86"
      ANDROID_BUILD_DIR="android-ext-x86"
      ;;
    2)
-     ANDROID_ARCH="arm-linux-androideabi-4.8"
-     ANDROID_BUILD_DIR="android-ext-armeabi"
+     ANDROID_ARCH="x86_64"
+     ANDROID_BUILD_DIR="android-ext-x86_64"
      ;;
    3)
-     ANDROID_ARCH="arm-linux-androideabi-4.8"
-     ADDITIONAL_OPTIONS="--enable-vfpv3"
-     ANDROID_BUILD_DIR="android-ext-armeabi-v7a"
+     ANDROID_ARCH="arm"
+     ANDROID_BUILD_DIR="android-ext-arm"
      ;;
    4)
-     ANDROID_ARCH="mipsel-linux-android-4.8"
-     ANDROID_BUILD_DIR="android-ext-mips"
+     ANDROID_ARCH="arm64"
+     ANDROID_BUILD_DIR="android-ext-arm64"
      ;;
    5)
+     ANDROID_ARCH="mips"
+     ANDROID_BUILD_DIR="android-ext-mips"
+     ;;
+   6)
+     ANDROID_ARCH="mips64"
+     ANDROID_BUILD_DIR="android-ext-mips64"
+     ;;
+   7)
      # Call the script with all the possible values
      $0 1 || exit 2
      $0 2 || exit 3
      $0 3 || exit 4
      $0 4 || exit 5
+     $0 5 || exit 6
+     $0 6 || exit 7
      ;;
    *)
      echo "Invalid choice, aborting"
@@ -64,15 +75,15 @@ fi
 
 ANDROID_BUILD_ARCH=$ANDROID_ARCH
 
-if [ "$ANDROID_ARCH" == "x86-4.8" ]; then
+if [ "$ANDROID_ARCH" == "x86" ]; then
   ANDROID_BUILD_ARCH="i686-linux-android"
 fi
 
-if [ "$ANDROID_ARCH" == "arm-linux-androideabi-4.8" ]; then
+if [ "$ANDROID_ARCH" == "arm" ]; then
   ANDROID_BUILD_ARCH="arm-linux-androideabi"
 fi
 
-if [ "$ANDROID_ARCH" == "mipsel-linux-android-4.8" ]; then
+if [ "$ANDROID_ARCH" == "mips" ]; then
   ANDROID_BUILD_ARCH="mipsel-linux-android"
 fi
 
@@ -106,8 +117,8 @@ else
 
 step "Copying the Android toolchain in place"
 
-$ANDROID_NDK_ROOT/build/tools/make-standalone-toolchain.sh --toolchain=$ANDROID_ARCH \
-	--install-dir=$SRCDIR/$ANDROID_BUILD_DIR \
+    $ANDROID_NDK_ROOT/build/tools/make_standalone_toolchain.py --arch "$ANDROID_ARCH" \
+	--install-dir "$SRCDIR/$ANDROID_BUILD_DIR" --force \
 	|| die "Cannot build a standalone toolchain. Please check your NDK installation"
 
 fi
@@ -130,7 +141,7 @@ if [ ! -r "$SRCDIR/$ANDROID_BUILD_DIR/lib/libgmp.a" ]; then
   step "Building GMP for Android"
 
   ( cd $SRCDIR/$ANDROID_BUILD_DIR/tarballs/gmp-$GMP_VERSION && \
-        	./configure --host=$ANDROID_BUILD_ARCH --prefix=$SRCDIR/$ANDROID_BUILD_DIR && make -j4 && make install ) ||
+        	./configure --enable-cxx --host=$ANDROID_BUILD_ARCH --prefix=$SRCDIR/$ANDROID_BUILD_DIR && make -j4 && make install ) ||
  	    die "Cannot build and install GMP, aborting."
 
 else
@@ -144,7 +155,7 @@ step "Additional options for this build: $ADDITIONAL_OPTIONS"
 
 ( mkdir mpsolve-build && cd mpsolve-build && \
   $SRCDIR/configure --host=$ANDROID_BUILD_ARCH --prefix=$SRCDIR/$ANDROID_BUILD_DIR --disable-examples \
-	--disable-ui --disable-documentation \
+	--disable-ui --disable-documentation --disable-examples \
         CFLAGS="-DMPS_USE_BUILTIN_COMPLEX" GMP_CFLAGS="-I$SRCDIR/$ANDROID_BUILD_DIR/include" \
 	$ADDITIONAL_OPTIONS \
 	GMP_LIBS="-L$SRCDIR/$ANDROID_BUILD_DIR/lib -lgmp" && make -j4 && make install ) || \

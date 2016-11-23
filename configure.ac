@@ -627,6 +627,8 @@ AS_IF([test x$build_examples == xyes && test x$have_gtk == x1 && test x$have_cai
 	AC_SUBST([ROOTS_OF_UNITY_PROGRAMS])
 ])
 
+AM_CONDITIONAL([BUILD_EXAMPLES], [test x$build_examples = xyes])
+
 #
 # ===== MPSOLVE DOCUMENTATION ======
 #

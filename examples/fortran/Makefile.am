@@ -1,3 +1,5 @@
+if BUILD_EXAMPLES
+
 #
 # FORTRAN library
 #
@@ -8,7 +10,7 @@ libmps_fortran_la_SOURCES = mps_impl.c
 libmps_fortran_la_LIBADD = ${top_builddir}/src/libmps/libmps.la
 libmps_fortran_la_LDFLAGS = \
 	-version-info 0:1:0 \
-	-no-undefined 
+	-no-undefined
 
 # include_HEADERS = mps.mod
 
@@ -19,5 +21,6 @@ libmps_fortran_la_LDFLAGS = \
 #
 noinst_PROGRAMS = roots_of_unity
 roots_of_unity_SOURCES = roots_of_unity.f90
-roots_of_unity_LDADD = libmps-fortran.la 
+roots_of_unity_LDADD = libmps-fortran.la
 
+endif
