@@ -18,14 +18,15 @@ ADDITIONAL_OPTIONS=""
 
 if [ "$1" = "" ]; then
   # Make the user choose architecture he/she wants:
-  echo "> Select the desired architecture: "
+  echo "> Select the desired ABI: "
   echo " 1. x86"
   echo " 2. x86_64"
-  echo " 3. arm"
-  echo " 4. arm64"
-  echo " 5. mips"
-  echo " 6. mips64"
-  echo " 7. All the above"
+  echo " 3. armeabi"
+  echo " 4. armeabi-v7a"
+  echo " 5. arm64-v8a"
+  echo " 6. mips"
+  echo " 7. mips64"
+  echo " 8. All the above"
   echo ""
   echo -n "> Choice: "
   read ANS
@@ -44,22 +45,28 @@ fi
      ;;
    3)
      ANDROID_ARCH="arm"
-     ANDROID_BUILD_DIR="android-ext-arm"
+     ANDROID_BUILD_DIR="android-ext-armeabi"
      ;;
    4)
-     ANDROID_ARCH="arm64"
-     ANDROID_BUILD_DIR="android-ext-arm64"
+     ANDROID_ARCH="arm"
+     ADDITIONAL_OPTIONS="--enable-vfp3"
+     ANDROID_BUILD_DIR="android-ext-armeabi-v7a"
      ;;
+
    5)
+     ANDROID_ARCH="arm64"
+     ANDROID_BUILD_DIR="android-ext-arm64-v8a"
+     ;;
+   6)
      ANDROID_ARCH="mips"
      ANDROID_BUILD_DIR="android-ext-mips"
      ;;
-   6)
+   7)
      ANDROID_ARCH="mips64"
      ADDITIONAL_GMP_OPTIONS="--disable-assembly"
      ANDROID_BUILD_DIR="android-ext-mips64"
      ;;
-   7)
+   8)
      # Call the script with all the possible values
      $0 1 || exit 2
      $0 2 || exit 3
@@ -67,6 +74,7 @@ fi
      $0 4 || exit 5
      $0 5 || exit 6
      $0 6 || exit 7
+     $0 7 || exit 7
      ;;
    *)
      echo "Invalid choice, aborting"
