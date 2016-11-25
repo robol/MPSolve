@@ -104,7 +104,7 @@ AS_IF([test x$build_hard_float = xyes], [
 ])
 
 # Check if the user wants to use the standard system malloc even if tcmalloc
-# is installed. 
+# is installed.
 AC_ARG_ENABLE([tcmalloc],
         AS_HELP_STRING([--disable-tcmalloc], [Disable the use of the thread caching malloc]),
         [enable_tcmalloc=$enableval have_tcmalloc=$enableval],

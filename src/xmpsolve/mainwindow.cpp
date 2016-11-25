@@ -107,13 +107,31 @@ PolynomialBasis MainWindow::polynomialBasis()
     return basis;
 }
 
+mps_output_goal MainWindow::selectedGoal()
+{
+    switch (ui->goalComboBox->currentIndex()) {
+    case 0:
+        return MPS_OUTPUT_GOAL_ISOLATE;
+        break;
+
+    case 1:
+        return MPS_OUTPUT_GOAL_APPROXIMATE;
+        break;
+    default:
+        // This is kept for now as a default value, but this
+        // point should not be reached.
+        return MPS_OUTPUT_GOAL_APPROXIMATE;
+    }
+}
+
 void MainWindow::on_solveButton_clicked()
 {
     lockInterface();
 
     ui->statusBar->showMessage(tr("Solving polynomial..."));
     if (m_solver.solvePoly(ui->polyLineEdit->toPlainText(), polynomialBasis(),
-                           selectedAlgorithm(), requiredDigits()) < 0)
+                           selectedAlgorithm(), requiredDigits(),
+                           selectedGoal()) < 0)
     {
         ui->statusBar->showMessage(tr("Polynomial parsing failed"));
         QMessageBox mbox(QMessageBox::Critical, tr("Error while parsing the polynomial"),
@@ -141,7 +159,8 @@ void xmpsolve::MainWindow::onSolvePolFileRequested(QString content)
 {
     lockInterface();
 
-    if (m_solver.solvePolFileFromContent(content, selectedAlgorithm(), requiredDigits()) < 0) {
+    if (m_solver.solvePolFileFromContent(content, selectedAlgorithm(),
+                                         requiredDigits(), selectedGoal()) < 0) {
         ui->statusBar->showMessage(tr("Polynomial parsing failed"));
 
         QMessageBox::critical(this,

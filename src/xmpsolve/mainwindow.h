@@ -35,6 +35,14 @@ public:
     int requiredDigits();
 
     /**
+     * @brief selectedGoal returns the goal for the computation. Can be either set to
+     * MPS_OUTPUT_GOAL_ISOLATE or to MPS_OUTPUT_GOAL_APPROXIMATE.
+     *
+     * @return The goal for the computation selected by the user.
+     */
+    mps_output_goal selectedGoal();
+
+    /**
      * @brief polynomialBasis returns the polynomial basis selected by the user.
      * @return A PolynomialBasis value.
      */
