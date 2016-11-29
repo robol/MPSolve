@@ -174,8 +174,6 @@ char * build_equivalent_rational_string (mps_context * ctx, const char * orig_li
   if (allocated_line)
     free (allocated_line);
 
-  printf ("Line copy: %s\n", copy);
-
   return copy;
 }
 
