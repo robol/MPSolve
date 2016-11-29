@@ -7,6 +7,34 @@
   mps_context_add_debug_domain (ctx, MPS_DEBUG_IO); \
   mps_context_set_log_stream (ctx, stdout);
 
+START_TEST (inline_simple_fp)
+{
+  ALLOCATE_CONTEXT
+
+  fprintf (stderr, "\n\nTEST:inline_simple_fp Starting test\n");
+
+  mps_monomial_poly * poly = MPS_MONOMIAL_POLY
+    (mps_parse_inline_poly_from_string (ctx, "1.e0x - 2.e0"));
+
+  fail_unless (poly != NULL, "Cannot parse 1.e0x - 2.e0 correctly");
+  fail_unless (MPS_POLYNOMIAL (poly)->degree == 1,
+	       "Cannot parse the degree of 1.e0x - 2.e0 correctly (degree parsed = %d)",
+	       MPS_POLYNOMIAL (poly)->degree);
+
+  fail_unless (mpq_cmp_si (poly->initial_mqp_r[0], -2, 1) == 0,
+	       "Coefficient of degree 0 parsed incorrectly");
+  fail_unless (mpq_cmp_si (poly->initial_mqp_i[0], 0, 1) == 0,
+	       "Coefficient of degree 0 parsed incorrectly");
+  
+  fail_unless (mpq_cmp_si (poly->initial_mqp_r[1], 1, 1) == 0,
+	       "Coefficient of degree 0 parsed incorrectly");
+  fail_unless (mpq_cmp_si (poly->initial_mqp_i[1], 0, 1) == 0,
+	       "Coefficient of degree 0 parsed incorrectly");
+
+  mps_polynomial_free (ctx, MPS_POLYNOMIAL (poly));
+  mps_context_free (ctx);
+}
+END_TEST
 
 START_TEST (inline_simple1)
 {
@@ -657,6 +685,7 @@ main (void)
   tcase_add_test (tc_inline, inline_simple9);
   tcase_add_test (tc_inline, inline_simple10);
   tcase_add_test (tc_inline, inline_simple11);
+  tcase_add_test (tc_inline, inline_simple_fp);
 
   /* Check for correct add and sum of exponents */
   tcase_add_test (tc_inline, inline_cancellation1);

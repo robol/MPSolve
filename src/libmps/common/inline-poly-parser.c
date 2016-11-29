@@ -134,15 +134,15 @@ char * build_equivalent_rational_string (mps_context * ctx, const char * orig_li
         if (*line_ptr == '.')
           {
             dot_found = true;
-            line_ptr++;
           }
+	else {
+          denominator+= dot_found ? 1 : 0;
+	  *copy_ptr = *line_ptr;
+	  copy_ptr++;
+	}
 
-        if (dot_found)
-          denominator++;
+	line_ptr++;
 
-        *copy_ptr = *line_ptr;
-        line_ptr++;
-        copy_ptr++;
       }
 
     /* TODO: Add the denominator part */
@@ -173,6 +173,8 @@ char * build_equivalent_rational_string (mps_context * ctx, const char * orig_li
 
   if (allocated_line)
     free (allocated_line);
+
+  printf ("Line copy: %s\n", copy);
 
   return copy;
 }
