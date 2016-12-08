@@ -34,16 +34,14 @@ function [x,r] = mps_roots(v, alg)
      alg = 's';
   end
 
-  if nargout > 1
-    r = zeros(length(v)-1,1);
+  % Check if the user wants the radius as output
+  radius_needed = (isfield (alg, 'radius') && alg.radius) || (nargout > 1);
 
-    if (~ (isfield (alg, 'radius') && alg.radius))
-      warning('You need to specify the "radius" option to obtain the inclusion radius as output');
-    end
+  if radius_needed
+    r = zeros(length(v)-1,1);
   end
 
   if (isfield (alg, 'digits') && (digits() < alg.digits || ~strcmp(class(v(1)), 'sym')))
-    warning('Raising the number of digits of VPA to match the requested output digits');
     digits(alg.digits)
     
     if ~strcmp(class(v(1)), 'sym')
@@ -52,7 +50,7 @@ function [x,r] = mps_roots(v, alg)
   end
 
   if isnumeric(v(1)) && ~(isfield(alg,'digits') && (alg.digits > 16))
-    if (isfield (alg, 'radius') && alg.radius)
+    if radius_needed
       [x,r] = mps_roots_double (v, alg);
     else
       x = mps_roots_double (v, alg);
@@ -81,8 +79,12 @@ function [x,r] = mps_roots(v, alg)
     end
     
     % FIXME: mps_roots_strings takes the coefficients in the wrong order.
-    if (isfield (alg, 'radius') && alg.radius)
-      [x,r] = mps_roots_string (vv(end:-1:1), alg);
+    if radius_needed
+      [x,rr] = mps_roots_string (vv(end:-1:1), alg);
+      r = vpa(zeros(length(vv) - 1, 1));
+      for i = 1 : length(r)
+	r(i) = vpa(strrep(rr{i}, 'x', 'e'));
+      end
     else
       x = mps_roots_string (vv(end:-1:1), alg);
     end
@@ -115,6 +117,9 @@ function [x,r] = mps_roots(v, alg)
 
        % Add back the zero roots that we have previously deflated.
        x = [ x ; vpa(zeros(zero_roots, 1)) ];
+       if radius_needed
+	 r = [ r ; vpa(zeros(zero_roots, 1)) ];
+       end
     end
   end
 end

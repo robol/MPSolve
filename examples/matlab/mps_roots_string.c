@@ -76,7 +76,7 @@ mexFunction (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
       int ndim = 2, dims[] = { n-1, 4 };
 
       roots = mxCreateCellArray(ndim, dims);
-      radius = mxCreateCellArray(ndim, dims);
+      radius = mxCreateCellArray(1, dims);
 
       mps_context_get_roots_m (ctx, &mresults, &rresults);
       
@@ -118,6 +118,16 @@ mexFunction (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
 
 	  free (buffer_r);
 	  free (buffer_i);
+
+	  /* Use the same buffers to extract the radius, in case it
+	   * is requested */
+	  if (nlhs > 1) {
+	    buffer_r = rdpe_get_str (NULL, rresults[i]);
+	    mxSetCell (radius,
+		       mxCalcSingleSubscript (radius, 1, indices),
+		       mxCreateString (buffer_r));
+	    free (buffer_r);
+	  }
 	}
 
       free (mresults);
@@ -126,6 +136,9 @@ mexFunction (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
 
   /* Return the roots */
   plhs[0] = roots;
+
+  if (nlhs > 1)
+    plhs[1] = radius;
       
   mps_context_free (ctx);
 }
