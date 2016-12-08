@@ -2,7 +2,7 @@
 %
 % Y = MPS_ROOTS(V) approximate the roots of the scalar polynomial
 % 
-%               V(1) * X^N + ... + V(2) * X + V(1).
+%               V(1) * X^N + ... + V(end-1) * X + V(end).
 %
 %     The approximations are computed using MPSolve. When V is a
 %     vector of VPA, the computation is carried out in higher
