@@ -113,8 +113,6 @@ function [x,r] = mps_roots(v, alg)
 
        x = y.';
 
-       r
-
        % Add back the zero roots that we have previously deflated.
        x = [ x ; vpa(zeros(zero_roots, 1)) ];
     end
