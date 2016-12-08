@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-
 void 
 mexFunction (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
 {

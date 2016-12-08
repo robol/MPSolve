@@ -13,7 +13,7 @@ mexFunction (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
   cplx_t * results = NULL;
   int i, n;
   double *real_res, *imag_res;
-  mxArray *roots;
+  mxArray *roots, *radius;
 
   _mps_matlab_options options = mps_parse_matlab_options ( (nrhs > 1) ? prhs[1] : NULL );
 
@@ -71,12 +71,14 @@ mexFunction (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
   else
     {
       mpc_t * mresults = NULL;
+      rdpe_t * rresults = NULL;
       char * buffer_r, * buffer_i;
       int ndim = 2, dims[] = { n-1, 4 };
 
       roots = mxCreateCellArray(ndim, dims);
+      radius = mxCreateCellArray(ndim, dims);
 
-      mps_context_get_roots_m (ctx, &mresults, NULL);
+      mps_context_get_roots_m (ctx, &mresults, &rresults);
       
       for (i = 0; i < n - 1; i++)
 	{
@@ -119,6 +121,7 @@ mexFunction (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
 	}
 
       free (mresults);
+      free (rresults);
     }
 
   /* Return the roots */

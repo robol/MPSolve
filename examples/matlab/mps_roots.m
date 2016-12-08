@@ -72,9 +72,15 @@ function [x,r] = mps_roots(v, alg)
       end
     end
     v = vv;
+
+    % Deflate the zero roots
+    zero_roots = 0;
+    while (length(vv) > 0 && vpa(vv(end)) == vpa(0))
+      vv = vv(1:end-1);
+      zero_roots = zero_roots + 1;
+    end
     
-    % FIXME: mps_roots_strings takes the coefficients in the wrong
-    % order. 
+    % FIXME: mps_roots_strings takes the coefficients in the wrong order.
     if (isfield (alg, 'radius') && alg.radius)
       [x,r] = mps_roots_string (vv(end:-1:1), alg);
     else
@@ -106,6 +112,11 @@ function [x,r] = mps_roots(v, alg)
        end
 
        x = y.';
+
+       r
+
+       % Add back the zero roots that we have previously deflated.
+       x = [ x ; vpa(zeros(zero_roots, 1)) ];
     end
   end
 end
