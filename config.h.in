@@ -1,0 +1,42 @@
+/* Defined if MPSolve is built without debugging support */
+#cmakedefine DISABLE_DEBUG @DISABLE_DEBUG@
+
+/* Defined if CAIRO is available */
+#cmakedefine HAVE_CAIRO
+
+/* Define to 1 if you have the <dlfcn.h> header file. */
+#cmakedefine HAVE_DLFCN_H
+
+/* Define to 1 if you have the `getline' function. */
+#cmakedefine HAVE_GETLINE @HAVE_GETLINE@
+
+/* Define to 1 if you have the <gmp.h> header file. */
+#cmakedefine HAVE_GMP_H
+
+/* Defined if the graphical debugger should be bundled in MPSolve */
+#cmakedefine HAVE_GRAPHICAL_DEBUGGER
+
+/* Defined if GTK is available */
+#cmakedefine HAVE_GTK @HAVE_GTK@
+
+/* Define if __attribute__((visibility("hidden"))) is supported. */
+#cmakedefine HAVE_HIDDEN_VISIBILITY_ATTRIBUTE
+
+/* Define to 1 if you have the <inttypes.h> header file. */
+#cmakedefine HAVE_INTTYPES_H
+
+/* Define to 1 if you have the `gmp' library (-lgmp). */
+#cmakedefine HAVE_LIBGMP
+
+/* Define to 1 if you have the `gmpxx' library (-lgmpxx). */
+#cmakedefine HAVE_LIBGMPXX
+
+/* Define to 1 if you have the `m' library (-lm). */
+#cmakedefine HAVE_LIBM
+
+/* Define to 1 if you have the `mpfr' library (-lmpfr). */
+#cmakedefine HAVE_LIBMPFR
+
+/* Define to 1 if you have the `tcmalloc_minimal' library
+   (-ltcmalloc_minimal). */
+#cmakedefine HAVE_LIBTCMALLOC_MINIMAL
