@@ -17,5 +17,5 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH}
 add_subdirectory(src)
 
 # Create the config.h file that was needed by the old automake setup.
-configure_file(${CMAKE_SOURCE_DIR}/config.h.in ${CMAKE_BINARY_DIR}/config.h)
+configure_file(${CMAKE_SOURCE_DIR}/cmake/config.h.in ${CMAKE_BINARY_DIR}/config.h)
 
