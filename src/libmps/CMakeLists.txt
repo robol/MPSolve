@@ -13,8 +13,8 @@ check_c_source_compiles(
 
 # Check for support of complex numbers
 check_c_source_compiles(
-  "#include <complex.h> 
-  int main() { 
+  "#include <complex.h>
+  int main() {
     double complex a, b;
   }"
   HAVE_COMPLEX_H)
@@ -78,8 +78,6 @@ set(LIBMPS_SOURCES
 	monomial/monomial-poly.c 
 	monomial/monomial-threading.c 
 	monomial/newton.c 
-	${CMAKE_BINARY_DIR}/src/libmps/yacc-parser.c
-	${CMAKE_BINARY_DIR}/src/libmps/tokenizer.c
 	monomial/shift.c 
 	secsolve/secular-ga.c 
 	secsolve/secular-iteration.c 
@@ -103,27 +101,15 @@ set(LIBMPS_SOURCES
 	unisolve/main.c
 	unisolve/solve.c)
 
-find_program(BISON NAMES bison)
-find_program(FLEX NAMES flex)
+find_package(FLEX REQUIRED)
+find_package(BISON REQUIRED)
 
-add_custom_command(
-  COMMAND ${FLEX}
-  ARGS -o ${CMAKE_BINARY_DIR}/src/libmps/tokenizer.c
-       ${CMAKE_SOURCE_DIR}/src/libmps/monomial/tokenizer.l
-  OUTPUT ${CMAKE_BINARY_DIR}/src/libmps/tokenizer.c)
-
-add_custom_command(
-  COMMAND ${BISON}
-  ARGS -y ${CMAKE_SOURCE_DIR}/src/libmps/monomial/yacc-parser.y
-       -o ${CMAKE_BINARY_DIR}/src/libmps/yacc-parser.c
-       -d 
-  DEPENDS ${CMAKE_BINARY_DIR}/src/libmps/tokenizer.c
-  OUTPUT ${CMAKE_BINARY_DIR}/src/libmps/yacc-parser.c)
-
-set_source_files_properties(
-  ${CMAKE_BINARY_DIR}/src/libmps/monomial/yacc-parser.c GENERATED)
-set_source_files_properties(
-  ${CMAKE_BINARY_DIR}/src/libmps/monomial/tokenizer.c GENERATED)
+bison_target(libmps_parser monomial/yacc-parser.y
+    ${CMAKE_CURRENT_BINARY_DIR}/yacc-parser.c)
+flex_target(libmps_tokenizer monomial/tokenizer.l
+    ${CMAKE_BINARY_DIR}/src/libmps/tokenizer.c 
+    COMPILE_FLAGS "-d")
+add_flex_bison_dependency(libmps_tokenizer libmps_parser)
 
 #
 # Checking for mandatory libraries required to build libmps
@@ -136,17 +122,19 @@ find_package(GMP REQUIRED)
 find_package(Tcmalloc)
 find_package(PkgConfig)
 if (PkgConfig_FOUND)
-  
+
   pkg_check_modules(GTK3 gtk+-3.0)
   if (GTK3_FOUND)
     # This is needed for the config.h file
     set(HAVE_GTK 1 CACHE INTERNAL HAVE_GTK)
   endif (GTK3_FOUND)
-  
+
 endif (PkgConfig_FOUND)
 
 add_library(mps SHARED
-	${LIBMPS_SOURCES})
+	${LIBMPS_SOURCES}
+        ${BISON_libmps_parser_OUTPUTS}
+        ${FLEX_libmps_tokenizer_OUTPUTS})
 
 target_link_libraries(mps
   ${GMP_LIBRARIES} ${GMPXX_LIBRARIES}
