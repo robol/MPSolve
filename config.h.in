@@ -40,3 +40,5 @@
 /* Define to 1 if you have the `tcmalloc_minimal' library
    (-ltcmalloc_minimal). */
 #cmakedefine HAVE_LIBTCMALLOC_MINIMAL
+
+#define PACKAGE_STRING "@PACKAGE_STRING@"

@@ -136,6 +136,10 @@ add_library(mps SHARED
         ${BISON_libmps_parser_OUTPUTS}
         ${FLEX_libmps_tokenizer_OUTPUTS})
 
+set_target_properties(mps PROPERTIES
+        VERSION ${MPS_VERSION_STRING}
+        SOVERSION ${MPS_VERSION_MAJOR})
+
 target_link_libraries(mps
   ${GMP_LIBRARIES} ${GMPXX_LIBRARIES}
   ${TCMALLOC_LIBRARY} ${GTK3_LIBRARIES})
