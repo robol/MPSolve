@@ -48,17 +48,13 @@ RootsModel::data(const QModelIndex &index, int role) const
     {
 	cdpe_t croot;
 	mpc_get_cdpe (croot, m_roots.at(i)->value);
-	int real_digits = (rdpe_Esp (cdpe_Re (croot)) - rdpe_Esp (m_roots.at(i)->radius)) / LOG2_10;
-	int imag_digits = (rdpe_Esp (cdpe_Im (croot)) - rdpe_Esp (m_roots.at(i)->radius)) / LOG2_10;
+	int real_digits = (rdpe_Esp (cdpe_Re (croot)) - rdpe_Esp (m_roots.at(i)->radius)) / LOG2_10 - 1;
+	int imag_digits = (rdpe_Esp (cdpe_Im (croot)) - rdpe_Esp (m_roots.at(i)->radius)) / LOG2_10 - 1;
 
-	// Make sure that we are displaying at least one digit. 
-	real_digits = real_digits < 1 ? 1 : real_digits;
-	imag_digits = imag_digits < 1 ? 1 : imag_digits;
-	
         char * buffer = NULL;
 
-        imag_digits = (imag_digits < 0) ? 0 : imag_digits;
-        real_digits = (real_digits < 0) ? 0 : real_digits;
+        int imag_digits_size = (imag_digits < 0) ? 2 : imag_digits;
+        int real_digits_size = (real_digits < 0) ? 2 : real_digits;
 
         switch (role)
         {
@@ -67,7 +63,7 @@ RootsModel::data(const QModelIndex &index, int role) const
                 imag_digits = (imag_digits < 4) ? imag_digits : 4;
 	        // fallthrough
             case Qt::DisplayRole:
-	        buffer = new char[real_digits + imag_digits + 20];
+	        buffer = new char[real_digits_size + imag_digits_size + 20];
 
 		if (imag_digits <= 0 && real_digits <= 0)
 		  gmp_sprintf (buffer, "0.0");
