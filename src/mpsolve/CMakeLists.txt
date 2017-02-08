@@ -3,7 +3,5 @@ add_executable(mpsolve
   iteration-logger.c
   iteration-logger.h)
 
-add_definitions("-pthread")
-
 target_link_libraries(mpsolve
-  mps pthread)
+  mps ${CMAKE_THREAD_LIBS_INIT})

@@ -11,13 +11,9 @@ MPSOLVE 3.1.5
 If you have downloaded an official MPSolve tarball you can 
 install MPSolve simply by typing these commands in a shell:
 
-    ./configure 
+    cmake .
     make 
     [sudo] make install
-
-whilst, if you have checked out the git repository directly
-you have to use the script `autogen.sh` first, and then the
-usual `configure`, `make`, `make install` sequence. 
 
 The last command is optional and install mpsolve system-wide. You can simply
 use the mpsolve executable built in its directory by launching 
@@ -29,6 +25,30 @@ FORTRAN, Matlab, ... software without further tweaking.
 The `examples/` folder contains a mix of example source files that use
 MPSolve and bindings for other programming languages such as Python,
 Octave, Matlab (TM), ...
+
+Some build-time options are available. These can be specified at the `cmake`
+command line, for example: 
+   
+    cmake . -DMPSOLVE_DEBUG=ON
+	
+enables the debugging features of MPSolve. Here is a complete list of 
+the available options. 
+
+- `MPSOLVE_DEBUG`: Possible values are `ON` or `OFF`, and the default
+  is `ON`. It allows to debug MPSolve while it's running. Running 
+  `mpsolve -d` will give an overview of the algorithm, and 
+  `mpsolve -dt` traces almost every (high-level) operation. 
+  
+- `MPSOLVE_EXAMPLES`: Possible values are 'ON' and 'OFF', and 'ON' is 
+  the default. When this option is enabled all the examples and bindings
+  of MPSOlve are built in the `examples/` directory. 
+  
+- `MPSOLVE_GUI`: If this option is enabled (which is the default), the
+  user interface for MPSolve, called `xmpsolve`, is built. 
+  
+- `MPSOLVE_GRAPHICAL_DEBUGGER`: Provides a graphical debugger for mpsolve, 
+  that helps to track the convergence of the approximations. Possible values
+  are `ON` and `OFF`, with `ON` being the default. 
 
 ### Using the mpsolve binary
 

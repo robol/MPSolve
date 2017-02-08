@@ -1,10 +1,10 @@
-#
 # Testing the basics
-#
 include(CheckFunctionExists)
 include(CheckCSourceCompiles)
+include(CheckCCompilerFlag)
 
 check_function_exists(getline HAVE_GETLINE)
+check_function_exists(strndup HAVE_STRNDUP)
 
 # Check for the visibility attribute
 check_c_source_compiles(
@@ -24,6 +24,29 @@ if (NOT HAVE_COMPLEX_H)
 else(NOT HAVE_COMPLEX_H)
   set (MPS_USE_BUILTIN_COMPLEX 1 CACHE INTERNAL MPS_USE_BUILTIN_COMPLEX)
 endif (NOT HAVE_COMPLEX_H)
+
+check_c_compiler_flag("-fcx-limited-range" FLAG_CX_LIMITED_RANGE)
+check_c_compiler_flag("-fno-math-errno" FLAG_NO_MATH_ERRNO)
+check_c_compiler_flag("-fomit-frame-pointer" FLAG_OMIT_FRAME_POINTER)
+
+if (FLAG_CX_LIMITED_RANGE)
+  set(MPS_COMMON_DEFINITIONS "${MPS_COMMON_DEFINITIONS} -fcx-limited-range")
+endif (FLAG_CX_LIMITED_RANGE)
+
+if (FLAG_MATH_ERRNO)
+  set(MPS_COMMON_DEFINITIONS "${MPS_COMMON_DEFINITIONS} -fmath-errno")
+endif (FLAG_MATH_ERRNO)
+
+if (FLAG_OMIT_FRAME_POINTER)
+  set(MPS_COMMON_DEFINITIONS "${MPS_COMMON_DEFINITIONS} -fomit-frame-pointer")
+endif (FLAG_OMIT_FRAME_POINTER)
+
+# Select the right optimization flags
+if (NOT MPSOLVE_DEBUG_BUILD)
+  set(MPS_COMMON_DEFINITIONS "${MPS_COMMON_DEFINITIONS} -O2")
+else (NOT MPSOLVE_DEBUG_BUILD)
+  set(MPS_COMMON_DEFINITIONS "${MPS_COMMON_DEFINITIONS} -O0 -g")
+endif (NOT MPSOLVE_DEBUG_BUILD)
 
 #
 # Source files for libmps
@@ -111,14 +134,10 @@ flex_target(libmps_tokenizer monomial/tokenizer.l
     COMPILE_FLAGS "-d")
 add_flex_bison_dependency(libmps_tokenizer libmps_parser)
 
-#
 # Checking for mandatory libraries required to build libmps
-#
 find_package(GMP REQUIRED)
 
-#
 # Checking for optional libraries required to build libmps
-#
 find_package(Tcmalloc)
 find_package(PkgConfig)
 if (PkgConfig_FOUND)
@@ -142,16 +161,49 @@ set_target_properties(mps PROPERTIES
 
 target_link_libraries(mps
   ${GMP_LIBRARIES} ${GMPXX_LIBRARIES}
-  ${TCMALLOC_LIBRARY} ${GTK3_LIBRARIES})
+  ${TCMALLOC_LIBRARY} ${GTK3_LIBRARIES}
+  ${CMAKE_THREAD_LIBS_INIT})
 
 link_directories(${GTK3_LIBRARY_DIRS})
 
-add_definitions("-D_MPS_PRIVATE -include ${CMAKE_BINARY_DIR}/config.h")
+if (NOT MPSOLVE_DEBUG)
+  set(MPS_COMMON_DEFINITIONS "${MPS_COMMON_DEFINITIONS} -DDISABLE_DEBUG")
+else (NOT MPSOLVE_DEBUG)
+  set(MPS_COMMON_DEFINITIONS "${MPS_COMMON_DEFINITIONS} -DNICE_DEBUG")
+endif (NOT MPSOLVE_DEBUG)
+
+add_definitions("${MPS_COMMON_DEFINITIONS}
+   -D_MPS_PRIVATE 
+   -include ${CMAKE_BINARY_DIR}/config.h")
 
 configure_file(${CMAKE_SOURCE_DIR}/include/mps/mt.h.in
   ${CMAKE_BINARY_DIR}/include/mps/mt.h)
 
 target_include_directories(mps
   PUBLIC ${CMAKE_SOURCE_DIR}/include ${CMAKE_BINARY_DIR}/include
-  PRIVATE ${GMP_INCLUDE_DIR} ${TCMALLOC_INCLUDE_DIR} ${GTK3_INCLUDE_DIRS})
+  PRIVATE ${GMP_INCLUDE_DIRS} ${TCMALLOC_INCLUDE_DIRS} ${GTK3_INCLUDE_DIRS})
 
+# Handling tests
+if (CHECK_FOUND)
+  # If the check library is found we build a custom version of libmps
+  # that exposes all the private methods, and allow for fine-grained
+  # testing.   
+  add_library(mps-private SHARED
+    ${LIBMPS_SOURCES}
+    ${BISON_libmps_parser_OUTPUTS}
+    ${FLEX_libmps_tokenizer_OUTPUTS})
+
+  target_link_libraries(mps-private
+    ${GMP_LIBRARIES} ${GMPXX_LIBRARIES}
+    ${TCMALLOC_LIBRARY} ${GTK3_LIBRARIES}
+    ${CMAKE_THREAD_LIBS_INIT})
+
+  target_include_directories(mps-private
+    PUBLIC ${CMAKE_SOURCE_DIR}/include ${CMAKE_BINARY_DIR}/include
+    PRIVATE ${GMP_INCLUDE_DIR} ${TCMALLOC_INCLUDE_DIR} ${GTK3_INCLUDE_DIRS})
+
+  # Make sure that all methods are exposed in mps-private, since this is used
+  # for testing and needs to access all the code base. 
+  target_compile_definitions(mps-private
+    PRIVATE "-DMPS_PUBLISH_PRIVATE_METHODS")
+endif (CHECK_FOUND)
