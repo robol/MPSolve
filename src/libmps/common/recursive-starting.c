@@ -116,7 +116,7 @@ mps_recursive_fstart (mps_context * ctx, mps_polynomial * poly, mps_approximatio
   /* Copy some configuration from the originating context */
   mps_context_add_debug_domain (rctx, ctx->debug_level);
   mps_context_select_algorithm (rctx, ctx->algorithm);
-  // mps_context_select_starting_strategy (rctx, MPS_STARTING_STRATEGY_RECURSIVE);
+  /* mps_context_select_starting_strategy (rctx, MPS_STARTING_STRATEGY_RECURSIVE); */
   
   /* In every case we don't really need a high precision to find
    * good approximations. Here we're going for 16 bits of precision, 

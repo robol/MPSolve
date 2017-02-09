@@ -18,12 +18,11 @@
  * @brief Header file for libmps
  */
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
 
 #ifndef MPS_CORE_H_
 #define MPS_CORE_H_
+
+#include <mps/config.h>
 
 #ifdef __cplusplus
 #define __MPS_NOT_DEFINE_BOOL

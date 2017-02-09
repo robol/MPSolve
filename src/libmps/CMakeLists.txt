@@ -3,9 +3,8 @@ include(CheckFunctionExists)
 include(CheckCSourceCompiles)
 include(CheckCCompilerFlag)
 
-include_directories(
-  PUBLIC ${CMAKE_SOURCE_DIR}/include ${CMAKE_BINARY_DIR}/include
-  PRIVATE ${GMP_INCLUDE_DIR} ${TCMALLOC_INCLUDE_DIR} ${GTK3_INCLUDE_DIRS})
+include_directories(${GMP_INCLUDE_DIR}
+  ${TCMALLOC_INCLUDE_DIR} ${GTK3_INCLUDE_DIRS})
 
 check_function_exists(getline HAVE_GETLINE)
 check_function_exists(strndup HAVE_STRNDUP)
@@ -37,6 +36,17 @@ if (HAVE_RESTRICT)
 else (HAVE_RESTRICT)
   set (MPS_RESTRICT " " CACHE INTERNAL MPS_RESTRICT)
 endif (HAVE_RESTRICT)
+
+check_c_source_compiles(
+  "main() {} 
+  inline int test() { return 1; }"
+  HAVE_INLINE
+  )
+if (HAVE_INLINE)
+  set (MPS_INLINE inline CACHE INTERNAL MPS_INLINE)
+else (HAVE_INLINE)
+  set (MPS_INLINE " " CACHE INTERNAL MPS_INLINE)
+endif (HAVE_INLINE)
 
 check_c_compiler_flag("-fcx-limited-range" FLAG_CX_LIMITED_RANGE)
 check_c_compiler_flag("-fno-math-errno" FLAG_NO_MATH_ERRNO)
@@ -184,9 +194,7 @@ else (NOT MPSOLVE_DEBUG)
   set(MPS_COMMON_DEFINITIONS "${MPS_COMMON_DEFINITIONS} -DNICE_DEBUG")
 endif (NOT MPSOLVE_DEBUG)
 
-add_definitions("${MPS_COMMON_DEFINITIONS}
-   -D_MPS_PRIVATE 
-   -include ${CMAKE_BINARY_DIR}/config.h")
+add_definitions("${MPS_COMMON_DEFINITIONS} -D_MPS_PRIVATE")
 
 configure_file(${CMAKE_SOURCE_DIR}/include/mps/mt.h.in
   ${CMAKE_BINARY_DIR}/include/mps/mt.h)
@@ -218,5 +226,9 @@ install(TARGETS mps
   ARCHIVE DESTINATION lib)
 
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/mps
+  DESTINATION include
+  FILES_MATCHING PATTERN "*.h")
+
+install(DIRECTORY ${CMAKE_BINARY_DIR}/include/mps
   DESTINATION include
   FILES_MATCHING PATTERN "*.h")

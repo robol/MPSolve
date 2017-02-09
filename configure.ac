@@ -5,6 +5,12 @@ AC_INIT([MPSolve], [3.1.5], [robol@poisson.phc.unipi.it])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS([config.h])
 
+AC_C_INLINE
+AC_C_RESTRICT
+
+AC_DEFINE([MPS_INLINE], [inline], [Inline keyword])
+AC_DEFINE([MPS_RESTRICT], [restrict], [Restrict keyword])
+
 AC_CONFIG_MACRO_DIR([m4])
 
 LT_INIT([win32-dll shared])

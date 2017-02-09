@@ -627,7 +627,6 @@ mps_mcluster (mps_context * s, rdpe_t * drad, int nf)
       j = 0;
       while (already_analyzed_roots[j])
 	j++;
-      // fprintf (stderr, "New base root = %d\n", j);
 
       if (j > s->n)
 	break;

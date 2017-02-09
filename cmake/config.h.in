@@ -43,4 +43,6 @@
 
 #cmakedefine MPS_RESTRICT @MPS_RESTRICT@
 
+#cmakedefine MPS_INLINE @MPS_INLINE@
+
 #define PACKAGE_STRING "@PACKAGE_STRING@"

@@ -10,7 +10,7 @@
 
 #include <mps/mps.h>
 
-static inline void
+static MPS_INLINE void
 switch_to_mp (mps_context * ctx)
 {
   switch (ctx->algorithm)

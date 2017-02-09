@@ -38,12 +38,6 @@ set(XMPSOLVE_SOURCES
 
 add_executable(xmpsolve ${XMPSOLVE_SOURCES})
 
-include_directories(${CMAKE_SOURCE_DIR}/include
-  ${CMAKE_BINARY_DIR}/include
-)
-
-add_definitions("-include ${CMAKE_BINARY_DIR}/config.h")
-
 target_link_libraries(xmpsolve Qt5::Widgets mps)
 
 install(TARGETS xmpsolve
