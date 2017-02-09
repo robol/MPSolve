@@ -70,7 +70,7 @@ main (int argc, char **argv)
   mps_mpsolve (s);
 
   /* Save roots computed in the vector results */
-  mps_context_get_roots_d (s, results, NULL);
+  mps_context_get_roots_d (s, &results, NULL);
 
   /* Print out roots */
   for (i = 0; i < n; i++)
