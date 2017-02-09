@@ -1,3 +1,7 @@
+include_directories(
+  ${CMAKE_SOURCE_DIR}/include
+  ${CMAKE_BINARY_DIR}/include)
+
 add_executable(mpsolve
   mpsolve.c
   iteration-logger.c

@@ -41,4 +41,6 @@
    (-ltcmalloc_minimal). */
 #cmakedefine HAVE_LIBTCMALLOC_MINIMAL
 
+#cmakedefine MPS_RESTRICT @MPS_RESTRICT@
+
 #define PACKAGE_STRING "@PACKAGE_STRING@"

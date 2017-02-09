@@ -54,9 +54,9 @@
  *   while MPS_PARALLEL_SUM_SUCCESS indicates that the evaluation was successful.
  */
 int
-mps_secular_fparallel_sum (mps_context * s, mps_approximation * restrict root, int n, 
-			   cplx_t * restrict afpc, cplx_t * restrict bfpc,
-                           cplx_t pol, cplx_t fp, cplx_t sumb, double * restrict asum)
+mps_secular_fparallel_sum (mps_context * s, mps_approximation * root, int n, 
+			   cplx_t * MPS_RESTRICT afpc, cplx_t * bfpc,
+                           cplx_t pol, cplx_t fp, cplx_t sumb, double * MPS_RESTRICT asum)
 {
   if (n <= 2)
     {

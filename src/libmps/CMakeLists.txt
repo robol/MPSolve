@@ -29,6 +29,15 @@ else(NOT HAVE_COMPLEX_H)
   set (MPS_USE_BUILTIN_COMPLEX 1 CACHE INTERNAL MPS_USE_BUILTIN_COMPLEX)
 endif (NOT HAVE_COMPLEX_H)
 
+check_c_source_compiles(
+  "main() { double * restrict a; }"
+  HAVE_RESTRICT)
+if (HAVE_RESTRICT)
+  set (MPS_RESTRICT restrict CACHE INTERNAL MPS_RESTRICT)
+else (HAVE_RESTRICT)
+  set (MPS_RESTRICT "" CACHE INTERNAL MPS_RESTRICT)
+endif (HAVE_RESTRICT)
+
 check_c_compiler_flag("-fcx-limited-range" FLAG_CX_LIMITED_RANGE)
 check_c_compiler_flag("-fno-math-errno" FLAG_NO_MATH_ERRNO)
 check_c_compiler_flag("-fomit-frame-pointer" FLAG_OMIT_FRAME_POINTER)
