@@ -7,4 +7,4 @@ before_install:
   - sudo apt-add-repository ppa:george-edison55/precise-backports -y
   - sudo add-apt-repository ppa:octave/stable -y
   - sudo apt-get update -qq
-  - sudo apt-get install -y libgmp-dev libtcmalloc-minimal0 check octave3.2-headers libmpfr-dev bison flex cmake
+  - sudo apt-get install -y libgmp-dev libtcmalloc-minimal0 check octave3.2-headers libmpfr-dev bison flex cmake cmake-data
