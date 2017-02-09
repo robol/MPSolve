@@ -3,6 +3,10 @@ include(CheckFunctionExists)
 include(CheckCSourceCompiles)
 include(CheckCCompilerFlag)
 
+include_directories(
+  PUBLIC ${CMAKE_SOURCE_DIR}/include ${CMAKE_BINARY_DIR}/include
+  PRIVATE ${GMP_INCLUDE_DIR} ${TCMALLOC_INCLUDE_DIR} ${GTK3_INCLUDE_DIRS})
+
 check_function_exists(getline HAVE_GETLINE)
 check_function_exists(strndup HAVE_STRNDUP)
 
@@ -179,10 +183,6 @@ add_definitions("${MPS_COMMON_DEFINITIONS}
 configure_file(${CMAKE_SOURCE_DIR}/include/mps/mt.h.in
   ${CMAKE_BINARY_DIR}/include/mps/mt.h)
 
-target_include_directories(mps
-  PUBLIC ${CMAKE_SOURCE_DIR}/include ${CMAKE_BINARY_DIR}/include
-  PRIVATE ${GMP_INCLUDE_DIRS} ${TCMALLOC_INCLUDE_DIRS} ${GTK3_INCLUDE_DIRS})
-
 # Handling tests
 if (CHECK_FOUND)
   # If the check library is found we build a custom version of libmps
@@ -197,10 +197,6 @@ if (CHECK_FOUND)
     ${GMP_LIBRARIES} ${GMPXX_LIBRARIES}
     ${TCMALLOC_LIBRARY} ${GTK3_LIBRARIES}
     ${CMAKE_THREAD_LIBS_INIT})
-
-  target_include_directories(mps-private
-    PUBLIC ${CMAKE_SOURCE_DIR}/include ${CMAKE_BINARY_DIR}/include
-    PRIVATE ${GMP_INCLUDE_DIR} ${TCMALLOC_INCLUDE_DIR} ${GTK3_INCLUDE_DIRS})
 
   # Make sure that all methods are exposed in mps-private, since this is used
   # for testing and needs to access all the code base. 
