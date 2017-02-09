@@ -1,5 +1,8 @@
 if BUILD_MATLAB_TOOLBOX
 
+check:
+	echo "Nothing to do"
+
 %.o: %.c
 	@$(MEX) $(MEXOPTS) $(GMP_CFLAGS) -I${top_srcdir}/include -g \
 	-I${top_builddir}/include \
@@ -18,7 +21,7 @@ EXTRA_DIST = mps_roots.m
 
 clean-local:
 	rm -f mps_roots_double.mex* mps_roots_string.mex* mps_koslan.mex* mps_interp.mex*
-	rm -rf mpsolve-toolbox/ 
+	rm -rf mpsolve-toolbox/
 	rm -f mpsolve-toolbox.tar.gz
 
 MPS_LINK_COMMAND = $(MEX) $(MEXOPTS) $(MEX_OUTPUT_FLAG) $@$(MEX_OUTPUT_SUFFIX) \
