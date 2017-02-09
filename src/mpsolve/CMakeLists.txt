@@ -5,3 +5,6 @@ add_executable(mpsolve
 
 target_link_libraries(mpsolve
   mps ${CMAKE_THREAD_LIBS_INIT})
+
+install(TARGETS mpsolve
+  RUNTIME DESTINATION bin)

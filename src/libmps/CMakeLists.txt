@@ -207,3 +207,11 @@ if (CHECK_FOUND)
   target_compile_definitions(mps-private
     PRIVATE "-DMPS_PUBLISH_PRIVATE_METHODS")
 endif (CHECK_FOUND)
+
+# Handling installation
+install(TARGETS mps
+  LIBRARY DESTINATION lib)
+
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/mps
+  DESTINATION include
+  FILES_MATCHING PATTERN "*.h")

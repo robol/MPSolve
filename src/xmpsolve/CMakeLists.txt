@@ -46,4 +46,7 @@ add_definitions("-include ${CMAKE_BINARY_DIR}/config.h")
 
 target_link_libraries(xmpsolve Qt5::Widgets mps)
 
+install(TARGETS xmpsolve
+  RUNTIME DESTINATION bin)
+
 endif(Qt5Widgets_FOUND)
