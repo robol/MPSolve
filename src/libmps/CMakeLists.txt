@@ -35,7 +35,7 @@ check_c_source_compiles(
 if (HAVE_RESTRICT)
   set (MPS_RESTRICT restrict CACHE INTERNAL MPS_RESTRICT)
 else (HAVE_RESTRICT)
-  set (MPS_RESTRICT "" CACHE INTERNAL MPS_RESTRICT)
+  set (MPS_RESTRICT " " CACHE INTERNAL MPS_RESTRICT)
 endif (HAVE_RESTRICT)
 
 check_c_compiler_flag("-fcx-limited-range" FLAG_CX_LIMITED_RANGE)
@@ -154,23 +154,22 @@ find_package(GMP REQUIRED)
 find_package(Tcmalloc)
 find_package(PkgConfig)
 if (PkgConfig_FOUND)
-
   pkg_check_modules(GTK3 gtk+-3.0)
   if (GTK3_FOUND)
     # This is needed for the config.h file
     set(HAVE_GTK 1 CACHE INTERNAL HAVE_GTK)
   endif (GTK3_FOUND)
-
 endif (PkgConfig_FOUND)
 
-add_library(mps SHARED
+add_library(mps SHARED STATIC
 	${LIBMPS_SOURCES}
         ${BISON_libmps_parser_OUTPUTS}
         ${FLEX_libmps_tokenizer_OUTPUTS})
 
 set_target_properties(mps PROPERTIES
         VERSION ${MPS_VERSION_STRING}
-        SOVERSION ${MPS_VERSION_MAJOR})
+        SOVERSION ${MPS_VERSION_MAJOR}
+	C_STANDARD 99)
 
 target_link_libraries(mps
   ${GMP_LIBRARIES} ${GMPXX_LIBRARIES}
@@ -215,7 +214,8 @@ endif (CHECK_FOUND)
 
 # Handling installation
 install(TARGETS mps
-  LIBRARY DESTINATION lib)
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib)
 
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/mps
   DESTINATION include
