@@ -664,6 +664,7 @@ AC_CONFIG_FILES([Makefile
     include/mps/Makefile
     include/mps/private/Makefile
     examples/Makefile
+    examples/C/Makefile
     examples/fortran/Makefile
     examples/octave/Makefile
     examples/matlab/Makefile
