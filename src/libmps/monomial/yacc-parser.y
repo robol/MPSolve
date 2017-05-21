@@ -3,7 +3,6 @@
 %parse-param { void * data }
 %lex-param { void * scanner }
 %lex-param { void * data }
-%debug
 
 %{
 
