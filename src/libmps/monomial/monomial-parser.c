@@ -58,6 +58,7 @@ mps_monomial_poly_read_from_stream (mps_context * s,
           for (i = 0; i < s->n + 1; ++i)
             {
               token = mps_input_buffer_next_token (buffer);
+              mpc_set_prec(poly->mfpc[i], precision);
               if (!token || (mpf_set_str (mpc_Re (poly->mfpc[i]), token, 10) != 0))
                 {
                   mps_raise_parsing_error (s, buffer, token, "Error parsing coefficients of the polynomial");
