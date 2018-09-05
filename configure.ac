@@ -334,7 +334,7 @@ AC_ARG_ENABLE([tcmalloc],
       AC_CHECK_HEADERS([mpfr.h], [mpsolve_found_mpfr_headers=yes; break;])
 
       AS_IF([test "x$mpsolve_found_mpfr_headers" != "xyes"],
-        [have_mpfr=no ; has_mpfr = no; AC_MSG_WARN([Disabling MPFR since it is not found on the system])])
+        [have_mpfr=no ; has_mpfr=no; AC_MSG_WARN([Disabling MPFR since it is not found on the system])])
     ])
 
     AM_CONDITIONAL([HAVE_MPFR], [test x$have_mpfr = xyes])
@@ -398,7 +398,7 @@ AC_ARG_ENABLE([tcmalloc],
 
   # Search qmake and Qt related things, so we can build
   # MPSolve UI. Don't build the UI if the user has manually
-  # disabled it. 
+  # disabled it.
   QT_PROGRAMS=
   AS_IF([test "$build_ui" == "yes"], [
 
@@ -426,7 +426,7 @@ AC_ARG_ENABLE([tcmalloc],
           AS_IF([test "$have_qt5" == "yes"], [
 	        # Check for needed programs
                 AC_CHECK_PROGS([UIC], [uic-qt5 uic])
-                AC_CHECK_PROGS([MOC], [moc-qt5 moc])	
+                AC_CHECK_PROGS([MOC], [moc-qt5 moc])
                 AC_CHECK_PROGS([RCC], [rcc-qt5 rcc])
 
                 QT_CFLAGS=$QT5_CFLAGS

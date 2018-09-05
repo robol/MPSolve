@@ -18,6 +18,14 @@ START_TEST (monomial_creation)
 }
 END_TEST
 
+START_TEST (monomial_floating)
+{
+  mps::formal::Monomial test("0.25", 0);
+  fail_unless (test.coefficientReal() * 4 == 1,
+              "Monomial(\"0.25\") != 0.25");
+}
+END_TEST
+
 START_TEST (monomial_sum)
 {
   mps::formal::Monomial one("1", 0);
@@ -49,6 +57,7 @@ main (void)
   // Basic operations on list elements
   tcase_add_test (tc_monomials, monomial_creation);
   tcase_add_test (tc_monomials, monomial_sum);
+  tcase_add_test (tc_monomials, monomial_floating);
 
   // Basic operations on lists
   suite_add_tcase (s, tc_monomials);

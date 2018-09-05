@@ -9,7 +9,7 @@ extern "C" {
   mps_formal_monomial_new_with_string (const char * coeff_string, long degree)
   {
     Monomial * m = new Monomial (coeff_string, degree);
-    return reinterpret_cast<mps_formal_monomial*> (m);
+    return (mps_formal_monomial*) m;
   }
   
   mps_formal_monomial *
@@ -17,44 +17,44 @@ extern "C" {
 					long degree)
   {
     Monomial * m = new Monomial (real, imag, degree);
-    return reinterpret_cast<mps_formal_monomial*> (m);
+    return (mps_formal_monomial*) m;
   }
 
   void
   mps_formal_monomial_free (mps_formal_monomial* m)
   {
-    delete reinterpret_cast<Monomial*> (m);
+    delete ( (Monomial*) m );
   }
   
   void
   mps_formal_monomial_print (mps_formal_monomial * m)
   {
-    std::cout << *reinterpret_cast<Monomial*> (m);
+    std::cout << *((Monomial*) m);
   }
 
   mps_formal_monomial *
   mps_formal_monomial_neg (mps_formal_monomial * m)
   {
-    Monomial *m2 = new Monomial (- *reinterpret_cast<Monomial*> (m));
-    return reinterpret_cast<mps_formal_monomial*> (m2);
+    Monomial *m2 = new Monomial (- *((Monomial*) m));
+    return (mps_formal_monomial*) m2;
   }
 
   mps_formal_monomial * 
   mps_formal_monomial_mul_eq (mps_formal_monomial * m, 
 			      mps_formal_monomial * other)
   {
-    Monomial * mm = reinterpret_cast<Monomial*> (m);
-    *mm *= *reinterpret_cast<Monomial*> (other);
-    return reinterpret_cast<mps_formal_monomial*> (mm);
+    Monomial * mm = (Monomial*) m;
+    *mm *= *((Monomial*) other);
+    return (mps_formal_monomial*) mm;
   }
 
   mps_formal_monomial * 
   mps_formal_monomial_mul (mps_formal_monomial * m,
 			   mps_formal_monomial * other)
   {
-    Monomial * result = new Monomial (*reinterpret_cast<Monomial*> (m) * 
-				      *reinterpret_cast<Monomial*> (other));
-    return reinterpret_cast<mps_formal_monomial*> (result);
+    Monomial * result = new Monomial (*((Monomial*) m) * 
+				      *((Monomial*) other));
+    return (mps_formal_monomial*) (result);
   }
 
 }
@@ -165,31 +165,36 @@ Monomial::operator*(const Monomial& other) const
   return result;
 }
 
-std::ostream&
-mps::formal::operator<<(std::ostream& os, const mps::formal::Monomial& m)
-{
-  mpq_class mmCoeffI = - m.coefficientImag();
+namespace mps {
+  namespace formal {
 
-  if (m.isReal())
-    os << m.coefficientReal();
-  else if (m.coefficientReal() == 0)
-    os << m.coefficientImag() << "i";
-  else 
-    os << "(" << m.coefficientReal() << (m.coefficientImag() > 0 ? "+" : "-")
-       << (m.coefficientImag() > 0 ? m.coefficientImag() : m.coefficientImag()) << "i)";
-
-  switch (m.degree())
+    std::ostream&
+    operator<<(std::ostream& os, const mps::formal::Monomial& m)
     {
-    case 0:
-      break;
-    case 1:
-      os << "x";
-      break;
-    default:
-      os << "x^" << m.degree();
-      break;
+      mpq_class mmCoeffI = - m.coefficientImag();
+      
+      if (m.isReal())
+	os << m.coefficientReal();
+      else if (m.coefficientReal() == 0)
+	os << m.coefficientImag() << "i";
+      else 
+	os << "(" << m.coefficientReal() << (m.coefficientImag() > 0 ? "+" : "-")
+	   << (m.coefficientImag() > 0 ? m.coefficientImag() : m.coefficientImag()) << "i)";
+      
+      switch (m.degree())
+	{
+	case 0:
+	  break;
+	case 1:
+	  os << "x";
+	  break;
+	default:
+	  os << "x^" << m.degree();
+	  break;
+	}
+      
+      return os;
     }
-
-  return os;
+  }
 }
 

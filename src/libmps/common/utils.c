@@ -93,7 +93,7 @@ mps_utils_build_equivalent_rational_string (mps_context * ctx,
     {
       size_t length = strlen (equivalent_rational_string);
       equivalent_rational_string = mps_realloc
-                                     (equivalent_rational_string, length + exponent);
+                                     (equivalent_rational_string, length + exponent + 1);
 
       ptr = strchr (equivalent_rational_string, '/');
       if (ptr)
@@ -118,7 +118,7 @@ mps_utils_build_equivalent_rational_string (mps_context * ctx,
       size_t length = strlen (equivalent_rational_string);
       char * slash = strchr (equivalent_rational_string, '/');
 
-      length = length - exponent + ((slash == NULL) ? 2 : 0);
+      length = length - exponent + ((slash == NULL) ? 2 : 0) + 1;
 
       equivalent_rational_string = mps_realloc
                                      (equivalent_rational_string, length);
@@ -130,7 +130,7 @@ mps_utils_build_equivalent_rational_string (mps_context * ctx,
       }
 
       memset (ptr, '0', (size_t)(-exponent));
-      *(ptr - exponent) = '\0';
+      *(ptr - exponent) = 0;
     }
 
   return equivalent_rational_string;

@@ -6,6 +6,7 @@
 using namespace mps::formal;
 
 extern "C" {
+
   mps_formal_polynomial * 
   mps_formal_polynomial_new_with_monomial (mps_formal_monomial * m)
   {
@@ -259,39 +260,42 @@ mps::formal::operator+(Monomial a, Monomial b)
   return p;
 }
 
-
-std::ostream& 
-mps::formal::operator<<(std::ostream& os, const mps::formal::Polynomial& p)
-{
-  os << p[p.degree()];
-
-  for (int j = p.degree() - 1; j >= 0; j--)
+namespace mps {
+  namespace formal {
+    std::ostream& 
+    operator<<(std::ostream& os, const Polynomial& p)
     {
-      mps::formal::Monomial c = p[j];
-
-      if (!c.isZero())
+      os << p[p.degree()];
+      
+      for (int j = p.degree() - 1; j >= 0; j--)
 	{
-	  if (c.isReal() || c.isImag())
+	  mps::formal::Monomial c = p[j];
+	  
+	  if (!c.isZero())
 	    {
-	      if (c.coefficientReal() >= 0 && c.coefficientImag() >= 0)
+	      if (c.isReal() || c.isImag())
 		{
-		  os << " + " ;
-		  os << c;
+		  if (c.coefficientReal() >= 0 && c.coefficientImag() >= 0)
+		    {
+		      os << " + " ;
+		      os << c;
+		    }
+		  else
+		    {
+		      os << " - ";
+		      os << -c;
+		    }
 		}
 	      else
 		{
-		  os << " - ";
-		  os << -c;
+		  os << " + " << c;
 		}
 	    }
-	  else
-	    {
-	      os << " + " << c;
-	    }
 	}
+      
+      return os;
     }
-
-  return os;
+  }
 }
 
 mps_monomial_poly *

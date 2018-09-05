@@ -385,13 +385,13 @@ START_TEST (inline_simple11)
   fail_unless (mpq_cmp_si (poly->initial_mqp_i[0], 0, 1) == 0,
                "Coefficient of degree 0 has been parsed incorrectly");
   fail_unless (mpq_cmp_si (poly->initial_mqp_r[10], 20000, 1) == 0,
-               "Coefficient of degree 1 has been parsed incorrectly");
+               "Coefficient of degree 10 has been parsed incorrectly");
   fail_unless (mpq_cmp_si (poly->initial_mqp_i[10], 0, 1) == 0,
-               "Coefficient of degree 1 has been parsed incorrectly");
+               "Coefficient of degree 10 has been parsed incorrectly");
   fail_unless (mpq_cmp_si (poly->initial_mqp_r[70], 1, 1) == 0,
-               "Coefficient of degree 2 has been parsed incorrectly");
+               "Coefficient of degree 70 has been parsed incorrectly");
   fail_unless (mpq_cmp_si (poly->initial_mqp_i[70], 0, 1) == 0,
-               "Coefficient of degree 2 has been parsed incorrectly");
+               "Coefficient of degree 70 has been parsed incorrectly");
 
   for (i = 1; i <= 69; i++)
     {

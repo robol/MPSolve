@@ -93,7 +93,7 @@ char * build_equivalent_rational_string (mps_context * ctx, const char * orig_li
 
   /* Note that a string could have a prepended sign */
   line = parse_sign (ctx, line, sign, &sign_found);
-  
+
   /* Scan the string and truncate it if necessary */
   while (line_ptr++ < line_end)
     {
