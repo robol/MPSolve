@@ -20,6 +20,11 @@
 
 #include <mps/mps.h>
 
+/* Workaround some getline detection failures on Windows */
+#ifdef getline
+  #define HAVE_GETLINE 1
+#endif
+
 #ifndef HAVE_GETLINE
 
 #include <stdlib.h>

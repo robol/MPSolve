@@ -4,8 +4,8 @@ if BUILD_EXAMPLES
 # FORTRAN library
 #
 lib_LTLIBRARIES = libmps-fortran.la
-libmps_fortran_la_FCFLAGS  = -I${top_srcdir}/include -I${top_builddir}/include
-libmps_fortran_la_CFLAGS  = -I${top_srcdir}/include -I${top_builddir}/include
+libmps_fortran_la_FCFLAGS  = -I${top_srcdir}/include -I${top_builddir}/include -fPIC
+libmps_fortran_la_CFLAGS  = -I${top_srcdir}/include -I${top_builddir}/include -fPIC
 libmps_fortran_la_SOURCES = mps_impl.c
 libmps_fortran_la_LIBADD = ${top_builddir}/src/libmps/libmps.la
 libmps_fortran_la_LDFLAGS = \

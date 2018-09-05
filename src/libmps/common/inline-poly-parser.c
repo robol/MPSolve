@@ -171,6 +171,21 @@ char * build_equivalent_rational_string (mps_context * ctx, const char * orig_li
         }
     }
 
+  /* Remove leading zeros, if any */
+  copy_ptr = copy;
+  while ((copy_ptr < copy + strlen(copy) - 1) &&
+         (*copy_ptr == '0'))
+    copy_ptr++;
+
+  /* In this case, shift all the string back so that
+   * the additional zeros go away. */
+  if (copy_ptr != copy)
+    {
+      int shift = copy_ptr - copy;
+      for (i = 0; i < strlen(copy) - shift + 1; i++)
+        copy[i] = copy[i + shift];
+    }
+
   if (allocated_line)
     free (allocated_line);
 

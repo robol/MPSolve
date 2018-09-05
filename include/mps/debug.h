@@ -40,6 +40,16 @@ unsigned long int mps_stop_timer (clock_t * my_timer);
 
 #ifdef NICE_DEBUG
 
+/* In case isatty and _isatty are both not available, stay conservative
+ * and assume we do not have particular capabilities. */
+#if __STDC_VERSION__ >= 199901L
+#ifndef isatty
+  #ifndef _isatty
+    #define isatty(x) (0)
+  #endif
+#endif
+#endif
+
 /**
  * @brief Shorthand for debugging with the MPS_DEBUG_INFO level.
  */
