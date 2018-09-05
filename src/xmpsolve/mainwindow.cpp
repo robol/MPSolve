@@ -253,3 +253,13 @@ void xmpsolve::MainWindow::on_openPolFileButton_clicked()
 {
     on_actionOpen_pol_file_triggered();
 }
+
+void xmpsolve::MainWindow::on_zoomInButton_clicked()
+{
+    ui->graphicsView->zoomIn();
+}
+
+void xmpsolve::MainWindow::on_zoomOutButton_clicked()
+{
+    ui->graphicsView->zoomOut();
+}

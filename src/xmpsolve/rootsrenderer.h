@@ -13,7 +13,32 @@ class RootsRenderer
 
 public:
     explicit RootsRenderer();
+
     void handlePaintEvent(QPainter& painter, int w, int h, QPaintEvent *);
+
+    /**
+     * @brief zoomIn changes the zoom to magnify more.
+     */
+    void zoomIn();
+
+    /**
+     * @brief zoomOut changes the zoom to see a wider range.
+     */
+    void zoomOut();
+
+    /**
+     * @brief setCenter selects the current centered point.
+     * @param x Horizontal coordinate of the center (aka real part)
+     * @param y Vertical coordinate of the center (aka imaginary part).
+     */
+    void setCenter(double x, double y);
+
+    /**
+     * @brief center returns the current center point of the plot.
+     * @return A QPointF object representing the real and imaginary part of the
+     * current center.
+     */
+    QPointF center() { return mCenter; }
 
 protected:
 
@@ -32,6 +57,9 @@ protected:
      * @return The QPointF that can be plotted.
      */
     QPointF scalePoint(QPointF point, int width, int height);
+
+    QPointF scaleVector(QPointF point, int width, int height);
+    QPointF scaleVectorInverse(QPointF point, int width, int height);
 
     /**
      * @brief drawTicks is used internally to draw ticks on the axis.
@@ -57,6 +85,9 @@ protected:
      * @brief m_model is the model containing the roots that should be displayed.
      */
     RootsModel* m_model;
+
+private:
+    QPointF mCenter;
     
 };
 

@@ -10,6 +10,7 @@ RootsRenderer::RootsRenderer()
 {
     m_maxImagModule = m_maxRealModule = 0.0;
     m_model = NULL;
+    mCenter = QPointF(0.0, 0.0);
 }
 
 void
@@ -31,18 +32,61 @@ RootsRenderer::reloadRoots()
     }
 }
 
+void
+RootsRenderer::zoomIn()
+{
+    m_maxRealModule = m_maxRealModule / sqrt(2);
+    m_maxImagModule = m_maxImagModule / sqrt(2);
+}
+
+void
+RootsRenderer::zoomOut()
+{
+    m_maxRealModule = m_maxRealModule * sqrt(2);
+    m_maxImagModule = m_maxImagModule * sqrt(2);
+}
+
+void
+RootsRenderer::setCenter(double x, double y)
+{
+    mCenter = QPointF(x, y);
+}
+
 QPointF
 RootsRenderer::scalePoint(QPointF point, int width, int height)
 {
     double margin = 24;
     double maxModule = qMax (m_maxRealModule, m_maxImagModule);
-    QPointF center(width / 2, height / 2);
 
-    double x = (.5 + .5 * point.x() / maxModule) * (width - 2 * margin);
-    double y = (.5 - .5 * point.y() / maxModule) * (height - 2 * margin);
+    double x = (.5 + .5 * (point.x() - mCenter.x()) / maxModule) * (width - 2 * margin);
+    double y = (.5 - .5 * (point.y() - mCenter.y()) / maxModule) * (height - 2 * margin);
 
     QPointF newPoint(x + margin, y + margin);
     return newPoint;
+}
+
+QPointF
+RootsRenderer::scaleVectorInverse(QPointF point, int width, int height)
+{
+    double margin = 24;
+    double maxModule = qMax (m_maxRealModule, m_maxImagModule);
+
+    double x = point.x() / (width  - 2 * margin) * maxModule * 2.0;
+    double y = - point.y() / (height - 2 * margin) * maxModule * 2.0;
+
+    return QPointF(x, y);
+}
+
+QPointF
+RootsRenderer::scaleVector(QPointF point, int width, int height)
+{
+    double margin = 24;
+    double maxModule = qMax (m_maxRealModule, m_maxImagModule);
+
+    double x = .5 * point.x() / maxModule * (width - 2 * margin);
+    double y = -.5 * point.y() / maxModule * (height - 2 * margin);
+
+    return QPointF(x, y);
 }
 
 void
@@ -71,8 +115,8 @@ RootsRenderer::drawTicks(QPainter& painter, double w, double h)
 
         QString text;
         text.sprintf("%1.2e", tick_distance * i);
-        painter.drawText(QRectF(tick_center - scalePoint(QPointF(tick_distance / 2, 0), w, h) + QPointF(0,-12),
-                                tick_center + scalePoint(QPointF(tick_distance / 2, 0), w, h)),
+        painter.drawText(QRectF(tick_center - scaleVector(QPointF(tick_distance / 2, 0), w, h) + QPointF(0,-12),
+                                tick_center + scaleVector(QPointF(tick_distance / 2, 0), w, h)),
                                 Qt::AlignCenter, text);
 
         // No double zeros, please
@@ -84,11 +128,11 @@ RootsRenderer::drawTicks(QPainter& painter, double w, double h)
         painter.drawLine(tick_center - QPointF(4,0), tick_center + QPointF(4,0));
 
         text.sprintf("%1.2e", tick_distance * i);
-        QRectF br = painter.boundingRect(QRectF(tick_center - scalePoint(QPointF(0, tick_distance / 2), w, h),
-                                               tick_center + scalePoint(QPointF(0, tick_distance / 2), w, h) + QPointF(50, 0)),
+        QRectF br = painter.boundingRect(QRectF(tick_center + scaleVector(QPointF(0, tick_distance / 2), w, h),
+                                               tick_center + scaleVector(QPointF(0, tick_distance / 2), w, h) + QPointF(50, 0)),
                                         Qt::AlignLeft, text);
-        painter.drawText(QRectF(tick_center - scalePoint(QPointF(0, tick_distance / 2), w, h),
-                                tick_center + scalePoint(QPointF(0, tick_distance / 2), w, h) +
+        painter.drawText(QRectF(tick_center + scaleVector(QPointF(0, tick_distance / 2), w, h),
+                                tick_center + scaleVector(QPointF(0, tick_distance / 2), w, h) +
                                 QPointF(br.right() + 4, 0)),
                                 Qt::AlignCenter, text);
 
@@ -106,14 +150,25 @@ RootsRenderer::handlePaintEvent(QPainter& painter, int w, int h, QPaintEvent *)
 
     // Draw the cartesian axis
     painter.setPen(QColor(Qt::gray));
-    painter.drawLine(QPointF(axis_margin, h/2), QPointF(w - axis_margin, h/2));
-    painter.drawLine(QPointF(w/2, axis_margin), QPointF(w/2, h - axis_margin));
+
+    QPointF xMax = scalePoint(QPointF(m_maxImagModule, 0), w, h) - QPointF(axis_margin, 0.0);
+    QPointF xMin = scalePoint(QPointF(-m_maxImagModule, 0), w, h) + QPointF(axis_margin, 0.0);
+    QPointF yMax = scalePoint(QPointF(0, m_maxImagModule), w, h) - QPointF(0.0, axis_margin);
+    QPointF yMin = scalePoint(QPointF(0, -m_maxImagModule), w, h) + QPointF(0.0, axis_margin);
+
+    painter.drawLine(xMin, xMax);
+    painter.drawLine(yMin, yMax);
 
     // Draw the arrows on top of them
-    painter.drawLine(QPointF(w - axis_margin, h/2), QPointF(w - 8 - axis_margin, h/2 - 4));
-    painter.drawLine(QPointF(w - axis_margin, h/2), QPointF(w - 8 - axis_margin, h/2 + 4));
-    painter.drawLine(QPointF(w/2, axis_margin), QPointF(w/2 + 4, 8 + axis_margin));
-    painter.drawLine(QPointF(w/2, axis_margin), QPointF(w/2 - 4, 8 + axis_margin));
+    painter.drawLine(xMax - QPointF(8.0, 4.0), xMax);
+    painter.drawLine(xMax, xMax - QPointF(8.0, -4.0));
+    painter.drawLine(xMin + QPointF(8.0, 4.0), xMin);
+    painter.drawLine(xMin, xMin + QPointF(8.0, -4.0));
+
+    painter.drawLine(yMax + QPointF(4.0, 8.0), yMax);
+    painter.drawLine(yMax + QPointF(-4.0, 8.0), yMax);
+    painter.drawLine(yMin - QPointF(4.0, 8.0), yMin);
+    painter.drawLine(yMin - QPointF(-4.0, 8.0), yMin);
 
     drawTicks(painter, w, h);
 

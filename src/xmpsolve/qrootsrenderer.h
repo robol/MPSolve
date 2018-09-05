@@ -2,7 +2,6 @@
 #define XMPSOLVE_QROOTSRENDERER_H
 
 #include <QWidget>
-#include <QPainter>
 #include "rootsrenderer.h"
 
 namespace xmpsolve {
@@ -22,8 +21,33 @@ public:
 
     void paintEvent(QPaintEvent* event);
 
+    /**
+     * @brief zoomIn handles the zooming operations triggering update().
+     */
+    void zoomIn();
+
+    /**
+     * @brief zoomOut handles the zoomin triggering update().
+     */
+    void zoomOut();
+
+    /**
+     * @brief setCenter handled the recentering calling update()
+     * @param x The x coordinate of the new center point.
+     * @param y The y coordinate of the new center point.
+     */
+    void setCenter(double x, double y);
+
+    void mousePressEvent(QMouseEvent * event);
+    void mouseReleaseEvent(QMouseEvent * event);
+    void mouseMoveEvent(QMouseEvent * event);
+
 private slots:
     void reloadRootsWrapper();
+
+private:
+    bool mDragging;
+    QPointF mPreviousPosition;
 
 signals:
 

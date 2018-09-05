@@ -94,6 +94,10 @@ private slots:
 
     void on_openPolFileButton_clicked();
 
+    void on_zoomInButton_clicked();
+
+    void on_zoomOutButton_clicked();
+
 private:
     Ui::MainWindow *ui;
     PolynomialSolver m_solver;
