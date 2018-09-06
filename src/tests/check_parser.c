@@ -14,7 +14,7 @@ START_TEST (inline_simple_fp)
   fprintf (stderr, "\n\nTEST:inline_simple_fp Starting test\n");
 
   mps_monomial_poly * poly = MPS_MONOMIAL_POLY
-    (mps_parse_inline_poly_from_string (ctx, "1.e0x - 2.e0"));
+    (mps_parse_inline_poly_from_string (ctx, "1.e0*x - 2.e0"));
 
   fail_unless (poly != NULL, "Cannot parse 1.e0x - 2.e0 correctly");
   fail_unless (MPS_POLYNOMIAL (poly)->degree == 1,
@@ -80,7 +80,7 @@ START_TEST (inline_simple2)
   fprintf (stderr, "\n\nTEST:inline_simple2 Starting test \n");
 
   mps_monomial_poly * poly = MPS_MONOMIAL_POLY (
-    mps_parse_inline_poly_from_string (ctx, "100/100x^4 - 14/14"));
+    mps_parse_inline_poly_from_string (ctx, "100/100*x^4 - 14/14"));
 
   /* Verify the parsing */
   fail_unless (poly != NULL, "Cannot parse 100/100x^4 - 14/14 correctly");
@@ -117,7 +117,7 @@ START_TEST (inline_simple3)
   fprintf (stderr, "\n\nTEST:inline_simple3 Starting test \n");
 
   mps_monomial_poly * poly = MPS_MONOMIAL_POLY (
-    mps_parse_inline_poly_from_string (ctx, "1.00x^4 - 1.23"));
+    mps_parse_inline_poly_from_string (ctx, "1.00*x^4 - 1.23"));
 
   /* Verify the parsing */
   fail_unless (poly != NULL, "Cannot parse 100/100x^4 - 1.23 correctly");
@@ -154,7 +154,7 @@ START_TEST (inline_simple4)
   fprintf (stderr, "\n\nTEST:inline_simple4 Starting test \n");
 
   mps_monomial_poly * poly = MPS_MONOMIAL_POLY (
-    mps_parse_inline_poly_from_string (ctx, "1.00x^4 - 1.23e2"));
+    mps_parse_inline_poly_from_string (ctx, "1.00*x^4 - 1.23e2"));
 
   /* Verify the parsing */
   fail_unless (poly != NULL, "Cannot parse 100/100x^4 - 1.23e2 correctly");
@@ -191,7 +191,7 @@ START_TEST (inline_simple5)
   fprintf (stderr, "\n\nTEST:inline_simple5 Starting test \n");
 
   mps_monomial_poly * poly = MPS_MONOMIAL_POLY (
-    mps_parse_inline_poly_from_string (ctx, "1.04x^4 - 1.23e-2"));
+    mps_parse_inline_poly_from_string (ctx, "1.04*x^4 - 1.23e-2"));
 
   /* Verify the parsing */
   fail_unless (poly != NULL, "Cannot parse 100/100x^4 - 1.23e-2 correctly");
@@ -286,7 +286,7 @@ START_TEST (inline_simple8)
   fprintf (stderr, "\n\nTEST:inline_simple8 Starting test \n");
 
   mps_monomial_poly * poly = MPS_MONOMIAL_POLY (
-    mps_parse_inline_poly_from_string (ctx, "2342/12x^2 - 6/7 +x"));
+    mps_parse_inline_poly_from_string (ctx, "2342/12*x^2 - 6/7 +x"));
 
   /* Verify the parsing */
   fail_unless (poly != NULL, "Cannot parse x^2 - x correctly");
@@ -373,7 +373,7 @@ START_TEST (inline_simple11)
 
   fprintf (stderr, "\n\nTEST:inline_simple11 Starting test \n");
   mps_monomial_poly * poly = MPS_MONOMIAL_POLY (
-    mps_parse_inline_poly_from_string (ctx, "x^70+2e4x^10+6/7"));
+    mps_parse_inline_poly_from_string (ctx, "x^70+2e4*x^10+6/7"));
 
 
   /* Verify the parsing */
@@ -490,7 +490,7 @@ START_TEST (malformed_input2)
   fprintf (stderr, "\n\nTEST:malformed_input2 Starting test \n");
 
   mps_monomial_poly * poly = MPS_MONOMIAL_POLY (
-    mps_parse_inline_poly_from_string (ctx, " 1e4/12.3x^4 - 2"));
+    mps_parse_inline_poly_from_string (ctx, " 1e4/12.3*x^4 - 2"));
 
   fail_unless ((poly == NULL) &&
                mps_context_has_errors (ctx),
@@ -512,7 +512,7 @@ START_TEST (wellformed_input1)
   fprintf (stderr, "\n\nTEST:wellformed_input1 Starting test \n");
 
   mps_monomial_poly * poly = MPS_MONOMIAL_POLY (
-    mps_parse_inline_poly_from_string (ctx, " 6/4x^9 - 2e4"));
+    mps_parse_inline_poly_from_string (ctx, " 6/4*x^9 - 2e4"));
 
   if (mps_context_has_errors (ctx))
     printf ("TEST:malformed_input1 :: Error obtained parsing 6/4x^9 - 2e4: %s\n",

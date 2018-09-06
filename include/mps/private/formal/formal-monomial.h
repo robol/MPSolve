@@ -43,6 +43,10 @@ mps_formal_monomial * mps_formal_monomial_mul_eq (mps_formal_monomial * m,
 mps_formal_monomial * mps_formal_monomial_mul (mps_formal_monomial * m,
 					       mps_formal_monomial * other);
 
+const char * mps_formal_monomial_get_str(mps_formal_monomial * m);
+
+int mps_formal_monomial_degree (mps_formal_monomial *m);
+
 MPS_END_DECLS
 
 #ifdef __cplusplus
@@ -138,7 +142,7 @@ namespace mps {
       /**
        * @brief Print a monomial to a stream. 
        */
-      friend std::ostream& operator<<(std::ostream& os, const Monomial& l);    
+      friend std::ostream& operator<<(std::ostream& os, const Monomial& l);
 
     private:
       mpq_class mCoeffR;

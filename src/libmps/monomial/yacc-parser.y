@@ -40,10 +40,11 @@
 
 %}
 
-%token RATIONAL FLOATING_POINT PLUS MINUS IMAGINARY_UNIT TIMES LEFT_BRACKET RIGHT_BRACKET MONOMIAL
+%token RATIONAL FLOATING_POINT PLUS MINUS IMAGINARY_UNIT TIMES LEFT_BRACKET RIGHT_BRACKET MONOMIAL SUPERSCRIPT
 
 %left PLUS MINUS
 %left TIMES
+%right SUPERSCRIPT
 %right IMAGINARY_UNIT
 
 %%
@@ -97,6 +98,38 @@ polynomial: monomial
 	      mps_formal_polynomial_free ($3);
 	      ((_mps_yacc_parser_data *) data)->p = $$;
 	    }
+            | polynomial SUPERSCRIPT number
+	    {
+	      const char * coeffStr = mps_formal_monomial_get_str((mps_formal_monomial *) $3);
+	      const char * slash = strchr(coeffStr, '/');
+	      if (slash != NULL || mps_formal_monomial_degree((mps_formal_monomial *) $3) != 0)
+		{
+		  fprintf(stderr, "Exponents should be integers");
+		}
+	      else
+		{
+		  int exp = atoi(coeffStr);
+		  if (exp < 0)
+		    {
+		      fprintf(stderr, "Exponents should be positive\n");
+		    }
+		  else
+		    {
+		      int i;
+		      mps_formal_monomial * one = mps_formal_monomial_new_with_string("1", 0);
+		      mps_formal_polynomial * p = mps_formal_polynomial_new_with_monomial(one);
+
+		      for (i = 0; i < exp; i++)
+			{
+			  p = mps_formal_polynomial_mul_eq(p, (mps_formal_polynomial *) $1);
+			}
+		      mps_formal_polynomial_free($$);
+		      $$ = p;
+		      ((_mps_yacc_parser_data *) data)->p = $$;
+		      mps_formal_monomial_free(one);
+		    }
+		}
+	    }
 
 monomial: MONOMIAL 
 	  {
@@ -108,19 +141,6 @@ monomial: MONOMIAL
 	    long degree = (exp == NULL) ? 1 : atoi (exp + 1);
 	    $$ = (mps_formal_polynomial*) mps_formal_monomial_new_with_string ("1", degree);
 	    free ($1);
-	  }
-	  | number MONOMIAL
-	  {
-#ifdef MPS_PARSER_DEBUG
-	    printf ("Number: "); mps_formal_monomial_print ((mps_formal_monomial *) $1); 
-	    printf (" Monomial: %s\n", (const char *) $2); 
-#endif
-	    const char * exp = strchr ((const char *) $2, '^');
-	    long degree = (exp == NULL) ? 1 : atoi (exp + 1);
-	    mps_formal_monomial * m = mps_formal_monomial_new_with_string ("1", degree);
-
-	    $$ = (mps_formal_polynomial*) mps_formal_monomial_mul_eq ((mps_formal_monomial *) $1, m);
-	    mps_formal_monomial_free ((mps_formal_monomial *) m);
 	  }
           | number 
 	  {

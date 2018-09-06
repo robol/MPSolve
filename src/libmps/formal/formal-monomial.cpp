@@ -1,5 +1,6 @@
 #include <mps/mps.h>
 #include <iostream>
+#include <sstream>
 
 using namespace mps::formal;
 
@@ -55,6 +56,25 @@ extern "C" {
     Monomial * result = new Monomial (*((Monomial*) m) * 
 				      *((Monomial*) other));
     return (mps_formal_monomial*) (result);
+  }
+
+  const char *
+  mps_formal_monomial_get_str (mps_formal_monomial * m)
+  {
+    Monomial *mm = (Monomial *) m;
+    std::stringstream output;
+    output << *mm;
+
+    char * buf = (char *) malloc(output.str().length() + 1);
+    strcpy(buf, output.str().c_str());
+
+    return buf;
+  }
+
+  int
+  mps_formal_monomial_degree (mps_formal_monomial *m)
+  {
+    return ((Monomial*) m)->degree();
   }
 
 }
