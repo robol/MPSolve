@@ -21,7 +21,7 @@ Var StartMenuFolder
 !insertmacro MUI_LANGUAGE "English"
 
 ; Load pages
-  !insertmacro MUI_PAGE_LICENSE "/usr/share/common-licenses/GPL-3"
+  !insertmacro MUI_PAGE_LICENSE "COPYING"
   !insertmacro MUI_PAGE_COMPONENTS
   !insertmacro MUI_PAGE_DIRECTORY
 
@@ -50,17 +50,51 @@ section "MPSolve"
 	WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\MPSolve" "NoRepair" 1
 	WriteUninstaller "uninstall.exe"
 
-	File "xmpsolve.exe"
 	File "mpsolve.exe"
+	File "xmpsolve.exe"
+	File "gdiplus.dll"
+	File "libatk-1.0-0.dll"
+	File "libbz2-1.dll"
+	File "libcairo-2.dll"
+	File "libcairo-gobject-2.dll"
+	File "libepoxy-0.dll"
+	File "libexpat-1.dll"
+	File "libffi-6.dll"
+	File "libfontconfig-1.dll"
+	File "libfreetype-6.dll"
+	File "libgcc_s_seh-1.dll"
+	File "libgdk_pixbuf-2.0-0.dll"
+	File "libgdk-3-0.dll"
+	File "libgio-2.0-0.dll"
+	File "libglib-2.0-0.dll"
+	File "libgmodule-2.0-0.dll"
 	File "libgmp-10.dll"
-	File "libgcc_s_sjlj-1.dll"
-	File "libstdc++-6.dll"
+	File "libgmpxx-4.dll"
+	File "libgobject-2.0-0.dll"
+	File "libgraphite2.dll"
+	File "libgtk-3-0.dll"
+	File "libharfbuzz-0.dll"
+	File "libiconv-2.dll"
+	File "libicudt57.dll"
+	File "libicuin57.dll"
+	File "libicuuc57.dll"
+	File "libintl-8.dll"
+	File "libpango-1.0-0.dll"
+	File "libpangocairo-1.0-0.dll"
+	File "libpangoft2-1.0-0.dll"
+	File "libpangowin32-1.0-0.dll"
+	File "libpcre-1.dll"
+	File "libpcre16-0.dll"
+	File "libpixman-1-0.dll"
 	File "libpng16-16.dll"
-	File "QtCore4.dll"
-	File "QtGui4.dll"
-	;File "pthreadGCE2.dll"
-	;File "pthreadGC2.dll"
+	File "libstdc++-6.dll"
+	File "libwinpthread-1.dll"
+	File "Qt5Core.dll"
+	File "Qt5Gui.dll"
+	File "Qt5Widgets.dll"
 	File "zlib1.dll"
+
+
 
 	!insertmacro MUI_STARTMENU_WRITE_BEGIN Application
 	CreateDirectory "$SMPROGRAMS\MPSolve"
@@ -108,18 +142,51 @@ section "uninstall"
 	DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\MPSolve"
 	DeleteRegKey HKLM SOFTWARE\NSIS_MPSolve
 
-	delete $0\uninstall.exe
-	delete $0\xmpsolve.exe
-	delete $0\mpsolve.exe
-        Delete $0\libgmp-10.dll
-        Delete $0\libgcc_s_sjlj-1.dll
-        Delete $0\libstdc++-6.dll
-        Delete $0\libpng15-15.dll
-        Delete $0\QtCore4.dll
-        Delete $0\QtGui4.dll
-        Delete $0\pthreadGCE2.dll
-        Delete $0\pthreadGC2.dll
+	Delete $0\mpsolve.exe
+	Delete $0\xmpsolve.exe
+	Delete $0\gdiplus.dll
+	Delete $0\libatk-1.0-0.dll
+	Delete $0\libbz2-1.dll
+	Delete $0\libcairo-2.dll
+	Delete $0\libcairo-gobject-2.dll
+	Delete $0\libepoxy-0.dll
+	Delete $0\libexpat-1.dll
+	Delete $0\libffi-6.dll
+	Delete $0\libfontconfig-1.dll
+	Delete $0\libfreetype-6.dll
+	Delete $0\libgcc_s_seh-1.dll
+	Delete $0\libgdk_pixbuf-2.0-0.dll
+	Delete $0\libgdk-3-0.dll
+	Delete $0\libgio-2.0-0.dll
+	Delete $0\libglib-2.0-0.dll
+	Delete $0\libgmodule-2.0-0.dll
+	Delete $0\libgmp-10.dll
+	Delete $0\libgmpxx-4.dll
+	Delete $0\libgobject-2.0-0.dll
+	Delete $0\libgraphite2.dll
+	Delete $0\libgtk-3-0.dll
+	Delete $0\libharfbuzz-0.dll
+	Delete $0\libiconv-2.dll
+	Delete $0\libicudt57.dll
+	Delete $0\libicuin57.dll
+	Delete $0\libicuuc57.dll
+	Delete $0\libintl-8.dll
+	Delete $0\libpango-1.0-0.dll
+	Delete $0\libpangocairo-1.0-0.dll
+	Delete $0\libpangoft2-1.0-0.dll
+	Delete $0\libpangowin32-1.0-0.dll
+	Delete $0\libpcre-1.dll
+	Delete $0\libpcre16-0.dll
+	Delete $0\libpixman-1-0.dll
+	Delete $0\libpng16-16.dll
+	Delete $0\libstdc++-6.dll
+	Delete $0\libwinpthread-1.dll
+	Delete $0\Qt5Core.dll
+	Delete $0\Qt5Gui.dll
+	Delete $0\Qt5Widgets.dll
 	Delete $0\zlib1.dll
+
+	Delete /REBOOTOK $0\uninstall.exe
 
 	RMDir $0
 
