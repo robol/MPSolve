@@ -122,6 +122,32 @@ PolynomialSolver::solvePoly(QString inputString, PolynomialBasis basis,
 
   QByteArray inputStringData = inputString.toLatin1();
   mps_polynomial * poly = (mps_polynomial *) mps::Polynomial::fromString (m_mpsContext, inputStringData.data());
+  
+  // If the user has chosen the Chebyshev basis, keep the coefficients but
+  // change the basis of the parsed polynomial. 
+  if (basis == PolynomialBasis::CHEBYSHEV) {
+	mpq_t real_coeff, imag_coeff;
+	mps_monomial_poly *mpoly = MPS_MONOMIAL_POLY (poly);
+	  
+	mps_chebyshev_poly* cpoly = mps_chebyshev_poly_new (m_mpsContext, 
+	  poly->degree, poly->structure);
+	  
+	// Copy the coefficients -- every polynomial parsed from a command line has
+	// rational coefficients. 
+	mpq_init (real_coeff);
+	mpq_init (imag_coeff);
+	
+	for (int i = 0; i <= poly->degree; i++) {
+	  mps_monomial_poly_get_coefficient_q  (m_mpsContext, mpoly, i, real_coeff, imag_coeff);
+	  mps_chebyshev_poly_set_coefficient_q (m_mpsContext, cpoly, i, real_coeff, imag_coeff);
+	}
+	
+	mpq_clear (real_coeff);
+	mpq_clear (imag_coeff);
+	
+	poly = MPS_POLYNOMIAL (cpoly);
+	mps_polynomial_free (m_mpsContext, MPS_POLYNOMIAL (mpoly));
+  }
 
   if (poly && (! mps_context_has_errors(m_mpsContext)) && poly->degree != 0) {
     return solvePoly(poly, basis, selected_algorithm, required_digits, goal);
