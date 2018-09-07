@@ -48,6 +48,10 @@ section "MPSolve"
 	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\MPSolve" "Uninstall" '"$INSTDIR\uninstall.exe"'
 	WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\MPSolve" "NoModify" 1
 	WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\MPSolve" "NoRepair" 1
+	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\MPSolve" \
+                 "DisplayName" "MPSolve"
+	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\MPSolve" \
+                 "UninstallString" "$\"$INSTDIR\uninstall.exe$\""
 	WriteUninstaller "uninstall.exe"
 
 	File "mpsolve.exe"

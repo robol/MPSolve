@@ -7,7 +7,8 @@ mandelbrot_solver_SOURCES = \
 	mandelbrot-poly.c \
 	mandelbrot-newton.c \
 	mandelbrot-solver.c \
-	mandelbrot-starting.c
+	mandelbrot-starting.c \
+	dummy.cpp
 
 mandelbrot_solver_CFLAGS = \
 	-I${top_srcdir}/include \

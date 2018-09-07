@@ -7,7 +7,8 @@ quadratic_solver_SOURCES = \
 	quadratic-poly.c \
 	quadratic-newton.c \
 	quadratic-solver.c \
-	quadratic-starting.c
+	quadratic-starting.c \
+	dummy.cpp
 
 quadratic_solver_CFLAGS = \
 	-I${top_srcdir}/include \

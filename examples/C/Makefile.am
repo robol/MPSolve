@@ -3,7 +3,8 @@ if BUILD_EXAMPLES
 bin_PROGRAMS = root_of_unity
 
 root_of_unity_SOURCES = \
-	root_of_unity.c
+	root_of_unity.c \
+	dummy.cpp
 
 root_of_unity_CFLAGS = \
 	-I${top_srcdir}/include \

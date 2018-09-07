@@ -1,3 +1,5 @@
+if ! WINDOWS_BUILD
+
 noinst_PROGRAMS = $(ROOTS_OF_UNITY_PROGRAMS)
 EXTRA_PROGRAMS = roots_of_unity
 
@@ -14,3 +16,5 @@ roots_of_unity_LDFLAGS = \
     $(GTK_LIBS)
 
 roots_of_unity_LDADD  = $(top_builddir)/src/libmps/libmps.la
+
+endif
