@@ -125,7 +125,7 @@ PolynomialSolver::solvePoly(QString inputString, PolynomialBasis basis,
   
   // If the user has chosen the Chebyshev basis, keep the coefficients but
   // change the basis of the parsed polynomial. 
-  if (basis == xmpsolve::PolynomialBasis::CHEBYSHEV) {
+  if (basis == CHEBYSHEV) {
 	mpq_t real_coeff, imag_coeff;
 	mps_monomial_poly *mpoly = MPS_MONOMIAL_POLY (poly);
 	  
