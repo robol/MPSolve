@@ -166,8 +166,8 @@ have different types")
         elif isinstance(coeff_re, str):
             if coeff_im is None:
                 coeff_im = "0.0"
-            coeff_re = bytes(coeff_re, "ASCII")
-            coeff_im = bytes(coeff_im, "ASCII")
+            coeff_re = str(coeff_re)
+            coeff_im = str(coeff_im)
             _mps.mps_monomial_poly_set_coefficient_s(cntxt, mp, n,
                                                      coeff_re, coeff_im)
         else:
@@ -182,7 +182,7 @@ have different types")
 
         cf = (ctypes.c_double*2)()
         _mps.mps_monomial_poly_get_coefficient_d(self._ctx._c_ctx, mp, n, cf)
-        return cf
+        return cf[0] + 1J*cf[1]
 
     def get_coefficients(self):
         """ Get list of coefficients of the polynomial
