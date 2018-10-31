@@ -1,3 +1,4 @@
+import sys
 import ctypes
 import ctypes.util
 
@@ -80,9 +81,10 @@ class Context:
             algorithm = Algorithm.SECULAR_GA
 
         _mps.mps_context_select_algorithm(self._c_ctx, algorithm)
-        _mps.mps_context_set_output_prec(self._c_ctx,
-                                         Goal.MPS_OUTPUT_GOAL_APPROXIMATE)
-        _mps.mps_context_set_output_prec(self._c_ctx, ctypes.c_long(60))
+        #_mps.mps_context_set_output_prec(self._c_ctx,
+        #                                 Goal.MPS_OUTPUT_GOAL_APPROXIMATE)
+        # _mps.mps_context_set_input_prec(self._c_ctx, ctypes.c_long(0))
+        #_mps.mps_context_set_output_prec(self._c_ctx, ctypes.c_long(60))
         _mps.mps_mpsolve(self._c_ctx)
 
     def solve(self, poly=None, algorithm=Algorithm.SECULAR_GA):
@@ -103,7 +105,7 @@ class Context:
         _mps.mps_context_get_roots_d(self._c_ctx,
                                      ctypes.pointer(ctypes.pointer(results)),
                                      None)
-        return list(results)
+        return [complex(x) for x in results]
 
     def get_inclusion_radii(self):
         """Return a set of guaranteed inclusion radii for the
@@ -116,7 +118,7 @@ class Context:
                                      ctypes.pointer(ctypes.pointer(results)),
                                      ctypes.pointer(ctypes.pointer(radii)))
 
-        return list(radii)
+        return [float(x) for x in radii]
 
 
 class Polynomial:
@@ -156,6 +158,8 @@ have different types")
         if isinstance(coeff_re, int):
             if coeff_im is None:
                 coeff_im = 0
+            coeff_re = ctypes.c_longlong(coeff_re)
+            coeff_im = ctypes.c_longlong(coeff_im)
             _mps.mps_monomial_poly_set_coefficient_int(cntxt, mp, n,
                                                        coeff_re, coeff_im)
         elif isinstance(coeff_re, float):
@@ -166,8 +170,9 @@ have different types")
         elif isinstance(coeff_re, str):
             if coeff_im is None:
                 coeff_im = "0.0"
-            coeff_re = str(coeff_re)
-            coeff_im = str(coeff_im)
+            if sys.version_info.major > 2:
+                coeff_re = bytes(coeff_re, "ASCII")
+                coeff_im = bytes(coeff_im, "ASCII")
             _mps.mps_monomial_poly_set_coefficient_s(cntxt, mp, n,
                                                      coeff_re, coeff_im)
         else:
