@@ -81,10 +81,10 @@ class Context:
             algorithm = Algorithm.SECULAR_GA
 
         _mps.mps_context_select_algorithm(self._c_ctx, algorithm)
-        #_mps.mps_context_set_output_prec(self._c_ctx,
+        # _mps.mps_context_set_output_prec(self._c_ctx,
         #                                 Goal.MPS_OUTPUT_GOAL_APPROXIMATE)
         # _mps.mps_context_set_input_prec(self._c_ctx, ctypes.c_long(0))
-        #_mps.mps_context_set_output_prec(self._c_ctx, ctypes.c_long(60))
+        # _mps.mps_context_set_output_prec(self._c_ctx, ctypes.c_long(60))
         _mps.mps_mpsolve(self._c_ctx)
 
     def solve(self, poly=None, algorithm=Algorithm.SECULAR_GA):
@@ -165,6 +165,8 @@ have different types")
         elif isinstance(coeff_re, float):
             if coeff_im is None:
                 coeff_im = 0.0
+            coeff_re = ctypes.c_double(coeff_re)
+            coeff_im = ctypes.c_double(coeff_im)
             _mps.mps_monomial_poly_set_coefficient_d(cntxt, mp, n,
                                                      coeff_re, coeff_im)
         elif isinstance(coeff_re, str):
