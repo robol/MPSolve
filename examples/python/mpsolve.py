@@ -181,26 +181,28 @@ have different types")
             raise RuntimeError("Coefficient type not supported")
 
     def get_coefficient(self, n):
-        """ Get a coefficients of the polynomial
+        """ Get a coefficient of the polynomial
         """
         mp = self._c_polynomial
         if n < 0 or n > self._degree or not isinstance(n, int):
             raise ValueError("Invalid coefficient degree")
 
-        cf = (ctypes.c_double*2)()
-        _mps.mps_monomial_poly_get_coefficient_d(self._ctx._c_ctx, mp, n, cf)
-        return cf[0] + 1J*cf[1]
+        cf = (Cplx)()
+        _mps.mps_monomial_poly_get_coefficient_d(self._ctx._c_ctx, mp, n,
+                                                 ctypes.pointer(cf))
+        return complex(cf)
 
     def get_coefficients(self):
         """ Get list of coefficients of the polynomial
         """
         mp = self._c_polynomial
-        cf = (ctypes.c_double*2)()
+        cf = (Cplx)()
         coeffs = []
         for n in range(self._degree + 1):
             _mps.mps_monomial_poly_get_coefficient_d(self._ctx._c_ctx, mp, n,
-                                                     cf)
-            coeffs.append(cf[0] + 1J*cf[1])
+                                                     ctypes.pointer(cf))
+            cf_n = complex(cf)
+            coeffs.append(cf_n)
         return coeffs
 
 
