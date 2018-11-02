@@ -18,33 +18,42 @@
 #include <string.h>
 
 #define W_DEGREE 20
+#define STR_BUF_SZ 256
 
 int
 main ()
 {
-  /* n is the degree of the polynomial,
-   * i is used as counter */
   long int m = 0, k = 0, M = W_DEGREE;
-  long int phi[W_DEGREE + 1] = {0}, phi0[W_DEGREE + 1] = {0};
+  mpz_t *phi, *phi0;
   mps_monomial_poly *p;
   mps_context *ctx;
   cplx_t cf;
   mpq_t one, m_one, zero, cf_q;
-
-  phi[0] = 1;
+  char  str_buf[STR_BUF_SZ];
+  int ret_val;
+  
+  phi = malloc((M + 1)*sizeof(mpz_t));
+  phi0 = malloc((M + 1)*sizeof(mpz_t));
+  
+  for (m = 0; m < M + 1; m++) {
+    mpz_init(phi[m]);
+    mpz_init(phi0[m]);
+  }
+  mpz_set_si(phi[0], 1);
   for(m = 0; m < M; m++) {
     for(k = 0; k < m + 1; k++) {
-      phi0[k] = phi[k];
+      mpz_set(phi0[k],phi[k]);
     }
-    phi[0] = 0;
+    mpz_set_si(phi[0], 0);
     for(k = 0; k < m + 1; k++) {
-      phi[k + 1] = phi0[k];
+       mpz_set(phi[k + 1], phi0[k]);
     }
     for(k = 0; k < m + 1; k++) {
-      phi[k] = phi[k] - (m + 1)*phi0[k];
+      mpz_mul_si (phi0[k], phi0[k], m + 1);
+      mpz_sub (phi[k], phi[k], phi0[k]);
     }
   }
-  /* for (k = 0; k < M + 1; k++) {printf("%ld\n", phi[k]);};  return 0; */
+  /* for (k = 0; k < M + 1; k++) {gmp_printf("%Zd\n", phi[k]);};  return 0; */
   mpq_init (one);
   mpq_init (m_one);
   mpq_init (zero);
@@ -54,7 +63,6 @@ main ()
   mpq_set_si (m_one, -1, 1);
   mpq_set_si (zero, 0, 1);
 
-  
   ctx = mps_context_new ();
   p = mps_monomial_poly_new (ctx, M);
 
@@ -62,9 +70,13 @@ main ()
   mps_context_select_algorithm(ctx, MPS_ALGORITHM_SECULAR_GA);
 
   for(m = 0; m < M + 1; m++) {
-    /* mps_monomial_poly_set_coefficient_d (ctx, p, m, phi[m], 0); */
-    mpq_set_d(cf_q, (double)phi[m]);
-    mps_monomial_poly_set_coefficient_q (ctx, p, m, cf_q, zero);
+    ret_val = gmp_snprintf (str_buf, STR_BUF_SZ, "%Zd", phi[m]);
+    if(ret_val > STR_BUF_SZ) {
+      fprintf(stderr, "String buffer too short: %d instead of %d",
+        STR_BUF_SZ, ret_val);
+      return -1;
+    }
+    mps_monomial_poly_set_coefficient_s(ctx, p, m, str_buf, "0");
   }
 
   /*
@@ -79,7 +91,7 @@ main ()
 
   /* Allocate space to hold the results. We check only floating point results
    * in here */
-  cplx_t *results = cplx_valloc (m);
+  cplx_t *results = cplx_valloc (M);
 
   /* Actually solve the polynomial */
   mps_mpsolve (ctx);
@@ -88,7 +100,7 @@ main ()
   mps_context_get_roots_d (ctx, &results, NULL);
 
   /* Print out roots */
-  for (k = 0; k < m; k++)
+  for (k = 0; k < M; k++)
     {
       printf("%.17e %.17e\n", cplx_Re(results[k]), cplx_Im(results[k]));
     }
