@@ -2,10 +2,11 @@ import mpsolve as mps
 from time import time
 from sys import argv
 #
-if len(argv) < 2:
-    M = 20
-elif 'M' not in locals():
-    M = int(argv[1])
+if 'M' not in locals():
+    if len(argv) < 2:
+        M = 20
+    else:
+        M = int(argv[1])
 # phi = np.zeros(M + 1,dtype=int)
 phi = [1]
 for m in range(M):

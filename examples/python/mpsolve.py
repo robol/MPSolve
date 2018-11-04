@@ -1,7 +1,7 @@
 import sys
 import ctypes
 import ctypes.util
-from gmpy2 import mpq
+# from gmpy2 import mpq
 
 # Load the libmps shared library. We should keep the .so version update
 # in case we bump it in the future.
@@ -181,7 +181,7 @@ have different types")
         #         coeff_im = mpq()
         #     _mps.mps_monomial_poly_set_coefficient_q(cntxt, mp, n,
         #                                              coeff_re, coeff_im)
-            
+
         else:
             raise RuntimeError("Coefficient type not supported")
 
