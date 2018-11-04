@@ -1,7 +1,7 @@
 import sys
 import ctypes
 import ctypes.util
-
+from gmpy2 import mpq
 
 # Load the libmps shared library. We should keep the .so version update
 # in case we bump it in the future.
@@ -81,10 +81,9 @@ class Context:
             algorithm = Algorithm.SECULAR_GA
 
         _mps.mps_context_select_algorithm(self._c_ctx, algorithm)
-        # _mps.mps_context_set_output_prec(self._c_ctx,
-        #                                 Goal.MPS_OUTPUT_GOAL_APPROXIMATE)
-        # _mps.mps_context_set_input_prec(self._c_ctx, ctypes.c_long(0))
-        # _mps.mps_context_set_output_prec(self._c_ctx, ctypes.c_long(60))
+        _mps.mps_context_set_output_prec(self._c_ctx, ctypes.c_long(100))
+        _mps.mps_context_set_output_goal(self._c_ctx,
+                                         Goal.MPS_OUTPUT_GOAL_APPROXIMATE)
         _mps.mps_mpsolve(self._c_ctx)
 
     def solve(self, poly=None, algorithm=Algorithm.SECULAR_GA):
@@ -100,25 +99,25 @@ class Context:
         to the mpsolve method. Consider using the convienience solve() method
         instead."""
         degree = _mps.mps_context_get_degree(self._c_ctx)
-        results = (Cplx*degree)()
+        roots = (Cplx*degree)()
 
         _mps.mps_context_get_roots_d(self._c_ctx,
-                                     ctypes.pointer(ctypes.pointer(results)),
+                                     ctypes.pointer(ctypes.pointer(roots)),
                                      None)
-        return [complex(x) for x in results]
+        return [complex(x) for x in roots]
 
     def get_inclusion_radii(self):
         """Return a set of guaranteed inclusion radii for the
         approximations obtained through a call to get_roots()"""
         degree = _mps.mps_context_get_degree(self._c_ctx)
-        results = (Cplx*degree)()
+        roots = (Cplx*degree)()
         radii = (ctypes.c_double*degree)()
 
         _mps.mps_context_get_roots_d(self._c_ctx,
-                                     ctypes.pointer(ctypes.pointer(results)),
+                                     ctypes.pointer(ctypes.pointer(roots)),
                                      ctypes.pointer(ctypes.pointer(radii)))
 
-        return [float(x) for x in radii]
+        return list(radii)
 
 
 class Polynomial:
@@ -177,6 +176,12 @@ have different types")
                 coeff_im = bytes(coeff_im, "ASCII")
             _mps.mps_monomial_poly_set_coefficient_s(cntxt, mp, n,
                                                      coeff_re, coeff_im)
+        # elif isinstance(coeff_re, type(mpq())):
+        #     if coeff_im is None:
+        #         coeff_im = mpq()
+        #     _mps.mps_monomial_poly_set_coefficient_q(cntxt, mp, n,
+        #                                              coeff_re, coeff_im)
+            
         else:
             raise RuntimeError("Coefficient type not supported")
 
