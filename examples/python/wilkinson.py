@@ -7,7 +7,7 @@ if 'M' not in locals():
         M = 20
     else:
         M = int(argv[1])
-# phi = np.zeros(M + 1,dtype=int)
+
 phi = [1]
 for m in range(M):
     phi0 = list(phi)
