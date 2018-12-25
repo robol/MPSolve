@@ -444,13 +444,13 @@ enum mps_search_set {
 
   /**
    * @brief Complex numbers in the unitary disc
-   * \f$S = \{ z \: | \: \lvert z \rvert \leq 1 \}$
+   * \f$S = \{ z \: | \: \lvert z \rvert \leq 1 \}\f$
    */
   MPS_SEARCH_SET_UNITARY_DISC,
 
   /**
    * @brief Complex number out of the unitary disc
-   * \d$S = \{ z \: | \: \lvert z \rvert \leq 1 \}$
+   * \f$S = \{ z \: | \: \lvert z \rvert \leq 1 \}\f$
    */
   MPS_SEARCH_SET_UNITARY_DISC_COMPL,
 
