@@ -73,7 +73,7 @@ class Context:
         """Simple shorthand for the combination of set_input_poly() and mpsolve(). 
         This function directly returns the approximations that could otherwise be
         obtained by a call to the get_roots() method. """
-        self.mpsolve(poly)
+        self.mpsolve(poly, algorithm)
         return self.get_roots()
 
     def get_roots(self):
