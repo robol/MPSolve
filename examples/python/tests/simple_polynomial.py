@@ -30,6 +30,30 @@ def simple_polynomial_example():
 
     print("")
 
+def simple_polynomial_int_coefficients():
+    n = 2
+    ctx = mpsolve.Context()
+    poly = mpsolve.MonomialPoly(ctx, n)
+
+    poly.set_coefficient (0, -1)
+    poly.set_coefficient (1, 0)
+    poly.set_coefficient (2, 2)
+    ctx.solve (poly)
+
+    print("")
+
+def simple_polynomial_float_coefficients():
+    n = 3
+    ctx = mpsolve.Context()
+    poly = mpsolve.MonomialPoly(ctx, n)
+
+    poly.set_coefficient (0, -1.0)
+    poly.set_coefficient (1, 0.0)
+    poly.set_coefficient (2, 2.5)
+    ctx.solve (poly)
+
+    print("")
+
 def simple_chebyshev_example():
     """Here is a simple example of a polynomial expressed in the
     Chebyshev basis."""
@@ -47,4 +71,6 @@ def simple_chebyshev_example():
 if __name__ == "__main__":
 
     simple_polynomial_example()
+    simple_polynomial_int_coefficients()
+    simple_polynomial_float_coefficients()
     simple_chebyshev_example()

@@ -134,7 +134,10 @@ class MonomialPoly(Polynomial):
             _mps.mps_monomial_poly_set_coefficient_int(self._ctx._c_ctx, 
                                                          mp, n, coeff, 0)
         elif isinstance(coeff, float):
-            _mps.mps_monomial_poly_set_coefficient_d(self._ctx._c_ctx, mp, n, coeff, 0)
+            _mps.mps_monomial_poly_set_coefficient_d(
+                self._ctx._c_ctx, mp, n,
+                ctypes.c_double(coeff),
+                ctypes.c_double(0))
         elif isinstance(coeff, str):
             _mps.mps_monomial_poly_set_coefficient_s(self._ctx._c_ctx, mp, n, coeff, None);
         else:
