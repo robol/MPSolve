@@ -7,11 +7,10 @@ import ctypes.util
 # in case we bump it in the future.
 _mps = ctypes.CDLL("libmps.so.3")
 
-
 class Cplx(ctypes.Structure):
-_mps.mps_chebyshev_poly_new.restype = ctypes.c_void_p
-_mps.mps_context_new.restype = ctypes.c_void_p
-_mps.mps_monomial_poly_new.restype = ctypes.c_void_p
+    _mps.mps_chebyshev_poly_new.restype = ctypes.c_void_p
+    _mps.mps_context_new.restype = ctypes.c_void_p
+    _mps.mps_monomial_poly_new.restype = ctypes.c_void_p
 
     """Wrapper around the cplx_t type of MPSolve, that is usually
     a direct mapping onto the complex type of C99, but has a fallback
