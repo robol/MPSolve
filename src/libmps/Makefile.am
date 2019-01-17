@@ -29,7 +29,7 @@ libmps_la_SOURCES = \
 	common/file-starting.c \
 	common/improve.c \
 	common/inclusion.c \
-	common/inline-poly-parser.c \ 
+	common/inline-poly-parser.c \
 	common/interface.c \
 	common/jacobi-aberth.c \
 	common/list-element.c \
