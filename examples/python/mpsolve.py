@@ -9,6 +9,10 @@ _mps = ctypes.CDLL("libmps.so.3")
 
 
 class Cplx(ctypes.Structure):
+_mps.mps_chebyshev_poly_new.restype = ctypes.c_void_p
+_mps.mps_context_new.restype = ctypes.c_void_p
+_mps.mps_monomial_poly_new.restype = ctypes.c_void_p
+
     """Wrapper around the cplx_t type of MPSolve, that is usually
     a direct mapping onto the complex type of C99, but has a fallback
     custom implementation for systems that do not provide the type"""
@@ -52,7 +56,7 @@ class Context:
     solution. """
 
     def __init__(self):
-        self._c_ctx = _mps.mps_context_new()
+        self._c_ctx = ctypes.c_void_p(_mps.mps_context_new())
 
     def __del__(self):
         if self._c_ctx is not None:
@@ -86,12 +90,11 @@ class Context:
                                          Goal.MPS_OUTPUT_GOAL_APPROXIMATE)
         _mps.mps_mpsolve(self._c_ctx)
 
-    def solve(self, poly=None, algorithm=Algorithm.SECULAR_GA):
-        """Simple shorthand for the combination of set_input_poly() and
-        mpsolve(). This function directly returns the approximations
-        that could otherwise be obtained by a call to the get_roots() method.
-        """
-        self.mpsolve(poly)
+    def solve(self, poly = None, algorithm = Algorithm.SECULAR_GA):
+        """Simple shorthand for the combination of set_input_poly() and mpsolve(). 
+        This function directly returns the approximations that could otherwise be
+        obtained by a call to the get_roots() method. """
+        self.mpsolve(poly, algorithm)
         return self.get_roots()
 
     def get_roots(self):
@@ -136,8 +139,8 @@ class MonomialPoly(Polynomial):
 
     def __init__(self, ctx, degree):
         Polynomial.__init__(self, ctx, degree)
-        deg_c = ctypes.c_long(degree)
-        self._c_polynomial = _mps.mps_monomial_poly_new(ctx._c_ctx, deg_c)
+        self._c_polynomial = \
+            ctypes.c_void_p(_mps.mps_monomial_poly_new (ctx._c_ctx, degree))
 
     def set_coefficient(self, n, coeff_re, coeff_im=None):
         """Set coefficient of degree n of the polynomial
@@ -218,8 +221,9 @@ class ChebyshevPoly(Polynomial):
         Polynomial.__init__(self, ctx, degree)
 
         # 5 here is the equivalent of MPS_STRUCTURE_COMPLEX_RATIONAL
-        self._c_polynomial = _mps.mps_chebyshev_poly_new(ctx._c_ctx,
-                                                         int(degree), 5)
+        self._c_polynomial = \
+            ctypes.c_void_p(_mps.mps_chebyshev_poly_new (ctx._c_ctx,
+                                                          degree, 5))
 
     def set_coefficient(self, n, coeff_re, coeff_im=None):
         """Set the coefficient of degree n of the polynomial"""

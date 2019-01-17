@@ -129,7 +129,7 @@ extern "C"
  *
  * // Select some common output options, i.e. 512 bits of precision
  * // (more or less 200 digits guaranteed) and approximation goal.
- * mps_context_set_output_precision (status, 512);
+ * mps_context_set_output_prec (status, 512);
  * mps_context_set_output_goal (status, MPS_OUTPUT_GOAL_APPROXIMATE);
  *
  * // Solve the polynomial

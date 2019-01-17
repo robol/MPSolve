@@ -607,7 +607,7 @@ mps_context_get_approximations (mps_context * ctx)
 /**
  * @brief Set the output precision for the roots.
  *
- * This has differente meaning based on the output goal.
+ * This has different meaning based on the output goal.
  * If the goal is <code>MPS_OUTPUT_GOAL_ISOLATE</code>, this
  * is the maximum precision used to try to isolate the roots,
  * but roots won't be approximated at this precision if they
