@@ -5,6 +5,10 @@ import ctypes.util
 # in case we bump it in the future. 
 _mps = ctypes.CDLL ("libmps.so.3")
 
+_mps.mps_chebyshev_poly_new.restype = ctypes.c_void_p
+_mps.mps_context_new.restype = ctypes.c_void_p
+_mps.mps_monomial_poly_new.restype = ctypes.c_void_p
+
 class Cplx (ctypes.Structure):
     """Wrapper around the cplx_t type of MPSolve, that is usually
     a direct mapping onto the complex type of C99, but has a fallback
@@ -39,7 +43,7 @@ class Context:
     solution. """
     
     def __init__(self):
-        self._c_ctx = _mps.mps_context_new()
+        self._c_ctx = ctypes.c_void_p(_mps.mps_context_new())
 
     def __del__(self):
         if self._c_ctx is not None:
@@ -117,7 +121,8 @@ class MonomialPoly(Polynomial):
 
     def __init__(self, ctx, degree):
         Polynomial.__init__(self, ctx, degree)
-        self._c_polynomial = _mps.mps_monomial_poly_new (ctx._c_ctx, degree)
+        self._c_polynomial = \
+            ctypes.c_void_p(_mps.mps_monomial_poly_new (ctx._c_ctx, degree))
 
     def set_coefficient(self, n, coeff):
         """Set coefficient of degree n of the polynomial 
@@ -148,8 +153,9 @@ class ChebyshevPoly(Polynomial):
         Polynomial.__init__(self, ctx, degree)
 
         # 5 here is the equivalent of MPS_STRUCTURE_COMPLEX_RATIONAL
-        self._c_polynomial = _mps.mps_chebyshev_poly_new (ctx._c_ctx, 
-                                                            degree, 5)
+        self._c_polynomial = \
+            ctypes.c_void_p(_mps.mps_chebyshev_poly_new (ctx._c_ctx,
+                                                          degree, 5))
 
     def set_coefficient(self, n, coeff):
         """Set the coefficient of degree n of the polynomial"""
