@@ -12,6 +12,7 @@ MATLAB_MEX=mex
 # for Octave and MATLAB (if run with make matlab) but only when libmps and the
 # related headers are available in the system. 
 CFLAGS=-I../../include -I../../_build/include
+rational_roots.mex: CFLAGS+=-D__MPS_NOT_DEFINE_BOOL
 
 all: librational_poly.so rational_roots.mex
 
