@@ -1,3 +1,11 @@
+== 3.1.7 == 25/02/2019
+  - Fixed a few bugs around the Python interface (thanks @DavidToneian and @kagalengo-m-b).
+  - Several fixes to the parser on corner cases.
+  - Minor fixes to the MATLAB interface. 
+
+== 3.1.6 ==
+  - Minor fixes
+
 == 3.1.5 == 08/04/2017
   - Added a mps_parse_string routine.
   - Lot of fixes and redesign on xmpsolve.

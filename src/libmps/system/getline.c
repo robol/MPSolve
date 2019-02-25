@@ -1,7 +1,7 @@
 /*
- * This file is part of MPSolve 3.1.6
+ * This file is part of MPSolve 3.1.7
  *
- * Copyright (C) 2001-2015, Dipartimento di Matematica "L. Tonelli", Pisa.
+ * Copyright (C) 2001-2019, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  */
 

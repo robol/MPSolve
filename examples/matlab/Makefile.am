@@ -17,7 +17,7 @@ endif
 EXTRA_DIST = mps_roots.m
 
 clean-local:
-	rm -f mps_roots_double.mex* mps_roots_string.mex* mps_koslan.mex* mps_interp.mex*
+	rm -f mps_roots_double.mex* mps_roots_string.mex* mps_kostlan.mex* mps_interp.mex* 
 	rm -rf mpsolve-toolbox/ 
 	rm -f mpsolve-toolbox.tar.gz
 

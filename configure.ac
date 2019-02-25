@@ -1,7 +1,7 @@
 # -*- Autoconf -*- Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.65])
-AC_INIT([MPSolve], [3.1.6], [robol@poisson.phc.unipi.it])
+AC_INIT([MPSolve], [3.1.7], [robol@poisson.phc.unipi.it])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS([config.h])
 
