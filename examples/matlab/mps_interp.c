@@ -7,7 +7,8 @@
 void
 mexFunction (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
 {
-  int n, i;
+  mwSize n;
+  mwIndex i;
 
   if (nrhs < 2)
     mexErrMsgTxt ("Please select the value of n and alpha\n");
@@ -117,7 +118,8 @@ mexFunction (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
       mpc_t * mresults = NULL;
       rdpe_t * _radii = NULL;
       char * buffer_r, * buffer_i;
-      int ndim = 2, dims[] = { n, 4 };
+      int ndim = 2;
+      mwSize dims[] = { n, 4 };
 
       roots = mxCreateCellArray(ndim, dims);
       radii = mxCreateDoubleMatrix (n, 1, mxREAL);
@@ -135,10 +137,10 @@ mexFunction (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
 
 	  mpc_clear (mresults[i]);
 
-	  int i0[] = { i, 0 };
-          int i1[] = { i, 1 };
-	  int i2[] = { i, 2 };
-	  int i3[] = { i, 3 };
+	  mwIndex i0[] = { i, 0 };
+          mwIndex i1[] = { i, 1 };
+	  mwIndex i2[] = { i, 2 };
+	  mwIndex i3[] = { i, 3 };
 
 	  mxSetCell (roots,
 		     mxCalcSingleSubscript(roots, 2, i0),

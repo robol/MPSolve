@@ -122,7 +122,8 @@ mexFunction (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
       mpc_t * mresults = NULL;
       rdpe_t * _radii = NULL;
       char * buffer_r, * buffer_i;
-      int ndim = 2, dims[] = { n, 4 };
+      int ndim = 2;
+      mwSize dims[] = { n, 4 };
 
       roots = mxCreateCellArray(ndim, dims);
       radii = mxCreateDoubleMatrix (n, 1, mxREAL);
@@ -132,7 +133,7 @@ mexFunction (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
       
       for (i = 0; i < n; i++)
 	{
-          int indices[] = { i, 0 };
+          mwIndex indices[] = { i, 0 };
 	  mp_exp_t rexp, iexp;
 
 	  buffer_r = buffer_i = NULL;

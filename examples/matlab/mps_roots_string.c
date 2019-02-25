@@ -73,7 +73,8 @@ mexFunction (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
       mpc_t * mresults = NULL;
       rdpe_t * rresults = NULL;
       char * buffer_r, * buffer_i;
-      int ndim = 2, dims[] = { n-1, 4 };
+      int ndim = 2;
+      mwSize dims[] = { n-1, 4 };
 
       roots = mxCreateCellArray(ndim, dims);
       radius = mxCreateCellArray(1, dims);
@@ -83,7 +84,7 @@ mexFunction (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
       for (i = 0; i < n - 1; i++)
 	{
 	  mp_exp_t rexp, iexp;
-          int indices[] = { i, 0 };
+          mwIndex indices[] = { i, 0 };
 
 	  buffer_r = buffer_i = NULL;
 	  buffer_r = mpf_get_str (buffer_r, &rexp, 10, 0, mpc_Re (mresults[i]));
