@@ -55,7 +55,11 @@ QRootsRenderer::mousePressEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton) {
         mDragging = true;
+#if QT_VERSION >= 0x050000
         mPreviousPosition = event->localPos();
+#else
+	mPreviousPosition = event->posF();
+#endif
     }
     QWidget::mousePressEvent(event);
 }
@@ -73,10 +77,18 @@ void
 QRootsRenderer::mouseMoveEvent(QMouseEvent *event)
 {
     if (mDragging) {
+#if QT_VERSION >= 0x050000
         QPointF distance = event->localPos() - mPreviousPosition;
+#else
+	QPointF distance = event->posF() - mPreviousPosition;
+#endif
         distance = scaleVectorInverse(distance, width(), height());
         setCenter(center().x() - distance.x(), center().y() - distance.y());
+#if QT_VERSION >= 0x050000
         mPreviousPosition = event->localPos();
+#else
+	mPreviousPosition = event->posF();
+#endif
     }
     QWidget::mouseMoveEvent(event);
 }
