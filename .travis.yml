@@ -3,7 +3,7 @@ dist: xenial
 compiler: 
   - gcc
   - clang
-script: ./autogen.sh && ./configure MEX=mkoctfile MEXOPTS="--mex" && make V=1 && make check V=1
+script: ./autogen.sh && ./configure MEX=mkoctfile MEXOPTS="--mex" && make V=1 && make distcheck V=1
 before_install:
   - sudo apt-get update -qq
   - sudo apt-get install -y libgmp-dev libtcmalloc-minimal4 check liboctave-dev libmpfr-dev bison flex qtbase5-dev qtbase5-dev-tools libqt5widgets5 libqt5gui5 qt5-default
