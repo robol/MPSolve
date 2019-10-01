@@ -8,6 +8,7 @@ mps_parse_matlab_options (const mxArray * optionStruct)
     MPS_ALGORITHM_SECULAR_GA,
     MPS_OUTPUT_GOAL_APPROXIMATE,
     16,
+    false,
     false
   };
 
@@ -90,6 +91,15 @@ mps_parse_matlab_options (const mxArray * optionStruct)
 		  options.radius = *mxGetLogicals (field);
 		}
 	    }
+          else if (strcmp (optionName, "chebyshev") == 0)
+            {
+              if (! mxIsLogicalScalar (field))
+		mexErrMsgTxt ("Please specify 'true' or 'false' as a value for the chebyshev property\n");
+	      else
+		{
+		  options.chebyshev = *mxGetLogicals (field);
+		}
+            }
 	  else
 	    {
 	      char * buffer = (char*) mxMalloc (sizeof (char) * (strlen ("The property '' is invalid\n") + strlen ((char*) optionName) + 1));

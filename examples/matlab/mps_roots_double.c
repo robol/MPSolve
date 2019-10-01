@@ -10,7 +10,7 @@ mexFunction (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
 
   int i, m, n;
   mps_context *s = NULL;
-  mps_monomial_poly *mp = NULL;
+  mps_polynomial *poly = NULL;
   double *real_coeff, *imag_coeff, *real_res, *imag_res;
   double *radius = NULL, *out_radius;
   mxArray *roots, *radius_vec;
@@ -52,19 +52,37 @@ mexFunction (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
 
   /* Allocate coefficients and space for the results */
   results = cplx_valloc (n - 1);
-  mp = mps_monomial_poly_new (s, n - 1);
+  if (options.chebyshev) 
+    {
+      poly = MPS_POLYNOMIAL(mps_chebyshev_poly_new (s, n - 1, MPS_STRUCTURE_COMPLEX_FP));
+    }
+  else
+    {
+      poly = MPS_POLYNOMIAL(mps_monomial_poly_new (s, n - 1));
+    }
 
   /* Set coefficients */
   real_coeff = mxGetPr (prhs[0]);
   imag_coeff = mxGetPi (prhs[0]);
+  mpc_t coeff;
+  mpc_init2(coeff, 64);
   for (i = 0; i < n; i++)
     {
-        mps_monomial_poly_set_coefficient_d (s, mp, n - i - 1, real_coeff[i],
-                                            (imag_coeff) ? imag_coeff[i] : 0.0);
+        if (options.chebyshev) 
+          {
+             mpc_set_d(coeff, real_coeff[i], (imag_coeff) ? imag_coeff[i] : 0.0);
+             mps_chebyshev_poly_set_coefficient_f (s, MPS_CHEBYSHEV_POLY(poly), n - i - 1, coeff);
+          }
+        else
+          {
+            mps_monomial_poly_set_coefficient_d (s, MPS_MONOMIAL_POLY(poly), n - i - 1, real_coeff[i],
+                                                (imag_coeff) ? imag_coeff[i] : 0.0);
+          }
     }
+  mpc_clear(coeff);
 
   /* Solve the equation */
-  mps_context_set_input_poly (s, MPS_POLYNOMIAL (mp));
+  mps_context_set_input_poly (s, poly);
   mps_context_set_output_goal (s, MPS_OUTPUT_GOAL_APPROXIMATE);
 
   mps_context_select_algorithm (s, options.algorithm);
@@ -100,7 +118,7 @@ mexFunction (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
   cplx_vfree (results);
   free (radius);
 
-  mps_monomial_poly_free (s, MPS_POLYNOMIAL (mp));
+  mps_polynomial_free (s, poly);
   mps_context_free (s);
 
   /* Return the roots */

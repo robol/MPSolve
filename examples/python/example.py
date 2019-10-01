@@ -24,7 +24,7 @@ if __name__ == "__main__":
 
     # Get the roots of unity in a fairly simple case
     roots = roots_of_unity (4)
-    print "The 4-th roots of unity are: %s" % map (str, roots)
+    print("The 4-th roots of unity are: %s" % map (str, roots))
 
     # Do something more fancy (even if still with the roots
     # of unity). 
