@@ -14,7 +14,7 @@ if HAVE_MPFR
 EXTRA_PROGRAMS += mps_interp
 endif
 
-EXTRA_DIST = mps_roots.m
+EXTRA_DIST = mps_roots.m mps_chebroots.m
 
 clean-local:
 	rm -f mps_roots_double.mex* mps_roots_string.mex* mps_kostlan.mex* mps_interp.mex*
