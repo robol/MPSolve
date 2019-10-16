@@ -432,6 +432,7 @@ AC_ARG_ENABLE([tcmalloc],
                 QT_CFLAGS=$QT5_CFLAGS
                 QT_LDFLAGS=$QT5_LDFLAGS
                 QT_LIBS=$QT5_LIBS
+                QT_VERSION=qt5
 
                 AS_IF([test "$UIC" == "" || test "$MOC" == ""], [
                         AC_MSG_WARN([uic or moc were not found in your path, so Qt5 is not usable])
@@ -449,6 +450,7 @@ AC_ARG_ENABLE([tcmalloc],
                   QT_CFLAGS=$QT4_CFLAGS
                   QT_LDFLAGS=$QT4_LDFLAGS
                   QT_LIBS=$QT4_LIBS
+                  QT_VERSION=qt4
 
                   AS_IF([test "$UIC" == "" || test "$MOC" == ""], [
                     AC_MSG_WARN([uic and/or moc were not found in your path, so Qt4 is not usable])
@@ -471,6 +473,7 @@ AC_SUBST(QT_PROGRAMS)
 AC_SUBST(QT_CFLAGS)
 AC_SUBST(QT_LDFLAGS)
 AC_SUBST(QT_LIBS)
+AC_SUBST(QT_VERSION)
 
 
 #
