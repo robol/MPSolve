@@ -158,7 +158,11 @@ mps_monomial_poly_raise_precision (mps_context * s, mps_polynomial * p, long int
 
   pthread_mutex_lock (&mp->regenerating);
 
-  if (prec <= mp->prec)
+  /* For floating point coefficients, it might happen that
+   * the coefficients already have higher precision. In that
+   * case, we return now. */
+  if (prec <= mp->prec ||
+      (MPS_STRUCTURE_IS_FP(p->structure) && mpc_get_prec(mp->mfpc[0]) >= prec))
     {
       pthread_mutex_unlock (&mp->regenerating);
       return mp->prec;
