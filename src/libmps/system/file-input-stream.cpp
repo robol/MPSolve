@@ -1,5 +1,5 @@
 /*
- * This file is part of MPSolve 3.1.7
+ * This file is part of MPSolve 3.1.8
  *
  * Copyright (C) 2001-2014, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
