@@ -1,4 +1,4 @@
-MPSOLVE 3.1.7
+MPSOLVE 3.1.8
 =============
 
 [![Build Status](https://travis-ci.org/robol/MPSolve.svg?branch=master)](https://travis-ci.org/robol/MPSolve)
