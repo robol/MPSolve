@@ -34,15 +34,15 @@ xmpsolve_LDADD = \
 
 %_moc.cpp: @srcdir@/%.h
 	$(AM_V_GEN)
-	QT_SELECT=${QT_VERSION} $(AM_V_at) $(MOC) $< -o $@
+	$(AM_V_at) QT_SELECT=${QT_VERSION} $(MOC) $< -o $@
 
 ui_%.h: @srcdir@/%.ui
-	$(AM_V_GEN) 
-	QT_SELECT=${QT_VERSION} $(AM_V_at) $(UIC) $< -o $@
+	$(AM_V_GEN)
+	$(AM_V_at) QT_SELECT=${QT_VERSION} $(UIC) $< -o $@
 
 %_qrc.cpp: @srcdir@/%.qrc
 	$(AM_V_GEN)
-	QT_SELECT=${QT_VERSION} $(AM_V_at) $(RCC) $< -o $@
+	$(AM_V_at) QT_SELECT=${QT_VERSION} $(RCC) $< -o $@
 
 # Windows resources
 if HAVE_WINDRES
