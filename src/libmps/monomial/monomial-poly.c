@@ -173,6 +173,21 @@ mps_monomial_poly_raise_precision (mps_context * s, mps_polynomial * p, long int
   else
     raising_mfpc = mp->db.mfpc1;
 
+  if (MPS_STRUCTURE_IS_FP(p->structure))
+    {
+      long int current_wp = mpc_get_prec(mp->mfpc[0]);
+      long int raising_wp = mpc_get_prec(raising_mfpc[0]);
+
+      if (raising_wp > current_wp)
+        {
+          for (k = 0; k <= s->n; k++)
+            {
+              mpc_set_prec (mp->mfpc[k], raising_wp);
+              mpc_set (mp->mfpc[k], raising_mfpc[k]);
+            }
+        }
+    }
+
   /* raise the precision of  mfpc */
   if (MPS_IS_MONOMIAL_POLY (p))
     for (k = 0; k < MPS_POLYNOMIAL (mp)->degree + 1; k++)
