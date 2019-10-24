@@ -2,7 +2,7 @@
 Name=MPSolve
 GenericName=Polynomial solver
 Comment=Find roots of polynomials
-Exec=xmpsolve
+Exec=xmpsolve %f
 Terminal=false
 Type=Application
 StartupNotify=true
