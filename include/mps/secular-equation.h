@@ -299,6 +299,9 @@ mps_secular_equation *mps_secular_equation_new (mps_context * s,
 mps_secular_equation *mps_secular_equation_new_raw (mps_context * s,
                                                     unsigned long int n);
 
+void mps_secular_equation_set_coefficient_f (mps_context *ctx, mps_secular_equation *p, int i, mpc_t a, mpc_t b);
+void mps_secular_equation_set_coefficient_q (mps_context *ctx, mps_secular_equation *p, int i, mpq_t ar, mpq_t ai, mpq_t br, mpq_t bi);
+
 void mps_secular_equation_free (mps_context * ctx, mps_polynomial * p);
 
 void mps_secular_set_radii (mps_context * s);

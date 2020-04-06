@@ -292,6 +292,9 @@ mps_secular_equation_new_raw (mps_context * s, unsigned long int n)
 
   pthread_mutex_init (&sec->precision_mutex, NULL);
 
+  /* Set the most general possible structure */
+  MPS_POLYNOMIAL (sec)->structure = MPS_STRUCTURE_UNKNOWN;  
+
   return sec;
 }
 
@@ -341,9 +344,97 @@ mps_secular_equation_new (mps_context * s, cplx_t * afpc, cplx_t * bfpc,
 }
 
 /**
+ * @brief Sets a coefficient of a secular equation. 
+ *
+ * @param ctx The current context. 
+ * @param p   The secular equation whose coefficient should be set. 
+ * @param i   The index of the coefficient to set.
+ * @param a   The numerator of the coefficient.
+ * @param b   The zero of the denominator. 
+ *
+ * The new coefficient will have the form a / (x - b). 
+ */
+void
+mps_secular_equation_set_coefficient_f (mps_context *ctx, mps_secular_equation *p, int i, mpc_t a, mpc_t b)
+{
+  /* Updating data_type information */
+  if (MPS_POLYNOMIAL (p)->structure == MPS_STRUCTURE_UNKNOWN)
+    MPS_POLYNOMIAL (p)->structure = MPS_STRUCTURE_COMPLEX_FP;
+
+  long wp = mpc_get_prec (a);
+
+  if (mpc_get_prec (b) > wp)
+    wp = mpc_get_prec (b);
+
+  mpc_set_prec(p->initial_ampc[i], wp);
+  mpc_set_prec(p->initial_bmpc[i], wp);  
+
+  mpc_set (p->initial_ampc[i], a);
+  mpc_set (p->initial_bmpc[i], b);
+
+  mps_secular_raise_coefficient_precision (ctx, MPS_POLYNOMIAL (p), wp);
+
+  mpc_set (p->ampc[i], a);
+  mpc_set (p->bmpc[i], b);
+
+  mpc_get_cplx (p->afpc[i], p->ampc[i]);
+  mpc_get_cplx (p->bfpc[i], p->bmpc[i]);
+  
+  mpc_get_cdpe (p->adpc[i], p->ampc[i]);
+  mpc_get_cdpe (p->bdpc[i], p->bmpc[i]);
+
+  mpc_rmod (p->aadpc[i], p->ampc[i]);
+  mpc_rmod (p->abdpc[i], p->bmpc[i]);
+
+  p->aafpc[i] = rdpe_get_d (p->aadpc[i]);
+  p->abfpc[i] = rdpe_get_d (p->abdpc[i]);
+}
+
+/**
+ * @brief Sets a coefficient of a secular equation. 
+ *
+ * @param ctx The current context. 
+ * @param p   The secular equation whose coefficient should be set. 
+ * @param i   The index of the coefficient to set.
+ * @param a   The numerator of the coefficient.
+ * @param b   The zero of the denominator. 
+ *
+ * The new coefficient will have the form a / (x - b). 
+ */
+void
+mps_secular_equation_set_coefficient_q (mps_context *ctx, mps_secular_equation *p, int i, mpq_t ar, mpq_t ai, mpq_t br, mpq_t bi)
+{
+  /* Updating data_type information */
+  if (MPS_POLYNOMIAL (p)->structure == MPS_STRUCTURE_UNKNOWN)
+    MPS_POLYNOMIAL (p)->structure = MPS_STRUCTURE_COMPLEX_RATIONAL;
+
+  mpq_set (p->initial_ampqrc[i], ar);
+  mpq_set (p->initial_ampqic[i], ai);
+  mpq_set (p->initial_bmpqrc[i], br);
+  mpq_set (p->initial_bmpqic[i], bi);
+
+  mps_secular_raise_coefficient_precision (ctx, MPS_POLYNOMIAL (p), mpc_get_prec(p->ampc[0]));
+
+  mpc_set_q (p->ampc[i], p->initial_ampqrc[i], p->initial_ampqic[i]);
+  mpc_set_q (p->bmpc[i], p->initial_bmpqrc[i], p->initial_bmpqic[i]);
+  
+  mpc_get_cplx (p->afpc[i], p->ampc[i]);
+  mpc_get_cplx (p->bfpc[i], p->bmpc[i]);
+  
+  mpc_get_cdpe (p->adpc[i], p->ampc[i]);
+  mpc_get_cdpe (p->bdpc[i], p->bmpc[i]);
+
+  mpc_rmod (p->aadpc[i], p->ampc[i]);
+  mpc_rmod (p->abdpc[i], p->bmpc[i]);
+
+  p->aafpc[i] = rdpe_get_d (p->aadpc[i]);
+  p->abfpc[i] = rdpe_get_d (p->abdpc[i]);
+}
+
+/**
  * @brief Free a secular equation and the data in it.
  *
- * @param ctx The secular equation to be freed.
+ * @param ctx The current context.
  * @param p The secular equation casted to a mps_polynomial
  */
 void
@@ -490,10 +581,10 @@ mps_secular_raise_coefficient_precision (mps_context * s, mps_polynomial * p, lo
       raising_bmpc = sec->db.bmpc1;
     }
 
-  for (i = 0; i < s->n; i++)
+  for (i = 0; i < p->degree; i++)
     {
       mpc_set_prec (raising_ampc[i], wp);
-      if (!MPS_STRUCTURE_IS_FP (s->active_poly->structure))
+      if (!MPS_STRUCTURE_IS_FP (p->structure))
         {
           mpf_set_q (mpc_Re (raising_ampc[i]), sec->initial_ampqrc[i]);
           mpf_set_q (mpc_Im (raising_ampc[i]), sec->initial_ampqic[i]);
@@ -502,7 +593,7 @@ mps_secular_raise_coefficient_precision (mps_context * s, mps_polynomial * p, lo
         mpc_set (raising_ampc[i], sec->ampc[i]);
 
       mpc_set_prec (raising_bmpc[i], wp);
-      if (!MPS_STRUCTURE_IS_FP (s->active_poly->structure))
+      if (!MPS_STRUCTURE_IS_FP (p->structure))
         {
           mpf_set_q (mpc_Re (raising_bmpc[i]), sec->initial_bmpqrc[i]);
           mpf_set_q (mpc_Im (raising_bmpc[i]), sec->initial_bmpqic[i]);
