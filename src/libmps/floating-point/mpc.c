@@ -511,8 +511,8 @@ mpc_div_ui (mpc_t rc, mpc_t c, unsigned long int i)
 void
 mpc_ui_div (mpc_t rc, unsigned long int i, mpc_t c)
 {
-  mpf_ui_div (mpc_Re (rc), i, mpc_Re (c));
-  mpf_ui_div (mpc_Im (rc), i, mpc_Im (c));
+  mpc_set_ui(rc, i, 0L);
+  mpc_div_eq(rc, c);
 }
 
 void
