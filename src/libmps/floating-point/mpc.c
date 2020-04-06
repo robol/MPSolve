@@ -36,6 +36,7 @@ mps_mpc_cache_cleanup (void * pointer)
   for (i = 0; i < MPS_MPF_TEMP_SIZE; i++)
     mpf_clear (ptr->data[i]);
 
+  free(ptr->data);
   free (ptr);
 }
 
