@@ -14,7 +14,7 @@
 #include <mps/mps.h>
 
 MPS_PRIVATE void
-mps_mhorner_sparse (mps_context * s, mps_monomial_poly * p, mpc_t x, mpc_t value);
+mps_mhorner_sparse (mps_context * s, mps_monomial_poly * p, mpcf_t x, mpcf_t value);
 
 /**
  * @brief Compute the value of the polynomial <code>p</code> in the point <code>x</code>
@@ -27,7 +27,7 @@ mps_mhorner_sparse (mps_context * s, mps_monomial_poly * p, mpc_t x, mpc_t value
  * @param value The multiprecision complex variable where the result will be stored.
  */
 MPS_PRIVATE void
-mps_mhorner (mps_context * s, mps_monomial_poly * p, mpc_t x, mpc_t value)
+mps_mhorner (mps_context * s, mps_monomial_poly * p, mpcf_t x, mpcf_t value)
 {
   int j;
 
@@ -38,15 +38,15 @@ mps_mhorner (mps_context * s, mps_monomial_poly * p, mpc_t x, mpc_t value)
   else
     {
       mps_with_lock (p->mfpc_mutex[MPS_POLYNOMIAL (p)->degree],
-                     mpc_set (value, p->mfpc[MPS_POLYNOMIAL (p)->degree]);
+                     mpcf_set (value, p->mfpc[MPS_POLYNOMIAL (p)->degree]);
                      );
 
       for (j = MPS_POLYNOMIAL (p)->degree - 1; j >= 0; j--)
         {
-          mpc_mul_eq (value, x);
+          mpcf_mul_eq (value, x);
 
           pthread_mutex_lock (&p->mfpc_mutex[j]);
-          mpc_add_eq (value, p->mfpc[j]);
+          mpcf_add_eq (value, p->mfpc[j]);
           pthread_mutex_unlock (&p->mfpc_mutex[j]);
         }
     }
@@ -73,14 +73,14 @@ mps_mhorner (mps_context * s, mps_monomial_poly * p, mpc_t x, mpc_t value)
  * will be used.
  */
 void
-mps_mhorner_with_error2 (mps_context * s, mps_monomial_poly * p, mpc_t x, mpc_t value, rdpe_t error, long int wp)
+mps_mhorner_with_error2 (mps_context * s, mps_monomial_poly * p, mpcf_t x, mpcf_t value, rdpe_t error, long int wp)
 {
   int i;
   rdpe_t apol, ax, u;
   cdpe_t cx;
 
   pthread_mutex_lock (&p->mfpc_mutex[0]);
-  if (mpc_get_prec (p->mfpc[0]) < wp)
+  if (mpcf_get_prec (p->mfpc[0]) < wp)
     {
       pthread_mutex_unlock (&p->mfpc_mutex[0]);
       mps_monomial_poly_raise_precision (s, MPS_POLYNOMIAL (p), wp);
@@ -88,8 +88,8 @@ mps_mhorner_with_error2 (mps_context * s, mps_monomial_poly * p, mpc_t x, mpc_t 
   else
     pthread_mutex_unlock (&p->mfpc_mutex[0]);
 
-  if (mpc_get_prec (x) < wp)
-    mpc_set_prec (x, wp);
+  if (mpcf_get_prec (x) < wp)
+    mpcf_set_prec (x, wp);
 
   /* Set 4 * machine precision in u */
   rdpe_set_2dl (u, 1.0, 2 - wp);
@@ -98,7 +98,7 @@ mps_mhorner_with_error2 (mps_context * s, mps_monomial_poly * p, mpc_t x, mpc_t 
   mps_mhorner (s, p, x, value);
 
   /* Compute ap(|x|) using horner */
-  mpc_get_cdpe (cx, x);
+  mpcf_get_cdpe (cx, x);
   cdpe_mod (ax, cx);
 
   rdpe_set (apol, p->dap[MPS_POLYNOMIAL (p)->degree]);
@@ -109,7 +109,7 @@ mps_mhorner_with_error2 (mps_context * s, mps_monomial_poly * p, mpc_t x, mpc_t 
     }
 
   /* Compute ap(|x|) / |p(x)| */
-  mpc_get_cdpe (cx, value);
+  mpcf_get_cdpe (cx, value);
   cdpe_mod (ax, cx);
 
   rdpe_set (error, apol);
@@ -133,10 +133,10 @@ mps_mhorner_with_error2 (mps_context * s, mps_monomial_poly * p, mpc_t x, mpc_t 
  * will be used.
  */
 MPS_PRIVATE void
-mps_mhorner_with_error (mps_context * s, mps_monomial_poly * p, mpc_t x, mpc_t value, rdpe_t relative_error, long int wp)
+mps_mhorner_with_error (mps_context * s, mps_monomial_poly * p, mpcf_t x, mpcf_t value, rdpe_t relative_error, long int wp)
 {
   int j, my_wp;
-  mpc_t ss;
+  mpcf_t ss;
 
   cdpe_t cdtmp;
   rdpe_t r_ss, r_value, pol_on_ss;
@@ -151,21 +151,21 @@ mps_mhorner_with_error (mps_context * s, mps_monomial_poly * p, mpc_t x, mpc_t v
   rdpe_set_2dl (my_eps, 0.5, -my_wp);
 
   /* Init multiprecision temporary values */
-  mpc_init2 (ss, my_wp);
+  mpcf_init2 (ss, my_wp);
 
   rdpe_set (relative_error, rdpe_zero);
 
-  mpc_set (value, p->mfpc[MPS_POLYNOMIAL (p)->degree]);
+  mpcf_set (value, p->mfpc[MPS_POLYNOMIAL (p)->degree]);
   for (j = MPS_POLYNOMIAL (p)->degree - 1; j >= 0; j--)
     {
       /* Normal horner computation */
-      mpc_mul (ss, value, x);
-      mpc_add_eq (ss, p->mfpc[j]);
+      mpcf_mul (ss, value, x);
+      mpcf_add_eq (ss, p->mfpc[j]);
 
       /* Error estimate */
-      mpc_get_cdpe (cdtmp, ss);
+      mpcf_get_cdpe (cdtmp, ss);
       cdpe_mod (r_ss, cdtmp);
-      mpc_get_cdpe (cdtmp, value);
+      mpcf_get_cdpe (cdtmp, value);
       cdpe_mod (r_value, cdtmp);
 
       rdpe_div (pol_on_ss, r_value, r_ss);
@@ -178,10 +178,10 @@ mps_mhorner_with_error (mps_context * s, mps_monomial_poly * p, mpc_t x, mpc_t v
       rdpe_add_eq (relative_error, rtmp);
 
       /* Update horner value */
-      mpc_set (value, ss);
+      mpcf_set (value, ss);
     }
 
-  mpc_clear (ss);
+  mpcf_clear (ss);
 }
 
 /**
@@ -199,11 +199,11 @@ mps_mhorner_with_error (mps_context * s, mps_monomial_poly * p, mpc_t x, mpc_t v
  *  for temporary sparsity vectors.
  */
 MPS_PRIVATE void
-mps_mhorner_sparse (mps_context * s, mps_monomial_poly * p, mpc_t x,
-                    mpc_t value)
+mps_mhorner_sparse (mps_context * s, mps_monomial_poly * p, mpcf_t x,
+                    mpcf_t value)
 {
   int m, j, i, i1, i2, q;
-  mpc_t tmp, y;
+  mpcf_t tmp, y;
   mps_boolean bi;
 
   /* Degree of the polynomial and sparsity vector */
@@ -211,23 +211,23 @@ mps_mhorner_sparse (mps_context * s, mps_monomial_poly * p, mpc_t x,
   int n = MPS_POLYNOMIAL (p)->degree + 1;
 
   mps_boolean *spar2 = mps_boolean_valloc (MPS_POLYNOMIAL (p)->degree + 2);
-  mpc_t *mfpc2 = mps_newv (mpc_t, MPS_POLYNOMIAL (p)->degree + 1);
+  mpcf_t *mfpc2 = mps_newv (mpcf_t, MPS_POLYNOMIAL (p)->degree + 1);
 
   long int wp;
 
   pthread_mutex_lock (&p->mfpc_mutex[0]);
-  wp = mpc_get_prec (p->mfpc[0]);
+  wp = mpcf_get_prec (p->mfpc[0]);
 
   /* Lower the working precision in case of limited precision coefficients
    * in the input polynomial. */
   if (MPS_POLYNOMIAL (p)->prec > 0 && MPS_POLYNOMIAL (p)->prec < wp)
     wp = MPS_POLYNOMIAL (p)->prec;
 
-  mpc_vinit2 (mfpc2, MPS_POLYNOMIAL (p)->degree + 1, wp);
+  mpcf_vinit2 (mfpc2, MPS_POLYNOMIAL (p)->degree + 1, wp);
   pthread_mutex_unlock (&p->mfpc_mutex[0]);
 
-  mpc_init2 (tmp, wp);
-  mpc_init2 (y, wp);
+  mpcf_init2 (tmp, wp);
+  mpcf_init2 (y, wp);
 
   for (i = 0; i < n; i++)
     spar2[i] = b[i];
@@ -236,13 +236,13 @@ mps_mhorner_sparse (mps_context * s, mps_monomial_poly * p, mpc_t x,
     if (b[i])
       {
         pthread_mutex_lock (&p->mfpc_mutex[i]);
-        mpc_set (mfpc2[i], p->mfpc[i]);
+        mpcf_set (mfpc2[i], p->mfpc[i]);
         pthread_mutex_unlock (&p->mfpc_mutex[i]);
       }
 
   q = mps_intlog2 (n + 1);
   m = n;
-  mpc_set (y, x);
+  mpcf_set (y, x);
   for (j = 0; j < q; j++)
     {
       spar2[m] = false;
@@ -257,25 +257,25 @@ mps_mhorner_sparse (mps_context * s, mps_monomial_poly * p, mpc_t x,
               if (spar2[i1])
                 if (spar2[i2])
                   {
-                    mpc_mul (tmp, y, mfpc2[i2]);
-                    mpc_add (mfpc2[i], mfpc2[i1], tmp);
+                    mpcf_mul (tmp, y, mfpc2[i2]);
+                    mpcf_add (mfpc2[i], mfpc2[i1], tmp);
                   }
                 else
-                  mpc_set (mfpc2[i], mfpc2[i1]);
+                  mpcf_set (mfpc2[i], mfpc2[i1]);
               else
-                mpc_mul (mfpc2[i], y, mfpc2[i2]);
+                mpcf_mul (mfpc2[i], y, mfpc2[i2]);
             }
           spar2[i] = bi;
         }
       spar2[m] = false;
-      mpc_sqr_eq (y);
+      mpcf_sqr_eq (y);
     }
-  mpc_set (value, mfpc2[0]);
+  mpcf_set (value, mfpc2[0]);
 
-  mpc_clear (y);
-  mpc_clear (tmp);
+  mpcf_clear (y);
+  mpcf_clear (tmp);
 
-  mpc_vclear (mfpc2, MPS_POLYNOMIAL (p)->degree + 1);
+  mpcf_vclear (mfpc2, MPS_POLYNOMIAL (p)->degree + 1);
   free (spar2);
   free (mfpc2);
 }

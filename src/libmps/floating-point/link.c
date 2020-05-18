@@ -39,36 +39,36 @@ mpf_get_rdpe (rdpe_t e, mpf_t f)
 }
 
 void
-mpc_set_cplx (mpc_t mc, cplx_t c)
+mpcf_set_cplx (mpcf_t mc, cplx_t c)
 {
-  mpf_set_d (mpc_Re (mc), cplx_Re (c));
-  mpf_set_d (mpc_Im (mc), cplx_Im (c));
+  mpf_set_d (mpcf_Re (mc), cplx_Re (c));
+  mpf_set_d (mpcf_Im (mc), cplx_Im (c));
 }
 
 void
-mpc_get_cplx (cplx_t c, mpc_t mc)
+mpcf_get_cplx (cplx_t c, mpcf_t mc)
 {
 #ifdef MPS_USE_BUILTIN_COMPLEX
-  cplx_Re (c) = mpf_get_d (mpc_Re (mc));
-  cplx_Im (c) = mpf_get_d (mpc_Im (mc));
+  cplx_Re (c) = mpf_get_d (mpcf_Re (mc));
+  cplx_Im (c) = mpf_get_d (mpcf_Im (mc));
 #else
-  cplx_set_d (c, mpf_get_d (mpc_Re (mc)),
-              mpf_get_d (mpc_Im (mc)));
+  cplx_set_d (c, mpf_get_d (mpcf_Re (mc)),
+              mpf_get_d (mpcf_Im (mc)));
 #endif
 }
 
 void
-mpc_set_cdpe (mpc_t mc, cdpe_t c)
+mpcf_set_cdpe (mpcf_t mc, cdpe_t c)
 {
-  mpf_set_rdpe (mpc_Re (mc), cdpe_Re (c));
-  mpf_set_rdpe (mpc_Im (mc), cdpe_Im (c));
+  mpf_set_rdpe (mpcf_Re (mc), cdpe_Re (c));
+  mpf_set_rdpe (mpcf_Im (mc), cdpe_Im (c));
 }
 
 void
-mpc_get_cdpe (cdpe_t c, mpc_t mc)
+mpcf_get_cdpe (cdpe_t c, mpcf_t mc)
 {
-  mpf_get_rdpe (cdpe_Re (c), mpc_Re (mc));
-  mpf_get_rdpe (cdpe_Im (c), mpc_Im (mc));
+  mpf_get_rdpe (cdpe_Re (c), mpcf_Re (mc));
+  mpf_get_rdpe (cdpe_Im (c), mpcf_Im (mc));
 }
 
 /***********************************************************

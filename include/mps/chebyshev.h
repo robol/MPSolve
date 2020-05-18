@@ -39,7 +39,7 @@ typedef struct {
    * @brief Multiprecision complex coefficients of the polynomial in the Chebyshev
    * base.
    */
-  mpc_t * mfpc;
+  mpcf_t * mfpc;
 
   /**
    * @brief Rational coefficients of the polynomial. These are the real parts of the
@@ -56,7 +56,7 @@ typedef struct {
   /**
    * @brief Leading coefficient of the polynomial.
    */
-  mpc_t lc;
+  mpcf_t lc;
 
   /**
    * @brief Internal mutex used to manage the change of precision.
@@ -88,7 +88,7 @@ void mps_chebyshev_poly_set_coefficient_q (mps_context * ctx, mps_chebyshev_poly
  * This function takes a multiprecision floating point number as input.
  */
 void mps_chebyshev_poly_set_coefficient_f (mps_context * ctx, mps_chebyshev_poly * poly,
-                                           int i, mpc_t coeff);
+                                           int i, mpcf_t coeff);
 
 /**
  * @brief Set the coefficient of the i-th element of the Chebyshev base.

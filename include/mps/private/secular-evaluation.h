@@ -28,9 +28,9 @@ mps_boolean mps_secular_deval (mps_context * s, mps_polynomial * p, cdpe_t x, cd
 mps_boolean mps_secular_deval_derivative (mps_context * s, mps_polynomial * p, cdpe_t x, cdpe_t value);
 mps_boolean mps_secular_deval_with_error (mps_context * s, mps_polynomial * p,
                                           cdpe_t x, cdpe_t value, rdpe_t error);
-mps_boolean mps_secular_meval (mps_context * s, mps_polynomial * p, mpc_t x, mpc_t value);
+mps_boolean mps_secular_meval (mps_context * s, mps_polynomial * p, mpcf_t x, mpcf_t value);
 mps_boolean mps_secular_meval_with_error (mps_context * s, mps_polynomial * p,
-                                          mpc_t x, mpc_t value, rdpe_t error);
+                                          mpcf_t x, mpcf_t value, rdpe_t error);
 mps_boolean mps_secular_feval_derivative (mps_context * s, mps_polynomial * p, cplx_t x, cplx_t value);
 
 MPS_END_DECLS

@@ -369,14 +369,14 @@ mps_thread_mpolzer_worker (void *data_ptr)
   mps_polynomial *p = s->active_poly;
   mps_thread_job job;
   int iter, l;
-  mpc_t corr, abcorr, mroot, diff;
+  mpcf_t corr, abcorr, mroot, diff;
   rdpe_t eps, rad1, rtmp;
   cdpe_t ctmp;
 
-  mpc_init2 (abcorr, s->mpwp);
-  mpc_init2 (corr, s->mpwp);
-  mpc_init2 (mroot, s->mpwp);
-  mpc_init2 (diff, s->mpwp);
+  mpcf_init2 (abcorr, s->mpwp);
+  mpcf_init2 (corr, s->mpwp);
+  mpcf_init2 (mroot, s->mpwp);
+  mpcf_init2 (diff, s->mpwp);
 
   rdpe_mul_d (eps, s->mp_epsilon, (double)4 * s->n);
 
@@ -425,7 +425,7 @@ mps_thread_mpolzer_worker (void *data_ptr)
           /* Copy locally the root to work on */
 	  if (s->pool->n > 1)
 	    pthread_mutex_lock (&data->aberth_mutex[l]);
-          mpc_set (mroot, s->root[l]->mvalue);
+          mpcf_set (mroot, s->root[l]->mvalue);
 	  if (s->pool->n > 1)
 	    pthread_mutex_unlock (&data->aberth_mutex[l]);
 
@@ -463,12 +463,12 @@ mps_thread_mpolzer_worker (void *data_ptr)
                                 data->aberth_mutex);
 
               /* Apply aberth correction that has been computed */
-              mpc_mul_eq (abcorr, corr);
-              mpc_neg_eq (abcorr);
-              mpc_add_eq_ui (abcorr, 1, 0);
-              mpc_div (abcorr, corr, abcorr);
-              mpc_sub_eq (mroot, abcorr);
-              mpc_get_cdpe (ctmp, abcorr);
+              mpcf_mul_eq (abcorr, corr);
+              mpcf_neg_eq (abcorr);
+              mpcf_add_eq_ui (abcorr, 1, 0);
+              mpcf_div (abcorr, corr, abcorr);
+              mpcf_sub_eq (mroot, abcorr);
+              mpcf_get_cdpe (ctmp, abcorr);
               cdpe_mod (rtmp, ctmp);
               rdpe_add_eq (s->root[l]->drad, rtmp);
 
@@ -476,7 +476,7 @@ mps_thread_mpolzer_worker (void *data_ptr)
                * to its place                                   */
 	      if (s->pool->n > 1)
 		pthread_mutex_lock (&data->aberth_mutex[l]);
-              mpc_set (s->root[l]->mvalue, mroot);
+              mpcf_set (s->root[l]->mvalue, mroot);
 	      if (s->pool->n > 1)
 		pthread_mutex_unlock (&data->aberth_mutex[l]);
 
@@ -511,10 +511,10 @@ mps_thread_mpolzer_worker (void *data_ptr)
     }
 
 endfun:                        /* free local MP variables */
-  mpc_clear (corr);
-  mpc_clear (abcorr);
-  mpc_clear (mroot);
-  mpc_clear (diff);
+  mpcf_clear (corr);
+  mpcf_clear (abcorr);
+  mpcf_clear (mroot);
+  mpcf_clear (diff);
 
   return NULL;
 }

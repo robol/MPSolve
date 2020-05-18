@@ -83,6 +83,6 @@ mps_general_mstart (mps_context * ctx, mps_polynomial * p, mps_approximation ** 
       cplx_t tmp;
       cplx_set_d (tmp, cos (ang * i + sigma),
                   sin (ang * i + sigma));
-      mpc_set_cplx (approximations[i]->mvalue, tmp);
+      mpcf_set_cplx (approximations[i]->mvalue, tmp);
     }
 }

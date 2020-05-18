@@ -55,7 +55,7 @@ mps_readroots (mps_context * s)
   /* precision setup code goes here */
 
   for (i = 0; i < s->n; i++)
-    mpc_inp_str_u (s->root[i]->mvalue, s->rtstr, 10);
+    mpcf_inp_str_u (s->root[i]->mvalue, s->rtstr, 10);
 }
 
 /**
@@ -218,7 +218,7 @@ mps_outroot (mps_context * s, int i, int num)
   if (i == ISZERO || s->root[i]->attrs == MPS_ROOT_ATTRS_IMAG)
     fprintf (s->outstr, "0");
   else
-    mps_outfloat (s, mpc_Re (s->root[i]->mvalue), s->root[i]->drad, out_digit, true);
+    mps_outfloat (s, mpcf_Re (s->root[i]->mvalue), s->root[i]->drad, out_digit, true);
 
   /* print format middle part */
   switch (s->output_config->format)
@@ -238,7 +238,7 @@ mps_outroot (mps_context * s, int i, int num)
       break;
 
     case MPS_OUTPUT_FORMAT_VERBOSE:
-      if (i == ISZERO || mpf_sgn (mpc_Im (s->root[i]->mvalue)) >= 0)
+      if (i == ISZERO || mpf_sgn (mpcf_Im (s->root[i]->mvalue)) >= 0)
         fprintf (s->outstr, " + I * ");
       else
         fprintf (s->outstr, " - I * ");
@@ -252,7 +252,7 @@ mps_outroot (mps_context * s, int i, int num)
   if (i == ISZERO || s->root[i]->attrs == MPS_ROOT_ATTRS_REAL)
     fprintf (s->outstr, "0");
   else
-    mps_outfloat (s, mpc_Im (s->root[i]->mvalue), s->root[i]->drad, out_digit,
+    mps_outfloat (s, mpcf_Im (s->root[i]->mvalue), s->root[i]->drad, out_digit,
                   s->output_config->format != MPS_OUTPUT_FORMAT_VERBOSE);
 
   /* If the output format is GNUPLOT_FORMAT_FULL, print out also the radius */
@@ -298,12 +298,12 @@ mps_outroot (mps_context * s, int i, int num)
       else
         {
           fprintf (s->logstr, "Root %-4d = ", i);
-          mpc_out_str_2 (s->logstr, 10, 0, 0, s->root[i]->mvalue);
+          mpcf_out_str_2 (s->logstr, 10, 0, 0, s->root[i]->mvalue);
           fprintf (s->logstr, "\n");
           fprintf (s->logstr, "  Radius = ");
           rdpe_outln_str (s->logstr, s->root[i]->drad);
           fprintf (s->logstr, "  Prec = %ld\n",
-                   (long)(mpc_get_prec (s->root[i]->mvalue) / LOG2_10));
+                   (long)(mpcf_get_prec (s->root[i]->mvalue) / LOG2_10));
           fprintf (s->logstr, "  Approximation = %s\n",
                    MPS_ROOT_STATUS_TO_STRING (s->root[i]->status));
           fprintf (s->logstr, "  Attributes = %s\n",
@@ -399,8 +399,8 @@ mps_copy_roots (mps_context * s)
         mps_fsort (s);
       for (i = 0; i < s->n; i++)
         {
-          mpc_set_prec (s->root[i]->mvalue, DBL_MANT_DIG);
-          mpc_set_cplx (s->root[i]->mvalue, s->root[i]->fvalue);
+          mpcf_set_prec (s->root[i]->mvalue, DBL_MANT_DIG);
+          mpcf_set_cplx (s->root[i]->mvalue, s->root[i]->fvalue);
           rdpe_set_d (s->root[i]->drad, s->root[i]->frad);
         }
       break;
@@ -410,8 +410,8 @@ mps_copy_roots (mps_context * s)
         mps_dsort (s);
       for (i = 0; i < s->n; i++)
         {
-          mpc_set_prec (s->root[i]->mvalue, DBL_MANT_DIG);
-          mpc_set_cdpe (s->root[i]->mvalue, s->root[i]->dvalue);
+          mpcf_set_prec (s->root[i]->mvalue, DBL_MANT_DIG);
+          mpcf_set_cdpe (s->root[i]->mvalue, s->root[i]->dvalue);
         }
       break;
 

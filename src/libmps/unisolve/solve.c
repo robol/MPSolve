@@ -198,16 +198,16 @@ mps_dsrad (mps_context * s, mps_cluster * cluster, cdpe_t sc, rdpe_t sr)
  * @brief Multiprecision versione of <code>fsrad()</code>
  */
 MPS_PRIVATE void
-mps_msrad (mps_context * s, mps_cluster * cluster, mpc_t sc, rdpe_t sr)
+mps_msrad (mps_context * s, mps_cluster * cluster, mpcf_t sc, rdpe_t sr)
 {
   int l;
   rdpe_t rtmp;
   cdpe_t cdtmp;
   mpf_t ftmp, sum;
-  mpc_t ctmp;
+  mpcf_t ctmp;
   mps_root * root;
 
-  mpc_init2 (ctmp, s->mpwp);
+  mpcf_init2 (ctmp, s->mpwp);
   mpf_init2 (ftmp, s->mpwp);
   mpf_init2 (sum, s->mpwp);
 
@@ -219,22 +219,22 @@ mps_msrad (mps_context * s, mps_cluster * cluster, mpc_t sc, rdpe_t sr)
       mpf_add (sum, sum, ftmp);
     }
 
-  mpc_set_ui (sc, 0, 0);
+  mpcf_set_ui (sc, 0, 0);
   for (root = cluster->first; root != NULL; root = root->next)
     {
       l = root->k;
       mpf_set_rdpe (ftmp, s->root[l]->drad);
-      mpc_mul_f (ctmp, s->root[l]->mvalue, ftmp);
-      mpc_add_eq (sc, ctmp);
+      mpcf_mul_f (ctmp, s->root[l]->mvalue, ftmp);
+      mpcf_add_eq (sc, ctmp);
     }
 
-  mpc_div_eq_f (sc, sum);
+  mpcf_div_eq_f (sc, sum);
   rdpe_set (sr, rdpe_zero);
   for (root = cluster->first; root != NULL; root = root->next)
     {
       l = root->k;
-      mpc_sub (ctmp, sc, s->root[l]->mvalue);
-      mpc_get_cdpe (cdtmp, ctmp);
+      mpcf_sub (ctmp, sc, s->root[l]->mvalue);
+      mpcf_get_cdpe (cdtmp, ctmp);
       cdpe_mod (rtmp, cdtmp);
       rdpe_add_eq (rtmp, s->root[l]->drad);
       if (rdpe_lt (sr, rtmp))
@@ -250,7 +250,7 @@ mps_msrad (mps_context * s, mps_cluster * cluster, mpc_t sc, rdpe_t sr)
 
   mpf_clear (sum);
   mpf_clear (ftmp);
-  mpc_clear (ctmp);
+  mpcf_clear (ctmp);
 }
 
 
@@ -1243,13 +1243,13 @@ MPS_PRIVATE void
 mps_mpolzer (mps_context * s, int *it, mps_boolean * excep)
 {
   int nzeros, i, iter, l;
-  mpc_t corr, abcorr;
+  mpcf_t corr, abcorr;
   rdpe_t eps, rad1, rtmp;
   cdpe_t ctmp;
   mps_polynomial *p = s->active_poly;
 
-  mpc_init2 (abcorr, s->mpwp);
-  mpc_init2 (corr, s->mpwp);
+  mpcf_init2 (abcorr, s->mpwp);
+  mpcf_init2 (corr, s->mpwp);
 
   rdpe_mul_d (eps, s->mp_epsilon, (double)4 * s->n);
 
@@ -1308,12 +1308,12 @@ mps_mpolzer (mps_context * s, int *it, mps_boolean * excep)
                       || rdpe_ne (s->root[l]->drad, rad1))
                     {
                       mps_maberth_s (s, s->root[l], cluster, abcorr);
-                      mpc_mul_eq (abcorr, corr);
-                      mpc_neg_eq (abcorr);
-                      mpc_add_eq_ui (abcorr, 1, 0);
-                      mpc_div (abcorr, corr, abcorr);
-                      mpc_sub_eq (s->root[l]->mvalue, abcorr);
-                      mpc_get_cdpe (ctmp, abcorr);
+                      mpcf_mul_eq (abcorr, corr);
+                      mpcf_neg_eq (abcorr);
+                      mpcf_add_eq_ui (abcorr, 1, 0);
+                      mpcf_div (abcorr, corr, abcorr);
+                      mpcf_sub_eq (s->root[l]->mvalue, abcorr);
+                      mpcf_get_cdpe (ctmp, abcorr);
                       cdpe_mod (rtmp, ctmp);
                       rdpe_add_eq (s->root[l]->drad, rtmp);
                     }
@@ -1337,6 +1337,6 @@ mps_mpolzer (mps_context * s, int *it, mps_boolean * excep)
   *excep = true;
 
 endfun:                        /* free local MP variables */
-  mpc_clear (corr);
-  mpc_clear (abcorr);
+  mpcf_clear (corr);
+  mpcf_clear (abcorr);
 }

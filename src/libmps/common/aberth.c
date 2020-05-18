@@ -88,27 +88,27 @@ mps_daberth (mps_context * s, mps_approximation * root, cdpe_t abcorr)
  * selective correction.
  */
 MPS_PRIVATE void
-mps_maberth (mps_context * s, mps_approximation * root, mpc_t abcorr)
+mps_maberth (mps_context * s, mps_approximation * root, mpcf_t abcorr)
 {
   int i;
   cdpe_t z, temp;
-  mpc_t diff;
+  mpcf_t diff;
 
-  mpc_init2 (diff, s->mpwp);
+  mpcf_init2 (diff, s->mpwp);
 
   cdpe_set (temp, cdpe_zero);
   for (i = 0; i < s->n; i++)
     {
       if (s->root[i] == root)
         continue;
-      mpc_sub (diff, root->mvalue, s->root[i]->mvalue);
-      mpc_get_cdpe (z, diff);
+      mpcf_sub (diff, root->mvalue, s->root[i]->mvalue);
+      mpcf_get_cdpe (z, diff);
       cdpe_inv_eq (z);
       cdpe_add_eq (temp, z);
     }
-  mpc_set_cdpe (abcorr, temp);
+  mpcf_set_cdpe (abcorr, temp);
 
-  mpc_clear (diff);
+  mpcf_clear (diff);
 }
 
 /**
@@ -163,13 +163,13 @@ mps_daberth_s (mps_context * s, mps_approximation * ab_root, mps_cluster * clust
  * cluster.
  */
 MPS_PRIVATE void
-mps_maberth_s (mps_context * s, mps_approximation * ab_root, mps_cluster * cluster, mpc_t abcorr)
+mps_maberth_s (mps_context * s, mps_approximation * ab_root, mps_cluster * cluster, mpcf_t abcorr)
 {
   mps_root * root;
   cdpe_t z, temp;
-  mpc_t diff;
+  mpcf_t diff;
 
-  mpc_init2 (diff, s->mpwp);
+  mpcf_init2 (diff, s->mpwp);
 
   cdpe_set (temp, cdpe_zero);
   for (root = cluster->first; root != NULL; root = root->next)
@@ -177,14 +177,14 @@ mps_maberth_s (mps_context * s, mps_approximation * ab_root, mps_cluster * clust
       mps_approximation * appr = s->root[root->k];
       if (appr == ab_root)
         continue;
-      mpc_sub (diff, ab_root->mvalue, appr->mvalue);
-      mpc_get_cdpe (z, diff);
+      mpcf_sub (diff, ab_root->mvalue, appr->mvalue);
+      mpcf_get_cdpe (z, diff);
       cdpe_inv_eq (z);
       cdpe_add_eq (temp, z);
     }
-  mpc_set_cdpe (abcorr, temp);
+  mpcf_set_cdpe (abcorr, temp);
 
-  mpc_clear (diff);
+  mpcf_clear (diff);
 }
 
 MPS_PRIVATE void
@@ -213,18 +213,18 @@ mps_daberth_wl (mps_context * s, int j, cdpe_t abcorr, pthread_mutex_t * aberth_
 }
 
 MPS_PRIVATE void
-mps_maberth_s_wl (mps_context * s, int j, mps_cluster * cluster, mpc_t abcorr,
+mps_maberth_s_wl (mps_context * s, int j, mps_cluster * cluster, mpcf_t abcorr,
                   pthread_mutex_t * aberth_mutexes)
 {
   mps_root * root;
   cdpe_t z, temp;
-  mpc_t diff, mroot;
+  mpcf_t diff, mroot;
 
-  mpc_init2 (mroot, s->mpwp);
-  mpc_init2 (diff, s->mpwp);
+  mpcf_init2 (mroot, s->mpwp);
+  mpcf_init2 (diff, s->mpwp);
 
   pthread_mutex_lock (&aberth_mutexes[j]);
-  mpc_set (mroot, s->root[j]->mvalue);
+  mpcf_set (mroot, s->root[j]->mvalue);
   pthread_mutex_unlock (&aberth_mutexes[j]);
 
   cdpe_set (temp, cdpe_zero);
@@ -236,9 +236,9 @@ mps_maberth_s_wl (mps_context * s, int j, mps_cluster * cluster, mpc_t abcorr,
         continue;
 
       pthread_mutex_lock (&aberth_mutexes[k]);
-      mpc_sub (diff, mroot, s->root[k]->mvalue);
+      mpcf_sub (diff, mroot, s->root[k]->mvalue);
       pthread_mutex_unlock (&aberth_mutexes[k]);
-      mpc_get_cdpe (z, diff);
+      mpcf_get_cdpe (z, diff);
 
       if (cdpe_eq_zero (z))
         continue;
@@ -246,8 +246,8 @@ mps_maberth_s_wl (mps_context * s, int j, mps_cluster * cluster, mpc_t abcorr,
       cdpe_inv_eq (z);
       cdpe_add_eq (temp, z);
     }
-  mpc_set_cdpe (abcorr, temp);
+  mpcf_set_cdpe (abcorr, temp);
 
-  mpc_clear (mroot);
-  mpc_clear (diff);
+  mpcf_clear (mroot);
+  mpcf_clear (diff);
 }

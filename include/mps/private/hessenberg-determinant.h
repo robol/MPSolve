@@ -31,10 +31,10 @@ void mps_dhessenberg_determinant (mps_context * ctx, cdpe_t * hessenberg_matrix,
 void mps_dhessenberg_shifted_determinant (mps_context * ctx, cdpe_t * hessenberg_matrix, const cdpe_t shift,
                                           size_t n, cdpe_t output);
 
-void mps_mhessenberg_determinant (mps_context * ctx, mpc_t * hessenberg_matrix, size_t n,
-                                  mpc_t output, rdpe_t error);
-void mps_mhessenberg_shifted_determinant (mps_context * ctx, mpc_t * hessenberg_matrix, mpc_t shift,
-                                          size_t n, mpc_t output, rdpe_t error);
+void mps_mhessenberg_determinant (mps_context * ctx, mpcf_t * hessenberg_matrix, size_t n,
+                                  mpcf_t output, rdpe_t error);
+void mps_mhessenberg_shifted_determinant (mps_context * ctx, mpcf_t * hessenberg_matrix, mpcf_t shift,
+                                          size_t n, mpcf_t output, rdpe_t error);
 
 MPS_END_DECLS
 

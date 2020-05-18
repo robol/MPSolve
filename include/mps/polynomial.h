@@ -45,7 +45,7 @@ typedef mps_boolean (*mps_polynomial_deval_t)(mps_context * ctx, mps_polynomial 
  * @brief The type of a function that evaluates the polynomial (MP version).
  * The computation must be carried out with the precision of the value \f$x\f$.
  */
-typedef mps_boolean (*mps_polynomial_meval_t)(mps_context * ctx, mps_polynomial * p, mpc_t x, mpc_t value, rdpe_t error);
+typedef mps_boolean (*mps_polynomial_meval_t)(mps_context * ctx, mps_polynomial * p, mpcf_t x, mpcf_t value, rdpe_t error);
 
 /**
  * @brief Function that will be used to deallocate the polynomial on context destruction.
@@ -94,14 +94,14 @@ typedef void (*mps_polynomial_dnewton_t)(mps_context * ctx, mps_polynomial * p,
  * @brief Function that computes \f$\frac{p}{p'}\f$ (multiprecision version)
  */
 typedef void (*mps_polynomial_mnewton_t)(mps_context * ctx, mps_polynomial * p,
-                                         mps_approximation * root, mpc_t corr, long int wp);
+                                         mps_approximation * root, mpcf_t corr, long int wp);
 
 /**
  * @brief Function that returns the leading coefficient of the polynomial.
  * This defaults to the function that returns one (i.e. the default polynomial
  * is monic).
  */
-typedef void (*mps_polynomial_get_leading_coefficient_t)(mps_context * ctx, mps_polynomial * p, mpc_t lc);
+typedef void (*mps_polynomial_get_leading_coefficient_t)(mps_context * ctx, mps_polynomial * p, mpcf_t lc);
 
 /**
  * @brief Struct that represents an abstract polynomial. All the other
@@ -225,7 +225,7 @@ mps_boolean mps_polynomial_feval (mps_context * ctx, mps_polynomial * p, cplx_t 
 
 mps_boolean mps_polynomial_deval (mps_context * ctx, mps_polynomial * p, cdpe_t x, cdpe_t value, rdpe_t error);
 
-mps_boolean mps_polynomial_meval (mps_context * ctx, mps_polynomial * p, mpc_t x, mpc_t value, rdpe_t error);
+mps_boolean mps_polynomial_meval (mps_context * ctx, mps_polynomial * p, mpcf_t x, mpcf_t value, rdpe_t error);
 
 void mps_polynomial_fstart (mps_context * ctx, mps_polynomial * p, mps_approximation ** approximations);
 
@@ -242,9 +242,9 @@ void mps_polynomial_dnewton (mps_context * ctx, mps_polynomial *p,
                              mps_approximation * root, cdpe_t corr);
 
 void mps_polynomial_mnewton (mps_context * ctx, mps_polynomial *p,
-                             mps_approximation * root, mpc_t corr, long int wp);
+                             mps_approximation * root, mpcf_t corr, long int wp);
 
-void mps_polynomial_get_leading_coefficient (mps_context * ctx, mps_polynomial * p, mpc_t lc);
+void mps_polynomial_get_leading_coefficient (mps_context * ctx, mps_polynomial * p, mpcf_t lc);
 
 long int mps_polynomial_raise_data (mps_context * ctx, mps_polynomial * p, long int wp);
 
@@ -338,7 +338,7 @@ public:
      * @return true if the operation was successful, false in case an exception has been
      * encountered.
      */
-    virtual bool eval (mps_context * ctx, mpc_t x, mpc_t value, rdpe_t error) = 0;
+    virtual bool eval (mps_context * ctx, mpcf_t x, mpcf_t value, rdpe_t error) = 0;
 
     /**
      * @brief Raise the working precision of this polynomial to the specified
@@ -353,11 +353,11 @@ public:
     virtual void start_dpe (mps_context * ctx, mps_approximation ** approximations);
     virtual void start_mp (mps_context * ctx, mps_approximation ** approximations);
 
-    virtual void get_leading_coefficient (mps_context * ctx, mpc_t lc);
+    virtual void get_leading_coefficient (mps_context * ctx, mpcf_t lc);
 
     virtual void newton (mps_context * ctx, mps_approximation * a, cplx_t x) = 0;
     virtual void newton (mps_context * ctx, mps_approximation * a, cdpe_t x) = 0;
-    virtual void newton (mps_context * ctx, mps_approximation * a, mpc_t x, long int wp) = 0;
+    virtual void newton (mps_context * ctx, mps_approximation * a, mpcf_t x, long int wp) = 0;
 
 public:
     static mps_boolean feval_wrapper (mps_context * ctx, mps_polynomial *p,
@@ -367,7 +367,7 @@ public:
                                       cdpe_t x, cdpe_t value, rdpe_t error);
 
     static mps_boolean meval_wrapper (mps_context * ctx, mps_polynomial *p,
-                                      mpc_t x, mpc_t value, rdpe_t error);
+                                      mpcf_t x, mpcf_t value, rdpe_t error);
 
     static void free_wrapper (mps_context * ctx, mps_polynomial * p);
 
@@ -383,11 +383,11 @@ public:
     static void dnewton_wrapper (mps_context * ctx, mps_polynomial * p,
                                  mps_approximation * a, cdpe_t x);
     static void mnewton_wrapper (mps_context * ctx, mps_polynomial * p,
-                                 mps_approximation * a, mpc_t x,
+                                 mps_approximation * a, mpcf_t x,
                                  long int wp);
 
     static void get_leading_coefficient_wrapper (mps_context * ctx, mps_polynomial * p,
-                                                 mpc_t leading_coefficient);
+                                                 mpcf_t leading_coefficient);
   };
 }
 

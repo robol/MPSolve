@@ -159,48 +159,48 @@ mps_dnewton_usr (mps_context * s, mps_polynomial * poly, mps_approximation * roo
  * means of the relation: p=1+x*p**2, starting with p=1
  */
 MPS_PRIVATE void
-mps_mnewton_usr (mps_context * s, mps_polynomial * poly, mps_approximation * root, mpc_t corr, long int wp)
+mps_mnewton_usr (mps_context * s, mps_polynomial * poly, mps_approximation * root, mpcf_t corr, long int wp)
 {
   int i, m;
   rdpe_t ap, ax, eps, temp, apeps, atmp;
   cdpe_t ctmp;
-  mpc_t p, pp, pt, tmp;
+  mpcf_t p, pp, pt, tmp;
 
-  mpc_init2 (p, s->mpwp);
-  mpc_init2 (pp, s->mpwp);
-  mpc_init2 (pt, s->mpwp);
-  mpc_init2 (tmp, s->mpwp);
+  mpcf_init2 (p, s->mpwp);
+  mpcf_init2 (pp, s->mpwp);
+  mpcf_init2 (pt, s->mpwp);
+  mpcf_init2 (tmp, s->mpwp);
 
   m = (int)(log (s->n + 1.0) / LOG2);
   if ((1 << m) <= s->n)
     m++;
   rdpe_set (eps, s->mp_epsilon);
   rdpe_mul_eq_d (eps, (double)4 * s->n);
-  mpc_get_cdpe (ctmp, root->mvalue);
+  mpcf_get_cdpe (ctmp, root->mvalue);
   cdpe_mod (ax, ctmp);
 
-  mpc_set_ui (p, 1, 0);
-  mpc_set_ui (pp, 0, 0);
+  mpcf_set_ui (p, 1, 0);
+  mpcf_set_ui (pp, 0, 0);
   rdpe_set (ap, rdpe_one);
   for (i = 1; i <= m; i++)
     {
-      mpc_sqr (tmp, p);
-      mpc_mul (pt, root->mvalue, tmp);
-      mpc_add_eq_ui (pt, 1, 0);
-      mpc_mul_eq (pp, root->mvalue);
-      mpc_mul_eq (pp, p);
-      mpc_mul_eq_ui (pp, 2);
-      mpc_add_eq (pp, tmp);
-      mpc_set (p, pt);
+      mpcf_sqr (tmp, p);
+      mpcf_mul (pt, root->mvalue, tmp);
+      mpcf_add_eq_ui (pt, 1, 0);
+      mpcf_mul_eq (pp, root->mvalue);
+      mpcf_mul_eq (pp, p);
+      mpcf_mul_eq_ui (pp, 2);
+      mpcf_add_eq (pp, tmp);
+      mpcf_set (p, pt);
       rdpe_mul_eq (ap, ax);
-      mpc_get_cdpe (ctmp, p);
+      mpcf_get_cdpe (ctmp, p);
       cdpe_mod (atmp, ctmp);
       rdpe_add_eq (ap, atmp);
     }
   rdpe_mul_eq (ap, ax);
-  mpc_div (corr, p, pp);
+  mpcf_div (corr, p, pp);
 
-  mpc_get_cdpe (ctmp, p);
+  mpcf_get_cdpe (ctmp, p);
   cdpe_mod (temp, ctmp);
   rdpe_mul (apeps, ap, eps);
   rdpe_mul_eq_d (apeps, 3.0);
@@ -208,16 +208,16 @@ mps_mnewton_usr (mps_context * s, mps_polynomial * poly, mps_approximation * roo
 
   rdpe_add (root->drad, temp, apeps);
   rdpe_mul_eq_d (root->drad, (double)s->n);
-  mpc_get_cdpe (ctmp, pp);
+  mpcf_get_cdpe (ctmp, pp);
   cdpe_mod (temp, ctmp);
   rdpe_div_eq (root->drad, temp);
   if (rdpe_eq (root->drad, rdpe_zero))
     rdpe_mul (root->drad, ax, eps);
 
-  mpc_clear (tmp);
-  mpc_clear (pt);
-  mpc_clear (pp);
-  mpc_clear (p);
+  mpcf_clear (tmp);
+  mpcf_clear (pt);
+  mpcf_clear (pp);
+  mpcf_clear (p);
 }
 
 mps_boolean
@@ -283,13 +283,13 @@ mps_deval_usr (mps_context * ctx, mps_polynomial * p, cdpe_t x, cdpe_t value, rd
 }
 
 mps_boolean
-mps_meval_usr (mps_context * ctx, mps_polynomial * p, mpc_t x, mpc_t value, rdpe_t error)
+mps_meval_usr (mps_context * ctx, mps_polynomial * p, mpcf_t x, mpcf_t value, rdpe_t error)
 {
   int i;
   int m = (int)(log (p->degree + 1.0) / LOG2);
   rdpe_t ax, rtmp;
-  mpc_t tmp;
-  long int wp = mpc_get_prec (x);
+  mpcf_t tmp;
+  long int wp = mpcf_get_prec (x);
 
   /* Correct the working precision in case of a limited precision polynomial (quite unlikely
    * in the Mandelbrot case, but still. */
@@ -299,27 +299,27 @@ mps_meval_usr (mps_context * ctx, mps_polynomial * p, mpc_t x, mpc_t value, rdpe
   if ((1 << m) <= p->degree)
     m++;
 
-  mpc_init2 (tmp, wp);
+  mpcf_init2 (tmp, wp);
 
-  mpc_rmod (ax, x);
-  mpc_set_ui (value, 1U, 0U);
-  mpc_rmod (error, value);
+  mpcf_rmod (ax, x);
+  mpcf_set_ui (value, 1U, 0U);
+  mpcf_rmod (error, value);
 
   for (i = 1; i <= m; i++)
     {
-      mpc_sqr (tmp, value);
-      mpc_mul (value, x, tmp);
-      mpc_add_eq_ui (value, 1U, 0U);
+      mpcf_sqr (tmp, value);
+      mpcf_mul (value, x, tmp);
+      mpcf_add_eq_ui (value, 1U, 0U);
 
       rdpe_mul_eq (error, ax);
-      mpc_rmod (rtmp, value);
+      mpcf_rmod (rtmp, value);
       rdpe_add_eq (error, rtmp);
     }
 
   rdpe_set_2dl (rtmp, 1.0, -wp);
   rdpe_mul_eq (error, rtmp);
 
-  mpc_clear (tmp);
+  mpcf_clear (tmp);
 
   return true;
 }

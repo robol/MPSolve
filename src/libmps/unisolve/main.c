@@ -156,10 +156,10 @@ mps_standard_mpsolve (mps_context * s)
   for (i = 0; i < s->n; i++)
     {
       if (which_case == 'd' || d_after_f)
-        mpc_set_cdpe (s->root[i]->mvalue, s->root[i]->dvalue);
+        mpcf_set_cdpe (s->root[i]->mvalue, s->root[i]->dvalue);
       else
         {
-          mpc_set_cplx (s->root[i]->mvalue, s->root[i]->fvalue);
+          mpcf_set_cplx (s->root[i]->mvalue, s->root[i]->fvalue);
           rdpe_set_d (s->root[i]->drad, s->root[i]->frad);
         }
     }
@@ -298,7 +298,7 @@ mps_setup (mps_context * s)
   int i;
   mps_polynomial *p = s->active_poly;
   mpf_t mptemp;
-  mpc_t mptempc;
+  mpcf_t mptempc;
 
   if (s->DOLOG)
     {
@@ -353,7 +353,7 @@ mps_setup (mps_context * s)
 
       /* init temporary mp variables */
       mpf_init2 (mptemp, DBL_MANT_DIG);
-      mpc_init2 (mptempc, DBL_MANT_DIG);
+      mpcf_init2 (mptempc, DBL_MANT_DIG);
 
       /* main loop */
       s->skip_float = false;
@@ -376,7 +376,7 @@ mps_setup (mps_context * s)
                 }
 
               if (MPS_STRUCTURE_IS_FP (s->active_poly->structure))
-                mpf_get_rdpe (mp->dpr[i], mpc_Re (mp->mfpc[i]));
+                mpf_get_rdpe (mp->dpr[i], mpcf_Re (mp->mfpc[i]));
 
               cdpe_set_e (mp->dpc[i], mp->dpr[i], rdpe_zero);
 
@@ -392,8 +392,8 @@ mps_setup (mps_context * s)
               if (MPS_STRUCTURE_IS_RATIONAL (s->active_poly->structure) ||
                   MPS_STRUCTURE_IS_INTEGER (s->active_poly->structure))
                 {
-                  mpc_set_q (mptempc, mp->initial_mqp_r[i], mp->initial_mqp_i[i]);
-                  mpc_get_cdpe (mp->dpc[i], mptempc);
+                  mpcf_set_q (mptempc, mp->initial_mqp_r[i], mp->initial_mqp_i[i]);
+                  mpcf_get_cdpe (mp->dpc[i], mptempc);
                   /*#G GMP 2.0.2 bug begin */
                   if (rdpe_sgn (cdpe_Re (mp->dpc[i])) != mpq_sgn (mp->initial_mqp_r[i]))
                     rdpe_neg_eq (cdpe_Re (mp->dpc[i]));
@@ -402,7 +402,7 @@ mps_setup (mps_context * s)
                   /*#G GMP bug end */
                 }
               else if (MPS_STRUCTURE_IS_FP (s->active_poly->structure))
-                mpc_get_cdpe (mp->dpc[i], mp->mfpc[i]);
+                mpcf_get_cdpe (mp->dpc[i], mp->mfpc[i]);
 
               /* compute dap[i] */
               cdpe_mod (mp->dap[i], mp->dpc[i]);
@@ -414,7 +414,7 @@ mps_setup (mps_context * s)
 
       /* free temporary mp variables */
       mpf_clear (mptemp);
-      mpc_clear (mptempc);
+      mpcf_clear (mptempc);
 
       /* adjust input data type */
       if (MPS_STRUCTURE_IS_FP (s->active_poly->structure) && s->skip_float)
@@ -554,7 +554,7 @@ mps_check_data (mps_context * s, char *which_case)
 
   if (rdpe_lt (tmp, rdpe_one))
     {
-      mpc_t m_min_coeff;
+      mpcf_t m_min_coeff;
       cdpe_t c_min_coeff;
 
       /* if  (n+1)*max_coeff/min_coeff < dhuge/dtiny -  float case */
@@ -567,8 +567,8 @@ mps_check_data (mps_context * s, char *which_case)
       rdpe_set (cdpe_Re (c_min_coeff), min_coeff);
       rdpe_set (cdpe_Im (c_min_coeff), rdpe_zero);
 
-      mpc_init2 (m_min_coeff, mpc_get_prec (p->mfpc[0]));
-      mpc_set_cdpe (m_min_coeff, c_min_coeff);
+      mpcf_init2 (m_min_coeff, mpcf_get_prec (p->mfpc[0]));
+      mpcf_set_cdpe (m_min_coeff, c_min_coeff);
 
       /* min_coeff = sqrt(dhuge*dtiny/(min_coeff*max_coeff))
        * NOTE: This is enabled for floating point polynomials only
@@ -577,18 +577,18 @@ mps_check_data (mps_context * s, char *which_case)
         for (i = 0; i <= s->n; i++)
           {
             /* Multiply the MP leading coefficient */
-            mpc_mul_eq (p->mfpc[i], m_min_coeff);
+            mpcf_mul_eq (p->mfpc[i], m_min_coeff);
 
             rdpe_mul (tmp, p->dap[i], min_coeff);
             rdpe_set (p->dap[i], tmp);
             p->fap[i] = rdpe_get_d (tmp);
 
-            mpc_get_cdpe (p->dpc[i], p->mfpc[i]);
+            mpcf_get_cdpe (p->dpc[i], p->mfpc[i]);
             cdpe_get_x (p->fpc[i], p->dpc[i]);
           }
       }
 
-      mpc_clear (m_min_coeff);
+      mpcf_clear (m_min_coeff);
     }
   else
     *which_case = 'd';

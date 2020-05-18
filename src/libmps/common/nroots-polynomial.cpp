@@ -36,12 +36,12 @@ NRootsPolynomial::eval (mps_context * ctx, cdpe_t x, cdpe_t value, rdpe_t error)
 }
 
 mps_boolean
-NRootsPolynomial::eval (mps_context * ctx, mpc_t x, mpc_t value, rdpe_t error)
+NRootsPolynomial::eval (mps_context * ctx, mpcf_t x, mpcf_t value, rdpe_t error)
 {
-  mpc_pow_si (value, x, degree);
-  mpc_sub_eq_ui (value, 1U, 0U);
+  mpcf_pow_si (value, x, degree);
+  mpcf_sub_eq_ui (value, 1U, 0U);
 
-  mpc_rmod (error, value);
+  mpcf_rmod (error, value);
   rdpe_add_eq (error, rdpe_one);
 
   rdpe_mul_eq (error, ctx->mp_epsilon);
@@ -74,7 +74,7 @@ NRootsPolynomial::newton (mps_context * ctx, mps_approximation * a, cdpe_t x)
 }
 
 void
-NRootsPolynomial::newton (mps_context * ctx, mps_approximation * a, mpc_t x, long int wp)
+NRootsPolynomial::newton (mps_context * ctx, mps_approximation * a, mpcf_t x, long int wp)
 {
 }
 

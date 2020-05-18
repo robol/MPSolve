@@ -70,7 +70,7 @@ mexFunction (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
     }
   else
     {
-      mpc_t * mresults = NULL;
+      mpcf_t * mresults = NULL;
       rdpe_t * rresults = NULL;
       char * buffer_r, * buffer_i;
       int ndim = 2;
@@ -87,10 +87,10 @@ mexFunction (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
           mwIndex indices[] = { i, 0 };
 
 	  buffer_r = buffer_i = NULL;
-	  buffer_r = mpf_get_str (buffer_r, &rexp, 10, 0, mpc_Re (mresults[i]));
-	  buffer_i = mpf_get_str (buffer_i, &iexp, 10, 0, mpc_Im (mresults[i]));
+	  buffer_r = mpf_get_str (buffer_r, &rexp, 10, 0, mpcf_Re (mresults[i]));
+	  buffer_i = mpf_get_str (buffer_i, &iexp, 10, 0, mpcf_Im (mresults[i]));
 
-	  mpc_clear (mresults[i]);
+	  mpcf_clear (mresults[i]);
 
           indices[1] = 0;
 	  mxSetCell (roots,

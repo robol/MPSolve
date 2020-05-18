@@ -32,8 +32,8 @@ MPS_BEGIN_DECLS
 
 struct mps_monomial_poly_double_buffer {
   char active;
-  mpc_t *mfpc1;
-  mpc_t *mfpc2;
+  mpcf_t *mfpc1;
+  mpcf_t *mfpc2;
 };
 
 
@@ -92,7 +92,7 @@ struct mps_monomial_poly {
   /**
    * @brief Multiprecision complex coefficients.
    */
-  mpc_t *mfpc;
+  mpcf_t *mfpc;
 
   /**
    * @brief Array of mutexes that need to be locked when reading at the
@@ -103,7 +103,7 @@ struct mps_monomial_poly {
   /**
    * @brief Multiprecision complex coefficients of \f$p'(x)\f$.
    */
-  mpc_t *mfppc;
+  mpcf_t *mfppc;
 
   /**
    * @brief Array containing moduli of the coefficients as double numbers.
@@ -155,7 +155,7 @@ void mps_monomial_poly_set_coefficient_q (mps_context * s, mps_monomial_poly * m
 void mps_monomial_poly_set_coefficient_d (mps_context * s, mps_monomial_poly * mp, long int i,
                                           double real_part, double imag_part);
 void mps_monomial_poly_set_coefficient_f (mps_context * s, mps_monomial_poly * p, long int i,
-                                          mpc_t coeff);
+                                          mpcf_t coeff);
 void mps_monomial_poly_set_coefficient_int (mps_context * s, mps_monomial_poly * mp, long int i,
                                             long long real_part, long long imag_part);
 
@@ -175,7 +175,7 @@ mps_boolean mps_monomial_poly_feval (mps_context * ctx, mps_polynomial *p, cplx_
 
 mps_boolean mps_monomial_poly_deval (mps_context * ctx, mps_polynomial *p, cdpe_t x, cdpe_t value, rdpe_t error);
 
-mps_boolean mps_monomial_poly_meval (mps_context * ctx, mps_polynomial *p, mpc_t x, mpc_t value, rdpe_t error);
+mps_boolean mps_monomial_poly_meval (mps_context * ctx, mps_polynomial *p, mpcf_t x, mpcf_t value, rdpe_t error);
 
 void mps_monomial_poly_fstart (mps_context * ctx, mps_polynomial * p, mps_approximation ** approximations);
 
@@ -190,10 +190,10 @@ void mps_monomial_poly_dnewton (mps_context * ctx, mps_polynomial * p,
                                 mps_approximation * root, cdpe_t corr);
 
 void mps_monomial_poly_mnewton (mps_context * ctx, mps_polynomial * p,
-                                mps_approximation * root, mpc_t corr, long int wp);
+                                mps_approximation * root, mpcf_t corr, long int wp);
 
 void mps_monomial_poly_get_leading_coefficient (mps_context * ctx, mps_polynomial * p,
-                                                mpc_t leading_coefficient);
+                                                mpcf_t leading_coefficient);
 
 void mps_monomial_poly_deflate (mps_context * ctx, mps_polynomial * p);
 

@@ -489,16 +489,16 @@ __mps_secular_ga_miterate_worker (void* data_ptr)
   mps_context *s = data->s;
   /* mps_secular_equation *sec = s->secular_equation; */
   int i;
-  mpc_t corr, abcorr;
-  mpc_t mroot;
+  mpcf_t corr, abcorr;
+  mpcf_t mroot;
   rdpe_t modcorr;
   mps_thread_job job;
 
   mps_cluster * cluster = NULL;
 
-  mpc_init2 (corr, s->mpwp);
-  mpc_init2 (abcorr, s->mpwp);
-  mpc_init2 (mroot, s->mpwp);
+  mpcf_init2 (corr, s->mpwp);
+  mpcf_init2 (abcorr, s->mpwp);
+  mpcf_init2 (mroot, s->mpwp);
 
   /* Get a copy of the MP coefficients that is local to this thread */
   while (true && !s->exit_required)
@@ -525,7 +525,7 @@ __mps_secular_ga_miterate_worker (void* data_ptr)
         {
           /* Lock this roots to make sure that we are the only one working on it */
           pthread_mutex_lock (&data->aberth_mutex[i]);
-          mpc_set (mroot, s->root[i]->mvalue);
+          mpcf_set (mroot, s->root[i]->mvalue);
           pthread_mutex_unlock (&data->aberth_mutex[i]);
 
           /* Check if, while we were waiting, excep condition has been reached,
@@ -541,19 +541,19 @@ __mps_secular_ga_miterate_worker (void* data_ptr)
           /* pthread_mutex_unlock (data->gs_mutex); */
 
           mps_secular_mnewton (s, MPS_POLYNOMIAL (s->secular_equation), s->root[i],
-                               corr, mpc_get_prec (s->root[i]->mvalue));
+                               corr, mpcf_get_prec (s->root[i]->mvalue));
 
           /* Apply Aberth correction */
           mps_maberth_s_wl (s, i, cluster, abcorr, data->aberth_mutex);
-          mpc_mul_eq (abcorr, corr);
-          mpc_ui_sub (abcorr, 1U, 0U, abcorr);
+          mpcf_mul_eq (abcorr, corr);
+          mpcf_ui_sub (abcorr, 1U, 0U, abcorr);
 
-          if (!mpc_eq_zero (abcorr))
+          if (!mpcf_eq_zero (abcorr))
             {
-              mpc_div (abcorr, corr, abcorr);
+              mpcf_div (abcorr, corr, abcorr);
 
               pthread_mutex_lock (&data->aberth_mutex[i]);
-              mpc_sub_eq (mroot, abcorr);
+              mpcf_sub_eq (mroot, abcorr);
               pthread_mutex_unlock (&data->aberth_mutex[i]);
             }
           else
@@ -570,14 +570,14 @@ __mps_secular_ga_miterate_worker (void* data_ptr)
           else
             {
               pthread_mutex_lock (&data->aberth_mutex[i]);
-              mpc_set (s->root[i]->mvalue, mroot);
+              mpcf_set (s->root[i]->mvalue, mroot);
               pthread_mutex_unlock (&data->aberth_mutex[i]);
 
               /* Correct the radius */
-              mpc_rmod (modcorr, abcorr);
+              mpcf_rmod (modcorr, abcorr);
               rdpe_add_eq (s->root[i]->drad, modcorr);
 
-              mpc_rmod (modcorr, mroot);
+              mpcf_rmod (modcorr, mroot);
               rdpe_mul_eq (modcorr, s->mp_epsilon);
               rdpe_add_eq (s->root[i]->drad, modcorr);
             }
@@ -587,9 +587,9 @@ __mps_secular_ga_miterate_worker (void* data_ptr)
     }
 
 cleanup:
-  mpc_clear (mroot);
-  mpc_clear (abcorr);
-  mpc_clear (corr);
+  mpcf_clear (mroot);
+  mpcf_clear (abcorr);
+  mpcf_clear (corr);
 
   return NULL;
 }

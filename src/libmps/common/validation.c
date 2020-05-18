@@ -44,7 +44,7 @@ mps_validate_inclusions (mps_context * ctx)
 
   mps_polynomial * current_poly = ctx->active_poly;
   int i = 0;
-  mpc_t value;
+  mpcf_t value;
 
   if (ctx->lastphase != mp_phase)
     switch_to_mp (ctx);
@@ -53,7 +53,7 @@ mps_validate_inclusions (mps_context * ctx)
    * this sytem that is lower of the input precision. */
   long int prec = current_poly->prec;
 
-  mpc_init2 (value, prec);
+  mpcf_init2 (value, prec);
   mps_polynomial_raise_data (ctx, current_poly, prec);
 
   for (i = 0; i < ctx->n; i++)
@@ -62,12 +62,12 @@ mps_validate_inclusions (mps_context * ctx)
       ctx->root[i]->frad = DBL_MAX;
       rdpe_set (ctx->root[i]->drad, RDPE_MAX);
 
-      mpc_set_prec (ctx->root[i]->mvalue, prec);
+      mpcf_set_prec (ctx->root[i]->mvalue, prec);
       mps_polynomial_mnewton (ctx, current_poly, ctx->root[i],
                               value, prec);
     }
 
-  mpc_clear (value);
+  mpcf_clear (value);
 
   /* Perform a step of cluster analysis */
   mps_cluster_analysis (ctx, current_poly);

@@ -4,46 +4,46 @@
 
 START_TEST (basics_addition)
 {
-  mpc_t a, b, c;
+  mpcf_t a, b, c;
   cplx_t x;
 
-  mpc_init2 (a, 150 * LOG2_10 + DBL_MANT_DIG);
-  mpc_init2 (b, 150 * LOG2_10 + DBL_MANT_DIG);
-  mpc_init2 (c, 150 * LOG2_10 + DBL_MANT_DIG);
+  mpcf_init2 (a, 150 * LOG2_10 + DBL_MANT_DIG);
+  mpcf_init2 (b, 150 * LOG2_10 + DBL_MANT_DIG);
+  mpcf_init2 (c, 150 * LOG2_10 + DBL_MANT_DIG);
 
-  mpc_set_d (a, 1.0, 0.0);
-  mpc_set_d (b, 1e-150, 0.0);
+  mpcf_set_d (a, 1.0, 0.0);
+  mpcf_set_d (b, 1e-150, 0.0);
 
-  mpc_add (c, a, b);
-  mpc_sub_eq (c, a);
+  mpcf_add (c, a, b);
+  mpcf_sub_eq (c, a);
 
-  mpc_get_cplx (x, c);
+  mpcf_get_cplx (x, c);
 
   fail_unless (fabs (cplx_Re (x) - 1e-150) < DBL_EPSILON * 1e-150 * 8.0,
                "Loss of precision in multiprecision arithmetic: addition");
 
-  mpc_clear (a);
-  mpc_clear (b);
-  mpc_clear (c);
+  mpcf_clear (a);
+  mpcf_clear (b);
+  mpcf_clear (c);
 }
 END_TEST
 
 START_TEST (basics_multiplication)
 {
-  mpc_t a, b, c;
+  mpcf_t a, b, c;
   long int precisions[] = { 64, 128, 1024 };
   int i;
 
   for (i = 0; i < 3; i++)
     {
-      mpc_init2 (a, precisions[i]);
-      mpc_init2 (b, precisions[i]);
-      mpc_init2 (c, precisions[i]);
+      mpcf_init2 (a, precisions[i]);
+      mpcf_init2 (b, precisions[i]);
+      mpcf_init2 (c, precisions[i]);
 
       /* Test some basics operations that may cause overflow in standard floating
        * point. We check if (1 + 2i) * (1 + epsilon) / (1 + epsilon) == (1 + 2i) */
-      mpc_set_ui (a, 1U, 2U);
-      mpc_set_ui (b, 1U, 0U);
+      mpcf_set_ui (a, 1U, 2U);
+      mpcf_set_ui (b, 1U, 0U);
 
       /* Construct epsilon */
       {
@@ -52,20 +52,20 @@ START_TEST (basics_multiplication)
         cdpe_set (epsilon, cdpe_zero);
         rdpe_set_2dl (cdpe_Re (epsilon), 1.0, -precisions[i] + DBL_MANT_DIG);
 
-        mpc_set_cdpe (c, epsilon);
-        mpc_add_eq (b, c);
+        mpcf_set_cdpe (c, epsilon);
+        mpcf_add_eq (b, c);
       }
 
       /* Perform the multiplication */
-      mpc_mul (c, a, b);
-      mpc_div (c, c, b);
+      mpcf_mul (c, a, b);
+      mpcf_div (c, c, b);
 
       /* Check if the result is correct in floating point. That should be true since epsilon
        * was greater than 2.0^{ - precision + DBL_MANT_DIG }. */
       {
         cplx_t x, y;
 
-        mpc_get_cplx (x, c);
+        mpcf_get_cplx (x, c);
         cplx_set_d (y, 1.0, 2.0);
 
         cplx_sub_eq (x, y);
@@ -74,9 +74,9 @@ START_TEST (basics_multiplication)
                      "Floating point errors in complex multiplications");
       }
 
-      mpc_clear (a);
-      mpc_clear (b);
-      mpc_clear (c);
+      mpcf_clear (a);
+      mpcf_clear (b);
+      mpcf_clear (c);
     }
 }
 END_TEST

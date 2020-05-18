@@ -355,7 +355,7 @@ struct __mps_mjacobi_aberth_step_data {
   mps_context * ctx;
   mps_polynomial * p;
   mps_approximation * root;
-  mpc_t * aberth_correction;
+  mpcf_t * aberth_correction;
 };
 /*! @endcond */
 
@@ -363,16 +363,16 @@ static void *
 __mps_mjacobi_aberth_step_worker (void * data_ptr)
 {
   struct __mps_mjacobi_aberth_step_data *data = (struct __mps_mjacobi_aberth_step_data*)data_ptr;
-  mpc_t corr, abcorr;
+  mpcf_t corr, abcorr;
 
   mps_context * ctx = data->ctx;
   mps_approximation * root = data->root;
   mps_polynomial * p = data->p;
 
-  mpc_init2 (corr, ctx->mpwp);
-  mpc_init2 (abcorr, ctx->mpwp);
+  mpcf_init2 (corr, ctx->mpwp);
+  mpcf_init2 (abcorr, ctx->mpwp);
 
-  mps_polynomial_mnewton (ctx, p, root, corr, mpc_get_prec (root->mvalue));
+  mps_polynomial_mnewton (ctx, p, root, corr, mpcf_get_prec (root->mvalue));
 
   if (root->approximated)
     root->again = false;
@@ -380,19 +380,19 @@ __mps_mjacobi_aberth_step_worker (void * data_ptr)
   if (root->again)
     {
       mps_maberth (ctx, root, abcorr);
-      mpc_mul_eq (abcorr, corr);
-      mpc_ui_sub (abcorr, 1U, 0U, abcorr);
+      mpcf_mul_eq (abcorr, corr);
+      mpcf_ui_sub (abcorr, 1U, 0U, abcorr);
 
-      if (!mpc_eq_zero (abcorr))
-        mpc_div (abcorr, corr, abcorr);
+      if (!mpcf_eq_zero (abcorr))
+        mpcf_div (abcorr, corr, abcorr);
       else
         root->again = false;
 
-      mpc_set (*data->aberth_correction, abcorr);
+      mpcf_set (*data->aberth_correction, abcorr);
     }
 
-  mpc_clear (corr);
-  mpc_clear (abcorr);
+  mpcf_clear (corr);
+  mpcf_clear (abcorr);
 
   free (data);
 
@@ -410,12 +410,12 @@ __mps_mjacobi_aberth_step_worker (void * data_ptr)
 static mps_boolean
 mps_mjacobi_aberth_step (mps_context * ctx, mps_polynomial * p, int * nit)
 {
-  mpc_t * maberth_corrections = NULL;
+  mpcf_t * maberth_corrections = NULL;
   mps_boolean again = false;
   int i = 0;
 
-  maberth_corrections = mpc_valloc (ctx->n);
-  mpc_vinit2 (maberth_corrections, ctx->n, ctx->mpwp);
+  maberth_corrections = mpcf_valloc (ctx->n);
+  mpcf_vinit2 (maberth_corrections, ctx->n, ctx->mpwp);
 
   for (i = 0; i < ctx->n; i++)
     {
@@ -448,14 +448,14 @@ mps_mjacobi_aberth_step (mps_context * ctx, mps_polynomial * p, int * nit)
           rdpe_t correction_module;
           again = true;
 
-          mpc_sub_eq (ctx->root[i]->mvalue, maberth_corrections[i]);
-          mpc_rmod (correction_module, maberth_corrections[i]);
+          mpcf_sub_eq (ctx->root[i]->mvalue, maberth_corrections[i]);
+          mpcf_rmod (correction_module, maberth_corrections[i]);
           rdpe_add_eq (ctx->root[i]->drad, correction_module);
         }
     }
 
-  mpc_vclear (maberth_corrections, ctx->n);
-  mpc_vfree (maberth_corrections);
+  mpcf_vclear (maberth_corrections, ctx->n);
+  mpcf_vfree (maberth_corrections);
 
   return again;
 }

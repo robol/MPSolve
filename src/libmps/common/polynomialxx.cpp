@@ -89,9 +89,9 @@ Polynomial::start_mp (mps_context * ctx, mps_approximation ** approximations)
 }
 
 void
-Polynomial::get_leading_coefficient (mps_context * ctx, mpc_t lc)
+Polynomial::get_leading_coefficient (mps_context * ctx, mpcf_t lc)
 {
-  mpc_set_ui (lc, 1U, 0U);
+  mpcf_set_ui (lc, 1U, 0U);
 }
 
 mps_boolean
@@ -112,7 +112,7 @@ Polynomial::deval_wrapper (mps_context * ctx, mps_polynomial * p,
 
 mps_boolean
 Polynomial::meval_wrapper (mps_context * ctx, mps_polynomial * p, 
-			   mpc_t x, mpc_t value, rdpe_t error)
+			   mpcf_t x, mpcf_t value, rdpe_t error)
 {
   Polynomial *thisP = static_cast<Polynomial*> (p);
   return thisP->eval (ctx, x, value, error);
@@ -172,7 +172,7 @@ Polynomial::dnewton_wrapper (mps_context * ctx, mps_polynomial * p,
 
 void
 Polynomial::mnewton_wrapper (mps_context * ctx, mps_polynomial * p, 
-			     mps_approximation * a, mpc_t x, 
+			     mps_approximation * a, mpcf_t x, 
 			     long int wp)
 {
   Polynomial *thisP = static_cast<Polynomial*> (p);
@@ -181,7 +181,7 @@ Polynomial::mnewton_wrapper (mps_context * ctx, mps_polynomial * p,
 
 void
 Polynomial::get_leading_coefficient_wrapper (mps_context * ctx, mps_polynomial * p,
-					     mpc_t leading_coefficient)
+					     mpcf_t leading_coefficient)
 {
   Polynomial *thisP = static_cast<Polynomial*> (p);
   thisP->get_leading_coefficient (ctx, leading_coefficient);

@@ -181,7 +181,7 @@ PolynomialSolver::workerExited()
     QList<Root*> roots;
 
     /* Prepare some space to save the roots */
-    mpc_t * results = NULL;
+    mpcf_t * results = NULL;
     rdpe_t * radii  = NULL;
 
     mps_context_get_roots_m(m_mpsContext, &results, &radii);
@@ -197,14 +197,14 @@ PolynomialSolver::workerExited()
     {
         Root * r = new Root();
 
-        mpc_init2 (r->value, 0);
-        mpc_set_ui (r->value, 0U, 0U);
+        mpcf_init2 (r->value, 0);
+        mpcf_set_ui (r->value, 0U, 0U);
         rdpe_set (r->radius, rdpe_zero);
 
         roots.append(r);
     }
 
-    mpc_vclear (results, n);
+    mpcf_vclear (results, n);
 
     if (results != NULL)
       free (results);

@@ -34,10 +34,10 @@ _mps_fradii_worker (void * data_ptr)
   double new_rad, relative_error;
   int j;
 
-  mpc_t lc;
+  mpcf_t lc;
   cplx_t ctmp;
 
-  mpc_init2 (lc, DBL_MANT_DIG);
+  mpcf_init2 (lc, DBL_MANT_DIG);
   mps_polynomial_get_leading_coefficient (s, p, lc);
 
   /* Compute the value of the polynomial in this point */
@@ -101,7 +101,7 @@ _mps_fradii_worker (void * data_ptr)
 	  rdpe_div_eq_d (radius, cplx_mod (diff));
 	}
 
-      mpc_get_cdpe (cdtmp, lc);
+      mpcf_get_cdpe (cdtmp, lc);
       cdpe_mod     (rtmp,  cdtmp);
 
       rdpe_div_eq (radius, rtmp);
@@ -109,7 +109,7 @@ _mps_fradii_worker (void * data_ptr)
     }
   else
     {
-      mpc_get_cplx (ctmp, lc);
+      mpcf_get_cplx (ctmp, lc);
       new_rad /= cplx_mod (ctmp);
     }
     
@@ -118,7 +118,7 @@ _mps_fradii_worker (void * data_ptr)
     cplx_mod (s->root[i]->fvalue) * DBL_EPSILON * 2.0
     + DBL_MIN;
 
-  mpc_clear (lc);
+  mpcf_clear (lc);
   free (data);
 
   return NULL;
@@ -215,12 +215,12 @@ mps_dradii (mps_context * s, mps_polynomial * p, rdpe_t * dradii)
         }
 
       {
-        mpc_t lc;
-        mpc_init2 (lc, DBL_MANT_DIG);
+        mpcf_t lc;
+        mpcf_init2 (lc, DBL_MANT_DIG);
         mps_polynomial_get_leading_coefficient (s, p, lc);
-        mpc_rmod (rtmp, lc);
+        mpcf_rmod (rtmp, lc);
         rdpe_div_eq (new_rad, rtmp);
-        mpc_clear (lc);
+        mpcf_clear (lc);
       }
 
       rdpe_set (dradii[i], new_rad);
@@ -240,7 +240,7 @@ mps_mradii (mps_context * s, mps_polynomial * p, rdpe_t * dradii)
 {
   MPS_DEBUG_THIS_CALL (s);
 
-  mpc_t pol, mdiff;
+  mpcf_t pol, mdiff;
   cdpe_t cpol, diff, cdtmp;
   rdpe_t new_rad, relative_error, rtmp;
   int i, j;
@@ -253,17 +253,17 @@ mps_mradii (mps_context * s, mps_polynomial * p, rdpe_t * dradii)
     }
 
 
-  mpc_init2 (pol, s->mpwp);
-  mpc_init2 (mdiff, s->mpwp);
+  mpcf_init2 (pol, s->mpwp);
+  mpcf_init2 (mdiff, s->mpwp);
 
   for (i = 0; i < s->n; i++)
     {
       mps_polynomial_meval (s, p, s->root[i]->mvalue, pol, relative_error);
 
-      mpc_get_cdpe (cpol, pol);
+      mpcf_get_cdpe (cpol, pol);
       cdpe_mod (new_rad, cpol);
       rdpe_add_eq (new_rad, relative_error);
-      mpc_get_cdpe (cdtmp, s->root[i]->mvalue);
+      mpcf_get_cdpe (cdtmp, s->root[i]->mvalue);
       cdpe_mod (rtmp, cdtmp);
       rdpe_mul_eq (rtmp, s->mp_epsilon);
       rdpe_add_eq (new_rad, rtmp);
@@ -276,17 +276,17 @@ mps_mradii (mps_context * s, mps_polynomial * p, rdpe_t * dradii)
           if (i == j)
             continue;
 
-          mpc_sub (mdiff, s->root[i]->mvalue, s->root[j]->mvalue);
-          mpc_get_cdpe (diff, mdiff);
+          mpcf_sub (mdiff, s->root[i]->mvalue, s->root[j]->mvalue);
+          mpcf_get_cdpe (diff, mdiff);
 
           /* Check for floating point exceptions in here */
-          if (mpc_eq_zero (mdiff))
+          if (mpcf_eq_zero (mdiff))
             {
               rdpe_set (dradii[i], RDPE_MAX);
               goto mradius_cleanup;
             }
 
-          mpc_rmod (rtmp, mdiff);
+          mpcf_rmod (rtmp, mdiff);
           rdpe_div_eq (new_rad, rtmp);
         }
 
@@ -294,12 +294,12 @@ mps_mradii (mps_context * s, mps_polynomial * p, rdpe_t * dradii)
       rdpe_mul_eq_d (new_rad, p->degree);
 
       {
-        mpc_t lc;
-        mpc_init2 (lc, s->mpwp);
+        mpcf_t lc;
+        mpcf_init2 (lc, s->mpwp);
         mps_polynomial_get_leading_coefficient (s, p, lc);
-        mpc_rmod (rtmp, lc);
+        mpcf_rmod (rtmp, lc);
         rdpe_div_eq (new_rad, rtmp);
-        mpc_clear (lc);
+        mpcf_clear (lc);
       }
 
       rdpe_set (dradii[i], new_rad);
@@ -307,6 +307,6 @@ mps_mradii (mps_context * s, mps_polynomial * p, rdpe_t * dradii)
 
 mradius_cleanup:
 
-  mpc_clear (pol);
-  mpc_clear (mdiff);
+  mpcf_clear (pol);
+  mpcf_clear (mdiff);
 }

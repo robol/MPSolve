@@ -16,7 +16,7 @@ libmps_headers_HEADERS = \
         matrix.h \
         monomial-matrix-poly.h \
         monomial-poly.h \
-        mpc.h \
+        mpcf.h \
         mps.h \
         mt-types.h \
 	nroots-polynomial.h \

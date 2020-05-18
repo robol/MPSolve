@@ -44,10 +44,10 @@ MPS_BEGIN_DECLS
 
 struct mps_secular_equation_double_buffer {
   char active;
-  mpc_t *ampc1;
-  mpc_t *ampc2;
-  mpc_t *bmpc1;
-  mpc_t *bmpc2;
+  mpcf_t *ampc1;
+  mpcf_t *ampc2;
+  mpcf_t *bmpc1;
+  mpcf_t *bmpc2;
 };
 
 /**
@@ -93,25 +93,25 @@ struct mps_secular_equation {
    * @brief Same as <code>afpc</code>, but the multiprecision
    * version.
    */
-  mpc_t *ampc;
+  mpcf_t *ampc;
 
   /**
    * @brief Mutexes thatn need to be locked to ensure consistent
    * access to ampc[j] variable.
    */
-  pthread_mutex_t * ampc_mutex;
+  pthread_mutex_t * ampcf_mutex;
 
   /**
    * @brief Same as <code>bfpc</code>, but the multiprecision
    * version.
    */
-  mpc_t *bmpc;
+  mpcf_t *bmpc;
 
   /**
    * @brief Mutexes that need to be locked to ensure consistent
    * access to bmpc[j] variable.
    */
-  pthread_mutex_t * bmpc_mutex;
+  pthread_mutex_t * bmpcf_mutex;
 
   /**
    * @brief Moduli of the floating point a_i
@@ -141,13 +141,13 @@ struct mps_secular_equation {
    * @brief Initial multiprecision coefficients saved for latter
    * regeneration in <code>mps_secular_ga_regenerate_coefficients()</code>.
    */
-  mpc_t *initial_ampc;
+  mpcf_t *initial_ampc;
 
   /**
    * @brief Initial multiprecision coefficients saved for latter
    * regeneration in <code>mps_secular_ga_regenerate_coefficients()</code>.
    */
-  mpc_t *initial_bmpc;
+  mpcf_t *initial_bmpc;
 
   /**
    * @brief Initial rational coefficients, if rational input is selected.
@@ -211,13 +211,13 @@ struct mps_secular_iteration_data {
    * @brief Thread local copy of the \f$a_i\f$ coefficients of the secular
    * equation.
    */
-  mpc_t * local_ampc;
+  mpcf_t * local_ampc;
 
   /**
    * @brief Thread local copy of the \f$b_i\f$ coefficients of the secular
    * equation.
    */
-  mpc_t * local_bmpc;
+  mpcf_t * local_bmpc;
 
   /**
    * @brief Thread local copy of the floating point coefficients of the secular
@@ -253,7 +253,7 @@ struct mps_secular_iteration_data {
 /* Routines in secular-newton.c */
 void mps_secular_fnewton (mps_context * st, mps_polynomial * p, mps_approximation * root, cplx_t corr);
 void mps_secular_dnewton (mps_context * st, mps_polynomial * p, mps_approximation * root, cdpe_t corr);
-void mps_secular_mnewton (mps_context * st, mps_polynomial * p, mps_approximation * root, mpc_t corr, long int wp);
+void mps_secular_mnewton (mps_context * st, mps_polynomial * p, mps_approximation * root, mpcf_t corr, long int wp);
 
 /* Routines in secular-regeneartion.c */
 mps_boolean mps_secular_ga_regenerate_coefficients (mps_context * s);
@@ -299,7 +299,7 @@ mps_secular_equation *mps_secular_equation_new (mps_context * s,
 mps_secular_equation *mps_secular_equation_new_raw (mps_context * s,
                                                     unsigned long int n);
 
-void mps_secular_equation_set_coefficient_f (mps_context *ctx, mps_secular_equation *p, int i, mpc_t a, mpc_t b);
+void mps_secular_equation_set_coefficient_f (mps_context *ctx, mps_secular_equation *p, int i, mpcf_t a, mpcf_t b);
 void mps_secular_equation_set_coefficient_q (mps_context *ctx, mps_secular_equation *p, int i, mpq_t ar, mpq_t ai, mpq_t br, mpq_t bi);
 
 void mps_secular_equation_free (mps_context * ctx, mps_polynomial * p);
@@ -310,7 +310,7 @@ mps_boolean mps_secular_poly_feval_with_error (mps_context * ctx, mps_polynomial
 
 mps_boolean mps_secular_poly_deval_with_error (mps_context * ctx, mps_polynomial * p, cdpe_t x, cdpe_t value, rdpe_t error);
 
-mps_boolean mps_secular_poly_meval_with_error (mps_context * ctx, mps_polynomial * p, mpc_t x, mpc_t value, rdpe_t error);
+mps_boolean mps_secular_poly_meval_with_error (mps_context * ctx, mps_polynomial * p, mpcf_t x, mpcf_t value, rdpe_t error);
 
 void mps_secular_poly_fstart (mps_context * ctx, mps_polynomial * p, mps_approximation ** approximations);
 

@@ -29,23 +29,23 @@ mexFunction (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
 
   /* Compute exp(- .5 * k^\alpha) */
   mpf_t f; 
-  mpc_t d;
+  mpcf_t d;
   mpfr_t f2, alpha;
 
   mpf_init2 (f, n * 16);
-  mpc_init2 (d, n * 16);
-  mpf_set_ui (mpc_Im (d), 0U);
+  mpcf_init2 (d, n * 16);
+  mpf_set_ui (mpcf_Im (d), 0U);
   mpfr_init2 (f2, n * 16);
   mpfr_init2 (alpha, n * 16);
 
   mpfr_set_d (alpha, dalpha, MPFR_RNDN);
   mpfr_set_ui (f2, 1U, MPFR_RNDN);
-  mpfr_get_f (mpc_Re (d), f2, MPFR_RNDN);
+  mpfr_get_f (mpcf_Re (d), f2, MPFR_RNDN);
 
   if (perturbations)
     {
       mpf_set_d (f, perturbations[0]);
-      mpf_mul_eq (mpc_Re (d), f);
+      mpf_mul_eq (mpcf_Re (d), f);
     }
   mps_monomial_poly_set_coefficient_f (ctx, mp, 0, d);
   
@@ -57,20 +57,20 @@ mexFunction (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
       mpfr_pow (f2, f2, alpha, MPFR_RNDN);
       mpfr_mul_d (f2, f2, - .5, MPFR_RNDN);
       mpfr_exp (f2, f2, MPFR_RNDN);
-      mpfr_get_f (mpc_Re (d), f2, MPFR_RNDN);
+      mpfr_get_f (mpcf_Re (d), f2, MPFR_RNDN);
       
       if (perturbations)
 	{
 	  mpf_set_d (f, random_perturbation);
-	  mpf_mul_eq (mpc_Re (d), f);
+	  mpf_mul_eq (mpcf_Re (d), f);
 	}
       /* This can be used as a crude debug for the computed coefficients */
-      /* printf("Coeff: %f\n", pow(mpf_get_d (mpc_Re (d)), 2)); */
+      /* printf("Coeff: %f\n", pow(mpf_get_d (mpcf_Re (d)), 2)); */
       
       mps_monomial_poly_set_coefficient_f (ctx, mp, i, d);
     }
     
-  mpc_clear (d);
+  mpcf_clear (d);
   mpf_clear (f);
   mpfr_clear (f2);
   mpfr_clear (alpha);
@@ -115,7 +115,7 @@ mexFunction (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
     }
   else
     {
-      mpc_t * mresults = NULL;
+      mpcf_t * mresults = NULL;
       rdpe_t * _radii = NULL;
       char * buffer_r, * buffer_i;
       int ndim = 2;
@@ -132,10 +132,10 @@ mexFunction (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
 	  mp_exp_t rexp, iexp;
 
 	  buffer_r = buffer_i = NULL;
-	  buffer_r = mpf_get_str (buffer_r, &rexp, 10, 0, mpc_Re (mresults[i]));
-	  buffer_i = mpf_get_str (buffer_i, &iexp, 10, 0, mpc_Im (mresults[i]));
+	  buffer_r = mpf_get_str (buffer_r, &rexp, 10, 0, mpcf_Re (mresults[i]));
+	  buffer_i = mpf_get_str (buffer_i, &iexp, 10, 0, mpcf_Im (mresults[i]));
 
-	  mpc_clear (mresults[i]);
+	  mpcf_clear (mresults[i]);
 
 	  mwIndex i0[] = { i, 0 };
           mwIndex i1[] = { i, 1 };

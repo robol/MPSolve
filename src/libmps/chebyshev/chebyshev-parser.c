@@ -35,7 +35,7 @@ mps_chebyshev_poly_read_from_stream (mps_context * ctx, mps_input_buffer * buffe
   if (precision > 0)
     {
       for (i = 0; i < ctx->n; i++)
-        mpc_set_prec (cpoly->mfpc[i], precision);
+        mpcf_set_prec (cpoly->mfpc[i], precision);
     }
 
   switch (density)
@@ -47,7 +47,7 @@ mps_chebyshev_poly_read_from_stream (mps_context * ctx, mps_input_buffer * buffe
             {
               token = mps_input_buffer_next_token (buffer);
 
-              if (!token || (mpf_set_str (mpc_Re (cpoly->mfpc[i]), token, 10) != 0))
+              if (!token || (mpf_set_str (mpcf_Re (cpoly->mfpc[i]), token, 10) != 0))
                 {
                   mps_raise_parsing_error (ctx, buffer, token,
                                            "Error while reading real part of coefficient");
@@ -60,7 +60,7 @@ mps_chebyshev_poly_read_from_stream (mps_context * ctx, mps_input_buffer * buffe
                 {
                   token = mps_input_buffer_next_token (buffer);
 
-                  if (!token || (mpf_set_str (mpc_Im (cpoly->mfpc[i]), token, 10) != 0))
+                  if (!token || (mpf_set_str (mpcf_Im (cpoly->mfpc[i]), token, 10) != 0))
                     {
                       mps_raise_parsing_error (ctx, buffer, token, "Error while reading imaginary part of coefficient");
                       free (token); mps_polynomial_free (ctx, MPS_POLYNOMIAL (cpoly));
@@ -97,13 +97,13 @@ mps_chebyshev_poly_read_from_stream (mps_context * ctx, mps_input_buffer * buffe
                   free (token);
                 }
 
-              mpf_set_q (mpc_Re (cpoly->mfpc[i]), cpoly->rational_real_coeffs[i]);
-              mpf_set_q (mpc_Im (cpoly->mfpc[i]), cpoly->rational_imag_coeffs[i]);
+              mpf_set_q (mpcf_Re (cpoly->mfpc[i]), cpoly->rational_real_coeffs[i]);
+              mpf_set_q (mpcf_Im (cpoly->mfpc[i]), cpoly->rational_imag_coeffs[i]);
             }
 
           /* Update other floating point coefficients */
-          mpc_get_cdpe (cpoly->dpc[i], cpoly->mfpc[i]);
-          mpc_get_cplx (cpoly->fpc[i], cpoly->mfpc[i]);
+          mpcf_get_cdpe (cpoly->dpc[i], cpoly->mfpc[i]);
+          mpcf_get_cplx (cpoly->fpc[i], cpoly->mfpc[i]);
 
           if (ctx->debug_level & MPS_DEBUG_IO)
             {
@@ -117,7 +117,7 @@ mps_chebyshev_poly_read_from_stream (mps_context * ctx, mps_input_buffer * buffe
        * will be assumed to be null. */
       for (i = 0; i < ctx->n; i++)
         {
-          mpc_set_ui (cpoly->mfpc[i], 0U, 0U);
+          mpcf_set_ui (cpoly->mfpc[i], 0U, 0U);
           mpq_set_ui (cpoly->rational_real_coeffs[i], 0U, 1U);
           mpq_set_ui (cpoly->rational_imag_coeffs[i], 0U, 1U);
         }
@@ -138,7 +138,7 @@ mps_chebyshev_poly_read_from_stream (mps_context * ctx, mps_input_buffer * buffe
             {
               token = mps_input_buffer_next_token (buffer);
 
-              if (!token || (mpf_set_str (mpc_Re (cpoly->mfpc[degree]), token, 10) != 0))
+              if (!token || (mpf_set_str (mpcf_Re (cpoly->mfpc[degree]), token, 10) != 0))
                 {
                   mps_raise_parsing_error (ctx, buffer, token, "Error while reading real part of coefficient");
                   free (token); mps_polynomial_free (ctx, MPS_POLYNOMIAL (cpoly));
@@ -151,7 +151,7 @@ mps_chebyshev_poly_read_from_stream (mps_context * ctx, mps_input_buffer * buffe
                 {
                   token = mps_input_buffer_next_token (buffer);
 
-                  if (!token || (mpf_set_str (mpc_Im (cpoly->mfpc[degree]), token, 10) != 0))
+                  if (!token || (mpf_set_str (mpcf_Im (cpoly->mfpc[degree]), token, 10) != 0))
                     {
                       mps_raise_parsing_error (ctx, buffer, token,
                                                "Error while reading imaginary part of coefficient %d", degree);
@@ -173,7 +173,7 @@ mps_chebyshev_poly_read_from_stream (mps_context * ctx, mps_input_buffer * buffe
                   return NULL;
                 }
 
-              mpf_set_q (mpc_Re (cpoly->mfpc[degree]), cpoly->rational_real_coeffs[degree]);
+              mpf_set_q (mpcf_Re (cpoly->mfpc[degree]), cpoly->rational_real_coeffs[degree]);
 
               free (token);
 
@@ -189,14 +189,14 @@ mps_chebyshev_poly_read_from_stream (mps_context * ctx, mps_input_buffer * buffe
                       return NULL;
                     }
 
-                  mpf_set_q (mpc_Im (cpoly->mfpc[degree]), cpoly->rational_imag_coeffs[degree]);
+                  mpf_set_q (mpcf_Im (cpoly->mfpc[degree]), cpoly->rational_imag_coeffs[degree]);
 
                   free (token);
                 }
             }
 
-          mpc_get_cdpe (cpoly->dpc[degree], cpoly->mfpc[degree]);
-          mpc_get_cplx (cpoly->fpc[degree], cpoly->mfpc[degree]);
+          mpcf_get_cdpe (cpoly->dpc[degree], cpoly->mfpc[degree]);
+          mpcf_get_cplx (cpoly->fpc[degree], cpoly->mfpc[degree]);
         }
       break;
 

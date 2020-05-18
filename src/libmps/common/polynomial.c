@@ -26,9 +26,9 @@ _mps_polynomial_raise_data (mps_context * ctx, mps_polynomial * p, long int wp)
 }
 
 void
-_mps_polynomial_get_leading_coefficient (mps_context * ctx, mps_polynomial * p, mpc_t lc)
+_mps_polynomial_get_leading_coefficient (mps_context * ctx, mps_polynomial * p, mpcf_t lc)
 {
-  mpc_set_ui (lc, 1U, 0U);
+  mpcf_set_ui (lc, 1U, 0U);
 }
 
 void
@@ -101,7 +101,7 @@ mps_polynomial_deval (mps_context * ctx, mps_polynomial * p, cdpe_t x, cdpe_t va
 }
 
 mps_boolean
-mps_polynomial_meval (mps_context * ctx, mps_polynomial * p, mpc_t x, mpc_t value, rdpe_t error)
+mps_polynomial_meval (mps_context * ctx, mps_polynomial * p, mpcf_t x, mpcf_t value, rdpe_t error)
 {
   return (*p->meval)(ctx, p, x, value, error);
 }
@@ -200,7 +200,7 @@ mps_polynomial_dnewton (mps_context * ctx, mps_polynomial *p,
 
 void
 mps_polynomial_mnewton (mps_context * ctx, mps_polynomial *p,
-                        mps_approximation * root, mpc_t corr,
+                        mps_approximation * root, mpcf_t corr,
                         long int wp)
 {
   (*p->mnewton)(ctx, p, root, corr, wp);
@@ -208,7 +208,7 @@ mps_polynomial_mnewton (mps_context * ctx, mps_polynomial *p,
 
 void
 mps_polynomial_get_leading_coefficient (mps_context * ctx, mps_polynomial * p,
-                                        mpc_t leading_coefficient)
+                                        mpcf_t leading_coefficient)
 {
   (*p->get_leading_coefficient)(ctx, p, leading_coefficient);
 }

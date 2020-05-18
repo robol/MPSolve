@@ -11,9 +11,9 @@
 #include <mps/mps.h>
 
 mps_boolean
-mps_chebyshev_poly_meval (mps_context * ctx, mps_polynomial * poly, mpc_t x, mpc_t value, rdpe_t error)
+mps_chebyshev_poly_meval (mps_context * ctx, mps_polynomial * poly, mpcf_t x, mpcf_t value, rdpe_t error)
 {
-  long int wp = mpc_get_prec (x);
+  long int wp = mpcf_get_prec (x);
 
   /* Lower the working precision in case of limited precision coefficients
    * in the input polynomial. */
@@ -23,58 +23,58 @@ mps_chebyshev_poly_meval (mps_context * ctx, mps_polynomial * poly, mpc_t x, mpc
   mps_chebyshev_poly * cpoly = MPS_CHEBYSHEV_POLY (poly);
   int i;
 
-  mpc_t t0, t1, ctmp, ctmp2;
+  mpcf_t t0, t1, ctmp, ctmp2;
   rdpe_t ax, rtmp, rtmp2;
 
-  mpc_rmod (ax, x);
+  mpcf_rmod (ax, x);
   rdpe_set (error, rdpe_zero);
 
   /* Make sure that we have sufficient precision to perform the computation */
   mps_polynomial_raise_data (ctx, poly, wp);
 
-  mpc_init2 (t0, wp);
-  mpc_init2 (t1, wp);
-  mpc_init2 (ctmp, wp);
-  mpc_init2 (ctmp2, wp);
+  mpcf_init2 (t0, wp);
+  mpcf_init2 (t1, wp);
+  mpcf_init2 (ctmp, wp);
+  mpcf_init2 (ctmp2, wp);
 
-  mpc_set (value, cpoly->mfpc[0]);
-  mpc_set_ui (t0, 1U, 0U);
+  mpcf_set (value, cpoly->mfpc[0]);
+  mpcf_set_ui (t0, 1U, 0U);
   if (poly->degree == 0)
     {
       return true;
     }
 
-  mpc_set (t1, x);
-  mpc_mul (ctmp, cpoly->mfpc[1], x);
-  mpc_add_eq (value, ctmp);
+  mpcf_set (t1, x);
+  mpcf_mul (ctmp, cpoly->mfpc[1], x);
+  mpcf_add_eq (value, ctmp);
 
-  mpc_rmod (rtmp, ctmp);
+  mpcf_rmod (rtmp, ctmp);
   rdpe_add_eq (error, rtmp);
 
   for (i = 2; i <= poly->degree; i++)
     {
-      mpc_mul (ctmp, x, t1);
-      mpc_mul_eq_ui (ctmp, 2U);
-      mpc_rmod (rtmp, ctmp);
-      mpc_sub_eq (ctmp, t0);
+      mpcf_mul (ctmp, x, t1);
+      mpcf_mul_eq_ui (ctmp, 2U);
+      mpcf_rmod (rtmp, ctmp);
+      mpcf_sub_eq (ctmp, t0);
 
-      mpc_rmod (rtmp2, t0);
+      mpcf_rmod (rtmp2, t0);
       rdpe_add_eq (rtmp, rtmp2);
 
-      mpc_mul (ctmp2, ctmp, cpoly->mfpc[i]);
-      mpc_add_eq (value, ctmp2);
+      mpcf_mul (ctmp2, ctmp, cpoly->mfpc[i]);
+      mpcf_add_eq (value, ctmp2);
 
       rdpe_mul_eq (rtmp, ax);
       rdpe_add_eq (error, rtmp);
 
-      mpc_set (t0, t1);
-      mpc_set (t1, ctmp);
+      mpcf_set (t0, t1);
+      mpcf_set (t1, ctmp);
     }
 
-  mpc_clear (t0);
-  mpc_clear (t1);
-  mpc_clear (ctmp);
-  mpc_clear (ctmp2);
+  mpcf_clear (t0);
+  mpcf_clear (t1);
+  mpcf_clear (ctmp);
+  mpcf_clear (ctmp2);
 
   rdpe_set_2dl (rtmp, 2.0, -wp);
   rdpe_mul_eq (error, rtmp);

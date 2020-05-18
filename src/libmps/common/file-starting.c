@@ -31,7 +31,7 @@ mps_load_approximations (mps_context * ctx, int n, FILE * input,
     {
       mps_approximation * appr = approximations[i];      
 
-      if (mpc_inp_str (appr->mvalue, input, 10) == 0)
+      if (mpcf_inp_str (appr->mvalue, input, 10) == 0)
 	{
 	  MPS_DEBUG (ctx, "Error while trying to read the %d-th approximation. Aborting", i);
 	  mps_error (ctx, "Error while trying to read the %d-th approximation. Aborting", i);
@@ -41,11 +41,11 @@ mps_load_approximations (mps_context * ctx, int n, FILE * input,
 	{
 	  char next; 
 
-	  mpc_get_cplx (appr->fvalue, appr->mvalue);
-	  mpc_get_cdpe (appr->dvalue, appr->mvalue);
+	  mpcf_get_cplx (appr->fvalue, appr->mvalue);
+	  mpcf_get_cdpe (appr->dvalue, appr->mvalue);
 
 	  /* This is essentialy a workaround to handle newlines. If we leave them in 
-	   * mpc_inp_str will have no clue of what they are and will fail. */
+	   * mpcf_inp_str will have no clue of what they are and will fail. */
 	  if ((next = fgetc (input)) != '\n')
 	    ungetc (next, input);
 	}

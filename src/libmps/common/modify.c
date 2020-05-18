@@ -377,7 +377,7 @@ mps_mmodify (mps_context * s, mps_boolean track_new_cluster)
             }
 
           rdpe_set (tmpr, s->root[l]->drad);
-          mpc_get_cdpe (cdtmp, s->root[l]->mvalue);
+          mpcf_get_cdpe (cdtmp, s->root[l]->mvalue);
           cdpe_mod (tmpr2, cdtmp);
           rdpe_div_eq (tmpr, tmpr2);
           if (rdpe_le (tmpr, s->eps_out))

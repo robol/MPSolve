@@ -51,7 +51,7 @@ mps_secular_equation_read_from_stream (mps_context * s,
       for (i = 0; i < s->n; i++)
         {
           token = mps_input_buffer_next_token (buffer);
-          if (!token || (mpf_set_str (mpc_Re (sec->initial_ampc[i]), token, 10) != 0))
+          if (!token || (mpf_set_str (mpcf_Re (sec->initial_ampc[i]), token, 10) != 0))
             {
               MPS_DEBUG (s,
                          "Error reading coefficient a[%d] of the secular equation (real part)",
@@ -71,7 +71,7 @@ mps_secular_equation_read_from_stream (mps_context * s,
           if (MPS_STRUCTURE_IS_COMPLEX (structure))
             {
               token = mps_input_buffer_next_token (buffer);
-              if (!token || (mpf_set_str (mpc_Im (sec->initial_ampc[i]), token, 10) != 0))
+              if (!token || (mpf_set_str (mpcf_Im (sec->initial_ampc[i]), token, 10) != 0))
                 {
                   MPS_DEBUG (s,
                              "Error reading coefficient a[%d] of the secular equation (imaginary part)",
@@ -89,11 +89,11 @@ mps_secular_equation_read_from_stream (mps_context * s,
             }
           else
             {
-              mpf_set_ui (mpc_Im (sec->initial_ampc[i]), 0U);
+              mpf_set_ui (mpcf_Im (sec->initial_ampc[i]), 0U);
             }
 
           token = mps_input_buffer_next_token (buffer);
-          if (!token || (mpf_set_str (mpc_Re (sec->initial_bmpc[i]), token, 10) != 0))
+          if (!token || (mpf_set_str (mpcf_Re (sec->initial_bmpc[i]), token, 10) != 0))
             {
               MPS_DEBUG (s,
                          "Error reading coefficient b[%d] of the secular equation (real part)",
@@ -113,7 +113,7 @@ mps_secular_equation_read_from_stream (mps_context * s,
           if (MPS_STRUCTURE_IS_COMPLEX (structure))
             {
               token = mps_input_buffer_next_token (buffer);
-              if (!token || (mpf_set_str (mpc_Im (sec->initial_bmpc[i]), token, 10) != 0))
+              if (!token || (mpf_set_str (mpcf_Im (sec->initial_bmpc[i]), token, 10) != 0))
                 {
                   MPS_DEBUG (s,
                              "Error reading coefficient b[%d] of the secular equation (imaginary part)",
@@ -131,7 +131,7 @@ mps_secular_equation_read_from_stream (mps_context * s,
             }
           else
             {
-              mpf_set_ui (mpc_Im (sec->initial_bmpc[i]), 0U);
+              mpf_set_ui (mpcf_Im (sec->initial_bmpc[i]), 0U);
             }
         }
     }
@@ -230,19 +230,19 @@ mps_secular_equation_read_from_stream (mps_context * s,
       for (i = 0; i < s->n; i++)
         {
           mpf_set_q (ftmp, sec->initial_ampqrc[i]);
-          mpf_set (mpc_Re (sec->initial_ampc[i]), ftmp);
+          mpf_set (mpcf_Re (sec->initial_ampc[i]), ftmp);
           mpf_get_rdpe (cdpe_Re (sec->adpc[i]), ftmp);
 
           mpf_set_q (ftmp, sec->initial_ampqic[i]);
-          mpf_set (mpc_Im (sec->initial_ampc[i]), ftmp);
+          mpf_set (mpcf_Im (sec->initial_ampc[i]), ftmp);
           mpf_get_rdpe (cdpe_Im (sec->adpc[i]), ftmp);
 
           mpf_set_q (ftmp, sec->initial_bmpqrc[i]);
-          mpf_set (mpc_Re (sec->initial_bmpc[i]), ftmp);
+          mpf_set (mpcf_Re (sec->initial_bmpc[i]), ftmp);
           mpf_get_rdpe (cdpe_Re (sec->bdpc[i]), ftmp);
 
           mpf_set_q (ftmp, sec->initial_bmpqic[i]);
-          mpf_set (mpc_Im (sec->initial_bmpc[i]), ftmp);
+          mpf_set (mpcf_Im (sec->initial_bmpc[i]), ftmp);
           mpf_get_rdpe (cdpe_Im (sec->bdpc[i]), ftmp);
         }
     }
@@ -251,12 +251,12 @@ mps_secular_equation_read_from_stream (mps_context * s,
   for (i = 0; i < MPS_POLYNOMIAL (sec)->degree; i++)
     {
       /* Bulk copy of the MP coefficients */
-      mpc_set (sec->ampc[i], sec->initial_ampc[i]);
-      mpc_set (sec->bmpc[i], sec->initial_bmpc[i]);
+      mpcf_set (sec->ampc[i], sec->initial_ampc[i]);
+      mpcf_set (sec->bmpc[i], sec->initial_bmpc[i]);
 
       /* CDPE coefficients */
-      mpc_get_cdpe (sec->adpc[i], sec->initial_ampc[i]);
-      mpc_get_cdpe (sec->bdpc[i], sec->initial_bmpc[i]);
+      mpcf_get_cdpe (sec->adpc[i], sec->initial_ampc[i]);
+      mpcf_get_cdpe (sec->bdpc[i], sec->initial_bmpc[i]);
 
       /* Get floating points coefficients */
       cdpe_get_x (sec->afpc[i], sec->adpc[i]);

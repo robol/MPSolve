@@ -18,7 +18,7 @@ struct mps_rational_poly {
   cplx_t * c;
 
   /* Leading coefficient of the polynomial */
-  mpc_t lc;
+  mpcf_t lc;
 };
 
 typedef struct mps_rational_poly mps_rational_poly;
@@ -32,17 +32,17 @@ mps_boolean mps_rational_poly_feval (mps_context * ctx, mps_polynomial * p,
 mps_boolean mps_rational_poly_deval (mps_context * ctx, mps_polynomial * p, 
 				     cdpe_t x, cdpe_t value, rdpe_t error);
 mps_boolean mps_rational_poly_meval (mps_context * ctx, mps_polynomial * p, 
-				     mpc_t x, mpc_t value, rdpe_t error);
+				     mpcf_t x, mpcf_t value, rdpe_t error);
 
 void mps_rational_poly_fnewton (mps_context * ctx, mps_polynomial * p,
 				mps_approximation * root, cplx_t corr);
 void mps_ratioanl_poly_dnewton (mps_context * ctx, mps_polynomial * p,
 				mps_approximation * root, cdpe_t corr);
 void mps_rational_poly_mnewton (mps_context * ctx, mps_polynomial * p,
-				mps_approximation * root, mpc_t corr, long int wp);
+				mps_approximation * root, mpcf_t corr, long int wp);
 
 void mps_rational_poly_free (mps_context * ctx, mps_rational_poly * p);
 
 void mps_rational_poly_get_leading_coefficient (mps_context * ctx, 
 						mps_polynomial * p, 
-						mpc_t lc);
+						mpcf_t lc);

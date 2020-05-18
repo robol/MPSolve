@@ -109,11 +109,11 @@ mps_dtouchnwt (mps_context * s, rdpe_t * drad, int n, int i, int j)
 MPS_PRIVATE mps_boolean
 mps_mtouchnwt (mps_context * s, rdpe_t * drad, int n, int i, int j)
 {
-  mpc_t mtmp;
+  mpcf_t mtmp;
   cdpe_t ctmp;
   rdpe_t dtmp1, dtmp2;
 
-  mpc_init2 (mtmp, s->mpwp);
+  mpcf_init2 (mtmp, s->mpwp);
 
   rdpe_add (dtmp1, drad[i], drad[j]);
 
@@ -122,11 +122,11 @@ mps_mtouchnwt (mps_context * s, rdpe_t * drad, int n, int i, int j)
   /*     return true; */
 
   rdpe_mul_eq_d (dtmp1, (double)n);
-  mpc_sub (mtmp, s->root[i]->mvalue, s->root[j]->mvalue);
-  mpc_get_cdpe (ctmp, mtmp);
+  mpcf_sub (mtmp, s->root[i]->mvalue, s->root[j]->mvalue);
+  mpcf_get_cdpe (ctmp, mtmp);
   cdpe_mod (dtmp2, ctmp);
 
-  mpc_clear (mtmp);
+  mpcf_clear (mtmp);
 
   return rdpe_ge (dtmp1, dtmp2);
 }
@@ -177,7 +177,7 @@ mps_mtouchreal (mps_context * s, int n, int i)
   rdpe_t tmp1, tmp2;
 
   rdpe_mul_d (tmp1, s->root[i]->drad, (double)n);
-  mpf_get_rdpe (tmp2, mpc_Im (s->root[i]->mvalue));
+  mpf_get_rdpe (tmp2, mpcf_Im (s->root[i]->mvalue));
   rdpe_abs_eq (tmp2);
 
   return rdpe_ge (tmp1, tmp2);
@@ -229,7 +229,7 @@ mps_mtouchimag (mps_context * s, int n, int i)
   rdpe_t tmp1, tmp2;
 
   rdpe_mul_d (tmp1, s->root[i]->drad, (double)n);
-  mpf_get_rdpe (tmp2, mpc_Re (s->root[i]->mvalue));
+  mpf_get_rdpe (tmp2, mpcf_Re (s->root[i]->mvalue));
   rdpe_abs_eq (tmp2);
 
   return rdpe_ge (tmp1, tmp2);
@@ -291,7 +291,7 @@ mps_mtouchunit (mps_context * s, int n, int i)
 
   mpf_init2 (mab, s->mpwp);
 
-  mpc_mod (mab, s->root[i]->mvalue);
+  mpcf_mod (mab, s->root[i]->mvalue);
   mpf_sub_eq_ui (mab, 1);
   mpf_get_rdpe (ab, mab);
 

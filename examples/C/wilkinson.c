@@ -22,7 +22,7 @@
 
 
 void wilkinson_coefficients(long int M, mpz_t **phi_out);
-void sort_roots(long M, mpc_t *roots, rdpe_t *radii);
+void sort_roots(long M, mpcf_t *roots, rdpe_t *radii);
 
 int
 main (int argc, char **argv)
@@ -34,7 +34,7 @@ main (int argc, char **argv)
   mpq_t cf, zero;
   mps_monomial_poly *p;
   mps_context *ctx;
-  mpc_t *roots = NULL, err;
+  mpcf_t *roots = NULL, err;
   rdpe_t *radii = NULL;
   cplx_t err_c, root_c;
 
@@ -77,13 +77,13 @@ main (int argc, char **argv)
   printf("Roots:\t\t\t\t\tError\t\tInclusion\n");
   printf("real part\t imaginary part\t\t\t\tradius\n");
   printf("=================================================================\n");
-  mpc_init2(err, mpc_get_prec (roots[0]));
+  mpcf_init2(err, mpcf_get_prec (roots[0]));
   for (m = 0; m < M; m++) {
-    mpc_sub_ui(err, roots[m], m + 1, 0);
-    mpc_get_cplx(err_c, err);
+    mpcf_sub_ui(err, roots[m], m + 1, 0);
+    mpcf_get_cplx(err_c, err);
     err_d = sqrt(cplx_Re(err_c)*cplx_Re(err_c) + cplx_Im(err_c)*cplx_Im(err_c));
     err_max = err_d > err_max ? err_d : err_max;
-    mpc_get_cplx(root_c, roots[m]);
+    mpcf_get_cplx(root_c, roots[m]);
     printf("%.3e\t%.3e\t\t%.3e\t%.3e\n", cplx_Re(root_c), cplx_Im(root_c),
       err_d, rdpe_get_d(radii[m]));
   }
@@ -97,7 +97,7 @@ main (int argc, char **argv)
   */
   mpq_clear(cf);
   mpq_clear(zero);
-  mpc_clear(err);
+  mpcf_clear(err);
   mps_monomial_poly_free(ctx, (mps_polynomial *)p);
   mps_context_free(ctx);
   for (m = 0; m < M + 1; m++) {mpz_clear(phi[m]);}
@@ -146,38 +146,38 @@ wilkinson_coefficients(long int M, mpz_t **phi_out)
   real part of the roots
  */
 typedef struct {
-  mpc_t root;
+  mpcf_t root;
   rdpe_t radius;
 } val_wrapper;
 int
 compar(const void *a, 
   const void *b) {
   cplx_t r1, r2;
-  mpc_get_cplx(r1, ((val_wrapper*)a)->root);
-  mpc_get_cplx(r2, ((val_wrapper*)b)->root);
+  mpcf_get_cplx(r1, ((val_wrapper*)a)->root);
+  mpcf_get_cplx(r2, ((val_wrapper*)b)->root);
   int res = cplx_Re(r1) > cplx_Re(r2) ? 1 : -1;
   if (cplx_Re(r1) == cplx_Re(r2)) {res = 0;}
   return res;
 }
 void
-sort_roots(long M, mpc_t *roots, rdpe_t *radii)
+sort_roots(long M, mpcf_t *roots, rdpe_t *radii)
 {
   long m;
   val_wrapper *vals = malloc(M * sizeof(val_wrapper));
-  long int wp = mpc_get_prec (roots[0]);
+  long int wp = mpcf_get_prec (roots[0]);
 
   for (m = 0; m < M; m++) {
-    mpc_init2(vals[m].root, wp);
-    mpc_set(vals[m].root, roots[m]);
+    mpcf_init2(vals[m].root, wp);
+    mpcf_set(vals[m].root, roots[m]);
     rdpe_set(vals[m].radius, radii[m]);
   }
   qsort(vals, M, sizeof(val_wrapper), compar);
   for (m = 0; m < M; m++) {
-    mpc_set(roots[m], vals[m].root);
+    mpcf_set(roots[m], vals[m].root);
     rdpe_set(radii[m], vals[m].radius);
   }
   for (m = 0; m < M; m++) {
-    mpc_clear(vals[m].root);
+    mpcf_clear(vals[m].root);
   }
   free(vals);
 }

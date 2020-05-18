@@ -25,7 +25,7 @@ void mps_fstart (mps_context * s, int n, mps_cluster_item * cluster, double clus
 void mps_dstart (mps_context * s, int n, mps_cluster_item * cluster, rdpe_t clust_rad,
                  rdpe_t g, rdpe_t eps_out, rdpe_t dap[]);
 void mps_mstart (mps_context * s, int n, mps_cluster_item * cluster, rdpe_t clust_rad,
-                 rdpe_t g, rdpe_t dap[], mpc_t gg);
+                 rdpe_t g, rdpe_t dap[], mpcf_t gg);
 void mps_frestart (mps_context * s);
 void mps_drestart (mps_context * s);
 void mps_mrestart (mps_context * s);
@@ -34,7 +34,7 @@ void mps_fshift (mps_context * s, int m, mps_cluster_item * cluster, double clus
 void mps_dshift (mps_context * s, int m, mps_cluster_item * cluster, rdpe_t clust_rad,
                  cdpe_t g, rdpe_t eps);
 void mps_mshift (mps_context * s, int m, mps_cluster_item * cluster, rdpe_t clust_rad,
-                 mpc_t g);
+                 mpcf_t g);
 
 /* functions in recursive-starting.c */
 void mps_recursive_fstart (mps_context * ctx, mps_polynomial * poly, mps_approximation ** approximations);

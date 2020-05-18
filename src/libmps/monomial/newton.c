@@ -271,20 +271,20 @@ mps_intlog2 (int n)
  */
 MPS_PRIVATE void
 mps_mnewton (mps_context * s, mps_polynomial * poly,
-             mps_approximation * root, mpc_t corr, long int wp)
+             mps_approximation * root, mpcf_t corr, long int wp)
 {
   int i;
   rdpe_t ap, az, absp, temp, rnew, ep, apeps;
   cdpe_t temp1;
-  mpc_t p, p1;
+  mpcf_t p, p1;
 
   mps_monomial_poly * mp = MPS_MONOMIAL_POLY (poly);
-  mpc_t * mfpc = mp->mfpc;
+  mpcf_t * mfpc = mp->mfpc;
   rdpe_t * dap = mp->dap;
   int n = poly->degree;
 
-  mpc_init2 (p, wp);
-  mpc_init2 (p1, wp);
+  mpcf_init2 (p, wp);
+  mpcf_init2 (p1, wp);
 
   rdpe_set_2dl (ep, 1.0, 2 - wp);
   rdpe_mul_eq_d (ep, n);
@@ -302,10 +302,10 @@ mps_mnewton (mps_context * s, mps_polynomial * poly,
       derivative.prec = mp->prec;
       derivative.mfpc_mutex = mp->mfpc_mutex + 1;
 
-      derivative.mfpc = mpc_valloc (n);
-      mpc_vinit2 (derivative.mfpc, n, wp);
+      derivative.mfpc = mpcf_valloc (n);
+      mpcf_vinit2 (derivative.mfpc, n, wp);
       for (i = 0; i < n; i++)
-        mpc_mul_ui (derivative.mfpc[i], mp->mfpc[i + 1], i + 1);
+        mpcf_mul_ui (derivative.mfpc[i], mp->mfpc[i + 1], i + 1);
 
       MPS_POLYNOMIAL (&derivative)->meval = mps_monomial_poly_meval;
       MPS_POLYNOMIAL (&derivative)->raise_data = mps_monomial_poly_raise_precision;
@@ -313,27 +313,27 @@ mps_mnewton (mps_context * s, mps_polynomial * poly,
       mps_polynomial_meval (s, MPS_POLYNOMIAL (mp), root->mvalue, p, ap);
       mps_mhorner (s, &derivative, root->mvalue, p1);
 
-      mpc_vclear (derivative.mfpc, n);
-      mpc_vfree (derivative.mfpc);
+      mpcf_vclear (derivative.mfpc, n);
+      mpcf_vfree (derivative.mfpc);
     }
   else
     {                           /*  dense polynomial */
       /* commpute p(z) and p'(z) */
-      mpc_set (p, mfpc[n]);
-      mpc_set (p1, p);
+      mpcf_set (p, mfpc[n]);
+      mpcf_set (p1, p);
       for (i = n - 1; i > 0; i--)
         {
-          mpc_mul (p, p, root->mvalue);
-          mpc_add (p, p, mfpc[i]);
-          mpc_mul (p1, p1, root->mvalue);
-          mpc_add (p1, p1, p);
+          mpcf_mul (p, p, root->mvalue);
+          mpcf_add (p, p, mfpc[i]);
+          mpcf_mul (p1, p1, root->mvalue);
+          mpcf_add (p1, p1, p);
         }
-      mpc_mul (p, p, root->mvalue);
-      mpc_add (p, p, mfpc[0]);
+      mpcf_mul (p, p, root->mvalue);
+      mpcf_add (p, p, mfpc[0]);
 
       /* compute bound to the error */
       rdpe_set (ap, dap[n]);
-      mpc_get_cdpe (temp1, root->mvalue);
+      mpcf_get_cdpe (temp1, root->mvalue);
       cdpe_mod (az, temp1);
       for (i = n - 1; i >= 0; i--)
         {
@@ -343,23 +343,23 @@ mps_mnewton (mps_context * s, mps_polynomial * poly,
     }
 
   /* common part */
-  if (!mpc_eq_zero (p))
-    if (mpc_eq_zero (p1))
+  if (!mpcf_eq_zero (p))
+    if (mpcf_eq_zero (p1))
       {
         if (s->DOLOG)
           fprintf (s->logstr, "%s", "NULL DERIVATIVE\n");
         root->again = false;
-        mpc_set_ui (corr, 0U, 0U);
+        mpcf_set_ui (corr, 0U, 0U);
         goto exit_sub;
       }
     else
-      mpc_div (corr, p, p1);
+      mpcf_div (corr, p, p1);
   else
     {
-      mpc_set_ui (corr, 0U, 0U);
+      mpcf_set_ui (corr, 0U, 0U);
       root->again = false;
       rdpe_mul (apeps, ap, ep);
-      mpc_get_cdpe (temp1, p1);
+      mpcf_get_cdpe (temp1, p1);
       cdpe_mod (temp, temp1);
       if (rdpe_eq_zero (temp))
         {
@@ -371,9 +371,9 @@ mps_mnewton (mps_context * s, mps_polynomial * poly,
       rdpe_mul_eq_d (root->drad, (double)n + 1);
       goto exit_sub;
     }
-  mpc_get_cdpe (temp1, p);
+  mpcf_get_cdpe (temp1, p);
   cdpe_mod (absp, temp1);
-  mpc_get_cdpe (temp1, p1);
+  mpcf_get_cdpe (temp1, p1);
   cdpe_mod (temp, temp1);
   rdpe_mul (apeps, ap, ep);
   root->again = rdpe_gt (absp, apeps);
@@ -388,11 +388,11 @@ mps_mnewton (mps_context * s, mps_polynomial * poly,
       rdpe_mul_d (root->drad, rnew, (double)(n + 1));
     }
 
-  mpc_rmod (az, root->mvalue);
+  mpcf_rmod (az, root->mvalue);
   rdpe_mul_eq (az, ep);
   rdpe_add_eq (root->drad, az);
 
 exit_sub:
-  mpc_clear (p1);
-  mpc_clear (p);
+  mpcf_clear (p1);
+  mpcf_clear (p);
 }

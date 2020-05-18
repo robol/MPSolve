@@ -29,12 +29,12 @@ main (int argc, char **argv)
   long wp = 128;
 
   cplx_t *af = NULL, *bf = NULL;
-  mpc_t *am = NULL, *bm = NULL;
+  mpcf_t *am = NULL, *bm = NULL;
   mpq_t *aqr = NULL, *bqr = NULL;
   mpq_t qzero;
 
   cplx_t *roots = NULL;
-  mpc_t  *mroots = NULL;
+  mpcf_t  *mroots = NULL;
   mps_secular_equation * p = NULL;
 
   /* First version: floating point coefficients. */
@@ -69,14 +69,14 @@ main (int argc, char **argv)
 
   /* Version 2: higher precision coefficients and approximations */
   printf("\n\n== Computing the roots using multiprecision floating-point coefficients (asking 40 digits)\n");
-  am = mpc_valloc(3);
-  bm = mpc_valloc(3);
+  am = mpcf_valloc(3);
+  bm = mpcf_valloc(3);
 
   for (i = 0; i < 3; i++) {
-    mpc_init2(am[i], wp);
-    mpc_set_ui(am[i], 2U * i + 1U, 0U);
-    mpc_init2(bm[i], wp);
-    mpc_set_ui(bm[i], 2U * i + 2U, 0U);    
+    mpcf_init2(am[i], wp);
+    mpcf_set_ui(am[i], 2U * i + 1U, 0U);
+    mpcf_init2(bm[i], wp);
+    mpcf_set_ui(bm[i], 2U * i + 2U, 0U);    
   }
 
   ctx = mps_context_new();
@@ -95,12 +95,12 @@ main (int argc, char **argv)
 
   for (i = 0; i < 3; i++) {
     printf("Root %d: ", i);
-    mpc_out_str(stdout, 10, wp, mroots[i]);
+    mpcf_out_str(stdout, 10, wp, mroots[i]);
     printf("\n");
-    mpc_clear(mroots[i]);
+    mpcf_clear(mroots[i]);
 
-    mpc_clear(am[i]);
-    mpc_clear(bm[i]);    
+    mpcf_clear(am[i]);
+    mpcf_clear(bm[i]);    
   }
 
   free (mroots); mroots = NULL;
@@ -143,10 +143,10 @@ main (int argc, char **argv)
 
   for (i = 0; i < 3; i++) {
     printf("Root %d: ", i);
-    mpc_out_str(stdout, 10, wp, mroots[i]);
+    mpcf_out_str(stdout, 10, wp, mroots[i]);
     printf("\n");
     
-    mpc_clear(mroots[i]);
+    mpcf_clear(mroots[i]);
 
     mpq_clear(aqr[i]);
     mpq_clear(bqr[i]);

@@ -95,7 +95,7 @@ mps_dsort (mps_context * s)
 static int
 mps_mcmp (const void *a, const void *b)
 {
-  return mpf_cmp (mpc_Re (mpc_Addr (a)), mpc_Re (mpc_Addr (b)));
+  return mpf_cmp (mpcf_Re (mpcf_Addr (a)), mpcf_Re (mpcf_Addr (b)));
 }
 
 /**
@@ -107,21 +107,21 @@ MPS_PRIVATE void
 mps_msort (mps_context * s)
 {
   int i;
-  mpc_t * real_parts = mpc_valloc (s->n);
+  mpcf_t * real_parts = mpcf_valloc (s->n);
 
-  mpc_vinit2 (real_parts, s->n, s->mpwp);
+  mpcf_vinit2 (real_parts, s->n, s->mpwp);
 
   for (i = 0; i < s->n; i++)
     {
-      mpf_set (mpc_Re (real_parts[i]), mpc_Re (s->root[i]->mvalue));
-      mpf_set_ui (mpc_Im (real_parts[i]), i);
+      mpf_set (mpcf_Re (real_parts[i]), mpcf_Re (s->root[i]->mvalue));
+      mpf_set_ui (mpcf_Im (real_parts[i]), i);
     }
 
-  qsort (real_parts, s->n, sizeof(mpc_t), mps_mcmp);
+  qsort (real_parts, s->n, sizeof(mpcf_t), mps_mcmp);
 
   for (i = 0; i < s->n; i++)
-    s->order[i] = (int)mpf_get_d (mpc_Im (real_parts[i]));
+    s->order[i] = (int)mpf_get_d (mpcf_Im (real_parts[i]));
 
-  mpc_vclear (real_parts, s->n);
-  mpc_vfree (real_parts);
+  mpcf_vclear (real_parts, s->n);
+  mpcf_vfree (real_parts);
 }

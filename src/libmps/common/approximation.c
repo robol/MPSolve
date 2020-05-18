@@ -18,7 +18,7 @@ mps_approximation_new (mps_context * s)
 {
   mps_approximation * appr = mps_new (mps_approximation);
 
-  mpc_init2 (appr->mvalue, s->mpwp);
+  mpcf_init2 (appr->mvalue, s->mpwp);
   appr->again = true;
   appr->approximated = false;
 
@@ -32,7 +32,7 @@ mps_approximation_new (mps_context * s)
 void
 mps_approximation_free (mps_context * s, mps_approximation * appr)
 {
-  mpc_clear (appr->mvalue);
+  mpcf_clear (appr->mvalue);
   free (appr);
 }
 
@@ -41,8 +41,8 @@ mps_approximation_copy (mps_context * ctx, mps_approximation * original)
 {
   mps_approximation *new = mps_approximation_new (ctx);
 
-  mpc_set_prec (new->mvalue, mpc_get_prec (original->mvalue));
-  mpc_set (new->mvalue, original->mvalue);
+  mpcf_set_prec (new->mvalue, mpcf_get_prec (original->mvalue));
+  mpcf_set (new->mvalue, original->mvalue);
   rdpe_set (new->drad, original->drad);
   cdpe_set (new->dvalue, original->dvalue);
   cplx_set (new->fvalue, original->fvalue);
@@ -68,10 +68,10 @@ mps_approximation_get_dvalue (mps_context * ctx, mps_approximation * approximati
 }
 
 void
-mps_approximation_get_mvalue (mps_context * ctx, mps_approximation * approximation, mpc_t output)
+mps_approximation_get_mvalue (mps_context * ctx, mps_approximation * approximation, mpcf_t output)
 {
-  mpc_set_prec (output, mpc_get_prec (approximation->mvalue));
-  mpc_set (output, approximation->mvalue);
+  mpcf_set_prec (output, mpcf_get_prec (approximation->mvalue));
+  mpcf_set (output, approximation->mvalue);
 }
 
 double
@@ -124,16 +124,16 @@ mps_approximation_set_dvalue (mps_context * ctx, mps_approximation * approximati
 }
 
 void
-mps_approximation_set_mvalue (mps_context * ctx, mps_approximation * approximation, const mpc_t value)
+mps_approximation_set_mvalue (mps_context * ctx, mps_approximation * approximation, const mpcf_t value)
 {
   /* Ensure that we have a sufficient precision to store value correctly */
-  if (mpc_get_prec (value) > approximation->wp)
+  if (mpcf_get_prec (value) > approximation->wp)
     {
-      mpc_set_prec (approximation->mvalue, mpc_get_prec (value));
-      approximation->wp = mpc_get_prec (approximation->mvalue);
+      mpcf_set_prec (approximation->mvalue, mpcf_get_prec (value));
+      approximation->wp = mpcf_get_prec (approximation->mvalue);
     }
 
-  mpc_set (approximation->mvalue, value);
+  mpcf_set (approximation->mvalue, value);
 }
 
 void

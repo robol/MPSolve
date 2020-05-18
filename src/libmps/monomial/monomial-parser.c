@@ -58,8 +58,8 @@ mps_monomial_poly_read_from_stream (mps_context * s,
           for (i = 0; i < s->n + 1; ++i)
             {
               token = mps_input_buffer_next_token (buffer);
-              mpc_set_prec(poly->mfpc[i], precision);
-              if (!token || (mpf_set_str (mpc_Re (poly->mfpc[i]), token, 10) != 0))
+              mpcf_set_prec(poly->mfpc[i], precision);
+              if (!token || (mpf_set_str (mpcf_Re (poly->mfpc[i]), token, 10) != 0))
                 {
                   mps_raise_parsing_error (s, buffer, token, "Error parsing coefficients of the polynomial");
                   free (token); mps_polynomial_free (s, MPS_POLYNOMIAL (poly));
@@ -70,7 +70,7 @@ mps_monomial_poly_read_from_stream (mps_context * s,
               if (MPS_STRUCTURE_IS_COMPLEX (structure))
                 {
                   token = mps_input_buffer_next_token (buffer);
-                  if (!token || (mpf_set_str (mpc_Im (poly->mfpc[i]), token, 10) != 0))
+                  if (!token || (mpf_set_str (mpcf_Im (poly->mfpc[i]), token, 10) != 0))
                     {
                       mps_raise_parsing_error (s, buffer, token, "Error parsing coefficients of the polynomial");
                       free (token); mps_polynomial_free (s, MPS_POLYNOMIAL (poly));
@@ -79,7 +79,7 @@ mps_monomial_poly_read_from_stream (mps_context * s,
                   free (token);
                 }
               else
-                mpf_set_ui (mpc_Im (poly->mfpc[i]), 0U);
+                mpf_set_ui (mpcf_Im (poly->mfpc[i]), 0U);
             }
         }
       else if (MPS_STRUCTURE_IS_RATIONAL (structure) ||
@@ -113,8 +113,8 @@ mps_monomial_poly_read_from_stream (mps_context * s,
                 mpq_set_ui (poly->initial_mqp_i[i], 0U, 0U);
 
               /* Copy coefficients in the floating point ones */
-              mpf_set_q (mpc_Re (poly->mfpc[i]), poly->initial_mqp_r[i]);
-              mpf_set_q (mpc_Im (poly->mfpc[i]), poly->initial_mqp_i[i]);
+              mpf_set_q (mpcf_Re (poly->mfpc[i]), poly->initial_mqp_r[i]);
+              mpf_set_q (mpcf_Im (poly->mfpc[i]), poly->initial_mqp_i[i]);
             }
         }
     } /* closes if (MPS_INPUT_CONFIG_IS_DENSE (s->input_config)) */
@@ -155,7 +155,7 @@ mps_monomial_poly_read_from_stream (mps_context * s,
           if (MPS_STRUCTURE_IS_FP (structure))
             {
               token = mps_input_buffer_next_token (buffer);
-              if (!token || (mpf_set_str (mpc_Re (poly->mfpc[i]), token, 10) != 0))
+              if (!token || (mpf_set_str (mpcf_Re (poly->mfpc[i]), token, 10) != 0))
                 {
                   mps_raise_parsing_error (s, buffer, token, "Error parsing coefficients of the polynomial");
                   free (token); mps_polynomial_free (s, MPS_POLYNOMIAL (poly));
@@ -166,7 +166,7 @@ mps_monomial_poly_read_from_stream (mps_context * s,
               if (MPS_STRUCTURE_IS_COMPLEX (structure))
                 {
                   token = mps_input_buffer_next_token (buffer);
-                  if (!token || (mpf_set_str (mpc_Im (poly->mfpc[i]), token, 10) != 0))
+                  if (!token || (mpf_set_str (mpcf_Im (poly->mfpc[i]), token, 10) != 0))
                     {
                       mps_raise_parsing_error (s, buffer, token, "Error parsing coefficients of the polynomial");
                       free (token); mps_polynomial_free (s, MPS_POLYNOMIAL (poly));
@@ -175,7 +175,7 @@ mps_monomial_poly_read_from_stream (mps_context * s,
                   free (token);
                 }
               else
-                mpf_set_ui (mpc_Im (poly->mfpc[i]), 0U);
+                mpf_set_ui (mpcf_Im (poly->mfpc[i]), 0U);
             }
           else if (MPS_STRUCTURE_IS_RATIONAL (structure) ||
                    MPS_STRUCTURE_IS_INTEGER (structure))
@@ -206,8 +206,8 @@ mps_monomial_poly_read_from_stream (mps_context * s,
                 mpq_set_ui (poly->initial_mqp_i[i], 0U, 0U);
 
               /* Copy coefficients in the floating point ones */
-              mpf_set_q (mpc_Re (poly->mfpc[i]), poly->initial_mqp_r[i]);
-              mpf_set_q (mpc_Im (poly->mfpc[i]), poly->initial_mqp_i[i]);
+              mpf_set_q (mpcf_Re (poly->mfpc[i]), poly->initial_mqp_r[i]);
+              mpf_set_q (mpcf_Im (poly->mfpc[i]), poly->initial_mqp_i[i]);
             }
         }
     } /* closes if (MPS_INPUT_CONFIG_IS_SPARSE (s->input_config)) */
@@ -217,15 +217,15 @@ mps_monomial_poly_read_from_stream (mps_context * s,
     {
       if (poly->spar[i])
         {
-          mpc_get_cplx (poly->fpc[i], poly->mfpc[i]);
-          mpc_get_cdpe (poly->dpc[i], poly->mfpc[i]);
+          mpcf_get_cplx (poly->fpc[i], poly->mfpc[i]);
+          mpcf_get_cdpe (poly->dpc[i], poly->mfpc[i]);
 
           /* Compute modules of coefficients */
           cdpe_mod (poly->dap[i], poly->dpc[i]);
           poly->fap[i] = rdpe_get_d (poly->dap[i]);
 
           if (i > 0)
-            mpc_mul_ui (poly->mfppc[i - 1], poly->mfppc[i], i);
+            mpcf_mul_ui (poly->mfppc[i - 1], poly->mfppc[i], i);
         }
       else
         {
@@ -432,7 +432,7 @@ mps_monomial_poly_read_from_stream_v2 (mps_context * s, mps_input_buffer * buffe
           for (i = 0; i < s->n + 1; ++i)
             {
               token = mps_input_buffer_next_token (buffer);
-              if (!token || (mpf_set_str (mpc_Re (poly->mfpc[i]), token, 10) != 0))
+              if (!token || (mpf_set_str (mpcf_Re (poly->mfpc[i]), token, 10) != 0))
                 {
                   mps_raise_parsing_error (s, buffer, token, "Error parsing coefficients of the polynomial");
 
@@ -449,7 +449,7 @@ mps_monomial_poly_read_from_stream_v2 (mps_context * s, mps_input_buffer * buffe
               if (MPS_STRUCTURE_IS_COMPLEX (structure))
                 {
                   token = mps_input_buffer_next_token (buffer);
-                  if (!token || (mpf_set_str (mpc_Im (poly->mfpc[i]), token, 10) != 0))
+                  if (!token || (mpf_set_str (mpcf_Im (poly->mfpc[i]), token, 10) != 0))
                     {
                       mps_raise_parsing_error (s, buffer, token, "Error parsing coefficients of the polynomial");
 
@@ -463,7 +463,7 @@ mps_monomial_poly_read_from_stream_v2 (mps_context * s, mps_input_buffer * buffe
                     }
                 }
               else
-                mpf_set_ui (mpc_Im (poly->mfpc[i]), 0U);
+                mpf_set_ui (mpcf_Im (poly->mfpc[i]), 0U);
             }
         }
       else if (MPS_STRUCTURE_IS_INTEGER (structure))
@@ -508,8 +508,8 @@ mps_monomial_poly_read_from_stream_v2 (mps_context * s, mps_input_buffer * buffe
                 mpq_set_ui (poly->initial_mqp_i[i], 0U, 0U);
 
               /* Copy coefficients in the floating point ones */
-              mpf_set_q (mpc_Re (poly->mfpc[i]), poly->initial_mqp_r[i]);
-              mpf_set_q (mpc_Im (poly->mfpc[i]), poly->initial_mqp_i[i]);
+              mpf_set_q (mpcf_Re (poly->mfpc[i]), poly->initial_mqp_r[i]);
+              mpf_set_q (mpcf_Im (poly->mfpc[i]), poly->initial_mqp_i[i]);
             }
         }
       else if (MPS_STRUCTURE_IS_RATIONAL (structure))
@@ -660,7 +660,7 @@ mps_monomial_poly_read_from_stream_v2 (mps_context * s, mps_input_buffer * buffe
           if (MPS_STRUCTURE_IS_FP (structure))
             {
               token = mps_input_buffer_next_token (buffer);
-              if (!token || (mpf_set_str (mpc_Re (poly->mfpc[i]), token, 10) != 0))
+              if (!token || (mpf_set_str (mpcf_Re (poly->mfpc[i]), token, 10) != 0))
                 {
                   mps_raise_parsing_error (s, buffer, token, "Error parsing coefficients of the polynomial");
 
@@ -677,7 +677,7 @@ mps_monomial_poly_read_from_stream_v2 (mps_context * s, mps_input_buffer * buffe
               if (MPS_STRUCTURE_IS_COMPLEX (structure))
                 {
                   token = mps_input_buffer_next_token (buffer);
-                  if (!token || (mpf_set_str (mpc_Im (poly->mfpc[i]), token, 10) != 0))
+                  if (!token || (mpf_set_str (mpcf_Im (poly->mfpc[i]), token, 10) != 0))
                     {
                       mps_raise_parsing_error (s, buffer, token, "Error parsing coefficients of the polynomial");
 
@@ -692,7 +692,7 @@ mps_monomial_poly_read_from_stream_v2 (mps_context * s, mps_input_buffer * buffe
                   free (token);
                 }
               else
-                mpf_set_ui (mpc_Im (poly->mfpc[i]), 0U);
+                mpf_set_ui (mpcf_Im (poly->mfpc[i]), 0U);
             }
           else if (MPS_STRUCTURE_IS_INTEGER (structure))
             {
@@ -734,8 +734,8 @@ mps_monomial_poly_read_from_stream_v2 (mps_context * s, mps_input_buffer * buffe
                 mpq_set_ui (poly->initial_mqp_i[i], 0U, 0U);
 
               /* Copy coefficients in the floating point ones */
-              mpf_set_q (mpc_Re (poly->mfpc[i]), poly->initial_mqp_r[i]);
-              mpf_set_q (mpc_Im (poly->mfpc[i]), poly->initial_mqp_i[i]);
+              mpf_set_q (mpcf_Re (poly->mfpc[i]), poly->initial_mqp_r[i]);
+              mpf_set_q (mpcf_Im (poly->mfpc[i]), poly->initial_mqp_i[i]);
             }
           else if (MPS_STRUCTURE_IS_RATIONAL (structure))
             {
@@ -827,22 +827,22 @@ mps_monomial_poly_read_from_stream_v2 (mps_context * s, mps_input_buffer * buffe
           if (MPS_STRUCTURE_IS_INTEGER (structure) ||
               MPS_STRUCTURE_IS_RATIONAL (structure))
             {
-              mpf_set_q (mpc_Re (poly->mfpc[i]), poly->initial_mqp_r[i]);
-              mpf_set_q (mpc_Im (poly->mfpc[i]), poly->initial_mqp_i[i]);
+              mpf_set_q (mpcf_Re (poly->mfpc[i]), poly->initial_mqp_r[i]);
+              mpf_set_q (mpcf_Im (poly->mfpc[i]), poly->initial_mqp_i[i]);
             }
 
-          mpc_get_cplx (poly->fpc[i], poly->mfpc[i]);
-          mpc_get_cdpe (poly->dpc[i], poly->mfpc[i]);
+          mpcf_get_cplx (poly->fpc[i], poly->mfpc[i]);
+          mpcf_get_cdpe (poly->dpc[i], poly->mfpc[i]);
 
           /* Compute modules of coefficients */
           cdpe_mod (poly->dap[i], poly->dpc[i]);
           poly->fap[i] = rdpe_get_d (poly->dap[i]);
 
           if (MPS_STRUCTURE_IS_FP (structure))
-            mpf_set (poly->mfpr[i], mpc_Re (poly->mfpc[i]));
+            mpf_set (poly->mfpr[i], mpcf_Re (poly->mfpc[i]));
 
           if (i > 0)
-            mpc_mul_ui (poly->mfppc[i - 1], poly->mfppc[i], i);
+            mpcf_mul_ui (poly->mfppc[i - 1], poly->mfppc[i], i);
 
           if (s->debug_level & MPS_DEBUG_IO)
             {
@@ -858,7 +858,7 @@ mps_monomial_poly_read_from_stream_v2 (mps_context * s, mps_input_buffer * buffe
           poly->fap[i] = 0.0f;
 
           if (MPS_STRUCTURE_IS_FP (structure))
-            mpf_set (poly->mfpr[i], mpc_Re (poly->mfpc[i]));
+            mpf_set (poly->mfpr[i], mpcf_Re (poly->mfpc[i]));
         }
     }
 

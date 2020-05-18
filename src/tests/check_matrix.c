@@ -17,33 +17,33 @@ START_TEST (determinant_mhessenberg_example1)
   /* Custom 8 by 8 example. The matrix is defined as:
    * A(i,j) = sin(i) * cos(j) + 1e-3 * i*j .
    * Its determinant should be*/
-  mpc_t *hessenberg_matrix = mps_newv (mpc_t, 64);
-  mpc_t det, t;
+  mpcf_t *hessenberg_matrix = mps_newv (mpcf_t, 64);
+  mpcf_t det, t;
   rdpe_t diff, mod, error;
   int i, j;
 
-  mpc_vinit2 (hessenberg_matrix, 64, DBL_MANT_DIG);
-  mpc_init2 (det, DBL_MANT_DIG);
-  mpc_init2 (t, DBL_MANT_DIG);
+  mpcf_vinit2 (hessenberg_matrix, 64, DBL_MANT_DIG);
+  mpcf_init2 (det, DBL_MANT_DIG);
+  mpcf_init2 (t, DBL_MANT_DIG);
 
   mps_context *ctx = mps_context_new ();
 
   for (i = 0; i < 8; i++)
     for (j = MAX (0, i - 1); j < 8; j++)
       {
-        mpc_set_d (hessenberg_matrix[i * 8 + j], sin (1.0 * (i + 1)) * cos (1.0 * (j + 1)) + 1e-3 * (i + 1) * (j + 1), 0.0);
+        mpcf_set_d (hessenberg_matrix[i * 8 + j], sin (1.0 * (i + 1)) * cos (1.0 * (j + 1)) + 1e-3 * (i + 1) * (j + 1), 0.0);
       }
 
   mps_mhessenberg_determinant (ctx, hessenberg_matrix, 8, det, error);
 
-  mpc_vclear (hessenberg_matrix, 64);
+  mpcf_vclear (hessenberg_matrix, 64);
   free (hessenberg_matrix);
 
-  mpc_set_d (t, 6.14427105181099e-06, 0.0);
-  mpc_sub_eq (det, t);
+  mpcf_set_d (t, 6.14427105181099e-06, 0.0);
+  mpcf_sub_eq (det, t);
 
-  mpc_rmod (diff, det);
-  mpc_rmod (mod, t);
+  mpcf_rmod (diff, det);
+  mpcf_rmod (mod, t);
 
   fail_unless (rdpe_get_d (diff) < rdpe_get_d (mod) * 10.0 * 8 * DBL_EPSILON ||
                rdpe_lt (diff, error),
@@ -136,34 +136,34 @@ START_TEST (determinant_shifted_mhessenberg_example1)
   /* Custom 8 by 8 example. The matrix is defined as:
    * A(i,j) = sin(i) * cos(j) + 1e-3 * i*j .
    * Its determinant should be*/
-  mpc_t *hessenberg_matrix = mps_newv (mpc_t, 64);
-  mpc_t det, t;
+  mpcf_t *hessenberg_matrix = mps_newv (mpcf_t, 64);
+  mpcf_t det, t;
   int i, j;
 
-  mpc_t shifts[3];
-  mpc_t results[3];
+  mpcf_t shifts[3];
+  mpcf_t results[3];
 
-  mpc_vinit2 (hessenberg_matrix, 64, DBL_MANT_DIG);
-  mpc_init2 (det, DBL_MANT_DIG);
-  mpc_init2 (t, DBL_MANT_DIG);
-  mpc_vinit2 (shifts, 3, DBL_MANT_DIG);
-  mpc_vinit2 (results, 3, DBL_MANT_DIG);
+  mpcf_vinit2 (hessenberg_matrix, 64, DBL_MANT_DIG);
+  mpcf_init2 (det, DBL_MANT_DIG);
+  mpcf_init2 (t, DBL_MANT_DIG);
+  mpcf_vinit2 (shifts, 3, DBL_MANT_DIG);
+  mpcf_vinit2 (results, 3, DBL_MANT_DIG);
 
-  mpc_set_d (shifts[0], 0.403815598068559, 0.754480932782281);
-  mpc_set_d (results[0], -0.2755152414594506, 0.0732925950505913);
+  mpcf_set_d (shifts[0], 0.403815598068559, 0.754480932782281);
+  mpcf_set_d (results[0], -0.2755152414594506, 0.0732925950505913);
 
-  mpc_set_d (shifts[1], 0.0590780603923638, 0.9236523504901163);
-  mpc_set_d (results[1], 0.5885575152394473, -0.0800261442305445);
+  mpcf_set_d (shifts[1], 0.0590780603923638, 0.9236523504901163);
+  mpcf_set_d (results[1], 0.5885575152394473, -0.0800261442305445);
 
-  mpc_set_d (shifts[2], 0.0534877455734864, 0.1853972552409148);
-  mpc_set_d (results[2], -4.28682106680713e-05, -4.18995301563591e-05);
+  mpcf_set_d (shifts[2], 0.0534877455734864, 0.1853972552409148);
+  mpcf_set_d (results[2], -4.28682106680713e-05, -4.18995301563591e-05);
 
   mps_context *ctx = mps_context_new ();
 
   for (i = 0; i < 8; i++)
     for (j = MAX (0, i - 1); j < 8; j++)
       {
-        mpc_set_d (hessenberg_matrix[i * 8 + j], sin (1.0 * (i + 1)) * cos (1.0 * (j + 1)) + 1e-3 * (i + 1) * (j + 1), 0.0);
+        mpcf_set_d (hessenberg_matrix[i * 8 + j], sin (1.0 * (i + 1)) * cos (1.0 * (j + 1)) + 1e-3 * (i + 1) * (j + 1), 0.0);
       }
 
   for (i = 0; i < 2; i++)
@@ -171,23 +171,23 @@ START_TEST (determinant_shifted_mhessenberg_example1)
       rdpe_t diff, mod, error;
 
       mps_mhessenberg_shifted_determinant (ctx, hessenberg_matrix, shifts[i], 8, det, error);
-      mpc_sub_eq (det, results[i]);
+      mpcf_sub_eq (det, results[i]);
 
-      mpc_rmod (diff, det);
-      mpc_rmod (mod, results[i]);
+      mpcf_rmod (diff, det);
+      mpcf_rmod (mod, results[i]);
 
-      printf ("%d: ", i); mpc_out_str_2 (stdout, 10, 15, 15, det); printf ("\n");
+      printf ("%d: ", i); mpcf_out_str_2 (stdout, 10, 15, 15, det); printf ("\n");
 
       fail_unless (rdpe_get_d (diff) < rdpe_get_d (mod) * 10.0 * 8 * DBL_EPSILON ||
                    rdpe_lt (diff, error),
                    "The error on shifted Hessenberg determinant example1 is bigger than n * DBL_EPSILON");
     }
 
-  mpc_vclear (shifts, 3);
-  mpc_vclear (results, 3);
-  mpc_vclear (hessenberg_matrix, 64);
-  mpc_clear (t);
-  mpc_clear (det);
+  mpcf_vclear (shifts, 3);
+  mpcf_vclear (results, 3);
+  mpcf_vclear (hessenberg_matrix, 64);
+  mpcf_clear (t);
+  mpcf_clear (det);
 
   free (hessenberg_matrix);
   mps_context_free (ctx);

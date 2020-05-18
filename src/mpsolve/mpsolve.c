@@ -68,7 +68,7 @@ status (int signal)
 
         case mp_phase:
           fprintf (logstr, "  Approximation  %4d = ", i);
-          mpc_outln_str (logstr, 10, s->mpwp, s->root[i]->mvalue);
+          mpcf_outln_str (logstr, 10, s->mpwp, s->root[i]->mvalue);
           break;
         }
     }

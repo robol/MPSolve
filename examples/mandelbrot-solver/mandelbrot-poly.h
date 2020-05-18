@@ -28,9 +28,9 @@ void mps_mandelbrot_poly_dstart (mps_context *ctx, mps_polynomial *p, mps_approx
 
 void mps_mandelbrot_poly_fnewton (mps_context * s, mps_polynomial * poly, mps_approximation * root, cplx_t corr);
 void mps_mandelbrot_poly_dnewton (mps_context * s, mps_polynomial * poly, mps_approximation * root, cdpe_t corr);
-void mps_mandelbrot_poly_mnewton (mps_context * s, mps_polynomial * poly, mps_approximation * root, mpc_t corr, long int wp);
+void mps_mandelbrot_poly_mnewton (mps_context * s, mps_polynomial * poly, mps_approximation * root, mpcf_t corr, long int wp);
 
 mps_boolean mps_mandelbrot_poly_feval (mps_context * ctx, mps_polynomial * p, cplx_t x, cplx_t value, double * error);
 mps_boolean mps_mandelbrot_poly_deval (mps_context * ctx, mps_polynomial * p, cdpe_t x, cdpe_t value, rdpe_t error);
-mps_boolean mps_mandelbrot_poly_meval (mps_context * ctx, mps_polynomial * p, mpc_t x, mpc_t value, rdpe_t error);
+mps_boolean mps_mandelbrot_poly_meval (mps_context * ctx, mps_polynomial * p, mpcf_t x, mpcf_t value, rdpe_t error);
 

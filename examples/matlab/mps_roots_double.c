@@ -64,13 +64,13 @@ mexFunction (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
   /* Set coefficients */
   real_coeff = mxGetPr (prhs[0]);
   imag_coeff = mxGetPi (prhs[0]);
-  mpc_t coeff;
-  mpc_init2(coeff, 64);
+  mpcf_t coeff;
+  mpcf_init2(coeff, 64);
   for (i = 0; i < n; i++)
     {
         if (options.chebyshev) 
           {
-             mpc_set_d(coeff, real_coeff[i], (imag_coeff) ? imag_coeff[i] : 0.0);
+             mpcf_set_d(coeff, real_coeff[i], (imag_coeff) ? imag_coeff[i] : 0.0);
              mps_chebyshev_poly_set_coefficient_f (s, MPS_CHEBYSHEV_POLY(poly), n - i - 1, coeff);
           }
         else
@@ -79,7 +79,7 @@ mexFunction (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
                                                 (imag_coeff) ? imag_coeff[i] : 0.0);
           }
     }
-  mpc_clear(coeff);
+  mpcf_clear(coeff);
 
   /* Solve the equation */
   mps_context_set_input_poly (s, poly);

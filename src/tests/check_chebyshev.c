@@ -5,7 +5,7 @@ START_TEST (test_chebyshev_poly_80)
 {
   mps_context * ctx = mps_context_new ();
   mps_chebyshev_poly *cp = mps_chebyshev_poly_new (ctx, 80, MPS_STRUCTURE_REAL_INTEGER);
-  mpc_t *mroots = NULL;
+  mpcf_t *mroots = NULL;
   rdpe_t *radii = NULL;
   mpq_t one, zero;
   int i;
@@ -46,7 +46,7 @@ START_TEST (test_chebyshev_poly_80)
           cdpe_t ctmp;
           double residue;
 
-          mpc_get_cdpe (ctmp, mroots[j]);
+          mpcf_get_cdpe (ctmp, mroots[j]);
           rdpe_sub (diff, expected_root, cdpe_Re (ctmp));
 
           residue = sqrt (pow (fabs (rdpe_get_d (diff)), 2) + pow (fabs (rdpe_get_d (cdpe_Im (ctmp))), 2));
@@ -74,7 +74,7 @@ START_TEST (test_chebyshev_poly_20)
 {
   mps_context * ctx = mps_context_new ();
   mps_chebyshev_poly *cp = mps_chebyshev_poly_new (ctx, 20, MPS_STRUCTURE_REAL_INTEGER);
-  mpc_t *mroots = NULL;
+  mpcf_t *mroots = NULL;
   rdpe_t *radii = NULL;
   mpq_t one, zero;
   int i;
@@ -115,7 +115,7 @@ START_TEST (test_chebyshev_poly_20)
           cdpe_t ctmp;
           double residue;
 
-          mpc_get_cdpe (ctmp, mroots[j]);
+          mpcf_get_cdpe (ctmp, mroots[j]);
           rdpe_sub (diff, expected_root, cdpe_Re (ctmp));
 
           residue = sqrt (pow (fabs (rdpe_get_d (diff)), 2) + pow (fabs (rdpe_get_d (cdpe_Im (ctmp))), 2));

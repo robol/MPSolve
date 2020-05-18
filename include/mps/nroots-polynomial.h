@@ -40,11 +40,11 @@ public:
 
     mps_boolean eval (mps_context * ctx, cplx_t x, cplx_t value, double * error);
     mps_boolean eval (mps_context * ctx, cdpe_t x, cdpe_t value, rdpe_t error);
-    mps_boolean eval (mps_context * ctx, mpc_t x, mpc_t value, rdpe_t error);
+    mps_boolean eval (mps_context * ctx, mpcf_t x, mpcf_t value, rdpe_t error);
 
     void newton (mps_context * ctx, mps_approximation * a, cplx_t x);
     void newton (mps_context * ctx, mps_approximation * a, cdpe_t x);
-    void newton (mps_context * ctx, mps_approximation * a, mpc_t x, long int wp);
+    void newton (mps_context * ctx, mps_approximation * a, mpcf_t x, long int wp);
   };
 }
 

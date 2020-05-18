@@ -45,11 +45,11 @@ mps_secular_ga_update_coefficients (mps_context * s)
 
   for (i = 0; i < s->n; ++i)
     {
-      mpc_get_cplx (sec->afpc[i], sec->ampc[i]);
-      mpc_get_cplx (sec->bfpc[i], sec->bmpc[i]);
+      mpcf_get_cplx (sec->afpc[i], sec->ampc[i]);
+      mpcf_get_cplx (sec->bfpc[i], sec->bmpc[i]);
 
-      mpc_get_cdpe (sec->adpc[i], sec->ampc[i]);
-      mpc_get_cdpe (sec->bdpc[i], sec->bmpc[i]);
+      mpcf_get_cdpe (sec->adpc[i], sec->ampc[i]);
+      mpcf_get_cdpe (sec->bdpc[i], sec->bmpc[i]);
 
       cdpe_mod (sec->aadpc[i], sec->adpc[i]);
       cdpe_mod (sec->abdpc[i], sec->bdpc[i]);
@@ -361,8 +361,8 @@ mps_secular_ga_mpsolve (mps_context * s)
           cplx_set (s->secular_equation->bfpc[i], MPS_SECULAR_EQUATION (s->active_poly)->bfpc[i]);
           cdpe_set (s->secular_equation->adpc[i], MPS_SECULAR_EQUATION (s->active_poly)->adpc[i]);
           cdpe_set (s->secular_equation->bdpc[i], MPS_SECULAR_EQUATION (s->active_poly)->bdpc[i]);
-          mpc_set (s->secular_equation->ampc[i], MPS_SECULAR_EQUATION (s->active_poly)->ampc[i]);
-          mpc_set (s->secular_equation->bmpc[i], MPS_SECULAR_EQUATION (s->active_poly)->bmpc[i]);
+          mpcf_set (s->secular_equation->ampc[i], MPS_SECULAR_EQUATION (s->active_poly)->ampc[i]);
+          mpcf_set (s->secular_equation->bmpc[i], MPS_SECULAR_EQUATION (s->active_poly)->bmpc[i]);
 
           MPS_POLYNOMIAL (s->secular_equation)->degree = s->active_poly->degree;
           MPS_POLYNOMIAL (s->secular_equation)->structure = MPS_STRUCTURE_COMPLEX_FP;

@@ -231,35 +231,35 @@ dnewton_usr (cdpe_t x, rdpe_t rad, cdpe_t corr, mps_boolean * again)
  multiprecision computation
 ******************************************************/
 void
-mnewton_usr (mpc_t x, rdpe_t rad, mpc_t corr, mps_boolean * again)
+mnewton_usr (mpcf_t x, rdpe_t rad, mpcf_t corr, mps_boolean * again)
 {
   rdpe_t d0, d1, d2, ap0, ap1, ap2, ax, eps, rtmp, rtmp1;
   int i, m;
   cdpe_t ctmp;
-  tmpc_t p0, p1, p2, pp0, pp1, pp2, tmp1, tmp2;
+  tmpcf_t p0, p1, p2, pp0, pp1, pp2, tmp1, tmp2;
 
-  tmpc_init2 (p0, mpwp);
-  tmpc_init2 (p1, mpwp);
-  tmpc_init2 (p2, mpwp);
-  tmpc_init2 (pp0, mpwp);
-  tmpc_init2 (pp1, mpwp);
-  tmpc_init2 (pp2, mpwp);
-  tmpc_init2 (tmp1, mpwp);
-  tmpc_init2 (tmp2, mpwp);
+  tmpcf_init2 (p0, mpwp);
+  tmpcf_init2 (p1, mpwp);
+  tmpcf_init2 (p2, mpwp);
+  tmpcf_init2 (pp0, mpwp);
+  tmpcf_init2 (pp1, mpwp);
+  tmpcf_init2 (pp2, mpwp);
+  tmpcf_init2 (tmp1, mpwp);
+  tmpcf_init2 (tmp2, mpwp);
 
 
 
   rdpe_set (eps, mp_epsilon);
   m = (int) (log (n) / LOG2);
   m = m + 1;
-  mpc_get_cdpe (ctmp, x);
+  mpcf_get_cdpe (ctmp, x);
   cdpe_mod (ax, ctmp);
 
 /* initial conditions */
-  mpc_set_d (p0, 1.0, 0.0);     /* p0=1  */
-  mpc_set_d (p1, 1.0, 0.0);     /* p1=1  */
-  mpc_set_d (pp0, 0.0, 0.0);    /* p0'=0 */
-  mpc_set_d (pp1, 0.0, 0.0);    /* p1'=0 */
+  mpcf_set_d (p0, 1.0, 0.0);     /* p0=1  */
+  mpcf_set_d (p1, 1.0, 0.0);     /* p1=1  */
+  mpcf_set_d (pp0, 0.0, 0.0);    /* p0'=0 */
+  mpcf_set_d (pp1, 0.0, 0.0);    /* p1'=0 */
 
   rdpe_set (ap0, rdpe_one);     /* |p0|=1 */
   rdpe_set (ap1, rdpe_one);     /* |p1|=1 */
@@ -273,36 +273,36 @@ mnewton_usr (mpc_t x, rdpe_t rad, mpc_t corr, mps_boolean * again)
   for (i = 1; i <= m; i++)
     {
       /* polynomial */
-      mpc_mul (tmp2, p0, p0);
-      mpc_mul (pp2, tmp2, tmp2);
-      mpc_mul (p2, pp2, x);
-      mpc_mul (tmp1, p1, p1);
-      mpc_add (p2, p2, tmp1);
+      mpcf_mul (tmp2, p0, p0);
+      mpcf_mul (pp2, tmp2, tmp2);
+      mpcf_mul (p2, pp2, x);
+      mpcf_mul (tmp1, p1, p1);
+      mpcf_add (p2, p2, tmp1);
 
       /* derivative  */
-      mpc_mul (tmp1, p0, tmp2);
-      mpc_get_cdpe (ctmp, tmp1);
+      mpcf_mul (tmp1, p0, tmp2);
+      mpcf_get_cdpe (ctmp, tmp1);
       cdpe_mod (rtmp, ctmp);
-      mpc_mul (tmp1, tmp1, pp0);
-      mpc_mul (tmp1, x, tmp1);
+      mpcf_mul (tmp1, tmp1, pp0);
+      mpcf_mul (tmp1, x, tmp1);
 
-      mpc_add (tmp1, tmp1, tmp1);
-      mpc_add (tmp1, tmp1, tmp1);
+      mpcf_add (tmp1, tmp1, tmp1);
+      mpcf_add (tmp1, tmp1, tmp1);
 
-      mpc_add (pp2, tmp1, pp2);
-      mpc_mul (tmp1, p1, pp1);
-      mpc_add (tmp1, tmp1, tmp1);
+      mpcf_add (pp2, tmp1, pp2);
+      mpcf_mul (tmp1, p1, pp1);
+      mpcf_add (tmp1, tmp1, tmp1);
 
-      mpc_add (pp2, tmp1, pp2);
-      mpc_set (p0, p1);
-      mpc_set (p1, p2);
-      mpc_set (pp0, pp1);
-      mpc_set (pp1, pp2);
+      mpcf_add (pp2, tmp1, pp2);
+      mpcf_set (p0, p1);
+      mpcf_set (p1, p2);
+      mpcf_set (pp0, pp1);
+      mpcf_set (pp1, pp2);
 
       /* error bound */
       /* d2=2 d1 |p1| + 4 |x| d0 |p0|^3 + 
          u( |p2| + 2sqrt 2 |p1|^2 + |x| |p0|^4(4sqrt 2+1) */
-      mpc_get_cdpe (ctmp, p2);
+      mpcf_get_cdpe (ctmp, p2);
       cdpe_mod (ap2, ctmp);
       rdpe_mul (rtmp, rtmp, d0);
       rdpe_mul (rtmp, rtmp, ax);
@@ -333,9 +333,9 @@ mnewton_usr (mpc_t x, rdpe_t rad, mpc_t corr, mps_boolean * again)
 
     }
 
-  mpc_div (corr, p1, pp1);
+  mpcf_div (corr, p1, pp1);
   *again = rdpe_lt (d2, ap2);
-  mpc_get_cdpe (ctmp, pp1);
+  mpcf_get_cdpe (ctmp, pp1);
   cdpe_mod (rtmp, ctmp);
   rdpe_add (rad, ap2, d2);
   rdpe_div_eq (rad, rtmp);
@@ -350,12 +350,12 @@ fprintf(logstr,"\n");
 fprintf(logstr,"again=%d\n",*again);
 fprintf(logstr,"\n");
 */
-  tmpc_clear (tmp2);
-  tmpc_clear (tmp1);
-  tmpc_clear (pp2);
-  tmpc_clear (pp1);
-  tmpc_clear (pp0);
-  tmpc_clear (p2);
-  tmpc_clear (p1);
-  tmpc_clear (p0);
+  tmpcf_clear (tmp2);
+  tmpcf_clear (tmp1);
+  tmpcf_clear (pp2);
+  tmpcf_clear (pp1);
+  tmpcf_clear (pp0);
+  tmpcf_clear (p2);
+  tmpcf_clear (p1);
+  tmpcf_clear (p0);
 }

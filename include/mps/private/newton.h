@@ -23,7 +23,7 @@ void mps_fnewton (mps_context * st, mps_polynomial * p,
 void mps_dnewton (mps_context * st, mps_polynomial * p,
                   mps_approximation * root, cdpe_t corr);
 void mps_mnewton (mps_context * st, mps_polynomial * p,
-                  mps_approximation * root, mpc_t corr, long int wp);
+                  mps_approximation * root, mpcf_t corr, long int wp);
 
 MPS_END_DECLS
 

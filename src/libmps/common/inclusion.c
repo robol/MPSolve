@@ -338,7 +338,7 @@ mps_mupdate_inclusions (mps_context * s)
           i = root->k;
 
           /* Get a CDPE representation of s->root[i]->mvalue */
-          mpc_get_cdpe (cmod, s->root[i]->mvalue);
+          mpcf_get_cdpe (cmod, s->root[i]->mvalue);
 
           /* First check if the root has already recongnized as part of
            * a set (or out of it) and if that's true skip to the next one. */

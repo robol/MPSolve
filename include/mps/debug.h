@@ -72,7 +72,7 @@ unsigned long int mps_stop_timer (clock_t * my_timer);
 #define MPS_DEBUG_MPC(s, digits, c, name ...) {  \
     __MPS_DEBUG_EQ (s, name);                    \
     if (s->DOLOG) {                             \
-        mpc_outln_str (s->logstr, 10, digits, c);  \
+        mpcf_outln_str (s->logstr, 10, digits, c);  \
       }                                           \
 }
 
@@ -94,10 +94,10 @@ unsigned long int mps_stop_timer (clock_t * my_timer);
         int t = -rdpe_log10 (radius) - 1;                     \
         cdpe_t ctmp;                                          \
         rdpe_t mm;                                            \
-        mpc_get_cdpe (ctmp, c);                               \
+        mpcf_get_cdpe (ctmp, c);                               \
         cdpe_mod (mm, ctmp);                                  \
         t += rdpe_log (mm);                                   \
-        mpc_outln_str (s->logstr, 10, t, c);                  \
+        mpcf_outln_str (s->logstr, 10, t, c);                  \
       }                                                     \
 }
 

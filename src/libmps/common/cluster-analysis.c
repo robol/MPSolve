@@ -554,7 +554,7 @@ mps_mcluster (mps_context * s, rdpe_t * drad, int nf)
       MPS_DEBUG (s, "Debugging the radius and approximations obtained for the roots before cluster analysis");
       for (i = 0; i < s->n; i++)
         {
-          MPS_DEBUG_MPC (s, mpc_get_prec (s->root[i]->mvalue), s->root[i]->mvalue, "Root %d", i);
+          MPS_DEBUG_MPC (s, mpcf_get_prec (s->root[i]->mvalue), s->root[i]->mvalue, "Root %d", i);
           MPS_DEBUG_RDPE (s, drad[i], "radius for root %4d", i);
         }
 
@@ -703,7 +703,7 @@ mps_mcluster (mps_context * s, rdpe_t * drad, int nf)
 	  
 	  /* Check if the computed radius is more convenient than the old one.
 	     If that's the case, apply it as inclusion radius */
-	  mpc_get_cdpe (c, s->root[k]->mvalue);
+	  mpcf_get_cdpe (c, s->root[k]->mvalue);
 	  cdpe_mod (new_rad, c);
 	  rdpe_mul_eq (new_rad, s->mp_epsilon);
 	  rdpe_mul_eq_d (new_rad, 4.0f);

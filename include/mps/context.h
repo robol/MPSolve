@@ -373,7 +373,7 @@ struct mps_context {
    * This is used as a temporary vector while shifting the polynomial
    * with a new gravity center in <code>mps_mshift()</code>.
    */
-  mpc_t *mfpc1;
+  mpcf_t *mfpc1;
 
   /**
    * @brief Multiprecision complex coefficients of the
@@ -382,7 +382,7 @@ struct mps_context {
    * This is used as a temporary vector while shifting the polynomial
    * with a new gravity center in <code>mps_mshift()</code>.
    */
-  mpc_t *mfppc1;
+  mpcf_t *mfppc1;
 
   /**
    * @brief Vector representing sparsity of the polynomial in the
@@ -487,7 +487,7 @@ struct mps_context {
    * @brief Auxiliary memory used in regeneation to avoid thread-safeness
    * issues.
    */
-  mpc_t * bmpc;
+  mpcf_t * bmpc;
 
   /**
    * @brief True if Jacobi-style iterations must be used in the secular
@@ -563,7 +563,7 @@ long int mps_context_get_data_prec_max (mps_context * s);
 long int mps_context_get_minimum_precision (mps_context * s);
 int mps_context_get_degree (mps_context * s);
 int mps_context_get_roots_d (mps_context * s, cplx_t ** roots, double **radius);
-int mps_context_get_roots_m (mps_context * s, mpc_t ** roots, rdpe_t ** radius);
+int mps_context_get_roots_m (mps_context * s, mpcf_t ** roots, rdpe_t ** radius);
 int mps_context_get_zero_roots (mps_context * s);
 mps_root_status mps_context_get_root_status (mps_context * ctx, int i);
 mps_boolean mps_context_get_over_max (mps_context * s);

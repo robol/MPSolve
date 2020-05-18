@@ -272,7 +272,7 @@ mps_iteration_logger_adjust_scale_on_first_draw (MpsIterationLogger * logger)
 	      break;
 
 	    case mp_phase:
-	      mpc_get_cplx (x, logger->ctx->root[i]->mvalue);
+	      mpcf_get_cplx (x, logger->ctx->root[i]->mvalue);
 	      break;
 
 	    case no_phase:
@@ -369,7 +369,7 @@ mps_iteration_logger_on_drawing_area_draw (GtkWidget * widget,
           switch (logger->ctx ? logger->ctx->lastphase : mp_phase)
           {
             case mp_phase:
-              mpc_get_cplx (approximations[i]->fvalue, approximations[i]->mvalue);
+              mpcf_get_cplx (approximations[i]->fvalue, approximations[i]->mvalue);
               /* Falling through */
             case dpe_phase:
               cdpe_get_x (approximations[i]->fvalue, approximations[i]->dvalue);

@@ -347,7 +347,7 @@ mps_clusterization_detach_clusters (mps_context * s, mps_clusterization * c)
       while (root != NULL)
         {
           k = root->k;
-          mpc_rmod (rtmp, s->root[k]->mvalue);
+          mpcf_rmod (rtmp, s->root[k]->mvalue);
 
           /* We need a complex condition here since the heuristic used to determine if a root
            * is a simple root in a cluster is based on Newton radii.

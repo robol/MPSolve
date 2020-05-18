@@ -10,12 +10,12 @@ class Root
 
 public:
     explicit Root();
-    explicit Root(mpc_t value, rdpe_t radius, mps_root_status status = MPS_ROOT_STATUS_CLUSTERED);
+    explicit Root(mpcf_t value, rdpe_t radius, mps_root_status status = MPS_ROOT_STATUS_CLUSTERED);
     double get_real_part();
     double get_imag_part();
     double get_radius();
 
-    mpc_t value;
+    mpcf_t value;
     rdpe_t radius;
     mps_root_status status;
 };

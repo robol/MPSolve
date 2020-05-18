@@ -51,7 +51,7 @@ test_header (const char * header, const char * description)
 int
 test_mpsolve (char * pol_file, char * res_file, mps_algorithm algorithm)
 {
-  mpc_t root, ctmp;
+  mpcf_t root, ctmp;
   mps_boolean passed = true;
   int i, j, zero_roots = 0;
   char ch;
@@ -91,15 +91,15 @@ test_mpsolve (char * pol_file, char * res_file, mps_algorithm algorithm)
   mps_context_select_algorithm (s, algorithm);
   mps_mpsolve (s);
 
-  mpc_init2 (root, mps_context_get_data_prec_max (s));
-  mpc_init2 (ctmp, mps_context_get_data_prec_max (s));
+  mpcf_init2 (root, mps_context_get_data_prec_max (s));
+  mpcf_init2 (ctmp, mps_context_get_data_prec_max (s));
 
   /* Test if roots are equal to the roots provided in the check */
   passed = true;
 
   rdpe_t * drad = rdpe_valloc (mps_context_get_degree (s));
-  mpc_t * mroot = mpc_valloc (mps_context_get_degree (s));
-  mpc_vinit2 (mroot, mps_context_get_degree (s), 53);
+  mpcf_t * mroot = mpcf_valloc (mps_context_get_degree (s));
+  mpcf_vinit2 (mroot, mps_context_get_degree (s), 53);
 
   mps_context_get_roots_m (s, &mroot, &drad);
 
@@ -114,35 +114,35 @@ test_mpsolve (char * pol_file, char * res_file, mps_algorithm algorithm)
       while (isspace (ch = getc (result_stream)))
         ;
       ungetc (ch, result_stream);
-      mpc_inp_str (root, result_stream, 10);
+      mpcf_inp_str (root, result_stream, 10);
 
-      if (mpc_eq_zero (root))
+      if (mpcf_eq_zero (root))
         {
           zero_roots++;
 
           /* We need to read it another time. This seems a bug in
-           * mpc_inp_str, but I don't get why is necessary. */
-          mpc_inp_str (root, result_stream, 10);
+           * mpcf_inp_str, but I don't get why is necessary. */
+          mpcf_inp_str (root, result_stream, 10);
           continue;
         }
 
-      mpc_sub (ctmp, root, mroot[0]);
-      mpc_get_cdpe (cdtmp, ctmp);
+      mpcf_sub (ctmp, root, mroot[0]);
+      mpcf_get_cdpe (cdtmp, ctmp);
       cdpe_mod (rtmp, cdtmp);
       rdpe_set (min_dist, rtmp);
 
       if (getenv ("MPS_VERBOSE_TEST") && (strstr (pol_file, getenv ("MPS_VERBOSE_TEST"))))
         {
           printf ("Read root_%d = ", i);
-          mpc_out_str_2 (stdout, 10, mps_context_get_data_prec_max (s), mps_context_get_data_prec_max (s),
+          mpcf_out_str_2 (stdout, 10, mps_context_get_data_prec_max (s), mps_context_get_data_prec_max (s),
                          root);
           printf ("\n");
         }
 
       for (j = 1; j < mps_context_get_degree (s); j++)
         {
-          mpc_sub (ctmp, root, mroot[j]);
-          mpc_get_cdpe (cdtmp, ctmp);
+          mpcf_sub (ctmp, root, mroot[j]);
+          mpcf_get_cdpe (cdtmp, ctmp);
           cdpe_mod (rtmp, cdtmp);
 
           if (rdpe_le (rtmp, min_dist))
@@ -159,7 +159,7 @@ test_mpsolve (char * pol_file, char * res_file, mps_algorithm algorithm)
       /* printf ("\n"); */
 
 
-      mpc_get_cdpe (cdtmp, mroot[found_root]);
+      mpcf_get_cdpe (cdtmp, mroot[found_root]);
       cdpe_mod (rtmp, cdtmp);
       rdpe_mul_eq (rtmp, eps);
       rdpe_set (exp_drad, rtmp);
@@ -176,7 +176,7 @@ test_mpsolve (char * pol_file, char * res_file, mps_algorithm algorithm)
               rdpe_out_str (stdout, drad[found_root]);
               printf ("\n");
               printf ("Approximation_%d = ", found_root);
-              mpc_out_str_2 (stdout, 10, -rdpe_Esp (drad[found_root]), -rdpe_Esp (drad[found_root]), mroot[found_root]);
+              mpcf_out_str_2 (stdout, 10, -rdpe_Esp (drad[found_root]), -rdpe_Esp (drad[found_root]), mroot[found_root]);
               printf ("\n");
             }
         }
@@ -188,9 +188,9 @@ test_mpsolve (char * pol_file, char * res_file, mps_algorithm algorithm)
   fclose (input_stream);
   fclose (result_stream);
 
-  mpc_clear (ctmp);
-  mpc_clear (root);
-  mpc_vclear (mroot, mps_context_get_degree (s));
+  mpcf_clear (ctmp);
+  mpcf_clear (root);
+  mpcf_vclear (mroot, mps_context_get_degree (s));
 
   free (mroot);
   free (drad);

@@ -24,13 +24,13 @@
 
 void mps_faberth (mps_context * s, mps_approximation * root, cplx_t abcorr);
 void mps_daberth (mps_context * s, mps_approximation * root, cdpe_t abcorr);
-void mps_maberth (mps_context * s, mps_approximation * root, mpc_t abcorr);
+void mps_maberth (mps_context * s, mps_approximation * root, mpcf_t abcorr);
 void mps_faberth_s (mps_context * s, mps_approximation * root, mps_cluster * cluster, cplx_t abcorr);
 void mps_faberth_wl (mps_context * s, int j, cplx_t abcorr, pthread_mutex_t * aberth_mutexes);
 void mps_daberth_s (mps_context * s, mps_approximation * root, mps_cluster * cluster, cdpe_t abcorr);
 void mps_daberth_wl (mps_context * s, int j, cdpe_t abcorr, pthread_mutex_t * aberth_mutexes);
-void mps_maberth_s (mps_context * s, mps_approximation * root, mps_cluster * cluster, mpc_t abcorr);
-void mps_maberth_s_wl (mps_context * s, int j, mps_cluster * cluster, mpc_t abcorr,
+void mps_maberth_s (mps_context * s, mps_approximation * root, mps_cluster * cluster, mpcf_t abcorr);
+void mps_maberth_s_wl (mps_context * s, int j, mps_cluster * cluster, mpcf_t abcorr,
                        pthread_mutex_t * aberth_mutex);
 void mps_mnewtis (mps_context * s);
 

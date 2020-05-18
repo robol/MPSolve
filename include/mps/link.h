@@ -17,7 +17,7 @@
 
 /* needed header files */
 #include <mps/mt.h>
-#include <mps/mpc.h>
+#include <mps/mpcf.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -51,7 +51,7 @@ void mpf_get_rdpe (rdpe_t e, mpf_t f);
  * @param mc The multiprecision complex number to set.
  * @param c The <code>cplx_t</code> value to set in <code>mc</code>.
  */
-void mpc_set_cplx (mpc_t mc, cplx_t c);
+void mpcf_set_cplx (mpcf_t mc, cplx_t c);
 
 /**
  * @brief Get the <code>cplx_t</code> version of the Multiprecision value <code>mc</code>.
@@ -59,7 +59,7 @@ void mpc_set_cplx (mpc_t mc, cplx_t c);
  * @param c The <code>cplx_t</code> where the value of <code>mc</code> will be stored.
  * @param mc The multiprecision complex number to extract the value from.
  */
-void mpc_get_cplx (cplx_t c, mpc_t mc);
+void mpcf_get_cplx (cplx_t c, mpcf_t mc);
 
 /**
  * @brief Set the Multiprecision value <code>mc</code> with the value
@@ -68,7 +68,7 @@ void mpc_get_cplx (cplx_t c, mpc_t mc);
  * @param mc The multiprecision complex number to set.
  * @param c The CDPE value to set in <code>mc</code>.
  */
-void mpc_set_cdpe (mpc_t mc, cdpe_t c);
+void mpcf_set_cdpe (mpcf_t mc, cdpe_t c);
 
 /**
  * @brief Get the CDPE version of the Multiprecision value <code>mc</code>.
@@ -76,7 +76,7 @@ void mpc_set_cdpe (mpc_t mc, cdpe_t c);
  * @param c The CDPE where the value of <code>mc</code> will be stored.
  * @param mc The multiprecision complex number to extract the value from.
  */
-void mpc_get_cdpe (cdpe_t c, mpc_t mc);
+void mpcf_get_cdpe (cdpe_t c, mpcf_t mc);
 
 #ifdef __cplusplus
 }

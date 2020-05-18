@@ -18,8 +18,8 @@ mps_raisetemp (mps_context * s, unsigned long int digits)
 
   for (i = 0; i <= s->n; i++)
     {
-      mpc_set_prec (s->mfpc1[i], digits);
-      mpc_set_prec (s->mfppc1[i], digits);
+      mpcf_set_prec (s->mfpc1[i], digits);
+      mpcf_set_prec (s->mfppc1[i], digits);
     }
 }
 
@@ -134,18 +134,18 @@ mps_dshift (mps_context * s, int m, mps_cluster_item * cluster_item, rdpe_t clus
  * cluster selected by applying mps_fstart() and by updating the approximations.
  */
 MPS_PRIVATE void
-mps_mshift (mps_context * s, int m, mps_cluster_item * cluster_item, rdpe_t clust_rad, mpc_t g)
+mps_mshift (mps_context * s, int m, mps_cluster_item * cluster_item, rdpe_t clust_rad, mpcf_t g)
 {
   int i, j, k;
   long int mpwp_temp, mpwp_max;
   rdpe_t ag, ap, abp, as, mp_ep;
   cdpe_t abd;
-  mpc_t t;
+  mpcf_t t;
   mps_monomial_poly *p = MPS_MONOMIAL_POLY (s->active_poly);
 
   /* mps_cluster * cluster = cluster_item->cluster;   */
 
-  mpc_init2 (t, s->mpwp);
+  mpcf_init2 (t, s->mpwp);
 
   /* Perform divisions
    * In the mp version of the shift stage the computation
@@ -153,13 +153,13 @@ mps_mshift (mps_context * s, int m, mps_cluster_item * cluster_item, rdpe_t clus
    * until the coefficients of the shifted polynomial have at
    * least one correct bit. */
   rdpe_set (mp_ep, s->mp_epsilon);
-  mpc_get_cdpe (abd, g);
+  mpcf_get_cdpe (abd, g);
   cdpe_mod (ag, abd);
   for (i = 0; i <= s->n; i++)
-    mpc_set (s->mfpc1[i], p->mfpc[i]);
+    mpcf_set (s->mfpc1[i], p->mfpc[i]);
   rdpe_set (as, rdpe_zero);
   rdpe_set (ap, rdpe_one);
-  mpc_set_ui (t, 0, 0);
+  mpcf_set_ui (t, 0, 0);
   k = 0;
 
   /* store the current working precision mpnw into mpnw_tmp */
@@ -168,23 +168,23 @@ mps_mshift (mps_context * s, int m, mps_cluster_item * cluster_item, rdpe_t clus
 
   do
     {                           /* loop */
-      mpc_set (t, s->mfpc1[MPS_POLYNOMIAL (p)->degree]);
-      mpc_get_cdpe (abd, p->mfpc[s->n]);
+      mpcf_set (t, s->mfpc1[MPS_POLYNOMIAL (p)->degree]);
+      mpcf_get_cdpe (abd, p->mfpc[s->n]);
       cdpe_mod (ap, abd);
       for (j = s->n - 1; j >= 0; j--)
         {
-          mpc_get_cdpe (abd, p->mfpc[j]);
+          mpcf_get_cdpe (abd, p->mfpc[j]);
           cdpe_mod (abp, abd);
           rdpe_mul_eq (ap, ag);
           rdpe_mul_eq_d (abp, (double)j);
           rdpe_add_eq (ap, abp);
-          mpc_mul_eq (t, g);
-          mpc_add_eq (t, s->mfpc1[j]);
-          mpc_set (s->mfpc1[j], t);
+          mpcf_mul_eq (t, g);
+          mpcf_add_eq (t, s->mfpc1[j]);
+          mpcf_set (s->mfpc1[j], t);
         }
 
-      mpc_set (s->mfppc1[0], t);
-      mpc_get_cdpe (abd, t);
+      mpcf_set (s->mfppc1[0], t);
+      mpcf_get_cdpe (abd, t);
       cdpe_mod (as, abd);
       rdpe_mul_eq (ap, mp_ep);
       rdpe_mul_eq_d (ap, 4.0 * (s->n + 1));
@@ -202,13 +202,13 @@ mps_mshift (mps_context * s, int m, mps_cluster_item * cluster_item, rdpe_t clus
 
           rdpe_set_2dl (mp_ep, 1.0, 1 - mpwp_temp);
           mps_raisetemp (s, mpwp_temp);
-          mpc_set_prec (t, (unsigned long int)mpwp_temp);
-          mpc_set_prec (g, (unsigned long int)mpwp_temp);
+          mpcf_set_prec (t, (unsigned long int)mpwp_temp);
+          mpcf_set_prec (g, (unsigned long int)mpwp_temp);
           if (mpwp_max < mpwp_temp)
             mpwp_max = mpwp_temp;
 
           for (j = 0; j <= s->n; j++)
-            mpc_set (s->mfpc1[j], p->mfpc[j]);
+            mpcf_set (s->mfpc1[j], p->mfpc[j]);
         }
     } while (rdpe_lt (as, ap) && (k <= m)); /* loop */
 
@@ -218,53 +218,53 @@ mps_mshift (mps_context * s, int m, mps_cluster_item * cluster_item, rdpe_t clus
     {
       /* mpwp_temp = MAX (mpwp_temp - s->mpwp, s->mpwp); */
       /* mps_raisetemp (s, mpwp_temp); */
-      /* mpc_set_prec (t, (unsigned long int) mpwp_temp); */
-      /* mpc_set_prec (g, (unsigned long int) mpwp_temp); */
-      mpc_set (t, s->mfpc1[s->n]);
+      /* mpcf_set_prec (t, (unsigned long int) mpwp_temp); */
+      /* mpcf_set_prec (g, (unsigned long int) mpwp_temp); */
+      mpcf_set (t, s->mfpc1[s->n]);
 
       for (j = s->n - 1; j >= i; j--)
         {
-          mpc_mul_eq (t, g);
-          mpc_add_eq (t, s->mfpc1[j]);
-          mpc_set (s->mfpc1[j], t);
+          mpcf_mul_eq (t, g);
+          mpcf_add_eq (t, s->mfpc1[j]);
+          mpcf_set (s->mfpc1[j], t);
         }
-      mpc_set (s->mfppc1[i], t);
+      mpcf_set (s->mfppc1[i], t);
     }
   /*
      raisetemp_raw(mpwp);
-     mpc_set_prec_raw(s, (unsigned long int) mpwp);
-     mpc_set_prec_raw(g, (unsigned long int) mpwp);
+     mpcf_set_prec_raw(s, (unsigned long int) mpwp);
+     mpcf_set_prec_raw(g, (unsigned long int) mpwp);
 
      segue alternativa
    */
   /* mps_raisetemp (s, 2 * mpwp_max); */
-  /* mpc_set_prec (t, (unsigned long int) 2 * mpwp_max); */
-  /* mpc_set_prec (g, (unsigned long int) 2 * mpwp_max); */
+  /* mpcf_set_prec (t, (unsigned long int) 2 * mpwp_max); */
+  /* mpcf_set_prec (g, (unsigned long int) 2 * mpwp_max); */
   mps_raisetemp (s, 2 * mpwp_temp);
-  mpc_set_prec (t, (unsigned long int)s->mpwp);
-  mpc_set_prec (g, (unsigned long int)s->mpwp);
+  mpcf_set_prec (t, (unsigned long int)s->mpwp);
+  mpcf_set_prec (g, (unsigned long int)s->mpwp);
 
   if (rdpe_lt (as, ap))
     {
       for (j = 0; j < m; j++)
         rdpe_set (s->dap1[j], ap);
-      mpc_get_cdpe (abd, s->mfppc1[m]);
+      mpcf_get_cdpe (abd, s->mfppc1[m]);
       cdpe_mod (s->dap1[m], abd);
     }
   else
     for (i = 0; i <= m; i++)
       {
-        mpc_get_cdpe (abd, s->mfppc1[i]);
+        mpcf_get_cdpe (abd, s->mfppc1[i]);
         cdpe_mod (s->dap1[i], abd);
       }
 
   /* Debug the coefficients of the shifted polynomial */
   if (s->debug_level & MPS_DEBUG_CLUSTER)
     for (i = 0; i <= m; i++)
-      MPS_DEBUG_MPC (s, mpc_get_prec (s->mfppc1[i]), s->mfppc1[i],
+      MPS_DEBUG_MPC (s, mpcf_get_prec (s->mfppc1[i]), s->mfppc1[i],
                      "P(x + g), coefficient of degree %d", i);
 
   mps_mstart (s, m, cluster_item, clust_rad, ag, s->dap1, g);
 
-  mpc_clear (t);
+  mpcf_clear (t);
 }

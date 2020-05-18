@@ -24,7 +24,7 @@ get_approximated_bits (mps_approximation * appr)
 {
   rdpe_t module;
 
-  mpc_rmod (module, appr->mvalue);
+  mpcf_rmod (module, appr->mvalue);
 
   return (rdpe_log (module) - rdpe_log (appr->drad)) / LOG2 - 1;
 }
@@ -38,12 +38,12 @@ evaluate_root_conditioning (mps_context * ctx, mps_polynomial * p, mps_approxima
 
   for (i = 0; i < n; i++)
     {
-      mpc_t value;
+      mpcf_t value;
       rdpe_t error, module;
-      mpc_init2 (value, appr[i]->wp);
+      mpcf_init2 (value, appr[i]->wp);
 
       mps_polynomial_meval (ctx, p, appr[i]->mvalue, value, error);
-      mpc_rmod (module, value);
+      mpcf_rmod (module, value);
 
       /* Get the relative error of this evaluation */
       if (!rdpe_eq_zero (module))
@@ -57,7 +57,7 @@ evaluate_root_conditioning (mps_context * ctx, mps_polynomial * p, mps_approxima
 
       rdpe_div_eq (root_conditioning[i], appr[i]->drad);
 
-      mpc_clear (value);
+      mpcf_clear (value);
     }
 
   return root_conditioning;
@@ -66,29 +66,29 @@ evaluate_root_conditioning (mps_context * ctx, mps_polynomial * p, mps_approxima
 static void
 improve_root (mps_context * ctx, mps_polynomial * p, mps_approximation * root, long precision)
 {
-  mpc_t newton_correction;
+  mpcf_t newton_correction;
   rdpe_t corr_mod, epsilon;
 
-  mpc_set_prec (root->mvalue, precision);
-  mpc_init2 (newton_correction, precision);
+  mpcf_set_prec (root->mvalue, precision);
+  mpcf_init2 (newton_correction, precision);
 
   mps_polynomial_mnewton (ctx, p, root, newton_correction,
-                          mpc_get_prec (root->mvalue));
+                          mpcf_get_prec (root->mvalue));
 
-  mpc_sub_eq (root->mvalue, newton_correction);
-  mpc_rmod (corr_mod, newton_correction);
+  mpcf_sub_eq (root->mvalue, newton_correction);
+  mpcf_rmod (corr_mod, newton_correction);
   rdpe_add_eq (root->drad, corr_mod);
 
   if (ctx->debug_level & MPS_DEBUG_IMPROVEMENT)
     MPS_DEBUG_MPC (ctx, 15, newton_correction, "Newton correction");
 
-  mpc_rmod (corr_mod, root->mvalue);
+  mpcf_rmod (corr_mod, root->mvalue);
   rdpe_set_2dl (epsilon, 1.0, 2 - precision);
 
   rdpe_mul_eq (corr_mod, epsilon);
   rdpe_add_eq (root->drad, corr_mod);
 
-  mpc_clear (newton_correction);
+  mpcf_clear (newton_correction);
 }
 
 /*! @cond PRIVATE */

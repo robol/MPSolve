@@ -79,7 +79,7 @@ struct mps_monomial_matrix_poly {
   /**
    * @brief The multiprecision version of the polynomial coefficients.
    */
-  mpc_t * mP;
+  mpcf_t * mP;
 
   /**
    * @brief The rational version of the polynomial coefficients.
@@ -208,8 +208,8 @@ void mps_monomial_matrix_poly_set_coefficient_q (mps_context * ctx,
  */
 mps_boolean mps_monomial_matrix_poly_meval (mps_context * ctx,
                                             mps_polynomial * poly,
-                                            mpc_t x,
-                                            mpc_t value,
+                                            mpcf_t x,
+                                            mpcf_t value,
                                             rdpe_t error);
 
 /**

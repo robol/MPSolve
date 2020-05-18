@@ -7,7 +7,7 @@ mps_rational_poly_free (mps_context * ctx, mps_rational_poly * p)
   free (p->a);
   free (p->b);
   free (p->c);
-  mpc_clear (p->lc);
+  mpcf_clear (p->lc);
   free (p);
 }
 
@@ -44,7 +44,7 @@ mps_rational_poly_new (mps_context * ctx, cplx_t * a, cplx_t * b,
   p->nn = nn;
   p->pp = pp;
 
-  mpc_init2 (p->lc, 64);
+  mpcf_init2 (p->lc, 64);
 
   /* Compute the leading coefficient */
   cplx_t lc, prod;
@@ -60,15 +60,15 @@ mps_rational_poly_new (mps_context * ctx, cplx_t * a, cplx_t * b,
     }
 
   cplx_mul_eq (lc, prod);
-  mpc_set_d (p->lc, cplx_Re (lc), cplx_Im (lc));
+  mpcf_set_d (p->lc, cplx_Re (lc), cplx_Im (lc));
 
   return p;
 }
 
 void mps_rational_poly_get_leading_coefficient (mps_context * ctx, 
 						mps_polynomial * p, 
-						mpc_t lc)
+						mpcf_t lc)
 {
   mps_rational_poly * rp = MPS_RATIONAL_POLY (p);
-  mpc_set (lc, rp->lc);
+  mpcf_set (lc, rp->lc);
 }

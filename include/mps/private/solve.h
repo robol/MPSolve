@@ -22,7 +22,7 @@ MPS_BEGIN_DECLS
 void mps_update (mps_context * s);
 void mps_fsrad (mps_context * s, mps_cluster * cluster, cplx_t sc, double *sr);
 void mps_dsrad (mps_context * s, mps_cluster * cluster, cdpe_t sc, rdpe_t sr);
-void mps_msrad (mps_context * s, mps_cluster * cluster, mpc_t sc, rdpe_t sr);
+void mps_msrad (mps_context * s, mps_cluster * cluster, mpcf_t sc, rdpe_t sr);
 
 mps_boolean mps_check_stop (mps_context * s);
 void mps_fsolve (mps_context * s, mps_boolean * d_after_f);

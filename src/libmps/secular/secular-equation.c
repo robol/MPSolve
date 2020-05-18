@@ -68,12 +68,12 @@ mps_secular_restart (mps_context * s)
     {
     case float_phase:
       for (i = 0; i < s->n; i++)
-        mpc_set_cplx (s->root[i]->mvalue, s->root[i]->fvalue);
+        mpcf_set_cplx (s->root[i]->mvalue, s->root[i]->fvalue);
       break;
 
     case dpe_phase:
       for (i = 0; i < s->n; i++)
-        mpc_set_cdpe (s->root[i]->mvalue, s->root[i]->dvalue);
+        mpcf_set_cdpe (s->root[i]->mvalue, s->root[i]->dvalue);
       break;
 
     default:
@@ -84,8 +84,8 @@ mps_secular_restart (mps_context * s)
 
   for (i = 0; i < s->n; i++)
     {
-      mpc_get_cplx (s->root[i]->fvalue, s->root[i]->mvalue);
-      mpc_get_cdpe (s->root[i]->dvalue, s->root[i]->mvalue);
+      mpcf_get_cplx (s->root[i]->fvalue, s->root[i]->mvalue);
+      mpcf_get_cdpe (s->root[i]->dvalue, s->root[i]->mvalue);
     }
 }
 
@@ -190,8 +190,8 @@ mps_secular_deflate (mps_context * s, mps_secular_equation * sec)
     {
       for (i = 0; i < MPS_POLYNOMIAL (sec)->degree; i++)
         {
-          mpc_get_cdpe (sec->adpc[i], sec->ampc[i]);
-          mpc_get_cdpe (sec->bdpc[i], sec->bmpc[i]);
+          mpcf_get_cdpe (sec->adpc[i], sec->ampc[i]);
+          mpcf_get_cdpe (sec->bdpc[i], sec->bmpc[i]);
         }
     }
 
@@ -243,18 +243,18 @@ mps_secular_equation_new_raw (mps_context * s, unsigned long int n)
   /* Allocate multiprecision complex coefficients of the secular equation */
   /* Prepare the double buffer */
   struct mps_secular_equation_double_buffer *db = &sec->db;
-  db->ampc1 = mpc_valloc (n);
-  db->ampc2 = mpc_valloc (n);
-  db->bmpc1 = mpc_valloc (n);
-  db->bmpc2 = mpc_valloc (n);
+  db->ampc1 = mpcf_valloc (n);
+  db->ampc2 = mpcf_valloc (n);
+  db->bmpc1 = mpcf_valloc (n);
+  db->bmpc2 = mpcf_valloc (n);
 
   sec->ampc = db->ampc1;
   sec->bmpc = db->bmpc1;
 
   db->active = 1;
 
-  sec->initial_ampc = mpc_valloc (n);
-  sec->initial_bmpc = mpc_valloc (n);
+  sec->initial_ampc = mpcf_valloc (n);
+  sec->initial_bmpc = mpcf_valloc (n);
   sec->initial_ampqrc = mpq_valloc (n);
   sec->initial_bmpqrc = mpq_valloc (n);
   sec->initial_ampqic = mpq_valloc (n);
@@ -267,12 +267,12 @@ mps_secular_equation_new_raw (mps_context * s, unsigned long int n)
   sec->abfpc = double_valloc (n);
 
   /* Init multiprecision arrays */
-  mpc_vinit2 (sec->db.ampc1, n, s->mpwp);
-  mpc_vinit2 (sec->db.bmpc1, n, s->mpwp);
-  mpc_vinit2 (sec->db.ampc2, n, s->mpwp);
-  mpc_vinit2 (sec->db.bmpc2, n, s->mpwp);
-  mpc_vinit2 (sec->initial_ampc, n, s->mpwp);
-  mpc_vinit2 (sec->initial_bmpc, n, s->mpwp);
+  mpcf_vinit2 (sec->db.ampc1, n, s->mpwp);
+  mpcf_vinit2 (sec->db.bmpc1, n, s->mpwp);
+  mpcf_vinit2 (sec->db.ampc2, n, s->mpwp);
+  mpcf_vinit2 (sec->db.bmpc2, n, s->mpwp);
+  mpcf_vinit2 (sec->initial_ampc, n, s->mpwp);
+  mpcf_vinit2 (sec->initial_bmpc, n, s->mpwp);
   mpq_vinit (sec->initial_ampqrc, n);
   mpq_vinit (sec->initial_bmpqrc, n);
   mpq_vinit (sec->initial_ampqic, n);
@@ -281,13 +281,13 @@ mps_secular_equation_new_raw (mps_context * s, unsigned long int n)
   MPS_POLYNOMIAL (sec)->degree = n;
 
   /* Set up the mutexes for thread safety */
-  sec->ampc_mutex = mps_newv (pthread_mutex_t, MPS_POLYNOMIAL (sec)->degree);
-  sec->bmpc_mutex = mps_newv (pthread_mutex_t, MPS_POLYNOMIAL (sec)->degree);
+  sec->ampcf_mutex = mps_newv (pthread_mutex_t, MPS_POLYNOMIAL (sec)->degree);
+  sec->bmpcf_mutex = mps_newv (pthread_mutex_t, MPS_POLYNOMIAL (sec)->degree);
 
   for (i = 0; i < n; i++)
     {
-      pthread_mutex_init (&sec->ampc_mutex[i], NULL);
-      pthread_mutex_init (&sec->bmpc_mutex[i], NULL);
+      pthread_mutex_init (&sec->ampcf_mutex[i], NULL);
+      pthread_mutex_init (&sec->bmpcf_mutex[i], NULL);
     }
 
   pthread_mutex_init (&sec->precision_mutex, NULL);
@@ -330,12 +330,12 @@ mps_secular_equation_new (mps_context * s, cplx_t * afpc, cplx_t * bfpc,
       cdpe_init (sec->adpc[i]);
       cdpe_set_x (sec->adpc[i], sec->afpc[i]);
 
-      mpc_set_cplx (sec->ampc[i], sec->afpc[i]);
+      mpcf_set_cplx (sec->ampc[i], sec->afpc[i]);
 
       cdpe_init (sec->bdpc[i]);
       cdpe_set_x (sec->bdpc[i], sec->bfpc[i]);
 
-      mpc_set_cplx (sec->bmpc[i], sec->bfpc[i]);
+      mpcf_set_cplx (sec->bmpc[i], sec->bfpc[i]);
     }
 
   MPS_POLYNOMIAL (sec)->structure = MPS_STRUCTURE_COMPLEX_FP;
@@ -355,36 +355,36 @@ mps_secular_equation_new (mps_context * s, cplx_t * afpc, cplx_t * bfpc,
  * The new coefficient will have the form a / (x - b). 
  */
 void
-mps_secular_equation_set_coefficient_f (mps_context *ctx, mps_secular_equation *p, int i, mpc_t a, mpc_t b)
+mps_secular_equation_set_coefficient_f (mps_context *ctx, mps_secular_equation *p, int i, mpcf_t a, mpcf_t b)
 {
   /* Updating data_type information */
   if (MPS_POLYNOMIAL (p)->structure == MPS_STRUCTURE_UNKNOWN)
     MPS_POLYNOMIAL (p)->structure = MPS_STRUCTURE_COMPLEX_FP;
 
-  long wp = mpc_get_prec (a);
+  long wp = mpcf_get_prec (a);
 
-  if (mpc_get_prec (b) > wp)
-    wp = mpc_get_prec (b);
+  if (mpcf_get_prec (b) > wp)
+    wp = mpcf_get_prec (b);
 
-  mpc_set_prec(p->initial_ampc[i], wp);
-  mpc_set_prec(p->initial_bmpc[i], wp);  
+  mpcf_set_prec(p->initial_ampc[i], wp);
+  mpcf_set_prec(p->initial_bmpc[i], wp);  
 
-  mpc_set (p->initial_ampc[i], a);
-  mpc_set (p->initial_bmpc[i], b);
+  mpcf_set (p->initial_ampc[i], a);
+  mpcf_set (p->initial_bmpc[i], b);
 
   mps_secular_raise_coefficient_precision (ctx, MPS_POLYNOMIAL (p), wp);
 
-  mpc_set (p->ampc[i], a);
-  mpc_set (p->bmpc[i], b);
+  mpcf_set (p->ampc[i], a);
+  mpcf_set (p->bmpc[i], b);
 
-  mpc_get_cplx (p->afpc[i], p->ampc[i]);
-  mpc_get_cplx (p->bfpc[i], p->bmpc[i]);
+  mpcf_get_cplx (p->afpc[i], p->ampc[i]);
+  mpcf_get_cplx (p->bfpc[i], p->bmpc[i]);
   
-  mpc_get_cdpe (p->adpc[i], p->ampc[i]);
-  mpc_get_cdpe (p->bdpc[i], p->bmpc[i]);
+  mpcf_get_cdpe (p->adpc[i], p->ampc[i]);
+  mpcf_get_cdpe (p->bdpc[i], p->bmpc[i]);
 
-  mpc_rmod (p->aadpc[i], p->ampc[i]);
-  mpc_rmod (p->abdpc[i], p->bmpc[i]);
+  mpcf_rmod (p->aadpc[i], p->ampc[i]);
+  mpcf_rmod (p->abdpc[i], p->bmpc[i]);
 
   p->aafpc[i] = rdpe_get_d (p->aadpc[i]);
   p->abfpc[i] = rdpe_get_d (p->abdpc[i]);
@@ -413,19 +413,19 @@ mps_secular_equation_set_coefficient_q (mps_context *ctx, mps_secular_equation *
   mpq_set (p->initial_bmpqrc[i], br);
   mpq_set (p->initial_bmpqic[i], bi);
 
-  mps_secular_raise_coefficient_precision (ctx, MPS_POLYNOMIAL (p), mpc_get_prec(p->ampc[0]));
+  mps_secular_raise_coefficient_precision (ctx, MPS_POLYNOMIAL (p), mpcf_get_prec(p->ampc[0]));
 
-  mpc_set_q (p->ampc[i], p->initial_ampqrc[i], p->initial_ampqic[i]);
-  mpc_set_q (p->bmpc[i], p->initial_bmpqrc[i], p->initial_bmpqic[i]);
+  mpcf_set_q (p->ampc[i], p->initial_ampqrc[i], p->initial_ampqic[i]);
+  mpcf_set_q (p->bmpc[i], p->initial_bmpqrc[i], p->initial_bmpqic[i]);
   
-  mpc_get_cplx (p->afpc[i], p->ampc[i]);
-  mpc_get_cplx (p->bfpc[i], p->bmpc[i]);
+  mpcf_get_cplx (p->afpc[i], p->ampc[i]);
+  mpcf_get_cplx (p->bfpc[i], p->bmpc[i]);
   
-  mpc_get_cdpe (p->adpc[i], p->ampc[i]);
-  mpc_get_cdpe (p->bdpc[i], p->bmpc[i]);
+  mpcf_get_cdpe (p->adpc[i], p->ampc[i]);
+  mpcf_get_cdpe (p->bdpc[i], p->bmpc[i]);
 
-  mpc_rmod (p->aadpc[i], p->ampc[i]);
-  mpc_rmod (p->abdpc[i], p->bmpc[i]);
+  mpcf_rmod (p->aadpc[i], p->ampc[i]);
+  mpcf_rmod (p->abdpc[i], p->bmpc[i]);
 
   p->aafpc[i] = rdpe_get_d (p->aadpc[i]);
   p->abfpc[i] = rdpe_get_d (p->abdpc[i]);
@@ -449,15 +449,15 @@ mps_secular_equation_free (mps_context *ctx, mps_polynomial * p)
   cdpe_vfree (s->adpc);
   cdpe_vfree (s->bdpc);
 
-  mpc_vclear (s->db.ampc1, MPS_POLYNOMIAL (s)->degree);
-  mpc_vclear (s->db.bmpc1, MPS_POLYNOMIAL (s)->degree);
-  mpc_vclear (s->db.ampc2, MPS_POLYNOMIAL (s)->degree);
-  mpc_vclear (s->db.bmpc2, MPS_POLYNOMIAL (s)->degree);
+  mpcf_vclear (s->db.ampc1, MPS_POLYNOMIAL (s)->degree);
+  mpcf_vclear (s->db.bmpc1, MPS_POLYNOMIAL (s)->degree);
+  mpcf_vclear (s->db.ampc2, MPS_POLYNOMIAL (s)->degree);
+  mpcf_vclear (s->db.bmpc2, MPS_POLYNOMIAL (s)->degree);
 
-  mpc_vfree (s->db.ampc1);
-  mpc_vfree (s->db.ampc2);
-  mpc_vfree (s->db.bmpc1);
-  mpc_vfree (s->db.bmpc2);
+  mpcf_vfree (s->db.ampc1);
+  mpcf_vfree (s->db.ampc2);
+  mpcf_vfree (s->db.bmpc1);
+  mpcf_vfree (s->db.bmpc2);
 
   rdpe_vfree (s->aadpc);
   rdpe_vfree (s->abdpc);
@@ -465,22 +465,22 @@ mps_secular_equation_free (mps_context *ctx, mps_polynomial * p)
   double_vfree (s->abfpc);
 
   /* And old coefficients */
-  mpc_vclear (s->initial_ampc, MPS_POLYNOMIAL (s)->degree);
-  mpc_vclear (s->initial_bmpc, MPS_POLYNOMIAL (s)->degree);
+  mpcf_vclear (s->initial_ampc, MPS_POLYNOMIAL (s)->degree);
+  mpcf_vclear (s->initial_bmpc, MPS_POLYNOMIAL (s)->degree);
   mpq_vclear (s->initial_ampqrc, MPS_POLYNOMIAL (s)->degree);
   mpq_vclear (s->initial_bmpqrc, MPS_POLYNOMIAL (s)->degree);
   mpq_vclear (s->initial_ampqic, MPS_POLYNOMIAL (s)->degree);
   mpq_vclear (s->initial_bmpqic, MPS_POLYNOMIAL (s)->degree);
-  mpc_vfree (s->initial_ampc);
-  mpc_vfree (s->initial_bmpc);
+  mpcf_vfree (s->initial_ampc);
+  mpcf_vfree (s->initial_bmpc);
   mpq_vfree (s->initial_ampqrc);
   mpq_vfree (s->initial_bmpqrc);
   mpq_vfree (s->initial_ampqic);
   mpq_vfree (s->initial_bmpqic);
 
   /* Mutexes */
-  free (s->ampc_mutex);
-  free (s->bmpc_mutex);
+  free (s->ampcf_mutex);
+  free (s->bmpcf_mutex);
 
   /* ...and then release it */
   free (s);
@@ -559,15 +559,15 @@ mps_secular_raise_coefficient_precision (mps_context * s, mps_polynomial * p, lo
   int i;
   mps_secular_equation *sec = MPS_SECULAR_EQUATION (p);
 
-  mpc_t * raising_ampc;
-  mpc_t * raising_bmpc;
+  mpcf_t * raising_ampc;
+  mpcf_t * raising_bmpc;
 
   pthread_mutex_lock (&sec->precision_mutex);
 
-  if (wp < mpc_get_prec (sec->ampc[0]))
+  if (wp < mpcf_get_prec (sec->ampc[0]))
     {
       pthread_mutex_unlock (&sec->precision_mutex);
-      return mpc_get_prec (sec->ampc[0]);
+      return mpcf_get_prec (sec->ampc[0]);
     }
 
   if (sec->db.active == 1)
@@ -583,23 +583,23 @@ mps_secular_raise_coefficient_precision (mps_context * s, mps_polynomial * p, lo
 
   for (i = 0; i < p->degree; i++)
     {
-      mpc_set_prec (raising_ampc[i], wp);
+      mpcf_set_prec (raising_ampc[i], wp);
       if (!MPS_STRUCTURE_IS_FP (p->structure))
         {
-          mpf_set_q (mpc_Re (raising_ampc[i]), sec->initial_ampqrc[i]);
-          mpf_set_q (mpc_Im (raising_ampc[i]), sec->initial_ampqic[i]);
+          mpf_set_q (mpcf_Re (raising_ampc[i]), sec->initial_ampqrc[i]);
+          mpf_set_q (mpcf_Im (raising_ampc[i]), sec->initial_ampqic[i]);
         }
       else
-        mpc_set (raising_ampc[i], sec->ampc[i]);
+        mpcf_set (raising_ampc[i], sec->ampc[i]);
 
-      mpc_set_prec (raising_bmpc[i], wp);
+      mpcf_set_prec (raising_bmpc[i], wp);
       if (!MPS_STRUCTURE_IS_FP (p->structure))
         {
-          mpf_set_q (mpc_Re (raising_bmpc[i]), sec->initial_bmpqrc[i]);
-          mpf_set_q (mpc_Im (raising_bmpc[i]), sec->initial_bmpqic[i]);
+          mpf_set_q (mpcf_Re (raising_bmpc[i]), sec->initial_bmpqrc[i]);
+          mpf_set_q (mpcf_Im (raising_bmpc[i]), sec->initial_bmpqic[i]);
         }
       else
-        mpc_set (raising_bmpc[i], sec->bmpc[i]);
+        mpcf_set (raising_bmpc[i], sec->bmpc[i]);
     }
 
   sec->ampc = raising_ampc;
@@ -612,7 +612,7 @@ mps_secular_raise_coefficient_precision (mps_context * s, mps_polynomial * p, lo
   if (s->debug_level & MPS_DEBUG_MEMORY)
     MPS_DEBUG_WITH_INFO (s, "Precision of the coefficients is now at %ld bits", wp);
 
-  return mpc_get_prec (sec->ampc[0]);
+  return mpcf_get_prec (sec->ampc[0]);
 }
 
 /**
@@ -633,7 +633,7 @@ mps_secular_raise_root_precision (mps_context * s, int wp)
 
   for (i = 0; i < s->n; i++)
     {
-      mpc_set_prec (s->root[i]->mvalue, wp);
+      mpcf_set_prec (s->root[i]->mvalue, wp);
     }
 }
 
@@ -710,9 +710,9 @@ mps_secular_switch_phase (mps_context * s, mps_phase phase)
            * secular equation coefficients */
           for (i = 0; i < s->n; i++)
             {
-              mpc_set_cplx (s->root[i]->mvalue, s->root[i]->fvalue);
-              mpc_set_cplx (sec->ampc[i], sec->afpc[i]);
-              mpc_set_cplx (sec->bmpc[i], sec->bfpc[i]);
+              mpcf_set_cplx (s->root[i]->mvalue, s->root[i]->fvalue);
+              mpcf_set_cplx (sec->ampc[i], sec->afpc[i]);
+              mpcf_set_cplx (sec->bmpc[i], sec->bfpc[i]);
               rdpe_set_d (s->root[i]->drad, s->root[i]->frad);
             }
           break;
@@ -722,9 +722,9 @@ mps_secular_switch_phase (mps_context * s, mps_phase phase)
            * roots into the multiprecision values    */
           for (i = 0; i < s->n; i++)
             {
-              mpc_set_cdpe (s->root[i]->mvalue, s->root[i]->dvalue);
-              mpc_set_cdpe (sec->ampc[i], sec->adpc[i]);
-              mpc_set_cdpe (sec->bmpc[i], sec->bdpc[i]);
+              mpcf_set_cdpe (s->root[i]->mvalue, s->root[i]->dvalue);
+              mpcf_set_cdpe (sec->ampc[i], sec->adpc[i]);
+              mpcf_set_cdpe (sec->bmpc[i], sec->bdpc[i]);
             }
 
         default:
@@ -765,8 +765,8 @@ mps_secular_set_radii (mps_context * s)
   cdpe_t ctmp;
   rdpe_t * drad = rdpe_valloc (s->n);
 
-  mpc_t mtmp;
-  mpc_init2 (mtmp, mps_context_get_data_prec_max (s));
+  mpcf_t mtmp;
+  mpcf_init2 (mtmp, mps_context_get_data_prec_max (s));
 
   if (s->lastphase == mp_phase)
     rdpe_set (rad_eps, s->mp_epsilon);
@@ -779,7 +779,7 @@ mps_secular_set_radii (mps_context * s)
   /* Check if the Gerschgorin's radii are more convenient */
   for (i = 0; i < s->n; i++)
     {
-      mpc_get_cdpe (ctmp, sec->ampc[i]);
+      mpcf_get_cdpe (ctmp, sec->ampc[i]);
       cdpe_mod (rad, ctmp);
 
       rdpe_mul_eq (rad, rad_eps);
@@ -788,7 +788,7 @@ mps_secular_set_radii (mps_context * s)
 
       rdpe_set (drad[i], rad);
 
-      mpc_rmod (rtmp, s->root[i]->mvalue);
+      mpcf_rmod (rtmp, s->root[i]->mvalue);
       if (s->lastphase == mp_phase)
         rdpe_mul_eq (rtmp, s->mp_epsilon);
       else
@@ -804,7 +804,7 @@ mps_secular_set_radii (mps_context * s)
       for (i = 0; i < s->n; i++)
         {
           rdpe_set_d (s->root[i]->drad, s->root[i]->frad);
-          mpc_set_d (s->root[i]->mvalue, cplx_Re (s->root[i]->fvalue),
+          mpcf_set_d (s->root[i]->mvalue, cplx_Re (s->root[i]->fvalue),
                      cplx_Im (s->root[i]->fvalue));
         }
 
@@ -836,7 +836,7 @@ mps_secular_set_radii (mps_context * s)
 
   rdpe_vfree (drad);
 
-  mpc_clear (mtmp);
+  mpcf_clear (mtmp);
 }
 
 mps_boolean
@@ -897,9 +897,9 @@ mps_secular_poly_deval_with_error (mps_context * ctx, mps_polynomial * p, cdpe_t
 }
 
 mps_boolean
-mps_secular_poly_meval_with_error (mps_context * ctx, mps_polynomial * p, mpc_t x, mpc_t value, rdpe_t error)
+mps_secular_poly_meval_with_error (mps_context * ctx, mps_polynomial * p, mpcf_t x, mpcf_t value, rdpe_t error)
 {
-  mpc_t ctmp;
+  mpcf_t ctmp;
   rdpe_t rtmp;
   int i;
   mps_secular_equation *sec = MPS_SECULAR_EQUATION (p);
@@ -909,26 +909,26 @@ mps_secular_poly_meval_with_error (mps_context * ctx, mps_polynomial * p, mpc_t 
       return false;
     }
 
-  mpc_rmod (rtmp, value);
+  mpcf_rmod (rtmp, value);
   if (!rdpe_eq_zero (rtmp))
     rdpe_div_eq (error, rtmp);
   else
     rdpe_set_d (error, DBL_EPSILON * p->degree);
 
-  mpc_init2 (ctmp, mpc_get_prec (x));
+  mpcf_init2 (ctmp, mpcf_get_prec (x));
 
   for (i = 0; i < p->degree; i++)
     {
-      mpc_sub (ctmp, x, sec->bmpc[i]);
-      mpc_mul_eq (value, ctmp);
+      mpcf_sub (ctmp, x, sec->bmpc[i]);
+      mpcf_mul_eq (value, ctmp);
     }
 
-  mpc_set_si (ctmp, -1, 0);
-  mpc_mul_eq (value, ctmp);
+  mpcf_set_si (ctmp, -1, 0);
+  mpcf_mul_eq (value, ctmp);
 
-  mpc_clear (ctmp);
+  mpcf_clear (ctmp);
 
-  mpc_rmod (rtmp, value);
+  mpcf_rmod (rtmp, value);
   rdpe_mul_eq (error, rtmp);
 
   return true;

@@ -76,13 +76,13 @@ mps_quadratic_poly_deval (mps_context * ctx, mps_polynomial * p, cdpe_t x, cdpe_
 }
 
 mps_boolean
-mps_quadratic_poly_meval (mps_context * ctx, mps_polynomial * p, mpc_t x, mpc_t value, rdpe_t error)
+mps_quadratic_poly_meval (mps_context * ctx, mps_polynomial * p, mpcf_t x, mpcf_t value, rdpe_t error)
 {
   int i;
   int m = (int) (log (p->degree + 1.0) / LOG2);
   rdpe_t ax, rtmp;
-  mpc_t tmp;
-  long int wp = mpc_get_prec (x);
+  mpcf_t tmp;
+  long int wp = mpcf_get_prec (x);
 
   /* Correct the working precision in case of a limited 
      precision polynomial (quite unlikely
@@ -93,27 +93,27 @@ mps_quadratic_poly_meval (mps_context * ctx, mps_polynomial * p, mpc_t x, mpc_t 
   if ((1 << m) <= p->degree)
     m++;
 
-  mpc_init2 (tmp, wp);
+  mpcf_init2 (tmp, wp);
 
-  mpc_rmod (ax, x);
-  mpc_set_ui (value, 1U, 0U);
-  mpc_rmod (error, value);
+  mpcf_rmod (ax, x);
+  mpcf_set_ui (value, 1U, 0U);
+  mpcf_rmod (error, value);
 
   for (i = 1; i <= m; i++)
     {
-      mpc_sqr (tmp, value);
-      mpc_mul (value, x, tmp);
-      mpc_add_eq_ui (value, 1U, 0U);
+      mpcf_sqr (tmp, value);
+      mpcf_mul (value, x, tmp);
+      mpcf_add_eq_ui (value, 1U, 0U);
 
       rdpe_mul_eq (error, ax);
-      mpc_rmod (rtmp, value);
+      mpcf_rmod (rtmp, value);
       rdpe_add_eq (error, rtmp);
     }
 
   rdpe_set_2dl (rtmp, 1.0, -wp);
   rdpe_mul_eq (error, rtmp);
 
-  mpc_clear (tmp);
+  mpcf_clear (tmp);
 
   return true;
 }

@@ -458,58 +458,58 @@ mps_secular_dnewton (mps_context * s, mps_polynomial * p, mps_approximation * ro
  *   while MPS_PARALLEL_SUM_SUCCESS indicates that the evaluation was successful.
  */
 int
-mps_secular_mparallel_sum (mps_context * s, mps_approximation * root, int n, mpc_t * ampc, mpc_t * bmpc,
-                           mpc_t pol, mpc_t fp, mpc_t sumb, rdpe_t asum)
+mps_secular_mparallel_sum (mps_context * s, mps_approximation * root, int n, mpcf_t * ampc, mpcf_t * bmpc,
+                           mpcf_t pol, mpcf_t fp, mpcf_t sumb, rdpe_t asum)
 {
-  long int wp = mpc_get_prec (pol);
+  long int wp = mpcf_get_prec (pol);
 
   if (n <= 2)
     {
       int i;
-      mpc_t ctmp, ctmp2;
+      mpcf_t ctmp, ctmp2;
 
-      mpc_init2 (ctmp, wp);
-      mpc_init2 (ctmp2, wp);
+      mpcf_init2 (ctmp, wp);
+      mpcf_init2 (ctmp2, wp);
 
       for (i = 0; i < n; i++)
         {
           rdpe_t rtmp;
 
           /* Compute z - b_i */
-          mpc_sub (ctmp, root->mvalue, bmpc[i]);
+          mpcf_sub (ctmp, root->mvalue, bmpc[i]);
 
           /* Check if we are in the case where z == b_i and return,
            * without doing any further iteration */
-          if (mpc_eq_zero (ctmp))
+          if (mpcf_eq_zero (ctmp))
             {
               return i;
             }
 
           /* Compute (z-b_i)^{-1} */
-          mpc_inv_eq (ctmp);
+          mpcf_inv_eq (ctmp);
 
           /* Compute sum of (z-b_i)^{-1} */
-          mpc_add_eq (sumb, ctmp);
+          mpcf_add_eq (sumb, ctmp);
 
           /* Compute a_i / (z - b_i) */
-          mpc_mul (ctmp2, ampc[i], ctmp);
+          mpcf_mul (ctmp2, ampc[i], ctmp);
 
           /* Compute the sum of module of (a_i/(z-b_i)) */
-          mpc_rmod (rtmp, ctmp2);
+          mpcf_rmod (rtmp, ctmp2);
           rdpe_add_eq (asum, rtmp);
 
           /* Add a_i / (z - b_i) to pol */
-          mpc_add_eq (pol, ctmp2);
+          mpcf_add_eq (pol, ctmp2);
 
           /* Compute a_i / (z - b_i)^2a */
-          mpc_mul_eq (ctmp2, ctmp);
+          mpcf_mul_eq (ctmp2, ctmp);
 
           /* Add it to fp */
-          mpc_sub_eq (fp, ctmp2);
+          mpcf_sub_eq (fp, ctmp2);
         }
 
-      mpc_clear (ctmp);
-      mpc_clear (ctmp2);
+      mpcf_clear (ctmp);
+      mpcf_clear (ctmp2);
 
       return MPS_PARALLEL_SUM_SUCCESS;
     }
@@ -530,33 +530,33 @@ mps_secular_mparallel_sum (mps_context * s, mps_approximation * root, int n, mpc
 }
 
 void
-mps_secular_mnewton (mps_context * s, mps_polynomial * p, mps_approximation * root, mpc_t corr, long int wp)
+mps_secular_mnewton (mps_context * s, mps_polynomial * p, mps_approximation * root, mpcf_t corr, long int wp)
 {
   int i;
-  mpc_t ctmp, ctmp2, pol, fp, sumb, x;
+  mpcf_t ctmp, ctmp2, pol, fp, sumb, x;
   rdpe_t apol, acorr, rtmp, epsilon;
   rdpe_t asum, asum_on_apol, ax, axeps;
   mps_secular_equation *sec = MPS_SECULAR_EQUATION (p);
 
   /* Init MP variables */
-  mpc_init2 (x, wp);
-  mpc_init2 (ctmp, wp);
-  mpc_init2 (ctmp2, wp);
-  mpc_init2 (pol, wp);
-  mpc_init2 (fp, wp);
-  mpc_init2 (sumb, wp);
+  mpcf_init2 (x, wp);
+  mpcf_init2 (ctmp, wp);
+  mpcf_init2 (ctmp2, wp);
+  mpcf_init2 (pol, wp);
+  mpcf_init2 (fp, wp);
+  mpcf_init2 (sumb, wp);
 
-  mpc_set (x, root->mvalue);
+  mpcf_set (x, root->mvalue);
 
   rdpe_set (asum, rdpe_zero);
-  mpc_rmod (ax, root->mvalue);
+  mpcf_rmod (ax, root->mvalue);
 
   /* Setup a reasonable epsilon to use for the checks such as |corr| < |x| * eps */
   rdpe_set_2dl (epsilon, 1.0, 1 - wp);
   rdpe_mul (axeps, ax, epsilon);
   rdpe_mul_eq_d (axeps, 4.0);
 
-  mpc_t *ampc, *bmpc;
+  mpcf_t *ampc, *bmpc;
 
   ampc = sec->ampc;
   bmpc = sec->bmpc;
@@ -564,10 +564,10 @@ mps_secular_mnewton (mps_context * s, mps_polynomial * p, mps_approximation * ro
   /* First set again to true */
   root->again = true;
 
-  mpc_set_ui (pol, 0U, 0U);
-  mpc_set_ui (fp, 0U, 0U);
-  mpc_set_ui (sumb, 0U, 0U);
-  mpc_set_ui (corr, 0U, 0U);
+  mpcf_set_ui (pol, 0U, 0U);
+  mpcf_set_ui (fp, 0U, 0U);
+  mpcf_set_ui (sumb, 0U, 0U);
+  mpcf_set_ui (corr, 0U, 0U);
 
   if ((i = mps_secular_mparallel_sum (s, root, MPS_POLYNOMIAL (sec)->degree, sec->ampc,
                                       sec->bmpc, pol,
@@ -576,15 +576,15 @@ mps_secular_mnewton (mps_context * s, mps_polynomial * p, mps_approximation * ro
       int k;
 
       /* Note: If we are using a limited precision polynomial mparallel sum will have computed
-       * a biased error because it will assume that the machine epsilon is 2^{- mpc_get_prec (x)}.
+       * a biased error because it will assume that the machine epsilon is 2^{- mpcf_get_prec (x)}.
        * In that case we have to correct the estimate. */
-      if (p->prec > 0 && p->prec < mpc_get_prec (pol))
+      if (p->prec > 0 && p->prec < mpcf_get_prec (pol))
         {
-          rdpe_mul_eq_d (asum, 1 << (mpc_get_prec (pol) - wp));
+          rdpe_mul_eq_d (asum, 1 << (mpcf_get_prec (pol) - wp));
         }
 
       rdpe_set (asum, rdpe_zero);
-      mpc_set_ui (corr, 0U, 0U);
+      mpcf_set_ui (corr, 0U, 0U);
 
       for (k = 0; k < MPS_POLYNOMIAL (sec)->degree; k++)
         {
@@ -592,23 +592,23 @@ mps_secular_mnewton (mps_context * s, mps_polynomial * p, mps_approximation * ro
             {
               rdpe_t rtmp;
 
-              mpc_sub (ctmp, bmpc[i], bmpc[k]);
-              mpc_add (ctmp2, ampc[i], ampc[k]);
-              mpc_inv_eq (ctmp);
-              mpc_mul_eq (ctmp2, ctmp);
-              mpc_add_eq (corr, ctmp2);
+              mpcf_sub (ctmp, bmpc[i], bmpc[k]);
+              mpcf_add (ctmp2, ampc[i], ampc[k]);
+              mpcf_inv_eq (ctmp);
+              mpcf_mul_eq (ctmp2, ctmp);
+              mpcf_add_eq (corr, ctmp2);
 
-              mpc_rmod (rtmp, ctmp2);
+              mpcf_rmod (rtmp, ctmp2);
               rdpe_add_eq (asum, rtmp);
             }
         }
 
-      mpc_sub_eq_ui (corr, 1U, 0U);
+      mpcf_sub_eq_ui (corr, 1U, 0U);
 
-      if (!mpc_eq_zero (corr))
+      if (!mpcf_eq_zero (corr))
         {
-          mpc_div (corr, ampc[i], corr);
-          mpc_rmod (acorr, corr);
+          mpcf_div (corr, ampc[i], corr);
+          mpcf_rmod (acorr, corr);
 
           if (rdpe_lt (acorr, axeps))
             {
@@ -622,26 +622,26 @@ mps_secular_mnewton (mps_context * s, mps_polynomial * p, mps_approximation * ro
     }
 
   /* Compute secular function */
-  mpc_sub_eq_ui (pol, 1U, 0U);
+  mpcf_sub_eq_ui (pol, 1U, 0U);
   rdpe_add_eq (asum, rdpe_one);
 
   /* Compute the module of pol */
-  mpc_rmod (apol, pol);
+  mpcf_rmod (apol, pol);
 
   /* Compute newton correction */
-  mpc_mul (corr, pol, sumb);
-  mpc_add_eq (corr, fp);
-  if (mpc_eq_zero (corr))
+  mpcf_mul (corr, pol, sumb);
+  mpcf_add_eq (corr, fp);
+  if (mpcf_eq_zero (corr))
     {
-      mpc_set (corr, pol);
+      mpcf_set (corr, pol);
       root->again = false;
       goto mnewton_cleanup;
     }
   else
-    mpc_div (corr, pol, corr);
+    mpcf_div (corr, pol, corr);
 
   rdpe_div (asum_on_apol, asum, apol);
-  mpc_rmod (acorr, corr);
+  mpcf_rmod (acorr, corr);
 
   /* If the approximation falls in the root neighbourhood then we can stop */
   /* In floating point, (asum_on_apol + 1) * KAPPA * DBL_EPSILON > 1 */
@@ -661,7 +661,7 @@ mps_secular_mnewton (mps_context * s, mps_polynomial * p, mps_approximation * ro
       root->again = false;
     }
 
-  if (root->again || mpc_eq_zero (corr))
+  if (root->again || mpcf_eq_zero (corr))
     {
       rdpe_t new_rad;
       rdpe_t rad_epsilon;
@@ -680,10 +680,10 @@ mps_secular_mnewton (mps_context * s, mps_polynomial * p, mps_approximation * ro
 
 mnewton_cleanup:
 
-  mpc_clear (ctmp);
-  mpc_clear (ctmp2);
-  mpc_clear (pol);
-  mpc_clear (fp);
-  mpc_clear (sumb);
-  mpc_clear (x);
+  mpcf_clear (ctmp);
+  mpcf_clear (ctmp2);
+  mpcf_clear (pol);
+  mpcf_clear (fp);
+  mpcf_clear (sumb);
+  mpcf_clear (x);
 }

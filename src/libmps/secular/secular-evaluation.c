@@ -228,12 +228,12 @@ mps_secular_deval_with_error (mps_context * s, mps_polynomial * p,
  * @param value The value of the secular equation in the point <code>x</code>.
  */
 mps_boolean
-mps_secular_meval (mps_context * s, mps_polynomial * p, mpc_t x, mpc_t value)
+mps_secular_meval (mps_context * s, mps_polynomial * p, mpcf_t x, mpcf_t value)
 {
   mps_secular_equation * sec = MPS_SECULAR_EQUATION (p);
   mps_boolean success = true;
-  mpc_t ctmp;
-  unsigned int wp = mpc_get_prec (x);
+  mpcf_t ctmp;
+  unsigned int wp = mpcf_get_prec (x);
   int i;
 
   /* Lower the working precision in case of limited precision coefficients
@@ -241,26 +241,26 @@ mps_secular_meval (mps_context * s, mps_polynomial * p, mpc_t x, mpc_t value)
   if (p->prec > 0 && p->prec < wp)
     wp = p->prec;
 
-  mpc_init2 (ctmp, wp);
-  mpc_set_ui (value, 0U, 0U);
+  mpcf_init2 (ctmp, wp);
+  mpcf_set_ui (value, 0U, 0U);
 
   for (i = 0; i < s->n; ++i)
     {
-      mpc_sub (ctmp, x, sec->bmpc[i]);
-      if (mpc_eq_zero (ctmp))
+      mpcf_sub (ctmp, x, sec->bmpc[i]);
+      if (mpcf_eq_zero (ctmp))
         {
           success = false;
           goto cleanup;
         }
 
-      mpc_div (ctmp, sec->ampc[i], ctmp);
-      mpc_add_eq (value, ctmp);
+      mpcf_div (ctmp, sec->ampc[i], ctmp);
+      mpcf_add_eq (value, ctmp);
     }
 
-  mpc_sub_eq_ui (value, 1U, 0U);
+  mpcf_sub_eq_ui (value, 1U, 0U);
 
 cleanup:
-  mpc_clear (ctmp);
+  mpcf_clear (ctmp);
   return success;
 }
 
@@ -274,13 +274,13 @@ cleanup:
  * @param error A bound to the absolute value of the error introduced in the computation.
  */
 mps_boolean
-mps_secular_meval_with_error (mps_context * s, mps_polynomial * p, mpc_t x, mpc_t value, rdpe_t error)
+mps_secular_meval_with_error (mps_context * s, mps_polynomial * p, mpcf_t x, mpcf_t value, rdpe_t error)
 {
   mps_secular_equation * sec = MPS_SECULAR_EQUATION (p);
-  mpc_t ctmp;
+  mpcf_t ctmp;
   rdpe_t rtmp, ax;
   cdpe_t cdtmp;
-  unsigned int wp = mpc_get_prec (x);
+  unsigned int wp = mpcf_get_prec (x);
   int i;
 
   mps_boolean successful_evaluation = true;
@@ -290,38 +290,38 @@ mps_secular_meval_with_error (mps_context * s, mps_polynomial * p, mpc_t x, mpc_
   if (p->prec > 0 && p->prec < wp)
     wp = p->prec;
 
-  if (mpc_get_prec (sec->ampc[0]) < wp)
+  if (mpcf_get_prec (sec->ampc[0]) < wp)
     mps_polynomial_raise_data (s, p, wp);
 
-  mpc_init2 (ctmp, wp);
-  mpc_set_ui (value, 0U, 0U);
-  mpc_set_prec (value, wp);
+  mpcf_init2 (ctmp, wp);
+  mpcf_set_ui (value, 0U, 0U);
+  mpcf_set_prec (value, wp);
 
   /* Get |x| */
-  mpc_rmod (ax, x);
+  mpcf_rmod (ax, x);
 
   rdpe_set (error, rdpe_zero);
 
   for (i = 0; i < s->n; i++)
     {
-      mpc_sub (ctmp, x, sec->bmpc[i]);
+      mpcf_sub (ctmp, x, sec->bmpc[i]);
 
-      if (mpc_eq_zero (ctmp))
+      if (mpcf_eq_zero (ctmp))
         {
           successful_evaluation = false;
           goto cleanup;
         }
 
-      mpc_div (ctmp, sec->ampc[i], ctmp);
-      mpc_add_eq (value, ctmp);
+      mpcf_div (ctmp, sec->ampc[i], ctmp);
+      mpcf_add_eq (value, ctmp);
 
-      mpc_get_cdpe (cdtmp, ctmp);
+      mpcf_get_cdpe (cdtmp, ctmp);
       cdpe_mod (rtmp, cdtmp);
       rdpe_mul_eq_d (rtmp, i + 2);
       rdpe_add_eq (error, rtmp);
     }
 
-  mpc_sub_eq_ui (value, 1U, 0U);
+  mpcf_sub_eq_ui (value, 1U, 0U);
   rdpe_add_eq (error, rdpe_one);
 
   if (p->prec < wp)
@@ -333,7 +333,7 @@ mps_secular_meval_with_error (mps_context * s, mps_polynomial * p, mpc_t x, mpc_
 
 cleanup:
 
-  mpc_clear (ctmp);
+  mpcf_clear (ctmp);
 
   return successful_evaluation;
 }

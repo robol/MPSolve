@@ -173,16 +173,16 @@ mps_dhessenberg_shifted_determinant (mps_context * ctx, cdpe_t * hessenberg_matr
  * @param error A bound on the error.
  */
 MPS_PRIVATE void
-mps_mhessenberg_determinant (mps_context * ctx, mpc_t * hessenberg_matrix, size_t n, mpc_t output, rdpe_t error)
+mps_mhessenberg_determinant (mps_context * ctx, mpcf_t * hessenberg_matrix, size_t n, mpcf_t output, rdpe_t error)
 {
-  mpc_t zero;
+  mpcf_t zero;
 
-  mpc_init2 (zero, mpc_get_prec (output));
-  mpc_set_ui (zero, 0U, 0U);
+  mpcf_init2 (zero, mpcf_get_prec (output));
+  mpcf_set_ui (zero, 0U, 0U);
 
   mps_mhessenberg_shifted_determinant (ctx, hessenberg_matrix, zero, n, output, error);
 
-  mpc_clear (zero);
+  mpcf_clear (zero);
 }
 
 
@@ -198,14 +198,14 @@ mps_mhessenberg_determinant (mps_context * ctx, mpc_t * hessenberg_matrix, size_
  * @param error A bound on the error.
  */
 MPS_PRIVATE void
-mps_mhessenberg_shifted_determinant (mps_context * ctx, mpc_t * hessenberg_matrix, mpc_t shift, size_t n, mpc_t output, rdpe_t error)
+mps_mhessenberg_shifted_determinant (mps_context * ctx, mpcf_t * hessenberg_matrix, mpcf_t shift, size_t n, mpcf_t output, rdpe_t error)
 {
-  mpc_t *matrix = mps_newv (mpc_t, n * n);
+  mpcf_t *matrix = mps_newv (mpcf_t, n * n);
   size_t local_n = n;
-  long int wp = mpc_get_prec (output);
-  mps_boolean shifted = !mpc_eq_zero (shift);
+  long int wp = mpcf_get_prec (output);
+  mps_boolean shifted = !mpcf_eq_zero (shift);
   int i, j;
-  mpc_t t, s;
+  mpcf_t t, s;
   rdpe_t mod, epsilon;
 
   rdpe_t *verrors = mps_newv (rdpe_t, n);
@@ -213,9 +213,9 @@ mps_mhessenberg_shifted_determinant (mps_context * ctx, mpc_t * hessenberg_matri
   memset (verrors, 0, sizeof(rdpe_t) * n);
 
   /* Init the elements in the matrix */
-  mpc_init2 (t, wp);
-  mpc_init2 (s, wp);
-  mpc_vinit2 (matrix, n * n, wp);
+  mpcf_init2 (t, wp);
+  mpcf_init2 (s, wp);
+  mpcf_vinit2 (matrix, n * n, wp);
 
   rdpe_set_2dl (epsilon, 1.0, 1 - wp);
   rdpe_set (error, rdpe_one);
@@ -226,11 +226,11 @@ mps_mhessenberg_shifted_determinant (mps_context * ctx, mpc_t * hessenberg_matri
       for (j = 0; j < n; j++)
         {
           if ((i == j) && shifted)
-            mpc_sub (MPS_MATRIX_ELEM (matrix, i, j, n),
+            mpcf_sub (MPS_MATRIX_ELEM (matrix, i, j, n),
                      MPS_MATRIX_ELEM (hessenberg_matrix, i, j, n),
                      shift);
           else
-            mpc_set (MPS_MATRIX_ELEM (matrix, i, j, n),
+            mpcf_set (MPS_MATRIX_ELEM (matrix, i, j, n),
                      MPS_MATRIX_ELEM (hessenberg_matrix, i, j, n));
         }
     }
@@ -240,8 +240,8 @@ mps_mhessenberg_shifted_determinant (mps_context * ctx, mpc_t * hessenberg_matri
       /* Recursively compress the last two cols of the matrix */
       rdpe_t err_a_bottom, err_b_bottom, tmp;
 
-      mpc_rmod (err_a_bottom, MPS_MATRIX_ELEM (matrix, local_n, local_n - 1, n));
-      mpc_rmod (err_b_bottom, MPS_MATRIX_ELEM (matrix, local_n, local_n, n));
+      mpcf_rmod (err_a_bottom, MPS_MATRIX_ELEM (matrix, local_n, local_n - 1, n));
+      mpcf_rmod (err_b_bottom, MPS_MATRIX_ELEM (matrix, local_n, local_n, n));
 
       rdpe_mul (tmp, err_b_bottom, epsilon);
       rdpe_add_eq (verrors[local_n], tmp);
@@ -250,8 +250,8 @@ mps_mhessenberg_shifted_determinant (mps_context * ctx, mpc_t * hessenberg_matri
         {
           rdpe_t err_a, err_b;
 
-          mpc_rmod (err_a, MPS_MATRIX_ELEM (matrix, i, local_n - 1, n));
-          mpc_rmod (err_b, MPS_MATRIX_ELEM (matrix, i, local_n, n));
+          mpcf_rmod (err_a, MPS_MATRIX_ELEM (matrix, i, local_n - 1, n));
+          mpcf_rmod (err_b, MPS_MATRIX_ELEM (matrix, i, local_n, n));
 
           rdpe_mul_eq (err_a, verrors[local_n]);
 
@@ -259,13 +259,13 @@ mps_mhessenberg_shifted_determinant (mps_context * ctx, mpc_t * hessenberg_matri
           rdpe_add_eq (err_b, verrors[i]);
           rdpe_mul_eq (err_b, err_a_bottom);
 
-          mpc_mul (s, MPS_MATRIX_ELEM (matrix, i, local_n - 1, n),
+          mpcf_mul (s, MPS_MATRIX_ELEM (matrix, i, local_n - 1, n),
                    MPS_MATRIX_ELEM (matrix, local_n, local_n, n));
-          mpc_mul (t, MPS_MATRIX_ELEM (matrix, i, local_n, n),
+          mpcf_mul (t, MPS_MATRIX_ELEM (matrix, i, local_n, n),
                    MPS_MATRIX_ELEM (matrix, local_n, local_n - 1, n));
-          mpc_sub (MPS_MATRIX_ELEM (matrix, i, local_n - 1, n), s, t);
+          mpcf_sub (MPS_MATRIX_ELEM (matrix, i, local_n - 1, n), s, t);
 
-          mpc_rmod (mod, MPS_MATRIX_ELEM (matrix, i, local_n - 1, n));
+          mpcf_rmod (mod, MPS_MATRIX_ELEM (matrix, i, local_n - 1, n));
           rdpe_mul_eq (mod, epsilon);
 
           rdpe_add_eq (verrors[i], mod);
@@ -276,11 +276,11 @@ mps_mhessenberg_shifted_determinant (mps_context * ctx, mpc_t * hessenberg_matri
 
   rdpe_set (error, verrors[0]);
 
-  mpc_set (output, *matrix);
+  mpcf_set (output, *matrix);
 
-  mpc_vclear (matrix, n * n);
+  mpcf_vclear (matrix, n * n);
   free (matrix);
 
-  mpc_clear (t);
-  mpc_clear (s);
+  mpcf_clear (t);
+  mpcf_clear (s);
 }

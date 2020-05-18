@@ -35,17 +35,17 @@ mexFunction (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
   mpz_set_si (b, 1);
   mpq_set_si (c, 1, 1);
 
-  mpc_t d, f;
-  mpc_init2 (d, 16 * n);
-  mpc_init2 (f, 16 * n);
-  mpc_set_ui (d, 1U, 0U);
+  mpcf_t d, f;
+  mpcf_init2 (d, 16 * n);
+  mpcf_init2 (f, 16 * n);
+  mpcf_set_ui (d, 1U, 0U);
 
-  mpf_set_q (mpc_Re (d), c);
+  mpf_set_q (mpcf_Re (d), c);
 
   if (perturbations)
     {
-      mpf_set_d (mpc_Re (f), perturbations[0]);
-      mpc_mul_eq (d, f);
+      mpf_set_d (mpcf_Re (f), perturbations[0]);
+      mpcf_mul_eq (d, f);
     }
   mps_monomial_poly_set_coefficient_f (ctx, mp, 0, d);
   
@@ -57,25 +57,25 @@ mexFunction (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
       mpz_divexact_ui (a, a, n - i);
 
       mpq_set_z (c, a);
-      mpf_set_q (mpc_Re (d), c);
+      mpf_set_q (mpcf_Re (d), c);
 
-      mpf_sqrt (mpc_Re (d), mpc_Re (d));
+      mpf_sqrt (mpcf_Re (d), mpcf_Re (d));
 
       if (perturbations)
 	{
-	  mpf_set_d (mpc_Re (f), random_perturbation);
-	  mpf_mul_eq (mpc_Re (d), mpc_Re (f));
+	  mpf_set_d (mpcf_Re (f), random_perturbation);
+	  mpf_mul_eq (mpcf_Re (d), mpcf_Re (f));
 	}
       /* This can be used as a crude debug for the computed coefficients */
-      /* printf("Coeff: %f\n", pow(mpf_get_d (mpc_Re (d)), 2)); */
+      /* printf("Coeff: %f\n", pow(mpf_get_d (mpcf_Re (d)), 2)); */
 
       mps_monomial_poly_set_coefficient_f (ctx, mp, n - i, d);
       mpz_set (b, a);
     }
 
   mpq_clear (c); 
-  mpc_clear (d);
-  mpc_clear (f);
+  mpcf_clear (d);
+  mpcf_clear (f);
   mpz_clear (a);
   mpz_clear (b);
 
@@ -119,7 +119,7 @@ mexFunction (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
     }
   else
     {
-      mpc_t * mresults = NULL;
+      mpcf_t * mresults = NULL;
       rdpe_t * _radii = NULL;
       char * buffer_r, * buffer_i;
       int ndim = 2;
@@ -137,10 +137,10 @@ mexFunction (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
 	  mp_exp_t rexp, iexp;
 
 	  buffer_r = buffer_i = NULL;
-	  buffer_r = mpf_get_str (buffer_r, &rexp, 10, 0, mpc_Re (mresults[i]));
-	  buffer_i = mpf_get_str (buffer_i, &iexp, 10, 0, mpc_Im (mresults[i]));
+	  buffer_r = mpf_get_str (buffer_r, &rexp, 10, 0, mpcf_Re (mresults[i]));
+	  buffer_i = mpf_get_str (buffer_i, &iexp, 10, 0, mpcf_Im (mresults[i]));
 
-	  mpc_clear (mresults[i]);
+	  mpcf_clear (mresults[i]);
 
 	  mxSetCell (roots,
 		     mxCalcSingleSubscript(roots, 2, indices),

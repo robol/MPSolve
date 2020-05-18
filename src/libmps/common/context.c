@@ -224,14 +224,14 @@ mps_context_shrink (mps_context * s, int n)
   s->fppc1 = mps_realloc (s->fppc1, sizeof(cplx_t) * (n + 1));
 
   for (i = n + 1; i <= s->n - s->zero_roots; i++)
-    mpc_clear (s->mfpc1[i]);
+    mpcf_clear (s->mfpc1[i]);
 
-  s->mfpc1 = mps_realloc (s->mfpc1, sizeof(mpc_t) * (n + 1));
+  s->mfpc1 = mps_realloc (s->mfpc1, sizeof(mpcf_t) * (n + 1));
 
   for (i = n + 1; i <= s->n- s->zero_roots; i++)
-    mpc_clear (s->mfppc1[i]);
+    mpcf_clear (s->mfppc1[i]);
 
-  s->mfppc1 = mps_realloc (s->mfppc1, sizeof(mpc_t) * (n + 1));
+  s->mfppc1 = mps_realloc (s->mfppc1, sizeof(mpcf_t) * (n + 1));
 
   /* temporary vectors */
   s->spar1 = mps_realloc (s->spar1, sizeof(mps_boolean) * (n + 2));
@@ -254,7 +254,7 @@ static void
 mps_context_expand (mps_context * s, int n)
 {
   int i;
-  long int previous_prec = mpc_get_prec (s->mfpc1[0]);
+  long int previous_prec = mpcf_get_prec (s->mfpc1[0]);
 
   s->root = mps_realloc (s->root, sizeof(mps_approximation*) * n);
   for (i = s->n - s->zero_roots; i < n; i++)
@@ -265,14 +265,14 @@ mps_context_expand (mps_context * s, int n)
   s->order = mps_realloc (s->order, sizeof(int) * n);
 
   s->fppc1 = mps_realloc (s->fppc1, sizeof(cplx_t) * (n + 1));
-  s->mfpc1 = mps_realloc (s->mfpc1, sizeof(mpc_t) * (n + 1));
+  s->mfpc1 = mps_realloc (s->mfpc1, sizeof(mpcf_t) * (n + 1));
 
   for (i = s->n + 1 - s->zero_roots; i < n + 1; i++)
-    mpc_init2 (s->mfpc1[i], previous_prec);
+    mpcf_init2 (s->mfpc1[i], previous_prec);
 
-  s->mfppc1 = mps_realloc (s->mfppc1, sizeof(mpc_t) * (n + 1));
+  s->mfppc1 = mps_realloc (s->mfppc1, sizeof(mpcf_t) * (n + 1));
   for (i = s->n + 1- s->zero_roots; i <= n; i++)
-    mpc_init2 (s->mfppc1[i], previous_prec);
+    mpcf_init2 (s->mfppc1[i], previous_prec);
 
   /* temporary vectors */
   s->spar1 = mps_realloc (s->spar1, sizeof(mps_boolean) * (n + 2));
@@ -489,7 +489,7 @@ mps_context_get_roots_d (mps_context * s, cplx_t ** roots, double **radius)
 
       if (s->lastphase == mp_phase)
         {
-          mpc_get_cplx ((*roots)[i], s->root[i]->mvalue);
+          mpcf_get_cplx ((*roots)[i], s->root[i]->mvalue);
         }
       else if (s->lastphase == float_phase)
         {
@@ -506,7 +506,7 @@ mps_context_get_roots_d (mps_context * s, cplx_t ** roots, double **radius)
 /**
  * @brief Get the roots computed as multiprecision complex numbers.
  *
- * @param roots A pointer to an array of mpc_t variables. if *roots == NULL,
+ * @param roots A pointer to an array of mpcf_t variables. if *roots == NULL,
  * MPSolve will take care of allocate and init those for you. You are in charge to free
  * and clear them when you don't need them anymore.
  *
@@ -515,14 +515,14 @@ mps_context_get_roots_d (mps_context * s, cplx_t ** roots, double **radius)
  * If radius == NULL no radii will be returned.
  */
 int
-mps_context_get_roots_m (mps_context * s, mpc_t ** roots, rdpe_t ** radius)
+mps_context_get_roots_m (mps_context * s, mpcf_t ** roots, rdpe_t ** radius)
 {
   int i;
 
   if (!*roots)
     {
-      *roots = mpc_valloc (s->n);
-      mpc_vinit2 (*roots, s->n, 0);
+      *roots = mpcf_valloc (s->n);
+      mpcf_vinit2 (*roots, s->n, 0);
     }
 
   if (radius && !*radius)
@@ -531,13 +531,13 @@ mps_context_get_roots_m (mps_context * s, mpc_t ** roots, rdpe_t ** radius)
     }
 
   {
-    mpc_t * local_roots = *roots;
+    mpcf_t * local_roots = *roots;
     rdpe_t * local_radius = radius ? *radius : NULL;
 
     for (i = 0; i < s->n; i++)
       {
-        mpc_set_prec (local_roots[i], mpc_get_prec (s->root[i]->mvalue));
-        mpc_set (local_roots[i], s->root[i]->mvalue);
+        mpcf_set_prec (local_roots[i], mpcf_get_prec (s->root[i]->mvalue));
+        mpcf_set (local_roots[i], s->root[i]->mvalue);
 
         if (radius)
           rdpe_set (local_radius[i], s->root[i]->drad);
@@ -582,8 +582,8 @@ mps_context_get_approximations (mps_context * ctx)
       approximations[i] = mps_approximation_copy (ctx, ctx->root[i]);
 
       /* Copy relevant data from the multiprecision values */
-      mpc_get_cdpe (approximations[i]->dvalue, approximations[i]->mvalue);
-      mpc_get_cplx (approximations[i]->fvalue, approximations[i]->mvalue);
+      mpcf_get_cdpe (approximations[i]->dvalue, approximations[i]->mvalue);
+      mpcf_get_cplx (approximations[i]->fvalue, approximations[i]->mvalue);
       approximations[i]->frad = rdpe_get_d (approximations[i]->drad);
     }
 
@@ -592,7 +592,7 @@ mps_context_get_approximations (mps_context * ctx)
       approximations[i] = mps_approximation_new (ctx);
       approximations[i]->status = MPS_ROOT_STATUS_APPROXIMATED;
 
-      mpc_set_ui (approximations[i]->mvalue, 0U, 0U);
+      mpcf_set_ui (approximations[i]->mvalue, 0U, 0U);
       cdpe_set (approximations[i]->dvalue, cdpe_zero);
       cplx_set (approximations[i]->fvalue, cplx_zero);
 

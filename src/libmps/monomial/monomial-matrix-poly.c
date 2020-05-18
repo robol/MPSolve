@@ -26,11 +26,11 @@ mps_monomial_matrix_poly_new (mps_context * ctx, int degree, int m, mps_boolean 
 
   /* Allocation of the necessary memory to hold all the matrices. */
   poly->P = mps_newv (cplx_t, poly->m * poly->m * (degree + 1));
-  poly->mP = mps_newv (mpc_t, poly->m * poly->m * (degree + 1));
+  poly->mP = mps_newv (mpcf_t, poly->m * poly->m * (degree + 1));
   poly->mpqPr = mps_newv (mpq_t, poly->m * poly->m * (degree + 1));
   poly->mpqPi = mps_newv (mpq_t, poly->m * poly->m * (degree + 1));
 
-  mpc_vinit2 (poly->mP, poly->m * poly->m * (degree + 1), ctx->mpwp);
+  mpcf_vinit2 (poly->mP, poly->m * poly->m * (degree + 1), ctx->mpwp);
   mpq_vinit (poly->mpqPr, poly->m * poly->m * (degree + 1));
   mpq_vinit (poly->mpqPi, poly->m * poly->m * (degree + 1));
 
@@ -54,7 +54,7 @@ mps_monomial_matrix_poly_free (mps_context * ctx, mps_polynomial * poly)
 
   free (mpoly->P);
 
-  mpc_vclear (mpoly->mP, mpoly->m * (poly->degree + mpoly->m));
+  mpcf_vclear (mpoly->mP, mpoly->m * (poly->degree + mpoly->m));
   free (mpoly->mP);
 
   mpq_vclear (mpoly->mpqPr, mpoly->m * (poly->degree + mpoly->m));
@@ -119,7 +119,7 @@ mps_monomial_matrix_poly_set_coefficient_d (mps_context * ctx,
       if (cplx_Im (matrix[j]) != 0.0)
         poly->structure = MPS_STRUCTURE_COMPLEX_FP;
 
-      mpc_set_cplx (mpoly->mP[j], mpoly->P[j]);
+      mpcf_set_cplx (mpoly->mP[j], mpoly->P[j]);
     }
 }
 
@@ -161,7 +161,7 @@ mps_monomial_matrix_poly_set_coefficient_q (mps_context * ctx,
 
 mps_boolean
 mps_monomial_matrix_poly_meval (mps_context * ctx, mps_polynomial * poly,
-                                mpc_t x, mpc_t value, rdpe_t error)
+                                mpcf_t x, mpcf_t value, rdpe_t error)
 {
   mps_monomial_matrix_poly *mpoly = MPS_MONOMIAL_MATRIX_POLY (poly);
 
@@ -173,8 +173,8 @@ mps_monomial_matrix_poly_meval (mps_context * ctx, mps_polynomial * poly,
 
   /* TODO: This is not thread safe - at all! Insert a double buffer strategy
    * in here, as for the case of mps_monomial_poly. */
-  if (mpc_get_prec (mpoly->mP[0]) < mpc_get_prec (value))
-    mps_monomial_matrix_poly_raise_data (ctx, poly, mpc_get_prec (value));
+  if (mpcf_get_prec (mpoly->mP[0]) < mpcf_get_prec (value))
+    mps_monomial_matrix_poly_raise_data (ctx, poly, mpcf_get_prec (value));
 
   /* Otherwise just proceed with Horner and our recursive implementation. */
   /* TODO: We are performing a floating point evaluation here, just for simplicity. */
@@ -194,14 +194,14 @@ mps_monomial_matrix_poly_raise_data (mps_context * ctx,
 
   for (i = 0; i < n_elems; i++)
     {
-      mpc_set_prec (mpoly->mP[i], wp);
+      mpcf_set_prec (mpoly->mP[i], wp);
     }
 
   if (MPS_STRUCTURE_IS_INTEGER (p->structure) ||
       MPS_STRUCTURE_IS_RATIONAL (p->structure))
     {
-      mpc_set_q (mpoly->mP[i], mpoly->mpqPr[i], mpoly->mpqPi[i]);
+      mpcf_set_q (mpoly->mP[i], mpoly->mpqPr[i], mpoly->mpqPi[i]);
     }
 
-  return mpc_get_prec (mpoly->mP[0]);
+  return mpcf_get_prec (mpoly->mP[0]);
 }

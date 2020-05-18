@@ -63,7 +63,7 @@
  * functions, such as DPE and MP. */
 #include <mps/mt.h>
 #include <mps/gmptools.h>
-#include <mps/mpc.h>
+#include <mps/mpcf.h>
 #include <mps/link.h>
 #include <mps/polynomial.h>
 

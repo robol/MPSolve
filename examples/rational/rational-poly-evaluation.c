@@ -63,51 +63,51 @@ mps_boolean mps_rational_poly_deval (mps_context * ctx, mps_polynomial * p,
 }
 
 mps_boolean mps_rational_poly_meval (mps_context * ctx, mps_polynomial * p, 
-				     mpc_t x, mpc_t value, rdpe_t error)
+				     mpcf_t x, mpcf_t value, rdpe_t error)
 {
   mps_rational_poly * rp = MPS_RATIONAL_POLY (p);
   int i;
-  mpc_t mtmp1, prod, a, b, c;
+  mpcf_t mtmp1, prod, a, b, c;
   rdpe_t rtmp1;
 
-  long int wp = mpc_get_prec (value);
+  long int wp = mpcf_get_prec (value);
 
-  mpc_set_ui (value, 0U, 0U);
+  mpcf_set_ui (value, 0U, 0U);
   rdpe_set (error, rdpe_zero);
 
-  mpc_init2 (a, wp);
-  mpc_init2 (b, wp);
-  mpc_init2 (c, wp);
-  mpc_init2 (mtmp1, wp);
-  mpc_init2 (prod, wp);
+  mpcf_init2 (a, wp);
+  mpcf_init2 (b, wp);
+  mpcf_init2 (c, wp);
+  mpcf_init2 (mtmp1, wp);
+  mpcf_init2 (prod, wp);
 
-  mpc_set_ui (prod, 1U, 0U);
+  mpcf_set_ui (prod, 1U, 0U);
 
   /* Sum all the terms of the form c_i / (a_i + x * b_i)^p */
   for (i = 0; i < rp->nn; i++)
     {
-      mpc_set_d (a, cplx_Re (rp->a[i]), cplx_Im (rp->a[i]));
-      mpc_set_d (b, cplx_Re (rp->b[i]), cplx_Im (rp->b[i]));
-      mpc_set_d (c, cplx_Re (rp->c[i]), cplx_Im (rp->c[i]));
+      mpcf_set_d (a, cplx_Re (rp->a[i]), cplx_Im (rp->a[i]));
+      mpcf_set_d (b, cplx_Re (rp->b[i]), cplx_Im (rp->b[i]));
+      mpcf_set_d (c, cplx_Re (rp->c[i]), cplx_Im (rp->c[i]));
 
-      mpc_mul (mtmp1, b, x);
-      mpc_add_eq (mtmp1, a);
-      mpc_pow_si (mtmp1, mtmp1, rp->pp);
-      mpc_mul_eq (prod, mtmp1);
-      mpc_div (mtmp1, c, mtmp1);
+      mpcf_mul (mtmp1, b, x);
+      mpcf_add_eq (mtmp1, a);
+      mpcf_pow_si (mtmp1, mtmp1, rp->pp);
+      mpcf_mul_eq (prod, mtmp1);
+      mpcf_div (mtmp1, c, mtmp1);
 
-      mpc_rmod (rtmp1, mtmp1);
+      mpcf_rmod (rtmp1, mtmp1);
       rdpe_add_eq (error, rtmp1);
 
-      mpc_add_eq (value, mtmp1);
+      mpcf_add_eq (value, mtmp1);
     }
 
-  mpc_mul_eq (value, prod);
+  mpcf_mul_eq (value, prod);
 
-  mpc_clear (a);
-  mpc_clear (b);
-  mpc_clear (c);
-  mpc_clear (mtmp1);
+  mpcf_clear (a);
+  mpcf_clear (b);
+  mpcf_clear (c);
+  mpcf_clear (mtmp1);
 
   rdpe_mul_eq_d (error, DBL_EPSILON * 6);  
 }

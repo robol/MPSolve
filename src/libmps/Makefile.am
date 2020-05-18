@@ -54,7 +54,7 @@ libmps_la_SOURCES = \
 	formal/formal-polynomial.cpp \
 	floating-point/gmptools.c \
 	floating-point/link.c \
-	floating-point/mpc.c \
+	floating-point/mpcf.c \
 	floating-point/mt.c \
 	general/general-radius.c \
 	general/general-starting.c \

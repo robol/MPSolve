@@ -143,20 +143,20 @@ mps_quadratic_poly_dnewton (mps_context * ctx, mps_polynomial * poly, mps_approx
  */
 void 
 mps_quadratic_poly_mnewton (mps_context * ctx, mps_polynomial * poly, 
-			     mps_approximation * root, mpc_t corr, long int wp)
+			     mps_approximation * root, mpcf_t corr, long int wp)
 {
   int i, m, n = poly->degree;
   rdpe_t ap, ax, eps, temp, apeps, atmp, epsilon, drad;
   cdpe_t ctmp;
-  mpc_t p, pp, pt, tmp, x;
+  mpcf_t p, pp, pt, tmp, x;
   mps_boolean again;
 
-  mpc_init2 (p, wp);
-  mpc_init2 (pp, wp);
-  mpc_init2 (pt, wp);
-  mpc_init2 (tmp, wp);
+  mpcf_init2 (p, wp);
+  mpcf_init2 (pp, wp);
+  mpcf_init2 (pt, wp);
+  mpcf_init2 (tmp, wp);
 
-  mpc_init2 (x, wp);
+  mpcf_init2 (x, wp);
   mps_approximation_get_mvalue (ctx, root, x);
   mps_approximation_get_drad (ctx, root, drad);
   again = mps_approximation_get_again (ctx, root);
@@ -168,31 +168,31 @@ mps_quadratic_poly_mnewton (mps_context * ctx, mps_polynomial * poly,
     m++;
   rdpe_set (eps, epsilon);
   rdpe_mul_eq_d (eps, (double) 4 * n);
-  mpc_get_cdpe (ctmp, x);
+  mpcf_get_cdpe (ctmp, x);
   cdpe_mod (ax, ctmp);
 
-  mpc_set_ui (p, 1, 0);
-  mpc_set_ui (pp, 0, 0);
+  mpcf_set_ui (p, 1, 0);
+  mpcf_set_ui (pp, 0, 0);
   rdpe_set (ap, rdpe_one);
   for (i = 1; i <= m; i++)
     {
-      mpc_sqr (tmp, p);
-      mpc_mul (pt, x, tmp);
-      mpc_add_eq_ui (pt, 1, 0);
-      mpc_mul_eq (pp, x);
-      mpc_mul_eq (pp, p);
-      mpc_mul_eq_ui (pp, 2);
-      mpc_add_eq (pp, tmp);
-      mpc_set (p, pt);
+      mpcf_sqr (tmp, p);
+      mpcf_mul (pt, x, tmp);
+      mpcf_add_eq_ui (pt, 1, 0);
+      mpcf_mul_eq (pp, x);
+      mpcf_mul_eq (pp, p);
+      mpcf_mul_eq_ui (pp, 2);
+      mpcf_add_eq (pp, tmp);
+      mpcf_set (p, pt);
       rdpe_mul_eq (ap, ax);
-      mpc_get_cdpe (ctmp, p);
+      mpcf_get_cdpe (ctmp, p);
       cdpe_mod (atmp, ctmp);
       rdpe_add_eq (ap, atmp);
     }
   rdpe_mul_eq (ap, ax);
-  mpc_div (corr, p, pp);
+  mpcf_div (corr, p, pp);
 
-  mpc_get_cdpe (ctmp, p);
+  mpcf_get_cdpe (ctmp, p);
   cdpe_mod (temp, ctmp);
   rdpe_mul (apeps, ap, eps);
   rdpe_mul_eq_d (apeps, 3.0);
@@ -200,7 +200,7 @@ mps_quadratic_poly_mnewton (mps_context * ctx, mps_polynomial * poly,
 
   rdpe_add (drad, temp, apeps);
   rdpe_mul_eq_d (drad, (double) n);
-  mpc_get_cdpe (ctmp, pp);
+  mpcf_get_cdpe (ctmp, pp);
   cdpe_mod (temp, ctmp);
   rdpe_div_eq (drad, temp);
   if (rdpe_eq (drad, rdpe_zero))
@@ -209,9 +209,9 @@ mps_quadratic_poly_mnewton (mps_context * ctx, mps_polynomial * poly,
   mps_approximation_set_drad (ctx, root, drad);
   mps_approximation_set_again (ctx, root, again);
 
-  mpc_clear (tmp);
-  mpc_clear (pt);
-  mpc_clear (pp);
-  mpc_clear (p);
-  mpc_clear (x);
+  mpcf_clear (tmp);
+  mpcf_clear (pt);
+  mpcf_clear (pp);
+  mpcf_clear (p);
+  mpcf_clear (x);
 }

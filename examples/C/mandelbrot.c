@@ -137,49 +137,49 @@ dnewton_usr (mps_context * s, cdpe_t x, rdpe_t rad, cdpe_t corr,
  multiprecision computation
 ******************************************************/
 void
-mnewton_usr (mps_context * s, mpc_t x, rdpe_t rad, mpc_t corr,
+mnewton_usr (mps_context * s, mpcf_t x, rdpe_t rad, mpcf_t corr,
              mps_boolean * again)
 {
   int i, m;
   rdpe_t ap, ax, eps, temp, apeps, atmp;
   cdpe_t ctmp;
-  tmpc_t p, pp, pt, tmp;
+  tmpcf_t p, pp, pt, tmp;
 
-  tmpc_init2 (p, s->mpwp);
-  tmpc_init2 (pp, s->mpwp);
-  tmpc_init2 (pt, s->mpwp);
-  tmpc_init2 (tmp, s->mpwp);
+  tmpcf_init2 (p, s->mpwp);
+  tmpcf_init2 (pp, s->mpwp);
+  tmpcf_init2 (pt, s->mpwp);
+  tmpcf_init2 (tmp, s->mpwp);
 
   m = (int) (log (s->n + 1.0) / LOG2);
   if ((1 << m) <= s->n)
     m++;
   rdpe_set (eps, s->mp_epsilon);
   rdpe_mul_eq_d (eps, (double) 4 * s->n);
-  mpc_get_cdpe (ctmp, x);
+  mpcf_get_cdpe (ctmp, x);
   cdpe_mod (ax, ctmp);
 
-  mpc_set_ui (p, 1, 0);
-  mpc_set_ui (pp, 0, 0);
+  mpcf_set_ui (p, 1, 0);
+  mpcf_set_ui (pp, 0, 0);
   rdpe_set (ap, rdpe_one);
   for (i = 1; i <= m; i++)
     {
-      mpc_sqr (tmp, p);
-      mpc_mul (pt, x, tmp);
-      mpc_add_eq_ui (pt, 1, 0);
-      mpc_mul_eq (pp, x);
-      mpc_mul_eq (pp, p);
-      mpc_mul_eq_ui (pp, 2);
-      mpc_add_eq (pp, tmp);
-      mpc_set (p, pt);
+      mpcf_sqr (tmp, p);
+      mpcf_mul (pt, x, tmp);
+      mpcf_add_eq_ui (pt, 1, 0);
+      mpcf_mul_eq (pp, x);
+      mpcf_mul_eq (pp, p);
+      mpcf_mul_eq_ui (pp, 2);
+      mpcf_add_eq (pp, tmp);
+      mpcf_set (p, pt);
       rdpe_mul_eq (ap, ax);
-      mpc_get_cdpe (ctmp, p);
+      mpcf_get_cdpe (ctmp, p);
       cdpe_mod (atmp, ctmp);
       rdpe_add_eq (ap, atmp);
     }
   rdpe_mul_eq (ap, ax);
-  mpc_div (corr, p, pp);
+  mpcf_div (corr, p, pp);
 
-  mpc_get_cdpe (ctmp, p);
+  mpcf_get_cdpe (ctmp, p);
   cdpe_mod (temp, ctmp);
   rdpe_mul (apeps, ap, eps);
   rdpe_mul_eq_d (apeps, 3.0);
@@ -187,16 +187,16 @@ mnewton_usr (mps_context * s, mpc_t x, rdpe_t rad, mpc_t corr,
 
   rdpe_add (rad, temp, apeps);
   rdpe_mul_eq_d (rad, (double) s->n);
-  mpc_get_cdpe (ctmp, pp);
+  mpcf_get_cdpe (ctmp, pp);
   cdpe_mod (temp, ctmp);
   rdpe_div_eq (rad, temp);
   if (rdpe_eq (rad, rdpe_zero))
     rdpe_mul (rad, ax, eps);
 
-  tmpc_clear (tmp);
-  tmpc_clear (pt);
-  tmpc_clear (pp);
-  tmpc_clear (p);
+  tmpcf_clear (tmp);
+  tmpcf_clear (pt);
+  tmpcf_clear (pp);
+  tmpcf_clear (p);
 }
 
 

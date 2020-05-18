@@ -104,17 +104,17 @@ mps_secular_mstart (mps_context * s, mps_secular_equation * sec, mps_approximati
           rdpe_t bmod;
           cdpe_t ctmp;
 
-          mpc_rmod (bmod, sec->bmpc[l]);
+          mpcf_rmod (bmod, sec->bmpc[l]);
           rdpe_mul_eq (bmod, s->mp_epsilon);
           rdpe_mul_eq_d (bmod, 4.0);
 
           rdpe_mul_d (cdpe_Re (ctmp), bmod, cos (l * n));
           rdpe_mul_d (cdpe_Im (ctmp), bmod, sin (l * n));
 
-          mpc_set_cdpe (approximations[l]->mvalue, ctmp);
+          mpcf_set_cdpe (approximations[l]->mvalue, ctmp);
           rdpe_add_eq (approximations[l]->drad, bmod);
 
-          mpc_add_eq (approximations[l]->mvalue, sec->bmpc[l]);
+          mpcf_add_eq (approximations[l]->mvalue, sec->bmpc[l]);
         }
     }
 }

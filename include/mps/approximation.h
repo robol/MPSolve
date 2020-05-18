@@ -24,7 +24,7 @@ MPS_BEGIN_DECLS
 struct mps_approximation {
   cplx_t fvalue;
   cdpe_t dvalue;
-  mpc_t mvalue;
+  mpcf_t mvalue;
 
   double frad;
   rdpe_t drad;
@@ -60,7 +60,7 @@ mps_approximation * mps_approximation_copy (mps_context * ctx, mps_approximation
 /* Public accessor functions */
 void mps_approximation_get_fvalue (mps_context * ctx, mps_approximation * approximation, cplx_t output);
 void mps_approximation_get_dvalue (mps_context * ctx, mps_approximation * approximation, cdpe_t output);
-void mps_approximation_get_mvalue (mps_context * ctx, mps_approximation * approximation, mpc_t output);
+void mps_approximation_get_mvalue (mps_context * ctx, mps_approximation * approximation, mpcf_t output);
 double mps_approximation_get_frad (mps_context * ctx, mps_approximation * approximation);
 void mps_approximation_get_drad (mps_context * ctx, mps_approximation * approximation, rdpe_t output);
 mps_root_status mps_approximation_get_status (mps_context * ctx, mps_approximation * approximation);
@@ -71,7 +71,7 @@ mps_boolean mps_approximation_get_again (mps_context * ctx, mps_approximation * 
 /* Public setters functions */
 void mps_approximation_set_fvalue (mps_context * ctx, mps_approximation * approximation, const cplx_t value);
 void mps_approximation_set_dvalue (mps_context * ctx, mps_approximation * approximation, const cdpe_t value);
-void mps_approximation_set_mvalue (mps_context * ctx, mps_approximation * approximation, const mpc_t value);
+void mps_approximation_set_mvalue (mps_context * ctx, mps_approximation * approximation, const mpcf_t value);
 void mps_approximation_set_frad (mps_context * ctx, mps_approximation * approximation, const double frad);
 void mps_approximation_set_drad (mps_context * ctx, mps_approximation * approximation, const rdpe_t drad);
 void mps_approximation_set_status (mps_context * ctx, mps_approximation * approximation, const mps_root_status status);

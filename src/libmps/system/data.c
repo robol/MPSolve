@@ -60,13 +60,13 @@ mps_allocate_data (mps_context * s)
 
   s->fppc1 = cplx_valloc (s->deg + 1);
 
-  s->mfpc1 = mpc_valloc (s->deg + 1);
+  s->mfpc1 = mpcf_valloc (s->deg + 1);
   for (i = 0; i <= s->deg; i++)
-    mpc_init2 (s->mfpc1[i], 0);
+    mpcf_init2 (s->mfpc1[i], 0);
 
-  s->mfppc1 = mpc_valloc (s->deg + 1);
+  s->mfppc1 = mpcf_valloc (s->deg + 1);
   for (i = 0; i <= s->deg; i++)
-    mpc_init2 (s->mfppc1[i], 0);
+    mpcf_init2 (s->mfppc1[i], 0);
 
   /* temporary vectors */
   s->spar1 = mps_boolean_valloc (s->deg + 2);
@@ -109,13 +109,13 @@ mps_raise_data (mps_context * s, long int prec)
 
   /* raise the precision of  mroot */
   for (k = 0; k < s->n; k++)
-    mpc_set_prec (s->root[k]->mvalue, prec);
+    mpcf_set_prec (s->root[k]->mvalue, prec);
 
   /* raise the precision of auxiliary variables */
   for (k = 0; k < s->n + 1; k++)
     {
-      mpc_set_prec (s->mfpc1[k], prec);
-      mpc_set_prec (s->mfppc1[k], prec);
+      mpcf_set_prec (s->mfpc1[k], prec);
+      mpcf_set_prec (s->mfppc1[k], prec);
     }
 
   return mps_polynomial_raise_data (s, p, prec);
@@ -140,24 +140,24 @@ mps_raise_data_raw (mps_context * s, long int prec)
 
   /* raise the precision of  mroot */
   for (k = 0; k < s->n; k++)
-    mpc_set_prec_raw (s->root[k]->mvalue, prec);
+    mpcf_set_prec_raw (s->root[k]->mvalue, prec);
 
   /* raise the precision of  mfpc */
   if (MPS_IS_MONOMIAL_POLY (s->active_poly))
     for (k = 0; k < s->n + 1; k++)
-      mpc_set_prec_raw (p->mfpc[k], prec);
+      mpcf_set_prec_raw (p->mfpc[k], prec);
 
   /* Raise the precision of sparse vectors */
   if (MPS_DENSITY_IS_SPARSE (s->active_poly->density))
     for (k = 0; k < s->n; k++)
       if (p->spar[k + 1])
-        mpc_set_prec_raw (p->mfppc[k], prec);
+        mpcf_set_prec_raw (p->mfppc[k], prec);
 
   /* raise the precision of auxiliary variables */
   for (k = 0; k < s->n + 1; k++)
     {
-      mpc_set_prec_raw (s->mfpc1[k], prec);
-      mpc_set_prec_raw (s->mfppc1[k], prec);
+      mpcf_set_prec_raw (s->mfpc1[k], prec);
+      mpcf_set_prec_raw (s->mfppc1[k], prec);
     }
 }
 
@@ -234,7 +234,7 @@ mps_free_data (mps_context * s)
 
   if (s->bmpc)
     {
-      mpc_vclear (s->bmpc, s->n * s->pool->n);
+      mpcf_vclear (s->bmpc, s->n * s->pool->n);
       free (s->bmpc);
       s->bmpc = NULL;
     }
@@ -258,13 +258,13 @@ mps_free_data (mps_context * s)
   free (s->root);
 
   for (i = 0; i <= s->deg; i++)
-    mpc_clear (s->mfpc1[i]);
-  mpc_vfree (s->mfpc1);
+    mpcf_clear (s->mfpc1[i]);
+  mpcf_vfree (s->mfpc1);
 
   cplx_vfree (s->fppc1);
   for (i = 0; i <= s->deg; i++)
     {
-      mpc_clear (s->mfppc1[i]);
+      mpcf_clear (s->mfppc1[i]);
     }
 
   free (s->mfppc1);

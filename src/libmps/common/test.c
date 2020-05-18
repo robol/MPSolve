@@ -25,10 +25,10 @@ mps_inclusion (mps_context * s)
   int i, j, k, oldnclust;
   rdpe_t rad, difr;
   cdpe_t difc;
-  mpc_t tmp;
+  mpcf_t tmp;
   rdpe_t ap, az, temp, ep, apeps;
   cdpe_t temp1;
-  mpc_t p;
+  mpcf_t p;
   mps_monomial_poly *poly = MPS_MONOMIAL_POLY (s->active_poly);
 
 
@@ -57,10 +57,10 @@ mps_inclusion (mps_context * s)
   for (i = 0; i < s->n; i++)
     rdpe_set (s->dap1[i], s->root[i]->drad);
 
-  mpc_init2 (p, s->mpwp);
+  mpcf_init2 (p, s->mpwp);
   rdpe_mul_d (ep, s->mp_epsilon, (double)(s->n * 4));
 
-  mpc_init2 (tmp, s->mpwp);
+  mpcf_init2 (tmp, s->mpwp);
 
   for (i = 0; i < s->n; i++)
     {
@@ -70,8 +70,8 @@ mps_inclusion (mps_context * s)
         {
           if (i == j)
             continue;
-          mpc_sub (tmp, s->root[j]->mvalue, s->root[i]->mvalue);
-          mpc_get_cdpe (difc, tmp);
+          mpcf_sub (tmp, s->root[j]->mvalue, s->root[i]->mvalue);
+          mpcf_get_cdpe (difc, tmp);
           cdpe_smod (difr, difc);
           rdpe_mul_eq (rad, difr);
         }
@@ -88,18 +88,18 @@ mps_inclusion (mps_context * s)
       else
         {                       /*  dense polynomial */
           /* commpute p(mroot[i]) and p'(mroot[i]) */
-          mpc_set (p, poly->mfpc[s->n]);
+          mpcf_set (p, poly->mfpc[s->n]);
           for (k = s->n - 1; k > 0; k--)
             {
-              mpc_mul (p, p, s->root[i]->mvalue);
-              mpc_add (p, p, poly->mfpc[k]);
+              mpcf_mul (p, p, s->root[i]->mvalue);
+              mpcf_add (p, p, poly->mfpc[k]);
             }
-          mpc_mul (p, p, s->root[i]->mvalue);
-          mpc_add (p, p, poly->mfpc[0]);
+          mpcf_mul (p, p, s->root[i]->mvalue);
+          mpcf_add (p, p, poly->mfpc[0]);
 
           /* compute bound to the error */
           rdpe_set (ap, poly->dap[s->n]);
-          mpc_get_cdpe (temp1, s->root[i]->mvalue);
+          mpcf_get_cdpe (temp1, s->root[i]->mvalue);
           cdpe_mod (az, temp1);
           for (k = s->n - 1; k >= 0; k--)
             {
@@ -109,7 +109,7 @@ mps_inclusion (mps_context * s)
         }
 
       /* common part */
-      mpc_get_cdpe (difc, p);
+      mpcf_get_cdpe (difc, p);
       cdpe_mod (difr, difc);
       rdpe_mul (apeps, ap, ep);
       rdpe_add_eq (apeps, difr);
@@ -145,8 +145,8 @@ mps_inclusion (mps_context * s)
   else
     mps_warn (s, "Some roots might be not approximated");
 
-  mpc_clear (tmp);
-  mpc_clear (p);
+  mpcf_clear (tmp);
+  mpcf_clear (p);
 
   return true;
 }
