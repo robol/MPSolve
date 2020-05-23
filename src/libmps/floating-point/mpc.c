@@ -36,6 +36,7 @@ mps_mpc_cache_cleanup (void * pointer)
   for (i = 0; i < MPS_MPF_TEMP_SIZE; i++)
     mpf_clear (ptr->data[i]);
 
+  free(ptr->data);
   free (ptr);
 }
 
@@ -510,8 +511,8 @@ mpc_div_ui (mpc_t rc, mpc_t c, unsigned long int i)
 void
 mpc_ui_div (mpc_t rc, unsigned long int i, mpc_t c)
 {
-  mpf_ui_div (mpc_Re (rc), i, mpc_Re (c));
-  mpf_ui_div (mpc_Im (rc), i, mpc_Im (c));
+  mpc_set_ui(rc, i, 0L);
+  mpc_div_eq(rc, c);
 }
 
 void

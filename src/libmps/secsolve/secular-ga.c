@@ -637,7 +637,8 @@ cleanup:
       mps_improve (s);
 
 #ifdef NICE_DEBUG
-      MPS_DEBUG (s, "mps_improve took %lu ms", mps_stop_timer (my_timer));
+      long improve_time = mps_stop_timer(my_timer);
+      MPS_DEBUG (s, "mps_improve took %lu ms", improve_time);
 #endif
     }
 
@@ -646,6 +647,7 @@ cleanup:
 
   /* Debug total time taken but only if debug is enabled */
 #ifndef DISABLE_DEBUG
+  long tot_time = mps_stop_timer(total_clock);
   if (s->debug_level & MPS_DEBUG_TIMINGS)
     {
       MPS_DEBUG (s, "Time used for regeneration: %ld ms",
@@ -657,7 +659,7 @@ cleanup:
       MPS_DEBUG (s, "Time used in multiprecision iterations: %ld ms",
                  s->mp_iteration_time);
       MPS_DEBUG (s, "Total time using MPSolve: %ld ms",
-                 mps_stop_timer (total_clock));
+                 tot_time);
     }
 #endif
 }

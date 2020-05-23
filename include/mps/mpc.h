@@ -125,7 +125,7 @@ void mpc_mod_eq (mpc_t c);
 void mpc_rot_eq (mpc_t c);
 void mpc_flip_eq (mpc_t c);
 #define mpc_add_eq(R, C)        mpc_add (R, R, C)
-#define mpc_add_eq_f(C, R, F)   mpc_add_f (C, C, R, F)
+#define mpc_add_eq_f(C, F)      mpc_add_f (C, C, F)
 #define mpc_add_eq_ui(C, R, I)  mpc_add_ui (C, C, R, I)
 #define mpc_sub_eq(C1, C2)      mpc_sub (C1, C1, C2)
 #define mpc_sub_eq_f(C, R, F)   mpc_sub_f (C, C, R, F)

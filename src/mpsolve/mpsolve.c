@@ -185,6 +185,8 @@ usage (mps_context * s, const char *program)
 	   "             Note: this option is considered experimental.\n"
 	   " -s file     Read the starting approximations from the given file, instead\n"
 	   "             of relying on the internal algorithm of MPSolve.\n"
+	   "             The format for this file is the same of the *.res files foun in\n"
+	   "             src/unisolve/*.res in the source distribution of MPSolve.\n"
            " -v          Print the version and exit\n"
            "\n",
            program, program, program);
