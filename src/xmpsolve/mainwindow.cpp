@@ -235,7 +235,7 @@ void xmpsolve::MainWindow::on_actionAbout_MPSolve_triggered()
                        "<h3>Authors:</h3>" +
                        " - Dario A. Bini &lt;<a href=\"mailto:bini@dm.unipi.it\">bini@dm.unipi.it</a>&gt;<br>" +
                        " - Giuseppe Fiorentino &lt;<a href=\"mailto:fiorent@dm.unipi.it\">fiorent@dm.unipi.it</a>&gt;<br>" +
-                       " - Leonardo Robol &lt;<a href=\"mailto:leonardo.robol@sns.it\">leonardo.robol@sns.it</a>&gt; <br>");
+                       " - Leonardo Robol &lt;<a href=\"mailto:leonardo.robol@unipi.it\">leonardo.robol@unipi.it</a>&gt; <br>");
 }
 
 void xmpsolve::MainWindow::on_actionOpen_editor_triggered()

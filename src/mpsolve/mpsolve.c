@@ -1,11 +1,11 @@
 /*
- * This file is part of MPSolve 3.1.8
+ * This file is part of MPSolve 3.1.9
  * 
- * Copyright (C) 2001-2019, Dipartimento di Matematica "L. Tonelli", Pisa.
+ * Copyright (C) 2001-2020, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
  * Authors: 
- *   Leonardo Robol <leonardo.robol@sns.it>
+ *   Leonardo Robol <leonardo.robol@unipi.it>
  */
 
 #define _MPS_PRIVATE
@@ -295,7 +295,7 @@ main (int argc, char **argv)
 #ifdef HAVE_CONFIG_H
           printf (PACKAGE_STRING "\n");
 #else
-          printf ("MPSolve 3.1.8\n");
+          printf ("MPSolve 3.1.9\n");
 #endif
 
           mps_context_free (s);

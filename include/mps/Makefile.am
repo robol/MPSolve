@@ -25,5 +25,6 @@ libmps_headers_HEADERS = \
 	regeneration-driver.h \
         secular-equation.h \
 	types.h \
+	version.h \
 	$(NULL)
 
