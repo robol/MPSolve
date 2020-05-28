@@ -220,7 +220,7 @@ mpcf_set_f (mpcf_t c, mpf_t fr, mpf_t fi)
 int
 mpcf_set_str (mpcf_t c, char *sr, char *si, int base)
 {
-  if (!mpf_set_str (mpcf_Re (c), sr, base))
+  if (mpf_set_str (mpcf_Re (c), sr, base) != 0)
     return -1;
   return mpf_set_str (mpcf_Im (c), si, base);
 }
