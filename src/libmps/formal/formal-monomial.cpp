@@ -93,6 +93,8 @@ Monomial::Monomial(const char * coeff_string, long degree)
   mCoeffR = er;
   mDegree = degree;
   free (er);
+
+  mCoeffR.canonicalize();
 }
 
 Monomial::Monomial(const char * real_part, const char * imag_part, long degree)
@@ -107,6 +109,9 @@ Monomial::Monomial(const char * real_part, const char * imag_part, long degree)
 
   free (er);
   free (ei);
+
+  mCoeffR.canonicalize();
+  mCoeffI.canonicalize();
 }
 
 Monomial::Monomial(const mpq_class coeff, long degree)

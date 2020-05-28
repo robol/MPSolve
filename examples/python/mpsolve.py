@@ -49,7 +49,7 @@ class Algorithm:
 
 class Context:
     """The Context class is a wrapper around the mps_context type
-    in libmps. A Context instance must be instantied before
+    in libmps. A Context instance must be instantiated before
     allocating and/or solving polynomials and secular equations,
     and can then be used to specify the desired property of the
     solution. """
