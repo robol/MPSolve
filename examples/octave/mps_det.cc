@@ -36,8 +36,8 @@ If @var{shift} != 0 then the determinant of A - @var{shift}*I will be computed.\
     if (nargin >= 3)
       {
 	Complex s = args(2).complex_value();
-	cplx_t* y = (cplx_t*) &s;
-	cplx_set (shift, *reinterpret_cast<cplx_t*>(&s));
+	cplx_t* y = reinterpret_cast<cplx_t*>(&s);
+	cplx_set (shift, *y);
       }
     else
       cplx_set (shift, cplx_zero);
