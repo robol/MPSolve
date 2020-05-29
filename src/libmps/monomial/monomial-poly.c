@@ -164,6 +164,7 @@ mps_monomial_poly_raise_precision (mps_context * s, mps_polynomial * p, long int
   if (prec <= mp->prec ||
       (MPS_STRUCTURE_IS_FP(p->structure) && mpcf_get_prec(mp->mfpc[0]) >= prec))
     {
+      MPS_DEBUG_WITH_INFO(s, "Not increasing precision, the coefficients are already at the required accuracy");
       pthread_mutex_unlock (&mp->regenerating);
       return mp->prec;
     }
@@ -422,6 +423,7 @@ mps_monomial_poly_set_coefficient_f (mps_context * s, mps_monomial_poly * p, lon
   if (MPS_POLYNOMIAL (p)->structure == MPS_STRUCTURE_UNKNOWN)
     MPS_POLYNOMIAL (p)->structure = MPS_STRUCTURE_COMPLEX_FP;
 
+  mpcf_set_prec (p->mfpc[i], mpcf_get_prec(coeff));
   mpcf_set (p->mfpc[i], coeff);
   mpcf_get_cplx (p->fpc[i], p->mfpc[i]);
   mpcf_get_cdpe (p->dpc[i], p->mfpc[i]);
