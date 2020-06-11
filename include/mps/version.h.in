@@ -1,0 +1,16 @@
+#ifndef MPS_VERSION_H_
+#define MPS_VERSION_H_
+
+#ifndef MPS_MAJOR_VERSION
+#define MPS_MAJOR_VERSION @MPS_MAJOR_VERSION@
+#endif
+
+#ifndef MPS_MINOR_VERSION
+#define MPS_MINOR_VERSION @MPS_MINOR_VERSION@
+#endif
+
+#ifndef MPS_PATCH_VERSION
+#define MPS_PATCH_VERSION @MPS_PATCH_VERSION@
+#endif
+
+#endif /* MPS_VERSION_H_ */
