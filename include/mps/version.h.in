@@ -23,4 +23,13 @@
 #define MPS_PATCH_VERSION @MPS_PATCH_VERSION@
 #endif
 
+const char * mps_get_version ();
+
+unsigned int mps_get_major_version();
+
+unsigned int mps_get_minor_version();
+
+unsigned int mps_get_patch_version();
+
+
 #endif /* MPS_VERSION_H_ */

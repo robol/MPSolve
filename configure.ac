@@ -3,9 +3,17 @@
 AC_PREREQ([2.65])
 AC_INIT([MPSolve], [3.2.0], [leonardo@robol.it])
 
-AC_DEFINE(MPS_MAJOR_VERSION, 3, [libmps' major version number])
-AC_DEFINE(MPS_MINOR_VERSION, 2, [libmps' minor version number])
-AC_DEFINE(MPS_PATCH_VERSION, 0, [libmps' patch version number])
+MPS_MAJOR_VERSION=3
+MPS_MINOR_VERSION=2
+MPS_PATCH_VERSION=0
+
+AC_DEFINE(MPS_MAJOR_VERSION, $MPS_MAJOR_VERSION, [libmps' major version number])
+AC_DEFINE(MPS_MINOR_VERSION, $MPS_MINOR_VERSION, [libmps' minor version number])
+AC_DEFINE(MPS_PATCH_VERSION, $MPS_PATCH_VERSION, [libmps' patch version number])
+
+AC_SUBST(MPS_MAJOR_VERSION)
+AC_SUBST(MPS_MINOR_VERSION)
+AC_SUBST(MPS_PATCH_VERSION)
 
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS([config.h])

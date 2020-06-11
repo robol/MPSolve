@@ -13,9 +13,9 @@
 #include <ctype.h>
 
 /**
- * @brief Return a string representation of MPSolve's version. 
+ * @brief Return a string representation of MPSolve's version.
  *
- * @return A pointer to a const string containing the version number in MPSolve. 
+ * @return A pointer to a const string containing the version number in MPSolve.
  */
 const char *
 mps_get_version ()
@@ -24,7 +24,7 @@ mps_get_version ()
 }
 
 /**
- * @brief Return a string representation of MPSolve's major version. 
+ * @brief Return a string representation of MPSolve's major version.
  *
  * @return An unsigned integer with the major version.
  */
@@ -35,7 +35,7 @@ mps_get_major_version()
 }
 
 /**
- * @brief Return a string representation of MPSolve's minor version. 
+ * @brief Return a string representation of MPSolve's minor version.
  *
  * @return An unsigned integer with the minor version.
  */
@@ -46,7 +46,7 @@ mps_get_minor_version()
 }
 
 /**
- * @brief Return a string representation of MPSolve's patch version. 
+ * @brief Return a string representation of MPSolve's patch version.
  *
  * @return An unsigned integer with the patch version.
  */
