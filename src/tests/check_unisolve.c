@@ -229,7 +229,7 @@ main (void)
 
   starting_setup ();
 
-  test_polynomials = (test_pol**)malloc (sizeof(test_pol *) * 46);
+  test_polynomials = (test_pol**)malloc (sizeof(test_pol *) * 48);
 
   for (i = 0; i < 2; i++)
     {
@@ -269,6 +269,7 @@ main (void)
       test_polynomials[n++] = test_pol_new_simple ("wilk20", digits[i]);
       test_polynomials[n++] = test_pol_new_simple ("wilk40", digits[i]);
       test_polynomials[n++] = test_pol_new_simple ("toep1_128", digits[i]);
+      test_polynomials[n++] = test_pol_new_simple ("demi20", digits[i]);
     }
 
   /* Create a new test suite for secsolve and run it */

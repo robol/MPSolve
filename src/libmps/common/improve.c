@@ -39,25 +39,26 @@ evaluate_root_conditioning (mps_context * ctx, mps_polynomial * p, mps_approxima
   for (i = 0; i < n; i++)
     {
       mpc_t value;
-      rdpe_t error, module;
+      mps_approximation local_approx;
+      rdpe_t module;
       mpc_init2 (value, appr[i]->wp);
 
-      mps_polynomial_meval (ctx, p, appr[i]->mvalue, value, error);
-      mpc_rmod (module, value);
+      mpc_init2(local_approx.mvalue, appr[i]->wp);
+      local_approx.wp = appr[i]->wp;
+      rdpe_set (local_approx.drad, rdpe_zero);
 
-      /* Get the relative error of this evaluation */
-      if (!rdpe_eq_zero (module))
-        rdpe_div_eq (error, module);
+      mps_polynomial_mnewton (ctx, p, &local_approx, value, local_approx.wp);
+
+      rdpe_set_2dl (module, 1.0, -appr[i]->wp);
+      if (rdpe_ne (local_approx.drad, rdpe_zero))
+        rdpe_div (root_conditioning[i], local_approx.drad, module);
       else
-        rdpe_set_d (error, DBL_EPSILON * p->degree);
+        rdpe_set (root_conditioning[i], rdpe_one);
 
-      /* log2(error) + wp - log(n) is a good estimate of log(k) */
-      rdpe_set_d (root_conditioning[i], rdpe_log (error) / LOG2 + appr[i]->wp - log2 (n));
-      rdpe_exp_eq (root_conditioning[i]);
-
-      rdpe_div_eq (root_conditioning[i], appr[i]->drad);
+      MPS_DEBUG_RDPE (ctx, root_conditioning[i], "Error amplification for root %d", i);
 
       mpc_clear (value);
+      mpc_clear (local_approx.mvalue);
     }
 
   return root_conditioning;
@@ -203,7 +204,7 @@ mps_improve (mps_context * ctx)
             }
         }
 
-      MPS_DEBUG (ctx, "Step of improvement");
+      MPS_DEBUG (ctx, "Step of improvement, precision = %ld bits", current_precision);
 
       for (i = 0; i < ctx->n; i++)
         if (ctx->root[i]->status == MPS_ROOT_STATUS_ISOLATED && 
