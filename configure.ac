@@ -7,9 +7,9 @@ MPS_MAJOR_VERSION=3
 MPS_MINOR_VERSION=2
 MPS_PATCH_VERSION=0
 
-AC_DEFINE(MPS_MAJOR_VERSION, $MPS_MAJOR_VERSION, [libmps' major version number])
-AC_DEFINE(MPS_MINOR_VERSION, $MPS_MINOR_VERSION, [libmps' minor version number])
-AC_DEFINE(MPS_PATCH_VERSION, $MPS_PATCH_VERSION, [libmps' patch version number])
+AC_DEFINE(MPS_MAJOR_VERSION, 3, [libmps' major version number])
+AC_DEFINE(MPS_MINOR_VERSION, 2, [libmps' minor version number])
+AC_DEFINE(MPS_PATCH_VERSION, 0, [libmps' patch version number])
 
 AC_SUBST(MPS_MAJOR_VERSION)
 AC_SUBST(MPS_MINOR_VERSION)
