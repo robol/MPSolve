@@ -1,11 +1,11 @@
 # -*- Autoconf -*- Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.65])
-AC_INIT([MPSolve], [3.1.9], [robol@poisson.phc.unipi.it])
+AC_INIT([MPSolve], [3.2.0], [robol@poisson.phc.unipi.it])
 
 AC_DEFINE(MPS_MAJOR_VERSION, 3, [libmps' major version number])
-AC_DEFINE(MPS_MINOR_VERSION, 1, [libmps' minor version number])
-AC_DEFINE(MPS_PATCH_VERSION, 9, [libmps' patch version number])
+AC_DEFINE(MPS_MINOR_VERSION, 2, [libmps' minor version number])
+AC_DEFINE(MPS_PATCH_VERSION, 0, [libmps' patch version number])
 
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS([config.h])
