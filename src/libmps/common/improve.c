@@ -196,14 +196,6 @@ mps_improve (mps_context * ctx)
     {
       mps_polynomial_raise_data (ctx, p, current_precision);
 
-      for (i = 0; i < ctx->n; i++)
-        {
-          if (ctx->root[i]->wp < current_precision)
-            {
-              mpc_set_prec(ctx->root[i]->mvalue, current_precision);
-            }
-        }
-
       MPS_DEBUG (ctx, "Step of improvement, precision = %ld bits", current_precision);
 
       for (i = 0; i < ctx->n; i++)
