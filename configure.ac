@@ -1,7 +1,7 @@
 # -*- Autoconf -*- Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.65])
-AC_INIT([MPSolve], [3.2.0], [robol@poisson.phc.unipi.it])
+AC_INIT([MPSolve], [3.2.0], [leonardo@robol.it])
 
 AC_DEFINE(MPS_MAJOR_VERSION, 3, [libmps' major version number])
 AC_DEFINE(MPS_MINOR_VERSION, 2, [libmps' minor version number])
