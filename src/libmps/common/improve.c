@@ -1,5 +1,5 @@
 /*
- * This file is part of MPSolve 3.2.0
+ * This file is part of MPSolve 3.1.9
  *
  * Copyright (C) 2001-2012, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
@@ -213,7 +213,7 @@ mps_improve (mps_context * ctx)
             /* Evaluate the necessary precision to iterate on this root.
              * If the the current polynomial precision is enough, iterate on it.
              * Otherwise, let it for the next round. */
-            long int necessary_precision = get_approximated_bits (ctx->root[i]) + log2 (ctx->n) +
+            long int necessary_precision = 2 * get_approximated_bits (ctx->root[i]) + log2 (ctx->n) +
                                            rdpe_log (root_conditioning[i]) / LOG2;
 
             if (necessary_precision < current_precision)
