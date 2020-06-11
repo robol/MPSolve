@@ -553,7 +553,7 @@ END_TEST
 
 START_TEST (test_secsolve_demi_20)
 {
-  test_pol * pol = test_pol_new ("demi20", "unisolve", 53, float_phase, true);
+  test_pol * pol = test_pol_new ("demi20", "unisolve", 16, float_phase, true);
 
   test_secsolve_on_pol (pol);
   test_pol_free (pol);
