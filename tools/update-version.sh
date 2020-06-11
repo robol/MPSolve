@@ -38,6 +38,7 @@ function update_version {
       sed -i "s/MPSolve ${source_version}/MPSolve ${current_version}/g" $file
     done
     sed -i "s/MPSOLVE ${source_version}/MPSOLVE ${current_version}/g" README
+    sed -i "s/MPSOLVE ${source_version}/MPSOLVE ${current_version}/g" README.md
 
     echo "> Updated source file, please take care of configure.ac manually"
   fi
