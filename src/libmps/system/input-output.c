@@ -161,7 +161,7 @@ mps_outfloat (mps_context * s, mpf_t f, rdpe_t rad, long out_digit,
         rdpe_div (r, rad, ro);
       else
         rdpe_set_d (r, 1.0e-10);
-      digit = (long)(-rdpe_log10 (r) - 0.5);
+      digit = (long)(-rdpe_log10 (r) + 1.5);
       if (digit <= 0)
         {
           rdpe_get_dl (&d, &l, ro);
@@ -169,7 +169,7 @@ mps_outfloat (mps_context * s, mpf_t f, rdpe_t rad, long out_digit,
         }
       else
         {
-          true_digit = (long)(LOG10_2 * mpf_get_prec (f));
+          true_digit = (long)(LOG10_2 * mpf_get_prec (f)) + 1;
           true_digit = MIN (digit, true_digit);
           true_digit = MIN (true_digit, out_digit);
           if (sign)

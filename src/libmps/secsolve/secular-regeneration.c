@@ -85,7 +85,9 @@ mps_secular_ga_find_changed_roots (mps_context * s, cdpe_t * old_b, mpc_t * old_
 
   for (i = 0; i < s->n; i++)
     {
-      if (s->just_raised_precision)
+      /* FIXME: At the moment we do not have a complete analysis for the partial
+       * regeneration strategy, so we use the general strategy all the time. */
+      if (s->just_raised_precision || true)
         {
           root_changed[i] = true;
           continue;
