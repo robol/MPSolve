@@ -118,7 +118,9 @@ mps_raise_data (mps_context * s, long int prec)
       mpc_set_prec (s->mfppc1[k], prec);
     }
 
-  return mps_polynomial_raise_data (s, p, prec);
+  mps_polynomial_raise_data (s, p, prec);
+
+  return mpc_get_prec(s->root[0]->mvalue);
 }
 
 /**
