@@ -270,6 +270,7 @@ EXTRA_DIST = \
 	unisolve/nrooti800.pol \
 	unisolve/umand63.pol \
 	unisolve/mig1_100.pol \
+	unisolve/demi20.pol \
 	../results/secsolve/test1000.res \
 	../results/secsolve/rand15.res \
 	../results/secsolve/test100.res \
@@ -315,4 +316,5 @@ EXTRA_DIST = \
 	../results/unisolve/mig1_100.res \
 	../results/unisolve/mig1_200.res \
 	../results/unisolve/lsr_24.res \
-	../results/unisolve/mig1_500_1.res 
+	../results/unisolve/mig1_500_1.res \
+	../results/unisolve/demi20.res
