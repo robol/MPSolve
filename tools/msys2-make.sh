@@ -76,14 +76,14 @@ makensis.exe installer.nsis
 mv SetupMPSolve.exe ../../
 
 cd ../
-mv mingw64 MPSolve-${mpsolve_version}
+mv mingw64 MPSolve-${mpsolve_version}-windows
 
-zip -r MPSolve-${mpsolve_version}.zip MPSolve-${mpsolve_version}
+zip -r MPSolve-${mpsolve_version}-windows.zip MPSolve-${mpsolve_version}-windows
 
-mv MPSolve-${mpsolve_version}.zip ../
+mv MPSolve-${mpsolve_version}-windows.zip ../
 cd ../
 
-cp -v MPSolve-${mpsolve_version}.zip ${oldpath}/
+cp -v MPSolve-${mpsolve_version}-windows.zip ${oldpath}/
 cp -v SetupMPSolve.exe ${oldpath}/SetupMPSolve-${mpsolve_version}.exe
 
 log "You may want to remove ${tempdir}, now that everything is finished"
