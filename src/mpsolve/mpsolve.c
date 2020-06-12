@@ -179,7 +179,7 @@ usage (mps_context * s, const char *program)
            "               Example: -dfi for function calls and improvement\n"
 #endif
 	   " -p poly     Solve the polynomial specified on the command line. \n"
-           "               Example: %s -p \"x^4-6x^9+6/7x + 5\" \n"
+           "               Example: %s -p \"x^4-6*x^9+6/7*x + 5\" \n"
 	   " -r          Use a recursive strategy to dispose the initial approximations.\n"
 	   "             This option is available only for monomial polynomials. \n"
 	   "             Note: this option is considered experimental.\n"
