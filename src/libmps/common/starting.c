@@ -1524,7 +1524,7 @@ mps_cluster_check_detachment (mps_context * ctx, mps_clusterization * clusteriza
             {
               if (ctx->debug_level & MPS_DEBUG_CLUSTER)
                 MPS_DEBUG (ctx,
-                           "Cluster containing root %d was successfuly detached.", k);
+                           "Cluster containing root %d was successfully detached.", k);
 
               /* We need to stop marking this cluster as detached, that means
                * "experimental" in this context. */
