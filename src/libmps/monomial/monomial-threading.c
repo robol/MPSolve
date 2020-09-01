@@ -187,6 +187,12 @@ mps_thread_fpolzer (mps_context * s, int *it, mps_boolean * excep, int required_
 
   mps_thread_pool_wait (s, s->pool);
 
+  for (i = 0; i < s->n; i++)
+    {
+      pthread_mutex_destroy (roots_mutex + i);
+      pthread_mutex_destroy (aberth_mutex + i);
+    }
+
   free (data);
   free (roots_mutex);
   free (aberth_mutex);
@@ -351,6 +357,15 @@ mps_thread_dpolzer (mps_context * s, int *it, mps_boolean * excep, int required_
 
   /* Wait for the thread to complete */
   mps_thread_pool_wait (s, s->pool);
+
+  for (i = 0; i < s->n; i++)
+    {
+      if (s->pool->n > 1)
+	{
+	  pthread_mutex_destroy (&aberth_mutex[i]);
+	  pthread_mutex_destroy (&roots_mutex[i]);
+	}
+    }
 
   free (aberth_mutex);
   free (roots_mutex);
@@ -595,6 +610,7 @@ mps_thread_mpolzer (mps_context * s, int *it, mps_boolean * excep, int required_
       pthread_mutex_destroy (&roots_mutex[i]);
       pthread_mutex_destroy (&aberth_mutex[i]);
     }
+
   free (roots_mutex);
   free (aberth_mutex);
   mps_thread_job_queue_free (queue);

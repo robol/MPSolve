@@ -681,6 +681,9 @@ mps_mcluster (mps_context * s, rdpe_t * drad, int nf)
 	} while ((root = root->prev) != NULL);
     }
 
+  for (j = 0; j < block_number; j++)
+    pthread_mutex_destroy (&block_mutexes[j]);
+
   free (block_mutexes);
   free (already_analyzed_roots);
   free (original_clusters);

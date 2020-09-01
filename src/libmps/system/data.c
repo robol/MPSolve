@@ -269,6 +269,8 @@ mps_free_data (mps_context * s)
       mpc_clear (s->mfppc1[i]);
     }
 
+  pthread_mutex_destroy(&s->precision_mutex);
+
   free (s->mfppc1);
 
   /* free temporary vectors */

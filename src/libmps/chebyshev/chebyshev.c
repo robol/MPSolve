@@ -98,6 +98,8 @@ mps_chebyshev_poly_free (mps_context * ctx, mps_polynomial * poly)
       free (cpoly->rational_imag_coeffs);
     }
 
+  pthread_mutex_destroy(&cpoly->precision_mutex);
+
   free (poly);
 }
 

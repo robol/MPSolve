@@ -104,6 +104,7 @@ void
 mps_monomial_poly_free (mps_context * s, mps_polynomial * p)
 {
   mps_monomial_poly *mp = MPS_MONOMIAL_POLY (p);
+  int i;
 
   mps_boolean_vfree (mp->spar);
   double_vfree (mp->fpr);
@@ -118,6 +119,8 @@ mps_monomial_poly_free (mps_context * s, mps_polynomial * p)
   mpc_vclear (mp->db.mfpc1, MPS_POLYNOMIAL (mp)->degree + 1);
   mpc_vclear (mp->db.mfpc2, MPS_POLYNOMIAL (mp)->degree + 1);
 
+  pthread_mutex_destroy (&mp->regenerating);
+
   mpf_vfree (mp->mfpr);
   mpc_vfree (mp->db.mfpc1);
   mpc_vfree (mp->db.mfpc2);
@@ -131,6 +134,9 @@ mps_monomial_poly_free (mps_context * s, mps_polynomial * p)
   cplx_vfree (mp->fppc);
   mpc_vclear (mp->mfppc, MPS_POLYNOMIAL (mp)->degree + 1);
   mpc_vfree (mp->mfppc);
+
+  for (i = 0; i <= MPS_POLYNOMIAL (mp)->degree; i++)
+    pthread_mutex_destroy (&mp->mfpc_mutex[i]);
 
   free (mp->mfpc_mutex);
 

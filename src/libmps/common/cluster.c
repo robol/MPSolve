@@ -77,6 +77,8 @@ mps_cluster_free (mps_context * s, mps_cluster * cluster)
       free (old_root);
     }
 
+  pthread_mutex_destroy(&cluster->lock);
+
   free (cluster);
 }
 

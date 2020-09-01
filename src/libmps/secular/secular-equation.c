@@ -441,6 +441,7 @@ void
 mps_secular_equation_free (mps_context *ctx, mps_polynomial * p)
 {
   mps_secular_equation *s = MPS_SECULAR_EQUATION (p);
+  int i;
 
   /* Free internal data */
   cplx_vfree (s->afpc);
@@ -479,6 +480,14 @@ mps_secular_equation_free (mps_context *ctx, mps_polynomial * p)
   mpq_vfree (s->initial_bmpqic);
 
   /* Mutexes */
+  for (i = 0; i < MPS_POLYNOMIAL (s)->degree; i++)
+    {
+      pthread_mutex_destroy (&s->ampc_mutex[i]);
+      pthread_mutex_destroy (&s->bmpc_mutex[i]);
+    }
+
+  pthread_mutex_destroy (&s->precision_mutex);
+  
   free (s->ampc_mutex);
   free (s->bmpc_mutex);
 
