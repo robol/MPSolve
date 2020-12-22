@@ -159,6 +159,7 @@ usage (mps_context * s, const char *program)
            "                   For example:\n"
            "                     %s -as -Ogf myfile.pol | gnuplot \n"
            "               gp: The same as gf but only with points (suitable for high degree polynomials)\n"
+	   "               s: OpenSCAD format, for 3D printing\n"
            " -l filename Set filename as the output for the log, instead of the tty. Use this option with\n"
            "             -d[domains] to activate the desired debug domains. \n"
 #if HAVE_GRAPHICAL_DEBUGGER           
@@ -340,6 +341,9 @@ main (int argc, char **argv)
             case 'c':
               mps_context_set_output_format (s, MPS_OUTPUT_FORMAT_COMPACT);
               break;
+	    case 's':
+	      mps_context_set_output_format (s, MPS_OUTPUT_FORMAT_OPENSCAD);
+	      break;
             default:
               mps_error (s, "The selected output format is not supported");
               break;
