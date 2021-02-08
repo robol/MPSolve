@@ -514,7 +514,7 @@ AS_IF([test x$build_examples == xyes], [
 	# of the polish TeX compiler. If both are in path we need to test all the
 	# possibilities until we found the _real_ mex compiler. 
 	AC_CACHE_CHECK([for a valid mex compiler], [ac_cv_path_MEX], 
-	AC_PATH_PROGS_FEATURE_CHECK([MEX], [mex], 
+	[AC_PATH_PROGS_FEATURE_CHECK([MEX], [mex], 
 	[[
           mex_is_matlab_output=`$ac_path_MEX -help 2>&1 | grep "MATLAB\|mkoctfile"`
 	  mex_is_matlab_retcode=$?
@@ -524,7 +524,7 @@ AS_IF([test x$build_examples == xyes], [
             ac_cv_path_MEX=$ac_path_MEX
 	    MEX=$ac_path_MEX
           fi
-          ]]))
+          ]])])
 
 	# Set the MEX compiler if that has been found
 	MEX=$ac_cv_path_MEX
