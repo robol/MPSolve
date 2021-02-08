@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8
 #
 # This tests checks that basic polynomial solving is working from the Python
