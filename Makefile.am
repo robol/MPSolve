@@ -11,6 +11,7 @@ SUBDIRS= \
 	$(NULL)
 
 EXTRA_DIST = \
+	tools/msys2-make.sh \
 	tools/download-mingw-rpm.py \
 	tools/get_obs_mpsolve.sh \
 	tools/android-build-libmps.sh \

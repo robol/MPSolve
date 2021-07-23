@@ -1,11 +1,11 @@
 /*
- * This file is part of MPSolve 3.1.8
+ * This file is part of MPSolve 3.2.1
  * 
- * Copyright (C) 2001-2019, Dipartimento di Matematica "L. Tonelli", Pisa.
+ * Copyright (C) 2001-2020, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
  * Authors: 
- *   Leonardo Robol <leonardo.robol@sns.it>
+ *   Leonardo Robol <leonardo.robol@unipi.it>
  */
 
 #define _MPS_PRIVATE
@@ -179,7 +179,7 @@ usage (mps_context * s, const char *program)
            "               Example: -dfi for function calls and improvement\n"
 #endif
 	   " -p poly     Solve the polynomial specified on the command line. \n"
-           "               Example: %s -p \"x^4-6x^9+6/7x + 5\" \n"
+           "               Example: %s -p \"x^4-6*x^9+6/7*x + 5\" \n"
 	   " -r          Use a recursive strategy to dispose the initial approximations.\n"
 	   "             This option is available only for monomial polynomials. \n"
 	   "             Note: this option is considered experimental.\n"
@@ -295,7 +295,7 @@ main (int argc, char **argv)
 #ifdef HAVE_CONFIG_H
           printf (PACKAGE_STRING "\n");
 #else
-          printf ("MPSolve 3.1.8\n");
+          printf ("MPSolve 3.2.1\n");
 #endif
 
           mps_context_free (s);

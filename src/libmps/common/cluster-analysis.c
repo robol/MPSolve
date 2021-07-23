@@ -1,11 +1,11 @@
 /*
- * This file is part of MPSolve 3.1.8
+ * This file is part of MPSolve 3.2.1
  *
- * Copyright (C) 2001-2019, Dipartimento di Matematica "L. Tonelli", Pisa.
+ * Copyright (C) 2001-2020, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
  * Authors:
- *   Leonardo Robol <leonardo.robol@sns.it>
+ *   Leonardo Robol <leonardo.robol@unipi.it>
  */
 
 #include <mps/mps.h>
@@ -680,6 +680,9 @@ mps_mcluster (mps_context * s, rdpe_t * drad, int nf)
 
 	} while ((root = root->prev) != NULL);
     }
+
+  for (j = 0; j < block_number; j++)
+    pthread_mutex_destroy (&block_mutexes[j]);
 
   free (block_mutexes);
   free (already_analyzed_roots);

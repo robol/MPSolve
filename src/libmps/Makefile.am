@@ -49,6 +49,7 @@ libmps_la_SOURCES = \
 	common/touch.c \
 	common/user.c \
 	common/utils.c \
+	common/version.c \
 	common/validation.c \
 	formal/formal-monomial.cpp \
 	formal/formal-polynomial.cpp \

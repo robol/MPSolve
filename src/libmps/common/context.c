@@ -1,25 +1,19 @@
 /*
- * This file is part of MPSolve 3.1.8
+ * This file is part of MPSolve 3.2.1
  *
- * Copyright (C) 2001-2019, Dipartimento di Matematica "L. Tonelli", Pisa.
+ * Copyright (C) 2001-2020, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
  * Authors:
  *   Dario Andrea Bini <bini@dm.unipi.it>
  *   Giuseppe Fiorentino <fiorent@dm.unipi.it>
- *   Leonardo Robol <leonardo.robol@sns.it>
+ *   Leonardo Robol <leonardo.robol@unipi.it>
  */
 
 #define _GNU_SOURCE
 
 #include <mps/mps.h>
 #include <string.h>
-
-static mps_context ** context_factory = NULL;
-static int context_factory_size = 0;
-static pthread_mutex_t context_factory_mutex = PTHREAD_MUTEX_INITIALIZER;
-
-#define MPS_CONTEXT_FACTORY_MAXIMUM_SIZE 0
 
 long int
 mps_context_get_minimum_precision (mps_context * s)
@@ -119,30 +113,8 @@ mps_context_new ()
 {
   mps_context * ctx = NULL;
 
-  /* Try to get a low cost context from the factory */
-  pthread_mutex_lock (&context_factory_mutex);
-  if (context_factory_size > 0)
-    {
-      /* Pop out a context */
-      ctx = context_factory[--context_factory_size];
-
-      if (context_factory_size)
-        context_factory = mps_realloc (context_factory,
-                                       sizeof(mps_context*) * context_factory_size);
-      else
-        {
-          free (context_factory);
-          context_factory = NULL;
-        }
-    }
-  pthread_mutex_unlock (&context_factory_mutex);
-
-  /* Allocate the new mps_context and load default options */
-  if (!ctx)
-    {
-      ctx = (mps_context*)mps_malloc (sizeof(mps_context));
-      mps_context_init (ctx);
-    }
+  ctx = (mps_context*)mps_malloc (sizeof(mps_context));
+  mps_context_init (ctx);
 
   return ctx;
 }
@@ -172,18 +144,6 @@ mps_context_free (mps_context * s)
    * vector. */
   free (s->bmpc);
   s->bmpc = NULL;
-
-  pthread_mutex_lock (&context_factory_mutex);
-
-  if (context_factory_size < MPS_CONTEXT_FACTORY_MAXIMUM_SIZE)
-    {
-      context_factory = mps_realloc (context_factory,
-                                     sizeof(mps_context*) * (context_factory_size + 1));
-      context_factory[context_factory_size++] = s;
-      pthread_mutex_unlock (&context_factory_mutex);
-      return;
-    }
-  pthread_mutex_unlock (&context_factory_mutex);
 
   if (s->initialized)
     mps_free_data (s);

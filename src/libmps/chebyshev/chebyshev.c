@@ -1,11 +1,11 @@
 /*
- * This file is part of MPSolve 3.1.8
+ * This file is part of MPSolve 3.2.1
  *
- * Copyright (C) 2001-2019, Dipartimento di Matematica "L. Tonelli", Pisa.
+ * Copyright (C) 2001-2020, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
  * Authors:
- *   Leonardo Robol <leonardo.robol@sns.it>
+ *   Leonardo Robol <leonardo.robol@unipi.it>
  */
 
 #include <mps/mps.h>
@@ -97,6 +97,8 @@ mps_chebyshev_poly_free (mps_context * ctx, mps_polynomial * poly)
       free (cpoly->rational_real_coeffs);
       free (cpoly->rational_imag_coeffs);
     }
+
+  pthread_mutex_destroy(&cpoly->precision_mutex);
 
   free (poly);
 }

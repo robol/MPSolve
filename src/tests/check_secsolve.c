@@ -551,6 +551,16 @@ START_TEST (test_secsolve_mig1_500_1)
 }
 END_TEST
 
+START_TEST (test_secsolve_demi_20)
+{
+  test_pol * pol = test_pol_new ("demi20", "unisolve", 16, float_phase, true);
+
+  test_secsolve_on_pol (pol);
+  test_pol_free (pol);
+}
+END_TEST
+
+
 /**
  * @brief Create the secsolve test suite
  */
@@ -629,6 +639,9 @@ Suite * secsolve_suite (int standard)
   /* Mig polynomial with high precision */
   tcase_add_test (tc_monomial, test_secsolve_mig1_200_high_precision);
   tcase_add_test (tc_monomial, test_secsolve_mig1_500_1);
+
+  /* Toucgh polynomial with floatint point coefficients */
+  tcase_add_test (tc_monomial, test_secsolve_demi_20);
 
   /* Add test case to the suite */
   suite_add_tcase (s, tc_secular);

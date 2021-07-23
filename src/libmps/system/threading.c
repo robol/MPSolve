@@ -1,13 +1,13 @@
 /*
- * This file is part of MPSolve 3.1.8
+ * This file is part of MPSolve 3.2.1
  *
- * Copyright (C) 2001-2019, Dipartimento di Matematica "L. Tonelli", Pisa.
+ * Copyright (C) 2001-2020, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
  * Authors:
  *   Dario Andrea Bini <bini@dm.unipi.it>
  *   Giuseppe Fiorentino <fiorent@dm.unipi.it>
- *   Leonardo Robol <leonardo.robol@sns.it>
+ *   Leonardo Robol <leonardo.robol@unipi.it>
  */
 
 
@@ -399,6 +399,9 @@ mps_thread_free (mps_context * s, mps_thread * thread)
 
   pthread_join (*thread->thread, NULL);
 
+  pthread_mutex_destroy(&thread->busy_mutex);
+  pthread_cond_destroy(&thread->start_condition);
+
   free (thread->thread);
   free (thread);
 }
@@ -502,14 +505,18 @@ mps_thread_pool_free (mps_context * s, mps_thread_pool * pool)
   mps_thread * thread = pool->first;
   mps_thread * next_thread;
 
-  mps_thread_pool_wait (s, pool);
-
   while (thread)
     {
       next_thread = thread->next;
       mps_thread_free (s, thread);
       thread = next_thread;
     }
+
+  pthread_mutex_destroy (&pool->queue_changed_mutex);
+  pthread_cond_destroy (&pool->queue_changed);
+
+  pthread_mutex_destroy (&pool->work_completed_mutex);
+  pthread_cond_destroy (&pool->work_completed_cond);
 
   free (pool->queue);
   free (pool);

@@ -1,13 +1,13 @@
 /*
- * This file is part of MPSolve 3.1.8
+ * This file is part of MPSolve 3.2.1
  *
- * Copyright (C) 2001-2019, Dipartimento di Matematica "L. Tonelli", Pisa.
+ * Copyright (C) 2001-2020, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
  * Authors:
  *   Dario Andrea Bini <bini@dm.unipi.it>
  *   Giuseppe Fiorentino <fiorent@dm.unipi.it>
- *   Leonardo Robol <leonardo.robol@sns.it>
+ *   Leonardo Robol <leonardo.robol@unipi.it>
  */
 
 #include <mps/mps.h>
@@ -104,6 +104,7 @@ void
 mps_monomial_poly_free (mps_context * s, mps_polynomial * p)
 {
   mps_monomial_poly *mp = MPS_MONOMIAL_POLY (p);
+  int i;
 
   mps_boolean_vfree (mp->spar);
   double_vfree (mp->fpr);
@@ -118,6 +119,8 @@ mps_monomial_poly_free (mps_context * s, mps_polynomial * p)
   mpcf_vclear (mp->db.mfpc1, MPS_POLYNOMIAL (mp)->degree + 1);
   mpcf_vclear (mp->db.mfpc2, MPS_POLYNOMIAL (mp)->degree + 1);
 
+  pthread_mutex_destroy (&mp->regenerating);
+
   mpf_vfree (mp->mfpr);
   mpcf_vfree (mp->db.mfpc1);
   mpcf_vfree (mp->db.mfpc2);
@@ -131,6 +134,9 @@ mps_monomial_poly_free (mps_context * s, mps_polynomial * p)
   cplx_vfree (mp->fppc);
   mpcf_vclear (mp->mfppc, MPS_POLYNOMIAL (mp)->degree + 1);
   mpcf_vfree (mp->mfppc);
+
+  for (i = 0; i <= MPS_POLYNOMIAL (mp)->degree; i++)
+    pthread_mutex_destroy (&mp->mfpc_mutex[i]);
 
   free (mp->mfpc_mutex);
 
@@ -728,8 +734,18 @@ void mps_monomial_poly_deflate (mps_context * ctx, mps_polynomial * poly)
         }
     }
 
-  /* FIXME: We need to reallocate the correct storage for the 
-   * polynomial. */
-
   poly->degree -= zero_roots;
+
+  /* We remove the storage for the coefficients that have been deflated. */
+  mpcf_vclear (p->db.mfpc1 + poly->degree + 1, zero_roots);
+  mpcf_vclear (p->db.mfpc2 + poly->degree + 1, zero_roots);
+
+  mpq_vclear (p->initial_mqp_r + poly->degree + 1, zero_roots);
+  mpq_vclear (p->initial_mqp_i + poly->degree + 1, zero_roots);
+
+  mpcf_vclear (p->mfppc + poly->degree + 1, zero_roots);
+
+  for (int i = 0; i < zero_roots; i++) {
+    pthread_mutex_destroy (&p->mfpc_mutex[poly->degree + i + 1]);
+  }
 }

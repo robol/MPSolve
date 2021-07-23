@@ -3,7 +3,7 @@ if CHECK
 check_PROGRAMS = check_convex check_context check_mpc check_matrix check_dpe \
 	check_formal \
 	check_multithread check_cluster check_chebyshev check_parser check_utils \
-	check_monomial_poly check_list check_secsolve check_unisolve
+	check_monomial_poly check_list check_secsolve check_unisolve check_version
 
 TESTS = $(check_PROGRAMS)  
 
@@ -90,6 +90,11 @@ COMMON_LDADD = ${top_builddir}/src/libmps/libmpsprivate.la
  check_cluster_CFLAGS = $(COMMON_CFLAGS)
  check_cluster_LDFLAGS = $(COMMON_LIBS)
  check_cluster_LDADD = $(COMMON_LDADD)
+
+ check_version_SOURCES = check_version.c $(COMMON_SOURCES)
+ check_version_CFLAGS = $(COMMON_CFLAGS)
+ check_version_LDFLAGS = $(COMMON_LIBS)
+ check_version_LDADD = $(COMMON_LDADD)
 
 endif
 
@@ -270,6 +275,7 @@ EXTRA_DIST = \
 	unisolve/nrooti800.pol \
 	unisolve/umand63.pol \
 	unisolve/mig1_100.pol \
+	unisolve/demi20.pol \
 	../results/secsolve/test1000.res \
 	../results/secsolve/rand15.res \
 	../results/secsolve/test100.res \
@@ -315,4 +321,5 @@ EXTRA_DIST = \
 	../results/unisolve/mig1_100.res \
 	../results/unisolve/mig1_200.res \
 	../results/unisolve/lsr_24.res \
-	../results/unisolve/mig1_500_1.res 
+	../results/unisolve/mig1_500_1.res \
+	../results/unisolve/demi20.res

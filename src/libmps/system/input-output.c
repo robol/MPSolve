@@ -1,13 +1,13 @@
 /*
- * This file is part of MPSolve 3.1.8
+ * This file is part of MPSolve 3.2.1
  *
- * Copyright (C) 2001-2019, Dipartimento di Matematica "L. Tonelli", Pisa.
+ * Copyright (C) 2001-2020, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
  * Authors:
  *   Dario Andrea Bini <bini@dm.unipi.it>
  *   Giuseppe Fiorentino <fiorent@dm.unipi.it>
- *   Leonardo Robol <leonardo.robol@sns.it>
+ *   Leonardo Robol <leonardo.robol@unipi.it>
  */
 
 #include <stdarg.h>
@@ -161,7 +161,7 @@ mps_outfloat (mps_context * s, mpf_t f, rdpe_t rad, long out_digit,
         rdpe_div (r, rad, ro);
       else
         rdpe_set_d (r, 1.0e-10);
-      digit = (long)(-rdpe_log10 (r) - 0.5);
+      digit = (long)(-rdpe_log10 (r) + 1.5);
       if (digit <= 0)
         {
           rdpe_get_dl (&d, &l, ro);
@@ -169,7 +169,7 @@ mps_outfloat (mps_context * s, mpf_t f, rdpe_t rad, long out_digit,
         }
       else
         {
-          true_digit = (long)(LOG10_2 * mpf_get_prec (f));
+          true_digit = (long)(LOG10_2 * mpf_get_prec (f)) + 1;
           true_digit = MIN (digit, true_digit);
           true_digit = MIN (true_digit, out_digit);
           if (sign)

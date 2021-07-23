@@ -1,7 +1,20 @@
 # -*- Autoconf -*- Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.65])
-AC_INIT([MPSolve], [3.1.8], [robol@poisson.phc.unipi.it])
+AC_INIT([MPSolve], [3.2.1], [leonardo@robol.it])
+
+MPS_MAJOR_VERSION=3
+MPS_MINOR_VERSION=2
+MPS_PATCH_VERSION=1
+
+AC_DEFINE(MPS_MAJOR_VERSION, 3, [libmps' major version number])
+AC_DEFINE(MPS_MINOR_VERSION, 2, [libmps' minor version number])
+AC_DEFINE(MPS_PATCH_VERSION, 1, [libmps' patch version number])
+
+AC_SUBST(MPS_MAJOR_VERSION)
+AC_SUBST(MPS_MINOR_VERSION)
+AC_SUBST(MPS_PATCH_VERSION)
+
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS([config.h])
 
@@ -61,13 +74,6 @@ AC_ARG_ENABLE([qml-ui],
 	[enable_qml_ui=$enableval], [enable_qml_ui=no]
 	)
 AM_CONDITIONAL([BUILD_QML_UI], [test "x$enable_qml_ui" != "xno"])
-
-# Determine if we want to have MPFR or not. The default is to enable it if
-# it is available. 
-AC_ARG_ENABLE([mpfr],
-	AS_HELP_STRING([--enable-mpfr], [Enable MPFR support (default when available)]),
-	[has_mpfr=$enableval have_mpfr=$enableval],
-	[has_mpfr=yes have_mpfr=yes])
 
 # Determine if examples are desired. If that's the case check for the library
 # that are installed on the system and see which examples can be added. 
@@ -328,17 +334,6 @@ AC_ARG_ENABLE([tcmalloc],
     AS_IF([test "x$mpsolve_found_gmp_headers" != "xyes"],
       [AC_MSG_ERROR([Unable to find gmp headers, please install libgmp-dev])])
 
-    # Check for MPFR
-    AS_IF([test x$have_mpfr == xyes], [
-      AC_CHECK_LIB([mpfr], [mpfr_init])
-      AC_CHECK_HEADERS([mpfr.h], [mpsolve_found_mpfr_headers=yes; break;])
-
-      AS_IF([test "x$mpsolve_found_mpfr_headers" != "xyes"],
-        [have_mpfr=no ; has_mpfr=no; AC_MSG_WARN([Disabling MPFR since it is not found on the system])])
-    ])
-
-    AM_CONDITIONAL([HAVE_MPFR], [test x$have_mpfr = xyes])
-
 ##
 ## Section 3) Check support: try to find all the necessary headers and libraries
 ## that are needed to run the test cases. This way MPSolve will be checked by the
@@ -519,7 +514,7 @@ AS_IF([test x$build_examples == xyes], [
 	# of the polish TeX compiler. If both are in path we need to test all the
 	# possibilities until we found the _real_ mex compiler. 
 	AC_CACHE_CHECK([for a valid mex compiler], [ac_cv_path_MEX], 
-	AC_PATH_PROGS_FEATURE_CHECK([MEX], [mex], 
+	[AC_PATH_PROGS_FEATURE_CHECK([MEX], [mex], 
 	[[
           mex_is_matlab_output=`$ac_path_MEX -help 2>&1 | grep "MATLAB\|mkoctfile"`
 	  mex_is_matlab_retcode=$?
@@ -529,7 +524,7 @@ AS_IF([test x$build_examples == xyes], [
             ac_cv_path_MEX=$ac_path_MEX
 	    MEX=$ac_path_MEX
           fi
-          ]]))
+          ]])])
 
 	# Set the MEX compiler if that has been found
 	MEX=$ac_cv_path_MEX
@@ -679,6 +674,7 @@ AC_CONFIG_FILES([Makefile
     examples/quadratic-solver/Makefile
     examples/quadratic-solver/quadratic-solver.1
     include/mps/mt.h
+    include/mps/version.h
     src/Makefile
     src/mpsolve/Makefile
     src/mpsolve/mpsolve.1

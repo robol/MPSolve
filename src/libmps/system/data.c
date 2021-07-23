@@ -1,13 +1,13 @@
 /*
- * This file is part of MPSolve 3.1.8
+ * This file is part of MPSolve 3.2.1
  *
- * Copyright (C) 2001-2019, Dipartimento di Matematica "L. Tonelli", Pisa.
+ * Copyright (C) 2001-2020, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
  * Authors:
  *   Dario Andrea Bini <bini@dm.unipi.it>
  *   Giuseppe Fiorentino <fiorent@dm.unipi.it>
- *   Leonardo Robol <leonardo.robol@sns.it>
+ *   Leonardo Robol <leonardo.robol@unipi.it>
  */
 
 
@@ -118,7 +118,9 @@ mps_raise_data (mps_context * s, long int prec)
       mpcf_set_prec (s->mfppc1[k], prec);
     }
 
-  return mps_polynomial_raise_data (s, p, prec);
+  mps_polynomial_raise_data (s, p, prec);
+
+  return mpcf_get_prec(s->root[0]->mvalue);
 }
 
 /**
@@ -266,6 +268,8 @@ mps_free_data (mps_context * s)
     {
       mpcf_clear (s->mfppc1[i]);
     }
+
+  pthread_mutex_destroy(&s->precision_mutex);
 
   free (s->mfppc1);
 

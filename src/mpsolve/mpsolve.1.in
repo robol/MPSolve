@@ -124,7 +124,7 @@ Example: \fB\-dfi\fR for function calls and improvement
 \fB\-p poly\fR
 Solve the polynomial specified on the command line.
 .IP
-For example: mpsolve \fB-p\fR "x^4-6x^9+6/7x + 5"
+For example: mpsolve \fB-p\fR "x^4-6*x^9+6/7*x + 5"
 .TP
 \fB\-r\fR
 Use a recursive strategy to dispose the initial approximations.

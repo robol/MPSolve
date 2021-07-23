@@ -1,13 +1,13 @@
 /*
- * This file is part of MPSolve 3.1.8
+ * This file is part of MPSolve 3.2.1
  *
- * Copyright (C) 2001-2019, Dipartimento di Matematica "L. Tonelli", Pisa.
+ * Copyright (C) 2001-2020, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
  * Authors:
  *   Dario Andrea Bini <bini@dm.unipi.it>
  *   Giuseppe Fiorentino <fiorent@dm.unipi.it>
- *   Leonardo Robol <leonardo.robol@sns.it>
+ *   Leonardo Robol <leonardo.robol@unipi.it>
  */
 
 #include <mps/mps.h>
@@ -441,6 +441,7 @@ void
 mps_secular_equation_free (mps_context *ctx, mps_polynomial * p)
 {
   mps_secular_equation *s = MPS_SECULAR_EQUATION (p);
+  int i;
 
   /* Free internal data */
   cplx_vfree (s->afpc);
@@ -479,6 +480,14 @@ mps_secular_equation_free (mps_context *ctx, mps_polynomial * p)
   mpq_vfree (s->initial_bmpqic);
 
   /* Mutexes */
+  for (i = 0; i < MPS_POLYNOMIAL (s)->degree; i++)
+    {
+      pthread_mutex_destroy (&s->ampcf_mutex[i]);
+      pthread_mutex_destroy (&s->bmpcf_mutex[i]);
+    }
+
+  pthread_mutex_destroy (&s->precision_mutex);
+  
   free (s->ampcf_mutex);
   free (s->bmpcf_mutex);
 

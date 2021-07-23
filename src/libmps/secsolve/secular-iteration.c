@@ -1,13 +1,13 @@
 /*
- * This file is part of MPSolve 3.1.8
+ * This file is part of MPSolve 3.2.1
  *
- * Copyright (C) 2001-2019, Dipartimento di Matematica "L. Tonelli", Pisa.
+ * Copyright (C) 2001-2020, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
  *
  * Authors:
  *   Dario Andrea Bini <bini@dm.unipi.it>
  *   Giuseppe Fiorentino <fiorent@dm.unipi.it>
- *   Leonardo Robol <leonardo.robol@sns.it>
+ *   Leonardo Robol <leonardo.robol@unipi.it>
  */
 
 
@@ -277,6 +277,14 @@ mps_secular_ga_fiterate (mps_context * s, int maxit, mps_boolean just_regenerate
   s->fp_iteration_time += mps_stop_timer (my_clock);
 #endif
 
+  for (i = 0; i < s->n; i++)
+    {
+      pthread_mutex_destroy (roots_mutex + i);
+      pthread_mutex_destroy (aberth_mutex + i);
+    }
+
+  pthread_mutex_destroy(&gs_mutex);  
+
   mps_thread_job_queue_free (queue);
   free (data);
   free (roots_mutex);
@@ -470,6 +478,12 @@ mps_secular_ga_diterate (mps_context * s, int maxit, mps_boolean just_regenerate
 #ifndef DISABLE_DEBUG
   s->dpe_iteration_time += mps_stop_timer (my_clock);
 #endif
+
+  for (i = 0; i < s->n; i++)
+    {
+      pthread_mutex_destroy (roots_mutex + i);
+      pthread_mutex_destroy (aberth_mutex + i);
+    }
 
   mps_thread_job_queue_free (queue);
   free (aberth_mutex);
@@ -726,6 +740,12 @@ mps_secular_ga_miterate (mps_context * s, int maxit, mps_boolean just_regenerate
 #ifndef DISABLE_DEBUG
   s->mp_iteration_time += mps_stop_timer (my_clock);
 #endif
+
+  for (i = 0; i < s->n; i++)
+    {
+      pthread_mutex_destroy (roots_mutex + i);
+      pthread_mutex_destroy (aberth_mutex + i);
+    }
 
   mps_thread_job_queue_free (queue);
   free (aberth_mutex);
