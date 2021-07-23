@@ -734,8 +734,18 @@ void mps_monomial_poly_deflate (mps_context * ctx, mps_polynomial * poly)
         }
     }
 
-  /* FIXME: We need to reallocate the correct storage for the 
-   * polynomial. */
-
   poly->degree -= zero_roots;
+
+  /* We remove the storage for the coefficients that have been deflated. */
+  mpc_vclear (p->db.mfpc1 + poly->degree + 1, zero_roots);
+  mpc_vclear (p->db.mfpc2 + poly->degree + 1, zero_roots);
+
+  mpq_vclear (p->initial_mqp_r + poly->degree + 1, zero_roots);
+  mpq_vclear (p->initial_mqp_i + poly->degree + 1, zero_roots);
+
+  mpc_vclear (p->mfppc + poly->degree + 1, zero_roots);
+
+  for (int i = 0; i < zero_roots; i++) {    
+    pthread_mutex_destroy (&p->mfpc_mutex[poly->degree + i + 1]);
+  }
 }
