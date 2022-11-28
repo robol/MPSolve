@@ -33,6 +33,8 @@ AC_MSG_CHECKING(for working snprintf)
 AC_CACHE_VAL(ac_cv_have_working_snprintf,
 [AC_TRY_RUN(
 [#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 int main(void)
 {
@@ -53,6 +55,8 @@ AC_CACHE_VAL(ac_cv_have_working_vsnprintf,
 [AC_TRY_RUN(
 [#include <stdio.h>
 #include <stdarg.h>
+#include <stdlib.h>
+#include <string.h>
 
 int my_vsnprintf (char *buf, const char *tmpl, ...)
 {
