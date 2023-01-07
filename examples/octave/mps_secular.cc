@@ -56,7 +56,7 @@ values are 's' for secsolve and 'u' for unisolve.\n\
   ComplexColumnVector a = args(0).complex_column_vector_value();
   ComplexColumnVector b = args(1).complex_column_vector_value();
 
-  int n = a.length();
+  int n = a.numel();
 
   mps_context * ctx = mps_context_new();
   mps_secular_equation * sec = mps_secular_equation_new (ctx, (cplx_t*) a.fortran_vec(),

@@ -93,7 +93,7 @@ fields: \n\n\
 
       /* If the string conversion triggers an error try to recover
        * a struct. */
-      if (args(1).is_map())
+      if (args(1).isstruct())
 	smap = args(1).map_value();
       else
 	{
@@ -179,7 +179,7 @@ fields: \n\n\
 	poly->fstart = _custom_start_function;
 	poly->dstart = _custom_dpe_start_function;
 
-	if (starting_points.length() != n -1)
+	if (starting_points.numel() != n -1)
 	  {
 	    octave_stdout << "Warning: The length of the starting points should be equal to the degree" << std::endl;
 	    return retval;
