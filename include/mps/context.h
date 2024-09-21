@@ -48,6 +48,11 @@ typedef void* (*mps_callback)(mps_context * status, void * user_data);
 #define MPS_DSTART_PTR(x) (mps_dstart_ptr) & (x)
 #define MPS_MPSOLVE_PTR(x) (mps_mpsolve_ptr) & (x)
 
+/* Properties of the root */
+#define MPS_OUTPUT_PROPERTY_NONE      (0x00)
+#define MPS_OUTPUT_PROPERTY_REAL      (0x01)
+#define MPS_OUTPUT_PROPERTY_IMAGINARY (0x01 << 1)
+
 #ifdef _MPS_PRIVATE
 /**
  * @brief this struct holds the state of the mps computation
@@ -584,6 +589,7 @@ void mps_context_set_avoid_multiprecision (mps_context * s, mps_boolean avoid_mu
 void mps_context_set_crude_approximation_mode (mps_context * s, mps_boolean crude_approximation_mode);
 void mps_context_set_regeneration_driver (mps_context * s, mps_regeneration_driver * rd);
 void mps_context_set_n_threads (mps_context * s, int n_threads);
+void mps_context_set_root_properties (mps_context * s, char root_properties);
 
 /* Debugging */
 void mps_context_set_debug_level (mps_context * s, mps_debug_level level);

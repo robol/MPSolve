@@ -412,17 +412,16 @@ main (int argc, char **argv)
             switch (*opt->optvalue)
               {
               case 'n':
-                s->output_config->root_properties = MPS_OUTPUT_PROPERTY_NONE;
+                mps_context_set_root_properties (s, MPS_OUTPUT_PROPERTY_NONE);
                 break;
               case 'r':
-                s->output_config->root_properties = MPS_OUTPUT_PROPERTY_REAL;
+                mps_context_set_root_properties (s, MPS_OUTPUT_PROPERTY_REAL);
                 break;
               case 'i':
-                s->output_config->root_properties = MPS_OUTPUT_PROPERTY_IMAGINARY;
+                mps_context_set_root_properties (s, MPS_OUTPUT_PROPERTY_IMAGINARY);
                 break;
               case 'b':
-                s->output_config->root_properties = MPS_OUTPUT_PROPERTY_REAL | 
-                  MPS_OUTPUT_PROPERTY_IMAGINARY;
+                mps_context_set_root_properties (s, MPS_OUTPUT_PROPERTY_REAL | MPS_OUTPUT_PROPERTY_IMAGINARY);
                 break;
               default:
                 mps_error (s, "Bad detection switch: ", opt->optvalue,

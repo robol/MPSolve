@@ -887,3 +887,18 @@ void mps_context_set_n_threads (mps_context *s, int n_threads)
 {
   s->n_threads = n_threads;
 }
+
+/**
+* @brief Define which properties of the roots must be determined by MPSolve.
+ *
+ * @param s The context where the change will have effect.
+ * @param root_properties Possible values:
+ *  -# MPS_OUTPUT_PROPERTY_NONE
+ *  -# MPS_OUTPUT_PROPERTY_REAL
+ *  -# MPS_OUTPUT_PROPERTY_IMAGINARY
+ *  -# MPS_OUTPUT_PROPERTY_REAL | MPS_OUTPUT_PROPERTY_IMAGINARY
+ */
+void mps_context_set_root_properties (mps_context *s, char root_properties)
+{
+  s->output_config->root_properties = root_properties;
+}
