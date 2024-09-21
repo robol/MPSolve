@@ -575,6 +575,7 @@ void mps_context_set_input_prec (mps_context * s, long int prec);
 void mps_context_set_output_prec (mps_context * s, long int prec);
 void mps_context_set_output_format (mps_context * s, mps_output_format format);
 void mps_context_set_output_goal (mps_context * s, mps_output_goal goal);
+void mps_context_set_search_set (mps_context * s, mps_search_set set);
 void mps_context_set_starting_phase (mps_context * s, mps_phase phase);
 void mps_context_set_log_stream (mps_context * s, FILE * logstr);
 void mps_context_set_jacobi_iterations (mps_context * s, mps_boolean jacobi_iterations);

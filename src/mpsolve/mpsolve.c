@@ -352,34 +352,34 @@ main (int argc, char **argv)
             switch (*opt->optvalue)
               {
               case 'a':
-                s->output_config->search_set = MPS_SEARCH_SET_COMPLEX_PLANE;
+                mps_context_set_search_set (s, MPS_SEARCH_SET_COMPLEX_PLANE);
                 break;
               case 'r':
-                s->output_config->search_set = MPS_SEARCH_SET_POSITIVE_REAL_PART;
+                mps_context_set_search_set (s, MPS_SEARCH_SET_POSITIVE_REAL_PART);
                 break;
               case 'l':
-                s->output_config->search_set = MPS_SEARCH_SET_NEGATIVE_REAL_PART;
+                mps_context_set_search_set (s, MPS_SEARCH_SET_NEGATIVE_REAL_PART);
                 break;
               case 'u':
-                s->output_config->search_set = MPS_SEARCH_SET_POSITIVE_IMAG_PART;
+                mps_context_set_search_set (s, MPS_SEARCH_SET_POSITIVE_IMAG_PART);
                 break;
               case 'd':
-                s->output_config->search_set = MPS_SEARCH_SET_NEGATIVE_IMAG_PART;
+                mps_context_set_search_set (s, MPS_SEARCH_SET_NEGATIVE_IMAG_PART);
                 break;
               case 'i':
-                s->output_config->search_set = MPS_SEARCH_SET_UNITARY_DISC;
+                mps_context_set_search_set (s, MPS_SEARCH_SET_UNITARY_DISC);
                 break;
               case 'o':
-                s->output_config->search_set = MPS_SEARCH_SET_UNITARY_DISC_COMPL;
+                mps_context_set_search_set (s, MPS_SEARCH_SET_UNITARY_DISC_COMPL);
                 break;
               case 'R':
-                s->output_config->search_set = MPS_SEARCH_SET_REAL;
+                mps_context_set_search_set (s, MPS_SEARCH_SET_REAL);
                 break;
               case 'I':
-                s->output_config->search_set = MPS_SEARCH_SET_IMAG;
+                mps_context_set_search_set (s, MPS_SEARCH_SET_IMAG);
                 break;
               case 'U':
-                s->output_config->search_set = MPS_SEARCH_SET_CUSTOM;
+                mps_context_set_search_set (s, MPS_SEARCH_SET_CUSTOM);
                 break;
               default:
                 mps_error (s, "Bad search set switch: ", opt->optvalue,

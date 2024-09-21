@@ -637,6 +637,18 @@ mps_context_set_output_goal (mps_context * s, mps_output_goal goal)
 }
 
 /**
+ * @brief Restrict the search set for the roots.
+ *
+ * @param s The <code>mps_context</code> of the computation.
+ * @param set The search set for the roots.
+ */
+void
+mps_context_set_search_set(mps_context *s, mps_search_set set)
+{
+  s->output_config->search_set = set;
+}
+
+/**
  * @brief Set the value of the jacobi iterations switch in the MPSolve context.
  *
  * If jacobi_iterations is true then the Ehrlich-Aberth iterations will be carried
