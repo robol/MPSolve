@@ -583,6 +583,7 @@ void mps_context_select_starting_strategy (mps_context * s, mps_starting_strateg
 void mps_context_set_avoid_multiprecision (mps_context * s, mps_boolean avoid_multiprecision);
 void mps_context_set_crude_approximation_mode (mps_context * s, mps_boolean crude_approximation_mode);
 void mps_context_set_regeneration_driver (mps_context * s, mps_regeneration_driver * rd);
+void mps_context_set_n_threads (mps_context * s, int n_threads);
 
 /* Debugging */
 void mps_context_set_debug_level (mps_context * s, mps_debug_level level);

@@ -876,3 +876,14 @@ mps_context_set_regeneration_driver (mps_context * s, mps_regeneration_driver * 
 {
   s->regeneration_driver = rd;
 }
+
+/**
+ * @brief Set the number of threads.
+ *
+ * @param s The context where the change will have effect.
+ * @param n_threads The number of thread to be spawned.
+ */
+void mps_context_set_n_threads (mps_context *s, int n_threads)
+{
+  s->n_threads = n_threads;
+}

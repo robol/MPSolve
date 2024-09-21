@@ -603,7 +603,7 @@ main (int argc, char **argv)
 
         case 'j':
           mps_thread_pool_set_concurrency_limit (s, NULL, atoi (opt->optvalue));
-          s->n_threads = atoi (opt->optvalue);
+          mps_context_set_n_threads (s, atoi (opt->optvalue));
           break;
         default:
           usage (s, argv[0]);
