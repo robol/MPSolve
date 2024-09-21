@@ -433,7 +433,7 @@ main (int argc, char **argv)
 
             /* I/O streams */
           case 'R':
-            s->rtstr = fopen (opt->optvalue, "r");
+            mps_context_set_root_stream (s, fopen (opt->optvalue, "r"));
             if (s->rtstr == NULL)
               mps_error (s, "Cannot open roots file: ", opt->optvalue);
             s->resume = true;
@@ -573,7 +573,7 @@ main (int argc, char **argv)
 	    }
 	  else
 	    {
-	      s->rtstr = fopen (opt->optvalue, "r");
+	      mps_context_set_root_stream (s, fopen (opt->optvalue, "r"));
 	      if (! s->rtstr)
 		{
 		  mps_error (s, "Cannot open the given file: %s", opt->optvalue);

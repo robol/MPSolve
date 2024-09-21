@@ -733,6 +733,19 @@ mps_context_set_log_stream (mps_context * s, FILE * logstr)
 }
 
 /**
+ * @brief Set root stream.
+ *
+ * @param s The <code>mps_context</code> of the current computation.
+ * @param rtstr The stream used to resume an interrupted computation
+ * or to load the approximations from a custom file.
+ */
+void
+mps_context_set_root_stream (mps_context * s, FILE * rtstr)
+{
+  s->rtstr = rtstr;
+}
+
+/**
  * @brief Set the phase from which the computation should start.
  *
  * @param s The <code>mps_context</code> of the current computation.
