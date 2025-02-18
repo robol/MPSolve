@@ -25,7 +25,7 @@
 #ifndef MPS_CORE_H_
 #define MPS_CORE_H_
 
-#ifdef __cplusplus
+#if defined(__cplusplus) || __STDC_VERSION__ >= 202311L
 #define __MPS_NOT_DEFINE_BOOL
 #endif
 
