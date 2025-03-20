@@ -111,7 +111,7 @@ void mpc_f_div (mpc_t rc, mpf_t f, mpc_t c);
 void mpc_div_ui (mpc_t rc, mpc_t c, unsigned long int i);
 void mpc_ui_div (mpc_t rc, unsigned long int i, mpc_t c);
 void mpc_div_2exp (mpc_t rc, mpc_t c, unsigned long int i);
-void mpc_pow_si (mpc_t rc, mpc_t c, register signed long int i);
+void mpc_pow_si (mpc_t rc, mpc_t c, signed long int i);
 void mpc_swap (mpc_t c1, mpc_t c2);
 
 /* op= style operators */

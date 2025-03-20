@@ -11,12 +11,12 @@ START_TEST (test_version_strings)
   sprintf(buffer, "%u.%u.%u", mps_get_major_version(),
       mps_get_minor_version(), mps_get_patch_version());
 
-  fail_unless (strcmp(buffer, mps_get_version()) == 0);
+  ck_assert (strcmp(buffer, mps_get_version()) == 0);
 
   sprintf(buffer, "%u.%u.%u", MPS_MAJOR_VERSION,
       MPS_MINOR_VERSION, MPS_PATCH_VERSION);
 
-  fail_unless (strcmp(buffer, mps_get_version()) == 0);
+  ck_assert (strcmp(buffer, mps_get_version()) == 0);
 }
 END_TEST
 

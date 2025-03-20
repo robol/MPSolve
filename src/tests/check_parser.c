@@ -16,19 +16,19 @@ START_TEST (inline_simple_fp)
   mps_monomial_poly * poly = MPS_MONOMIAL_POLY
     (mps_parse_inline_poly_from_string (ctx, "1.e0*x - 2.e0"));
 
-  fail_unless (poly != NULL, "Cannot parse 1.e0x - 2.e0 correctly");
-  fail_unless (MPS_POLYNOMIAL (poly)->degree == 1,
+  ck_assert_msg (poly != NULL, "Cannot parse 1.e0x - 2.e0 correctly");
+  ck_assert_msg (MPS_POLYNOMIAL (poly)->degree == 1,
 	       "Cannot parse the degree of 1.e0x - 2.e0 correctly (degree parsed = %d)",
 	       MPS_POLYNOMIAL (poly)->degree);
 
-  fail_unless (mpq_cmp_si (poly->initial_mqp_r[0], -2, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_r[0], -2, 1) == 0,
 	       "Coefficient of degree 0 parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_i[0], 0, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_i[0], 0, 1) == 0,
 	       "Coefficient of degree 0 parsed incorrectly");
   
-  fail_unless (mpq_cmp_si (poly->initial_mqp_r[1], 1, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_r[1], 1, 1) == 0,
 	       "Coefficient of degree 0 parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_i[1], 0, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_i[1], 0, 1) == 0,
 	       "Coefficient of degree 0 parsed incorrectly");
 
   mps_polynomial_free (ctx, MPS_POLYNOMIAL (poly));
@@ -46,27 +46,27 @@ START_TEST (inline_simple1)
     mps_parse_inline_poly_from_string (ctx, "x^4 - 1"));
 
   /* Verify the parsing */
-  fail_unless (poly != NULL, "Cannot parse x^4 - 1 correctly");
+  ck_assert_msg (poly != NULL, "Cannot parse x^4 - 1 correctly");
 
-  fail_unless (mpq_cmp_si (poly->initial_mqp_r[0], -1, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_r[0], -1, 1) == 0,
                "Coefficient of degree 0 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_i[0], 0, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_i[0], 0, 1) == 0,
                "Coefficient of degree 0 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_r[1], 0, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_r[1], 0, 1) == 0,
                "Coefficient of degree 1 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_i[1], 0, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_i[1], 0, 1) == 0,
                "Coefficient of degree 1 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_r[2], 0, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_r[2], 0, 1) == 0,
                "Coefficient of degree 2 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_i[2], 0, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_i[2], 0, 1) == 0,
                "Coefficient of degree 2 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_r[3], 0, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_r[3], 0, 1) == 0,
                "Coefficient of degree 3 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_i[3], 0, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_i[3], 0, 1) == 0,
                "Coefficient of degree 3 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_r[4], 1, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_r[4], 1, 1) == 0,
                "Coefficient of degree 4 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_i[4], 0, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_i[4], 0, 1) == 0,
                "Coefficient of degree 4 has been parsed incorrectly");
 
   mps_context_free (ctx);
@@ -83,27 +83,27 @@ START_TEST (inline_simple2)
     mps_parse_inline_poly_from_string (ctx, "100/100*x^4 - 14/14"));
 
   /* Verify the parsing */
-  fail_unless (poly != NULL, "Cannot parse 100/100x^4 - 14/14 correctly");
+  ck_assert_msg (poly != NULL, "Cannot parse 100/100x^4 - 14/14 correctly");
 
-  fail_unless (mpq_cmp_si (poly->initial_mqp_r[0], -1, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_r[0], -1, 1) == 0,
                "Coefficient of degree 0 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_i[0], 0, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_i[0], 0, 1) == 0,
                "Coefficient of degree 0 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_r[1], 0, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_r[1], 0, 1) == 0,
                "Coefficient of degree 1 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_i[1], 0, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_i[1], 0, 1) == 0,
                "Coefficient of degree 1 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_r[2], 0, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_r[2], 0, 1) == 0,
                "Coefficient of degree 2 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_i[2], 0, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_i[2], 0, 1) == 0,
                "Coefficient of degree 2 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_r[3], 0, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_r[3], 0, 1) == 0,
                "Coefficient of degree 3 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_i[3], 0, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_i[3], 0, 1) == 0,
                "Coefficient of degree 3 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_r[4], 1, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_r[4], 1, 1) == 0,
                "Coefficient of degree 4 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_i[4], 0, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_i[4], 0, 1) == 0,
                "Coefficient of degree 4 has been parsed incorrectly");
 
   mps_context_free (ctx);
@@ -120,27 +120,27 @@ START_TEST (inline_simple3)
     mps_parse_inline_poly_from_string (ctx, "1.00*x^4 - 1.23"));
 
   /* Verify the parsing */
-  fail_unless (poly != NULL, "Cannot parse 100/100x^4 - 1.23 correctly");
+  ck_assert_msg (poly != NULL, "Cannot parse 100/100x^4 - 1.23 correctly");
 
-  fail_unless (mpq_cmp_si (poly->initial_mqp_r[0], -123, 100) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_r[0], -123, 100) == 0,
                "Coefficient of degree 0 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_i[0], 0, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_i[0], 0, 1) == 0,
                "Coefficient of degree 0 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_r[1], 0, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_r[1], 0, 1) == 0,
                "Coefficient of degree 1 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_i[1], 0, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_i[1], 0, 1) == 0,
                "Coefficient of degree 1 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_r[2], 0, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_r[2], 0, 1) == 0,
                "Coefficient of degree 2 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_i[2], 0, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_i[2], 0, 1) == 0,
                "Coefficient of degree 2 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_r[3], 0, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_r[3], 0, 1) == 0,
                "Coefficient of degree 3 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_i[3], 0, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_i[3], 0, 1) == 0,
                "Coefficient of degree 3 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_r[4], 1, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_r[4], 1, 1) == 0,
                "Coefficient of degree 4 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_i[4], 0, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_i[4], 0, 1) == 0,
                "Coefficient of degree 4 has been parsed incorrectly");
 
   mps_context_free (ctx);
@@ -157,27 +157,27 @@ START_TEST (inline_simple4)
     mps_parse_inline_poly_from_string (ctx, "1.00*x^4 - 1.23e2"));
 
   /* Verify the parsing */
-  fail_unless (poly != NULL, "Cannot parse 100/100x^4 - 1.23e2 correctly");
+  ck_assert_msg (poly != NULL, "Cannot parse 100/100x^4 - 1.23e2 correctly");
 
-  fail_unless (mpq_cmp_si (poly->initial_mqp_r[0], -12300, 100) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_r[0], -12300, 100) == 0,
                "Coefficient of degree 0 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_i[0], 0, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_i[0], 0, 1) == 0,
                "Coefficient of degree 0 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_r[1], 0, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_r[1], 0, 1) == 0,
                "Coefficient of degree 1 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_i[1], 0, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_i[1], 0, 1) == 0,
                "Coefficient of degree 1 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_r[2], 0, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_r[2], 0, 1) == 0,
                "Coefficient of degree 2 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_i[2], 0, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_i[2], 0, 1) == 0,
                "Coefficient of degree 2 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_r[3], 0, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_r[3], 0, 1) == 0,
                "Coefficient of degree 3 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_i[3], 0, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_i[3], 0, 1) == 0,
                "Coefficient of degree 3 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_r[4], 1, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_r[4], 1, 1) == 0,
                "Coefficient of degree 4 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_i[4], 0, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_i[4], 0, 1) == 0,
                "Coefficient of degree 4 has been parsed incorrectly");
 
   mps_context_free (ctx);
@@ -194,27 +194,27 @@ START_TEST (inline_simple5)
     mps_parse_inline_poly_from_string (ctx, "1.04*x^4 - 1.23e-2"));
 
   /* Verify the parsing */
-  fail_unless (poly != NULL, "Cannot parse 100/100x^4 - 1.23e-2 correctly");
+  ck_assert_msg (poly != NULL, "Cannot parse 100/100x^4 - 1.23e-2 correctly");
 
-  fail_unless (mpq_cmp_si (poly->initial_mqp_r[0], -123, 10000) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_r[0], -123, 10000) == 0,
                "Coefficient of degree 0 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_i[0], 0, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_i[0], 0, 1) == 0,
                "Coefficient of degree 0 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_r[1], 0, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_r[1], 0, 1) == 0,
                "Coefficient of degree 1 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_i[1], 0, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_i[1], 0, 1) == 0,
                "Coefficient of degree 1 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_r[2], 0, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_r[2], 0, 1) == 0,
                "Coefficient of degree 2 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_i[2], 0, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_i[2], 0, 1) == 0,
                "Coefficient of degree 2 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_r[3], 0, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_r[3], 0, 1) == 0,
                "Coefficient of degree 3 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_i[3], 0, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_i[3], 0, 1) == 0,
                "Coefficient of degree 3 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_r[4], 104, 100) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_r[4], 104, 100) == 0,
                "Coefficient of degree 4 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_i[4], 0, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_i[4], 0, 1) == 0,
                "Coefficient of degree 4 has been parsed incorrectly");
 
   mps_context_free (ctx);
@@ -231,19 +231,19 @@ START_TEST (inline_simple6)
     mps_parse_inline_poly_from_string (ctx, "x^2 - x"));
 
   /* Verify the parsing */
-  fail_unless (poly != NULL, "Cannot parse x^2 - x correctly");
+  ck_assert_msg (poly != NULL, "Cannot parse x^2 - x correctly");
 
-  fail_unless (mpq_cmp_si (poly->initial_mqp_r[0], 0, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_r[0], 0, 1) == 0,
                "Coefficient of degree 0 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_i[0], 0, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_i[0], 0, 1) == 0,
                "Coefficient of degree 0 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_r[1], -1, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_r[1], -1, 1) == 0,
                "Coefficient of degree 1 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_i[1], 0, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_i[1], 0, 1) == 0,
                "Coefficient of degree 1 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_r[2], 1, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_r[2], 1, 1) == 0,
                "Coefficient of degree 2 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_i[2], 0, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_i[2], 0, 1) == 0,
                "Coefficient of degree 2 has been parsed incorrectly");
 
   mps_context_free (ctx);
@@ -260,19 +260,19 @@ START_TEST (inline_simple7)
     mps_parse_inline_poly_from_string (ctx, "x^2 - 6/7"));
 
   /* Verify the parsing */
-  fail_unless (poly != NULL, "Cannot parse x^2 - x correctly");
+  ck_assert_msg (poly != NULL, "Cannot parse x^2 - x correctly");
 
-  fail_unless (mpq_cmp_si (poly->initial_mqp_r[0], -6, 7) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_r[0], -6, 7) == 0,
                "Coefficient of degree 0 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_i[0], 0, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_i[0], 0, 1) == 0,
                "Coefficient of degree 0 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_r[1], 0, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_r[1], 0, 1) == 0,
                "Coefficient of degree 1 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_i[1], 0, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_i[1], 0, 1) == 0,
                "Coefficient of degree 1 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_r[2], 1, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_r[2], 1, 1) == 0,
                "Coefficient of degree 2 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_i[2], 0, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_i[2], 0, 1) == 0,
                "Coefficient of degree 2 has been parsed incorrectly");
 
   mps_context_free (ctx);
@@ -289,19 +289,19 @@ START_TEST (inline_simple8)
     mps_parse_inline_poly_from_string (ctx, "2342/12*x^2 - 6/7 +x"));
 
   /* Verify the parsing */
-  fail_unless (poly != NULL, "Cannot parse x^2 - x correctly");
+  ck_assert_msg (poly != NULL, "Cannot parse x^2 - x correctly");
 
-  fail_unless (mpq_cmp_si (poly->initial_mqp_r[0], -6, 7) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_r[0], -6, 7) == 0,
                "Coefficient of degree 0 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_i[0], 0, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_i[0], 0, 1) == 0,
                "Coefficient of degree 0 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_r[1], 1, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_r[1], 1, 1) == 0,
                "Coefficient of degree 1 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_i[1], 0, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_i[1], 0, 1) == 0,
                "Coefficient of degree 1 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_r[2], 2342, 12) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_r[2], 2342, 12) == 0,
                "Coefficient of degree 2 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_i[2], 0, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_i[2], 0, 1) == 0,
                "Coefficient of degree 2 has been parsed incorrectly");
 
   mps_context_free (ctx);
@@ -318,19 +318,19 @@ START_TEST (inline_simple9)
 
 
   /* Verify the parsing */
-  fail_unless (poly != NULL, "Cannot parse x^2 - x correctly");
+  ck_assert_msg (poly != NULL, "Cannot parse x^2 - x correctly");
 
-  fail_unless (mpq_cmp_si (poly->initial_mqp_r[0], -6, 7) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_r[0], -6, 7) == 0,
                "Coefficient of degree 0 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_i[0], 0, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_i[0], 0, 1) == 0,
                "Coefficient of degree 0 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_r[1], 0, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_r[1], 0, 1) == 0,
                "Coefficient of degree 1 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_i[1], 0, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_i[1], 0, 1) == 0,
                "Coefficient of degree 1 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_r[2], 1, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_r[2], 1, 1) == 0,
                "Coefficient of degree 2 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_i[2], 0, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_i[2], 0, 1) == 0,
                "Coefficient of degree 2 has been parsed incorrectly");
 
   mps_context_free (ctx);
@@ -347,19 +347,19 @@ START_TEST (inline_simple10)
 
 
   /* Verify the parsing */
-  fail_unless (poly != NULL, "Cannot parse x^2+7+x correctly");
+  ck_assert_msg (poly != NULL, "Cannot parse x^2+7+x correctly");
 
-  fail_unless (mpq_cmp_si (poly->initial_mqp_r[0], 7, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_r[0], 7, 1) == 0,
                "Coefficient of degree 0 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_i[0], 0, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_i[0], 0, 1) == 0,
                "Coefficient of degree 0 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_r[1], 1, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_r[1], 1, 1) == 0,
                "Coefficient of degree 1 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_i[1], 0, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_i[1], 0, 1) == 0,
                "Coefficient of degree 1 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_r[2], 1, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_r[2], 1, 1) == 0,
                "Coefficient of degree 2 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_i[2], 0, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_i[2], 0, 1) == 0,
                "Coefficient of degree 2 has been parsed incorrectly");
 
   mps_context_free (ctx);
@@ -377,29 +377,29 @@ START_TEST (inline_simple11)
 
 
   /* Verify the parsing */
-  fail_unless (poly != NULL, "Cannot parse x^70+2e4x^10+6/7 correctly: %s",
+  ck_assert_msg (poly != NULL, "Cannot parse x^70+2e4x^10+6/7 correctly: %s",
                mps_context_error_msg (ctx));
 
-  fail_unless (mpq_cmp_si (poly->initial_mqp_r[0], 6, 7) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_r[0], 6, 7) == 0,
                "Coefficient of degree 0 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_i[0], 0, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_i[0], 0, 1) == 0,
                "Coefficient of degree 0 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_r[10], 20000, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_r[10], 20000, 1) == 0,
                "Coefficient of degree 10 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_i[10], 0, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_i[10], 0, 1) == 0,
                "Coefficient of degree 10 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_r[70], 1, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_r[70], 1, 1) == 0,
                "Coefficient of degree 70 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_i[70], 0, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_i[70], 0, 1) == 0,
                "Coefficient of degree 70 has been parsed incorrectly");
 
   for (i = 1; i <= 69; i++)
     {
       if (i != 10)
         {
-          fail_unless (mpq_cmp_si (poly->initial_mqp_r[i], 0, 1) == 0,
+          ck_assert_msg (mpq_cmp_si (poly->initial_mqp_r[i], 0, 1) == 0,
                        "Coefficient of degree %d has been parsed incorrectly", i);
-          fail_unless (mpq_cmp_si (poly->initial_mqp_i[i], 0, 1) == 0,
+          ck_assert_msg (mpq_cmp_si (poly->initial_mqp_i[i], 0, 1) == 0,
                        "Coefficient of degree %d has been parsed incorrectly", i);
         }
     }
@@ -419,19 +419,19 @@ START_TEST (inline_cancellation1)
     mps_parse_inline_poly_from_string (ctx, "-6/7 + x^2 + 12/14"));
 
   /* Verify the parsing */
-  fail_unless (poly != NULL, "Cannot parse x^2 - x correctly");
+  ck_assert_msg (poly != NULL, "Cannot parse x^2 - x correctly");
 
-  fail_unless (mpq_cmp_si (poly->initial_mqp_r[0], 0, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_r[0], 0, 1) == 0,
                "Coefficient of degree 0 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_i[0], 0, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_i[0], 0, 1) == 0,
                "Coefficient of degree 0 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_r[1], 0, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_r[1], 0, 1) == 0,
                "Coefficient of degree 1 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_i[1], 0, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_i[1], 0, 1) == 0,
                "Coefficient of degree 1 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_r[2], 1, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_r[2], 1, 1) == 0,
                "Coefficient of degree 2 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_i[2], 0, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_i[2], 0, 1) == 0,
                "Coefficient of degree 2 has been parsed incorrectly");
 
   mps_context_free (ctx);
@@ -448,15 +448,15 @@ START_TEST (inline_linear1)
     mps_parse_inline_poly_from_string (ctx, "x-6"));
 
   /* Verify the parsing */
-  fail_unless (poly != NULL, "Cannot parse x-6 correctly");
+  ck_assert_msg (poly != NULL, "Cannot parse x-6 correctly");
 
-  fail_unless (mpq_cmp_si (poly->initial_mqp_r[0], -6, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_r[0], -6, 1) == 0,
                "Coefficient of degree 0 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_i[0], 0, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_i[0], 0, 1) == 0,
                "Coefficient of degree 0 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_r[1], 1, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_r[1], 1, 1) == 0,
                "Coefficient of degree 1 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_i[1], 0, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_i[1], 0, 1) == 0,
                "Coefficient of degree 1 has been parsed incorrectly");
 
   mps_context_free (ctx);
@@ -472,7 +472,7 @@ START_TEST (malformed_input1)
   mps_monomial_poly * poly = MPS_MONOMIAL_POLY (
     mps_parse_inline_poly_from_string (ctx, " 1.0/6x^4 - 2"));
 
-  fail_unless ((poly == NULL) &&
+  ck_assert_msg ((poly == NULL) &&
                mps_context_has_errors (ctx),
                "Error not raised on invalid polynomial");
 
@@ -492,7 +492,7 @@ START_TEST (malformed_input2)
   mps_monomial_poly * poly = MPS_MONOMIAL_POLY (
     mps_parse_inline_poly_from_string (ctx, " 1e4/12.3*x^4 - 2"));
 
-  fail_unless ((poly == NULL) &&
+  ck_assert_msg ((poly == NULL) &&
                mps_context_has_errors (ctx),
                "Error not raised on invalid polynomial");
 
@@ -518,27 +518,27 @@ START_TEST (wellformed_input1)
     printf ("TEST:malformed_input1 :: Error obtained parsing 6/4x^9 - 2e4: %s\n",
             mps_context_error_msg (ctx));
 
-  fail_unless ((poly != NULL) &&
+  ck_assert_msg ((poly != NULL) &&
                !mps_context_has_errors (ctx),
                "Error raised on valid polynomial");
 
-  fail_unless (mpq_cmp_si (poly->initial_mqp_r[0], -20000, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_r[0], -20000, 1) == 0,
                "Coefficient of degree 0 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_i[0], 0, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_i[0], 0, 1) == 0,
                "Coefficient of degree 0 has been parsed incorrectly");
 
   /* Check the middle ones */
   for (i = 1; i <= 8; i++)
     {
-      fail_unless (mpq_cmp_si (poly->initial_mqp_r[i], 0, 1) == 0,
+      ck_assert_msg (mpq_cmp_si (poly->initial_mqp_r[i], 0, 1) == 0,
                    "Coefficient of degree %d has been parsed incorrectly", i);
-      fail_unless (mpq_cmp_si (poly->initial_mqp_i[i], 0, 1) == 0,
+      ck_assert_msg (mpq_cmp_si (poly->initial_mqp_i[i], 0, 1) == 0,
                    "Coefficient of degree %d has been parsed incorrectly", i);
     }
 
-  fail_unless (mpq_cmp_si (poly->initial_mqp_r[9], 3, 2) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_r[9], 3, 2) == 0,
                "Coefficient of degree 9 has been parsed incorrectly");
-  fail_unless (mpq_cmp_si (poly->initial_mqp_i[9], 0, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_i[9], 0, 1) == 0,
                "Coefficient of degree 9 has been parsed incorrectly");
 
   mps_context_free (ctx);
@@ -557,21 +557,21 @@ START_TEST (test_complex1)
   if (mps_context_has_errors (ctx))
     printf ("Error = %s\n", mps_context_error_msg (ctx));
 
-  fail_unless (poly != NULL,
+  ck_assert_msg (poly != NULL,
                "Cannot parse polynomial: x^4 - (2e3 + 6/7i)*x^9 + 5");
 
   /* Check that the coefficients have been parsed correctly */
-  fail_unless (mpq_cmp_si (poly->initial_mqp_r[0], 5, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_r[0], 5, 1) == 0,
                "The part of the coefficient of degree %d has been parsed incorrectly", 0);
-  fail_unless (mpq_cmp_si (poly->initial_mqp_i[0], 0, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_i[0], 0, 1) == 0,
                "The imaginary part of the coefficient of degree %d has been parsed incorrectly", 0);
-  fail_unless (mpq_cmp_si (poly->initial_mqp_r[4], 1, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_r[4], 1, 1) == 0,
                "The real part of the coefficient of degree %d has been parsed incorrectly", 4);
-  fail_unless (mpq_cmp_si (poly->initial_mqp_i[4], 0, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_i[4], 0, 1) == 0,
                "The imaginary part of the coefficient of degree %d has been parsed incorrectly", 4);
-  fail_unless (mpq_cmp_si (poly->initial_mqp_r[9], -2000, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_r[9], -2000, 1) == 0,
                "The real part of the coefficient of degree %d has been parsed incorrectly", 9);
-  fail_unless (mpq_cmp_si (poly->initial_mqp_i[9], -6, 7) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_i[9], -6, 7) == 0,
                "The imaginary part of the coefficient of degree %d has been parsed incorrectly", 9);
 
   int zero_coefficients[] = { 1, 2, 3, 5, 6, 7, 8 };
@@ -579,10 +579,10 @@ START_TEST (test_complex1)
 
   for (i = 0; i < 7; i++)
     {
-      fail_unless (mpq_cmp_si (poly->initial_mqp_r[zero_coefficients[i]], 0, 1) == 0,
+      ck_assert_msg (mpq_cmp_si (poly->initial_mqp_r[zero_coefficients[i]], 0, 1) == 0,
                    "The real part of the coefficient of degree %d has been parsed incorrectly",
                    zero_coefficients[i]);
-      fail_unless (mpq_cmp_si (poly->initial_mqp_i[zero_coefficients[i]], 0, 1) == 0,
+      ck_assert_msg (mpq_cmp_si (poly->initial_mqp_i[zero_coefficients[i]], 0, 1) == 0,
                    "The imaginary part of the coefficient of degree %d has been parsed incorrectly",
                    zero_coefficients[i]);
     }
@@ -604,21 +604,21 @@ START_TEST (test_complex2)
   if (mps_context_has_errors (ctx))
     printf ("Error = %s\n", mps_context_error_msg (ctx));
 
-  fail_unless (poly != NULL,
+  ck_assert_msg (poly != NULL,
                "Cannot parse polynomial: (1.2  -12/67i)*x^42 - (2e-3 + 1i) * x^9 + (5 + 6/9i)");
 
   /* Check that the coefficients have been parsed correctly */
-  fail_unless (mpq_cmp_si (poly->initial_mqp_r[0], 5, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_r[0], 5, 1) == 0,
                "The part of the coefficient of degree %d has been parsed incorrectly", 0);
-  fail_unless (mpq_cmp_si (poly->initial_mqp_i[0], 6, 9) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_i[0], 6, 9) == 0,
                "The imaginary part of the coefficient of degree %d has been parsed incorrectly", 0);
-  fail_unless (mpq_cmp_si (poly->initial_mqp_r[9], -2, 1000) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_r[9], -2, 1000) == 0,
                "The real part of the coefficient of degree %d has been parsed incorrectly", 9);
-  fail_unless (mpq_cmp_si (poly->initial_mqp_i[9], -1, 1) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_i[9], -1, 1) == 0,
                "The imaginary part of the coefficient of degree %d has been parsed incorrectly", 9);
-  fail_unless (mpq_cmp_si (poly->initial_mqp_r[42], 12, 10) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_r[42], 12, 10) == 0,
                "The real part of the coefficient of degree %d has been parsed incorrectly", 42);
-  fail_unless (mpq_cmp_si (poly->initial_mqp_i[42], -12, 67) == 0,
+  ck_assert_msg (mpq_cmp_si (poly->initial_mqp_i[42], -12, 67) == 0,
                "The imaginary part of the coefficient of degree %d has been parsed incorrectly", 42);
 
   int i;
@@ -626,9 +626,9 @@ START_TEST (test_complex2)
     {
       if (i != 9)
         {
-          fail_unless (mpq_cmp_si (poly->initial_mqp_r[i], 0, 1) == 0,
+          ck_assert_msg (mpq_cmp_si (poly->initial_mqp_r[i], 0, 1) == 0,
                        "The real part of the coefficient of degree %d has been parsed incorrectly", i);
-          fail_unless (mpq_cmp_si (poly->initial_mqp_i[i], 0, 1) == 0,
+          ck_assert_msg (mpq_cmp_si (poly->initial_mqp_i[i], 0, 1) == 0,
                        "The imaginary part of the coefficient of degree %d has been parsed incorrectly", i);
         }
     }
@@ -653,7 +653,7 @@ START_TEST (multiline_pol_file1)
 
   mps_polynomial * poly = mps_parse_string (ctx, pol_file);
 
-  fail_unless (poly != NULL && ! mps_context_has_errors (ctx), 
+  ck_assert_msg (poly != NULL && ! mps_context_has_errors (ctx), 
 	       "Cannot parse the following polynomial file directly from memory: %s", 
 	       pol_file);	      
 

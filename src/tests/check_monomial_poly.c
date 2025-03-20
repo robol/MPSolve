@@ -14,7 +14,7 @@ START_TEST (set_coefficient_d1)
 
   mps_monomial_poly_get_coefficient_d (ctx, poly, 0, output);
 
-  fail_unless (cplx_Re (output) == 2.0 &&
+  ck_assert_msg (cplx_Re (output) == 2.0 &&
                cplx_Im (output) == -0.5,
                "Failed to set the coefficients of the polynomial from double input");
 
@@ -38,7 +38,7 @@ START_TEST (set_coefficient_s1)
   mps_monomial_poly_get_coefficient_q (ctx, poly, 0,
                                        real_coeff, imag_coeff);
 
-  fail_unless (mpq_cmp_si (real_coeff, 2, 3) == 0 &&
+  ck_assert_msg (mpq_cmp_si (real_coeff, 2, 3) == 0 &&
                mpq_cmp_si (imag_coeff, 0, 1) == 0,
                "Failed to set coefficients from string");
 
@@ -64,7 +64,7 @@ START_TEST (set_coefficient_s2)
   mps_monomial_poly_get_coefficient_q (ctx, poly, 2,
                                        real_coeff, imag_coeff);
 
-  fail_unless (mpq_cmp_si (real_coeff, 780, 1) == 0 &&
+  ck_assert_msg (mpq_cmp_si (real_coeff, 780, 1) == 0 &&
                mpq_cmp_si (imag_coeff, 16, 10) == 0,
                "Failed to set coefficients from string");
 

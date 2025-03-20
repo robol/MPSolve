@@ -179,7 +179,7 @@ test_unisolve_on_pol_impl (test_pol * pol, mps_output_goal goal)
     failed_test_message (pol->pol_file);
 
   if (getenv ("MPS_VERBOSE_TEST"))
-    fail_unless (passed == true,
+    ck_assert_msg (passed == true,
                  "Computed results are not exact to the required "
                  "precision.\n" "\n" " Dumping test configuration: \n"
                  "   => Polynomial file: %s;\n" "   => Required digits: %d\n"
@@ -188,7 +188,7 @@ test_unisolve_on_pol_impl (test_pol * pol, mps_output_goal goal)
                  mps_boolean_to_string (pol->ga),
                  (pol->phase == float_phase) ? "float_phase" : "dpe_phase");
   else
-    fail_unless (passed == true,
+    ck_assert_msg (passed == true,
                  "Computed results are not exact to the required precision");
 
   return passed;

@@ -1,5 +1,5 @@
 /*
- * This file is part of MPSolve 3.2.1
+ * This file is part of MPSolve 3.2.2
  *
  * Copyright (C) 2001-2020, Dipartimento di Matematica "L. Tonelli", Pisa.
  * License: http://www.gnu.org/licenses/gpl.html GPL version 3 or higher
@@ -1766,7 +1766,7 @@ cdpe_set_d (cdpe_t c, double dr, double di)
 }
 
 void
-cdpe_set_dl (cdpe_t c, double dr, long int lr, double di, long int li)
+cdpe_set_dl (cdpe_t c, double dr, long lr, double di, long li)
 /* c = dr*10^lr + I di*10^li */
 {
   rdpe_set_dl (cdpe_Re (c), dr, lr);
@@ -1774,7 +1774,7 @@ cdpe_set_dl (cdpe_t c, double dr, long int lr, double di, long int li)
 }
 
 void
-cdpe_set_2dl (cdpe_t c, double dr, long int lr, double di, long int li)
+cdpe_set_2dl (cdpe_t c, double dr, long lr, double di, long li)
 /* c = dr*2^lr + I di*2^li */
 {
   rdpe_Mnt (cdpe_Re (c)) = dr;
@@ -1792,8 +1792,8 @@ cdpe_set_str (cdpe_t c, const char *s)
         (s, CDPE_INP_FMT, &rdpe_Mnt (cdpe_Re (c)), &rdpe_Esp (cdpe_Re (c)),
         &rdpe_Mnt (cdpe_Im (c)), &rdpe_Esp (cdpe_Im (c))) != 4)
     return 0;
-  rdpe_set_dl (cdpe_Re (c), rdpe_Mnt (cdpe_Re (c)), rdpe_Esp (cdpe_Re (c)));
-  rdpe_set_dl (cdpe_Im (c), rdpe_Mnt (cdpe_Im (c)), rdpe_Esp (cdpe_Im (c)));
+
+  cdpe_Norm(c);
   return 1;
 }
 

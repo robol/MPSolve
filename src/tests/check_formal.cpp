@@ -7,11 +7,11 @@
 START_TEST (monomial_creation)
 {
   mps::formal::Monomial one("1", 0);
-  fail_unless (one.coefficientReal() == 1,
+  ck_assert_msg (one.coefficientReal() == 1,
 	       "Monomial(\"1\", 0) != 1");
 
   mps::formal::Monomial exp1("1.01e2", 12);
-  fail_unless ((exp1.coefficientReal() == 101) && 
+  ck_assert_msg ((exp1.coefficientReal() == 101) && 
 	       (exp1.degree() == 12),
 	       "Monomial(\"1.01e2\",12) != 101x^12");
 	       
@@ -21,7 +21,7 @@ END_TEST
 START_TEST (monomial_floating)
 {
   mps::formal::Monomial test("0.25", 0);
-  fail_unless (test.coefficientReal() * 4 == 1,
+  ck_assert_msg (test.coefficientReal() * 4 == 1,
               "Monomial(\"0.25\") != 0.25");
 }
 END_TEST
@@ -35,11 +35,11 @@ START_TEST (monomial_sum)
   
   std::cout << p << std::endl;
 
-  fail_unless (p.degree() == 1, 
+  ck_assert_msg (p.degree() == 1, 
 	       "deg(2x + 1) != 1");
-  fail_unless (p[0].coefficientReal() == 1,
+  ck_assert_msg (p[0].coefficientReal() == 1,
 	       "2x+1 has constant term different from 1");
-  fail_unless (p[1].coefficientReal() == 2,
+  ck_assert_msg (p[1].coefficientReal() == 2,
 	       "2x+1 has leading coefficient different from 2");
 }
 END_TEST

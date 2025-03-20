@@ -1,7 +1,7 @@
 if BUILD_MATLAB_TOOLBOX
 
 %.o: %.c
-	@$(MEX) $(MEXOPTS) $(GMP_CFLAGS) -I${top_srcdir}/include -g \
+	$(MEX) $(MEXOPTS) $(GMP_CFLAGS) -I${top_srcdir}/include -g \
 	-I${top_builddir}/include \
 	-c $< > /dev/null
 

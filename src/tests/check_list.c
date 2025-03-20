@@ -6,7 +6,7 @@ START_TEST (list_creation)
 {
   mps_list * list = mps_list_new ();
 
-  fail_unless (mps_list_size (list) == 0, 
+  ck_assert_msg (mps_list_size (list) == 0, 
 	       "Newly created list's size differs from 0.");
 
   mps_list_free (list);
@@ -26,7 +26,7 @@ START_TEST (list_foreach)
   i = 0;
   MPS_LIST_FOREACH (int, ptr, list)
     {
-      fail_unless (*ptr == test_elements[i++], 
+      ck_assert_msg (*ptr == test_elements[i++], 
 		   "List elements differs from the array that was used to fill it.");
     }
   

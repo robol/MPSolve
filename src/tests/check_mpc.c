@@ -19,7 +19,7 @@ START_TEST (basics_addition)
 
   mpc_get_cplx (x, c);
 
-  fail_unless (fabs (cplx_Re (x) - 1e-150) < DBL_EPSILON * 1e-150 * 8.0,
+  ck_assert_msg (fabs (cplx_Re (x) - 1e-150) < DBL_EPSILON * 1e-150 * 8.0,
                "Loss of precision in multiprecision arithmetic: addition");
 
   mpc_clear (a);
@@ -70,7 +70,7 @@ START_TEST (basics_multiplication)
 
         cplx_sub_eq (x, y);
 
-        fail_unless (cplx_mod (x) < cplx_mod (y) * 8.0 * DBL_EPSILON,
+        ck_assert_msg (cplx_mod (x) < cplx_mod (y) * 8.0 * DBL_EPSILON,
                      "Floating point errors in complex multiplications");
       }
 

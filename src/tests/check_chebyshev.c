@@ -59,7 +59,7 @@ START_TEST (test_chebyshev_poly_80)
 
       printf ("[Chebyshev tests] Residue for approximation %3d: %e\n", i, epsilon);
       printf ("[Chebyshev tests] Inclusion radii: %e\n", rdpe_get_d (radii[found_root]));
-      fail_unless (epsilon < 4.0 * DBL_EPSILON + rdpe_get_d (radii[found_root]));
+      ck_assert (epsilon < 4.0 * DBL_EPSILON + rdpe_get_d (radii[found_root]));
     }
 
   mps_polynomial_free (ctx, MPS_POLYNOMIAL (cp));
