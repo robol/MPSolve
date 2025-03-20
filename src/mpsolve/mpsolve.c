@@ -352,34 +352,34 @@ main (int argc, char **argv)
             switch (*opt->optvalue)
               {
               case 'a':
-                s->output_config->search_set = MPS_SEARCH_SET_COMPLEX_PLANE;
+                mps_context_set_search_set (s, MPS_SEARCH_SET_COMPLEX_PLANE);
                 break;
               case 'r':
-                s->output_config->search_set = MPS_SEARCH_SET_POSITIVE_REAL_PART;
+                mps_context_set_search_set (s, MPS_SEARCH_SET_POSITIVE_REAL_PART);
                 break;
               case 'l':
-                s->output_config->search_set = MPS_SEARCH_SET_NEGATIVE_REAL_PART;
+                mps_context_set_search_set (s, MPS_SEARCH_SET_NEGATIVE_REAL_PART);
                 break;
               case 'u':
-                s->output_config->search_set = MPS_SEARCH_SET_POSITIVE_IMAG_PART;
+                mps_context_set_search_set (s, MPS_SEARCH_SET_POSITIVE_IMAG_PART);
                 break;
               case 'd':
-                s->output_config->search_set = MPS_SEARCH_SET_NEGATIVE_IMAG_PART;
+                mps_context_set_search_set (s, MPS_SEARCH_SET_NEGATIVE_IMAG_PART);
                 break;
               case 'i':
-                s->output_config->search_set = MPS_SEARCH_SET_UNITARY_DISC;
+                mps_context_set_search_set (s, MPS_SEARCH_SET_UNITARY_DISC);
                 break;
               case 'o':
-                s->output_config->search_set = MPS_SEARCH_SET_UNITARY_DISC_COMPL;
+                mps_context_set_search_set (s, MPS_SEARCH_SET_UNITARY_DISC_COMPL);
                 break;
               case 'R':
-                s->output_config->search_set = MPS_SEARCH_SET_REAL;
+                mps_context_set_search_set (s, MPS_SEARCH_SET_REAL);
                 break;
               case 'I':
-                s->output_config->search_set = MPS_SEARCH_SET_IMAG;
+                mps_context_set_search_set (s, MPS_SEARCH_SET_IMAG);
                 break;
               case 'U':
-                s->output_config->search_set = MPS_SEARCH_SET_CUSTOM;
+                mps_context_set_search_set (s, MPS_SEARCH_SET_CUSTOM);
                 break;
               default:
                 mps_error (s, "Bad search set switch: ", opt->optvalue,
@@ -412,17 +412,16 @@ main (int argc, char **argv)
             switch (*opt->optvalue)
               {
               case 'n':
-                s->output_config->root_properties = MPS_OUTPUT_PROPERTY_NONE;
+                mps_context_set_root_properties (s, MPS_OUTPUT_PROPERTY_NONE);
                 break;
               case 'r':
-                s->output_config->root_properties = MPS_OUTPUT_PROPERTY_REAL;
+                mps_context_set_root_properties (s, MPS_OUTPUT_PROPERTY_REAL);
                 break;
               case 'i':
-                s->output_config->root_properties = MPS_OUTPUT_PROPERTY_IMAGINARY;
+                mps_context_set_root_properties (s, MPS_OUTPUT_PROPERTY_IMAGINARY);
                 break;
               case 'b':
-                s->output_config->root_properties = MPS_OUTPUT_PROPERTY_REAL | 
-                  MPS_OUTPUT_PROPERTY_IMAGINARY;
+                mps_context_set_root_properties (s, MPS_OUTPUT_PROPERTY_REAL | MPS_OUTPUT_PROPERTY_IMAGINARY);
                 break;
               default:
                 mps_error (s, "Bad detection switch: ", opt->optvalue,
@@ -434,7 +433,7 @@ main (int argc, char **argv)
 
             /* I/O streams */
           case 'R':
-            s->rtstr = fopen (opt->optvalue, "r");
+            mps_context_set_root_stream (s, fopen (opt->optvalue, "r"));
             if (s->rtstr == NULL)
               mps_error (s, "Cannot open roots file: ", opt->optvalue);
             s->resume = true;
@@ -574,7 +573,7 @@ main (int argc, char **argv)
 	    }
 	  else
 	    {
-	      s->rtstr = fopen (opt->optvalue, "r");
+	      mps_context_set_root_stream (s, fopen (opt->optvalue, "r"));
 	      if (! s->rtstr)
 		{
 		  mps_error (s, "Cannot open the given file: %s", opt->optvalue);
@@ -603,7 +602,7 @@ main (int argc, char **argv)
 
         case 'j':
           mps_thread_pool_set_concurrency_limit (s, NULL, atoi (opt->optvalue));
-          s->n_threads = atoi (opt->optvalue);
+          mps_context_set_n_threads (s, atoi (opt->optvalue));
           break;
         default:
           usage (s, argv[0]);

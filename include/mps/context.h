@@ -48,6 +48,11 @@ typedef void* (*mps_callback)(mps_context * status, void * user_data);
 #define MPS_DSTART_PTR(x) (mps_dstart_ptr) & (x)
 #define MPS_MPSOLVE_PTR(x) (mps_mpsolve_ptr) & (x)
 
+/* Properties of the root */
+#define MPS_OUTPUT_PROPERTY_NONE      (0x00)
+#define MPS_OUTPUT_PROPERTY_REAL      (0x01)
+#define MPS_OUTPUT_PROPERTY_IMAGINARY (0x01 << 1)
+
 #ifdef _MPS_PRIVATE
 /**
  * @brief this struct holds the state of the mps computation
@@ -575,13 +580,17 @@ void mps_context_set_input_prec (mps_context * s, long int prec);
 void mps_context_set_output_prec (mps_context * s, long int prec);
 void mps_context_set_output_format (mps_context * s, mps_output_format format);
 void mps_context_set_output_goal (mps_context * s, mps_output_goal goal);
+void mps_context_set_search_set (mps_context * s, mps_search_set set);
 void mps_context_set_starting_phase (mps_context * s, mps_phase phase);
 void mps_context_set_log_stream (mps_context * s, FILE * logstr);
+void mps_context_set_root_stream (mps_context * s, FILE * rtstr);
 void mps_context_set_jacobi_iterations (mps_context * s, mps_boolean jacobi_iterations);
 void mps_context_select_starting_strategy (mps_context * s, mps_starting_strategy strategy);
 void mps_context_set_avoid_multiprecision (mps_context * s, mps_boolean avoid_multiprecision);
 void mps_context_set_crude_approximation_mode (mps_context * s, mps_boolean crude_approximation_mode);
 void mps_context_set_regeneration_driver (mps_context * s, mps_regeneration_driver * rd);
+void mps_context_set_n_threads (mps_context * s, int n_threads);
+void mps_context_set_root_properties (mps_context * s, char root_properties);
 
 /* Debugging */
 void mps_context_set_debug_level (mps_context * s, mps_debug_level level);

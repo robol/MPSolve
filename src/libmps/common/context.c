@@ -637,6 +637,18 @@ mps_context_set_output_goal (mps_context * s, mps_output_goal goal)
 }
 
 /**
+ * @brief Restrict the search set for the roots.
+ *
+ * @param s The <code>mps_context</code> of the computation.
+ * @param set The search set for the roots.
+ */
+void
+mps_context_set_search_set(mps_context *s, mps_search_set set)
+{
+  s->output_config->search_set = set;
+}
+
+/**
  * @brief Set the value of the jacobi iterations switch in the MPSolve context.
  *
  * If jacobi_iterations is true then the Ehrlich-Aberth iterations will be carried
@@ -718,6 +730,19 @@ void
 mps_context_set_log_stream (mps_context * s, FILE * logstr)
 {
   s->logstr = logstr;
+}
+
+/**
+ * @brief Set root stream.
+ *
+ * @param s The <code>mps_context</code> of the current computation.
+ * @param rtstr The stream used to resume an interrupted computation
+ * or to load the approximations from a custom file.
+ */
+void
+mps_context_set_root_stream (mps_context * s, FILE * rtstr)
+{
+  s->rtstr = rtstr;
 }
 
 /**
@@ -863,4 +888,30 @@ void
 mps_context_set_regeneration_driver (mps_context * s, mps_regeneration_driver * rd)
 {
   s->regeneration_driver = rd;
+}
+
+/**
+ * @brief Set the number of threads.
+ *
+ * @param s The context where the change will have effect.
+ * @param n_threads The number of thread to be spawned.
+ */
+void mps_context_set_n_threads (mps_context *s, int n_threads)
+{
+  s->n_threads = n_threads;
+}
+
+/**
+* @brief Define which properties of the roots must be determined by MPSolve.
+ *
+ * @param s The context where the change will have effect.
+ * @param root_properties Possible values:
+ *  -# MPS_OUTPUT_PROPERTY_NONE
+ *  -# MPS_OUTPUT_PROPERTY_REAL
+ *  -# MPS_OUTPUT_PROPERTY_IMAGINARY
+ *  -# MPS_OUTPUT_PROPERTY_REAL | MPS_OUTPUT_PROPERTY_IMAGINARY
+ */
+void mps_context_set_root_properties (mps_context *s, char root_properties)
+{
+  s->output_config->root_properties = root_properties;
 }
