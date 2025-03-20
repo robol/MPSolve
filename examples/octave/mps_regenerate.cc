@@ -27,7 +27,7 @@ This function will take that b_i chosen as nodes and return the respective a_i s
 
   ComplexColumnVector b = args(0).complex_column_vector_value();
   int degree = nargin - 2;
-  ComplexColumnVector a(b.length());
+  ComplexColumnVector a(b.numel());
 
   cplx_t * fa = (cplx_t*) a.fortran_vec();
   cplx_t * fb = (cplx_t*) b.fortran_vec();
@@ -41,7 +41,7 @@ This function will take that b_i chosen as nodes and return the respective a_i s
       ComplexMatrix A = args(1).complex_matrix_value().transpose();
       cplx_t * A_data = (cplx_t*) A.fortran_vec();
       
-      for (int i = 0; i < a.length(); i++)
+      for (int i = 0; i < a.numel(); i++)
 	{
 	  long int exponent = 0;
 	  cplx_t prod;
@@ -49,7 +49,7 @@ This function will take that b_i chosen as nodes and return the respective a_i s
 	  mps_fhessenberg_shifted_determinant (ctx, A_data, fb[i], A.rows(), fa[i], &exponent);
 	  cplx_set (prod, cplx_one);
 
-	  for (int j = 0; j < b.length(); j++)
+	  for (int j = 0; j < b.numel(); j++)
 	    {
 	      if (i == j)
 		continue;
