@@ -6,10 +6,12 @@ man_MANS = ${builddir}/mpsolve.1
 
 EXTRA_DIST = mpsolve.1
 
-mpsolve_CFLAGS = \
+mpsolve_CPPFLAGS = \
         -I${top_srcdir}/include \
 	-I. \
-	-I${top_builddir}/include \
+	-I${top_builddir}/include
+
+mpsolve_CFLAGS = \
 	$(GMP_CFLAGS) \
 	$(GTK_CFLAGS) \
 	$(PTHREAD_CFLAGS) \
