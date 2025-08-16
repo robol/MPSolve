@@ -21,7 +21,11 @@ typedef bool mps_boolean;
 typedef int mps_debug_level;
 
 /* Handle systems where isnan and isinf are not available */
-#include <math.h>
+#ifdef __cplusplus
+  #include <cmath>
+#else
+  #include <math.h>
+#endif
 #ifndef isnan
           # define isnan(x) \
   (sizeof(x) == sizeof(long double) ? isnan_ld (x) \
