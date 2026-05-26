@@ -62,10 +62,11 @@ mps_thread_fpolzer_worker (void *data_ptr)
 
           mps_polynomial_fnewton (s, p, s->root[i], corr);
 
-	  if (cplx_check_fpe (corr))
+	  if (cplx_check_fpe (corr) || isnan(s->root[i]->frad) || isinf(s->root[i]->frad))
 	    {
 	      /* If we get a floating point exception we need to switch to DPE
 	       * arithmetic. */
+        MPS_DEBUG (s, "Floating point exception detected, switching to DPE arithmetic");
 	      s->root[i]->frad = rad1;
 	      s->skip_float = true;
 	      s->root[i]->again = false;
