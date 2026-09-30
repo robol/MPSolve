@@ -340,8 +340,17 @@ AC_ARG_ENABLE([tcmalloc],
 ## make check command. 
 ##
 
-  # Check for the check module, so MPSolve tests can be run.
-  PKG_CHECK_MODULES([CHECK], [check >= 0.9.4], [have_check=yes], [have_check=no])
+  # Keep automatic detection by default, but let packagers select tests explicitly.
+  AC_ARG_ENABLE([tests],
+    AS_HELP_STRING([--enable-tests], [build tests (default: auto)]),
+    [], [enable_tests=auto])
+  have_check=no
+  AS_IF([test "x$enable_tests" != xno], [
+    PKG_CHECK_MODULES([CHECK], [check >= 0.9.4], [have_check=yes], [have_check=no])
+    AS_IF([test "x$enable_tests" = xyes && test "x$have_check" = xno], [
+      AC_MSG_ERROR([--enable-tests requires Check >= 0.9.4])
+    ])
+  ])
   AM_CONDITIONAL([CHECK], [test x$have_check = xyes])
 
   AC_SUBST(CHECK_PROGRAMS)
@@ -574,6 +583,8 @@ AM_CONDITIONAL([BUILD_MATLAB_TOOLBOX], [test "$enable_matlab" == "yes"])
 
 
 # == PYTHON MODULE ==
+have_python=no
+AS_IF([test "x$build_examples" = xyes], [
 have_python=yes
 AM_PATH_PYTHON([2.3],,[:])
 AC_ARG_VAR([PYTHON_INCLUDE], [Include flags for python, bypassing python-config])
@@ -600,6 +611,7 @@ AS_IF([test -z "$PYTHON_INCLUDE"], [
     ])
   ])
 
+])
 ])
 
 AM_CONDITIONAL([HAVE_PYTHON], [test "$have_python" == "yes"])
